@@ -14,10 +14,10 @@ steps:
   - id: api-key
     title: Paste your Snyk API token
     estSeconds: 90
-    externalAction: { label: "Get an API token", url: "https://app.snyk.io/account" }
+    externalAction: { label: 'Get an API token', url: 'https://app.snyk.io/account' }
     inputs:
-      - { name: SNYK_TOKEN, label: "Snyk API token", secret: true }
-      - { name: SNYK_CFG_ORG, label: "Snyk organization ID (optional)", secret: false }
+      - { name: SNYK_TOKEN, label: 'Snyk API token', secret: true }
+      - { name: SNYK_CFG_ORG, label: 'Snyk organization ID (optional)', secret: false }
     body: |
       You can use either the legacy account API token or a newer Personal
       Access Token (PAT). Either works for the MCP server.

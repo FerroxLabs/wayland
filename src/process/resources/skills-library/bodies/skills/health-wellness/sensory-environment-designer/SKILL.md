@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness budgeting breathing stress-management checklist planning safety"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness budgeting breathing stress-management checklist planning safety'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Sensory Environment Designer
@@ -22,15 +22,16 @@ You are a sensory environment specialist who helps individuals design spaces tha
 
 > **DISCLAIMER**: This skill provides general environmental design guidance. It is not a substitute for professional occupational therapy assessment. Individuals with significant sensory processing challenges should work with a qualified occupational therapist for personalized evaluation and recommendations.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about sensory environment designer techniques or best practices
 - User needs guidance on sensory environment designer concepts
 - User wants to implement or improve their approach to sensory environment designer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of sensory environment designer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -80,6 +81,7 @@ Sensory processing is not binary. People fall along a spectrum for each sense:
 ### Optimal Lighting Strategies
 
 #### Natural Light Optimization
+
 - Position workspace near windows but not facing direct sunlight
 - Use sheer curtains or adjustable blinds for diffused natural light
 - Supplement natural light during darker months with full-spectrum bulbs
@@ -88,6 +90,7 @@ Sensory processing is not binary. People fall along a spectrum for each sense:
 #### Artificial Lighting Solutions
 
 **For Hypersensitive Individuals:**
+
 - Replace overhead fluorescents with:
   - Desk lamps with warm LED bulbs (2700K-3000K color temperature)
   - Floor lamps that bounce light off ceilings (indirect)
@@ -97,18 +100,21 @@ Sensory processing is not binary. People fall along a spectrum for each sense:
 - Light-filtering glasses (FL-41 tint for fluorescent sensitivity)
 
 **For Hyposensitive Individuals:**
+
 - Brighter task lighting at workstation
 - Higher color temperature bulbs (4000K-5000K) for alertness
 - Ensure adequate light levels for the task (reading needs more than casual activities)
 - Use adjustable brightness controls
 
 **Budget Solutions:**
+
 - Clip-on desk lamps (under $20)
 - LED light strip kits (under $15)
 - Warm-toned bulb replacements (a few dollars each)
 - Paper or fabric lampshade over harsh bulbs
 
 #### Screen and Display Settings
+
 - Enable dark mode or reduce screen brightness
 - Use blue light filters (built into most operating systems)
 - Increase text size to reduce visual strain
@@ -120,16 +126,17 @@ Sensory processing is not binary. People fall along a spectrum for each sense:
 
 Common problematic sounds in different environments:
 
-| Environment | Typical Sound Issues |
-|-------------|---------------------|
-| Open office | Conversations, typing, phone calls, HVAC, printers |
-| Home | Appliances, traffic, neighbors, family activity, electronics hum |
-| Classroom | Other students, PA system, hallway noise, ventilation |
-| Shared living | Television, music, cooking sounds, pets |
+| Environment   | Typical Sound Issues                                             |
+| ------------- | ---------------------------------------------------------------- |
+| Open office   | Conversations, typing, phone calls, HVAC, printers               |
+| Home          | Appliances, traffic, neighbors, family activity, electronics hum |
+| Classroom     | Other students, PA system, hallway noise, ventilation            |
+| Shared living | Television, music, cooking sounds, pets                          |
 
 ### Sound Reduction Strategies
 
 #### Physical Sound Barriers
+
 - **Soft furnishings**: Rugs, curtains, upholstered furniture absorb sound
 - **Acoustic panels**: Foam or fabric panels on walls (effective and increasingly affordable)
 - **Draft stoppers**: Under doors to block hallway noise
@@ -140,12 +147,14 @@ Common problematic sounds in different environments:
 #### Personal Sound Tools
 
 **For Sound-Sensitive Individuals:**
+
 - **Noise-canceling headphones**: Over-ear active noise cancellation (ANC)
 - **Earplugs**: Foam for maximum reduction, filtered earplugs (like Loop or Vibes) for reducing volume while preserving speech clarity
 - **Bone conduction headphones**: Allow awareness of surroundings while providing audio input
 - **Custom molded earplugs**: Audiologist-fitted for maximum comfort and consistent wear
 
 **Sound Masking Options:**
+
 - White noise (equal intensity across frequencies)
 - Pink noise (emphasizes lower frequencies, often perceived as softer)
 - Brown noise (deeper, more rumbling - popular for ADHD focus)
@@ -153,6 +162,7 @@ Common problematic sounds in different environments:
 - Low-fi ambient music without lyrics
 
 #### Sound Zoning
+
 - Designate quiet zones in shared spaces
 - Use visual signals for "do not disturb" (headphones on, door sign, desk flag)
 - Negotiate "quiet hours" in shared living or work environments
@@ -163,6 +173,7 @@ Common problematic sounds in different environments:
 ### Clothing and Fabric
 
 #### Common Tactile Triggers
+
 - Tags and seams
 - Synthetic fabrics (polyester, nylon)
 - Wool or rough textures
@@ -170,6 +181,7 @@ Common problematic sounds in different environments:
 - New unwashed clothing
 
 #### Solutions
+
 - Remove all tags or choose tagless clothing
 - Choose soft, natural fabrics (cotton, bamboo, modal)
 - Wash new clothes multiple times before wearing
@@ -179,12 +191,14 @@ Common problematic sounds in different environments:
 ### Furniture and Surfaces
 
 #### Workspace Surfaces
+
 - Smooth, consistent desk surfaces
 - Keyboard wrist rests in preferred material
 - Mouse pad texture that feels comfortable
 - Chair upholstery that does not irritate
 
 #### Seating Options
+
 - **Sensory-seeking**: Wobble cushions, balance ball chairs, rocking chairs, standing desks
 - **Sensory-avoiding**: Supportive ergonomic chairs with consistent padding, weighted blankets for lap
 - **Variable needs**: Adjustable options that allow switching between sitting, standing, and movement
@@ -222,6 +236,7 @@ Common problematic sounds in different environments:
 #### Types of Sensory Breaks
 
 **Calming Breaks (for overstimulation):**
+
 - Dim, quiet space for 5-10 minutes
 - Deep pressure (weighted blanket, tight hug, compression)
 - Slow, rhythmic movement (rocking, swinging)
@@ -230,6 +245,7 @@ Common problematic sounds in different environments:
 - Closing eyes and reducing all input
 
 **Alerting Breaks (for under-stimulation):**
+
 - Bright light exposure
 - Cold water splash or drink
 - Crunchy or sour snack
@@ -238,6 +254,7 @@ Common problematic sounds in different environments:
 - Strong mint or citrus scent
 
 **Organizing Breaks (for sensory confusion):**
+
 - Heavy work: carrying books, push-ups against wall, resistance bands
 - Rhythmic repetitive movement: bouncing, spinning, clapping patterns
 - Proprioceptive input: joint compressions, tight spaces, weighted vest
@@ -256,12 +273,14 @@ Common problematic sounds in different environments:
 Every person who processes sensory input differently should have access to a retreat space:
 
 #### Minimal Setup (Any Budget)
+
 - A corner with a comfortable chair
 - Noise-canceling headphones
 - Dim lamp or ability to turn off overhead lights
 - A fidget or comfort object
 
 #### Moderate Setup
+
 - Dedicated small room or partitioned area
 - Adjustable lighting (dimmer or multiple lamp options)
 - Soft, comfortable seating (bean bag, recliner, or nest chair)
@@ -270,6 +289,7 @@ Every person who processes sensory input differently should have access to a ret
 - Blackout curtains
 
 #### Full Sensory Room
+
 - Adjustable color lighting (LED strips or smart bulbs)
 - Multiple seating options (swing, hammock, crash pad, rocker)
 - Fiber optic lights or lava lamps (visual stim without overwhelm)
@@ -322,6 +342,7 @@ Every person who processes sensory input differently should have access to a ret
 Use this checklist to evaluate any space:
 
 ### Visual
+
 - [ ] Lighting type and intensity appropriate
 - [ ] Ability to adjust lighting
 - [ ] Screen glare minimized
@@ -330,6 +351,7 @@ Use this checklist to evaluate any space:
 - [ ] Flicker-free light sources
 
 ### Auditory
+
 - [ ] Background noise level measured and acceptable
 - [ ] Sound absorption present (soft surfaces)
 - [ ] Noise-canceling tools available
@@ -337,6 +359,7 @@ Use this checklist to evaluate any space:
 - [ ] Option for quiet retreat
 
 ### Tactile
+
 - [ ] Seating is comfortable for extended use
 - [ ] Desk surface is pleasant to touch
 - [ ] Temperature is controllable
@@ -344,12 +367,14 @@ Use this checklist to evaluate any space:
 - [ ] Fidget tools accessible
 
 ### Olfactory
+
 - [ ] Strong scents eliminated or reduced
 - [ ] Ventilation adequate
 - [ ] Scent-free products used in shared spaces
 - [ ] Personal scent tools available if needed
 
 ### Spatial
+
 - [ ] Adequate personal space
 - [ ] Not in a high-traffic pathway
 - [ ] Room to move or adjust position
@@ -357,11 +382,11 @@ Use this checklist to evaluate any space:
 - [ ] Break space accessible
 
 ### Recovery
+
 - [ ] Break schedule planned
 - [ ] Sensory retreat space identified
 - [ ] Recovery tools available
 - [ ] Transition time budgeted between activities
-
 
 ## Process
 
@@ -370,7 +395,6 @@ Use this checklist to evaluate any space:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -391,14 +415,12 @@ Use this checklist to evaluate any space:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

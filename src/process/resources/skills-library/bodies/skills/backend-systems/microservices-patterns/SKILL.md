@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "microservices design-patterns frameworks"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'microservices design-patterns frameworks'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Microservices Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is designing a new distributed system and needs guidance on decomposing a monolith or greenfield service into independently deployable units
 - A user is experiencing specific operational pain points in an existing microservices system -- such as cascading failures, data consistency issues, or tight coupling between services
 - A user asks how to handle cross-cutting concerns like authentication, observability, or configuration management across multiple services
@@ -29,6 +31,7 @@ metadata:
 - A user is building or reviewing a service mesh setup and needs guidance on sidecar proxies, traffic management, or mTLS configuration
 
 **Do NOT use this skill when:**
+
 - The user needs specific Kubernetes deployment YAML, Helm chart configuration, or container orchestration mechanics -- use a Kubernetes/container orchestration skill
 - The user is asking about monolith architecture optimization and has not expressed intent to decompose services
 - The user needs guidance on message broker internals (Kafka topic partitioning strategies, RabbitMQ exchange types) -- use a dedicated messaging skill
@@ -68,30 +71,35 @@ Establish the architectural parameters that constrain pattern choices. These dir
 For each problem category identified in Step 1, walk through the specific decision tree:
 
 **For decomposition:**
+
 - Start with bounded context identification using DDD. A bounded context is a boundary within which a particular domain model is consistent and applies. Services should map 1:1 or 1:N to bounded contexts -- never N:1.
 - Apply the "two-pizza rule" heuristic (team fits in a room, can be fed with 2 pizzas) as a size check, but prefer business capability alignment over team size.
 - Use the Strangler Fig pattern for decomposition from a monolith: route new feature traffic through a new service while the monolith continues to serve existing traffic. Incrementally migrate endpoints. Never attempt a big-bang rewrite.
 - The Branch by Abstraction technique works when you cannot use a facade/proxy -- introduce an abstraction layer in the monolith, implement the new service behind the abstraction, then switch the implementation.
 
 **For communication:**
+
 - Synchronous (REST/gRPC) is appropriate when: the caller needs an immediate response, the operation is query-only or idempotent, the chain is 2 services deep or fewer.
 - Asynchronous (event-driven) is appropriate when: operations can tolerate eventual consistency, you need to decouple producer and consumer release cycles, fanout to multiple consumers is required.
 - Prefer gRPC over REST for internal service-to-service communication when: you control both client and server, you need streaming, you need strict schema enforcement with Protobuf, or you are targeting sub-10ms internal latency.
 - The Choreography pattern (each service reacts to events independently) suits long-running processes with no central coordinator needed. The Orchestration pattern (a coordinator service explicitly calls each step) suits workflows where visibility, error handling, and rollback logic are complex. Use orchestration when you need to see the full saga state in one place.
 
 **For data consistency:**
+
 - Two-phase commit (2PC) across microservices is an anti-pattern. It creates distributed locks, reduces availability, and couples services to a transaction coordinator. Reject it unless operating within a single database's XA transaction scope.
 - The Saga pattern is the correct replacement. Each service performs a local transaction and emits an event or message. Compensating transactions undo completed steps on failure. Design compensating transactions for every forward step before you implement the forward step.
 - CQRS (Command Query Responsibility Segregation) separates the write model from the read model. Apply CQRS when your read patterns are fundamentally different from your write patterns -- for example, complex join-heavy reporting queries against a write model optimized for transactional updates. Do not apply CQRS everywhere -- it adds significant complexity.
 - Event sourcing stores state as a sequence of events rather than current state snapshots. Apply event sourcing when you need a full audit trail, temporal queries, or the ability to replay events to rebuild projections. Expect to deal with schema evolution, snapshot strategies (snapshot every N events), and projection rebuilding time.
 
 **For resilience:**
+
 - Circuit breaker thresholds: open the circuit after 5 failures in a 10-second window (configurable by SLA). Use a half-open probe after 30 seconds. Libraries: Resilience4j (JVM), Polly (.NET), go-resiliency (Go), pybreaker (Python).
 - Retry with exponential backoff and jitter: base delay 100ms, multiplier 2x, jitter ±25%, max retries 3-5 for synchronous calls, up to 10 for async workers. Never retry non-idempotent operations without an idempotency key.
 - Bulkhead pattern: isolate thread pools or connection pools per downstream dependency. If Service A calls both Service B and Service C, failures in Service C should not exhaust Service A's connection pool for Service B. Implement using separate thread pools (Hystrix-style) or semaphore-based limits.
 - Timeout values: set aggressive timeouts -- 250ms for cache reads, 1000ms for database reads, 5000ms for external APIs. A missing timeout on any outbound call is a latency time bomb.
 
 **For cross-cutting concerns:**
+
 - The API Gateway pattern provides a single entry point for external clients -- handles auth, rate limiting, SSL termination, and request routing. Do not route internal service-to-service calls through the API Gateway; that creates a bottleneck and a single point of failure.
 - The Backend for Frontend (BFF) pattern creates a dedicated gateway per client type (mobile BFF, web BFF, third-party BFF). Apply BFF when client data requirements differ substantially enough that a generic API forces expensive over-fetching or multiple round trips.
 - The Sidecar pattern deploys a helper container alongside the primary service container. Use sidecars for: mTLS termination, metrics collection, log shipping, and service discovery registration. Linkerd and Istio implement this as automatically injected proxies.
@@ -139,7 +147,7 @@ Every selected pattern must be recorded in an Architecture Decision Record.
 
 ## Output Format
 
-```
+````
 ## Microservices Pattern Recommendation
 
 ### Context Summary
@@ -177,30 +185,35 @@ Every selected pattern must be recorded in an Architecture Decision Record.
 **Configuration parameters:**
 ```[language]
 // Example configuration or pseudocode
-```
+````
 
 **Failure modes to handle:**
+
 - [Failure scenario 1] → [Mitigation]
 - [Failure scenario 2] → [Mitigation]
 
 ---
 
 #### Supporting Pattern: [Pattern Name]
+
 **Problem it solves:** [1-2 sentences]
 **Integration with primary pattern:** [How they work together]
 **Implementation notes:**
+
 - [Concrete note 1]
 - [Concrete note 2]
 
 ---
 
 ### Anti-Patterns to Avoid in This Context
+
 1. **[Anti-pattern name]** -- [Why it is specifically dangerous for this user's setup]
 2. **[Anti-pattern name]** -- [Why it is specifically dangerous for this user's setup]
 
 ---
 
 ### Observability Checklist
+
 - [ ] Correlation ID propagated on all inter-service calls
 - [ ] RED metrics (Rate, Error, Duration) instrumented per service
 - [ ] Distributed traces exported to [Jaeger/Zipkin/vendor]
@@ -212,13 +225,15 @@ Every selected pattern must be recorded in an Architecture Decision Record.
 ### ADR Stub
 
 **ADR-[NNN] -- [Pattern Name] for [Use Case]**
+
 - **Status:** Proposed
 - **Date:** [YYYY-MM-DD]
 - **Context:** [What problem exists]
 - **Decision:** [What pattern is chosen]
 - **Consequences:** [Trade-offs, operational implications]
 - **Alternatives rejected:** [Pattern name] -- [Reason]
-```
+
+````
 
 ---
 
@@ -365,9 +380,10 @@ const routingRules = [
 
 // Each rule evaluated in order -- first match wins
 // Monolith remains the default until all routes are migrated
-```
+````
 
 **Failure modes to handle:**
+
 - Payment service is down → Route `/payments` back to monolith via circuit breaker. Flag in proxy: if Payment service circuit is open, fall back to monolith URL. Monitor fallback rate as a service health signal.
 - Database schema conflict during transition → Treat shared DB tables as a contract. Document which tables each service owns. Enforce via code review -- no service modifies tables owned by another service during the transition phase.
 
@@ -409,6 +425,7 @@ COMPENSATING TRANSACTIONS (mandatory):
 ```
 
 **SQS Queue Configuration:**
+
 ```
 Queues required:
 - order-events (OrderCreated, OrderConfirmed)
@@ -433,19 +450,20 @@ Message format (all events):
 ```
 
 **Idempotency implementation (Node.js consumer):**
+
 ```javascript
 async function processInventoryReserved(message) {
   const { eventId } = message;
-  
+
   // Atomic idempotency check + business action in one transaction
   await db.transaction(async (trx) => {
     // Will throw unique constraint violation if already processed
     await trx('processed_events').insert({
       event_id: eventId,
       processed_at: new Date(),
-      consumer: 'payment-service'
+      consumer: 'payment-service',
     });
-    
+
     // Business logic only executes if insert succeeded
     await chargePaymentMethod(message.payload);
   });
@@ -453,6 +471,7 @@ async function processInventoryReserved(message) {
 ```
 
 **Failure modes to handle:**
+
 - Inventory Service crashes mid-reservation → SQS visibility timeout expires (30s), message redelivered. Idempotency key prevents double-reservation. Ensure `reserveStock()` is idempotent: check if reservationId already exists before inserting.
 - Payment Service charge succeeds but publishing `PaymentCaptured` fails → Implement the Outbox Pattern: write `PaymentCaptured` event to a `payment_outbox` table in the same transaction as recording the payment. A separate poller reads the outbox and publishes to SQS, then marks the row as published. This guarantees at-least-once publishing with exactly-once database writes.
 - Saga stuck in PENDING (no terminal event received) → Implement a saga timeout job: query for orders in PENDING status older than 15 minutes, publish a synthetic `OrderTimeoutOccurred` event, trigger full compensation.
@@ -466,14 +485,15 @@ async function processInventoryReserved(message) {
 **Integration with primary pattern:** The Payment service consumer processes `InventoryReserved` messages and calls the payment gateway. Without a circuit breaker, a payment gateway outage causes all Inventory Reserved messages to time out, the SQS visibility timeout expires repeatedly, and messages eventually land in the DLQ -- requiring manual intervention.
 
 **Implementation notes (using `opossum` circuit breaker for Node.js):**
+
 ```javascript
 const CircuitBreaker = require('opossum');
 
 const paymentGatewayOptions = {
-  timeout: 5000,           // 5s timeout -- reject if gateway doesn't respond
-  errorThresholdPercentage: 50,  // Open if 50% of calls fail in rolling window
-  rollingCountTimeout: 10000,    // 10-second rolling window
-  resetTimeout: 30000      // Try half-open probe after 30 seconds
+  timeout: 5000, // 5s timeout -- reject if gateway doesn't respond
+  errorThresholdPercentage: 50, // Open if 50% of calls fail in rolling window
+  rollingCountTimeout: 10000, // 10-second rolling window
+  resetTimeout: 30000, // Try half-open probe after 30 seconds
 };
 
 const breaker = new CircuitBreaker(callPaymentGateway, paymentGatewayOptions);
@@ -503,6 +523,7 @@ breaker.on('open', () => {
 ---
 
 ### Observability Checklist
+
 - [ ] Correlation ID (`X-Correlation-ID` header) extracted from HTTP requests and injected into all SQS messages as `correlationId` field
 - [ ] All SQS message consumers log: `eventId`, `correlationId`, `eventType`, `processingDuration`, `outcome` (success/failure/skipped-duplicate)
 - [ ] RED metrics instrumented per service: order creation rate, payment success/failure rate, inventory reservation failure rate
@@ -516,6 +537,7 @@ breaker.on('open', () => {
 ### ADR Stub
 
 **ADR-001 -- Choreography-based Saga for Order Processing Consistency**
+
 - **Status:** Proposed
 - **Date:** [YYYY-MM-DD]
 - **Context:** Order processing spans three independently deployed services (Order, Inventory, Payment). Data must remain consistent when any step fails. Shared database transactions across services are not feasible after database decomposition.

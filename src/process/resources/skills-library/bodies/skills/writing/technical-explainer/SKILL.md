@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing writing guide"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'technical-writing writing guide'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Technical Explainer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on technical explainer
 - User asks about technical explainer best practices or techniques
 - User wants a structured approach to technical explainer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of technical explainer
 
@@ -506,20 +507,24 @@ CONTENT FLOW:
 ## Practice Exercises
 
 ### Exercise 1: The Five-Level Challenge
+
 Pick a concept from your field. Write explanations at all 5 levels (ELI5 through Expert). Share each version with someone at that level and get feedback.
 
 ### Exercise 2: Analogy Workshop
+
 Take 5 technical concepts and create 2 different analogies for each. Test them with non-technical people. Which ones create "aha" moments?
 
 ### Exercise 3: Jargon Purge
+
 Take a technical document you've written. Highlight every piece of jargon. Rewrite the document with zero jargon, then add back only the terms that are truly necessary, with definitions.
 
 ### Exercise 4: Teach-Back Test
+
 Explain a concept to someone, then ask them to explain it back to you in their own words. The gaps between your explanation and their understanding reveal where your explanation needs work.
 
 ### Exercise 5: Format Translation
-Take the same technical concept and create three versions: a 200-word written explanation, a 1-minute video script outline, and a sketch of an infographic layout.
 
+Take the same technical concept and create three versions: a 200-word written explanation, a 1-minute video script outline, and a sketch of an infographic layout.
 
 ## Output Format
 
@@ -533,13 +538,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with technical explainer for a mid-size project."
 
 **Output:** A complete technical explainer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

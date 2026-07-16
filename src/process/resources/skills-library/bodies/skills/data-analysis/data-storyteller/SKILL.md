@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics checklist python testing analysis investing marketing"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science statistics checklist python testing analysis investing marketing'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Storyteller
 
 You are an expert data storyteller who transforms raw analysis into compelling narratives that drive action, adapting message and medium to the audience while maintaining analytical rigor.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about data storyteller techniques or best practices
 - User needs guidance on data storyteller concepts
 - User wants to implement or improve their approach to data storyteller
 
 **Do NOT use when:**
+
 - The request falls outside the scope of data storyteller
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -77,14 +78,14 @@ Level 4 - Action:       "Implement a 90-day onboarding program for small account
 
 ### Framing Patterns
 
-| Pattern | Structure | Example |
-|---------|-----------|---------|
-| **Comparison** | "X is [better/worse] than Y by Z" | "Mobile converts 40% less than desktop" |
-| **Trend** | "X has been [rising/falling] for N periods" | "NPS has declined for 3 consecutive quarters" |
-| **Anomaly** | "X is unusual because..." | "March signups spiked 200%, driven by a viral post" |
-| **Correlation** | "When X happens, Y tends to..." | "Users who complete onboarding retain 3x better" |
-| **Segmentation** | "X varies significantly by..." | "Enterprise accounts expand 60%; SMB only 15%" |
-| **Forecast** | "If current trends continue, X will..." | "At current growth, we reach $100M ARR by Q3 2026" |
+| Pattern          | Structure                                   | Example                                             |
+| ---------------- | ------------------------------------------- | --------------------------------------------------- |
+| **Comparison**   | "X is [better/worse] than Y by Z"           | "Mobile converts 40% less than desktop"             |
+| **Trend**        | "X has been [rising/falling] for N periods" | "NPS has declined for 3 consecutive quarters"       |
+| **Anomaly**      | "X is unusual because..."                   | "March signups spiked 200%, driven by a viral post" |
+| **Correlation**  | "When X happens, Y tends to..."             | "Users who complete onboarding retain 3x better"    |
+| **Segmentation** | "X varies significantly by..."              | "Enterprise accounts expand 60%; SMB only 15%"      |
+| **Forecast**     | "If current trends continue, X will..."     | "At current growth, we reach $100M ARR by Q3 2026"  |
 
 ### Headline-First Writing
 
@@ -103,12 +104,12 @@ RIGHT: "Customer tenure is the strongest predictor of expansion
 
 ### Audience Matrix
 
-| Audience | Time | Depth | Format | Language |
-|----------|------|-------|--------|----------|
-| **Board/C-Suite** | 2-5 min | Strategic metrics only | 3-5 slides, KPI cards | Business outcomes, dollars |
-| **VP/Director** | 10-15 min | Trends + segments | 8-12 slides, dashboards | Strategy, trade-offs |
-| **Manager** | 15-30 min | Actionable detail | Detailed slides + appendix | Tactics, next steps |
-| **Analyst/IC** | 30-60 min | Full methodology | Notebook, code, documentation | Technical precision |
+| Audience          | Time      | Depth                  | Format                        | Language                   |
+| ----------------- | --------- | ---------------------- | ----------------------------- | -------------------------- |
+| **Board/C-Suite** | 2-5 min   | Strategic metrics only | 3-5 slides, KPI cards         | Business outcomes, dollars |
+| **VP/Director**   | 10-15 min | Trends + segments      | 8-12 slides, dashboards       | Strategy, trade-offs       |
+| **Manager**       | 15-30 min | Actionable detail      | Detailed slides + appendix    | Tactics, next steps        |
+| **Analyst/IC**    | 30-60 min | Full methodology       | Notebook, code, documentation | Technical precision        |
 
 ### Adapting the Same Finding
 
@@ -231,14 +232,14 @@ Level 3 (Evidence):
 
 ### Numbers That Resonate
 
-| Instead of | Say | Why |
-|------------|-----|-----|
-| "Revenue increased 12.7%" | "Revenue grew by $1.4M" | Absolute values are more tangible |
-| "p = 0.003" | "We are 99.7% confident this is real" | Translate statistics to confidence |
-| "NPS is 42" | "NPS improved from 35 to 42 in 6 months" | Context makes numbers meaningful |
-| "3.7M users" | "Nearly 4 million users" | Round for impact |
-| "Conversion is 2.3%" | "1 in 43 visitors makes a purchase" | Ratios are intuitive |
-| "CAGR of 15%" | "Revenue doubles every 5 years at this pace" | Make growth tangible |
+| Instead of                | Say                                          | Why                                |
+| ------------------------- | -------------------------------------------- | ---------------------------------- |
+| "Revenue increased 12.7%" | "Revenue grew by $1.4M"                      | Absolute values are more tangible  |
+| "p = 0.003"               | "We are 99.7% confident this is real"        | Translate statistics to confidence |
+| "NPS is 42"               | "NPS improved from 35 to 42 in 6 months"     | Context makes numbers meaningful   |
+| "3.7M users"              | "Nearly 4 million users"                     | Round for impact                   |
+| "Conversion is 2.3%"      | "1 in 43 visitors makes a purchase"          | Ratios are intuitive               |
+| "CAGR of 15%"             | "Revenue doubles every 5 years at this pace" | Make growth tangible               |
 
 ### Annotation Best Practices
 
@@ -305,14 +306,14 @@ Low confidence:    "Preliminary analysis suggests..."
 
 ## Deliverable Formats
 
-| Format | Best For | Cadence |
-|--------|----------|---------|
-| **Email summary** | Quick updates, status | Daily/Weekly |
-| **Dashboard** | Self-serve monitoring | Always-on |
-| **Slide deck** | Strategic decisions, reviews | Monthly/Quarterly |
-| **Written report** | Deep analysis, documentation | As needed |
-| **Notebook** | Technical audience, reproducibility | As needed |
-| **Video walkthrough** | Remote teams, async review | As needed |
+| Format                | Best For                            | Cadence           |
+| --------------------- | ----------------------------------- | ----------------- |
+| **Email summary**     | Quick updates, status               | Daily/Weekly      |
+| **Dashboard**         | Self-serve monitoring               | Always-on         |
+| **Slide deck**        | Strategic decisions, reviews        | Monthly/Quarterly |
+| **Written report**    | Deep analysis, documentation        | As needed         |
+| **Notebook**          | Technical audience, reproducibility | As needed         |
+| **Video walkthrough** | Remote teams, async review          | As needed         |
 
 ## Presentation Checklist
 
@@ -327,7 +328,6 @@ Low confidence:    "Preliminary analysis suggests..."
 - [ ] Sources cited on every data slide
 - [ ] Rehearsed and timed to fit the meeting slot
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -335,7 +335,6 @@ Low confidence:    "Preliminary analysis suggests..."
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -356,14 +355,12 @@ Low confidence:    "Preliminary analysis suggests..."
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

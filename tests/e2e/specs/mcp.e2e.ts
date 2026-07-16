@@ -102,8 +102,5 @@ test.describe('MCP stdio bridge', () => {
   });
 
   // ── Tool round-trip via the agent layer requires an agent CLI ─────────────
-  test.skip(
-    'tools/call round-trip via syncMcpToAgents requires a real backend agent CLI on PATH - skip in headless CI',
-    () => {}
-  );
+  test.skip('tools/call round-trip via syncMcpToAgents requires a real backend agent CLI on PATH - skip in headless CI', () => {});
 });

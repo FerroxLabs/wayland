@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "csharp optimization debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'csharp optimization debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # C# Performance Optimization
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks about reducing heap allocations in C# -- including boxing, closure captures, LINQ overhead, or excessive `new` expressions
 - Wants to use `Span<T>`, `Memory<T>`, `ReadOnlySpan<T>`, or `ArrayPool<T>` to avoid heap pressure in hot paths
 - Needs to set up BenchmarkDotNet to measure method-level throughput, memory allocations, or JIT behavior
@@ -32,6 +34,7 @@ metadata:
 - Is writing library code targeting `netstandard2.1` or `net8+` and needs to understand API availability trade-offs
 
 **Do NOT use this skill when:**
+
 - The user asks about `async`/`await`, `ValueTask`, `IAsyncEnumerable`, or `ConfigureAwait` -- use `csharp-async-patterns`
 - The user asks about C# 10--13 language features, pattern matching, records, or init-only setters in general -- use `csharp-modern-idioms`
 - The user needs load testing, k6, Gatling, or HTTP-level throughput testing -- use `performance-testing`
@@ -89,6 +92,7 @@ This is the highest-leverage optimization category in modern .NET.
 - **`Span<T>` basics:** `Span<T>` is a `ref struct` that wraps a contiguous region of memory -- stack, heap, or native. Because it is a `ref struct`, it cannot be boxed, stored on the heap, or used across `await` points. Use it for synchronous, stack-confined processing of arrays, strings (`ReadOnlySpan<char>`), or stack-allocated memory (`stackalloc`).
 
 - **`stackalloc` thresholds:** Stack space is ~1 MB on most OS thread configurations. A practical safe limit for `stackalloc` is 256--1024 bytes for value types. For anything larger, fall back to `ArrayPool<T>.Shared.Rent(size)`. Always use the pattern:
+
   ```csharp
   const int StackAllocThreshold = 256;
   byte[]? pooled = null;
@@ -116,6 +120,7 @@ This is the highest-leverage optimization category in modern .NET.
 BenchmarkDotNet is the standard C# micro-benchmarking framework. Misuse produces misleading results.
 
 - **Minimum viable benchmark setup:**
+
   ```csharp
   [MemoryDiagnoser]
   [DisassemblyDiagnoser(maxDepth: 3)]
@@ -131,13 +136,16 @@ BenchmarkDotNet is the standard C# micro-benchmarking framework. Misuse produces
       public int SpanParse() => ParseWithSpan(_input.AsSpan());
   }
   ```
+
   Run with `dotnet run -c Release --project Benchmarks`. Never run benchmarks in `Debug` configuration -- the JIT does not optimize debug builds and results are meaningless.
 
 - **`[Params]` for realistic size coverage:**
+
   ```csharp
   [Params(16, 256, 4096, 65536)]
   public int InputSize { get; set; }
   ```
+
   Always include at least one small size (fits in L1 cache, ~32 KB), one medium (fits in L2/L3, ~256 KB--8 MB), and one large size (exceeds cache, forces memory bandwidth). Performance characteristics often invert across these tiers.
 
 - **`[GlobalSetup]` for pre-warming:** Allocate test data in `[GlobalSetup]` to exclude setup cost from measurements. Never allocate inside `[Benchmark]` methods unless allocation is the thing being measured.
@@ -159,6 +167,7 @@ After allocation reduction, these techniques address CPU-level costs.
 - **`in` parameters for large structs:** Passing a struct larger than 16 bytes by value copies it. Use `in` to pass by readonly reference: `void Process(in LargeStruct s)`. Combine with `ref readonly` returns to avoid copies on return paths.
 
 - **`ref` returns and `ref` locals:** Enables zero-copy access to array elements or struct fields:
+
   ```csharp
   ref int element = ref data[index]; // no copy
   element += delta;                  // modifies in-place
@@ -179,6 +188,7 @@ After allocation reduction, these techniques address CPU-level costs.
 SIMD (Single Instruction, Multiple Data) processes multiple data elements per CPU instruction -- 4x to 32x throughput for bulk numeric or byte operations.
 
 - **Check hardware support first:**
+
   ```csharp
   if (Vector.IsHardwareAccelerated)
       ProcessVectorized(data);
@@ -187,6 +197,7 @@ SIMD (Single Instruction, Multiple Data) processes multiple data elements per CP
   ```
 
 - **`System.Numerics.Vector<T>`** is the portable SIMD API. `Vector<T>.Count` gives the number of elements per vector (16 for `Vector<byte>` on AVX2, 8 for `Vector<int>`). Use it for sum-of-squares, dot products, element-wise operations on arrays:
+
   ```csharp
   var sum = Vector<int>.Zero;
   int vectorSize = Vector<int>.Count;
@@ -200,6 +211,7 @@ SIMD (Single Instruction, Multiple Data) processes multiple data elements per CP
 - **`System.Runtime.Intrinsics`** gives direct access to AVX2, SSE4.2, ARM NEON, etc. Only use when `Vector<T>` cannot express the operation (e.g., byte shuffle, population count, horizontal min/max). Always guard with `Avx2.IsSupported` or `Sse42.IsSupported` and provide a scalar fallback.
 
 - **`SearchValues<T>` (net8+):** For searching a small fixed set of characters or bytes in a large span -- e.g., URL parsing, CSV tokenization -- `SearchValues<char>` compiles to vectorized scanning automatically. Faster than `IndexOfAny` for sets of 5+ elements.
+
   ```csharp
   private static readonly SearchValues<char> s_delimiters =
       SearchValues.Create(",;\t\r\n");
@@ -215,6 +227,7 @@ SIMD (Single Instruction, Multiple Data) processes multiple data elements per CP
 Reflection-based serialization, logging, and mapping are among the most common hidden allocation sources in .NET applications.
 
 - **System.Text.Json source generation:** Replace runtime reflection with compile-time generated serializers:
+
   ```csharp
   [JsonSerializable(typeof(OrderDto))]
   [JsonSerializable(typeof(List<OrderDto>))]
@@ -223,20 +236,25 @@ Reflection-based serialization, logging, and mapping are among the most common h
   // Usage:
   string json = JsonSerializer.Serialize(order, AppJsonContext.Default.OrderDto);
   ```
+
   This eliminates reflection, reduces startup time, and is AOT-compatible. In hot-path HTTP handlers this can reduce serialization allocations by 60--80%.
 
 - **Microsoft.Extensions.Logging compile-time log messages:** Replace `_logger.LogInformation("User {UserId} logged in", userId)` (which boxes the userId and allocates a string) with:
+
   ```csharp
   [LoggerMessage(Level = LogLevel.Information, Message = "User {UserId} logged in")]
   private static partial void LogUserLoggedIn(ILogger logger, int userId);
   ```
+
   The generated code avoids boxing and only evaluates the message string if the log level is enabled.
 
 - **Incremental source generators for custom hot paths:** Write incremental source generators (using `IIncrementalGenerator`) for repetitive patterns like: fast property mapping (instead of AutoMapper reflection), fast enum-to-string conversion (instead of `Enum.GetName`), or pre-compiled regular expressions via `[GeneratedRegex]`:
+
   ```csharp
   [GeneratedRegex(@"^\d{4}-\d{2}-\d{2}$", RegexOptions.Compiled)]
   private static partial Regex DatePattern();
   ```
+
   `[GeneratedRegex]` compiles the regex at build time, eliminating the runtime compilation cost and reducing allocations during matching.
 
 - **Avoid `Activator.CreateInstance` in hot paths.** Cache a compiled `Func<T>` delegate instead:
@@ -258,6 +276,7 @@ Optimizations rot without discipline. Build guardrails.
 - **Write regression tests for performance.** In CI, run benchmarks with `--filter *` and compare against the baseline using `--join` mode, or write a unit test using `dotnet-benchmark` assert extensions that fails if throughput drops by more than 10%.
 
 - **Document WHY the optimization exists.** Add an XML doc comment or a `// PERF:` comment block explaining: what profiling showed, what the allocation was, what the fix is, and what the measured improvement was. Example:
+
   ```csharp
   // PERF: Uses stackalloc + Span<byte> instead of byte[] to avoid heap allocation.
   // Profiling (dotMemory, 2024-01-15) showed this path allocated 4 KB/request
@@ -371,27 +390,35 @@ public int FindField(ReadOnlySpan<char> input, int startIndex)
 ## Edge Cases
 
 ### Large Object Heap Fragmentation
+
 Symptom: `loh-size` growing indefinitely in dotMemory, Gen2 GC frequency spiking, but no object leaks visible. Cause: `byte[]` or `string` allocations >= 85,000 bytes (the LOH threshold) that have long-enough lifetimes to survive at least one GC, fragmenting the LOH address space. Fix: Pool all large buffers with `ArrayPool<byte>.Shared` -- rented arrays stay in pool memory which is already on the LOH and is reused. For strings, avoid large concatenations; use `StringBuilder` with a pooled backing store. If you need LOH compaction once, call `GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce` before `GC.Collect(2, GCCollectionMode.Forced)` in a maintenance window -- do not do this on a hot path.
 
 ### `ref struct` Incompatibility with Existing APIs
+
 A method returning `Span<T>` or accepting `Span<T>` cannot implement an interface method, be used as a generic type argument in non-`ref struct` generics, or be stored in a class field. If you need to pass `Span<T>`-based processing results to a component that only accepts `IEnumerable<T>` or `T[]`: create a seam -- have the `Span<T>` processing layer call a callback/delegate with the result rather than returning it, or materialize to a pooled array with explicit lifetime control using `IMemoryOwner<T>`. Do not fight the type system by casting -- it indicates an architectural boundary issue.
 
 ### Benchmarking Multi-Core / Concurrent Paths
+
 BenchmarkDotNet defaults to single-threaded execution. If the optimized code is accessed concurrently (e.g., a shared cache, a `ConcurrentQueue<T>`, a channel reader), single-threaded benchmarks will not reveal cache-line contention or lock convoy effects. Use `[ThreadingDiagnoser]` and `[Benchmark]` with `OperationsPerInvoke` set to a batch size, and run the benchmark from multiple threads by using `Parallel.For` inside the benchmark method. Alternatively, use load testing tools (k6, wrk2) against a local server instance for concurrency-sensitive paths.
 
 ### Source Generator Conflicts and Incremental Build Issues
+
 When multiple source generators run in the same compilation, they can produce conflicting partial class members or duplicate type names. Symptoms: `CS0101 The namespace already contains a definition` or `CS0111 Member is already defined with same parameter types`. Fix: ensure each generator emits into distinct `partial` methods with unique names, use `hintName` uniqueness in `SourceProductionContext.AddSource()`, and add `#nullable enable` at the top of generated files. Incremental generators must use value equality on their `SyntaxValueProvider` to avoid full re-generation on every keystroke -- verify with the `IncrementalGeneratorInitializationContext` `RegisterSourceOutput` vs `RegisterImplementationSourceOutput` distinction.
 
 ### `.NET Framework` vs `.NET 8+` API Availability
+
 `Span<T>` and `Memory<T>` exist in `netstandard2.1` but NOT in `netstandard2.0` or `.NET Framework 4.x`. `SearchValues<T>` is net8+ only. `[GeneratedRegex]` is net7+. `[LoggerMessage]` source generation is net6+. If targeting `netstandard2.0` for library compatibility: use `Microsoft.Bcl.Memory` NuGet package for `Span<T>` and `Memory<T>` backport. Use conditional compilation (`#if NET8_0_OR_GREATER`) to enable advanced paths on modern runtimes while providing a correct (slower) fallback on older targets. Never use `#if` to silently skip correctness -- only to swap implementations.
 
 ### SIMD Producing Incorrect Results on Different Hardware
+
 `Vector<T>.Count` varies by CPU: 4 elements for `Vector<int>` on SSE2, 8 on AVX2, 16 on AVX-512. Code that hardcodes a vector width (e.g., `new Vector<int>(data, i)` when `data.Length` was sized for `Count == 8` only) will produce incorrect results on machines with different SIMD widths. Always derive loop bounds dynamically from `Vector<int>.Count`, and always write and test the scalar tail path. Run BenchmarkDotNet on at least two machines with different SIMD capability levels before shipping vectorized code to production.
 
 ### GC Interaction with `fixed` Statements and `GCHandle`
+
 When pinning managed memory with `fixed` or `GCHandle.Alloc(obj, GCHandleType.Pinned)` for P/Invoke or unsafe operations, pinned objects block GC heap compaction. If many objects are pinned simultaneously (e.g., in a tight loop with native interop), heap fragmentation increases rapidly. Fix: pin for the minimum possible duration -- enter `fixed`, do the native call, exit `fixed` immediately. For long-duration pinning (e.g., a buffer passed to an async I/O operation), prefer `NativeMemory.Alloc()` (net6+) or `MemoryPool<byte>` backed by pinned managed memory to minimize impact on the GC heap.
 
 ### Struct Defensive Copies from `readonly` Violations
+
 The most insidious struct performance bug: a struct field on a `readonly` context (a `readonly` field, an `in` parameter, a `foreach` iteration variable) that has a non-`readonly` method called on it causes the JIT to silently emit a defensive copy of the entire struct before each call. Symptoms: profiling shows unexpected memory writes in what should be a read-only path; performance scales with struct size. Diagnosis: enable Roslyn analyzer `IDE0064` or use `[DisassemblyDiagnoser]` and look for unexpected `lea`/`mov` sequences. Fix: declare the struct `readonly`, or mark methods that do not mutate state as `readonly` methods (`public readonly int ComputeHash() { ... }`).
 
 ---
@@ -406,13 +433,13 @@ The most insidious struct performance bug: a struct field on a `readonly` contex
 
 #### Profiling Evidence
 
-| Metric                | Baseline           | Target             | Tool Used          |
-|-----------------------|--------------------|--------------------|--------------------|
-| Allocation rate        | 180 MB/s           | < 5 MB/s           | dotnet-counters    |
-| Gen0 collections/sec   | 80/sec             | < 5/sec            | dotnet-counters    |
-| Allocated per request  | ~9,000 B           | < 64 B             | BenchmarkDotNet    |
-| P95 latency            | 22 ms              | < 4 ms             | dotTrace           |
-| Throughput             | 14K RPS (degraded) | 20K+ RPS           | load test          |
+| Metric                | Baseline           | Target   | Tool Used       |
+| --------------------- | ------------------ | -------- | --------------- |
+| Allocation rate       | 180 MB/s           | < 5 MB/s | dotnet-counters |
+| Gen0 collections/sec  | 80/sec             | < 5/sec  | dotnet-counters |
+| Allocated per request | ~9,000 B           | < 64 B   | BenchmarkDotNet |
+| P95 latency           | 22 ms              | < 4 ms   | dotTrace        |
+| Throughput            | 14K RPS (degraded) | 20K+ RPS | load test       |
 
 #### Bottleneck Classification
 
@@ -439,7 +466,8 @@ public static (string Timestamp, string Level, string Message) ParseLogLine(stri
 #### Why This Is Expensive
 
 Every `string.Split('|')` allocates:
-1. A `string[]` of length N (24 + N * 8 bytes on 64-bit)
+
+1. A `string[]` of length N (24 + N \* 8 bytes on 64-bit)
 2. N new `string` objects, one per segment
 3. Each `Trim()` call potentially allocates another `string` if whitespace is present
 
@@ -539,10 +567,10 @@ public class LogParserBenchmarks
 }
 ```
 
-| Method         | Mean      | Error    | StdDev   | Ratio | Gen0   | Allocated | Alloc Ratio |
-|----------------|-----------|----------|----------|-------|--------|-----------|-------------|
-| ParseWithSplit | 187.4 ns  | 1.12 ns  | 1.05 ns  | 1.00  | 0.0286 | 120 B     | 1.00        |
-| ParseWithSpan  |  31.2 ns  | 0.18 ns  | 0.17 ns  | 0.17  | --     | 0 B       | 0.00        |
+| Method         | Mean     | Error   | StdDev  | Ratio | Gen0   | Allocated | Alloc Ratio |
+| -------------- | -------- | ------- | ------- | ----- | ------ | --------- | ----------- |
+| ParseWithSplit | 187.4 ns | 1.12 ns | 1.05 ns | 1.00  | 0.0286 | 120 B     | 1.00        |
+| ParseWithSpan  | 31.2 ns  | 0.18 ns | 0.17 ns | 0.17  | --     | 0 B       | 0.00        |
 
 **Result: 6x faster, 0 bytes allocated per call vs 120 bytes.**
 

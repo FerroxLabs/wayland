@@ -12,14 +12,15 @@ description: >-
   report.
 license: Apache-2.0
 type: workflow
-skills: "finance-cashflow finance-forecast finance-report"
+skills: 'finance-cashflow finance-forecast finance-report'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-finance cashflow status deterministic cfo
   category: business-finance
-  depends: "finance-cashflow finance-forecast finance-report"
+  depends: 'finance-cashflow finance-forecast finance-report'
 ---
+
 # Cashflow Batch Review
 
 **Estimated time:** about 30 seconds

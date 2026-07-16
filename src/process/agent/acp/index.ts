@@ -157,9 +157,9 @@ export class AcpAgent {
   // Track pending navigation tool calls for URL extraction from results
   private pendingNavigationTools = new Set<string>();
 
-  // ApprovalStore for session-level "always allow" caching
+  // ApprovalStore for session-level "always allow" caching, persisted per workspace (#672)
   // Workaround for claude-agent-acp bug: it doesn't check suggestions to auto-approve
-  private approvalStore = new AcpApprovalStore();
+  private approvalStore: AcpApprovalStore;
 
   // Track user-initiated model override so we can re-assert before each prompt.
   // Prevents model drift if the CLI subprocess loses the override state.
@@ -198,6 +198,8 @@ export class AcpAgent {
       customEnv: config.customEnv,
       yoloMode: false,
     };
+
+    this.approvalStore = new AcpApprovalStore(this.extra.workspace);
 
     this.connection = new AcpConnection();
     // W4 audit CRIT-1 (2026-05-19): bind the conversation id so the ACP
@@ -272,6 +274,10 @@ export class AcpAgent {
   async start(): Promise<void> {
     const startTotal = Date.now();
     try {
+      // Rehydrate persisted "allow_always" decisions for this workspace before
+      // any permission checks can run (#672 - these survive an app restart).
+      await this.approvalStore.load();
+
       this.emitStatusMessage('connecting');
 
       const connectStart = Date.now();

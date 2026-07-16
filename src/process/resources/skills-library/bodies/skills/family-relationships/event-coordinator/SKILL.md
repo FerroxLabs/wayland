@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-communication event-planning"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-communication event-planning'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Event Coordinator
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about event coordinator
 - User needs guidance on event coordinator topics
 - User wants a structured approach to event coordinator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -46,6 +49,7 @@ metadata:
 ## Event Planning Timeline
 
 ### The Universal Event Planning Timeline
+
 ```
 EVENT PLANNING TIMELINE:
 3-6 MONTHS BEFORE (or as early as possible):
@@ -107,6 +111,7 @@ AFTER THE EVENT:
 ## Budget Management
 
 ### Event Budget Template
+
 ```
 EVENT BUDGET PLANNER:
 Event: _______________
@@ -153,6 +158,7 @@ GRAND TOTAL: $___
 ```
 
 ### Budget-Saving Strategies
+
 ```
 BUDGET OPTIMIZATION:
 VENUE:
@@ -194,6 +200,7 @@ ENTERTAINMENT:
 ## Venue Selection
 
 ### Venue Comparison Worksheet
+
 ```
 VENUE COMPARISON:
 
@@ -234,6 +241,7 @@ QUESTIONS TO ASK EVERY VENUE:
 ## Catering and Food Planning
 
 ### Food Quantity Guide
+
 ```
 FOOD QUANTITY ESTIMATION:
 
@@ -270,6 +278,7 @@ DIETARY CONSIDERATIONS:
 ```
 
 ### Menu Planning Template
+
 ```
 EVENT MENU PLAN:
 
@@ -310,6 +319,7 @@ SERVICE STYLE:
 ```
 
 ## Invitation Design and Tracking
+
 ```
 INVITATION CHECKLIST:
 
@@ -349,6 +359,7 @@ RSVP TRACKING:
 ## Event Types
 
 ### Birthday Party Planning
+
 ```
 BIRTHDAY PARTY TEMPLATE:
 
@@ -377,6 +388,7 @@ SPEECH/TOAST TEMPLATE:
 ```
 
 ### Graduation Party
+
 ```
 GRADUATION PARTY:
 
@@ -388,6 +400,7 @@ GRADUATION PARTY:
 ```
 
 ### Holiday Party
+
 ```
 HOLIDAY PARTY:
 
@@ -400,6 +413,7 @@ HOLIDAY PARTY:
 ```
 
 ## Day-Of Event Checklist
+
 ```
 DAY-OF MASTER CHECKLIST:
 MORNING / SETUP:
@@ -454,6 +468,7 @@ EMERGENCY KIT (bring this):
 ```
 
 ## Post-Event Follow-Up
+
 ```
 POST-EVENT:
 
@@ -484,6 +499,7 @@ EVENT DEBRIEF:
 ## Output Format
 
 When planning an event:
+
 ```
 EVENT PLAN: [Event Name]
 

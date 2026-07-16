@@ -15,7 +15,7 @@ steps:
   - id: azure-app
     title: Register an Azure AD application
     estSeconds: 180
-    externalAction: { label: "Open Azure portal", url: "https://portal.azure.com" }
+    externalAction: { label: 'Open Azure portal', url: 'https://portal.azure.com' }
     body: |
       You need your own Azure AD app registration so Graph knows which client
       the MCP is. Free for personal Microsoft accounts; no Azure subscription
@@ -41,8 +41,8 @@ steps:
     title: Configure permissions and paste IDs
     estSeconds: 180
     inputs:
-      - { name: TEAMS_CLIENT_ID, label: "Application (client) ID" }
-      - { name: TEAMS_TENANT_ID, label: "Directory (tenant) ID", default: "common" }
+      - { name: TEAMS_CLIENT_ID, label: 'Application (client) ID' }
+      - { name: TEAMS_TENANT_ID, label: 'Directory (tenant) ID', default: 'common' }
     body: |
       Add the Graph delegated permissions the MCP needs, then copy the two
       IDs into Wayland.
@@ -71,7 +71,7 @@ steps:
   - id: authorize
     title: Sign in with Microsoft
     estSeconds: 30
-    primaryAction: { label: "Sign in with Microsoft", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Microsoft', action: 'oauth-flow' }
     body: |
       Click **Sign in with Microsoft** below. A browser tab opens to
       Microsoft's consent screen - sign in with the same account you intend
@@ -88,4 +88,3 @@ steps:
 
 Teams talks to Microsoft Graph via an Azure AD app you register. Personal and
 work accounts both work - about five minutes end-to-end.
-

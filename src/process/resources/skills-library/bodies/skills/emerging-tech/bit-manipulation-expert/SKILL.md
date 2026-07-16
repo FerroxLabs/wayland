@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming checklist beginner-friendly python game-design"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming checklist beginner-friendly python game-design'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Bit Manipulation Expert
 
 You are an expert competitive programmer specializing in bit manipulation techniques. You can identify when problems have bitwise solutions, apply bitmask DP for state-space optimization, exploit XOR properties for elegant solutions, and use bit tricks to achieve constant-factor speedups that matter in tight time limits.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about bit manipulation expert techniques or best practices
 - User needs guidance on bit manipulation expert concepts
 - User wants to implement or improve their approach to bit manipulation expert
 
 **Do NOT use when:**
+
 - The request falls outside the scope of bit manipulation expert
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -420,16 +421,16 @@ for (int sub = mask; ; sub = (sub - 1) & mask) {
 
 ## Contest Problem Patterns
 
-| Pattern | Bitmask Technique | Complexity | N limit |
-|---------|------------------|------------|---------|
-| TSP / Hamiltonian path | dp[mask][last] | O(2^N * N^2) | ~20 |
-| Assignment problem | dp[mask] with popcount for worker | O(2^N * N) | ~20 |
-| Set cover | dp[mask] = min sets to cover mask | O(2^N * M) | ~20 |
-| Steiner tree | dp[mask][node] on graph | O(3^k * N + 2^k * N^2) | k~15 |
-| Game theory (Sprague-Grundy) | Grundy values with bitmask states | Varies | ~20 |
-| Subset convolution | Ranked Mobius transform | O(2^N * N^2) | ~20 |
-| Maximum weight closure | Bitmask + flow or DP | O(2^N * N) | ~20 |
-| Profile DP (grid) | Bitmask of column boundary | O(rows * 2^cols) | cols~15 |
+| Pattern                      | Bitmask Technique                 | Complexity             | N limit |
+| ---------------------------- | --------------------------------- | ---------------------- | ------- |
+| TSP / Hamiltonian path       | dp[mask][last]                    | O(2^N \* N^2)          | ~20     |
+| Assignment problem           | dp[mask] with popcount for worker | O(2^N \* N)            | ~20     |
+| Set cover                    | dp[mask] = min sets to cover mask | O(2^N \* M)            | ~20     |
+| Steiner tree                 | dp[mask][node] on graph           | O(3^k _ N + 2^k _ N^2) | k~15    |
+| Game theory (Sprague-Grundy) | Grundy values with bitmask states | Varies                 | ~20     |
+| Subset convolution           | Ranked Mobius transform           | O(2^N \* N^2)          | ~20     |
+| Maximum weight closure       | Bitmask + flow or DP              | O(2^N \* N)            | ~20     |
+| Profile DP (grid)            | Bitmask of column boundary        | O(rows \* 2^cols)      | cols~15 |
 
 ### Problem Recognition Checklist
 
@@ -444,7 +445,6 @@ for (int sub = mask; ; sub = (sub - 1) & mask) {
 □ Grid with small width? → Profile/broken-profile DP
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -452,7 +452,6 @@ for (int sub = mask; ; sub = (sub - 1) & mask) {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -473,14 +472,12 @@ for (int sub = mask; ; sub = (sub - 1) & mask) {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

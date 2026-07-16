@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting guide step-by-step"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'parenting guide step-by-step'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Developmental Milestones
 
 Developmental milestones are observable behaviors and abilities that reflect the maturation of underlying neurological, musculoskeletal, and cognitive systems. They are organized into developmental streams -- cognitive, language (receptive and expressive), gross motor, fine motor, and social-emotional -- each with its own developmental trajectory. Milestones are population-level statistics derived from normative samples (such as the CDC/AAP milestone revisions published in 2022, the Bayley Scales of Infant and Toddler Development, and the Denver Developmental Screening Test II data). A milestone listed at "12 months" means that 50% of children in normative samples achieved it by that age; the typical range extends further. Understanding the difference between a median achievement age and an upper limit of typical variation is essential to using this skill correctly.
@@ -22,6 +23,7 @@ Developmental milestones are observable behaviors and abilities that reflect the
 ## When to Use
 
 **Use this skill when:**
+
 - A parent, caregiver, grandparent, or educator asks what developmental milestones are expected at a specific age -- for example, "What should my 9-month-old be doing?" or "What language should a 3-year-old have?"
 - A user wants to understand typical developmental progression across one or more domains -- for example, "How does fine motor development progress from infancy to age 5?"
 - A user is preparing for a well-child visit (also called a well-baby or well-child check) and wants to know what their pediatrician is likely to assess
@@ -32,6 +34,7 @@ Developmental milestones are observable behaviors and abilities that reflect the
 - A user asks about red flags -- observable behaviors that pediatricians typically use to prompt further developmental screening
 
 **Do NOT use when:**
+
 - A user asks whether their specific child has a developmental delay, disorder, or diagnosis -- refer to a pediatric evaluation, do not extrapolate from milestones (use this skill only for general education, not individual assessment)
 - A user asks about diagnosing or ruling out autism spectrum disorder, ADHD, sensory processing disorder, intellectual disability, or any other neurodevelopmental condition -- these require formal clinical evaluation by a developmental pediatrician, neuropsychologist, or licensed diagnostician
 - A user is asking for therapeutic exercises, intervention techniques, or treatment plans for a child who has already been identified with a developmental delay -- refer to early intervention (Part C of IDEA for children under 3) or school-based services (Part B for children 3-21), and occupational, physical, or speech therapy as appropriate
@@ -282,27 +285,35 @@ development, attachment consolidation. This gives parents understanding of the "
 ## Edge Cases
 
 ### Premature Birth
+
 Calculate adjusted age: chronological age in weeks minus weeks of prematurity. A child born at 30 weeks gestation (10 weeks early) who is now 8 months old has an adjusted age of approximately 5.5 months. Use adjusted age for milestone comparison. For most gross motor milestones, adjustment is appropriate through approximately 24 months; for language milestones, adjustment is typically maintained through 24-36 months. After that range, the child is assessed against chronological age norms. If a parent is uncertain whether to use adjusted or chronological age, note that their pediatrician tracks this directly and should be their primary reference for this specific question.
 
 ### Bilingual or Multilingual Children
+
 Assess total expressive vocabulary across all languages. A child hearing and speaking two languages may show a somewhat smaller vocabulary in each individual language compared to monolingual peers but typically reaches equivalent total vocabulary milestones when both languages are counted. Bilingual children may mix languages within a sentence (code-switching), which is developmentally normal and not a language disorder. Language milestones in bilingual children should be interpreted with this context explicit. If a parent expresses concern about language in a bilingual household, acknowledge that standard monolingual norms do not apply directly and that a speech-language pathologist familiar with bilingual development is the appropriate resource for concerns.
 
 ### Parent Expressing Significant Anxiety or Distress
+
 Acknowledge the emotional content before providing information: "It is completely understandable to have questions about your child's development -- noticing and paying attention is part of good parenting." Then provide factual information with emphasis on the width of typical ranges. Do not provide false reassurance ("I'm sure everything is fine"), but do provide accurate context about how wide normal variation is. Close by reinforcing that their pediatrician is the right person to evaluate specific concerns and that raising the question at a well-child visit is entirely appropriate. If the user's language suggests high anxiety or distress beyond typical parental concern, gently suggest that discussing their worries with the pediatrician -- not just about the child, but about their own experience -- may be helpful.
 
 ### Child With a Known Diagnosis
+
 If a parent mentions their child has a diagnosis (e.g., Down syndrome, cerebral palsy, autism spectrum disorder, fragile X syndrome, hearing loss), provide general developmental milestone information only as background context, not as expectations for that specific child. State clearly that children with specific diagnoses typically follow developmental trajectories that differ from population norms, and that their specialist team and any therapy providers (OT, PT, SLP, ABA therapy) are the right sources for individualized developmental expectations. Down syndrome, for example, has its own developmental milestone research with condition-specific norms; similarly, children with cerebral palsy are assessed using tools like the Gross Motor Function Classification System (GMFCS) rather than general population norms.
 
 ### Regression or Loss of Skills
+
 Any report of skill regression -- a child who previously said words and has stopped, who walked and now refuses, who was toilet trained and has started wetting again -- must be handled carefully. Regression can be a response to stress (a new sibling, a move, a family disruption) and may resolve, but it can also be a sign of a medical or neurological issue. Do not provide blanket reassurance. State that regression should be reported to the pediatrician and is worth prompt evaluation if it involves skills like language or social interaction, which can sometimes be early indicators of neurological change. Toilet training regression after a stressor is generally less concerning than language regression, but all regression deserves professional attention.
 
 ### "Is This Autism?" Questions
+
 A parent may describe a behavior and ask directly whether it could indicate autism. Do not attempt to interpret behaviors as indicative or non-indicative of autism. Autism is a clinical diagnosis that requires comprehensive evaluation by a trained diagnostician. The M-CHAT-R/F is a validated early screening tool that pediatricians use, but its results must be followed with a structured follow-up interview and, if indicated, comprehensive evaluation. State clearly that this question is outside the scope of a milestone reference guide, that autism screening is routinely part of well-child visits at 18 and 24 months, and that if a parent has specific concerns, contacting their pediatrician directly (not waiting for the next scheduled visit) is the right action. Do not provide a list of autism signs and ask the parent to compare their child -- this is not within scope.
 
 ### Very Wide Range Spanning Multiple Milestones (Adolescence)
+
 Adolescent development (12-18 years) involves dramatically more individual variation than infant and toddler development. Physical puberty onset ranges from age 8-13 in girls and 9-14 in boys. Cognitive milestones like abstract reasoning and impulse control involve prefrontal cortex development that continues into the mid-20s. Social-emotional development in adolescence is heavily influenced by peer context, cultural background, and individual temperament in ways that make normative milestone tables less useful. For adolescent questions, shift from milestone tables toward discussing developmental domains (formal operations thinking, identity formation, peer relationship development, risk-taking as normative behavior in the context of incomplete prefrontal cortex development) and frame information accordingly.
 
 ### User Comparing Child to a Sibling or Other Specific Child
+
 Normalize variation between children explicitly. Sibling-to-sibling variation is expected and common -- parents who have one child who walked at 10 months may be concerned if their second child hasn't walked by 13 months, when both are well within typical range. Provide the range data clearly and acknowledge that comparing to a specific other child (sibling, cousin, neighbor's child) is a natural parenting instinct but not a developmentally meaningful comparison. Every child has their own developmental timeline.
 
 ## Example
@@ -314,6 +325,7 @@ Normalize variation between children explicitly. Sibling-to-sibling variation is
 ## Developmental Milestones: 15-18 Months
 
 ### Important Note
+
 These milestones reflect typical developmental ranges based on population-level data. Individual variation within these ranges is expected and does not indicate a problem. Children develop at their own pace, and comparing your child to a specific other child -- even one the same age -- can be misleading because normal variation is wide. This information is educational, not diagnostic. For personalized evaluation, speak with your child's pediatrician. A well-child visit is typically scheduled at 18 months and includes standardized developmental screening.
 
 One note about language specifically: At 18 months, there is exceptionally wide variation in expressive vocabulary -- children considered typically developing can have anywhere from about 5 to over 100 words. Strong comprehension alongside limited expressive words looks different from limited words AND limited comprehension. Both pieces of information matter.
@@ -324,14 +336,14 @@ One note about language specifically: At 18 months, there is exceptionally wide 
 
 **What this domain includes:** Problem-solving, memory, cause-and-effect understanding, object permanence, early symbolic thinking, and attention.
 
-| Milestone | Typical Range | 90th Percentile Upper Limit | Supporting Activity |
-|-----------|---------------|----------------------------|---------------------|
-| Points to get what they want (proto-imperative pointing) | 11-15 months | 16 months | Point at objects together and name them throughout daily routines |
-| Points to show you something interesting (proto-declarative pointing) | 13-16 months | 18 months | Follow her point and respond with enthusiasm and naming |
-| Finds hidden objects after watching them be hidden | 12-18 months | 20 months | Hide a toy under a cloth while she watches, then let her find it |
-| Engages in simple pretend play -- feeding a doll, pretending to drink from a cup | 14-18 months | 21 months | Offer a toy spoon and doll during play without directing the activity |
-| Begins to understand that actions have consequences (pushes button, music plays) | 9-14 months | 16 months | Simple cause-and-effect toys like pop-up boxes or light-up buttons |
-| Matches objects -- puts the toy car in the toy car spot | 16-20 months | 22 months | Simple two-category sorting with objects she knows well |
+| Milestone                                                                        | Typical Range | 90th Percentile Upper Limit | Supporting Activity                                                   |
+| -------------------------------------------------------------------------------- | ------------- | --------------------------- | --------------------------------------------------------------------- |
+| Points to get what they want (proto-imperative pointing)                         | 11-15 months  | 16 months                   | Point at objects together and name them throughout daily routines     |
+| Points to show you something interesting (proto-declarative pointing)            | 13-16 months  | 18 months                   | Follow her point and respond with enthusiasm and naming               |
+| Finds hidden objects after watching them be hidden                               | 12-18 months  | 20 months                   | Hide a toy under a cloth while she watches, then let her find it      |
+| Engages in simple pretend play -- feeding a doll, pretending to drink from a cup | 14-18 months  | 21 months                   | Offer a toy spoon and doll during play without directing the activity |
+| Begins to understand that actions have consequences (pushes button, music plays) | 9-14 months   | 16 months                   | Simple cause-and-effect toys like pop-up boxes or light-up buttons    |
+| Matches objects -- puts the toy car in the toy car spot                          | 16-20 months  | 22 months                   | Simple two-category sorting with objects she knows well               |
 
 **Emerging at this stage:** Early pretend play sequences (stringing two symbolic actions together, like feeding a doll then putting it to sleep) are just beginning to appear and are not yet consistent.
 
@@ -341,24 +353,24 @@ One note about language specifically: At 18 months, there is exceptionally wide 
 
 **Receptive Language (Understanding)**
 
-| Milestone | Typical Range | 90th Percentile Upper Limit | Supporting Activity |
-|-----------|---------------|----------------------------|---------------------|
-| Follows one-step instructions without gesture ("Get your shoes") | 12-16 months | 18 months | Give simple instructions as part of daily routines without pointing |
-| Points to familiar body parts when named (nose, eyes, tummy) | 14-18 months | 20 months | Name body parts during dressing, bath time, and play |
-| Understands 50+ words | 14-18 months | 20 months | Read simple books and narrate daily activities |
-| Understands simple "no" and responds | 10-14 months | 16 months | Consistent, calm use of "no" in relevant situations |
-| Identifies familiar objects when named, even without gesture | 12-16 months | 18 months | Ask "where's the ball?" without pointing to see if she looks for it |
+| Milestone                                                        | Typical Range | 90th Percentile Upper Limit | Supporting Activity                                                 |
+| ---------------------------------------------------------------- | ------------- | --------------------------- | ------------------------------------------------------------------- |
+| Follows one-step instructions without gesture ("Get your shoes") | 12-16 months  | 18 months                   | Give simple instructions as part of daily routines without pointing |
+| Points to familiar body parts when named (nose, eyes, tummy)     | 14-18 months  | 20 months                   | Name body parts during dressing, bath time, and play                |
+| Understands 50+ words                                            | 14-18 months  | 20 months                   | Read simple books and narrate daily activities                      |
+| Understands simple "no" and responds                             | 10-14 months  | 16 months                   | Consistent, calm use of "no" in relevant situations                 |
+| Identifies familiar objects when named, even without gesture     | 12-16 months  | 18 months                   | Ask "where's the ball?" without pointing to see if she looks for it |
 
 **Expressive Language (Speaking/Communicating)**
 
-| Milestone | Typical Range | 90th Percentile Upper Limit | Supporting Activity |
-|-----------|---------------|----------------------------|---------------------|
-| Uses at least 5-10 words consistently | 12-18 months | 18 months (for at least 5 words) | Narrate activities and wait -- pause after naming things to let her try |
-| Vocabulary of approximately 15-20 words | 16-18 months | 20 months | Read the same simple books repeatedly -- repetition builds word production |
-| Imitates words or sounds she hears | 12-16 months | 18 months | Repeat words clearly and warmly when she attempts to imitate |
-| Uses exclamations ("uh oh," "oh no") | 14-18 months | 20 months | Model these natural exclamations during play and daily events |
-| Uses jargon (babble that sounds like sentences with rising/falling intonation) | 12-18 months | 20 months | Respond to jargon as if it were real communication -- this reinforces the urge to communicate |
-| May use gestures to supplement words (waving, head-shaking for no) | 11-15 months | 17 months | Model gestures consistently while speaking |
+| Milestone                                                                      | Typical Range | 90th Percentile Upper Limit      | Supporting Activity                                                                           |
+| ------------------------------------------------------------------------------ | ------------- | -------------------------------- | --------------------------------------------------------------------------------------------- |
+| Uses at least 5-10 words consistently                                          | 12-18 months  | 18 months (for at least 5 words) | Narrate activities and wait -- pause after naming things to let her try                       |
+| Vocabulary of approximately 15-20 words                                        | 16-18 months  | 20 months                        | Read the same simple books repeatedly -- repetition builds word production                    |
+| Imitates words or sounds she hears                                             | 12-16 months  | 18 months                        | Repeat words clearly and warmly when she attempts to imitate                                  |
+| Uses exclamations ("uh oh," "oh no")                                           | 14-18 months  | 20 months                        | Model these natural exclamations during play and daily events                                 |
+| Uses jargon (babble that sounds like sentences with rising/falling intonation) | 12-18 months  | 20 months                        | Respond to jargon as if it were real communication -- this reinforces the urge to communicate |
+| May use gestures to supplement words (waving, head-shaking for no)             | 11-15 months  | 17 months                        | Model gestures consistently while speaking                                                    |
 
 **Vocabulary benchmark:** At 18 months, most children have an expressive vocabulary of approximately 10-20 words, with the 2022 CDC guidance marking 6 or more words as the milestone threshold. Important context: a "word" includes any consistent sound your daughter uses to mean a specific thing -- "ba" for ball, "muh" for more, "da" for dog all count. Parents often undercount because they only count words that sound like adult words. Count approximations. The total should be across all languages if your household uses more than one.
 
@@ -368,25 +380,25 @@ One note about language specifically: At 18 months, there is exceptionally wide 
 
 **Gross Motor (Large body movements, balance, coordination)**
 
-| Milestone | Typical Range | 90th Percentile Upper Limit | Supporting Activity |
-|-----------|---------------|----------------------------|---------------------|
-| Walks independently | 9-15 months | 18 months | Safe walking surfaces with room to move; holding hands for confidence, not necessity |
-| Stands from sitting without using hands | 13-16 months | 18 months | Allow time on the floor so she can practice rising independently |
-| Walks backward a few steps | 14-18 months | 22 months | Playfully model walking backward and invite imitation |
-| Carries an object while walking | 13-17 months | 20 months | Offer light objects to hold during walking |
-| Walks up stairs with both hands held | 14-18 months | 20 months | Practice on low steps with full support |
-| Throws a ball overhand (with limited accuracy) | 14-18 months | 21 months | Provide a soft ball and a short throwing target -- baskets, boxes |
+| Milestone                                      | Typical Range | 90th Percentile Upper Limit | Supporting Activity                                                                  |
+| ---------------------------------------------- | ------------- | --------------------------- | ------------------------------------------------------------------------------------ |
+| Walks independently                            | 9-15 months   | 18 months                   | Safe walking surfaces with room to move; holding hands for confidence, not necessity |
+| Stands from sitting without using hands        | 13-16 months  | 18 months                   | Allow time on the floor so she can practice rising independently                     |
+| Walks backward a few steps                     | 14-18 months  | 22 months                   | Playfully model walking backward and invite imitation                                |
+| Carries an object while walking                | 13-17 months  | 20 months                   | Offer light objects to hold during walking                                           |
+| Walks up stairs with both hands held           | 14-18 months  | 20 months                   | Practice on low steps with full support                                              |
+| Throws a ball overhand (with limited accuracy) | 14-18 months  | 21 months                   | Provide a soft ball and a short throwing target -- baskets, boxes                    |
 
 **Fine Motor (Hand and finger control, eye-hand coordination)**
 
-| Milestone | Typical Range | 90th Percentile Upper Limit | Supporting Activity |
-|-----------|---------------|----------------------------|---------------------|
-| Uses a mature pincer grasp (index finger and thumb tip, not just pad) | 10-14 months | 16 months | Small foods like peas or blueberry pieces at mealtimes provide natural practice |
-| Self-feeds with a spoon, with significant spilling | 14-18 months | 22 months | Offer a soft-grip toddler spoon with thick-handled grip |
-| Stacks 2-4 blocks | 14-18 months | 20 months | Wooden blocks of uniform size, demonstrate stacking and let her try |
-| Turns board book pages, often multiple at once | 14-18 months | 20 months | Board books during shared reading; let her turn pages at her own speed |
-| Scribbles spontaneously with a crayon held in a fist grip | 14-18 months | 22 months | Large, washable crayons and oversized paper; tape the paper to the table |
-| Puts small objects into a container | 12-16 months | 18 months | Container drop games with blocks or large safe objects |
+| Milestone                                                             | Typical Range | 90th Percentile Upper Limit | Supporting Activity                                                             |
+| --------------------------------------------------------------------- | ------------- | --------------------------- | ------------------------------------------------------------------------------- |
+| Uses a mature pincer grasp (index finger and thumb tip, not just pad) | 10-14 months  | 16 months                   | Small foods like peas or blueberry pieces at mealtimes provide natural practice |
+| Self-feeds with a spoon, with significant spilling                    | 14-18 months  | 22 months                   | Offer a soft-grip toddler spoon with thick-handled grip                         |
+| Stacks 2-4 blocks                                                     | 14-18 months  | 20 months                   | Wooden blocks of uniform size, demonstrate stacking and let her try             |
+| Turns board book pages, often multiple at once                        | 14-18 months  | 20 months                   | Board books during shared reading; let her turn pages at her own speed          |
+| Scribbles spontaneously with a crayon held in a fist grip             | 14-18 months  | 22 months                   | Large, washable crayons and oversized paper; tape the paper to the table        |
+| Puts small objects into a container                                   | 12-16 months  | 18 months                   | Container drop games with blocks or large safe objects                          |
 
 ---
 
@@ -394,15 +406,15 @@ One note about language specifically: At 18 months, there is exceptionally wide 
 
 **What this domain includes:** Attachment, emotion recognition and expression, self-regulation, empathy, and early peer interaction.
 
-| Milestone | Typical Range | 90th Percentile Upper Limit | Supporting Activity |
-|-----------|---------------|----------------------------|---------------------|
-| Shows strong preference for familiar caregivers; distress at separation | 8-14 months | 18 months | Consistent, warm goodbyes without sneaking away -- predictability reduces distress |
-| Demonstrates affection -- hugs, kisses familiar people | 14-18 months | 22 months | Model affection and warmth; never force physical affection |
-| Plays alongside other children without direct interaction (parallel play -- this is developmentally appropriate) | 16-22 months | 24 months | Playdates with low-key, same-age peers; no need to force "sharing" play yet |
-| Begins imitating adult behaviors (sweeping, talking on phone) | 14-18 months | 22 months | Simple household tool toys or allowing participation in real tasks like wiping a surface |
-| Expresses a wide range of emotions -- joy, anger, frustration, fear | 12-18 months | 20 months | Name her emotions as you observe them: "You feel frustrated. This is hard." |
-| Tantrums beginning to increase in frequency | 15-24 months | Ongoing through age 4 (peaks 18-36 months) | Anticipate triggers (hunger, tiredness), offer limited choices, stay calm and close |
-| Uses a comfort object (blanket, stuffed animal) -- developmentally normal | 12-24 months | Not a flag | Respect the attachment to the comfort object -- it serves a self-regulation function |
+| Milestone                                                                                                        | Typical Range | 90th Percentile Upper Limit                | Supporting Activity                                                                      |
+| ---------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Shows strong preference for familiar caregivers; distress at separation                                          | 8-14 months   | 18 months                                  | Consistent, warm goodbyes without sneaking away -- predictability reduces distress       |
+| Demonstrates affection -- hugs, kisses familiar people                                                           | 14-18 months  | 22 months                                  | Model affection and warmth; never force physical affection                               |
+| Plays alongside other children without direct interaction (parallel play -- this is developmentally appropriate) | 16-22 months  | 24 months                                  | Playdates with low-key, same-age peers; no need to force "sharing" play yet              |
+| Begins imitating adult behaviors (sweeping, talking on phone)                                                    | 14-18 months  | 22 months                                  | Simple household tool toys or allowing participation in real tasks like wiping a surface |
+| Expresses a wide range of emotions -- joy, anger, frustration, fear                                              | 12-18 months  | 20 months                                  | Name her emotions as you observe them: "You feel frustrated. This is hard."              |
+| Tantrums beginning to increase in frequency                                                                      | 15-24 months  | Ongoing through age 4 (peaks 18-36 months) | Anticipate triggers (hunger, tiredness), offer limited choices, stay calm and close      |
+| Uses a comfort object (blanket, stuffed animal) -- developmentally normal                                        | 12-24 months  | Not a flag                                 | Respect the attachment to the comfort object -- it serves a self-regulation function     |
 
 **Play stage at this age:** At 18 months, your daughter is in the **parallel play** stage -- she may play near other children and observe them, but she is not yet engaging in true back-and-forth play with peers. This is developmentally normal and expected. True cooperative play with shared rules and goals typically doesn't emerge until age 4-5.
 
@@ -410,13 +422,13 @@ One note about language specifically: At 18 months, there is exceptionally wide 
 
 ### Adaptive/Self-Care Skills
 
-| Skill | Typical Range | Notes |
-|-------|---------------|-------|
-| Drinks from an open cup with some spilling | 12-18 months | Weighted toddler cups help; spilling is expected and normal |
-| Uses a spoon to self-feed (with significant mess) | 14-20 months | Let her practice even when it's messy -- this is how the skill develops |
-| Removes shoes and socks | 14-20 months | Often happens before putting them on, which comes later |
-| Cooperates with dressing (extends arm for sleeve) | 14-18 months | Name the step while doing it: "Arm through the sleeve" |
-| Shows awareness of soiling/wetting (may not until closer to 24 months) | 16-24 months | No need to begin toilet training at 18 months -- readiness typically emerges 18-36 months |
+| Skill                                                                  | Typical Range | Notes                                                                                     |
+| ---------------------------------------------------------------------- | ------------- | ----------------------------------------------------------------------------------------- |
+| Drinks from an open cup with some spilling                             | 12-18 months  | Weighted toddler cups help; spilling is expected and normal                               |
+| Uses a spoon to self-feed (with significant mess)                      | 14-20 months  | Let her practice even when it's messy -- this is how the skill develops                   |
+| Removes shoes and socks                                                | 14-20 months  | Often happens before putting them on, which comes later                                   |
+| Cooperates with dressing (extends arm for sleeve)                      | 14-18 months  | Name the step while doing it: "Arm through the sleeve"                                    |
+| Shows awareness of soiling/wetting (may not until closer to 24 months) | 16-24 months  | No need to begin toilet training at 18 months -- readiness typically emerges 18-36 months |
 
 ---
 
@@ -446,16 +458,17 @@ These are observable indicators that typically prompt pediatricians to conduct a
 
 ### Quick Reference Summary
 
-| Domain | Key Milestones at 18 Months | Upper Limit Threshold |
-|--------|----------------------------|----------------------|
-| Cognitive | Points to show interest; early pretend play; finds hidden objects | 18-20 months for pointing; 21 months for pretend play |
-| Receptive Language | Understands 50+ words; follows one-step instruction without gesture | 18-20 months |
-| Expressive Language | 5-6+ consistent words (including approximations) | 18 months for minimum word count |
-| Gross Motor | Walks independently; carries objects while walking | 18 months for independent walking |
-| Fine Motor | Pincer grasp; stacks 2-4 blocks; self-feeds with spoon | 16-22 months depending on skill |
-| Social-Emotional | Points; parallel play; shows affection; imitates adults | 18-22 months |
+| Domain              | Key Milestones at 18 Months                                         | Upper Limit Threshold                                 |
+| ------------------- | ------------------------------------------------------------------- | ----------------------------------------------------- |
+| Cognitive           | Points to show interest; early pretend play; finds hidden objects   | 18-20 months for pointing; 21 months for pretend play |
+| Receptive Language  | Understands 50+ words; follows one-step instruction without gesture | 18-20 months                                          |
+| Expressive Language | 5-6+ consistent words (including approximations)                    | 18 months for minimum word count                      |
+| Gross Motor         | Walks independently; carries objects while walking                  | 18 months for independent walking                     |
+| Fine Motor          | Pincer grasp; stacks 2-4 blocks; self-feeds with spoon              | 16-22 months depending on skill                       |
+| Social-Emotional    | Points; parallel play; shows affection; imitates adults             | 18-22 months                                          |
 
 ---
 
 ### Developmental Context
+
 At 18 months, the brain is in an intensive period of synaptic pruning and myelination -- the brain is actively strengthening the neural pathways that are used most and eliminating those used least. This is why rich, responsive caregiving and varied sensory experience matter so much right now. The serve-and-return interaction -- where your daughter reaches, points, or vocalizes and you respond with warmth and language -- is the most powerful driver of neural development at this stage. You are already doing this every time you follow her gaze, respond to her pointing, and talk with her through daily routines.

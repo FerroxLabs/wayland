@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills research guide"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills research guide'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Research Advisor
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User needs to conduct research on a topic and wants a structured approach
 - User wants help finding, evaluating, or synthesizing sources
 - User needs to develop a research question or thesis statement
 - User is writing a research paper and needs methodological guidance
 
 **Do NOT use this skill when:**
+
 - User wants a complete paper written -- this skill guides research process, not ghostwriting
 - User needs data analysis help -- use data analysis skills
 - User wants a simple factual answer -- no research methodology needed
@@ -193,18 +195,18 @@ TOTAL SCORE: ___ / 25
 
 ### Source Hierarchy
 
-| Source Type | Reliability | When to Use |
-|------------|------------|-------------|
-| Peer-reviewed journal articles | Highest | Primary sources for academic research |
-| Government reports and data | Very high | Statistics, policy, demographic data |
-| Academic books (university press) | High | Foundational concepts, in-depth analysis |
-| Conference proceedings | High | Cutting-edge research, recent findings |
-| Reputable news sources | Moderate | Current events, public opinion context |
-| Professional/industry reports | Moderate | Applied/practical data |
-| Dissertations and theses | Moderate | Detailed methodology examples, niche topics |
-| Wikipedia | Low (for citation) | Starting point only; follow its references |
-| Blogs, social media | Low | Public discourse analysis only |
-| Predatory journals | Very low | AVOID -- Google "Beall's List" to identify |
+| Source Type                       | Reliability        | When to Use                                 |
+| --------------------------------- | ------------------ | ------------------------------------------- |
+| Peer-reviewed journal articles    | Highest            | Primary sources for academic research       |
+| Government reports and data       | Very high          | Statistics, policy, demographic data        |
+| Academic books (university press) | High               | Foundational concepts, in-depth analysis    |
+| Conference proceedings            | High               | Cutting-edge research, recent findings      |
+| Reputable news sources            | Moderate           | Current events, public opinion context      |
+| Professional/industry reports     | Moderate           | Applied/practical data                      |
+| Dissertations and theses          | Moderate           | Detailed methodology examples, niche topics |
+| Wikipedia                         | Low (for citation) | Starting point only; follow its references  |
+| Blogs, social media               | Low                | Public discourse analysis only              |
+| Predatory journals                | Very low           | AVOID -- Google "Beall's List" to identify  |
 
 ---
 
@@ -474,31 +476,37 @@ When advising on research, provide:
 ## Research Plan: Remote Work and Productivity
 
 ### Research Question
+
 "How does remote work affect employee productivity compared to in-office work, and what factors moderate this relationship?"
 
 ### Search Strategy
-| Database | Keywords | Filters |
-|----------|----------|---------|
+
+| Database       | Keywords                                        | Filters                  |
+| -------------- | ----------------------------------------------- | ------------------------ |
 | Google Scholar | "remote work" AND "productivity" AND "employee" | 2019-2024, peer-reviewed |
-| JSTOR | "telecommuting" AND "performance" | Management journals |
-| PsycINFO | "work from home" AND "output" | Empirical studies |
+| JSTOR          | "telecommuting" AND "performance"               | Management journals      |
+| PsycINFO       | "work from home" AND "output"                   | Empirical studies        |
 
 ### Source Evaluation Checklist
+
 For each source, rate: peer-reviewed (Y/N), sample size, methodology (survey/experiment/meta-analysis), recency, relevance to your specific question.
 
 ### Key Themes to Track
+
 1. Productivity metrics used (self-reported vs. objective output)
 2. Industry/role differences
 3. Moderating factors (home environment, management style, job type)
 4. Pre-COVID vs. post-COVID findings (context shift)
 
 ### Recommended Structure for Paper
+
 1. Introduction + research question
 2. Literature review organized by theme (not source-by-source)
 3. Analysis of conflicting findings
 4. Conclusion with identified gaps for future research
 
 ### First 5 Sources to Find
+
 Start with one meta-analysis for overview, then 4 empirical studies covering different industries.
 
 ## Edge Cases

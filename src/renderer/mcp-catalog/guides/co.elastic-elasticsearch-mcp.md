@@ -13,10 +13,10 @@ steps:
   - id: credentials
     title: Paste your Elasticsearch URL and API key
     estSeconds: 150
-    externalAction: { label: "Open Elastic Cloud", url: "https://cloud.elastic.co" }
+    externalAction: { label: 'Open Elastic Cloud', url: 'https://cloud.elastic.co' }
     inputs:
-      - { name: ES_URL, label: "Elasticsearch URL" }
-      - { name: ES_API_KEY, label: "Elasticsearch API key", secret: true }
+      - { name: ES_URL, label: 'Elasticsearch URL' }
+      - { name: ES_API_KEY, label: 'Elasticsearch API key', secret: true }
     warning: |
       Scope the API key to the **minimum index privileges** Wayland needs -
       typically `read` and `view_index_metadata`. Don't reuse a superuser key.

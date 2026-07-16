@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-buying personal-finance planning"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-buying personal-finance planning'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Home Renovation Planner
@@ -19,7 +19,6 @@ metadata:
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
 
 ## When to Use
-
 
 ## Process
 
@@ -34,14 +33,15 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on home renovation planner
 - User asks about home renovation planner best practices or techniques
 - User wants a structured approach to home renovation planner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of home renovation planner
-
 
 ## Questions to Ask First
 
@@ -63,6 +63,7 @@ metadata:
 ### Defining Project Scope
 
 **Scope Definition Worksheet:**
+
 ```
 Room/Area: _________________________________
 Current Condition: _________________________________
@@ -92,6 +93,7 @@ HVAC Changes Required: Yes / No
 ### Common Renovation Types by Complexity
 
 **Level 1 - Cosmetic (DIY-Friendly):**
+
 - Interior painting
 - Hardware replacement (knobs, pulls, hinges)
 - Light fixture swaps (same wiring location)
@@ -102,6 +104,7 @@ HVAC Changes Required: Yes / No
 - Landscaping and curb appeal
 
 **Level 2 - Moderate (Some DIY, Some Professional):**
+
 - Cabinet refacing or painting
 - Countertop replacement
 - Tile installation
@@ -112,6 +115,7 @@ HVAC Changes Required: Yes / No
 - Closet system installation
 
 **Level 3 - Major (Professional Required):**
+
 - Kitchen full renovation
 - Bathroom full renovation
 - Room additions
@@ -128,6 +132,7 @@ HVAC Changes Required: Yes / No
 ## Phase 2: Permit Requirements
 
 ### When Permits Are Typically Required
+
 - Any structural changes (load-bearing wall removal, additions)
 - Electrical work beyond simple fixture replacement
 - Plumbing changes (moving or adding fixtures, water heater replacement)
@@ -140,6 +145,7 @@ HVAC Changes Required: Yes / No
 - Detached structures (sheds over certain sizes, garages)
 
 ### When Permits Are Usually NOT Required
+
 - Painting (interior and exterior)
 - Flooring replacement (same type, no subfloor changes)
 - Cabinet and countertop replacement (same location)
@@ -148,6 +154,7 @@ HVAC Changes Required: Yes / No
 - Minor repairs (patching drywall, fixing trim)
 
 ### Permit Process Workflow
+
 1. Contact local building department (city or county)
 2. Describe your project scope
 3. Determine which permits are needed
@@ -159,6 +166,7 @@ HVAC Changes Required: Yes / No
 9. Obtain final inspection and certificate of occupancy/completion
 
 ### Consequences of Skipping Permits
+
 - Fines and penalties from the municipality
 - Required to tear out and redo work to obtain retroactive permits
 - Insurance may deny claims related to unpermitted work
@@ -173,6 +181,7 @@ HVAC Changes Required: Yes / No
 ### Finding Contractors
 
 **Best Sources (in order of reliability):**
+
 1. Personal referrals from people with completed projects you can see
 2. Neighborhood social media groups (specific, recent recommendations)
 3. Trade associations (NARI, NAHB, local builder associations)
@@ -184,6 +193,7 @@ HVAC Changes Required: Yes / No
 **Request bids from at least 3 contractors for any project over $5,000.**
 
 **What a proper bid should include:**
+
 - Detailed scope of work (specific tasks, materials, finishes)
 - Material specifications (brand, model, grade)
 - Labor breakdown
@@ -207,6 +217,7 @@ HVAC Changes Required: Yes / No
 - [ ] Verify they will pull permits (not asking you to pull as homeowner)
 
 ### Reference Check Questions
+
 - Did the project come in on budget? If not, by how much and why?
 - Was the project completed on time? If not, what caused delays?
 - How was their communication throughout the project?
@@ -217,6 +228,7 @@ HVAC Changes Required: Yes / No
 - Is there anything you wish you had known before hiring them?
 
 ### Red Flags in Contractor Selection
+
 - Demands large upfront payment (more than 10-20%)
 - No written contract or vague contract
 - Significantly lower bid than all others (may cut corners or add change orders)
@@ -288,16 +300,17 @@ TOTAL PROJECT BUDGET        | $__________ | $_________ |
 
 ### Contingency Guidelines
 
-| Project Type | Recommended Contingency |
-|-------------|------------------------|
-| Cosmetic update | 10% |
-| Moderate renovation | 15% |
-| Major renovation | 20% |
-| Older home (pre-1970) | 20-25% |
-| Structural changes | 20-25% |
-| Gut renovation | 25-30% |
+| Project Type          | Recommended Contingency |
+| --------------------- | ----------------------- |
+| Cosmetic update       | 10%                     |
+| Moderate renovation   | 15%                     |
+| Major renovation      | 20%                     |
+| Older home (pre-1970) | 20-25%                  |
+| Structural changes    | 20-25%                  |
+| Gut renovation        | 25-30%                  |
 
 ### Where Budget Overruns Commonly Occur
+
 1. **Hidden damage** discovered during demo (rot, mold, termites, asbestos)
 2. **Code requirements** that were not anticipated
 3. **Scope creep** -- "while we're at it" additions
@@ -307,6 +320,7 @@ TOTAL PROJECT BUDGET        | $__________ | $_________ |
 7. **Subcontractor scheduling conflicts**
 
 ### Cost-Saving Strategies
+
 - Order materials yourself (if you can manage logistics)
 - Choose stock sizes over custom (cabinets, windows, doors)
 - Refinish instead of replace (hardwood floors, cabinets)
@@ -323,18 +337,19 @@ TOTAL PROJECT BUDGET        | $__________ | $_________ |
 
 ### Typical Renovation Timelines
 
-| Project | Planning | Permits | Construction | Total |
-|---------|----------|---------|-------------|-------|
-| Kitchen (cosmetic) | 1-2 weeks | None needed | 2-3 weeks | 3-5 weeks |
-| Kitchen (full reno) | 4-8 weeks | 2-4 weeks | 6-12 weeks | 12-24 weeks |
-| Bathroom (full reno) | 2-4 weeks | 1-2 weeks | 3-6 weeks | 6-12 weeks |
-| Basement finish | 4-6 weeks | 2-4 weeks | 8-16 weeks | 14-26 weeks |
-| Room addition | 4-12 weeks | 4-8 weeks | 12-24 weeks | 20-44 weeks |
-| Whole house reno | 8-16 weeks | 4-8 weeks | 16-36 weeks | 28-60 weeks |
+| Project              | Planning   | Permits     | Construction | Total       |
+| -------------------- | ---------- | ----------- | ------------ | ----------- |
+| Kitchen (cosmetic)   | 1-2 weeks  | None needed | 2-3 weeks    | 3-5 weeks   |
+| Kitchen (full reno)  | 4-8 weeks  | 2-4 weeks   | 6-12 weeks   | 12-24 weeks |
+| Bathroom (full reno) | 2-4 weeks  | 1-2 weeks   | 3-6 weeks    | 6-12 weeks  |
+| Basement finish      | 4-6 weeks  | 2-4 weeks   | 8-16 weeks   | 14-26 weeks |
+| Room addition        | 4-12 weeks | 4-8 weeks   | 12-24 weeks  | 20-44 weeks |
+| Whole house reno     | 8-16 weeks | 4-8 weeks   | 16-36 weeks  | 28-60 weeks |
 
 ### Construction Phase Sequencing
 
 **Standard order of operations:**
+
 1. Demolition and removal
 2. Structural work (framing, headers, posts)
 3. Rough mechanical (electrical, plumbing, HVAC -- inside walls)
@@ -356,17 +371,17 @@ TOTAL PROJECT BUDGET        | $__________ | $_________ |
 
 ### Material Lead Times to Plan For
 
-| Material | Typical Lead Time |
-|----------|------------------|
-| Stock cabinets | 1-3 weeks |
-| Semi-custom cabinets | 4-8 weeks |
-| Custom cabinets | 8-16 weeks |
+| Material                    | Typical Lead Time          |
+| --------------------------- | -------------------------- |
+| Stock cabinets              | 1-3 weeks                  |
+| Semi-custom cabinets        | 4-8 weeks                  |
+| Custom cabinets             | 8-16 weeks                 |
 | Stone countertops (natural) | 2-4 weeks (after template) |
-| Quartz countertops | 2-4 weeks (after template) |
-| Special-order tile | 2-6 weeks |
-| Custom windows | 4-12 weeks |
-| Appliances (special order) | 2-8 weeks |
-| Custom doors | 4-8 weeks |
+| Quartz countertops          | 2-4 weeks (after template) |
+| Special-order tile          | 2-6 weeks                  |
+| Custom windows              | 4-12 weeks                 |
+| Appliances (special order)  | 2-8 weeks                  |
+| Custom doors                | 4-8 weeks                  |
 
 **Order long-lead items as early as possible in the planning phase.**
 
@@ -377,6 +392,7 @@ TOTAL PROJECT BUDGET        | $__________ | $_________ |
 ### Decision Framework
 
 For each material decision, consider:
+
 1. **Durability:** How will it hold up to your household's use?
 2. **Maintenance:** How much upkeep does it require?
 3. **Aesthetics:** Does it match your design vision?
@@ -412,18 +428,19 @@ For each material decision, consider:
 
 ### Decision Matrix
 
-| Factor | DIY | Hire Contractor |
-|--------|-----|----------------|
-| Permit required | Possible (homeowner permits) | Typically required |
-| Safety risk | Low (painting, flooring) | High (electrical, structural, roofing) |
-| Skill required | Basic, learnable | Specialized training needed |
-| Cost of mistake | Low (easily redone) | High (damage, injury, code violations) |
-| Time available | You have the time | Tight timeline |
-| Tool investment | Minimal | Expensive specialized tools needed |
-| Code compliance | You understand requirements | Complex code requirements |
-| Insurance impact | Understand implications | Contractor carries insurance |
+| Factor           | DIY                          | Hire Contractor                        |
+| ---------------- | ---------------------------- | -------------------------------------- |
+| Permit required  | Possible (homeowner permits) | Typically required                     |
+| Safety risk      | Low (painting, flooring)     | High (electrical, structural, roofing) |
+| Skill required   | Basic, learnable             | Specialized training needed            |
+| Cost of mistake  | Low (easily redone)          | High (damage, injury, code violations) |
+| Time available   | You have the time            | Tight timeline                         |
+| Tool investment  | Minimal                      | Expensive specialized tools needed     |
+| Code compliance  | You understand requirements  | Complex code requirements              |
+| Insurance impact | Understand implications      | Contractor carries insurance           |
 
 ### Generally Safe for DIY
+
 - Painting (interior walls and ceilings)
 - Installing floating floors and peel-and-stick tile
 - Hardware replacement (knobs, pulls)
@@ -436,6 +453,7 @@ For each material decision, consider:
 - Deck staining
 
 ### Always Hire a Professional
+
 - Structural modifications (load-bearing walls)
 - Electrical panel work
 - Gas line work
@@ -448,17 +466,17 @@ For each material decision, consider:
 
 ### Renovation ROI by Project (Typical Return on Investment)
 
-| Project | Average Cost | Typical ROI |
-|---------|-------------|-------------|
-| Minor kitchen remodel | $15,000-$25,000 | 70-80% |
-| Major kitchen remodel | $40,000-$80,000 | 50-60% |
-| Bathroom remodel | $10,000-$30,000 | 60-70% |
-| Deck addition | $10,000-$20,000 | 65-75% |
-| Window replacement | $10,000-$20,000 | 65-75% |
-| Siding replacement | $10,000-$20,000 | 70-80% |
-| Roof replacement | $8,000-$15,000 | 60-70% |
-| Basement finish | $20,000-$50,000 | 50-70% |
-| Room addition | $50,000-$100,000+ | 40-60% |
+| Project               | Average Cost      | Typical ROI |
+| --------------------- | ----------------- | ----------- |
+| Minor kitchen remodel | $15,000-$25,000   | 70-80%      |
+| Major kitchen remodel | $40,000-$80,000   | 50-60%      |
+| Bathroom remodel      | $10,000-$30,000   | 60-70%      |
+| Deck addition         | $10,000-$20,000   | 65-75%      |
+| Window replacement    | $10,000-$20,000   | 65-75%      |
+| Siding replacement    | $10,000-$20,000   | 70-80%      |
+| Roof replacement      | $8,000-$15,000    | 60-70%      |
+| Basement finish       | $20,000-$50,000   | 50-70%      |
+| Room addition         | $50,000-$100,000+ | 40-60%      |
 
 **Note:** ROI varies significantly by market, quality of work, and neighborhood. Over-improving for your neighborhood reduces ROI.
 
@@ -467,6 +485,7 @@ For each material decision, consider:
 ## Project Communication Plan
 
 ### Keeping Your Project on Track
+
 - Hold weekly check-in meetings with your contractor
 - Maintain a shared project timeline (updated weekly)
 - Document all decisions and changes in writing (email is fine)
@@ -476,7 +495,6 @@ For each material decision, consider:
 - Establish clear decision-making timelines (material selections, change orders)
 
 A successful renovation combines thorough planning, realistic budgeting, clear communication, and decisive action when problems arise. Plan thoroughly, hire wisely, and stay engaged throughout the process.
-
 
 ## Output Format
 
@@ -490,13 +508,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with home renovation planner for a mid-size project."
 
 **Output:** A complete home renovation planner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

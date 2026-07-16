@@ -29,12 +29,12 @@ Generate a Balance Sheet (Statement of Financial Position) as of a single date. 
 
 ## Reporting-basis distinction (CRITICAL)
 
-| Basis | Revenue / AR | Expense / AP | Inventory | Long-lived assets |
-|---|---|---|---|---|
-| **GAAP (accrual)** | AR recognized when earned | AP when incurred | At lower of cost or market; ASC 330 | Capitalized + depreciated; ASC 360 |
-| **Tax basis** | Per IRC; AR/AP recognized per cash vs accrual election | Per IRC | UNICAP §263A may apply | Per IRC §168 / §179 / §168(k); MACRS |
-| **Cash basis** | Recognized when cash received | Recognized when cash paid | Often capitalized only at sale | Capitalized; depreciated |
-| **Modified cash** | Mix - typically cash for services + accrual for inventory / AR | Mix | Accrual on inventory | Capitalized + depreciated |
+| Basis              | Revenue / AR                                                   | Expense / AP              | Inventory                           | Long-lived assets                    |
+| ------------------ | -------------------------------------------------------------- | ------------------------- | ----------------------------------- | ------------------------------------ |
+| **GAAP (accrual)** | AR recognized when earned                                      | AP when incurred          | At lower of cost or market; ASC 330 | Capitalized + depreciated; ASC 360   |
+| **Tax basis**      | Per IRC; AR/AP recognized per cash vs accrual election         | Per IRC                   | UNICAP §263A may apply              | Per IRC §168 / §179 / §168(k); MACRS |
+| **Cash basis**     | Recognized when cash received                                  | Recognized when cash paid | Often capitalized only at sale      | Capitalized; depreciated             |
+| **Modified cash**  | Mix - typically cash for services + accrual for inventory / AR | Mix                       | Accrual on inventory                | Capitalized + depreciated            |
 
 Lenders and SBA loans generally want GAAP or close-to-GAAP. Tax preparers want tax-basis. Buyers / DD typically request both.
 

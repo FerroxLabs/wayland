@@ -15,7 +15,7 @@ skills: technical-documentation git-pr-workflow code-review-patterns tdd-workflo
 trigger_phrases: onboard new developer new team member setup developer onboarding process new hire developer
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: teaching career step-by-step planning guide
   category: software-project
   depends: technical-documentation git-pr-workflow code-review-patterns tdd-workflow conventional-commits
@@ -160,6 +160,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - For senior developers, abbreviate Steps 1-2 and focus on Steps 3-4
 - For remote developers, add extra check-in points between steps
 - Adjust first task complexity based on developer experience level

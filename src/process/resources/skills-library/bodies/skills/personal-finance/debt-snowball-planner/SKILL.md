@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "debt-management personal-finance budgeting planning"
-  category: "personal-finance"
-  subcategory: "debt-management"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'debt-management personal-finance budgeting planning'
+  category: 'personal-finance'
+  subcategory: 'debt-management'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Debt Snowball Planner
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly mentions the "debt snowball" method or "smallest balance first" payoff strategy
 - The user has 2 or more distinct debts and feels overwhelmed -- they want a clear first win, not an abstract optimization
 - The user has tried budgeting before and stalled because progress felt invisible; they need emotional momentum built into the plan
@@ -33,6 +35,7 @@ metadata:
 - The user wants a concrete, month-by-month action plan with specific dollar amounts rather than general advice
 
 **Do NOT use when:**
+
 - The user's primary goal is minimizing total interest paid -- use `debt-avalanche-planner` instead, where sorting by APR descending is the correct approach
 - The user wants to roll multiple debts into a single new loan -- use `debt-consolidation-analysis` instead, which evaluates blended rates, fees, and break-even periods
 - The user is comparing two specific loan products -- use `loan-comparison` instead
@@ -50,6 +53,7 @@ metadata:
 Before doing any math, collect clean data on every debt. Missing or ambiguous inputs produce useless output.
 
 For each debt, obtain:
+
 - **Name or label** -- "Chase Visa," "student loan," "medical bill from St. Luke's" -- enough to be unambiguous in the output
 - **Current outstanding balance** -- the balance as of today, not the original loan amount; this is what the amortization calculates on
 - **Annual Percentage Rate (APR)** -- distinguish from APY; for monthly calculations, divide APR by 12 to get the periodic rate; if the user gives a range (e.g., "around 20%"), use the exact number if they can find it on a statement, since a 2% difference on a $5,000 balance affects payoff timeline by 1-2 months
@@ -85,6 +89,7 @@ The snowball sequence is non-negotiable once established. Apply these rules in o
 This is the core calculation. For each debt in sequence:
 
 **For installment debts (fixed payment, fixed rate):**
+
 - Monthly interest = current balance × (APR ÷ 12)
 - Principal reduction = monthly payment -- monthly interest
 - New balance = current balance -- principal reduction
@@ -92,17 +97,20 @@ This is the core calculation. For each debt in sequence:
 - Count the months; the final month's payment is often less than the full payment amount (fractional payoff) -- note this
 
 **For revolving debts (credit cards with recalculating minimums):**
+
 - Most card minimums recalculate as the greater of: (a) 1-2% of the balance plus interest, (b) a flat floor of $25-35, or (c) the full balance if under $25-35
 - In a snowball plan, this creates a trap: as the card balance decreases, the required minimum drops -- but if you reduce your payment to match the new minimum, you lose snowball momentum
 - **Critical rule:** hold the revolving debt's payment fixed at its original minimum throughout the snowball phase targeting that debt; do not let the bank's recalculating minimum reduce your actual payment
 - When calculating a revolving debt's payoff period, use the fixed payment amount (not a declining minimum), otherwise the payoff timeline will be materially understated
 
 **Calculating payoff months using the amortization formula:**
+
 - For a fixed payment P on a balance B at monthly rate r: n = -ln(1 -- (B × r ÷ P)) ÷ ln(1 + r)
 - Round up to the nearest whole month for the payoff date
 - When a debt is paid off mid-month (days remaining in the month), for simplicity assume it pays off at the end of the month it reaches zero; the small overage reduces the next month's first payment by the corresponding amount
 
 **Calculating total interest per debt:**
+
 - Total paid = monthly payment × number of full months + final fractional payment
 - Total interest = total paid -- original balance
 - For 0% APR debts, total interest = $0 regardless of term
@@ -123,18 +131,21 @@ The snowball's power is in the cascade mechanism. Execute it precisely:
 ### Step 6: Calculate Total Interest, Comparative Summary, and Avalanche Delta
 
 **Snowball totals:**
+
 - Total interest = sum of interest across all individual debts
 - Total amount paid = total debt + total interest
 - Total months = sum of all phase durations (Debt 1 phase length + Debt 2 phase length + ... but phases are sequential, so it is additive, not overlapping)
 - Debt-free date = current month + total months
 
 **Avalanche comparison (estimate, not full calculation):**
+
 - The avalanche method applies extra payments to the highest-APR debt first; it always saves more total interest than snowball
 - To estimate the interest savings delta without running a full avalanche calculation: identify the highest-APR debt that is NOT the smallest balance; if this debt has a significantly higher rate than the smallest debt (e.g., 22% vs. 0%), the interest savings of the avalanche are meaningful (can be $200-800 on a typical $15,000-20,000 debt load); if rates are clustered within 3-4%, the difference is modest
 - The snowball trades these interest savings for the earlier psychological win of eliminating the smallest debt sooner; quantify both the interest cost and the months-sooner figure for the first payoff
 - Never advocate for one method -- present the tradeoff factually
 
 **If the user has tax-advantaged debt (mortgage, student loans):**
+
 - Note that mortgage interest may be deductible (for itemizers) and student loan interest may be partially deductible (up to $2,500 annually with income phase-outs); tax-deductibility effectively reduces the net interest rate, and the user should factor this in when deciding whether to allocate surplus to debt payoff vs. investing; this is a flag to consult a tax professional, not a detailed calculation
 
 ### Step 7: Present Milestones, Next Actions, and Behavioral Guardrails
@@ -351,37 +362,39 @@ This is a common and legitimate question that falls outside the scope of this sk
 **Output:**
 
 ## Debt Snowball Payoff Plan
-*Plan generated: March 2026 | Total monthly budget: $700/month*
+
+_Plan generated: March 2026 | Total monthly budget: $700/month_
 
 ---
 
 ### Debt Inventory -- Snowball Order (Smallest to Largest Balance)
 
-| # | Debt Name       | Balance | APR    | Min. Payment | Type        | Special Flags     |
-|---|-----------------|---------|--------|--------------|-------------|-------------------|
-| 1 | Medical Bill    | $840    | 0.0%   | $50          | Installment | None              |
-| 2 | Store Credit Card | $2,650 | 24.99% | $65          | Revolving   | Hold min fixed    |
-| 3 | Car Loan        | $6,200  | 7.9%   | $185         | Installment | Verify no prepay penalty |
-| 4 | Personal Loan   | $9,400  | 13.5%  | $240         | Installment | None              |
+| #   | Debt Name         | Balance | APR    | Min. Payment | Type        | Special Flags            |
+| --- | ----------------- | ------- | ------ | ------------ | ----------- | ------------------------ |
+| 1   | Medical Bill      | $840    | 0.0%   | $50          | Installment | None                     |
+| 2   | Store Credit Card | $2,650  | 24.99% | $65          | Revolving   | Hold min fixed           |
+| 3   | Car Loan          | $6,200  | 7.9%   | $185         | Installment | Verify no prepay penalty |
+| 4   | Personal Loan     | $9,400  | 13.5%  | $240         | Installment | None                     |
 
 ---
 
 ### Monthly Budget Breakdown
 
-| Metric                              | Amount  |
-|-------------------------------------|---------|
-| Total monthly committed to debt     | $700    |
-| Sum of all minimum payments         | $540    |
-| Snowball accelerant (surplus)       | $160    |
-| Surplus as % of total budget        | 22.9%   |
+| Metric                          | Amount |
+| ------------------------------- | ------ |
+| Total monthly committed to debt | $700   |
+| Sum of all minimum payments     | $540   |
+| Snowball accelerant (surplus)   | $160   |
+| Surplus as % of total budget    | 22.9%  |
 
-*Your $160 surplus is a workable snowball accelerant. At this level, you will eliminate the medical bill in under 4 months. If you can find an additional $50-75/month, the first payoff comes in 3 months instead and the cascade accelerates noticeably throughout the plan.*
+_Your $160 surplus is a workable snowball accelerant. At this level, you will eliminate the medical bill in under 4 months. If you can find an additional $50-75/month, the first payoff comes in 3 months instead and the cascade accelerates noticeably throughout the plan._
 
 ---
 
 ### Minimum-Only Baseline (for comparison)
 
 If you paid only the minimums on all four debts indefinitely:
+
 - **Car loan** (fixed installment): paid off in approximately 38 months; total interest ~$870
 - **Personal loan** (fixed installment): paid off in approximately 52 months; total interest ~$2,940
 - **Store credit card** (revolving with declining minimums): would take **over 17 years** to pay off on declining minimums alone; total interest **over $5,400**
@@ -392,78 +405,81 @@ If you paid only the minimums on all four debts indefinitely:
 ### Phase-by-Phase Payoff Schedule
 
 #### Phase 1 -- Target: Medical Bill
-*Starting balance: $840 | APR: 0.0% | Payment: $210/month ($50 min + $160 surplus)*
-*Duration: Months 1-4 (April 2026 -- July 2026)*
 
-| Month | Starting Balance | Payment | Interest | Principal | Ending Balance |
-|-------|-----------------|---------|----------|-----------|----------------|
-| 1 (Apr 2026) | $840.00 | $210.00 | $0.00 | $210.00 | $630.00 |
-| 2 (May 2026) | $630.00 | $210.00 | $0.00 | $210.00 | $420.00 |
-| 3 (Jun 2026) | $420.00 | $210.00 | $0.00 | $210.00 | $210.00 |
-| 4 (Jul 2026) | $210.00 | $210.00 | $0.00 | $210.00 | $0.00 |
+_Starting balance: $840 | APR: 0.0% | Payment: $210/month ($50 min + $160 surplus)_
+_Duration: Months 1-4 (April 2026 -- July 2026)_
+
+| Month        | Starting Balance | Payment | Interest | Principal | Ending Balance |
+| ------------ | ---------------- | ------- | -------- | --------- | -------------- |
+| 1 (Apr 2026) | $840.00          | $210.00 | $0.00    | $210.00   | $630.00        |
+| 2 (May 2026) | $630.00          | $210.00 | $0.00    | $210.00   | $420.00        |
+| 3 (Jun 2026) | $420.00          | $210.00 | $0.00    | $210.00   | $210.00        |
+| 4 (Jul 2026) | $210.00          | $210.00 | $0.00    | $210.00   | $0.00          |
 
 - **Total paid:** $840.00
 - **Total interest:** $0.00
 - **Payoff date: July 2026**
 - **Snowball freed: $210/month → rolls entirely to Store Credit Card in August 2026**
 
-*During Phase 1, the store card, car loan, and personal loan are all paying minimums only. The store card balance is growing slightly each month because at $65/month, the 24.99% APR charges ~$55/month in interest -- only $10/month of principal is being reduced. This is why eliminating the medical bill quickly and launching the snowball on the credit card is so important.*
+_During Phase 1, the store card, car loan, and personal loan are all paying minimums only. The store card balance is growing slightly each month because at $65/month, the 24.99% APR charges ~$55/month in interest -- only $10/month of principal is being reduced. This is why eliminating the medical bill quickly and launching the snowball on the credit card is so important._
 
 ---
 
 #### Phase 2 -- Target: Store Credit Card
-*Starting balance at Phase 2 start (after 4 months of minimums): approximately $2,610*
-*(4 months at 24.99% APR: ~$55/month interest -- $65/month payment = ~$10/month principal reduction × 4 months = ~$40 principal paid; $2,650 -- $40 = ~$2,610)*
-*APR: 24.99% | Monthly rate: 2.082%*
-*Payment: $275/month ($65 min + $210 snowball from Phase 1)*
-*Duration: Months 5-18 (August 2026 -- September 2027)*
 
-| Month | Starting Balance | Payment | Interest | Principal | Ending Balance |
-|-------|-----------------|---------|----------|-----------|----------------|
-| 5 (Aug 2026) | $2,610.00 | $275.00 | $54.34 | $220.66 | $2,389.34 |
-| 6 (Sep 2026) | $2,389.34 | $275.00 | $49.76 | $225.24 | $2,164.10 |
-| 7 (Oct 2026) | $2,164.10 | $275.00 | $45.07 | $229.93 | $1,934.17 |
-| 8 (Nov 2026) | $1,934.17 | $275.00 | $40.28 | $234.72 | $1,699.45 |
-| 9 (Dec 2026) | $1,699.45 | $275.00 | $35.40 | $239.60 | $1,459.85 |
-| 10 (Jan 2027) | $1,459.85 | $275.00 | $30.41 | $244.59 | $1,215.26 |
-| 11 (Feb 2027) | $1,215.26 | $275.00 | $25.31 | $249.69 | $965.57 |
-| 12 (Mar 2027) | $965.57 | $275.00 | $20.11 | $254.89 | $710.68 |
-| 13 (Apr 2027) | $710.68 | $275.00 | $14.80 | $260.20 | $450.48 |
-| 14 (May 2027) | $450.48 | $275.00 | $9.38 | $265.62 | $184.86 |
-| 15 (Jun 2027) | $184.86 | $186.71 | $1.85 | $184.86 | $0.00 |
+_Starting balance at Phase 2 start (after 4 months of minimums): approximately $2,610_
+_(4 months at 24.99% APR: ~$55/month interest -- $65/month payment = ~$10/month principal reduction × 4 months = ~$40 principal paid; $2,650 -- $40 = ~$2,610)_
+_APR: 24.99% | Monthly rate: 2.082%_
+_Payment: $275/month ($65 min + $210 snowball from Phase 1)_
+_Duration: Months 5-18 (August 2026 -- September 2027)_
 
-*(Final month payment reduced to $186.71 -- remaining balance plus final interest; remaining $88.29 stays in budget and is applied to Phase 3 first payment)*
+| Month         | Starting Balance | Payment | Interest | Principal | Ending Balance |
+| ------------- | ---------------- | ------- | -------- | --------- | -------------- |
+| 5 (Aug 2026)  | $2,610.00        | $275.00 | $54.34   | $220.66   | $2,389.34      |
+| 6 (Sep 2026)  | $2,389.34        | $275.00 | $49.76   | $225.24   | $2,164.10      |
+| 7 (Oct 2026)  | $2,164.10        | $275.00 | $45.07   | $229.93   | $1,934.17      |
+| 8 (Nov 2026)  | $1,934.17        | $275.00 | $40.28   | $234.72   | $1,699.45      |
+| 9 (Dec 2026)  | $1,699.45        | $275.00 | $35.40   | $239.60   | $1,459.85      |
+| 10 (Jan 2027) | $1,459.85        | $275.00 | $30.41   | $244.59   | $1,215.26      |
+| 11 (Feb 2027) | $1,215.26        | $275.00 | $25.31   | $249.69   | $965.57        |
+| 12 (Mar 2027) | $965.57          | $275.00 | $20.11   | $254.89   | $710.68        |
+| 13 (Apr 2027) | $710.68          | $275.00 | $14.80   | $260.20   | $450.48        |
+| 14 (May 2027) | $450.48          | $275.00 | $9.38    | $265.62   | $184.86        |
+| 15 (Jun 2027) | $184.86          | $186.71 | $1.85    | $184.86   | $0.00          |
+
+_(Final month payment reduced to $186.71 -- remaining balance plus final interest; remaining $88.29 stays in budget and is applied to Phase 3 first payment)_
 
 - **Total paid:** $3,536.71
 - **Total interest on this debt:** ~$326.71
 - **Payoff date: June 2027**
 - **Snowball freed: $275/month → rolls to Car Loan in July 2027**
 
-*Note: Your card issuer will send lower minimum payment notices as your balance falls (it may drop to $50 or $40 by month 10). Ignore those notifications. Maintain $275/month throughout this phase.*
+_Note: Your card issuer will send lower minimum payment notices as your balance falls (it may drop to $50 or $40 by month 10). Ignore those notifications. Maintain $275/month throughout this phase._
 
 ---
 
 #### Phase 3 -- Target: Car Loan
-*Starting balance at Phase 3 start (after 15 months of $185/month minimums on a 7.9% APR installment loan):*
-*Monthly rate: 0.658% | After 15 months of $185 payments:*
-*Approximate balance: $6,200 × (1.00658)^15 -- $185 × [(1.00658)^15 -- 1] ÷ 0.00658 ≈ $4,390*
-*Payment: $460/month ($185 min + $275 snowball from Phase 2)*
-*Duration: Months 16-26 (July 2027 -- May 2028)*
 
-| Month | Starting Balance | Payment | Interest | Principal | Ending Balance |
-|-------|-----------------|---------|----------|-----------|----------------|
-| 16 (Jul 2027) | $4,390.00 | $460.00 | $28.89 | $431.11 | $3,958.89 |
-| 17 (Aug 2027) | $3,958.89 | $460.00 | $26.05 | $433.95 | $3,524.94 |
-| 18 (Sep 2027) | $3,524.94 | $460.00 | $23.19 | $436.81 | $3,088.13 |
-| 19 (Oct 2027) | $3,088.13 | $460.00 | $20.31 | $439.69 | $2,648.44 |
-| 20 (Nov 2027) | $2,648.44 | $460.00 | $17.42 | $442.58 | $2,205.86 |
-| 21 (Dec 2027) | $2,205.86 | $460.00 | $14.51 | $445.49 | $1,760.37 |
-| 22 (Jan 2028) | $1,760.37 | $460.00 | $11.58 | $448.42 | $1,311.95 |
-| 23 (Feb 2028) | $1,311.95 | $460.00 | $8.63 | $451.37 | $860.58 |
-| 24 (Mar 2028) | $860.58 | $460.00 | $5.66 | $454.34 | $406.24 |
-| 25 (Apr 2028) | $406.24 | $408.91 | $2.67 | $406.24 | $0.00 |
+_Starting balance at Phase 3 start (after 15 months of $185/month minimums on a 7.9% APR installment loan):_
+_Monthly rate: 0.658% | After 15 months of $185 payments:_
+_Approximate balance: $6,200 × (1.00658)^15 -- $185 × [(1.00658)^15 -- 1] ÷ 0.00658 ≈ $4,390_
+_Payment: $460/month ($185 min + $275 snowball from Phase 2)_
+_Duration: Months 16-26 (July 2027 -- May 2028)_
 
-*(Final payment reduced to $408.91; remaining $51.09 applied to Phase 4 opening payment)*
+| Month         | Starting Balance | Payment | Interest | Principal | Ending Balance |
+| ------------- | ---------------- | ------- | -------- | --------- | -------------- |
+| 16 (Jul 2027) | $4,390.00        | $460.00 | $28.89   | $431.11   | $3,958.89      |
+| 17 (Aug 2027) | $3,958.89        | $460.00 | $26.05   | $433.95   | $3,524.94      |
+| 18 (Sep 2027) | $3,524.94        | $460.00 | $23.19   | $436.81   | $3,088.13      |
+| 19 (Oct 2027) | $3,088.13        | $460.00 | $20.31   | $439.69   | $2,648.44      |
+| 20 (Nov 2027) | $2,648.44        | $460.00 | $17.42   | $442.58   | $2,205.86      |
+| 21 (Dec 2027) | $2,205.86        | $460.00 | $14.51   | $445.49   | $1,760.37      |
+| 22 (Jan 2028) | $1,760.37        | $460.00 | $11.58   | $448.42   | $1,311.95      |
+| 23 (Feb 2028) | $1,311.95        | $460.00 | $8.63    | $451.37   | $860.58        |
+| 24 (Mar 2028) | $860.58          | $460.00 | $5.66    | $454.34   | $406.24        |
+| 25 (Apr 2028) | $406.24          | $408.91 | $2.67    | $406.24   | $0.00          |
+
+_(Final payment reduced to $408.91; remaining $51.09 applied to Phase 4 opening payment)_
 
 - **Total paid:** $4,548.91
 - **Total interest on this debt:** ~$148.91
@@ -473,28 +489,29 @@ If you paid only the minimums on all four debts indefinitely:
 ---
 
 #### Phase 4 -- Target: Personal Loan (Final Debt)
-*Starting balance at Phase 4 start (after 25 months of $240/month minimums on a 13.5% APR installment loan):*
-*Monthly rate: 1.125% | After 25 months of $240 payments:*
-*Approximate balance: ~$7,610*
-*Payment: $700/month (full monthly budget -- $240 min + $460 snowball -- the entire $700 is now focused on one debt)*
-*Duration: Months 26-39 (May 2028 -- June 2029)*
 
-| Month | Starting Balance | Payment | Interest | Principal | Ending Balance |
-|-------|-----------------|---------|----------|-----------|----------------|
-| 26 (May 2028) | $7,610.00 | $700.00 | $85.61 | $614.39 | $6,995.61 |
-| 27 (Jun 2028) | $6,995.61 | $700.00 | $78.70 | $621.30 | $6,374.31 |
-| 28 (Jul 2028) | $6,374.31 | $700.00 | $71.71 | $628.29 | $5,746.02 |
-| 29 (Aug 2028) | $5,746.02 | $700.00 | $64.64 | $635.36 | $5,110.66 |
-| 30 (Sep 2028) | $5,110.66 | $700.00 | $57.50 | $642.50 | $4,468.16 |
-| 31 (Oct 2028) | $4,468.16 | $700.00 | $50.27 | $649.73 | $3,818.43 |
-| 32 (Nov 2028) | $3,818.43 | $700.00 | $42.96 | $657.04 | $3,161.39 |
-| 33 (Dec 2028) | $3,161.39 | $700.00 | $35.56 | $664.44 | $2,496.95 |
-| 34 (Jan 2029) | $2,496.95 | $700.00 | $28.09 | $671.91 | $1,825.04 |
-| 35 (Feb 2029) | $1,825.04 | $700.00 | $20.53 | $679.47 | $1,145.57 |
-| 36 (Mar 2029) | $1,145.57 | $700.00 | $12.89 | $687.11 | $458.46 |
-| 37 (Apr 2029) | $458.46 | $463.62 | $5.16 | $458.46 | $0.00 |
+_Starting balance at Phase 4 start (after 25 months of $240/month minimums on a 13.5% APR installment loan):_
+_Monthly rate: 1.125% | After 25 months of $240 payments:_
+_Approximate balance: ~$7,610_
+_Payment: $700/month (full monthly budget -- $240 min + $460 snowball -- the entire $700 is now focused on one debt)_
+_Duration: Months 26-39 (May 2028 -- June 2029)_
 
-*(Final payment $463.62; plan completes April 2029)*
+| Month         | Starting Balance | Payment | Interest | Principal | Ending Balance |
+| ------------- | ---------------- | ------- | -------- | --------- | -------------- |
+| 26 (May 2028) | $7,610.00        | $700.00 | $85.61   | $614.39   | $6,995.61      |
+| 27 (Jun 2028) | $6,995.61        | $700.00 | $78.70   | $621.30   | $6,374.31      |
+| 28 (Jul 2028) | $6,374.31        | $700.00 | $71.71   | $628.29   | $5,746.02      |
+| 29 (Aug 2028) | $5,746.02        | $700.00 | $64.64   | $635.36   | $5,110.66      |
+| 30 (Sep 2028) | $5,110.66        | $700.00 | $57.50   | $642.50   | $4,468.16      |
+| 31 (Oct 2028) | $4,468.16        | $700.00 | $50.27   | $649.73   | $3,818.43      |
+| 32 (Nov 2028) | $3,818.43        | $700.00 | $42.96   | $657.04   | $3,161.39      |
+| 33 (Dec 2028) | $3,161.39        | $700.00 | $35.56   | $664.44   | $2,496.95      |
+| 34 (Jan 2029) | $2,496.95        | $700.00 | $28.09   | $671.91   | $1,825.04      |
+| 35 (Feb 2029) | $1,825.04        | $700.00 | $20.53   | $679.47   | $1,145.57      |
+| 36 (Mar 2029) | $1,145.57        | $700.00 | $12.89   | $687.11   | $458.46        |
+| 37 (Apr 2029) | $458.46          | $463.62 | $5.16    | $458.46   | $0.00          |
+
+_(Final payment $463.62; plan completes April 2029)_
 
 - **Total paid:** $8,763.62
 - **Total interest on this debt:** ~$1,363.62
@@ -505,42 +522,42 @@ If you paid only the minimums on all four debts indefinitely:
 ### Snowball Growth -- Visual Summary
 
 | Phase   | Months       | Target Debt       | Your Payment | Added From Snowball | Cumulative Monthly Freed |
-|---------|-------------|-------------------|--------------|--------------------|-----------------------|
-| Phase 1 | Months 1-4  | Medical Bill      | $210/month   | Starting point     | $0 base               |
-| Phase 2 | Months 5-15 | Store Credit Card | $275/month   | +$210 (medical)    | $210 freed            |
-| Phase 3 | Months 16-25| Car Loan          | $460/month   | +$275 (card)       | $485 freed            |
-| Phase 4 | Months 26-37| Personal Loan     | $700/month   | +$460 (car)        | $700 freed (full budget) |
+| ------- | ------------ | ----------------- | ------------ | ------------------- | ------------------------ |
+| Phase 1 | Months 1-4   | Medical Bill      | $210/month   | Starting point      | $0 base                  |
+| Phase 2 | Months 5-15  | Store Credit Card | $275/month   | +$210 (medical)     | $210 freed               |
+| Phase 3 | Months 16-25 | Car Loan          | $460/month   | +$275 (card)        | $485 freed               |
+| Phase 4 | Months 26-37 | Personal Loan     | $700/month   | +$460 (car)         | $700 freed (full budget) |
 
-*By Phase 4, every dollar of your $700 monthly budget is hitting one debt. This is the snowball at full force.*
+_By Phase 4, every dollar of your $700 monthly budget is hitting one debt. This is the snowball at full force._
 
 ---
 
 ### Debt-by-Debt Summary
 
-| Debt Name          | Original Balance | Total Paid    | Total Interest | Payoff Date   |
-|--------------------|-----------------|---------------|----------------|---------------|
-| Medical Bill       | $840            | $840          | $0             | July 2026     |
-| Store Credit Card  | $2,650          | $3,537        | ~$327          | June 2027     |
-| Car Loan           | $6,200          | $4,549*       | ~$149          | April 2028    |
-| Personal Loan      | $9,400          | $8,764        | ~$1,364        | April 2029    |
-| **TOTAL**          | **$19,090**     | **~$17,690**  | **~$1,840**    | **April 2029** |
+| Debt Name         | Original Balance | Total Paid   | Total Interest | Payoff Date    |
+| ----------------- | ---------------- | ------------ | -------------- | -------------- |
+| Medical Bill      | $840             | $840         | $0             | July 2026      |
+| Store Credit Card | $2,650           | $3,537       | ~$327          | June 2027      |
+| Car Loan          | $6,200           | $4,549\*     | ~$149          | April 2028     |
+| Personal Loan     | $9,400           | $8,764       | ~$1,364        | April 2029     |
+| **TOTAL**         | **$19,090**      | **~$17,690** | **~$1,840**    | **April 2029** |
 
-*Car loan total paid is less than original balance because 15 months of minimums during Phases 1-2 reduced the principal significantly before the Phase 3 snowball accelerated payoff.*
+_Car loan total paid is less than original balance because 15 months of minimums during Phases 1-2 reduced the principal significantly before the Phase 3 snowball accelerated payoff._
 
 ---
 
 ### Overall Summary
 
-| Metric                         | Snowball Plan    | Avalanche Estimate       |
-|-------------------------------|------------------|--------------------------|
-| Total debt entering plan       | $19,090          | $19,090                  |
-| Total interest paid            | ~$1,840          | ~$1,500 (est.)           |
-| Interest savings vs. snowball  | --               | ~$340 saved              |
-| First debt eliminated          | July 2026 (4 mo) | ~Sept 2027 (18 mo)       |
-| Debt-free date                 | April 2029       | ~March 2029              |
-| Total months                   | 37 months        | ~36 months               |
+| Metric                        | Snowball Plan    | Avalanche Estimate |
+| ----------------------------- | ---------------- | ------------------ |
+| Total debt entering plan      | $19,090          | $19,090            |
+| Total interest paid           | ~$1,840          | ~$1,500 (est.)     |
+| Interest savings vs. snowball | --               | ~$340 saved        |
+| First debt eliminated         | July 2026 (4 mo) | ~Sept 2027 (18 mo) |
+| Debt-free date                | April 2029       | ~March 2029        |
+| Total months                  | 37 months        | ~36 months         |
 
-*The avalanche method (targeting the 24.99% store card first) would save approximately $340 in total interest and finish about 1 month sooner. The snowball gives you a debt eliminated 14 months sooner than the avalanche would, providing a real, tangible early win. Both are valid strategies -- the $340 difference over 37 months is approximately $9/month. If early wins help you stay committed, the snowball more than earns that small premium.*
+_The avalanche method (targeting the 24.99% store card first) would save approximately $340 in total interest and finish about 1 month sooner. The snowball gives you a debt eliminated 14 months sooner than the avalanche would, providing a real, tangible early win. Both are valid strategies -- the $340 difference over 37 months is approximately $9/month. If early wins help you stay committed, the snowball more than earns that small premium._
 
 ---
 

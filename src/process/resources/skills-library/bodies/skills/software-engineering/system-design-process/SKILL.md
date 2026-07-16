@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture best-practices design-patterns"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture best-practices design-patterns'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # System Design Process
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is starting a greenfield system and needs to work through requirements, capacity estimates, component selection, and data modeling before writing code
 - A user is preparing for a system design interview and needs a structured, repeatable process to walk through a complex distributed system problem in 45--60 minutes
 - A user needs to design a specific subsystem -- an API gateway, a notification pipeline, a search index, a rate limiter -- with concrete trade-off analysis and component selection
@@ -29,6 +31,7 @@ metadata:
 - A user is designing for a specific non-functional requirement -- 99.99% availability, sub-100ms p99 latency, 10 million daily active users, PCI-DSS compliance -- and needs to know which patterns apply
 
 **Do NOT use this skill when:**
+
 - The user needs help implementing a specific algorithm or data structure -- use a coding or data structures skill instead
 - The user is asking about infrastructure-as-code configuration (Terraform, Kubernetes manifests) -- use the infrastructure-design skill
 - The user wants to evaluate or select a specific database technology in isolation -- use the database-selection skill
@@ -187,17 +190,19 @@ Produce a structured design document with the following sections:
 
 **Component Diagram (described):**
 ```
+
 [Client] → [CDN] → [API Gateway / Load Balancer]
-                         ↓
-              [Application Service(s)]
-              ↙         ↓          ↘
-[Cache Layer]  [Primary Database]  [Message Queue]
-(Redis Cluster)  (PostgreSQL/       (Kafka / SQS)
-                  Cassandra)
-                         ↓
-                  [Read Replicas]        [Async Workers]
-                                              ↓
-                                     [Blob Storage / Search]
+↓
+[Application Service(s)]
+↙ ↓ ↘
+[Cache Layer] [Primary Database] [Message Queue]
+(Redis Cluster) (PostgreSQL/ (Kafka / SQS)
+Cassandra)
+↓
+[Read Replicas] [Async Workers]
+↓
+[Blob Storage / Search]
+
 ```
 
 ---
@@ -352,6 +357,7 @@ Produce a structured design document with the following sections:
 ### Requirements
 
 **Functional:**
+
 - Shorten a long URL into a unique 7-character short code (e.g., `sht.ly/aB3xK2p`)
 - Redirect a short URL to its original long URL with minimal latency
 - Allow users to create custom aliases (e.g., `sht.ly/mycompany`)
@@ -360,16 +366,17 @@ Produce a structured design document with the following sections:
 
 **Non-Functional:**
 
-| NFR          | Target                 | Justification                                                          |
-|--------------|------------------------|------------------------------------------------------------------------|
-| Availability | 99.99% (52 min/year)   | Broken links are catastrophic for customer trust and SEO               |
-| Read latency | p99 < 20ms             | Redirect adds to user-perceived page load time; must be near-invisible |
-| Write latency| p99 < 500ms            | URL creation is not on the critical user path                          |
-| Throughput   | 100K RPS peak (reads)  | 100:1 read:write ratio at 50M DAU                                      |
-| Data retention| 5 years minimum       | Business requirement for analytics and link persistence                |
-| Consistency  | Eventual for analytics, strong for redirect | Clicks can be counted asynchronously; redirect MUST return the correct URL |
+| NFR            | Target                                      | Justification                                                              |
+| -------------- | ------------------------------------------- | -------------------------------------------------------------------------- |
+| Availability   | 99.99% (52 min/year)                        | Broken links are catastrophic for customer trust and SEO                   |
+| Read latency   | p99 < 20ms                                  | Redirect adds to user-perceived page load time; must be near-invisible     |
+| Write latency  | p99 < 500ms                                 | URL creation is not on the critical user path                              |
+| Throughput     | 100K RPS peak (reads)                       | 100:1 read:write ratio at 50M DAU                                          |
+| Data retention | 5 years minimum                             | Business requirement for analytics and link persistence                    |
+| Consistency    | Eventual for analytics, strong for redirect | Clicks can be counted asynchronously; redirect MUST return the correct URL |
 
 **Out of Scope:**
+
 - User authentication and account management
 - Team/organization URL management
 - Malware and phishing URL detection
@@ -379,20 +386,20 @@ Produce a structured design document with the following sections:
 
 ### Capacity Estimates
 
-| Metric                  | Calculation                                  | Result        |
-|-------------------------|----------------------------------------------|---------------|
-| Daily active users      | Assumption: 50M DAU                          | 50M DAU       |
-| URL creations/day       | 50M × 0.1 (10% of users create per day)      | 5M writes/day |
-| Average write RPS       | 5M ÷ 86,400                                  | ~58 RPS       |
-| Peak write RPS (3x)     | 58 × 3                                       | ~175 RPS      |
-| Redirects/day           | 5M writes × 100 reads each (read:write 100:1)| 500M reads    |
-| Average read RPS        | 500M ÷ 86,400                                | ~5,800 RPS    |
-| Peak read RPS (3×)      | 5,800 × 3                                    | ~17,400 RPS   |
-| Storage per URL record  | short_code (7B) + long_url (512B avg) + metadata (200B) | ~720B/record |
-| Storage per year        | 5M × 365 × 720B                              | ~1.3 TB/year  |
-| Total storage (5 years) | 1.3 TB × 5 + 20% index overhead              | ~7.8 TB       |
-| Outbound bandwidth      | 17,400 RPS × 1KB avg redirect response       | ~17 MB/s      |
-| Cache hot dataset (80/20)| 20% of 5-year dataset in hot access          | ~1.56 TB -- use Redis Cluster |
+| Metric                    | Calculation                                             | Result                        |
+| ------------------------- | ------------------------------------------------------- | ----------------------------- |
+| Daily active users        | Assumption: 50M DAU                                     | 50M DAU                       |
+| URL creations/day         | 50M × 0.1 (10% of users create per day)                 | 5M writes/day                 |
+| Average write RPS         | 5M ÷ 86,400                                             | ~58 RPS                       |
+| Peak write RPS (3x)       | 58 × 3                                                  | ~175 RPS                      |
+| Redirects/day             | 5M writes × 100 reads each (read:write 100:1)           | 500M reads                    |
+| Average read RPS          | 500M ÷ 86,400                                           | ~5,800 RPS                    |
+| Peak read RPS (3×)        | 5,800 × 3                                               | ~17,400 RPS                   |
+| Storage per URL record    | short_code (7B) + long_url (512B avg) + metadata (200B) | ~720B/record                  |
+| Storage per year          | 5M × 365 × 720B                                         | ~1.3 TB/year                  |
+| Total storage (5 years)   | 1.3 TB × 5 + 20% index overhead                         | ~7.8 TB                       |
+| Outbound bandwidth        | 17,400 RPS × 1KB avg redirect response                  | ~17 MB/s                      |
+| Cache hot dataset (80/20) | 20% of 5-year dataset in hot access                     | ~1.56 TB -- use Redis Cluster |
 
 ---
 
@@ -420,7 +427,7 @@ Produce a structured design document with the following sections:
     ↑          [PG Read Replicas × 2]
     ↑ (cache miss)
 [PostgreSQL Read Replica]
-    
+
 [Redirect Service]
        ↓ (async, fire-and-forget)
 [Kafka topic: click_events]
@@ -436,47 +443,47 @@ Produce a structured design document with the following sections:
 
 **Entity: short_urls**
 
-| Field        | Type            | Constraints                          | Notes                                           |
-|--------------|-----------------|--------------------------------------|-------------------------------------------------|
-| short_code   | CHAR(7)         | PRIMARY KEY                          | Base62 encoded, 7 chars = 62^7 = 3.5T combos   |
-| long_url     | TEXT            | NOT NULL, max 2048 chars             | Store the original URL verbatim                 |
-| user_id      | UUID            | NULLABLE, INDEX                      | NULL for anonymous links                        |
-| created_at   | TIMESTAMPTZ     | NOT NULL, DEFAULT NOW()              | UTC, used for TTL calculation                   |
-| expires_at   | TIMESTAMPTZ     | NULLABLE, INDEX                      | NULL = never expires; cron job purges expired   |
-| custom_alias | BOOLEAN         | NOT NULL, DEFAULT FALSE              | Flag to skip collision check on custom codes    |
-| click_count  | BIGINT          | NOT NULL, DEFAULT 0                  | Denormalized counter, updated asynchronously    |
+| Field        | Type        | Constraints              | Notes                                         |
+| ------------ | ----------- | ------------------------ | --------------------------------------------- |
+| short_code   | CHAR(7)     | PRIMARY KEY              | Base62 encoded, 7 chars = 62^7 = 3.5T combos  |
+| long_url     | TEXT        | NOT NULL, max 2048 chars | Store the original URL verbatim               |
+| user_id      | UUID        | NULLABLE, INDEX          | NULL for anonymous links                      |
+| created_at   | TIMESTAMPTZ | NOT NULL, DEFAULT NOW()  | UTC, used for TTL calculation                 |
+| expires_at   | TIMESTAMPTZ | NULLABLE, INDEX          | NULL = never expires; cron job purges expired |
+| custom_alias | BOOLEAN     | NOT NULL, DEFAULT FALSE  | Flag to skip collision check on custom codes  |
+| click_count  | BIGINT      | NOT NULL, DEFAULT 0      | Denormalized counter, updated asynchronously  |
 
 **Partitioning strategy:** PostgreSQL with no partitioning initially (7.8 TB is manageable on a single PostgreSQL instance with SSDs). Partition by `created_at` range if table exceeds 50M rows and vacuum performance degrades.
 
 **Entity: click_events (ClickHouse analytics table)**
 
-| Field        | Type            | Notes                                          |
-|--------------|-----------------|------------------------------------------------|
-| short_code   | LowCardinality(String) | Partition key for ClickHouse sharding   |
-| clicked_at   | DateTime64(3)   | Millisecond precision, sort key                |
-| country_code | LowCardinality(String) | Derived from IP via MaxMind GeoIP2 DB   |
-| user_agent   | String          | Raw UA string, parse at query time             |
-| referrer     | Nullable(String)| HTTP Referer header                            |
+| Field        | Type                   | Notes                                 |
+| ------------ | ---------------------- | ------------------------------------- |
+| short_code   | LowCardinality(String) | Partition key for ClickHouse sharding |
+| clicked_at   | DateTime64(3)          | Millisecond precision, sort key       |
+| country_code | LowCardinality(String) | Derived from IP via MaxMind GeoIP2 DB |
+| user_agent   | String                 | Raw UA string, parse at query time    |
+| referrer     | Nullable(String)       | HTTP Referer header                   |
 
 ClickHouse stores this as a columnar MergeTree table ordered by `(short_code, clicked_at)`, enabling fast range scans for per-link analytics dashboards.
 
 **Storage Selection:**
 
-| Entity        | Storage Engine         | Rationale                                                    |
-|---------------|------------------------|--------------------------------------------------------------|
-| short_urls    | PostgreSQL 15          | ACID, simple schema, 175 writes/sec well within single-node capacity |
-| Redirect cache| Redis Cluster (6 nodes)| Sub-millisecond lookup, LRU eviction, stores 1.56 TB hot dataset |
-| click_events  | ClickHouse             | Columnar, exceptional aggregate query performance on time-series click data |
+| Entity         | Storage Engine          | Rationale                                                                   |
+| -------------- | ----------------------- | --------------------------------------------------------------------------- |
+| short_urls     | PostgreSQL 15           | ACID, simple schema, 175 writes/sec well within single-node capacity        |
+| Redirect cache | Redis Cluster (6 nodes) | Sub-millisecond lookup, LRU eviction, stores 1.56 TB hot dataset            |
+| click_events   | ClickHouse              | Columnar, exceptional aggregate query performance on time-series click data |
 
 **Access Patterns:**
 
-| Query                              | Storage / Path                         | Expected Latency |
-|------------------------------------|----------------------------------------|------------------|
-| Redirect: lookup by short_code     | Redis (cache hit: ~95% hit rate)       | <1 ms            |
-| Redirect: lookup by short_code     | PostgreSQL read replica (cache miss)   | 5--10 ms          |
-| Create short URL                   | PostgreSQL primary (INSERT)            | 10--20 ms         |
-| Analytics: clicks per link per day | ClickHouse MergeTree aggregate query   | 50--200 ms        |
-| User's link history                | PostgreSQL read replica (INDEX user_id)| 10--20 ms         |
+| Query                              | Storage / Path                          | Expected Latency |
+| ---------------------------------- | --------------------------------------- | ---------------- |
+| Redirect: lookup by short_code     | Redis (cache hit: ~95% hit rate)        | <1 ms            |
+| Redirect: lookup by short_code     | PostgreSQL read replica (cache miss)    | 5--10 ms         |
+| Create short URL                   | PostgreSQL primary (INSERT)             | 10--20 ms        |
+| Analytics: clicks per link per day | ClickHouse MergeTree aggregate query    | 50--200 ms       |
+| User's link history                | PostgreSQL read replica (INDEX user_id) | 10--20 ms        |
 
 ---
 
@@ -497,6 +504,7 @@ The most critical design decision for a URL shortener is how to generate unique 
 ### API Design
 
 **POST /api/v1/urls -- Create short URL**
+
 - Auth: Optional Bearer JWT (anonymous links allowed)
 - Rate limit: 100 requests per minute per IP (unauthenticated); 1,000 per minute per user (authenticated)
 - Request: `{ "long_url": "https://...", "custom_alias": "mylink", "expires_in_days": 30 }`
@@ -505,12 +513,14 @@ The most critical design decision for a URL shortener is how to generate unique 
 - Response 422: `{ "error": "invalid_url", "message": "The provided URL is not reachable or is malformed" }`
 
 **GET /{short_code} -- Redirect**
+
 - Auth: None
 - Response 301 (permanent redirect -- CDN cacheable) for non-expiring links; 302 (temporary redirect) for expiring links
 - Response header: `Location: https://original-long-url.com/path`
 - Response 404: `{ "error": "not_found", "message": "This link does not exist or has expired" }`
 
 **GET /api/v1/urls/{short_code}/analytics -- Click analytics**
+
 - Auth: Bearer JWT, must be link owner
 - Query params: `?from=2024-01-01&to=2024-12-31&granularity=day`
 - Response 200: `{ "short_code": "aB3xK2p", "total_clicks": 45231, "series": [{"date": "2024-01-01", "clicks": 122, "top_countries": [...]}] }`
@@ -519,26 +529,29 @@ The most critical design decision for a URL shortener is how to generate unique 
 
 ### Reliability Design
 
-| Failure Scenario             | Detection                         | Mitigation                                          | RTO    |
-|------------------------------|-----------------------------------|-----------------------------------------------------|--------|
-| Redirect Service crash       | Load balancer health check (5s)   | Kubernetes restarts pod; traffic rerouted in <30s   | <30s   |
-| Redis Cluster node failure   | Redis Cluster gossip protocol     | Cluster promotes replica automatically; degraded hit rate during failover | <10s |
-| PostgreSQL primary failure   | Patroni health monitor            | Automatic failover to replica; ~20s promotion time  | <30s   |
-| PostgreSQL replica unavail.  | Application health check          | Fall back to primary for reads (elevated primary load) | 0s  |
-| Kafka broker failure         | Kafka leader election             | Partitions re-assigned to surviving brokers         | <30s   |
-| CDN outage                   | Synthetic monitoring (5 min check)| DNS failover to origin load balancer (TTL 60s)      | <2min  |
+| Failure Scenario            | Detection                          | Mitigation                                                                | RTO   |
+| --------------------------- | ---------------------------------- | ------------------------------------------------------------------------- | ----- |
+| Redirect Service crash      | Load balancer health check (5s)    | Kubernetes restarts pod; traffic rerouted in <30s                         | <30s  |
+| Redis Cluster node failure  | Redis Cluster gossip protocol      | Cluster promotes replica automatically; degraded hit rate during failover | <10s  |
+| PostgreSQL primary failure  | Patroni health monitor             | Automatic failover to replica; ~20s promotion time                        | <30s  |
+| PostgreSQL replica unavail. | Application health check           | Fall back to primary for reads (elevated primary load)                    | 0s    |
+| Kafka broker failure        | Kafka leader election              | Partitions re-assigned to surviving brokers                               | <30s  |
+| CDN outage                  | Synthetic monitoring (5 min check) | DNS failover to origin load balancer (TTL 60s)                            | <2min |
 
 **Circuit Breaker on PostgreSQL (from Redirect Service):**
+
 - Open threshold: >30% error rate over 5-second window with minimum 10 requests
 - Half-open: probe every 5 seconds with a single request
 - During open state: serve stale Redis cache only; return 503 if cache misses with `Retry-After: 30`
 
 **Cache Strategy:**
+
 - Populate Redis on write (write-through): when a new short URL is created, immediately write it to Redis with TTL = min(expires_at - now, 24h). Long TTL for permanent links; short TTL for expiring links.
 - On redirect cache miss: fetch from PostgreSQL read replica, populate cache, serve response.
 - Cache eviction: LRU with `maxmemory-policy allkeys-lru`. Redis Cluster sized for 1.56 TB hot dataset across 6 master nodes (260 GB per master node -- use r6g.2xlarge: 64 GB each, so 12 master nodes to fit 1.56 TB).
 
 **Idempotency:**
+
 - Write Service uses PostgreSQL's `INSERT ... ON CONFLICT (short_code) DO NOTHING` to safely handle retried requests.
 - Custom alias creation is idempotent when the same user submits the same alias+URL pair (return existing record).
 
@@ -546,14 +559,14 @@ The most critical design decision for a URL shortener is how to generate unique 
 
 ### Scalability Plan
 
-| Bottleneck           | Scaling Strategy                                          | Trigger                         |
-|----------------------|-----------------------------------------------------------|---------------------------------|
-| Redirect Service     | Horizontal scale-out (Kubernetes HPA)                     | CPU > 70% sustained for 3 min  |
+| Bottleneck           | Scaling Strategy                                                         | Trigger                                |
+| -------------------- | ------------------------------------------------------------------------ | -------------------------------------- |
+| Redirect Service     | Horizontal scale-out (Kubernetes HPA)                                    | CPU > 70% sustained for 3 min          |
 | Redis Cluster reads  | Add read replicas per shard (Redis Cluster supports replicas per master) | Memory > 75% or connection count > 10K |
-| PostgreSQL writes    | Vertical scale (writes are 175 RPS -- single node is fine to 50K+) | Write latency p99 > 200ms      |
-| PostgreSQL reads     | Add read replicas (currently 2, scale to 5)               | Read replica CPU > 80%          |
-| Kafka throughput     | Add partitions to click_events topic                      | Consumer lag > 10s             |
-| ClickHouse analytics | Add ClickHouse shards                                     | Query latency p99 > 5s         |
+| PostgreSQL writes    | Vertical scale (writes are 175 RPS -- single node is fine to 50K+)       | Write latency p99 > 200ms              |
+| PostgreSQL reads     | Add read replicas (currently 2, scale to 5)                              | Read replica CPU > 80%                 |
+| Kafka throughput     | Add partitions to click_events topic                                     | Consumer lag > 10s                     |
+| ClickHouse analytics | Add ClickHouse shards                                                    | Query latency p99 > 5s                 |
 
 **CDN caching eliminates ~80% of origin load.** Most popular short links receive 80% of traffic and can be cached at the CDN edge with `Cache-Control: public, max-age=3600` for permanent links. This reduces actual Redirect Service RPS from 17,400 to ~3,500 RPS at the origin -- a 5x reduction.
 

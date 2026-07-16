@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing technical-writing"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing technical-writing'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Screenplay Scene
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to write a specific scene in screenplay format -- a single scene with defined beginning, middle, and end
 - User wants to draft a film or TV scene requiring slug lines, action lines, and formatted dialogue
 - User needs to adapt existing prose, a summary, or a story beat into proper screenplay format
@@ -29,6 +31,7 @@ metadata:
 - User wants to write a cold open, a teaser, a montage sequence, or a specialty format element within a larger screenplay
 
 **Do NOT use this skill when:**
+
 - User wants prose fiction narrative (use `scene-writing` -- different sensory register, interiority allowed)
 - User wants a stage play, musical theater book, or radio play (different margin conventions, different staging grammar, parentheticals serve different functions)
 - User wants dialogue practice or character voice exercises without format requirements (use `dialogue-writing`)
@@ -200,27 +203,35 @@ is the last thing the audience sees before the cut.
 ## Edge Cases
 
 ### Montage Sequences
+
 Format as a master slug line reading "MONTAGE --" followed by a brief thematic description ("-- Cole traces the victim's last movements"), then a series of brief slug lines and one-line action descriptions for each shot. End with "END MONTAGE." Each shot in the montage gets its own mini-slug line (INT. PARKING GARAGE - NIGHT) but action lines should be one sentence. If dialogue or voice-over accompanies the montage, treat it as V.O. running over the sequence. A montage is a compression device -- if the same information can be shown in a single scene, use the single scene.
 
 ### Voice-Over Narration
+
 Format with CHARACTER NAME (V.O.) in the dialogue header. The visual action running beneath V.O. must do its own narrative work simultaneously -- the images and the narration should create meaning in counterpoint, not in unison. If the V.O. says "That was the summer everything fell apart" while the images show a family laughing at a barbecue, that contrast is the storytelling. If the V.O. says "That was the summer everything fell apart" while images show things falling apart, the V.O. is redundant and should be cut. The camera image and the narrated line should never say exactly the same thing.
 
 ### Phone Call Scenes
+
 Two options based on dramatic need. Option one: stay on a single character, show only their side of the call, and let the audience infer the other end from reactions -- this is often the stronger dramatic choice because it creates an information imbalance. Option two: use INTERCUT -- PHONE CONVERSATION after establishing both locations with their own slug lines. The intercut format allows the scene to move freely between both speakers. End an intercut sequence by returning to a single slug line when the call ends. Avoid "We hear a VOICE on the phone" (O.S.) as a lazy third option -- it creates a disembodied voice that disrupts visual grammar.
 
 ### Dual Dialogue (Simultaneous Speech)
+
 When two characters speak simultaneously, format their names and dialogue in side-by-side columns. This is a specialty format -- use it only when the simultaneity is essential to the scene's meaning (an argument where both characters are talking over each other at peak). In plain text or markdown, flag with "(simultaneously)" as a parenthetical for both characters and note in scene notes that this requires dual dialogue formatting in production software. Overuse of dual dialogue is a spec script red flag.
 
 ### Action Sequences
+
 Action writing is compression writing. Each line is a shot. Use sentence fragments deliberately: "She runs. The alley narrows. A chain-link fence. Locked." The white space between fragments is screen time. Do not write action sequences in paragraph prose -- it will read as slow on the page and be even slower on screen. Break geography into discrete spatial beats so the reader always knows where bodies are in space. A chase scene where the geography is unclear is a chase scene that cannot be storyboarded and will be rewritten by someone else.
 
 ### The "Quiet" or Character Scene With No Plot Event
+
 Not every scene requires an external plot event -- some of the finest scenes in screenwriting are about nothing except two people in a room and what is between them. However, these scenes are the easiest to write as static talking-head exchanges and the hardest to write well. The technique: give each character something to DO with their hands. A task that runs through the scene (cooking, packing a suitcase, fixing a car) creates physical subtext and prevents the scene from becoming a conversation. The task also gives characters a reason to be in the same space doing different things -- proximity without forced contrivance.
 
 ### Adapting Prose Fiction Into Screenplay Format
+
 The prose-to-screenplay conversion has three mandatory operations. First, extract every internal thought and find its filmable equivalent or cut it -- interiority does not exist in screenplay. Second, identify every piece of expository backstory and find a dramatic scene where that information can be discovered rather than narrated -- or cut it entirely. Third, strip all authorial commentary from action lines ("This is the moment when everything changed") and replace it with specific images. What remains after these three operations is the visual and dramatic skeleton of the scene. The prose writer's greatest screenplay problem is writing action lines that describe emotion rather than image -- "the room felt oppressive" must become "the single window faces a concrete wall."
 
 ### TV Pilot vs. Feature Film Tone
+
 Television screenplay format is largely identical to feature format but the rhythm differs significantly. TV scenes tend to be shorter (one to two pages), dialogue-heavier by necessity, and structured to end on a micro-hook that carries the viewer into the next scene. The act break -- where a dramatic question is raised that cannot be answered before a commercial break in broadcast, or a tonal shift in streaming -- is structural, not stylistic. Feature film scenes have more freedom for visual silence, for scenes that do not advance plot but deepen world, and for longer action passages. When the user does not specify, ask. A scene written for a prestige drama pilot reads differently on the page than the same story beat in a two-hour feature.
 
 ---
@@ -278,7 +289,8 @@ Martin's hand goes still on the folder.
                     PAUL
           You can't run the business yet, Marty.
           You're eleven.
-                    
+
+
 Martin looks at his father's face. At the absolute certainty there.
 
 He closes the folder.
@@ -361,6 +373,7 @@ Martin walks out.
 ---
 
 ### Scene Notes
+
 - **Emotional beat:** Martin arrives with a predatory agenda -- acquiring legal control -- and leaves having involuntarily become his father's eleven-year-old son again. The legal document, the scene's inciting object, never gets opened. His agenda does not fail -- it becomes irrelevant.
 - **Visual storytelling:** The folder's journey is the scene. Martin brings it in, opens it, closes it, puts it on the floor, and walks out without it. The audience never needs to know the specific legal contents -- the arc of the object tells them everything. The final image of the folder left behind on the floor is the scene's emotional conclusion, requiring no dialogue to explain.
 - **Subtext:** Martin and his father are speaking entirely past each other. Martin is in the present; Paul is in 1985. Every line of dialogue is the characters talking about different things simultaneously -- and both meanings are visible to the audience, creating the irony that produces grief.

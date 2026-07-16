@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care guide step-by-step"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'pet-care guide step-by-step'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Exotic Pet Specialist
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about exotic pet specialist
 - User needs guidance on exotic pet specialist topics
 - User wants a structured approach to exotic pet specialist
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -48,15 +50,15 @@ metadata:
 
 ### Popular Reptile Species Comparison
 
-| Species | Enclosure Size (min) | Temp (Basking/Cool) | Humidity | Diet | Lifespan | Beginner Friendly |
-|---------|---------------------|---------------------|----------|------|----------|-------------------|
-| Leopard Gecko | 20 gal long | 88-92F / 75-80F | 30-40% | Insects | 15-20 yr | Excellent |
-| Bearded Dragon | 40 gal (adult 75+) | 100-110F / 80-85F | 30-40% | Omni (insects + veg) | 10-15 yr | Excellent |
-| Ball Python | 40 gal (adult) | 88-92F / 76-80F | 50-60% | Rodents | 20-30 yr | Good |
-| Corn Snake | 30-40 gal (adult) | 85-88F / 75-80F | 40-50% | Rodents | 15-20 yr | Excellent |
-| Crested Gecko | 18x18x24 (vertical) | 72-80F / 65-75F | 60-80% | CGD + insects | 15-20 yr | Excellent |
-| Blue Tongue Skink | 40-75 gal | 95-100F / 75-80F | 40-60% | Omni (protein + veg) | 15-20 yr | Good |
-| Red-Eared Slider | 75+ gal (aquatic) | 85-90F basking / 75-80F water | N/A (aquatic) | Omni | 20-40 yr | Moderate |
+| Species           | Enclosure Size (min) | Temp (Basking/Cool)           | Humidity      | Diet                 | Lifespan | Beginner Friendly |
+| ----------------- | -------------------- | ----------------------------- | ------------- | -------------------- | -------- | ----------------- |
+| Leopard Gecko     | 20 gal long          | 88-92F / 75-80F               | 30-40%        | Insects              | 15-20 yr | Excellent         |
+| Bearded Dragon    | 40 gal (adult 75+)   | 100-110F / 80-85F             | 30-40%        | Omni (insects + veg) | 10-15 yr | Excellent         |
+| Ball Python       | 40 gal (adult)       | 88-92F / 76-80F               | 50-60%        | Rodents              | 20-30 yr | Good              |
+| Corn Snake        | 30-40 gal (adult)    | 85-88F / 75-80F               | 40-50%        | Rodents              | 15-20 yr | Excellent         |
+| Crested Gecko     | 18x18x24 (vertical)  | 72-80F / 65-75F               | 60-80%        | CGD + insects        | 15-20 yr | Excellent         |
+| Blue Tongue Skink | 40-75 gal            | 95-100F / 75-80F              | 40-60%        | Omni (protein + veg) | 15-20 yr | Good              |
+| Red-Eared Slider  | 75+ gal (aquatic)    | 85-90F basking / 75-80F water | N/A (aquatic) | Omni                 | 20-40 yr | Moderate          |
 
 ### Reptile Habitat Setup Essentials
 
@@ -139,15 +141,15 @@ EMERGENCY (Exotic vet immediately):
 
 ### Popular Pet Bird Comparison
 
-| Species | Cage Size (min) | Noise Level | Lifespan | Talking Ability | Social Needs | Beginner Friendly |
-|---------|----------------|-------------|----------|----------------|-------------|-------------------|
-| Budgerigar (Budgie) | 18x18x18 | Low-Mod | 5-10 yr | Moderate | Moderate | Excellent |
-| Cockatiel | 24x18x24 | Moderate | 15-25 yr | Moderate | High | Excellent |
-| Conure (Green Cheek) | 24x24x30 | Mod-High | 20-30 yr | Low | Very High | Good |
-| African Grey | 36x24x48 | Moderate | 40-60 yr | Exceptional | Very High | Advanced |
-| Cockatoo | 36x24x48+ | Very High | 40-70 yr | Moderate | Extremely High | Advanced |
-| Lovebird | 24x18x24 | Moderate | 10-15 yr | Low | High (pairs) | Good |
-| Finch/Canary | 24x18x18 | Low | 5-10 yr | None/Song | Low-Mod | Excellent |
+| Species              | Cage Size (min) | Noise Level | Lifespan | Talking Ability | Social Needs   | Beginner Friendly |
+| -------------------- | --------------- | ----------- | -------- | --------------- | -------------- | ----------------- |
+| Budgerigar (Budgie)  | 18x18x18        | Low-Mod     | 5-10 yr  | Moderate        | Moderate       | Excellent         |
+| Cockatiel            | 24x18x24        | Moderate    | 15-25 yr | Moderate        | High           | Excellent         |
+| Conure (Green Cheek) | 24x24x30        | Mod-High    | 20-30 yr | Low             | Very High      | Good              |
+| African Grey         | 36x24x48        | Moderate    | 40-60 yr | Exceptional     | Very High      | Advanced          |
+| Cockatoo             | 36x24x48+       | Very High   | 40-70 yr | Moderate        | Extremely High | Advanced          |
+| Lovebird             | 24x18x24        | Moderate    | 10-15 yr | Low             | High (pairs)   | Good              |
+| Finch/Canary         | 24x18x18        | Low         | 5-10 yr  | None/Song       | Low-Mod        | Excellent         |
 
 ### Bird Habitat and Diet
 
@@ -229,15 +231,15 @@ weekly is one of the best early detection methods.
 
 ### Popular Small Mammal Comparison
 
-| Species | Enclosure Type | Diet | Lifespan | Social | Handling | Activity |
-|---------|---------------|------|----------|--------|----------|----------|
-| Rabbit | Large pen/room | Hay, vegetables, pellets | 8-12 yr | Pairs ideal | Gentle, ground-level | Dawn/dusk |
-| Guinea Pig | Large open pen | Hay, vegetables, pellets + vitamin C | 5-7 yr | Pairs or groups | Gentle, social | Daytime |
-| Hamster (Syrian) | 40+ gal / 600+ sq in | Seed mix, vegetables, protein | 2-3 yr | Solitary only | Evening handling | Nocturnal |
-| Rat | Multi-level cage | Lab blocks, fresh foods | 2-3 yr | Same-sex pairs/groups | Very social, trainable | Nocturnal |
-| Ferret | Large multi-level | High-protein kibble or raw | 6-10 yr | Pairs or groups | Very social, playful | Crepuscular |
-| Chinchilla | Multi-level tall cage | Hay, pellets, limited treats | 10-20 yr | Pairs (bonded) | Gentle, flighty | Nocturnal |
-| Hedgehog | 2x4 ft minimum | Insectivore diet, cat food | 4-7 yr | Solitary | Patient handling | Nocturnal |
+| Species          | Enclosure Type        | Diet                                 | Lifespan | Social                | Handling               | Activity    |
+| ---------------- | --------------------- | ------------------------------------ | -------- | --------------------- | ---------------------- | ----------- |
+| Rabbit           | Large pen/room        | Hay, vegetables, pellets             | 8-12 yr  | Pairs ideal           | Gentle, ground-level   | Dawn/dusk   |
+| Guinea Pig       | Large open pen        | Hay, vegetables, pellets + vitamin C | 5-7 yr   | Pairs or groups       | Gentle, social         | Daytime     |
+| Hamster (Syrian) | 40+ gal / 600+ sq in  | Seed mix, vegetables, protein        | 2-3 yr   | Solitary only         | Evening handling       | Nocturnal   |
+| Rat              | Multi-level cage      | Lab blocks, fresh foods              | 2-3 yr   | Same-sex pairs/groups | Very social, trainable | Nocturnal   |
+| Ferret           | Large multi-level     | High-protein kibble or raw           | 6-10 yr  | Pairs or groups       | Very social, playful   | Crepuscular |
+| Chinchilla       | Multi-level tall cage | Hay, pellets, limited treats         | 10-20 yr | Pairs (bonded)        | Gentle, flighty        | Nocturnal   |
+| Hedgehog         | 2x4 ft minimum        | Insectivore diet, cat food           | 4-7 yr   | Solitary              | Patient handling       | Nocturnal   |
 
 ### Small Mammal Essentials
 

@@ -94,16 +94,16 @@ describe('GoogleChatPlugin lifecycle', () => {
 
   it('transitions to error when serviceAccountJson is missing', async () => {
     const plugin = new GoogleChatPlugin();
-    await expect(
-      plugin.initialize({ ...validConfig, credentials: { audience: '123' } }),
-    ).rejects.toThrow(/serviceAccountJson is required/i);
+    await expect(plugin.initialize({ ...validConfig, credentials: { audience: '123' } })).rejects.toThrow(
+      /serviceAccountJson is required/i
+    );
     expect(plugin.status).toBe('error');
   });
 
   it('transitions to error when serviceAccountJson is not valid JSON', async () => {
     const plugin = new GoogleChatPlugin();
     await expect(
-      plugin.initialize({ ...validConfig, credentials: { serviceAccountJson: '{bad json', audience: '123' } }),
+      plugin.initialize({ ...validConfig, credentials: { serviceAccountJson: '{bad json', audience: '123' } })
     ).rejects.toThrow(/not valid JSON/i);
     expect(plugin.status).toBe('error');
   });
@@ -114,7 +114,7 @@ describe('GoogleChatPlugin lifecycle', () => {
       plugin.initialize({
         ...validConfig,
         credentials: { serviceAccountJson: JSON.stringify({ type: 'service_account' }), audience: '123' },
-      }),
+      })
     ).rejects.toThrow(/private_key.*client_email/i);
     expect(plugin.status).toBe('error');
   });
@@ -218,16 +218,16 @@ describe('GoogleChatPlugin pubsub transport', () => {
 
   it('errors when transport is pubsub but subscriptionName is missing', async () => {
     const plugin = new GoogleChatPlugin();
-    await expect(
-      plugin.initialize(pubsubConfig({ subscriptionName: undefined })),
-    ).rejects.toThrow(/subscriptionName is required/i);
+    await expect(plugin.initialize(pubsubConfig({ subscriptionName: undefined }))).rejects.toThrow(
+      /subscriptionName is required/i
+    );
     expect(plugin.status).toBe('error');
   });
 
   it('errors when subscriptionName is not a valid subscription path', async () => {
     const plugin = new GoogleChatPlugin();
     await expect(plugin.initialize(pubsubConfig({ subscriptionName: 'wayland-sub' }))).rejects.toThrow(
-      /projects\/<project>\/subscriptions/,
+      /projects\/<project>\/subscriptions/
     );
     expect(plugin.status).toBe('error');
   });

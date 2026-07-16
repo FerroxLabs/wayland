@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking decluttering planning"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking decluttering planning'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Kitchen Organization
 
 ## When to Use
@@ -400,12 +401,12 @@ An open-plan kitchen has an aesthetic constraint that closed kitchens do not -- 
 
 ### Work Triangle Assessment
 
-| Path | Estimated Distance | Target Range | Status |
-|------|-------------------|--------------|--------|
-| Stove → Sink | ~4 feet (same wall, stove middle / sink at end) | 4-9 ft | OK -- efficient, minimal steps |
-| Sink → Refrigerator | ~8 feet (sink at far end, fridge at opposite end) | 4-9 ft | At the upper edge -- acceptable |
-| Stove → Refrigerator | ~4 feet (stove in middle, fridge at one end) | 4-9 ft | OK |
-| Total Triangle Perimeter | ~16 feet | 13-26 ft | Good -- efficient triangle |
+| Path                     | Estimated Distance                                | Target Range | Status                          |
+| ------------------------ | ------------------------------------------------- | ------------ | ------------------------------- |
+| Stove → Sink             | ~4 feet (same wall, stove middle / sink at end)   | 4-9 ft       | OK -- efficient, minimal steps  |
+| Sink → Refrigerator      | ~8 feet (sink at far end, fridge at opposite end) | 4-9 ft       | At the upper edge -- acceptable |
+| Stove → Refrigerator     | ~4 feet (stove in middle, fridge at one end)      | 4-9 ft       | OK                              |
+| Total Triangle Perimeter | ~16 feet                                          | 13-26 ft     | Good -- efficient triangle      |
 
 **Notes:** The stove-to-sink path is excellent at approximately 4 feet -- the most frequent travel path in cooking (filling pots, draining pasta, washing hands) is highly efficient. The sink-to-refrigerator run at approximately 8 feet is on the longer end but within acceptable range. The primary workflow limitation in this galley is width -- if the two rows of cabinets are 4 feet apart or less, two-person cooking creates traffic conflicts. Single-cook household means this is not a current concern.
 
@@ -413,13 +414,13 @@ An open-plan kitchen has an aesthetic constraint that closed kitchens do not -- 
 
 ### Zone Map
 
-| Zone | Purpose | Physical Location | Key Items Stored Here |
-|------|---------|------------------|----------------------|
-| 1. Prep | Cutting, measuring, mixing | Counter run on the OPPOSITE wall from stove -- this wall's counter is the primary workspace | Chef's knife, paring knife, bread knife, cutting board (large), mixing bowls, measuring cups and spoons, vegetable prep tools |
-| 2. Cooking | Stovetop cooking | Cabinet and counter directly adjacent to stove (both sides if possible) | Skillet, saucepan, stock pot, spatula, tongs, wooden spoon, pot holders, cooking oils, salt, pepper, active-use spices |
-| 3. Cleaning | Dishwashing, waste | Under sink and adjacent base cabinet | Dish soap, sponge, drying mat or compact drying rack, trash bin, cleaning supplies |
-| 4. Storage | Pantry and dry goods | Upper cabinets on the prep-zone wall (opposite from stove) -- this wall's upper cabinets become the de facto pantry | Dry goods, canned items, pasta, rice, baking supplies, snacks |
-| 5. Serving | Dishes, glasses, flatware | Upper cabinet nearest the sink/end of kitchen (closest to dining area exit) | Plates, bowls, mugs, glasses, silverware |
+| Zone        | Purpose                    | Physical Location                                                                                                   | Key Items Stored Here                                                                                                         |
+| ----------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| 1. Prep     | Cutting, measuring, mixing | Counter run on the OPPOSITE wall from stove -- this wall's counter is the primary workspace                         | Chef's knife, paring knife, bread knife, cutting board (large), mixing bowls, measuring cups and spoons, vegetable prep tools |
+| 2. Cooking  | Stovetop cooking           | Cabinet and counter directly adjacent to stove (both sides if possible)                                             | Skillet, saucepan, stock pot, spatula, tongs, wooden spoon, pot holders, cooking oils, salt, pepper, active-use spices        |
+| 3. Cleaning | Dishwashing, waste         | Under sink and adjacent base cabinet                                                                                | Dish soap, sponge, drying mat or compact drying rack, trash bin, cleaning supplies                                            |
+| 4. Storage  | Pantry and dry goods       | Upper cabinets on the prep-zone wall (opposite from stove) -- this wall's upper cabinets become the de facto pantry | Dry goods, canned items, pasta, rice, baking supplies, snacks                                                                 |
+| 5. Serving  | Dishes, glasses, flatware  | Upper cabinet nearest the sink/end of kitchen (closest to dining area exit)                                         | Plates, bowls, mugs, glasses, silverware                                                                                      |
 
 **Galley-specific logic:** In a galley, the two walls have a natural division: the appliance wall (stove, sink, refrigerator, and associated cabinets) is the Cooking and Cleaning zone. The opposite wall (no appliances, continuous counter) is the Prep zone and houses the Storage zone in its upper cabinets. This separation also prevents the most common galley collision: reaching into a cabinet on the stove wall while someone is using the stove.
 
@@ -428,27 +429,28 @@ An open-plan kitchen has an aesthetic constraint that closed kitchens do not -- 
 ### Counter Management Plan
 
 **This kitchen has two counter surfaces:**
+
 - **Appliance wall counter** (stove wall): This is split into 3 segments by the stove and sink -- two flanking segments, likely 18-24 inches each. Very limited.
 - **Prep wall counter** (opposite wall): The longest continuous counter run, approximately 6-7 feet total. This is the primary workspace and should be kept as clear as possible.
 
 **Permanent Counter Items (both conditions met: daily use + slow retrieval):**
 
-| Item | Location | Justification |
-|------|----------|--------------|
-| Coffee maker | Appliance wall, one flanking counter section | Used daily; retrieval from cabinet adds 15+ seconds |
-| Utensil crock (single crock, max 8 tools) | Appliance wall, adjacent to stove | Spatulas, tongs, wooden spoon -- in-use storage for active cooking |
-| Magnetic knife strip (wall-mounted, NO counter footprint) | Mounted on prep wall or appliance wall | Holds all 3-4 knives with zero counter footprint; preferred over knife block |
-| Dish drying mat (collapsible or slim) | Appliance wall, near sink | Roll up or fold when not in use to reclaim counter |
+| Item                                                      | Location                                     | Justification                                                                |
+| --------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------- |
+| Coffee maker                                              | Appliance wall, one flanking counter section | Used daily; retrieval from cabinet adds 15+ seconds                          |
+| Utensil crock (single crock, max 8 tools)                 | Appliance wall, adjacent to stove            | Spatulas, tongs, wooden spoon -- in-use storage for active cooking           |
+| Magnetic knife strip (wall-mounted, NO counter footprint) | Mounted on prep wall or appliance wall       | Holds all 3-4 knives with zero counter footprint; preferred over knife block |
+| Dish drying mat (collapsible or slim)                     | Appliance wall, near sink                    | Roll up or fold when not in use to reclaim counter                           |
 
 **Items to Move Off Counter:**
 
-| Item | New Home | Space Reclaimed |
-|------|----------|----------------|
-| Stand mixer | Lower cabinet on prep wall -- on a heavy-duty non-slip mat or a wooden cutting board as a slide platform | ~18 x 10 inches counter space |
-| Toaster | Upper cabinet near serving zone -- pull out when needed (4-second retrieval) | ~12 x 8 inches |
-| Blender | Upper cabinet on prep wall | ~8 x 8 inches |
-| Any decorative items | Relocate outside kitchen -- galley has no room for non-functional objects | Variable |
-| Bags, mail, keys | Create a landing zone in entry area or nearest shelf outside kitchen | Removes kitchen-as-dumping-ground behavior |
+| Item                 | New Home                                                                                                 | Space Reclaimed                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Stand mixer          | Lower cabinet on prep wall -- on a heavy-duty non-slip mat or a wooden cutting board as a slide platform | ~18 x 10 inches counter space              |
+| Toaster              | Upper cabinet near serving zone -- pull out when needed (4-second retrieval)                             | ~12 x 8 inches                             |
+| Blender              | Upper cabinet on prep wall                                                                               | ~8 x 8 inches                              |
+| Any decorative items | Relocate outside kitchen -- galley has no room for non-functional objects                                | Variable                                   |
+| Bags, mail, keys     | Create a landing zone in entry area or nearest shelf outside kitchen                                     | Removes kitchen-as-dumping-ground behavior |
 
 **Stand Mixer Solution -- Specific to This Kitchen:**
 The stand mixer belongs in the base cabinet on the prep wall (the lower cabinet run on the opposite-from-stove wall). Place it on a heavy wooden cutting board or a smooth non-slip mat to allow sliding it out to the counter edge without lifting. When in use for weekend baking, slide it forward to the prep counter. When not in use (weeknights), it is out of the way and the full counter is available for weeknight cooking. This is the galley kitchen standard solution for stand mixer storage.
@@ -459,7 +461,8 @@ The stand mixer belongs in the base cabinet on the prep wall (the lower cabinet 
 
 ### Tool Hierarchy
 
-| Frequency | Storage Location | Specific Items |
-|-----------|----------------|---------------|
-| Daily | Utensil crock on counter + top drawer (prep wall) | Chef's knife (magnetic strip), spatula (silicone), tongs, wooden spoon, pot holders; top drawer: cutting board on counter, measuring spoons in drawer |
+| Frequency | Storage Location                                  | Specific Items                                                                                                                                        |
+| --------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Daily     | Utensil crock on counter + top drawer (prep wall) | Chef's knife (magnetic strip), spatula (silicone), tongs, wooden spoon, pot holders; top drawer: cutting board on counter, measuring spoons in drawer |
+
 | 2-3x

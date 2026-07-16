@@ -8,11 +8,11 @@ Wayland supports WebUI mode, allowing you to access the application through a br
 
 ## Three Remote Connection Methods
 
-| Connection Method               | Use Case                                    | Description                                                              | Difficulty     |
-| ------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------ | -------------- |
-| **1. LAN Connection**           | Devices on the same WiFi/LAN                | Phone and computer on the same WiFi - just enable "Allow Remote Access"  | ⭐ Easy        |
-| **2. VPN Software (Tailscale)** | Cross-network access (e.g. office to home)  | Uses VPN software like Tailscale - no public IP or server required       | ⭐ Very Easy   |
-| **3. Server Deployment**        | Multi-user access, 24/7 uptime              | Deploy on a cloud server, accessible via public IP                       | ⭐⭐ Moderate  |
+| Connection Method               | Use Case                                   | Description                                                             | Difficulty    |
+| ------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------- | ------------- |
+| **1. LAN Connection**           | Devices on the same WiFi/LAN               | Phone and computer on the same WiFi - just enable "Allow Remote Access" | ⭐ Easy       |
+| **2. VPN Software (Tailscale)** | Cross-network access (e.g. office to home) | Uses VPN software like Tailscale - no public IP or server required      | ⭐ Very Easy  |
+| **3. Server Deployment**        | Multi-user access, 24/7 uptime             | Deploy on a cloud server, accessible via public IP                      | ⭐⭐ Moderate |
 
 ### How to Choose?
 
@@ -369,11 +369,11 @@ If you need to use a port other than the default (25808), you can set it via the
 
 ### Configuration File Location
 
-| Platform | Configuration File Path                                          |
-| -------- | ---------------------------------------------------------------- |
-| Windows  | `%APPDATA%/Wayland/webui.config.json`                            |
-| macOS    | `~/Library/Application Support/Wayland/webui.config.json`        |
-| Linux    | `~/.config/Wayland/webui.config.json`                            |
+| Platform | Configuration File Path                                   |
+| -------- | --------------------------------------------------------- |
+| Windows  | `%APPDATA%/Wayland/webui.config.json`                     |
+| macOS    | `~/Library/Application Support/Wayland/webui.config.json` |
+| Linux    | `~/.config/Wayland/webui.config.json`                     |
 
 ### Configuration Example
 

@@ -9,12 +9,7 @@ import express from 'express';
 import { logWebhookEvent } from './audit-log';
 import { ConnectionTokenStore } from './connection-tokens';
 import { ReplayCache } from './replay-cache';
-import type {
-  ConnectionTokenRecord,
-  WebhookDispatcher,
-  WebhookVerificationResult,
-  WebhookVerifier,
-} from './types';
+import type { ConnectionTokenRecord, WebhookDispatcher, WebhookVerificationResult, WebhookVerifier } from './types';
 import { VERIFIER_REGISTRY } from './verifiers';
 
 /**
@@ -60,13 +55,7 @@ type PipelineContext = {
   getSecretForToken?: (token: string) => Promise<string | null>;
 };
 
-function audit(
-  platform: string,
-  token: string,
-  verdict: 'accept' | 'reject',
-  status: number,
-  reason?: string
-): void {
+function audit(platform: string, token: string, verdict: 'accept' | 'reject', status: number, reason?: string): void {
   logWebhookEvent({ platform, token, verdict, status, reason });
 }
 
@@ -280,19 +269,11 @@ export function mountWebhookRoutes(
 ): void {
   const rawBodyParser = express.raw({ type: '*/*', limit: `${MAX_PAYLOAD_BYTES}b` });
 
-  app.post(
-    '/webhooks/:platform/:connectionToken',
-    rawBodyParser,
-    (req: Request, res: Response, next) => {
-      handleInboundWebhook(req, res, opts).catch(next);
-    }
-  );
+  app.post('/webhooks/:platform/:connectionToken', rawBodyParser, (req: Request, res: Response, next) => {
+    handleInboundWebhook(req, res, opts).catch(next);
+  });
 
-  app.get(
-    '/webhooks/:platform/:connectionToken',
-    rawBodyParser,
-    (req: Request, res: Response, next) => {
-      handleInboundWebhook(req, res, opts).catch(next);
-    }
-  );
+  app.get('/webhooks/:platform/:connectionToken', rawBodyParser, (req: Request, res: Response, next) => {
+    handleInboundWebhook(req, res, opts).catch(next);
+  });
 }

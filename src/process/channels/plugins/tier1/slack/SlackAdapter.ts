@@ -65,7 +65,7 @@ export type SlackBotInfo = {
  * `button` interactive components.
  */
 function buttonsToBlocks(
-  buttons?: readonly (readonly { label: string; action: string }[])[],
+  buttons?: readonly (readonly { label: string; action: string }[])[]
 ): KnownBlock[] | undefined {
   if (!buttons || buttons.length === 0) return undefined;
   const blocks: KnownBlock[] = [];
@@ -175,7 +175,7 @@ function buildUser(event: SlackMessageEvent): IUnifiedUser {
  */
 export function toUnifiedIncomingMessage(
   event: SlackMessageEvent,
-  selfBotUserId: string | undefined,
+  selfBotUserId: string | undefined
 ): IUnifiedIncomingMessage | null {
   if (!event?.ts || !event.channel) return null;
   // Drop messages from ourselves to avoid feedback loops.

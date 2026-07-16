@@ -197,10 +197,7 @@ export function decodeAttributedBody(buf: Buffer | Uint8Array | string): string 
 
   // Locate the LAST NSString class marker - the user-visible body string is
   // archived after the class-table entries and before the $objects trailer.
-  const markerIdx = Math.max(
-    asLatin.lastIndexOf('NSString'),
-    asLatin.lastIndexOf('NSMutableString'),
-  );
+  const markerIdx = Math.max(asLatin.lastIndexOf('NSString'), asLatin.lastIndexOf('NSMutableString'));
   if (markerIdx < 0) return '';
 
   // bplist00 string type tags (Apple Binary Plist v0):

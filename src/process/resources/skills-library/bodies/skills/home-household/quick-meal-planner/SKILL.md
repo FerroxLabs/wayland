@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart home-maintenance template cooking"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'quickstart home-maintenance template cooking'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Quick Meal Planner
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks for help getting dinner on the table in 30 minutes or fewer on a weeknight with limited energy or time
 - A user opens the fridge or pantry and doesn't know what to make from what they already have
 - A user wants to set up a batch cooking or Sunday prep routine to reduce weeknight decision fatigue
@@ -29,6 +31,7 @@ metadata:
 - A user is burned out on their current rotation and needs 5--10 new fast meals that fit their pantry profile
 
 **Do NOT use when:**
+
 - The user wants a comprehensive nutrition plan, macro tracking, or medical dietary guidance -- refer to a nutrition planning or dietary management skill
 - The user is planning a dinner party, holiday meal, or event requiring multi-course cooking, significant technique, or presentation -- refer to a formal meal planning or entertaining skill
 - The user wants to learn cooking fundamentals like knife skills, sauce-making, or baking ratios -- refer to a cooking technique skill

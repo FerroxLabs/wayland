@@ -22,10 +22,7 @@ import type { StepState, WorkflowSession } from '@/common/types/workflowTypes';
 import type { TChatConversation } from '@/common/config/storage';
 import type { IAgentManager } from '@process/task/IAgentManager';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
-import {
-  dispatchAutonomousStep,
-  type AutonomousDispatchDeps,
-} from '@process/services/workflow/dispatchAutonomousStep';
+import { dispatchAutonomousStep, type AutonomousDispatchDeps } from '@process/services/workflow/dispatchAutonomousStep';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -102,20 +99,17 @@ type Fakes = {
   taskSend: Mock;
 };
 
-function buildFakes(opts: {
-  parentSession?: WorkflowSession | null;
-  /** Pass `null` to omit the parent conversation (simulates a deleted row). */
-  parentConv?: TChatConversation | null;
-  childConvId?: string;
-} = {}): Fakes {
-  const parentSession =
-    opts.parentSession === undefined ? makeSession() : opts.parentSession;
+function buildFakes(
+  opts: {
+    parentSession?: WorkflowSession | null;
+    /** Pass `null` to omit the parent conversation (simulates a deleted row). */
+    parentConv?: TChatConversation | null;
+    childConvId?: string;
+  } = {}
+): Fakes {
+  const parentSession = opts.parentSession === undefined ? makeSession() : opts.parentSession;
   const parentConv =
-    opts.parentConv === undefined
-      ? makeParentConversation()
-      : opts.parentConv === null
-        ? undefined
-        : opts.parentConv;
+    opts.parentConv === undefined ? makeParentConversation() : opts.parentConv === null ? undefined : opts.parentConv;
   const childConvId = opts.childConvId ?? 'child-conv-1';
 
   const findById = vi.fn(async (_id: string) => parentSession);
@@ -131,13 +125,16 @@ function buildFakes(opts: {
     useModel: 'claude-sonnet-4-5',
   }));
   const getConversation = vi.fn(async (_id: string) => parentConv);
-  const createConversation = vi.fn(async () => ({
-    id: childConvId,
-    type: 'acp',
-    name: 'child',
-    createTime: 0,
-    modifyTime: 0,
-  } as unknown as TChatConversation));
+  const createConversation = vi.fn(
+    async () =>
+      ({
+        id: childConvId,
+        type: 'acp',
+        name: 'child',
+        createTime: 0,
+        modifyTime: 0,
+      }) as unknown as TChatConversation
+  );
   const taskSend = vi.fn(async (_data: unknown) => undefined);
   const fakeTask = {
     type: 'acp',
@@ -192,10 +189,7 @@ function buildFakes(opts: {
 describe('dispatchAutonomousStep', () => {
   it('happy path: spawns child conversation, sends directive, flips parent step, fires telemetry', async () => {
     const fakes = buildFakes();
-    const result = await dispatchAutonomousStep(
-      { parentSessionId: 'sess-1', stepN: 1 },
-      fakes.deps
-    );
+    const result = await dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps);
 
     expect(result.dispatchId).toBeTruthy();
     expect(result.childConversationId).toBe('child-conv-1');
@@ -225,11 +219,7 @@ describe('dispatchAutonomousStep', () => {
     expect(sendArg.input).toContain('Look at the thing');
 
     // Parent step flipped to `now` with worker source + dispatch id.
-    expect(fakes.workflowSessionService.recordAutonomousDispatch).toHaveBeenCalledWith(
-      'sess-1',
-      1,
-      result.dispatchId
-    );
+    expect(fakes.workflowSessionService.recordAutonomousDispatch).toHaveBeenCalledWith('sess-1', 1, result.dispatchId);
     expect(fakes.workflowSessionService.applyStepTransition).toHaveBeenCalledWith(
       'sess-1',
       expect.objectContaining({
@@ -338,17 +328,13 @@ describe('dispatchAutonomousStep', () => {
     const fakes = buildFakes();
     fakes.taskSend.mockRejectedValueOnce(new Error('session failed to start'));
 
-    await expect(
-      dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps)
-    ).rejects.toThrow(/session failed to start/);
+    await expect(dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps)).rejects.toThrow(
+      /session failed to start/
+    );
 
     // First flipped to running, then errored on the send failure.
     expect(fakes.workflowSessionService.recordAutonomousDispatch).toHaveBeenCalled();
-    expect(fakes.workflowSessionService.recordAutonomousCompletion).toHaveBeenCalledWith(
-      'sess-1',
-      1,
-      false
-    );
+    expect(fakes.workflowSessionService.recordAutonomousCompletion).toHaveBeenCalledWith('sess-1', 1, false);
     expect(fakes.workflowSessionService.applyStepTransition).toHaveBeenCalledWith(
       'sess-1',
       expect.objectContaining({ step_n: 1, status: 'errored', source: 'worker' })
@@ -363,9 +349,9 @@ describe('dispatchAutonomousStep', () => {
       ],
     });
     const fakes = buildFakes({ parentSession: session });
-    await expect(
-      dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps)
-    ).rejects.toThrow(/already has a running autonomous worker/);
+    await expect(dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps)).rejects.toThrow(
+      /already has a running autonomous worker/
+    );
     // No second worker, no state mutation.
     expect(fakes.conversationService.createConversation).not.toHaveBeenCalled();
     expect(fakes.workerTaskManager.getOrBuildTask).not.toHaveBeenCalled();
@@ -377,17 +363,17 @@ describe('dispatchAutonomousStep', () => {
       steps: [makeStep({ n: 1, status: 'done' }), makeStep({ n: 2 })],
     });
     const fakes = buildFakes({ parentSession: session });
-    await expect(
-      dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps)
-    ).rejects.toThrow(/already done/);
+    await expect(dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps)).rejects.toThrow(
+      /already done/
+    );
     expect(fakes.conversationService.createConversation).not.toHaveBeenCalled();
   });
 
   it('throws when the parent workflow session is missing', async () => {
     const fakes = buildFakes({ parentSession: null });
-    await expect(
-      dispatchAutonomousStep({ parentSessionId: 'missing', stepN: 1 }, fakes.deps)
-    ).rejects.toThrow(/unknown parent session missing/);
+    await expect(dispatchAutonomousStep({ parentSessionId: 'missing', stepN: 1 }, fakes.deps)).rejects.toThrow(
+      /unknown parent session missing/
+    );
     // No side effects.
     expect(fakes.conversationService.createConversation).not.toHaveBeenCalled();
     expect(fakes.workerTaskManager.getOrBuildTask).not.toHaveBeenCalled();
@@ -397,9 +383,9 @@ describe('dispatchAutonomousStep', () => {
 
   it('throws when the requested step number is out of range', async () => {
     const fakes = buildFakes();
-    await expect(
-      dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 99 }, fakes.deps)
-    ).rejects.toThrow(/step 99 not found/);
+    await expect(dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 99 }, fakes.deps)).rejects.toThrow(
+      /step 99 not found/
+    );
     expect(fakes.conversationService.createConversation).not.toHaveBeenCalled();
     expect(fakes.workerTaskManager.getOrBuildTask).not.toHaveBeenCalled();
     expect(fakes.workflowSessionService.applyStepTransition).not.toHaveBeenCalled();
@@ -407,8 +393,8 @@ describe('dispatchAutonomousStep', () => {
 
   it('throws when the parent conversation cannot be found', async () => {
     const fakes = buildFakes({ parentConv: null });
-    await expect(
-      dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps)
-    ).rejects.toThrow(/parent conversation parent-conv-1 not found/);
+    await expect(dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps)).rejects.toThrow(
+      /parent conversation parent-conv-1 not found/
+    );
   });
 });

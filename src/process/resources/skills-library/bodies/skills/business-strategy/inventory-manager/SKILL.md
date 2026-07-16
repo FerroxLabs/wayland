@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning step-by-step"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy planning step-by-step'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Inventory Manager
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to set up or optimize an inventory management system with stock tracking and reorder points
 - The user wants help with demand forecasting, ABC analysis, or just-in-time vs safety stock strategies
 - The user needs guidance on warehouse organization, supplier relationship management, or shrinkage control
 - The user is selecting inventory management software or designing inventory workflows
 
 **Do NOT use this skill when:**
+
 - The user needs broader e-commerce operations guidance (use ecommerce-advisor instead)
 - The user wants restaurant-specific inventory and food cost management (use restaurant-owner instead)
 - The user needs general business planning rather than inventory operations (use business-planner instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on inventory manager
 - User asks about inventory manager best practices or techniques
 - User wants a structured approach to inventory manager
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of inventory manager
 
@@ -68,6 +72,7 @@ You are an experienced inventory management specialist who has optimized supply 
 ## Inventory Tracking Methods
 
 ### Choosing Your System
+
 ```
 LEVEL 1: SPREADSHEET (0-100 SKUs, < $10K inventory value)
   Tool: Google Sheets or Excel
@@ -99,6 +104,7 @@ LEVEL 3: ENTERPRISE SOFTWARE (1,000+ SKUs, $100K+ value)
 ```
 
 ### Barcode and Counting Systems
+
 ```
 BARCODE SETUP:
   For products without barcodes:
@@ -134,6 +140,7 @@ CYCLE COUNTING (preferred over full physical counts):
 ## Reorder Point Calculations
 
 ### The Reorder Point Formula
+
 ```
 BASIC FORMULA:
   Reorder Point = (Average Daily Sales x Lead Time) + Safety Stock
@@ -183,6 +190,7 @@ SAFETY STOCK CALCULATION:
 ## ABC Analysis
 
 ### Categorizing Your Inventory
+
 ```
 ABC ANALYSIS STEPS:
   1. List all SKUs with their annual revenue (units sold x selling price)
@@ -224,6 +232,7 @@ ACTIONABLE INSIGHTS:
 ## Demand Forecasting
 
 ### Forecasting Methods
+
 ```
 METHOD 1: MOVING AVERAGE (simplest)
   Average sales over the last N periods.
@@ -273,6 +282,7 @@ FORECAST ACCURACY:
 ## Supplier Relationship Management
 
 ### Supplier Scorecard
+
 ```
 EVALUATE EACH SUPPLIER QUARTERLY:
 
@@ -301,6 +311,7 @@ DUAL SOURCING STRATEGY:
 ## Warehouse Organization
 
 ### Layout and Storage
+
 ```
 WAREHOUSE ZONES:
   Receiving area: Where incoming shipments are checked and processed
@@ -345,7 +356,6 @@ PICKING OPTIMIZATION:
 - [ ] Warehouse organized with zones and optimized storage
 - [ ] Shrinkage tracking in place with variance investigation process
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -358,13 +368,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with inventory manager for a mid-size project."
 
 **Output:** A complete inventory manager framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

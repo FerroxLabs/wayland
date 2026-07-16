@@ -17,13 +17,9 @@ describe('WebhookPlugin.testConnection', () => {
   });
 
   it('returns success when the outbound URL responds 2xx', async () => {
-    vi.mocked(fetch).mockResolvedValue(
-      new Response(null, { status: 200 })
-    );
+    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 200 }));
 
-    const result = await WebhookPlugin.testConnection(
-      JSON.stringify({ outboundUrl: 'https://example.com/hook' })
-    );
+    const result = await WebhookPlugin.testConnection(JSON.stringify({ outboundUrl: 'https://example.com/hook' }));
 
     expect(result.success).toBe(true);
     expect(result.botUsername).toBe('https://example.com/hook');
@@ -33,9 +29,7 @@ describe('WebhookPlugin.testConnection', () => {
   it('includes the HMAC signature header when outboundSecret is set', async () => {
     let capturedHeaders: Record<string, string> = {};
     vi.mocked(fetch).mockImplementation(async (_url, init) => {
-      capturedHeaders = Object.fromEntries(
-        Object.entries((init?.headers as Record<string, string>) ?? {})
-      );
+      capturedHeaders = Object.fromEntries(Object.entries((init?.headers as Record<string, string>) ?? {}));
       return new Response(null, { status: 200 });
     });
 
@@ -50,13 +44,9 @@ describe('WebhookPlugin.testConnection', () => {
   });
 
   it('returns failure when the outbound URL responds 4xx', async () => {
-    vi.mocked(fetch).mockResolvedValue(
-      new Response('Not Found', { status: 404 })
-    );
+    vi.mocked(fetch).mockResolvedValue(new Response('Not Found', { status: 404 }));
 
-    const result = await WebhookPlugin.testConnection(
-      JSON.stringify({ outboundUrl: 'https://example.com/hook' })
-    );
+    const result = await WebhookPlugin.testConnection(JSON.stringify({ outboundUrl: 'https://example.com/hook' }));
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/404/);
@@ -65,9 +55,7 @@ describe('WebhookPlugin.testConnection', () => {
   it('returns failure on network error', async () => {
     vi.mocked(fetch).mockRejectedValue(new Error('ECONNREFUSED'));
 
-    const result = await WebhookPlugin.testConnection(
-      JSON.stringify({ outboundUrl: 'https://example.com/hook' })
-    );
+    const result = await WebhookPlugin.testConnection(JSON.stringify({ outboundUrl: 'https://example.com/hook' }));
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/ECONNREFUSED/i);
@@ -86,9 +74,7 @@ describe('WebhookPlugin.testConnection', () => {
   });
 
   it('returns failure when outboundUrl is not a valid URL', async () => {
-    const result = await WebhookPlugin.testConnection(
-      JSON.stringify({ outboundUrl: 'not-a-url' })
-    );
+    const result = await WebhookPlugin.testConnection(JSON.stringify({ outboundUrl: 'not-a-url' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/not a valid URL/i);
   });

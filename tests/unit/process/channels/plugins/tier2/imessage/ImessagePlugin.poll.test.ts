@@ -24,37 +24,33 @@ afterAll(() => Object.defineProperty(process, 'platform', { value: ORIGINAL_PLAT
 // Hoist mocks - all vi.mock + vi.hoisted at module top level
 // ---------------------------------------------------------------------------
 
-const {
-  mockStmt,
-  mockDbInstance,
-  mockDbConstructor,
-  mockExecFileNoThrow,
-  mockFsExistsSync,
-  mockFsAccessSync,
-} = vi.hoisted(() => {
-  const stmtMock = { all: vi.fn(() => [] as unknown[]) };
-  const seedStmt = { get: vi.fn(() => ({ maxid: 0 })) };
-  const dbInst = {
-    prepare: vi.fn(function (sql: string) {
-      if (sql.includes('MAX(rowid)')) return seedStmt;
-      return stmtMock;
-    }),
-    close: vi.fn(),
-  };
-  // new-able constructor mock using function form
-  const ctor = vi.fn(function () { return dbInst; });
-  const execMock = vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 }));
-  const existsMock = vi.fn(() => true);
-  const accessMock = vi.fn(() => undefined);
-  return {
-    mockStmt: stmtMock,
-    mockDbInstance: dbInst,
-    mockDbConstructor: ctor,
-    mockExecFileNoThrow: execMock,
-    mockFsExistsSync: existsMock,
-    mockFsAccessSync: accessMock,
-  };
-});
+const { mockStmt, mockDbInstance, mockDbConstructor, mockExecFileNoThrow, mockFsExistsSync, mockFsAccessSync } =
+  vi.hoisted(() => {
+    const stmtMock = { all: vi.fn(() => [] as unknown[]) };
+    const seedStmt = { get: vi.fn(() => ({ maxid: 0 })) };
+    const dbInst = {
+      prepare: vi.fn(function (sql: string) {
+        if (sql.includes('MAX(rowid)')) return seedStmt;
+        return stmtMock;
+      }),
+      close: vi.fn(),
+    };
+    // new-able constructor mock using function form
+    const ctor = vi.fn(function () {
+      return dbInst;
+    });
+    const execMock = vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 }));
+    const existsMock = vi.fn(() => true);
+    const accessMock = vi.fn(() => undefined);
+    return {
+      mockStmt: stmtMock,
+      mockDbInstance: dbInst,
+      mockDbConstructor: ctor,
+      mockExecFileNoThrow: execMock,
+      mockFsExistsSync: existsMock,
+      mockFsAccessSync: accessMock,
+    };
+  });
 
 vi.mock('better-sqlite3', () => ({ default: mockDbConstructor }));
 vi.mock('@/utils/execFileNoThrow', () => ({ execFileNoThrow: mockExecFileNoThrow }));
@@ -122,11 +118,11 @@ afterEach(async () => {
 describe('ImessagePlugin poll loop', () => {
   it('emits unified messages for new inbound rows', async () => {
     const received: unknown[] = [];
-    plugin.onMessage(async (msg) => { received.push(msg); });
+    plugin.onMessage(async (msg) => {
+      received.push(msg);
+    });
 
-    mockStmt.all
-      .mockReturnValueOnce([makeDbRow({ rowid: 1, text: 'hi' })])
-      .mockReturnValue([]);
+    mockStmt.all.mockReturnValueOnce([makeDbRow({ rowid: 1, text: 'hi' })]).mockReturnValue([]);
 
     await plugin.initialize(cfg());
     await plugin.start();
@@ -142,11 +138,11 @@ describe('ImessagePlugin poll loop', () => {
 
   it('advances the cursor so rows are not reprocessed', async () => {
     const received: unknown[] = [];
-    plugin.onMessage(async (msg) => { received.push(msg); });
+    plugin.onMessage(async (msg) => {
+      received.push(msg);
+    });
 
-    mockStmt.all
-      .mockReturnValueOnce([makeDbRow({ rowid: 5 })])
-      .mockReturnValue([]);
+    mockStmt.all.mockReturnValueOnce([makeDbRow({ rowid: 5 })]).mockReturnValue([]);
 
     await plugin.initialize(cfg());
     await plugin.start();
@@ -162,7 +158,9 @@ describe('ImessagePlugin poll loop', () => {
 
   it('filters out own messages (is_from_me=1)', async () => {
     const received: unknown[] = [];
-    plugin.onMessage(async (msg) => { received.push(msg); });
+    plugin.onMessage(async (msg) => {
+      received.push(msg);
+    });
 
     mockStmt.all.mockReturnValueOnce([makeDbRow({ is_from_me: 1 })]).mockReturnValue([]);
 
@@ -175,11 +173,11 @@ describe('ImessagePlugin poll loop', () => {
 
   it('filters messages by allowedHandles when configured', async () => {
     const received: unknown[] = [];
-    plugin.onMessage(async (msg) => { received.push(msg); });
+    plugin.onMessage(async (msg) => {
+      received.push(msg);
+    });
 
-    mockStmt.all
-      .mockReturnValueOnce([makeDbRow({ sender_handle: '+19991111111' })])
-      .mockReturnValue([]);
+    mockStmt.all.mockReturnValueOnce([makeDbRow({ sender_handle: '+19991111111' })]).mockReturnValue([]);
 
     await plugin.initialize(cfg({ allowedHandles: ['+15551234567'] }));
     await plugin.start();
@@ -190,11 +188,11 @@ describe('ImessagePlugin poll loop', () => {
 
   it('allows messages from handles in the allowedHandles list', async () => {
     const received: unknown[] = [];
-    plugin.onMessage(async (msg) => { received.push(msg); });
+    plugin.onMessage(async (msg) => {
+      received.push(msg);
+    });
 
-    mockStmt.all
-      .mockReturnValueOnce([makeDbRow({ sender_handle: '+15551234567' })])
-      .mockReturnValue([]);
+    mockStmt.all.mockReturnValueOnce([makeDbRow({ sender_handle: '+15551234567' })]).mockReturnValue([]);
 
     await plugin.initialize(cfg({ allowedHandles: ['+15551234567'] }));
     await plugin.start();
@@ -212,7 +210,7 @@ describe('ImessagePlugin sendMessage', () => {
     expect(mockExecFileNoThrow).toHaveBeenCalledWith(
       'osascript',
       ['-e', expect.stringContaining('Messages')],
-      expect.any(Object),
+      expect.any(Object)
     );
     expect(id).toMatch(/^imessage-sent-/);
     await plugin.stop();
@@ -230,9 +228,7 @@ describe('ImessagePlugin sendMessage', () => {
 
     await plugin.initialize(cfg());
     await plugin.start();
-    await expect(
-      plugin.sendMessage('+15551234567', { type: 'text', text: 'Hi' }),
-    ).rejects.toThrow(/send failed/i);
+    await expect(plugin.sendMessage('+15551234567', { type: 'text', text: 'Hi' })).rejects.toThrow(/send failed/i);
     await plugin.stop();
   });
 });
@@ -246,7 +242,7 @@ describe('ImessagePlugin reactToMessage (tapback)', () => {
     expect(mockExecFileNoThrow).toHaveBeenCalledWith(
       'osascript',
       ['-e', expect.stringContaining('2005')],
-      expect.any(Object),
+      expect.any(Object)
     );
     await plugin.stop();
   });
@@ -254,9 +250,7 @@ describe('ImessagePlugin reactToMessage (tapback)', () => {
   it('throws for an unknown tapback reaction name', async () => {
     await plugin.initialize(cfg());
     await plugin.start();
-    await expect(
-      plugin.reactToMessage('chatdeadbeef', '1', 'unknown-emoji'),
-    ).rejects.toThrow(/unknown tapback/i);
+    await expect(plugin.reactToMessage('chatdeadbeef', '1', 'unknown-emoji')).rejects.toThrow(/unknown tapback/i);
     await plugin.stop();
   });
 });

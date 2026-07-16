@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "go testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'go testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Go Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to structure test files, test functions, or test packages in a Go project
 - The user asks about table-driven tests, subtests, or parameterized testing in Go
 - The user asks about the `testify` library (`assert`, `require`, `mock`, `suite`) or whether to use it over stdlib
@@ -30,6 +32,7 @@ metadata:
 - The user asks about race condition detection, parallel tests, or coverage thresholds in Go CI
 
 **Do NOT use this skill when:**
+
 - The user asks about initializing a Go module, project layout, or `go.mod` configuration -- use `go-project-setup`
 - The user asks about Go idioms, error handling conventions, or interface design -- use `go-idioms`
 - The user asks about general unit testing theory, TDD philosophy, or test pyramid concepts without Go specifics -- use `unit-testing-patterns`
@@ -197,7 +200,7 @@ Test quality is enforced through tooling, not convention alone.
 
 When providing Go testing guidance, structure the response as follows:
 
-```
+````
 ## Test Strategy for [Component Name]
 
 **Test category:** [unit | integration | benchmark | fuzz]
@@ -279,7 +282,7 @@ func Fuzz[Operation](f *testing.F) {
         // assert invariants
     })
 }
-```
+````
 
 **Run commands:**
 | Command | Purpose |
@@ -294,7 +297,8 @@ func Fuzz[Operation](f *testing.F) {
 
 **Coverage target:** [X]% statement coverage for this package
 **Race-safe:** [yes | no -- explain why not]
-```
+
+````
 
 ---
 
@@ -567,19 +571,19 @@ func BenchmarkPricingService_CalculateTotal_LargeOrder(b *testing.B) {
         BenchTotal = total
     }
 }
-```
+````
 
 ---
 
 **Run commands for this service:**
 
-| Command | Purpose |
-|---|---|
-| `go test ./pricing/...` | All unit tests |
-| `go test -race ./pricing/...` | With race detector |
-| `go test -run TestPricingService_CalculateTotal/discount_applied ./pricing` | Single subtest |
-| `go test -bench=BenchmarkPricingService -benchmem -count=10 ./pricing` | Benchmarks with allocation data |
-| `go test -cover -coverprofile=pricing.out ./pricing/... && go tool cover -func=pricing.out` | Coverage by function |
+| Command                                                                                     | Purpose                         |
+| ------------------------------------------------------------------------------------------- | ------------------------------- |
+| `go test ./pricing/...`                                                                     | All unit tests                  |
+| `go test -race ./pricing/...`                                                               | With race detector              |
+| `go test -run TestPricingService_CalculateTotal/discount_applied ./pricing`                 | Single subtest                  |
+| `go test -bench=BenchmarkPricingService -benchmem -count=10 ./pricing`                      | Benchmarks with allocation data |
+| `go test -cover -coverprofile=pricing.out ./pricing/... && go tool cover -func=pricing.out` | Coverage by function            |
 
 **Expected coverage target:** 90%+ statement coverage for `pricing` package (it contains the core business logic; coverage gaps here represent untested business rules).
 

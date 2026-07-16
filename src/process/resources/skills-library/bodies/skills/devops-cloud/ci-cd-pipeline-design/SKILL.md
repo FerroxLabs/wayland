@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ci-cd devops automation"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ci-cd devops automation'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # CI/CD Pipeline Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to design or redesign a CI/CD pipeline from scratch for a new or existing application
 - A user is experiencing slow pipeline execution (builds exceeding 10 minutes, deploy cycles exceeding 30 minutes) and needs optimization guidance
 - A user wants to migrate from a legacy CI system (Jenkins, TeamCity, CircleCI 1.x) to a modern pipeline-as-code approach
@@ -30,6 +32,7 @@ metadata:
 - A user needs to design deployment strategies such as blue/green, canary, or rolling deployments and needs to know how to wire those into pipeline stages
 
 **Do NOT use this skill when:**
+
 - The user needs help with container orchestration platform configuration (Kubernetes resource definitions, Helm chart authoring) -- use the container-orchestration skill instead
 - The user needs infrastructure-as-code design for provisioning cloud resources (Terraform, Pulumi module design) -- use the infrastructure-as-code skill
 - The user is asking about secrets management architecture as a standalone topic (Vault policies, AWS Secrets Manager rotation) -- use the secrets-management skill
@@ -142,15 +145,15 @@ Expected pipeline duration: [X minutes end-to-end]
 
 ### Stage Map
 
-| Stage | Trigger | Runs On | Target Duration | Failure Behavior |
-|---|---|---|---|---|
-| Lint & Unit Test | Every push | linux/amd64 small runner | < 3 min | Block all downstream |
-| Build & Package | main branch, release tags | linux/amd64 medium runner | < 5 min | Block deployment stages |
-| Integration Test | main branch | linux/amd64 medium runner (parallel x3) | < 8 min | Block deployment stages |
-| Security Scan | main branch | linux/amd64 small runner | < 6 min | Block on CRITICAL/HIGH |
-| Deploy Staging | main branch, after tests pass | linux/amd64 small runner | < 4 min | Auto-rollback after 5 min |
-| Smoke Test Staging | After deploy-staging | linux/amd64 small runner | < 3 min | Block production gate |
-| Deploy Production | Manual approval after staging pass | linux/amd64 small runner | < 5 min | Auto-rollback after 10 min |
+| Stage              | Trigger                            | Runs On                                 | Target Duration | Failure Behavior           |
+| ------------------ | ---------------------------------- | --------------------------------------- | --------------- | -------------------------- |
+| Lint & Unit Test   | Every push                         | linux/amd64 small runner                | < 3 min         | Block all downstream       |
+| Build & Package    | main branch, release tags          | linux/amd64 medium runner               | < 5 min         | Block deployment stages    |
+| Integration Test   | main branch                        | linux/amd64 medium runner (parallel x3) | < 8 min         | Block deployment stages    |
+| Security Scan      | main branch                        | linux/amd64 small runner                | < 6 min         | Block on CRITICAL/HIGH     |
+| Deploy Staging     | main branch, after tests pass      | linux/amd64 small runner                | < 4 min         | Auto-rollback after 5 min  |
+| Smoke Test Staging | After deploy-staging               | linux/amd64 small runner                | < 3 min         | Block production gate      |
+| Deploy Production  | Manual approval after staging pass | linux/amd64 small runner                | < 5 min         | Auto-rollback after 10 min |
 
 ### Pipeline Definition (GitHub Actions example)
 
@@ -160,14 +163,14 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, "release/**"]
+    branches: [main, 'release/**']
   pull_request:
     branches: [main]
 
 permissions:
   contents: read
   packages: write
-  id-token: write  # Required for OIDC cloud credential federation
+  id-token: write # Required for OIDC cloud credential federation
 
 env:
   IMAGE_REGISTRY: ghcr.io
@@ -257,12 +260,12 @@ jobs:
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-and-push.outputs.image-digest }}"
+          image-ref: '${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-and-push.outputs.image-digest }}'
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
-          exit-code: 1  # Fail on CRITICAL or HIGH
-          ignore-unfixed: true  # Do not fail on CVEs without a fix available
+          exit-code: 1 # Fail on CRITICAL or HIGH
+          ignore-unfixed: true # Do not fail on CVEs without a fix available
 
       - name: Upload scan results
         uses: github/codeql-action/upload-sarif@v3
@@ -276,7 +279,7 @@ jobs:
     needs: build-and-push
     timeout-minutes: 20
     strategy:
-      fail-fast: false  # Let all shards complete for full failure picture
+      fail-fast: false # Let all shards complete for full failure picture
       matrix:
         shard: [1, 2, 3]
         total: [3]
@@ -289,7 +292,7 @@ jobs:
             --shard=${{ matrix.shard }}/${{ matrix.total }} \
             --forceExit
         env:
-          TEST_IMAGE: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-and-push.outputs.image-digest }}"
+          TEST_IMAGE: '${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-and-push.outputs.image-digest }}'
 
   deploy-staging:
     name: Deploy to Staging
@@ -360,25 +363,25 @@ jobs:
 
 ### Decision Matrix: Deployment Strategy Selection
 
-| Criterion | Rolling Update | Blue/Green | Canary |
-|---|---|---|---|
-| Rollback speed | 2--5 min | < 30 sec | Depends on ramp |
-| Infrastructure cost | 1x | 2x during deploy | 1.1--1.5x |
-| Traffic cutover control | None | Instant all-or-nothing | Percentage-based |
-| Database migration safety | Risky with schema changes | Safe with dual-write | Safe with feature flags |
-| Best for | Stateless services with backward-compatible changes | Services with risky changes or SLA requirements | High-traffic services where % rollout reduces blast radius |
-| Minimum Kubernetes version | 1.1+ | Requires Ingress or Service Mesh | Requires Ingress or Service Mesh (Istio, Linkerd, NGINX) |
+| Criterion                  | Rolling Update                                      | Blue/Green                                      | Canary                                                     |
+| -------------------------- | --------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------- |
+| Rollback speed             | 2--5 min                                            | < 30 sec                                        | Depends on ramp                                            |
+| Infrastructure cost        | 1x                                                  | 2x during deploy                                | 1.1--1.5x                                                  |
+| Traffic cutover control    | None                                                | Instant all-or-nothing                          | Percentage-based                                           |
+| Database migration safety  | Risky with schema changes                           | Safe with dual-write                            | Safe with feature flags                                    |
+| Best for                   | Stateless services with backward-compatible changes | Services with risky changes or SLA requirements | High-traffic services where % rollout reduces blast radius |
+| Minimum Kubernetes version | 1.1+                                                | Requires Ingress or Service Mesh                | Requires Ingress or Service Mesh (Istio, Linkerd, NGINX)   |
 
 ### Caching Strategy Reference
 
-| Ecosystem | Cache Key Pattern | Cache Path | Estimated Speedup |
-|---|---|---|---|
-| Node.js / npm | `npm-${{ hashFiles('**/package-lock.json') }}` | `~/.npm` | 60--80% |
-| Python / pip | `pip-${{ hashFiles('**/requirements.txt') }}` | `~/.cache/pip` | 50--70% |
-| Go modules | `go-${{ hashFiles('**/go.sum') }}` | `~/go/pkg/mod` | 70--85% |
-| Java / Maven | `maven-${{ hashFiles('**/pom.xml') }}` | `~/.m2` | 60--75% |
-| Docker layers | Registry cache with `type=registry,mode=max` | Registry | 40--60% |
-| Gradle | `gradle-${{ hashFiles('**/*.gradle') }}` | `~/.gradle` | 65--80% |
+| Ecosystem     | Cache Key Pattern                              | Cache Path     | Estimated Speedup |
+| ------------- | ---------------------------------------------- | -------------- | ----------------- |
+| Node.js / npm | `npm-${{ hashFiles('**/package-lock.json') }}` | `~/.npm`       | 60--80%           |
+| Python / pip  | `pip-${{ hashFiles('**/requirements.txt') }}`  | `~/.cache/pip` | 50--70%           |
+| Go modules    | `go-${{ hashFiles('**/go.sum') }}`             | `~/go/pkg/mod` | 70--85%           |
+| Java / Maven  | `maven-${{ hashFiles('**/pom.xml') }}`         | `~/.m2`        | 60--75%           |
+| Docker layers | Registry cache with `type=registry,mode=max`   | Registry       | 40--60%           |
+| Gradle        | `gradle-${{ hashFiles('**/*.gradle') }}`       | `~/.gradle`    | 65--80%           |
 
 ---
 
@@ -411,6 +414,7 @@ jobs:
 ### Monorepo with Dozens of Services
 
 When a single repository contains 10--50 independent services, a naive "build everything on every commit" approach becomes untenable -- pipelines exceeding 30 minutes for an unrelated change destroy developer velocity. Implement change detection using one of these strategies:
+
 - **Path-based filtering (GitHub Actions):** Use the `paths` filter in `on.push` triggers or use the `dorny/paths-filter` action to dynamically determine which jobs to run based on changed paths. Each service defines its own workflow or is gated by path filters.
 - **Build system graph traversal (Nx, Turborepo, Bazel):** These tools maintain a dependency graph of the monorepo and determine the minimal set of packages that need rebuilding based on changed files and cached task results. Nx affected commands (`nx affected:build`, `nx affected:test`) are the standard approach for JavaScript/TypeScript monorepos. Turborepo offers similar functionality with a simpler configuration model.
 - **Key constraint:** The pipeline must still perform a full build of all affected services before production deployment, even if it only runs fast feedback for the changed service on pull requests. A change to a shared library might require rebuilding 12 dependent services -- the pipeline must detect and handle this transitively.
@@ -418,6 +422,7 @@ When a single repository contains 10--50 independent services, a naive "build ev
 ### Database Migrations in Continuous Deployment
 
 Database schema changes are the most dangerous operation in a CD pipeline. The schema and application code can be briefly out of sync during a rolling deployment:
+
 - **Expand/contract pattern (required for zero-downtime):** Never deploy a migration that breaks the currently-running application version. Migrations must be backward compatible with the N-1 application version. The correct sequence is: (1) deploy migration that adds new column/table without removing old ones (expand), (2) deploy new application version that uses new schema, (3) deploy migration that removes old columns no longer needed (contract). This requires 3 separate deployments over 2+ release cycles.
 - **Migration runner placement:** Run migrations as a Kubernetes init container or a pre-deploy Job, not as part of application startup. This ensures migrations complete before new application pods start receiving traffic, and migration failures block the deployment before any pods are replaced.
 - **Never run destructive migrations (DROP COLUMN, DROP TABLE) until the application version that references those columns has been deployed and the old version is fully retired.** Keeping the old column for 1--2 deployment cycles is always safer than a data loss incident.
@@ -425,6 +430,7 @@ Database schema changes are the most dangerous operation in a CD pipeline. The s
 ### Pipeline for a Regulated Environment (SOC 2 / PCI-DSS)
 
 Standard pipeline designs lack the audit trail and separation-of-duty controls required for formal compliance:
+
 - **Immutable build records:** Every build must produce a signed artifact with a provenance attestation (SLSA Level 2 minimum). Use `sigstore/cosign-installer` to sign images after push and attach attestations. Store the attestations in the registry alongside the image.
 - **Four-eyes principle for production deployments:** Configure the production environment in GitHub/GitLab to require approval from a reviewer who is not the person who triggered the pipeline. This is enforced at the platform level, not just by convention.
 - **Audit log export:** CI platform audit logs must be exported to a SIEM (Splunk, Datadog, Elastic SIEM) and retained for the required period (typically 12 months for SOC 2, 13 months for PCI-DSS). Configure log export via CI platform APIs or native SIEM integrations.
@@ -433,6 +439,7 @@ Standard pipeline designs lack the audit trail and separation-of-duty controls r
 ### Slow Pipeline Performance Degradation Over Time
 
 Pipelines that start at 8 minutes frequently reach 25--30 minutes after 12--18 months as test suites grow and dependencies accumulate. Treat this as a performance regression:
+
 - **Establish a pipeline performance budget:** Set a maximum acceptable wall-clock time per stage (lint: 3 min, build: 5 min, tests: 10 min, deploy: 5 min). Fail the pipeline if any stage exceeds 2x its budget, forcing the team to address the regression immediately.
 - **Profile before optimizing:** Use CI timing data to identify the slowest steps. Most pipelines have one step consuming 60--70% of total time. Common culprits: `npm install` without cache (fix: proper cache keys), sequential tests that could be parallel (fix: sharding), building the entire Docker image on every run (fix: layer caching and build caching), running all tests instead of affected tests (fix: test impact analysis).
 - **Test suite audits:** Run a test duration report quarterly. Any individual test taking > 10 seconds is a candidate for optimization or promotion to a separate slow-test suite that runs less frequently (nightly rather than every commit).
@@ -440,6 +447,7 @@ Pipelines that start at 8 minutes frequently reach 25--30 minutes after 12--18 m
 ### Multi-Cloud or Multi-Region Deployments
 
 When an application deploys to multiple cloud providers or regions simultaneously, the pipeline must handle deployment fan-out without creating a partial-deployment failure scenario:
+
 - **Parallel regional deploys with a consensus gate:** Deploy to all regions in parallel. Require that a minimum percentage (e.g., 80%) of regional deployments succeed before declaring the overall deployment successful. If a minority of regions fail, leave them at the previous version and alert rather than rolling back all regions.
 - **Cloud-specific credential isolation:** Each cloud target requires its own OIDC role with permissions scoped to that cloud and region. Never reuse credentials across cloud providers.
 - **Canary-by-region strategy:** Deploy to one low-traffic region first (e.g., ap-southeast-2 for a US/Europe-primary application), validate for 15--30 minutes, then fan out to remaining regions. This provides a regional canary without requiring a full canary infrastructure in every region.
@@ -447,6 +455,7 @@ When an application deploys to multiple cloud providers or regions simultaneousl
 ### Self-Hosted Runners in Air-Gapped Environments
 
 Enterprises with air-gapped or private cloud deployments cannot use cloud-hosted CI runners or public container registries:
+
 - **Runner deployment:** Deploy self-hosted runners as ephemeral containers or VMs that are provisioned on demand and destroyed after each job. Persistent runners accumulate state (cached credentials, modified toolchains) that creates security risks and "works on my runner" problems. GitHub Actions Ephemeral Runners and GitLab autoscaling runners on AWS/GCP support this model.
 - **Mirror public registries:** All base images and build tool images must come from an internal mirror (Harbor, JFrog Artifactory, Nexus) that has been scanned. Configure Docker daemon on runners to use the internal mirror as a pull-through cache. Block outbound traffic to docker.io and public registries at the network level.
 - **Toolchain management:** Lock all build tool versions to specific binaries stored in internal artifact storage. Never `apt-get install` or download binaries from the internet during a build -- pin to internal mirrors. Use `nix` or `devbox` for reproducible toolchain management in air-gapped environments.
@@ -454,6 +463,7 @@ Enterprises with air-gapped or private cloud deployments cannot use cloud-hosted
 ### Incident During a Deployment in Progress
 
 When a production incident is detected while a deployment is mid-flight:
+
 - **Immediate rule:** If an incident is declared (P1/P2) while a deployment is in progress, the default action is to complete the rollback and freeze the pipeline until the incident is resolved. Do not continue deploying a new version into a failing production system.
 - **Deployment lock mechanism:** Implement a deployment lock via a feature flag system, a simple key-value store (Redis, AWS SSM Parameter Store), or the CI/CD platform's environment lock feature. The incident commander should be able to set the lock via a Slack command or runbook step, and all pipeline deploy stages must check the lock before proceeding.
 - **Post-incident deploy:** After an incident is resolved, require a deliberate re-trigger of the production deployment rather than allowing the pipeline to automatically proceed. This ensures human confirmation that the environment is stable before resuming normal deployment flow.
@@ -475,6 +485,7 @@ When a production incident is detected while a deployment is mid-flight:
 The 20-minute Jenkins pipeline is likely suffering from: no dependency caching, sequential test execution, single-stage build with no parallelism, and no distinct artifact promotion (probably rebuilding on every deploy). The migration to GitHub Actions is the right move -- it enables pipeline-as-code without a separate Jenkins server, native OIDC for AWS credential federation, and GitHub Environment protection rules for production approval gates.
 
 **Key constraints from your context:**
+
 - Node.js + TypeScript: build step produces compiled JS, not a binary -- use Docker multi-stage build to produce the container artifact
 - EKS target: Kubernetes rolling update is available, but you asked for blue/green -- this requires AWS Load Balancer Controller with separate Service objects per environment color, or an Ingress controller capable of traffic splitting
 - Team of 8: you need pipeline that is legible enough for all 8 to maintain and debug; avoid excessive abstraction
@@ -499,16 +510,16 @@ Rollback time:       < 45 seconds (ALB target group swap)
 
 ### Stage Map
 
-| Stage | Trigger | Runs On | Target Duration | Failure Behavior |
-|---|---|---|---|---|
-| Lint & Unit Test | Every push | ubuntu-22.04 (2-core) | < 3 min | Block all downstream |
-| Type Check | Every push (parallel) | ubuntu-22.04 (2-core) | < 2 min | Block all downstream |
-| Build & Push Image | Push to main only | ubuntu-22.04 (4-core) | < 5 min | Block deployment |
-| Security Scan (Trivy) | After build | ubuntu-22.04 (2-core) | < 4 min | Block on CRITICAL/HIGH |
-| Integration Tests (3 shards) | Push to main only | ubuntu-22.04 (2-core) x3 | < 8 min | Block deployment |
-| Deploy Staging (Blue/Green) | After all tests pass | ubuntu-22.04 (2-core) | < 4 min | Auto-rollback |
-| Smoke Tests Staging | After staging deploy | ubuntu-22.04 (2-core) | < 2 min | Block production gate |
-| Deploy Production (Blue/Green) | Manual approval + staging pass | ubuntu-22.04 (2-core) | < 5 min | Auto-rollback + alert |
+| Stage                          | Trigger                        | Runs On                  | Target Duration | Failure Behavior       |
+| ------------------------------ | ------------------------------ | ------------------------ | --------------- | ---------------------- |
+| Lint & Unit Test               | Every push                     | ubuntu-22.04 (2-core)    | < 3 min         | Block all downstream   |
+| Type Check                     | Every push (parallel)          | ubuntu-22.04 (2-core)    | < 2 min         | Block all downstream   |
+| Build & Push Image             | Push to main only              | ubuntu-22.04 (4-core)    | < 5 min         | Block deployment       |
+| Security Scan (Trivy)          | After build                    | ubuntu-22.04 (2-core)    | < 4 min         | Block on CRITICAL/HIGH |
+| Integration Tests (3 shards)   | Push to main only              | ubuntu-22.04 (2-core) x3 | < 8 min         | Block deployment       |
+| Deploy Staging (Blue/Green)    | After all tests pass           | ubuntu-22.04 (2-core)    | < 4 min         | Auto-rollback          |
+| Smoke Tests Staging            | After staging deploy           | ubuntu-22.04 (2-core)    | < 2 min         | Block production gate  |
+| Deploy Production (Blue/Green) | Manual approval + staging pass | ubuntu-22.04 (2-core)    | < 5 min         | Auto-rollback + alert  |
 
 ---
 
@@ -718,3 +729,4 @@ jobs:
           POSTGRES_PASSWORD: testpassword
           POSTGRES_DB: testdb
         ports: ['5432:5
+```

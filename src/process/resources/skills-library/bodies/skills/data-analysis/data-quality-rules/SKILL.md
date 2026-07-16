@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science analysis checklist"
-  category: "data-analysis"
-  subcategory: "data-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science analysis checklist'
+  category: 'data-analysis'
+  subcategory: 'data-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Data Quality Rules
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to define data quality rules, checks, or constraints for a specific table, dataset, API feed, or data warehouse layer (staging, ODS, curated, mart)
 - The user wants to set up automated data quality monitoring using tools like Great Expectations, dbt tests, Soda Core, Monte Carlo, or custom SQL-based assertion frameworks
 - The user needs to establish quality thresholds and alert conditions before a dataset is promoted to production or made available to downstream consumers
@@ -29,6 +31,7 @@ metadata:
 - The user is onboarding a new data source (third-party API, acquired company's database, new ERP module) and needs to establish baseline quality before integrating it into the warehouse
 
 **Do NOT use when:**
+
 - The user wants to add drop-down menus, cell-level range validation, or conditional formatting in Excel or Google Sheets (use `data-validation-setup`)
 - The user wants to design the ETL/ELT pipeline architecture, transformation logic, or orchestration schedule (use `etl-pipeline-design`)
 - The user wants to actually fix or clean a specific dirty dataset right now -- deduplication, imputation, standardization (use `data-cleaning-protocol`)
@@ -70,6 +73,7 @@ A field inventory is not a data dictionary copy-paste. It is an assessment of ea
 Apply each dimension deliberately to each field, not mechanically. Not every field needs all five dimensions. Use the following decision logic:
 
 **Completeness -- Is the value present when it should be?**
+
 - Apply NOT NULL rules to every field marked required in the business model, regardless of whether the database enforces it (the database constraint is a backstop, not a substitute for monitoring).
 - For nullable fields, always define a null rate threshold -- even optional fields should not exceed a reasonable null rate. A field that is 90% null is likely broken, even if nulls are technically allowed.
 - Define conditional completeness rules for fields that are required only under certain conditions: `ship_date` must not be null when `order_status = 'shipped'`; `tax_id` must not be null when `country = 'US'` and `plan_type = 'enterprise'`.
@@ -77,6 +81,7 @@ Apply each dimension deliberately to each field, not mechanically. Not every fie
 - Distinguish null from empty string. For string fields: null means "not provided," empty string means "provided but blank" -- both are failures but they have different root causes. Empty strings usually indicate an application bug (a form submitted with an empty required field). Write separate checks for each.
 
 **Validity -- Does the value conform to expected format, type, and domain?**
+
 - Type conformance: even if the column is typed VARCHAR, check that numeric-meaning fields contain actual numbers, date-meaning fields contain parseable dates, and boolean-meaning fields contain only expected values. Type coercion in ETL pipelines commonly introduces garbage values.
 - Pattern checks using regular expressions: email format (`^[^@\s]+@[^@\s]+\.[^@\s]+$`), phone numbers in E.164 format (`^\+[1-9]\d{1,14}$`), US ZIP codes (`^\d{5}(-\d{4})?$`), ISO 3166-1 alpha-2 country codes (must be in the 249-code reference set), UUID format (`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`).
 - Range checks with business-informed bounds: a `discount_rate` field should be between 0.0 and 1.0; an `age` field should be between 0 and 130; a `price` field in a B2B SaaS context might reasonably be between $0 and $500,000/year. Do not use arbitrary technical maximums (INT max = 2,147,483,647 is not a valid business upper bound for order quantities).
@@ -84,6 +89,7 @@ Apply each dimension deliberately to each field, not mechanically. Not every fie
 - Cross-field business logic as validity rules: `unit_price * quantity` should approximately equal `line_total` (within rounding tolerance); `discount_amount` should not exceed `subtotal`; `refund_amount` should not exceed `original_payment_amount`.
 
 **Consistency -- Does the value agree with related values in the same or other datasets?**
+
 - Temporal ordering constraints: `end_date >= start_date`, `shipped_at >= ordered_at`, `last_modified_at >= created_at`. These are among the most frequently violated rules and among the hardest to debug when violated.
 - Referential integrity: every foreign key value must exist in the referenced dimension table. In a data warehouse context, this is not guaranteed by the database engine (most warehouses -- Snowflake, BigQuery, Redshift, Databricks -- do not enforce FK constraints). You must check this explicitly: `SELECT COUNT(*) FROM orders o LEFT JOIN customers c ON o.customer_id = c.id WHERE c.id IS NULL` should return 0.
 - Cross-system consistency: when the same entity exists in two systems (e.g., a customer record in both the CRM and the billing system), key attributes should match. Define which system is the system of record for each field and check that the secondary system's value matches.
@@ -91,6 +97,7 @@ Apply each dimension deliberately to each field, not mechanically. Not every fie
 - Cardinality rules: some relationships should have a fixed cardinality. Each invoice should have exactly one customer (1:1); each customer can have many invoices (1:N). A cardinality violation -- an invoice with no customer or two customers -- is a consistency failure.
 
 **Accuracy -- Does the value reflect the real-world truth?**
+
 - Freshness rules are the most actionable accuracy check: define the maximum acceptable age of the most recent record for each table that receives regular updates. A `last_login_at` that hasn't been updated in 6 months for an "active" user is either accurate (the user is inactive) or a freshness failure in the login event stream.
 - Statistical outlier detection using the IQR method or Z-score: flag records where a numeric field is more than 3 standard deviations from the 30-day rolling mean, or outside 1.5x the interquartile range. This is a WARNING-level check; outliers are not always errors. The goal is to surface them for human review.
 - Row count drift: compare today's record count or load count to the 7-day and 30-day moving average. A sudden drop of >20% or spike of >50% signals a pipeline failure, data backfill, or accidental truncation. Set a CRITICAL alert at >50% change and a WARNING at >20% change.
@@ -98,6 +105,7 @@ Apply each dimension deliberately to each field, not mechanically. Not every fie
 - Referencing external truth sources when available: if you have a canonical customer list from a CRM, the count of customers in the data warehouse should match within a defined tolerance (e.g., within 10 records or 0.1%, whichever is smaller).
 
 **Uniqueness -- Are values distinct where they must be?**
+
 - Primary key uniqueness is always CRITICAL at 0% tolerance. This is non-negotiable.
 - Business key uniqueness: natural identifiers like email addresses, SSNs, passport numbers, or EIN/VAT numbers should be unique within their applicable scope (e.g., unique per active customer, not across all historical records including churned).
 - Composite uniqueness: some tables have no single unique field but should have a unique combination (e.g., `(order_id, line_item_number)` must be unique in an order_items table; `(user_id, date)` must be unique in a daily_activity_summary table).
@@ -157,7 +165,7 @@ Quality rules that live only in someone's head or a private notebook don't exist
 
 ## Output Format
 
-````
+```
 ## Data Quality Rules: [schema.table_name]
 
 ### Overview
@@ -274,7 +282,7 @@ Quality rules that live only in someone's head or a private notebook don't exist
 ### Remediation Playbook
 
 | Rule ID | Failure Description | Immediate Containment | Investigation Query | Fix Action | Verification | Prevention |
-|---------|--------------------|-----------------------|--------------------|-----------|-----------|-----------| 
+|---------|--------------------|-----------------------|--------------------|-----------|-----------|-----------|
 | [Rule ID] | [What failed and what it means] | [Stop pipeline? Quarantine rows? Alert whom?] | [Specific SQL to understand scope] | [How to fix the data] | [Query to confirm fix worked] | [Process/code change to prevent recurrence] |
 
 ---
@@ -285,13 +293,13 @@ Quality rules that live only in someone's head or a private notebook don't exist
 |------|--------------|----------|-----------------|-----------|-----------|----------------|-----------------|
 | YYYY-MM-DD | [Rule IDs] | CRITICAL | [N rows] | [Brief cause] | [Brief fix] | [HH:MM] | [Link] |
 
-````
+```
 
 ---
 
 ## Rules
 
-1. **Never write a rule without an executable SQL test.** "Email should be valid" is documentation. `` SELECT COUNT(*) FROM customers WHERE email NOT REGEXP '^[^@\s]+@[^@\s]+\.[^@\s]+$' `` is a rule. Every rule in the output must have a specific, runnable test query or a named test in the chosen framework (e.g., `dbt_expectations.expect_column_values_to_match_regex`).
+1. **Never write a rule without an executable SQL test.** "Email should be valid" is documentation. `SELECT COUNT(*) FROM customers WHERE email NOT REGEXP '^[^@\s]+@[^@\s]+\.[^@\s]+$'` is a rule. Every rule in the output must have a specific, runnable test query or a named test in the chosen framework (e.g., `dbt_expectations.expect_column_values_to_match_regex`).
 
 2. **Primary key uniqueness and referential integrity rules are always CRITICAL at exactly 0% tolerance.** There is no business context in which duplicate PKs or orphaned FK values are acceptable. Do not let a user argue these down to WARNING. A single duplicate PK can cause count inflation, incorrect joins, and financial reporting errors.
 
@@ -320,9 +328,11 @@ Quality rules that live only in someone's head or a private notebook don't exist
 ## Edge Cases
 
 ### New Dataset with No Historical Baseline
+
 There is no profiling data to calibrate thresholds against. Setting strict thresholds immediately will cause constant false alarms; setting no thresholds monitors nothing.
 
 **Handling:**
+
 - Run all rules in INFO mode for 14--30 days (longer for low-frequency loads). Store all results in the quality result table.
 - After the calibration period, compute: null rates, value distribution statistics (min, max, mean, stddev, p5, p95), row count mean and standard deviation, and daily sum mean and standard deviation for measure fields.
 - Set initial WARNING threshold at 2x the observed peak rate (e.g., if null rate peaked at 1.3% during calibration, set WARNING at 2.6%). Set CRITICAL at 5x (6.5%).
@@ -330,9 +340,11 @@ There is no profiling data to calibrate thresholds against. Setting strict thres
 - Mark all rules with `[CALIBRATING -- Thresholds provisional until YYYY-MM-DD]` in the rule set.
 
 ### Third-Party Data Source with No Quality Guarantees
+
 A data vendor, API provider, or acquired company's database delivers data with unknown or inconsistent quality. You cannot enforce quality at the source.
 
 **Handling:**
+
 - Define all rules at the ingestion boundary -- apply quality checks to the raw landing table before any transformation.
 - Create a quarantine pattern: records failing CRITICAL rules go to `[table_name]_quarantine`; records passing go to the normal processing pipeline. Never delete quarantined records -- they are needed for vendor disputes and root cause analysis.
 - Do not block the pipeline for WARNING violations from third-party sources unless they exceed a catastrophic threshold (e.g., >20% of records failing). The vendor's quality issues should not halt your pipeline entirely.
@@ -340,18 +352,22 @@ A data vendor, API provider, or acquired company's database delivers data with u
 - Add a `data_quality_score` column to the processed table: a simple 0.0--1.0 score representing the fraction of quality rules the record passed. Downstream consumers can filter on this column for high-stakes use cases.
 
 ### Slowly Changing Dimensions (SCD)
+
 A dimension table uses SCD Type 2 (row versioning with `valid_from`, `valid_to`, `is_current`). Legitimate changes (customer changes address, product changes price) must not be flagged as quality violations.
 
 **Handling:**
+
 - Uniqueness rules must be scoped to current records: `WHERE is_current = TRUE` or `WHERE valid_to IS NULL`. A customer's surrogate key should be unique among current records; historical surrogate keys for the same natural key are expected duplicates.
 - Temporal ordering rules apply to the version window: `valid_to >= valid_from` (or `valid_to IS NULL` for the current version) is the correct check, not a global `end_date >= start_date`.
 - Add a specific SCD consistency rule: `is_current = TRUE` must occur exactly once per natural key. Query: `SELECT natural_key, SUM(CASE WHEN is_current THEN 1 ELSE 0 END) AS current_count FROM dim_table GROUP BY natural_key HAVING current_count != 1` should return 0 rows.
 - Accuracy rules (statistical outlier checks) should be applied to the current version only. Including historical rows in aggregate statistics will distort the distribution.
 
 ### Very Large Table (Billions of Rows)
+
 Full-table quality checks on a billion-row table may run for hours, blocking downstream pipelines and consuming excessive compute resources.
 
 **Handling:**
+
 - Tiered execution strategy: on-load checks run on the new/incremental partition only (e.g., records with `created_at >= load_start_time`). Full-table checks run weekly during a scheduled maintenance window.
 - Statistical checks (null rates, outlier detection) run on a random stratified sample. Use reservoir sampling or hash-based sampling: `WHERE MOD(HASH(id), 100) < 1` gives a deterministic 1% sample. Document the sampling method and its confidence intervals (at 1% sample of 1B rows = 10M records, a 95% confidence interval on a 0.1% null rate is approximately ±0.006%).
 - Uniqueness checks on PKs and business keys can use approximate algorithms (HyperLogLog) to detect near-duplicates without full cross-joins. Most modern warehouses (BigQuery `APPROX_COUNT_DISTINCT`, Redshift `HLL_CREATE_SKETCH`) support this natively.
@@ -359,27 +375,33 @@ Full-table quality checks on a billion-row table may run for hours, blocking dow
 - Tag each rule with its expected execution time based on the last profiling run. Rules taking more than 10 minutes should automatically trigger a sampling strategy.
 
 ### Multiple Tables Sharing a Quality Domain (Data Mesh / Domain-Owned Data)
+
 Multiple teams own different tables in the same logical domain (e.g., three product teams each own a slice of the `events` table). Overlapping quality ownership causes gaps and conflicts.
 
 **Handling:**
+
 - Use a RACI matrix per field: Responsible (who writes the rule and maintains it), Accountable (who is on-call for failures), Consulted (who must be informed of changes to the rule), Informed (who receives alerts).
 - Define cross-domain consistency rules explicitly, with ownership assigned to the consuming team rather than the producing team. The producing team cannot be expected to know how their data is used downstream.
 - Implement a data contract: a formal, versioned agreement between the producer and consumer that specifies the exact quality rules the producer guarantees. Data contracts can be maintained in YAML alongside the dbt project and enforced at runtime.
 - Use a centralized quality results table shared across all domain teams. Each rule is tagged with `domain`, `team`, and `data_product` to enable cross-domain quality dashboards and executive-level quality reporting.
 
 ### Composite or Derived Metrics as Quality Subjects
+
 A user wants quality rules not on a raw table but on a calculated metric or a dbt model that joins multiple tables. The "data" being checked is a transformation output, not source data.
 
 **Handling:**
+
 - Apply the same five-dimension framework, but note the additional complexity: a validity failure could originate from any of the source tables feeding the model. Rules on derived models should link back to source-table rules that would explain the failure.
 - Add lineage metadata to each rule: "This rule checks the output of model `fct_revenue`. Failures in this rule should first be investigated via rules C-002 (customers.email), X-002 (orders.customer_id FK), and A-003 (daily order sum drift) on the upstream sources."
 - For calculated fields, define expected mathematical properties explicitly: `total_revenue = SUM(line_item_amount) - SUM(discount_amount) + SUM(tax_amount)`. Test this identity within a rounding tolerance.
 - Freshness for derived models is the freshness of the most upstream dependency. If `fct_revenue` depends on `raw.orders` and `raw.customers`, the freshness SLA for `fct_revenue` is the minimum of the two source freshness SLAs.
 
 ### Regulatory and Compliance Requirements (GDPR, HIPAA, SOX, PCI-DSS)
+
 Quality rules on regulated data carry legal weight. A quality failure may not just be a data problem -- it may be a reportable incident.
 
 **Handling:**
+
 - PII completeness rules (email, SSN, date of birth) must meet the standard required by the relevant regulation. Under GDPR, records with identifiable data must be associated with a valid consent record -- add a cross-table consistency rule checking FK to the consent table.
 - Under SOX, financial figures reported to auditors must meet accuracy standards. Any accuracy rule (A-001 through A-004) on a SOX-in-scope table should be CRITICAL severity with a 0% tolerance policy and a documented approval workflow for any threshold change.
 - Implement immutable audit logging for all quality rule changes. Who changed a threshold, when, and with whose approval must be traceable. Store rule version history in version control with required code review.
@@ -397,39 +419,39 @@ Quality rules on regulated data carry legal weight. A quality failure may not ju
 
 ### Overview
 
-| Attribute | Value |
-|-----------|-------|
-| Data Asset | analytics.orders |
-| Data Producer | E-commerce application (order service), writes via Kafka → Snowflake connector |
-| Data Steward | Data Engineering team |
-| Data Consumers | Revenue dashboard (Tableau), Logistics system (warehouse allocation), Monthly financial close (NetSuite reconciliation) |
-| Refresh Cadence | Near-real-time Kafka stream; Snowflake table updated every 15 minutes |
-| Quality SLA | CRITICAL rules must pass before 07:00 UTC daily for financial close. Freshness check every 30 minutes. |
-| Business Criticality | TIER 1 -- Revenue-critical. Failures in this table affect financial reporting and logistics. |
-| Check Framework | dbt tests (on-load) + Airflow DAG for hourly/daily checks + custom SQL assertions in `quality.rule_results` |
-| Result Store | analytics.quality.rule_results |
-| Baseline Established | 2024-09-15 (profiled over 60 days) |
-| Last Rule Review | 2025-01-10 |
-| Next Scheduled Review | 2025-04-10 |
+| Attribute             | Value                                                                                                                   |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Data Asset            | analytics.orders                                                                                                        |
+| Data Producer         | E-commerce application (order service), writes via Kafka → Snowflake connector                                          |
+| Data Steward          | Data Engineering team                                                                                                   |
+| Data Consumers        | Revenue dashboard (Tableau), Logistics system (warehouse allocation), Monthly financial close (NetSuite reconciliation) |
+| Refresh Cadence       | Near-real-time Kafka stream; Snowflake table updated every 15 minutes                                                   |
+| Quality SLA           | CRITICAL rules must pass before 07:00 UTC daily for financial close. Freshness check every 30 minutes.                  |
+| Business Criticality  | TIER 1 -- Revenue-critical. Failures in this table affect financial reporting and logistics.                            |
+| Check Framework       | dbt tests (on-load) + Airflow DAG for hourly/daily checks + custom SQL assertions in `quality.rule_results`             |
+| Result Store          | analytics.quality.rule_results                                                                                          |
+| Baseline Established  | 2024-09-15 (profiled over 60 days)                                                                                      |
+| Last Rule Review      | 2025-01-10                                                                                                              |
+| Next Scheduled Review | 2025-04-10                                                                                                              |
 
 ---
 
 ### Field Inventory
 
-| Field | Physical Type | Nullable | Tier | Role | Business Meaning | Known Issues |
-|-------|--------------|----------|------|------|-----------------|--------------|
-| order_id | VARCHAR(36) | N | 1 | PK (UUID) | Globally unique order identifier | Legacy orders pre-2020 use sequential integers, not UUIDs |
-| customer_id | BIGINT | N | 1 | FK → customers.id | Links to the purchasing customer | No DB-enforced FK in Snowflake |
-| order_status | VARCHAR(20) | N | 1 | Enum Attribute | Current lifecycle status of the order | Status 'legacy_closed' exists only for orders before 2019 |
-| order_date | TIMESTAMP WITH TIME ZONE | N | 1 | Audit / Measure | When the customer placed the order | Timezone is always UTC; legacy records may be UTC-naive |
-| shipped_date | TIMESTAMP WITH TIME ZONE | Y | 2 | Audit / Measure | When the order left the warehouse. NULL if not yet shipped | NULL is valid for statuses: pending, processing, cancelled |
-| line_item_count | INTEGER | N | 2 | Measure | Number of distinct line items on the order | Minimum value is 1 |
-| subtotal | DECIMAL(12,2) | N | 1 | Measure | Sum of line items before discount and tax, in currency_code | Must equal sum of order_items.line_total for this order |
-| discount_amount | DECIMAL(12,2) | N | 1 | Measure | Total discount applied. 0.00 if no discount | Must be >= 0 and <= subtotal |
-| tax_amount | DECIMAL(12,2) | N | 1 | Measure | Tax charged in currency_code | Must be >= 0. Can be 0 for tax-exempt customers |
-| total_amount | DECIMAL(12,2) | N | 1 | Measure | Final amount charged: subtotal - discount + tax | Must equal subtotal - discount_amount + tax_amount |
-| currency_code | CHAR(3) | N | 1 | Attribute | ISO 4217 currency code | Must be one of: USD, EUR, GBP, CAD, AUD |
-| warehouse_id | INTEGER | Y | 2 | FK → warehouses.id | Warehouse fulfilling the order. NULL if not yet assigned | NULL valid when order_status IN ('pending', 'cancelled') |
+| Field           | Physical Type            | Nullable | Tier | Role               | Business Meaning                                            | Known Issues                                               |
+| --------------- | ------------------------ | -------- | ---- | ------------------ | ----------------------------------------------------------- | ---------------------------------------------------------- |
+| order_id        | VARCHAR(36)              | N        | 1    | PK (UUID)          | Globally unique order identifier                            | Legacy orders pre-2020 use sequential integers, not UUIDs  |
+| customer_id     | BIGINT                   | N        | 1    | FK → customers.id  | Links to the purchasing customer                            | No DB-enforced FK in Snowflake                             |
+| order_status    | VARCHAR(20)              | N        | 1    | Enum Attribute     | Current lifecycle status of the order                       | Status 'legacy_closed' exists only for orders before 2019  |
+| order_date      | TIMESTAMP WITH TIME ZONE | N        | 1    | Audit / Measure    | When the customer placed the order                          | Timezone is always UTC; legacy records may be UTC-naive    |
+| shipped_date    | TIMESTAMP WITH TIME ZONE | Y        | 2    | Audit / Measure    | When the order left the warehouse. NULL if not yet shipped  | NULL is valid for statuses: pending, processing, cancelled |
+| line_item_count | INTEGER                  | N        | 2    | Measure            | Number of distinct line items on the order                  | Minimum value is 1                                         |
+| subtotal        | DECIMAL(12,2)            | N        | 1    | Measure            | Sum of line items before discount and tax, in currency_code | Must equal sum of order_items.line_total for this order    |
+| discount_amount | DECIMAL(12,2)            | N        | 1    | Measure            | Total discount applied. 0.00 if no discount                 | Must be >= 0 and <= subtotal                               |
+| tax_amount      | DECIMAL(12,2)            | N        | 1    | Measure            | Tax charged in currency_code                                | Must be >= 0. Can be 0 for tax-exempt customers            |
+| total_amount    | DECIMAL(12,2)            | N        | 1    | Measure            | Final amount charged: subtotal - discount + tax             | Must equal subtotal - discount_amount + tax_amount         |
+| currency_code   | CHAR(3)                  | N        | 1    | Attribute          | ISO 4217 currency code                                      | Must be one of: USD, EUR, GBP, CAD, AUD                    |
+| warehouse_id    | INTEGER                  | Y        | 2    | FK → warehouses.id | Warehouse fulfilling the order. NULL if not yet assigned    | NULL valid when order_status IN ('pending', 'cancelled')   |
 
 ---
 
@@ -437,9 +459,9 @@ Quality rules on regulated data carry legal weight. A quality failure may not ju
 
 #### Completeness Rules
 
-| Rule ID | Field | Rule Description | SQL Test | Threshold | Severity | Check Frequency | Owner |
-|---------|-------|-----------------|----------|-----------|----------|-----------------|-------|
-| C-001 | order_id | Must not be NULL | `SELECT COUNT(*) FROM analytics.orders WHERE order_id IS NULL` | 0 records | CRITICAL | On-load | Data Engineering |
-| C-002 | customer_id | Must not be NULL | `SELECT COUNT(*) FROM analytics.orders WHERE customer_id IS NULL` | 0 records | CRITICAL | On-load | Data Engineering |
-| C-003 | order_status | Must not be NULL | `SELECT COUNT(*) FROM analytics.orders WHERE order_status IS NULL` | 0 records | CRITICAL | On-load | Data Engineering |
-| C-004 | order_date
+| Rule ID | Field        | Rule Description | SQL Test                                                           | Threshold | Severity | Check Frequency | Owner            |
+| ------- | ------------ | ---------------- | ------------------------------------------------------------------ | --------- | -------- | --------------- | ---------------- |
+| C-001   | order_id     | Must not be NULL | `SELECT COUNT(*) FROM analytics.orders WHERE order_id IS NULL`     | 0 records | CRITICAL | On-load         | Data Engineering |
+| C-002   | customer_id  | Must not be NULL | `SELECT COUNT(*) FROM analytics.orders WHERE customer_id IS NULL`  | 0 records | CRITICAL | On-load         | Data Engineering |
+| C-003   | order_status | Must not be NULL | `SELECT COUNT(*) FROM analytics.orders WHERE order_status IS NULL` | 0 records | CRITICAL | On-load         | Data Engineering |
+| C-004   | order_date   |

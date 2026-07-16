@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing email personal-communication"
-  category: "writing"
-  subcategory: "personal-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'writing email personal-communication'
+  category: 'writing'
+  subcategory: 'personal-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Formal Thank You
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to write a thank-you note for a personal gift -- a wedding present, graduation gift, birthday gift, baby shower gift, housewarming gift, or holiday gift -- and needs the note to be specific, warm, and memorable rather than perfunctory
 - A user wants to write a post-interview thank-you letter and needs to reinforce their candidacy while expressing genuine gratitude for the interviewer's time
 - A user received hospitality -- a hosted dinner party, a weekend stay at someone's home, a host who planned an event in their honor -- and wants to acknowledge it properly
@@ -29,6 +31,7 @@ metadata:
 - A user is writing on behalf of a nonprofit, school, or organization and needs a formal acknowledgment letter that also satisfies IRS documentation requirements for charitable contributions
 
 **Do NOT use this skill when:**
+
 - The user wants a quick, casual text message or informal thank-you -- this skill produces formal written correspondence, not conversational messages (use a casual messaging approach instead)
 - The user needs a business follow-up email after a sales call or client meeting -- those require pipeline language and next-step framing that this skill does not address (use a business-email skill)
 - The user wants to write a public recognition post for social media or a company newsletter -- that is audience-facing broadcast content, not a personal letter (use a public-recognition skill)
@@ -66,18 +69,18 @@ Use this decision matrix before drafting:
 
 **Occasion Type → Format → Length → Tone:**
 
-| Occasion | Format | Length | Tone |
-|---|---|---|---|
-| Personal gift (close family) | Handwritten card or letter | 4--6 sentences | Warm, personal, emotionally open |
-| Personal gift (acquaintance or colleague) | Handwritten note or typed letter | 3--5 sentences | Gracious, specific, appropriately warm |
-| Wedding or baby shower gift | Handwritten note | 5--8 sentences | Celebratory, personal, specific |
-| Post-interview (within 24 hours) | Email | 150--200 words | Professional gratitude + one value-add insight |
-| Post-interview (senior role) | Typed letter + email | 200--300 words per format | Formal, substantive, connection-forward |
-| Mentor/reference/favor | Typed letter or email | 2--3 paragraphs | Deeply personal, outcome-specific, forward-looking |
-| Donation acknowledgment | Formal typed letter | 3--4 paragraphs | Warm institutional voice, impact-specific |
-| Hospitality (dinner) | Handwritten note sent within 48 hours | 4--6 sentences | Specific about the evening, warm, reciprocal |
-| Hospitality (multi-day stay) | Handwritten letter + optional small gift | 2--3 paragraphs | Specific moments named, genuine warmth |
-| Medical or professional service | Typed letter | 2--3 paragraphs | Respectful, impact-focused, not effusive |
+| Occasion                                  | Format                                   | Length                    | Tone                                               |
+| ----------------------------------------- | ---------------------------------------- | ------------------------- | -------------------------------------------------- |
+| Personal gift (close family)              | Handwritten card or letter               | 4--6 sentences            | Warm, personal, emotionally open                   |
+| Personal gift (acquaintance or colleague) | Handwritten note or typed letter         | 3--5 sentences            | Gracious, specific, appropriately warm             |
+| Wedding or baby shower gift               | Handwritten note                         | 5--8 sentences            | Celebratory, personal, specific                    |
+| Post-interview (within 24 hours)          | Email                                    | 150--200 words            | Professional gratitude + one value-add insight     |
+| Post-interview (senior role)              | Typed letter + email                     | 200--300 words per format | Formal, substantive, connection-forward            |
+| Mentor/reference/favor                    | Typed letter or email                    | 2--3 paragraphs           | Deeply personal, outcome-specific, forward-looking |
+| Donation acknowledgment                   | Formal typed letter                      | 3--4 paragraphs           | Warm institutional voice, impact-specific          |
+| Hospitality (dinner)                      | Handwritten note sent within 48 hours    | 4--6 sentences            | Specific about the evening, warm, reciprocal       |
+| Hospitality (multi-day stay)              | Handwritten letter + optional small gift | 2--3 paragraphs           | Specific moments named, genuine warmth             |
+| Medical or professional service           | Typed letter                             | 2--3 paragraphs           | Respectful, impact-focused, not effusive           |
 
 Length discipline is non-negotiable. A five-sentence gift thank-you that is specific and genuine outperforms a three-paragraph note that pads with vague sentiment. Cut every sentence that does not name a specific detail, convey a specific impact, or advance the relational meaning.
 
@@ -102,6 +105,7 @@ End with warmth and forward motion. For personal relationships: an invitation, a
 The salutation and closing are not decorative -- they signal the entire register of the note.
 
 **Salutation decision tree:**
+
 - Very close family or lifelong friend: "Dear Aunt Margaret," / "Dearest Tom,"
 - Close friend, family friend, or warm acquaintance: "Dear Catherine,"
 - Professional mentor or senior contact: "Dear Professor Okafor," / "Dear Dr. Reyes,"
@@ -109,6 +113,7 @@ The salutation and closing are not decorative -- they signal the entire register
 - Formal institutional: "Dear Members of the Board," / "Dear Dr. Williams and the Search Committee,"
 
 **Closing calibration by relationship:**
+
 - Intimate personal: "With love," / "With so much affection,"
 - Warm personal: "With warmth," / "Warmly," / "With gratitude and affection,"
 - Professional-warm: "With sincere thanks," / "With gratitude,"

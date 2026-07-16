@@ -7,26 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts estate-planning"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts estate-planning'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
 
 # Estate Planning Basics
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about estate planning
 - User needs guidance on estate planning topics
 - User wants a structured approach to estate planning
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,33 +43,38 @@ metadata:
 6. **Do you own real estate?** If so, in how many states?
 7. **What is your approximate estate value?** (determines complexity and potential estate tax exposure)
 8. **Do you have any special circumstances?** (blended family, child with special needs, business ownership, significant debts, international assets)
+
 ---
+
 ## Step 1: Core Estate Planning Documents
 
 Every adult should have these documents regardless of age or wealth:
 
 ### The Essential Four
 
-| Document | What It Does | When It Takes Effect |
-|---|---|---|
-| **Last Will and Testament** | Directs how your assets are distributed; names an executor; names guardians for minor children | After death |
-| **Durable Financial Power of Attorney** | Authorizes someone to manage your financial affairs | If you become incapacitated (or immediately, depending on type) |
-| **Healthcare Power of Attorney** (Healthcare Proxy) | Authorizes someone to make medical decisions for you | If you cannot make decisions yourself |
-| **Advance Directive** (Living Will) | States your wishes for end-of-life medical care | If you are terminally ill or permanently unconscious |
+| Document                                            | What It Does                                                                                   | When It Takes Effect                                            |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Last Will and Testament**                         | Directs how your assets are distributed; names an executor; names guardians for minor children | After death                                                     |
+| **Durable Financial Power of Attorney**             | Authorizes someone to manage your financial affairs                                            | If you become incapacitated (or immediately, depending on type) |
+| **Healthcare Power of Attorney** (Healthcare Proxy) | Authorizes someone to make medical decisions for you                                           | If you cannot make decisions yourself                           |
+| **Advance Directive** (Living Will)                 | States your wishes for end-of-life medical care                                                | If you are terminally ill or permanently unconscious            |
 
 ### Additional Documents to Consider
 
-| Document | Purpose | Who Needs It |
-|---|---|---|
-| **Revocable Living Trust** | Avoids probate; manages assets during incapacity | Homeowners, those wanting privacy or probate avoidance |
-| **HIPAA Authorization** | Allows designated people to access your medical information | Everyone (medical power of attorney alone may not suffice) |
-| **Guardianship Nomination** | Names who should care for your minor children | All parents of minors |
-| **Letter of Intent** | Non-legal guidance to executor/family about your wishes | Everyone (very helpful even if non-binding) |
-| **Beneficiary Designation Forms** | Controls who receives retirement accounts, life insurance, etc. | Anyone with these accounts |
+| Document                          | Purpose                                                         | Who Needs It                                               |
+| --------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------- |
+| **Revocable Living Trust**        | Avoids probate; manages assets during incapacity                | Homeowners, those wanting privacy or probate avoidance     |
+| **HIPAA Authorization**           | Allows designated people to access your medical information     | Everyone (medical power of attorney alone may not suffice) |
+| **Guardianship Nomination**       | Names who should care for your minor children                   | All parents of minors                                      |
+| **Letter of Intent**              | Non-legal guidance to executor/family about your wishes         | Everyone (very helpful even if non-binding)                |
+| **Beneficiary Designation Forms** | Controls who receives retirement accounts, life insurance, etc. | Anyone with these accounts                                 |
+
 ---
+
 ## Step 2: Will Creation Considerations
 
 ### What a Will Does
+
 - Names an executor (personal representative) to manage your estate
 - Directs who receives your assets (that are not controlled by beneficiary designations or trusts)
 - Names guardians for minor children
@@ -74,6 +82,7 @@ Every adult should have these documents regardless of age or wealth:
 - Can specify funeral/burial wishes
 
 ### What a Will Does NOT Do
+
 - Control assets with named beneficiaries (life insurance, retirement accounts, POD/TOD accounts)
 - Control jointly-owned property (passes to surviving owner)
 - Control assets in a trust
@@ -81,6 +90,7 @@ Every adult should have these documents regardless of age or wealth:
 - Protect assets from creditors
 
 ### Will Planning Worksheet
+
 ```
 WILL PLANNING WORKSHEET
 
@@ -134,6 +144,7 @@ SPECIAL INSTRUCTIONS:
 ```
 
 ### Will Validity Requirements (General -- Verify in Your State)
+
 ```
 GENERAL WILL REQUIREMENTS:
 - Testator must be 18+ years old (varies slightly by state)
@@ -145,10 +156,13 @@ GENERAL WILL REQUIREMENTS:
 - Some states require notarization
 - Self-proving affidavit recommended (simplifies probate)
 ```
+
 ---
+
 ## Step 3: Power of Attorney Types
 
 ### Financial Power of Attorney
+
 ```
 FINANCIAL POA PLANNING:
 
@@ -182,6 +196,7 @@ Powers to consider restricting:
 ```
 
 ### Healthcare Power of Attorney
+
 ```
 HEALTHCARE POA PLANNING:
 
@@ -205,10 +220,13 @@ Powers to grant:
 [ ] Authorize autopsy
 [ ] Make mental health treatment decisions
 ```
+
 ---
+
 ## Step 4: Healthcare Directives (Living Will)
 
 ### Decisions to Address
+
 ```
 ADVANCE DIRECTIVE DECISIONS:
 
@@ -236,7 +254,9 @@ GENERAL PREFERENCES:
 ADDITIONAL WISHES:
 {{PERSONAL_STATEMENT_ABOUT_VALUES_AND_QUALITY_OF_LIFE}}
 ```
+
 ---
+
 ## Step 5: Beneficiary Designations
 
 ### Critical Understanding
@@ -244,6 +264,7 @@ ADDITIONAL WISHES:
 Beneficiary designations on accounts supersede your will. This is one of the most common estate planning mistakes.
 
 ### Beneficiary Audit Worksheet
+
 ```
 BENEFICIARY DESIGNATION AUDIT
 
@@ -278,22 +299,25 @@ COMMON MISTAKES TO AVOID:
 - Naming a minor as direct beneficiary (requires court-appointed conservator)
 - skipping to update after moving to a community property state
 ```
+
 ---
+
 ## Step 6: Basic Trust Concepts
 
 ### Revocable Living Trust
 
-| Feature | Description |
-|---|---|
-| **What it is** | A legal entity that holds your assets during your lifetime and distributes them after death |
-| **Avoids probate** | Yes -- assets in the trust do not go through probate court |
-| **Privacy** | Yes -- unlike a will, a trust is not a public record |
-| **Revocable** | You can change or revoke it at any time during your lifetime |
-| **Incapacity planning** | Successor trustee can manage assets if you become incapacitated |
-| **Does NOT save taxes** | For most people, a revocable trust offers no tax advantage |
-| **Requires funding** | You must retitle assets into the trust name for it to work |
+| Feature                 | Description                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------- |
+| **What it is**          | A legal entity that holds your assets during your lifetime and distributes them after death |
+| **Avoids probate**      | Yes -- assets in the trust do not go through probate court                                  |
+| **Privacy**             | Yes -- unlike a will, a trust is not a public record                                        |
+| **Revocable**           | You can change or revoke it at any time during your lifetime                                |
+| **Incapacity planning** | Successor trustee can manage assets if you become incapacitated                             |
+| **Does NOT save taxes** | For most people, a revocable trust offers no tax advantage                                  |
+| **Requires funding**    | You must retitle assets into the trust name for it to work                                  |
 
 ### When a Trust May Be Appropriate
+
 - You own real estate (especially in multiple states)
 - You want to avoid probate (saves time, cost, and publicity)
 - You have minor children (trust can manage assets until they are older)
@@ -303,14 +327,18 @@ COMMON MISTAKES TO AVOID:
 - Your state has slow or expensive probate
 
 ### When a Trust May NOT Be Necessary
+
 - Small estate with few assets
 - Assets are primarily in accounts with beneficiary designations
 - You live in a state with simplified probate procedures
 - Cost of creating and maintaining a trust outweighs benefits
+
 ---
+
 ## Step 7: Digital Asset Planning
 
 ### Digital Asset Inventory
+
 ```
 DIGITAL ASSET INVENTORY
 
@@ -358,16 +386,20 @@ Digital estate planning tool used: {{IF_ANY}}
 ```
 
 ### Digital Estate Planning Steps
+
 1. Create an inventory of all digital assets (above)
 2. Use a password manager and share master access with your trusted person
 3. Designate legacy contacts where platforms allow (Google, Facebook, Apple)
 4. Include digital assets in your power of attorney
 5. Add digital asset provisions to your will or trust
 6. Consider state law (Revised Uniform Fiduciary Access to Digital Assets Act -- adopted by most states)
+
 ---
+
 ## Step 8: Estate Planning Checklist by Life Stage
 
 ### Young Adult (18-30, single, no children)
+
 ```
 [ ] Durable financial power of attorney
 [ ] Healthcare power of attorney
@@ -379,6 +411,7 @@ Digital estate planning tool used: {{IF_ANY}}
 ```
 
 ### Newly Married
+
 ```
 All of the above, PLUS:
 [ ] Update all documents to reflect marriage
@@ -390,6 +423,7 @@ All of the above, PLUS:
 ```
 
 ### New Parents
+
 ```
 All of the above, PLUS:
 [ ] Name guardians for children in will (CRITICAL)
@@ -402,6 +436,7 @@ All of the above, PLUS:
 ```
 
 ### Mid-Career / Growing Assets
+
 ```
 All of the above, PLUS:
 [ ] Review estate tax exposure (federal exemption: $13.61M in 2024; check current)
@@ -414,6 +449,7 @@ All of the above, PLUS:
 ```
 
 ### Approaching/In Retirement
+
 ```
 All of the above, PLUS:
 [ ] Review beneficiary designations on all retirement accounts (critical for tax planning)
@@ -427,6 +463,7 @@ All of the above, PLUS:
 ```
 
 ### After a Major Life Change
+
 ```
 UPDATE AFTER:
 [ ] Marriage or divorce
@@ -439,7 +476,9 @@ UPDATE AFTER:
 [ ] Retirement
 [ ] Starting or selling a business
 ```
+
 ---
+
 ## Step 9: When to Hire an Attorney
 
 ### You Should Hire an Estate Planning Attorney If:
@@ -464,6 +503,7 @@ UPDATE AFTER:
 5. Verify credentials: licensed in your state, focuses on estate planning
 
 ### Questions to Ask a Prospective Attorney
+
 ```
 ATTORNEY INTERVIEW QUESTIONS:
 
@@ -478,8 +518,11 @@ ATTORNEY INTERVIEW QUESTIONS:
 9. What is the expected total cost for my situation?
 10. Do you handle trust administration and probate as well?
 ```
+
 ---
+
 ## Estate Planning Document Locator
+
 ```
 DOCUMENT LOCATOR
 
@@ -502,9 +545,10 @@ Attorney: {{NAME}} -- {{PHONE}}
 CPA/Accountant: {{NAME}} -- {{PHONE}}
 Insurance agent: {{NAME}} -- {{PHONE}}
 ```
----
-*This skill provides general estate planning information. Estate planning documents have specific legal requirements that vary by state. Work with a licensed attorney to ensure your documents are valid and achieve your intended goals.*
 
+---
+
+_This skill provides general estate planning information. Estate planning documents have specific legal requirements that vary by state. Work with a licensed attorney to ensure your documents are valid and achieve your intended goals._
 
 ## Output Format
 

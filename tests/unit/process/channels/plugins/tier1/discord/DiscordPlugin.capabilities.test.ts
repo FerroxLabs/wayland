@@ -60,7 +60,7 @@ describe('hasPluginCredentials - discord', () => {
       hasPluginCredentials('discord', {
         botToken: 'MTI.fake.token',
         // applicationId + publicKey deliberately omitted
-      }),
+      })
     ).toBe(true);
   });
 
@@ -70,7 +70,7 @@ describe('hasPluginCredentials - discord', () => {
         botToken: 'MTI.fake.token',
         applicationId: '1234567890',
         publicKey: 'abcdef0123456789',
-      }),
+      })
     ).toBe(true);
   });
 });

@@ -12,14 +12,15 @@ description: >-
   answer.
 license: Apache-2.0
 type: workflow
-skills: "commerce-winback funnels-offer"
+skills: 'commerce-winback funnels-offer'
 metadata:
   author: wayland
   version: 1.0.0
   tags: commerce ecommerce retention winback email segmentation step-by-step
   category: marketing
-  depends: "commerce-winback funnels-offer"
+  depends: 'commerce-winback funnels-offer'
 ---
+
 # Winback Campaign
 
 **Estimated time:** 20-30 minutes

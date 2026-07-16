@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-image-generation automation template"
-  category: "design-creative"
-  subcategory: "ai-image-generation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-image-generation automation template'
+  category: 'design-creative'
+  subcategory: 'ai-image-generation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Batch Image Generation
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to produce 5 or more related images from a shared structural template, where some elements change and others stay constant across the series
 - The user wants to systematically vary one or more dimensions (subject, color, background, mood, style, composition angle, time of day, season) while keeping the rest of the prompt locked
 - The user is building a product catalog, social media content calendar, character expression sheet, background variation set, or concept exploration grid
@@ -30,6 +32,7 @@ metadata:
 - The user wants to create "families" of images -- visually cohesive series like seasonal variants, color palette explorations, or mood board expansions
 
 **Do NOT use when:**
+
 - The user needs a single, highly specific image -- use the model-specific prompting skill instead (Midjourney, DALL-E, Stable Diffusion, or Flux as appropriate)
 - The user's primary challenge is maintaining a consistent character, face, or personality across images -- use `midjourney-consistency` which covers `--cref`, `--sref`, and identity-locking techniques
 - The user has a prompt that is producing wrong results and needs diagnostic help -- use `ai-image-prompt-debugging` to fix the underlying prompt before batching it
@@ -52,6 +55,7 @@ Before writing a single prompt, identify which batch archetype the user's reques
 - **Content calendar batch:** A larger production run (20-60 images) organized by theme, week, or campaign phase. Requires sub-template structure -- one master template plus 3-5 sub-templates.
 
 Ask the user:
+
 - How many total images are needed?
 - What changes between images? List every varying dimension explicitly.
 - What must stay identical across all images? (camera angle, lighting style, aspect ratio, artistic style, model version)
@@ -64,11 +68,13 @@ Ask the user:
 A batch prompt template is a reusable structure where every variable element is replaced with a typed placeholder. "Typed" means the placeholder name describes what kind of value fills it, not just a generic `{VAR1}`.
 
 **Template structure anatomy:**
+
 ```
 [SUBJECT_DESCRIPTION], [SUBJECT_ATTRIBUTE], [ENVIRONMENT], [LIGHTING], [CAMERA_DETAILS], [ARTISTIC_STYLE], [QUALITY_BOOSTERS] [MODEL_PARAMETERS]
 ```
 
 **Placeholder typing convention:**
+
 - `{COLOR:matte_white|ocean_blue|terracotta_red}` -- pipe-separated list of valid values
 - `{SETTING:studio|outdoor|lifestyle}` -- categorical choice
 - `{MOOD:serene|dramatic|playful}` -- qualitative dimension
@@ -76,6 +82,7 @@ A batch prompt template is a reusable structure where every variable element is 
 - `{SEASON:spring|summer|autumn|winter}` -- discrete enumeration
 
 **Constant-locking rules for the template:**
+
 - Lock the camera angle in text, not just in parameters. "45-degree angle, slightly elevated" is more reliable than assuming the model will default to it.
 - Lock lighting in specific terms: "soft diffused studio lighting from camera-left" rather than "good lighting."
 - Lock style era and rendering engine for Stable Diffusion: always specify the model checkpoint name in the workflow, not just in the prompt.
@@ -90,21 +97,23 @@ The variation matrix is the operational heart of the batch plan. It is a complet
 
 **For a single-variable batch (simplest case):**
 
-| # | Variable: Color | Full Prompt | Seed | Output Filename |
-|---|----------------|-------------|------|----------------|
-| 1 | matte white | [full text] | 1001 | batch_white_1001.png |
-| 2 | ocean blue | [full text] | 1001 | batch_blue_1001.png |
+| #   | Variable: Color | Full Prompt | Seed | Output Filename      |
+| --- | --------------- | ----------- | ---- | -------------------- |
+| 1   | matte white     | [full text] | 1001 | batch_white_1001.png |
+| 2   | ocean blue      | [full text] | 1001 | batch_blue_1001.png  |
 
 **For a two-variable cross-product batch:**
 Generate all combinations systematically. For 4 colors x 3 backgrounds = 12 rows. Always sort the matrix so the slower-changing variable is in the outer loop (colors) and the faster-changing variable is in the inner loop (backgrounds). This makes the matrix easier to review and makes regeneration requests easier to handle.
 
 **For a curated selection from a large combination space:**
+
 - State the full possible combination count explicitly: "4 subjects x 5 moods x 3 styles = 60 possible images."
 - Present the recommended curated selection (20-25 images) with justification for which combinations were excluded.
 - Common curation rules: exclude redundant combinations (blue/cold and blue/melancholy overlap), exclude low-value combinations (abstract style defeats product photography purpose), prioritize combinations that serve the stated use case.
 - Always offer to generate the full matrix if the user wants it, but note the time and cost implications.
 
 **Matrix size thresholds:**
+
 - 1-15 images: Full cross-product is always fine
 - 16-30 images: Full cross-product acceptable, recommend reviewing before upscaling
 - 31-60 images: Recommend curated selection or sub-batching in groups of 15-20
@@ -115,6 +124,7 @@ Generate all combinations systematically. For 4 colors x 3 backgrounds = 12 rows
 Seed behavior differs fundamentally between models. Applying the wrong seed strategy produces incoherent batches or wasted generations.
 
 **Midjourney seed behavior:**
+
 - Seeds in Midjourney influence the noise initialization, which affects overall composition and subject placement, not fine pixel detail.
 - Same seed + same prompt = highly similar result (but not pixel-identical). The seed is a strong composition anchor.
 - Same seed + different variable value = similar layout with the variable change applied. This is the core mechanism for comparable batches.
@@ -124,6 +134,7 @@ Seed behavior differs fundamentally between models. Applying the wrong seed stra
 - To generate dramatically different compositions: use seeds spaced 1000 apart.
 
 **Stable Diffusion / Flux seed behavior:**
+
 - In SD and Flux, the seed is deterministic -- same seed + same prompt + same parameters = identical pixel output. This is the most reliable seed system.
 - For a variation batch: use the same seed across all variable changes to maximize compositional comparability.
 - For a diversity batch where you want variety: use sequential seeds (1000, 1001, 1002) or use the batch count feature in A1111/ComfyUI which auto-increments seeds.
@@ -131,6 +142,7 @@ Seed behavior differs fundamentally between models. Applying the wrong seed stra
 - When using ControlNet poses or depth maps as constants, the seed matters less for composition (ControlNet overrides it) but still affects texture, color, and fine detail.
 
 **DALL-E 3 and GPT-image-1 seed behavior:**
+
 - No user-exposed seed control. Each generation is stochastic.
 - Mitigation strategy: Generate 3-4 versions of each prompt variation and select the best per variation. This is the "de facto batch" for DALL-E.
 - Consistency across a DALL-E batch relies entirely on the constant text quality. Make constants extremely specific.
@@ -143,19 +155,22 @@ Seed behavior differs fundamentally between models. Applying the wrong seed stra
 Never run a full batch on untested parameters. A 5% quality improvement in parameter tuning saves 95% regeneration time on a 30-image batch.
 
 **Pre-batch parameter sweep protocol:**
+
 1. Select 2-3 representative prompts from the matrix -- choose ones that span the range of your variables (e.g., the lightest color + simplest background, and the most complex variable combination).
 2. Run a parameter sweep on only those 2-3 prompts before committing to the full batch.
 3. Document which parameter value wins and lock it as a constant for the full batch.
 
 **Key parameter sweeps by model:**
 
-*Stable Diffusion / Flux:*
+_Stable Diffusion / Flux:_
+
 - **CFG Scale sweep:** 4, 6, 7.5, 10, 12. Values below 6 often produce washed-out, incoherent results. Values above 10 often introduce artifacts and over-saturation. Sweet spot is typically 6.5-8 for photorealistic subjects, 7-9 for illustrated styles.
 - **Step count sweep:** 20, 30, 40 steps. Beyond 40 steps, quality improvement is minimal but generation time doubles. 25-30 is the practical sweet spot for most models.
 - **Sampler sweep:** DPM++ 2M Karras vs. Euler a vs. DPM++ SDE Karras. DPM++ 2M Karras is the most consistent for batch work (deterministic across seeds). Euler a introduces more variation between generations.
 - **Denoising strength (for img2img batches):** 0.4-0.5 preserves original composition, 0.6-0.75 allows significant variation, above 0.8 is nearly equivalent to txt2img.
 
-*Midjourney:*
+_Midjourney:_
+
 - **Stylize sweep:** `--s 0`, `--s 100`, `--s 250`, `--s 500`. Low stylize values (0-100) produce more literal, less aesthetically "polished" interpretations. Values of 250-500 add Midjourney's trained aesthetic sense. For product photography, use 0-100. For artistic work, 250-750.
 - **Chaos sweep:** `--chaos 0`, `--chaos 20`, `--chaos 50`. Chaos 0 produces the most predictable, repeatable compositions -- ideal for product batches. Chaos above 30 introduces significant compositional variation -- useful for ideation batches, bad for catalog batches.
 - **Quality sweep:** `--q 0.5` vs. `--q 1` vs. `--q 2`. For draft/test runs, use `--q 0.5` (50% of standard GPU time). For production, always `--q 1` minimum. `--q 2` rarely produces visible improvement sufficient to justify the 2x generation time.
@@ -167,9 +182,11 @@ Never run a full batch on untested parameters. A 5% quality improvement in param
 Without a systematic output organization, batches beyond 20 images become unmanageable. File names like `grid_0023.png` and `upscaled_final_v3.png` destroy any hope of reproducibility.
 
 **Naming convention structure:**
+
 ```
 {batch-id}_{variable1}_{variable2}_{seed}_{version}.{format}
 ```
+
 - `batch-id`: A short, meaningful project code. `mug-catalog`, `hero-banners-q1`, `char-moods`
 - Variable values: Shortened but human-readable. `wht` for white, `stu` for studio, `drm` for dramatic
 - `seed`: The exact seed number used
@@ -177,11 +194,13 @@ Without a systematic output organization, batches beyond 20 images become unmana
 - Format: Always `.png` for AI outputs (lossless; avoids JPEG compression artifacts in intermediate files)
 
 **Examples of good file names:**
+
 - `mug-catalog_terracotta_studio_1001_d1.png`
 - `hero-banners_summer_bold_2400_s1.png`
 - `char-moods_happy_forest_1000_up.png`
 
 **Folder structure for batches under 30 images:**
+
 ```
 {batch-id}/
   00_brief/        # Prompt template, variable list, parameter settings, this plan
@@ -193,6 +212,7 @@ Without a systematic output organization, batches beyond 20 images become unmana
 ```
 
 **Folder structure for batches 30-100 images (sub-batch organization):**
+
 ```
 {batch-id}/
   00_brief/
@@ -208,6 +228,7 @@ Without a systematic output organization, batches beyond 20 images become unmana
 ```
 
 **Metadata CSV schema (minimum required columns):**
+
 ```
 image_id, batch_id, variable_1_name, variable_1_value, variable_2_name, variable_2_value, seed, model, model_version, full_prompt, negative_prompt, cfg_scale, steps, sampler, ar, generation_timestamp, selected, upscaled, notes
 ```
@@ -221,28 +242,33 @@ Assemble the workflow into a concrete, ordered sequence with decision gates.
 **Standard 5-phase workflow:**
 
 Phase 1 -- Template validation (1-4 test images):
+
 - Generate 2-3 representative images from the matrix using draft quality settings
 - Verify that the constant elements are truly constant (same angle, same lighting behavior, same style rendering)
 - Identify any prompt language that produces inconsistent behavior and fix the template
 - Do not proceed to full batch until template validation passes
 
 Phase 2 -- Parameter sweep (4-16 test images):
+
 - Run the parameter sweep on the validated template
 - Select winning parameters and lock them as constants
 - Document the winning values in the batch plan
 
 Phase 3 -- Full batch generation (all images):
+
 - Generate all images in the variation matrix
 - For Midjourney: generate one image per prompt (not a grid of 4) using `--no` to skip the grid and speed selection -- use the `/imagine` command with `--q 1 --s [locked value]`
 - For SD/Flux/ComfyUI: use batch processing nodes with the pre-configured seed management
 - Log every generation to the metadata CSV in real time, not after the fact
 
 Phase 4 -- Selection and quality gate:
+
 - Review all drafts and flag the best result per variation combination
 - If any combination has no acceptable result: regenerate that specific combination with a new seed (document the seed change in the CSV)
 - Target: at least one usable image per matrix row before proceeding to upscaling
 
 Phase 5 -- Upscaling and export:
+
 - Upscale only selected images, never the full draft set
 - For Midjourney: use "Upscale (Subtle)" for 2x with minimal change; "Upscale (Creative)" only for artistic images where enhancement is acceptable
 - For SD: use the SD Hi-Res Fix (2x, denoising 0.4-0.5) or Ultimate SD Upscale in A1111
@@ -256,15 +282,16 @@ Phase 5 -- Upscaling and export:
 ## Batch Generation Plan: {Batch Name}
 
 ### Overview
-| Field | Value |
-|-------|-------|
-| Batch ID | {short-code} |
-| Total images | {n} ({breakdown: e.g., 4 colors x 3 backgrounds}) |
-| Batch type | {variation / combination / series / parameter-exploration / content-calendar} |
-| Target model | {model name and version} |
-| Quality tier | {draft / production} |
-| Estimated generation time | {time per image} x {n images} = {total} (excluding review) |
-| Estimated fast-pass server cost | {if API-based, estimate token/image cost} |
+
+| Field                           | Value                                                                         |
+| ------------------------------- | ----------------------------------------------------------------------------- |
+| Batch ID                        | {short-code}                                                                  |
+| Total images                    | {n} ({breakdown: e.g., 4 colors x 3 backgrounds})                             |
+| Batch type                      | {variation / combination / series / parameter-exploration / content-calendar} |
+| Target model                    | {model name and version}                                                      |
+| Quality tier                    | {draft / production}                                                          |
+| Estimated generation time       | {time per image} x {n images} = {total} (excluding review)                    |
+| Estimated fast-pass server cost | {if API-based, estimate token/image cost}                                     |
 
 ---
 
@@ -272,12 +299,16 @@ Phase 5 -- Upscaling and export:
 
 **Template (copy this, substitute placeholders):**
 ```
+
 {CONSTANT_SUBJECT_DESCRIPTION}, {COLOR:value1|value2|value3}, {ENVIRONMENT:value1|value2|value3}, {LIGHTING}, {CAMERA_DETAILS}, {STYLE}, {QUALITY_TERMS} {MODEL_PARAMETERS}
+
 ```
 
 **Negative prompt (constant, copy identically to all prompts):**
 ```
+
 {negative prompt text}
+
 ```
 
 **Constants (must appear word-for-word in every generated prompt):**
@@ -337,13 +368,15 @@ Phase 5 -- Upscaling and export:
 
 **Folder structure:**
 ```
+
 {batch-id}/
-  00_brief/
-  01_drafts/
-  02_selected/
-  03_upscaled/
-  04_exports/
-  metadata.csv
+00_brief/
+01_drafts/
+02_selected/
+03_upscaled/
+04_exports/
+metadata.csv
+
 ```
 
 **Metadata CSV columns:**
@@ -403,18 +436,22 @@ Phase 5 -- Upscaling and export:
 ## Edge Cases
 
 ### Product catalog with appearance-consistent subject (same object, different backgrounds)
+
 The product's appearance must remain identical across all images -- color, shape, finish, proportions. Background is the only variable. The challenge is that even with the same seed and prompt, AI models will alter product details between generations.
 
 **Handling approach:**
+
 - For Midjourney: Generate the best single product image first. Then use `--cref {image_url}` (character reference) with `--cw 100` to lock the product appearance as a constant visual anchor while changing the background description as the variable. Note that `--cref` is Midjourney v6.0+ only.
 - For Stable Diffusion: Use ControlNet with a reference image. The Tile or Reference controlnet modes preserve appearance details. Set controlnet weight to 0.7-0.85 -- lower weights allow too much deviation, higher weights can distort the background.
 - For DALL-E 3: Product consistency is structurally difficult. Recommend using DALL-E to generate background environments separately, then compositing the product via traditional photo editing. Document this hybrid approach in the batch plan.
 - Always generate the "hero" product image (typically white studio background) first. That image becomes the reference for all subsequent variations.
 
 ### Very large batch (60-200 images) requiring automation
+
 Manual generation at this scale is not viable -- at 2 minutes per image, 100 images = 3+ hours of manual interface work.
 
 **Handling approach:**
+
 - Recommend Stable Diffusion with the A1111 API or ComfyUI with an automation workflow. Both support programmatic prompt injection via JSON.
 - For Midjourney at scale: The Midjourney API (available at API tier) supports batch submission. Alternatively, tools that interface with Midjourney's Discord API can automate submissions.
 - For DALL-E 3 / GPT-image-1: OpenAI's image generation API supports programmatic batching. Build the prompt list as a JSON array and iterate with rate limiting (default: 50 requests/minute on Tier 1, 500/minute on Tier 3).
@@ -423,9 +460,11 @@ Manual generation at this scale is not viable -- at 2 minutes per image, 100 ima
 - Build in a 10-15% regeneration buffer in time estimates. Automated batches always produce some failed or low-quality outputs that need manual regeneration.
 
 ### Batch for multiple output platforms requiring different aspect ratios
+
 A social media content batch may need the same image concept in 1:1 (Instagram grid), 9:16 (Instagram Stories/TikTok), and 16:9 (YouTube/Twitter). These cannot be treated as the same image at different crops -- composition must be designed for each ratio.
 
 **Handling approach:**
+
 - Treat each aspect ratio as a separate sub-batch with its own composition template. The 9:16 vertical template must place the subject in the lower-center third to leave headroom. The 16:9 horizontal template must center or rule-of-thirds the subject horizontally.
 - For Midjourney, generate each AR variant separately: `--ar 1:1`, `--ar 9:16`, `--ar 16:9`. Use the same seed for all three AR variants of the same content -- Midjourney will adapt the composition to the ratio while maintaining thematic consistency.
 - Document the sub-batch structure: `{batch-id}_1x1/`, `{batch-id}_9x16/`, `{batch-id}_16x9/`. Name the sub-batches consistently.
@@ -433,18 +472,22 @@ A social media content batch may need the same image concept in 1:1 (Instagram g
 - For SD/Flux: generate at native model resolution (typically 1024x1024 for SDXL), then use outpainting/canvas extension to create the 9:16 and 16:9 variants. This is more efficient than generating three separate batches.
 
 ### Style consistency across a batch when artistic style is a constant
+
 Describing an artistic style in text is inherently ambiguous -- "impressionist oil painting" can produce dramatically different styles between images. In a batch, style drift between images is a common failure mode.
 
 **Handling approach:**
+
 - For Stable Diffusion: Use a style LoRA as the style constant. Apply the same LoRA at the same weight (typically 0.7-0.9) to every image in the batch. The LoRA enforces style consistency far more reliably than text description alone.
 - For Midjourney: Generate one strong style reference image first using only the style description (no subject variable). Use that image as `--sref {url}` for the entire batch. `--sw` (style weight) of 50-100 provides good style adherence without overriding subject content.
 - For both models: include a style-consistency check image -- an image from a previous approved batch -- at the start of each generation session. If the new images' style matches the check image, the style is consistent. If not, the model version may have updated or settings drifted.
 - Never rely on style text alone for production batches. Always use a visual reference anchor.
 
 ### Iterative batch: User wants to extend or modify an existing completed batch
+
 The user completed a 20-image batch last month and now wants to add 8 more images using the same template, or wants to re-run 5 specific images with a style change.
 
 **Handling approach:**
+
 - Locate the original batch's `metadata.csv` and `00_brief/` folder. The prompt template, seeds, and parameters must come from the original documented plan, not from memory.
 - For an extension: add new matrix rows to the existing CSV. New images should follow the existing naming convention, incrementing the image_id from where the original batch ended.
 - For a style modification re-run: create a new sub-batch folder alongside the original (`01_drafts_v2/`) rather than overwriting originals. The original drafts are the reference baseline.
@@ -452,9 +495,11 @@ The user completed a 20-image batch last month and now wants to add 8 more image
 - Seed carryover: if the original batch used seed 1001 and that seed produced good compositions, use the same seed for extensions. If extending with new variable values not in the original matrix, document the seed as "carried from original batch" in the CSV.
 
 ### Mixed-quality batch (some images excellent, some unusable) after full generation
+
 After running a 24-image batch, 18 are excellent and 6 are unusable (wrong composition, style drift, model glitch).
 
 **Handling approach:**
+
 - Do not regenerate the entire batch. Identify only the failed rows in the matrix and document them with a "FAILED" flag in the metadata CSV.
 - For each failed row: change the seed by +100 from the original (e.g., seed 1001 failed -- try seed 1101). Keep all other parameters identical. This isolates the regeneration to seed variation only.
 - If seed change does not fix the issue: examine the failed prompts for a pattern. If all 6 failures share a common variable value, the issue is likely a problematic variable term that needs refinement. Return to Step 2 to modify that specific variable's text options.
@@ -462,9 +507,11 @@ After running a 24-image batch, 18 are excellent and 6 are unusable (wrong compo
 - Never accept a batch with less than 60% usable rate without investigating root cause. A 40% failure rate indicates a structural prompt problem, not random model variation.
 
 ### Character expression or emotion variation batch (same character, different moods)
+
 Maintaining character appearance across a mood variation batch is the hardest consistency challenge in batch generation.
 
 **Handling approach:**
+
 - This edge case borders on the `midjourney-consistency` skill territory. If the character's appearance is the primary constraint and the batch structure is secondary, redirect to `midjourney-consistency`.
 - If the batch structure is primary (systematic mood matrix, organized output, large count), stay within this skill and apply these specific techniques:
 - For Midjourney: Use `--cref {character_reference_url} --cw 80-100` to anchor appearance. Use mood as the text variable. Run the seed-comparison test: same seed, different mood text. If appearance drift is significant, lower the chaos parameter to 0 and ensure `--style raw` is active.
@@ -482,31 +529,35 @@ Maintaining character appearance across a mood variation batch is the hardest co
 ## Batch Generation Plan: Candle Brand Lifestyle Shoot
 
 ### Overview
-| Field | Value |
-|-------|-------|
-| Batch ID | `candle-lifestyle-ig` |
-| Total images | 16 (4 collections x 4 settings) |
-| Batch type | Combination batch (cross-product, 2 variables) |
-| Target model | Midjourney v6.1 |
-| Quality tier | Production |
+
+| Field                     | Value                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| Batch ID                  | `candle-lifestyle-ig`                                                                 |
+| Total images              | 16 (4 collections x 4 settings)                                                       |
+| Batch type                | Combination batch (cross-product, 2 variables)                                        |
+| Target model              | Midjourney v6.1                                                                       |
+| Quality tier              | Production                                                                            |
 | Estimated generation time | ~2.5 min per image x 16 = ~40 minutes (generation only) + 20 min review and selection |
-| Platform | Instagram feed (1:1) |
+| Platform                  | Instagram feed (1:1)                                                                  |
 
 ---
 
 ### Prompt Template
 
 **Template:**
+
 ```
 a glass pillar candle with {SCENT_COLOR} wax, {LIFESTYLE_SETTING}, soft warm candlelight glowing, product lifestyle photography, 45-degree camera angle, depth of field with sharp candle focus, cozy atmosphere, natural textures, film grain, muted tones, editorial magazine quality --ar 1:1 --v 6.1 --style raw --s 150 --q 1 --no text, watermark, label, logo, harsh shadows, overexposed
 ```
 
 **Negative prompt (constant, appended to every prompt via `--no`):**
+
 ```
 text, watermark, label, logo, harsh shadows, overexposed
 ```
 
 **Constants:**
+
 - Subject core: "a glass pillar candle"
 - Camera: "45-degree camera angle, depth of field with sharp candle focus"
 - Lighting: "soft warm candlelight glowing"
@@ -525,24 +576,24 @@ text, watermark, label, logo, harsh shadows, overexposed
 
 ### Variation Matrix
 
-| # | Collection | Scent Color | Lifestyle Setting | Seed | Full Prompt | Output Filename |
-|---|------------|-------------|-------------------|------|-------------|----------------|
-| 1 | Coastal Breeze | pale seafoam green wax | on a weathered driftwood shelf with sea glass and linen towels, ocean breeze cottage interior | 2200 | a glass pillar candle with pale seafoam green wax, on a weathered driftwood shelf with sea glass and linen towels, ocean breeze cottage interior, soft warm candlelight glowing, product lifestyle photography, 45-degree camera angle, depth of field with sharp candle focus, cozy atmosphere, natural textures, film grain, muted tones, editorial magazine quality --ar 1:1 --v 6.1 --style raw --s 150 --q 1 --no text, watermark, label, logo, harsh shadows, overexposed | candle-lifestyle-ig_coastal_driftwood_2200_d1.png |
-| 2 | Coastal Breeze | pale seafoam green wax | beside an open window with sheer curtains and ocean view blur in background | 2200 | a glass pillar candle with pale seafoam green wax, beside an open window with sheer curtains and ocean view blur in background, soft warm candlelight glowing... [full prompt] | candle-lifestyle-ig_coastal_window_2200_d1.png |
-| 3 | Coastal Breeze | pale seafoam green wax | on a sandy bathroom shelf with rolled white towels and pebbles | 2200 | [full prompt] | candle-lifestyle-ig_coastal_bathroom_2200_d1.png |
-| 4 | Coastal Breeze | pale seafoam green wax | on a bleached wooden dining table with eucalyptus stems and white ceramic dishes | 2200 | [full prompt] | candle-lifestyle-ig_coastal_dining_2200_d1.png |
-| 5 | Alpine Forest | deep forest green wax | on a rustic pine table with pine cones, dried herbs, and woven wool throw | 2200 | [full prompt] | candle-lifestyle-ig_alpine_pine-table_2200_d1.png |
-| 6 | Alpine Forest | deep forest green wax | in a cozy reading nook with leather-bound books and a plaid wool blanket | 2200 | [full prompt] | candle-lifestyle-ig_alpine_reading-nook_2200_d1.png |
-| 7 | Alpine Forest | deep forest green wax | on a stone hearth beside a crackling fireplace with birch logs | 2200 | [full prompt] | candle-lifestyle-ig_alpine_hearth_2200_d1.png |
-| 8 | Alpine Forest | deep forest green wax | on a wooden windowsill with frost on the glass and snow-covered pines in the background blur | 2200 | [full prompt] | candle-lifestyle-ig_alpine_frosty-window_2200_d1.png |
-| 9 | Warm Vanilla | warm ivory cream wax | on a marble kitchen counter with scattered vanilla beans and cinnamon sticks | 2200 | [full prompt] | candle-lifestyle-ig_vanilla_kitchen_2200_d1.png |
-| 10 | Warm Vanilla | warm ivory cream wax | on a linen tablecloth with a slice of cake and golden cutlery | 2200 | [full prompt] | candle-lifestyle-ig_vanilla_table-setting_2200_d1.png |
-| 11 | Warm Vanilla | warm ivory cream wax | beside a warm bath with rose petals and a folded robe in soft terracotta tones | 2200 | [full prompt] | candle-lifestyle-ig_vanilla_bath_2200_d1.png |
-| 12 | Warm Vanilla | warm ivory cream wax | on a bedside table with cream linen bedding and a cup of tea in soft morning light | 2200 | [full prompt] | candle-lifestyle-ig_vanilla_bedside_2200_d1.png |
-| 13 | Midnight Jasmine | deep midnight purple wax | on a velvet side table with scattered jasmine blossoms and a silk scarf | 2200 | [full prompt] | candle-lifestyle-ig_jasmine_velvet_2200_d1.png |
-| 14 | Midnight Jasmine | deep midnight purple wax | in a dim bedroom with dark linen pillows and a crescent moon visible through a window | 2200 | [full prompt] | candle-lifestyle-ig_jasmine_bedroom_2200_d1.png |
-| 15 | Midnight Jasmine | deep midnight purple wax | on a brass tray with dried botanicals and dark moody tiles in background | 2200 | [full prompt] | candle-lifestyle-ig_jasmine_brass-tray_2200_d1.png |
-| 16 | Midnight Jasmine | deep midnight purple wax | on a stone balcony railing at night with city lights bokeh in the background blur | 2200 | [full prompt] | candle-lifestyle-ig_jasmine_balcony_2200_d1.png |
+| #   | Collection       | Scent Color              | Lifestyle Setting                                                                             | Seed | Full Prompt                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Output Filename                                       |
+| --- | ---------------- | ------------------------ | --------------------------------------------------------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 1   | Coastal Breeze   | pale seafoam green wax   | on a weathered driftwood shelf with sea glass and linen towels, ocean breeze cottage interior | 2200 | a glass pillar candle with pale seafoam green wax, on a weathered driftwood shelf with sea glass and linen towels, ocean breeze cottage interior, soft warm candlelight glowing, product lifestyle photography, 45-degree camera angle, depth of field with sharp candle focus, cozy atmosphere, natural textures, film grain, muted tones, editorial magazine quality --ar 1:1 --v 6.1 --style raw --s 150 --q 1 --no text, watermark, label, logo, harsh shadows, overexposed | candle-lifestyle-ig_coastal_driftwood_2200_d1.png     |
+| 2   | Coastal Breeze   | pale seafoam green wax   | beside an open window with sheer curtains and ocean view blur in background                   | 2200 | a glass pillar candle with pale seafoam green wax, beside an open window with sheer curtains and ocean view blur in background, soft warm candlelight glowing... [full prompt]                                                                                                                                                                                                                                                                                                  | candle-lifestyle-ig_coastal_window_2200_d1.png        |
+| 3   | Coastal Breeze   | pale seafoam green wax   | on a sandy bathroom shelf with rolled white towels and pebbles                                | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_coastal_bathroom_2200_d1.png      |
+| 4   | Coastal Breeze   | pale seafoam green wax   | on a bleached wooden dining table with eucalyptus stems and white ceramic dishes              | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_coastal_dining_2200_d1.png        |
+| 5   | Alpine Forest    | deep forest green wax    | on a rustic pine table with pine cones, dried herbs, and woven wool throw                     | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_alpine_pine-table_2200_d1.png     |
+| 6   | Alpine Forest    | deep forest green wax    | in a cozy reading nook with leather-bound books and a plaid wool blanket                      | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_alpine_reading-nook_2200_d1.png   |
+| 7   | Alpine Forest    | deep forest green wax    | on a stone hearth beside a crackling fireplace with birch logs                                | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_alpine_hearth_2200_d1.png         |
+| 8   | Alpine Forest    | deep forest green wax    | on a wooden windowsill with frost on the glass and snow-covered pines in the background blur  | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_alpine_frosty-window_2200_d1.png  |
+| 9   | Warm Vanilla     | warm ivory cream wax     | on a marble kitchen counter with scattered vanilla beans and cinnamon sticks                  | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_vanilla_kitchen_2200_d1.png       |
+| 10  | Warm Vanilla     | warm ivory cream wax     | on a linen tablecloth with a slice of cake and golden cutlery                                 | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_vanilla_table-setting_2200_d1.png |
+| 11  | Warm Vanilla     | warm ivory cream wax     | beside a warm bath with rose petals and a folded robe in soft terracotta tones                | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_vanilla_bath_2200_d1.png          |
+| 12  | Warm Vanilla     | warm ivory cream wax     | on a bedside table with cream linen bedding and a cup of tea in soft morning light            | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_vanilla_bedside_2200_d1.png       |
+| 13  | Midnight Jasmine | deep midnight purple wax | on a velvet side table with scattered jasmine blossoms and a silk scarf                       | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_jasmine_velvet_2200_d1.png        |
+| 14  | Midnight Jasmine | deep midnight purple wax | in a dim bedroom with dark linen pillows and a crescent moon visible through a window         | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_jasmine_bedroom_2200_d1.png       |
+| 15  | Midnight Jasmine | deep midnight purple wax | on a brass tray with dried botanicals and dark moody tiles in background                      | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_jasmine_brass-tray_2200_d1.png    |
+| 16  | Midnight Jasmine | deep midnight purple wax | on a stone balcony railing at night with city lights bokeh in the background blur             | 2200 | [full prompt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | candle-lifestyle-ig_jasmine_balcony_2200_d1.png       |
 
 **Total combinations:** 16 (intentional curation -- settings are matched to collections, not cross-product)
 **Excluded combinations:** Coastal Breeze + fireplace hearth (mismatched mood), Alpine Forest + bathtub (mismatched context), etc. Settings were designed to match each collection's emotional territory.
@@ -550,6 +601,7 @@ text, watermark, label, logo, harsh shadows, overexposed
 ---
 
 ### Seed Strategy
+
 - **Seed management approach:** Identical seed (2200) across all 16 images
 - **Base seed:** 2200
 - **Seed increment rule:** Same seed for all 16 to maximize compositional consistency -- all candles will have similar scale, placement, and depth-of-field behavior across the batch
@@ -560,16 +612,17 @@ text, watermark, label, logo, harsh shadows, overexposed
 
 ### Locked Parameter Settings
 
-| Parameter | Value | Rationale |
-|-----------|-------|-----------|
-| `--ar` | `1:1` | Instagram feed square format -- all 16 images must be square for grid cohesion |
-| `--v` | `6.1` | Most current stable version; strong product photography rendering |
-| `--style` | `raw` | Prevents Midjourney from adding unwanted artistic embellishment to product images |
-| `--s` | `150` | Moderate stylize -- enough aesthetic polish for brand quality, not so high that product literalism is lost |
-| `--q` | `1` | Full quality for production assets |
-| `--no` | `text, watermark, label, logo, harsh shadows, overexposed` | Prevents common product photography failures |
+| Parameter | Value                                                      | Rationale                                                                                                  |
+| --------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `--ar`    | `1:1`                                                      | Instagram feed square format -- all 16 images must be square for grid cohesion                             |
+| `--v`     | `6.1`                                                      | Most current stable version; strong product photography rendering                                          |
+| `--style` | `raw`                                                      | Prevents Midjourney from adding unwanted artistic embellishment to product images                          |
+| `--s`     | `150`                                                      | Moderate stylize -- enough aesthetic polish for brand quality, not so high that product literalism is lost |
+| `--q`     | `1`                                                        | Full quality for production assets                                                                         |
+| `--no`    | `text, watermark, label, logo, harsh shadows, overexposed` | Prevents common product photography failures                                                               |
 
 **Pre-batch parameter sweep:**
+
 - **Sweep axis:** `--s` (stylize)
 - **Test values:** `--s 0`, `--s 100`, `--s 250`, `--s 500`
 - **Test images:** Use rows #1 (Coastal/driftwood) and #13 (Jasmine/velvet) -- these represent the lightest and darkest color palettes in the batch
@@ -580,10 +633,12 @@ text, watermark, label, logo, harsh shadows, overexposed
 ### Output Organization
 
 **Naming convention:** `candle-lifestyle-ig_{collection-short}_{setting-short}_{seed}_{version}.png`
+
 - Collection short codes: `coastal`, `alpine`, `vanilla`, `jasmine`
 - Setting short codes: `driftwood`, `window`, `bathroom`, `dining`, `pine-table`, `reading-nook`, `hearth`, `frosty-window`, `kitchen`, `table-setting`, `bath`, `bedside`, `velvet`, `bedroom`, `brass-tray`, `balcony`
 
 **Folder structure:**
+
 ```
 candle-lifestyle-ig/
   00_brief/
@@ -598,6 +653,7 @@ candle-lifestyle-ig/
 ```
 
 **Metadata CSV columns:**
+
 ```
 image_id, collection, setting, seed, full_prompt, negative_prompt, ar, version, stylize, quality, style_mode, generation_timestamp, selected, upscaled, notes
 ```
@@ -621,6 +677,7 @@ image_id, collection, setting, seed, full_prompt, negative_prompt, ar, version, 
 ---
 
 ### Reproduction Checklist
+
 - [ ] Full prompt template documented in `00_brief/prompt-template.txt`
 - [ ] All 16 variable value combinations enumerated in variation matrix
 - [ ] All seeds recorded in metadata.csv at generation time

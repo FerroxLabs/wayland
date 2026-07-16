@@ -236,6 +236,31 @@ describe('AcpSession lifecycle', () => {
     expect(crashSignals.length).toBeGreaterThan(0);
   });
 
+  it('disconnect during starting state suppresses crash signal while retries remain (#676)', async () => {
+    let disconnectHandler: ((info: DisconnectInfo) => void) | null = null;
+    (client.onDisconnect as ReturnType<typeof vi.fn>).mockImplementation((handler: (info: DisconnectInfo) => void) => {
+      disconnectHandler = handler;
+    });
+    // Keep client.start() hanging so status stays 'starting'.
+    (client.start as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
+
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('starting'));
+
+    // Simulate the child process dying mid-bootstrap. A retry is still available
+    // (maxStartRetries defaults to 3, none consumed yet), so no banner should fire -
+    // otherwise every retry attempt would storm the UI with its own crash signal.
+    disconnectHandler!({ reason: 'process_exit', exitCode: 1, signal: null, stderr: '' });
+
+    const signalCalls = (callbacks.onSignal as ReturnType<typeof vi.fn>).mock.calls;
+    const crashSignals = signalCalls.filter(
+      ([sig]: [{ type: string; message?: string }]) =>
+        sig.type === 'error' && sig.message?.includes('process exited unexpectedly')
+    );
+    expect(crashSignals).toHaveLength(0);
+  });
+
   it('enterError emits the error signal BEFORE flipping status to error (#483/#369)', async () => {
     // Hold the session in 'starting' so starting→error is a valid transition -
     // this mirrors the real start-failure path (handleStartError → enterError).

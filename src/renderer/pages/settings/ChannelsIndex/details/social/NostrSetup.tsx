@@ -51,7 +51,7 @@ const NostrSetup: React.FC = () => {
       pluginId='nostr_default'
       helpText={t(
         'settings.channels.nostr.help',
-        'Decentralized encrypted DMs via Nostr relays. Bring your own private key (nsec or hex) and connect to any wss:// relay.',
+        'Decentralized encrypted DMs via Nostr relays. Bring your own private key (nsec or hex) and connect to any wss:// relay.'
       )}
     >
       <NostrConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

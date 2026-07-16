@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation teaching"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'technical-writing documentation teaching'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Tutorial Writer
@@ -66,7 +66,9 @@ a working chat app that multiple users can connect to simultaneously.
 **Difficulty:** Intermediate
 **Prerequisites:** Basic JavaScript, familiarity with Node.js
 **Source code:** [github.com/org/tutorial-chat-app]([reference URL])
+
 # ... (condensed) ...
+
 - Using the command line for basic operations
 - Understanding HTTP request/response basics
 
@@ -103,7 +105,7 @@ Step 4: Polish (UX, performance, production concerns)
 
 ### Step Writing Template
 
-```markdown
+````markdown
 ## Step 3: Connect to the Database
 
 In this step, you will connect the API to a PostgreSQL database so that
@@ -119,12 +121,13 @@ install via npm: -D drizzle-kit
 ### 3.2 Configure the database connection
 
 # ... (condensed) ...
+
 server restarts because it is stored in PostgreSQL.
 
 > **Troubleshooting:** If you get a connection error, make sure your
 > PostgreSQL server is running and the `DATABASE_URL` environment variable
 > is set. See [Common Mistakes](#common-mistakes) at the end of this tutorial.
-```
+````
 
 ## Code Sample Design
 
@@ -153,28 +156,28 @@ Code Sample Best Practices:
 
 ### Diff-Style Code Updates
 
-```markdown
+````markdown
 When modifying existing code, show what changed clearly:
 
 Update `src/routes/products.ts` to add validation:
 
 \```typescript
 // src/routes/products.ts
-import { z } from 'zod';  // Add this import
+import { z } from 'zod'; // Add this import
 
 // Add this validation schema
 const createProductSchema = z.object({
-  name: z.string().min(1).max(200),
-  price: z.string().regex(/^\d+\.\d{2}$/, 'Price must have 2 decimal places'),
+name: z.string().min(1).max(200),
+price: z.string().regex(/^\d+\.\d{2}$/, 'Price must have 2 decimal places'),
 });
 
 # ... (condensed) ...
 
-  const product = await db.insert(products).values(result.data).returning();
-  res.status(201).json(product[0]);
+const product = await db.insert(products).values(result.data).returning();
+res.status(201).json(product[0]);
 });
 \```
-```
+````
 
 ## Screenshot Guidelines
 
@@ -197,28 +200,29 @@ Do NOT screenshot:
 
 ### Screenshot Best Practices
 
-| Guideline | Details |
-|-----------|---------|
-| Annotation | Use numbered callouts or arrows to highlight key areas |
-| Cropping | Show only the relevant portion, not the entire screen |
-| Size | Readable at 100% zoom without scrolling horizontally |
-| Alt text | Describe what the screenshot shows for accessibility |
-| Format | PNG for UI, GIF/video for multi-step interactions |
-| Freshness | Date screenshots; update when UI changes |
+| Guideline   | Details                                                     |
+| ----------- | ----------------------------------------------------------- |
+| Annotation  | Use numbered callouts or arrows to highlight key areas      |
+| Cropping    | Show only the relevant portion, not the entire screen       |
+| Size        | Readable at 100% zoom without scrolling horizontally        |
+| Alt text    | Describe what the screenshot shows for accessibility        |
+| Format      | PNG for UI, GIF/video for multi-step interactions           |
+| Freshness   | Date screenshots; update when UI changes                    |
 | Consistency | Same browser, theme, and window size across all screenshots |
 
 ```markdown
 <!-- Screenshot with alt text and caption -->
+
 ![The project dashboard showing three running services with green status indicators](./images/step-3-dashboard.png)
 
-*Figure 3: After deployment, all three services should show green status.*
+_Figure 3: After deployment, all three services should show green status._
 ```
 
 ## Common Mistakes Section
 
 ### Writing Effective Troubleshooting Content
 
-```markdown
+````markdown
 ## Common Mistakes
 
 ### "Connection refused" when starting the server
@@ -229,17 +233,22 @@ Do NOT screenshot:
 
 **Fix:**
 \```shell
+
 # Check if PostgreSQL is running
+
 pg_isready
 
 # If not running, start it:
+
 # ... (condensed) ...
-netstat -ano | findstr :3000  # Windows
+
+netstat -ano | findstr :3000 # Windows
 
 # Kill the process, or use a different port
+
 PORT=3001 npm run dev
 \```
-```
+````
 
 ### Error Anticipation Strategy
 
@@ -264,28 +273,31 @@ For each anticipated error:
 
 ### Automated Prerequisite Check Script
 
-```markdown
+````markdown
 ## Verify Your Environment
 
 Run this script to check that all prerequisites are installed:
 
 \```shell
 #!shell-interpreter
+
 # check-prerequisites.shell-cmd
 
 echo "Checking prerequisites..."
 
 check() {
-  local name=$1
-  local cmd=$2
-  local min_version=$3
+local name=$1
+local cmd=$2
+local min_version=$3
+
 # ... (condensed) ...
-  [PASS] Git: git version 2.43.0
-  [PASS] Docker: Docker version 25.0.2
+
+[PASS] Git: git version 2.43.0
+[PASS] Docker: Docker version 25.0.2
 
 All prerequisites met. You are ready to start the tutorial.
 \```
-```
+````
 
 ## Hands-On Exercises
 
@@ -316,15 +328,18 @@ Using what you learned about creating CRUD endpoints for products,
 add a new resource for product categories.
 
 **Requirements:**
+
 - `GET /categories` - List all categories
 - `POST /categories` - Create a category (name is required)
 - `GET /categories/:id` - Get a single category
 - Categories should have: `id`, `name`, `description` (optional)
 
 **Hints:**
+
 # ... (condensed) ...
 
 **Requirements:**
+
 - Support `?limit=10&cursor=xxx` query parameters
 - Return a `next_cursor` field when more results are available
 - Default limit is 20, maximum is 100
@@ -359,13 +374,13 @@ Tutorial Testing Protocol:
 
 ## Tutorial Quality Metrics
 
-| Metric | Target | How to Measure |
-|--------|--------|----------------|
-| Completion rate | >70% | Analytics (reached final step) |
-| Time to complete | Within 1.5x estimate | User testing observation |
-| Error rate | <10% need troubleshooting | Support tickets / forum posts |
-| Satisfaction | >4.0 / 5.0 | End-of-tutorial survey |
-| Freshness | Updated within 3 months | Last-modified date check |
+| Metric           | Target                    | How to Measure                 |
+| ---------------- | ------------------------- | ------------------------------ |
+| Completion rate  | >70%                      | Analytics (reached final step) |
+| Time to complete | Within 1.5x estimate      | User testing observation       |
+| Error rate       | <10% need troubleshooting | Support tickets / forum posts  |
+| Satisfaction     | >4.0 / 5.0                | End-of-tutorial survey         |
+| Freshness        | Updated within 3 months   | Last-modified date check       |
 
 ## Production Checklist
 
@@ -385,6 +400,7 @@ Tutorial Testing Protocol:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing tutorial writer solutions
 - Reviewing or improving existing tutorial writer approaches
 - Making architectural or implementation decisions about tutorial writer
@@ -392,6 +408,7 @@ Tutorial Testing Protocol:
 - Troubleshooting tutorial writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -402,21 +419,26 @@ Tutorial Testing Protocol:
 # Tutorial Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

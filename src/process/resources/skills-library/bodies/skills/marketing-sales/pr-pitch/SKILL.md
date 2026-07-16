@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing writing email planning"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing writing email planning'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # PR Pitch
 
 ## When to Use
@@ -42,7 +43,6 @@ Use this skill when the user needs to produce a media pitch email designed to la
 - User is managing a crisis -- responding to negative coverage, issuing a correction, or managing reputational fallout requires a crisis communications framework with legal review, not a pitch template
 - User is requesting paid media placement -- sponsored content, advertorials, and native advertising are media buying decisions, not PR pitches; editorial and advertising are separated by a firewall at any credible outlet
 - User needs an award submission or analyst briefing -- these follow entirely different formats and relationship norms than journalist pitches
-
 
 ## Process
 
@@ -99,6 +99,7 @@ Different journalists require structurally different pitches even for the same a
 A professional pitch email has six components. Each has precise constraints that experienced PR professionals treat as hard rules:
 
 **Subject line (45--65 characters):**
+
 - Must convey the news value in plain language, not marketing language
 - Must NOT contain exclamation points, ALL CAPS, or "FYI/ICYMI" framing
 - Must reference either the specific announcement, the data finding, or the trend angle -- never the company name alone
@@ -106,29 +107,34 @@ A professional pitch email has six components. Each has precise constraints that
 - For reactive pitches: include the name of the story or event being referenced
 
 **Opening line (1 sentence, under 30 words):**
+
 - Must answer "why does this matter to your readers right now" before the journalist can ask
 - Do NOT open with pleasantries, self-introduction, or context about the company
 - Do NOT open with "I hope..." or "I'm reaching out because..."
 - Start with the news, the data point, or the tension -- then the journalist's interest is established
 
 **Body paragraph (2--4 sentences, 60--90 words):**
+
 - Sentence 1: The specific announcement with precise details (what happened, who it affects, measurable outcome)
 - Sentence 2: Why this matters beyond the company -- market context, trend connection, or broader implication
 - Sentence 3: One additional supporting data point or proof of traction (customer count, pilot results, market size)
 - Sentence 4 (optional): A brief explanation of how the product/company works if the journalist cannot infer it from context
 
 **Spokesperson credential (1 sentence):**
+
 - Name and title alone are not enough -- add the credential that qualifies them to speak on THIS story specifically
 - "Ten years running restaurant operations" is a credential for a restaurant tech pitch
 - "Former NIH researcher" is a credential for a health tech pitch
 - Avoid generic credentials like "passionate entrepreneur" or "visionary leader"
 
 **Call to action (1 sentence):**
+
 - Must offer something concrete: an exclusive interview, embargoed access to a dataset, a product demo, an introduction to a customer willing to go on record, or first access before a broader announcement
 - NEVER use "please let me know if you're interested" or "happy to chat if you want to learn more" -- both put the burden on the journalist without giving them a reason to respond
 - Include a specific time offer when possible: "Available for a 20-minute call Tuesday or Wednesday" removes scheduling friction
 
 **Signature:**
+
 - Full name, title, company
 - Direct phone number (journalists work on deadline and may need to call)
 - Email address
@@ -175,7 +181,6 @@ The pitch variants mean nothing without a targeting strategy. Provide the user w
 - **Tier 1 -- Exclusive targets (1--2 outlets):** Offer an exclusive to the highest-priority outlet. This means one journalist gets first access before the news goes public. An exclusive typically increases the chance of coverage at a top-tier outlet by 2--3x, but it limits the pitch to one outlet until that story publishes or the outlet passes.
 - **Tier 2 -- Simultaneous embargo (5--10 outlets):** Offer embargoed access to a cohort of journalists with the same release date and time. All publish simultaneously. This creates coverage volume without giving any single outlet an unfair advantage. Embargo periods are typically 24--72 hours, but can extend to a week for feature writers.
 - **Tier 3 -- Wide release (open distribution):** After embargo lifts or for non-exclusive pitches, send personalized variants to a broader media list. "Personalized" means at minimum a first name in the greeting and a single line referencing a specific article they wrote or beat they cover. Generic mass email pitches are deleted without reading.
-
 
 ## Output Format
 
@@ -302,7 +307,6 @@ The pitch variants mean nothing without a targeting strategy. Provide the user w
 - Follow-up 2: 5--7 days after follow-up 1 only if there is a genuine update; do not follow up a second time to simply ask if they saw your first follow-up
 ```
 
-
 ## Rules
 
 1. **Never lead with the company name.** Journalists do not care who is announcing the news; they care why their readers care. "Acme Corp today launched..." goes to trash. "New data shows 73% of restaurants underprice their top dishes..." earns a second sentence.
@@ -328,7 +332,6 @@ The pitch variants mean nothing without a targeting strategy. Provide the user w
 11. **Do not include a press release in the first pitch email.** Attach the press release only after the journalist confirms interest. A cold pitch email with a press release attached signals that this is a mass distribution, not a personal outreach, and reduces the perception of exclusivity.
 
 12. **Follow up exactly once per pitch, on business day 3 or 4 after the original send.** The follow-up must add new information -- a subsequent data point, a new customer quote, or a relevant news event -- not simply restate the original pitch. A second follow-up with no new information is spam.
-
 
 ## Edge Cases
 
@@ -391,7 +394,6 @@ When the announcement involves sensitive content -- layoffs, a product recall, a
 - Do not pitch sensitive news as a "positive story" -- experienced journalists will identify the spin and distrust everything else in the pitch. Be direct about what happened and frame it in honest, forward-looking terms.
 - Legal review is required before pitching any story that involves personnel changes, regulatory matters, litigation, or product safety. The pitch skill produces copy only -- the user must seek legal clearance independently before sending.
 
-
 ## Example
 
 **Input:** "Write a PR pitch for us. We run a platform that helps independent auto repair shops manage their parts inventory. We just closed a $4.2 million seed round led by Autotech Ventures. We also analyzed 18,000 repair orders from our platform and found that the average independent shop loses $380 per month because technicians order wrong parts that get returned, and that shops using our system reduced wrong-part orders by 61% within 60 days. Our CEO is Marcus Webb, who ran a 12-location auto repair chain for 9 years before founding the company. We want to target automotive industry trade press, small business media, and tech investors media."
@@ -411,7 +413,8 @@ When the announcement involves sensitive content -- layoffs, a product recall, a
 ---
 
 ### Variant 1 -- Hard News / Funding Announcement Angle
-*Best for: automotive trade press news desks, startup and VC-beat reporters, auto industry publications*
+
+_Best for: automotive trade press news desks, startup and VC-beat reporters, auto industry publications_
 
 **Subject:** Auto repair inventory startup raises $4.2M to cut parts return losses
 
@@ -434,7 +437,8 @@ VP Communications, ShopIQ
 ---
 
 ### Variant 2 -- Trend / Insight Angle
-*Best for: Automotive Management, Motor Age, Ratchet and Wrench, Independent Shop Owner, small business operations writers*
+
+_Best for: Automotive Management, Motor Age, Ratchet and Wrench, Independent Shop Owner, small business operations writers_
 
 **Subject:** The hidden $380/month drain killing independent auto shops
 
@@ -457,7 +461,8 @@ VP Communications, ShopIQ
 ---
 
 ### Variant 3 -- Data / Research Angle
-*Best for: Automotive Analytics editors, trade data journalists, industry research coverage at Automotive News, Fleet Owner, SAE publications*
+
+_Best for: Automotive Analytics editors, trade data journalists, industry research coverage at Automotive News, Fleet Owner, SAE publications_
 
 **Subject:** 18,000 repair orders: wrong parts cost shops $380/month on average
 
@@ -481,39 +486,40 @@ VP Communications, ShopIQ
 
 ### Quality Check Summary
 
-| Check | Variant 1 | Variant 2 | Variant 3 |
-|--------------------------|-----------|-----------|-----------|
-| 3-second test | Pass | Pass | Pass |
-| Audience-first framing | Pass | Pass | Pass |
-| All claims specific | Pass | Pass | Pass |
-| Spokesperson credentialed | Pass | Pass | Pass |
-| CTA offers, not asks | Pass | Pass | Pass |
-| Under 180 words | 158 | 179 | 177 |
+| Check                     | Variant 1 | Variant 2 | Variant 3 |
+| ------------------------- | --------- | --------- | --------- |
+| 3-second test             | Pass      | Pass      | Pass      |
+| Audience-first framing    | Pass      | Pass      | Pass      |
+| All claims specific       | Pass      | Pass      | Pass      |
+| Spokesperson credentialed | Pass      | Pass      | Pass      |
+| CTA offers, not asks      | Pass      | Pass      | Pass      |
+| Under 180 words           | 158       | 179       | 177       |
 
 ---
 
 ### Supporting Materials Status
 
-| Asset | Status | Notes |
-|---------------------------------------|---------|--------------------------------------------------------------|
-| Press release / fact sheet | Needed | Should include Autotech Ventures partner quote, company boilerplate, and funding use of proceeds |
-| Product screenshots or UI images | Needed | Minimum 2400 x 1600px; show the parts mismatch alert interface |
-| Marcus Webb headshot | Needed | Minimum 300 DPI, neutral background, business casual |
-| Data brief (methodology + findings) | Needed | 2 pages max; include sample size, collection period, shop size distribution |
-| Customer reference shops | Needed | 1--2 shop owners willing to speak on record with a quote cleared for attribution |
-| Autotech Ventures partner quote | Needed | For press release and as supplementary credibility for investor-beat pitches |
-| Press kit URL | Needed | Password-protected page with all of the above in downloadable form |
+| Asset                               | Status | Notes                                                                                            |
+| ----------------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
+| Press release / fact sheet          | Needed | Should include Autotech Ventures partner quote, company boilerplate, and funding use of proceeds |
+| Product screenshots or UI images    | Needed | Minimum 2400 x 1600px; show the parts mismatch alert interface                                   |
+| Marcus Webb headshot                | Needed | Minimum 300 DPI, neutral background, business casual                                             |
+| Data brief (methodology + findings) | Needed | 2 pages max; include sample size, collection period, shop size distribution                      |
+| Customer reference shops            | Needed | 1--2 shop owners willing to speak on record with a quote cleared for attribution                 |
+| Autotech Ventures partner quote     | Needed | For press release and as supplementary credibility for investor-beat pitches                     |
+| Press kit URL                       | Needed | Password-protected page with all of the above in downloadable form                               |
 
 ---
 
 ### Media Targeting Tier Plan
 
-| Tier | Approach | Outlet Type | # Contacts | Variant | Timing |
-|------|-----------------|----------------------------------|------------|---------|----------------------------------------|
-| Tier 1 | Exclusive | Automotive News or TechCrunch | 1 | V1 | 48 hours before announcement |
-| Tier 2 | Embargo cohort | Automotive trade press, VC media | 6--8 | V1, V2 | Embargo lift: announcement day, 9am ET |
-| Tier 3 | Wide personalized| Small biz media, regional auto | 12--18 | V2, V3 | Announcement day through day 5 |
+| Tier   | Approach          | Outlet Type                      | # Contacts | Variant | Timing                                 |
+| ------ | ----------------- | -------------------------------- | ---------- | ------- | -------------------------------------- |
+| Tier 1 | Exclusive         | Automotive News or TechCrunch    | 1          | V1      | 48 hours before announcement           |
+| Tier 2 | Embargo cohort    | Automotive trade press, VC media | 6--8       | V1, V2  | Embargo lift: announcement day, 9am ET |
+| Tier 3 | Wide personalized | Small biz media, regional auto   | 12--18     | V2, V3  | Announcement day through day 5         |
 
 **Recommended follow-up cadence:**
+
 - Follow-up 1: Business day 4 after initial send -- reply to the same thread with one new element (a shop owner quote, the data brief attached, or a relevant development like a trade show appearance)
 - Follow-up 2: Only if a new, substantive development occurs (second customer milestone, industry news that validates the problem) -- not a simple re-ask

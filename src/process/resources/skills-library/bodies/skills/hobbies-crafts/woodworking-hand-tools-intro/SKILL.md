@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly step-by-step guide woodworking"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly step-by-step guide woodworking'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Woodworking Hand Tools Intro
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when the user's request matches one of the following specific sce
 - User asks about safe chisel and hand saw technique, including questions about workholding, body positioning, or injury prevention
 
 **Do NOT use this skill when:**
+
 - User wants to use power tools -- table saws, routers, random orbit sanders, drill presses, biscuit joiners, or track saws (redirect to a power-tool woodworking skill)
 - User has a specific furniture design or set of architectural drawings they want to execute (use a furniture-design or plans-reading skill)
 - User wants professional cabinetmaking techniques -- face frames, dado joints cut with a table saw, drawer slides, or kitchen installation (use a cabinetmaking skill)
@@ -111,6 +113,7 @@ Sharpening must be presented before the first project, not after the user has al
 **Why sharpness matters mechanically:** A sharp edge is a wedge with a very small included angle. The force required to push it through wood fibers is proportional to the thickness of the wedge. A dull edge has a rounded or ragged apex -- it no longer divides fibers cleanly, it compresses them. This requires far more force, which causes slipping, which causes injury. A sharp chisel should require only light mallet taps or fingertip hand pressure to pare wood cleanly.
 
 **The geometry of edge tools:**
+
 - Chisels: primary bevel at 25 degrees for general work, 30 degrees for hard wood or heavy mallet work. A secondary micro-bevel of 30 degrees (for a 25-degree primary bevel) can be added at the final honing stage to reduce the amount of metal removed during subsequent sharpenings.
 - Block plane blades: bevel-up bedding means the cutting angle equals bed angle (12 degrees) + bevel angle. A 25-degree bevel gives 37 degrees -- good for soft and medium hardwoods. Raise to 38 degrees (26-degree bevel) for harder woods.
 
@@ -139,12 +142,14 @@ The choice of wood affects every aspect of the beginner experience: how easily i
 **Poplar (a hardwood despite its moderate density):** Poplar is the ideal step-up wood after the beginner has completed their first pine project. It is a true hardwood (closed grain, harder surface than pine) but is far softer and easier to work than oak or ash. It cuts and planes cleanly, holds layout lines well, and is available at most hardwood dealers. It costs slightly more than pine ($2--4 per board foot) but produces significantly better-looking results. It takes paint well but stains unevenly (avoid staining poplar -- use paint or a clear finish).
 
 **Avoid for beginners:**
+
 - Oak (red or white): grain tends to split unpredictably with hand saws, requires sharp tools to avoid tear-out, and the interlocked grain of red oak can be very difficult to plane. Not suitable for first projects.
 - Cherry and walnut: expensive ($6--12+ per board foot), and mistakes in expensive wood are demoralizing. Reserve these for the third or fourth project.
 - Plywood and sheet goods: the cross-grain construction makes hand-tool joinery extremely difficult. Edges are ugly without veneer edge banding. Avoid for hand-tool learning projects.
 - Reclaimed or mystery wood: can contain metal (nails, screws, lead paint) that will destroy a sharp edge immediately. Always verify the wood is clean before using hand tools.
 
 **Reading a board for defects:**
+
 - Sight down the face along the full length. Any bow, cup, or twist is visible as a curve in the edge relative to your sightline.
 - Check for knots: small, tight knots away from the edge of a board are acceptable for practice; large loose knots (dark ring, knot can fall out) weaken the board and are dangerous near cut lines.
 - Check the end grain: look for checks (cracks radiating from the pith). A checked board can split during planing.
@@ -370,6 +375,7 @@ After delivering the primary recommendation, anticipate three common follow-up q
 Old hand tools -- particularly chisels, planes, and squares made before approximately 1980 -- are often made from higher-quality steel than today's budget equivalents and can be excellent tools once restored. Do not tell the user to buy new tools until the inherited set has been evaluated.
 
 Assessment sequence:
+
 1. Identify what they have against the Priority checklist. Note any gaps.
 2. Check for rust: surface rust (orange-red discoloration) is cosmetic and removable. Pitting (small craters in the metal surface from deep rust) near the cutting edge of a chisel or plane blade may make that area unusable -- it will take extremely heavy grinding to remove pitting at the edge.
 3. Remove surface rust with 220-grit wet/dry sandpaper moistened with mineral spirits on flat surfaces, or a fine wire brush on handles and bodies. Work with the grain of the metal.
@@ -438,5 +444,6 @@ This situation occurs when the user bought a $15 chisel set from a discount reta
 ## Woodworking Hand Tools Starter Plan
 
 ### Workspace and Situation Summary
+
 - Available workspace: Apartment -- kitchen table or similar (limited space, noise considerations apply)
 - Budget tier: $150 (with existing tools

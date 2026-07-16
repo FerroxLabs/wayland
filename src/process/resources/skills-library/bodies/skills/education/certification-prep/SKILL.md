@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills step-by-step guide"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills step-by-step guide'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Certification Prep
 
 ## When to Use
@@ -312,13 +313,13 @@ Adjust total hour estimates upward by 40-60% from the experience-based benchmark
 
 ### Candidate Profile
 
-| Factor | Detail |
-|--------|--------|
-| Years of relevant experience | 6 years as working project manager |
-| Prior formal training | None confirmed -- must verify 35-hour education requirement |
-| Learning style | To be determined (recommend mixed: reading + heavy scenario question drilling) |
-| Current baseline score | No baseline yet -- diagnostic exam is first study action |
-| Availability | 12-15 hours/week; assume 2-hour sessions on weekday evenings + 4-5 hours on weekends |
+| Factor                       | Detail                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| Years of relevant experience | 6 years as working project manager                                                   |
+| Prior formal training        | None confirmed -- must verify 35-hour education requirement                          |
+| Learning style               | To be determined (recommend mixed: reading + heavy scenario question drilling)       |
+| Current baseline score       | No baseline yet -- diagnostic exam is first study action                             |
+| Availability                 | 12-15 hours/week; assume 2-hour sessions on weekday evenings + 4-5 hours on weekends |
 
 **Important pre-study action:** Confirm the 35-contact-hour requirement is satisfied. If not, enroll in a PMI-approved PMP prep course (typically 35 hours, available online) before the exam can be applied for. The course content can double as study material.
 
@@ -328,12 +329,12 @@ Adjust total hour estimates upward by 40-60% from the experience-based benchmark
 
 The PMP Exam Content Outline (ECO) divides the exam into three domains:
 
-| Domain | Official Weight | Est. Questions | Confidence (1-5) | Priority Score | Study Hours Allocated | Priority Rank |
-|--------|----------------|---------------|-----------------|---------------|----------------------|---------------|
-| People (Leading and managing the project team) | 42% | ~76 | 3 (waterfall PM, some team management) | 42 × (5-3) = **84** | 38 hours | **1st** |
-| Process (Managing the technical aspects of the project) | 50% | ~90 | 4 (strong waterfall, weak agile) | 50 × (5-4) = **50** | 48 hours | **2nd** |
-| Business Environment (Connecting projects to org strategy) | 8% | ~14 | 2 (limited exposure) | 8 × (5-2) = **24** | 14 hours | **3rd** |
-| **TOTAL** | **100%** | **180** | -- | -- | **100 hours** | -- |
+| Domain                                                     | Official Weight | Est. Questions | Confidence (1-5)                       | Priority Score      | Study Hours Allocated | Priority Rank |
+| ---------------------------------------------------------- | --------------- | -------------- | -------------------------------------- | ------------------- | --------------------- | ------------- |
+| People (Leading and managing the project team)             | 42%             | ~76            | 3 (waterfall PM, some team management) | 42 × (5-3) = **84** | 38 hours              | **1st**       |
+| Process (Managing the technical aspects of the project)    | 50%             | ~90            | 4 (strong waterfall, weak agile)       | 50 × (5-4) = **50** | 48 hours              | **2nd**       |
+| Business Environment (Connecting projects to org strategy) | 8%              | ~14            | 2 (limited exposure)                   | 8 × (5-2) = **24**  | 14 hours              | **3rd**       |
+| **TOTAL**                                                  | **100%**        | **180**        | --                                     | --                  | **100 hours**         | --            |
 
 **Remaining 20-50 hours:** Practice exams, error analysis sessions, final review, and diagnostic week.
 
@@ -343,40 +344,40 @@ The PMP Exam Content Outline (ECO) divides the exam into three domains:
 
 ### Resource Plan
 
-| Resource Type | Specific Resource | Purpose | When to Use |
-|--------------|-----------------|---------|-------------|
-| Official guide | PMBOK Guide 7th Edition + Agile Practice Guide (both free with PMI membership) | Content foundation for all three domains | Weeks 1-6 |
-| Official guide supplement | "PMP Exam Prep" by Andrew Ramdayal (TIA Masterclass) or Rita Mulcahy's PMP Exam Prep 10th edition | Structured domain coverage + practice questions | Weeks 1-7 |
-| Question bank | PM PrepCast Exam Simulator (1,800+ current-version questions with domain tagging) | Volume drilling, scenario practice | Weeks 2-10 |
-| Official practice exam | PMI's official PMP practice exam (available through PMI.org after application approval) | Final calibration closest to real exam style | Week 9 |
-| Agile supplement | Agile Practice Guide (free with PMI membership) + review of Scrum Guide (free) | Covers ~50% of exam's agile/hybrid content | Weeks 3-5 |
-| Flashcard system | Anki deck focused on PMI process terminology, People domain conflict resolution approaches, and Business Environment governance concepts | Memorization of high-frequency testable terms | Daily, 15-20 minutes |
+| Resource Type             | Specific Resource                                                                                                                        | Purpose                                         | When to Use          |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | -------------------- |
+| Official guide            | PMBOK Guide 7th Edition + Agile Practice Guide (both free with PMI membership)                                                           | Content foundation for all three domains        | Weeks 1-6            |
+| Official guide supplement | "PMP Exam Prep" by Andrew Ramdayal (TIA Masterclass) or Rita Mulcahy's PMP Exam Prep 10th edition                                        | Structured domain coverage + practice questions | Weeks 1-7            |
+| Question bank             | PM PrepCast Exam Simulator (1,800+ current-version questions with domain tagging)                                                        | Volume drilling, scenario practice              | Weeks 2-10           |
+| Official practice exam    | PMI's official PMP practice exam (available through PMI.org after application approval)                                                  | Final calibration closest to real exam style    | Week 9               |
+| Agile supplement          | Agile Practice Guide (free with PMI membership) + review of Scrum Guide (free)                                                           | Covers ~50% of exam's agile/hybrid content      | Weeks 3-5            |
+| Flashcard system          | Anki deck focused on PMI process terminology, People domain conflict resolution approaches, and Business Environment governance concepts | Memorization of high-frequency testable terms   | Daily, 15-20 minutes |
 
 ---
 
 ### Weekly Study Schedule
 
-| Week | Phase | Primary Focus | Secondary Focus | Hours | Key Activity |
-|------|-------|--------------|----------------|-------|-------------|
-| 1 | Diagnostic | Full 180-question timed practice exam | Domain score analysis | 12-14 | Complete diagnostic under real conditions; map scores to three domains; update priority table |
-| 2-3 | Domain Study | People domain -- leadership styles, conflict resolution, team development, motivation theories (Maslow, Herzberg, McGregor), virtual team management | Agile team roles (Scrum Master, Product Owner) | 13-15 | Read PMBOK 7 stewardship/leadership content + 50 People domain practice questions per session |
-| 4-5 | Domain Study | Process domain: Agile/hybrid delivery -- Scrum ceremonies, sprint planning, backlog management, Kanban WIP limits, hybrid waterfall-agile transitions | Review People domain (20-Q quiz, 20 minutes) | 13-15 | Agile Practice Guide + Scrum Guide study; 50 scenario-based process questions per session |
-| 6 | Domain Study | Process domain: Classical PM processes -- initiating, planning, executing, monitoring/controlling, closing; earned value management (EVM) calculations | Business Environment overview | 12-14 | EVM practice calculations; PMBOK 7 performance domains review |
-| 7 | Domain Study | Business Environment -- organizational governance, benefits realization, compliance, project vs. program vs. portfolio | Spaced review: People + Agile process | 12-14 | 30 Business Environment questions + first full-length timed practice exam (milestone) |
-| 8 | Integration | Full-length practice exam + error analysis | Targeted review of lowest domain | 13-15 | Take exam, score by domain, dedicate 50% of remaining hours to lowest-scoring domain |
-| 9 | Final Review | Official PMI practice exam + scenario judgment review | Light flashcard reinforcement | 12-14 | Official exam + review all wrong answers; final agile concept check |
-| 10 | Taper | Days 1-3: Targeted review of two weakest question types only | Days 4-6: Rest, logistics, light review | 8-10 | No new material; exam-day logistics confirmed; early sleep nights before exam |
+| Week | Phase        | Primary Focus                                                                                                                                          | Secondary Focus                                | Hours | Key Activity                                                                                  |
+| ---- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------- | ----- | --------------------------------------------------------------------------------------------- |
+| 1    | Diagnostic   | Full 180-question timed practice exam                                                                                                                  | Domain score analysis                          | 12-14 | Complete diagnostic under real conditions; map scores to three domains; update priority table |
+| 2-3  | Domain Study | People domain -- leadership styles, conflict resolution, team development, motivation theories (Maslow, Herzberg, McGregor), virtual team management   | Agile team roles (Scrum Master, Product Owner) | 13-15 | Read PMBOK 7 stewardship/leadership content + 50 People domain practice questions per session |
+| 4-5  | Domain Study | Process domain: Agile/hybrid delivery -- Scrum ceremonies, sprint planning, backlog management, Kanban WIP limits, hybrid waterfall-agile transitions  | Review People domain (20-Q quiz, 20 minutes)   | 13-15 | Agile Practice Guide + Scrum Guide study; 50 scenario-based process questions per session     |
+| 6    | Domain Study | Process domain: Classical PM processes -- initiating, planning, executing, monitoring/controlling, closing; earned value management (EVM) calculations | Business Environment overview                  | 12-14 | EVM practice calculations; PMBOK 7 performance domains review                                 |
+| 7    | Domain Study | Business Environment -- organizational governance, benefits realization, compliance, project vs. program vs. portfolio                                 | Spaced review: People + Agile process          | 12-14 | 30 Business Environment questions + first full-length timed practice exam (milestone)         |
+| 8    | Integration  | Full-length practice exam + error analysis                                                                                                             | Targeted review of lowest domain               | 13-15 | Take exam, score by domain, dedicate 50% of remaining hours to lowest-scoring domain          |
+| 9    | Final Review | Official PMI practice exam + scenario judgment review                                                                                                  | Light flashcard reinforcement                  | 12-14 | Official exam + review all wrong answers; final agile concept check                           |
+| 10   | Taper        | Days 1-3: Targeted review of two weakest question types only                                                                                           | Days 4-6: Rest, logistics, light review        | 8-10  | No new material; exam-day logistics confirmed; early sleep nights before exam                 |
 
 ---
 
 ### Practice Exam Milestones and Decision Gates
 
-| Milestone | Timing | Target | If Below Target | If At/Above Target |
-|-----------|--------|--------|----------------|-------------------|
-| Diagnostic | Week 1 | Baseline only -- record domain breakdown | No action yet; use results to confirm priority sequence | Confirm priority rankings match the formula |
-| Mid-point practice exam | Week 7 | "At Target" in at least 2 of 3 domains on third-party exam simulator | Identify which domain is still "Below Target"; increase study hours for that domain in weeks 8-9 | Begin integration phase on schedule |
-| Pre-final practice exam 1 | Week 8 | "At or Above Target" in all 3 domains | Extend study by 1 week if exam date allows; focus exclusively on failing domain | Proceed to taper phase |
-| Official PMI practice exam | Week 9 | Strong performance across all domains | Seriously consider rescheduling exam by 2-3 weeks | Proceed to exam with confidence |
+| Milestone                  | Timing | Target                                                               | If Below Target                                                                                  | If At/Above Target                          |
+| -------------------------- | ------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| Diagnostic                 | Week 1 | Baseline only -- record domain breakdown                             | No action yet; use results to confirm priority sequence                                          | Confirm priority rankings match the formula |
+| Mid-point practice exam    | Week 7 | "At Target" in at least 2 of 3 domains on third-party exam simulator | Identify which domain is still "Below Target"; increase study hours for that domain in weeks 8-9 | Begin integration phase on schedule         |
+| Pre-final practice exam 1  | Week 8 | "At or Above Target" in all 3 domains                                | Extend study by 1 week if exam date allows; focus exclusively on failing domain                  | Proceed to taper phase                      |
+| Official PMI practice exam | Week 9 | Strong performance across all domains                                | Seriously consider rescheduling exam by 2-3 weeks                                                | Proceed to exam with confidence             |
 
 **Reschedule rule:** If Week 8 full-length practice shows "Below Target" or "Needs Improvement" in Process or People domain, recommend rescheduling the exam. The PMP re-examination fee is $150 for PMI members. Rescheduling by 3-4 weeks costs less than the psychological and financial cost of failing.
 
@@ -426,6 +427,7 @@ The PMP exam tests "what PMI recommends you do" -- not "what an experienced PM w
 3. **The People domain (42%) is won through volume scenario practice, not reading.** There are no formulas to memorize in the People domain. Every point in People comes from interpreting situational judgment correctly. The recommendation is to complete at least 400 People domain practice questions before the exam, reviewing every answer rationale.
 
 ### Next Steps (First 7 Days)
+
 1. **Day 1:** Confirm PMI membership status and verify 35-contact-hour education requirement is met; if not, enroll in a PMI-approved online prep course immediately
 2. **Day 1-2:** Acquire PMBOK 7 and Agile Practice Guide (free download with PMI membership at $139/year -- cost is recovered in the free study materials alone)
 3. **Day 2-3:** Set up PM PrepCast Exam Simulator account; configure for "full exam, mixed domains, 180 questions, 230 minutes"

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices checklist template guide step-by-step advanced python javascript"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'best-practices checklist template guide step-by-step advanced python javascript'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # OSS Documentation System
 
 You are an open source documentation architect who helps projects build comprehensive, maintainable documentation systems. You guide through README design, contributor guides, architecture documentation, and documentation-as-code workflows that scale with the project.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about oss documentation system techniques or best practices
 - User needs guidance on oss documentation system concepts
 - User wants to implement or improve their approach to oss documentation system
 
 **Do NOT use when:**
+
 - The request falls outside the scope of oss documentation system
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,7 +38,7 @@ You are an open source documentation architect who helps projects build comprehe
 
 ### Essential README Structure
 
-```markdown
+````markdown
 # Project Name
 
 Brief, compelling one-liner explaining what this project does.
@@ -60,6 +61,7 @@ Brief, compelling one-liner explaining what this project does.
 ```shell
 add the package dependency project-name
 ```
+````
 
 ### Basic Usage
 
@@ -83,7 +85,8 @@ We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## License
 
 [MIT](LICENSE) - see LICENSE file for details.
-```
+
+````
 
 ### README Quality Checklist
 
@@ -113,11 +116,12 @@ cd project
 add the package dependency
 npm test        # Verify setup
 npm run dev     # Start development mode
-```
+````
 
 ## Making Changes
 
 ### Branch Workflow
+
 1. Create a branch from `main`: `git checkout -b fix/issue-42`
 2. Make changes with clear, atomic commits
 3. Ensure tests pass: `npm test`
@@ -125,7 +129,9 @@ npm run dev     # Start development mode
 5. Push and open a pull request
 
 ### Commit Messages
+
 We use conventional commits:
+
 - `feat:` new features
 - `fix:` bug fixes
 - `docs:` documentation changes
@@ -133,29 +139,35 @@ We use conventional commits:
 - `chore:` maintenance tasks
 
 ## Pull Request Process
+
 1. Fill out the PR template completely
 2. Ensure CI passes
 3. Request review from a maintainer
 4. Address review feedback
 
 ### PR Size Guidelines
+
 - **Small** (< 100 lines): Bug fixes, docs → Quick review
 - **Medium** (100-500 lines): Features, refactors → Standard review
 - **Large** (500+ lines): Consider splitting into smaller PRs
 
 ## Reporting Bugs
+
 Include: Steps to reproduce, expected vs actual behavior,
 environment details, minimal reproduction.
 
 ## Requesting Features
+
 Include: Problem description, proposed solution,
 alternatives considered, willingness to implement.
 
 ## Getting Help
+
 - **Questions**: GitHub Discussions
 - **Bugs**: Open an issue with the bug template
 - **Chat**: Join our [Discord/Slack]
-```
+
+````
 
 ## Architecture Documentation
 
@@ -190,7 +202,7 @@ We will use PostgreSQL as the primary data store.
 
 ## Review Date
 2025-07-15 (6 months after adoption)
-```
+````
 
 ### System Architecture Document Template
 
@@ -200,18 +212,20 @@ We will use PostgreSQL as the primary data store.
 ## System Context
 
 [External Users] → [CDN] → [Web App]
-                              ↓
-                         [API Gateway]
-                         /    |    \
-                    [Auth] [Core] [Search]
-                      ↓      ↓      ↓
-                   [DB]   [DB]  [Search Index]
+↓
+[API Gateway]
+/ | \
+ [Auth] [Core] [Search]
+↓ ↓ ↓
+[DB] [DB] [Search Index]
 
 ## Component Descriptions
+
 - **API Gateway**: Request routing, rate limiting, authentication
 - **Core Service**: Business logic and data management
 
 ## Data Flow: Request Lifecycle
+
 1. Client sends request to CDN/load balancer
 2. Gateway validates authentication token
 3. Request routed to appropriate service
@@ -219,11 +233,12 @@ We will use PostgreSQL as the primary data store.
 5. Response returned through the same path
 
 ## Key Design Decisions
-| Decision | ADR | Date | Status |
-|----------|-----|------|--------|
+
+| Decision         | ADR     | Date    | Status   |
+| ---------------- | ------- | ------- | -------- |
 | Primary database | ADR-001 | 2025-01 | Accepted |
-| Authentication | ADR-002 | 2025-01 | Accepted |
-| API versioning | ADR-003 | 2025-02 | Accepted |
+| Authentication   | ADR-002 | 2025-01 | Accepted |
+| API versioning   | ADR-003 | 2025-02 | Accepted |
 ```
 
 ## Documentation-as-Code Workflows
@@ -301,8 +316,8 @@ MD013:
   line_length: 120
   code_blocks: false
   tables: false
-MD033: false  # Allow inline HTML for badges
-MD041: false  # First line heading (frontmatter)
+MD033: false # Allow inline HTML for badges
+MD041: false # First line heading (frontmatter)
 ```
 
 ```yaml
@@ -341,12 +356,12 @@ Studying ──────────┼──────────── W
                Theoretical
 ```
 
-| Type | Purpose | Example |
-|------|---------|---------|
-| Tutorial | Teach by doing, step-by-step | "Build your first plugin" |
-| How-To Guide | Solve a specific problem | "How to configure SSL" |
-| Explanation | Provide understanding | "How the cache works" |
-| Reference | Describe the machinery precisely | "API endpoint reference" |
+| Type         | Purpose                          | Example                   |
+| ------------ | -------------------------------- | ------------------------- |
+| Tutorial     | Teach by doing, step-by-step     | "Build your first plugin" |
+| How-To Guide | Solve a specific problem         | "How to configure SSL"    |
+| Explanation  | Provide understanding            | "How the cache works"     |
+| Reference    | Describe the machinery precisely | "API endpoint reference"  |
 
 ### Writing Guidelines
 
@@ -469,7 +484,6 @@ body:
 - [ ] Version-specific docs labeled correctly
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -477,7 +491,6 @@ body:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -498,14 +511,12 @@ body:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

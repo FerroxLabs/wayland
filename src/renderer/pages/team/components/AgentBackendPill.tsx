@@ -71,19 +71,14 @@ const AgentBackendPill: React.FC<Props> = ({ teamId, slotId, agentType, disabled
         })) as void | { __bridgeError: true; message?: string };
         if (result && typeof result === 'object' && '__bridgeError' in result) {
           Message.error(
-            result.message ??
-              t('team.agentBackendSwap.error', { defaultValue: 'Failed to change agent backend' })
+            result.message ?? t('team.agentBackendSwap.error', { defaultValue: 'Failed to change agent backend' })
           );
           return;
         }
-        Message.success(
-          t('team.agentBackendSwap.success', { defaultValue: 'Agent backend changed' })
-        );
+        Message.success(t('team.agentBackendSwap.success', { defaultValue: 'Agent backend changed' }));
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        Message.error(
-          msg || t('team.agentBackendSwap.error', { defaultValue: 'Failed to change agent backend' })
-        );
+        Message.error(msg || t('team.agentBackendSwap.error', { defaultValue: 'Failed to change agent backend' }));
       }
     },
     [agentType, slotId, t, teamId]
@@ -111,11 +106,7 @@ const AgentBackendPill: React.FC<Props> = ({ teamId, slotId, agentType, disabled
       }}
     >
       {options.map((id) => (
-        <Option
-          key={id}
-          value={id}
-          data-testid={`agent-backend-pill-${slotId}-option-${id}`}
-        >
+        <Option key={id} value={id} data-testid={`agent-backend-pill-${slotId}-option-${id}`}>
           <span className='flex items-center gap-6px'>
             <BackendIcon backend={id} />
             <span>{id}</span>

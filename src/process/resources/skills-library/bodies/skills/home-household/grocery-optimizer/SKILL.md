@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning checklist"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking meal-planning checklist'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Grocery Shopping Optimizer
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about grocery optimizer
 - User needs guidance on grocery optimizer topics
 - User wants a structured approach to grocery optimizer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -82,11 +84,11 @@ GROCERY OPTIMIZATION ASSESSMENT
 ### Monthly Budget Guidelines (USDA Cost of Food, approximate)
 
 | Plan Level | 1 Person/Month | 2 People/Month | Family of 4/Month |
-|-----------|---------------|----------------|-------------------|
-| Thrifty | $250-300 | $450-550 | $700-900 |
-| Low-cost | $300-375 | $550-700 | $900-1100 |
-| Moderate | $375-475 | $700-850 | $1100-1400 |
-| Liberal | $475-600 | $850-1100 | $1400-1700 |
+| ---------- | -------------- | -------------- | ----------------- |
+| Thrifty    | $250-300       | $450-550       | $700-900          |
+| Low-cost   | $300-375       | $550-700       | $900-1100         |
+| Moderate   | $375-475       | $700-850       | $1100-1400        |
+| Liberal    | $475-600       | $850-1100      | $1400-1700        |
 
 ### Budget Allocation by Category
 
@@ -230,6 +232,7 @@ Best value: Option ___ (saves $___ compared to worst option)
 ```
 
 ### Common Unit Price Traps
+
 - **Bigger is not always cheaper** - Always check; sometimes medium is the best deal
 - **Sale price vs unit price** - A sale item may still cost more per unit than store brand
 - **Multi-packs** - Calculate per-unit cost; sometimes singles are actually cheaper
@@ -303,32 +306,32 @@ Any No = Regular size is better
 
 ### Best and Worst Items to Buy in Bulk
 
-| Always Buy in Bulk | Sometimes Bulk | Never Bulk |
-|-------------------|----------------|------------|
-| Rice, dry pasta | Canned goods | Fresh produce (unless freezing) |
-| Dried beans, lentils | Cooking oils | Dairy (unless freezing) |
-| Flour, sugar | Nuts and seeds | Specialty spices you rarely use |
-| Oats | Paper products | New products you have not tried |
-| Frozen vegetables | Cleaning supplies | Items near expiration |
-| Coffee | Condiments | Snack foods (temptation factor) |
-| Chicken (portion and freeze) | Toiletries | |
-| Ground meat (portion and freeze) | | |
+| Always Buy in Bulk               | Sometimes Bulk    | Never Bulk                      |
+| -------------------------------- | ----------------- | ------------------------------- |
+| Rice, dry pasta                  | Canned goods      | Fresh produce (unless freezing) |
+| Dried beans, lentils             | Cooking oils      | Dairy (unless freezing)         |
+| Flour, sugar                     | Nuts and seeds    | Specialty spices you rarely use |
+| Oats                             | Paper products    | New products you have not tried |
+| Frozen vegetables                | Cleaning supplies | Items near expiration           |
+| Coffee                           | Condiments        | Snack foods (temptation factor) |
+| Chicken (portion and freeze)     | Toiletries        |                                 |
+| Ground meat (portion and freeze) |                   |                                 |
 
 ## Store Brand vs Name Brand
 
 ### General Guidance
 
-| Category | Store Brand Quality | Typical Savings |
-|----------|-------------------|---------|
-| Staples (flour, sugar, salt, rice) | Identical | 20-40% |
-| Canned goods (beans, tomatoes) | Very similar | 25-35% |
-| Dairy (milk, butter, cheese, eggs) | Identical or very similar | 15-25% |
-| Frozen vegetables | Usually identical | 30-40% |
-| Cereal and snacks | Quality varies | 20-30% |
-| Cleaning products | Usually effective | 30-50% |
-| Condiments (ketchup, mustard) | Taste may vary | 20-30% |
-| Baby products (diapers, formula) | Comparable quality | 25-40% |
-| OTC medications | Identical active ingredients (by law) | 30-60% |
+| Category                           | Store Brand Quality                   | Typical Savings |
+| ---------------------------------- | ------------------------------------- | --------------- |
+| Staples (flour, sugar, salt, rice) | Identical                             | 20-40%          |
+| Canned goods (beans, tomatoes)     | Very similar                          | 25-35%          |
+| Dairy (milk, butter, cheese, eggs) | Identical or very similar             | 15-25%          |
+| Frozen vegetables                  | Usually identical                     | 30-40%          |
+| Cereal and snacks                  | Quality varies                        | 20-30%          |
+| Cleaning products                  | Usually effective                     | 30-50%          |
+| Condiments (ketchup, mustard)      | Taste may vary                        | 20-30%          |
+| Baby products (diapers, formula)   | Comparable quality                    | 25-40%          |
+| OTC medications                    | Identical active ingredients (by law) | 30-60%          |
 
 ### Store Brand Annual Savings Estimate
 
@@ -418,17 +421,17 @@ WORST -> 6. LANDFILL: Last resort
 
 ### Use-It-Up Strategies
 
-| Item About to Expire | What to Do |
-|----------------------|-----------|
-| Overripe bananas | Banana bread, smoothies, freeze for later |
-| Wilting greens | Saute with garlic, add to soup, blend into smoothie |
-| Stale bread | Croutons, breadcrumbs, French toast, bread pudding |
-| Soft tomatoes | Cook into sauce, roast, add to soup |
-| Bendy carrots/celery | Soup, stock, stew (flavor is fine) |
-| Leftover herbs | Herb butter (freeze), herb oil, dry them |
-| Yogurt near date | Smoothie, marinade, baking |
-| Overripe avocado | Guacamole, freeze mashed for later |
-| Leftover rice | Fried rice, rice pudding, stuffed peppers |
+| Item About to Expire | What to Do                                          |
+| -------------------- | --------------------------------------------------- |
+| Overripe bananas     | Banana bread, smoothies, freeze for later           |
+| Wilting greens       | Saute with garlic, add to soup, blend into smoothie |
+| Stale bread          | Croutons, breadcrumbs, French toast, bread pudding  |
+| Soft tomatoes        | Cook into sauce, roast, add to soup                 |
+| Bendy carrots/celery | Soup, stock, stew (flavor is fine)                  |
+| Leftover herbs       | Herb butter (freeze), herb oil, dry them            |
+| Yogurt near date     | Smoothie, marinade, baking                          |
+| Overripe avocado     | Guacamole, freeze mashed for later                  |
+| Leftover rice        | Fried rice, rice pudding, stuffed peppers           |
 
 ### FIFO System (First In, First Out)
 
@@ -484,7 +487,6 @@ Track for 4 weeks to identify where to buy each item.
 Many people save 15-20% by buying different categories
 at different stores.
 ```
-
 
 ## Output Format
 

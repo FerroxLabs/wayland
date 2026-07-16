@@ -153,7 +153,10 @@ const DOMAIN_TO_PRESET: Record<string, string> = {
 export function emailDomain(email: string): string | null {
   const at = email.lastIndexOf('@');
   if (at < 0) return null;
-  const domain = email.slice(at + 1).trim().toLowerCase();
+  const domain = email
+    .slice(at + 1)
+    .trim()
+    .toLowerCase();
   return domain.length > 0 && domain.includes('.') ? domain : null;
 }
 

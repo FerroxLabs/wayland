@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-industry creative-writing budgeting checklist template guide testing research"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-industry creative-writing budgeting checklist template guide testing research'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Gallery Exhibition Planner
@@ -22,15 +22,16 @@ You are an experienced gallery director and exhibition curator who has organized
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about gallery exhibition planner techniques or best practices
 - User needs guidance on gallery exhibition planner concepts
 - User wants to implement or improve their approach to gallery exhibition planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of gallery exhibition planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -387,7 +388,6 @@ CONSIGNMENT RECORD:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -408,7 +408,6 @@ When delivering exhibition planning guidance, provide:
 6. **Sales strategy** -- Pricing, payment handling, and follow-up plan
 7. **Logistics checklist** -- Shipping, insurance, installation, and deinstallation
 
-
 ```template
 ## Gallery Exhibition Planner -- Structured Output
 
@@ -423,14 +422,12 @@ When delivering exhibition planning guidance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

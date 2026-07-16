@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship marketing content-marketing"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship marketing content-marketing'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Digital Product Creator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,13 +31,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on digital product creator
 - User asks about digital product creator best practices or techniques
 - User wants a structured approach to digital product creator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of digital product creator
+
 ## Questions to Ask First
 
 Before creating any digital product, work through these:
@@ -64,6 +66,7 @@ Before creating any digital product, work through these:
 **Tools**: Google Docs, Notion, Canva, Adobe InDesign
 
 **Ebook Structure Template:**
+
 ```
 Cover Page
   Title, subtitle, author, visual
@@ -92,6 +95,7 @@ Appendix
 ```
 
 **Ebook Production Checklist:**
+
 - [ ] Draft complete manuscript
 - [ ] Professional editing (at minimum, use Grammarly + beta reader)
 - [ ] Design cover (Canva or hire designer, $50-200)
@@ -109,6 +113,7 @@ Appendix
 **Tools**: Notion, Google Workspace, Airtable, Microsoft Excel
 
 **Popular Notion Template Categories:**
+
 - Project management dashboards
 - Content calendars
 - Finance trackers (personal and business)
@@ -121,6 +126,7 @@ Appendix
 - Goal setting and OKR frameworks
 
 **Notion Template Best Practices:**
+
 1. Start with a real problem you've solved for yourself
 2. Make the template visually appealing (icons, covers, color coding)
 3. Include a setup guide or video walkthrough
@@ -130,6 +136,7 @@ Appendix
 7. Create compelling preview screenshots showing the template in use
 
 **Spreadsheet Template Tips:**
+
 - Use data validation for dropdowns and input constraints
 - Include a "How to Use" tab with instructions
 - Lock formulas but leave input cells editable
@@ -145,6 +152,7 @@ Appendix
 **Tools**: Canva, Adobe Illustrator, Procreate
 
 **High-Demand Printable Categories:**
+
 - Planners (daily, weekly, monthly, yearly)
 - Budget trackers and financial planners
 - Kids' activity sheets and educational materials
@@ -157,6 +165,7 @@ Appendix
 - Journaling prompts and guided journals
 
 **Printable Design Standards:**
+
 - Design at 300 DPI for print quality
 - Standard sizes: US Letter (8.5x11"), A4, A5
 - Include multiple sizes in one purchase
@@ -173,6 +182,7 @@ Appendix
 **Tools**: Figma, Sketch, Adobe XD
 
 **What Sells Well:**
+
 - UI component libraries
 - Website wireframe kits
 - Mobile app templates
@@ -183,6 +193,7 @@ Appendix
 - Email template designs
 
 **Quality Standards:**
+
 - Organized layers with clear naming conventions
 - Auto-layout and responsive components (Figma)
 - Well-documented usage instructions
@@ -198,6 +209,7 @@ Appendix
 **Tools**: VS Code, GitHub, your preferred IDE
 
 **Popular Developer Products:**
+
 - Next.js/React starter templates
 - API boilerplate with authentication
 - Admin dashboard templates
@@ -210,6 +222,7 @@ Appendix
 - Automation scripts
 
 **Code Product Requirements:**
+
 - Clean, well-commented code
 - README with setup instructions
 - License file (define usage rights clearly)
@@ -222,20 +235,21 @@ Appendix
 
 ### Selling Platform Comparison
 
-| Platform | Best For | Fees | Features |
-|----------|---------|------|----------|
-| Gumroad | All digital products | 10% flat | Simple, email, analytics |
-| Lemon Squeezy | SaaS + digital | 5% + processing | Tax handling, subscriptions |
-| Etsy | Printables, templates | 6.5% + listing fee | Marketplace traffic |
-| Creative Market | Design assets | 50% commission | Large design audience |
-| Payhip | Ebooks, courses | 5% (free plan) | No monthly fee option |
-| Shopify | Established brands | $29/mo + 2.9% | Full ecommerce |
-| Stan Store | Creators | $29/mo | Link-in-bio + store |
-| Ko-fi | Simple digital goods | 0% (Gold: $6/mo) | Tip jar + shop |
-| WooCommerce | WordPress users | Free + hosting | Full control |
-| Notion Marketplace | Notion templates | 0% (official marketplace) | Built-in audience |
+| Platform           | Best For              | Fees                      | Features                    |
+| ------------------ | --------------------- | ------------------------- | --------------------------- |
+| Gumroad            | All digital products  | 10% flat                  | Simple, email, analytics    |
+| Lemon Squeezy      | SaaS + digital        | 5% + processing           | Tax handling, subscriptions |
+| Etsy               | Printables, templates | 6.5% + listing fee        | Marketplace traffic         |
+| Creative Market    | Design assets         | 50% commission            | Large design audience       |
+| Payhip             | Ebooks, courses       | 5% (free plan)            | No monthly fee option       |
+| Shopify            | Established brands    | $29/mo + 2.9%             | Full ecommerce              |
+| Stan Store         | Creators              | $29/mo                    | Link-in-bio + store         |
+| Ko-fi              | Simple digital goods  | 0% (Gold: $6/mo)          | Tip jar + shop              |
+| WooCommerce        | WordPress users       | Free + hosting            | Full control                |
+| Notion Marketplace | Notion templates      | 0% (official marketplace) | Built-in audience           |
 
 ### Platform Selection Decision Tree
+
 ```
 Are you selling primarily Notion templates?
   YES --> Notion Marketplace + Gumroad (dual distribution)
@@ -255,6 +269,7 @@ Are you selling primarily Notion templates?
 ```
 
 ### Gumroad Setup Checklist
+
 ```
 [ ] Create account and verify email
 [ ] Set up Stripe for payments
@@ -276,12 +291,12 @@ Are you selling primarily Notion templates?
 
 ### Price Anchoring Framework
 
-| Product Complexity | Creation Time | Suggested Price Range | Comparable Value |
-|-------------------|--------------|----------------------|-----------------|
-| Simple (1 template, 1 printable) | 2-5 hours | $3-15 | Cup of coffee |
-| Standard (template pack, short ebook) | 10-20 hours | $15-49 | Business lunch |
-| Premium (comprehensive kit, full ebook) | 30-60 hours | $49-99 | Professional book |
-| Professional (system, toolkit, course) | 60-150+ hours | $99-299 | Workshop admission |
+| Product Complexity                      | Creation Time | Suggested Price Range | Comparable Value   |
+| --------------------------------------- | ------------- | --------------------- | ------------------ |
+| Simple (1 template, 1 printable)        | 2-5 hours     | $3-15                 | Cup of coffee      |
+| Standard (template pack, short ebook)   | 10-20 hours   | $15-49                | Business lunch     |
+| Premium (comprehensive kit, full ebook) | 30-60 hours   | $49-99                | Professional book  |
+| Professional (system, toolkit, course)  | 60-150+ hours | $99-299               | Workshop admission |
 
 ### Pricing Psychology Tactics
 
@@ -294,6 +309,7 @@ Are you selling primarily Notion templates?
 7. **Price increase over time**: Raise price as you add features and testimonials
 
 ### The Value-Based Pricing Method
+
 ```
 Step 1: What problem does this solve?
 Step 2: How much time does it save the buyer? (X hours)
@@ -307,6 +323,7 @@ Step 5: Price at 10-30% of value created
 ### The Digital Product Launch Playbook
 
 **Pre-Launch (2-4 weeks before):**
+
 ```
 Week -4: Announce you're building the product
   - Share the problem it solves
@@ -331,6 +348,7 @@ Week -1: Final preparation
 ```
 
 **Launch Week:**
+
 ```
 Day 1 (Launch):
   - Email: "It's here" to full list
@@ -364,6 +382,7 @@ Day 7:
 ```
 
 **Post-Launch (Evergreen):**
+
 ```
 - Set up automated sales funnel
 - Create SEO content that drives to product
@@ -373,6 +392,7 @@ Day 7:
 ```
 
 ### Sales Page Template
+
 ```
 HEADLINE
   [Benefit-focused statement that speaks to the buyer's desired outcome]
@@ -406,6 +426,7 @@ FINAL CTA
 ## Passive Income Math
 
 ### Revenue Projections
+
 ```
 Scenario A: Single product, organic traffic
   Product price:                $29
@@ -438,6 +459,7 @@ Scenario C: Product ecosystem
 ```
 
 ### Scaling Digital Product Revenue
+
 ```
 Year 1: Launch 2-3 products, build audience, refine what sells
   Target: $500-2,000/month
@@ -455,12 +477,14 @@ Year 4+: Product ecosystem, team support, licensing, white-labeling
 ### The Passive Income Reality Check
 
 "Passive" income requires significant upfront work:
+
 - **Creation time**: 20-100+ hours per product
 - **Marketing time**: Ongoing content creation to drive traffic
 - **Maintenance time**: Updates, customer support, platform changes
 - **Iteration time**: Improving based on feedback
 
 True passivity comes from:
+
 - SEO-driven traffic (content that ranks)
 - Automated email funnels
 - Affiliate partners promoting for you
@@ -471,6 +495,7 @@ Expect to invest 3-6 months of active work before seeing meaningful passive retu
 ## Product Ecosystem Strategy
 
 ### Building a Product Ladder
+
 ```
 Freebie ($0) --> Entry product ($5-15) --> Core product ($29-79) --> Premium ($99-299)
 ```
@@ -486,24 +511,25 @@ Freebie ($0) --> Entry product ($5-15) --> Core product ($29-79) --> Premium ($9
 
 ### Support Expectations by Price Point
 
-| Price | Expected Support Level |
-|-------|----------------------|
-| $1-10 | FAQ page, automated email |
-| $10-50 | FAQ + email support (24-48h response) |
-| $50-100 | Email support (24h response) + setup guide/video |
-| $100+ | Priority email + video walkthrough + optional call |
+| Price   | Expected Support Level                             |
+| ------- | -------------------------------------------------- |
+| $1-10   | FAQ page, automated email                          |
+| $10-50  | FAQ + email support (24-48h response)              |
+| $50-100 | Email support (24h response) + setup guide/video   |
+| $100+   | Priority email + video walkthrough + optional call |
 
 ### Common Support Requests and Solutions
 
-| Request | Prevention | Solution |
-|---------|-----------|---------|
-| "Can't download" | Clear delivery instructions | Re-send link, check spam |
-| "Doesn't work as expected" | Detailed product description | Video walkthrough, troubleshoot |
-| "Want a refund" | Money-back guarantee policy | Process quickly, ask for feedback |
-| "How do I use this?" | Include setup guide with product | Link to tutorial content |
-| "Can I get an update?" | Communicate update policy upfront | Send update email to past buyers |
+| Request                    | Prevention                        | Solution                          |
+| -------------------------- | --------------------------------- | --------------------------------- |
+| "Can't download"           | Clear delivery instructions       | Re-send link, check spam          |
+| "Doesn't work as expected" | Detailed product description      | Video walkthrough, troubleshoot   |
+| "Want a refund"            | Money-back guarantee policy       | Process quickly, ask for feedback |
+| "How do I use this?"       | Include setup guide with product  | Link to tutorial content          |
+| "Can I get an update?"     | Communicate update policy upfront | Send update email to past buyers  |
 
 ### Refund Policy Template
+
 ```
 We offer a 30-day money-back guarantee on all digital products.
 
@@ -530,7 +556,6 @@ Please note:
 9. **Not updating products**: Stale products get negative reviews. Update annually at minimum.
 10. **skipping mobile**: Test templates and digital products on mobile devices, not just desktop.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -543,13 +568,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with digital product creator for a mid-size project."
 
 **Output:** A complete digital product creator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

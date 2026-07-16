@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary safety"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel itinerary safety'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Travel Safety Advisor
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about travel safety
 - User needs guidance on travel safety topics
 - User wants a structured approach to travel safety
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **Do you have any medical conditions or medications?**
 9. **Do you have travel insurance?**
 10. **What is your biggest safety concern?**
+
 ---
+
 ## Step 1: Destination Safety Research
 
 ### Pre-Trip Safety Assessment
+
 ```
 DESTINATION SAFETY RESEARCH CHECKLIST:
 
@@ -96,10 +102,13 @@ INFRASTRUCTURE:
 [ ] Internet availability
 [ ] Power reliability
 ```
+
 ---
+
 ## Step 2: Common Scams by Region
 
 ### Scam Awareness Guide
+
 ```
 COMMON TOURIST SCAMS:
 EUROPE:
@@ -181,10 +190,13 @@ Counterfeit Bills:
 Receiving fake currency as change.
 Defense: Familiarize yourself with local currency; use exact change.
 ```
+
 ---
+
 ## Step 3: Personal Safety Tips
 
 ### Daily Safety Practices
+
 ```
 DAILY SAFETY HABITS:
 
@@ -228,10 +240,13 @@ NIGHTLIFE:
 [ ] Know the address of your hotel/hostel (in the local language)
 [ ] Limit alcohol intake (impairs judgment and makes you a target)
 ```
+
 ---
+
 ## Step 4: Money Safety
 
 ### Cards vs. Cash Strategy
+
 ```
 MONEY SAFETY STRATEGY:
 
@@ -276,10 +291,13 @@ IF YOUR CARD IS LOST OR STOLEN:
 4. File a police report (needed for insurance claims)
 5. Report to your travel insurance
 ```
+
 ---
+
 ## Step 5: Emergency Contacts and Planning
 
 ### Emergency Contact Card
+
 ```
 EMERGENCY CONTACT CARD
 
@@ -322,6 +340,7 @@ Card 2: {{BANK}} -- {{LOST/STOLEN_NUMBER}}
 ```
 
 ### Emergency Phone Numbers by Region
+
 ```
 EMERGENCY NUMBERS:
 
@@ -342,10 +361,13 @@ Mexico: 911
 South Africa: 10111 (police) / 10177 (ambulance)
 
 ```
+
 ---
+
 ## Step 6: Health Precautions
 
 ### Health Safety Abroad
+
 ```
 HEALTH PRECAUTIONS:
 
@@ -389,10 +411,13 @@ IF YOU GET SICK ABROAD:
 4. Contact your embassy if seriously ill
 5. Do not hesitate to seek care -- delaying can worsen outcomes
 ```
+
 ---
+
 ## Step 7: Solo Travel Safety
 
 ### Solo Traveler Safety Guide
+
 ```
 SOLO TRAVEL SAFETY TIPS:
 
@@ -443,10 +468,13 @@ SOLO FEMALE TRAVELERS -- ADDITIONAL TIPS:
 [ ] Have a cover story ready ("My husband is meeting me here")
 [ ] Join female travel communities for destination-specific advice
 ```
+
 ---
+
 ## Step 8: Natural Disaster Awareness
 
 ### Disaster Preparedness by Type
+
 ```
 NATURAL DISASTER AWARENESS:
 
@@ -500,8 +528,11 @@ GENERAL DISASTER PREPAREDNESS:
 [ ] Have enough water and medication for 3 days
 [ ] Follow instructions from local authorities, not social media rumors
 ```
+
 ---
+
 ## Travel Safety Summary Card
+
 ```
 SAFETY REMINDERS:
 
@@ -516,9 +547,10 @@ SAFETY REMINDERS:
 9. KNOW the local emergency number
 10. HAVE A PLAN for what to do if something goes wrong
 ```
----
-*This skill provides general travel safety guidance. Safety conditions change frequently. Always consult official government travel advisories for the most current information about your destination. When in doubt, prioritize caution.*
 
+---
+
+_This skill provides general travel safety guidance. Safety conditions change frequently. Always consult official government travel advisories for the most current information about your destination. When in doubt, prioritize caution._
 
 ## Output Format
 

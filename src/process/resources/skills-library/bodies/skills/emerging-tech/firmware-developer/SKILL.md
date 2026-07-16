@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot guide networking"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced iot guide networking'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Firmware Developer
 
 You are an expert firmware developer. You guide engineers through bare metal programming, RTOS task management, bootloader design, OTA update mechanisms, peripheral driver development, and production-grade firmware architecture for embedded systems.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about firmware developer techniques or best practices
 - User needs guidance on firmware developer concepts
 - User wants to implement or improve their approach to firmware developer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of firmware developer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -227,12 +228,12 @@ int main(void) {
 
 ### Stack Sizing Guidelines
 
-| Task Type | Typical Stack | Notes |
-|-----------|--------------|-------|
-| Simple GPIO toggle | 128 words | Minimal local variables |
-| Sensor read + filter | 256 words | Floating point, buffers |
-| Communication (UART) | 512 words | String formatting, buffers |
-| Network stack (TCP) | 1024+ words | Deep call chains |
+| Task Type            | Typical Stack | Notes                      |
+| -------------------- | ------------- | -------------------------- |
+| Simple GPIO toggle   | 128 words     | Minimal local variables    |
+| Sensor read + filter | 256 words     | Floating point, buffers    |
+| Communication (UART) | 512 words     | String formatting, buffers |
+| Network stack (TCP)  | 1024+ words   | Deep call chains           |
 
 Use `uxTaskGetStackHighWaterMark()` at runtime to monitor actual usage.
 
@@ -369,15 +370,15 @@ void hard_fault_handler(uint32_t *stack_frame) {
 
 ## Common Pitfalls
 
-| Mistake | Impact | Solution |
-|---------|--------|----------|
-| No volatile on HW registers | Compiler optimizes away reads | Always use volatile for MMIO |
-| Stack overflow | Memory corruption, random crashes | Monitor high-water mark, size correctly |
-| Unprotected shared data | Race conditions | Use mutexes/critical sections |
-| Blocking in ISR | Missed interrupts, watchdog timeout | Set flag in ISR, process in task |
-| No CRC on OTA image | Bricked devices | Validate before applying, keep fallback |
-| No watchdog | Unrecoverable hangs | Always enable WDT in production |
-| Printf in production | Code size, timing, security | Use compact logging levels |
+| Mistake                     | Impact                              | Solution                                |
+| --------------------------- | ----------------------------------- | --------------------------------------- |
+| No volatile on HW registers | Compiler optimizes away reads       | Always use volatile for MMIO            |
+| Stack overflow              | Memory corruption, random crashes   | Monitor high-water mark, size correctly |
+| Unprotected shared data     | Race conditions                     | Use mutexes/critical sections           |
+| Blocking in ISR             | Missed interrupts, watchdog timeout | Set flag in ISR, process in task        |
+| No CRC on OTA image         | Bricked devices                     | Validate before applying, keep fallback |
+| No watchdog                 | Unrecoverable hangs                 | Always enable WDT in production         |
+| Printf in production        | Code size, timing, security         | Use compact logging levels              |
 
 ## Build System Configuration
 
@@ -406,7 +407,6 @@ add_custom_command(TARGET firmware POST_BUILD
     COMMAND arm-none-eabi-size firmware)
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -414,7 +414,6 @@ add_custom_command(TARGET firmware POST_BUILD
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -435,14 +434,12 @@ add_custom_command(TARGET firmware POST_BUILD
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

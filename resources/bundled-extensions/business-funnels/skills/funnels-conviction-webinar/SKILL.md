@@ -31,14 +31,24 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [funnels, funnels-offer, funnels-evergreen, funnels-cart-cycle-launch, convert-vsl, convert-webinar-reg-page, convert-sales-page, convert-voice]
+    related_skills:
+      [
+        funnels,
+        funnels-offer,
+        funnels-evergreen,
+        funnels-cart-cycle-launch,
+        convert-vsl,
+        convert-webinar-reg-page,
+        convert-sales-page,
+        convert-voice,
+      ]
 attribution:
-  lineage: "Wayland Business Suite (Original) - The Conviction Webinar synthesizes Brunson belief-shift cadence + Kern stick strategy + Pagan moving-the-free-line + Stu McLaren membership-style close"
+  lineage: 'Wayland Business Suite (Original) - The Conviction Webinar synthesizes Brunson belief-shift cadence + Kern stick strategy + Pagan moving-the-free-line + Stu McLaren membership-style close'
 ---
 
 # Funnels Conviction Webinar - The Conviction Webinar
 
-> *"A webinar isn't a sales pitch with slides. It's a belief-shift event that ends with an offer."*
+> _"A webinar isn't a sales pitch with slides. It's a belief-shift event that ends with an offer."_
 
 This is the **architecture** skill for high-ticket webinar funnels - Wayland's fusion-named **The Conviction Webinar**. The Conviction Webinar is **Wayland-coined**. It synthesizes the multi-secret belief-shift cadence (popularized by Russell Brunson) + Frank Kern's stick strategy + Eben Pagan's moving-the-free-line attraction-marketing + Stu McLaren's membership-style close into one 60–90 minute conversion event.
 
@@ -47,12 +57,14 @@ This is the **architecture** skill for high-ticket webinar funnels - Wayland's f
 Trigger phrases: "webinar funnel", "design my webinar", "conviction webinar", "high-ticket webinar", "webinar pitch", "4-stage webinar", "my webinar isn't converting", "belief shift webinar", `/funnel conviction-webinar <product>`.
 
 Use when:
+
 - The user has a $497–$2,997 offer and wants a webinar as the primary conversion vehicle
 - The user runs a webinar but attendee-to-sale conversion is below 5% and the architecture needs rework
 - The user has a strong personality + audience and the webinar leverages presenter credibility
 - The offer requires belief-shift work that can't be done on a static sales page
 
 Do NOT use for:
+
 - Designing an **evergreen / auto-webinar** (use `funnels-evergreen` - different skill, different mechanics)
 - Designing a **launch-style** cart-cycle event (use `funnels-cart-cycle-launch`)
 - Authoring the webinar **registration page** alone (use `convert-webinar-reg-page`)
@@ -60,12 +72,12 @@ Do NOT use for:
 
 ## Conversion Benchmarks
 
-| Stage | Cold | Warm |
-|-------|------|------|
+| Stage                          | Cold   | Warm   |
+| ------------------------------ | ------ | ------ |
 | Registration → live attendance | 25–40% | 35–55% |
-| Attendance → sale (live) | 5–15% | 10–25% |
-| Replay → sale | 1–5% | 3–10% |
-| Cold-to-buyer (full funnel) | 0.5–3% | 2–8% |
+| Attendance → sale (live)       | 5–15%  | 10–25% |
+| Replay → sale                  | 1–5%   | 3–10%  |
+| Cold-to-buyer (full funnel)    | 0.5–3% | 2–8%   |
 
 A well-designed Conviction Webinar at the cold end of the spectrum should hit 5%+ attendee-to-sale; at the warm end, 10%+. Below 5% on warm → architecture is broken; rerun this skill.
 
@@ -75,21 +87,21 @@ The Conviction Webinar is structured in 4 stages over 60–90 minutes (60 minute
 
 ### Stage 1 - The Pre-Frame (0:00–10:00)
 
-**Job:** earn the next 80 minutes of attention. Set the *one big idea* the webinar will deliver. Create the frame that everything downstream lands inside.
+**Job:** earn the next 80 minutes of attention. Set the _one big idea_ the webinar will deliver. Create the frame that everything downstream lands inside.
 
-*The pre-frame principle (popularized by Eben Pagan attraction-marketing; lineage to Brunson's "Big Domino Statement").* The pre-frame answers: *"Why is what I'm about to say the most important thing you'll hear today?"*
+_The pre-frame principle (popularized by Eben Pagan attraction-marketing; lineage to Brunson's "Big Domino Statement")._ The pre-frame answers: _"Why is what I'm about to say the most important thing you'll hear today?"_
 
 **Components:**
 
 1. **Pattern interrupt opening (0:00–0:30).** A specific, surprising claim or story that earns attention. Not "thanks for being here."
-2. **The One Thing promise (0:30–2:00).** *"By the end of this 90 minutes, you'll know exactly how to [outcome]. That's the one thing."*
-3. **Credibility anchor (2:00–4:00).** Brief presenter credibility - story, results, qualifications. Not a bio. A *reason to believe*.
-4. **The big-domino statement (4:00–7:00).** The single belief that, if it shifts, makes the offer obvious. *"If I can prove that [counter-intuitive thing], everything else changes."*
+2. **The One Thing promise (0:30–2:00).** _"By the end of this 90 minutes, you'll know exactly how to [outcome]. That's the one thing."_
+3. **Credibility anchor (2:00–4:00).** Brief presenter credibility - story, results, qualifications. Not a bio. A _reason to believe_.
+4. **The big-domino statement (4:00–7:00).** The single belief that, if it shifts, makes the offer obvious. _"If I can prove that [counter-intuitive thing], everything else changes."_
 5. **The agenda (7:00–10:00).** What we'll cover - the three (or four) belief-shifts we'll work through.
 
-**Stick strategy here - the full Kern mechanic, not just a citation:** Kern's stick is a *future-pacing pre-frame* that operates in three moves inside the first 10 minutes:
+**Stick strategy here - the full Kern mechanic, not just a citation:** Kern's stick is a _future-pacing pre-frame_ that operates in three moves inside the first 10 minutes:
 
-1. **Name three specific reveals on the agenda slide** (not "I'll share bonuses" - name them: *"At minute 75 I'm walking through the exact Module 2 framework I've never shared in a webinar before. At minute 82 I'm reading two unedited buyer emails from last cohort. At minute 88 I'm answering the one question I hate getting."*).
+1. **Name three specific reveals on the agenda slide** (not "I'll share bonuses" - name them: _"At minute 75 I'm walking through the exact Module 2 framework I've never shared in a webinar before. At minute 82 I'm reading two unedited buyer emails from last cohort. At minute 88 I'm answering the one question I hate getting."_).
 2. **Drop a "you'll know what to do whether or not you buy" promise.** Kern's specific phrasing is the give-them-the-result-in-advance promise - they get something usable from the webinar even if they never see your offer. This is what holds attendance through the pitch.
 3. **Set a "watch-for" anchor** - a single phrase or visual cue you'll callback at minute 75 ("when I show you the [X] slide, you'll know we're in the part I promised you up front"). The callback at 75 closes the loop opened at minute 8.
 
@@ -99,7 +111,7 @@ Without all three moves, the stick is decorative. With them, attendance through 
 
 **Job:** systematically dismantle the three beliefs that block the buyer from saying yes to the offer.
 
-*The three-secret structure (popularized by Russell Brunson; lineage to Schwartz's market-sophistication staging).* The three beliefs are NOT about the product - they're about the buyer's worldview.
+_The three-secret structure (popularized by Russell Brunson; lineage to Schwartz's market-sophistication staging)._ The three beliefs are NOT about the product - they're about the buyer's worldview.
 
 **The 3 belief shifts (in order):**
 
@@ -107,33 +119,36 @@ Without all three moves, the stick is decorative. With them, attendance through 
 
 The buyer believes the wrong vehicle (method, approach, tool, framework) is the right path to the outcome.
 
-*"You believe X is how you get to the outcome. Actually, X has been failing for the last decade and Y is what's working now. Here's why."*
+_"You believe X is how you get to the outcome. Actually, X has been failing for the last decade and Y is what's working now. Here's why."_
 
 Components:
+
 - The wrong belief named explicitly
 - The evidence the wrong belief is failing (case studies, data, named examples)
-- The right belief / unique mechanism named (this is the Conviction Webinar's *named method*)
+- The right belief / unique mechanism named (this is the Conviction Webinar's _named method_)
 - A small concrete win the attendee can take from this section even if they don't buy
 
 #### Belief Shift 2 - The Internal Beliefs (25:00–42:00)
 
-The buyer believes something about *themselves* that blocks them from believing the outcome is achievable.
+The buyer believes something about _themselves_ that blocks them from believing the outcome is achievable.
 
-*"You believe you can't get this outcome because of [internal limiting belief]. Actually, here's why that doesn't apply."*
+_"You believe you can't get this outcome because of [internal limiting belief]. Actually, here's why that doesn't apply."_
 
 Components:
+
 - Common internal blocks named (age, experience, skill, time, money)
 - Counter-examples - case studies of people with the same internal block who got the outcome
-- The reframe - why the internal block is a *symptom* of the wrong vehicle (Belief 1) rather than a real limit
-- Reverse social proof - *"if X who looked just like you got it, you can"*
+- The reframe - why the internal block is a _symptom_ of the wrong vehicle (Belief 1) rather than a real limit
+- Reverse social proof - _"if X who looked just like you got it, you can"_
 
 #### Belief Shift 3 - The External Beliefs (42:00–60:00)
 
-The buyer believes something about the *world / market / circumstances* that blocks them.
+The buyer believes something about the _world / market / circumstances_ that blocks them.
 
-*"You believe the market is too crowded / the timing is wrong / the economy makes it impossible. Actually, here's why that's exactly when this works."*
+_"You believe the market is too crowded / the timing is wrong / the economy makes it impossible. Actually, here's why that's exactly when this works."_
 
 Components:
+
 - External blocks named (market saturation, timing, economy, regulation)
 - Counter-evidence - why the external block doesn't apply, or why it actually creates the opportunity
 - Specific case studies of people who got the outcome IN the same external conditions
@@ -141,25 +156,25 @@ Components:
 
 **Belief-shift sequencing rule:** must be in order - vehicle → internal → external. Reversing the order leaves the buyer with internal/external doubts UNRESOLVED when the offer is revealed.
 
-**Pagan's moving-the-free-line - concrete mid-webinar mechanic at minute 22-25:** Pagan's principle says the operator who gives away the *single most valuable insight in their entire body of work* during the free content wins the trust the pitch needs. Most operators violate this because they're afraid the give-away cannibalizes the buy. It doesn't - the give-away proves the rest is worth paying for.
+**Pagan's moving-the-free-line - concrete mid-webinar mechanic at minute 22-25:** Pagan's principle says the operator who gives away the _single most valuable insight in their entire body of work_ during the free content wins the trust the pitch needs. Most operators violate this because they're afraid the give-away cannibalizes the buy. It doesn't - the give-away proves the rest is worth paying for.
 
 Concrete implementation inside Belief Shift 1 (Vehicle):
 
-1. **At minute 22-25 (deep inside Vehicle), deliver the single insight you'd normally save for paying customers** - the actual *aha* of your work, named in plain language with specific implementation detail. Not "the framework I teach" but "here's the line of the script that the rest of the script orbits, and here's why it's load-bearing."
-2. **Tell them you're giving it to them.** *"This is the thing I usually charge for. I'm giving it to you here because if you don't believe I know what I'm doing by minute 25, nothing I say after will land."*
-3. **Have them implement it on the call.** 90-second pause. *"Open a doc. Write down the next [thing]. Use exactly the structure I just gave you. I'll wait."*
+1. **At minute 22-25 (deep inside Vehicle), deliver the single insight you'd normally save for paying customers** - the actual _aha_ of your work, named in plain language with specific implementation detail. Not "the framework I teach" but "here's the line of the script that the rest of the script orbits, and here's why it's load-bearing."
+2. **Tell them you're giving it to them.** _"This is the thing I usually charge for. I'm giving it to you here because if you don't believe I know what I'm doing by minute 25, nothing I say after will land."_
+3. **Have them implement it on the call.** 90-second pause. _"Open a doc. Write down the next [thing]. Use exactly the structure I just gave you. I'll wait."_
 
-This move is what Pagan calls *moving the free line* - the buyer receives a small concrete result inside the webinar before the pitch, which dramatically lifts attendee-to-sale conversion. Operators who skip this and only "tease" the framework convert at Brunson-pure rates (5-8% on warm). Operators who run the full Pagan move convert at 12-18% on warm.
+This move is what Pagan calls _moving the free line_ - the buyer receives a small concrete result inside the webinar before the pitch, which dramatically lifts attendee-to-sale conversion. Operators who skip this and only "tease" the framework convert at Brunson-pure rates (5-8% on warm). Operators who run the full Pagan move convert at 12-18% on warm.
 
 ### Stage 3 - The Pitch (60:00–80:00)
 
 **Job:** transition from teaching to selling, reveal the offer, build the stack.
 
-*The pitch transition (popularized by Pagan's "moving the free line"; lineage to Brunson's stack reveal).* The transition is the most fragile moment in the webinar - clumsy here = mass exodus.
+_The pitch transition (popularized by Pagan's "moving the free line"; lineage to Brunson's stack reveal)._ The transition is the most fragile moment in the webinar - clumsy here = mass exodus.
 
 **Components:**
 
-1. **The transition (60:00–62:00).** *"So now you know [the three shifts]. Some of you are thinking 'I can do this myself.' You can. Here's the path. Or - there's a faster way. I want to show you what we built."*
+1. **The transition (60:00–62:00).** _"So now you know [the three shifts]. Some of you are thinking 'I can do this myself.' You can. Here's the path. Or - there's a faster way. I want to show you what we built."_
 2. **The unique mechanism reveal (62:00–67:00).** Name the method. Brand it (Wayland-coined name from `funnels-offer`). Show the mechanism's results.
 3. **The offer reveal (67:00–72:00).** Core deliverable, what's in it, what it does.
 4. **The stack reveal (72:00–78:00).** Each bonus revealed in persuasion order (handoff from `funnels-offer-stack`). Each bonus mapped to one of the three belief shifts.
@@ -169,26 +184,26 @@ This move is what Pagan calls *moving the free line* - the buyer receives a smal
 
 **Job:** convert the audience by closing from multiple angles + handling objections + creating urgency + repeat CTA.
 
-*The multi-pass membership-close (popularized by Stu McLaren in membership-launch work; lineage to Brunson stack-and-close + Cascade Close from the Donahoe Method).* The close is not one CTA - it's 5–7 CTAs across multiple frames.
+_The multi-pass membership-close (popularized by Stu McLaren in membership-launch work; lineage to Brunson stack-and-close + Cascade Close from the Donahoe Method)._ The close is not one CTA - it's 5–7 CTAs across multiple frames.
 
-**Stu McLaren's specific mechanic - three closes at 2-3 minute spacing, each addressing a different objection:** McLaren's distinct contribution (vs Brunson's stack-and-close, which is one continuous arc) is the deliberate *spaced repetition* of the close, where each repetition addresses a different held-back objection. The cadence is not "stack the offer 5 times" - it's "close, breathe, close again from a different angle, breathe, close again from a third angle."
+**Stu McLaren's specific mechanic - three closes at 2-3 minute spacing, each addressing a different objection:** McLaren's distinct contribution (vs Brunson's stack-and-close, which is one continuous arc) is the deliberate _spaced repetition_ of the close, where each repetition addresses a different held-back objection. The cadence is not "stack the offer 5 times" - it's "close, breathe, close again from a different angle, breathe, close again from a third angle."
 
 The three McLaren closes (each 2-3 minutes apart):
 
 1. **Close 1 - the "is this real?" objection** at minute 84-86. The Stack Recap below names the specific deliverable price by price. Walks them through what arrives in their inbox tonight if they buy now. Removes "this is too good to be true" by making it concrete.
 2. **Close 2 - the "is this for me?" objection** at minute 87-88. The Vision Close + a 90-second beat where you call out by name three buyer profiles you know are in the audience ("If you're a coach with a list under 1,000 - this is for you. If you've launched before and felt the launch fall flat - this is for you. If you've never launched and you're scared to start - this is for you.")
-3. **Close 3 - the "what if I fail?" objection** at minute 89-90. The Door Close framed through the guarantee. *"Here's what happens if you buy and it doesn't work for you: [exact guarantee mechanics]. Here's what happens if you don't buy: nothing. Same situation in 30 days. Pick one."*
+3. **Close 3 - the "what if I fail?" objection** at minute 89-90. The Door Close framed through the guarantee. _"Here's what happens if you buy and it doesn't work for you: [exact guarantee mechanics]. Here's what happens if you don't buy: nothing. Same situation in 30 days. Pick one."_
 
 The 2-3 minute gap matters. McLaren's research (membership-launch case data) shows close-clustering (5 closes in 2 minutes) under-converts vs spaced (5 closes over 8 minutes) - the gap lets the objection surface and the next close land on it.
 
 **Components:**
 
 1. **The guarantee restated (80:00–82:00).** Risk-reversal in detail (handoff from `funnels-offer-guarantee`).
-2. **Scarcity / urgency reveal (82:00–84:00).** Real cap, real deadline, with reason-why. *"Cohort starts Monday. 100 seats. First 50 get the 1-on-1 audit."*
+2. **Scarcity / urgency reveal (82:00–84:00).** Real cap, real deadline, with reason-why. _"Cohort starts Monday. 100 seats. First 50 get the 1-on-1 audit."_
 3. **Cascade Close pass 1 - The Stack Recap (84:00–86:00).** Restate the stack value vs price.
-4. **Cascade Close pass 2 - The Vision Close (86:00–87:00).** *"30 days from now, you're either still where you are, or you're [outcome]. Which version of next month do you want?"*
-5. **Cascade Close pass 3 - The Math Close (87:00–88:00).** *"Even if this gets you 1/10th of the result, it's a 10x ROI."*
-6. **Cascade Close pass 4 - The Door Close (88:00–89:00).** *"Doors close [time]. After that the price goes up / the bonuses come off / the cohort fills. Click the link, get in, see you Monday."*
+4. **Cascade Close pass 2 - The Vision Close (86:00–87:00).** _"30 days from now, you're either still where you are, or you're [outcome]. Which version of next month do you want?"_
+5. **Cascade Close pass 3 - The Math Close (87:00–88:00).** _"Even if this gets you 1/10th of the result, it's a 10x ROI."_
+6. **Cascade Close pass 4 - The Door Close (88:00–89:00).** _"Doors close [time]. After that the price goes up / the bonuses come off / the cohort fills. Click the link, get in, see you Monday."_
 7. **Q&A live, with re-pitch in between answers (89:00–90:00+ - extends as long as Q&A runs).** Each objection answered = one more chance to re-pitch. Stu McLaren rule: never end Q&A without one more CTA.
 
 ## Workflow
@@ -204,6 +219,7 @@ The 2-3 minute gap matters. McLaren's research (membership-launch case data) sho
 ### Phase 1 - Map the three belief shifts
 
 For each belief shift, name:
+
 - The wrong belief the audience holds
 - The evidence it's failing
 - The right belief / mechanism
@@ -252,6 +268,7 @@ Handoff to `convert-webinar-reg-page` for the reg page; handoff to `funnels-dail
 ## Stage 2 - Content (10:00–60:00)
 
 ### Belief Shift 1 - The Vehicle (10:00–25:00)
+
 - **Wrong belief:** <name>
 - **Evidence it's failing:** <2-3 examples>
 - **Right belief / mechanism name:** <named method>
@@ -259,12 +276,14 @@ Handoff to `convert-webinar-reg-page` for the reg page; handoff to `funnels-dail
 - **Small win:** <what attendees can do TODAY from this section>
 
 ### Belief Shift 2 - The Internal (25:00–42:00)
+
 - **Wrong belief:** <name>
 - **Counter-examples:** <2-3 cases>
 - **Reframe:** <how internal block = symptom of wrong vehicle>
 - **Reverse social proof:** <if X then you>
 
 ### Belief Shift 3 - The External (42:00–60:00)
+
 - **Wrong belief:** <name>
 - **Counter-evidence:** <data + cases>
 - **Now-is-the-moment reframe:** <reasoning>
@@ -303,11 +322,11 @@ Handoff to `convert-webinar-reg-page` for the reg page; handoff to `funnels-dail
 
 The Conviction Webinar is Wayland-owned. It synthesizes four distinct, separately-implementable mechanics from four lineages - each contributing a structurally different move (not just a citation). Strip any one and the conversion math falls apart on a different attribute:
 
-- *Brunson's belief-shift cadence (popularized by Russell Brunson; lineage to Schwartz market sophistication)* - **Brunson's distinct move:** the three-belief-shift architecture (vehicle / internal / external) sequenced inside Stage 2. Without this, the offer reveal lands on UNRESOLVED objections.
-- *Frank Kern's stick strategy* - **Kern's distinct move (deepened):** the three-part future-pacing pre-frame in Phase 0 - name three specific minute-75 reveals + a "you'll know what to do whether or not you buy" promise + a "watch-for" callback anchor. Without this, attendance through minute 75 collapses to 30-40% and the pitch lands to a half-empty room.
-- *Eben Pagan's moving-the-free-line / attraction-marketing* - **Pagan's distinct move (deepened):** at minute 22-25, give away the single most valuable insight in your body of work - and have the audience implement it on the call with a 90-second pause. This is structurally different from Brunson's "tease the framework" - it's give-and-have-them-use-it. Without this, attendee-to-sale stays at 5-8% on warm; with it, 12-18%.
-- *Stu McLaren's membership-style multi-pass close* - **McLaren's distinct move (deepened):** three closes spaced 2-3 minutes apart, each addressing a different held-back objection (is-this-real / is-this-for-me / what-if-I-fail). Spaced repetition vs Brunson's continuous stack arc. Close-clustering under-converts; the gaps let objections surface so the next close can land on them.
-- *The Donahoe Cascade Close (cross-pack with `convert-close`)* - the four-pass close architecture inside Stage 4
+- _Brunson's belief-shift cadence (popularized by Russell Brunson; lineage to Schwartz market sophistication)_ - **Brunson's distinct move:** the three-belief-shift architecture (vehicle / internal / external) sequenced inside Stage 2. Without this, the offer reveal lands on UNRESOLVED objections.
+- _Frank Kern's stick strategy_ - **Kern's distinct move (deepened):** the three-part future-pacing pre-frame in Phase 0 - name three specific minute-75 reveals + a "you'll know what to do whether or not you buy" promise + a "watch-for" callback anchor. Without this, attendance through minute 75 collapses to 30-40% and the pitch lands to a half-empty room.
+- _Eben Pagan's moving-the-free-line / attraction-marketing_ - **Pagan's distinct move (deepened):** at minute 22-25, give away the single most valuable insight in your body of work - and have the audience implement it on the call with a 90-second pause. This is structurally different from Brunson's "tease the framework" - it's give-and-have-them-use-it. Without this, attendee-to-sale stays at 5-8% on warm; with it, 12-18%.
+- _Stu McLaren's membership-style multi-pass close_ - **McLaren's distinct move (deepened):** three closes spaced 2-3 minutes apart, each addressing a different held-back objection (is-this-real / is-this-for-me / what-if-I-fail). Spaced repetition vs Brunson's continuous stack arc. Close-clustering under-converts; the gaps let objections surface so the next close can land on them.
+- _The Donahoe Cascade Close (cross-pack with `convert-close`)_ - the four-pass close architecture inside Stage 4
 
 The fusion is the value: no single canonical guru's webinar methodology integrates Brunson's belief-shift sequencing + Kern's three-part stick + Pagan's mid-webinar implementation pause + McLaren's spaced three-objection close into one architecture. Wayland's Conviction Webinar is that integration. Each lineage owns a different load-bearing attribute (Brunson = belief integrity, Kern = attendance retention, Pagan = pre-pitch trust, McLaren = objection cadence) - pull any one and a different conversion attribute degrades.
 

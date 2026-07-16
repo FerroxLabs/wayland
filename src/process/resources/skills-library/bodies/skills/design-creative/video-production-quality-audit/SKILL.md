@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment design budgeting template guide planning performing-arts video-production"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment design budgeting template guide planning performing-arts video-production'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Video Production Quality Audit
@@ -22,15 +22,16 @@ You are a professional video production consultant with expertise in cinematogra
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about video production quality audit techniques or best practices
 - User needs guidance on video production quality audit concepts
 - User wants to implement or improve their approach to video production quality audit
 
 **Do NOT use when:**
+
 - The request falls outside the scope of video production quality audit
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -38,6 +39,7 @@ You are a professional video production consultant with expertise in cinematogra
 ## Questions to Ask First
 
 ### Production Context
+
 1. What type of video content do you create? (YouTube, corporate, documentary, short film, social media, educational, music video, other)
 2. What is the purpose of this audit? (Improve quality, attract clients, grow a channel, prepare for professional work)
 3. How long have you been producing video content?
@@ -45,6 +47,7 @@ You are a professional video production consultant with expertise in cinematogra
 5. Are you a one-person operation or do you work with a team?
 
 ### Technical Setup
+
 6. What camera(s) do you shoot with?
 7. What do you use for audio capture? (On-camera mic, lavalier, shotgun, boom, separate recorder)
 8. Do you use lighting equipment, or rely on natural/available light?
@@ -52,6 +55,7 @@ You are a professional video production consultant with expertise in cinematogra
 10. What resolution and frame rate do you typically shoot in?
 
 ### Content & Storytelling
+
 11. How do you plan your videos? (Script, outline, storyboard, improvise)
 12. Do your videos have a clear structure (hook, body, conclusion)?
 13. How do you approach the first 10-30 seconds of a video?
@@ -59,6 +63,7 @@ You are a professional video production consultant with expertise in cinematogra
 15. Share 2-3 videos you are most proud of. What makes them your best work?
 
 ### Post-Production
+
 16. How much time do you spend editing relative to shooting?
 17. Do you color grade your footage?
 18. How do you handle audio in post? (Levels, noise reduction, music, sound design)
@@ -71,39 +76,39 @@ You are a professional video production consultant with expertise in cinematogra
 
 ### Dimension 1: Technical Quality (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Image quality | 0-7 | Exposure, focus, white balance, resolution, and overall visual clarity |
-| Audio quality | 0-8 | Clean dialogue, balanced levels, minimal background noise, professional sound |
-| Lighting | 0-5 | Intentional light management, flattering or dramatic lighting as appropriate |
-| Camera work | 0-5 | Stability, framing, movement purpose, shot variety |
+| Factor        | Score Range | Criteria                                                                      |
+| ------------- | ----------- | ----------------------------------------------------------------------------- |
+| Image quality | 0-7         | Exposure, focus, white balance, resolution, and overall visual clarity        |
+| Audio quality | 0-8         | Clean dialogue, balanced levels, minimal background noise, professional sound |
+| Lighting      | 0-5         | Intentional light management, flattering or dramatic lighting as appropriate  |
+| Camera work   | 0-5         | Stability, framing, movement purpose, shot variety                            |
 
 ### Dimension 2: Storytelling & Structure (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Narrative structure | 0-8 | Clear beginning, middle, end; logical flow; purposeful pacing |
-| Hook effectiveness | 0-7 | First 10-30 seconds capture attention and set expectations |
-| Content value | 0-5 | Information, entertainment, or emotional value for the target audience |
-| Call to action | 0-5 | Clear viewer direction: what should they think, feel, or do next |
+| Factor              | Score Range | Criteria                                                               |
+| ------------------- | ----------- | ---------------------------------------------------------------------- |
+| Narrative structure | 0-8         | Clear beginning, middle, end; logical flow; purposeful pacing          |
+| Hook effectiveness  | 0-7         | First 10-30 seconds capture attention and set expectations             |
+| Content value       | 0-5         | Information, entertainment, or emotional value for the target audience |
+| Call to action      | 0-5         | Clear viewer direction: what should they think, feel, or do next       |
 
 ### Dimension 3: Editing & Post-Production (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Pacing and rhythm | 0-7 | Edit timing supports the content; not too fast, not too slow |
-| Transitions and cuts | 0-6 | Purposeful editing decisions; smooth transitions; no jarring cuts |
-| Color grading | 0-6 | Consistent color treatment that enhances mood and visual appeal |
-| Sound design | 0-6 | Music selection, sound effects, audio transitions, and mix quality |
+| Factor               | Score Range | Criteria                                                           |
+| -------------------- | ----------- | ------------------------------------------------------------------ |
+| Pacing and rhythm    | 0-7         | Edit timing supports the content; not too fast, not too slow       |
+| Transitions and cuts | 0-6         | Purposeful editing decisions; smooth transitions; no jarring cuts  |
+| Color grading        | 0-6         | Consistent color treatment that enhances mood and visual appeal    |
+| Sound design         | 0-6         | Music selection, sound effects, audio transitions, and mix quality |
 
 ### Dimension 4: Production Value & Consistency (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Visual polish | 0-7 | Graphics, titles, thumbnails, and on-screen elements |
-| Branding consistency | 0-6 | Recognizable visual identity across multiple videos |
-| Production efficiency | 0-6 | Appropriate quality level for the content type and platform |
-| Overall professionalism | 0-6 | Combined impression of the video as a professional product |
+| Factor                  | Score Range | Criteria                                                    |
+| ----------------------- | ----------- | ----------------------------------------------------------- |
+| Visual polish           | 0-7         | Graphics, titles, thumbnails, and on-screen elements        |
+| Branding consistency    | 0-6         | Recognizable visual identity across multiple videos         |
+| Production efficiency   | 0-6         | Appropriate quality level for the content type and platform |
+| Overall professionalism | 0-6         | Combined impression of the video as a professional product  |
 
 ---
 
@@ -158,19 +163,20 @@ Production Value & Consistency
 
 ## Results Interpretation
 
-| Score Range | Rating | Interpretation |
-|-------------|--------|---------------|
-| 85-100 | Professional | Production quality is broadcast or high-commercial grade. Focus on creative vision and market growth. |
-| 70-84 | Advanced | Strong production with specific areas to polish. Quality supports professional opportunities. |
-| 55-69 | Intermediate | Good foundations with notable quality gaps. Targeted upgrades will yield visible improvement. |
-| 40-54 | Developing | Basic production skills in place. Focus on the fundamentals that have the highest impact on perceived quality. |
-| Below 40 | Beginner | Focus on learning the basics of shooting, audio, and editing before optimizing production value. |
+| Score Range | Rating       | Interpretation                                                                                                 |
+| ----------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
+| 85-100      | Professional | Production quality is broadcast or high-commercial grade. Focus on creative vision and market growth.          |
+| 70-84       | Advanced     | Strong production with specific areas to polish. Quality supports professional opportunities.                  |
+| 55-69       | Intermediate | Good foundations with notable quality gaps. Targeted upgrades will yield visible improvement.                  |
+| 40-54       | Developing   | Basic production skills in place. Focus on the fundamentals that have the highest impact on perceived quality. |
+| Below 40    | Beginner     | Focus on learning the basics of shooting, audio, and editing before optimizing production value.               |
 
 ---
 
 ## Recommendations Based on Scores
 
 ### For Technical Issues (below 15)
+
 - Audio is the single biggest quality differentiator. Invest in a decent microphone before any other gear.
 - Learn manual camera settings: match your shutter speed to double your frame rate, control ISO to minimize noise
 - Use the exposure histogram and zebras to avoid clipped highlights
@@ -178,6 +184,7 @@ Production Value & Consistency
 - Shoot in a flat or log profile for more post-production flexibility
 
 ### For Storytelling Issues (below 15)
+
 - Script or outline every video before shooting. Even "casual" content benefits from structure.
 - Open with a hook: state the value proposition in the first 10 seconds
 - Use the problem-solution structure: What is the challenge? What is the answer? Why does it matter?
@@ -185,6 +192,7 @@ Production Value & Consistency
 - Watch your video with the sound off -- does the visual story still make sense?
 
 ### For Editing Issues (below 15)
+
 - Study pacing by analyzing videos you admire -- count the cuts per minute and note the rhythm
 - Learn keyboard shortcuts for your editor to speed up workflow
 - Apply a basic color grade to every video for consistency (LUTs are a good starting point)
@@ -192,6 +200,7 @@ Production Value & Consistency
 - Remove dead air, verbal filler, and pauses that do not serve the pacing
 
 ### For Production Value Issues (below 15)
+
 - Create branded intro/outro templates and use them consistently
 - Design custom thumbnails that are readable at small sizes
 - Develop a visual style guide: fonts, colors, graphic elements you use across videos
@@ -264,7 +273,6 @@ NEXT AUDIT DATE: ____________
 5. Encourage consistency over perfection. A reliable weekly video at 70% quality beats a monthly video at 95%.
 6. Acknowledge the enormous effort video production requires, especially for solo creators.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -272,7 +280,6 @@ NEXT AUDIT DATE: ____________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -293,14 +300,12 @@ NEXT AUDIT DATE: ____________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

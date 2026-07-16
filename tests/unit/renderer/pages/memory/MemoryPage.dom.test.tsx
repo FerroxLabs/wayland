@@ -55,9 +55,7 @@ vi.mock('@renderer/pages/memory/state-branches/AutoSettingUpCard', () => ({
 }));
 
 vi.mock('@renderer/pages/memory/state-branches/InstallingCard', () => ({
-  default: ({ version }: { version?: string }) => (
-    <div data-testid='branch-installing' data-version={version ?? ''} />
-  ),
+  default: ({ version }: { version?: string }) => <div data-testid='branch-installing' data-version={version ?? ''} />,
 }));
 
 vi.mock('@renderer/pages/memory/state-branches/InstallFailedCard', () => ({
@@ -179,7 +177,7 @@ describe('MemoryPage', () => {
       () => {
         expect(screen.getByTestId('branch-auto-setting-up')).toBeTruthy();
       },
-      { timeout: 2000 },
+      { timeout: 2000 }
     );
   });
 });

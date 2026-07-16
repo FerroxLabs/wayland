@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare health-wellness checklist guide step-by-step testing presentation video-production"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'healthcare health-wellness checklist guide step-by-step testing presentation video-production'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Telehealth Provider Guide
@@ -22,15 +22,16 @@ You are a telehealth implementation specialist who helps healthcare providers de
 
 > **DISCLAIMER**: This skill provides general guidance on telehealth practices for educational purposes only. It does not constitute medical advice, legal counsel, or billing instruction. Telehealth regulations, reimbursement policies, and licensure requirements vary significantly by jurisdiction and change frequently. Always verify current requirements with your state licensing board, institutional compliance office, and payer contracts before implementing telehealth services. Consult qualified professionals for legal, regulatory, and billing questions.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about telehealth provider guide techniques or best practices
 - User needs guidance on telehealth provider guide concepts
 - User wants to implement or improve their approach to telehealth provider guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of telehealth provider guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -82,13 +83,13 @@ Before advising on telehealth:
 
 Provide patients with these minimum requirements:
 
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| Device | Smartphone, tablet, or computer with camera | Computer or tablet with large screen |
-| Internet | 5 Mbps | 10+ Mbps |
-| Browser | Current version of major browser | Chrome or platform-recommended browser |
-| Audio | Built-in speaker and microphone | Headphones for privacy |
-| Location | Private space | Quiet, well-lit, private room |
+| Component | Minimum                                     | Recommended                            |
+| --------- | ------------------------------------------- | -------------------------------------- |
+| Device    | Smartphone, tablet, or computer with camera | Computer or tablet with large screen   |
+| Internet  | 5 Mbps                                      | 10+ Mbps                               |
+| Browser   | Current version of major browser            | Chrome or platform-recommended browser |
+| Audio     | Built-in speaker and microphone             | Headphones for privacy                 |
+| Location  | Private space                               | Quiet, well-lit, private room          |
 
 ### Pre-Visit Technology Test
 
@@ -104,19 +105,20 @@ Offer patients a way to test their setup before the visit:
 
 ### Provider Presentation
 
-| Element | Best Practice |
-|---------|--------------|
-| Camera angle | Eye level, head and shoulders visible, camera centered |
-| Eye contact | Look at the camera when speaking (not the screen), look at the screen when listening |
-| Lighting | Bright, even light on your face; avoid windows behind you |
-| Attire | Professional, consistent with in-person standards |
-| Background | Clean, uncluttered, professional; no distracting items |
-| Body language | Sit upright, lean slightly forward, nod to show engagement |
-| Speaking pace | Slightly slower than in-person; pause for lag |
+| Element       | Best Practice                                                                        |
+| ------------- | ------------------------------------------------------------------------------------ |
+| Camera angle  | Eye level, head and shoulders visible, camera centered                               |
+| Eye contact   | Look at the camera when speaking (not the screen), look at the screen when listening |
+| Lighting      | Bright, even light on your face; avoid windows behind you                            |
+| Attire        | Professional, consistent with in-person standards                                    |
+| Background    | Clean, uncluttered, professional; no distracting items                               |
+| Body language | Sit upright, lean slightly forward, nod to show engagement                           |
+| Speaking pace | Slightly slower than in-person; pause for lag                                        |
 
 ### Visit Structure
 
 **Opening (2-3 minutes)**
+
 - Greet the patient by name
 - Confirm their identity (name, date of birth per protocol)
 - Confirm their physical location (required for billing and safety purposes)
@@ -126,6 +128,7 @@ Offer patients a way to test their setup before the visit:
 - Obtain verbal consent for telehealth visit (document per institutional policy)
 
 **Clinical Encounter**
+
 - Maintain a normal conversational tone
 - Narrate any moments when you look away from the camera ("I'm checking your chart now")
 - Ask the patient to show relevant areas if a physical assessment is needed
@@ -134,6 +137,7 @@ Offer patients a way to test their setup before the visit:
 - Summarize the plan clearly before ending
 
 **Closing (2-3 minutes)**
+
 - Summarize the assessment and plan
 - Confirm the patient understands next steps
 - Provide instructions for follow-up
@@ -145,18 +149,19 @@ Offer patients a way to test their setup before the visit:
 
 While telehealth has limitations for physical examination, several assessments can be conducted virtually:
 
-| Assessment | Technique |
-|------------|-----------|
-| General appearance | Observe affect, distress, skin color, hygiene, movement |
-| Skin | Ask patient to move camera close to affected area; use good lighting |
-| Range of motion | Guide patient through movements; observe from multiple angles |
-| Gait | Ask patient to walk across the camera's field of view |
-| Neurological (basic) | Facial symmetry, speech clarity, coordination tasks |
-| Respiratory (basic) | Observe respiratory rate, work of breathing, ability to speak in full sentences |
-| Mental status | Standard interview-based assessment translates well to video |
-| Wound assessment | Patient or caregiver positions camera to show the wound clearly |
+| Assessment           | Technique                                                                       |
+| -------------------- | ------------------------------------------------------------------------------- |
+| General appearance   | Observe affect, distress, skin color, hygiene, movement                         |
+| Skin                 | Ask patient to move camera close to affected area; use good lighting            |
+| Range of motion      | Guide patient through movements; observe from multiple angles                   |
+| Gait                 | Ask patient to walk across the camera's field of view                           |
+| Neurological (basic) | Facial symmetry, speech clarity, coordination tasks                             |
+| Respiratory (basic)  | Observe respiratory rate, work of breathing, ability to speak in full sentences |
+| Mental status        | Standard interview-based assessment translates well to video                    |
+| Wound assessment     | Patient or caregiver positions camera to show the wound clearly                 |
 
 **Limitations to Acknowledge**
+
 - Auscultation (heart, lung, bowel sounds) is not possible without peripheral devices
 - Palpation cannot be performed remotely
 - Vital signs require patient-owned devices (blood pressure cuff, thermometer, pulse oximeter)
@@ -166,33 +171,34 @@ While telehealth has limitations for physical examination, several assessments c
 
 ### Audio Problems
 
-| Problem | Troubleshooting Steps |
-|---------|----------------------|
+| Problem                     | Troubleshooting Steps                                                                                                                           |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | No audio (either direction) | Check mute button > Check device audio settings > Ensure correct microphone/speaker selected > Restart the application > Try a different device |
-| Echo | One party should use headphones > Reduce speaker volume > Increase distance between microphone and speaker > Mute when not speaking |
-| Poor audio quality | Switch to wired connection > Close other applications using bandwidth > Move closer to the router > Switch to phone audio |
-| Delay/lag | Reduce video quality > Close other applications > Switch to wired internet > As last resort, switch to audio-only |
+| Echo                        | One party should use headphones > Reduce speaker volume > Increase distance between microphone and speaker > Mute when not speaking             |
+| Poor audio quality          | Switch to wired connection > Close other applications using bandwidth > Move closer to the router > Switch to phone audio                       |
+| Delay/lag                   | Reduce video quality > Close other applications > Switch to wired internet > As last resort, switch to audio-only                               |
 
 ### Video Problems
 
-| Problem | Troubleshooting Steps |
-|---------|----------------------|
-| No video | Check if camera is enabled in the application > Verify camera is not in use by another application > Check privacy settings > Restart the application |
-| Frozen video | Reduce video quality > Close bandwidth-heavy applications > Switch to wired connection > Turn video off and back on |
-| Dark or backlit image | Adjust room lighting > Move light source to face the person > Close blinds behind the person > Increase screen brightness |
-| Blurry image | Clean the camera lens > Ensure adequate lighting > Reduce camera movement > Check internet speed |
+| Problem               | Troubleshooting Steps                                                                                                                                 |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No video              | Check if camera is enabled in the application > Verify camera is not in use by another application > Check privacy settings > Restart the application |
+| Frozen video          | Reduce video quality > Close bandwidth-heavy applications > Switch to wired connection > Turn video off and back on                                   |
+| Dark or backlit image | Adjust room lighting > Move light source to face the person > Close blinds behind the person > Increase screen brightness                             |
+| Blurry image          | Clean the camera lens > Ensure adequate lighting > Reduce camera movement > Check internet speed                                                      |
 
 ### Connection Problems
 
-| Problem | Troubleshooting Steps |
-|---------|----------------------|
+| Problem                 | Troubleshooting Steps                                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | Cannot connect to visit | Verify the link or meeting code > Check internet connectivity > Try a different browser > Clear browser cache > Restart the device |
-| Dropped connection | Reconnect using the same link > Switch to backup internet > Reduce video quality > Switch to phone call as backup |
-| Slow connection | Close unnecessary applications and tabs > Move closer to the router > Switch to wired connection > Lower video resolution |
+| Dropped connection      | Reconnect using the same link > Switch to backup internet > Reduce video quality > Switch to phone call as backup                  |
+| Slow connection         | Close unnecessary applications and tabs > Move closer to the router > Switch to wired connection > Lower video resolution          |
 
 ### When to Switch to Phone
 
 Switch to audio-only phone call when:
+
 - Video connection fails after 2-3 troubleshooting attempts
 - Internet bandwidth is insufficient for video
 - Patient is in a location with poor connectivity
@@ -218,13 +224,13 @@ Send pre-visit instructions that include:
 
 ### Engaging Reluctant Patients
 
-| Concern | Response Strategy |
-|---------|------------------|
-| "I'm not good with technology" | Offer step-by-step guidance, a pre-visit tech check, or assisted setup by phone |
-| "I prefer in-person visits" | Acknowledge the preference; explain what telehealth can and cannot do; offer hybrid options |
-| "I don't have the right equipment" | Explore options: smartphone, library, family member's device, clinic-based telehealth stations |
-| "I'm worried about privacy" | Explain encryption and security measures; address specific concerns |
-| "I don't think you can really help me over video" | Validate the concern; explain what you can assess virtually; clarify when in-person is needed |
+| Concern                                           | Response Strategy                                                                              |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| "I'm not good with technology"                    | Offer step-by-step guidance, a pre-visit tech check, or assisted setup by phone                |
+| "I prefer in-person visits"                       | Acknowledge the preference; explain what telehealth can and cannot do; offer hybrid options    |
+| "I don't have the right equipment"                | Explore options: smartphone, library, family member's device, clinic-based telehealth stations |
+| "I'm worried about privacy"                       | Explain encryption and security measures; address specific concerns                            |
+| "I don't think you can really help me over video" | Validate the concern; explain what you can assess virtually; clarify when in-person is needed  |
 
 ### Accessibility Considerations
 
@@ -255,17 +261,17 @@ In addition to standard clinical documentation, telehealth notes should include:
 
 **Note**: Telehealth billing rules vary significantly by payer, state, and service type. The following are general considerations, not specific billing instructions.
 
-| Consideration | What to Verify |
-|---------------|---------------|
-| Eligible services | Which visit types does the payer reimburse for telehealth? |
-| Place of service code | What POS code is required (varies by payer)? |
-| Modifiers | Are telehealth-specific modifiers required (e.g., modifier 95, GT)? |
-| Parity | Does the payer reimburse telehealth at the same rate as in-person? |
-| Audio-only coverage | Does the payer cover audio-only visits? Under what conditions? |
-| Originating site requirements | Are there restrictions on where the patient must be? |
-| State licensure | Are you licensed in the state where the patient is located? |
-| Consent requirements | What consent documentation does the payer require? |
-| Frequency limits | Are there limits on how often telehealth visits are covered? |
+| Consideration                 | What to Verify                                                      |
+| ----------------------------- | ------------------------------------------------------------------- |
+| Eligible services             | Which visit types does the payer reimburse for telehealth?          |
+| Place of service code         | What POS code is required (varies by payer)?                        |
+| Modifiers                     | Are telehealth-specific modifiers required (e.g., modifier 95, GT)? |
+| Parity                        | Does the payer reimburse telehealth at the same rate as in-person?  |
+| Audio-only coverage           | Does the payer cover audio-only visits? Under what conditions?      |
+| Originating site requirements | Are there restrictions on where the patient must be?                |
+| State licensure               | Are you licensed in the state where the patient is located?         |
+| Consent requirements          | What consent documentation does the payer require?                  |
+| Frequency limits              | Are there limits on how often telehealth visits are covered?        |
 
 ### Compliance Reminders
 
@@ -281,30 +287,29 @@ In addition to standard clinical documentation, telehealth notes should include:
 
 ### Starting a Telehealth Program
 
-| Phase | Activities |
-|-------|------------|
-| Assessment | Identify clinical use cases, patient demand, infrastructure needs, regulatory requirements |
-| Platform selection | Evaluate platforms for security, EHR integration, usability, cost, and support |
-| Policy development | Create telehealth policies for consent, documentation, safety, and escalation |
-| Training | Train providers, support staff, and create patient education materials |
-| Pilot | Start with a limited group of providers and visit types; collect feedback |
-| Evaluation | Assess clinical outcomes, patient satisfaction, provider satisfaction, and financial performance |
-| Scale | Expand to additional providers, specialties, and visit types based on pilot results |
-| Continuous improvement | Regularly review metrics, update training, and adapt to regulatory changes |
+| Phase                  | Activities                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------ |
+| Assessment             | Identify clinical use cases, patient demand, infrastructure needs, regulatory requirements       |
+| Platform selection     | Evaluate platforms for security, EHR integration, usability, cost, and support                   |
+| Policy development     | Create telehealth policies for consent, documentation, safety, and escalation                    |
+| Training               | Train providers, support staff, and create patient education materials                           |
+| Pilot                  | Start with a limited group of providers and visit types; collect feedback                        |
+| Evaluation             | Assess clinical outcomes, patient satisfaction, provider satisfaction, and financial performance |
+| Scale                  | Expand to additional providers, specialties, and visit types based on pilot results              |
+| Continuous improvement | Regularly review metrics, update training, and adapt to regulatory changes                       |
 
 ### Quality Metrics for Telehealth
 
-| Metric | How to Measure |
-|--------|---------------|
-| Patient satisfaction | Post-visit surveys (rating scale and open comments) |
-| Technical success rate | Percentage of visits completed without major technical issues |
-| No-show rate | Compare telehealth vs. in-person no-show rates |
-| Visit completion rate | Percentage of scheduled telehealth visits that are completed |
-| Clinical outcomes | Track condition-specific outcomes for telehealth vs. in-person cohorts |
-| Provider satisfaction | Regular provider surveys and feedback sessions |
-| Access improvement | New patients served, reduced wait times, geographic reach |
-| Appropriate utilization | Percentage of visits where telehealth was clinically appropriate |
-
+| Metric                  | How to Measure                                                         |
+| ----------------------- | ---------------------------------------------------------------------- |
+| Patient satisfaction    | Post-visit surveys (rating scale and open comments)                    |
+| Technical success rate  | Percentage of visits completed without major technical issues          |
+| No-show rate            | Compare telehealth vs. in-person no-show rates                         |
+| Visit completion rate   | Percentage of scheduled telehealth visits that are completed           |
+| Clinical outcomes       | Track condition-specific outcomes for telehealth vs. in-person cohorts |
+| Provider satisfaction   | Regular provider surveys and feedback sessions                         |
+| Access improvement      | New patients served, reduced wait times, geographic reach              |
+| Appropriate utilization | Percentage of visits where telehealth was clinically appropriate       |
 
 ## Process
 
@@ -313,7 +318,6 @@ In addition to standard clinical documentation, telehealth notes should include:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -334,14 +338,12 @@ In addition to standard clinical documentation, telehealth notes should include:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

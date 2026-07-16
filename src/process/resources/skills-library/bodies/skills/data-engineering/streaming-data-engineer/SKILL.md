@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql guide"
-  category: "data-engineering"
-  subcategory: "streaming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql guide'
+  category: 'data-engineering'
+  subcategory: 'streaming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Streaming Data Engineer
@@ -165,13 +165,13 @@ DataStream<UserSession> sessions = clickstream
 
 ### Windowing Strategy Decision Matrix
 
-| Strategy | Use When | Window Size | Overlap | Late Data |
-|----------|----------|-------------|---------|-----------|
-| Tumbling | Regular aggregation periods | Fixed | No | Allowed lateness |
-| Sliding | Moving averages, trends | Fixed | Yes | Allowed lateness |
-| Session | User activity grouping | Dynamic | No | Gap-based |
-| Global | Custom trigger logic | Unbounded | N/A | Trigger-dependent |
-| Count | Fixed-count batches | N items | No | N/A |
+| Strategy | Use When                    | Window Size | Overlap | Late Data         |
+| -------- | --------------------------- | ----------- | ------- | ----------------- |
+| Tumbling | Regular aggregation periods | Fixed       | No      | Allowed lateness  |
+| Sliding  | Moving averages, trends     | Fixed       | Yes     | Allowed lateness  |
+| Session  | User activity grouping      | Dynamic     | No      | Gap-based         |
+| Global   | Custom trigger logic        | Unbounded   | N/A     | Trigger-dependent |
+| Count    | Fixed-count batches         | N items     | No      | N/A               |
 
 ### Exactly-Once with Flink + Kafka
 
@@ -341,30 +341,30 @@ schema_registry.set_compatibility(
 
 ```yaml
 producer_metrics:
-  - record-send-rate          # Records/sec being produced
-  - record-error-rate         # Failed sends/sec
-  - request-latency-avg       # Average broker response time
-  - batch-size-avg            # Bytes per batch
-  - buffer-available-bytes    # Remaining buffer capacity
+  - record-send-rate # Records/sec being produced
+  - record-error-rate # Failed sends/sec
+  - request-latency-avg # Average broker response time
+  - batch-size-avg # Bytes per batch
+  - buffer-available-bytes # Remaining buffer capacity
 
 consumer_metrics:
-  - records-lag-max           # Maximum partition lag
-  - records-consumed-rate     # Records/sec consumed
-  - commit-latency-avg       # Offset commit time
-  - rebalance-rate           # Consumer group rebalances
+  - records-lag-max # Maximum partition lag
+  - records-consumed-rate # Records/sec consumed
+  - commit-latency-avg # Offset commit time
+  - rebalance-rate # Consumer group rebalances
 
 flink_metrics:
-  - numRecordsInPerSecond    # Input throughput
-  - numRecordsOutPerSecond   # Output throughput
-  - currentInputWatermark    # Watermark progress
-  - lastCheckpointDuration   # Checkpoint time
-  - isBackPressured          # Backpressure indicator
+  - numRecordsInPerSecond # Input throughput
+  - numRecordsOutPerSecond # Output throughput
+  - currentInputWatermark # Watermark progress
+  - lastCheckpointDuration # Checkpoint time
+  - isBackPressured # Backpressure indicator
 
 alerts:
-  - consumer_lag > 100000 for 5m     # Falling behind
-  - checkpoint_duration > 60s         # State too large
-  - error_rate > 0.01                 # > 1% errors
-  - rebalance_count > 3 in 10m       # Unstable group
+  - consumer_lag > 100000 for 5m # Falling behind
+  - checkpoint_duration > 60s # State too large
+  - error_rate > 0.01 # > 1% errors
+  - rebalance_count > 3 in 10m # Unstable group
 ```
 
 ### Streaming Job Health Dashboard Query (Prometheus)
@@ -387,11 +387,11 @@ avg(flink_taskmanager_job_task_isBackPressured) by (task_name)
 
 ## Delivery Guarantees Decision Guide
 
-| Guarantee | How | Trade-off | Use When |
-|-----------|-----|-----------|----------|
-| At-most-once | Auto-commit before processing | Fastest, may lose data | Metrics, logs, non-critical |
-| At-least-once | Commit after processing | Duplicates possible | Most use cases + idempotent sink |
-| Exactly-once | Transactions or idempotent writes | Slowest, most complex | Financial, inventory, billing |
+| Guarantee     | How                               | Trade-off              | Use When                         |
+| ------------- | --------------------------------- | ---------------------- | -------------------------------- |
+| At-most-once  | Auto-commit before processing     | Fastest, may lose data | Metrics, logs, non-critical      |
+| At-least-once | Commit after processing           | Duplicates possible    | Most use cases + idempotent sink |
+| Exactly-once  | Transactions or idempotent writes | Slowest, most complex  | Financial, inventory, billing    |
 
 ### Implementing Idempotent Consumers
 
@@ -446,6 +446,7 @@ No schema management                  Use Schema Registry from day one
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing streaming data engineer solutions
 - Reviewing or improving existing streaming data engineer approaches
 - Making architectural or implementation decisions about streaming data engineer
@@ -453,6 +454,7 @@ No schema management                  Use Schema Registry from day one
 - Troubleshooting streaming data engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -463,21 +465,26 @@ No schema management                  Use Schema Registry from day one
 # Streaming Data Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

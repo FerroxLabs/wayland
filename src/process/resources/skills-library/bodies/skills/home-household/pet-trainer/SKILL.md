@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care guide step-by-step"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'pet-care guide step-by-step'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Pet Trainer
 
 > **NOTE:** This skill uses positive reinforcement-based training methods grounded in current animal behavior science (applied behavior analysis, classical and operant conditioning). For serious behavioral issues -- including bite history, resource guarding with injury, predatory drift, or severe separation anxiety -- refer the user to a certified professional dog trainer (CPDT-KA), a certified applied animal behaviorist (CAAB), or a veterinary behaviorist (DACVB).
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to teach a specific command or behavior to a dog, puppy, cat, or kitten (sit, stay, come, down, leave it, heel, place, crate, potty, leash manners, tricks)
 - A user has a new puppy or kitten and needs a structured developmental training timeline with age-appropriate milestones
 - A user wants to understand clicker training, marker training, luring, shaping, or capturing techniques and how to apply them
@@ -34,6 +36,7 @@ metadata:
 - A user needs guidance on training equipment selection (harnesses, long lines, clickers, treat pouches, target sticks) and when each is appropriate
 
 **Do NOT use when:**
+
 - The pet has a documented bite history at Level 3 or above on the Dunbar Bite Scale (puncture wounds) -- refer to a CPDT-KA or DACVB immediately
 - The user describes resource guarding behavior that has led to injury; this requires in-person professional assessment, not written guidance
 - The request involves training exotic animals, birds, reptiles, or livestock -- use a domain-specific skill for those species
@@ -106,6 +109,7 @@ Session structure determines whether training builds confidence or creates frust
 Build behaviors in a logical prerequisite chain. Jumping to advanced behaviors before foundations are solid creates unreliable performance and training frustration.
 
 **Dog foundation sequence (install in this order):**
+
 1. Name recognition -- the prerequisite for every other cue
 2. Sit -- easiest to lure, provides a framework for impulse control
 3. Hand target (nose to palm) -- foundational for all directed movement
@@ -118,6 +122,7 @@ Build behaviors in a logical prerequisite chain. Jumping to advanced behaviors b
 10. Advanced tricks and off-leash behaviors -- only after all foundations are reliable under mild distraction
 
 **Cat foundation sequence:**
+
 1. Charging the marker (clicker or verbal marker paired with high-value food 20--30 times)
 2. Name response -- cat orients toward owner on name (reward orientation, not just proximity)
 3. Hand targeting -- nose to palm; this is the cat's version of loose leash walking foundation
@@ -281,27 +286,35 @@ WHEN TO SEEK PROFESSIONAL HELP
 ## Edge Cases
 
 ### The Adolescent Regression (Dogs 6--18 Months)
+
 Adolescent dogs frequently stop responding to previously reliable commands. This is neurologically normal -- the adolescent canine brain undergoes significant pruning and is flooded with sex hormones, creating an animal that is cognitively more similar to a puppy than an adult despite physical maturity. Response: do not punish regression or assume the training "didn't stick." Return to luring for commands that have gone unreliable. Increase treat value significantly. Shorten sessions. Increase management and leash use outdoors. If male dogs are not neutered, specific behaviors (roaming, urine marking, mounting) may escalate substantially and may not be fully trainable until hormone levels stabilize or the dog is neutered. This is a veterinary conversation, not a training one.
 
 ### Multiple Pets in One Household Training
+
 Training one pet while another is present is an advanced skill that should not be attempted until each pet has solid individual foundations. Correct approach: train pets separately in the early stages. Gate off or crate the non-training pet with a stuffed Kong to prevent interference. Once each pet has reliable behaviors individually, introduce them together starting at the warm-up phase with easy known behaviors and high distraction-value treats. Never train two dogs simultaneously on the same behavior -- this creates competition, resource guarding around treats, and muddied behavioral signals.
 
 ### The Rescue Dog With Unknown History
+
 Many rescue dogs have conditioned fear responses to specific stimuli -- hands raised overhead, direct eye contact, certain types of people, specific sounds -- that can masquerade as stubbornness or "dominant behavior." Before assigning any training protocol, spend the first 1--2 weeks allowing the dog to decompress (the "3-3-3 rule": 3 days to decompress, 3 weeks to learn the routine, 3 months to feel at home). During decompression, avoid formal training sessions. Focus on building positive associations with handler, crate, and environment using pure classical conditioning -- no cues, no criteria, just pairing the handler's presence and common household events with high-value food. Only after the dog shows relaxed body language and seeks out human interaction should operant training begin.
 
 ### Cat That Refuses All Food During Training Sessions
+
 This is almost always a timing or value problem, not a "cats can't be trained" problem. Check three things: (1) Is the cat actually hungry? Cats fed ad libitum (free-access kibble) have no food motivation. Switch to two timed meals and train immediately before one of them. (2) Is the treat value high enough? Most cats will not work for kibble but will readily work for freeze-dried chicken, tuna juice from a squeeze tube, or a lick of meat-based baby food (no onion or garlic). (3) Is the session too long or the environment too arousing? Cats have a sharp disengagement threshold -- they don't "push through" discomfort the way many dogs do. Three minutes is a ceiling, not a guideline.
 
 ### House Training Regression in a Previously Trained Adult Dog
+
 Sudden house soiling in a previously reliable dog is a medical issue until proven otherwise. Urinary tract infections, Cushing's disease, diabetes, cognitive dysfunction syndrome (in seniors), intestinal parasites, dietary changes, and medications (prednisone causes increased urination) are all common culprits. Always recommend a veterinary examination before implementing any behavioral house-training protocol. If medical causes are ruled out, regression is usually triggered by a major environmental change (new baby, move, new pet, change in schedule) and responds to returning to the foundation house-training schedule for 2--3 weeks as if training a puppy again.
 
 ### The "Shock Collar History" Dog
+
 Dogs trained with electronic collars or prong collars may present with suppressed behavior, avoidance of the training context, or sudden explosive reactions when training equipment appears. They have often learned to perform behaviors to avoid aversive consequences rather than because the behavior has a positive reinforcement history. These dogs need a "clean slate" protocol: introduce a new marker (different word or different-sounding clicker), use entirely novel equipment (different collar, different leash), train in a new location, and begin the entire behavior installation sequence from the beginning as if the dog has no training history. Expect the first 2--4 weeks to be entirely about building positive emotional associations with training, not about achieving behavioral criteria. Progress will feel slow but creates a more durable result.
 
 ### Teaching Stay to High-Energy or Anxious Dogs
+
 Dogs with high arousal or anxiety find duration in stillness particularly difficult -- it requires active impulse control rather than movement, which is both mentally exhausting and physically uncomfortable for these individuals. Modify the protocol: use a platform or mat as the Stay location (physical boundaries help self-regulation), start with down-stay rather than sit-stay (down is a more relaxed body posture with a lower arousal ceiling), use a calm training voice rather than enthusiastic praise (which increases arousal), and build duration in 1-second increments rather than 2--3 second increments. For dogs with generalized anxiety, consult a veterinarian about whether behavioral medication would improve training outcomes -- anxiolytic medication does not replace training but can lower the anxiety baseline enough that the dog can access their cognitive capacity to learn.
 
 ### Multi-Cue Confusion (The Pet That Knows All Commands But Strings Them Together)
+
 A common intermediate-training problem: the owner teaches sit, down, and shake, and the dog responds to "sit" by offering sit, then down, then shake in sequence while waiting to see which gets the treat. This is not a sign of high intelligence; it is a sign of insufficient cue discrimination. The dog has learned that offering behaviors produces treats, but has not learned that specific cues predict specific behaviors. Fix: practice "cue discrimination drills" -- randomly call for one of three known behaviors in unpredictable order, mark and treat ONLY correct first responses, and do nothing (no facial expression, no second cue) for incorrect responses. Within 50--100 trials, dogs discriminate correctly. If the dog is still confused, the problem is that the cues may be similar-sounding (shake vs. stay) -- rename one cue entirely.
 
 ---

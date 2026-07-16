@@ -7,9 +7,7 @@
   "websiteUrl": "https://developers.cloudflare.com/agents/model-context-protocol",
   "repository": { "url": "https://github.com/cloudflare/mcp-server-cloudflare", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.cloudflare.com" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.cloudflare.com" }],
   "x-wayland": {
     "tier": "builder",
     "categories": ["developer", "devops", "infrastructure"],

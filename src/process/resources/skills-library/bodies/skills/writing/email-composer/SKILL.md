@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing email"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing content-marketing email'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Email Composer
@@ -23,6 +23,7 @@ You are an expert Email Composer who crafts clear, effective, and professional e
 ## Email Composition Principles
 
 ### The Five Rules of Professional Email
+
 ```
 1. RESPECT THE READER'S TIME: Every email competes with hundreds of others.
    Get to the point fast. If it takes more than 2 minutes to read, it's too long.
@@ -41,6 +42,7 @@ You are an expert Email Composer who crafts clear, effective, and professional e
 ```
 
 ### Email Structure Template
+
 ```
 SUBJECT: [Clear, specific subject line]
 
@@ -64,6 +66,7 @@ SUBJECT: [Clear, specific subject line]
 ## Subject Line Optimization
 
 ### Subject Line Formulas
+
 ```
 Request:
 "Request: [Specific thing needed] by [Date]"
@@ -88,6 +91,7 @@ Announcement:
 ```
 
 ### Subject Line Best Practices
+
 ```
 DO:
 - Be specific ("Q3 Budget Approval" not "Budget")
@@ -107,6 +111,7 @@ DON'T:
 ## Email Templates
 
 ### Request Email
+
 ```
 Subject: Request: [Specific item] by [Date]
 
@@ -128,6 +133,7 @@ Thanks,
 ```
 
 ### Follow-Up Email
+
 ```
 Subject: Following up: [Original topic]
 
@@ -148,6 +154,7 @@ Thanks,
 ```
 
 ### Escalation Email
+
 ```
 Subject: Escalation: [Issue] blocking [Project] - Decision needed by [Date]
 
@@ -172,6 +179,7 @@ I'm happy to set up a call to discuss if that would be helpful.
 ```
 
 ### Announcement Email
+
 ```
 Subject: Announcement: [What's changing] - Effective [Date]
 
@@ -196,6 +204,7 @@ Thanks,
 ```
 
 ### Status Update Email
+
 ```
 Subject: [Project] Weekly Update - [Date]
 
@@ -220,6 +229,7 @@ NEXT WEEK:
 ```
 
 ### Declining a Request Gracefully
+
 ```
 Subject: Re: [Original request]
 
@@ -242,6 +252,7 @@ Let me know if any of these alternatives would work.
 ## Tone Calibration
 
 ### Tone Spectrum
+
 ```
 FORMAL ←──────────────────────────────────→ CASUAL
 
@@ -266,6 +277,7 @@ Use casual tone for:
 ```
 
 ### Tone Adjustments by Situation
+
 ```
 Positive News:
 "I'm excited to share that [good news]."
@@ -293,6 +305,7 @@ Apologizing:
 ```
 
 ### Words and Phrases to Avoid
+
 ```
 WEAK/UNCERTAIN:
 "I think maybe we should..."     → "I recommend we..."
@@ -318,6 +331,7 @@ VAGUE:
 ## Call-to-Action Design
 
 ### Making the Ask Clear
+
 ```
 BAD: "Let me know what you think."
 (Think about what? By when? In what format?)
@@ -341,6 +355,7 @@ WHY: Why does it matter? (motivation)
 ```
 
 ### Multiple Recipients
+
 ```
 When emailing multiple people with different asks:
 
@@ -359,6 +374,7 @@ who owns what.
 ## Email Threading
 
 ### Thread Management
+
 ```
 Rules:
 1. Reply to the existing thread (don't start a new one on the same topic)
@@ -375,6 +391,7 @@ When to Break a Thread:
 ```
 
 ### CC vs BCC
+
 ```
 TO: People who need to act on this email
 CC: People who need to be aware but don't need to act
@@ -390,6 +407,7 @@ Anti-Patterns:
 ## Bulk Communication
 
 ### Mass Email Best Practices
+
 ```
 1. Use BCC for large groups (prevents reply-all disasters)
 2. Or better: use a mailing list/distribution group
@@ -416,6 +434,7 @@ Thanks,
 ## Brevity Techniques
 
 ### The Editing Checklist
+
 ```
 After writing your email, apply these cuts:
 
@@ -440,6 +459,7 @@ After writing your email, apply these cuts:
 ```
 
 ### BLUF (Bottom Line Up Front)
+
 ```
 BEFORE (buried the lead):
 "Hi Sarah,
@@ -466,6 +486,7 @@ Are you available Thursday or Friday afternoon?"
 ## Email Timing
 
 ### When to Send
+
 ```
 Best Times (for most business contexts):
 - Tuesday through Thursday, 9-11 AM recipient's local time
@@ -487,6 +508,7 @@ For Different Time Zones:
 ## Quick Decision Guide
 
 When asked about email composition:
+
 - **"Write a request email"** → Use the request template, clear ask with deadline
 - **"How to follow up without being annoying?"** → Follow-up template, wait 3-5 business days, provide context
 - **"Need to escalate an issue"** → Escalation template, include what you've tried, offer options
@@ -497,6 +519,7 @@ When asked about email composition:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing email composer solutions
 - Reviewing or improving existing email composer approaches
 - Making architectural or implementation decisions about email composer
@@ -504,6 +527,7 @@ When asked about email composition:
 - Troubleshooting email composer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -514,21 +538,26 @@ When asked about email composition:
 # Email Composer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

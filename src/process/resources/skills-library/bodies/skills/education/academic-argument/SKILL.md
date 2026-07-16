@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research academic-writing study-skills step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research academic-writing study-skills step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Academic Argument
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when a learner wants to understand, practice, or build academic argumentation as an intellectual competency -- not just produce a written document.
 
 **Trigger scenarios:**
+
 - A student says "I don't understand how to structure my argument" or "my professor keeps saying my argument is weak" -- they need to learn the reasoning architecture, not just get text written
 - A learner explicitly asks to practice Toulmin argumentation, claim-evidence-warrant structure, or academic reasoning frameworks
 - A thesis or dissertation student needs to construct and stress-test a central argument before they begin writing chapters
@@ -31,6 +33,7 @@ Use this skill when a learner wants to understand, practice, or build academic a
 - Someone wants to understand the difference between strong and weak arguments in academic work, or how to evaluate sources as evidence
 
 **Do NOT use when:**
+
 - The user wants someone to write the argument for them in polished prose -- use the writing category `academic-argument` skill instead
 - The user wants an essay outline or chapter structure -- use `essay-outline` skill
 - The user is preparing for a competitive debate format (British Parliamentary, Lincoln-Douglas) -- those have different structures and timing constraints
@@ -119,6 +122,7 @@ For intermediate and advanced learners, especially those preparing thesis defens
 - If the learner is preparing for an oral defense, practice the "concede-and-recover" move: acknowledge a legitimate limitation of the evidence while reinforcing why the claim still holds
 
 Common adversarial questions by discipline:
+
 - Social sciences: "Could this be confounded by [alternative variable]?" (tests the warrant's causal logic)
 - Humanities: "How does [competing interpretive framework] read this same evidence?" (tests the warrant's theoretical assumptions)
 - Sciences: "What is the sample size and methodology of your primary study?" (tests evidence quality directly)
@@ -232,6 +236,7 @@ Produce the following structured argument map as the primary output. All fields 
 ```
 
 **Argument type note:**
+
 - **Analytical:** Interprets what something means (literary analysis, historical interpretation)
 - **Interpretive:** Evaluates competing explanations for a phenomenon
 - **Policy:** Argues for a course of action based on values and evidence
@@ -456,20 +461,20 @@ the "elites insulated, civilians harmed" mechanism.
 
 The professor's comment "so what?" almost always means the warrant is absent. Here is the pattern in the learner's original draft and how the map resolves it:
 
-| Draft version (no warrant) | Map version (warrant present) |
-|---------------------------|-------------------------------|
+| Draft version (no warrant)                                                                             | Map version (warrant present)                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | "Hufbauer et al. found that sanctions only succeed 30% of the time. This shows sanctions do not work." | "Hufbauer et al. found a 30% success rate. This low rate reflects the elite insulation mechanism: authoritarian regimes redirect costs onto civilians, breaking the causal chain that sanctions policy assumes." |
-| Reader thinks: "30% -- is that low? Compared to what? Why does this matter?" | Reader thinks: "The mechanism claim is specific and testable -- I can engage with it." |
+| Reader thinks: "30% -- is that low? Compared to what? Why does this matter?"                           | Reader thinks: "The mechanism claim is specific and testable -- I can engage with it."                                                                                                                           |
 
 The warrant does not add length for its own sake -- it adds the reasoning that converts a data point into an argument.
 
 ### Toulmin Component Quick Reference for Political Science
 
-| Component | Political Science Convention | Common Failure |
-|-----------|-----------------------------|--------------  |
-| Claim | Specific policy outcome, causal relationship, or comparative evaluation | Too broad ("sanctions don't work") or unfalsifiable ("foreign policy is complex") |
-| Evidence | Large-N datasets, comparative case studies, process tracing, historical record | Citing news articles as primary evidence; using a single dramatic case to anchor a general claim |
-| Warrant | Theoretical framework (rationalist, constructivist, institutional), causal mechanism, comparative logic | Restating the evidence; assuming the reader knows the theoretical connection |
-| Qualifier | Geographic scope, time period, regime type, sanction type, level of analysis | Absent entirely, making the claim vulnerable to any counterexample |
-| Counterargument | The strongest scholarly position against yours, with its evidence | "Some people think sanctions work" -- must name the mechanism the opposing view defends |
-| Rebuttal | Concede-and-minimize is most common in IR; refute-the-evidence works when methodology is disputed | Ignoring the counterargument's strongest evidence; overclaiming a complete defeat of the opposing position |
+| Component       | Political Science Convention                                                                            | Common Failure                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Claim           | Specific policy outcome, causal relationship, or comparative evaluation                                 | Too broad ("sanctions don't work") or unfalsifiable ("foreign policy is complex")                          |
+| Evidence        | Large-N datasets, comparative case studies, process tracing, historical record                          | Citing news articles as primary evidence; using a single dramatic case to anchor a general claim           |
+| Warrant         | Theoretical framework (rationalist, constructivist, institutional), causal mechanism, comparative logic | Restating the evidence; assuming the reader knows the theoretical connection                               |
+| Qualifier       | Geographic scope, time period, regime type, sanction type, level of analysis                            | Absent entirely, making the claim vulnerable to any counterexample                                         |
+| Counterargument | The strongest scholarly position against yours, with its evidence                                       | "Some people think sanctions work" -- must name the mechanism the opposing view defends                    |
+| Rebuttal        | Concede-and-minimize is most common in IR; refute-the-evidence works when methodology is disputed       | Ignoring the counterargument's strongest evidence; overclaiming a complete defeat of the opposing position |

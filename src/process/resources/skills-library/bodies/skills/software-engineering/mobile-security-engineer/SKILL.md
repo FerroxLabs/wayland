@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices security"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices security'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Mobile Security Engineer
@@ -502,6 +502,7 @@ Platform (MASVS-PLATFORM):
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing mobile security engineer solutions
 - Reviewing or improving existing mobile security engineer approaches
 - Making architectural or implementation decisions about mobile security engineer
@@ -509,6 +510,7 @@ Platform (MASVS-PLATFORM):
 - Troubleshooting mobile security engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -519,21 +521,26 @@ Platform (MASVS-PLATFORM):
 # Mobile Security Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

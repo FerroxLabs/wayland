@@ -19,9 +19,7 @@ vi.mock('react-i18next', () => ({
     t: (_key: string, fallback: string, opts?: Record<string, unknown>) => {
       if (!opts) return fallback ?? _key;
       // Simple interpolation: replace {{key}} with opts[key]
-      return (fallback ?? _key).replace(/\{\{(\w+)\}\}/g, (_: string, k: string) =>
-        String(opts[k] ?? `{{${k}}}`),
-      );
+      return (fallback ?? _key).replace(/\{\{(\w+)\}\}/g, (_: string, k: string) => String(opts[k] ?? `{{${k}}}`));
     },
   }),
 }));
@@ -46,10 +44,8 @@ vi.mock('@/common', () => ({
 import { ipcBridge } from '@/common';
 import MemoryStatusBar from '@renderer/pages/memory/components/MemoryStatusBar';
 
-const mockGetDropFolderStatus = () =>
-  vi.mocked(ipcBridge.memory.import.getDropFolderStatus.invoke);
-const mockOpenPath = () =>
-  vi.mocked(ipcBridge.shell.openPath.invoke);
+const mockGetDropFolderStatus = () => vi.mocked(ipcBridge.memory.import.getDropFolderStatus.invoke);
+const mockOpenPath = () => vi.mocked(ipcBridge.shell.openPath.invoke);
 
 beforeEach(() => {
   mockGetDropFolderStatus().mockResolvedValue({
@@ -89,11 +85,7 @@ describe('MemoryStatusBar', () => {
 
   it('renders last dream pill when lastDream is provided', () => {
     render(
-      <MemoryStatusBar
-        brainLive
-        cliCount={5}
-        lastDream={{ factsExtracted: 14, promoted: 3, agoMs: 8 * 60 * 1000 }}
-      />,
+      <MemoryStatusBar brainLive cliCount={5} lastDream={{ factsExtracted: 14, promoted: 3, agoMs: 8 * 60 * 1000 }} />
     );
     const dreamPill = screen.getByTestId('status-dream-pill');
     expect(dreamPill.textContent).toContain('14');

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml template analysis energy-efficiency best-practices video-production email"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml template analysis energy-efficiency best-practices video-production email'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Calendar Optimizer
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user describes their calendar as "out of control," "overwhelming," or "full of meetings" and needs a systematic overhaul strategy
 - A user reports getting fewer than 10 hours of uninterrupted focus time per week and wants to redesign their schedule
 - A user is trying to establish time blocking, energy-based scheduling, or focus block systems from scratch or repair a broken attempt
@@ -30,6 +32,7 @@ metadata:
 - A user is a team lead or manager who wants to design meeting culture norms for their team, not just their personal calendar
 
 **Do NOT use when:**
+
 - The user needs project management methodology for tracking deliverables and milestones -- use a project planning skill instead
 - The user is asking about task prioritization frameworks (Eisenhower Matrix, MoSCoW, RICE) independent of scheduling -- use a task management skill
 - The user needs help with email triage, inbox zero, or communication workflow separate from calendar design
@@ -45,25 +48,30 @@ metadata:
 Before generating any recommendations, gather context across these five dimensions. You do not need to ask all questions -- read the user's message and identify which dimensions are already answered.
 
 **1. Current State**
+
 - How many meetings do you attend per week, and how many are recurring?
 - What percentage of your meetings do you personally consider genuinely valuable -- requiring your presence and producing decisions or outcomes?
 - How many hours of uninterrupted focus time do you realistically get per week right now?
 
 **2. Role and Control**
+
 - What is your role -- individual contributor, team lead, senior manager, executive, or solo operator?
 - Do you control your own calendar, or do others (assistants, team members, clients) have booking access?
 - Are there structural constraints you cannot change (daily standups, executive-mandated syncs, client-facing hours)?
 
 **3. Energy and Chronotype**
+
 - What time of day do you do your clearest, most creative, most complex thinking?
 - What time of day do you feel lowest energy -- when you are most likely to zone out or procrastinate?
 - Do you have personal commitments (school pickups, workouts, caregiving) that must anchor your schedule?
 
 **4. Work Type Profile**
+
 - What does your actual work consist of? Estimate the percentage split: deep solo work (writing, coding, designing, analyzing) vs. meetings/collaboration vs. admin (email, approvals, reviews)?
 - What are the 1-3 outputs your role is primarily judged on?
 
 **5. Tool Context**
+
 - What calendar tool do you use (Google Calendar, Outlook, Apple Calendar)?
 - Do you use any scheduling automation tools (Calendly, Reclaim.ai, Motion)?
 - Do you use a task manager alongside your calendar (Todoist, Notion, Linear, Asana)?
@@ -207,21 +215,22 @@ When delivering calendar optimization analysis, use this complete structure:
 
 ### Current State Assessment
 
-| Dimension              | Current Situation        | Target State             |
-|------------------------|--------------------------|--------------------------|
-| Meetings per week      | [X] hrs ([Y] meetings)   | [X] hrs ([Y] meetings)   |
-| Deep work per week     | [X] hrs                  | [X] hrs                  |
-| Admin/email per week   | [X] hrs                  | [X] hrs                  |
-| Back-to-back meetings  | [X] per week             | 0-2 per week             |
-| Meeting-free days      | [X] per week             | 1-2 per week             |
-| Unscheduled buffer     | [X] hrs/day              | 1-2 hrs/day              |
-| Calendar control level | [Shared/Personal/Mixed]  | --                        |
+| Dimension              | Current Situation       | Target State           |
+| ---------------------- | ----------------------- | ---------------------- |
+| Meetings per week      | [X] hrs ([Y] meetings)  | [X] hrs ([Y] meetings) |
+| Deep work per week     | [X] hrs                 | [X] hrs                |
+| Admin/email per week   | [X] hrs                 | [X] hrs                |
+| Back-to-back meetings  | [X] per week            | 0-2 per week           |
+| Meeting-free days      | [X] per week            | 1-2 per week           |
+| Unscheduled buffer     | [X] hrs/day             | 1-2 hrs/day            |
+| Calendar control level | [Shared/Personal/Mixed] | --                     |
 
 **Chronotype:** [Morning Lark / Afternoon Peak / Bi-phasic]
 **Peak energy hours:** [X AM -- X AM/PM]
 **Role type:** [IC / Team Lead / Manager / Executive / Solo]
 
 **Critical issues identified:**
+
 - [Issue 1 -- e.g., 23 hours/week in meetings with zero deep work mornings]
 - [Issue 2 -- e.g., 8 back-to-back meeting chains per week, no buffers]
 - [Issue 3 -- e.g., 0 meeting-free days per week]
@@ -230,27 +239,29 @@ When delivering calendar optimization analysis, use this complete structure:
 
 ### Meeting Audit Results
 
-| Meeting Name       | Frequency | Duration | Attendees | Verdict      | Recommended Action          |
-|--------------------|-----------|----------|-----------|--------------|------------------------------|
-| [Meeting 1]        | Weekly    | 60 min   | 12        | REPLACE      | Replace with async Loom + doc |
-| [Meeting 2]        | Daily     | 30 min   | 5         | OPTIMIZE     | Reduce to 15 min standup     |
-| [Meeting 3]        | Weekly    | 45 min   | 3         | KEEP         | Shorten to 25 min            |
-| [Meeting 4]        | Monthly   | 60 min   | 20        | DELEGATE     | Attend 15 min, send delegate |
+| Meeting Name | Frequency | Duration | Attendees | Verdict  | Recommended Action            |
+| ------------ | --------- | -------- | --------- | -------- | ----------------------------- |
+| [Meeting 1]  | Weekly    | 60 min   | 12        | REPLACE  | Replace with async Loom + doc |
+| [Meeting 2]  | Daily     | 30 min   | 5         | OPTIMIZE | Reduce to 15 min standup      |
+| [Meeting 3]  | Weekly    | 45 min   | 3         | KEEP     | Shorten to 25 min             |
+| [Meeting 4]  | Monthly   | 60 min   | 20        | DELEGATE | Attend 15 min, send delegate  |
 
 **Projected weekly time recovered:** [X hrs/week] = [X hrs/month]
 
 ---
 
 ### Ideal Week Template
-
 ```
+
          MONDAY          TUESDAY         WEDNESDAY       THURSDAY        FRIDAY
-8:00     [Block type]    [Block type]    [Block type]    [Block type]    [Block type]
-10:00    [Block type]    [Block type]    [Block type]    [Block type]    [Block type]
-12:00    LUNCH           LUNCH           LUNCH           LUNCH           LUNCH
-1:00     [Block type]    [Block type]    [Block type]    [Block type]    [Block type]
-3:00     [Block type]    [Block type]    [Block type]    [Block type]    [Block type]
-5:00     SHUTDOWN        SHUTDOWN        SHUTDOWN        SHUTDOWN        SHUTDOWN
+
+8:00 [Block type] [Block type] [Block type] [Block type] [Block type]
+10:00 [Block type] [Block type] [Block type] [Block type] [Block type]
+12:00 LUNCH LUNCH LUNCH LUNCH LUNCH
+1:00 [Block type] [Block type] [Block type] [Block type] [Block type]
+3:00 [Block type] [Block type] [Block type] [Block type] [Block type]
+5:00 SHUTDOWN SHUTDOWN SHUTDOWN SHUTDOWN SHUTDOWN
+
 ```
 
 Legend:
@@ -418,21 +429,22 @@ Standard energy-based scheduling frameworks assume relatively predictable daily 
 
 ### Current State Assessment
 
-| Dimension              | Current Situation               | Target State              |
-|------------------------|---------------------------------|---------------------------|
-| Meetings per week      | ~22 meetings (~20-22 hrs/wk)    | 15-18 meetings (~15 hrs)  |
-| Deep work per week     | ~2-4 hrs (evenings only)        | 8-10 hrs (mornings)       |
-| Admin/email per week   | Scattered/reactive              | 2 designated blocks/day   |
-| Back-to-back meetings  | Estimated 10-15 chains/week     | 0-3 per week              |
-| Meeting-free days      | 0 per week                      | 1 per week (minimum)      |
-| Unscheduled buffer     | Near zero                       | 60-90 min per day         |
-| Calendar control level | Shared (team + cross-functional)| Partially constrained     |
+| Dimension              | Current Situation                | Target State             |
+| ---------------------- | -------------------------------- | ------------------------ |
+| Meetings per week      | ~22 meetings (~20-22 hrs/wk)     | 15-18 meetings (~15 hrs) |
+| Deep work per week     | ~2-4 hrs (evenings only)         | 8-10 hrs (mornings)      |
+| Admin/email per week   | Scattered/reactive               | 2 designated blocks/day  |
+| Back-to-back meetings  | Estimated 10-15 chains/week      | 0-3 per week             |
+| Meeting-free days      | 0 per week                       | 1 per week (minimum)     |
+| Unscheduled buffer     | Near zero                        | 60-90 min per day        |
+| Calendar control level | Shared (team + cross-functional) | Partially constrained    |
 
 **Chronotype:** Morning Lark (peak 8 AM -- 12 PM)
 **Peak energy hours:** 8 AM -- 12 PM
 **Role type:** Engineering Manager, 6 direct reports
 
 **Critical issues identified:**
+
 1. Deep work has been entirely displaced to evenings -- this is unsustainable and is causing the 9-10 PM work pattern. Peak cognitive hours (mornings) are being consumed by meetings.
 2. At ~20-22 hrs/week of meetings, more than half the working day is already committed, leaving no protected time for strategic thinking, written communication, or code review.
 3. Zero meeting-free days means there is no structural recovery or concentrated focus window in the entire week.
@@ -442,20 +454,20 @@ Standard energy-based scheduling frameworks assume relatively predictable daily 
 
 ### Meeting Audit Results
 
-*Based on typical engineering manager meeting profile at a 200-person startup. Adjust based on your actual recurring list.*
+_Based on typical engineering manager meeting profile at a 200-person startup. Adjust based on your actual recurring list._
 
-| Meeting Type               | Freq    | Duration | Attendees | Verdict      | Recommended Action                                   |
-|----------------------------|---------|----------|-----------|--------------|------------------------------------------------------|
-| 1:1 with each direct report| Weekly  | 30 min   | 2         | KEEP/BATCH   | Keep, but batch all 6 on Tue + Thu afternoons        |
-| Engineering all-hands      | Weekly  | 60 min   | 20+       | OPTIMIZE     | Reduce to 30 min with async pre-read; biweekly       |
-| Cross-functional sync      | Weekly  | 60 min   | 8-12      | REPLACE      | Replace with async Notion doc + weekly async update  |
-| Sprint planning            | Biweekly| 90 min   | 10        | KEEP         | Keep; move to Tuesday morning 9-10:30 AM             |
-| Sprint retrospective       | Biweekly| 60 min   | 10        | OPTIMIZE     | Reduce to 45 min with structured async input pre-work|
-| Incident review            | Weekly  | 60 min   | 6-8       | OPTIMIZE     | Async post-mortem doc; only sync for Sev-1/Sev-2     |
-| Product/Eng sync           | Weekly  | 30 min   | 4         | KEEP/SHORTEN | Reduce to 20 min; use shared doc for async updates   |
-| Manager-of-managers sync   | Weekly  | 60 min   | 5         | KEEP         | Reduce to 45 min; ensure agenda shared 24 hrs ahead  |
-| Stakeholder check-ins      | Weekly  | 60 min   | 3-5       | REPLACE      | Monthly 30-min sync + async Loom update weekly       |
-| Ad-hoc requests            | Daily   | Variable | 2-5       | DEFEND       | Create booking link; minimum 24-hr notice required   |
+| Meeting Type                | Freq     | Duration | Attendees | Verdict      | Recommended Action                                    |
+| --------------------------- | -------- | -------- | --------- | ------------ | ----------------------------------------------------- |
+| 1:1 with each direct report | Weekly   | 30 min   | 2         | KEEP/BATCH   | Keep, but batch all 6 on Tue + Thu afternoons         |
+| Engineering all-hands       | Weekly   | 60 min   | 20+       | OPTIMIZE     | Reduce to 30 min with async pre-read; biweekly        |
+| Cross-functional sync       | Weekly   | 60 min   | 8-12      | REPLACE      | Replace with async Notion doc + weekly async update   |
+| Sprint planning             | Biweekly | 90 min   | 10        | KEEP         | Keep; move to Tuesday morning 9-10:30 AM              |
+| Sprint retrospective        | Biweekly | 60 min   | 10        | OPTIMIZE     | Reduce to 45 min with structured async input pre-work |
+| Incident review             | Weekly   | 60 min   | 6-8       | OPTIMIZE     | Async post-mortem doc; only sync for Sev-1/Sev-2      |
+| Product/Eng sync            | Weekly   | 30 min   | 4         | KEEP/SHORTEN | Reduce to 20 min; use shared doc for async updates    |
+| Manager-of-managers sync    | Weekly   | 60 min   | 5         | KEEP         | Reduce to 45 min; ensure agenda shared 24 hrs ahead   |
+| Stakeholder check-ins       | Weekly   | 60 min   | 3-5       | REPLACE      | Monthly 30-min sync + async Loom update weekly        |
+| Ad-hoc requests             | Daily    | Variable | 2-5       | DEFEND       | Create booking link; minimum 24-hr notice required    |
 
 **Projected weekly time recovered: 6-8 hrs/week** through consolidation, async replacements, and duration reduction.
 This is 3-4 hours returned to focused engineering management work and 3-4 hours returned to personal life.
@@ -463,33 +475,35 @@ This is 3-4 hours returned to focused engineering management work and 3-4 hours 
 ---
 
 ### Ideal Week Template
-
 ```
+
          MONDAY          TUESDAY         WEDNESDAY       THURSDAY        FRIDAY
-8:00     DEEP WORK       DEEP WORK       DEEP WORK       DEEP WORK       WEEKLY
-         Code review,    Strategic       (NO MEETINGS    Code review,    REVIEW +
-         architecture    writing,        ALL DAY)        architecture    Planning
-10:00    docs, RFC       planning        Deep Work       docs            (90 min)
-         review          continued       continued
 
-10:00    BUFFER (15m)    1:1 BLOCK       DEEP WORK       1:1 BLOCK       ADMIN
-                         (3x 1:1s,       continued       (3x 1:1s,       wrap-up
-10:15                    25 min each,                    25 min each,
-12:00                    back-to-back)                   back-to-back)
+8:00 DEEP WORK DEEP WORK DEEP WORK DEEP WORK WEEKLY
+Code review, Strategic (NO MEETINGS Code review, REVIEW +
+architecture writing, ALL DAY) architecture Planning
+10:00 docs, RFC planning Deep Work docs (90 min)
+review continued continued
 
-12:00    LUNCH           LUNCH           LUNCH           LUNCH           LUNCH
-1:00     (protected)     (protected)     (protected)     (protected)     (protected)
+10:00 BUFFER (15m) 1:1 BLOCK DEEP WORK 1:1 BLOCK ADMIN
+(3x 1:1s, continued (3x 1:1s, wrap-up
+10:15 25 min each, 25 min each,
+12:00 back-to-back) back-to-back)
 
-1:00     MEETINGS        MEETINGS        OPEN/FLEX       MEETINGS        ADMIN/
-         cross-func      Eng all-hands,  catch-up,       Sprint          Async
-3:00     syncs,          sprint          async           retro, PM       reviews
-         stakeholder     planning        responses       sync
-         check-ins
+12:00 LUNCH LUNCH LUNCH LUNCH LUNCH
+1:00 (protected) (protected) (protected) (protected) (protected)
 
-3:00     ADMIN           ADMIN           ADMIN           ADMIN           SHUTDOWN
-         Email,          Email,          Email,          Email,          RITUAL
-5:00     approvals,      approvals       Slack catch-up  approvals       (30 min)
-         Slack triage    Slack triage                    Slack triage
+1:00 MEETINGS MEETINGS OPEN/FLEX MEETINGS ADMIN/
+cross-func Eng all-hands, catch-up, Sprint Async
+3:00 syncs, sprint async retro, PM reviews
+stakeholder planning responses sync
+check-ins
+
+3:00 ADMIN ADMIN ADMIN ADMIN SHUTDOWN
+Email, Email, Email, Email, RITUAL
+5:00 approvals, approvals Slack catch-up approvals (30 min)
+Slack triage Slack triage Slack triage
+
 ```
 
 Key decisions in this design:

@@ -6,7 +6,7 @@ As of: 2026-05-16
 
 ## When to use
 
-Use any time a user asks "are people sticking?", "what does retention look like?", "what's our churn?", "what's the magic moment in the product?", or makes growth claims that ignore the leaky bucket underneath. Use *before* recommending acquisition spend — if retention is broken, acquisition is throwing fuel into a hole.
+Use any time a user asks "are people sticking?", "what does retention look like?", "what's our churn?", "what's the magic moment in the product?", or makes growth claims that ignore the leaky bucket underneath. Use _before_ recommending acquisition spend — if retention is broken, acquisition is throwing fuel into a hole.
 
 Trigger phrases:
 
@@ -20,9 +20,9 @@ If a cohort definition and a current retention curve are already in `TEAM_MEMORY
 
 ## Procedure
 
-**1. Define the cohort precisely.** A cohort is a group joined by a shared event in a shared window. Three parts: the *joining event* (signup, first purchase, first paid week), the *window* (week-of, month-of), the *segment* (channel, tier — only if volume supports it). One sentence. Ambiguous cohort definitions ruin every chart downstream.
+**1. Define the cohort precisely.** A cohort is a group joined by a shared event in a shared window. Three parts: the _joining event_ (signup, first purchase, first paid week), the _window_ (week-of, month-of), the _segment_ (channel, tier — only if volume supports it). One sentence. Ambiguous cohort definitions ruin every chart downstream.
 
-**2. Build the retention curve, not the rate.** Retention is a curve, not a number. Plot the percentage of the cohort that performed the *retained behavior* in week 1, 2, 4, 8. Shape matters more than level: a curve that flattens shows a stable retained core; one that keeps declining shows there is no core yet. Refuse to report retention as one number — show the curve, or at minimum W1 / W4 / W8 anchors.
+**2. Build the retention curve, not the rate.** Retention is a curve, not a number. Plot the percentage of the cohort that performed the _retained behavior_ in week 1, 2, 4, 8. Shape matters more than level: a curve that flattens shows a stable retained core; one that keeps declining shows there is no core yet. Refuse to report retention as one number — show the curve, or at minimum W1 / W4 / W8 anchors.
 
 **3. Pick the retained behavior on purpose.** "Logged in" is rarely it. The retained behavior is the action that correlates with long-term value — repeated use of the core feature, repeat purchase, paid renewal, content consumed beyond onboarding. If a teammate has not named it, that is the first decision; lock it in `TEAM_MEMORY.md` before computing.
 
@@ -53,7 +53,9 @@ If a cohort definition and a current retention curve are already in `TEAM_MEMORY
 **Brief:** "What's our retention?"
 
 **Before** (single number, no curve):
-> *Our retention is about 35%.*
+
+> _Our retention is about 35%._
 
 **After** (definition + curve + magic-moment work):
-> *Cohort: signups in week of March 9, 2026. Retained behavior: created ≥1 core artifact. W1 62% (n=910/1,470), W4 38% (n=559), W8 31% (n=456). Flattening between W4 and W8 suggests a retained core forming. Magic-moment candidate: created ≥3 artifacts in first 7 days — 78% W8-retained vs. 19% of those who created fewer. Needs validation on March 16 cohort before any activation build. Stamping to TEAM_MEMORY. Recheck in 8 weeks.*
+
+> _Cohort: signups in week of March 9, 2026. Retained behavior: created ≥1 core artifact. W1 62% (n=910/1,470), W4 38% (n=559), W8 31% (n=456). Flattening between W4 and W8 suggests a retained core forming. Magic-moment candidate: created ≥3 artifacts in first 7 days — 78% W8-retained vs. 19% of those who created fewer. Needs validation on March 16 cohort before any activation build. Stamping to TEAM_MEMORY. Recheck in 8 weeks._

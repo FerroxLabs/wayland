@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml testing guide"
-  category: "ai-machine-learning"
-  subcategory: "ml-fundamentals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml testing guide'
+  category: 'ai-machine-learning'
+  subcategory: 'ml-fundamentals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Model Evaluator
@@ -51,15 +51,15 @@ def classification_report_full(y_true, y_pred, y_prob=None) -> dict:
 
 ### Metric Selection Guide
 
-| Metric | When to Use | Sensitive To |
-|--------|-------------|-------------|
-| Accuracy | Balanced classes only | Class imbalance |
-| Precision | Cost of false positives is high | Threshold selection |
-| Recall | Cost of false negatives is high | Threshold selection |
-| F1 Score | Balance precision and recall | Threshold selection |
-| AUC-ROC | Overall ranking ability | Not threshold-dependent |
-| Average Precision | Imbalanced classes, ranking | Class distribution |
-| Cohen's Kappa | Agreement beyond chance | None |
+| Metric            | When to Use                     | Sensitive To            |
+| ----------------- | ------------------------------- | ----------------------- |
+| Accuracy          | Balanced classes only           | Class imbalance         |
+| Precision         | Cost of false positives is high | Threshold selection     |
+| Recall            | Cost of false negatives is high | Threshold selection     |
+| F1 Score          | Balance precision and recall    | Threshold selection     |
+| AUC-ROC           | Overall ranking ability         | Not threshold-dependent |
+| Average Precision | Imbalanced classes, ranking     | Class distribution      |
+| Cohen's Kappa     | Agreement beyond chance         | None                    |
 
 ### Decision Framework
 
@@ -182,13 +182,13 @@ def regression_report(y_true, y_pred) -> dict:
 
 ### Metric Interpretation
 
-| Metric | Range | Interpretation |
-|--------|-------|---------------|
-| MAE | [0, inf) | Average absolute error in original units |
-| RMSE | [0, inf) | Penalizes large errors more than MAE |
-| R2 | (-inf, 1] | 1 = perfect; 0 = predicts mean; <0 = worse than mean |
-| MAPE | [0, inf) | Percentage error (avoid when y has zeros) |
-| Median AE | [0, inf) | Robust to outliers |
+| Metric    | Range     | Interpretation                                       |
+| --------- | --------- | ---------------------------------------------------- |
+| MAE       | [0, inf)  | Average absolute error in original units             |
+| RMSE      | [0, inf)  | Penalizes large errors more than MAE                 |
+| R2        | (-inf, 1] | 1 = perfect; 0 = predicts mean; <0 = worse than mean |
+| MAPE      | [0, inf)  | Percentage error (avoid when y has zeros)            |
+| Median AE | [0, inf)  | Robust to outliers                                   |
 
 ### Residual Analysis
 
@@ -348,13 +348,13 @@ def compute_fairness_metrics(
 
 ### Fairness Metric Definitions
 
-| Metric | Definition | Fair When |
-|--------|-----------|-----------|
-| Demographic Parity | Selection rate ratio across groups | Ratio between 0.8-1.25 |
-| Equal Opportunity | True positive rate ratio | Ratio between 0.8-1.25 |
-| Equalized Odds | TPR and FPR equal across groups | Both ratios near 1.0 |
-| Predictive Parity | Positive predictive value equal | Ratio between 0.8-1.25 |
-| Calibration | P(Y=1 given score=s) same across groups | Calibration curves overlap |
+| Metric             | Definition                              | Fair When                  |
+| ------------------ | --------------------------------------- | -------------------------- |
+| Demographic Parity | Selection rate ratio across groups      | Ratio between 0.8-1.25     |
+| Equal Opportunity  | True positive rate ratio                | Ratio between 0.8-1.25     |
+| Equalized Odds     | TPR and FPR equal across groups         | Both ratios near 1.0       |
+| Predictive Parity  | Positive predictive value equal         | Ratio between 0.8-1.25     |
+| Calibration        | P(Y=1 given score=s) same across groups | Calibration curves overlap |
 
 ### Subgroup Analysis
 
@@ -473,6 +473,7 @@ def generate_scoring_report(
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing model evaluator solutions
 - Reviewing or improving existing model evaluator approaches
 - Making architectural or implementation decisions about model evaluator
@@ -480,6 +481,7 @@ def generate_scoring_report(
 - Troubleshooting model evaluator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -490,21 +492,26 @@ def generate_scoring_report(
 # Model Evaluator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

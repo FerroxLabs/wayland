@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts guide research"
-  category: "legal-civic"
-  subcategory: "business-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts guide research'
+  category: 'legal-civic'
+  subcategory: 'business-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Employment Law Basics
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to understand whether they are an at-will employee and what exceptions to at-will employment might protect them
 - The user suspects they are misclassified as an independent contractor when their working relationship looks more like employment
 - The user has questions about overtime eligibility, minimum wage, unpaid wages, or whether their pay practices comply with the FLSA
@@ -31,6 +33,7 @@ metadata:
 - The user is preparing questions and background knowledge for a consultation with an employment attorney and wants to arrive informed
 
 **Do NOT use when:**
+
 - The user wants to review a specific employment contract, offer letter, or severance agreement -- use `employment-contract-reader` for document-specific analysis
 - The user is ready to file an EEOC or state agency complaint and needs step-by-step procedural guidance -- that process requires jurisdiction-specific procedural knowledge and attorney assistance
 - The user is an employer, HR professional, or business owner seeking compliance guidance -- the legal framework, incentives, and obligations are fundamentally different from the employee perspective
@@ -61,6 +64,7 @@ Use the answers to focus the explanation. Do not dump all employment law topics 
 Employment law operates in layers. For every issue, identify which laws potentially apply before explaining them:
 
 **Federal floor -- applies nationwide to qualifying employers:**
+
 - FLSA (Fair Labor Standards Act): Minimum wage, overtime, child labor -- applies to virtually all employers with $500,000+ in annual revenue or engaged in interstate commerce (which covers nearly every commercial employer)
 - Title VII of the Civil Rights Act: Race, color, national origin, sex (including pregnancy, gender identity, sexual orientation per Bostock v. Clayton County, 2020), religion -- employers with **15+ employees**
 - ADA (Americans with Disabilities Act): Disability discrimination and reasonable accommodation -- employers with **15+ employees**
@@ -71,6 +75,7 @@ Employment law operates in layers. For every issue, identify which laws potentia
 - OSHA: Workplace safety -- most private sector employers regardless of size
 
 **State law -- often provides stronger protections:**
+
 - Many states extend anti-discrimination protections to smaller employers (e.g., New York covers employers with **4+ employees** for most protections)
 - California, New York, Washington, and Massachusetts have significantly higher salary thresholds for overtime exemption and broader leave entitlements
 - Some states add protected categories: marital status, political activity, source of income, credit history, criminal history (ban-the-box laws), gender expression, weight/height
@@ -110,6 +115,7 @@ The at-will doctrine is widely misunderstood -- both overestimated by employers 
 Misclassification is among the most litigated and financially significant employment law issues. Workers misclassified as independent contractors may be owed back wages, overtime, employee benefits, and employers face tax liability plus penalties.
 
 **Why classification matters:**
+
 - Employees receive: federal minimum wage, FLSA overtime, workers' compensation insurance, unemployment insurance, employer portion of FICA taxes (7.65%), anti-discrimination protections, FMLA eligibility, ADA reasonable accommodation
 - Independent contractors receive none of these by default; they pay self-employment tax (15.3%) on the full amount of income
 
@@ -117,14 +123,16 @@ Misclassification is among the most litigated and financially significant employ
 
 **IRS 3-Category Test (for federal tax purposes):**
 The IRS uses three broad categories with roughly 20 sub-factors:
-- *Behavioral control:* Does the company control how the work is done (not just the result)? Does it set work hours, dictate methods, require specific tools, provide training?
-- *Financial control:* Does the worker have significant unreimbursed business expenses? Is the worker available to work for multiple clients simultaneously? Did the worker make a significant investment in tools or facilities? Can the worker realize a profit or loss?
-- *Type of relationship:* Is there a written contract calling it a contractor relationship? Are benefits provided? Is the relationship indefinite or project-based? Is the work performed a key aspect of the employer's regular business?
+
+- _Behavioral control:_ Does the company control how the work is done (not just the result)? Does it set work hours, dictate methods, require specific tools, provide training?
+- _Financial control:_ Does the worker have significant unreimbursed business expenses? Is the worker available to work for multiple clients simultaneously? Did the worker make a significant investment in tools or facilities? Can the worker realize a profit or loss?
+- _Type of relationship:_ Is there a written contract calling it a contractor relationship? Are benefits provided? Is the relationship indefinite or project-based? Is the work performed a key aspect of the employer's regular business?
 
 No single factor is determinative. The IRS weighs the overall picture.
 
 **DOL Economic Reality Test (for FLSA purposes):**
 The Department of Labor uses an "economic reality" framework asking whether the worker is economically dependent on the employer or genuinely in business for themselves:
+
 1. Is the work integral to the employer's business?
 2. Does the worker have opportunity for profit or loss based on managerial skill?
 3. Has the worker made investment in facilities and equipment?
@@ -136,6 +144,7 @@ In 2024, the DOL revised its economic reality rule, restoring a multi-factor tot
 
 **ABC Test (used for various purposes in California, New Jersey, Massachusetts, Connecticut, Vermont, and others):**
 This is the most worker-protective test. Workers are presumed to be employees unless the hiring entity proves ALL THREE of:
+
 - **(A)** The worker is free from the control and direction of the hiring entity in connection with the performance of the work, under the contract and in fact
 - **(B)** The worker performs work that is outside the usual course of the hiring entity's business
 - **(C)** The worker is customarily engaged in an independently established trade, occupation, or business of the same nature as the work performed
@@ -145,6 +154,7 @@ The B prong is particularly powerful -- a programmer hired by a software company
 **California's special framework (AB 5):** California codified the ABC test in 2019 via AB 5, then amended it with AB 2257 to create dozens of industry-specific exemptions (doctors, lawyers, licensed insurance agents, real estate agents, etc.). California workers should consult a California employment attorney because the carve-outs are complex.
 
 **If misclassification is suspected:**
+
 - Workers can file a Form SS-8 with the IRS requesting a determination of worker status
 - Workers can file a complaint with the DOL Wage and Hour Division
 - Many states have their own administrative complaint processes
@@ -155,6 +165,7 @@ The B prong is particularly powerful -- a programmer hired by a software company
 **Federal minimum wage:** $7.25/hour since 2009. Many states and cities have set substantially higher minimums. As of recent years, examples include: California ($16/hour statewide, higher in some cities), New York ($16/hour in NYC/Long Island/Westchester, $15/hour elsewhere), Washington ($16.28/hour), Massachusetts ($15/hour). Always verify the current rate for the specific jurisdiction -- these figures change annually in many states.
 
 **FLSA overtime mechanics:**
+
 - Overtime rate is 1.5x the employee's "regular rate of pay" for all hours worked over 40 in a workweek
 - The workweek is any fixed, regularly recurring 168-hour period -- employers set the workweek but must maintain it consistently
 - The "regular rate" is not simply the hourly wage -- it must include most additional compensation: non-discretionary bonuses, shift differentials, commissions. Purely discretionary bonuses, gifts, and certain expense reimbursements are excluded.
@@ -165,12 +176,14 @@ The B prong is particularly powerful -- a programmer hired by a software company
 
 Both the salary basis test AND the duties test must be met for an exemption to apply:
 
-*Salary basis test (current federal threshold):*
+_Salary basis test (current federal threshold):_
+
 - White collar exemptions: $684/week ($35,568/year) -- note this threshold was subject to a DOL rulemaking in 2024 that attempted to raise it significantly; verify the current operative threshold as litigation affected implementation
 - Highly compensated employees (HCE) exemption: $107,432/year total annual compensation (with at least $684/week paid on salary or fee basis)
 - Several states have higher salary thresholds: California requires $1,240/week ($64,480/year for 2024), Washington requires $1,302.40/week ($67,724.80/year for 2024), New York requires $1,200/week in New York City and Long Island/Westchester, $1,124.20/week elsewhere
 
-*Duties tests (the five white-collar exemptions):*
+_Duties tests (the five white-collar exemptions):_
+
 - **Executive exemption:** Primary duty is managing the enterprise or a recognized department; regularly directs the work of 2+ full-time employees (or equivalent); has authority to hire/fire or whose recommendations are given particular weight
 - **Administrative exemption:** Primary duty is office/non-manual work directly related to management or general business operations; primary duty includes the exercise of discretion and independent judgment with respect to matters of significance. This is the most litigated exemption -- the "discretion and independent judgment" requirement is frequently misapplied.
 - **Professional exemption:** Primary duty is work requiring advanced knowledge in a field of science or learning customarily acquired by a prolonged course of specialized intellectual instruction (learned professional), OR primary duty is work requiring invention, imagination, originality, or talent in a recognized field of artistic or creative endeavor (creative professional)
@@ -178,6 +191,7 @@ Both the salary basis test AND the duties test must be met for an exemption to a
 - **Outside sales exemption:** Primary duty is making sales or obtaining orders; customarily and regularly works away from the employer's place of business. No salary requirement for this exemption.
 
 **Common FLSA violations to flag:**
+
 - "Off the clock" work: Pre-shift duties (opening procedures, booting up systems, putting on required safety equipment) and post-shift duties (closing procedures, filing required reports) may be compensable work time
 - "Donning and doffing" specialized equipment: Putting on and taking off certain protective gear at the beginning and end of shifts may be compensable (varies based on whether time is de minimis and whether it is integral to the job)
 - Improper meal period deductions: A meal break is only non-compensable if the employee is completely relieved of duties for the entire break period (DOL minimum is 30 minutes for a bona fide meal period). If an employee is required to stay at their workstation, remain on-call, or handle tasks during a "break," it is likely compensable time.
@@ -188,6 +202,7 @@ Both the salary basis test AND the duties test must be met for an exemption to a
 **FLSA recordkeeping:** Employers must maintain time and pay records for non-exempt employees for 3 years. Employees should keep their own records -- personal time logs, screenshots of scheduling systems, saved pay stubs -- because in FLSA litigation, if an employer's records are inadequate, the employee's records or testimony can be used to establish hours worked, and the burden shifts to the employer to disprove the employee's evidence.
 
 **Statute of limitations for wage claims:**
+
 - FLSA: 2 years for non-willful violations; 3 years for willful violations. Willfulness is defined as knowing or reckless disregard for FLSA requirements -- courts examine whether the employer took affirmative steps to verify compliance.
 - State wage laws often provide longer windows: California allows 3 years for Labor Code violations and up to 4 years under the Unfair Competition Law; New York allows 6 years under its Labor Law; Illinois allows 3 years.
 - Filing under state law may allow recovery of more back wages than the FLSA alone.
@@ -196,17 +211,18 @@ Both the salary basis test AND the duties test must be met for an exemption to a
 
 **Protected characteristics under federal law:**
 
-| Statute | Protected Characteristics | Employer Size Threshold |
-|---------|--------------------------|------------------------|
-| Title VII (1964) | Race, color, national origin, sex (including pregnancy per PDA 1978; gender identity and sexual orientation per Bostock 2020), religion | 15+ employees |
-| ADEA (1967) | Age 40 and over | 20+ employees |
-| ADA (1990) | Physical and mental disability | 15+ employees |
-| Equal Pay Act (1963) | Sex (in compensation for equal work) | All employers |
-| GINA (2008) | Genetic information (including family medical history) | 15+ employees |
-| Title II of ADA / Rehabilitation Act | Disability (federal contractors, government entities) | Varies |
-| PWFA (2023) | Pregnancy, childbirth, and related medical conditions (reasonable accommodations specifically) | 15+ employees |
+| Statute                              | Protected Characteristics                                                                                                               | Employer Size Threshold |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Title VII (1964)                     | Race, color, national origin, sex (including pregnancy per PDA 1978; gender identity and sexual orientation per Bostock 2020), religion | 15+ employees           |
+| ADEA (1967)                          | Age 40 and over                                                                                                                         | 20+ employees           |
+| ADA (1990)                           | Physical and mental disability                                                                                                          | 15+ employees           |
+| Equal Pay Act (1963)                 | Sex (in compensation for equal work)                                                                                                    | All employers           |
+| GINA (2008)                          | Genetic information (including family medical history)                                                                                  | 15+ employees           |
+| Title II of ADA / Rehabilitation Act | Disability (federal contractors, government entities)                                                                                   | Varies                  |
+| PWFA (2023)                          | Pregnancy, childbirth, and related medical conditions (reasonable accommodations specifically)                                          | 15+ employees           |
 
 **Types of discrimination -- important to distinguish:**
+
 - **Disparate treatment:** Intentional discrimination. The employer treated the employee differently because of a protected characteristic. Proven through direct evidence (discriminatory statements) or circumstantial evidence using the McDonnell Douglas burden-shifting framework: employee establishes a prima facie case → employer articulates a legitimate, nondiscriminatory reason → employee demonstrates the reason is pretextual.
 - **Disparate impact:** A facially neutral policy or practice has a disproportionate adverse effect on a protected group, and the employer cannot demonstrate business necessity. Classic example: a minimum height requirement that screens out more women and Asians proportionally than white men, without being job-related.
 - **Hostile work environment:** Harassment based on a protected characteristic that is severe or pervasive enough to alter the conditions of employment and create an abusive working environment. Two key dimensions: severity (a single extremely serious incident can suffice) OR pervasiveness (a pattern of less severe incidents can cumulatively create a hostile environment). The conduct must be both objectively hostile (a reasonable person standard) and subjectively perceived as hostile by the victim.
@@ -225,6 +241,7 @@ Before filing a federal civil lawsuit under Title VII, ADEA, ADA, or GINA, an em
 
 **Retaliation protections -- among the strongest protections in employment law:**
 Retaliation claims are now the most frequently filed claim type at the EEOC, exceeding race and sex discrimination claims. Federal anti-discrimination statutes all contain anti-retaliation provisions. Key points:
+
 - Protected activity includes: filing an EEOC charge, participating in an EEOC investigation or proceeding, opposing unlawful discrimination (making an internal complaint, reporting to a supervisor), requesting reasonable accommodation, filing a workers' compensation claim, taking FMLA leave, reporting OSHA violations, refusing to participate in illegal activity
 - An adverse action is retaliation if it would dissuade a reasonable employee from engaging in protected activity. This extends beyond termination to include: demotions, pay cuts, reduced hours, unfavorable schedule changes, lateral transfers to less desirable positions, increased scrutiny, negative performance reviews issued shortly after protected activity, exclusion from meetings, and changes to job duties.
 - **Temporal proximity** between the protected activity and the adverse action is the most common circumstantial evidence of retaliation. Courts look at whether the timing is "very close" -- generally within a few weeks, though longer gaps combined with other evidence can also support a retaliation claim.
@@ -233,27 +250,30 @@ Retaliation claims are now the most frequently filed claim type at the EEOC, exc
 ### Step 7: Explain Specific Statutory Rights Often Confused
 
 **FMLA in detail:**
-- *Employer coverage:* 50+ employees within 75 miles of the employee's worksite for 20 or more workweeks in the current or preceding calendar year
-- *Employee eligibility:* Worked for the employer for at least 12 months (not necessarily consecutive); worked at least 1,250 hours during the 12 months preceding the leave; works at a location where the employer has 50+ employees within 75 miles
-- *Leave entitlements:* 12 workweeks per year for: birth/adoption/foster placement of a child; serious health condition of the employee; serious health condition of a spouse, child, or parent; qualifying military exigencies. 26 weeks for military caregiver leave.
-- *Leave can be intermittent:* Employees can take FMLA leave in blocks as small as one hour if medically necessary. Employers cannot penalize attendance for FMLA-qualifying absences.
-- *Job protection:* Employee must be restored to the same or an equivalent position upon return. Equivalent means: same pay, benefits, shift, schedule, location, and substantially similar duties and responsibilities.
-- *Notice requirements:* Employee must provide 30 days advance notice when the need is foreseeable; when not foreseeable, as soon as practicable (same day or next business day). The employee does not need to invoke the magic words "FMLA" -- they need only provide enough information for the employer to recognize the leave may be FMLA-qualifying.
-- *Medical certification:* Employers can require medical certification within 15 calendar days. They can require second and third opinions (at employer expense) and recertification under certain conditions.
-- *State analogs:* California (CFRA), New York (NYPFL), New Jersey (NJFLA), Oregon, Washington, Massachusetts, and others have state leave laws that may apply to smaller employers, cover a broader range of family members, or provide paid leave benefits. State leave laws often run concurrently with FMLA.
+
+- _Employer coverage:_ 50+ employees within 75 miles of the employee's worksite for 20 or more workweeks in the current or preceding calendar year
+- _Employee eligibility:_ Worked for the employer for at least 12 months (not necessarily consecutive); worked at least 1,250 hours during the 12 months preceding the leave; works at a location where the employer has 50+ employees within 75 miles
+- _Leave entitlements:_ 12 workweeks per year for: birth/adoption/foster placement of a child; serious health condition of the employee; serious health condition of a spouse, child, or parent; qualifying military exigencies. 26 weeks for military caregiver leave.
+- _Leave can be intermittent:_ Employees can take FMLA leave in blocks as small as one hour if medically necessary. Employers cannot penalize attendance for FMLA-qualifying absences.
+- _Job protection:_ Employee must be restored to the same or an equivalent position upon return. Equivalent means: same pay, benefits, shift, schedule, location, and substantially similar duties and responsibilities.
+- _Notice requirements:_ Employee must provide 30 days advance notice when the need is foreseeable; when not foreseeable, as soon as practicable (same day or next business day). The employee does not need to invoke the magic words "FMLA" -- they need only provide enough information for the employer to recognize the leave may be FMLA-qualifying.
+- _Medical certification:_ Employers can require medical certification within 15 calendar days. They can require second and third opinions (at employer expense) and recertification under certain conditions.
+- _State analogs:_ California (CFRA), New York (NYPFL), New Jersey (NJFLA), Oregon, Washington, Massachusetts, and others have state leave laws that may apply to smaller employers, cover a broader range of family members, or provide paid leave benefits. State leave laws often run concurrently with FMLA.
 
 **Whistleblower protections -- key federal statutes:**
-- *Sarbanes-Oxley (SOX):* Protects employees of publicly traded companies and their subsidiaries and contractors who report violations of SEC rules, mail fraud, wire fraud, bank fraud, or securities fraud. Complaints filed with OSHA within **180 days** of the retaliation. Remedies include reinstatement, back pay, and attorneys' fees.
-- *Dodd-Frank Act:* Protects employees who report securities law violations to the SEC. No OSHA filing required -- can go directly to SEC. Includes a financial rewards program: 10-30% of monetary sanctions over $1 million collected by the SEC. Six-year statute of limitations from the retaliation, or three years from when the employee knew or reasonably should have known of the retaliation (capped at 10 years).
-- *False Claims Act (qui tam):* Employees who report fraud on federal government contracts can file suit on behalf of the government and receive 15-30% of recovered funds. Anti-retaliation protection for employees who assist in an FCA investigation.
-- *OSHA Section 11(c):* Protects employees who report workplace safety and health violations. 30-day filing deadline with OSHA -- one of the shortest whistleblower deadlines in federal law.
-- *State whistleblower statutes:* California Labor Code Section 1102.5 (among the broadest -- covers reporting any federal, state, or local law violation to any government agency or internally), New York Labor Law Section 740, and many other states provide additional protections.
+
+- _Sarbanes-Oxley (SOX):_ Protects employees of publicly traded companies and their subsidiaries and contractors who report violations of SEC rules, mail fraud, wire fraud, bank fraud, or securities fraud. Complaints filed with OSHA within **180 days** of the retaliation. Remedies include reinstatement, back pay, and attorneys' fees.
+- _Dodd-Frank Act:_ Protects employees who report securities law violations to the SEC. No OSHA filing required -- can go directly to SEC. Includes a financial rewards program: 10-30% of monetary sanctions over $1 million collected by the SEC. Six-year statute of limitations from the retaliation, or three years from when the employee knew or reasonably should have known of the retaliation (capped at 10 years).
+- _False Claims Act (qui tam):_ Employees who report fraud on federal government contracts can file suit on behalf of the government and receive 15-30% of recovered funds. Anti-retaliation protection for employees who assist in an FCA investigation.
+- _OSHA Section 11(c):_ Protects employees who report workplace safety and health violations. 30-day filing deadline with OSHA -- one of the shortest whistleblower deadlines in federal law.
+- _State whistleblower statutes:_ California Labor Code Section 1102.5 (among the broadest -- covers reporting any federal, state, or local law violation to any government agency or internally), New York Labor Law Section 740, and many other states provide additional protections.
 
 ### Step 8: Provide Concrete Action Steps and Documentation Guidance
 
 After explaining the relevant law, always translate the information into practical next steps:
 
 **Documentation the user should immediately preserve:**
+
 - Any written communications (emails, texts, chat messages, Slack, Teams) related to the issue -- download/export and save to personal (non-company) storage immediately; company systems may be revoked upon termination
 - Performance reviews and any prior positive feedback (contradicts sudden termination for "poor performance" after a complaint)
 - Pay stubs, direct deposit records, W-2s, and 1099s
@@ -263,6 +283,7 @@ After explaining the relevant law, always translate the information into practic
 - Documentation of medical care sought if physical or mental health was affected
 
 **Key questions to ask an employment attorney:**
+
 - What laws apply to my specific situation given my state, employer size, and employment classification?
 - Do I have claims worth pursuing, and what is the likely range of outcomes?
 - What are the relevant filing deadlines I need to meet?
@@ -457,26 +478,27 @@ Third-party witnesses have rights and obligations in discrimination matters that
 ---
 
 ### Your Situation Summary
-| Factor | Detail |
-|--------|--------|
-| Employment type | Full-time employee (customer service representative) |
-| State of work | Not specified -- jurisdiction will affect state law analysis |
-| Employer size | Call center (likely 15+ employees -- verify; Title VII threshold matters) |
-| Duration of employment | 3 years (well beyond FMLA's 12-month threshold if applicable) |
-| Written agreements | Unknown -- ask about employee handbook, arbitration agreement |
-| Core issue | Racial harassment by supervisor over 8 months; HR complaint filed; PIP issued 2 weeks later |
+
+| Factor                 | Detail                                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| Employment type        | Full-time employee (customer service representative)                                        |
+| State of work          | Not specified -- jurisdiction will affect state law analysis                                |
+| Employer size          | Call center (likely 15+ employees -- verify; Title VII threshold matters)                   |
+| Duration of employment | 3 years (well beyond FMLA's 12-month threshold if applicable)                               |
+| Written agreements     | Unknown -- ask about employee handbook, arbitration agreement                               |
+| Core issue             | Racial harassment by supervisor over 8 months; HR complaint filed; PIP issued 2 weeks later |
 
 ---
 
 ### Applicable Legal Framework
 
-| Law / Protection | Threshold Met? | Relevance to Your Situation |
-|-----------------|---------------|----------------------------|
-| Title VII -- Race discrimination | Likely yes (verify 15+ employees) | Prohibits race-based hostile work environment and retaliation for complaints |
-| 42 U.S.C. § 1981 | Yes -- applies to all employers regardless of size | Prohibits race discrimination in employment contracts; no EEOC exhaustion required; 4-year SOL |
-| State anti-discrimination law | Verify -- often covers smaller employers and may have additional protections | Many states add categories and lower employer-size thresholds |
-| Title VII anti-retaliation | Likely yes | Prohibits adverse action against employees who oppose discrimination |
-| FLSA | Yes | No wage/hour issues identified, but relevant to employment status |
+| Law / Protection                 | Threshold Met?                                                               | Relevance to Your Situation                                                                    |
+| -------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Title VII -- Race discrimination | Likely yes (verify 15+ employees)                                            | Prohibits race-based hostile work environment and retaliation for complaints                   |
+| 42 U.S.C. § 1981                 | Yes -- applies to all employers regardless of size                           | Prohibits race discrimination in employment contracts; no EEOC exhaustion required; 4-year SOL |
+| State anti-discrimination law    | Verify -- often covers smaller employers and may have additional protections | Many states add categories and lower employer-size thresholds                                  |
+| Title VII anti-retaliation       | Likely yes                                                                   | Prohibits adverse action against employees who oppose discrimination                           |
+| FLSA                             | Yes                                                                          | No wage/hour issues identified, but relevant to employment status                              |
 
 ---
 
@@ -496,4 +518,5 @@ Retaliation under Title VII requires: (1) protected activity -- making an intern
 ### Your Rights in This Situation
 
 **What the law generally provides:**
+
 - Under Title VII (assuming your employer has 15+ employees), you have the

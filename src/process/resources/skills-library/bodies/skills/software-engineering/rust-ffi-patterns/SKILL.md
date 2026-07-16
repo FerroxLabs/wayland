@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "rust best-practices advanced"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'rust best-practices advanced'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Rust FFI Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to call C or C++ functions from Rust, or expose Rust functions to C/C++ callers, and needs guidance on `extern "C"` declarations, ABI stability, and data layout
 - The user is integrating Rust into an existing C/C++ codebase (partial rewrite, plugin system, embedded library) and needs to design the boundary layer
 - The user asks about using `bindgen` to generate Rust bindings from C headers, or `cbindgen` to generate C headers from Rust code
@@ -29,6 +31,7 @@ metadata:
 - The user is debugging undefined behavior, alignment faults, or segfaults in Rust code that interoperates with C
 
 **Do NOT use this skill when:**
+
 - The user asks about Rust ownership semantics in pure Rust code -- use `rust-ownership-patterns` instead
 - The user asks about optimizing Rust performance unrelated to FFI boundaries -- use `rust-performance` instead
 - The user is setting up a new Rust project from scratch without FFI requirements -- use `rust-project-setup` instead
@@ -314,19 +317,20 @@ The `sys` crate generates bindings from a specific header at build time. If the 
 
 ### FFI Boundary Analysis
 
-| Aspect             | Detail                                                                         |
-|--------------------|--------------------------------------------------------------------------------|
-| Call Direction     | Rust → C                                                                       |
-| Ownership Model    | All buffers caller-allocated; libsodium reads/writes in-place, no heap alloc  |
-| Thread Safety      | Safe -- libsodium is fully thread-safe after `sodium_init()`                  |
-| Error Convention   | Return code: 0 on success, -1 on failure (authentication failure)              |
-| Types at Boundary  | `*const u8`/`*mut u8` for byte buffers, `c_ulonglong` for lengths             |
+| Aspect            | Detail                                                                       |
+| ----------------- | ---------------------------------------------------------------------------- |
+| Call Direction    | Rust → C                                                                     |
+| Ownership Model   | All buffers caller-allocated; libsodium reads/writes in-place, no heap alloc |
+| Thread Safety     | Safe -- libsodium is fully thread-safe after `sodium_init()`                 |
+| Error Convention  | Return code: 0 on success, -1 on failure (authentication failure)            |
+| Types at Boundary | `*const u8`/`*mut u8` for byte buffers, `c_ulonglong` for lengths            |
 
 ---
 
 ### Step 1: The `libsodium-sys` Crate
 
 **Cargo.toml:**
+
 ```toml
 [package]
 name = "libsodium-sys"
@@ -341,6 +345,7 @@ libc = "0.2"
 ```
 
 **build.rs:**
+
 ```rust
 fn main() {
     // Tell Cargo to re-run if the header changes.
@@ -372,11 +377,13 @@ fn main() {
 ```
 
 **wrapper.h:**
+
 ```c
 #include <sodium.h>
 ```
 
 **src/lib.rs (sys crate):**
+
 ```rust
 #![allow(non_camel_case_types, non_snake_case, dead_code, non_upper_case_globals)]
 
@@ -388,6 +395,7 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 ### Step 2: The Safe Wrapper Crate
 
 **Cargo.toml:**
+
 ```toml
 [package]
 name = "libsodium"
@@ -402,6 +410,7 @@ panic = "abort"   # Prevents panic unwinding across FFI boundaries.
 ```
 
 **src/lib.rs:**
+
 ```rust
 //! Safe Rust bindings for libsodium secret-key authenticated encryption.
 
@@ -635,12 +644,12 @@ mod tests {
 
 ### Memory Ownership Table
 
-| Object               | Allocated By    | Freed By        | Rust Mechanism                   |
-|----------------------|-----------------|-----------------|----------------------------------|
-| `SecretBox`          | Rust (`Box`)    | Rust (`Drop`)   | Implicit via RAII                |
-| `SecretKey` bytes    | Rust (stack)    | Rust (`Drop`)   | Volatile zero + drop             |
-| `ciphertext` buffer  | Rust (`Vec`)    | Rust (`Drop`)   | `Vec` RAII                       |
-| `plaintext` buffer   | Rust (`Vec`)    | Rust (`Drop`)   | `Vec` RAII, zeroed on auth fail  |
-| libsodium internals  | libsodium       | libsodium       | No Rust involvement              |
+| Object              | Allocated By | Freed By      | Rust Mechanism                  |
+| ------------------- | ------------ | ------------- | ------------------------------- |
+| `SecretBox`         | Rust (`Box`) | Rust (`Drop`) | Implicit via RAII               |
+| `SecretKey` bytes   | Rust (stack) | Rust (`Drop`) | Volatile zero + drop            |
+| `ciphertext` buffer | Rust (`Vec`) | Rust (`Drop`) | `Vec` RAII                      |
+| `plaintext` buffer  | Rust (`Vec`) | Rust (`Drop`) | `Vec` RAII, zeroed on auth fail |
+| libsodium internals | libsodium    | libsodium     | No Rust involvement             |
 
 This structure ensures: libsodium never allocates memory that Rust must free, all Rust allocations are cleaned up by standard RAII, and sensitive key material is zeroed on drop via volatile writes that the optimizer cannot elide.

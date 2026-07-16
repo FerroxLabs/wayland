@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing design"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing design'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Dialogue Writing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write a conversation, exchange, or dialogue scene between two or more characters in fiction, literary prose, stage plays, or creative non-fiction
 - The user shares existing dialogue and asks why it feels flat, stiff, fake, or "on-the-nose" -- they want diagnosis and repair
 - The user has distinct characters already developed and needs their voices to collide on the page for the first time
@@ -29,6 +31,7 @@ metadata:
 - The user is adapting a scene from one medium to another (novel to stage, for example) and needs the dialogue to carry more weight without action description
 
 **Do NOT use this skill when:**
+
 - The user needs full screenplay format with slug lines, parentheticals, action blocks, and transition cues -- use `screenplay-scene`
 - The user wants a complete scene built around action, setting, and physical staging where dialogue is one element among several -- use `scene-writing`
 - The user wants a speech, toast, eulogy, or prepared address delivered by one character to an audience -- use `personal-speech`
@@ -278,6 +281,7 @@ Writers often struggle to write warmth or reconciliation without the scene becom
 ## Dialogue: Load-Bearing
 
 **Characters:**
+
 - Selin: 29 -- Junior associate at Meridian Architecture, structural specialist, methodical and precise. In this scene: she wants David to take the calculation seriously; she actually wants to know whether she can trust her own judgment in this firm.
 - David: 64 -- Senior founding partner, designed the Cassel Tower in 1992, which won the firm's most significant award and is still cited in his biography. In this scene: he wants to end this meeting quickly; he actually wants the problem not to exist.
 
@@ -290,6 +294,7 @@ Writers often struggle to write warmth or reconciliation without the scene becom
 **What neither character will say:** David: "You might be right and I cannot afford for you to be." Selin: "I need to know if this firm is somewhere I can actually work."
 
 **Voice Architecture:**
+
 - Selin: Short declarative sentences when direct, longer qualifications when managing David's ego. Uses technical vocabulary as a signal of authority. Rarely asks rhetorical questions -- when she asks, she wants an answer. Avoids "I think" -- she says "the calculation shows," "the margin falls."
 - David: Long sentences with subordinate clauses, often deferring conclusion until the end of a thought. Reaches for historical context as a form of argument. Uses the word "we" when he means "I." Goes quiet when threatened, then pivots to a compliment as a redirect.
 
@@ -369,16 +374,16 @@ She left the printout on his desk.
 
 ### Dialogue Notes
 
-| Element | Detail |
-|---|---|
-| **Initiating pressure** | The renovation has exposed the structure, giving Selin direct access to evidence she would otherwise not have had. The window is closing as construction progresses. |
-| **Surface objective -- Selin** | Get David to formally acknowledge the calculation shortfall |
-| **Hidden objective -- Selin** | Find out whether her judgment is safe in this firm, and protect herself professionally if it is not |
-| **Surface objective -- David** | Assess the claim and redirect it to someone else |
-| **Hidden objective -- David** | Make the problem someone else's before it becomes a matter of record attached to his name |
-| **The turn** | "I just wanted to make sure you had seen it. Formally. With the date." -- Selin reveals that this meeting was never about persuasion. She came for documentation, not agreement. David understands that she has already protected herself. |
-| **Key subtext moment** | "I didn't calculate the cost. That's not what I do." -- On the surface, a statement of role boundaries. Underneath: a refusal to carry his burden, and a signal that she is not going to be recruited into minimizing the problem. |
-| **What neither character says** | David never says "you might be right." Selin never says "I don't trust this firm to handle this correctly." Both statements are present in every exchange. |
-| **Power map** | David holds structural authority at the start. The shift occurs when Selin leaves the printout -- she has stopped seeking permission and started creating a record. The last word belongs to the object on his desk, not either of them. |
-| **Voice contrast** | David reaches for historical argument and deferral; Selin speaks in present-tense fact. He says "we" about his own design; she never uses "we." He names costs; she refuses the category entirely. |
-| **Exit type** | Unresolved -- the central question (will the problem be properly addressed) is unanswered, and both characters understand that the subtext fight was the real one. The printout on the desk is the scene's final image: the thing that cannot now be unseen. |
+| Element                         | Detail                                                                                                                                                                                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Initiating pressure**         | The renovation has exposed the structure, giving Selin direct access to evidence she would otherwise not have had. The window is closing as construction progresses.                                                                                         |
+| **Surface objective -- Selin**  | Get David to formally acknowledge the calculation shortfall                                                                                                                                                                                                  |
+| **Hidden objective -- Selin**   | Find out whether her judgment is safe in this firm, and protect herself professionally if it is not                                                                                                                                                          |
+| **Surface objective -- David**  | Assess the claim and redirect it to someone else                                                                                                                                                                                                             |
+| **Hidden objective -- David**   | Make the problem someone else's before it becomes a matter of record attached to his name                                                                                                                                                                    |
+| **The turn**                    | "I just wanted to make sure you had seen it. Formally. With the date." -- Selin reveals that this meeting was never about persuasion. She came for documentation, not agreement. David understands that she has already protected herself.                   |
+| **Key subtext moment**          | "I didn't calculate the cost. That's not what I do." -- On the surface, a statement of role boundaries. Underneath: a refusal to carry his burden, and a signal that she is not going to be recruited into minimizing the problem.                           |
+| **What neither character says** | David never says "you might be right." Selin never says "I don't trust this firm to handle this correctly." Both statements are present in every exchange.                                                                                                   |
+| **Power map**                   | David holds structural authority at the start. The shift occurs when Selin leaves the printout -- she has stopped seeking permission and started creating a record. The last word belongs to the object on his desk, not either of them.                     |
+| **Voice contrast**              | David reaches for historical argument and deferral; Selin speaks in present-tense fact. He says "we" about his own design; she never uses "we." He names costs; she refuses the category entirely.                                                           |
+| **Exit type**                   | Unresolved -- the central question (will the problem be properly addressed) is unanswered, and both characters understand that the subtext fight was the real one. The printout on the desk is the scene's final image: the thing that cannot now be unseen. |

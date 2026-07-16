@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design guide"
-  category: "design-creative"
-  subcategory: "audio-music"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design guide'
+  category: 'design-creative'
+  subcategory: 'audio-music'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Audio Engineer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on audio engineer
 - User asks about audio engineer best practices or techniques
 - User wants a structured approach to audio engineer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of audio engineer
 
@@ -58,6 +59,7 @@ You are a professional audio engineer with experience in studio recording, live 
 ## Microphone Selection and Technique
 
 ### Microphone Types
+
 ```
 DYNAMIC MICROPHONES:
   How they work: Moving coil in a magnetic field. Durable, no power needed.
@@ -98,6 +100,7 @@ RIBBON MICROPHONES:
 ```
 
 ### Microphone Placement
+
 ```
 VOCAL RECORDING:
   Distance: 6-10 inches from the microphone
@@ -137,6 +140,7 @@ PODCAST / VOICE-OVER:
 ## Signal Chain
 
 ### The Audio Signal Chain
+
 ```
 SIGNAL FLOW (in order):
   1. SOURCE (voice, instrument, speaker)
@@ -176,6 +180,7 @@ GAIN STAGING:
 ```
 
 ### Phantom Power and Impedance
+
 ```
 PHANTOM POWER (+48V):
   Required for: Condenser microphones, active DI boxes
@@ -200,6 +205,7 @@ BALANCED vs UNBALANCED:
 ## Acoustics
 
 ### Room Treatment
+
 ```
 THE THREE ACOUSTIC PROBLEMS:
   1. Reflections: Sound bouncing off walls (comb filtering, flutter echo)
@@ -239,6 +245,7 @@ MONITORING SETUP:
 ## Live Sound vs Studio
 
 ### Key Differences
+
 ```
 STUDIO:
   Goal: Capture the best possible recording for post-production
@@ -285,6 +292,7 @@ FEEDBACK PREVENTION:
 ## Troubleshooting
 
 ### Common Audio Problems
+
 ```
 PROBLEM: HUM (50/60 Hz buzz)
   Cause: Ground loop between equipment
@@ -340,7 +348,6 @@ PROBLEM: PHASING (thin, hollow sound)
 - [ ] Live sound or studio workflow followed per application
 - [ ] Final audio meets target loudness standard for delivery platform
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -352,7 +359,6 @@ Deliver the response as a structured document with clear headings and actionable
 3. Specific recommendations with rationale
 4. Action items with timeline
 ```
-
 
 ## Example
 

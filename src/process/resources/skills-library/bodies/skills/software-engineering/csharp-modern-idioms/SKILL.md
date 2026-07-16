@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "csharp best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'csharp best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Csharp Modern Idioms
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to model immutable data in C# and wants to understand records vs classes vs structs
 - The user has a `switch` statement explosion or a chain of `if/else if` blocks and wants to refactor using pattern matching
 - The user asks how to enable nullable reference types in an existing codebase and manage the migration incrementally
@@ -30,6 +32,7 @@ metadata:
 - The user asks about `required` members, `init`-only setters, or `with` expressions in C# 9+
 
 **Do NOT use this skill when:**
+
 - The user needs help structuring a new C# project, setting up `.csproj` properties, or choosing SDK versions -- use `csharp-project-setup`
 - The user's question is primarily about `async`/`await`, `Task`, `ValueTask`, `IAsyncEnumerable`, or cancellation tokens -- use `csharp-async-patterns`
 - The user is writing or fixing unit tests in xUnit, NUnit, or MSTest -- use `csharp-testing-patterns`
@@ -145,7 +148,7 @@ Modern C# idioms drift without automated enforcement:
 
 When helping a user modernize or write C# code, structure your response as follows:
 
-```
+````
 ## Diagnosis
 
 What C# version / .NET TFM is active:
@@ -157,36 +160,40 @@ Which modern idiom(s) address the problem:
 ### Before
 ```csharp
 // original code with annotation of what is problematic
-```
+````
 
 ### After
+
 ```csharp
 // modernized code with inline comments explaining the idiom
 ```
 
 ## Key Idioms Applied
 
-| Idiom | C# Version | Benefit | Trade-off |
-|-------|-----------|---------|-----------|
-| record class | 9+ | Value equality, with-expressions, ToString | Reference type; cannot inherit from non-record class |
-| switch expression | 8+ | Exhaustiveness checking, no fall-through | Can become dense beyond 8-10 arms |
-| property pattern | 8+ | Flattens nested null/property checks | Requires familiarity to read at speed |
-| nullable reference types | 8+ | Compile-time null safety | Migration cost on legacy codebases |
-| primary constructors | 12 | Reduces DI boilerplate | Parameters are not auto-properties |
-| required + init | 11 + 9 | Enforces completeness without overloads | Does not work with some ORMs that need setters |
-| file-scoped namespace | 10+ | Removes indentation level | File can only have one namespace |
-| list patterns | 11+ | Concise array/span matching | Only works on indexable types |
+| Idiom                    | C# Version | Benefit                                    | Trade-off                                            |
+| ------------------------ | ---------- | ------------------------------------------ | ---------------------------------------------------- |
+| record class             | 9+         | Value equality, with-expressions, ToString | Reference type; cannot inherit from non-record class |
+| switch expression        | 8+         | Exhaustiveness checking, no fall-through   | Can become dense beyond 8-10 arms                    |
+| property pattern         | 8+         | Flattens nested null/property checks       | Requires familiarity to read at speed                |
+| nullable reference types | 8+         | Compile-time null safety                   | Migration cost on legacy codebases                   |
+| primary constructors     | 12         | Reduces DI boilerplate                     | Parameters are not auto-properties                   |
+| required + init          | 11 + 9     | Enforces completeness without overloads    | Does not work with some ORMs that need setters       |
+| file-scoped namespace    | 10+        | Removes indentation level                  | File can only have one namespace                     |
+| list patterns            | 11+        | Concise array/span matching                | Only works on indexable types                        |
 
 ## Migration Guidance (if applicable)
 
 Step-by-step migration plan with file ordering and nullable phase:
+
 1. [specific action]
 2. [specific action]
 
 ## Tooling Configuration
 
 Relevant .editorconfig or .csproj settings to enforce the applied idioms:
+
 ```
+
 ```
 
 ---
@@ -282,6 +289,7 @@ List patterns (`[first, .., last]`) only work on types that implement `IReadOnly
 **Diagnosis:**
 
 The code has three separate modernization targets:
+
 1. A `class OrderDto` with 8 properties, hand-written `Equals`/`GetHashCode`, and `ToString` -- a direct candidate for `record class`
 2. An `if`/`else if` chain over `OrderStatus` enum values -- a direct candidate for a switch expression with exhaustiveness checking
 3. Uncontrolled nullable reference type warnings from not having `<Nullable>enable</Nullable>` configured
@@ -462,8 +470,8 @@ public sealed class OrderProcessor(
             var updatedOrder = order with { Status = OrderStatus.Processing };
 
             logger.LogInformation(
-                "Order {OrderId} transitioned to {Status}", 
-                updatedOrder.Id, 
+                "Order {OrderId} transitioned to {Status}",
+                updatedOrder.Id,
                 updatedOrder.Status);
 
             await emailService.SendAsync(updatedOrder.CustomerEmail, ct);
@@ -476,17 +484,17 @@ public sealed class OrderProcessor(
 
 **Key Idioms Applied:**
 
-| Idiom | C# Version | Benefit | Trade-off |
-|-------|-----------|---------|-----------|
-| `sealed record` with `required init` | 9 + 11 | Eliminates hand-written Equals/GetHashCode/ToString, enforces completeness | Slightly more syntax than positional records; safe for types with many same-type parameters |
-| `ImmutableArray<T>` as collection property | Any | `with` expressions are deep-copy safe; no shared mutable reference | `ImmutableArray` is a struct -- use `.IsDefaultOrEmpty` not `== null` |
-| File-scoped namespace | 10+ | Removes one indentation level across every file in project | Only one namespace per file allowed |
-| Global usings | 10+ | Removes 3 boilerplate `using` lines from every file | Namespace conflicts can hide ambiguity |
-| Switch expression over typed enum | 8+ | Compiler exhaustiveness warning when enum is extended | `UnreachableException` arm is required for true exhaustiveness enforcement |
-| Property pattern (`{ Status: ..., Total: > 0m }`) | 8+ | Replaces multi-line null + property checks | Requires team familiarity to read confidently |
-| Primary constructor for DI | 12 | Cleaner DI registration, no field boilerplate | Parameters are not properties; no validation body |
-| `with` expression for immutable update | 9+ | Produces a new instance with one field changed | Shallow copy -- requires `ImmutableArray<T>` for collection safety |
-| `ArgumentNullException.ThrowIfNull` | .NET 6+ | Short, throw-annotated, nullable-flow aware | Not available below .NET 6; use manual check there |
+| Idiom                                             | C# Version | Benefit                                                                    | Trade-off                                                                                   |
+| ------------------------------------------------- | ---------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `sealed record` with `required init`              | 9 + 11     | Eliminates hand-written Equals/GetHashCode/ToString, enforces completeness | Slightly more syntax than positional records; safe for types with many same-type parameters |
+| `ImmutableArray<T>` as collection property        | Any        | `with` expressions are deep-copy safe; no shared mutable reference         | `ImmutableArray` is a struct -- use `.IsDefaultOrEmpty` not `== null`                       |
+| File-scoped namespace                             | 10+        | Removes one indentation level across every file in project                 | Only one namespace per file allowed                                                         |
+| Global usings                                     | 10+        | Removes 3 boilerplate `using` lines from every file                        | Namespace conflicts can hide ambiguity                                                      |
+| Switch expression over typed enum                 | 8+         | Compiler exhaustiveness warning when enum is extended                      | `UnreachableException` arm is required for true exhaustiveness enforcement                  |
+| Property pattern (`{ Status: ..., Total: > 0m }`) | 8+         | Replaces multi-line null + property checks                                 | Requires team familiarity to read confidently                                               |
+| Primary constructor for DI                        | 12         | Cleaner DI registration, no field boilerplate                              | Parameters are not properties; no validation body                                           |
+| `with` expression for immutable update            | 9+         | Produces a new instance with one field changed                             | Shallow copy -- requires `ImmutableArray<T>` for collection safety                          |
+| `ArgumentNullException.ThrowIfNull`               | .NET 6+    | Short, throw-annotated, nullable-flow aware                                | Not available below .NET 6; use manual check there                                          |
 
 ---
 

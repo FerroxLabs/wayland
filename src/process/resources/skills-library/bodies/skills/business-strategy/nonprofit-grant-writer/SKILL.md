@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing strategy planning"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing strategy planning'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Nonprofit Grant Writer
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to write grant proposals for private foundations, community foundations, or corporate giving programs
 - The user wants help with prospect research, letters of inquiry, proposal budgets, or grant reporting
 - The user needs guidance on funder relationship building or grant compliance requirements
 - The user is preparing a full grant application and needs structural and narrative guidance
 
 **Do NOT use this skill when:**
+
 - The user needs broader fundraising strategy beyond grants (use fundraising-strategist instead)
 - The user is starting a nonprofit and needs formation guidance (use nonprofit-starter instead)
 - The user is raising capital for a for-profit venture (use startup-advisor or pitch-deck-builder instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on nonprofit grant writer
 - User asks about nonprofit grant writer best practices or techniques
 - User wants a structured approach to nonprofit grant writer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of nonprofit grant writer
 
@@ -72,12 +76,14 @@ Before beginning a grant-seeking effort:
 ### Where to Find Funders
 
 **Foundation Directory Online (Candid/Foundation Directory)**
+
 - Most comprehensive database of US foundations and grants
 - Search by subject area, geography, grant size, type of support
 - Foundation profiles include past grants, trustees, application guidelines
 - Subscription required ($40-200/month), often available free at public libraries
 
 **Other Research Tools**
+
 - **Candid (candid.org)**: Merged Foundation Center and GuideStar
 - **GrantStation**: Database of funders with deadlines and guidelines
 - **Community foundation websites**: Local funders in your region
@@ -85,6 +91,7 @@ Before beginning a grant-seeking effort:
 - **Funder 990 tax returns**: Available on GuideStar, show past grantees and amounts
 
 ### Research Process
+
 1. Define exactly what you need funding for (not just "general operations")
 2. Search databases using keywords matching your work
 3. Review funder guidelines thoroughly - does your project fit?
@@ -95,7 +102,9 @@ Before beginning a grant-seeking effort:
 8. Create a prospect list with: Funder name, contact, deadline, amount range, fit score (A/B/C)
 
 ### Qualifying a Funder (The Fit Test)
+
 Ask these questions before investing time in an application:
+
 - Does our mission align with their funding priorities?
 - Do they fund in our geographic area?
 - Do they fund organizations of our size and age?
@@ -108,42 +117,50 @@ Ask these questions before investing time in an application:
 ## Letter of Inquiry (LOI)
 
 ### What Is an LOI?
+
 A 1-3 page letter introducing your organization and proposed project to a funder. Many foundations require an LOI before inviting a full proposal. Think of it as a cover letter that gets you in the door.
 
 ### LOI Structure (1-2 pages)
 
 **Paragraph 1: Introduction**
+
 - Organization name, mission, and brief history
 - Why you are writing (specific funding priority or program)
 - Requested amount and project name
 
 **Paragraph 2: Need Statement**
+
 - The problem you address with data/evidence
 - Who is affected and how
 - Why this problem matters now
 
 **Paragraph 3: Project Description**
+
 - What you propose to do
 - Key activities and timeline
 - Who will be served (numbers and demographics)
 - Expected outcomes
 
 **Paragraph 4: Organizational Capacity**
+
 - Why your organization is positioned to do this work
 - Relevant experience and track record
 - Key staff qualifications
 
 **Paragraph 5: Budget Summary**
+
 - Total project cost
 - Amount requested from this funder
 - Other funding sources (secured and pending)
 
 **Closing**
+
 - Thank the funder for their consideration
 - Offer to provide additional information
 - Contact information for follow-up
 
 ### LOI Tips
+
 - Follow the funder's format requirements exactly
 - Be concise - every sentence should earn its place
 - Lead with the community need, not your organization's needs
@@ -154,6 +171,7 @@ A 1-3 page letter introducing your organization and proposed project to a funder
 ## Full Proposal Structure
 
 ### 1. Cover Letter (1 page)
+
 - Addressed to specific person (call to confirm correct contact)
 - Brief introduction of organization and request
 - Amount requested and project name
@@ -161,11 +179,13 @@ A 1-3 page letter introducing your organization and proposed project to a funder
 - Signed by Executive Director or Board Chair
 
 ### 2. Executive Summary (1/2 - 1 page)
+
 - Standalone summary of entire proposal
 - Problem, solution, expected outcomes, budget request
 - Write this last, even though it appears first
 
 ### 3. Need Statement / Problem Statement (2-3 pages)
+
 - Define the problem with evidence (statistics, research, local data)
 - Connect the problem to real people and communities
 - Cite credible sources (Census data, peer-reviewed research, government reports)
@@ -174,6 +194,7 @@ A 1-3 page letter introducing your organization and proposed project to a funder
 - Show you understand root causes, not just symptoms
 
 **Strong need statement elements**:
+
 - Local data specific to your community
 - National context for comparison
 - Quotes or stories from people affected (with permission)
@@ -181,15 +202,19 @@ A 1-3 page letter introducing your organization and proposed project to a funder
 - Gaps in current services that your project fills
 
 ### 4. Goals and Objectives (1 page)
+
 **Goals**: Broad statements of intended impact
+
 - "Reduce youth homelessness in Springfield by providing transitional housing and support services."
 
 **Objectives**: Specific, measurable, achievable, relevant, time-bound (SMART)
+
 - "By December 2027, provide transitional housing to 40 homeless youth ages 18-24."
 - "Within 12 months, 75% of program participants will obtain stable employment."
 - "Reduce emergency room visits among participants by 50% compared to baseline."
 
 ### 5. Methods / Project Description (3-5 pages)
+
 - Describe activities in detail: What will happen, who will do it, when, where
 - Implementation timeline with milestones
 - Staffing plan (existing staff, new hires, consultants)
@@ -198,6 +223,7 @@ A 1-3 page letter introducing your organization and proposed project to a funder
 - Sustainability plan: How will this continue after the grant ends?
 
 ### 6. Evaluation Plan (1-2 pages)
+
 - **Process evaluation**: Are activities being implemented as planned?
 - **Outcome evaluation**: Are participants experiencing the intended changes?
 - **Data collection methods**: Surveys, interviews, pre/post tests, attendance records, case management data
@@ -208,24 +234,28 @@ A 1-3 page letter introducing your organization and proposed project to a funder
 ### 7. Budget and Budget Narrative (2-4 pages)
 
 #### Budget Format
-| Category | Grant Request | Other Funding | Total |
-|----------|--------------|---------------|-------|
-| Personnel | | | |
-| Fringe benefits | | | |
-| Travel | | | |
-| Equipment | | | |
-| Supplies | | | |
-| Contractual | | | |
-| Other direct costs | | | |
-| Indirect costs | | | |
-| **Total** | | | |
+
+| Category           | Grant Request | Other Funding | Total |
+| ------------------ | ------------- | ------------- | ----- |
+| Personnel          |               |               |       |
+| Fringe benefits    |               |               |       |
+| Travel             |               |               |       |
+| Equipment          |               |               |       |
+| Supplies           |               |               |       |
+| Contractual        |               |               |       |
+| Other direct costs |               |               |       |
+| Indirect costs     |               |               |       |
+| **Total**          |               |               |       |
 
 #### Budget Narrative
+
 Explain and justify each line item:
+
 - **Personnel**: "Project Coordinator (1.0 FTE, $45,000 salary): Manages daily program operations, supervises 3 case managers, responsible for data collection and reporting."
 - **Travel**: "Local travel for 3 case managers, estimated 200 miles/month x 12 months x $0.67/mile = $4,824. Home visits and service coordination for 40 program participants."
 
 #### Budget Tips
+
 - Round to whole dollars
 - Ensure math adds up perfectly
 - Show other funding sources (demonstrates sustainability)
@@ -234,6 +264,7 @@ Explain and justify each line item:
 - Request reasonable amounts - underfunding a project sets it up for failure
 
 ### 8. Organizational Background (1-2 pages)
+
 - History and founding story
 - Current programs and services
 - Annual budget size
@@ -243,6 +274,7 @@ Explain and justify each line item:
 - Awards, accreditations, or recognition
 
 ### 9. Attachments (as requested)
+
 - IRS determination letter (501(c)(3))
 - Board of Directors list with affiliations
 - Current fiscal year budget (organizational)
@@ -255,6 +287,7 @@ Explain and justify each line item:
 ## Writing Tips for Stronger Proposals
 
 ### Do
+
 - Write in active voice ("We will provide" not "Services will be provided")
 - Use concrete numbers ("serve 200 children" not "serve many children")
 - Tell a story while backing it with data
@@ -264,6 +297,7 @@ Explain and justify each line item:
 - Submit at least 3 days before deadline
 
 ### Do Not
+
 - Assume the reviewer knows your organization
 - Use jargon or acronyms without defining them
 - Submit a generic proposal - customize for each funder
@@ -275,9 +309,11 @@ Explain and justify each line item:
 ## Reporting Requirements
 
 ### What Funders Expect
+
 Most grants require interim and/or final reports. Standard elements include:
 
 **Narrative Report**
+
 - Progress toward stated goals and objectives
 - Activities completed during reporting period
 - Success stories and participant outcomes
@@ -286,12 +322,14 @@ Most grants require interim and/or final reports. Standard elements include:
 - Plans for next period (if ongoing)
 
 **Financial Report**
+
 - Actual expenditures compared to approved budget
 - Explanation of significant variances (usually 10%+ from budget line)
 - Remaining balance and projected spending
 - Supporting documentation (receipts, payroll records) if required
 
 ### Reporting Best Practices
+
 - Set up tracking systems before the project starts, not when the report is due
 - Collect data continuously, not retroactively
 - Be honest about challenges - funders appreciate transparency
@@ -301,12 +339,14 @@ Most grants require interim and/or final reports. Standard elements include:
 ## Building Funder Relationships
 
 ### Before Applying
+
 - Attend funder information sessions or webinars
 - Read funder's annual report and recent grant lists
 - If allowed, call program officer to discuss fit before applying
 - Connect through conferences or networking events
 
 ### During the Grant
+
 - Submit reports on time and with quality
 - Communicate proactively about significant changes
 - Invite program officers to visit your programs
@@ -314,6 +354,7 @@ Most grants require interim and/or final reports. Standard elements include:
 - Share good news stories
 
 ### After the Grant
+
 - Thank the funder genuinely and promptly
 - Share final impact results
 - Stay in touch even when not actively funded
@@ -321,6 +362,7 @@ Most grants require interim and/or final reports. Standard elements include:
 - Apply again when appropriate
 
 ### Why Relationships Matter
+
 - Funders fund organizations they trust
 - Many grants go to organizations with existing relationships
 - Program officers are people who want to make a difference - treat them as partners
@@ -329,7 +371,9 @@ Most grants require interim and/or final reports. Standard elements include:
 ## Grant Calendar Management
 
 ### Annual Grant Calendar Template
+
 For each prospect, track:
+
 - Funder name and program
 - LOI deadline
 - Full proposal deadline
@@ -340,6 +384,7 @@ For each prospect, track:
 - Status (researching / LOI submitted / invited / submitted / awarded / declined)
 
 ### Pipeline Management
+
 - Maintain a pipeline of 15-20 prospects at various stages
 - Expect a 20-30% success rate for well-matched applications
 - Diversify across funder types (family foundations, community foundations, corporate giving)
@@ -365,7 +410,6 @@ For each prospect, track:
 - **Local nonprofit support centers**: Many offer grant writing workshops
 - **Foundation Center libraries**: Free access to Foundation Directory and resources
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -378,13 +422,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with nonprofit grant writer for a mid-size project."
 
 **Output:** A complete nonprofit grant writer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

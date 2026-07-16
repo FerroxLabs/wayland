@@ -105,9 +105,7 @@ test.describe('Team state orphans (adversarial)', () => {
     await page.waitForURL(/\/teams\/ext-marketing-agency\/launch/, { timeout: 10_000 });
     await expect(page.locator('[data-testid="launcher-title"]')).toBeVisible({ timeout: 15_000 });
 
-    await page
-      .locator('[data-testid="launcher-name-input"]')
-      .fill(`${NAME_PREFIX} AbandonedFlow ${Date.now()}`);
+    await page.locator('[data-testid="launcher-name-input"]').fill(`${NAME_PREFIX} AbandonedFlow ${Date.now()}`);
 
     // Bail out via the back button.
     await page.locator('[data-testid="launcher-back"]').click();
@@ -199,8 +197,7 @@ test.describe('Team state orphans (adversarial)', () => {
     // Both are acceptable: the hard requirement is "does not silently
     // succeed on a non-existent team."
     const hasError =
-      (typeof result === 'object' && result !== null && '__bridgeError' in result) ||
-      result === undefined;
+      (typeof result === 'object' && result !== null && '__bridgeError' in result) || result === undefined;
     expect(hasError).toBe(true);
   });
 

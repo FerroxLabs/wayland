@@ -12,14 +12,15 @@ description: >-
   single-line copy tweak.
 license: Apache-2.0
 type: workflow
-skills: "commerce-listing commerce-description"
+skills: 'commerce-listing commerce-description'
 metadata:
   author: wayland
   version: 1.0.0
   tags: commerce ecommerce listing optimization conversion ab-test step-by-step
   category: marketing
-  depends: "commerce-listing commerce-description"
+  depends: 'commerce-listing commerce-description'
 ---
+
 # Listing Optimization
 
 **Estimated time:** 20-30 minutes

@@ -46,7 +46,9 @@ test.describe('F-MSG-03 AI rules auto-injected on first message', () => {
     expect(visibleText.length).toBeLessThan(500);
   });
 
-  test('DB stores the original message (injection is handled transparently at the transport layer)', async ({ page }) => {
+  test('DB stores the original message (injection is handled transparently at the transport layer)', async ({
+    page,
+  }) => {
     await page.waitForTimeout(2_000);
 
     const messages = await invokeBridge<{ content?: unknown; position?: string; type?: string }[]>(

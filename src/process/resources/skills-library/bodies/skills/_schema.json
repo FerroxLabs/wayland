@@ -53,7 +53,10 @@
           "type": "string",
           "minLength": 1,
           "description": "Space-delimited discovery tags from the controlled vocabulary (_tags.json). Tags are the primary discovery mechanism. Use 3-8 tags per skill. NOT a YAML list -- must be a single string with spaces between tags.",
-          "examples": ["budgeting personal-finance money-management expenses savings", "python flask authentication web backend"]
+          "examples": [
+            "budgeting personal-finance money-management expenses savings",
+            "python flask authentication web backend"
+          ]
         },
         "category": {
           "type": "string",

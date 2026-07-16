@@ -50,12 +50,7 @@ interface CronJobManagerProps {
  * Cron job manager component for ChatLayout headerExtra
  * Shows a single job per conversation with navigation to task detail
  */
-const CronJobManager: React.FC<CronJobManagerProps> = ({
-  conversationId,
-  cronJobId,
-  conversationTitle,
-  agentType,
-}) => {
+const CronJobManager: React.FC<CronJobManagerProps> = ({ conversationId, cronJobId, conversationTitle, agentType }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [showCreateDialog, setShowCreateDialog] = useState(false);

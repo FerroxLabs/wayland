@@ -22,10 +22,7 @@ import updateLocale from '@renderer/services/i18n/locales/en-US/update.json';
 
 describe('updateBridge i18n error keys (#134)', () => {
   it('defines every update.errors.* key the bridge throws', () => {
-    const bridgeSource = fs.readFileSync(
-      path.join(process.cwd(), 'src/process/bridge/updateBridge.ts'),
-      'utf8'
-    );
+    const bridgeSource = fs.readFileSync(path.join(process.cwd(), 'src/process/bridge/updateBridge.ts'), 'utf8');
 
     const thrownKeys = new Set<string>();
     const re = /update\.errors\.([a-zA-Z0-9]+)/g;

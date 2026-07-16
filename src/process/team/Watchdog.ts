@@ -143,7 +143,7 @@ export class Watchdog {
     // Read the POST-COMMIT row so the event reports the authoritative
     // retries_used (the txn incremented it via SQL), not a pre-sweep snapshot.
     const committed = await this.repo.findTaskById(task.id);
-    const retriesUsed = committed?.retriesUsed ?? (task.retriesUsed ?? 0);
+    const retriesUsed = committed?.retriesUsed ?? task.retriesUsed ?? 0;
     const retryBudget = committed?.retryBudget ?? task.retryBudget ?? 0;
     await this.eventLogger.append({
       teamId: task.teamId,
@@ -172,7 +172,14 @@ export class Watchdog {
     // Guarded, atomic complete-through (no-ops if the gate already moved the row).
     const recovered = await this.repo.recoverVerifyingTask(
       task.id,
-      { verification: { outcome: 'advisory', note: 'verify interrupted; completed on recovery', failCount: 0, checkedAt: now } },
+      {
+        verification: {
+          outcome: 'advisory',
+          note: 'verify interrupted; completed on recovery',
+          failCount: 0,
+          checkedAt: now,
+        },
+      },
       now
     );
     if (!recovered) return;

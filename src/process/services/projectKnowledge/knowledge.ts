@@ -211,7 +211,8 @@ export async function loadGlobalMemoryBlock(): Promise<string> {
 
   if (sections.length === 0) return '';
   const label = i18n.t('memory.injectedLabel', {
-    defaultValue: 'User memory (from Wayland Memory) - the user dropped or saved this; use it to answer questions about it',
+    defaultValue:
+      'User memory (from Wayland Memory) - the user dropped or saved this; use it to answer questions about it',
   });
   return `[${label}]\n\n${sections.join('\n\n')}`;
 }
@@ -339,7 +340,7 @@ export async function readProjectIjfwMemory(
   } catch {
     return { available: false, files: [] };
   }
-  const mdFiles = entries.filter((n) => n.toLowerCase().endsWith('.md')).sort();
+  const mdFiles = entries.filter((n) => n.toLowerCase().endsWith('.md')).toSorted();
   const files: IjfwMemoryFile[] = [];
   for (const name of mdFiles) {
     try {
@@ -375,7 +376,7 @@ export async function listProjectReference(workspace: string): Promise<Reference
       }
     })
   );
-  return files.filter((f): f is ReferenceFile => f !== null).sort((a, b) => a.name.localeCompare(b.name));
+  return files.filter((f): f is ReferenceFile => f !== null).toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
 /** Most reference files accepted in one addProjectReference call. */
@@ -423,8 +424,7 @@ export async function addProjectReference(workspace: string, sourcePaths: string
       // ~/.ssh/id_rsa is still rejected). Dialog-picked files still resolve via
       // resolveWithinApprovedDirectory. Both gates return the resolved,
       // realpath-collapsed path so the path validated is the path copied.
-      const trusted =
-        (await confinePath(src, { allowOutsideRoots: true })) ?? resolveWithinApprovedDirectory(src);
+      const trusted = (await confinePath(src, { allowOutsideRoots: true })) ?? resolveWithinApprovedDirectory(src);
       if (trusted === null) {
         console.warn('[projectKnowledge] refusing out-of-root reference source:', src);
         continue;
@@ -480,7 +480,10 @@ export async function saveProjectReferenceUploads(
   for (const file of accepted) {
     try {
       if (file.data.byteLength > MAX_REFERENCE_FILE_BYTES) {
-        console.warn(`[projectKnowledge] refusing oversized reference upload (${file.data.byteLength} bytes):`, file.name);
+        console.warn(
+          `[projectKnowledge] refusing oversized reference upload (${file.data.byteLength} bytes):`,
+          file.name
+        );
         continue;
       }
       // basename only - an uploaded name like `../../etc/x` can never escape the

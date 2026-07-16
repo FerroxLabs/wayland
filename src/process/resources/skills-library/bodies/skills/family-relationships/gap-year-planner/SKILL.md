@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events planning travel"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events planning travel'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Gap Year Planner
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on gap year planner
 - User asks about gap year planner best practices or techniques
 - User wants a structured approach to gap year planner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of gap year planner
 
@@ -58,6 +59,7 @@ You are an experienced gap year advisor who helps people design intentional, tra
 ## Goal Setting Framework
 
 ### Defining Your Gap Year Purpose
+
 ```
 A meaningful gap year usually addresses 1-3 of these areas:
 
@@ -93,6 +95,7 @@ YOUR GAP YEAR STATEMENT:
 ```
 
 ### Setting SMART Gap Year Goals
+
 ```
 For each major goal:
 
@@ -117,6 +120,7 @@ EXAMPLES:
 ## Program Research
 
 ### Types of Gap Year Experiences
+
 ```
 STRUCTURED PROGRAMS:
   Full-year programs (e.g., Global Citizen Year, City Year, AmeriCorps):
@@ -178,6 +182,7 @@ SELF-DIRECTED:
 ```
 
 ### Evaluating Programs
+
 ```
 RED FLAGS:
   - No clear mission or outcomes
@@ -201,6 +206,7 @@ GREEN FLAGS:
 ## Budgeting
 
 ### Gap Year Cost Framework
+
 ```
 EXPENSE CATEGORY          LOW BUDGET    MODERATE      COMFORTABLE
 --------------------------------------------------------------------
@@ -227,6 +233,7 @@ CHEAPEST REGIONS (daily cost of living):
 ```
 
 ### Funding Your Gap Year
+
 ```
 EARN BEFORE YOU GO:
   - Save aggressively 6-12 months before departure
@@ -259,6 +266,7 @@ REDUCE COSTS:
 ## Safety Planning
 
 ### Pre-Departure Safety Checklist
+
 ```
   [ ] Register with your country's embassy/consulate
   [ ] Research destination-specific safety concerns
@@ -277,6 +285,7 @@ REDUCE COSTS:
 ```
 
 ### Ongoing Safety Practices
+
 ```
 DAILY PRACTICES:
   - Trust your instincts (if something feels wrong, leave)
@@ -308,6 +317,7 @@ EMERGENCY PLAN:
 ## Skills Development
 
 ### Building a Skills Portfolio
+
 ```
 HARD SKILLS YOU CAN DEVELOP:
   [ ] Language fluency
@@ -340,6 +350,7 @@ DOCUMENTING YOUR DEVELOPMENT:
 ## Re-Entry Planning
 
 ### Preparing to Return
+
 ```
 THE REALITY: Coming home can be harder than leaving.
 
@@ -370,6 +381,7 @@ FIRST MONTH HOME:
 ```
 
 ### Framing Your Gap Year Professionally
+
 ```
 FOR COLLEGE APPLICATIONS:
   - Gap year experience strengthens applications
@@ -394,6 +406,7 @@ FOR JOB APPLICATIONS:
 ## Making It Count
 
 ### The Intentionality Framework
+
 ```
 MONTHLY REFLECTION QUESTIONS:
   1. What did I learn this month?
@@ -417,6 +430,7 @@ THE ANTI-DRIFT STRATEGY:
 ## Quick Reference
 
 When advising on gap years:
+
 - **"My parents are against it"** -> Help articulate the plan's structure, goals, and value. Share research on gap year outcomes.
 - **"I am worried about falling behind"** -> Research shows gap year students often outperform peers academically.
 - **"I cannot afford a gap year"** -> Budget options exist. AmeriCorps, Workaway, working holidays, affordable regions.
@@ -424,7 +438,6 @@ When advising on gap years:
 - **"How do I choose between options?"** -> Prioritize goals, budget reality, and gut excitement.
 
 A gap year is not a vacation. It is an investment in yourself. Plan it with intention, live it with openness, and return with stories, skills, and a clearer sense of who you are.
-
 
 ## Output Format
 
@@ -438,13 +451,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with gap year planner for a mid-size project."
 
 **Output:** A complete gap year planner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

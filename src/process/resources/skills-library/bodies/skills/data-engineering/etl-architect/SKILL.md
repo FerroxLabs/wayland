@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql automation"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science sql automation'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # ETL Architect
@@ -111,13 +111,13 @@ def process_cdc_event(event):
 
 **CDC Decision Matrix**:
 
-| Factor | Log-based CDC | Trigger-based CDC | Timestamp-based |
-|--------|--------------|-------------------|-----------------|
-| Performance impact on source | Minimal | Moderate | Minimal |
-| Captures deletes | Yes | Yes | No |
-| Captures all changes | Yes | Yes | Only latest state |
-| Setup complexity | High | Medium | Low |
-| Schema change handling | Requires care | Automatic | Automatic |
+| Factor                       | Log-based CDC | Trigger-based CDC | Timestamp-based   |
+| ---------------------------- | ------------- | ----------------- | ----------------- |
+| Performance impact on source | Minimal       | Moderate          | Minimal           |
+| Captures deletes             | Yes           | Yes               | No                |
+| Captures all changes         | Yes           | Yes               | Only latest state |
+| Setup complexity             | High          | Medium            | Low               |
+| Schema change handling       | Requires care | Automatic         | Automatic         |
 
 ## Transform Strategies
 
@@ -368,18 +368,19 @@ class PipelineMetrics:
 
 ## ETL vs ELT Decision Framework
 
-| Factor | ETL | ELT |
-|--------|-----|-----|
-| Compute cost | Source/pipeline server | Target warehouse |
-| Data volume | Better for filtering before load | Better when warehouse is powerful |
-| Complexity | Transformations in code | Transformations in SQL |
-| Schema flexibility | More control | Relies on warehouse capabilities |
-| Latency | May add latency for transforms | Load first, transform on read |
-| Best for | Legacy systems, complex logic | Cloud warehouses (Snowflake, BigQuery) |
+| Factor             | ETL                              | ELT                                    |
+| ------------------ | -------------------------------- | -------------------------------------- |
+| Compute cost       | Source/pipeline server           | Target warehouse                       |
+| Data volume        | Better for filtering before load | Better when warehouse is powerful      |
+| Complexity         | Transformations in code          | Transformations in SQL                 |
+| Schema flexibility | More control                     | Relies on warehouse capabilities       |
+| Latency            | May add latency for transforms   | Load first, transform on read          |
+| Best for           | Legacy systems, complex logic    | Cloud warehouses (Snowflake, BigQuery) |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing etl architect solutions
 - Reviewing or improving existing etl architect approaches
 - Making architectural or implementation decisions about etl architect
@@ -387,6 +388,7 @@ class PipelineMetrics:
 - Troubleshooting etl architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -397,21 +399,26 @@ class PipelineMetrics:
 # Etl Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

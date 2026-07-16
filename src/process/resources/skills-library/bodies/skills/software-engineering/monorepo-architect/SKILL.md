@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices architecture guide"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices architecture guide'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Monorepo Architect
@@ -24,17 +24,17 @@ You are a senior monorepo architect who designs and optimizes large-scale monore
 
 ### Decision Matrix: Nx vs Turborepo vs Lerna vs Bazel
 
-| Factor | Nx | Turborepo | Lerna (v7+) | Bazel |
-|--------|-----|-----------|-------------|-------|
-| **Primary strength** | Full-featured orchestration + code generation | Speed and simplicity | Publishing workflows | Hermetic multi-language builds |
-| **Remote caching** | Nx Cloud (paid/self-host) | Vercel Remote Cache | None built-in | Remote Execution API |
-| **Affected detection** | Project graph + file hashing | Content hashing | Changed since ref | Action graph + content hash |
-| **Code generation** | Yes (generators + plugins) | No | No | No |
-| **Multi-language** | Plugins (Go, Rust, Java) | JS/TS only | JS/TS only | Native (any language) |
-| **Incremental adoption** | Yes (add to existing repo) | Yes (add to existing repo) | Yes | Hard (requires BUILD files) |
-| **Learning curve** | Medium-High | Low | Low | Very High |
-| **Best for** | 10-500 packages, JS/TS-heavy | 5-100 packages, speed-first | Publishing many npm packages | 100+ packages, multi-language |
-| **CI time savings** | 60-90% with caching | 60-85% with caching | Minimal | 70-95% with remote execution |
+| Factor                   | Nx                                            | Turborepo                   | Lerna (v7+)                  | Bazel                          |
+| ------------------------ | --------------------------------------------- | --------------------------- | ---------------------------- | ------------------------------ |
+| **Primary strength**     | Full-featured orchestration + code generation | Speed and simplicity        | Publishing workflows         | Hermetic multi-language builds |
+| **Remote caching**       | Nx Cloud (paid/self-host)                     | Vercel Remote Cache         | None built-in                | Remote Execution API           |
+| **Affected detection**   | Project graph + file hashing                  | Content hashing             | Changed since ref            | Action graph + content hash    |
+| **Code generation**      | Yes (generators + plugins)                    | No                          | No                           | No                             |
+| **Multi-language**       | Plugins (Go, Rust, Java)                      | JS/TS only                  | JS/TS only                   | Native (any language)          |
+| **Incremental adoption** | Yes (add to existing repo)                    | Yes (add to existing repo)  | Yes                          | Hard (requires BUILD files)    |
+| **Learning curve**       | Medium-High                                   | Low                         | Low                          | Very High                      |
+| **Best for**             | 10-500 packages, JS/TS-heavy                  | 5-100 packages, speed-first | Publishing many npm packages | 100+ packages, multi-language  |
+| **CI time savings**      | 60-90% with caching                           | 60-85% with caching         | Minimal                      | 70-95% with remote execution   |
 
 ### When to Choose Each
 
@@ -179,13 +179,13 @@ If no match -> execute task, store outputs keyed by INPUT HASH
 
 Common causes of cache misses that should be hits:
 
-| Problem | Symptom | Fix |
-|---------|---------|-----|
-| Timestamps in output | Cache never hits | Remove timestamps or make them deterministic |
-| Absolute paths in output | Cache misses on different machines | Use relative paths |
-| Undeclared env vars | Inconsistent results | Explicitly declare all env vars in `globalEnv` |
-| Non-deterministic builds | Intermittent misses | Fix build to be deterministic (sort imports, etc.) |
-| OS-specific outputs | Cross-platform misses | Separate cache per OS or normalize outputs |
+| Problem                  | Symptom                            | Fix                                                |
+| ------------------------ | ---------------------------------- | -------------------------------------------------- |
+| Timestamps in output     | Cache never hits                   | Remove timestamps or make them deterministic       |
+| Absolute paths in output | Cache misses on different machines | Use relative paths                                 |
+| Undeclared env vars      | Inconsistent results               | Explicitly declare all env vars in `globalEnv`     |
+| Non-deterministic builds | Intermittent misses                | Fix build to be deterministic (sort imports, etc.) |
+| OS-specific outputs      | Cross-platform misses              | Separate cache per OS or normalize outputs         |
 
 ### Remote Cache Setup
 
@@ -254,17 +254,17 @@ GOOD (depth 2, parallelized):
 {
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],     // Wait for deps to build first
+      "dependsOn": ["^build"], // Wait for deps to build first
       "inputs": ["production"],
       "cache": true
     },
     "test": {
-      "dependsOn": ["build"],      // Build self first, then test
+      "dependsOn": ["build"], // Build self first, then test
       "inputs": ["default", "^production"],
       "cache": true
     },
     "lint": {
-      "dependsOn": [],             // No dependencies - runs immediately
+      "dependsOn": [], // No dependencies - runs immediately
       "inputs": ["default"],
       "cache": true
     },
@@ -279,12 +279,12 @@ GOOD (depth 2, parallelized):
 
 ### Task Orchestration Anti-Patterns
 
-| Anti-Pattern | Impact | Fix |
-|-------------|--------|-----|
-| `lint` depends on `build` | Lint waits for build unnecessarily | Remove dependency (lint source, not output) |
-| `test` depends on `^test` | Tests wait for dependency tests | Depend on `^build` only |
-| Everything depends on `^build` | Over-serialized | Only add `^build` if you import built output |
-| No `inputs` specified | Cache invalidates on any file change | Specify exactly which files affect the task |
+| Anti-Pattern                   | Impact                               | Fix                                          |
+| ------------------------------ | ------------------------------------ | -------------------------------------------- |
+| `lint` depends on `build`      | Lint waits for build unnecessarily   | Remove dependency (lint source, not output)  |
+| `test` depends on `^test`      | Tests wait for dependency tests      | Depend on `^build` only                      |
+| Everything depends on `^build` | Over-serialized                      | Only add `^build` if you import built output |
+| No `inputs` specified          | Cache invalidates on any file change | Specify exactly which files affect the task  |
 
 ## Migration Strategies
 
@@ -410,6 +410,7 @@ jobs:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing monorepo architect solutions
 - Reviewing or improving existing monorepo architect approaches
 - Making architectural or implementation decisions about monorepo architect
@@ -417,6 +418,7 @@ jobs:
 - Troubleshooting monorepo architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -427,21 +429,26 @@ jobs:
 # Monorepo Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -37,13 +37,7 @@ vi.mock('react-i18next', () => ({
 // react-virtuoso: in jsdom there is no layout engine so Virtuoso renders
 // nothing by default. Replace with a simple flat list for tests.
 vi.mock('react-virtuoso', () => ({
-  Virtuoso: ({
-    totalCount,
-    itemContent,
-  }: {
-    totalCount: number;
-    itemContent: (index: number) => React.ReactNode;
-  }) => (
+  Virtuoso: ({ totalCount, itemContent }: { totalCount: number; itemContent: (index: number) => React.ReactNode }) => (
     <div data-testid='virtuoso-root'>
       {Array.from({ length: totalCount }, (_, i) => (
         <div key={i}>{itemContent(i)}</div>
@@ -76,14 +70,7 @@ const makeEntry = (overrides: Partial<MemoryEntry> = {}): MemoryEntry => ({
   ...overrides,
 });
 
-const ALL_TYPES: MemoryType[] = [
-  'decision',
-  'pattern',
-  'session',
-  'wiki',
-  'observation',
-  'preference',
-];
+const ALL_TYPES: MemoryType[] = ['decision', 'pattern', 'session', 'wiki', 'observation', 'preference'];
 
 const makeTypeCounts = (): Record<MemoryType, number> =>
   Object.fromEntries(ALL_TYPES.map((t, i) => [t, (i + 1) * 10])) as Record<MemoryType, number>;
@@ -137,7 +124,7 @@ describe('MemoryList', () => {
     render(
       <MemoryList
         {...makeDefaultProps({ onTypeFilterChange, onSearchChange, search: 'foo', typeFilter: ['decision'] })}
-      />,
+      />
     );
     fireEvent.click(screen.getByTestId('memory-list-clear-btn'));
     expect(onTypeFilterChange).toHaveBeenCalledWith([]);
@@ -163,5 +150,4 @@ describe('MemoryList', () => {
     render(<MemoryList {...makeDefaultProps()} />);
     expect(screen.queryByTestId('memory-list-search')).toBeNull();
   });
-
 });

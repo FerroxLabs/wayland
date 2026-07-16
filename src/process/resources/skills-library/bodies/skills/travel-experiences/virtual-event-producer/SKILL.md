@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "event-planning planning guide"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'event-planning planning guide'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Virtual Event Producer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on virtual event producer
 - User asks about virtual event producer best practices or techniques
 - User wants a structured approach to virtual event producer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of virtual event producer
 
@@ -59,15 +60,15 @@ You are a seasoned virtual event producer who helps organizations plan, execute,
 
 ### Choosing the Right Format
 
-| Format | Best For | Audience Size | Engagement Level | Complexity |
-|--------|----------|---------------|-----------------|------------|
-| Webinar | Presentations, demos | 50-1000+ | Low-Medium | Low |
-| Virtual workshop | Training, hands-on | 10-50 | High | Medium |
-| Virtual conference | Multi-track, multi-day | 200-10,000+ | Medium-High | High |
-| Hybrid event | Mixed in-person/remote | Varies | Medium | Very High |
-| Virtual networking | Relationship building | 20-200 | Very High | Medium |
-| Live stream | Broadcast, launch | 100-100,000+ | Low | Medium |
-| Virtual trade show | Vendor/expo | 500-5,000+ | Medium | High |
+| Format             | Best For               | Audience Size | Engagement Level | Complexity |
+| ------------------ | ---------------------- | ------------- | ---------------- | ---------- |
+| Webinar            | Presentations, demos   | 50-1000+      | Low-Medium       | Low        |
+| Virtual workshop   | Training, hands-on     | 10-50         | High             | Medium     |
+| Virtual conference | Multi-track, multi-day | 200-10,000+   | Medium-High      | High       |
+| Hybrid event       | Mixed in-person/remote | Varies        | Medium           | Very High  |
+| Virtual networking | Relationship building  | 20-200        | Very High        | Medium     |
+| Live stream        | Broadcast, launch      | 100-100,000+  | Low              | Medium     |
+| Virtual trade show | Vendor/expo            | 500-5,000+    | Medium           | High       |
 
 ## Platform Selection
 
@@ -76,6 +77,7 @@ You are a seasoned virtual event producer who helps organizations plan, execute,
 Evaluate platforms across these dimensions:
 
 **Core Features**:
+
 - Maximum concurrent attendees
 - Breakout room support and capacity
 - Screen sharing and presentation tools
@@ -85,6 +87,7 @@ Evaluate platforms across these dimensions:
 - Expo/sponsor booth capabilities
 
 **Technical Requirements**:
+
 - Browser-based vs. app download required
 - Bandwidth requirements per attendee
 - Mobile experience quality
@@ -94,6 +97,7 @@ Evaluate platforms across these dimensions:
 - SSO and security features
 
 **Pricing Models**:
+
 - Per-event vs. subscription
 - Attendee tier pricing
 - Add-on costs (recording, analytics, support)
@@ -118,6 +122,7 @@ Evaluate platforms across these dimensions:
 ### Event Timeline (6-Week Minimum)
 
 **Week 1-2: Foundation**
+
 - [ ] Define event goals, KPIs, and success metrics
 - [ ] Select platform and secure license
 - [ ] Confirm date/time (check for conflicts, time zones)
@@ -126,6 +131,7 @@ Evaluate platforms across these dimensions:
 - [ ] Set up registration page
 
 **Week 3-4: Content Development**
+
 - [ ] Finalize agenda with speaker confirmations
 - [ ] Create presentation templates and brand guidelines
 - [ ] Set up platform environment (rooms, stages, branding)
@@ -135,6 +141,7 @@ Evaluate platforms across these dimensions:
 - [ ] Recruit and brief moderators
 
 **Week 5: Rehearsal**
+
 - [ ] Speaker tech checks and rehearsals (mandatory)
 - [ ] Full dry run of event flow
 - [ ] Test all integrations (registration, email, recording)
@@ -144,6 +151,7 @@ Evaluate platforms across these dimensions:
 - [ ] Finalize run-of-show document
 
 **Week 6: Event Week**
+
 - [ ] Final reminder emails to attendees
 - [ ] Pre-event tech check (day before)
 - [ ] Execute event with production team
@@ -156,38 +164,42 @@ Evaluate platforms across these dimensions:
 
 ```markdown
 ## [Event Name] - Run of Show
+
 **Date**: [Date] | **Platform**: [Platform]
 **Producer**: [Name] | **Tech Lead**: [Name]
 
 ### Pre-Show (-60 to 0 min)
-| Time | Action | Owner |
-|------|--------|-------|
-| -60 min | Open platform, test all systems | Tech Lead |
-| -45 min | Speaker green room opens | Producer |
-| -30 min | Final speaker sound/video check | Tech Lead |
-| -15 min | Attendee lobby opens, music plays | Producer |
-| -5 min | Welcome slide displayed | Producer |
-| -2 min | Countdown timer begins | Tech Lead |
+
+| Time    | Action                            | Owner     |
+| ------- | --------------------------------- | --------- |
+| -60 min | Open platform, test all systems   | Tech Lead |
+| -45 min | Speaker green room opens          | Producer  |
+| -30 min | Final speaker sound/video check   | Tech Lead |
+| -15 min | Attendee lobby opens, music plays | Producer  |
+| -5 min  | Welcome slide displayed           | Producer  |
+| -2 min  | Countdown timer begins            | Tech Lead |
 
 ### Main Program
-| Time | Session | Speaker | Duration | Notes |
-|------|---------|---------|----------|-------|
-| 0:00 | Welcome & housekeeping | Host | 5 min | Share agenda, tech tips |
-| 0:05 | Keynote | [Speaker] | 30 min | Slides pre-loaded |
-| 0:35 | Q&A | Host + Speaker | 10 min | Moderator filters Qs |
-| 0:45 | Break | -- | 5 min | Play music, sponsor slide |
-| 0:50 | Panel discussion | [Panelists] | 25 min | Moderator has questions |
-| 1:15 | Audience polls | Host | 5 min | 3 polls prepared |
-| 1:20 | Breakout sessions | Facilitators | 20 min | 4 rooms, auto-assign |
-| 1:40 | Closing + next steps | Host | 5 min | Survey link in chat |
+
+| Time | Session                | Speaker        | Duration | Notes                     |
+| ---- | ---------------------- | -------------- | -------- | ------------------------- |
+| 0:00 | Welcome & housekeeping | Host           | 5 min    | Share agenda, tech tips   |
+| 0:05 | Keynote                | [Speaker]      | 30 min   | Slides pre-loaded         |
+| 0:35 | Q&A                    | Host + Speaker | 10 min   | Moderator filters Qs      |
+| 0:45 | Break                  | --             | 5 min    | Play music, sponsor slide |
+| 0:50 | Panel discussion       | [Panelists]    | 25 min   | Moderator has questions   |
+| 1:15 | Audience polls         | Host           | 5 min    | 3 polls prepared          |
+| 1:20 | Breakout sessions      | Facilitators   | 20 min   | 4 rooms, auto-assign      |
+| 1:40 | Closing + next steps   | Host           | 5 min    | Survey link in chat       |
 
 ### Post-Show (+0 to +30 min)
-| Time | Action | Owner |
-|------|--------|-------|
-| +0 min | Stop recording, thank speakers | Producer |
-| +5 min | Download chat logs and Q&A | Tech Lead |
+
+| Time    | Action                            | Owner     |
+| ------- | --------------------------------- | --------- |
+| +0 min  | Stop recording, thank speakers    | Producer  |
+| +5 min  | Download chat logs and Q&A        | Tech Lead |
 | +10 min | Send post-event email (automated) | Marketing |
-| +15 min | Production team debrief | Producer |
+| +15 min | Production team debrief           | Producer  |
 ```
 
 ## Audience Engagement Strategies
@@ -195,6 +207,7 @@ Evaluate platforms across these dimensions:
 ### Engagement Toolkit
 
 **Before the event**:
+
 - Pre-event survey to shape content
 - Discussion forum or community channel
 - Speaker AMAs (Ask Me Anything)
@@ -202,6 +215,7 @@ Evaluate platforms across these dimensions:
 - Attendee profile matching for networking
 
 **During the event**:
+
 - Live polls every 10-15 minutes
 - Q&A with upvoting
 - Chat prompts and discussion questions
@@ -212,6 +226,7 @@ Evaluate platforms across these dimensions:
 - Interactive workshops with shared documents
 
 **After the event**:
+
 - Post-event survey (send within 1 hour)
 - On-demand replay access
 - Discussion threads on key takeaways
@@ -240,6 +255,7 @@ Rule of thumb: Interactive element every 10-15 minutes
 ### Essential Production Equipment
 
 **For the producer/tech lead**:
+
 - Dual monitors (minimum) - one for platform, one for monitoring
 - Wired internet connection (50+ Mbps upload recommended)
 - Professional headset with microphone
@@ -247,6 +263,7 @@ Rule of thumb: Interactive element every 10-15 minutes
 - Backup computer ready to go
 
 **For speakers** (recommended kit):
+
 - External webcam (1080p minimum)
 - USB microphone or quality headset
 - Ring light or desk lamp for face lighting
@@ -257,15 +274,15 @@ Rule of thumb: Interactive element every 10-15 minutes
 
 ### Troubleshooting Playbook
 
-| Issue | Immediate Action | Backup Plan |
-|-------|-----------------|-------------|
-| Speaker loses connection | Play holding slide + music | Pre-recorded backup of talk |
-| Audio echo/feedback | Mute speaker, diagnose source | Switch to phone audio |
-| Screen share fails | Speaker emails slides to producer | Producer shares on behalf |
-| Platform outage | Communicate via email/social | Switch to backup platform |
-| Low attendee audio | Post chat message with fix steps | Provide recording after |
-| Chat spam/trolling | Moderator removes, restrict chat | Switch to moderated Q&A only |
-| Recording fails | Start manual backup recording | Capture screen locally |
+| Issue                    | Immediate Action                  | Backup Plan                  |
+| ------------------------ | --------------------------------- | ---------------------------- |
+| Speaker loses connection | Play holding slide + music        | Pre-recorded backup of talk  |
+| Audio echo/feedback      | Mute speaker, diagnose source     | Switch to phone audio        |
+| Screen share fails       | Speaker emails slides to producer | Producer shares on behalf    |
+| Platform outage          | Communicate via email/social      | Switch to backup platform    |
+| Low attendee audio       | Post chat message with fix steps  | Provide recording after      |
+| Chat spam/trolling       | Moderator removes, restrict chat  | Switch to moderated Q&A only |
+| Recording fails          | Start manual backup recording     | Capture screen locally       |
 
 ### Audio and Video Quality Checklist
 
@@ -304,12 +321,14 @@ Rule of thumb: Interactive element every 10-15 minutes
 ### Key Metrics to Track
 
 **Attendance**:
+
 - Registration count vs. attendance count (show rate)
 - Peak concurrent attendees
 - Average viewing duration
 - Drop-off points in the agenda
 
 **Engagement**:
+
 - Chat messages sent
 - Questions submitted
 - Poll participation rate
@@ -318,6 +337,7 @@ Rule of thumb: Interactive element every 10-15 minutes
 - Social media mentions
 
 **Satisfaction**:
+
 - Net Promoter Score (NPS)
 - Session ratings
 - Speaker ratings
@@ -326,6 +346,7 @@ Rule of thumb: Interactive element every 10-15 minutes
 - Open-ended feedback themes
 
 **Business Impact**:
+
 - Leads generated (if applicable)
 - Pipeline influenced
 - Customer retention signal
@@ -338,35 +359,41 @@ Rule of thumb: Interactive element every 10-15 minutes
 ## [Event Name] - Post-Event Report
 
 ### Overview
+
 - Date: [Date]
 - Format: [Virtual/Hybrid]
 - Platform: [Platform]
 - Target audience: [Description]
 
 ### Attendance
-- Registrations: ___
-- Attendees: ___ (___% show rate)
-- Peak concurrent: ___
-- Average session duration: ___ min
+
+- Registrations: \_\_\_
+- Attendees: **_ (_**% show rate)
+- Peak concurrent: \_\_\_
+- Average session duration: \_\_\_ min
 
 ### Engagement
-- Chat messages: ___
-- Questions submitted: ___
-- Poll responses: ___
-- Breakout participation: ___%
+
+- Chat messages: \_\_\_
+- Questions submitted: \_\_\_
+- Poll responses: \_\_\_
+- Breakout participation: \_\_\_%
 
 ### Satisfaction (from post-event survey)
-- Overall rating: ___/5
-- NPS: ___
-- Top positive feedback: ___
-- Top improvement areas: ___
+
+- Overall rating: \_\_\_/5
+- NPS: \_\_\_
+- Top positive feedback: \_\_\_
+- Top improvement areas: \_\_\_
 
 ### Key Takeaways
+
 1. [What worked well]
 2. [What to improve]
 3. [Recommendations for next event]
 
 ### Action Items
+
 - [ ] [Action] - [Owner] - [Deadline]
 ```
 
@@ -374,23 +401,23 @@ Rule of thumb: Interactive element every 10-15 minutes
 
 ### Virtual Event Budget Categories
 
-| Category | Small Webinar | Mid Conference | Large Conference |
-|----------|--------------|----------------|-----------------|
-| Platform | $0-500 | $1,000-5,000 | $5,000-50,000 |
-| Production | $0 (DIY) | $2,000-5,000 | $10,000-50,000 |
-| Speakers | $0-1,000 | $2,000-10,000 | $10,000-100,000 |
-| Marketing | $200-500 | $1,000-5,000 | $5,000-25,000 |
-| Content | $0-500 | $1,000-3,000 | $3,000-15,000 |
-| Staff time | 20-40 hours | 80-200 hours | 500-2000 hours |
-| **Total** | **$200-2,500** | **$7,000-28,000** | **$33,000-240,000** |
+| Category   | Small Webinar  | Mid Conference    | Large Conference    |
+| ---------- | -------------- | ----------------- | ------------------- |
+| Platform   | $0-500         | $1,000-5,000      | $5,000-50,000       |
+| Production | $0 (DIY)       | $2,000-5,000      | $10,000-50,000      |
+| Speakers   | $0-1,000       | $2,000-10,000     | $10,000-100,000     |
+| Marketing  | $200-500       | $1,000-5,000      | $5,000-25,000       |
+| Content    | $0-500         | $1,000-3,000      | $3,000-15,000       |
+| Staff time | 20-40 hours    | 80-200 hours      | 500-2000 hours      |
+| **Total**  | **$200-2,500** | **$7,000-28,000** | **$33,000-240,000** |
 
 Cost-saving tips:
+
 - Use built-in platform features before adding tools
 - Recruit internal speakers to reduce fees
 - Repurpose content across marketing channels
 - Partner with sponsors to offset platform costs
 - Start with simple formats and scale up based on results
-
 
 ## Output Format
 
@@ -403,7 +430,6 @@ Deliver the response as a structured document with clear headings and actionable
 3. Specific recommendations with rationale
 4. Action items with timeline
 ```
-
 
 ## Example
 

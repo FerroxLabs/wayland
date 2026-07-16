@@ -5,11 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import {
-  classifyCommand,
-  classifyDestructiveToolCall,
-  extractCommandText,
-} from '@/common/security/destructiveCommand';
+import { classifyCommand, classifyDestructiveToolCall, extractCommandText } from '@/common/security/destructiveCommand';
 
 describe('classifyCommand - catastrophic patterns are flagged', () => {
   const destructive = [
@@ -73,9 +69,9 @@ describe('classifyCommand - ordinary workflow commands are NOT flagged', () => {
 
 describe('classifyDestructiveToolCall', () => {
   it('only inspects execute-kind tool calls', () => {
-    expect(classifyDestructiveToolCall({ kind: 'edit', title: 'rm -rf /', rawInput: { command: 'rm -rf /' } }).destructive).toBe(
-      false
-    );
+    expect(
+      classifyDestructiveToolCall({ kind: 'edit', title: 'rm -rf /', rawInput: { command: 'rm -rf /' } }).destructive
+    ).toBe(false);
     expect(classifyDestructiveToolCall({ kind: 'read', rawInput: { command: 'rm -rf ~' } }).destructive).toBe(false);
   });
 
@@ -87,7 +83,8 @@ describe('classifyDestructiveToolCall', () => {
 
   it('allows a normal execute tool call', () => {
     expect(
-      classifyDestructiveToolCall({ kind: 'execute', title: 'Bash', rawInput: { command: 'rm -rf ./build' } }).destructive
+      classifyDestructiveToolCall({ kind: 'execute', title: 'Bash', rawInput: { command: 'rm -rf ./build' } })
+        .destructive
     ).toBe(false);
   });
 
@@ -99,7 +96,9 @@ describe('classifyDestructiveToolCall', () => {
 
 describe('extractCommandText', () => {
   it('pulls command from rawInput.command and the title', () => {
-    expect(extractCommandText({ kind: 'execute', title: 'Bash', rawInput: { command: 'echo hi' } })).toContain('echo hi');
+    expect(extractCommandText({ kind: 'execute', title: 'Bash', rawInput: { command: 'echo hi' } })).toContain(
+      'echo hi'
+    );
   });
   it('handles a string rawInput', () => {
     expect(extractCommandText({ kind: 'execute', rawInput: 'echo hi' })).toContain('echo hi');

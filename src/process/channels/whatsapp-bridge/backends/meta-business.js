@@ -78,9 +78,7 @@ export async function createBackend({ emit, sessionDir: _sessionDir }) {
         if (change.field !== 'messages') continue;
         const value = change.value || {};
         const contacts = Array.isArray(value.contacts) ? value.contacts : [];
-        const contactByWaId = new Map(
-          contacts.map((c) => [c.wa_id, c.profile?.name || c.wa_id]),
-        );
+        const contactByWaId = new Map(contacts.map((c) => [c.wa_id, c.profile?.name || c.wa_id]));
         const messages = Array.isArray(value.messages) ? value.messages : [];
         for (const msg of messages) {
           const senderName = contactByWaId.get(msg.from) || msg.from;
@@ -111,16 +109,13 @@ export async function createBackend({ emit, sessionDir: _sessionDir }) {
             mediaId = msg.sticker?.id;
           } else if (msg.type === 'reaction') {
             body = msg.reaction?.emoji || '';
-            reactionMessageId =
-              typeof msg.reaction?.message_id === 'string' ? msg.reaction.message_id : undefined;
+            reactionMessageId = typeof msg.reaction?.message_id === 'string' ? msg.reaction.message_id : undefined;
           }
 
           // W-5: Meta forwards the original message id via `msg.context.id`
           // whenever this inbound message is a reply.
           const replyToMessageId =
-            typeof msg.context?.id === 'string' && msg.context.id.length > 0
-              ? msg.context.id
-              : undefined;
+            typeof msg.context?.id === 'string' && msg.context.id.length > 0 ? msg.context.id : undefined;
 
           emit('inbound.message', {
             messageId: msg.id,
@@ -158,13 +153,10 @@ export async function createBackend({ emit, sessionDir: _sessionDir }) {
       };
       // Verify credentials with a cheap GET on the phone-number node.
       try {
-        await axios.get(
-          `https://graph.facebook.com/${config.apiVersion}/${config.phoneNumberId}`,
-          {
-            headers: { Authorization: `Bearer ${config.accessToken}` },
-            timeout: 15_000,
-          },
-        );
+        await axios.get(`https://graph.facebook.com/${config.apiVersion}/${config.phoneNumberId}`, {
+          headers: { Authorization: `Bearer ${config.accessToken}` },
+          timeout: 15_000,
+        });
       } catch (err) {
         config = null;
         const detail = err?.response?.data?.error?.message || err?.message || String(err);
@@ -204,9 +196,7 @@ export async function createBackend({ emit, sessionDir: _sessionDir }) {
       // schema error from the Graph API.
       const ALLOWED_MEDIA_TYPES = ['image', 'video', 'audio', 'document', 'sticker'];
       if (!ALLOWED_MEDIA_TYPES.includes(type)) {
-        throw new Error(
-          `unsupported_media_type: ${type} (allowed: ${ALLOWED_MEDIA_TYPES.join(', ')})`,
-        );
+        throw new Error(`unsupported_media_type: ${type} (allowed: ${ALLOWED_MEDIA_TYPES.join(', ')})`);
       }
       const media = mediaId ? { id: mediaId } : { link: mediaUrl };
       if (caption && ['image', 'video', 'document'].includes(type)) {

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot guide python automation emergency-preparedness performing-arts"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced iot guide python automation emergency-preparedness performing-arts'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # MQTT Specialist
 
 You are an expert MQTT messaging architect. You guide developers through broker selection and configuration, topic hierarchy design, QoS level selection, retained message strategy, security hardening, and robust client implementation patterns for IoT and real-time messaging systems.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about mqtt specialist techniques or best practices
 - User needs guidance on mqtt specialist concepts
 - User wants to implement or improve their approach to mqtt specialist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of mqtt specialist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,24 +38,24 @@ You are an expert MQTT messaging architect. You guide developers through broker 
 
 ### Version Comparison
 
-| Feature | MQTT 3.1.1 | MQTT 5.0 |
-|---------|-----------|----------|
-| Reason codes | No | Yes (detailed error info) |
-| Shared subscriptions | Broker-specific | Standardized |
-| Message expiry | No | Yes (TTL per message) |
-| Topic aliases | No | Yes (reduce bandwidth) |
-| Request/Response | Manual | Built-in correlation |
-| User properties | No | Yes (custom headers) |
-| Flow control | No | Yes (receive maximum) |
-| Subscription options | Limited | No Local, Retain handling |
+| Feature              | MQTT 3.1.1      | MQTT 5.0                  |
+| -------------------- | --------------- | ------------------------- |
+| Reason codes         | No              | Yes (detailed error info) |
+| Shared subscriptions | Broker-specific | Standardized              |
+| Message expiry       | No              | Yes (TTL per message)     |
+| Topic aliases        | No              | Yes (reduce bandwidth)    |
+| Request/Response     | Manual          | Built-in correlation      |
+| User properties      | No              | Yes (custom headers)      |
+| Flow control         | No              | Yes (receive maximum)     |
+| Subscription options | Limited         | No Local, Retain handling |
 
 ### QoS Level Selection
 
-| QoS | Guarantee | Overhead | Use Case |
-|-----|-----------|----------|----------|
-| 0 (At most once) | Fire and overlook | Minimal | Frequent sensor data, telemetry |
-| 1 (At least once) | Delivered, maybe duplicates | 1 ACK | Commands, alerts, most IoT |
-| 2 (Exactly once) | Delivered exactly once | 4-step handshake | Billing, critical state changes |
+| QoS               | Guarantee                   | Overhead         | Use Case                        |
+| ----------------- | --------------------------- | ---------------- | ------------------------------- |
+| 0 (At most once)  | Fire and overlook           | Minimal          | Frequent sensor data, telemetry |
+| 1 (At least once) | Delivered, maybe duplicates | 1 ACK            | Commands, alerts, most IoT      |
+| 2 (Exactly once)  | Delivered exactly once      | 4-step handshake | Billing, critical state changes |
 
 **Decision rule**: Start with QoS 1 for most IoT. Use QoS 0 for high-frequency data where occasional loss is acceptable. Reserve QoS 2 for business-critical messages where duplicates cause harm.
 
@@ -83,14 +84,14 @@ $SYS/broker/messages/received
 
 ### Topic Naming Rules
 
-| Rule | Good | Bad | Reason |
-|------|------|-----|--------|
-| Lowercase | `home/kitchen/temp` | `Home/Kitchen/Temp` | Consistency |
-| No spaces | `living-room` | `living room` | URL safety |
-| No leading slash | `home/sensor/1` | `/home/sensor/1` | Empty first level |
-| Specific leaf | `sensor/1/temperature` | `sensor/1` | Clear data type |
-| Separate commands | `device/1/cmd/restart` | `device/1/restart` | Namespace isolation |
-| Version prefix | `v2/home/sensor/1` | `home/sensor/1` | Migration support |
+| Rule              | Good                   | Bad                 | Reason              |
+| ----------------- | ---------------------- | ------------------- | ------------------- |
+| Lowercase         | `home/kitchen/temp`    | `Home/Kitchen/Temp` | Consistency         |
+| No spaces         | `living-room`          | `living room`       | URL safety          |
+| No leading slash  | `home/sensor/1`        | `/home/sensor/1`    | Empty first level   |
+| Specific leaf     | `sensor/1/temperature` | `sensor/1`          | Clear data type     |
+| Separate commands | `device/1/cmd/restart` | `device/1/restart`  | Namespace isolation |
+| Version prefix    | `v2/home/sensor/1`     | `home/sensor/1`     | Migration support   |
 
 ### Wildcard Subscription Patterns
 
@@ -446,16 +447,16 @@ def debug_subscriber(broker: str, topic: str = "#"):
 
 ## Common Pitfalls
 
-| Mistake | Impact | Solution |
-|---------|--------|----------|
-| Using QoS 2 everywhere | High latency, broker load | Use QoS 0/1 for telemetry |
-| Subscribing to "#" | Client overwhelmed | Use specific topic filters |
-| No LWT configured | Stale online status | Always set LWT for status |
-| Retaining commands | Re-execution on reconnect | Never retain command messages |
-| Client ID collisions | Connection flapping | Use unique, persistent IDs |
-| No reconnection logic | Silent data loss | Use auto-reconnect with backoff |
-| Flat topic structure | Impossible to filter | Use hierarchical topic design |
-| Large payloads | Broker memory issues | Compress or reference external storage |
+| Mistake                | Impact                    | Solution                               |
+| ---------------------- | ------------------------- | -------------------------------------- |
+| Using QoS 2 everywhere | High latency, broker load | Use QoS 0/1 for telemetry              |
+| Subscribing to "#"     | Client overwhelmed        | Use specific topic filters             |
+| No LWT configured      | Stale online status       | Always set LWT for status              |
+| Retaining commands     | Re-execution on reconnect | Never retain command messages          |
+| Client ID collisions   | Connection flapping       | Use unique, persistent IDs             |
+| No reconnection logic  | Silent data loss          | Use auto-reconnect with backoff        |
+| Flat topic structure   | Impossible to filter      | Use hierarchical topic design          |
+| Large payloads         | Broker memory issues      | Compress or reference external storage |
 
 ## Exercises
 
@@ -465,7 +466,6 @@ def debug_subscriber(broker: str, topic: str = "#"):
 4. **LWT Monitor**: Build a fleet status monitor using LWT that displays online/offline status for 10 simulated devices
 5. **Request/Response**: Implement a command-response pattern where a dashboard requests current sensor readings from specific devices
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -473,7 +473,6 @@ def debug_subscriber(broker: str, topic: str = "#"):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -494,14 +493,12 @@ def debug_subscriber(broker: str, topic: str = "#"):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

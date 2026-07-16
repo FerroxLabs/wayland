@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "clean-code best-practices code-review"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'clean-code best-practices code-review'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Code Review Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - A developer or team lead asks how to structure code reviews, what to look for, or how to give feedback that improves code quality without damaging team morale
 - A team wants to formalize their review process -- establishing checklists, severity tiers, or review SLAs for pull requests
 - An engineer asks why their PRs are getting rejected for inconsistent reasons, or why review feedback varies wildly between reviewers
@@ -30,6 +32,7 @@ metadata:
 - A developer wants to understand the difference between blocking and non-blocking feedback, and how to communicate severity clearly
 
 **Do NOT use this skill when:**
+
 - The user needs help with a specific language's style guide conventions -- check language-specific linting or style guide skills
 - The user is asking how to set up a CI/CD pipeline or GitHub Actions workflows -- check the CI/CD pipeline skill
 - The user wants to learn about architecture decision records (ADRs) as a standalone documentation practice -- check the technical documentation skill
@@ -324,12 +327,12 @@ External contributors do not have the same context as internal team members and 
 
 ### Diagnosis Summary
 
-| Pain Point                        | Severity | Root Cause Hypothesis                                                  |
-|-----------------------------------|----------|------------------------------------------------------------------------|
-| PRs sitting open 3+ days          | High     | No defined SLA; reviewer assignment is informal or voluntary           |
-| Comments that feel like attacks   | High     | No severity classification; feedback is unstructured and non-specific  |
-| Senior engineers blocking on preference | High | No distinction between blocking correctness issues and design opinions |
-| Rubber stamp approvals            | High     | Social pressure to avoid conflict; no accountability for review quality |
+| Pain Point                              | Severity | Root Cause Hypothesis                                                   |
+| --------------------------------------- | -------- | ----------------------------------------------------------------------- |
+| PRs sitting open 3+ days                | High     | No defined SLA; reviewer assignment is informal or voluntary            |
+| Comments that feel like attacks         | High     | No severity classification; feedback is unstructured and non-specific   |
+| Senior engineers blocking on preference | High     | No distinction between blocking correctness issues and design opinions  |
+| Rubber stamp approvals                  | High     | Social pressure to avoid conflict; no accountability for review quality |
 
 This team is exhibiting three simultaneous failure modes: **nitpick/opinion gridlock** (senior engineers blocking on preference), **rubber stamping** (junior engineers approving to avoid conflict), and **SLA breakdown** (no defined time expectations). These three problems reinforce each other -- rubber stamping happens because the alternative (leaving real feedback) leads to conflict.
 
@@ -364,12 +367,12 @@ This single change will eliminate a significant fraction of the comment volume t
 
 At your next team meeting (this week), agree on and document the following:
 
-| Level   | Definition                              | Blocks Merge? | Example for your codebase                                         |
-|---------|-----------------------------------------|---------------|--------------------------------------------------------------------|
-| Blocker | Correctness, security, data loss risk   | Yes           | "This endpoint is missing authentication -- any user can call it" |
-| Major   | Real design issue, worth a ticket       | Soft (deferrable) | "This service now owns 4 distinct responsibilities -- worth splitting" |
-| Minor   | Readability or maintainability suggestion | No          | "Extracting this 40-line block into a named function would clarify intent" |
-| Nit     | Style preference, no action required    | No           | "nit: I'd name this `userRepository` rather than `userRepo`"      |
+| Level   | Definition                                | Blocks Merge?     | Example for your codebase                                                  |
+| ------- | ----------------------------------------- | ----------------- | -------------------------------------------------------------------------- |
+| Blocker | Correctness, security, data loss risk     | Yes               | "This endpoint is missing authentication -- any user can call it"          |
+| Major   | Real design issue, worth a ticket         | Soft (deferrable) | "This service now owns 4 distinct responsibilities -- worth splitting"     |
+| Minor   | Readability or maintainability suggestion | No                | "Extracting this 40-line block into a named function would clarify intent" |
+| Nit     | Style preference, no action required      | No                | "nit: I'd name this `userRepository` rather than `userRepo`"               |
 
 **The most important rule to add immediately**: Only Blocker comments prevent merge. Senior engineers who are currently blocking PRs on design preferences must reclassify those comments as Major or Minor. If they have a genuine Blocker, they must articulate specifically why the code is incorrect, insecure, or will cause data loss.
 
@@ -380,7 +383,7 @@ Announce this at a team meeting. Do not implement it silently. Senior engineers 
 Starting immediately, implement:
 
 | Priority | Time to First Review | Follow-up After Author Responds |
-|----------|----------------------|---------------------------------|
+| -------- | -------------------- | ------------------------------- |
 | Urgent   | 2 business hours     | 2 business hours                |
 | Normal   | 1 business day       | 1 business day                  |
 
@@ -396,19 +399,25 @@ Create `.github/pull_request_template.md` in your repository:
 
 ```markdown
 ## What does this change do?
+
 <!-- 1-2 sentences describing the behavior change -->
 
 ## Why is this change being made?
+
 <!-- The business or technical problem this solves. Link to ticket: -->
+
 Resolves #
 
 ## How to test this
+
 <!-- Steps a reviewer can take to validate correctness manually, or what automated tests cover it -->
 
 ## Trade-offs and known limitations
+
 <!-- Anything deferred to a follow-up, or approaches considered and rejected -->
 
 ## Checklist (author)
+
 - [ ] I have self-reviewed this diff
 - [ ] CI passes locally
 - [ ] Tests cover the happy path and at least one error case
@@ -422,6 +431,7 @@ A PR that arrives without a completed description gets one comment from the firs
 ### Reviewer Checklist (Three-Layer Model)
 
 **Layer 1 -- Correctness (always required)**
+
 - [ ] Does the code correctly implement what the description says it does?
 - [ ] Are all error paths handled or explicitly documented as out of scope?
 - [ ] Are there race conditions or TOCTOU hazards in any concurrent operations?
@@ -429,11 +439,13 @@ A PR that arrives without a completed description gets one comment from the firs
 - [ ] Are resources (DB connections, file handles, network sockets) properly released in all paths?
 
 **Layer 2 -- Design (required for production-path changes)**
+
 - [ ] Does this change fit the existing architectural patterns, or introduce a conflicting one?
 - [ ] Is the interface designed so the correct usage is obvious and the incorrect usage is difficult?
 - [ ] Are responsibilities appropriately separated?
 
 **Layer 3 -- Polish (optional; skip under time pressure -- say so explicitly)**
+
 - [ ] Are names self-explanatory without requiring comments to decode them?
 - [ ] Do comments explain "why" rather than restating "what" the code does?
 - [ ] Do tests cover edge cases and error paths, not just the happy path?
@@ -455,13 +467,13 @@ Recommend the following conversation with the senior engineers directly (or thro
 
 ### Metrics to Track (Starting Now)
 
-| Metric                     | Your Likely Current State | 90-Day Target       |
-|----------------------------|---------------------------|---------------------|
-| Time to first review       | 24-72+ hours              | Under 4 hours       |
+| Metric                     | Your Likely Current State | 90-Day Target         |
+| -------------------------- | ------------------------- | --------------------- |
+| Time to first review       | 24-72+ hours              | Under 4 hours         |
 | PR cycle time              | 3-5+ days                 | Under 2 business days |
-| Median review round count  | 3-4+                      | 1-2                 |
-| PRs over 400 lines         | Unknown                   | Under 20%           |
-| Rubber stamp approval rate | High (estimate 40-60%)    | Under 10%           |
+| Median review round count  | 3-4+                      | 1-2                   |
+| PRs over 400 lines         | Unknown                   | Under 20%             |
+| Rubber stamp approval rate | High (estimate 40-60%)    | Under 10%             |
 
 Track these manually in a shared spreadsheet for the first month, then invest in a tool like LinearB or Swarmia to automate the measurement. Review the numbers at your monthly team retrospective. If cycle time is not dropping after 4 weeks, the process changes have not been adopted -- find out which step is being skipped.
 

@@ -18,14 +18,14 @@ This project uses GPT-powered GitHub Actions workflows to assist with PR review.
 
 ## Comparison of the Two GPT Workflows
 
-|                   | GPT Review                                                            | GPT PR Assessment                                                                    |
-| ----------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| **Purpose**       | Code quality review (bugs, security, performance)                     | Maintainer value assessment (merge priority, risk)                                   |
-| **Role**          | Code review expert                                                    | Project maintainer / tech lead                                                       |
-| **Trigger**       | Auto-triggered on PR creation (via pr-checks.yml) + manual dispatch   | Auto-triggered for external contributor PRs (via pr-checks.yml) + manual dispatch    |
-| **Extra data**    | None                                                                  | Linked issue content                                                                 |
-| **Output method** | PR Review (createReview)                                              | Issue Comment (updated in place, not duplicated)                                     |
-| **Output format** | Issue list sorted by severity                                         | 7-dimension structured assessment report                                             |
+|                   | GPT Review                                                          | GPT PR Assessment                                                                 |
+| ----------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Purpose**       | Code quality review (bugs, security, performance)                   | Maintainer value assessment (merge priority, risk)                                |
+| **Role**          | Code review expert                                                  | Project maintainer / tech lead                                                    |
+| **Trigger**       | Auto-triggered on PR creation (via pr-checks.yml) + manual dispatch | Auto-triggered for external contributor PRs (via pr-checks.yml) + manual dispatch |
+| **Extra data**    | None                                                                | Linked issue content                                                              |
+| **Output method** | PR Review (createReview)                                            | Issue Comment (updated in place, not duplicated)                                  |
+| **Output format** | Issue list sorted by severity                                       | 7-dimension structured assessment report                                          |
 
 ## Shared Actions
 
@@ -153,9 +153,9 @@ When triggered repeatedly on the same PR, the comment is **updated** rather than
 
 ## Secrets Configuration
 
-| Secret           | Purpose                                              |
-| ---------------- | ---------------------------------------------------- |
-| `OPENAI_API_KEY` | OpenAI API access key, shared by both workflows      |
+| Secret           | Purpose                                         |
+| ---------------- | ----------------------------------------------- |
+| `OPENAI_API_KEY` | OpenAI API access key, shared by both workflows |
 
 ## Modification Guide
 

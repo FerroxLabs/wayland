@@ -193,7 +193,7 @@ jobs:
           git push origin $TAG_NAME
           echo "✅ Successfully created and pushed tag: $TAG_NAME"
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
 
   # 发布到 GitHub Releases
   release:
@@ -256,7 +256,7 @@ jobs:
           draft: true
           prerelease: ${{ steps.version.outputs.is_dev == 'true' || contains(steps.version.outputs.tag_name, 'beta') || contains(steps.version.outputs.tag_name, 'alpha') || contains(steps.version.outputs.tag_name, 'rc') }}
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
 
   # 发布前体检：在草稿发布上对真实下载件跑用户路径校验，绿了才公开。
   # The release above is created as a DRAFT. This gate downloads the draft's real
@@ -291,7 +291,7 @@ jobs:
       - name: macOS install gate (Gatekeeper on the real dmg)
         run: bash scripts/release-smoke-macos.sh --tag "${{ steps.tag.outputs.tag_name }}"
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
 
       - name: Provider-connect gate
         run: bun run scripts/release-smoke-connect.ts
@@ -329,7 +329,7 @@ jobs:
         shell: pwsh
         run: pwsh scripts/release-smoke-windows.ps1 -Tag "${{ steps.tag.outputs.tag_name }}"
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
 
   # Publish only after BOTH the macOS and Windows install gates pass. Keeping
   # publish in its own job (instead of inside the macOS gate) makes the draft ->
@@ -337,11 +337,11 @@ jobs:
   publish-release:
     name: Publish Release (both gates passed)
     runs-on: ubuntu-latest
-    needs: [release-smoke-gate, release-smoke-gate-windows]
+    # Unsigned build: publish depends on the build succeeding only; the mac/win
+    # signature smoke-gates are bypassed (no signing creds on this fork).
+    needs: [release]
     if: |
-      always() &&
-      needs.release-smoke-gate.result == 'success' &&
-      needs.release-smoke-gate-windows.result == 'success' &&
+      always() && needs.release.result == 'success' &&
       startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
     steps:
       - name: Resolve tag
@@ -361,7 +361,7 @@ jobs:
           # (which left v0.9.7 stuck as a draft after both gates passed).
           gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest --prerelease=false
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
 
   # Publish the `getwayland` self-host CLI to npm on every published release.
   # This is the headless web-server flavor (npm i -g getwayland), built from

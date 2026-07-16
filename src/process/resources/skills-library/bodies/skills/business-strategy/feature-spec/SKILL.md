@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning template strategy agile project-management"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning template strategy agile project-management'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Feature Spec
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to write a feature spec, feature specification, feature design document (FDD), or feature brief for a discrete, shippable unit of product functionality
 - User needs a document that bridges a PRD's "what and why" with engineering's "how" -- capturing functional requirements, UX flows, edge cases, and technical constraints in one place
 - User wants to align cross-functional stakeholders (PM, design, engineering, QA, data) before development begins, reducing back-and-forth during implementation
@@ -28,6 +30,7 @@ metadata:
 - User needs to document rollback plans, feature flag strategies, or phased rollout parameters for a risky or high-traffic feature
 
 **Do NOT use this skill when:**
+
 - User needs a high-level product requirements document spanning multiple features or an entire product area -- use `prd-writing` instead
 - User needs a technical architecture document covering system design, service topology, database schema, or infrastructure decisions -- use `technical-specification` instead
 - User needs only user stories in the format "As a [role], I want [action], so that [outcome]" without full spec context -- use `user-story-writing` instead
@@ -141,18 +144,18 @@ Launch criteria are the exit conditions for development -- the feature ships whe
 
 ### Overview
 
-| Field               | Value                                              |
-|---------------------|----------------------------------------------------|
-| **Feature**         | [Feature name]                                     |
-| **Product / Area**  | [Product name and area, e.g., "Growth / Onboarding"] |
-| **Author**          | [Name and role]                                    |
-| **Reviewers**       | [Names and roles of required approvers]            |
-| **Date created**    | [YYYY-MM-DD]                                       |
-| **Last updated**    | [YYYY-MM-DD]                                       |
-| **Status**          | Draft / In Review / Approved / In Development / Shipped |
-| **PRD reference**   | [PRD name, version, or link]                       |
-| **Target release**  | [Version number or sprint/quarter]                 |
-| **Feature flag**    | [Flag name, e.g., feature_notification_preferences] |
+| Field              | Value                                                   |
+| ------------------ | ------------------------------------------------------- |
+| **Feature**        | [Feature name]                                          |
+| **Product / Area** | [Product name and area, e.g., "Growth / Onboarding"]    |
+| **Author**         | [Name and role]                                         |
+| **Reviewers**      | [Names and roles of required approvers]                 |
+| **Date created**   | [YYYY-MM-DD]                                            |
+| **Last updated**   | [YYYY-MM-DD]                                            |
+| **Status**         | Draft / In Review / Approved / In Development / Shipped |
+| **PRD reference**  | [PRD name, version, or link]                            |
+| **Target release** | [Version number or sprint/quarter]                      |
+| **Feature flag**   | [Flag name, e.g., feature_notification_preferences]     |
 
 ---
 
@@ -163,6 +166,7 @@ Launch criteria are the exit conditions for development -- the feature ships whe
 **Goal:** [What this feature achieves when successfully shipped. Frame as an outcome, not a feature description.]
 
 **Non-goals (explicit out-of-scope):**
+
 - [Specific thing that is NOT included and why]
 - [Specific thing that is NOT included and why]
 
@@ -176,11 +180,11 @@ Launch criteria are the exit conditions for development -- the feature ships whe
 
 ### Actors
 
-| Actor | Description | Permissions |
-|-------|-------------|-------------|
-| [End user role] | [Who they are and context] | [What they can do] |
-| [Admin role] | [Who they are and context] | [What they can do] |
-| [System / Job] | [Automated process, if any] | [What it does] |
+| Actor           | Description                 | Permissions        |
+| --------------- | --------------------------- | ------------------ |
+| [End user role] | [Who they are and context]  | [What they can do] |
+| [Admin role]    | [Who they are and context]  | [What they can do] |
+| [System / Job]  | [Automated process, if any] | [What it does]     |
 
 ---
 
@@ -188,29 +192,29 @@ Launch criteria are the exit conditions for development -- the feature ships whe
 
 #### [Functional Area 1: e.g., Viewing Preferences]
 
-| ID    | Requirement                                                | Priority | Depends On | Testable |
-|-------|------------------------------------------------------------|----------|------------|----------|
-| FR-01 | The system must display all notification categories with the user's current enabled/disabled status for each channel | Must | -- | Yes |
-| FR-02 | The system must load and display the current preferences within 1 second for a user with up to 50 notification categories | Must | -- | Yes |
-| FR-03 | The system must display the last-updated timestamp for the preferences page | Should | FR-01 | Yes |
+| ID    | Requirement                                                                                                               | Priority | Depends On | Testable |
+| ----- | ------------------------------------------------------------------------------------------------------------------------- | -------- | ---------- | -------- |
+| FR-01 | The system must display all notification categories with the user's current enabled/disabled status for each channel      | Must     | --         | Yes      |
+| FR-02 | The system must load and display the current preferences within 1 second for a user with up to 50 notification categories | Must     | --         | Yes      |
+| FR-03 | The system must display the last-updated timestamp for the preferences page                                               | Should   | FR-01      | Yes      |
 
 #### [Functional Area 2: e.g., Editing Preferences]
 
-| ID    | Requirement                                                | Priority | Depends On | Testable |
-|-------|------------------------------------------------------------|----------|------------|----------|
-| FR-04 | The system must allow the user to toggle email notifications on or off per category | Must | FR-01 | Yes |
-| FR-05 | The system must persist the preference change within 2 seconds of the user's toggle action | Must | FR-04 | Yes |
-| FR-06 | The system must revert the toggle to its previous state and display an error message if the save fails | Must | FR-05 | Yes |
-| FR-07 | The system should display a non-blocking success toast for 3 seconds after a successful save | Should | FR-05 | Yes |
-| FR-08 | The system could allow users to save a preset (e.g., "Digest only") that configures multiple categories at once | Could | FR-04 | Yes |
-| FR-09 | The system must not expose notification categories that the user's current plan does not include | Must | FR-01 | Yes |
+| ID    | Requirement                                                                                                     | Priority | Depends On | Testable |
+| ----- | --------------------------------------------------------------------------------------------------------------- | -------- | ---------- | -------- |
+| FR-04 | The system must allow the user to toggle email notifications on or off per category                             | Must     | FR-01      | Yes      |
+| FR-05 | The system must persist the preference change within 2 seconds of the user's toggle action                      | Must     | FR-04      | Yes      |
+| FR-06 | The system must revert the toggle to its previous state and display an error message if the save fails          | Must     | FR-05      | Yes      |
+| FR-07 | The system should display a non-blocking success toast for 3 seconds after a successful save                    | Should   | FR-05      | Yes      |
+| FR-08 | The system could allow users to save a preset (e.g., "Digest only") that configures multiple categories at once | Could    | FR-04      | Yes      |
+| FR-09 | The system must not expose notification categories that the user's current plan does not include                | Must     | FR-01      | Yes      |
 
 #### [Functional Area 3: e.g., Bulk Actions]
 
-| ID    | Requirement                                                | Priority | Depends On | Testable |
-|-------|------------------------------------------------------------|----------|------------|----------|
-| FR-10 | The system must provide an "Unsubscribe from all email" option that disables all email notification categories simultaneously | Must | FR-04 | Yes |
-| FR-11 | The system must display a confirmation modal before executing the "Unsubscribe from all" action | Must | FR-10 | Yes |
+| ID    | Requirement                                                                                                                   | Priority | Depends On | Testable |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------- | -------- | ---------- | -------- |
+| FR-10 | The system must provide an "Unsubscribe from all email" option that disables all email notification categories simultaneously | Must     | FR-04      | Yes      |
+| FR-11 | The system must display a confirmation modal before executing the "Unsubscribe from all" action                               | Must     | FR-10      | Yes      |
 
 ---
 
@@ -218,11 +222,11 @@ Launch criteria are the exit conditions for development -- the feature ships whe
 
 #### Entry Points
 
-| Entry Point | Trigger | Initial State |
-|-------------|---------|---------------|
-| Settings navigation | User clicks "Notifications" in account settings | Preferences page loads with current state |
-| Email footer link | User clicks "Manage notification preferences" in an email footer | Same page, deep-linked to email section |
-| Admin console | Admin navigates to a user's notification settings | Admin view of user's preferences (read or write per role) |
+| Entry Point         | Trigger                                                          | Initial State                                             |
+| ------------------- | ---------------------------------------------------------------- | --------------------------------------------------------- |
+| Settings navigation | User clicks "Notifications" in account settings                  | Preferences page loads with current state                 |
+| Email footer link   | User clicks "Manage notification preferences" in an email footer | Same page, deep-linked to email section                   |
+| Admin console       | Admin navigates to a user's notification settings                | Admin view of user's preferences (read or write per role) |
 
 #### Primary Flow: User Edits a Single Notification Preference
 
@@ -249,16 +253,16 @@ Launch criteria are the exit conditions for development -- the feature ships whe
 
 ### Edge Cases
 
-| ID   | Scenario                          | Trigger Condition                                       | Expected System Behavior                                              | User-Facing Message                                                      | Recovery Path                              |
-|------|-----------------------------------|---------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------------------------------|
-| E-01 | Empty state -- no categories exist | User's account type has zero notification categories    | Render empty state illustration and copy; no toggles shown            | "No notifications to manage yet. Check back when features are enabled."  | User navigates away                        |
-| E-02 | Toggle rapid-fire input           | User clicks the same toggle 3+ times within 500ms       | Debounce: cancel in-flight requests; send only the final state after 500ms of inactivity | None (UI reflects final state immediately) | Final state is persisted correctly         |
-| E-03 | New category added after last visit | System adds a new notification category post-deployment | New category appears with system default (enabled); highlighted with a "New" badge for 30 days | "New: [Category name] notifications are on by default." | User can disable on the same page          |
-| E-04 | "Unsubscribe all" on already-empty preferences | All categories are already disabled when user triggers bulk action | Action succeeds silently (idempotent); no change recorded              | "You're already unsubscribed from all emails."                           | No action needed                           |
-| E-05 | Session expires mid-edit          | Session token expires while user is on the page         | PATCH request returns 401; user is redirected to login with return URL set to preferences page | "Your session expired. Log in to save your changes."                     | User logs in and returns to the same page  |
-| E-06 | OS-level push notifications disabled | Device OS has notifications blocked for the app         | Push toggle is shown but in a disabled/informational state; not a toggleable control | "Push notifications are blocked by your device. [How to enable]"         | User adjusts OS settings and returns       |
-| E-07 | Admin views preferences for a deactivated user | Admin navigates to preferences for an account with status=deactivated | Page renders in read-only mode; all edit controls are hidden; banner indicates deactivated status | "This account is deactivated. Notification preferences are read-only."   | Admin exits or reactivates account first   |
-| E-08 | Concurrent edits from two devices | Same user edits preferences simultaneously on desktop and mobile | Last-write-wins: whichever PATCH request completes last is the persisted state; no merge conflict UI is shown | None (each device reflects its own state until next page load)           | User reloads either page to see final state |
+| ID   | Scenario                                       | Trigger Condition                                                     | Expected System Behavior                                                                                      | User-Facing Message                                                     | Recovery Path                               |
+| ---- | ---------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------- |
+| E-01 | Empty state -- no categories exist             | User's account type has zero notification categories                  | Render empty state illustration and copy; no toggles shown                                                    | "No notifications to manage yet. Check back when features are enabled." | User navigates away                         |
+| E-02 | Toggle rapid-fire input                        | User clicks the same toggle 3+ times within 500ms                     | Debounce: cancel in-flight requests; send only the final state after 500ms of inactivity                      | None (UI reflects final state immediately)                              | Final state is persisted correctly          |
+| E-03 | New category added after last visit            | System adds a new notification category post-deployment               | New category appears with system default (enabled); highlighted with a "New" badge for 30 days                | "New: [Category name] notifications are on by default."                 | User can disable on the same page           |
+| E-04 | "Unsubscribe all" on already-empty preferences | All categories are already disabled when user triggers bulk action    | Action succeeds silently (idempotent); no change recorded                                                     | "You're already unsubscribed from all emails."                          | No action needed                            |
+| E-05 | Session expires mid-edit                       | Session token expires while user is on the page                       | PATCH request returns 401; user is redirected to login with return URL set to preferences page                | "Your session expired. Log in to save your changes."                    | User logs in and returns to the same page   |
+| E-06 | OS-level push notifications disabled           | Device OS has notifications blocked for the app                       | Push toggle is shown but in a disabled/informational state; not a toggleable control                          | "Push notifications are blocked by your device. [How to enable]"        | User adjusts OS settings and returns        |
+| E-07 | Admin views preferences for a deactivated user | Admin navigates to preferences for an account with status=deactivated | Page renders in read-only mode; all edit controls are hidden; banner indicates deactivated status             | "This account is deactivated. Notification preferences are read-only."  | Admin exits or reactivates account first    |
+| E-08 | Concurrent edits from two devices              | Same user edits preferences simultaneously on desktop and mobile      | Last-write-wins: whichever PATCH request completes last is the persisted state; no merge conflict UI is shown | None (each device reflects its own state until next page load)          | User reloads either page to see final state |
 
 ---
 
@@ -266,17 +270,17 @@ Launch criteria are the exit conditions for development -- the feature ships whe
 
 #### Visual States
 
-| Element                | State       | Behavior / Description                                                            |
-|------------------------|-------------|------------------------------------------------------------------------------------|
-| Notification toggle    | Default (on) | Toggle track is filled with brand primary color; thumb is on the right              |
-| Notification toggle    | Default (off)| Toggle track is gray; thumb is on the left                                          |
-| Notification toggle    | Loading      | Toggle is disabled; spinner replaces thumb for up to 2 seconds (optimistic update avoids this state in most cases) |
-| Notification toggle    | Error        | Toggle reverts to pre-click state; inline error text appears below the row          |
-| Preferences page       | Loading      | Skeleton rows with shimmer animation replace toggle rows during initial fetch        |
-| Preferences page       | Empty        | Illustration + heading + body copy; no toggle rows                                  |
-| "Unsubscribe all" button | Disabled   | Button is grayed out when all categories are already disabled                       |
-| Save toast             | Success      | Non-blocking toast, bottom-right, 3-second auto-dismiss, includes checkmark icon    |
-| Save toast             | Error        | Inline error below the affected row, not a toast; persists until user retries        |
+| Element                  | State         | Behavior / Description                                                                                             |
+| ------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Notification toggle      | Default (on)  | Toggle track is filled with brand primary color; thumb is on the right                                             |
+| Notification toggle      | Default (off) | Toggle track is gray; thumb is on the left                                                                         |
+| Notification toggle      | Loading       | Toggle is disabled; spinner replaces thumb for up to 2 seconds (optimistic update avoids this state in most cases) |
+| Notification toggle      | Error         | Toggle reverts to pre-click state; inline error text appears below the row                                         |
+| Preferences page         | Loading       | Skeleton rows with shimmer animation replace toggle rows during initial fetch                                      |
+| Preferences page         | Empty         | Illustration + heading + body copy; no toggle rows                                                                 |
+| "Unsubscribe all" button | Disabled      | Button is grayed out when all categories are already disabled                                                      |
+| Save toast               | Success       | Non-blocking toast, bottom-right, 3-second auto-dismiss, includes checkmark icon                                   |
+| Save toast               | Error         | Inline error below the affected row, not a toast; persists until user retries                                      |
 
 #### Responsive Behavior
 
@@ -297,15 +301,15 @@ Launch criteria are the exit conditions for development -- the feature ships whe
 
 ### Technical Considerations
 
-| Area                  | Consideration                                                                                     |
-|-----------------------|--------------------------------------------------------------------------------------------------|
-| Performance           | Initial page load must render within 1 second (p95) for users with up to 50 notification categories. PATCH requests must complete within 500ms (p95) under normal load. |
-| Data model            | Requires a per-user, per-notification-category, per-channel preference store. Must support adding new categories without requiring retroactive user records (default value must be inferrable without a row). |
-| API                   | Requires a GET endpoint returning all categories and user preferences in a single response (avoid N+1 per-category requests). Requires a PATCH endpoint accepting partial updates (single toggle change without resending the full preference set). |
-| Security              | Users may only read and write their own preferences. Admins may read and write preferences for users within their organization. All preference changes must be written to the audit log with actor, timestamp, and before/after values. |
-| Backward compatibility | Existing email dispatch logic reads a preferences record to determine whether to send. If no record exists for a user-category pair, the system must default to "enabled" to preserve current behavior for existing users. |
-| Scalability           | Opt-out status is read on every notification dispatch. If the preferences store becomes a hot-read path, the implementation must support a read-through cache with TTL of no more than 60 seconds. |
-| Third-party push      | Push notification enable/disable status is stored in this feature's data model but the actual token registration and deregistration is delegated to the push notification service. Specify the interface contract, not the implementation. |
+| Area                   | Consideration                                                                                                                                                                                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Performance            | Initial page load must render within 1 second (p95) for users with up to 50 notification categories. PATCH requests must complete within 500ms (p95) under normal load.                                                                             |
+| Data model             | Requires a per-user, per-notification-category, per-channel preference store. Must support adding new categories without requiring retroactive user records (default value must be inferrable without a row).                                       |
+| API                    | Requires a GET endpoint returning all categories and user preferences in a single response (avoid N+1 per-category requests). Requires a PATCH endpoint accepting partial updates (single toggle change without resending the full preference set). |
+| Security               | Users may only read and write their own preferences. Admins may read and write preferences for users within their organization. All preference changes must be written to the audit log with actor, timestamp, and before/after values.             |
+| Backward compatibility | Existing email dispatch logic reads a preferences record to determine whether to send. If no record exists for a user-category pair, the system must default to "enabled" to preserve current behavior for existing users.                          |
+| Scalability            | Opt-out status is read on every notification dispatch. If the preferences store becomes a hot-read path, the implementation must support a read-through cache with TTL of no more than 60 seconds.                                                  |
+| Third-party push       | Push notification enable/disable status is stored in this feature's data model but the actual token registration and deregistration is delegated to the push notification service. Specify the interface contract, not the implementation.          |
 
 ---
 
@@ -451,18 +455,18 @@ When a feature uses a feature flag for controlled rollout, the spec must documen
 
 ### Overview
 
-| Field               | Value                                                       |
-|---------------------|-------------------------------------------------------------|
-| **Feature**         | Data Table CSV Export                                       |
-| **Product / Area**  | Analytics Platform / Data Tables                            |
-| **Author**          | [PM Name]                                                   |
-| **Reviewers**       | Engineering lead, Design lead, QA lead, Security            |
-| **Date created**    | 2025-01-15                                                  |
-| **Last updated**    | 2025-01-15                                                  |
-| **Status**          | Draft                                                       |
-| **PRD reference**   | Analytics Platform PRD v2.3 -- "Data Portability" initiative |
-| **Target release**  | Q2 2025 / Sprint 24                                         |
-| **Feature flag**    | feature_csv_export                                          |
+| Field              | Value                                                        |
+| ------------------ | ------------------------------------------------------------ |
+| **Feature**        | Data Table CSV Export                                        |
+| **Product / Area** | Analytics Platform / Data Tables                             |
+| **Author**         | [PM Name]                                                    |
+| **Reviewers**      | Engineering lead, Design lead, QA lead, Security             |
+| **Date created**   | 2025-01-15                                                   |
+| **Last updated**   | 2025-01-15                                                   |
+| **Status**         | Draft                                                        |
+| **PRD reference**  | Analytics Platform PRD v2.3 -- "Data Portability" initiative |
+| **Target release** | Q2 2025 / Sprint 24                                          |
+| **Feature flag**   | feature_csv_export                                           |
 
 ---
 
@@ -473,6 +477,7 @@ When a feature uses a feature flag for controlled rollout, the spec must documen
 **Goal:** Allow any authenticated user with table view access to export the current filtered and sorted view of any data table to a well-formed CSV file in one to two clicks, eliminating manual data extraction for datasets up to 100,000 rows.
 
 **Non-goals (explicit out-of-scope):**
+
 - Export to Excel (.xlsx), PDF, or other formats -- scoped to CSV only for this release
 - Scheduled or automated exports (e.g., "email me this report every Monday") -- future feature
 - Exporting data the user does not have view access to -- permissions are inherited from table-level access controls
@@ -480,22 +485,22 @@ When a feature uses a feature flag for controlled rollout, the spec must documen
 
 **Success metrics:**
 
-| Metric                              | Baseline     | Target         | Measurement method                               |
-|-------------------------------------|--------------|----------------|--------------------------------------------------|
-| "Data export" support tickets / week | 23 tickets   | <5 tickets     | Support ticket tagging                           |
-| % of active users using export in first 30 days | 0%  | ≥35%          | Product analytics event: `export_csv_initiated`  |
-| Export completion rate (initiated → file downloaded) | -- | ≥90% | Funnel: `export_csv_initiated` → `export_csv_downloaded` |
+| Metric                                               | Baseline   | Target     | Measurement method                                       |
+| ---------------------------------------------------- | ---------- | ---------- | -------------------------------------------------------- |
+| "Data export" support tickets / week                 | 23 tickets | <5 tickets | Support ticket tagging                                   |
+| % of active users using export in first 30 days      | 0%         | ≥35%       | Product analytics event: `export_csv_initiated`          |
+| Export completion rate (initiated → file downloaded) | --         | ≥90%       | Funnel: `export_csv_initiated` → `export_csv_downloaded` |
 
 ---
 
 ### Actors
 
-| Actor           | Description                                             | Permissions                                             |
-|-----------------|---------------------------------------------------------|---------------------------------------------------------|
-| Standard user   | Any authenticated user with view access to a table      | Can export tables they have view or edit access to      |
-| Viewer (read-only role) | User with explicit read-only role on the table | Can export; cannot edit table data or column configuration |
-| Admin           | Workspace administrator                                 | Can export any table in the workspace; can disable export for specific tables |
-| Guest / public user | Unauthenticated or externally shared view         | Cannot export; export controls are not shown            |
+| Actor                   | Description                                        | Permissions                                                                   |
+| ----------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Standard user           | Any authenticated user with view access to a table | Can export tables they have view or edit access to                            |
+| Viewer (read-only role) | User with explicit read-only role on the table     | Can export; cannot edit table data or column configuration                    |
+| Admin                   | Workspace administrator                            | Can export any table in the workspace; can disable export for specific tables |
+| Guest / public user     | Unauthenticated or externally shared view          | Cannot export; export controls are not shown                                  |
 
 ---
 
@@ -503,34 +508,34 @@ When a feature uses a feature flag for controlled rollout, the spec must documen
 
 #### Initiating an Export
 
-| ID    | Requirement                                                                                            | Priority | Depends On | Testable |
-|-------|--------------------------------------------------------------------------------------------------------|----------|------------|----------|
-| FR-01 | The system must display an "Export CSV" button in the data table toolbar for all users with view access or higher | Must | -- | Yes |
-| FR-02 | The system must not display the "Export CSV" button for guest or unauthenticated users                  | Must | FR-01 | Yes |
-| FR-03 | The system must apply the user's current active filters and sort order to the exported data             | Must | -- | Yes |
-| FR-04 | The system must include only the columns currently visible in the user's table view (respecting hidden columns) | Must | -- | Yes |
-| FR-05 | The system must allow users to choose between "Export current view" and "Export all pages" when the table has more than one page of data | Should | FR-01 | Yes |
+| ID    | Requirement                                                                                                                              | Priority | Depends On | Testable |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------- | -------- |
+| FR-01 | The system must display an "Export CSV" button in the data table toolbar for all users with view access or higher                        | Must     | --         | Yes      |
+| FR-02 | The system must not display the "Export CSV" button for guest or unauthenticated users                                                   | Must     | FR-01      | Yes      |
+| FR-03 | The system must apply the user's current active filters and sort order to the exported data                                              | Must     | --         | Yes      |
+| FR-04 | The system must include only the columns currently visible in the user's table view (respecting hidden columns)                          | Must     | --         | Yes      |
+| FR-05 | The system must allow users to choose between "Export current view" and "Export all pages" when the table has more than one page of data | Should   | FR-01      | Yes      |
 
 #### Generating the Export
 
-| ID    | Requirement                                                                                            | Priority | Depends On | Testable |
-|-------|--------------------------------------------------------------------------------------------------------|----------|------------|----------|
-| FR-06 | The system must generate a valid RFC 4180-compliant CSV file with UTF-8 encoding                       | Must | FR-01 | Yes |
-| FR-07 | The system must include a header row with column display names (not internal field identifiers)         | Must | FR-06 | Yes |
-| FR-08 | The system must handle special characters in cell values by quoting fields containing commas, line breaks, or double-quote characters | Must | FR-06 | Yes |
-| FR-09 | The system must complete generation and trigger the file download for datasets up to 10,000 rows within 5 seconds (p95) | Must | FR-06 | Yes |
-| FR-10 | The system must support async generation for datasets between 10,001 and 100,000 rows, notifying the user via in-app notification and email when the file is ready | Must | FR-06 | Yes |
-| FR-11 | The system must reject export requests for datasets exceeding 100,000 rows and display an informational message with filtering guidance | Must | FR-01 | Yes |
-| FR-12 | The system should name the exported file using the format `[TableName]_[YYYY-MM-DD]_export.csv`         | Should | FR-06 | Yes |
-| FR-13 | The system must not include data from rows the requesting user does not have row-level access to, if row-level security is configured | Must | FR-03 | Yes |
+| ID    | Requirement                                                                                                                                                        | Priority | Depends On | Testable |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ---------- | -------- |
+| FR-06 | The system must generate a valid RFC 4180-compliant CSV file with UTF-8 encoding                                                                                   | Must     | FR-01      | Yes      |
+| FR-07 | The system must include a header row with column display names (not internal field identifiers)                                                                    | Must     | FR-06      | Yes      |
+| FR-08 | The system must handle special characters in cell values by quoting fields containing commas, line breaks, or double-quote characters                              | Must     | FR-06      | Yes      |
+| FR-09 | The system must complete generation and trigger the file download for datasets up to 10,000 rows within 5 seconds (p95)                                            | Must     | FR-06      | Yes      |
+| FR-10 | The system must support async generation for datasets between 10,001 and 100,000 rows, notifying the user via in-app notification and email when the file is ready | Must     | FR-06      | Yes      |
+| FR-11 | The system must reject export requests for datasets exceeding 100,000 rows and display an informational message with filtering guidance                            | Must     | FR-01      | Yes      |
+| FR-12 | The system should name the exported file using the format `[TableName]_[YYYY-MM-DD]_export.csv`                                                                    | Should   | FR-06      | Yes      |
+| FR-13 | The system must not include data from rows the requesting user does not have row-level access to, if row-level security is configured                              | Must     | FR-03      | Yes      |
 
 #### Async Export Delivery
 
-| ID    | Requirement                                                                                            | Priority | Depends On | Testable |
-|-------|--------------------------------------------------------------------------------------------------------|----------|------------|----------|
-| FR-14 | The system must store async export files for a maximum of 7 days, after which the download link expires | Must | FR-10 | Yes |
-| FR-15 | The system must display a progress indicator while an async export is generating                        | Should | FR-10 | Yes |
-| FR-16 | The system must allow users to cancel an in-progress async export                                       | Could | FR-10 | Yes |
+| ID    | Requirement                                                                                             | Priority | Depends On | Testable |
+| ----- | ------------------------------------------------------------------------------------------------------- | -------- | ---------- | -------- |
+| FR-14 | The system must store async export files for a maximum of 7 days, after which the download link expires | Must     | FR-10      | Yes      |
+| FR-15 | The system must display a progress indicator while an async export is generating                        | Should   | FR-10      | Yes      |
+| FR-16 | The system must allow users to cancel an in-progress async export                                       | Could    | FR-10      | Yes      |
 
 ---
 
@@ -538,11 +543,11 @@ When a feature uses a feature flag for controlled rollout, the spec must documen
 
 #### Entry Points
 
-| Entry Point            | Trigger                                      | Initial State                              |
-|------------------------|----------------------------------------------|--------------------------------------------|
-| Table toolbar button   | User clicks "Export CSV" in the data table toolbar | Export options modal opens               |
-| Table context menu     | User right-clicks on the table header        | Same modal                                 |
-| Keyboard shortcut      | User presses Cmd+Shift+E (Mac) / Ctrl+Shift+E (Windows) | Same modal                        |
+| Entry Point          | Trigger                                                 | Initial State              |
+| -------------------- | ------------------------------------------------------- | -------------------------- |
+| Table toolbar button | User clicks "Export CSV" in the data table toolbar      | Export options modal opens |
+| Table context menu   | User right-clicks on the table header                   | Same modal                 |
+| Keyboard shortcut    | User presses Cmd+Shift+E (Mac) / Ctrl+Shift+E (Windows) | Same modal                 |
 
 #### Primary Flow A: Synchronous Export (≤10,000 rows)
 
@@ -580,16 +585,16 @@ When a feature uses a feature flag for controlled rollout, the spec must documen
 
 ### Edge Cases
 
-| ID   | Scenario                               | Trigger Condition                                             | Expected System Behavior                                                                           | User-Facing Message                                                                                     | Recovery Path                                        |
-|------|----------------------------------------|---------------------------------------------------------------|----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|------------------------------------------------------|
-| E-01 | Table has zero rows after filtering    | User's filters result in 0 matching rows                      | Disable the "Download CSV" button; explain the empty state in the modal                             | "No rows match your current filters. Adjust filters to export data."                                    | User modifies filters and retries                    |
-| E-02 | All columns are hidden                 | User has hidden all columns in the table view                 | Disable the "Download CSV" button; explain the issue                                                | "No columns are visible. Show at least one column to export."                                            | User shows at least one column and retries           |
-| E-03 | User's session expires mid-async-job  | Session token expires before the async job completes          | Job continues server-side (auth is validated at job creation, not delivery); file is generated and stored; notification sent normally | Standard async completion notification                                                               | User logs back in to download the file               |
-| E-04 | Download link accessed after 7-day expiry | User clicks an expired export download link               | Return a 410 Gone response; display expiry message with option to re-export                          | "This export link has expired. Export links are valid for 7 days. Re-export to generate a new file."    | User initiates a new export                          |
-| E-05 | Different user attempts to access export link | User B is sent User A's download link via email forward  | System validates that the requesting user matches the user who initiated the export; denies access  | "This export was created by a different account and cannot be downloaded here."                          | User B initiates their own export                    |
-| E-06 | Cell value contains newline characters | A text field in the data contains `\n` or `\r\n`              | Cell value is quoted per RFC 4180; newline is preserved within the quoted field                     | None (transparent to user; file opens correctly in Excel and Google Sheets)                             | No recovery needed                                   |
-| E-07 | Column header contains a comma        | A column is named "Revenue, USD"                              | Column header is quoted in the CSV header row                                                       | None                                                                                                    | No recovery needed                                   |
-| E-08 | Async export file storage is unavailable | Object storage service is degraded during file write        | Job fails; error notification sent; job ID retained for 24 hours to allow retry without re-queuing  | "Your export couldn't be saved. We'll retry automatically in 10 minutes. You'll be notified when it's ready." | Automatic retry; user can also manually re-export |
+| ID   | Scenario                                      | Trigger Condition                                       | Expected System Behavior                                                                                                              | User-Facing Message                                                                                           | Recovery Path                                     |
+| ---- | --------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| E-01 | Table has zero rows after filtering           | User's filters result in 0 matching rows                | Disable the "Download CSV" button; explain the empty state in the modal                                                               | "No rows match your current filters. Adjust filters to export data."                                          | User modifies filters and retries                 |
+| E-02 | All columns are hidden                        | User has hidden all columns in the table view           | Disable the "Download CSV" button; explain the issue                                                                                  | "No columns are visible. Show at least one column to export."                                                 | User shows at least one column and retries        |
+| E-03 | User's session expires mid-async-job          | Session token expires before the async job completes    | Job continues server-side (auth is validated at job creation, not delivery); file is generated and stored; notification sent normally | Standard async completion notification                                                                        | User logs back in to download the file            |
+| E-04 | Download link accessed after 7-day expiry     | User clicks an expired export download link             | Return a 410 Gone response; display expiry message with option to re-export                                                           | "This export link has expired. Export links are valid for 7 days. Re-export to generate a new file."          | User initiates a new export                       |
+| E-05 | Different user attempts to access export link | User B is sent User A's download link via email forward | System validates that the requesting user matches the user who initiated the export; denies access                                    | "This export was created by a different account and cannot be downloaded here."                               | User B initiates their own export                 |
+| E-06 | Cell value contains newline characters        | A text field in the data contains `\n` or `\r\n`        | Cell value is quoted per RFC 4180; newline is preserved within the quoted field                                                       | None (transparent to user; file opens correctly in Excel and Google Sheets)                                   | No recovery needed                                |
+| E-07 | Column header contains a comma                | A column is named "Revenue, USD"                        | Column header is quoted in the CSV header row                                                                                         | None                                                                                                          | No recovery needed                                |
+| E-08 | Async export file storage is unavailable      | Object storage service is degraded during file write    | Job fails; error notification sent; job ID retained for 24 hours to allow retry without re-queuing                                    | "Your export couldn't be saved. We'll retry automatically in 10 minutes. You'll be notified when it's ready." | Automatic retry; user can also manually re-export |
 
 ---
 
@@ -597,14 +602,14 @@ When a feature uses a feature flag for controlled rollout, the spec must documen
 
 #### Visual States
 
-| Element               | State     | Behavior                                                                                      |
-|-----------------------|-----------|-----------------------------------------------------------------------------------------------|
-| Export CSV button     | Default   | Secondary button style, export icon + "Export CSV" label                                       |
-| Export CSV button     | Disabled  | Grayed out with tooltip: "No rows to export" or "No columns visible"                          |
-| Export modal          | Loading (row count fetching) | Skeleton text where row count will appear; "Download CSV" button is disabled until count loads |
-| Export modal          | Ready (sync) | Row count and column count shown; "Download CSV" button enabled                              |
-| Export modal          | Ready (async) | Row count shown with async processing notice; "Start export" button                          |
-| Export modal          | Over limit | "Download CSV" button replaced with limit-exceeded message and filter guidance                |
-| Progress indicator    | Async generating | Indeterminate progress bar with "Preparing your export..." copy; cancel button visible     |
-| In-app notification   | Export ready | Bell icon with "Your export is ready" + "Download" CTA + "Dismiss" action                   |
-| In-app notification   | Export failed | Bell icon with "Your export failed" + "Retry" CTA + "Dismiss" action                       
+| Element             | State                        | Behavior                                                                                       |
+| ------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------- |
+| Export CSV button   | Default                      | Secondary button style, export icon + "Export CSV" label                                       |
+| Export CSV button   | Disabled                     | Grayed out with tooltip: "No rows to export" or "No columns visible"                           |
+| Export modal        | Loading (row count fetching) | Skeleton text where row count will appear; "Download CSV" button is disabled until count loads |
+| Export modal        | Ready (sync)                 | Row count and column count shown; "Download CSV" button enabled                                |
+| Export modal        | Ready (async)                | Row count shown with async processing notice; "Start export" button                            |
+| Export modal        | Over limit                   | "Download CSV" button replaced with limit-exceeded message and filter guidance                 |
+| Progress indicator  | Async generating             | Indeterminate progress bar with "Preparing your export..." copy; cancel button visible         |
+| In-app notification | Export ready                 | Bell icon with "Your export is ready" + "Download" CTA + "Dismiss" action                      |
+| In-app notification | Export failed                | Bell icon with "Your export failed" + "Retry" CTA + "Dismiss" action                           |

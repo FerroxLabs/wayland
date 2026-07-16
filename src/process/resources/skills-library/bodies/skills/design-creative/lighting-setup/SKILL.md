@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "photography design template"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'photography design template'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Lighting Setup
 
 ## When to Use
@@ -28,6 +29,7 @@ metadata:
 Use this skill when the user needs a complete, actionable lighting specification they can physically set up in a studio, home, or on-location environment.
 
 **Use this skill when:**
+
 - The user asks how to set up or configure lights for a portrait, headshot, beauty shot, editorial portrait, or environmental portrait
 - The user wants a lighting plan for product photography -- packaged goods, jewelry, cosmetics, footwear, electronics, or food
 - The user needs to replicate a specific named lighting look (Rembrandt, butterfly/Paramount, loop, split, clamshell, cross-lighting, or chiaroscuro)
@@ -37,6 +39,7 @@ Use this skill when the user needs a complete, actionable lighting specification
 - The user is preparing for a specific genre shoot -- corporate headshots, catalog product photography, food styling, fashion editorial, or dramatic fine art portraiture
 
 **Do NOT use this skill when:**
+
 - The user needs aperture, shutter speed, or ISO guidance -- use the `exposure-triangle` skill, which handles metering, reciprocity, and depth of field decisions
 - The user needs compositional framing guidance -- use the `composition-guide` skill for rule of thirds, negative space, subject placement, and aspect ratio decisions
 - The user needs color grading, retouching, or post-processing workflows -- use the `photo-editing-workflow` skill for skin tone correction, color grading, dodging and burning, or batch export
@@ -80,33 +83,34 @@ The key light is the dominant, direction-defining light source. All other lights
 
 **Choosing the lighting pattern (portrait subjects):**
 
-| Pattern | Key Position | Key Height | Defining Feature | Best For |
-|---|---|---|---|---|
-| Loop | 4 or 8 o'clock | 30-40 degrees above eye | Small loop shadow below nose | Most faces, corporate, natural looks |
-| Rembrandt | 4-5 or 7-8 o'clock | 45 degrees above eye | Triangle of light on shadowed cheek | Character portraits, dramatic editorial |
-| Butterfly / Paramount | 6 o'clock (directly over camera) | 45-60 degrees above eye | Butterfly shadow directly under nose | Glamour, beauty, fashion |
-| Split | 3 or 9 o'clock | Eye level | Half the face lit, half in shadow | Moody, dramatic, masculine editorial |
-| Flat | 6 o'clock | Eye level or just above | No directional shadow | Fashion, beauty, passport, e-commerce |
-| Clamshell | 6 o'clock above + 6 o'clock below | Above: 45 degrees up / Below: 45 degrees up (aimed at face) | Fills under-eye shadows entirely | Beauty close-ups, skin-forward campaigns |
-| Cross / Rim | 10-11 or 1-2 o'clock | Eye level to 30 degrees above | Subject lit from behind with rim of light | Silhouette separation, hair detail, dramatic scenes |
+| Pattern               | Key Position                      | Key Height                                                  | Defining Feature                          | Best For                                            |
+| --------------------- | --------------------------------- | ----------------------------------------------------------- | ----------------------------------------- | --------------------------------------------------- |
+| Loop                  | 4 or 8 o'clock                    | 30-40 degrees above eye                                     | Small loop shadow below nose              | Most faces, corporate, natural looks                |
+| Rembrandt             | 4-5 or 7-8 o'clock                | 45 degrees above eye                                        | Triangle of light on shadowed cheek       | Character portraits, dramatic editorial             |
+| Butterfly / Paramount | 6 o'clock (directly over camera)  | 45-60 degrees above eye                                     | Butterfly shadow directly under nose      | Glamour, beauty, fashion                            |
+| Split                 | 3 or 9 o'clock                    | Eye level                                                   | Half the face lit, half in shadow         | Moody, dramatic, masculine editorial                |
+| Flat                  | 6 o'clock                         | Eye level or just above                                     | No directional shadow                     | Fashion, beauty, passport, e-commerce               |
+| Clamshell             | 6 o'clock above + 6 o'clock below | Above: 45 degrees up / Below: 45 degrees up (aimed at face) | Fills under-eye shadows entirely          | Beauty close-ups, skin-forward campaigns            |
+| Cross / Rim           | 10-11 or 1-2 o'clock              | Eye level to 30 degrees above                               | Subject lit from behind with rim of light | Silhouette separation, hair detail, dramatic scenes |
 
 **Choosing the modifier (all subject types):**
 
-| Modifier | Effective Light Quality | Catchlight Shape | Best Applications |
-|---|---|---|---|
-| Large softbox, 3x4 ft or larger | Very soft, wrapping, gentle falloff | Large rectangle | Beauty, portrait, even product |
-| Octabox, 47-60 inch | Soft, nearly circular catchlight | Large circle | Portraits where circular catchlight is preferred |
-| Small softbox, 12x18 to 24x24 inch | Moderately soft, more directional | Small rectangle | Headshots, product, editorial |
-| Shoot-through umbrella, 43-60 inch | Broad, soft, scattered light | Large diffuse oval | Group shots, fill-the-room, travel setups |
-| Reflective umbrella, 43-60 inch | Moderate softness, more specular than shoot-through | Medium oval | Portraits with more pop and contrast than softbox |
-| Beauty dish, 16-22 inch | Contrasty soft with a bright specular center | Circular ring with center dot | Fashion editorial, beauty, makeup campaigns |
-| Strip box, 12x36 inch or 12x48 inch | Narrow but soft -- great for rim/edge lighting | Thin rectangle | Hair lights, rim lights, product edge lighting |
-| Grid (on softbox or as standalone) | Focused soft beam, prevents spill | Same as base modifier | Hair lights, accent lights in small studios |
-| Snoot | Hard, narrow spot beam | Small point | Hair lights, background spots, dramatic accents |
-| Bare reflector dish (7-inch standard) | Hard, high-contrast, sharp shadows | Small bright point | Background lighting, dramatic editorial, sun simulation |
-| Parabolic reflector, 47+ inch | Very high-output directional, punchy contrast | Circular with bright center | Fashion editorial, large-studio looks, outdoor fill against sun |
+| Modifier                              | Effective Light Quality                             | Catchlight Shape              | Best Applications                                               |
+| ------------------------------------- | --------------------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
+| Large softbox, 3x4 ft or larger       | Very soft, wrapping, gentle falloff                 | Large rectangle               | Beauty, portrait, even product                                  |
+| Octabox, 47-60 inch                   | Soft, nearly circular catchlight                    | Large circle                  | Portraits where circular catchlight is preferred                |
+| Small softbox, 12x18 to 24x24 inch    | Moderately soft, more directional                   | Small rectangle               | Headshots, product, editorial                                   |
+| Shoot-through umbrella, 43-60 inch    | Broad, soft, scattered light                        | Large diffuse oval            | Group shots, fill-the-room, travel setups                       |
+| Reflective umbrella, 43-60 inch       | Moderate softness, more specular than shoot-through | Medium oval                   | Portraits with more pop and contrast than softbox               |
+| Beauty dish, 16-22 inch               | Contrasty soft with a bright specular center        | Circular ring with center dot | Fashion editorial, beauty, makeup campaigns                     |
+| Strip box, 12x36 inch or 12x48 inch   | Narrow but soft -- great for rim/edge lighting      | Thin rectangle                | Hair lights, rim lights, product edge lighting                  |
+| Grid (on softbox or as standalone)    | Focused soft beam, prevents spill                   | Same as base modifier         | Hair lights, accent lights in small studios                     |
+| Snoot                                 | Hard, narrow spot beam                              | Small point                   | Hair lights, background spots, dramatic accents                 |
+| Bare reflector dish (7-inch standard) | Hard, high-contrast, sharp shadows                  | Small bright point            | Background lighting, dramatic editorial, sun simulation         |
+| Parabolic reflector, 47+ inch         | Very high-output directional, punchy contrast       | Circular with bright center   | Fashion editorial, large-studio looks, outdoor fill against sun |
 
 **Key light distance and the inverse square law:**
+
 - Placing a large softbox at 3 feet from the subject produces very soft, wrapping light with fast falloff
 - Moving the same softbox to 6 feet doubles the distance, quarters the intensity, and makes the light harder and more directional
 - For portrait work, 3-5 feet from subject to the face of the modifier is the standard zone for soft-key work
@@ -118,6 +122,7 @@ The key light is the dominant, direction-defining light source. All other lights
 The fill light controls how dark the shadow side becomes. The ratio between key and fill is the single most important variable for mood and contrast.
 
 **Understanding the ratio system:**
+
 - Ratios compare the total light hitting the highlight side of the face to the total light hitting the shadow side
 - On the highlight side, both key and fill hit simultaneously; on the shadow side, only fill hits
 - A 2:1 ratio means the lit side receives twice as much light as the shadow side -- this equals 1 stop difference
@@ -127,15 +132,16 @@ The fill light controls how dark the shadow side becomes. The ratio between key 
 
 **Practical ratios by mood:**
 
-| Mood | Ratio | Stops Difference | Fill Method |
-|---|---|---|---|
-| Beauty / commercial skin | 2:1 | 1 stop | Large reflector or second light at 1 stop below key |
-| Natural / approachable corporate | 3:1 | 1.5 stops | White reflector at 2-3 feet, or second light at 1.5 stops below key |
-| Classic fine art portrait | 4:1 | 2 stops | Silver reflector at 3-4 feet, or second light at 2 stops below key |
-| Dramatic editorial | 6:1 | ~2.5 stops | Small or distant reflector, minimal bounce |
-| Noir / character study | 8:1+ | 3+ stops | No fill, or a tiny silver card at 4+ feet |
+| Mood                             | Ratio | Stops Difference | Fill Method                                                         |
+| -------------------------------- | ----- | ---------------- | ------------------------------------------------------------------- |
+| Beauty / commercial skin         | 2:1   | 1 stop           | Large reflector or second light at 1 stop below key                 |
+| Natural / approachable corporate | 3:1   | 1.5 stops        | White reflector at 2-3 feet, or second light at 1.5 stops below key |
+| Classic fine art portrait        | 4:1   | 2 stops          | Silver reflector at 3-4 feet, or second light at 2 stops below key  |
+| Dramatic editorial               | 6:1   | ~2.5 stops       | Small or distant reflector, minimal bounce                          |
+| Noir / character study           | 8:1+  | 3+ stops         | No fill, or a tiny silver card at 4+ feet                           |
 
 **Fill options ranked by control level:**
+
 1. Second strobe or LED with independent power control -- highest precision, use a light meter to confirm ratio
 2. V-flat (white foam board, 4x8 feet) -- broad, even fill; distance controls ratio (closer = more fill = lower ratio number)
 3. 42-inch white reflector on a stand -- portable, produces approximately 2.5-3:1 ratio when placed 2 feet from subject
@@ -151,16 +157,17 @@ Background lighting is independent of the subject lighting. Its purpose is to co
 
 **Background light options by desired look:**
 
-| Look | Technique | Power Setting |
-|---|---|---|
-| Pure white background | Bare dish aimed at seamless from below-and-behind, 12 o'clock zone | 1.5-2 stops brighter than key light at the subject's position |
-| Mid-grey from white backdrop | No background light -- let the seamless fall off naturally | N/A -- distance from subject to backdrop controls tone |
-| Dark or black background | Move subject far from backdrop (10+ feet) and use no background light | No background light -- falloff makes white paper go grey or near-black |
-| Gradient | Single light from one side (3 or 9 o'clock behind the subject), aimed at the backdrop | Adjust distance for gradient falloff intensity |
-| Circular spot (vignette) | Snoot or grid on a strobe aimed at the center of the backdrop | 1 stop brighter than key for subtle glow; 2+ stops brighter for bold circle |
-| Colored background with gel | Bare dish with a full-saturation gel aimed at the backdrop | Metered independently; 1:1 with key light power at the backdrop surface |
+| Look                         | Technique                                                                             | Power Setting                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Pure white background        | Bare dish aimed at seamless from below-and-behind, 12 o'clock zone                    | 1.5-2 stops brighter than key light at the subject's position               |
+| Mid-grey from white backdrop | No background light -- let the seamless fall off naturally                            | N/A -- distance from subject to backdrop controls tone                      |
+| Dark or black background     | Move subject far from backdrop (10+ feet) and use no background light                 | No background light -- falloff makes white paper go grey or near-black      |
+| Gradient                     | Single light from one side (3 or 9 o'clock behind the subject), aimed at the backdrop | Adjust distance for gradient falloff intensity                              |
+| Circular spot (vignette)     | Snoot or grid on a strobe aimed at the center of the backdrop                         | 1 stop brighter than key for subtle glow; 2+ stops brighter for bold circle |
+| Colored background with gel  | Bare dish with a full-saturation gel aimed at the backdrop                            | Metered independently; 1:1 with key light power at the backdrop surface     |
 
 **Subject-background separation strategies:**
+
 - **Hair / rim light:** Place a strobe with a grid or strip box at 10-11 o'clock or 1-2 o'clock, behind and above the subject, aimed at the edge of the shoulder and hair. This is the most reliable separation technique. Use a grid to prevent lens flare. Set it at approximately 1 stop above the key light (brighter than key) for a visible rim effect.
 - **Natural separation via tone contrast:** Place a dark-haired subject against a light background, or light-haired subject against a grey or dark background. This eliminates the need for a hair light and simplifies the setup.
 - **Natural separation via depth:** Moving the subject 6-10 feet from the background and opening the aperture (f/2.8-f/4) creates enough background blur that separation becomes an optical artifact, not a lighting requirement.
@@ -172,6 +179,7 @@ Background lighting is independent of the subject lighting. Its purpose is to co
 All light sources in a setup must match in color temperature, or the skin tones will shift in unexpected ways between the highlight and shadow sides of the face.
 
 **Standard color temperatures:**
+
 - Daylight-balanced studio strobes and flashes: 5500K (most standard monolight brands are calibrated here)
 - Some high-end strobes: 5600K -- close enough to mix without gels
 - Continuous daylight LED panels: typically 5600K
@@ -184,6 +192,7 @@ All light sources in a setup must match in color temperature, or the skin tones 
 - Office overhead fluorescents: approximately 3500-4500K (variable -- check the tube spec)
 
 **Gel correction for mixed-light scenarios:**
+
 - To warm a strobe to match tungsten ambient: apply a Full CTO (color temperature orange) gel -- shifts strobe from 5500K to approximately 3200K. Half CTO shifts to approximately 4100K.
 - To cool a tungsten light to match strobes: apply a Full CTB (color temperature blue) gel.
 - To match a strobe to green-shifted fluorescent ambient: apply a Plus Green gel to the strobe.
@@ -191,6 +200,7 @@ All light sources in a setup must match in color temperature, or the skin tones 
 - Gels affect exposure: Full CTO costs approximately 0.7 stops. Half CTO costs approximately 0.3 stops. Adjust power or aperture accordingly.
 
 **Camera white balance strategy:**
+
 - For a pure studio strobe setup: set camera WB to 5500K or use the "Flash" preset. Shoot in RAW to allow fine-tuning in post.
 - For mixed natural and artificial light: decide which source is dominant (key light), then set WB to match it. Accept that the secondary source will be off-tone and correct in post, or gel it to match.
 - Use a grey card or ColorChecker as the first frame of each setup to allow precise WB correction in post without guessing.
@@ -200,6 +210,7 @@ All light sources in a setup must match in color temperature, or the skin tones 
 Compile all decisions from steps 1-6 into the standardized output format below. The specification must be immediately actionable -- a photographer should be able to pick up this document and set up the shot without any further guidance.
 
 Include:
+
 - All light positions in clock notation
 - Modifier for each light
 - Relative power in stops (not percentages, which vary by unit)
@@ -441,6 +452,7 @@ Clamshell is a specialized beauty setup where a second light source placed below
 ### Light Positions (Bird's-Eye View, Camera at 6 o'clock)
 
 **Key Light (Indirect)**
+
 - Position: 9-10 o'clock (camera right, slightly behind the bottle)
 - Height: 30 degrees above the top of the bottle (aimed slightly downward at the white bounce card, NOT directly at the bottle)
 - Distance: 18 inches from the bottle -- but aimed at the white bounce card placed at 9 o'clock, 6 inches from the bottle
@@ -450,6 +462,7 @@ Clamshell is a specialized beauty setup where a second light source placed below
 - Purpose: Creates a long vertical highlight running down the right edge and front face of the bottle. The soft rectangular card creates a smooth, defined highlight shape rather than the rectangular reflection of the softbox itself.
 
 **Fill Source (Indirect)**
+
 - Position: 2-3 o'clock (camera left, slightly in front of the bottle)
 - Height: At bottle mid-height level, aimed at a second white bounce card at 3 o'clock, 6-8 inches from the bottle
 - Source: Small softbox (24x24 inch) aimed at white bounce card
@@ -457,6 +470,7 @@ Clamshell is a specialized beauty setup where a second light source placed below
 - Fill card distance: 8 inches from the bottle -- increase to 12 inches to reduce fill and increase drama; decrease to 4 inches for flatter, more even fill
 
 **Background Light**
+
 - Position: 12 o'clock low -- monolight placed behind and below the sweep, or positioned at 12 o'clock at table level aimed up at the vertical sweep behind the bottle
 - Source: Studio monolight
 - Modifier: Standard 7-inch bare reflector dish
@@ -465,6 +479,7 @@ Clamshell is a specialized beauty setup where a second light source placed below
 - Gel: None
 
 **Flags (Negative Fill)**
+
 - Position 1: 6 o'clock, placed between the camera and the bottle on the camera-left side -- a 12x20-inch black foam-core card held just outside the frame, parallel to the bottle's left face
 - Purpose: This black card reflects as a thin dark band on the left face of the bottle, defining the edge of the rectangular shape. Without this flag, the left face of a dark glass bottle "disappears" into the white background with no visible edge.
 - Position 2: A second black card at 12 o'clock position (behind the bottle, just outside frame) prevents the background light from creating a specular flare on the bottle's top surface and metal cap.
@@ -486,13 +501,13 @@ Clamshell is a specialized beauty setup where a second light source placed below
 
 ### Power Summary (Relative to Key = 0)
 
-| Light | Relative Power | Purpose |
-|---|---|---|
-| Key monolight (via bounce card) | 0 (reference) | Primary bottle highlight on right face |
-| Fill monolight (via bounce card) | --1.5 stops | Gentle left-side fill, reveals bottle form |
-| Background monolight | +2 stops (measured at backdrop surface) | Pure white background |
-| Black card flag -- left edge | N/A (absorbs light) | Creates defining dark edge on bottle left face |
-| Black card flag -- rear | N/A (absorbs light) | Prevents cap flare from background light |
+| Light                            | Relative Power                          | Purpose                                        |
+| -------------------------------- | --------------------------------------- | ---------------------------------------------- |
+| Key monolight (via bounce card)  | 0 (reference)                           | Primary bottle highlight on right face         |
+| Fill monolight (via bounce card) | --1.5 stops                             | Gentle left-side fill, reveals bottle form     |
+| Background monolight             | +2 stops (measured at backdrop surface) | Pure white background                          |
+| Black card flag -- left edge     | N/A (absorbs light)                     | Creates defining dark edge on bottle left face |
+| Black card flag -- rear          | N/A (absorbs light)                     | Prevents cap flare from background light       |
 
 ---
 
@@ -515,9 +530,11 @@ Clamshell is a specialized beauty setup where a second light source placed below
 ### Troubleshooting Guide
 
 **Problem 1:** The bottle looks flat -- no visible edge definition, both faces merge into white
+
 - Cause: Insufficient negative fill. The white room or white bounce cards are reflecting light into all surfaces of the bottle equally, eliminating contrast.
 - Fix: Move the black cards closer to the bottle. Ensure the left-side black card is within 4 inches of the bottle's left face. If the room walls are white, add additional black flags on both the 3 o'clock and 6 o'clock sides to block ambient bouncing. As a last resort, hang black muslin behind and beside the camera position to turn the camera zone into a dark, non-reflective environment.
 
 **Problem 2:** The metal cap shows a bright, harsh rectangular reflection of the softbox
+
 - Cause: The background light or the key monolight is at an angle that projects directly into the reflective cap surface, which acts like a mirror and shows the exact shape of the light source.
 - Fix: First, raise the rear black card flag to shield the cap from the background light. Second, tilt the key monolight downward slightly so its angle of incidence on the cap reflects away from the camera lens rather than into it. Third, if the cap is a highly polished dome shape, tent the cap with a small piece of white diffusion material placed around -- but not touching -- the bottle neck, creating a soft white light environment the cap can reflect.

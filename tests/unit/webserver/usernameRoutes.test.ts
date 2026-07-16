@@ -43,7 +43,8 @@ vi.mock('../../../src/process/webserver/auth/service/AuthService', () => ({
       const errors: string[] = [];
       if (username.length < 3) errors.push('Username must be at least 3 characters long');
       if (username.length > 32) errors.push('Username must be less than 32 characters long');
-      if (!/^[a-zA-Z0-9_-]+$/.test(username)) errors.push('Username can only contain letters, numbers, hyphens, and underscores');
+      if (!/^[a-zA-Z0-9_-]+$/.test(username))
+        errors.push('Username can only contain letters, numbers, hyphens, and underscores');
       if (/^[_-]|[_-]$/.test(username)) errors.push('Username cannot start or end with hyphen or underscore');
       return { isValid: errors.length === 0, errors };
     },
@@ -176,7 +177,12 @@ describe('username routes (W3 H write-only change-username)', () => {
   it('refuses a plain-HTTP write from the public internet (403, before persisting)', async () => {
     const res = makeRes();
     await captureHandlers()[ROUTE](
-      makeReq({ body: { currentPassword: 'correct-pass', newUsername: 'newname' }, peer: '203.0.113.5', secure: false, userId: 'u1' }),
+      makeReq({
+        body: { currentPassword: 'correct-pass', newUsername: 'newname' },
+        peer: '203.0.113.5',
+        secure: false,
+        userId: 'u1',
+      }),
       res
     );
 
@@ -190,7 +196,12 @@ describe('username routes (W3 H write-only change-username)', () => {
     process.env.WAYLAND_HTTPS = 'true';
     const res = makeRes();
     await captureHandlers()[ROUTE](
-      makeReq({ body: { currentPassword: 'correct-pass', newUsername: 'newname' }, peer: '203.0.113.5', secure: true, userId: 'u1' }),
+      makeReq({
+        body: { currentPassword: 'correct-pass', newUsername: 'newname' },
+        peer: '203.0.113.5',
+        secure: true,
+        userId: 'u1',
+      }),
       res
     );
 

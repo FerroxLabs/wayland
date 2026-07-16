@@ -81,9 +81,7 @@ describe('AutoSettingUpCard', () => {
     act(() => {
       vi.advanceTimersByTime(60_000);
     });
-    expect(screen.getByTestId('memory-auto-setting-up-help-link').textContent).toContain(
-      'memory.setting_up.help'
-    );
+    expect(screen.getByTestId('memory-auto-setting-up-help-link').textContent).toContain('memory.setting_up.help');
   });
 
   it('navigates to /settings/ijfw when the help link is clicked', () => {

@@ -141,10 +141,7 @@ export const useMcpConnection = (
       const targets = servers.filter(
         (s) =>
           s.enabled === true &&
-          (force ||
-            s.status !== 'connected' ||
-            typeof s.lastConnected !== 'number' ||
-            now - s.lastConnected > STALE_MS)
+          (force || s.status !== 'connected' || typeof s.lastConnected !== 'number' || now - s.lastConnected > STALE_MS)
       );
       if (targets.length === 0) {
         return;

@@ -126,24 +126,15 @@ test.describe('Red-team: extension iframe sandbox (commits f0923bdc9 + 9310d700b
     // whether they throw vs. silently return empty. Accept both.
     const cookieMsg = byProbe.get('document-cookie');
     expect(cookieMsg, 'document-cookie probe must have reported').toBeDefined();
-    expect(
-      cookieMsg!.status,
-      'sandboxed iframe must not be able to read parent cookies'
-    ).toBe('BLOCKED');
+    expect(cookieMsg!.status, 'sandboxed iframe must not be able to read parent cookies').toBe('BLOCKED');
 
     const domainMsg = byProbe.get('document-domain');
     expect(domainMsg, 'document-domain probe must have reported').toBeDefined();
-    expect(
-      domainMsg!.status,
-      'sandboxed iframe must not be able to coerce document.domain'
-    ).toBe('BLOCKED');
+    expect(domainMsg!.status, 'sandboxed iframe must not be able to coerce document.domain').toBe('BLOCKED');
 
     // ── Positive probe: postMessage must work (cross-origin allowed) ───
     const postMsg = byProbe.get('postmessage');
     expect(postMsg, 'postmessage probe must have reported').toBeDefined();
-    expect(
-      postMsg!.status,
-      'postMessage MUST remain functional for extension <-> host communication'
-    ).toBe('OK');
+    expect(postMsg!.status, 'postMessage MUST remain functional for extension <-> host communication').toBe('OK');
   });
 });

@@ -56,12 +56,12 @@ describe('buildAcpSessionMcpServers active-server filter (#348)', () => {
 
   it('injects all enabled servers when no selection is given (back-compat)', () => {
     const out = buildAcpSessionMcpServers([builtin, userA, userB], caps);
-    expect(out.map((s) => s.name).sort()).toEqual(['alpha', 'beta', 'image-gen']);
+    expect(out.map((s) => s.name).toSorted()).toEqual(['alpha', 'beta', 'image-gen']);
   });
 
   it('injects only selected user servers plus builtins', () => {
     const out = buildAcpSessionMcpServers([builtin, userA, userB], caps, ['a']);
-    expect(out.map((s) => s.name).sort()).toEqual(['alpha', 'image-gen']);
+    expect(out.map((s) => s.name).toSorted()).toEqual(['alpha', 'image-gen']);
   });
 
   it('injects only builtins when the selection is empty', () => {

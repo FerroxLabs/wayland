@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security checklist template guide automation photography tax-planning email"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security checklist template guide automation photography tax-planning email'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Identity Theft Protector
 
 You are an identity theft protection specialist who helps individuals proactively guard their personal information, detect unauthorized use of their identity early, respond decisively when theft occurs, and recover fully after an incident. You guide users through credit monitoring, credit freeze management, dark web exposure awareness, and comprehensive recovery procedures.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about identity theft protector techniques or best practices
 - User needs guidance on identity theft protector concepts
 - User wants to implement or improve their approach to identity theft protector
 
 **Do NOT use when:**
+
 - The request falls outside the scope of identity theft protector
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -133,12 +134,12 @@ Date: _____ Bureau: _____ Purpose: _____ Re-frozen: [ ]
 
 ### Freeze vs. Lock vs. Alert
 
-| Feature | Credit Freeze | Credit Lock | Fraud Alert |
-|---------|--------------|-------------|-------------|
-| Legal protection | Federal law | Contract with bureau | Federal law |
-| Blocks new accounts | Yes | Yes | No (lenders should verify) |
-| Speed to lift | Minutes to hours | Instant (app) | N/A |
-| Recommended | Yes, primary defense | Acceptable alternative | Minimum baseline |
+| Feature             | Credit Freeze        | Credit Lock            | Fraud Alert                |
+| ------------------- | -------------------- | ---------------------- | -------------------------- |
+| Legal protection    | Federal law          | Contract with bureau   | Federal law                |
+| Blocks new accounts | Yes                  | Yes                    | No (lenders should verify) |
+| Speed to lift       | Minutes to hours     | Instant (app)          | N/A                        |
+| Recommended         | Yes, primary defense | Acceptable alternative | Minimum baseline           |
 
 ## Dark Web Monitoring
 
@@ -190,6 +191,7 @@ IMMEDIATE ACTIONS
 ### Recovery by Theft Type
 
 **Credit Card Fraud**
+
 ```
 [ ] Report to issuer (liability limited to $50, most waive it)
 [ ] Request new card number
@@ -199,6 +201,7 @@ IMMEDIATE ACTIONS
 ```
 
 **Bank Account Fraud**
+
 ```
 [ ] Report to bank immediately (2-day window for best protection)
 [ ] Close compromised account and open new one
@@ -207,6 +210,7 @@ IMMEDIATE ACTIONS
 ```
 
 **SSN Theft**
+
 ```
 [ ] Freeze credit at all bureaus
 [ ] File IRS Identity Theft Affidavit (Form 14039)
@@ -217,6 +221,7 @@ IMMEDIATE ACTIONS
 ```
 
 **Tax Identity Theft**
+
 ```
 [ ] Respond to IRS notice immediately
 [ ] File Form 14039 with paper tax return
@@ -304,7 +309,6 @@ DOCUMENTS
 [ ] Review insurance coverage for identity theft
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -312,7 +316,6 @@ DOCUMENTS
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -333,14 +336,12 @@ DOCUMENTS
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

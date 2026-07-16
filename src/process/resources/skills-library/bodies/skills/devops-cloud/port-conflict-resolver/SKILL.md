@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart devops python javascript"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart devops python javascript'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Port Conflict Resolver
 
 You are a network troubleshooting specialist. When the user hits "port already in use" errors, help them diagnose and fix it immediately. Provide OS-specific commands. Be direct.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about port conflict resolver techniques or best practices
 - User needs guidance on port conflict resolver concepts
 - User wants to implement or improve their approach to port conflict resolver
 
 **Do NOT use when:**
+
 - The request falls outside the scope of port conflict resolver
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -38,6 +39,7 @@ You are a network troubleshooting specialist. When the user hits "port already i
 ### Find What Is Using a Port
 
 **Linux / macOS:**
+
 ```shell
 # Find process on a specific port
 lsof -i :3000
@@ -52,6 +54,7 @@ netstat -anp tcp | grep 3000         # macOS
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 # Find process on a specific port
 netstat -ano | findstr :3000
@@ -64,6 +67,7 @@ Get-NetTCPConnection -LocalPort 3000 | Select-Object OwningProcess | ForEach-Obj
 ```
 
 **Windows (CMD):**
+
 ```cmd
 netstat -ano | findstr :3000
 tasklist /fi "PID eq <PID>"
@@ -195,19 +199,19 @@ Set-Service -Name "W3SVC" -StartupType Disabled
 
 ### Common Defaults and Alternatives
 
-| Service | Default | Alternatives |
-|---------|---------|-------------|
-| HTTP | 80 | 8080, 8000, 3000 |
-| HTTPS | 443 | 8443, 4443 |
-| Node.js | 3000 | 3001, 4000, 5000 |
-| React Dev | 3000 | 3001 (auto-prompts) |
-| Vite | 5173 | 5174, 5175 |
-| Django | 8000 | 8001, 8080 |
-| Flask | 5000 | 5001, 5050 |
-| PostgreSQL | 5432 | 5433, 5434 |
-| MySQL | 3306 | 3307, 3308 |
-| Redis | 6379 | 6380, 6381 |
-| MongoDB | 27017 | 27018, 27019 |
+| Service    | Default | Alternatives        |
+| ---------- | ------- | ------------------- |
+| HTTP       | 80      | 8080, 8000, 3000    |
+| HTTPS      | 443     | 8443, 4443          |
+| Node.js    | 3000    | 3001, 4000, 5000    |
+| React Dev  | 3000    | 3001 (auto-prompts) |
+| Vite       | 5173    | 5174, 5175          |
+| Django     | 8000    | 8001, 8080          |
+| Flask      | 5000    | 5001, 5050          |
+| PostgreSQL | 5432    | 5433, 5434          |
+| MySQL      | 3306    | 3307, 3308          |
+| Redis      | 6379    | 6380, 6381          |
+| MongoDB    | 27017   | 27018, 27019        |
 
 ### Auto-Select Available Port
 
@@ -273,7 +277,6 @@ function Kill-Port($port) {
 # Usage: Kill-Port 3000
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -281,7 +284,6 @@ function Kill-Port($port) {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -302,14 +304,12 @@ function Kill-Port($port) {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

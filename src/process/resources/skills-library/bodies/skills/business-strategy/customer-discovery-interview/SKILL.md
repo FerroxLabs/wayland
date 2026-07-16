@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship research strategy planning analysis"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship research strategy planning analysis'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Customer Discovery Interview
 
 ## When to Use
 
 **Use this skill when:**
+
 - A founder, product manager, or researcher wants to design and conduct structured conversations with potential customers before building a product or feature -- the goal is learning, not selling
 - The user is in a pre-product or early discovery phase and needs to test whether a specific problem exists, how painful it is, and how people currently cope with it
 - The user needs a complete interview guide including opening script, question sequence, follow-up probes, and a structured method for analyzing findings across multiple conversations
@@ -28,6 +30,7 @@ metadata:
 - The user is applying Steve Blank or Rob Fitzpatrick ("The Mom Test") customer development methodology and wants structured guidance on execution
 
 **Do NOT use this skill when:**
+
 - The user wants to design A/B tests, landing page experiments, or behavioral validation experiments beyond interviews -- use `idea-validation` instead
 - The user has a shipped product and wants to understand how existing users experience it -- that is usability or user research, use `user-research-plan`
 - The user wants to create a quantitative survey for a large audience -- use `employee-survey` or an appropriate survey design skill
@@ -361,35 +364,37 @@ Mixed signal usually indicates one of three things: (1) the target segment is to
 
 ### Interview Objective
 
-| Field | Value |
-|-------|-------|
-| **Problem space** | How small-business owners manage day-to-day financial record-keeping, categorization, and reporting without full-time accounting support |
-| **Target customer** | Small-business owners (1-10 employees, $100K-$2M annual revenue) who are primarily responsible for their own bookkeeping -- either doing it themselves or managing a part-time bookkeeper |
-| **Interview type** | Problem interview |
-| **Key assumptions to test** | 1. Small-business owners experience significant time drain and anxiety from managing bookkeeping themselves, even when using tools like QuickBooks. 2. The most painful moment is month-end reconciliation and categorization, not day-to-day transaction entry. 3. They are already paying for bookkeeping software and/or part-time bookkeeper help but feel the result is unreliable or difficult to interpret. |
-| **Signal threshold (proceed)** | 7 of 10 owners describe bookkeeping as a top-3 time or stress drain in their business, with specific incidents of errors or lost time that cost them money |
-| **Signal threshold (kill)** | Fewer than 3 of 10 identify bookkeeping as a significant personal pain point; most report satisfaction with current tools or delegation |
-| **Target interviews** | 12 (single segment -- owner-operators, not businesses with dedicated finance staff) |
-| **Duration per interview** | 35 minutes |
+| Field                          | Value                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Problem space**              | How small-business owners manage day-to-day financial record-keeping, categorization, and reporting without full-time accounting support                                                                                                                                                                                                                                                                           |
+| **Target customer**            | Small-business owners (1-10 employees, $100K-$2M annual revenue) who are primarily responsible for their own bookkeeping -- either doing it themselves or managing a part-time bookkeeper                                                                                                                                                                                                                          |
+| **Interview type**             | Problem interview                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Key assumptions to test**    | 1. Small-business owners experience significant time drain and anxiety from managing bookkeeping themselves, even when using tools like QuickBooks. 2. The most painful moment is month-end reconciliation and categorization, not day-to-day transaction entry. 3. They are already paying for bookkeeping software and/or part-time bookkeeper help but feel the result is unreliable or difficult to interpret. |
+| **Signal threshold (proceed)** | 7 of 10 owners describe bookkeeping as a top-3 time or stress drain in their business, with specific incidents of errors or lost time that cost them money                                                                                                                                                                                                                                                         |
+| **Signal threshold (kill)**    | Fewer than 3 of 10 identify bookkeeping as a significant personal pain point; most report satisfaction with current tools or delegation                                                                                                                                                                                                                                                                            |
+| **Target interviews**          | 12 (single segment -- owner-operators, not businesses with dedicated finance staff)                                                                                                                                                                                                                                                                                                                                |
+| **Duration per interview**     | 35 minutes                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 ---
 
 ### Participant Profile
 
-| Field | Criteria |
-|-------|----------|
-| **Role / context** | Owner, founder, or sole proprietor of a business with 1-10 employees |
-| **Must-have behavior** | Personally logs into their bookkeeping software at least once per month OR directly manages a part-time bookkeeper without an in-house CFO or controller |
-| **Revenue context** | $100K-$2M annual revenue -- large enough that bookkeeping errors matter, small enough that dedicated finance staff is not standard |
-| **Industry** | Service-based businesses preferred for first batch (consultants, tradespeople, agencies, therapists, personal trainers) -- product-based businesses involve inventory complexity that is a separate problem |
-| **Disqualifiers** | Businesses with a full-time bookkeeper or controller on staff; businesses using a full-service outsourced accounting firm for monthly reconciliation; businesses under $50K revenue (bookkeeping complexity is too low) |
+| Field                  | Criteria                                                                                                                                                                                                                |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Role / context**     | Owner, founder, or sole proprietor of a business with 1-10 employees                                                                                                                                                    |
+| **Must-have behavior** | Personally logs into their bookkeeping software at least once per month OR directly manages a part-time bookkeeper without an in-house CFO or controller                                                                |
+| **Revenue context**    | $100K-$2M annual revenue -- large enough that bookkeeping errors matter, small enough that dedicated finance staff is not standard                                                                                      |
+| **Industry**           | Service-based businesses preferred for first batch (consultants, tradespeople, agencies, therapists, personal trainers) -- product-based businesses involve inventory complexity that is a separate problem             |
+| **Disqualifiers**      | Businesses with a full-time bookkeeper or controller on staff; businesses using a full-service outsourced accounting firm for monthly reconciliation; businesses under $50K revenue (bookkeeping complexity is too low) |
 
 **Screening questions (ask before booking the call):**
-1. "Do you personally handle any part of your bookkeeping -- things like categorizing transactions, reconciling accounts, or reviewing your P&L?" *(If they say their accountant handles everything and they never touch it, disqualify.)*
-2. "Roughly how many hours per month would you estimate you spend on bookkeeping tasks -- including any time reviewing or correcting your bookkeeper's work?" *(Minimum 2 hours/month to qualify -- below this, the problem may not be acute enough.)*
-3. "Are you the primary financial decision-maker for your business, or does someone else handle that?" *(Looking for owner-operators with direct involvement, not passive owners.)*
+
+1. "Do you personally handle any part of your bookkeeping -- things like categorizing transactions, reconciling accounts, or reviewing your P&L?" _(If they say their accountant handles everything and they never touch it, disqualify.)_
+2. "Roughly how many hours per month would you estimate you spend on bookkeeping tasks -- including any time reviewing or correcting your bookkeeper's work?" _(Minimum 2 hours/month to qualify -- below this, the problem may not be acute enough.)_
+3. "Are you the primary financial decision-maker for your business, or does someone else handle that?" _(Looking for owner-operators with direct involvement, not passive owners.)_
 
 **Recruitment channels (in order of priority):**
+
 1. Warm introductions via small-business owner networking groups (local Chamber of Commerce, BNI chapters, entrepreneur Slack communities such as Indie Hackers or local founders' groups)
 2. Facebook groups for small-business owners in specific industries (e.g., "Self-Employed Contractors," "Freelance Designers Network")
 3. LinkedIn outreach to owners of small service businesses with a concise message: "I am researching how small-business owners manage their bookkeeping and would love 30 minutes of your time. No sales pitch -- just genuine research. Happy to share what I find."
@@ -406,36 +411,37 @@ Mixed signal usually indicates one of three things: (1) the target segment is to
 **Warm-up question:**
 "Before we get into specifics -- can you tell me a bit about your business? What do you do, and roughly how long have you been running it?"
 
-*(Listen for: industry, size, years in business, whether they built it themselves or acquired it. Do not redirect -- let them set the context. This information will help you interpret their answers to later questions.)*
+_(Listen for: industry, size, years in business, whether they built it themselves or acquired it. Do not redirect -- let them set the context. This information will help you interpret their answers to later questions.)_
 
 ---
 
 #### Phase 2: Problem Exploration (15-20 min)
 
-| # | Question | What to Listen For | Probes If Vague |
-|---|---------|-------------------|----------------|
-| 1 | "Walk me through how you handle your bookkeeping today -- what does your current setup look like?" | Software used, whether they do it themselves or delegate, frequency of engagement | "What does that process look like step by step?" |
-| 2 | "What is the most frustrating or time-consuming part of managing your financials?" | Self-identified pain -- note whether they name it before you probe | "Can you tell me more about that specific part?" |
-| 3 | "Tell me about the last time something went wrong with your bookkeeping -- or a time when it caused a problem for your business." | Specific incident, financial or operational consequence, emotional memory of it | "What exactly happened? What did it cost you?" |
-| 4 | "How much time per month would you estimate you personally spend on bookkeeping -- logging in, reviewing, fixing things, preparing for your accountant?" | Quantified time cost -- watch for surprises when they actually calculate it out loud | "Does that feel like a lot to you, or does it feel manageable?" |
-| 5 | "When you look at your financial reports -- your P&L, your cash position -- do you feel confident that you understand what they are telling you?" | Financial literacy friction, anxiety about interpretation, trust in the numbers | "When was the last time you were uncertain about a number? What did you do?" |
-| 6 | "How do you currently handle things like categorizing transactions, reconciling your bank account, or preparing for taxes?" | Manual vs. automated, use of an accountant or bookkeeper, pain around categorization errors | "What happens when you are not sure what category to put something in?" |
-| 7 | "Have you ever made a business decision -- pricing, hiring, a major purchase -- and later found out your financial picture was different than you thought it was at the time?" | Decision quality degraded by unreliable data -- this is the highest-stakes problem signal | "How did that happen? What was the outcome?" |
-| 8 | "If you could change one thing about how you manage the financial side of your business right now, what would it be?" | Their ideal outcome in their own words -- this is gold for positioning | "What would that look like practically?" |
+| #   | Question                                                                                                                                                                       | What to Listen For                                                                          | Probes If Vague                                                              |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 1   | "Walk me through how you handle your bookkeeping today -- what does your current setup look like?"                                                                             | Software used, whether they do it themselves or delegate, frequency of engagement           | "What does that process look like step by step?"                             |
+| 2   | "What is the most frustrating or time-consuming part of managing your financials?"                                                                                             | Self-identified pain -- note whether they name it before you probe                          | "Can you tell me more about that specific part?"                             |
+| 3   | "Tell me about the last time something went wrong with your bookkeeping -- or a time when it caused a problem for your business."                                              | Specific incident, financial or operational consequence, emotional memory of it             | "What exactly happened? What did it cost you?"                               |
+| 4   | "How much time per month would you estimate you personally spend on bookkeeping -- logging in, reviewing, fixing things, preparing for your accountant?"                       | Quantified time cost -- watch for surprises when they actually calculate it out loud        | "Does that feel like a lot to you, or does it feel manageable?"              |
+| 5   | "When you look at your financial reports -- your P&L, your cash position -- do you feel confident that you understand what they are telling you?"                              | Financial literacy friction, anxiety about interpretation, trust in the numbers             | "When was the last time you were uncertain about a number? What did you do?" |
+| 6   | "How do you currently handle things like categorizing transactions, reconciling your bank account, or preparing for taxes?"                                                    | Manual vs. automated, use of an accountant or bookkeeper, pain around categorization errors | "What happens when you are not sure what category to put something in?"      |
+| 7   | "Have you ever made a business decision -- pricing, hiring, a major purchase -- and later found out your financial picture was different than you thought it was at the time?" | Decision quality degraded by unreliable data -- this is the highest-stakes problem signal   | "How did that happen? What was the outcome?"                                 |
+| 8   | "If you could change one thing about how you manage the financial side of your business right now, what would it be?"                                                          | Their ideal outcome in their own words -- this is gold for positioning                      | "What would that look like practically?"                                     |
 
 **Universal follow-up probes:**
+
 - "Can you give me a specific example of when that happened?"
 - "What did you actually do in that situation?"
 - "How did that turn out?"
 - "How did that make you feel?"
 - "Why do you think that keeps happening?"
-- *(3-5 seconds of silence after any answer -- most interviewees will elaborate with the most valuable material)*
+- _(3-5 seconds of silence after any answer -- most interviewees will elaborate with the most valuable material)_
 
 ---
 
 #### Phase 3: Solution Reaction -- not included in this first batch
 
-*Rationale: This is a problem interview batch. Solution reaction questions will be designed after analyzing the results of these 12 interviews and confirming the primary problem signal. Do not introduce any solution concept in this batch.*
+_Rationale: This is a problem interview batch. Solution reaction questions will be designed after analyzing the results of these 12 interviews and confirming the primary problem signal. Do not introduce any solution concept in this batch._
 
 ---
 
@@ -456,16 +462,16 @@ Mixed signal usually indicates one of three things: (1) the target segment is to
 **Interview type:** Problem interview
 **Signal strength:** Strong
 
-| Category | Notes |
-|----------|-------|
-| **Top 3 verbatim quotes** | 1. "I basically do my books in a panic the week before I have to send stuff to my accountant." 2. "Half the time I'm not sure if I'm making money or just moving it around." 3. "I've just accepted that taxes are going to ruin my month every year." |
-| **Problem confirmed?** | Yes -- spontaneously, before any probing |
-| **Current workaround** | QuickBooks Self-Employed ($15/month) plus a 2-hour session with a CPA quarterly at $200/session; manually categorizes transactions "when I remember" |
-| **Time cost (stated)** | 4-6 hours/month, spikes to 12+ hours in January |
-| **Economic cost (stated)** | $800/year for CPA quarterly sessions; estimates she has underpaid herself by "at least $15K" due to unclear cash picture |
-| **Pain intensity (1-10, their rating)** | 8 -- "It's not what's keeping me up at night, but it's always in the background" |
-| **Frequency** | Monthly review; quarterly crisis; annual tax preparation crisis |
-| **Switching willingness** | High -- "I would pay real money to not feel this way every January" |
-| **Key objections** | "I've tried to learn this stuff and it just doesn't stick. I don't want to take a course. I just want it to be handled." |
-| **Surprises** | The emotional framing ("I'm not sure if I'm making money or just moving it around") -- this is about confidence and decision quality, not just time savings. This reframes the problem significantly. |
-| **Assumption updates** | Assumption 1 confirmed strongly. Assumption 2 partially confirmed -- month-end is painful but tax prep is the "hair on fire" moment. Assumption 3 confirmed -- she is paying for QuickBooks and quarterly
+| Category                                | Notes                                                                                                                                                                                                                                                  |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Top 3 verbatim quotes**               | 1. "I basically do my books in a panic the week before I have to send stuff to my accountant." 2. "Half the time I'm not sure if I'm making money or just moving it around." 3. "I've just accepted that taxes are going to ruin my month every year." |
+| **Problem confirmed?**                  | Yes -- spontaneously, before any probing                                                                                                                                                                                                               |
+| **Current workaround**                  | QuickBooks Self-Employed ($15/month) plus a 2-hour session with a CPA quarterly at $200/session; manually categorizes transactions "when I remember"                                                                                                   |
+| **Time cost (stated)**                  | 4-6 hours/month, spikes to 12+ hours in January                                                                                                                                                                                                        |
+| **Economic cost (stated)**              | $800/year for CPA quarterly sessions; estimates she has underpaid herself by "at least $15K" due to unclear cash picture                                                                                                                               |
+| **Pain intensity (1-10, their rating)** | 8 -- "It's not what's keeping me up at night, but it's always in the background"                                                                                                                                                                       |
+| **Frequency**                           | Monthly review; quarterly crisis; annual tax preparation crisis                                                                                                                                                                                        |
+| **Switching willingness**               | High -- "I would pay real money to not feel this way every January"                                                                                                                                                                                    |
+| **Key objections**                      | "I've tried to learn this stuff and it just doesn't stick. I don't want to take a course. I just want it to be handled."                                                                                                                               |
+| **Surprises**                           | The emotional framing ("I'm not sure if I'm making money or just moving it around") -- this is about confidence and decision quality, not just time savings. This reframes the problem significantly.                                                  |
+| **Assumption updates**                  | Assumption 1 confirmed strongly. Assumption 2 partially confirmed -- month-end is painful but tax prep is the "hair on fire" moment. Assumption 3 confirmed -- she is paying for QuickBooks and quarterly                                              |

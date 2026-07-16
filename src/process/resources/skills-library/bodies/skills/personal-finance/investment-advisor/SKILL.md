@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing guide"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance investing guide'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Investment Advisor
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to learn investment fundamentals and strategies
 - User needs help understanding asset allocation and diversification
 - User wants to compare investment account types (401k, IRA, brokerage)
 - User needs a framework for evaluating investment options
 
 **Do NOT use this skill when:**
+
 - User needs specific investment recommendations or stock picks -- this skill teaches frameworks, not advice
 - User needs tax optimization on investments -- use tax-assistant skill
 - User needs active portfolio management -- refer to licensed financial advisor
@@ -117,11 +119,11 @@ Score 18-25: Aggressive    (70-90% stocks / 10-30% bonds)
 
 The foundation of Bogleheads investing. Three index funds cover the entire global market:
 
-| Fund | Purpose | Example (Vanguard) | Expense Ratio |
-|------|---------|-------------------|--------------|
-| US Total Stock Market | Domestic equity | VTSAX / VTI | 0.03% |
-| International Stock Market | Foreign equity | VTIAX / VXUS | 0.07% |
-| US Total Bond Market | Fixed income | VBTLX / BND | 0.03% |
+| Fund                       | Purpose         | Example (Vanguard) | Expense Ratio |
+| -------------------------- | --------------- | ------------------ | ------------- |
+| US Total Stock Market      | Domestic equity | VTSAX / VTI        | 0.03%         |
+| International Stock Market | Foreign equity  | VTIAX / VXUS       | 0.07%         |
+| US Total Bond Market       | Fixed income    | VBTLX / BND        | 0.03%         |
 
 ### Sample Allocations
 
@@ -203,6 +205,7 @@ When in doubt:
 **What it is:** Investing a fixed dollar amount at regular intervals regardless of market price.
 
 **How to implement:**
+
 1. Set up automatic contributions (monthly or per paycheck)
 2. Invest the same amount each time
 3. Do not try to time purchases based on market conditions
@@ -231,14 +234,17 @@ Average cost per share: $47.44 (lower than average price of $48.00)
 ## Rebalancing Strategy
 
 ### Why Rebalance
+
 Over time, stocks and bonds grow at different rates, drifting your allocation away from your target. Rebalancing sells high and buys low automatically.
 
 ### When to Rebalance
+
 - **Calendar method:** Rebalance once per year on a fixed date (e.g., your birthday)
 - **Threshold method:** Rebalance whenever any asset class drifts more than 5% from target
 - **Hybrid:** Check quarterly, rebalance only if threshold is exceeded
 
 ### How to Rebalance Tax-Efficiently
+
 1. **First:** Direct new contributions to the underweight asset class
 2. **Second:** Rebalance within tax-advantaged accounts (no tax consequences)
 3. **Last resort:** Sell in taxable accounts (may trigger capital gains)
@@ -269,6 +275,7 @@ Action needed:
 **What it is:** Selling investments at a loss to offset capital gains, reducing your tax bill.
 
 **Rules:**
+
 - Only applies in taxable brokerage accounts (not 401k or IRA)
 - Offset capital gains dollar-for-dollar
 - If losses exceed gains, deduct up to $3,000/year from ordinary income
@@ -276,6 +283,7 @@ Action needed:
 - **Wash sale rule:** Cannot buy the same or "substantially identical" security within 30 days before or after the sale
 
 **Simple strategy:**
+
 1. Sell a losing fund (e.g., Vanguard Total Stock Market - VTSAX)
 2. Immediately buy a similar but not identical fund (e.g., Schwab Total Stock Market - SWTSX)
 3. After 31 days, you can switch back if desired
@@ -380,27 +388,31 @@ When delivering investment guidance, provide:
 **Age:** 28 | **Timeline to retirement:** ~37 years | **Risk capacity:** High (long timeline)
 
 ### Priority Order (Do NOT skip steps)
-| Step | Action | Why First |
-|------|--------|-----------|
-| 1 | Emergency fund: $10,000-$15,000 | Safety net before investing |
-| 2 | 401k up to employer match | 100% return on matched dollars |
-| 3 | Roth IRA: max $7,000/year | Tax-free growth for 37 years |
-| 4 | 401k beyond match | Pre-tax savings reduces current tax bill |
-| 5 | Taxable brokerage | After maxing tax-advantaged accounts |
+
+| Step | Action                          | Why First                                |
+| ---- | ------------------------------- | ---------------------------------------- |
+| 1    | Emergency fund: $10,000-$15,000 | Safety net before investing              |
+| 2    | 401k up to employer match       | 100% return on matched dollars           |
+| 3    | Roth IRA: max $7,000/year       | Tax-free growth for 37 years             |
+| 4    | 401k beyond match               | Pre-tax savings reduces current tax bill |
+| 5    | Taxable brokerage               | After maxing tax-advantaged accounts     |
 
 ### Asset Allocation Framework (Age 28, High Risk Capacity)
+
 - 90% stocks / 10% bonds (aggressive, appropriate for 30+ year timeline)
 - Within stocks: 60% US total market, 30% international, 10% small cap
 - Target date fund (e.g., 2060 fund) is a reasonable single-fund option
 
 ### What to Look for in Any Investment
-| Factor | Good | Bad |
-|--------|------|-----|
-| Expense ratio | Under 0.20% | Over 0.75% |
-| Diversification | Total market index | Single stock or sector |
-| Fees | No transaction fees | Load fees, account fees |
+
+| Factor          | Good                | Bad                     |
+| --------------- | ------------------- | ----------------------- |
+| Expense ratio   | Under 0.20%         | Over 0.75%              |
+| Diversification | Total market index  | Single stock or sector  |
+| Fees            | No transaction fees | Load fees, account fees |
 
 ### Action Items This Month
+
 1. Enroll in 401k and set contribution to at least get full employer match
 2. Continue building emergency fund to $10,000
 3. Open Roth IRA (Fidelity, Schwab, or Vanguard -- all have no minimums)

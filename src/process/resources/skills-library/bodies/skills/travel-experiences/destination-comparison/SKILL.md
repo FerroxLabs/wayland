@@ -14,19 +14,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research analysis itinerary"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel research analysis itinerary'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Destination Comparison
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly names 2-5 candidate destinations and wants help deciding between them (e.g., "I'm torn between Japan, Peru, and Morocco")
 - The user asks "where should I travel?" with at least two stated constraints (budget, season, trip type, departure city) that allow you to generate and compare concrete options
 - The user has a clear trip type in mind (honeymoon, family vacation, adventure travel, cultural immersion, beach holiday) and wants destinations ranked against that purpose
@@ -36,6 +38,7 @@ metadata:
 - The user is deciding between a familiar destination and an unfamiliar one and needs novelty and ease-of-travel factors quantified alongside the usual criteria
 
 **Do NOT use when:**
+
 - The user has already chosen a destination and wants a day-by-day plan -- use `trip-itinerary-builder` instead
 - The user wants to compare hotels, resorts, or rental properties within a single destination -- this is an accommodation comparison, not a destination comparison
 - The user needs a detailed travel budget with itemized cost breakdowns for a chosen destination -- use `budget-travel-planner`
@@ -75,12 +78,14 @@ Before building the comparison matrix, run each destination through the deal-bre
 Choose criteria based on the user's stated priorities and group composition. Always include the four universal criteria (daily cost, weather fit, ease of travel, safety) and then add 2-4 priority-specific criteria.
 
 **Universal criteria (always include):**
+
 - **Daily cost on the ground:** Estimated average daily spend per person for accommodation (mid-range standard), 3 meals, local transport, and 1-2 activities. Use real-world data ranges: Tokyo ~$130-180/day mid-range, Lisbon ~$120-160/day, Bangkok ~$60-100/day, Bali ~$50-90/day, Mexico City ~$70-110/day, Medellín ~$40-70/day.
 - **Weather fit for travel dates:** Score based on temperature comfort (16-28°C is the common sweet spot for most travelers), precipitation likelihood, and humidity. A destination in its peak season scores 5; a destination in its shoulder season with some rain scores 3; a destination in monsoon season scores 1-2.
 - **Ease of travel:** Composite of direct flight availability from departure city, visa requirements, language accessibility (English prevalence), and local transport quality (public transit, taxi availability, scooter rentals, internal connectivity).
 - **Safety for traveler profile:** Overall safety considering the specific group (solo female traveler, couple, family). Use OSAC and Numbeo crime index data as reference. Petty crime prevalence, tourist scam density, and infrastructure safety all factor in.
 
 **Priority-specific criteria (select based on user priorities):**
+
 - **Food scene:** Street food culture, fine dining options, dietary accommodation (vegetarian, halal, gluten-free), market and culinary experience quality
 - **Beach quality:** Water temperature, clarity, wave conditions, sand quality, proximity to accommodation hubs, beach crowding
 - **Cultural depth:** Museums, UNESCO World Heritage Sites, living cultural practices, architectural heritage, local art scenes
@@ -115,6 +120,7 @@ Use a 1-5 integer scale for each criterion. Never score in half-points -- this c
 Apply scores consistently across destinations. If Bangkok scores 5 on food, ask yourself: does Lisbon genuinely score 5 as well, or is it 4? Both can score highly, but the difference between a 4 and a 5 should be articulable in one sentence.
 
 **Calculate weighted scores:**
+
 - Weighted score = raw score x criterion weight
 - Total score = sum of all weighted scores for that destination
 - Maximum possible score = sum of (5 x criterion weight) for all criteria
@@ -298,27 +304,35 @@ Close with a Next Steps section that routes the user to the appropriate follow-u
 ## Edge Cases
 
 ### User Cannot Name Any Destinations ("Blank Slate" Protocol)
+
 If the user has constraints but no candidate destinations, generate 3-4 suggestions before running the comparison. Base suggestions on: budget tier, departure city flight routes, travel season climate data, and trip type. Present suggestions briefly with a one-sentence pitch each, confirm 2-3 with the user, then proceed to the full comparison. Do not attempt to compare vague suggestions -- confirm the destinations are the user's actual candidates before scoring.
 
 ### Two or More Destinations Are Tied Within 8%
+
 Do not fabricate a winner. Instead, identify the single criterion where the two destinations diverge most and frame the choice around it: "Both Portugal and Japan score 60/70. The clearest differentiating factor is ease of travel: Portugal is Schengen visa-free and 2 hours from London, while Japan requires a longer flight and, depending on your passport, a visa application. If travel convenience matters, Portugal wins. If you want the more distinctive cultural experience, Japan wins." Let the user make the final call with this framing.
 
 ### One Destination Is Dramatically More Expensive Than Others
+
 When one destination's estimated daily cost exceeds the user's stated budget by more than 25%, flag it as "over budget" before scoring. Either (a) exclude it with an explanation and offer to suggest an alternative, or (b) keep it in the comparison with a prominent ⚠️ budget warning, noting what budget adjustment would be required. Do not score it a 1 on cost and bury the issue -- the user needs to know upfront.
 
 ### Destinations in Radically Different Categories (Beach vs. Mountain vs. City)
+
 When comparing destinations that fundamentally differ in experience type, adjust criteria so no destination is structurally penalized. Replace category-specific criteria with experience-agnostic versions: instead of "beach quality," use "outdoor recreation quality" which can apply to surfing, hiking, or cycling equally. Note explicitly in the output: "Because these destinations offer fundamentally different travel experiences, the comparison reflects how well each matches your priorities, not which is objectively 'better.'"
 
 ### User Is Choosing Between Domestic and International Destinations
+
 Add two additional criteria specifically for this comparison type: **novelty/distinctiveness** (international destinations typically score higher here) and **ease and total travel cost** (domestic destinations typically score higher). These two criteria often cancel each other out, which is exactly the trade-off the user is navigating. Also note that international trips require travel insurance, possible currency exchange costs ($10-30 in fees), international phone plans ($10-50 for a 10-day trip), and potential jet lag recovery days that consume part of the trip duration.
 
 ### User Has Visited One or More Candidate Destinations Before
+
 Ask directly: "Have you visited any of these destinations before?" If yes, add a **novelty** criterion weighted at 1-2 depending on how much the user values new experiences. Score previously visited destinations lower on novelty (2 or 3 depending on whether the user would return) and note in the summary: "You've visited [Destination] before -- consider whether revisiting serves your goals or whether the other options offer more discovery."
 
 ### Large Group With Conflicting Priorities
+
 Ask each party (or the group leader on behalf of distinct factions) for their top priority. Build a composite priority list: if one person ranks beaches first and the other ranks culture first, both get weight 2 (Important) rather than one getting weight 3. Add a "group satisfaction" perspective to each Destination Profile: "For [traveler type A], this destination scores best on [criterion]. For [traveler type B], it is [better/weaker] because [reason]." This makes the recommendation feel fair to all parties rather than favoring one traveler's preferences.
 
 ### User Is Planning a Shoulder-Season or Off-Season Trip
+
 Users planning to travel during off-peak periods often do so specifically to avoid crowds and save money. Adjust the scoring to reflect this: a destination with lower-than-average tourist density during the travel period should score higher on "ease of travel" and its cost score should reflect the off-season pricing, which can be 20-40% below peak rates. Note that some off-season destinations have reduced operating hours for attractions, closed beach clubs, or limited transportation links -- these operational limitations should appear in "Watch out for."
 
 ---
@@ -340,11 +354,11 @@ Users planning to travel during off-peak periods often do so specifically to avo
 
 ### Deal-Breaker Check
 
-| Destination     | Visa Required?                | Travel Advisory | Weather Warning       | Status      |
-|-----------------|-------------------------------|-----------------|----------------------|-------------|
-| Lisbon, Portugal| No (Schengen, 90-day tourist) | Level 1         | None                  | ✅ Eligible  |
-| Oaxaca, Mexico  | No (visa-free, 180-day)       | Level 2 (state-level varies) | None        | ⚠️ See note |
-| Chiang Mai, Thailand | No (30-day visa on arrival or e-visa) | Level 1 | None           | ✅ Eligible  |
+| Destination          | Visa Required?                        | Travel Advisory              | Weather Warning | Status      |
+| -------------------- | ------------------------------------- | ---------------------------- | --------------- | ----------- |
+| Lisbon, Portugal     | No (Schengen, 90-day tourist)         | Level 1                      | None            | ✅ Eligible |
+| Oaxaca, Mexico       | No (visa-free, 180-day)               | Level 2 (state-level varies) | None            | ⚠️ See note |
+| Chiang Mai, Thailand | No (30-day visa on arrival or e-visa) | Level 1                      | None            | ✅ Eligible |
 
 **Oaxaca note:** Mexico's overall advisory is Level 2 (exercise increased caution). Oaxaca state itself currently carries a Level 2 advisory, not Level 3 or 4. Oaxaca city is considered significantly safer than Mexico's border regions or resort areas with high cartel activity. Solo female travelers report Oaxaca city center as generally safe, but standard solo travel precautions apply: use registered taxis or app-based rides (not street hails), avoid walking alone late at night in unfamiliar neighborhoods, and keep hotel contact details on hand. This does not disqualify Oaxaca but is worth noting in trip planning.
 
@@ -352,31 +366,31 @@ Users planning to travel during off-peak periods often do so specifically to avo
 
 ### Criteria and Weights
 
-| Criterion                  | Weight | Tier       | Reason                                                  |
-|----------------------------|--------|------------|---------------------------------------------------------|
-| Food culture and scene      | 3      | Critical   | User's #1 stated priority                               |
-| Art and creative scene      | 3      | Critical   | User's #2 stated priority                               |
-| Daily cost (budget fit)     | 2      | Important  | User's #3 priority; hard limit of $100/day              |
-| Weather fit (March)         | 2      | Important  | Universal -- month-specific climate                     |
-| Safety for solo female      | 2      | Important  | Elevated weight due to solo female traveler profile     |
-| Ease of travel from NYC     | 1      | Supporting | Flight duration and connectivity from JFK/EWR           |
-| Neighborhood walkability    | 1      | Supporting | Relevant for solo exploration without guide dependency  |
-| **Total weight**            | **14** |            |                                                         |
+| Criterion                | Weight | Tier       | Reason                                                 |
+| ------------------------ | ------ | ---------- | ------------------------------------------------------ |
+| Food culture and scene   | 3      | Critical   | User's #1 stated priority                              |
+| Art and creative scene   | 3      | Critical   | User's #2 stated priority                              |
+| Daily cost (budget fit)  | 2      | Important  | User's #3 priority; hard limit of $100/day             |
+| Weather fit (March)      | 2      | Important  | Universal -- month-specific climate                    |
+| Safety for solo female   | 2      | Important  | Elevated weight due to solo female traveler profile    |
+| Ease of travel from NYC  | 1      | Supporting | Flight duration and connectivity from JFK/EWR          |
+| Neighborhood walkability | 1      | Supporting | Relevant for solo exploration without guide dependency |
+| **Total weight**         | **14** |            |                                                        |
 
 ---
 
 ### Comparison Matrix
 
-| Criterion                | Wt | Lisbon | Lisbon Wtd | Oaxaca | Oaxaca Wtd | Chiang Mai | CM Wtd |
-|--------------------------|----|--------|-----------|--------|-----------|------------|--------|
-| Food culture and scene   | 3  | 4      | 12        | 5      | 15        | 5          | 15     |
-| Art and creative scene   | 3  | 4      | 12        | 5      | 15        | 3          | 9      |
-| Daily cost (budget fit)  | 2  | 3      | 6         | 5      | 10        | 5          | 10     |
-| Weather fit (March)      | 2  | 3      | 6         | 5      | 10        | 4          | 8      |
-| Safety for solo female   | 2  | 5      | 10        | 3      | 6         | 5          | 10     |
-| Ease of travel from NYC  | 1  | 4      | 4         | 4      | 4         | 2          | 2      |
-| Neighborhood walkability | 1  | 5      | 5         | 5      | 5         | 3          | 3      |
-| **TOTAL**                |    |        | **55/70** |        | **65/70** |            | **57/70** |
+| Criterion                | Wt  | Lisbon | Lisbon Wtd | Oaxaca | Oaxaca Wtd | Chiang Mai | CM Wtd    |
+| ------------------------ | --- | ------ | ---------- | ------ | ---------- | ---------- | --------- |
+| Food culture and scene   | 3   | 4      | 12         | 5      | 15         | 5          | 15        |
+| Art and creative scene   | 3   | 4      | 12         | 5      | 15         | 3          | 9         |
+| Daily cost (budget fit)  | 2   | 3      | 6          | 5      | 10         | 5          | 10        |
+| Weather fit (March)      | 2   | 3      | 6          | 5      | 10         | 4          | 8         |
+| Safety for solo female   | 2   | 5      | 10         | 3      | 6          | 5          | 10        |
+| Ease of travel from NYC  | 1   | 4      | 4          | 4      | 4          | 2          | 2         |
+| Neighborhood walkability | 1   | 5      | 5          | 5      | 5          | 3          | 3         |
+| **TOTAL**                |     |        | **55/70**  |        | **65/70**  |            | **57/70** |
 
 ---
 
@@ -384,39 +398,39 @@ Users planning to travel during off-peak periods often do so specifically to avo
 
 **Lisbon, Portugal**
 
-| Criterion                | Score | Justification                                                                                         |
-|--------------------------|-------|-------------------------------------------------------------------------------------------------------|
-| Food culture and scene   | 4     | Exceptional seafood, pastéis de nata, wine culture, and a thriving natural wine bar scene -- but less distinctive than Oaxaca or Chiang Mai at the world-food level |
-| Art and creative scene   | 4     | LX Factory, MAAT museum, strong street art (Mouraria, Intendente), and a growing independent gallery scene; slightly less globally renowned than Oaxaca's artisan tradition |
+| Criterion                | Score | Justification                                                                                                                                                                                       |
+| ------------------------ | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Food culture and scene   | 4     | Exceptional seafood, pastéis de nata, wine culture, and a thriving natural wine bar scene -- but less distinctive than Oaxaca or Chiang Mai at the world-food level                                 |
+| Art and creative scene   | 4     | LX Factory, MAAT museum, strong street art (Mouraria, Intendente), and a growing independent gallery scene; slightly less globally renowned than Oaxaca's artisan tradition                         |
 | Daily cost (budget fit)  | 3     | Mid-range daily spend typically $110-150 in March -- slightly above the $100 target; budget travelers can reach $80-100 with hostel accommodation and local restaurants, but it requires discipline |
-| Weather fit (March)      | 3     | Average March temperatures 14-18°C; approximately 10-12 rain days in March -- shoulder season, pleasant but not peak; some days require a jacket |
-| Safety for solo female   | 5     | Consistently ranked among Europe's safest cities for solo female travelers; low crime rate, well-lit central neighborhoods, very little street harassment reported |
-| Ease of travel from NYC  | 4     | Direct overnight flights JFK-LIS in ~7 hours; Schengen entry straightforward; English widely spoken in tourism areas |
-| Neighborhood walkability | 5     | Lisbon's historic center (Alfama, Baixa, Bairro Alto, Príncipe Real) is extremely walkable; tram and metro supplement well; flat areas accessible on foot |
+| Weather fit (March)      | 3     | Average March temperatures 14-18°C; approximately 10-12 rain days in March -- shoulder season, pleasant but not peak; some days require a jacket                                                    |
+| Safety for solo female   | 5     | Consistently ranked among Europe's safest cities for solo female travelers; low crime rate, well-lit central neighborhoods, very little street harassment reported                                  |
+| Ease of travel from NYC  | 4     | Direct overnight flights JFK-LIS in ~7 hours; Schengen entry straightforward; English widely spoken in tourism areas                                                                                |
+| Neighborhood walkability | 5     | Lisbon's historic center (Alfama, Baixa, Bairro Alto, Príncipe Real) is extremely walkable; tram and metro supplement well; flat areas accessible on foot                                           |
 
 **Oaxaca, Mexico**
 
-| Criterion                | Score | Justification                                                                                         |
-|--------------------------|-------|-------------------------------------------------------------------------------------------------------|
-| Food culture and scene   | 5     | UNESCO-recognized cuisine; home of mole negro, tlayudas, mezcal culture, chocolate markets, and world-class contemporary Mexican restaurants alongside centuries-old traditional cooking -- one of the planet's great food destinations |
-| Art and creative scene   | 5     | Monte Albán archaeological site, MACO contemporary art museum, Textile Museum, master artisan villages (Teotitlán del Valle for rugs, San Bartolo Coyotepec for black clay), thriving gallery scene -- a complete and authentic creative ecosystem |
-| Daily cost (budget fit)  | 5     | Mid-range daily cost $45-75/person including boutique guesthouse ($30-50/night), restaurant meals ($3-12 per meal), and market lunches; well within budget even with splurge days |
-| Weather fit (March)      | 5     | March is peak dry season in Oaxaca; temperatures 23-28°C daily, minimal rain (under 2 days/month), low humidity, clear skies -- near-ideal conditions |
+| Criterion                | Score | Justification                                                                                                                                                                                                                                                            |
+| ------------------------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Food culture and scene   | 5     | UNESCO-recognized cuisine; home of mole negro, tlayudas, mezcal culture, chocolate markets, and world-class contemporary Mexican restaurants alongside centuries-old traditional cooking -- one of the planet's great food destinations                                  |
+| Art and creative scene   | 5     | Monte Albán archaeological site, MACO contemporary art museum, Textile Museum, master artisan villages (Teotitlán del Valle for rugs, San Bartolo Coyotepec for black clay), thriving gallery scene -- a complete and authentic creative ecosystem                       |
+| Daily cost (budget fit)  | 5     | Mid-range daily cost $45-75/person including boutique guesthouse ($30-50/night), restaurant meals ($3-12 per meal), and market lunches; well within budget even with splurge days                                                                                        |
+| Weather fit (March)      | 5     | March is peak dry season in Oaxaca; temperatures 23-28°C daily, minimal rain (under 2 days/month), low humidity, clear skies -- near-ideal conditions                                                                                                                    |
 | Safety for solo female   | 3     | Oaxaca city center is safer than Mexico's headline figures suggest, but a Level 2 advisory warrants elevated awareness; standard precautions essential (app-based transport, avoiding unfamiliar areas after dark, not displaying expensive equipment on market streets) |
-| Ease of travel from NYC  | 4     | Typically 2 connections (NYC to Mexico City or Oaxaca via a hub city); ~7-9 hours travel time; no visa required; Spanish language barrier real outside tourist areas but manageable |
-| Neighborhood walkability | 5     | Oaxaca city's historic center is compact and extremely walkable; zócalo, Jalatlaco, Reforma neighborhood all navigable on foot; artisan villages accessible by day trips |
+| Ease of travel from NYC  | 4     | Typically 2 connections (NYC to Mexico City or Oaxaca via a hub city); ~7-9 hours travel time; no visa required; Spanish language barrier real outside tourist areas but manageable                                                                                      |
+| Neighborhood walkability | 5     | Oaxaca city's historic center is compact and extremely walkable; zócalo, Jalatlaco, Reforma neighborhood all navigable on foot; artisan villages accessible by day trips                                                                                                 |
 
 **Chiang Mai, Thailand**
 
-| Criterion                | Score | Justification                                                                                         |
-|--------------------------|-------|-------------------------------------------------------------------------------------------------------|
-| Food culture and scene   | 5     | Northern Thai cuisine is distinct and exceptional -- khao soi, sai oua sausage, nam prik noom (roasted green chili dip), exceptional night markets, superb vegetarian options, some of Southeast Asia's best cooking school options for travelers |
-| Art and creative scene   | 3     | Nimman Road area has independent galleries and design shops; MAIIAM Contemporary Art Museum is strong; Saturday and Sunday markets have craft vendors; but the scene lacks the depth and international recognition of Oaxaca's or Lisbon's |
-| Daily cost (budget fit)  | 5     | Daily costs $35-65/person at mid-range (guesthouse $15-30/night, meal $2-8); easily the most budget-friendly of the three; leaves room for cooking classes, massages, and day trips |
+| Criterion                | Score | Justification                                                                                                                                                                                                                                                    |
+| ------------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Food culture and scene   | 5     | Northern Thai cuisine is distinct and exceptional -- khao soi, sai oua sausage, nam prik noom (roasted green chili dip), exceptional night markets, superb vegetarian options, some of Southeast Asia's best cooking school options for travelers                |
+| Art and creative scene   | 3     | Nimman Road area has independent galleries and design shops; MAIIAM Contemporary Art Museum is strong; Saturday and Sunday markets have craft vendors; but the scene lacks the depth and international recognition of Oaxaca's or Lisbon's                       |
+| Daily cost (budget fit)  | 5     | Daily costs $35-65/person at mid-range (guesthouse $15-30/night, meal $2-8); easily the most budget-friendly of the three; leaves room for cooking classes, massages, and day trips                                                                              |
 | Weather fit (March)      | 4     | March is hot and dry season, 32-36°C -- very warm but no rain; one caveat is smoke season (agricultural burning in the region, February-April), which can affect air quality and has become more pronounced in recent years; not a deal-breaker but worth noting |
-| Safety for solo female   | 5     | Chiang Mai is consistently rated among Asia's safest cities for solo female travelers; strong solo traveler infrastructure, English widely spoken in the old city, low street harassment |
-| Ease of travel from NYC  | 2     | No direct flights; minimum 1-2 connections with 20-24 hours total travel time; significant journey from New York; jet lag adjustment will consume 1-2 days of a 12-day trip |
-| Neighborhood walkability | 3     | Old city (within the moat) is walkable; Nimman area requires songthaew or tuk-tuk; overall the city is more scooter/transport-dependent than Lisbon or Oaxaca; sidewalks uneven in places |
+| Safety for solo female   | 5     | Chiang Mai is consistently rated among Asia's safest cities for solo female travelers; strong solo traveler infrastructure, English widely spoken in the old city, low street harassment                                                                         |
+| Ease of travel from NYC  | 2     | No direct flights; minimum 1-2 connections with 20-24 hours total travel time; significant journey from New York; jet lag adjustment will consume 1-2 days of a 12-day trip                                                                                      |
+| Neighborhood walkability | 3     | Old city (within the moat) is walkable; Nimman area requires songthaew or tuk-tuk; overall the city is more scooter/transport-dependent than Lisbon or Oaxaca; sidewalks uneven in places                                                                        |
 
 ---
 
@@ -459,11 +473,11 @@ Users planning to travel during off-peak periods often do so specifically to avo
 
 ### Ranked Recommendation
 
-| Rank | Destination     | Score    | One-Line Verdict                                                             |
-|------|-----------------|----------|------------------------------------------------------------------------------|
-| 🥇 1 | Oaxaca, Mexico  | 65/70 (93%) | Dominant on your top two priorities (food culture + art scene) and budget; best weather of the three in March |
-| 🥈 2 | Chiang Mai      | 57/70 (81%) | Ties Oaxaca on food and budget but falls short on art scene depth; long-haul flight and smoke season are real trade-offs |
-| 🥉 3 | Lisbon, Portugal| 55/70 (79%) | Safest option by a wide margin and easiest travel from NYC, but pushes your budget ceiling and scores lower on food and art compared to the others |
+| Rank | Destination      | Score       | One-Line Verdict                                                                                                                                   |
+| ---- | ---------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🥇 1 | Oaxaca, Mexico   | 65/70 (93%) | Dominant on your top two priorities (food culture + art scene) and budget; best weather of the three in March                                      |
+| 🥈 2 | Chiang Mai       | 57/70 (81%) | Ties Oaxaca on food and budget but falls short on art scene depth; long-haul flight and smoke season are real trade-offs                           |
+| 🥉 3 | Lisbon, Portugal | 55/70 (79%) | Safest option by a wide margin and easiest travel from NYC, but pushes your budget ceiling and scores lower on food and art compared to the others |
 
 **Recommendation:** Based on your priorities -- food culture first, creative and art scene second, staying under $100/day third -- **Oaxaca** is the clear standout. It scores 93% of its maximum possible score and leads on your top two criteria by meaningful margins. The food culture in Oaxaca (mole, mezcal, indigenous ingredient markets, cooking traditions that predate European contact) and the art ecosystem (artisan villages, MACO, the ceramics and textile traditions integrated into daily commerce) are among the most authentic and layered in the world at any budget tier.
 
@@ -476,6 +490,7 @@ The safety consideration is real and should be respected, but it is manageable w
 ### Next Steps
 
 **If you choose Oaxaca (recommended):**
+
 - **Itinerary:** Use `trip-itinerary-builder` for a 12-day plan -- a strong structure is 7 days Oaxaca city (food markets, cooking class, MACO, mezcal distillery visit) + 2 day-trip days (Monte Albán archaeological site, Teotitlán del Valle artisan village) + 2-3 days at Hierve el Agua or Sierra Norte mountains
 - **Visa:** No visa required for US passport holders -- 180-day tourist entry stamp on arrival
 - **Flights from NYC:** Approximately $350-550 round trip (JFK or EWR to OAX via Mexico City or another hub); book 6-8 weeks ahead for March
@@ -484,11 +499,13 @@ The safety consideration is real and should be respected, but it is manageable w
 - **Budget tip:** Your $100/day budget allows $50-55/night accommodation in a well-reviewed boutique guesthouse in Jalatlaco, leaving $45-50/day for food (which goes very far -- a market lunch is $3-6, a nice dinner is $15-25)
 
 **If you choose Chiang Mai:**
+
 - **Itinerary:** Use `trip-itinerary-builder` for a 12-day plan; build in a recovery day at the start for jet lag; consider 9 days Chiang Mai + 3-day extension to Pai or Chiang Rai
 - **Flights from NYC:** $700-1,100 round trip (JFK to CNX via Tokyo, Seoul, Bangkok, or another Asian hub); 20-24 hours each way
 - **Smoke season:** Check real-time air quality on IQAir before and during travel; the window of clean air in March varies year to year
 
 **If you choose Lisbon:**
+
 - **Itinerary:** Use `trip-itinerary-builder` for a 12-day plan; a strong structure is 5 days Lisbon (Alfama, Bairro Alto, Belém, Mouraria) + 3 days Sintra and Cascais coast + 4 days Alentejo wine region or Porto
 - **Budget management:** At $100/day, choose between a private room in a guesthouse (not a 3-star hotel) and eating at tascas (traditional local taverns) rather than tourist-facing restaurants -- this keeps costs on target
 - **Flights from NYC:** $450-750 round trip direct JFK-LIS; Tap Air Portugal and others fly this route nonstop in ~6.5-7 hours

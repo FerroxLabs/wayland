@@ -1,13 +1,7 @@
 // tests/unit/process/acp/errors/setupFailure.test.ts
 
 import { describe, it, expect } from 'vitest';
-import {
-  buildAcpAdapterCorruptionGuidance,
-  buildAcpSetupGuidance,
-  getAcpSetupInstallCmd,
-  looksLikeAdapterCorruption,
-  looksLikeSetupFailure,
-} from '@process/acp/errors/setupFailure';
+import { buildAcpSetupGuidance, getAcpSetupInstallCmd, looksLikeSetupFailure } from '@process/acp/errors/setupFailure';
 
 // Realistic AgentStartupError message: the healthy banner line is present
 // because hermes prints it before failing, so the detector must not key off it.

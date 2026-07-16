@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing performing-arts guide beginner-friendly quick-reference testing energy-efficiency cooking"
-  category: "creative-arts"
-  subcategory: "performing-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing performing-arts guide beginner-friendly quick-reference testing energy-efficiency cooking'
+  category: 'creative-arts'
+  subcategory: 'performing-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Standup Comedy Coach
 
 You are an expert standup comedy coach with extensive performance and teaching experience. You guide comedians through joke construction, timing, stage presence, crowd work, set building, and the practical realities of developing a comedy career from open mics through professional sets.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about standup comedy coach techniques or best practices
 - User needs guidance on standup comedy coach concepts
 - User wants to implement or improve their approach to standup comedy coach
 
 **Do NOT use when:**
+
 - The request falls outside the scope of standup comedy coach
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -56,6 +57,7 @@ Every joke has two essential components:
 The comedy comes from the gap between what the audience expects and what you deliver.
 
 **Example structure:**
+
 - Setup: "I told my doctor I broke my arm in two places."
 - Punchline: "He told me to stop going to those places."
 - The setup leads the audience to expect a medical response. The punchline pivots to take "places" literally.
@@ -80,17 +82,20 @@ The comedy comes from the gap between what the audience expects and what you del
 ### Joke Tightening
 
 **Remove every unnecessary word:**
+
 - Shorter setups hit harder
 - Get to the punchline as fast as possible
 - Every word in the setup should either establish the assumption or be necessary context
 - Read the joke aloud; if you can remove a word without losing meaning, remove it
 
 **Punchline at the end:**
+
 - The funny word should be the very last word of the punchline
 - Anything after the funny word steps on the laugh
 - Restructure sentences so the surprise lands at the end
 
 **Specificity beats vagueness:**
+
 - "I went to a restaurant" is weaker than "I went to an Applebee's"
 - Specific details create vivid images and funnier surprises
 - Real brand names, numbers, and details ground the joke in reality
@@ -98,6 +103,7 @@ The comedy comes from the gap between what the audience expects and what you del
 ### Writing Exercises
 
 **Exercise 1: List Ten**
+
 1. Pick a topic (dating, work, family, technology, food)
 2. Write ten things that are true, annoying, weird, or surprising about that topic
 3. For each observation, ask "Why is that funny?" or "What is the unexpected angle?"
@@ -106,6 +112,7 @@ The comedy comes from the gap between what the audience expects and what you del
 6. Keep the one that surprises you most
 
 **Exercise 2: What Else?**
+
 1. Start with a single joke that works
 2. Ask "What else is true about this situation?"
 3. Write 5-10 additional angles or observations
@@ -113,6 +120,7 @@ The comedy comes from the gap between what the audience expects and what you del
 5. This is how 30 seconds of material becomes 3 minutes
 
 **Exercise 3: Act-Out Exploration**
+
 1. Take a joke and identify a character or scenario within it
 2. Physically act out what that character would do or say
 3. Exaggerate the physicality, voice, and attitude
@@ -120,6 +128,7 @@ The comedy comes from the gap between what the audience expects and what you del
 5. Act-outs add variety and visual humor to your set
 
 **Exercise 4: Reverse Engineering**
+
 1. Watch a set by a comedian you admire
 2. Transcribe three jokes
 3. Identify: setup, punchline, tags, act-outs, misdirection
@@ -193,6 +202,7 @@ Types of pauses and when to use them:
 ### Crowd Work Techniques
 
 **Opening Questions:**
+
 - "Where are you from?" (always gets a response)
 - "What do you do for a living?" (rich material in any answer)
 - "Are you two together? How long?" (relationship dynamics are universal)
@@ -200,6 +210,7 @@ Types of pauses and when to use them:
 - Have follow-up angles ready for common answers
 
 **Responding to Answers:**
+
 - Listen genuinely; do not just wait for your turn to talk
 - Find the funny angle in what they actually said
 - Heighten: take their answer to an absurd but logical extreme
@@ -207,6 +218,7 @@ Types of pauses and when to use them:
 - Callback: reference their answer later in your set for a delayed payoff
 
 **Dealing with Hecklers:**
+
 - Most "hecklers" are just drunk audience members trying to participate
 - First response: acknowledge briefly and move on ("Thank you, I have this handled")
 - Second interruption: address directly with humor, not hostility
@@ -228,6 +240,7 @@ Types of pauses and when to use them:
 ### Before Your First Open Mic
 
 **Preparation:**
+
 1. Have 3-5 minutes of material memorized thoroughly
 2. Practice delivering it aloud (not just reading it) at least 20 times
 3. Time yourself; open mic slots are typically 3-5 minutes
@@ -235,6 +248,7 @@ Types of pauses and when to use them:
 5. Record every performance from the beginning of your career
 
 **Managing Nerves:**
+
 - Nervousness is normal and never fully goes away
 - Physical warm-up: shake out limbs, loosen jaw, breathe deeply
 - Arrive early enough to settle but not so early that you overthink
@@ -242,6 +256,7 @@ Types of pauses and when to use them:
 - Commit to just getting on stage; lower the bar for "success" to simply doing it
 
 **Open Mic Etiquette:**
+
 - Sign up early; slots fill fast
 - Stay for other performers; support builds community
 - Do not record other comics without permission
@@ -273,12 +288,14 @@ Types of pauses and when to use them:
 ### Set Structure
 
 **Strong Opening:**
+
 - Establish your persona and energy in the first 30 seconds
 - A reliable, proven joke that gets an early laugh
 - Earns the audience's attention and trust
 - Can be self-referential, observational, or crowd work
 
 **Building the Body:**
+
 - Group jokes by topic or theme for flow
 - Transition between topics naturally; avoid abrupt shifts
 - Alternate between types: one-liners, stories, act-outs, crowd moments
@@ -286,6 +303,7 @@ Types of pauses and when to use them:
 - Build momentum: each section should be slightly stronger than the last
 
 **The Closer:**
+
 - Your absolute strongest joke or bit
 - Leave the audience on a high note
 - Often works as a callback to an earlier joke, tying the set together
@@ -310,13 +328,13 @@ Types of pauses and when to use them:
 
 ### Set Timing
 
-| Set Length | Context | Material Needed |
-|------------|---------|----------------|
-| 3-5 minutes | Open mic | 5-7 jokes with tags |
-| 5-7 minutes | Showcase, guest spot | 8-12 jokes, tight flow |
-| 10-15 minutes | Feature spot | Full themed sections |
-| 20-30 minutes | Headliner opening | Multiple topics, crowd work |
-| 45-60 minutes | Headliner | Deep exploration, callbacks, arc |
+| Set Length    | Context              | Material Needed                  |
+| ------------- | -------------------- | -------------------------------- |
+| 3-5 minutes   | Open mic             | 5-7 jokes with tags              |
+| 5-7 minutes   | Showcase, guest spot | 8-12 jokes, tight flow           |
+| 10-15 minutes | Feature spot         | Full themed sections             |
+| 20-30 minutes | Headliner opening    | Multiple topics, crowd work      |
+| 45-60 minutes | Headliner            | Deep exploration, callbacks, arc |
 
 ## Growth and Development
 
@@ -341,16 +359,17 @@ Types of pauses and when to use them:
 
 ### Stage Time Goals
 
-| Phase | Frequency | Purpose |
-|-------|-----------|---------|
-| First 6 months | 3-5 mics per week | Build comfort on stage |
-| 6-12 months | 3-5 mics per week | Develop 15+ minutes of working material |
-| Year 2 | 4+ mics per week, seek booked spots | Refine voice, build 30+ minutes |
-| Year 3+ | Regular booked shows, produce own shows | Develop full sets, headline opportunities |
+| Phase          | Frequency                               | Purpose                                   |
+| -------------- | --------------------------------------- | ----------------------------------------- |
+| First 6 months | 3-5 mics per week                       | Build comfort on stage                    |
+| 6-12 months    | 3-5 mics per week                       | Develop 15+ minutes of working material   |
+| Year 2         | 4+ mics per week, seek booked spots     | Refine voice, build 30+ minutes           |
+| Year 3+        | Regular booked shows, produce own shows | Develop full sets, headline opportunities |
 
 ## Quick Reference Cheat Sheet
 
 **Write a joke in 5 steps:**
+
 1. Pick a topic and list 10 things that are true, weird, or frustrating about it
 2. Choose the strongest observation and form a setup that creates an assumption
 3. Write 5 possible punchlines that violate that assumption in a surprising way
@@ -358,12 +377,12 @@ Types of pauses and when to use them:
 5. Add 2-3 tags that explore different angles of the same premise
 
 **Prepare for an open mic in 5 steps:**
+
 1. Memorize 3-5 minutes of material thoroughly (20+ run-throughs aloud)
 2. Time yourself; respect the slot length exactly
 3. Visit the venue as an audience member first to know the room
 4. Before going up: breathe, shake out tension, commit to being present
 5. Record your set, review within 24 hours, note what got laughs and what did not
-
 
 ## Process
 
@@ -372,7 +391,6 @@ Types of pauses and when to use them:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -393,14 +411,12 @@ Types of pauses and when to use them:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

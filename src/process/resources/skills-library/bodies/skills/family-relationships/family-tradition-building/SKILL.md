@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events parenting planning"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events parenting planning'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Family Tradition Building
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user explicitly wants to create, design, or formalize new family traditions -- including starting from scratch with no tradition history
 - A user wants to adapt inherited or childhood traditions to fit their current family's composition, values, or constraints
 - A user is merging two households (blended families, remarriage, multigenerational living) and needs a framework for integrating or replacing competing traditions
@@ -30,6 +32,7 @@ metadata:
 - A user wants to create milestone traditions for non-holiday events: birthdays, graduations, first jobs, moves, deaths, or family losses
 
 **Do NOT use when:**
+
 - The user needs event logistics for a specific one-time gathering -- refer to `family-reunion-planning` or `holiday-party-planning` instead
 - The user needs culturally specific ceremony design (a quinceañera structure, a bar mitzvah order of service, a Diwali puja sequence) -- these require community or religious authority, not this framework
 - The user wants classroom or school community rituals -- use education-focused skills for that context
@@ -66,12 +69,12 @@ Most families have more tradition-adjacent material than they realize. Before de
 
 Different cadences serve different psychological functions. Design across at least three cadence levels -- do not stack all traditions at one frequency.
 
-- **Daily micro-traditions (2-10 minutes)**: These build emotional safety and daily connection. Bedtime rituals, specific departure phrases, a question asked at every dinner, a handshake or physical ritual at school drop-off. They are low-cost and high-frequency. The psychological function is *predictability* -- children's nervous systems regulate on predictable positive interactions. Research on family routines consistently identifies daily rituals as the highest-impact per-minute investment in family cohesion.
-- **Weekly traditions (30-90 minutes)**: These create the rhythm of a week and give children something to anticipate. Friday pizza nights, Sunday morning pancakes, Saturday nature walks, Wednesday game nights. The function is *rhythm and anticipation*. One well-executed weekly tradition is worth more than five loosely held ones.
-- **Monthly traditions (2-6 hours)**: These mark the passage of time and create mild adventure within structure. First-Saturday explorations, monthly cooking challenges, family book discussions, monthly "yes day" where kids choose the activity. The function is *novelty within predictability*.
-- **Seasonal traditions (1-2 days)**: These tie family life to the natural world and the school calendar's rhythm. A spring garden planting, a summer camping tradition, a fall apple-picking or pumpkin-carving ritual, a winter baking day. The function is *time anchoring* -- children (and adults) experience seasons as meaningful markers, not just weather changes.
-- **Holiday traditions**: Integrated into existing celebrations. The distinction between a holiday event and a holiday tradition is *recurrence and ownership*. The family's specific way of doing the holiday -- not the holiday itself -- is the tradition. Opening one gift on Christmas Eve, reading a specific poem on the solstice, a specific Thanksgiving morning ritual before guests arrive. The function is *cultural and familial identity*.
-- **Milestone traditions**: Birthdays, first and last days of school, graduations, first jobs, moves, losses. These mark identity transitions. The function is *recognition* -- the child or family member feels seen as having changed and grown. Milestone traditions are high-emotional-impact but low-frequency; they benefit from a specific, repeatable structure (a set of interview questions, a specific meal, a particular ceremony).
+- **Daily micro-traditions (2-10 minutes)**: These build emotional safety and daily connection. Bedtime rituals, specific departure phrases, a question asked at every dinner, a handshake or physical ritual at school drop-off. They are low-cost and high-frequency. The psychological function is _predictability_ -- children's nervous systems regulate on predictable positive interactions. Research on family routines consistently identifies daily rituals as the highest-impact per-minute investment in family cohesion.
+- **Weekly traditions (30-90 minutes)**: These create the rhythm of a week and give children something to anticipate. Friday pizza nights, Sunday morning pancakes, Saturday nature walks, Wednesday game nights. The function is _rhythm and anticipation_. One well-executed weekly tradition is worth more than five loosely held ones.
+- **Monthly traditions (2-6 hours)**: These mark the passage of time and create mild adventure within structure. First-Saturday explorations, monthly cooking challenges, family book discussions, monthly "yes day" where kids choose the activity. The function is _novelty within predictability_.
+- **Seasonal traditions (1-2 days)**: These tie family life to the natural world and the school calendar's rhythm. A spring garden planting, a summer camping tradition, a fall apple-picking or pumpkin-carving ritual, a winter baking day. The function is _time anchoring_ -- children (and adults) experience seasons as meaningful markers, not just weather changes.
+- **Holiday traditions**: Integrated into existing celebrations. The distinction between a holiday event and a holiday tradition is _recurrence and ownership_. The family's specific way of doing the holiday -- not the holiday itself -- is the tradition. Opening one gift on Christmas Eve, reading a specific poem on the solstice, a specific Thanksgiving morning ritual before guests arrive. The function is _cultural and familial identity_.
+- **Milestone traditions**: Birthdays, first and last days of school, graduations, first jobs, moves, losses. These mark identity transitions. The function is _recognition_ -- the child or family member feels seen as having changed and grown. Milestone traditions are high-emotional-impact but low-frequency; they benefit from a specific, repeatable structure (a set of interview questions, a specific meal, a particular ceremony).
 
 ### Step 4: Design Each Tradition Using the Core Structure
 
@@ -89,7 +92,7 @@ The most common reason traditions die is that they were designed for one develop
 
 - Identify the **unchanging core** of the tradition -- the element that must persist regardless of age. This is usually the sensory element or the relational structure, not the activity itself.
 - Design **execution variations** at minimum four developmental stages: toddler/preschool (ages 1-5), school-age (ages 6-11), early teen (ages 12-14), and older teen/young adult (ages 15+). The older teen/young adult stage is the most commonly neglected and the most important -- traditions that do not adapt for this stage lose young people entirely, which severs the chain of transmission to the next generation.
-- For the older teen stage specifically: shift participation from *recipient* to *contributor*. Teens who are bored by a tradition become engaged when they are given ownership of part of it -- they choose the destination, they cook the meal, they design the questions, they lead the ceremony. This is the mechanism through which traditions survive into adulthood.
+- For the older teen stage specifically: shift participation from _recipient_ to _contributor_. Teens who are bored by a tradition become engaged when they are given ownership of part of it -- they choose the destination, they cook the meal, they design the questions, they lead the ceremony. This is the mechanism through which traditions survive into adulthood.
 - Plan for **family composition changes**: new siblings, children leaving for college, grandparents declining in health, divorce, and blended family additions. A tradition built around one specific child's interests will falter when a second child arrives with different interests. Design for the relationship, not the current participants.
 
 ### Step 6: Create the Annual Tradition Calendar
@@ -128,12 +131,13 @@ The most beautifully designed tradition system fails if it cannot survive real f
 ## Family Tradition Plan for [Family Description]
 
 ### Tradition Audit Summary
-| Status | Tradition | Action |
-|--------|-----------|--------|
-| Active | [Name] | Keep / Formalize |
-| Dormant | [Name] | Revive / Retire |
-| Aspirational | [Name] | Design / Drop |
-| Inherited Obligation | [Name] | Restructure / Retire |
+
+| Status               | Tradition | Action               |
+| -------------------- | --------- | -------------------- |
+| Active               | [Name]    | Keep / Formalize     |
+| Dormant              | [Name]    | Revive / Retire      |
+| Aspirational         | [Name]    | Design / Drop        |
+| Inherited Obligation | [Name]    | Restructure / Retire |
 
 ---
 
@@ -178,22 +182,23 @@ Describe all optional enhancements without making them feel required.]
 
 ### Annual Tradition Calendar
 
-| Month | Weekly | Monthly | Seasonal/Holiday | Milestone (if scheduled) |
-|-------|--------|---------|-----------------|--------------------------|
-| January | [Weekly traditions] | [Monthly] | [New Year ritual] | |
-| February | | [Monthly] | | |
-| March | | [Monthly] | [Spring tradition] | |
-| April | | [Monthly] | | [Birthday if applicable] |
-| May | | [Monthly] | | [End of school year] |
-| June | | [Monthly] | [Summer start] | |
-| July | | [Monthly] | | |
-| August | | [Monthly] | [Back to school] | |
-| September | | [Monthly] | [Fall tradition] | |
-| October | | [Monthly] | [Harvest/Halloween] | |
-| November | | [Monthly] | [Gratitude tradition] | |
-| December | | [Monthly] | [Winter/Holiday] | |
+| Month     | Weekly              | Monthly   | Seasonal/Holiday      | Milestone (if scheduled) |
+| --------- | ------------------- | --------- | --------------------- | ------------------------ |
+| January   | [Weekly traditions] | [Monthly] | [New Year ritual]     |                          |
+| February  |                     | [Monthly] |                       |                          |
+| March     |                     | [Monthly] | [Spring tradition]    |                          |
+| April     |                     | [Monthly] |                       | [Birthday if applicable] |
+| May       |                     | [Monthly] |                       | [End of school year]     |
+| June      |                     | [Monthly] | [Summer start]        |                          |
+| July      |                     | [Monthly] |                       |                          |
+| August    |                     | [Monthly] | [Back to school]      |                          |
+| September |                     | [Monthly] | [Fall tradition]      |                          |
+| October   |                     | [Monthly] | [Harvest/Halloween]   |                          |
+| November  |                     | [Monthly] | [Gratitude tradition] |                          |
+| December  |                     | [Monthly] | [Winter/Holiday]      |                          |
 
 **Monthly Tradition Hours (Sustainability Check):**
+
 - Weekly traditions: [Hours/month]
 - Monthly traditions: [Hours/month]
 - Seasonal/Holiday traditions: [Hours/month, averaged]
@@ -309,11 +314,11 @@ Create one new tradition explicitly tied to the new location within the first 3 
 
 ### Tradition Audit Summary
 
-| Status | What You Described | Action |
-|--------|-------------------|--------|
-| Proto-tradition | Christmas movie watching (informal) | Formalize -- name it, give it a specific anchor |
-| Inherited (from your family of origin) | Your parents' traditions | Identify top 1-2 worth adapting |
-| Everything else | Not yet present | Design from scratch, starting with one |
+| Status                                 | What You Described                  | Action                                          |
+| -------------------------------------- | ----------------------------------- | ----------------------------------------------- |
+| Proto-tradition                        | Christmas movie watching (informal) | Formalize -- name it, give it a specific anchor |
+| Inherited (from your family of origin) | Your parents' traditions            | Identify top 1-2 worth adapting                 |
+| Everything else                        | Not yet present                     | Design from scratch, starting with one          |
 
 **Note on the chaos:** Your life is not too chaotic for traditions -- it is the exact situation where traditions pay the highest return. A 9-month-old, a 4-year-old, and a 7-year-old means you are in peak unpredictability. Traditions are not for calm periods. They are the thing that makes chaotic periods feel like they are part of a continuous family story rather than just survival.
 
@@ -394,6 +399,7 @@ Designated pajamas worn by all (over time, matching or coordinated pajamas becom
 **Cost:** Under $10 per child (the cost of one notebook, purchased once -- the notebook lasts 10-12 years)
 
 **The Interview Questions (these stay the same every year -- do not change them):**
+
 1. How old are you today?
 2. What is your favorite food right now?
 3. What is your favorite thing to do?
@@ -427,25 +433,26 @@ All 10 questions, answered in writing by the child once they can write (age 7+ f
 
 ### Annual Tradition Calendar
 
-| Month | Daily | Seasonal/Holiday | Milestone (if applicable) |
-|-------|-------|-----------------|--------------------------|
-| January | Best and Hard | -- | -- |
-| February | Best and Hard | -- | -- |
-| March | Best and Hard | -- | -- |
-| April | Best and Hard | -- | -- |
-| May | Best and Hard | -- | -- |
-| June | Best and Hard | -- | -- |
-| July | Best and Hard | -- | -- |
-| August | Best and Hard | -- | -- |
-| September | Best and Hard | -- | -- |
-| October | Best and Hard | -- | -- |
-| November | Best and Hard | Movie vote (5-minute dinner table event) | -- |
-| December | Best and Hard | Christmas Movie Nights (Fridays 1, 2, 3) | -- |
-| Each birthday | Best and Hard | -- | Birthday Interview |
+| Month         | Daily         | Seasonal/Holiday                         | Milestone (if applicable) |
+| ------------- | ------------- | ---------------------------------------- | ------------------------- |
+| January       | Best and Hard | --                                       | --                        |
+| February      | Best and Hard | --                                       | --                        |
+| March         | Best and Hard | --                                       | --                        |
+| April         | Best and Hard | --                                       | --                        |
+| May           | Best and Hard | --                                       | --                        |
+| June          | Best and Hard | --                                       | --                        |
+| July          | Best and Hard | --                                       | --                        |
+| August        | Best and Hard | --                                       | --                        |
+| September     | Best and Hard | --                                       | --                        |
+| October       | Best and Hard | --                                       | --                        |
+| November      | Best and Hard | Movie vote (5-minute dinner table event) | --                        |
+| December      | Best and Hard | Christmas Movie Nights (Fridays 1, 2, 3) | --                        |
+| Each birthday | Best and Hard | --                                       | Birthday Interview        |
 
 **Everything else in this calendar: unstructured. No obligation.**
 
 **Monthly Tradition Hours (Sustainability Check):**
+
 - Daily micro-tradition (Best and Hard): ~1.5 hours/month (5 min/night x 4 nights/week average)
 - Seasonal (December only): ~3 hours in December spread across 3 nights
 - Milestone (Birthday Interview): ~15 min, 3 times per year
@@ -457,11 +464,13 @@ All 10 questions, answered in writing by the child once they can write (age 7+ f
 ### Keeping It Alive: Resilience Protocol
 
 **80% Rule:**
+
 - Best and Hard: alive if it happens 4+ nights per week. Missing weekends is fine. Missing it during travel is fine. It lives in the routine, and the routine will have gaps.
 - Christmas Movie Nights: alive if 2 of 3 planned nights happen. One missed night is not a broken tradition.
 - Birthday Interview: alive if it happens within 2 weeks of the birthday. It does not have to be the day of.
 
 **Tradition Debt Threshold:**
+
 - If Best and Hard goes unasked for 2 consecutive weeks, check in: is dinnertime too chaotic right now? Try moving it to bedtime instead. The questions are the tradition -- the location is flexible.
 - If a Birthday Interview is missed entirely for a year, do it retroactively. Ask "What do you remember about being 7?" A retrospective interview is not ideal but is better than a gap year in the record.
 
@@ -469,6 +478,7 @@ All 10 questions, answered in writing by the child once they can write (age 7+ f
 Ask each family member who can participate: "Which of our traditions feels the most special?" and "Is there anything you want to change?" Use the movie vote dinner in November as the moment to do this -- you are already talking about the upcoming season.
 
 **Teen Ownership Transfer (Plan This Now, Execute at Age 12-13):**
+
 - Best and Hard: your eldest (currently 7) takes over asking the questions at age 12. They run the table.
 - Birthday Interview: at age 13, your eldest reads all their previous interviews independently before doing the new one. At age 15, they conduct the interview for younger siblings.
 - Christmas Movie Nights: at age 13, your eldest owns the hot chocolate preparation. Their version of the hot chocolate becomes part of the tradition.

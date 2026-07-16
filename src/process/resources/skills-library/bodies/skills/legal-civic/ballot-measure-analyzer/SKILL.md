@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "civic-engagement research guide analysis"
-  category: "legal-civic"
-  subcategory: "civic-engagement"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'civic-engagement research guide analysis'
+  category: 'legal-civic'
+  subcategory: 'civic-engagement'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Ballot Measure Analyzer
 
 > **Disclaimer:** This skill provides civic education and general legal literacy to help you understand ballot measures as a matter of democratic participation. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Ballot measure law, fiscal rules, and procedural requirements vary significantly by state and locality. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters, and verify current information through official government sources before voting.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user has a ballot measure, proposition, initiative, referendum, constitutional amendment, or bond measure in front of them and wants to understand what it actually does -- including when the ballot title or summary language is confusing, circular, or misleading
 - A user wants a plain-language translation of the operative legal text of a measure, including the specific statutory or constitutional sections being amended or repealed
 - A user wants a structured fiscal impact breakdown, including bond amortization totals, tax rate projections, or funding mechanism explanations that go beyond what the official summary provides
@@ -33,6 +35,7 @@ metadata:
 - A user encountered a measure in a prior election cycle and wants to understand its historical context, implementation outcome, or comparison to a new version of the same issue
 
 **Do NOT use when:**
+
 - The user explicitly wants a recommendation on how to vote -- redirect to the evaluation framework and ask which values and priorities are most important to them, but do not express a preference (see Rules)
 - The user wants to analyze candidates, their records, or compare candidate positions -- use a candidate research or voter guide skill instead
 - The user wants to interpret election results, map outcomes, or understand why a measure passed or failed after the fact -- that is election analytics, not ballot measure education
@@ -52,15 +55,15 @@ Before any analysis, collect the right raw material. The quality of analysis dep
 - **Ask for the full official text** of the measure, not just the title or summary. Official text is found in the official voter guide (mailed to registered voters or available from the county clerk, city clerk, or Secretary of State), the state legislature's enrolled bill or initiative text, or the local elections office's official ballot materials. A news headline or advocacy group summary is insufficient.
 - **Identify the jurisdiction precisely:** state ballot measure, county measure, city/municipality measure, special district measure (water district, school district, fire district), or a regional authority measure. Rules for passage, amendment thresholds, and fiscal analysis requirements differ at each level.
 - **Identify the measure type** from the following taxonomy -- this determines the analytical lens:
-  - *Initiated statute:* Voters directly enact a law, bypassing the legislature. Can typically be amended by the legislature after a waiting period (often 3-5 years, or requiring a supermajority).
-  - *Initiated constitutional amendment:* Voters directly amend the state constitution. Harder to change -- requires another voter approval. Much more consequential than a statute.
-  - *Legislative referral (statute):* Legislature placed the measure on the ballot for voter approval. Common for laws requiring voter ratification.
-  - *Legislative referral (constitutional amendment):* Legislature proposes a constitutional change; voters must ratify. Requires a supermajority in the legislature (often 60% or two-thirds) before going to voters.
-  - *Popular referendum:* Voters are asked to approve or reject a law the legislature already passed. A "yes" vote upholds the law; a "no" vote repeals it -- the opposite framing from most measures.
-  - *General obligation bond:* Authorizes government borrowing backed by the full taxing authority. Repaid through property taxes. Often requires a supermajority (55% in California for school bonds; two-thirds in many other states).
-  - *Revenue bond:* Authorizes borrowing backed by a specific revenue stream (tolls, utility fees), not general taxes. Different risk profile and typically does not require voter approval in all jurisdictions.
-  - *Advisory measure:* Non-binding. The result does not change any law but signals voter opinion to elected officials.
-  - *Recall:* Asks whether an elected official should be removed. Different rules apply -- see Edge Cases.
+  - _Initiated statute:_ Voters directly enact a law, bypassing the legislature. Can typically be amended by the legislature after a waiting period (often 3-5 years, or requiring a supermajority).
+  - _Initiated constitutional amendment:_ Voters directly amend the state constitution. Harder to change -- requires another voter approval. Much more consequential than a statute.
+  - _Legislative referral (statute):_ Legislature placed the measure on the ballot for voter approval. Common for laws requiring voter ratification.
+  - _Legislative referral (constitutional amendment):_ Legislature proposes a constitutional change; voters must ratify. Requires a supermajority in the legislature (often 60% or two-thirds) before going to voters.
+  - _Popular referendum:_ Voters are asked to approve or reject a law the legislature already passed. A "yes" vote upholds the law; a "no" vote repeals it -- the opposite framing from most measures.
+  - _General obligation bond:_ Authorizes government borrowing backed by the full taxing authority. Repaid through property taxes. Often requires a supermajority (55% in California for school bonds; two-thirds in many other states).
+  - _Revenue bond:_ Authorizes borrowing backed by a specific revenue stream (tolls, utility fees), not general taxes. Different risk profile and typically does not require voter approval in all jurisdictions.
+  - _Advisory measure:_ Non-binding. The result does not change any law but signals voter opinion to elected officials.
+  - _Recall:_ Asks whether an elected official should be removed. Different rules apply -- see Edge Cases.
 - **Identify the passage threshold:** Most statutes and constitutional amendments require a simple majority (50% + 1). School bonds in California require 55%. Constitutional amendments in some states require 60%. Tax increases in some states (Colorado's TABOR, for example) require specific supermajorities. This is not a minor detail -- a measure polling at 52% support may fail if the threshold is 55%.
 - **Note the election date and cycle** -- primary elections, special elections, and off-year elections have dramatically lower turnout, which affects which coalition of voters decides the outcome and is relevant context for the user.
 
@@ -83,23 +86,23 @@ This is the core analytical work. Read the actual text, not summaries.
 - **Identify all defined terms:** Most well-drafted measures include a definitions section. The legal definition of a term may be narrower or broader than its common usage. "Affordable housing," "small business," "firearm," "single-family residence" -- all have specific legal definitions that may surprise users.
 - **Identify every government entity affected:** Which agencies are required to take action? Which are prohibited from taking action? Which receive new funding or lose existing funding?
 - **Look for these seven structural flags that voters frequently miss:**
-  1. *Supermajority lock:* "This measure may only be amended by a two-thirds vote of the legislature" or "may only be amended by a subsequent ballot measure." These are common in initiatives and dramatically limit future flexibility.
-  2. *Sunset clause:* "The provisions of this measure shall expire on [date]." If present, note it prominently -- the measure may appear permanent but is actually temporary.
-  3. *Appropriation:* Does the measure itself appropriate money, or does it only authorize appropriation subject to future legislative action? The former is a direct fiscal commitment; the latter depends on future political will.
-  4. *Preemption clause:* "No local ordinance may conflict with this measure." Preemption removes local government authority on the subject.
-  5. *Severability clause:* "If any provision is found unconstitutional, the remaining provisions shall remain in effect." Absence of severability means a court ruling against one provision could invalidate the whole measure.
-  6. *Private right of action:* Does the measure allow private citizens to sue for enforcement? This has major implications for litigation costs and enforcement dynamics.
-  7. *Enactment contingency:* Is the measure contingent on another measure passing? Some jurisdictions allow measures to be paired, where one only takes effect if the other passes or fails.
+  1. _Supermajority lock:_ "This measure may only be amended by a two-thirds vote of the legislature" or "may only be amended by a subsequent ballot measure." These are common in initiatives and dramatically limit future flexibility.
+  2. _Sunset clause:_ "The provisions of this measure shall expire on [date]." If present, note it prominently -- the measure may appear permanent but is actually temporary.
+  3. _Appropriation:_ Does the measure itself appropriate money, or does it only authorize appropriation subject to future legislative action? The former is a direct fiscal commitment; the latter depends on future political will.
+  4. _Preemption clause:_ "No local ordinance may conflict with this measure." Preemption removes local government authority on the subject.
+  5. _Severability clause:_ "If any provision is found unconstitutional, the remaining provisions shall remain in effect." Absence of severability means a court ruling against one provision could invalidate the whole measure.
+  6. _Private right of action:_ Does the measure allow private citizens to sue for enforcement? This has major implications for litigation costs and enforcement dynamics.
+  7. _Enactment contingency:_ Is the measure contingent on another measure passing? Some jurisdictions allow measures to be paired, where one only takes effect if the other passes or fails.
 
 ### Step 4: Construct the Fiscal Analysis
 
 Fiscal analysis is the area where voters most often receive incomplete information. Build a complete fiscal picture.
 
 - **Distinguish cost categories precisely:**
-  - *One-time implementation costs:* Infrastructure, systems, employee training, compliance buildout. These appear large but are not recurring.
-  - *Annual ongoing operational costs:* Staffing, administration, enforcement, program delivery. These are the true long-term commitment.
-  - *Capital costs:* Land, construction, equipment. Often financed through bonds; analyze total cost including financing.
-  - *Revenue impacts:* Tax revenues raised, fees collected, or -- critically -- revenue foregone if the measure reduces an existing tax or restricts a revenue-generating activity.
+  - _One-time implementation costs:_ Infrastructure, systems, employee training, compliance buildout. These appear large but are not recurring.
+  - _Annual ongoing operational costs:_ Staffing, administration, enforcement, program delivery. These are the true long-term commitment.
+  - _Capital costs:_ Land, construction, equipment. Often financed through bonds; analyze total cost including financing.
+  - _Revenue impacts:_ Tax revenues raised, fees collected, or -- critically -- revenue foregone if the measure reduces an existing tax or restricts a revenue-generating activity.
 - **For bond measures, always compute the total debt service cost:**
   - A 30-year general obligation bond at a 4% interest rate costs approximately 1.75x the principal. A $100 million bond will cost approximately $175 million to repay.
   - A 25-year bond at 3.5% costs approximately 1.55x the principal.
@@ -123,10 +126,10 @@ Understanding who supports and opposes a measure, and why, is essential civic li
 
 - **Identify official campaign committees:** Every ballot measure campaign must register a ballot measure committee with the relevant elections authority. The committee name, treasurers, and major donors are public record in most states. Check the Secretary of State's campaign finance database.
 - **Categorize supporters by type:**
-  - *Direct beneficiaries:* Entities that will directly receive money, regulatory relief, or competitive advantage if the measure passes. Their support is expected and should be noted -- not as a disqualifier, but as context.
-  - *Indirect beneficiaries:* Entities whose business interests improve as a consequence of the measure. Real estate developers supporting affordable housing tax credits have indirect financial interests worth examining.
-  - *Values-driven supporters:* Advocacy organizations, religious institutions, and civic groups supporting a measure based on policy values without direct financial benefit. Their arguments tend to reflect broad public interest concerns.
-  - *Political party endorsements:* Note which parties have endorsed. This reflects partisan alignment but is not itself an argument about the measure's merits.
+  - _Direct beneficiaries:_ Entities that will directly receive money, regulatory relief, or competitive advantage if the measure passes. Their support is expected and should be noted -- not as a disqualifier, but as context.
+  - _Indirect beneficiaries:_ Entities whose business interests improve as a consequence of the measure. Real estate developers supporting affordable housing tax credits have indirect financial interests worth examining.
+  - _Values-driven supporters:_ Advocacy organizations, religious institutions, and civic groups supporting a measure based on policy values without direct financial benefit. Their arguments tend to reflect broad public interest concerns.
+  - _Political party endorsements:_ Note which parties have endorsed. This reflects partisan alignment but is not itself an argument about the measure's merits.
 - **Apply the same framework to opponents.**
 - **Follow the money with specificity:**
   - California's FPPC (Fair Political Practices Commission) and most Secretary of State offices require disclosure of contributions over a threshold (typically $100 to $1,000 depending on jurisdiction).
@@ -174,14 +177,14 @@ Compile all analysis into the output format. Maintain strict neutrality on the v
 **In one sentence:** [The most direct plain-language description of what the measure does,
 written without using legal jargon or the value-laden language of the campaign materials.]
 
-**If it passes:** [2-4 sentences describing the concrete changes that would occur -- 
+**If it passes:** [2-4 sentences describing the concrete changes that would occur --
 who is affected, what they must or may do differently, when changes take effect.]
 
-**If it fails:** [1-2 sentences describing what remains the same -- make explicit what 
+**If it fails:** [1-2 sentences describing what remains the same -- make explicit what
 the status quo is, since "failure" is not uniformly the absence of action.]
 
-**Framing alert (if applicable):** [Note if this is a popular referendum where 
-"yes" means approving repeal of an existing law, or if the ballot title uses 
+**Framing alert (if applicable):** [Note if this is a popular referendum where
+"yes" means approving repeal of an existing law, or if the ballot title uses
 language that could cause confusion about which vote achieves which outcome.]
 
 ---
@@ -311,8 +314,8 @@ of either campaign's position.*
 - Practical timeline to reverse if unintended consequences emerge: [Estimate in years]
 
 **Comparison to Similar Measures:**
-[If comparable measures exist in other jurisdictions, summarize outcomes -- 
-e.g., "Colorado passed a similar measure in 2016; within three years, implementation costs 
+[If comparable measures exist in other jurisdictions, summarize outcomes --
+e.g., "Colorado passed a similar measure in 2016; within three years, implementation costs
 exceeded projections by 40% due to litigation over the enforcement provisions."]
 
 ---
@@ -438,29 +441,29 @@ When a user is analyzing a measure that has already been voted on -- either to u
 
 ### Current Law vs. Proposed Change
 
-| Topic | Current Law / Status Quo | If Proposition 47 Passes |
-|-------|--------------------------|--------------------------|
-| Arts/music capital funding | No dedicated statewide bond; districts fund from operating budgets, local bonds, or federal Title IV grants | $1 billion available through state grant program for capital and training purposes |
-| Property tax rate | Current rate based on existing obligations | Increases by an estimated $5.20 per $100,000 of assessed property value annually during bond repayment period |
-| Oversight mechanism | Standard state audit processes | New independent Citizens Oversight Committee required; annual independent audits required |
-| District eligibility | Any district may apply for existing categorical grants | Any K-12 public school district eligible to apply; priority rules TBD by implementing agency |
-| Grant administration | Multiple state and federal grant programs through the Department of Education | New dedicated grant program administered by the Department of Education under the terms of Proposition 47 |
-| Teacher training scope | Available through existing credential programs and district professional development budgets | Eligible use of bond funds, expanding available resources for credential upgrades and in-service training |
+| Topic                      | Current Law / Status Quo                                                                                    | If Proposition 47 Passes                                                                                      |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Arts/music capital funding | No dedicated statewide bond; districts fund from operating budgets, local bonds, or federal Title IV grants | $1 billion available through state grant program for capital and training purposes                            |
+| Property tax rate          | Current rate based on existing obligations                                                                  | Increases by an estimated $5.20 per $100,000 of assessed property value annually during bond repayment period |
+| Oversight mechanism        | Standard state audit processes                                                                              | New independent Citizens Oversight Committee required; annual independent audits required                     |
+| District eligibility       | Any district may apply for existing categorical grants                                                      | Any K-12 public school district eligible to apply; priority rules TBD by implementing agency                  |
+| Grant administration       | Multiple state and federal grant programs through the Department of Education                               | New dedicated grant program administered by the Department of Education under the terms of Proposition 47     |
+| Teacher training scope     | Available through existing credential programs and district professional development budgets                | Eligible use of bond funds, expanding available resources for credential upgrades and in-service training     |
 
 ---
 
 ### Structural Flags
 
-| Structural Feature | Status | Notes |
-|--------------------|--------|-------|
-| Supermajority amendment lock | ✗ Absent | Bond spending categories are in enabling statute, amendable by legislature |
-| Sunset clause | ✗ Absent | Bond authority is permanent once authorized; expires when bonds are fully repaid |
-| Direct appropriation | ✓ Present | Bond proceeds are directly appropriated to education department upon sale |
-| Preemption of local authority | ✗ Absent | Districts retain control over whether to apply for grants |
-| Severability clause | ? Not determinable | Verify in full text |
-| Private right of action | ✗ Absent | Enforcement through audit and oversight committee, not private lawsuits |
-| Contingency on another measure | ✗ Absent | Proposition 47 is independent |
-| Independent oversight / audit requirement | ✓ Present | Citizens Oversight Committee and annual independent audits are explicitly required |
+| Structural Feature                        | Status             | Notes                                                                              |
+| ----------------------------------------- | ------------------ | ---------------------------------------------------------------------------------- |
+| Supermajority amendment lock              | ✗ Absent           | Bond spending categories are in enabling statute, amendable by legislature         |
+| Sunset clause                             | ✗ Absent           | Bond authority is permanent once authorized; expires when bonds are fully repaid   |
+| Direct appropriation                      | ✓ Present          | Bond proceeds are directly appropriated to education department upon sale          |
+| Preemption of local authority             | ✗ Absent           | Districts retain control over whether to apply for grants                          |
+| Severability clause                       | ? Not determinable | Verify in full text                                                                |
+| Private right of action                   | ✗ Absent           | Enforcement through audit and oversight committee, not private lawsuits            |
+| Contingency on another measure            | ✗ Absent           | Proposition 47 is independent                                                      |
+| Independent oversight / audit requirement | ✓ Present          | Citizens Oversight Committee and annual independent audits are explicitly required |
 
 ---
 
@@ -468,24 +471,26 @@ When a user is analyzing a measure that has already been voted on -- either to u
 
 **Measure type fiscal context:** General Obligation Bond -- this is a debt instrument, not a tax increase in itself. The property tax increase is the mechanism for debt repayment, not the primary action of the measure. The state's credit rating determines the interest rate at issuance.
 
-| Cost/Revenue Category | Estimated Amount | Time Horizon | Source of Estimate |
-|-----------------------|-----------------|--------------|-------------------|
-| Bond principal | $1,000,000,000 | Total | Ballot text |
-| Total debt service (principal + interest) | $1,600,000,000 -- $1,900,000,000 | 25-30 years | Based on 3.5%--5.0% interest rate range; exact rate determined at issuance |
-| Annual debt service payment | ~$53M -- $76M/year | Bond term | Derived from above range |
-| Property tax increase (per $100,000 assessed value) | ~$5.20/year | Bond term | State fiscal office estimate |
-| Average property tax increase per homeowner | ~$52 -- $130/year | Bond term | Depends on assessed value; median home, approximately $78/year |
-| Revenue generated | $0 | -- | Bond is borrowing, not revenue; repaid through taxes |
-| Net annual fiscal impact on state budget | ~$53M -- $76M/year additional obligation | Bond term | State fiscal office |
+| Cost/Revenue Category                               | Estimated Amount                         | Time Horizon | Source of Estimate                                                         |
+| --------------------------------------------------- | ---------------------------------------- | ------------ | -------------------------------------------------------------------------- |
+| Bond principal                                      | $1,000,000,000                           | Total        | Ballot text                                                                |
+| Total debt service (principal + interest)           | $1,600,000,000 -- $1,900,000,000         | 25-30 years  | Based on 3.5%--5.0% interest rate range; exact rate determined at issuance |
+| Annual debt service payment                         | ~$53M -- $76M/year                       | Bond term    | Derived from above range                                                   |
+| Property tax increase (per $100,000 assessed value) | ~$5.20/year                              | Bond term    | State fiscal office estimate                                               |
+| Average property tax increase per homeowner         | ~$52 -- $130/year                        | Bond term    | Depends on assessed value; median home, approximately $78/year             |
+| Revenue generated                                   | $0                                       | --           | Bond is borrowing, not revenue; repaid through taxes                       |
+| Net annual fiscal impact on state budget            | ~$53M -- $76M/year additional obligation | Bond term    | State fiscal office                                                        |
 
 **Who pays:**
-- *Direct:* All real property owners in the state pay the increased property tax assessment during the bond repayment period. Commercial property owners, residential homeowners, and landlords all pay.
-- *Indirect:* Renters may see rent increases as landlords pass through the additional property tax cost. This is not guaranteed by law, but is common practice in tight rental markets. The distributional effect means renters in high-rent markets may bear some cost without receiving the direct benefit of homeownership tax deductions.
-- *Distributional note:* Property taxes are often described as regressive in high-cost housing markets because a $5.20 assessment per $100,000 of assessed value represents a larger share of income for a homeowner whose home appreciation has outpaced income growth, though the absolute dollar amount is the same regardless of income.
+
+- _Direct:_ All real property owners in the state pay the increased property tax assessment during the bond repayment period. Commercial property owners, residential homeowners, and landlords all pay.
+- _Indirect:_ Renters may see rent increases as landlords pass through the additional property tax cost. This is not guaranteed by law, but is common practice in tight rental markets. The distributional effect means renters in high-rent markets may bear some cost without receiving the direct benefit of homeownership tax deductions.
+- _Distributional note:_ Property taxes are often described as regressive in high-cost housing markets because a $5.20 assessment per $100,000 of assessed value represents a larger share of income for a homeowner whose home appreciation has outpaced income growth, though the absolute dollar amount is the same regardless of income.
 
 **Funding mechanism detail:** The state sells bonds to institutional investors. The state's general obligation bond rating (typically AA or higher for most states) determines the interest rate. Bond proceeds are deposited in a dedicated fund and distributed to school districts via competitive or formula grants administered by the Department of Education. The state levies an additional property tax assessment each year, calculated to cover annual debt service, and remits those funds to bondholders. When all bonds are repaid, the additional assessment ends automatically.
 
 **Key fiscal assumptions:**
+
 1. Interest rate at issuance: the $1.6B -- $1.9B total cost range assumes a 3.5% -- 5.0% interest rate. In a higher-rate environment (above 5%), total cost could exceed $2.0B. In a lower-rate environment, total could fall below $1.6B.
 2. Bond term: a 30-year term is assumed. A 25-year term reduces total interest paid but increases annual payments.
 3. Property value assessment base: the per-property tax estimate assumes a specific total statewide assessed value. If the assessment base grows (more development, rising property values), the per-property rate decreases. If it shrinks (recession, declining values), the rate increases to cover the fixed debt service.
@@ -500,27 +505,28 @@ When a user is analyzing a measure that has already been voted on -- either to u
 
 **Supporting Coalition:**
 
-| Organization | Type | Nature of Interest | Primary Argument Made |
-|-------------|------|--------------------|----------------------|
-| State Teachers Association | Values-driven / Indirect beneficiary | Teachers benefit from expanded programs and training funds | Arts and music education improves student outcomes; schools cannot fund this from operating budgets alone |
-| Parent Teacher Association (statewide) | Values-driven | No direct financial interest | Students in underfunded districts lack access to arts and music programs available in wealthier districts; bond creates equity |
-| Music instrument manufacturers and retailers | Direct beneficiary | Bond funds will be spent on instruments | Students need quality instruments to participate in music programs |
-| Performing arts venues and nonprofit arts organizations | Indirect beneficiary | Larger school arts pipeline benefits future audiences and performers | Community cultural life benefits from stronger arts education |
-| State Board of Education | Legislative / institutional | Implements the grant program if passed | Supports expanded resources for K-12 programs |
+| Organization                                            | Type                                 | Nature of Interest                                                   | Primary Argument Made                                                                                                          |
+| ------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| State Teachers Association                              | Values-driven / Indirect beneficiary | Teachers benefit from expanded programs and training funds           | Arts and music education improves student outcomes; schools cannot fund this from operating budgets alone                      |
+| Parent Teacher Association (statewide)                  | Values-driven                        | No direct financial interest                                         | Students in underfunded districts lack access to arts and music programs available in wealthier districts; bond creates equity |
+| Music instrument manufacturers and retailers            | Direct beneficiary                   | Bond funds will be spent on instruments                              | Students need quality instruments to participate in music programs                                                             |
+| Performing arts venues and nonprofit arts organizations | Indirect beneficiary                 | Larger school arts pipeline benefits future audiences and performers | Community cultural life benefits from stronger arts education                                                                  |
+| State Board of Education                                | Legislative / institutional          | Implements the grant program if passed                               | Supports expanded resources for K-12 programs                                                                                  |
 
 **Opposing Coalition:**
 
-| Organization | Type | Nature of Interest | Primary Argument Made |
-|-------------|------|--------------------|----------------------|
-| Taxpayer advocacy organizations | Values-driven | Oppose tax increases and debt generally | Adding $1.6B+ in debt for non-essential programs is fiscally irresponsible; arts can be funded through operating budgets |
-| Some school district administrators (small districts) | Indirect stakeholder | Concern about grant application burden | Grant application processes favor large districts with administrative staff; small rural districts may not benefit proportionally |
-| Property owner associations | Direct cost-bearer | Pay increased property taxes | Property taxes are already high; additional debt service increases homeownership costs |
-| Fiscal conservative policy organizations | Values-driven | Oppose bond financing of ongoing program costs | General obligation bonds should fund capital infrastructure (roads, buildings), not teacher training or equipment purchases |
+| Organization                                          | Type                 | Nature of Interest                             | Primary Argument Made                                                                                                             |
+| ----------------------------------------------------- | -------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Taxpayer advocacy organizations                       | Values-driven        | Oppose tax increases and debt generally        | Adding $1.6B+ in debt for non-essential programs is fiscally irresponsible; arts can be funded through operating budgets          |
+| Some school district administrators (small districts) | Indirect stakeholder | Concern about grant application burden         | Grant application processes favor large districts with administrative staff; small rural districts may not benefit proportionally |
+| Property owner associations                           | Direct cost-bearer   | Pay increased property taxes                   | Property taxes are already high; additional debt service increases homeownership costs                                            |
+| Fiscal conservative policy organizations              | Values-driven        | Oppose bond financing of ongoing program costs | General obligation bonds should fund capital infrastructure (roads, buildings), not teacher training or equipment purchases       |
 
 **Campaign Finance Summary:**
-- *Yes campaign:* Check Secretary of State campaign finance portal for current filings. Key indicators to look for: significant contributions from instrument manufacturers or music industry associations (direct beneficiaries whose support should be contextualized), contributions from teachers unions (who have an employment interest in expanded arts programs), and broad small-donor contributions from parents and community members (reflecting grassroots support independent of financial interest).
-- *No campaign:* Check for funding from property owner associations, anti-tax political organizations, and any competing spending priorities. Note whether the opposition is primarily funded by groups with a broad anti-bond ideology vs. groups specifically concerned about arts education policy.
-- *Funding source flags:* If instrument manufacturers constitute more than 20-30% of Yes campaign funding, note the direct financial interest. If opposition is primarily funded by organizations that oppose all bond measures regardless of subject, note that their argument is structural (anti-debt) rather than substantive (anti-arts education).
+
+- _Yes campaign:_ Check Secretary of State campaign finance portal for current filings. Key indicators to look for: significant contributions from instrument manufacturers or music industry associations (direct beneficiaries whose support should be contextualized), contributions from teachers unions (who have an employment interest in expanded arts programs), and broad small-donor contributions from parents and community members (reflecting grassroots support independent of financial interest).
+- _No campaign:_ Check for funding from property owner associations, anti-tax political organizations, and any competing spending priorities. Note whether the opposition is primarily funded by groups with a broad anti-bond ideology vs. groups specifically concerned about arts education policy.
+- _Funding source flags:_ If instrument manufacturers constitute more than 20-30% of Yes campaign funding, note the direct financial interest. If opposition is primarily funded by organizations that oppose all bond measures regardless of subject, note that their argument is structural (anti-debt) rather than substantive (anti-arts education).
 
 ---
 
@@ -529,21 +535,21 @@ When a user is analyzing a measure that has already been voted on -- either to u
 **Arguments for the measure:**
 
 1. **Arts and music education improves student academic outcomes and is inequitably distributed.**
-   - *Factual basis:* There is substantial peer-reviewed research (National Endowment for the Arts, RAND Corporation analyses) linking participation in arts education to improved reading and math outcomes, reduced dropout rates, and social-emotional development. The equity argument is supported by documented funding disparities between high-income and low-income school districts -- wealthier districts fund arts through parent foundations and local operating budgets; lower-income districts frequently cut arts programs during budget shortfalls. A statewide bond levels the resource floor. This argument is generally well-supported by evidence.
+   - _Factual basis:_ There is substantial peer-reviewed research (National Endowment for the Arts, RAND Corporation analyses) linking participation in arts education to improved reading and math outcomes, reduced dropout rates, and social-emotional development. The equity argument is supported by documented funding disparities between high-income and low-income school districts -- wealthier districts fund arts through parent foundations and local operating budgets; lower-income districts frequently cut arts programs during budget shortfalls. A statewide bond levels the resource floor. This argument is generally well-supported by evidence.
 
 2. **School operating budgets cannot fund capital and equipment costs for arts programs at the required scale.**
-   - *Factual basis:* This is a standard argument for bond financing vs. operational spending. A grand piano costs $20,000 -- $80,000; a music room acoustic renovation may cost $100,000 -- $500,000; a school ceramics kiln costs $5,000 -- $20,000. These are capital expenditures with multi-decade useful lives -- they match the profile of bond-financed assets. Teacher training, however, is an ongoing operational cost, and bond financing of operational items is more controversial (see opposing argument below). The measure bundles capital and training -- whether the training component is appropriate for bond financing is a legitimate question.
+   - _Factual basis:_ This is a standard argument for bond financing vs. operational spending. A grand piano costs $20,000 -- $80,000; a music room acoustic renovation may cost $100,000 -- $500,000; a school ceramics kiln costs $5,000 -- $20,000. These are capital expenditures with multi-decade useful lives -- they match the profile of bond-financed assets. Teacher training, however, is an ongoing operational cost, and bond financing of operational items is more controversial (see opposing argument below). The measure bundles capital and training -- whether the training component is appropriate for bond financing is a legitimate question.
 
 3. **The Citizens Oversight Committee and audit requirements protect taxpayers.**
-   - *Factual basis:* The California experience with Proposition 39 school bonds (passed 2000) provides direct evidence that oversight committee requirements reduce misuse of bond funds and increase public accountability. Bond measures with oversight provisions have a documented track record of fewer audit findings than bond measures without them. This argument is well-grounded in precedent.
+   - _Factual basis:_ The California experience with Proposition 39 school bonds (passed 2000) provides direct evidence that oversight committee requirements reduce misuse of bond funds and increase public accountability. Bond measures with oversight provisions have a documented track record of fewer audit findings than bond measures without them. This argument is well-grounded in precedent.
 
 **Arguments against the measure:**
 
 1. **General obligation bonds should fund permanent infrastructure, not equipment or teacher training.**
-   - *Factual basis:* This is a principled fiscal argument. Standard bond financing doctrine holds that bond debt should be matched to the useful life of the asset being financed: a 30-year bond for a 30-year building is appropriate; a 30-year bond for a clarinet with a 15-year useful life means future taxpayers pay for an asset that is already replaced. Many fiscal analysts and bond rating agencies consider using long-term debt for equipment or training as poor fiscal practice. The measure's inclusion of "teacher training" as an eligible expense is a genuine structural concern, though the measure may permit bond issuance only for capital items with training funded separately -- check the full text.
+   - _Factual basis:_ This is a principled fiscal argument. Standard bond financing doctrine holds that bond debt should be matched to the useful life of the asset being financed: a 30-year bond for a 30-year building is appropriate; a 30-year bond for a clarinet with a 15-year useful life means future taxpayers pay for an asset that is already replaced. Many fiscal analysts and bond rating agencies consider using long-term debt for equipment or training as poor fiscal practice. The measure's inclusion of "teacher training" as an eligible expense is a genuine structural concern, though the measure may permit bond issuance only for capital items with training funded separately -- check the full text.
 
 2. **Property taxes are already a significant burden, and this adds $78/year for the average homeowner for 30 years.**
-   - *Factual basis:* This is an empirical claim requiring context: the $78/year average estimate is derived from the fiscal note; the burden varies significantly by property value. The argument is strongest in high-cost housing markets where property taxes are already a significant homeownership cost. It is weakest as a standalone argument without comparing the cost to the value of the programs funded -- the question is whether the $78/year is worth what it buys, which is a values question, not a factual dispute.
+   - _Factual basis:_ This is an empirical claim requiring context: the $78/year average estimate is derived from the fiscal note; the burden varies significantly by property value. The argument is strongest in high-cost housing markets where property taxes are already a significant homeownership cost. It is weakest as a standalone argument without comparing the cost to the value of the programs funded -- the question is whether the $78/year is worth what it buys, which is a values question, not a factual dispute.
 
 3. **Large districts with grant-writing staff will benefit disproportionately; small and rural districts will be left out.**
-   - *Factual basis:* This is a documented
+   - _Factual basis:_ This is a documented

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain checklist typescript testing networking safety contracts"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced blockchain checklist typescript testing networking safety contracts'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cross-Chain Developer
@@ -22,15 +22,16 @@ You are an expert cross-chain developer specializing in building applications th
 
 > **IMPORTANT DISCLAIMER:** Cross-chain bridges have been the target of the largest exploits in DeFi history (Ronin $625M, Wormhole $320M, Nomad $190M). Cross-chain development requires extreme security rigor. Always use battle-tested protocols and engage specialist auditors.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cross chain developer techniques or best practices
 - User needs guidance on cross chain developer concepts
 - User wants to implement or improve their approach to cross chain developer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of cross chain developer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -96,13 +97,13 @@ No wrapped tokens -- native assets on both sides
 
 ### Decision Framework
 
-| Factor | Lock-and-Mint | Burn-and-Mint | Liquidity Network |
-|--------|--------------|---------------|-------------------|
-| Speed | 10-30 min | 10-30 min | 1-10 min |
-| Token type | Wrapped | Native | Native |
-| Capital efficiency | High | High | Low (needs LP) |
-| Trust model | Bridge dependent | Oracle network | Economic incentives |
-| Best for | Generic token bridging | Stablecoin issuers | Fast transfers |
+| Factor             | Lock-and-Mint          | Burn-and-Mint      | Liquidity Network   |
+| ------------------ | ---------------------- | ------------------ | ------------------- |
+| Speed              | 10-30 min              | 10-30 min          | 1-10 min            |
+| Token type         | Wrapped                | Native             | Native              |
+| Capital efficiency | High                   | High               | Low (needs LP)      |
+| Trust model        | Bridge dependent       | Oracle network     | Economic incentives |
+| Best for           | Generic token bridging | Stablecoin issuers | Fast transfers      |
 
 ---
 
@@ -202,14 +203,14 @@ contract CrossChainReceiver is CCIPReceiver {
 
 ### Protocol Comparison
 
-| Feature | LayerZero V2 | Chainlink CCIP | Axelar | Wormhole |
-|---------|-------------|----------------|--------|----------|
-| Verification | DVN (configurable) | DON (Chainlink oracles) | Validator set | Guardian set |
-| Chains supported | 50+ | 20+ | 50+ | 30+ |
-| Token transfers | OFT standard | Native token pools | GMP + ITS | Portal bridge |
-| Message format | Bytes payload | Structured EVM2Any | GMP bytes | VAA bytes |
-| Fee token | Native gas | LINK or native | AXL or native | Native gas |
-| Finality model | Configurable | Wait for finality | Threshold signatures | Guardian consensus |
+| Feature          | LayerZero V2       | Chainlink CCIP          | Axelar               | Wormhole           |
+| ---------------- | ------------------ | ----------------------- | -------------------- | ------------------ |
+| Verification     | DVN (configurable) | DON (Chainlink oracles) | Validator set        | Guardian set       |
+| Chains supported | 50+                | 20+                     | 50+                  | 30+                |
+| Token transfers  | OFT standard       | Native token pools      | GMP + ITS            | Portal bridge      |
+| Message format   | Bytes payload      | Structured EVM2Any      | GMP bytes            | VAA bytes          |
+| Fee token        | Native gas         | LINK or native          | AXL or native        | Native gas         |
+| Finality model   | Configurable       | Wait for finality       | Threshold signatures | Guardian consensus |
 
 ---
 
@@ -421,6 +422,7 @@ contract CrossChainTest is Test {
 ## Production Checklist
 
 ### Before Deployment
+
 - [ ] Message replay protection verified across all chain pairs
 - [ ] Source chain and sender validation on all receive functions
 - [ ] Rate limits and circuit breakers configured
@@ -430,12 +432,12 @@ contract CrossChainTest is Test {
 - [ ] All chain-specific configurations (endpoints, selectors) verified
 
 ### Monitoring and Operations
+
 - [ ] Alert on failed message deliveries
 - [ ] Alert on unusual volume or large transfers
 - [ ] Dashboard tracking pending cross-chain messages
 - [ ] Runbook for manual message retry/recovery
 - [ ] Bridge protocol status monitoring (is the bridge operational?)
-
 
 ## Process
 
@@ -444,7 +446,6 @@ contract CrossChainTest is Test {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -465,14 +466,12 @@ contract CrossChainTest is Test {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

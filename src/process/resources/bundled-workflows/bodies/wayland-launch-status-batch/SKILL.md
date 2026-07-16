@@ -12,14 +12,15 @@ description: >-
   metrics when a data source is missing.
 license: Apache-2.0
 type: workflow
-skills: "launch"
+skills: 'launch'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing launch metrics standup deterministic reporting
   category: marketing
-  depends: "launch"
+  depends: 'launch'
 ---
+
 # Launch Status Batch
 
 **Estimated time:** about 60 seconds

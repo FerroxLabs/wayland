@@ -2,7 +2,7 @@
 name: hr-offboard
 description: Generate an offboarding checklist with state-by-state final-pay timing matrix, federal-vs-state-mini-COBRA routing, OWBPA/ADEA-compliant separation-agreement scaffolding for age 40+, McLaren Macomb-compliant non-disparagement, and data-preservation step before access revocation. Templates only - not employment-law advice.
 slash_command: false
-argument-hint: "<employee name, departure type, state>"
+argument-hint: '<employee name, departure type, state>'
 attribution:
   lineage: anthropics/knowledge-work-plugins/human-resources/skills/onboarding/SKILL.md (Apache-2.0)
   upstream_commit: 9789ea78ad66
@@ -38,28 +38,28 @@ Generate a complete offboarding checklist that covers state-specific final-pay t
 
 ### Involuntary termination - final wages due
 
-| State | Timing | Citation | Penalty for late |
-|-------|--------|----------|-------------------|
-| **CA** | Same day, all wages including accrued vacation | Lab. Code §§ 201-203 | Waiting-time penalty up to **30 days of wages** |
-| **MA** | Same day | M.G.L. c. 149, §148 | Treble damages + atty fees |
-| **CO** | Immediately if practical, else within 6 hours of next business day, or 24 hrs if at offsite location | C.R.S. §8-4-109 | Penalty up to 125% of wages owed (CDLE) |
-| **HI** | Immediately or by next business day | HRS §388-3 | Penalty + atty fees |
-| **CT** | By next business day after discharge | C.G.S. §31-71c | 2x wages |
-| **MT** | Immediately if discharged for cause; within 4 hrs or end of business day otherwise | Mont. Code §39-3-205 | Penalty + interest; **note no at-will after probation** |
-| **NV** | Immediately | NRS §608.020 | Continued wages |
-| **NY** | Next regular payday | Lab. Law §191 | 100% liquidated damages |
-| **IL** | By next regular payday or sooner if practicable | 820 ILCS 115/5 | 2% per month + atty fees |
-| **TX** | Within 6 days | Tex. Lab. §61.014 | Admin penalty |
-| **All others** | Next regular payday is safest default - verify with state DOL |
+| State          | Timing                                                                                               | Citation             | Penalty for late                                        |
+| -------------- | ---------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------- |
+| **CA**         | Same day, all wages including accrued vacation                                                       | Lab. Code §§ 201-203 | Waiting-time penalty up to **30 days of wages**         |
+| **MA**         | Same day                                                                                             | M.G.L. c. 149, §148  | Treble damages + atty fees                              |
+| **CO**         | Immediately if practical, else within 6 hours of next business day, or 24 hrs if at offsite location | C.R.S. §8-4-109      | Penalty up to 125% of wages owed (CDLE)                 |
+| **HI**         | Immediately or by next business day                                                                  | HRS §388-3           | Penalty + atty fees                                     |
+| **CT**         | By next business day after discharge                                                                 | C.G.S. §31-71c       | 2x wages                                                |
+| **MT**         | Immediately if discharged for cause; within 4 hrs or end of business day otherwise                   | Mont. Code §39-3-205 | Penalty + interest; **note no at-will after probation** |
+| **NV**         | Immediately                                                                                          | NRS §608.020         | Continued wages                                         |
+| **NY**         | Next regular payday                                                                                  | Lab. Law §191        | 100% liquidated damages                                 |
+| **IL**         | By next regular payday or sooner if practicable                                                      | 820 ILCS 115/5       | 2% per month + atty fees                                |
+| **TX**         | Within 6 days                                                                                        | Tex. Lab. §61.014    | Admin penalty                                           |
+| **All others** | Next regular payday is safest default - verify with state DOL                                        |
 
 ### Voluntary resignation - final wages due
 
-| State | Timing |
-|-------|--------|
-| **CA** | With 72+ hrs notice → last day; without notice → within 72 hrs |
-| **MA** | Next regular payday |
-| **CO** | Next regular payday |
-| **Most others** | Next regular payday |
+| State           | Timing                                                         |
+| --------------- | -------------------------------------------------------------- |
+| **CA**          | With 72+ hrs notice → last day; without notice → within 72 hrs |
+| **MA**          | Next regular payday                                            |
+| **CO**          | Next regular payday                                            |
+| **Most others** | Next regular payday                                            |
 
 ### What's included in "final wages"
 
@@ -80,15 +80,15 @@ Generate a complete offboarding checklist that covers state-specific final-pay t
 
 ### State mini-COBRA - applies if employer < 20 EE (federal exempt) - **CRITICAL for SMBs at this pack's target size**
 
-| State | Statute | Coverage duration | Notes |
-|-------|---------|-------------------|-------|
-| **CA Cal-COBRA** | Ins. Code §10128.51 et seq. | Up to 36 months total (combines with federal if applicable) | Applies to 2-19 EE plans |
-| **NY** | Ins. Law §3221(m) | 36 months | All group plans |
-| **NJ** | N.J.S.A. §17B:27-51.12 | 18 months | 2-50 EE |
-| **CT** | C.G.S. §38a-554 | 30 months | All group plans |
-| **MA** | M.G.L. c. 176J | 36 months | Small group |
-| **IL** | 215 ILCS 5/367e | 12 months | 2-19 EE |
-| **FL, GA, MD, MN, NC, NH, OH, OK, OR, RI, SC, TN, TX, UT, VT, WI, WY, DC** | Various | Varies by state | Verify state insurance code |
+| State                                                                      | Statute                     | Coverage duration                                           | Notes                       |
+| -------------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------- | --------------------------- |
+| **CA Cal-COBRA**                                                           | Ins. Code §10128.51 et seq. | Up to 36 months total (combines with federal if applicable) | Applies to 2-19 EE plans    |
+| **NY**                                                                     | Ins. Law §3221(m)           | 36 months                                                   | All group plans             |
+| **NJ**                                                                     | N.J.S.A. §17B:27-51.12      | 18 months                                                   | 2-50 EE                     |
+| **CT**                                                                     | C.G.S. §38a-554             | 30 months                                                   | All group plans             |
+| **MA**                                                                     | M.G.L. c. 176J              | 36 months                                                   | Small group                 |
+| **IL**                                                                     | 215 ILCS 5/367e             | 12 months                                                   | 2-19 EE                     |
+| **FL, GA, MD, MN, NC, NH, OH, OK, OR, RI, SC, TN, TX, UT, VT, WI, WY, DC** | Various                     | Varies by state                                             | Verify state insurance code |
 
 **Rule of thumb**: if employer has <20 EE, federal COBRA does NOT apply. Use state mini-COBRA (or no continuation if state has none and plan is fully insured but not required to offer continuation). Verify with broker/counsel.
 
@@ -96,6 +96,7 @@ Generate a complete offboarding checklist that covers state-specific final-pay t
 
 ```markdown
 ## Offboarding: [Employee Name]
+
 **Departure Type:** [Voluntary / Involuntary / Contract End]
 **Last Day:** [Date] | **State:** [State] | **Headcount:** [#] | **Age 40+:** [Y/N] | **Manager:** [Manager] | **HR Contact:** [Contact]
 
@@ -112,6 +113,7 @@ Generate a complete offboarding checklist that covers state-specific final-pay t
 ### B. Manager / People-Ops checklist
 
 #### Week of departure
+
 - [ ] Confirm last day; coordinate with payroll for state-specific final-pay timing (see matrix above)
 - [ ] Schedule knowledge transfer sessions
 - [ ] Identify backup owner for active projects
@@ -119,6 +121,7 @@ Generate a complete offboarding checklist that covers state-specific final-pay t
 - [ ] Schedule exit interview (voluntary departures only)
 
 #### Last day
+
 - [ ] **Final paycheck delivered per state timing rule** (CA same-day mandatory!)
 - [ ] Collect company equipment: laptop, badge, phone, peripherals, security tokens
 - [ ] Confirm all access revocation timing (after data preservation step A)
@@ -160,8 +163,8 @@ A separation agreement requires **consideration beyond what is already owed** (a
 #### McLaren Macomb (NLRB, 2023) - non-disparagement / confidentiality limits for non-supervisory employees
 
 The NLRB ruled that broad confidentiality and non-disparagement clauses in severance agreements that limit Section 7 rights (concerted activity / discussing workplace) are unlawful for non-supervisory employees. Use narrowed language:
-
 ```
+
 NON-DISPARAGEMENT (NARROW). Each party agrees not to make any false or knowingly
 misleading statements about the other party. Nothing in this section prevents either
 party from (i) discussing wages, hours, or terms and conditions of employment with
@@ -169,14 +172,17 @@ co-workers or government agencies, (ii) filing a charge or participating in an
 investigation by the EEOC, NLRB, OSHA, SEC, DOL, or any state agency, (iii)
 testifying truthfully under oath, or (iv) exercising rights under Section 7 of the
 National Labor Relations Act.
+
 ```
 
 ```
+
 CONFIDENTIALITY (NARROW). The terms of this Agreement are confidential except that
 Employee may disclose to (i) immediate family, (ii) attorney, accountant, financial
 advisor, or tax preparer, or (iii) as required by law. This section does not
 restrict Employee's rights under Section 7 of the NLRA or rights to communicate with
 government agencies.
+
 ```
 
 #### Statute-protected claims that CANNOT be released
@@ -192,6 +198,7 @@ government agencies.
 #### Separation agreement scaffold
 
 ```
+
 SEPARATION AGREEMENT AND RELEASE
 
 This Separation Agreement and Release ("Agreement") is between [Employee] and
@@ -232,10 +239,11 @@ This Separation Agreement and Release ("Agreement") is between [Employee] and
 
 Signed:
 
-Employee: _________________________ Date: _________
-Company: __________________________ Date: _________
+Employee: ************\_************ Date: ****\_****
+Company: ************\_\_************ Date: ****\_****
 
 [40+ ATTACHMENT - OWBPA disclosure for group RIF: decisional unit, criteria, ages.]
+
 ```
 
 ### E. IT / Systems revocation (AFTER data preservation step A)

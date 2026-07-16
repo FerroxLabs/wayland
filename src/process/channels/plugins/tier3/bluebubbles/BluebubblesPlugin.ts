@@ -197,7 +197,7 @@ export class BluebubblesPlugin extends BasePlugin {
       throw new Error(
         `BlueBubbles: cannot resolve chatGuid for target "${target}". ` +
           `Expected an iMessage chat GUID (iMessage;-;... or iMessage;+;...), ` +
-          `a phone number (+15551234567), or an email address.`,
+          `a phone number (+15551234567), or an email address.`
       );
     }
 
@@ -209,9 +209,7 @@ export class BluebubblesPlugin extends BasePlugin {
 
     const newGuid = await this.createChatForAddress(target, seedMessage);
     if (!newGuid) {
-      throw new Error(
-        `BlueBubbles: failed to create new chat for address "${target}" (no guid returned)`,
-      );
+      throw new Error(`BlueBubbles: failed to create new chat for address "${target}" (no guid returned)`);
     }
     this.chatGuidCache.set(target, newGuid);
     return newGuid;
@@ -237,10 +235,7 @@ export class BluebubblesPlugin extends BasePlugin {
     return typeof guid === 'string' && guid ? guid : null;
   }
 
-  private async createChatForAddress(
-    address: string,
-    seedMessage: string,
-  ): Promise<string | null> {
+  private async createChatForAddress(address: string, seedMessage: string): Promise<string | null> {
     if (!this.creds) return null;
     const url = `${this.creds.serverUrl}/api/v1/chat/new?password=${encodeURIComponent(this.creds.password)}`;
     const resp = await fetch(url, {
@@ -344,7 +339,7 @@ export class BluebubblesPlugin extends BasePlugin {
         const unified = toUnifiedIncomingFromBluebubbles(data, this.type);
         if (!unified) return;
         void this.emitMessage(unified).catch((err: unknown) =>
-          console.error('[BluebubblesPlugin] emitMessage failed:', err),
+          console.error('[BluebubblesPlugin] emitMessage failed:', err)
         );
       });
     });
@@ -377,10 +372,10 @@ export class BluebubblesPlugin extends BasePlugin {
 
     const delay = Math.min(
       RECONNECT_BACKOFF_START_MS * 2 ** (this.reconnectFailureCount - 1),
-      RECONNECT_BACKOFF_CAP_MS,
+      RECONNECT_BACKOFF_CAP_MS
     );
     console.warn(
-      `[BluebubblesPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`,
+      `[BluebubblesPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`
     );
     this.setError(`BlueBubbles socket disconnected; retrying in ${delay}ms`);
 
@@ -417,7 +412,7 @@ export class BluebubblesPlugin extends BasePlugin {
    * tokenJson is JSON-encoded { serverUrl, password }.
    */
   static override async testConnection(
-    tokenJson: string,
+    tokenJson: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let creds: { serverUrl?: string; password?: string };
     try {

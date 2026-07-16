@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "spreadsheets analysis checklist"
-  category: "data-analysis"
-  subcategory: "spreadsheets"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'spreadsheets analysis checklist'
+  category: 'data-analysis'
+  subcategory: 'spreadsheets'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Spreadsheet Model Audit
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has inherited a spreadsheet model from a departing colleague, external consultant, or unknown author and needs to verify its reliability before acting on its outputs
 - A user says something like "is this model correct?", "I don't trust this spreadsheet", "how do I know if this forecast is right?", or "I need to sanity-check this before presenting it"
 - A user is preparing to hand a model off to another team, a client, or leadership and wants to certify it is defensible and maintainable
@@ -30,6 +32,7 @@ metadata:
 - A user is doing technical due diligence on a financial model as part of an M&A, fundraising, or lender review process
 
 **Do NOT use when:**
+
 - The user wants to clean, normalize, or deduplicate raw data values in a spreadsheet -- use `spreadsheet-data-cleaning` instead
 - The user wants to set up dropdown lists, data validation rules, or input constraints -- use `data-validation-setup` instead
 - The user wants to build a new financial model from scratch -- use `financial-model-template` instead
@@ -363,20 +366,20 @@ These are the hardest errors to catch because the model runs without errors and 
 
 ### Model Overview
 
-| Element | Value |
-|---------|-------|
-| Model name | 3-Year Operating Expense Forecast |
-| File name | OpEx_Forecast_2024_FINAL.xlsx |
-| Purpose | Projects total operating expenses by category and department over 3 years; Year 3 total feeds into board presentation |
-| Audit date | Current |
-| Audited by | AI-assisted audit based on user-provided structural information |
-| Original author | Departed finance analyst (name unknown) |
-| Last modified | Unknown -- check File > Properties > Details > Last Modified |
-| Sheet count | 5 (Inputs, Headcount, OpEx, Summary, Scenarios) |
-| Estimated formula cells | 300-600 (estimated for a model of this type) |
-| Iterative calculation | Unknown -- verify at File > Options > Formulas |
-| Named ranges | Unknown -- check Formulas > Name Manager |
-| Sheet protection | Unknown -- check Review > Protect Sheet for each sheet |
+| Element                 | Value                                                                                                                 |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Model name              | 3-Year Operating Expense Forecast                                                                                     |
+| File name               | OpEx_Forecast_2024_FINAL.xlsx                                                                                         |
+| Purpose                 | Projects total operating expenses by category and department over 3 years; Year 3 total feeds into board presentation |
+| Audit date              | Current                                                                                                               |
+| Audited by              | AI-assisted audit based on user-provided structural information                                                       |
+| Original author         | Departed finance analyst (name unknown)                                                                               |
+| Last modified           | Unknown -- check File > Properties > Details > Last Modified                                                          |
+| Sheet count             | 5 (Inputs, Headcount, OpEx, Summary, Scenarios)                                                                       |
+| Estimated formula cells | 300-600 (estimated for a model of this type)                                                                          |
+| Iterative calculation   | Unknown -- verify at File > Options > Formulas                                                                        |
+| Named ranges            | Unknown -- check Formulas > Name Manager                                                                              |
+| Sheet protection        | Unknown -- check Review > Protect Sheet for each sheet                                                                |
 
 **Audit Coverage:** Full audit recommended for Inputs, Headcount, OpEx, and Summary (critical path to Year 3 output). Structural check only for Scenarios (does not feed into board output unless user confirms otherwise).
 
@@ -384,17 +387,17 @@ These are the hardest errors to catch because the model runs without errors and 
 
 ### Audit Summary
 
-| Category | Issues Found | Severity | Status |
-|----------|-------------|----------|--------|
-| Structural architecture | 1 | MEDIUM | Mixed inputs and calculations found in OpEx sheet |
-| Formula consistency | 3 | HIGH | Pattern breaks in Headcount and OpEx sheets |
-| Hardcoded values | 7 | HIGH | Benefit rate, inflation rate, and headcount multipliers hardcoded |
-| Circular references | 1 | CRITICAL | Unverified -- must check before presenting |
-| Error cells | 4 | HIGH | 3 visible #VALUE! errors in OpEx, 1 suppressed #N/A in Summary |
-| Named range integrity | 2 | MEDIUM | 2 named ranges reference deleted rows |
-| Documentation -- Tier 1 | 3 | HIGH | No input inventory, no unit labels, no model purpose statement |
-| Documentation -- Tier 2 | 2 | MEDIUM | No version number, no change log |
-| **Total issues** | **23** | **CRITICAL (pending circular ref check)** | |
+| Category                | Issues Found | Severity                                  | Status                                                            |
+| ----------------------- | ------------ | ----------------------------------------- | ----------------------------------------------------------------- |
+| Structural architecture | 1            | MEDIUM                                    | Mixed inputs and calculations found in OpEx sheet                 |
+| Formula consistency     | 3            | HIGH                                      | Pattern breaks in Headcount and OpEx sheets                       |
+| Hardcoded values        | 7            | HIGH                                      | Benefit rate, inflation rate, and headcount multipliers hardcoded |
+| Circular references     | 1            | CRITICAL                                  | Unverified -- must check before presenting                        |
+| Error cells             | 4            | HIGH                                      | 3 visible #VALUE! errors in OpEx, 1 suppressed #N/A in Summary    |
+| Named range integrity   | 2            | MEDIUM                                    | 2 named ranges reference deleted rows                             |
+| Documentation -- Tier 1 | 3            | HIGH                                      | No input inventory, no unit labels, no model purpose statement    |
+| Documentation -- Tier 2 | 2            | MEDIUM                                    | No version number, no change log                                  |
+| **Total issues**        | **23**       | **CRITICAL (pending circular ref check)** |                                                                   |
 
 ### Overall Model Reliability Rating
 
@@ -408,53 +411,53 @@ Rationale: The model contains visible error cells in the OpEx sheet that may be 
 
 #### Finding 1: Unverified Circular Reference Status -- CRITICAL
 
-| Element | Detail |
-|---------|--------|
-| Location | Unknown -- must be identified using Formulas > Error Checking > Circular References |
-| Issue type | Circular reference -- classification pending |
-| Description | Circular reference status has not been confirmed. OpEx models that include rent escalation formulas, headcount-dependent cost drivers, or loaded labor rate calculations are common sources of unintentional circular references. This must be checked before any other analysis proceeds. |
-| Impact | If an unintentional circular reference exists AND iterative calculation is disabled, the affected cells return 0. In an OpEx model, a zero-returning cost category would understate Year 3 total OpEx by the full value of that category -- potentially millions of dollars in a board-level forecast. |
-| Risk condition | Exists now if no one has checked since the original builder left. |
-| Remediation | (1) In Excel: Formulas > Error Checking > Circular References. If the menu item is grayed out: no circular references -- mark PASS and proceed. If it navigates to a cell: document the cell address and formula, then classify as intentional or unintentional. (2) If unintentional (a cell references itself through a chain): fix the reference. (3) If intentional (e.g., a rent escalation loop): verify that File > Options > Formulas > Enable iterative calculation is checked, Maximum Iterations = 100, Maximum Change = 0.001. Add a comment to the cell explaining the intentional circular dependency. |
-| Estimated effort | Low: 10 minutes to check and classify |
+| Element          | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Location         | Unknown -- must be identified using Formulas > Error Checking > Circular References                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Issue type       | Circular reference -- classification pending                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Description      | Circular reference status has not been confirmed. OpEx models that include rent escalation formulas, headcount-dependent cost drivers, or loaded labor rate calculations are common sources of unintentional circular references. This must be checked before any other analysis proceeds.                                                                                                                                                                                                                                                                                                                           |
+| Impact           | If an unintentional circular reference exists AND iterative calculation is disabled, the affected cells return 0. In an OpEx model, a zero-returning cost category would understate Year 3 total OpEx by the full value of that category -- potentially millions of dollars in a board-level forecast.                                                                                                                                                                                                                                                                                                               |
+| Risk condition   | Exists now if no one has checked since the original builder left.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Remediation      | (1) In Excel: Formulas > Error Checking > Circular References. If the menu item is grayed out: no circular references -- mark PASS and proceed. If it navigates to a cell: document the cell address and formula, then classify as intentional or unintentional. (2) If unintentional (a cell references itself through a chain): fix the reference. (3) If intentional (e.g., a rent escalation loop): verify that File > Options > Formulas > Enable iterative calculation is checked, Maximum Iterations = 100, Maximum Change = 0.001. Add a comment to the cell explaining the intentional circular dependency. |
+| Estimated effort | Low: 10 minutes to check and classify                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ---
 
 #### Finding 2: Employee Benefits Rate Hardcoded in 14 Headcount!Column F Formulas -- HIGH
 
-| Element | Detail |
-|---------|--------|
-| Location | Headcount sheet, column F (Total Loaded Cost), all rows with headcount entries (estimated F7:F47 based on model size) |
-| Issue type | Hardcoded assumption |
-| Description | Column F calculates total loaded cost as base salary multiplied by a benefits burden rate. The formula pattern is `=E[row]*1.28`, where 1.28 represents a 28% benefits burden rate embedded directly in every formula rather than referenced from the Inputs sheet. |
-| Impact | If the benefits burden rate has changed (common when a company changes benefit plans, adds 401k matching, or updates payroll taxes), all 14 formulas must be manually found and updated. If even one is missed, the Year 3 total loaded headcount cost will be wrong. A 1-percentage-point change in the burden rate (from 28% to 29%) on a $10M base salary total changes Year 3 headcount cost by $100K. |
-| Risk condition | Any change to the benefits package since the model was built renders this figure stale. |
-| Remediation | (1) In the Inputs sheet, add a row labeled "Employee Benefits Burden Rate" in column A, enter the current rate in column B (e.g., 0.28), and add the unit "% of base salary" in column C. (2) In Headcount!F7, change the formula from `=E7*1.28` to `=E7*(1+Inputs!$B$[row])` using the absolute reference to the new Inputs cell. (3) Copy the corrected formula down through F47. (4) Verify the total in the summary row matches the previous total to confirm the current rate is still 28%. (5) Confirm the current rate with HR or Finance before the board presentation. |
-| Estimated effort | Low: 20 minutes |
+| Element          | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Location         | Headcount sheet, column F (Total Loaded Cost), all rows with headcount entries (estimated F7:F47 based on model size)                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Issue type       | Hardcoded assumption                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Description      | Column F calculates total loaded cost as base salary multiplied by a benefits burden rate. The formula pattern is `=E[row]*1.28`, where 1.28 represents a 28% benefits burden rate embedded directly in every formula rather than referenced from the Inputs sheet.                                                                                                                                                                                                                                                                                                              |
+| Impact           | If the benefits burden rate has changed (common when a company changes benefit plans, adds 401k matching, or updates payroll taxes), all 14 formulas must be manually found and updated. If even one is missed, the Year 3 total loaded headcount cost will be wrong. A 1-percentage-point change in the burden rate (from 28% to 29%) on a $10M base salary total changes Year 3 headcount cost by $100K.                                                                                                                                                                       |
+| Risk condition   | Any change to the benefits package since the model was built renders this figure stale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Remediation      | (1) In the Inputs sheet, add a row labeled "Employee Benefits Burden Rate" in column A, enter the current rate in column B (e.g., 0.28), and add the unit "% of base salary" in column C. (2) In Headcount!F7, change the formula from `=E7*1.28` to `=E7*(1+Inputs!$B$[row])` using the absolute reference to the new Inputs cell. (3) Copy the corrected formula down through F47. (4) Verify the total in the summary row matches the previous total to confirm the current rate is still 28%. (5) Confirm the current rate with HR or Finance before the board presentation. |
+| Estimated effort | Low: 20 minutes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ---
 
 #### Finding 3: #VALUE! Errors in OpEx!G22, G23, G24 -- HIGH
 
-| Element | Detail |
-|---------|--------|
-| Location | OpEx sheet, cells G22, G23, G24 |
-| Issue type | Error cells -- suspected data type mismatch |
-| Description | Three cells in column G (Year 3 OpEx values by category) display #VALUE! errors. The most likely cause is that the source cells in column D or E contain text-formatted numbers ("1,200,000" stored as text rather than as the number 1200000) due to an import from another system. Formulas attempting arithmetic on text values return #VALUE!. |
-| Impact | Column G row 22-24 feed into the column G total in G50 (estimated), which feeds into Summary!C8 (estimated Year 3 Total OpEx). If these three cells are erroring, they contribute 0 to the total, understating Year 3 OpEx by the sum of those three categories. This is the figure being presented to the board. |
-| Risk condition | Currently active -- the errors are visible now. |
-| Remediation | (1) Click OpEx!G22 and press F2 to see the formula. Identify which upstream cell(s) the formula references. (2) Check those upstream cells: if a cell contains a number like "1,200,000" with a green triangle in the upper-left corner, it is stored as text. Click the warning dropdown > Convert to Number. (3) Repeat for all text-formatted cells in the range. (4) Alternatively, in a blank column, use `=VALUE(D22)` to force-convert text to number, then paste-special-values back over the source cells. (5) After fixing, confirm G22:G24 show numeric values and the column G total updates. (6) Confirm the Summary sheet total updates to reflect the corrected values. |
-| Estimated effort | Low: 15 minutes |
+| Element          | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Location         | OpEx sheet, cells G22, G23, G24                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Issue type       | Error cells -- suspected data type mismatch                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Description      | Three cells in column G (Year 3 OpEx values by category) display #VALUE! errors. The most likely cause is that the source cells in column D or E contain text-formatted numbers ("1,200,000" stored as text rather than as the number 1200000) due to an import from another system. Formulas attempting arithmetic on text values return #VALUE!.                                                                                                                                                                                                                                                                                                                                     |
+| Impact           | Column G row 22-24 feed into the column G total in G50 (estimated), which feeds into Summary!C8 (estimated Year 3 Total OpEx). If these three cells are erroring, they contribute 0 to the total, understating Year 3 OpEx by the sum of those three categories. This is the figure being presented to the board.                                                                                                                                                                                                                                                                                                                                                                      |
+| Risk condition   | Currently active -- the errors are visible now.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Remediation      | (1) Click OpEx!G22 and press F2 to see the formula. Identify which upstream cell(s) the formula references. (2) Check those upstream cells: if a cell contains a number like "1,200,000" with a green triangle in the upper-left corner, it is stored as text. Click the warning dropdown > Convert to Number. (3) Repeat for all text-formatted cells in the range. (4) Alternatively, in a blank column, use `=VALUE(D22)` to force-convert text to number, then paste-special-values back over the source cells. (5) After fixing, confirm G22:G24 show numeric values and the column G total updates. (6) Confirm the Summary sheet total updates to reflect the corrected values. |
+| Estimated effort | Low: 15 minutes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 
 ---
 
 #### Finding 4: Summary!Year 3 Total Suppressing a #N/A Error -- HIGH
 
-| Element | Detail |
-|---------|--------|
-| Location | Summary sheet, cell C8 (Year 3 Total OpEx -- the board-presentation figure) |
-| Issue type | Suppressed error cell |
-| Description | Cell C8 uses `=IFERROR(SUM(OpEx!G5:G50), 0)`. When OpEx!G22:G24 are returning #VALUE!, SUM propagates the error, and IFERROR suppresses it by returning 0 instead of the actual total. This means C8 currently shows 0 (or possibly a subtotal excluding the erroring cells, depending on SUM behavior with errors). The formula is hiding the OpEx error rather than displaying it. |
-| Impact | The Year 3 total being prepared for board presentation may currently be 0 or materially understated. This is the highest-impact finding in the model. |
-| Risk condition | Currently active. |
-| Remediation | (1) Fix Finding 3 first (resolve the #VALUE! errors in G22:G24). (2) Once the source errors are fixed, the IFERROR in C8 will stop suppressing. (3) Consider changing `=IFERROR(SUM(...), 0)` to `=I
+| Element        | Detail                                                                                                                                                                                                                                                                                                                                                                               |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Location       | Summary sheet, cell C8 (Year 3 Total OpEx -- the board-presentation figure)                                                                                                                                                                                                                                                                                                          |
+| Issue type     | Suppressed error cell                                                                                                                                                                                                                                                                                                                                                                |
+| Description    | Cell C8 uses `=IFERROR(SUM(OpEx!G5:G50), 0)`. When OpEx!G22:G24 are returning #VALUE!, SUM propagates the error, and IFERROR suppresses it by returning 0 instead of the actual total. This means C8 currently shows 0 (or possibly a subtotal excluding the erroring cells, depending on SUM behavior with errors). The formula is hiding the OpEx error rather than displaying it. |
+| Impact         | The Year 3 total being prepared for board presentation may currently be 0 or materially understated. This is the highest-impact finding in the model.                                                                                                                                                                                                                                |
+| Risk condition | Currently active.                                                                                                                                                                                                                                                                                                                                                                    |
+| Remediation    | (1) Fix Finding 3 first (resolve the #VALUE! errors in G22:G24). (2) Once the source errors are fixed, the IFERROR in C8 will stop suppressing. (3) Consider changing `=IFERROR(SUM(...), 0)` to `=I                                                                                                                                                                                 |

@@ -136,7 +136,9 @@ const ChannelAgentModelSelector: React.FC<ChannelAgentModelSelectorProps> = ({
       <div className='flex flex-col gap-8px'>
         <PreferenceRow
           label={t('settings.agent', 'Agent')}
-          description={agentDescription ?? t('settings.assistant.agentDescChannel', 'Used for this channel conversations')}
+          description={
+            agentDescription ?? t('settings.assistant.agentDescChannel', 'Used for this channel conversations')
+          }
         >
           <Dropdown
             trigger='click'
@@ -181,7 +183,10 @@ const ChannelAgentModelSelector: React.FC<ChannelAgentModelSelectorProps> = ({
       {/* Default Model Selection */}
       <PreferenceRow
         label={t('settings.assistant.defaultModel', 'Default Model')}
-        description={modelDescription ?? t('settings.assistant.defaultModelDescChannel', 'Model used for this channel conversations')}
+        description={
+          modelDescription ??
+          t('settings.assistant.defaultModelDescChannel', 'Model used for this channel conversations')
+        }
       >
         <GeminiModelSelector
           selection={isGeminiAgent ? modelSelection : undefined}

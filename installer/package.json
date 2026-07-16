@@ -2,9 +2,18 @@
   "name": "getwayland",
   "version": "0.10.3-rc.2",
   "description": "Self-host Wayland - your always-on AI agent - on any Linux box or VPS. Headless web server, reachable from your phone.",
-  "type": "module",
-  "license": "AGPL-3.0-or-later",
+  "keywords": [
+    "agent",
+    "ai",
+    "claude",
+    "flux-router",
+    "gemini",
+    "llm",
+    "self-hosted",
+    "wayland"
+  ],
   "homepage": "https://getwayland.ai",
+  "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "https://github.com/FerroxLabs/wayland.git",
@@ -19,21 +28,12 @@
     "payload/",
     "README.md"
   ],
+  "type": "module",
   "scripts": {
     "postinstall": "node scripts/postinstall.mjs",
     "build": "node scripts/build-payload.mjs"
   },
   "engines": {
     "node": ">=18"
-  },
-  "keywords": [
-    "ai",
-    "agent",
-    "wayland",
-    "self-hosted",
-    "flux-router",
-    "llm",
-    "claude",
-    "gemini"
-  ]
+  }
 }

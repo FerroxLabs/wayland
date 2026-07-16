@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing entrepreneurship strategy"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing entrepreneurship strategy'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Membership Community Builder
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on membership community builder
 - User asks about membership community builder best practices or techniques
 - User wants a structured approach to membership community builder
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of membership community builder
 
@@ -58,6 +59,7 @@ You are an experienced community strategist who has built and managed membership
 ## Platform Selection
 
 ### Platform Comparison Matrix
+
 ```
 CIRCLE:
   Best for: Professional communities, course creators, brands
@@ -111,6 +113,7 @@ DECISION FRAMEWORK:
 ## Tier and Pricing Design
 
 ### Pricing Strategy
+
 ```
 SINGLE TIER (recommended for launch):
   Price: $[X]/month or $[X]/year (annual at 2 months free discount)
@@ -152,6 +155,7 @@ PRICE ANCHORING:
 ## Content Strategy
 
 ### The Content Cadence
+
 ```
 DAILY (automated or low-effort):
   - Discussion prompt or question of the day
@@ -186,6 +190,7 @@ THE 80/20 CONTENT RULE:
 ```
 
 ### Content Types That Drive Engagement
+
 ```
 HIGH ENGAGEMENT:
   1. Live Q&A / Ask Me Anything: Real-time interaction, high value
@@ -209,6 +214,7 @@ LOWER ENGAGEMENT (but still valuable):
 ## Member Onboarding
 
 ### The First 7 Days
+
 ```
 DAY 0 (IMMEDIATELY AFTER JOINING):
   Automated welcome email:
@@ -253,6 +259,7 @@ THE ONBOARDING GOAL:
 ## Engagement and Retention
 
 ### Engagement Systems
+
 ```
 GAMIFICATION:
   Points/XP: Award points for posting, commenting, attending events
@@ -282,6 +289,7 @@ ENGAGEMENT METRICS TO TRACK:
 ```
 
 ### Retention Framework
+
 ```
 RETENTION METRICS:
   Monthly churn rate: Target < 5% for healthy community
@@ -321,6 +329,7 @@ EXIT SURVEY QUESTIONS:
 ## Scaling Operations
 
 ### From 0 to 1,000 Members
+
 ```
 0-50 MEMBERS: The Personal Phase
   You do everything. Personal welcome messages. Every response.
@@ -364,7 +373,6 @@ EXIT SURVEY QUESTIONS:
 - [ ] Scaling plan mapped from current size to 1,000+ members
 - [ ] Revenue projection built (members x price x retention rate)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -377,13 +385,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with membership community builder for a mid-size project."
 
 **Output:** A complete membership community builder framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

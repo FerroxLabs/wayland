@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning guide"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking meal-planning guide'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Food Photography
@@ -25,11 +25,13 @@ You are an expert food photographer and stylist with deep experience in editoria
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about food photography
 - User needs guidance on food photography topics
 - User wants a structured approach to food photography
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -137,12 +139,12 @@ MODIFIERS (budget-friendly):
 
 ### Understanding Light Quality
 
-| Light Type | Character | Best For | Avoid For |
-|-----------|-----------|----------|-----------|
-| Soft diffused | Even, gentle shadows | Most food, bright/airy style | Moody/dramatic shots |
-| Hard direct | Sharp shadows, high contrast | Textured foods (bread crust), dramatic style | Smooth foods, light style |
-| Backlight | Rim glow, translucency | Beverages, steam, honey drips, herbs | Flat plated dishes |
-| Side light | Depth, texture reveal | Layered dishes, textured surfaces | Flat foods like pizza (top-down better) |
+| Light Type    | Character                    | Best For                                     | Avoid For                               |
+| ------------- | ---------------------------- | -------------------------------------------- | --------------------------------------- |
+| Soft diffused | Even, gentle shadows         | Most food, bright/airy style                 | Moody/dramatic shots                    |
+| Hard direct   | Sharp shadows, high contrast | Textured foods (bread crust), dramatic style | Smooth foods, light style               |
+| Backlight     | Rim glow, translucency       | Beverages, steam, honey drips, herbs         | Flat plated dishes                      |
+| Side light    | Depth, texture reveal        | Layered dishes, textured surfaces            | Flat foods like pizza (top-down better) |
 
 ### Artificial Lighting
 
@@ -223,12 +225,12 @@ COMPOSITION FRAMEWORK
 
 ### Camera Angles
 
-| Angle | Best For | Avoid For |
-|-------|----------|-----------|
+| Angle                            | Best For                                              | Avoid For                                 |
+| -------------------------------- | ----------------------------------------------------- | ----------------------------------------- |
 | Flat lay / 90 degrees (overhead) | Pizza, flat dishes, ingredient spreads, bowls of soup | Tall items (burgers, drinks, layer cakes) |
-| 45 degrees (three-quarter) | Most versatile -- plated dishes, bowls, sandwiches | Flat presentations with nothing on top |
-| 0-15 degrees (eye level / hero) | Burgers, layered cakes, stacked items, drinks | Flat dishes (soup, pizza) |
-| Straight on (0 degrees) | Layer cakes, drink glasses, food on shelves | Overhead compositions |
+| 45 degrees (three-quarter)       | Most versatile -- plated dishes, bowls, sandwiches    | Flat presentations with nothing on top    |
+| 0-15 degrees (eye level / hero)  | Burgers, layered cakes, stacked items, drinks         | Flat dishes (soup, pizza)                 |
+| Straight on (0 degrees)          | Layer cakes, drink glasses, food on shelves           | Overhead compositions                     |
 
 **Decision shortcut:** If the food has HEIGHT, shoot low (0-45 degrees). If the food is FLAT, shoot from above (75-90 degrees).
 
@@ -290,14 +292,14 @@ COLOR STRATEGY:
 
 ### Color Theory for Food
 
-| Food Color | Complementary Plate/Background | Effect |
-|-----------|-------------------------------|--------|
-| Red/Orange (tomato, salmon, curry) | Blue, dark slate, teal | Vibrant contrast |
-| Green (salads, herbs, avocado) | White, warm wood, terracotta | Fresh, natural |
-| Brown (bread, meat, chocolate) | White, cream, light blue | Clean presentation |
-| Yellow (pasta, eggs, citrus) | Dark blue, black, gray | Bold statement |
-| White (rice, cream, cheese) | Dark plates, dark wood | Dramatic, moody |
-| Multi-color (bowls, salads) | Neutral plates (white, gray) | Let food be the star |
+| Food Color                         | Complementary Plate/Background | Effect               |
+| ---------------------------------- | ------------------------------ | -------------------- |
+| Red/Orange (tomato, salmon, curry) | Blue, dark slate, teal         | Vibrant contrast     |
+| Green (salads, herbs, avocado)     | White, warm wood, terracotta   | Fresh, natural       |
+| Brown (bread, meat, chocolate)     | White, cream, light blue       | Clean presentation   |
+| Yellow (pasta, eggs, citrus)       | Dark blue, black, gray         | Bold statement       |
+| White (rice, cream, cheese)        | Dark plates, dark wood         | Dramatic, moody      |
+| Multi-color (bowls, salads)        | Neutral plates (white, gray)   | Let food be the star |
 
 ---
 
@@ -343,13 +345,13 @@ WHERE TO SOURCE CHEAPLY:
 
 ### Background Selection Guide
 
-| Style | Background | Props | Mood |
-|-------|-----------|-------|------|
-| Bright & airy | White marble, light wood | Minimal, white plates | Fresh, modern, clean |
-| Rustic | Dark wood, worn cutting boards | Cast iron, linen, herbs | Warm, homey, editorial |
-| Moody/dark | Black slate, dark concrete | Dark plates, minimal | Dramatic, upscale |
-| Colorful | Tiled surfaces, painted boards | Bold plates, vibrant napkins | Fun, energetic |
-| Minimal | Single solid color | One plate, one utensil | Modern, focused |
+| Style         | Background                     | Props                        | Mood                   |
+| ------------- | ------------------------------ | ---------------------------- | ---------------------- |
+| Bright & airy | White marble, light wood       | Minimal, white plates        | Fresh, modern, clean   |
+| Rustic        | Dark wood, worn cutting boards | Cast iron, linen, herbs      | Warm, homey, editorial |
+| Moody/dark    | Black slate, dark concrete     | Dark plates, minimal         | Dramatic, upscale      |
+| Colorful      | Tiled surfaces, painted boards | Bold plates, vibrant napkins | Fun, energetic         |
+| Minimal       | Single solid color             | One plate, one utensil       | Modern, focused        |
 
 ---
 
@@ -374,15 +376,15 @@ SMARTPHONE FOOD PHOTOGRAPHY SETTINGS
 
 ### DSLR / Mirrorless
 
-| Setting | Recommendation | Why |
-|---------|---------------|-----|
-| Mode | Aperture Priority (A/Av) | Control depth of field |
-| Aperture | f/2.8-f/5.6 (close-up) or f/5.6-f/8 (flat lay) | Shallow DOF for hero shots, deeper for overhead |
-| ISO | As low as possible (100-400) | Minimize noise/grain |
-| White balance | Manual or Kelvin (match light source) | Accurate food colors |
-| Focal length | 50mm-100mm (or equivalent) | Natural perspective, minimal distortion |
-| Focus | Single point AF on the front/top of food | Ensure sharpest area is where the eye goes |
-| Tripod | Use for overhead and low-light shots | Eliminates camera shake |
+| Setting       | Recommendation                                 | Why                                             |
+| ------------- | ---------------------------------------------- | ----------------------------------------------- |
+| Mode          | Aperture Priority (A/Av)                       | Control depth of field                          |
+| Aperture      | f/2.8-f/5.6 (close-up) or f/5.6-f/8 (flat lay) | Shallow DOF for hero shots, deeper for overhead |
+| ISO           | As low as possible (100-400)                   | Minimize noise/grain                            |
+| White balance | Manual or Kelvin (match light source)          | Accurate food colors                            |
+| Focal length  | 50mm-100mm (or equivalent)                     | Natural perspective, minimal distortion         |
+| Focus         | Single point AF on the front/top of food       | Ensure sharpest area is where the eye goes      |
+| Tripod        | Use for overhead and low-light shots           | Eliminates camera shake                         |
 
 ---
 
@@ -427,13 +429,13 @@ SMARTPHONE FOOD PHOTOGRAPHY SETTINGS
 
 ### Common Editing Mistakes
 
-| Mistake | What Happens | Fix |
-|---------|-------------|-----|
-| Over-saturation | Food looks neon, unnatural | Keep vibrance/saturation subtle (+5-15 max) |
-| Too warm | Everything looks orange | Check white balance against a white plate |
-| Over-sharpening | Halos around edges, crunchy look | Zoom to 100% to check; use masking |
-| Heavy vignette | Dark corners look amateurish | Skip or use very subtly |
-| Skin smoothing filters | Removes food texture | Never use beauty filters on food |
+| Mistake                | What Happens                     | Fix                                         |
+| ---------------------- | -------------------------------- | ------------------------------------------- |
+| Over-saturation        | Food looks neon, unnatural       | Keep vibrance/saturation subtle (+5-15 max) |
+| Too warm               | Everything looks orange          | Check white balance against a white plate   |
+| Over-sharpening        | Halos around edges, crunchy look | Zoom to 100% to check; use masking          |
+| Heavy vignette         | Dark corners look amateurish     | Skip or use very subtly                     |
+| Skin smoothing filters | Removes food texture             | Never use beauty filters on food            |
 
 ---
 
@@ -529,6 +531,7 @@ When advising on food photography, provide:
 ### The 3 Things That Fix 90% of Bad Food Photos
 
 **1. Natural Side Light (Biggest Impact)**
+
 - Shoot next to a window with indirect light (not direct sun)
 - Light should come from the SIDE or 45 degrees behind the food, NEVER from the front
 - Turn OFF overhead kitchen lights (mixed lighting kills food photos)
@@ -542,26 +545,29 @@ When advising on food photography, provide:
 | Layered foods (cake slice) | Straight on (0 degrees) | Shows the layers |
 
 **3. Styling Before Shooting**
+
 - Wipe plate edges clean (drips ruin photos)
 - Add a "hero element" on top: fresh herb, drizzle of sauce, sprinkle of flaky salt
 - Use odd numbers of items (3 cookies, not 4)
 - Leave negative space -- do not fill the entire frame
 
 ### iPhone Settings
+
 - Portrait mode: YES for single dishes (blurs background beautifully)
 - Flash: NEVER (flash makes food look greasy and harsh)
 - HDR: OFF for food (can look over-processed)
 - Tap on food to set focus, then swipe down slightly to reduce exposure (slightly darker = more dramatic)
 
 ### Editing (iPhone Photos app or Snapseed)
-| Adjustment | Amount | Why |
-|-----------|--------|-----|
-| Exposure | +5 to +15 | Brighten slightly |
-| Contrast | +10 to +20 | Adds depth (fixes "flat") |
-| Warmth | +5 to +10 | Food looks better warm-toned |
-| Saturation | +5 to +10 | Make colors pop (do not overdo) |
-| Shadows | +10 | Lift dark areas without washing out |
-| Sharpness | +15 to +25 | Crisp detail on food textures |
+
+| Adjustment | Amount     | Why                                 |
+| ---------- | ---------- | ----------------------------------- |
+| Exposure   | +5 to +15  | Brighten slightly                   |
+| Contrast   | +10 to +20 | Adds depth (fixes "flat")           |
+| Warmth     | +5 to +10  | Food looks better warm-toned        |
+| Saturation | +5 to +10  | Make colors pop (do not overdo)     |
+| Shadows    | +10        | Lift dark areas without washing out |
+| Sharpness  | +15 to +25 | Crisp detail on food textures       |
 
 ## Edge Cases
 

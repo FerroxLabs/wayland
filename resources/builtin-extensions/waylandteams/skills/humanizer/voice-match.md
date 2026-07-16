@@ -20,7 +20,7 @@ If a voice file is present, prefer this mode over plain `rewrite-pass`. If no vo
 
 If no file exists, run plain `rewrite-pass` and append ONE line at the bottom of the output:
 
-> *Note: no Voiceprint file in workspace. Want this sharper next time? Run Voiceprint once (~20 min) and I will layer your voice on every future pass.*
+> _Note: no Voiceprint file in workspace. Want this sharper next time? Run Voiceprint once (~20 min) and I will layer your voice on every future pass._
 
 Then stop. Do not wait for the user to pick an option.
 
@@ -52,7 +52,7 @@ Top changes:
 
 Higher AI-likelihood = more AI; higher sub-axes = more human.
 
-If a DON'T rule from the voice file conflicted with a humanize move, surface the conflict explicitly under a `Note:` line at the bottom of the output. Example: *"Your voice file says no semicolons; I used one in line 4 because the cadence broke without it. Override?"*
+If a DON'T rule from the voice file conflicted with a humanize move, surface the conflict explicitly under a `Note:` line at the bottom of the output. Example: _"Your voice file says no semicolons; I used one in line 4 because the cadence broke without it. Override?"_
 
 ## Decision rules
 
@@ -71,15 +71,15 @@ If a DON'T rule from the voice file conflicted with a humanize move, surface the
 
 ## Before / after
 
-**Voice file says (excerpt):** *DO: short sentences for emphasis, em-dash-instead-of-comma when a clause earns weight, opens with a claim then defends it. DON'T: corporate hedging, "in many ways," generic engagement metaphors.*
+**Voice file says (excerpt):** _DO: short sentences for emphasis, em-dash-instead-of-comma when a clause earns weight, opens with a claim then defends it. DON'T: corporate hedging, "in many ways," generic engagement metaphors._
 
 **Input draft (AI-flat):**
 
-> *In many ways, our analytics dashboard provides comprehensive insights that engage users with intricate data visualization, enabling them to navigate complex decisions effectively.*
+> _In many ways, our analytics dashboard provides comprehensive insights that engage users with intricate data visualization, enabling them to navigate complex decisions effectively._
 
 **Output (voice-matched humanize):**
 
-> *Our dashboard shows you what customers actually did. Not what you think they did, what they did. The charts are uglier than the competition's. You will not care once you have used it for a week.*
+> _Our dashboard shows you what customers actually did. Not what you think they did, what they did. The charts are uglier than the competition's. You will not care once you have used it for a week._
 
 ```
 Scores: AI-flatness before 1/10 → after 9/10 | Rhythm before 1/10 → after 9/10 | Composite AI-likelihood before 9/10 → after 1/10

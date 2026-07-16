@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design planning template"
-  category: "design-creative"
-  subcategory: "ui-ux-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'design planning template'
+  category: 'design-creative'
+  subcategory: 'ui-ux-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Wireframe Specification
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to wireframe a specific page, screen, or view and needs a structured specification document -- not just a verbal description of layout
 - The user wants to plan a new screen before any visual design begins, including establishing the component inventory, grid system, and content hierarchy
 - The user has a content inventory (text blocks, images, data, forms) and needs help organizing it into a structured layout with clear prioritization logic
@@ -29,6 +31,7 @@ metadata:
 - The user is building a design system-backed interface and needs to document which existing components from a component library map to each zone before visual design begins
 
 **Do NOT use when:**
+
 - The user wants pixel-level visual design choices including color palettes, typography scales, spacing tokens, or visual style -- use `design-system-foundations` instead
 - The user wants to map the navigation flow between multiple screens or define how users move through a product -- use `user-flow-mapping` instead
 - The user wants to define micro-interactions, animation timing, easing curves, or transition choreography between states -- use `prototype-spec` instead
@@ -281,27 +284,35 @@ Before delivering the spec, run this validation checklist internally:
 ## Edge Cases
 
 ### Single-Purpose Landing Page (Minimal Content)
+
 When a landing page has one message and one action -- a product launch page, a waitlist signup, a countdown page -- resist the urge to add zones. The entire page may be: Header (logo only, no nav), Hero (headline + subheadline + single CTA + optional supporting image), and minimal Footer (legal text only). The hero zone IS the content zone. The L1 is the headline. The L2 is the CTA button. Everything else is L3. The spec will be short. That is correct. Do not pad it with unnecessary zones to make it look thorough -- a sparse wireframe for a sparse page is the right output.
 
 ### Data-Dense Dashboard
+
 Dashboards break the standard zone hierarchy because there is no single hero moment -- the entire screen is the content. Handle this as follows: eliminate the Hero zone; replace it with a KPI Summary Bar (a horizontal strip of 3-5 primary metrics, each as a Priority 1 component). The Content zone becomes a Panel Grid. Each panel is a container component with its own internal L2 hierarchy (panel title is L2, chart or data inside is the data, controls are L3). For desktop, use a 2x2 or 3x2 panel grid. Document which panels are fixed in the viewport (visible without scrolling) and which require vertical scroll. Critically, every chart and data panel must document its empty state, loading state, and error state -- dashboards with live data will encounter all three constantly.
 
 ### Form-Heavy Screen (Multi-Step Checkout, Registration, Survey)
+
 Forms that exceed 5-7 fields benefit from section grouping. Treat each logical form section as its own zone (Personal Information zone, Payment Details zone, Order Review zone). Each zone has a section heading (L2), field list, and inline validation rules. The primary action is always the final submit or "Next Step" button -- it is L2 in the final section zone and should be the only CTA visible at each step. Progress indicators (step 1 of 4) are Priority 1, L2, placed in the header zone. Document field-level validation states: empty, focused, filled-valid, filled-invalid (with error message), and disabled. Specify tab order explicitly for complex forms -- keyboard navigation through multi-column form layouts is frequently broken without explicit annotation.
 
 ### Content-Rich Editorial or Blog Page
+
 Editorial pages have high content volume but low interaction density. The primary action is usually implicit (reading, sharing, subscribing). Treat the article body as a single "Article Content" zone with an internal content model annotation: pull quotes, inline images, code blocks, callout boxes, embedded media. These are not separate components -- they are content variants within a single zone. The sidebar on editorial pages typically contains: Author bio, Table of contents (anchor-linked), Related articles, Social share. On mobile, the table of contents collapses to a sticky bar at top, the sidebar content moves below the article body, and social share converts to a bottom-fixed share bar. Document this transformation explicitly.
 
 ### Modal or Overlay Screens
+
 Modals are screens within screens. When wireframing a modal, produce a separate mini-spec for the overlay itself, then annotate the trigger component in the parent screen's interaction table. The modal spec must include: overlay backdrop (does clicking it close the modal? -- document the behavior), modal container dimensions (e.g., 640px wide, max 80vh tall, vertically centered), close affordance (X button, Escape key), scroll behavior within the modal (does the modal scroll or does it grow?), and focus trap annotation (keyboard focus must be contained within the modal while it is open -- this is an accessibility requirement, not optional). Modal zones are typically: Modal Header (title + close button), Modal Body (form or content), Modal Footer (primary and secondary CTAs).
 
 ### Authenticated vs. Unauthenticated State for the Same Screen
+
 Some screens have meaningfully different layouts depending on login state. A homepage may show a hero + marketing content when logged out and a dashboard + personalized content when logged in. Do not produce one wireframe with ambiguous annotations. Produce two specifications: "[Screen Name] -- Logged Out" and "[Screen Name] -- Logged In." Call out the architectural decision explicitly: "These are treated as separate screens despite sharing the same URL because their component inventories, hierarchy, and primary actions differ fundamentally."
 
 ### Zero-Data and First-Use States
+
 The first time a user reaches a screen after onboarding -- before they have created any content, connected any data, or performed any actions -- the screen may be nearly empty. This is the zero-data state, and it requires its own wireframe annotation. For dashboards: show an empty panel grid with onboarding prompts inside each panel ("Connect your data to see this chart"). For list screens: show the empty list illustration + a single prominent CTA ("Create your first [item]"). For feed screens: show a curated default feed or an explicit empty state with guidance. Document the zero-data layout as a conditional variant within the spec -- do not leave it undocumented.
 
 ### Right-to-Left (RTL) Language Support
+
 If the product supports Arabic, Hebrew, Persian, or other RTL languages, every directional layout decision in the spec must include an RTL note. Grid columns mirror (col 1 becomes col 12), navigation items flip order, icons with directional meaning (arrows, chevrons, breadcrumbs) reverse direction, left-aligned text becomes right-aligned. Flag this at the top of the spec as a global constraint rather than annotating every individual component. Note which components have non-obvious RTL behavior: data tables (column order reversal), progress steps (reverse flow direction), carousels (reverse swipe direction).
 
 ---
@@ -316,30 +327,30 @@ If the product supports Arabic, Hebrew, Persian, or other RTL languages, every d
 
 ### Overview
 
-| Field                   | Value                                                                                    |
-|-------------------------|------------------------------------------------------------------------------------------|
-| Screen name             | Campaign Performance Dashboard                                                           |
-| Screen purpose          | Give marketing managers a consolidated view of email campaign metrics so they can identify high- and low-performing campaigns and take action                     |
-| Primary action          | Drill down into an individual campaign to view detailed performance data                 |
-| Target device(s)        | Responsive -- desktop-first (desktop primary, mobile secondary)                          |
-| Design-first breakpoint | 1280px desktop                                                                           |
-| Estimated scroll depth  | ~1.5x viewport height (KPI bar + filters + campaign table require scroll for 10+ campaigns) |
-| Above-fold line         | 768px from top of content area (excluding app shell header and sidebar)                  |
-| Conditional display     | Full data view when campaigns exist; zero-data state when no campaigns have been created |
+| Field                   | Value                                                                                                                                         |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Screen name             | Campaign Performance Dashboard                                                                                                                |
+| Screen purpose          | Give marketing managers a consolidated view of email campaign metrics so they can identify high- and low-performing campaigns and take action |
+| Primary action          | Drill down into an individual campaign to view detailed performance data                                                                      |
+| Target device(s)        | Responsive -- desktop-first (desktop primary, mobile secondary)                                                                               |
+| Design-first breakpoint | 1280px desktop                                                                                                                                |
+| Estimated scroll depth  | ~1.5x viewport height (KPI bar + filters + campaign table require scroll for 10+ campaigns)                                                   |
+| Above-fold line         | 768px from top of content area (excluding app shell header and sidebar)                                                                       |
+| Conditional display     | Full data view when campaigns exist; zero-data state when no campaigns have been created                                                      |
 
 ---
 
 ### Layout Grid
 
-| Property          | Desktop (1280px)              | Mobile (375px)                          |
-|-------------------|-------------------------------|-----------------------------------------|
-| Columns           | 12 (within content area)      | 4                                       |
-| Max content width | Fluid within sidebar layout   | 375px                                   |
+| Property           | Desktop (1280px)                                       | Mobile (375px)                   |
+| ------------------ | ------------------------------------------------------ | -------------------------------- |
+| Columns            | 12 (within content area)                               | 4                                |
+| Max content width  | Fluid within sidebar layout                            | 375px                            |
 | Content area width | ~992px (1280px minus 240px sidebar minus 48px padding) | 343px (375px minus 16px margins) |
-| Column width      | ~72px                         | ~72px                                   |
-| Gutter width      | 24px                          | 16px                                    |
-| Outer margin      | 24px padding inside content area | 16px                                 |
-| Baseline grid     | 8px                           | 8px                                     |
+| Column width       | ~72px                                                  | ~72px                            |
+| Gutter width       | 24px                                                   | 16px                             |
+| Outer margin       | 24px padding inside content area                       | 16px                             |
+| Baseline grid      | 8px                                                    | 8px                              |
 
 **Grid note:** The left sidebar is a fixed 240px app shell element. The 12-column grid applies only to the content area to the right of the sidebar. All column references in this spec are relative to the content area grid, not the full viewport.
 
@@ -348,55 +359,59 @@ If the product supports Arabic, Hebrew, Persian, or other RTL languages, every d
 ### Content Zones
 
 #### Zone 1: App Shell -- Persistent Left Sidebar
+
 - **Purpose:** Primary application navigation. Persistent across all application screens.
 - **Estimated height (desktop):** 100% viewport height, fixed
 - **Above fold?** Yes -- always visible
 - **Conditional?** No
 
-| Component               | Type         | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior |
-|-------------------------|--------------|----------|--------------------------|-----------|---------------------|
-| App logo / wordmark     | Media        | 2        | N/A (sidebar)            | L3        | Collapses to icon-only top bar on mobile |
-| Primary nav links (5 items) | Interactive | 2     | N/A (sidebar)            | L3        | Collapses to bottom tab bar on mobile (top 4 items; overflow in More tab) |
-| Active nav indicator (Campaigns) | Text | 2   | N/A (sidebar)            | L3        | Stays -- active state reflected in bottom tab bar |
-| User account menu       | Interactive  | 3        | N/A (sidebar)            | L3        | Collapses to avatar icon in top-right corner on mobile |
-| Workspace switcher      | Interactive  | 3        | N/A (sidebar)            | L3        | Hides on mobile (accessible via account menu) |
+| Component                        | Type        | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior                                                       |
+| -------------------------------- | ----------- | -------- | ------------------------ | --------- | ------------------------------------------------------------------------- |
+| App logo / wordmark              | Media       | 2        | N/A (sidebar)            | L3        | Collapses to icon-only top bar on mobile                                  |
+| Primary nav links (5 items)      | Interactive | 2        | N/A (sidebar)            | L3        | Collapses to bottom tab bar on mobile (top 4 items; overflow in More tab) |
+| Active nav indicator (Campaigns) | Text        | 2        | N/A (sidebar)            | L3        | Stays -- active state reflected in bottom tab bar                         |
+| User account menu                | Interactive | 3        | N/A (sidebar)            | L3        | Collapses to avatar icon in top-right corner on mobile                    |
+| Workspace switcher               | Interactive | 3        | N/A (sidebar)            | L3        | Hides on mobile (accessible via account menu)                             |
 
 **Zone notes:** Sidebar is fixed-position and does not scroll with page content. It is a pre-existing app shell component -- this spec does not redesign it, only documents its presence as a layout constraint.
 
 ---
 
 #### Zone 2: Page Header Bar
+
 - **Purpose:** Orient the user to the current screen, enable date range filtering, and provide page-level actions.
 - **Estimated height (desktop):** 72px
 - **Above fold?** Yes
 - **Conditional?** No
 
-| Component               | Type         | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior |
-|-------------------------|--------------|----------|--------------------------|-----------|---------------------|
-| Page title ("Campaign Performance") | Text | 1 | cols 1-5 of 12         | L2        | Stays -- single line, 20px type |
-| Date range selector     | Interactive  | 1        | cols 7-9 of 12           | L2        | Stays -- collapses to icon + label on mobile |
-| Export report button    | Interactive  | 3        | cols 10-11 of 12         | L3        | Hides on mobile (available via overflow menu) |
-| Create campaign button  | Interactive  | 2        | cols 12 of 12            | L2        | Stays -- icon-only on mobile with 44x44px tap target |
+| Component                           | Type        | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior                                  |
+| ----------------------------------- | ----------- | -------- | ------------------------ | --------- | ---------------------------------------------------- |
+| Page title ("Campaign Performance") | Text        | 1        | cols 1-5 of 12           | L2        | Stays -- single line, 20px type                      |
+| Date range selector                 | Interactive | 1        | cols 7-9 of 12           | L2        | Stays -- collapses to icon + label on mobile         |
+| Export report button                | Interactive | 3        | cols 10-11 of 12         | L3        | Hides on mobile (available via overflow menu)        |
+| Create campaign button              | Interactive | 2        | cols 12 of 12            | L2        | Stays -- icon-only on mobile with 44x44px tap target |
 
 **Zone notes:** Date range selector is the second most important control on this screen -- changing it re-queries all data. Default range is last 30 days. The selector is positioned in the top-right content area, not toolbar-right, because the sidebar occupies the far-left position.
 
 ---
 
 #### Zone 3: KPI Summary Bar
+
 - **Purpose:** Surface the three headline metrics (Open Rate, Click Rate, Revenue Attributed) at a glance so the user can assess overall performance before drilling into campaign data.
 - **Estimated height (desktop):** 120px
 - **Above fold?** Yes
 - **Conditional?** Yes -- shows skeleton loading state while data fetches; shows error state if query fails
 
-| Component               | Type         | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior |
-|-------------------------|--------------|----------|--------------------------|-----------|---------------------|
-| Open Rate KPI card      | Data Display | 1        | cols 1-4 of 12           | L1        | Reorders -- stacks vertically on mobile, full width |
-| Click Rate KPI card     | Data Display | 1        | cols 5-8 of 12           | L1        | Reorders -- stacks vertically, second in order |
-| Revenue Attributed KPI card | Data Display | 1   | cols 9-12 of 12          | L1        | Reorders -- stacks vertically, third in order |
+| Component                   | Type         | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior                                 |
+| --------------------------- | ------------ | -------- | ------------------------ | --------- | --------------------------------------------------- |
+| Open Rate KPI card          | Data Display | 1        | cols 1-4 of 12           | L1        | Reorders -- stacks vertically on mobile, full width |
+| Click Rate KPI card         | Data Display | 1        | cols 5-8 of 12           | L1        | Reorders -- stacks vertically, second in order      |
+| Revenue Attributed KPI card | Data Display | 1        | cols 9-12 of 12          | L1        | Reorders -- stacks vertically, third in order       |
 
 **L1 note:** These three KPI cards collectively constitute the L1 element for this dashboard. Each card has internal hierarchy: the metric value (e.g., "24.3%") is L1 within the card, the metric label ("Open Rate") is L2, and the comparison to previous period ("+2.1% vs last period") is L3. This is an intentional exception to the single-L1 rule -- on dashboards with a KPI summary bar, the bar as a group functions as L1, with no single metric elevated above the others.
 
 Each KPI card contains:
+
 - Metric label (text, L3 within card): "Open Rate," "Click Rate," "Revenue Attributed"
 - Primary metric value (data display, L1 within card): large numeral + unit (%, %, $)
 - Period-over-period comparison (text, L3 within card): delta value + directional arrow icon + color coding (green up, red down)
@@ -405,120 +420,124 @@ Each KPI card contains:
 ---
 
 #### Zone 4: Filter and Segment Bar
+
 - **Purpose:** Allow users to filter the campaign table by status, channel, tag, or campaign owner.
 - **Estimated height (desktop):** 56px
 - **Above fold?** Yes (combined with Page Header Bar and KPI Summary Bar, total above-fold height = 72 + 120 + 56 = 248px, leaving ~520px of campaign table above fold)
 - **Conditional?** No
 
-| Component               | Type         | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior |
-|-------------------------|--------------|----------|--------------------------|-----------|---------------------|
-| Status filter dropdown  | Interactive  | 2        | cols 1-2 of 12           | L3        | Collapses into "Filters" button on mobile that opens filter drawer |
-| Channel filter dropdown | Interactive  | 2        | cols 3-4 of 12           | L3        | Collapses into filter drawer on mobile |
-| Tag filter dropdown     | Interactive  | 3        | cols 5-6 of 12           | L3        | Collapses into filter drawer on mobile |
-| Search campaigns input  | Interactive  | 2        | cols 8-11 of 12          | L3        | Stays -- full width on mobile |
-| Active filter chips     | Interactive  | 2        | cols 1-7 of 12 (dynamic) | L3        | Stays -- scrollable horizontally on mobile |
+| Component               | Type        | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior                                                |
+| ----------------------- | ----------- | -------- | ------------------------ | --------- | ------------------------------------------------------------------ |
+| Status filter dropdown  | Interactive | 2        | cols 1-2 of 12           | L3        | Collapses into "Filters" button on mobile that opens filter drawer |
+| Channel filter dropdown | Interactive | 2        | cols 3-4 of 12           | L3        | Collapses into filter drawer on mobile                             |
+| Tag filter dropdown     | Interactive | 3        | cols 5-6 of 12           | L3        | Collapses into filter drawer on mobile                             |
+| Search campaigns input  | Interactive | 2        | cols 8-11 of 12          | L3        | Stays -- full width on mobile                                      |
+| Active filter chips     | Interactive | 2        | cols 1-7 of 12 (dynamic) | L3        | Stays -- scrollable horizontally on mobile                         |
 
 **Zone notes:** When filters are active, filter chips appear below the filter dropdowns and push the campaign table down. This zone grows dynamically. The search input always stays visible at desktop; it is the primary fallback when filters are unknown.
 
 ---
 
 #### Zone 5: Campaign Performance Table
+
 - **Purpose:** List all campaigns within the selected date range with their key metrics. Enable sorting, row-level drill-down, and bulk actions.
 - **Estimated height (desktop):** ~480px for 10 rows at 48px row height; scrollable for additional rows
 - **Above fold?** Partially -- first 5-6 rows visible above fold; remainder requires scroll
 - **Conditional?** Yes -- zero-data state when no campaigns exist; empty-results state when filters return no matches
 
-| Component               | Type         | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior |
-|-------------------------|--------------|----------|--------------------------|-----------|---------------------|
-| Table column headers (sortable) | Interactive | 1 | cols 1-12 of 12        | L2        | Collapses -- mobile uses card list format, not table |
-| Campaign name + status badge | Interactive | 1 | cols 1-4 of 12         | L2        | Stays -- primary cell in mobile card |
-| Sent date               | Text         | 2        | col 5 of 12              | L3        | Hides on mobile |
-| Recipients count        | Data Display | 2        | col 6 of 12              | L3        | Hides on mobile |
-| Open rate (%)           | Data Display | 1        | col 7 of 12              | L2        | Stays -- shown in mobile card |
-| Click rate (%)          | Data Display | 1        | col 8 of 12              | L2        | Stays -- shown in mobile card |
-| Revenue attributed ($)  | Data Display | 1        | col 9 of 12              | L2        | Stays -- shown in mobile card |
-| Unsubscribes count      | Data Display | 3        | col 10 of 12             | L3        | Hides on mobile |
-| Row action menu (overflow) | Interactive | 2      | col 12 of 12             | L3        | Stays -- accessible via long-press or swipe on mobile |
-| Bulk select checkbox    | Interactive  | 3        | col 1 (leftmost, 32px)   | L3        | Hides on mobile |
-| Pagination controls     | Interactive  | 2        | cols 1-12 (table footer) | L3        | Stays -- page size reduced to 10 on mobile |
+| Component                       | Type         | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior                                   |
+| ------------------------------- | ------------ | -------- | ------------------------ | --------- | ----------------------------------------------------- |
+| Table column headers (sortable) | Interactive  | 1        | cols 1-12 of 12          | L2        | Collapses -- mobile uses card list format, not table  |
+| Campaign name + status badge    | Interactive  | 1        | cols 1-4 of 12           | L2        | Stays -- primary cell in mobile card                  |
+| Sent date                       | Text         | 2        | col 5 of 12              | L3        | Hides on mobile                                       |
+| Recipients count                | Data Display | 2        | col 6 of 12              | L3        | Hides on mobile                                       |
+| Open rate (%)                   | Data Display | 1        | col 7 of 12              | L2        | Stays -- shown in mobile card                         |
+| Click rate (%)                  | Data Display | 1        | col 8 of 12              | L2        | Stays -- shown in mobile card                         |
+| Revenue attributed ($)          | Data Display | 1        | col 9 of 12              | L2        | Stays -- shown in mobile card                         |
+| Unsubscribes count              | Data Display | 3        | col 10 of 12             | L3        | Hides on mobile                                       |
+| Row action menu (overflow)      | Interactive  | 2        | col 12 of 12             | L3        | Stays -- accessible via long-press or swipe on mobile |
+| Bulk select checkbox            | Interactive  | 3        | col 1 (leftmost, 32px)   | L3        | Hides on mobile                                       |
+| Pagination controls             | Interactive  | 2        | cols 1-12 (table footer) | L3        | Stays -- page size reduced to 10 on mobile            |
 
 **Zone notes:** Table rows are the primary navigation mechanism -- clicking any row navigates to the Campaign Detail screen. Row height is 48px at desktop (accommodates two-line campaign names). Column widths are proportional, not equal -- Campaign Name column is the widest (approximately 28% of table width). Sortable columns are: Campaign Name, Sent Date, Open Rate, Click Rate, Revenue Attributed. Default sort is Sent Date descending (most recent first).
 
 ---
 
 #### Zone 6: Zero-Data State (Conditional -- replaces Zone 5 when no campaigns exist)
+
 - **Purpose:** Guide new users to create their first campaign when the table would otherwise be empty.
 - **Estimated height (desktop):** 320px centered in the table area
 - **Above fold?** Yes
 - **Conditional?** Yes -- displays only when the user has zero campaigns in the account
 
-| Component               | Type         | Priority | Grid Span (content area) | Hierarchy | Responsive Behavior |
-|-------------------------|--------------|----------|--------------------------|-----------|---------------------|
-| Empty state illustration | Media       | 2        | cols 4-9 of 12 (centered) | L2       | Stays -- scaled to 120px on mobile |
-| Zero-state heading      | Text         | 1        | cols 3-10 of 12 (centered) | L2      | Stays                |
-| Zero-state body text    | Text         | 2        | cols 4-9 of 12 (centered) | L3       | Stays                |
-| Create First Campaign CTA | Interactive | 1       | cols 5-8 of 12 (centered) | L2       | Stays -- full width on mobile |
+| Component                 | Type        | Priority | Grid Span (content area)   | Hierarchy | Responsive Behavior                |
+| ------------------------- | ----------- | -------- | -------------------------- | --------- | ---------------------------------- |
+| Empty state illustration  | Media       | 2        | cols 4-9 of 12 (centered)  | L2        | Stays -- scaled to 120px on mobile |
+| Zero-state heading        | Text        | 1        | cols 3-10 of 12 (centered) | L2        | Stays                              |
+| Zero-state body text      | Text        | 2        | cols 4-9 of 12 (centered)  | L3        | Stays                              |
+| Create First Campaign CTA | Interactive | 1        | cols 5-8 of 12 (centered)  | L2        | Stays -- full width on mobile      |
 
 ---
 
 ### Interaction Annotations
 
-| Component               | Trigger    | Response                                                       | States                                                              | Keyboard Interaction                                                 |
-|-------------------------|------------|----------------------------------------------------------------|---------------------------------------------------------------------|----------------------------------------------------------------------|
-| Date range selector     | click/tap  | Opens a date range picker overlay with preset options (Last 7d, 30d, 90d, Custom) | default, open, selecting-start, selecting-end, applied, error  | Tab to focus; Enter to open; arrow keys to navigate dates; Escape to close |
-| KPI card                | load       | Fetches metric data for selected date range; displays value    | loading (skeleton), populated, error (failed to load)               | N/A (not interactive -- data display only)                           |
-| Status filter dropdown  | click/tap  | Opens dropdown with status options: All, Draft, Scheduled, Sent, Paused, Archived | default, open, option-hovered, option-selected, multi-selected, applied | Tab to focus; Enter to open; arrow keys to navigate options; Enter to select; Escape to close |
-| Active filter chip      | click/tap  | Removes that filter from the active set; re-queries table data | default, hover, removing                                            | Tab to focus; Enter or Delete to remove chip                         |
-| Search campaigns input  | type (300ms debounce) | Filters campaign table rows to matching campaign names in real time | default, focused, filled, no-results                       | Tab to focus; typing begins search; Escape to clear                  |
-| Table column header (sortable) | click | Sorts table by that column; second click reverses sort order; icon shows current sort direction | default, sort-asc, sort-desc, hover       | Tab to focus header; Enter to sort; second Enter to reverse           |
-| Table row               | click/tap  | Navigates to Campaign Detail screen for that campaign (full-page navigation, not overlay) | default, hover, active (click/tap)          | Tab to focus row; Enter to navigate                                  |
-| Row action menu (overflow) | click/tap | Opens a contextual menu: View, Duplicate, Archive, Delete   | default, hover, open, destructive-hover (red for Delete)            | Tab to focus; Enter to open; arrow keys to navigate; Enter to select; Escape to close |
-| Bulk select checkbox (row) | click    | Selects that row for bulk action; updates header checkbox state | unchecked, checked, indeterminate (header only when partial selection) | Tab to focus; Space to toggle                                        |
-| Export report button    | click      | Initiates report download (CSV) for current filter state; shows inline loading state in button | default, hover, loading, success (brief checkmark), error | Tab to focus; Enter to trigger |
-| Create campaign button  | click/tap  | Navigates to Campaign Creation flow (first step)               | default, hover, active                                              | Tab to focus; Enter to navigate                                      |
-| FAQ accordion (if present) | click   | Expands panel                                                  | collapsed, expanded                                                 | Tab to focus; Enter or Space to toggle                               |
-| Mobile "Filters" button | tap        | Opens filter drawer from bottom of screen (bottom sheet pattern) | default, active, drawer-open                                    | N/A (mobile-only component)                                          |
-| Pagination controls     | click/tap  | Navigates to next/previous page of campaigns; re-queries table | default, hover, active, disabled (at first/last page)               | Tab to focus controls; Enter to activate                             |
+| Component                      | Trigger               | Response                                                                                        | States                                                                  | Keyboard Interaction                                                                          |
+| ------------------------------ | --------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Date range selector            | click/tap             | Opens a date range picker overlay with preset options (Last 7d, 30d, 90d, Custom)               | default, open, selecting-start, selecting-end, applied, error           | Tab to focus; Enter to open; arrow keys to navigate dates; Escape to close                    |
+| KPI card                       | load                  | Fetches metric data for selected date range; displays value                                     | loading (skeleton), populated, error (failed to load)                   | N/A (not interactive -- data display only)                                                    |
+| Status filter dropdown         | click/tap             | Opens dropdown with status options: All, Draft, Scheduled, Sent, Paused, Archived               | default, open, option-hovered, option-selected, multi-selected, applied | Tab to focus; Enter to open; arrow keys to navigate options; Enter to select; Escape to close |
+| Active filter chip             | click/tap             | Removes that filter from the active set; re-queries table data                                  | default, hover, removing                                                | Tab to focus; Enter or Delete to remove chip                                                  |
+| Search campaigns input         | type (300ms debounce) | Filters campaign table rows to matching campaign names in real time                             | default, focused, filled, no-results                                    | Tab to focus; typing begins search; Escape to clear                                           |
+| Table column header (sortable) | click                 | Sorts table by that column; second click reverses sort order; icon shows current sort direction | default, sort-asc, sort-desc, hover                                     | Tab to focus header; Enter to sort; second Enter to reverse                                   |
+| Table row                      | click/tap             | Navigates to Campaign Detail screen for that campaign (full-page navigation, not overlay)       | default, hover, active (click/tap)                                      | Tab to focus row; Enter to navigate                                                           |
+| Row action menu (overflow)     | click/tap             | Opens a contextual menu: View, Duplicate, Archive, Delete                                       | default, hover, open, destructive-hover (red for Delete)                | Tab to focus; Enter to open; arrow keys to navigate; Enter to select; Escape to close         |
+| Bulk select checkbox (row)     | click                 | Selects that row for bulk action; updates header checkbox state                                 | unchecked, checked, indeterminate (header only when partial selection)  | Tab to focus; Space to toggle                                                                 |
+| Export report button           | click                 | Initiates report download (CSV) for current filter state; shows inline loading state in button  | default, hover, loading, success (brief checkmark), error               | Tab to focus; Enter to trigger                                                                |
+| Create campaign button         | click/tap             | Navigates to Campaign Creation flow (first step)                                                | default, hover, active                                                  | Tab to focus; Enter to navigate                                                               |
+| FAQ accordion (if present)     | click                 | Expands panel                                                                                   | collapsed, expanded                                                     | Tab to focus; Enter or Space to toggle                                                        |
+| Mobile "Filters" button        | tap                   | Opens filter drawer from bottom of screen (bottom sheet pattern)                                | default, active, drawer-open                                            | N/A (mobile-only component)                                                                   |
+| Pagination controls            | click/tap             | Navigates to next/previous page of campaigns; re-queries table                                  | default, hover, active, disabled (at first/last page)                   | Tab to focus controls; Enter to activate                                                      |
 
 ---
 
 ### Responsive Behavior Summary
 
-| Component                    | Desktop (1280px)                               | Mobile (375px)                                          |
-|------------------------------|------------------------------------------------|---------------------------------------------------------|
-| Left sidebar navigation      | Fixed 240px, full height                       | Bottom tab bar, 4 primary items + More                  |
-| Page title                   | Inline in page header bar                      | Top of page, stacked above controls                     |
-| Date range selector          | Inline in page header bar (right-aligned)      | Icon + date label, reduced to abbreviated text          |
-| Export button                | Visible in page header bar                     | Hidden -- accessible via overflow menu (3-dot)          |
-| KPI cards                    | 3 cards in a horizontal row, full content area | Stacked vertically, full width, same order              |
-| Sparkline in KPI card        | Visible                                        | Hidden (insufficient width)                             |
-| Filter dropdowns             | Inline horizontal row                          | Collapsed into "Filters" bottom-sheet drawer            |
-| Search input                 | Right-aligned in filter bar                    | Full width, above filter button row                     |
-| Campaign table               | Full data table, 10 visible columns            | Card list format: Campaign name, Open Rate, Click Rate, Revenue, Status badge, row action |
-| Table column headers         | Visible and sortable                           | Hidden -- sorting via "Sort by" option in filter drawer |
-| Unsubscribes column          | Visible                                        | Hidden                                                  |
-| Sent date column             | Visible                                        | Hidden                                                  |
-| Recipients count column      | Visible                                        | Hidden                                                  |
-| Bulk select checkboxes       | Visible                                        | Hidden                                                  |
-| Pagination controls          | Bottom of table, page size 25                  | Bottom of list, page size 10                            |
+| Component               | Desktop (1280px)                               | Mobile (375px)                                                                            |
+| ----------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Left sidebar navigation | Fixed 240px, full height                       | Bottom tab bar, 4 primary items + More                                                    |
+| Page title              | Inline in page header bar                      | Top of page, stacked above controls                                                       |
+| Date range selector     | Inline in page header bar (right-aligned)      | Icon + date label, reduced to abbreviated text                                            |
+| Export button           | Visible in page header bar                     | Hidden -- accessible via overflow menu (3-dot)                                            |
+| KPI cards               | 3 cards in a horizontal row, full content area | Stacked vertically, full width, same order                                                |
+| Sparkline in KPI card   | Visible                                        | Hidden (insufficient width)                                                               |
+| Filter dropdowns        | Inline horizontal row                          | Collapsed into "Filters" bottom-sheet drawer                                              |
+| Search input            | Right-aligned in filter bar                    | Full width, above filter button row                                                       |
+| Campaign table          | Full data table, 10 visible columns            | Card list format: Campaign name, Open Rate, Click Rate, Revenue, Status badge, row action |
+| Table column headers    | Visible and sortable                           | Hidden -- sorting via "Sort by" option in filter drawer                                   |
+| Unsubscribes column     | Visible                                        | Hidden                                                                                    |
+| Sent date column        | Visible                                        | Hidden                                                                                    |
+| Recipients count column | Visible                                        | Hidden                                                                                    |
+| Bulk select checkboxes  | Visible                                        | Hidden                                                                                    |
+| Pagination controls     | Bottom of table, page size 25                  | Bottom of list, page size 10                                                              |
 
 ---
 
 ### Empty and Error States
 
-| Component               | Empty State                                                                 | Error State                                                                   |
-|-------------------------|-----------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| Open Rate KPI card      | "--" displayed as metric value; label reads "No data for selected period"   | Error icon + "Failed to load" text + Retry link                               |
-| Click Rate KPI card     | Same as Open Rate KPI card empty state                                      | Same as Open Rate KPI card error state                                        |
-| Revenue Attributed KPI card | Same as Open Rate KPI card empty state                                  | Same as Open Rate KPI card error state                                        |
-| Campaign Performance Table | Zero-data state (Zone 6 spec above) OR empty-results state: icon + "No campaigns match your filters" text + "Clear filters" link | Error state: icon + "Failed to load campaigns" text + Retry button |
-| Date range selector     | N/A (always has a default value)                                            | If custom date range is invalid (end before start): inline error below selector |
+| Component                   | Empty State                                                                                                                      | Error State                                                                     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Open Rate KPI card          | "--" displayed as metric value; label reads "No data for selected period"                                                        | Error icon + "Failed to load" text + Retry link                                 |
+| Click Rate KPI card         | Same as Open Rate KPI card empty state                                                                                           | Same as Open Rate KPI card error state                                          |
+| Revenue Attributed KPI card | Same as Open Rate KPI card empty state                                                                                           | Same as Open Rate KPI card error state                                          |
+| Campaign Performance Table  | Zero-data state (Zone 6 spec above) OR empty-results state: icon + "No campaigns match your filters" text + "Clear filters" link | Error state: icon + "Failed to load campaigns" text + Retry button              |
+| Date range selector         | N/A (always has a default value)                                                                                                 | If custom date range is invalid (end before start): inline error below selector |
 
 ---
 
 ### Content Priority Summary
 
 **Above fold (Priority 1 components -- visible without scrolling at 1280x768 viewport):**
+
 - Page title ("Campaign Performance") -- Page Header Bar, L2
 - Date range selector -- Page Header Bar, L2
 - Open Rate KPI card -- KPI Summary Bar, L1
@@ -528,11 +547,13 @@ Each KPI card contains:
 - Table column headers (sortable) -- Campaign Table Zone, L2
 
 **Below fold (Priority 2 components):**
+
 - Campaign rows 7+ (requires scroll for 7+ campaigns)
 - Pagination controls
 - Filter and segment bar (technically above fold but low visual priority)
 
 **Supplementary / deprioritized (Priority 3):**
+
 - Export report button
 - Bulk select checkboxes
 - Unsubscribes column
@@ -540,5 +561,6 @@ Each KPI card contains:
 - User account menu (sidebar)
 
 **Hidden or collapsed on mobile:**
+
 - Left sidebar nav -- Collapses to bottom tab bar (top 4 nav items; Workspace Switcher moves to account menu)
 - Export button -- Hides; accessible via

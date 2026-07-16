@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning branding writing"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy planning branding writing'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Mission Vision Writing
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when any of the following triggers are present:
 - User is refreshing brand foundations and needs the strategic anchor statements before downstream brand work begins
 
 **Do NOT use this skill when:**
+
 - User needs a customer-facing positioning statement -- use `brand-positioning` instead (positioning is externally directed market differentiation; mission/vision are internally anchored purpose statements)
 - User needs a value proposition for marketing copy or sales materials -- use `value-proposition` instead
 - User needs a full business plan or strategic plan -- use `business-plan`; mission/vision may be components but a full plan requires financial modeling, market analysis, and execution roadmaps
@@ -102,18 +104,21 @@ The mission and vision must form a logical narrative chain: "We do X for Y (miss
 Always produce three variants of each statement. The variants are not merely shorter or longer versions -- they serve different strategic purposes and audiences.
 
 **Variant A -- Concise (15 words or fewer for mission; 20 words or fewer for vision)**
+
 - Intended for: email signatures, social media bios, slide headers, printed collateral, brand style guides
 - Register: declarative, crisp, no subordinate clauses
 - Technique: strip every word that could be removed without losing meaning; remove articles where rhythm permits
 - Common failure: Variant A becomes a slogan rather than a statement -- it loses specificity in the compression. Test: does it still contain the beneficiary and the core activity?
 
 **Variant B -- Descriptive (20-35 words)**
+
 - Intended for: website About page, investor one-pager, press boilerplate, LinkedIn company description, strategic plan header
 - Register: professional, readable, no jargon; complete sentences
 - Technique: restore the beneficiary specificity and the distinctive how that was stripped in Variant A; this is usually the "recommended" variant for external audiences
 - Common failure: Variant B sounds like a Variant A with filler added -- make sure it adds genuine informational value, not just connective tissue
 
 **Variant C -- Narrative (40-60 words for mission; 50-75 words for vision)**
+
 - Intended for: employee handbooks, strategic plans, board governance documents, grant applications, long-form investor materials, onboarding presentations
 - Register: more human, may include a brief problem statement or context sentence before the core statement, can use "we" and first-person voice more freely
 - Technique: open with the problem or opportunity the organization exists to address, then deliver the mission/vision as the organizational response
@@ -124,6 +129,7 @@ Always produce three variants of each statement. The variants are not merely sho
 Run every draft through a specific word-level review before presenting it to the user.
 
 **Automatically flag and replace these words unless they are indispensable and qualified:**
+
 - Innovation / Innovative -- replace with the specific mechanism of novelty
 - Solutions -- always generic; replace with the specific product or service category
 - World-class / Best-in-class / Leading -- these are performance claims, not purpose statements
@@ -137,6 +143,7 @@ Run every draft through a specific word-level review before presenting it to the
 - Stakeholders -- acceptable in governance contexts but vague for public-facing statements; name the actual people
 
 **Apply the Stranger Test:** Read both statements to an imaginary person who has never heard of this organization and has no knowledge of its industry. Can they answer these three questions from the statements alone?
+
 1. What does this organization make or do?
 2. Who does it serve?
 3. Why does it matter?
@@ -150,6 +157,7 @@ If any answer is "I can't tell," the statement is too vague.
 Evaluate each candidate statement against eight specific criteria before presenting to the user. Do not skip this step -- present the rubric results transparently so the user can see the quality reasoning.
 
 **Eight Validation Criteria:**
+
 1. **Tense discipline** -- Mission is present tense throughout; vision is future tense or explicitly time-anchored
 2. **Beneficiary clarity** -- The specific person, organization, or community being served is named or clearly implied
 3. **Activity specificity** -- The core product, service, or mechanism is identifiable, not categorical
@@ -311,27 +319,35 @@ Any inputs that remain ambiguous and could affect the statements if clarified.]*
 ## Edge Cases
 
 ### Nonprofit, NGO, or Social Enterprise
+
 Mission and vision conventions differ meaningfully from commercial organizations. The mission focuses on the social outcome or population being served, not the service delivery mechanism. The vision describes the changed social condition -- the world where the problem the organization exists to solve has been substantially addressed. Avoid revenue language ("reaching $X in funding," "serving X clients") in the vision -- these are operational metrics, not impact visions. Use beneficiary-centered language: "Every child in [region] has access to a licensed mental health counselor within 14 days of referral" rather than "We will be the leading provider of youth mental health services." For grant applications, check whether the funder requires a specific format -- some foundations define "mission" to mean the combined purpose statement and "vision" to mean the theory of change, which differs from standard usage.
 
 ### Internal Team or Department (Not a Standalone Organization)
+
 A marketing team, engineering department, or cross-functional initiative can have mission and vision statements, but they must be scoped to the unit's function within the larger organization. The mission describes the team's specific contribution to the parent organization's mission -- not a miniature version of the whole company's mission. The vision describes what the team aspires to build or become, constrained by its actual organizational authority. Common failure: the team's vision accidentally restates the enterprise vision, which renders the team's statement meaningless. Test: would this team's vision still make sense if the enterprise mission changed direction? If yes, it is too generic and must be tethered to the team's specific function.
 
 ### Pre-Launch Startup (No Revenue, No Product Live)
+
 Draft the mission in present tense even if the product is not yet live -- "We build..." is correct even at concept stage, because the mission describes the intended activity, not the current operational state. The vision is actually more important at this stage than at any other -- it is the primary tool for attracting co-founders, early employees, and seed investors, all of whom are being asked to commit before there is evidence of execution. Push the founder hard on the impact aspiration: what is the 10-year outcome they are willing to organize their life around? Avoid statements that are contingent on the current product design -- early startups pivot; the mission and vision should be durable enough to survive at least one significant product pivot while remaining true to the underlying purpose. Flag any mission language that is tied to a specific feature set rather than the underlying problem being solved.
 
 ### Large Enterprise Refreshing Existing Statements After a Merger, Acquisition, or Pivot
+
 Request both organizations' pre-merger statements before drafting. Identify where the statements agree (these are areas of genuine cultural and strategic alignment) and where they conflict (these are areas of integration risk that the new statements must resolve or explicitly address). The refresh process involves three decisions: (1) which elements of the existing statements have earned internal equity and must be preserved, (2) which elements accurately describe the new combined entity's scope and must be updated, and (3) what new elements describe the combined entity's capabilities or ambitions that neither predecessor statement captured. Produce a "before/after" comparison in Revision Notes. Expect that the process will surface disagreements between leadership factions -- the statements are governance documents, and their language reflects power and priority decisions. Do not try to paper over genuine strategic disagreements with language -- flag them for leadership resolution.
 
 ### Mission-Only or Vision-Only Request
+
 If the user requests only one statement, produce all three variants of the requested statement at full quality. In the output, add a note explaining that mission and vision work as a complementary pair -- mission anchors what the organization does today; vision describes why that work matters over time. Offer to draft the complementary statement, and note specifically what additional input would be needed. Do not produce a partial vision and label it a mission because the user said "just give me one thing" -- produce the correct type of statement they requested, explain the distinction, and offer the complement.
 
 ### Organization With Multiple Distinct Audiences or Beneficiaries (Two-Sided Markets, Multi-Stakeholder Models)
+
 Some organizations serve genuinely distinct beneficiary groups -- a job marketplace serves both employers and job seekers; a community health system serves both patients and referring physicians; a B2B platform serves both enterprise buyers and the small vendors on the platform. In these cases, do not force a single beneficiary into the mission statement if it creates a misleading picture. Options: (1) name both beneficiaries with a connecting mechanism ("connecting [Group A] with [Group B]"), (2) identify the primary beneficiary whose outcome defines organizational success and foreground them, or (3) draft separate mission statements for internal governance use (full two-sided framing) and external communications (primary beneficiary framing). Present all three options with the trade-offs for each.
 
 ### Mission/Vision for a Faith-Based, Values-Driven, or Movement Organization
+
 These organizations often resist the commercial mission-vision format for reasons that are legitimate, not naive. The founding motivation is often theological, ethical, or ideological in ways that conventional business language obscures or distorts. Apply two adjustments: (1) the time horizon for the vision may be explicitly open-ended or generational rather than 10-year -- note this as a deliberate structural choice, not a failure to specify, and (2) the distinctive "how" in the mission may be the values framework or community model itself (e.g., "rooted in [tradition]," "through the leadership of the communities we serve"), which is legitimately differentiating for this sector even though it would be vague in a commercial context. Do not pressure-fit these organizations into the commercial formula at the cost of authenticity -- the statements will be rejected by the community they are meant to anchor.
 
 ### Statements Required in a Language Other Than English
+
 If the user needs mission/vision in another language, draft first in English to verify accuracy and intent, then translate or request translation. Do not translate directly from a formula into another language -- mission/vision formulas have different syntactic norms by language and culture. In many European, Latin American, and Asian organizational cultures, mission and vision statements are more formal, more values-laden, and use different rhetorical structures than the active-verb American commercial format. Flag these cultural differences and adjust accordingly. If the user needs the statement in both languages simultaneously (e.g., a binational NGO), ensure the two versions are conceptually equivalent, not word-for-word literal translations, which often produce awkward governance language.
 
 ---
@@ -357,7 +373,8 @@ If the user needs mission/vision in another language, draft first in English to 
 ---
 
 ### Mission Statement
-*What this organization does, for whom, and distinctively how -- present tense*
+
+_What this organization does, for whom, and distinctively how -- present tense_
 
 **Variant A -- Concise (14 words):**
 We give small in-house legal teams AI tools that make every contract review defensible.
@@ -369,12 +386,13 @@ We build AI-powered legal document review software for in-house teams at mid-mar
 A legal team of three cannot review two hundred contracts a year with the thoroughness a business demands -- and general-purpose tools were not built for them. We build AI-powered document review software that flags risk clauses, suggests redlines from market-standard playbooks, and maps every version change to the reviewer accountable for it, so small in-house teams can work at enterprise scale.
 
 **✓ Recommended for Series A pitch deck and website:** Variant B
-*Rationale:* Variant B names the specific beneficiary (in-house teams at mid-market companies), the three core functions, and the accountability differentiator -- all within a readable single sentence. Investors scanning a pitch deck need to understand the product and customer in one pass; Variant B achieves this without the setup paragraph that Variant C requires.
+_Rationale:_ Variant B names the specific beneficiary (in-house teams at mid-market companies), the three core functions, and the accountability differentiator -- all within a readable single sentence. Investors scanning a pitch deck need to understand the product and customer in one pass; Variant B achieves this without the setup paragraph that Variant C requires.
 
 ---
 
 ### Vision Statement
-*The transformed future state the organization is working toward -- future tense, time-anchored*
+
+_The transformed future state the organization is working toward -- future tense, time-anchored_
 
 **Variant A -- Concise (19 words):**
 Within 10 years, every in-house legal team -- regardless of size -- will review contracts with the rigor of a Big Law firm.
@@ -386,22 +404,22 @@ Within 10 years, the resource gap between a one-lawyer in-house team and a full-
 Today, the quality of a company's contract review depends almost entirely on how many lawyers it can afford to hire. A two-person legal team at a $50M manufacturer and a twenty-person team at a $500M enterprise do not operate in the same world. Within 10 years, AI-assisted review will have closed that gap -- and the size of the in-house team will no longer predict the quality of the legal protection it can provide.
 
 **✓ Recommended for Series A pitch deck:** Variant C
-*Rationale:* Series A investors are being asked to fund a 10-year category-building thesis. Variant C frames the market problem narratively -- a gap that exists today, a specific inequality it creates, and a concrete outcome the company is working toward. This structure is effective for the problem/opportunity slide in a pitch deck. Use Variant B on the website, where the narrative context is established elsewhere on the page.
+_Rationale:_ Series A investors are being asked to fund a 10-year category-building thesis. Variant C frames the market problem narratively -- a gap that exists today, a specific inequality it creates, and a concrete outcome the company is working toward. This structure is effective for the problem/opportunity slide in a pitch deck. Use Variant B on the website, where the narrative context is established elsewhere on the page.
 
 ---
 
 ### Quality Validation Rubric
 
-| Criterion | Mission | Vision | Notes |
-|---|---|---|---|
-| Tense discipline (present / future) | Pass | Pass | Mission: "We build" -- present. Vision: "will have closed" -- future perfect with time anchor |
-| Beneficiary clarity (specific person/org named) | Pass | Pass | Mission: "in-house teams at mid-market companies." Vision: "one-lawyer in-house team" / "mid-market company" |
-| Activity specificity (product/service identifiable) | Pass | Pass | Mission: AI document review, clause flagging, redlines, version history. Vision: "AI-assisted review" |
-| Competitive uniqueness (competitor test passed) | Pass | Pass | "reviewer who made it" and "mid-market in-house teams" distinguish from general-purpose contract tools |
-| Buzzword-free (no flagged generic language) | Pass | Pass | No flagged terms in recommended variants |
-| Layperson comprehension (stranger test passed) | Pass | Pass | Stranger can answer: software that reviews legal contracts for small legal teams at mid-sized companies |
-| Scale appropriateness (vision anchored to plausible horizon) | N/A | Pass | Vision describes category-level shift in a 10-year horizon, consistent with $2.4M ARR base and AI market trajectory |
-| Narrative coherence (mission → vision causal chain) | Combined | Combined | Chain is direct: if the software succeeds, team size stops predicting review quality -- exactly what the vision describes |
+| Criterion                                                    | Mission  | Vision   | Notes                                                                                                                     |
+| ------------------------------------------------------------ | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Tense discipline (present / future)                          | Pass     | Pass     | Mission: "We build" -- present. Vision: "will have closed" -- future perfect with time anchor                             |
+| Beneficiary clarity (specific person/org named)              | Pass     | Pass     | Mission: "in-house teams at mid-market companies." Vision: "one-lawyer in-house team" / "mid-market company"              |
+| Activity specificity (product/service identifiable)          | Pass     | Pass     | Mission: AI document review, clause flagging, redlines, version history. Vision: "AI-assisted review"                     |
+| Competitive uniqueness (competitor test passed)              | Pass     | Pass     | "reviewer who made it" and "mid-market in-house teams" distinguish from general-purpose contract tools                    |
+| Buzzword-free (no flagged generic language)                  | Pass     | Pass     | No flagged terms in recommended variants                                                                                  |
+| Layperson comprehension (stranger test passed)               | Pass     | Pass     | Stranger can answer: software that reviews legal contracts for small legal teams at mid-sized companies                   |
+| Scale appropriateness (vision anchored to plausible horizon) | N/A      | Pass     | Vision describes category-level shift in a 10-year horizon, consistent with $2.4M ARR base and AI market trajectory       |
+| Narrative coherence (mission → vision causal chain)          | Combined | Combined | Chain is direct: if the software succeeds, team size stops predicting review quality -- exactly what the vision describes |
 
 ---
 
@@ -415,15 +433,15 @@ The chain is clean: mission success (better reviews for small teams) is the mech
 
 ### Deployment Guidance
 
-| Context | Use | Placement Notes |
-|---|---|---|
-| Series A pitch deck | Mission B (slide 4), Vision C (slide 3) | Vision on the problem/opportunity slide as the "world we're building toward"; mission immediately following as organizational response |
-| Website About/Company page | Mission B + Vision B | Vision first under "Why We Exist"; mission under "What We Do"; avoid the labels "Mission" and "Vision" for consumer audiences |
-| Employee handbook | Mission C + Vision C | Opening two pages; pair with company values on page three |
-| Strategic plan / Board docs | Mission B + Vision B | Document header; anchor for product roadmap and market expansion decisions |
-| Press boilerplate | Mission B | Standard "About" paragraph opener for all press releases |
-| LinkedIn company description | Mission B | First sentence of company description; complete within 156-character preview limit |
-| Email signature | Mission A | 14 words fits standard signature character constraints |
+| Context                      | Use                                     | Placement Notes                                                                                                                        |
+| ---------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Series A pitch deck          | Mission B (slide 4), Vision C (slide 3) | Vision on the problem/opportunity slide as the "world we're building toward"; mission immediately following as organizational response |
+| Website About/Company page   | Mission B + Vision B                    | Vision first under "Why We Exist"; mission under "What We Do"; avoid the labels "Mission" and "Vision" for consumer audiences          |
+| Employee handbook            | Mission C + Vision C                    | Opening two pages; pair with company values on page three                                                                              |
+| Strategic plan / Board docs  | Mission B + Vision B                    | Document header; anchor for product roadmap and market expansion decisions                                                             |
+| Press boilerplate            | Mission B                               | Standard "About" paragraph opener for all press releases                                                                               |
+| LinkedIn company description | Mission B                               | First sentence of company description; complete within 156-character preview limit                                                     |
+| Email signature              | Mission A                               | 14 words fits standard signature character constraints                                                                                 |
 
 ---
 

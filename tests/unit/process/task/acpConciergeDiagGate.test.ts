@@ -52,13 +52,17 @@ const userA = server({ id: 'a', name: 'alpha' });
 describe('buildAcpSessionMcpServers — concierge-diag gate', () => {
   it('drops the concierge-diag server for a non-Concierge assistant (allowConciergeDiag=false)', () => {
     const out = buildAcpSessionMcpServers([diag, otherBuiltin, userA], caps, undefined, false);
-    expect(out.map((s) => s.name).sort()).toEqual(['alpha', 'wayland-image-generation']);
+    expect(out.map((s) => s.name).toSorted()).toEqual(['alpha', 'wayland-image-generation']);
     expect(out.some((s) => s.name === BUILTIN_CONCIERGE_DIAG_NAME)).toBe(false);
   });
 
   it('injects the concierge-diag server for the Concierge assistant (allowConciergeDiag=true)', () => {
     const out = buildAcpSessionMcpServers([diag, otherBuiltin, userA], caps, undefined, true);
-    expect(out.map((s) => s.name).sort()).toEqual(['alpha', BUILTIN_CONCIERGE_DIAG_NAME, 'wayland-image-generation']);
+    expect(out.map((s) => s.name).toSorted()).toEqual([
+      'alpha',
+      BUILTIN_CONCIERGE_DIAG_NAME,
+      'wayland-image-generation',
+    ]);
   });
 
   it('fails closed: omitting allowConciergeDiag drops the diag server', () => {
@@ -70,7 +74,7 @@ describe('buildAcpSessionMcpServers — concierge-diag gate', () => {
   it('leaves non-diag servers untouched regardless of the flag', () => {
     const denied = buildAcpSessionMcpServers([otherBuiltin, userA], caps, undefined, false);
     const allowed = buildAcpSessionMcpServers([otherBuiltin, userA], caps, undefined, true);
-    expect(denied.map((s) => s.name).sort()).toEqual(['alpha', 'wayland-image-generation']);
-    expect(allowed.map((s) => s.name).sort()).toEqual(['alpha', 'wayland-image-generation']);
+    expect(denied.map((s) => s.name).toSorted()).toEqual(['alpha', 'wayland-image-generation']);
+    expect(allowed.map((s) => s.name).toSorted()).toEqual(['alpha', 'wayland-image-generation']);
   });
 });

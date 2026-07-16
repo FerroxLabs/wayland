@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices api-design"
-  category: "testing-quality"
-  subcategory: "test-methodology"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices api-design'
+  category: 'testing-quality'
+  subcategory: 'test-methodology'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Contract Tester
@@ -56,90 +56,88 @@ import { PactV4, MatchersV3 } from '@pact-foundation/pact';
 const { like, eachLike, string, integer, iso8601DateTime } = MatchersV3;
 
 const provider = new PactV4({
-    consumer: 'OrderService',
-    provider: 'UserService',
-    logLevel: 'warn',
+  consumer: 'OrderService',
+  provider: 'UserService',
+  logLevel: 'warn',
 });
 
 describe('User API Contract', () => {
-    test('get user by ID', async () => {
-        // Define the expected interaction
-        await provider
-            .addInteraction()
-            .given('user 42 exists')        // Provider state
-            .uponReceiving('a request for user 42')
-            .withRequest('GET', '/api/users/42', (builder) => {
-                builder.headers({ 'Accept': 'application/json' });
-            })
-            .willRespondWith(200, (builder) => {
-                builder
-                    .headers({ 'Content-Type': 'application/json' })
-                    .jsonBody({
-                        id: integer(42),
-                        name: string('Alice Smith'),
-                        email: string('alice@example.com'),
-                        tier: string('premium'),
-                        createdAt: iso8601DateTime('2025-01-15T10:30:00Z'),
-                    });
-            })
-            .executeTest(async (mockServer) => {
-                // Run your actual consumer code against the mock
-                const client = new UserApiClient(mockServer.url);
-                const user = await client.getUser(42);
+  test('get user by ID', async () => {
+    // Define the expected interaction
+    await provider
+      .addInteraction()
+      .given('user 42 exists') // Provider state
+      .uponReceiving('a request for user 42')
+      .withRequest('GET', '/api/users/42', (builder) => {
+        builder.headers({ Accept: 'application/json' });
+      })
+      .willRespondWith(200, (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          id: integer(42),
+          name: string('Alice Smith'),
+          email: string('alice@example.com'),
+          tier: string('premium'),
+          createdAt: iso8601DateTime('2025-01-15T10:30:00Z'),
+        });
+      })
+      .executeTest(async (mockServer) => {
+        // Run your actual consumer code against the mock
+        const client = new UserApiClient(mockServer.url);
+        const user = await client.getUser(42);
 
-                expect(user.id).toBe(42);
-                expect(user.name).toBeDefined();
-                expect(user.email).toContain('@');
-            });
-    });
+        expect(user.id).toBe(42);
+        expect(user.name).toBeDefined();
+        expect(user.email).toContain('@');
+      });
+  });
 
-    test('get user that does not exist', async () => {
-        await provider
-            .addInteraction()
-            .given('user 999 does not exist')
-            .uponReceiving('a request for non-existent user')
-            .withRequest('GET', '/api/users/999')
-            .willRespondWith(404, (builder) => {
-                builder.jsonBody({
-                    error: string('User not found'),
-                    code: string('USER_NOT_FOUND'),
-                });
-            })
-            .executeTest(async (mockServer) => {
-                const client = new UserApiClient(mockServer.url);
+  test('get user that does not exist', async () => {
+    await provider
+      .addInteraction()
+      .given('user 999 does not exist')
+      .uponReceiving('a request for non-existent user')
+      .withRequest('GET', '/api/users/999')
+      .willRespondWith(404, (builder) => {
+        builder.jsonBody({
+          error: string('User not found'),
+          code: string('USER_NOT_FOUND'),
+        });
+      })
+      .executeTest(async (mockServer) => {
+        const client = new UserApiClient(mockServer.url);
 
-                await expect(client.getUser(999)).rejects.toThrow('User not found');
-            });
-    });
+        await expect(client.getUser(999)).rejects.toThrow('User not found');
+      });
+  });
 
-    test('list users with pagination', async () => {
-        await provider
-            .addInteraction()
-            .given('multiple users exist')
-            .uponReceiving('a request for paginated users')
-            .withRequest('GET', '/api/users', (builder) => {
-                builder.query({ page: '1', per_page: '10' });
-            })
-            .willRespondWith(200, (builder) => {
-                builder.jsonBody({
-                    items: eachLike({
-                        id: integer(1),
-                        name: string('User Name'),
-                        email: string('user@example.com'),
-                    }),
-                    total: integer(25),
-                    page: integer(1),
-                    per_page: integer(10),
-                });
-            })
-            .executeTest(async (mockServer) => {
-                const client = new UserApiClient(mockServer.url);
-                const result = await client.listUsers({ page: 1, perPage: 10 });
+  test('list users with pagination', async () => {
+    await provider
+      .addInteraction()
+      .given('multiple users exist')
+      .uponReceiving('a request for paginated users')
+      .withRequest('GET', '/api/users', (builder) => {
+        builder.query({ page: '1', per_page: '10' });
+      })
+      .willRespondWith(200, (builder) => {
+        builder.jsonBody({
+          items: eachLike({
+            id: integer(1),
+            name: string('User Name'),
+            email: string('user@example.com'),
+          }),
+          total: integer(25),
+          page: integer(1),
+          per_page: integer(10),
+        });
+      })
+      .executeTest(async (mockServer) => {
+        const client = new UserApiClient(mockServer.url);
+        const result = await client.listUsers({ page: 1, perPage: 10 });
 
-                expect(result.items.length).toBeGreaterThan(0);
-                expect(result.total).toBeGreaterThan(0);
-            });
-    });
+        expect(result.items.length).toBeGreaterThan(0);
+        expect(result.total).toBeGreaterThan(0);
+      });
+  });
 });
 ```
 
@@ -250,12 +248,12 @@ services:
   pact-broker:
     image: pactfoundation/pact-broker:latest
     ports:
-      - "9292:9292"
+      - '9292:9292'
     environment:
       PACT_BROKER_DATABASE_URL: postgres://pact:pact@postgres/pact
       PACT_BROKER_BASIC_AUTH_USERNAME: admin
       PACT_BROKER_BASIC_AUTH_PASSWORD: admin
-      PACT_BROKER_ALLOW_PUBLIC_READ: "true"
+      PACT_BROKER_ALLOW_PUBLIC_READ: 'true'
     depends_on:
       - postgres
   postgres:
@@ -321,7 +319,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm ci
-      - run: npm test  # Runs Pact consumer tests
+      - run: npm test # Runs Pact consumer tests
       - name: Publish pacts
         run: |
           npx pact-broker publish ./pacts \
@@ -439,14 +437,12 @@ npx pact-broker create-webhook \
 ```typescript
 // Consumer Pact for GraphQL
 await provider
-    .addInteraction()
-    .given('user 42 exists')
-    .uponReceiving('a GraphQL query for user 42')
-    .withRequest('POST', '/graphql', (builder) => {
-        builder
-            .headers({ 'Content-Type': 'application/json' })
-            .jsonBody({
-                query: `query GetUser($id: ID!) {
+  .addInteraction()
+  .given('user 42 exists')
+  .uponReceiving('a GraphQL query for user 42')
+  .withRequest('POST', '/graphql', (builder) => {
+    builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+      query: `query GetUser($id: ID!) {
                     user(id: $id) {
                         id
                         name
@@ -457,30 +453,30 @@ await provider
                         }
                     }
                 }`,
-                variables: { id: '42' }
-            });
-    })
-    .willRespondWith(200, (builder) => {
-        builder.jsonBody({
-            data: {
-                user: {
-                    id: string('42'),
-                    name: string('Alice Smith'),
-                    email: string('alice@example.com'),
-                    orders: eachLike({
-                        id: string('ord_1'),
-                        total: like(99.99),
-                    }),
-                },
-            },
-        });
-    })
-    .executeTest(async (mockServer) => {
-        const client = new GraphQLClient(mockServer.url + '/graphql');
-        const result = await client.getUser('42');
-        expect(result.user.name).toBeDefined();
-        expect(result.user.orders.length).toBeGreaterThan(0);
+      variables: { id: '42' },
     });
+  })
+  .willRespondWith(200, (builder) => {
+    builder.jsonBody({
+      data: {
+        user: {
+          id: string('42'),
+          name: string('Alice Smith'),
+          email: string('alice@example.com'),
+          orders: eachLike({
+            id: string('ord_1'),
+            total: like(99.99),
+          }),
+        },
+      },
+    });
+  })
+  .executeTest(async (mockServer) => {
+    const client = new GraphQLClient(mockServer.url + '/graphql');
+    const result = await client.getUser('42');
+    expect(result.user.name).toBeDefined();
+    expect(result.user.orders.length).toBeGreaterThan(0);
+  });
 ```
 
 ## Best Practices
@@ -497,6 +493,7 @@ await provider
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing contract tester solutions
 - Reviewing or improving existing contract tester approaches
 - Making architectural or implementation decisions about contract tester
@@ -504,6 +501,7 @@ await provider
 - Troubleshooting contract tester-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -514,21 +512,26 @@ await provider
 # Contract Tester Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

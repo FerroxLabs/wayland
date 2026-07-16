@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design analysis checklist"
-  category: "design-creative"
-  subcategory: "graphic-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design analysis checklist'
+  category: 'design-creative'
+  subcategory: 'graphic-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Visual Hierarchy Review
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to review or critique the visual hierarchy of an existing design (web page, app screen, poster, email, advertisement, slide deck, packaging)
 - The user says elements are "competing," the design "feels flat," "looks cluttered," or "nothing stands out"
 - The user wants to know where the eye lands first and whether that matches the intended messaging priority
@@ -30,6 +32,7 @@ metadata:
 - The user has received feedback that a design is "hard to scan" or "overwhelming" and needs a structured diagnosis
 
 **Do NOT use when:**
+
 - The user wants a full usability audit covering task flows, navigation patterns, and interaction design -- use `ux-audit`
 - The user needs an accessibility-specific evaluation (color contrast ratios for WCAG compliance, screen reader order, focus indicators) -- use `accessibility-review`
 - The user wants a comprehensive grid, spacing, and layout analysis -- use `layout-principles`
@@ -116,18 +119,18 @@ Precise measurement separates a useful review from vague impressions. Apply the 
 
 Match observations to known failure modes with precision. Every diagnosis must name the element, the specific measured property, and the perceptual consequence.
 
-| Issue Type | Diagnostic Signal | Root Cause | Perceptual Consequence |
-|---|---|---|---|
-| **No focal point** | Eye wanders; multiple entry points all equal | All elements within 20% size variation; no color outlier | Viewer cannot orient; message is missed |
-| **Competing L1 elements** | Eye jumps between two points | Two elements within 1.2:1 size ratio, similar weight/contrast | Viewer attention splits; both messages weaken |
-| **Wrong focal point** | Decoration is more prominent than content | Background image, badge, or pattern has higher contrast or saturation than headline | Viewer is drawn to irrelevant content first |
-| **Flat hierarchy** | Everything feels equally important | Fewer than 1.3:1 ratio between any adjacent levels | Viewer has no sense of priority; reads nothing |
-| **Buried CTA** | Action element is unnoticed | CTA falls outside the reading path; CTA has same weight as surrounding elements | Conversion path breaks |
-| **L3 creep** | Fine print and detail fight for attention | Too many typefaces, sizes, or colors used across the design | Cognitive overload; design feels noisy |
-| **Orphaned L2** | Supporting elements have no clear L1 to support | L1 is too weak or absent; L2 elements cluster without anchor | Viewer processes details before context |
-| **Reversed hierarchy** | Less important elements dominate more important ones | Priority assigned by visual proximity to designer, not viewer perception | Design contradicts its own message |
-| **Motion override** | Animation draws eye away from intended L1 | Animated element is not the L1 content | L1 message is never received |
-| **Color noise** | Too many saturated hues fighting for attention | More than 3 distinct hues at HSB saturation above 60% | No single element "wins" attention |
+| Issue Type                | Diagnostic Signal                                    | Root Cause                                                                          | Perceptual Consequence                         |
+| ------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------- |
+| **No focal point**        | Eye wanders; multiple entry points all equal         | All elements within 20% size variation; no color outlier                            | Viewer cannot orient; message is missed        |
+| **Competing L1 elements** | Eye jumps between two points                         | Two elements within 1.2:1 size ratio, similar weight/contrast                       | Viewer attention splits; both messages weaken  |
+| **Wrong focal point**     | Decoration is more prominent than content            | Background image, badge, or pattern has higher contrast or saturation than headline | Viewer is drawn to irrelevant content first    |
+| **Flat hierarchy**        | Everything feels equally important                   | Fewer than 1.3:1 ratio between any adjacent levels                                  | Viewer has no sense of priority; reads nothing |
+| **Buried CTA**            | Action element is unnoticed                          | CTA falls outside the reading path; CTA has same weight as surrounding elements     | Conversion path breaks                         |
+| **L3 creep**              | Fine print and detail fight for attention            | Too many typefaces, sizes, or colors used across the design                         | Cognitive overload; design feels noisy         |
+| **Orphaned L2**           | Supporting elements have no clear L1 to support      | L1 is too weak or absent; L2 elements cluster without anchor                        | Viewer processes details before context        |
+| **Reversed hierarchy**    | Less important elements dominate more important ones | Priority assigned by visual proximity to designer, not viewer perception            | Design contradicts its own message             |
+| **Motion override**       | Animation draws eye away from intended L1            | Animated element is not the L1 content                                              | L1 message is never received                   |
+| **Color noise**           | Too many saturated hues fighting for attention       | More than 3 distinct hues at HSB saturation above 60%                               | No single element "wins" attention             |
 
 ---
 
@@ -346,6 +349,7 @@ The problem: it feels like nothing is telling me to buy the Pro plan, even thoug
 ## Visual Hierarchy Review: SaaS Pricing Page
 
 ### Design Context
+
 - **Medium:** Web (desktop, assumed 1440px wide viewport)
 - **Intended primary message:** The Pro plan at $29/mo is the recommended choice
 - **Intended action:** Click "Start free trial" on the Pro card
@@ -355,42 +359,45 @@ The problem: it feels like nothing is telling me to buy the Pro plan, even thoug
 ---
 
 ### Element Inventory and Visual Weight Assessment
-| Element                   | Size / Scale                     | Weight | Est. Contrast Ratio | Position              | Whitespace Isolation | Current Level |
-|---------------------------|----------------------------------|--------|---------------------|-----------------------|----------------------|---------------|
-| Sticky header              | ~60px height, full width         | 400    | Logo ~high, nav ~3:1 | Top, fixed           | None (flush)         | BG/L3         |
-| Page headline             | 28px, centered                   | 400    | ~7.8:1 (#374151 on white) | Upper center     | Moderate             | L2 (should be L1) |
-| Subheadline               | 20px, centered                   | 400    | ~4.7:1 (#6B7280)    | Below headline        | Moderate             | L2            |
-| Free card -- "$0/mo"      | 32px, card context               | 700    | ~19.6:1 (#111827)   | Left third            | Card border only     | L1* (competing) |
-| Pro card -- "$29/mo"      | 32px, card context               | 700    | ~19.6:1 (#111827)   | Center                | Card border only     | L1* (competing) |
-| Enterprise card -- "Custom"| 32px, card context              | 700    | ~19.6:1 (#111827)   | Right third           | Card border only     | L1* (competing) |
-| "Most popular" badge       | 12px/600, pill, #2563EB bg      | 600    | white on #2563EB ~4.7:1 | Top of Pro card  | Isolated (pill)      | L2            |
-| "Start free trial" button  | 14px/600, full-width, #2563EB  | 600    | ~8.59:1             | Bottom of Pro card    | None (flush to card) | L2            |
-| "Get started" buttons (×2) | 14px/500, full-width, #E5E7EB  | 500    | ~1.6:1 (near invisible) | Bottom of Free/Enterprise | None          | L3/BG         |
-| FAQ header                 | 22px/600, #111827               | 600    | ~19.6:1             | Below cards           | Low (close to cards) | L2 (too high) |
-| Feature list items         | 14px/400, #374151               | 400    | ~7.8:1              | Mid-card              | None                 | L3            |
-| Footer links               | 12px/400, #9CA3AF               | 400    | ~2.7:1              | Bottom                | Large (below fold)   | L3            |
+
+| Element                     | Size / Scale                  | Weight | Est. Contrast Ratio       | Position                  | Whitespace Isolation | Current Level     |
+| --------------------------- | ----------------------------- | ------ | ------------------------- | ------------------------- | -------------------- | ----------------- |
+| Sticky header               | ~60px height, full width      | 400    | Logo ~high, nav ~3:1      | Top, fixed                | None (flush)         | BG/L3             |
+| Page headline               | 28px, centered                | 400    | ~7.8:1 (#374151 on white) | Upper center              | Moderate             | L2 (should be L1) |
+| Subheadline                 | 20px, centered                | 400    | ~4.7:1 (#6B7280)          | Below headline            | Moderate             | L2                |
+| Free card -- "$0/mo"        | 32px, card context            | 700    | ~19.6:1 (#111827)         | Left third                | Card border only     | L1\* (competing)  |
+| Pro card -- "$29/mo"        | 32px, card context            | 700    | ~19.6:1 (#111827)         | Center                    | Card border only     | L1\* (competing)  |
+| Enterprise card -- "Custom" | 32px, card context            | 700    | ~19.6:1 (#111827)         | Right third               | Card border only     | L1\* (competing)  |
+| "Most popular" badge        | 12px/600, pill, #2563EB bg    | 600    | white on #2563EB ~4.7:1   | Top of Pro card           | Isolated (pill)      | L2                |
+| "Start free trial" button   | 14px/600, full-width, #2563EB | 600    | ~8.59:1                   | Bottom of Pro card        | None (flush to card) | L2                |
+| "Get started" buttons (×2)  | 14px/500, full-width, #E5E7EB | 500    | ~1.6:1 (near invisible)   | Bottom of Free/Enterprise | None                 | L3/BG             |
+| FAQ header                  | 22px/600, #111827             | 600    | ~19.6:1                   | Below cards               | Low (close to cards) | L2 (too high)     |
+| Feature list items          | 14px/400, #374151             | 400    | ~7.8:1                    | Mid-card                  | None                 | L3                |
+| Footer links                | 12px/400, #9CA3AF             | 400    | ~2.7:1                    | Bottom                    | Large (below fold)   | L3                |
 
 ---
 
 ### Hierarchy Level Map
-| Level | Element                          | Visual Weight Driver(s)                                              | Intended? | Notes                                             |
-|-------|----------------------------------|----------------------------------------------------------------------|-----------|---------------------------------------------------|
-| L1*   | "$0/mo" (Free card price)        | 32px, weight 700, contrast 19.6:1 -- highest text spec on page      | No        | COMPETING L1 -- identical spec to Pro and Enterprise |
-| L1*   | "$29/mo" (Pro card price)        | 32px, weight 700, contrast 19.6:1 -- identical visual spec to Free  | Yes (intended) | Intended L1, but indistinguishable from competitors |
-| L1*   | "Custom" (Enterprise card price) | 32px, weight 700, contrast 19.6:1 -- identical visual spec         | No        | COMPETING L1 -- third element fighting for dominance |
-| L2    | Page headline                    | 28px, weight 400 -- slightly larger than subheadline, moderate contrast | Yes   | Too close to subheadline (1.4:1 ratio) to dominate as a true L2 anchor |
-| L2    | "Most popular" badge             | Blue pill, white text -- only saturated color element above the fold | Yes       | Correct instinct but undersized (12px) to carry full L2 weight |
-| L2    | "Start free trial" button        | #2563EB background -- only CTA with visible color                   | Yes       | Correct color, but 14px/600 at card-bottom position loses to card-level L1 competition |
-| L2    | FAQ section header (22px/600)    | Second-largest text on page, high contrast, bold                     | No        | Pulls too much weight -- nearly equal to page headline |
-| L3    | Subheadline                      | 20px/400, #6B7280 -- lighter color reduces weight                   | Yes       | Correctly subdued |
-| L3    | Feature list items               | 14px/400 -- small and regular weight                                | Yes       | Correct |
-| L3    | "Get started" / "Contact sales" buttons | #E5E7EB bg -- near-invisible on white, 1.6:1 contrast        | Partially | Correct to be visually subordinate, but contrast is so low they may read as disabled states |
-| BG    | Card borders (1px #E5E7EB)       | Structural separator -- low contrast, correctly invisible            | Yes       | No issue |
-| BG    | Footer links                     | 12px, very low contrast -- correctly receding                        | Yes       | No issue |
+
+| Level | Element                                 | Visual Weight Driver(s)                                                 | Intended?      | Notes                                                                                       |
+| ----- | --------------------------------------- | ----------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------- |
+| L1\*  | "$0/mo" (Free card price)               | 32px, weight 700, contrast 19.6:1 -- highest text spec on page          | No             | COMPETING L1 -- identical spec to Pro and Enterprise                                        |
+| L1\*  | "$29/mo" (Pro card price)               | 32px, weight 700, contrast 19.6:1 -- identical visual spec to Free      | Yes (intended) | Intended L1, but indistinguishable from competitors                                         |
+| L1\*  | "Custom" (Enterprise card price)        | 32px, weight 700, contrast 19.6:1 -- identical visual spec              | No             | COMPETING L1 -- third element fighting for dominance                                        |
+| L2    | Page headline                           | 28px, weight 400 -- slightly larger than subheadline, moderate contrast | Yes            | Too close to subheadline (1.4:1 ratio) to dominate as a true L2 anchor                      |
+| L2    | "Most popular" badge                    | Blue pill, white text -- only saturated color element above the fold    | Yes            | Correct instinct but undersized (12px) to carry full L2 weight                              |
+| L2    | "Start free trial" button               | #2563EB background -- only CTA with visible color                       | Yes            | Correct color, but 14px/600 at card-bottom position loses to card-level L1 competition      |
+| L2    | FAQ section header (22px/600)           | Second-largest text on page, high contrast, bold                        | No             | Pulls too much weight -- nearly equal to page headline                                      |
+| L3    | Subheadline                             | 20px/400, #6B7280 -- lighter color reduces weight                       | Yes            | Correctly subdued                                                                           |
+| L3    | Feature list items                      | 14px/400 -- small and regular weight                                    | Yes            | Correct                                                                                     |
+| L3    | "Get started" / "Contact sales" buttons | #E5E7EB bg -- near-invisible on white, 1.6:1 contrast                   | Partially      | Correct to be visually subordinate, but contrast is so low they may read as disabled states |
+| BG    | Card borders (1px #E5E7EB)              | Structural separator -- low contrast, correctly invisible               | Yes            | No issue                                                                                    |
+| BG    | Footer links                            | 12px, very low contrast -- correctly receding                           | Yes            | No issue                                                                                    |
 
 ---
 
 ### Reading Path Analysis
+
 - **Entry point:** Three-way tie between "$0/mo," "$29/mo," and "Custom" -- all at 32px/700/#111827, all within the same horizontal band. The eye cannot settle.
 - **Scan pattern:** Attempted Z-pattern, but disrupted at the card row by three competing L1 elements of identical visual weight. The horizontal band of price values reads as a single undifferentiated stripe.
 - **Actual reading path:** Sticky header (brief) → Page headline (lands, but low-weight for L1 role) → Subheadline (drops through quickly) → Price values (eye splits across all three simultaneously -- no winner) → Badge noticed briefly → "Start free trial" button noticed but contextually equivalent to the other card's invisible buttons → FAQ header interrupts and pulls attention downward prematurely
@@ -401,44 +408,47 @@ The problem: it feels like nothing is telling me to buy the Pro plan, even thoug
 ---
 
 ### Hierarchy Ratio Measurements
-| Pair                                           | Current Ratio | Threshold | Status      |
-|------------------------------------------------|---------------|-----------|-------------|
-| Page headline to subheadline (size)            | 28px/20px = 1.4:1 | 1.5:1 min | **Fail**   |
-| Page headline to price value (size)            | 28px/32px = 0.88:1 | L1 should dominate L2 | **Fail** |
-| Pro price to Free/Enterprise price (size)      | 32px/32px = 1.0:1 | Must be >1.5:1 for differentiation | **Critical Fail** |
-| "Most popular" badge to price value (size)     | 12px/32px = 0.38:1 | Badge too small to be effective L2 anchor | **Fail** |
-| "Start free trial" button text to feature list | 14px/14px = 1.0:1 | No size differentiation | **Fail** |
-| CTA button contrast (Pro)                      | ~8.59:1 (#2563EB/#FFFFFF) | 3:1 min | **Pass** |
-| CTA button contrast (Free/Enterprise)          | ~1.6:1 (#E5E7EB/#374151) | 3:1 min | **Fail** |
-| Number of saturated hue signals               | 1 (#2563EB only) | ≤3 | **Pass** |
-| L1 whitespace isolation vs L2                 | All price values share the same card/border spacing | L1 needs 1.5× more isolation | **Fail** |
-| FAQ header vs. page headline (size)            | 22px/28px = 0.79:1 | Should be ≤0.75:1 (L3 vs L1) | **Fail** |
+
+| Pair                                           | Current Ratio                                       | Threshold                                 | Status            |
+| ---------------------------------------------- | --------------------------------------------------- | ----------------------------------------- | ----------------- |
+| Page headline to subheadline (size)            | 28px/20px = 1.4:1                                   | 1.5:1 min                                 | **Fail**          |
+| Page headline to price value (size)            | 28px/32px = 0.88:1                                  | L1 should dominate L2                     | **Fail**          |
+| Pro price to Free/Enterprise price (size)      | 32px/32px = 1.0:1                                   | Must be >1.5:1 for differentiation        | **Critical Fail** |
+| "Most popular" badge to price value (size)     | 12px/32px = 0.38:1                                  | Badge too small to be effective L2 anchor | **Fail**          |
+| "Start free trial" button text to feature list | 14px/14px = 1.0:1                                   | No size differentiation                   | **Fail**          |
+| CTA button contrast (Pro)                      | ~8.59:1 (#2563EB/#FFFFFF)                           | 3:1 min                                   | **Pass**          |
+| CTA button contrast (Free/Enterprise)          | ~1.6:1 (#E5E7EB/#374151)                            | 3:1 min                                   | **Fail**          |
+| Number of saturated hue signals                | 1 (#2563EB only)                                    | ≤3                                        | **Pass**          |
+| L1 whitespace isolation vs L2                  | All price values share the same card/border spacing | L1 needs 1.5× more isolation              | **Fail**          |
+| FAQ header vs. page headline (size)            | 22px/28px = 0.79:1                                  | Should be ≤0.75:1 (L3 vs L1)              | **Fail**          |
 
 ---
 
 ### Issues Diagnosed
-| # | Issue Type                 | Element(s) Affected                        | Measured Evidence                                                              | Perceptual Consequence                                                         |
-|---|----------------------------|--------------------------------------------|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| 1 | Triple competing L1        | "$0/mo," "$29/mo," "Custom"               | All three at identical 32px/700/#111827 -- 1.0:1 ratio between them            | Eye cannot select a single dominant element; Pro plan receives no more attention than Free or Enterprise |
-| 2 | Wrong element at L1        | Price values (should be page headline or Pro card) | Price values at 32px exceed page headline at 28px (headline/price = 0.88:1) | The design's L1 elements are data points, not the message or the recommended plan |
-| 3 | Buried differentiator      | "Most popular" badge                       | 12px -- 2.67× smaller than the price values it is meant to elevate             | Badge does not meaningfully signal "choose this one" before the eye fragments  |
-| 4 | Invisible secondary CTAs   | "Get started," "Contact sales" buttons    | #E5E7EB on white = 1.6:1 contrast -- below readable threshold                  | Buttons read as disabled; creates false impression that Free and Enterprise are not actionable, unintentionally devaluing the comparative choice |
-| 5 | Page headline too weak for anchor | Page headline "Simple, transparent pricing" | 28px/400 -- 0.88:1 ratio to price values; weight 400 vs. weight 700 prices   | Headline fails to establish context before eye reaches card row; users arrive at price comparison without orientation |
-| 6 | FAQ header competes with page headline | FAQ "Frequently asked questions" | 22px/600 vs. page headline 28px/400 -- FAQ weight advantage (600 vs. 400) partially offsets its size disadvantage; near-equal visual weight | FAQ section pulls pre-mature attention from post-card-comparison position |
+
+| #   | Issue Type                             | Element(s) Affected                                | Measured Evidence                                                                                                                           | Perceptual Consequence                                                                                                                           |
+| --- | -------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Triple competing L1                    | "$0/mo," "$29/mo," "Custom"                        | All three at identical 32px/700/#111827 -- 1.0:1 ratio between them                                                                         | Eye cannot select a single dominant element; Pro plan receives no more attention than Free or Enterprise                                         |
+| 2   | Wrong element at L1                    | Price values (should be page headline or Pro card) | Price values at 32px exceed page headline at 28px (headline/price = 0.88:1)                                                                 | The design's L1 elements are data points, not the message or the recommended plan                                                                |
+| 3   | Buried differentiator                  | "Most popular" badge                               | 12px -- 2.67× smaller than the price values it is meant to elevate                                                                          | Badge does not meaningfully signal "choose this one" before the eye fragments                                                                    |
+| 4   | Invisible secondary CTAs               | "Get started," "Contact sales" buttons             | #E5E7EB on white = 1.6:1 contrast -- below readable threshold                                                                               | Buttons read as disabled; creates false impression that Free and Enterprise are not actionable, unintentionally devaluing the comparative choice |
+| 5   | Page headline too weak for anchor      | Page headline "Simple, transparent pricing"        | 28px/400 -- 0.88:1 ratio to price values; weight 400 vs. weight 700 prices                                                                  | Headline fails to establish context before eye reaches card row; users arrive at price comparison without orientation                            |
+| 6   | FAQ header competes with page headline | FAQ "Frequently asked questions"                   | 22px/600 vs. page headline 28px/400 -- FAQ weight advantage (600 vs. 400) partially offsets its size disadvantage; near-equal visual weight | FAQ section pulls pre-mature attention from post-card-comparison position                                                                        |
 
 ---
 
 ### Recommended Adjustments
-| Priority | Element                      | Property           | Current Value                        | Recommended Value                    | Resulting Ratio / Metric                                     | Resolves Issue # |
-|----------|------------------------------|--------------------|--------------------------------------|--------------------------------------|--------------------------------------------------------------|------------------|
-| Critical | Pro card -- entire card      | Card background    | #FFFFFF (matches Free/Enterprise)    | #EFF6FF (blue-50 tint)               | Pro card now has distinct background -- only card with non-white BG | 1              |
-| Critical | Pro card -- "$29/mo"         | Font size          | 32px                                 | 44px                                 | Pro price/Free price ratio: 44/32 = 1.375:1 -- Pro noticeably larger | 1              |
-| Critical | Pro card -- "$29/mo"         | Color              | #111827                              | #1D4ED8 (blue-700)                   | Pro price is now the only colored price value; immediately differentiates | 1, 2           |
-| Critical | Page headline                | Font size          | 28px                                 | 40px                                 | Headline/Pro price ratio: 40/44 ≈ 0.91 -- headline now pairs with price rather than losing to it; increase to 48px if page headline should strictly dominate | 2              |
-| Critical | Page headline                | Font weight        | 400 (Regular)                        | 700 (Bold)                           | Weight now 700 vs. price values 700 -- headline matches weight authority; size + position above cards gives it first-read advantage | 2              |
-| High     | "Most popular" badge         | Font size          | 12px                                 | 14px                                 | Minor improvement; primary fix is the badge size increase and repositioning | 3              |
-| High     | "Most popular" badge         | Padding / size     | Small pill (~24px height)            | 32px height pill, 16px horizontal padding | Badge now large enough to be read at the scan speed of a pricing page | 3              |
-| High     | "Most popular" badge         | Position           | Top of Pro card, inline with card header | Positioned above the Pro card top border (overlapping, centered) | Badge breaks out of the card grid and signals prominence before the eye enters the card | 3              |
-| High     | "Get started" button (Free)  | Background color   | #E5E7EB                              | #FFFFFF with 1.5px #6B7280 border    | Contrast: border ~4.6:1 on white -- button is now visibly a button but subordinate to the Pro CTA | 4              |
-| High     | "Contact sales" button (Enterprise) | Background color | #E5E7EB                   | #FFFFFF with 1.5px #6B7280 border    | Same as Free -- both clearly buttons, neither competes with Pro CTA | 4              |
-| Medium   | FAQ section header           | Font size          | 22px                                 | 18px                                 | FAQ/page headline ratio: 18/40 =
+
+| Priority | Element                             | Property         | Current Value                            | Recommended Value                                                | Resulting Ratio / Metric                                                                                                                                     | Resolves Issue # |
+| -------- | ----------------------------------- | ---------------- | ---------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- |
+| Critical | Pro card -- entire card             | Card background  | #FFFFFF (matches Free/Enterprise)        | #EFF6FF (blue-50 tint)                                           | Pro card now has distinct background -- only card with non-white BG                                                                                          | 1                |
+| Critical | Pro card -- "$29/mo"                | Font size        | 32px                                     | 44px                                                             | Pro price/Free price ratio: 44/32 = 1.375:1 -- Pro noticeably larger                                                                                         | 1                |
+| Critical | Pro card -- "$29/mo"                | Color            | #111827                                  | #1D4ED8 (blue-700)                                               | Pro price is now the only colored price value; immediately differentiates                                                                                    | 1, 2             |
+| Critical | Page headline                       | Font size        | 28px                                     | 40px                                                             | Headline/Pro price ratio: 40/44 ≈ 0.91 -- headline now pairs with price rather than losing to it; increase to 48px if page headline should strictly dominate | 2                |
+| Critical | Page headline                       | Font weight      | 400 (Regular)                            | 700 (Bold)                                                       | Weight now 700 vs. price values 700 -- headline matches weight authority; size + position above cards gives it first-read advantage                          | 2                |
+| High     | "Most popular" badge                | Font size        | 12px                                     | 14px                                                             | Minor improvement; primary fix is the badge size increase and repositioning                                                                                  | 3                |
+| High     | "Most popular" badge                | Padding / size   | Small pill (~24px height)                | 32px height pill, 16px horizontal padding                        | Badge now large enough to be read at the scan speed of a pricing page                                                                                        | 3                |
+| High     | "Most popular" badge                | Position         | Top of Pro card, inline with card header | Positioned above the Pro card top border (overlapping, centered) | Badge breaks out of the card grid and signals prominence before the eye enters the card                                                                      | 3                |
+| High     | "Get started" button (Free)         | Background color | #E5E7EB                                  | #FFFFFF with 1.5px #6B7280 border                                | Contrast: border ~4.6:1 on white -- button is now visibly a button but subordinate to the Pro CTA                                                            | 4                |
+| High     | "Contact sales" button (Enterprise) | Background color | #E5E7EB                                  | #FFFFFF with 1.5px #6B7280 border                                | Same as Free -- both clearly buttons, neither competes with Pro CTA                                                                                          | 4                |
+| Medium   | FAQ section header                  | Font size        | 22px                                     | 18px                                                             | FAQ/page headline ratio: 18/40 =                                                                                                                             |

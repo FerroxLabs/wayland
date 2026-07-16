@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "photography design planning"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'photography design planning'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Photography Style Development
 
 ## When to Use
@@ -28,6 +29,7 @@ metadata:
 Use this skill when the user's goal is developing, articulating, or systematizing a personal photographic aesthetic -- not solving a single-image problem.
 
 **Trigger scenarios:**
+
 - The user says their portfolio "looks scattered" or "doesn't feel like mine" and wants to fix that
 - The user wants to develop a recognizable visual identity for social media, a portfolio site, or client marketing
 - The user has been shooting for a while and wants to define what their style actually is from patterns in their existing work
@@ -37,6 +39,7 @@ Use this skill when the user's goal is developing, articulating, or systematizin
 - The user has shifted their style several times and wants to commit to one direction
 
 **Do NOT use when:**
+
 - The user needs framing, angle, or rule-of-thirds advice for a specific photo -- use `composition-guide`
 - The user needs aperture, shutter speed, or ISO settings for a specific lighting scenario -- use `exposure-triangle`
 - The user wants a step-by-step walkthrough of editing a single photo -- use `photo-editing-workflow`
@@ -82,6 +85,7 @@ Distill the analysis into 4-6 named traits. The number matters: fewer than 4 and
 **Name each trait.** Not "warm tones" -- "Amber Highlight Warmth" or "Tungsten Skin Glow." The name becomes a shorthand the photographer uses when checking their work.
 
 **Specificity benchmarks to apply:**
+
 - Color temperature: specify Kelvin range, not just "warm"
 - Contrast: specify whether blacks are lifted (and to what approximate level on a 0-255 scale), whether whites are pulled, and where on the tonal range the contrast is applied
 - Saturation: specify global direction plus any channel-specific adjustments
@@ -89,6 +93,7 @@ Distill the analysis into 4-6 named traits. The number matters: fewer than 4 and
 - Grain/texture: specify whether grain is present, what character it has (fine/coarse, luminance-based/color grain), and at what display size it is intended to read
 
 **Each trait requires four components:**
+
 1. What it looks like (visual description using color, tone, and texture language)
 2. How to produce it in-camera (timing, settings, technique choices before the shutter fires)
 3. How to reproduce it in post-processing (editing directions, slider movements, curve shapes)
@@ -107,20 +112,21 @@ Color is the most powerful consistency mechanism in photography -- it reads befo
 
 **Build the HSL matrix.** In HSL (Hue/Saturation/Luminance) editing, each color channel can be independently adjusted. A style's color character is often defined by the combination of channel adjustments across the palette:
 
-| Channel | Hue | Saturation | Luminance |
-|---------|-----|------------|-----------|
-| Red (typically fabric, lips, some architecture) | direction | direction | direction |
-| Orange (typically skin, sunsets, warm objects) | direction | direction | direction |
-| Yellow (typically foliage, sunlight, some skin) | direction | direction | direction |
-| Green (typically vegetation, outdoor backgrounds) | direction | direction | direction |
-| Aqua (typically skies near horizon, some water) | direction | direction | direction |
-| Blue (typically sky, shadows, water) | direction | direction | direction |
-| Purple (typically shadows, certain fabrics) | direction | direction | direction |
-| Magenta (typically flowers, some artificial light) | direction | direction | direction |
+| Channel                                            | Hue       | Saturation | Luminance |
+| -------------------------------------------------- | --------- | ---------- | --------- |
+| Red (typically fabric, lips, some architecture)    | direction | direction  | direction |
+| Orange (typically skin, sunsets, warm objects)     | direction | direction  | direction |
+| Yellow (typically foliage, sunlight, some skin)    | direction | direction  | direction |
+| Green (typically vegetation, outdoor backgrounds)  | direction | direction  | direction |
+| Aqua (typically skies near horizon, some water)    | direction | direction  | direction |
+| Blue (typically sky, shadows, water)               | direction | direction  | direction |
+| Purple (typically shadows, certain fabrics)        | direction | direction  | direction |
+| Magenta (typically flowers, some artificial light) | direction | direction  | direction |
 
 For a warm, muted style: orange hue shifts toward yellow (prevents orange skin), saturation reduced 10-15; blue hue shifts toward teal (adds cinematic contrast with amber highlights), saturation reduced 15; green hue shifts toward teal or olive, saturation reduced 20.
 
 **Specify split toning / color grading targets.** Most editing platforms allow separate color casts in highlights, midtones, and shadows:
+
 - Describe the highlight color by hue and approximate strength (e.g., "amber, hue 35-40, saturation 10-15")
 - Describe the shadow color by hue and approximate strength (e.g., "blue-teal, hue 200-215, saturation 8-12")
 - Specify whether the midtones should be neutral or shifted
@@ -132,6 +138,7 @@ A style guide that only covers post-processing produces inconsistent source file
 **Light timing and conditions:** If the style is warm and soft, specify what to do in harsh midday light (seek shade, shoot in doorways, look for reflected light from warm surfaces). If the style is high-contrast and graphic, specify that midday hard light is ideal rather than avoided.
 
 **Exposure strategy:** Define the target histogram position:
+
 - ETTR (expose to the right) -- pushing exposure toward the right edge of the histogram without clipping highlights -- preserves maximum shadow detail for styles requiring lifted shadows
 - Standard metering -- for styles with natural tonal range
 - Protect highlights -- for styles with rich shadows and controlled highlights (pull exposure left, recover in post)
@@ -177,11 +184,12 @@ Consistency is not rigidity -- it is a recognizable thread running through varie
 **The 80/20 rule:** 80% of photos follow the style guide exactly. 20% may deviate for deliberate creative reasons. The 20% must be intentional, not accidental -- if a photo deviates because the editing was rushed, it weakens the portfolio. If it deviates because the scene demanded a different treatment, it demonstrates range.
 
 **Portfolio curation criteria:** When selecting photos for publication (Instagram grid, website gallery, physical portfolio book), apply these filters in order:
+
 1. Does it represent the subject matter of the portfolio? (Genre match)
 2. Does it follow the style guide? (Aesthetic match)
 3. Is it technically strong? (Sharpness, exposure, composition)
 4. Does it add something the portfolio does not already have? (Subject variety, emotional range)
-The order matters: a technically mediocre photo that fits the style is often better for the portfolio than a technically excellent photo that breaks it.
+   The order matters: a technically mediocre photo that fits the style is often better for the portfolio than a technically excellent photo that breaks it.
 
 **Sequencing rules for multi-image presentations:** When arranging photos in a grid or slideshow sequence, avoid: two photos with identical tonal weight (two very bright photos or two very dark photos) side by side, identical compositional structure in adjacent frames (two centered-subject portraits together), repetitive color blocking (two images with large blue areas adjacent). Vary these elements while maintaining the style's color and tonal signature.
 
@@ -392,15 +400,15 @@ This is common among photographers who have been shooting for 1-3 years and have
 
 Instead of asking for photos they love, ask for **3-5 emotions** they want their photos to evoke. Emotions map reliably to visual characteristics:
 
-| Emotion | Color temperature | Contrast | Saturation | Tonal key |
-|---------|-----------------|----------|------------|-----------|
-| Nostalgia | Warm (6000-6500K) | Low-medium | Muted (-15 to -25) | Mid to slightly bright |
-| Intimacy | Warm or neutral | Low | Muted to natural | High key or low key depending on mood |
-| Melancholy | Cool (4500-5200K) | Medium | Desaturated (-25 to -40) | Low key |
-| Energy | Neutral to warm | High | Vivid (+10 to +20) | Standard |
-| Serenity | Cool-neutral | Low | Muted | Slightly high key |
-| Awe/Wonder | Cool or neutral | Medium-high | Natural to vivid | Standard to slightly low |
-| Unease/Tension | Cool or mixed | High | Desaturated or split saturation | Low key |
+| Emotion        | Color temperature | Contrast    | Saturation                      | Tonal key                             |
+| -------------- | ----------------- | ----------- | ------------------------------- | ------------------------------------- |
+| Nostalgia      | Warm (6000-6500K) | Low-medium  | Muted (-15 to -25)              | Mid to slightly bright                |
+| Intimacy       | Warm or neutral   | Low         | Muted to natural                | High key or low key depending on mood |
+| Melancholy     | Cool (4500-5200K) | Medium      | Desaturated (-25 to -40)        | Low key                               |
+| Energy         | Neutral to warm   | High        | Vivid (+10 to +20)              | Standard                              |
+| Serenity       | Cool-neutral      | Low         | Muted                           | Slightly high key                     |
+| Awe/Wonder     | Cool or neutral   | Medium-high | Natural to vivid                | Standard to slightly low              |
+| Unease/Tension | Cool or mixed     | High        | Desaturated or split saturation | Low key                               |
 
 Build the style from the emotional target and present it to the user: "Based on nostalgia and intimacy, here's what that translates to visually..." Let them confirm or redirect.
 
@@ -411,6 +419,7 @@ The common error is to create a style guide that only works for one genre and th
 **The solution:** Anchor the style to the characteristics that travel across genres, and treat subject-specific characteristics as genre overlays.
 
 Characteristics that travel across genres:
+
 - Color temperature and split toning (works on any subject)
 - Saturation approach (works on any subject)
 - Black point treatment (matte vs. rich, works on any subject)
@@ -418,6 +427,7 @@ Characteristics that travel across genres:
 - Overall tonal key (works on any subject)
 
 Characteristics that are genre-specific (handle as overlays):
+
 - Depth of field choice (portraits: shallow; landscapes: deep; street: variable)
 - Compositional tendencies (differ by genre)
 - Sharpening targets (skin vs. rock vs. architectural detail require different settings)
@@ -432,6 +442,7 @@ If a user loves both high-contrast dramatic images (deep blacks, rich shadows, p
 **Approach 1: Identify the shared element and build around it.** Both sets of liked images may share a consistent color temperature, a specific subject type, or a compositional tendency. Build the core style around the shared element. The contrast approach becomes the "mode" variation.
 
 **Approach 2: Define two named modes within one style.** This is appropriate when the two approaches genuinely serve different subjects or emotional intents. Name them explicitly:
+
 - "Primary mode: Quiet Light" (for intimate subjects, overcast conditions, contemplative scenes)
 - "Secondary mode: Bold Contrast" (for graphic subjects, strong directional light, environmental shots)
 
@@ -444,6 +455,7 @@ Both modes share the same color palette, focal length tendencies, and grain trea
 This is the imitation trap. Copying another photographer's style is achievable technically but counterproductive artistically and often commercially -- a portfolio that reads as a copy of a known photographer invites comparison and loses every time.
 
 **The correct approach:**
+
 1. Analyze the referenced photographer's work across the eight visual dimensions from Step 2
 2. Extract the 2-3 elements that are technically unique and visually striking about that photographer's work
 3. Ask the user which of those elements they are drawn to -- this is often not the whole style but a subset
@@ -474,6 +486,7 @@ Build the personal style guide at Layer 1-2, and document each client's Layer 3 
 Some users come with an existing editing approach -- typically a purchased preset they have modified, or a self-taught editing style that has accreted over time -- and feel it is close but not right.
 
 **Diagnostic approach:** Run the existing style through the eight-dimension analysis from Step 2. Identify the dimension that creates the disconnect. Common issues:
+
 - **Preset is too extreme in one dimension:** Grain is too heavy, saturation is too aggressive, contrast is too high -- the style is correct in direction but not in magnitude
 - **Preset conflicts with the user's natural shooting style:** A dark, moody preset applied to a photographer who instinctively exposes bright produces fighting forces -- the edit battles the capture
 - **Preset was designed for a different genre:** A portrait-optimized preset (warm skin, lifted shadows, flattering clarity) applied to landscape photos produces weak, muddy results

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching parenting guide beginner-friendly"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'teaching parenting guide beginner-friendly'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Coding For Kids
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on coding for kids
 - User asks about coding for kids best practices or techniques
 - User wants a structured approach to coding for kids
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of coding for kids
 
@@ -76,6 +77,7 @@ Ages 16+:  Advanced projects, AP CS, specialized paths
 ### Ages 5-7: Pre-Coding Foundations
 
 **Unplugged Activities (No Computer Needed):**
+
 - Give directions to navigate a room (algorithmic thinking)
 - Sort objects by multiple criteria (data and patterns)
 - Create step-by-step instructions for making a sandwich (sequencing)
@@ -97,6 +99,7 @@ Ages 16+:  Advanced projects, AP CS, specialized paths
 Scratch is the gold standard for this age group. Created by MIT, it teaches programming concepts through a visual drag-and-drop interface.
 
 **What they will learn in Scratch:**
+
 - Sequential programming (steps in order)
 - Loops (repeating actions)
 - Conditionals (if/then decisions)
@@ -108,12 +111,12 @@ Scratch is the gold standard for this age group. Created by MIT, it teaches prog
 
 **Scratch Project Progression:**
 
-| Level | Projects | Concepts |
-|-------|----------|----------|
-| Beginner | Animated greeting card, dancing character, simple story | Sequences, loops, events |
-| Intermediate | Catch game, maze game, quiz program | Conditionals, variables, user input |
-| Advanced | Platformer game, multi-level game, simulation | Clones, lists, custom blocks, broadcasting |
-| Expert | Multiplayer game, music creator, physics simulation | Advanced data, optimization, complex logic |
+| Level        | Projects                                                | Concepts                                   |
+| ------------ | ------------------------------------------------------- | ------------------------------------------ |
+| Beginner     | Animated greeting card, dancing character, simple story | Sequences, loops, events                   |
+| Intermediate | Catch game, maze game, quiz program                     | Conditionals, variables, user input        |
+| Advanced     | Platformer game, multi-level game, simulation           | Clones, lists, custom blocks, broadcasting |
+| Expert       | Multiplayer game, music creator, physics simulation     | Advanced data, optimization, complex logic |
 
 **Other Block-Based Platforms:**
 | Platform | Best For | Cost |
@@ -128,6 +131,7 @@ Scratch is the gold standard for this age group. Created by MIT, it teaches prog
 **Primary Language: Python**
 
 Why Python for beginners:
+
 - Readable syntax (close to English)
 - Immediate visual feedback
 - Huge community and resources
@@ -136,14 +140,14 @@ Why Python for beginners:
 
 **Python Learning Path:**
 
-| Stage | Topics | Project Ideas |
-|-------|--------|---------------|
-| Stage 1 (Week 1-4) | Print, variables, input, math operations | Calculator, Mad Libs, fortune teller |
-| Stage 2 (Week 5-8) | If/else, comparisons, simple loops | Number guessing game, quiz game, password checker |
-| Stage 3 (Week 9-12) | For loops, while loops, lists | To-do list, word game, simple database |
-| Stage 4 (Week 13-16) | Functions, dictionaries | Password generator, contact book, text adventure |
-| Stage 5 (Week 17-20) | Classes (intro), modules, file I/O | Inventory system, journal app, data analyzer |
-| Stage 6 (Week 21+) | Graphics with pygame, APIs | Graphical game, weather app, web scraper |
+| Stage                | Topics                                   | Project Ideas                                     |
+| -------------------- | ---------------------------------------- | ------------------------------------------------- |
+| Stage 1 (Week 1-4)   | Print, variables, input, math operations | Calculator, Mad Libs, fortune teller              |
+| Stage 2 (Week 5-8)   | If/else, comparisons, simple loops       | Number guessing game, quiz game, password checker |
+| Stage 3 (Week 9-12)  | For loops, while loops, lists            | To-do list, word game, simple database            |
+| Stage 4 (Week 13-16) | Functions, dictionaries                  | Password generator, contact book, text adventure  |
+| Stage 5 (Week 17-20) | Classes (intro), modules, file I/O       | Inventory system, journal app, data analyzer      |
+| Stage 6 (Week 21+)   | Graphics with pygame, APIs               | Graphical game, weather app, web scraper          |
 
 **Python Learning Platforms:**
 | Platform | Style | Cost |
@@ -159,13 +163,13 @@ Why Python for beginners:
 
 **HTML/CSS/JavaScript Path:**
 
-| Phase | Duration | Topics |
-|-------|----------|--------|
-| HTML Basics | 2-3 weeks | Tags, structure, text, images, links, lists, tables |
-| CSS Basics | 2-3 weeks | Selectors, colors, fonts, layout, flexbox, responsive |
-| JavaScript Basics | 4-6 weeks | Variables, functions, events, DOM manipulation |
-| Building Projects | Ongoing | Personal website, interactive quiz, to-do app, game |
-| Frameworks (advanced) | After basics mastered | React, Node.js, databases |
+| Phase                 | Duration              | Topics                                                |
+| --------------------- | --------------------- | ----------------------------------------------------- |
+| HTML Basics           | 2-3 weeks             | Tags, structure, text, images, links, lists, tables   |
+| CSS Basics            | 2-3 weeks             | Selectors, colors, fonts, layout, flexbox, responsive |
+| JavaScript Basics     | 4-6 weeks             | Variables, functions, events, DOM manipulation        |
+| Building Projects     | Ongoing               | Personal website, interactive quiz, to-do app, game   |
+| Frameworks (advanced) | After basics mastered | React, Node.js, databases                             |
 
 **Web Development Resources:**
 | Resource | Type | Cost |
@@ -184,6 +188,7 @@ Why Python for beginners:
 ### Project Ideas That Excite Kids
 
 **For Game Lovers:**
+
 - Build their favorite game type in Scratch or Python
 - Mod Minecraft with MakeCode or Python
 - Create a text adventure with branching storylines
@@ -191,6 +196,7 @@ Why Python for beginners:
 - Design a game for a younger sibling to play
 
 **For Artists and Designers:**
+
 - Generative art with Processing or p5.js
 - Animation in Scratch
 - Design a website portfolio of their artwork
@@ -198,6 +204,7 @@ Why Python for beginners:
 - Build an interactive coloring tool
 
 **For Musicians:**
+
 - Sonic Pi (code-based music creation)
 - EarSketch (music production with Python or JavaScript)
 - Build a drum machine in Scratch
@@ -205,6 +212,7 @@ Why Python for beginners:
 - Code a simple synthesizer
 
 **For Scientists:**
+
 - Data collection and visualization projects
 - Simulation of natural phenomena
 - Weather station with Raspberry Pi
@@ -212,6 +220,7 @@ Why Python for beginners:
 - Star map or constellation finder
 
 **For Storytellers:**
+
 - Interactive fiction with Twine (free, no coding required initially)
 - Choose-your-own-adventure in Scratch or Python
 - Build a blog or storytelling website
@@ -220,15 +229,15 @@ Why Python for beginners:
 
 ### Hardware and Robotics Options
 
-| Platform | Ages | What It Does | Cost |
-|----------|------|-------------|------|
-| micro:bit | 8+ | Small programmable computer with sensors | $15-$25 |
-| LEGO Spike / Mindstorms | 10+ | Build and program robots | $200-$400 |
-| Arduino | 12+ | Electronics and sensor projects | $30-$100 |
-| Raspberry Pi | 12+ | Full computer for projects | $35-$75 |
-| Sphero | 8+ | Programmable robot ball | $80-$150 |
-| Makey Makey | 8+ | Turn anything into a keyboard | $50 |
-| VEX Robotics | 10+ | Competition-level robotics | $200-$500 |
+| Platform                | Ages | What It Does                             | Cost      |
+| ----------------------- | ---- | ---------------------------------------- | --------- |
+| micro:bit               | 8+   | Small programmable computer with sensors | $15-$25   |
+| LEGO Spike / Mindstorms | 10+  | Build and program robots                 | $200-$400 |
+| Arduino                 | 12+  | Electronics and sensor projects          | $30-$100  |
+| Raspberry Pi            | 12+  | Full computer for projects               | $35-$75   |
+| Sphero                  | 8+   | Programmable robot ball                  | $80-$150  |
+| Makey Makey             | 8+   | Turn anything into a keyboard            | $50       |
+| VEX Robotics            | 10+  | Competition-level robotics               | $200-$500 |
 
 ---
 
@@ -237,16 +246,19 @@ Why Python for beginners:
 ### Weekly Schedule Options
 
 **Casual Learner (2-3 hours/week):**
+
 - 1 lesson or tutorial session (30-45 minutes)
 - 1 free project time session (60-90 minutes)
 - Review and share what you built
 
 **Dedicated Learner (5-7 hours/week):**
+
 - 2 lesson/tutorial sessions (45 minutes each)
 - 2 project work sessions (60-90 minutes each)
 - 1 challenge or competition problem session (30 minutes)
 
 **Intensive Learner (10+ hours/week):**
+
 - Daily practice (45-60 minutes structured + free time)
 - Project-based learning with milestones
 - Peer collaboration or study groups
@@ -257,6 +269,7 @@ Why Python for beginners:
 **The 70/30 Rule:** Spend 70% of coding time on projects the kid WANTS to build, and 30% on structured learning to build new skills.
 
 **Celebrate milestones:**
+
 - First program that runs without errors
 - First game someone else plays
 - First website live on the internet
@@ -264,6 +277,7 @@ Why Python for beginners:
 - Teaching someone else a concept
 
 **When motivation drops:**
+
 - Switch to a different project or language temporarily
 - Try a coding game or competition
 - Code with a friend or sibling
@@ -279,6 +293,7 @@ Why Python for beginners:
 **You do NOT need to know how to code to support your child.**
 
 **What you CAN do:**
+
 - Provide consistent time and space for coding
 - Show interest in what they are building ("Show me how it works!")
 - Ask them to teach YOU something they learned
@@ -288,6 +303,7 @@ Why Python for beginners:
 - Help distinguish between productive screen time (coding) and passive screen time
 
 **Talking about their projects:**
+
 - "What are you working on?" (instead of "Are you done yet?")
 - "How did you figure that out?"
 - "What was the hardest part?"
@@ -295,7 +311,9 @@ Why Python for beginners:
 - "What do you want to build next?"
 
 ### Managing Screen Time for Coders
+
 Coding IS screen time, but it is active, creative screen time. Consider:
+
 - Differentiating "creative screen time" from "consumption screen time"
 - Setting limits on total daily screen time that give coding its own budget
 - Encouraging offline coding activities (planning on paper, unplugged logic games)
@@ -303,6 +321,7 @@ Coding IS screen time, but it is active, creative screen time. Consider:
 - Balancing with physical activity and social time
 
 ### Safety and Online Considerations
+
 - Scratch has a moderated online community (generally safe)
 - Many coding platforms have chat features -- review privacy settings
 - Discuss sharing personal information in online coding communities
@@ -316,17 +335,17 @@ Coding IS screen time, but it is active, creative screen time. Consider:
 
 ### Coding Competitions by Age
 
-| Competition | Ages | Format | Website |
-|-------------|------|--------|---------|
-| Scratch Educator Resources | 8-16 | Online community sharing | scratch.mit.edu |
-| Hour of Code | All ages | Annual one-hour challenge | hourofcode.com |
-| USACO (USA Computing Olympiad) | 13-18 | Algorithmic problem solving | usaco.org |
-| ACSL (American CS League) | 13-18 | Team competition | acsl.org |
-| Bebras | 8-18 | Logic and computational thinking | bebras.org |
-| Google Code Jam | 13+ (Kickstart) | Algorithmic challenge | codingcompetitions.withgoogle.com |
-| VEX Robotics Competition | 10-18 | Robotics | roboticseducation.org |
-| FIRST Robotics | 6-18 | Robotics (FLL, FTC, FRC) | firstinspires.org |
-| Congressional App Challenge | 13-18 | Build an app | congressionalappchallenge.us |
+| Competition                    | Ages            | Format                           | Website                           |
+| ------------------------------ | --------------- | -------------------------------- | --------------------------------- |
+| Scratch Educator Resources     | 8-16            | Online community sharing         | scratch.mit.edu                   |
+| Hour of Code                   | All ages        | Annual one-hour challenge        | hourofcode.com                    |
+| USACO (USA Computing Olympiad) | 13-18           | Algorithmic problem solving      | usaco.org                         |
+| ACSL (American CS League)      | 13-18           | Team competition                 | acsl.org                          |
+| Bebras                         | 8-18            | Logic and computational thinking | bebras.org                        |
+| Google Code Jam                | 13+ (Kickstart) | Algorithmic challenge            | codingcompetitions.withgoogle.com |
+| VEX Robotics Competition       | 10-18           | Robotics                         | roboticseducation.org             |
+| FIRST Robotics                 | 6-18            | Robotics (FLL, FTC, FRC)         | firstinspires.org                 |
+| Congressional App Challenge    | 13-18           | Build an app                     | congressionalappchallenge.us      |
 
 ### Coding Camps and Programs
 
@@ -340,6 +359,7 @@ Coding IS screen time, but it is active, creative screen time. Consider:
 | CodeWizardsHQ | 8-18 | Live online classes | $200-$300/month |
 
 **In-Person Camps (Varies by Location):**
+
 - iD Tech (national, college campuses)
 - Digital Media Academy
 - Local library coding programs (often free)
@@ -350,6 +370,7 @@ Coding IS screen time, but it is active, creative screen time. Consider:
 ### Building a Coding Portfolio
 
 For ages 14+, start building a portfolio:
+
 - Create a GitHub account (with parent awareness)
 - Document projects with README files
 - Build a personal website showcasing projects
@@ -357,6 +378,7 @@ For ages 14+, start building a portfolio:
 - Write about what you are learning (blog posts, project writeups)
 
 **Portfolio projects that impress:**
+
 - A complete game with multiple levels
 - A useful tool or app that solves a real problem
 - A website for a real client (local business, school club, family member)
@@ -370,6 +392,7 @@ For ages 14+, start building a portfolio:
 ### Making Coding Accessible for All Learners
 
 **Neurodivergent learners (ADHD, autism, dyslexia):**
+
 - Block-based coding (Scratch) is excellent for dyslexic learners (visual, less text)
 - Short sessions (20-30 minutes) with frequent breaks for ADHD learners
 - Clear, predictable structure helps autistic learners (same routine each session)
@@ -379,6 +402,7 @@ For ages 14+, start building a portfolio:
 - Use high-contrast themes and larger fonts for visual processing differences
 
 **Under-resourced environments:**
+
 - Many platforms work on Chromebooks and older computers (Scratch, Code.org, Replit)
 - Libraries often provide free computer access and coding programs
 - Code.org, Khan Academy, and freeCodeCamp are completely free
@@ -387,6 +411,7 @@ For ages 14+, start building a portfolio:
 - Scholarships exist for most paid camps and programs (ask directly)
 
 **Girls and underrepresented groups:**
+
 - Girls Who Code (free clubs and summer programs)
 - Black Girls CODE (workshops and events)
 - Code Next (Google program for Black and Latino students)
@@ -397,14 +422,14 @@ For ages 14+, start building a portfolio:
 
 ### Adapting for Different Learning Styles
 
-| Style | Approach |
-|-------|---------|
-| Visual learners | Block-based coding, flowcharts before code, color-coded syntax |
+| Style                | Approach                                                                 |
+| -------------------- | ------------------------------------------------------------------------ |
+| Visual learners      | Block-based coding, flowcharts before code, color-coded syntax           |
 | Kinesthetic learners | Hardware (micro:bit, robotics), unplugged activities, physical debugging |
-| Social learners | Pair programming, coding clubs, collaborative projects |
-| Independent learners | Self-paced platforms, personal projects, documentation skills |
-| Competitive learners | Coding challenges, competitions, leaderboards |
-| Creative learners | Art and music coding, game design, storytelling projects |
+| Social learners      | Pair programming, coding clubs, collaborative projects                   |
+| Independent learners | Self-paced platforms, personal projects, documentation skills            |
+| Competitive learners | Coding challenges, competitions, leaderboards                            |
+| Creative learners    | Art and music coding, game design, storytelling projects                 |
 
 ---
 
@@ -413,6 +438,7 @@ For ages 14+, start building a portfolio:
 ### Mapping Coding to Future Opportunities
 
 **Career paths that use coding:**
+
 - Software development and engineering
 - Game design and development
 - Data science and analytics
@@ -429,12 +455,14 @@ For ages 14+, start building a portfolio:
 ### College and Advanced Preparation
 
 **For high school students:**
+
 - AP Computer Science Principles (broad intro, any student)
 - AP Computer Science A (Java-based, more rigorous)
 - Dual enrollment computer science courses at community colleges
 - Online courses from major universities (MIT OpenCourseWare, Stanford online, Harvard CS50)
 
 **Building a strong application:**
+
 - GitHub portfolio showing progression and real projects
 - Competition results (USACO, ACSL, FIRST Robotics)
 - Independent projects that solve real problems
@@ -443,6 +471,7 @@ For ages 14+, start building a portfolio:
 - Internships or job shadowing at local tech companies
 
 **Scholarship and program opportunities:**
+
 - Google Summer of Code (for older teens/college students)
 - Major League Hacking (hackathons for students)
 - National Center for Women and IT (NCWIT) awards
@@ -456,6 +485,7 @@ For ages 14+, start building a portfolio:
 ### Classroom Coding Strategies
 
 **Starting a coding program:**
+
 - Begin with Code.org's free K-12 curriculum (includes lesson plans)
 - You do not need to be a coding expert to teach introductory concepts
 - Start with unplugged activities to build confidence (yours and theirs)
@@ -464,6 +494,7 @@ For ages 14+, start building a portfolio:
 - End each session with a show-and-tell (2-3 students share their work)
 
 **Classroom management during coding time:**
+
 - Set expectations: coding time is focused creative time (like art class, not free time)
 - Use a "3 before me" rule: check 3 resources before asking the teacher
 - Designate student "experts" who solved a problem to help classmates
@@ -481,6 +512,7 @@ For ages 14+, start building a portfolio:
 | Self-reflection journal | Metacognition and growth mindset | Weekly |
 
 **Common mistakes when teaching coding:**
+
 - Over-emphasizing syntax over concepts (understanding loops matters more than semicolons)
 - Moving too fast for slower learners or too slow for advanced ones (use differentiated projects)
 - Providing only one "correct" solution (there are many valid approaches)
@@ -494,6 +526,7 @@ For ages 14+, start building a portfolio:
 ### When the Code Does Not Work (Debugging for Kids)
 
 **The Debugging Checklist:**
+
 1. Read the error message (it often tells you what is wrong)
 2. Check for spelling mistakes and typos
 3. Check that all brackets, parentheses, and quotes are properly closed
@@ -504,6 +537,7 @@ For ages 14+, start building a portfolio:
 8. Ask for help (peer, teacher, online community)
 
 **Debugging Mindset:**
+
 - Bugs are normal and expected (all professional programmers deal with them)
 - Finding and fixing a bug IS the learning
 - Every bug you fix makes you a better programmer
@@ -511,17 +545,19 @@ For ages 14+, start building a portfolio:
 
 ### Common Frustration Points and Solutions
 
-| Frustration | Solution |
-|-------------|---------|
-| "It's too hard" | Break the problem into smaller pieces, go back a level |
-| "I don't know what to build" | Start from an interest, modify an existing project |
-| "My game isn't as good as [pro game]" | Compare to where you were last month, not to professionals |
-| "I'm bored with tutorials" | Switch to project-based learning, set a personal challenge |
-| "Nobody cares about what I make" | Share with family, friends, online communities, school |
-| "I skipped everything I learned" | Review is normal -- use spaced repetition, rebuild old projects |
+| Frustration                           | Solution                                                        |
+| ------------------------------------- | --------------------------------------------------------------- |
+| "It's too hard"                       | Break the problem into smaller pieces, go back a level          |
+| "I don't know what to build"          | Start from an interest, modify an existing project              |
+| "My game isn't as good as [pro game]" | Compare to where you were last month, not to professionals      |
+| "I'm bored with tutorials"            | Switch to project-based learning, set a personal challenge      |
+| "Nobody cares about what I make"      | Share with family, friends, online communities, school          |
+| "I skipped everything I learned"      | Review is normal -- use spaced repetition, rebuild old projects |
 
 ### The Learning Plateau
+
 Every coder hits a point where progress feels slow. This is normal. Strategies:
+
 - Build a slightly harder version of a project you already completed
 - Try a completely different type of project
 - Pair program with a friend
@@ -529,7 +565,6 @@ Every coder hits a point where progress feels slow. This is normal. Strategies:
 - Set a small, achievable goal and focus only on that
 
 Coding is a superpower for the future, but more importantly, it teaches kids how to think logically, solve problems creatively, and persist through challenges. The language or platform matters far less than the thinking skills and confidence they develop along the way.
-
 
 ## Output Format
 
@@ -543,13 +578,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with coding for kids for a mid-size project."
 
 **Output:** A complete coding for kids framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

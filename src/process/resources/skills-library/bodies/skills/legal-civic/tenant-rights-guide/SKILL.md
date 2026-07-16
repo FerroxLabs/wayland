@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy tenant-rights guide checklist"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'legal-literacy tenant-rights guide checklist'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Tenant Rights Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A tenant wants to understand what their landlord is legally required to provide -- heat, hot water, pest control, working locks, structural integrity -- and what remedies exist if those obligations are not met
 - A tenant has submitted repair requests that have gone unanswered for 14 days or more and needs to understand escalation options
 - A tenant has received an eviction notice (pay or quit, cure or quit, unconditional quit, or no-fault termination) and needs to understand what it means and how much time they have to respond
@@ -34,6 +36,7 @@ metadata:
 - A tenant is experiencing an illegal lockout, utility shutoff, or removal of personal property by a landlord without a court order
 
 **Do NOT use this skill when:**
+
 - The user wants to review a lease agreement before signing -- use `lease-agreement-reviewer` instead, which covers lease terms, clauses, red flags, and negotiation strategies
 - The user is a landlord seeking guidance on managing tenants, drafting notices, or pursuing eviction -- this skill is tenant-side only and will produce unbalanced guidance
 - The user has a commercial lease dispute -- commercial tenancy law operates under entirely different legal frameworks (UCC, commercial real estate custom) with no implied warranty of habitability
@@ -63,12 +66,14 @@ Before explaining any rights, collect the minimum information needed to give acc
 Once you know the jurisdiction and issue, identify which legal doctrines and statutes are most relevant. Provide specific framing for each major area:
 
 **Implied Warranty of Habitability:**
+
 - Recognized in virtually all U.S. states either by statute or common law (a handful of states lag -- verify)
 - Minimum conditions that trigger this warranty include: working heat (typically defined as ability to maintain 68°F during daylight hours in most northern states, with some requiring 70°F), working plumbing and hot water, structurally sound roof and walls, working electrical systems, functional locks on exterior doors and windows, absence of vermin infestations, absence of toxic mold in concentrations that affect health, functional smoke and carbon monoxide detectors, and compliance with applicable building and housing codes
 - The standard is livability, not perfection -- a broken garbage disposal is not a habitability issue; no running water is
 - Landlords must be given notice of the condition before most remedies are available -- this is the single most important procedural step
 
 **Security Deposit Law:**
+
 - Security deposit limits by state: California (2 months rent for unfurnished), New York (1 month), Texas (no statutory limit but must be reasonable), Florida (no statutory cap but strong return requirements), Illinois (no statewide cap, but Chicago has a 1.5x rent ordinance), Massachusetts (1 month), Washington (no cap), Oregon (no cap). Note that local ordinances can be stricter.
 - Return timelines: California 21 days, New York 14 days (if requested), Texas 30 days, Florida 15-60 days depending on whether deductions are claimed, Massachusetts 30 days, Washington 21 days, Illinois/Chicago 30 days (with 5% interest requirement in Chicago)
 - Itemization requirement: virtually all states require a written, itemized deduction statement -- a simple "kept for cleaning" statement is insufficient; landlords must describe the specific damage and provide either receipts or cost estimates
@@ -76,6 +81,7 @@ Once you know the jurisdiction and issue, identify which legal doctrines and sta
 - Penalty for failure: California allows up to 2x the wrongfully withheld amount as a penalty; Massachusetts and New Jersey allow up to 3x; many other states allow double damages; some allow recovery of attorney's fees
 
 **Notice Requirements -- The Core Numbers:**
+
 - Month-to-month termination by landlord: 30 days in most states; California requires 60 days if the tenant has lived there more than 1 year; Oregon requires 30-90 days depending on the tenancy length
 - Month-to-month termination by tenant: almost universally 30 days written notice
 - Fixed-term lease: neither party can terminate before the end date without cause unless the lease provides for it or the other party materially breaches
@@ -83,6 +89,7 @@ Once you know the jurisdiction and issue, identify which legal doctrines and sta
 - Landlord entry notice: 24 hours is the most common statutory requirement (California, Florida, Washington, Oregon); some states require 48 hours (New Jersey); some states have no specific requirement but imply "reasonable notice"; emergency entry is generally excepted from notice requirements
 
 **Eviction Process -- Mandatory Sequence:**
+
 - Notice period by type: Pay or Quit (3-14 days for non-payment of rent -- 3 days in California, Texas, and Florida; 5 days in Illinois; 14 days in Washington); Cure or Quit (similar timelines for curable lease violations); Unconditional Quit (for serious violations, illegal activity, or repeated violations -- no opportunity to cure); No-Fault Termination (30-60+ days depending on jurisdiction and whether just cause protections apply)
 - Filing: after the notice period expires without compliance, the landlord must file an unlawful detainer (UD) or summary possession action in the appropriate court -- typically a local justice court, municipal court, or circuit court
 - Service of summons: the tenant must be served with the complaint and a summons specifying a hearing date -- this is the court document that requires a response
@@ -91,12 +98,14 @@ Once you know the jurisdiction and issue, identify which legal doctrines and sta
 - Timeline from first notice to removal typically ranges from 3 weeks (uncontested, fast-track jurisdiction) to 3+ months (contested, tenant-protective jurisdiction)
 
 **Anti-Retaliation Protections:**
+
 - Protected activities universally include: requesting repairs in writing, contacting building code enforcement, organizing or joining a tenants union, filing a complaint with a housing authority, and testifying in legal proceedings relating to the property
 - Protected activities in many states also include: exercising rights under rent control, complaining about habitability to a health department, and in some jurisdictions, withholding rent properly
 - The retaliation presumption: most states create a rebuttable presumption of retaliation if adverse action (eviction filing, rent increase, service reduction, reduction of services) occurs within a specific window after protected activity -- 60 days in California, 90 days in Massachusetts, 180 days in Washington, 1 year in New Jersey
 - To rebut the presumption, the landlord must show a legitimate non-retaliatory reason -- pre-existing enforcement action, documented lease violations unrelated to the complaint, or bona fide building sale are common examples
 
 **Fair Housing:**
+
 - Federal protected classes (Fair Housing Act, 42 U.S.C. § 3604): race, color, national origin, religion, sex, familial status (families with children under 18, pregnant women), disability
 - Sex protection has been interpreted to include sexual orientation and gender identity since HUD guidance and many court decisions post-2020
 - State additions (examples): California adds source of income, marital status, sexual orientation, gender identity, immigration status; New York adds source of income; Illinois adds source of income, sexual orientation; Texas adds no state additions beyond federal
@@ -106,6 +115,7 @@ Once you know the jurisdiction and issue, identify which legal doctrines and sta
 ### Step 3: Explain the Tenant's Rights in Plain Language
 
 Translate the applicable legal framework into plain language the tenant can understand and act on:
+
 - Use the structure: "What your landlord is required to do," "What you are required to do to preserve your rights," and "What remedies are available if the landlord doesn't comply"
 - Be precise about notice and deadline requirements because getting the procedure wrong can cost the tenant their remedy -- for example, a tenant who withholds rent without following the proper escrow procedure in their state can be evicted for non-payment even if the habitability issue is real
 - Distinguish between rights the tenant has automatically and rights that must be actively exercised (repair-and-deduct requires notice; rent escrow requires a court filing; anti-retaliation presumption is automatic but must be raised as a defense)
@@ -114,6 +124,7 @@ Translate the applicable legal framework into plain language the tenant can unde
 ### Step 4: Walk Through Documentation Best Practices
 
 Documentation is the single most important practical advice for any tenant dispute. Cover:
+
 - **Written repair requests:** Every repair request should be sent via email (creates a timestamped record) or certified mail (creates legal evidence of delivery). Text messages are acceptable but should be followed by email confirmation: "As I texted on [date], the heat has not been working since [date]." Describe the condition specifically, not just "the heat is broken" -- say "the furnace has not produced heat in the unit since November 14th. The indoor temperature was 55°F on November 15th at 8 a.m."
 - **Photography and video:** Date-stamped photos and video should be taken at the time of discovery and periodically thereafter. Document the condition, any secondary damage (water damage from a roof leak, for example), and any response (or lack of response) from the landlord. Store copies in cloud storage or email to yourself to preserve them independently of your phone.
 - **Communication log:** Keep a running log (a simple spreadsheet is fine) recording every contact with the landlord -- date, method, what was said, landlord's response. Include in-person conversations by documenting them in writing immediately after: "To follow up on our conversation today, November 14th, I am sending this email to confirm that I reported the broken furnace and you said you would send someone within 48 hours."
@@ -126,6 +137,7 @@ Documentation is the single most important practical advice for any tenant dispu
 For each type of issue, explain the escalation path in order of least to most confrontational:
 
 **For habitability/repair issues:**
+
 1. Written notice to landlord (certified mail or email with read receipt) describing the specific condition, when it began, and requesting repair within a specific timeframe (e.g., 10 days for non-emergency, 24 hours for emergency)
 2. If no response: contact local housing code enforcement or building inspection department for an official inspection -- this creates an official record and typically triggers a compliance order against the landlord
 3. If still no response: contact a local tenant rights organization or legal aid clinic for jurisdiction-specific guidance on whether rent escrow, repair-and-deduct, or lease termination is appropriate
@@ -134,12 +146,14 @@ For each type of issue, explain the escalation path in order of least to most co
 6. Lease termination for constructive eviction: if the condition makes the unit uninhabitable, the tenant may be able to treat the lease as terminated without penalty -- this is a high bar and requires careful documentation and ideally legal counsel before acting
 
 **For security deposit disputes:**
+
 1. Send a written demand letter via certified mail requesting the deposit amount and/or a proper itemization within the statutory deadline, citing the specific statute if known
 2. File a complaint with any local housing authority or consumer protection office
 3. File in small claims court (most security deposit cases fall within small claims limits; no attorney required; filing fees typically $30-$75)
 4. If the amount at issue is large or the landlord is a sophisticated property management company, consider hiring an attorney -- many tenant attorneys take deposit cases on contingency or for a flat fee because of fee-shifting statutes
 
 **For eviction:**
+
 1. Carefully read the notice and calendar the deadline -- do not let it expire without action
 2. Assess whether the ground for eviction is valid (is the rent amount accurate? does the claimed lease violation actually violate the lease?)
 3. Contact legal aid immediately -- eviction cases move quickly and the stakes are high
@@ -149,6 +163,7 @@ For each type of issue, explain the escalation path in order of least to most co
 ### Step 6: Provide Specific Resources
 
 Match the tenant to specific types of resources rather than generic advice:
+
 - **Legal aid organizations:** Every state has federally-funded legal aid organizations that provide free legal assistance to income-qualifying tenants (typically households below 200% of the federal poverty level). Many have hotlines and walk-in clinics. They prioritize eviction cases.
 - **Tenant rights organizations:** Many cities have tenant unions or tenant advocacy organizations that provide free counseling, know-your-rights workshops, and community organizing support. They are often the best first call for non-emergency issues.
 - **Housing code enforcement:** Operated at the city or county level, these inspectors enforce building and housing codes. Filing a complaint triggers an inspection and creates an official record that is valuable in any subsequent proceeding.
@@ -159,6 +174,7 @@ Match the tenant to specific types of resources rather than generic advice:
 ### Step 7: Flag Jurisdiction-Critical Variations and Recommend Verification
 
 Before concluding any guidance, explicitly identify the areas where local law may change the analysis significantly. The most jurisdiction-sensitive issues are:
+
 - Whether the jurisdiction has rent control or rent stabilization (and whether the specific unit is covered -- many rent control ordinances exempt single-family homes, newer construction, or owner-occupied small buildings)
 - Whether the jurisdiction requires just cause for eviction (approximately 10 states and a growing number of cities)
 - The specific security deposit return deadline and penalty multiplier
@@ -309,27 +325,33 @@ The rights described above reflect principles recognized across most U.S. states
 ## Edge Cases
 
 ### 1. Verbal or Handshake Rental Agreements
+
 Most tenant protections apply regardless of whether a written lease exists. Implied warranty of habitability, anti-retaliation protections, fair housing laws, and local housing codes are statutory -- they apply by operation of law, not by contract. However, without a written lease, disputes about specific terms (rent amount, which utilities are included, pet policy, parking arrangements) become credibility contests. The tenant's position is weakest when the landlord claims a different verbal understanding.
 
 **Handling guidance:** Explain that the tenant still has rights. Recommend sending the landlord a written "confirmation of tenancy terms" letter via certified mail that summarizes the agreed-upon terms as the tenant understands them (rent amount, payment due date, utilities included, notice period) -- if the landlord does not dispute it in writing, this creates useful evidence. Going forward, recommend documenting everything in writing.
 
 ### 2. Room Rental in Owner-Occupied Property
+
 Some jurisdictions have significant exemptions for owner-occupied properties with a small number of units. Examples: the federal Fair Housing Act exempts owner-occupied buildings of 4 or fewer units from most of its requirements (the "Mrs. Murphy" exemption); some states similarly exempt small owner-occupied buildings from certain procedural requirements for eviction or from implied warranty of habitability. California, by contrast, largely does not have this exemption.
 
 **Handling guidance:** Flag this explicitly as a high-priority local verification issue. Explain the general principle of the exemption, note that it varies significantly by state and by whether the claim is under federal or state law, and strongly recommend contacting a local tenant rights organization before relying on any specific right.
 
 ### 3. Tenant Behind on Rent Facing Imminent Eviction
+
 This is the highest-urgency situation. Timelines are short -- a pay-or-quit notice may give only 3 days in some states. The tenant may have defenses (habitability issues, payment they can prove, landlord's failure to follow notice procedure) but needs to act within that window.
 
 **Handling guidance:** Direct the tenant to contact legal aid immediately -- same day or next day if possible. Explain the eviction sequence clearly so the tenant understands they have not yet been evicted and that they have the right to appear at the hearing. Identify whether any emergency rental assistance programs exist locally (post-pandemic, many states still have emergency rental assistance funds through state housing finance agencies or community action agencies -- the user can search [State] + "emergency rental assistance" + current year to find active programs). Emphasize: do not move out in response to the notice alone; the court hearing is where defenses are raised.
 
 ### 4. Suspected Illegal Self-Help Eviction (Lockout, Utility Shutoff, Property Removal)
+
 Self-help eviction -- changing the locks, padlocking the unit, shutting off utilities, removing the tenant's belongings, or entering and making the unit uninhabitable to force the tenant out -- is illegal in virtually every U.S. jurisdiction. It does not matter whether the tenant owes rent or has violated the lease. The landlord's legal remedy is court eviction, full stop.
 
 **Handling guidance:** Treat as urgent. The tenant may be entitled to emergency court relief (a temporary restraining order or order of re-entry) that can be obtained within 24-48 hours in many jurisdictions. Recommend: (1) call a tenant rights organization or legal aid emergency line immediately; (2) call the non-emergency police line and ask them to document the illegal lockout -- some jurisdictions will require a landlord to restore access on the spot; (3) document everything with photographs and timestamps; (4) keep copies of any documents showing the tenancy (lease, rent receipts, mail addressed to the unit). Note that many states provide civil damages for self-help eviction, including actual damages, punitive damages, and attorney's fees.
 
 ### 5. Section 8 / Housing Choice Voucher or Other Subsidized Housing
+
 Federal Housing Choice Voucher (Section 8) tenancies have requirements that overlay state landlord-tenant law. Key differences:
+
 - The landlord must use a HUD-approved lease and cannot unilaterally change lease terms mid-voucher term
 - The unit must pass HUD Housing Quality Standards (HQS) inspections; a failed inspection can result in the tenant's housing assistance being suspended, which creates additional leverage for habitability complaints but also additional urgency
 - Eviction of a Section 8 tenant requires good cause; the housing authority must also be notified
@@ -339,16 +361,19 @@ Federal Housing Choice Voucher (Section 8) tenancies have requirements that over
 **Handling guidance:** Ask whether the tenant has a voucher or is in project-based subsidized housing. If yes, explain the additional overlay protections, identify the PHA as a key resource, and note that HUD has a housing complaint line for subsidy program violations.
 
 ### 6. Retaliation Following a Repair Request or Code Complaint
+
 Retaliation claims require careful documentation of the timeline. The core structure of the claim is: (1) tenant engaged in protected activity (repair request, code complaint, tenant organizing); (2) landlord took adverse action (eviction notice, rent increase, service reduction, harassment); (3) the adverse action followed the protected activity closely enough in time to raise a retaliation presumption.
 
 **Handling guidance:** Instruct the tenant to create a chronological timeline documenting: the date of the repair request or code complaint (with evidence), the landlord's response (or lack thereof), and the date and nature of the adverse action. If the adverse action occurred within the state's presumption window (60-180 days depending on jurisdiction), explain that the tenant may have a retaliation defense or claim. Note that if the landlord files for eviction and retaliation is a defense, it must be raised in the court proceeding -- it is not automatically considered. Recommend legal aid contact before the hearing date.
 
 ### 7. Rent Increase in a Jurisdiction With Rent Control or Rent Stabilization
+
 Rent control coverage is highly variable and deeply technical. Even within a single city, some units may be covered and others exempt based on building age (e.g., Costa-Hawkins in California exempts single-family homes and buildings built after February 1, 1995), building type, and whether the unit was previously occupied. Annual allowable increases for covered units are set by local Rent Boards (San Francisco's is currently tied to CPI, often 60% of CPI or a floor of 1% and ceiling of 7%; New York City's Rent Guidelines Board sets increases annually for rent-stabilized units; Portland, Oregon uses a formula based on CPI).
 
 **Handling guidance:** Do not state whether a specific unit is covered without emphasizing this is a verification question. Provide the framework: ask whether the jurisdiction has rent control (yes in San Francisco, Los Angeles, New York City, Seattle, Portland, Denver by ordinance as of recent years; no statewide in Texas, Florida, or most Southern states). If yes, the tenant should contact the local Rent Board or housing authority to determine coverage, the maximum allowable increase, and whether the landlord filed a proper petition for any increase above the allowable amount.
 
 ### 8. Tenant With a Disability Requesting a Reasonable Accommodation
+
 Reasonable accommodation requests must be in writing and should reference the Fair Housing Act (42 U.S.C. § 3604(f)(3)). The landlord may ask for documentation of the disability (not a diagnosis, but confirmation that a disability exists and creates a need for the accommodation) from a healthcare provider. The landlord is not required to provide the specific accommodation requested if an equally effective alternative exists; they must engage in an "interactive process" -- a good-faith dialogue about how to meet the need.
 
 **Handling guidance:** Instruct the tenant to submit a written accommodation request describing: (1) that they have a disability (no need to name the diagnosis); (2) the accommodation they are requesting and why it is connected to the disability; (3) that they are requesting this under the Fair Housing Act and any applicable state law. Recommend keeping a copy of the request with the date. If the landlord denies the request without engaging in good-faith discussion or demands excessive documentation, the tenant can file a complaint with HUD or the relevant state fair housing agency.
@@ -369,14 +394,14 @@ Reasonable accommodation requests must be in writing and should reference the Fa
 
 ### Situation Summary
 
-| Field | Detail |
-|-------|--------|
-| Location | Texas (state law governs; no statewide rent control) |
-| Tenancy type | Written lease, approximately 2 years |
-| Unit type | Apartment (assumed multi-unit building) |
-| Length of tenancy | 2 years (important for any move-out or retaliation claims) |
-| Core issue | 3-day pay or quit notice; tenant has proof-of-payment concern and disputes a late fee charge |
-| Written communication to date | Notice received; Venmo transaction may exist as partial documentation |
+| Field                         | Detail                                                                                       |
+| ----------------------------- | -------------------------------------------------------------------------------------------- |
+| Location                      | Texas (state law governs; no statewide rent control)                                         |
+| Tenancy type                  | Written lease, approximately 2 years                                                         |
+| Unit type                     | Apartment (assumed multi-unit building)                                                      |
+| Length of tenancy             | 2 years (important for any move-out or retaliation claims)                                   |
+| Core issue                    | 3-day pay or quit notice; tenant has proof-of-payment concern and disputes a late fee charge |
+| Written communication to date | Notice received; Venmo transaction may exist as partial documentation                        |
 
 ---
 
@@ -405,24 +430,26 @@ Reasonable accommodation requests must be in writing and should reference the Fa
 
 ### Available Remedies and Response Options
 
-| Option | What It Does | Jurisdiction Note | Risk Level |
-|--------|-------------|-------------------|------------|
-| Pay the undisputed rent (if any) within 3 days | Eliminates the eviction ground for non-payment | Texas -- landlord must accept payment before filing; once suit is filed, acceptance is not required | Low -- best option if any undisputed amount is owed |
-| Send written dispute of the late fees | Creates a record that you contest the additional charges | Texas -- landlord can still file if the base rent amount is in dispute | Low -- do this regardless |
-| Appear at the Justice of the Peace hearing if suit is filed | Present your payment evidence and dispute the late fees | Texas JP courts are tenant-accessible; no attorney required | Low -- this is your right; do not skip it |
-| Contact a Texas tenant rights organization or legal aid clinic | Get jurisdiction-specific advice on your specific lease terms | Lone Star Legal Aid (southeast TX), Texas RioGrande Legal Aid, Legal Aid of NW Texas are the major providers | Low -- free for qualifying tenants |
+| Option                                                         | What It Does                                                  | Jurisdiction Note                                                                                            | Risk Level                                          |
+| -------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| Pay the undisputed rent (if any) within 3 days                 | Eliminates the eviction ground for non-payment                | Texas -- landlord must accept payment before filing; once suit is filed, acceptance is not required          | Low -- best option if any undisputed amount is owed |
+| Send written dispute of the late fees                          | Creates a record that you contest the additional charges      | Texas -- landlord can still file if the base rent amount is in dispute                                       | Low -- do this regardless                           |
+| Appear at the Justice of the Peace hearing if suit is filed    | Present your payment evidence and dispute the late fees       | Texas JP courts are tenant-accessible; no attorney required                                                  | Low -- this is your right; do not skip it           |
+| Contact a Texas tenant rights organization or legal aid clinic | Get jurisdiction-specific advice on your specific lease terms | Lone Star Legal Aid (southeast TX), Texas RioGrande Legal Aid, Legal Aid of NW Texas are the major providers | Low -- free for qualifying tenants                  |
 
 ---
 
 ### Immediate Action Steps
 
 **Today or tomorrow:**
+
 1. **Secure your Venmo proof.** Open Venmo, locate the payment, screenshot the full transaction record showing date, amount, and recipient. Email the screenshots to yourself. This is your most important evidence.
 2. **Re-read your lease.** Look for: (a) the accepted payment methods -- does it prohibit or allow digital payment? (b) the late fee provision -- what does it say the fee is, when it is charged, and how notice is given? (c) whether the lease specifies a different notice period for pay-or-quit beyond the statutory 3 days.
 3. **Send a written response to your landlord.** Via email and certified mail, state: (a) that you paid your rent for [month] on [date] via Venmo in the amount of $[amount] and are providing documentation; (b) that you dispute the late fee charges as you were never previously notified of them; (c) that you request written documentation of when these late fees accrued and how they were calculated. Keep a copy of this communication.
 4. **Count your days precisely.** Identify the exact date the 3-day period expires. If you are not able to resolve the dispute before then, be prepared for the landlord to file in Justice of the Peace court.
 
 **If the landlord files suit:**
+
 1. **Do not ignore the court summons.** You will receive a Notice of Hearing from the Justice of the Peace court specifying the hearing date -- typically set about 10 days after filing. Appear at that hearing.
 2. **Bring your evidence to the hearing.** Printed screenshots of the Venmo transaction, your written rent dispute letter, a copy of your lease (especially the payment method and late fee provisions), and any other documentation of your payment history.
 3. **Contact a legal aid clinic before the hearing if possible.** They can review your lease and advise you on how to present your payment defense and your late fee dispute.
@@ -443,12 +470,12 @@ Reasonable accommodation requests must be in writing and should reference the Fa
 
 ### Resources to Contact
 
-| Resource | Purpose | When to Contact |
-|----------|---------|----------------|
-| Lone Star Legal Aid / Texas RioGrande Legal Aid | Free legal help for qualifying tenants; eviction defense | This week; before the hearing if suit is filed |
-| Local Justice of the Peace court clerk | Confirm whether suit has been filed; understand the hearing process | Within 2-3 days if you are uncertain |
-| Texas Attorney General Tenant Rights page | Free state-specific information on the Texas eviction process | Immediately for background |
-| Local tenant rights organization or housing counselor | General guidance on your options | This week |
+| Resource                                              | Purpose                                                             | When to Contact                                |
+| ----------------------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------- |
+| Lone Star Legal Aid / Texas RioGrande Legal Aid       | Free legal help for qualifying tenants; eviction defense            | This week; before the hearing if suit is filed |
+| Local Justice of the Peace court clerk                | Confirm whether suit has been filed; understand the hearing process | Within 2-3 days if you are uncertain           |
+| Texas Attorney General Tenant Rights page             | Free state-specific information on the Texas eviction process       | Immediately for background                     |
+| Local tenant rights organization or housing counselor | General guidance on your options                                    | This week                                      |
 
 ---
 

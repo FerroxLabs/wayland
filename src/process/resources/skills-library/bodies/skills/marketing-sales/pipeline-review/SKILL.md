@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sales analysis planning template"
-  category: "marketing-sales"
-  subcategory: "sales"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sales analysis planning template'
+  category: 'marketing-sales'
+  subcategory: 'sales'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Pipeline Review
 
 ## When to Use
@@ -37,6 +38,7 @@ Use this skill when the user needs to build, run, or improve a structured sales 
 - User needs a forecast methodology that distinguishes between weighted pipeline, rep commit, and manager-adjusted most-likely estimates
 
 **Do NOT use when:**
+
 - The user needs post-sale analysis of closed-won or closed-lost deals -- use `win-loss-analysis` instead
 - The user wants coaching on a single deal strategy, discovery questions, or negotiation tactics -- use `sales-playbook-section` instead
 - The user needs to analyze top-of-funnel marketing metrics, lead sources, or campaign attribution -- use `marketing-analytics-report` instead
@@ -435,27 +437,27 @@ Weighted pipeline coverage is 1.8:1 against remaining quota of $420K, meaningful
 
 ### Pipeline Summary Snapshot
 
-| Stage | Probability | # Deals | Total Value | Weighted Value | Avg Age (days) | Expected Duration | Age Status |
-|-------|-------------|---------|-------------|----------------|----------------|-------------------|------------|
-| Qualified | 8% | 14 | $350,000 | $28,000 | 4 | 7 days | ✅ On Track |
-| Discovery | 22% | 9 | $225,000 | $49,500 | 11 | 10 days | ✅ On Track |
-| Demo | 48% | 7 | $175,000 | $84,000 | 14 | 10 days | 🟡 Aging (+40%) |
-| Proposal | 72% | 5 | $125,000 | $90,000 | 18 | 12 days | ✅ On Track |
-| Negotiation | 88% | 3 | $75,000 | $66,000 | 22 | 8 days | 🔴 Aging (+175%) |
-| **TOTAL** | -- | **38** | **$950,000** | **$317,500** | | | |
+| Stage       | Probability | # Deals | Total Value  | Weighted Value | Avg Age (days) | Expected Duration | Age Status       |
+| ----------- | ----------- | ------- | ------------ | -------------- | -------------- | ----------------- | ---------------- |
+| Qualified   | 8%          | 14      | $350,000     | $28,000        | 4              | 7 days            | ✅ On Track      |
+| Discovery   | 22%         | 9       | $225,000     | $49,500        | 11             | 10 days           | ✅ On Track      |
+| Demo        | 48%         | 7       | $175,000     | $84,000        | 14             | 10 days           | 🟡 Aging (+40%)  |
+| Proposal    | 72%         | 5       | $125,000     | $90,000        | 18             | 12 days           | ✅ On Track      |
+| Negotiation | 88%         | 3       | $75,000      | $66,000        | 22             | 8 days            | 🔴 Aging (+175%) |
+| **TOTAL**   | --          | **38**  | **$950,000** | **$317,500**   |                |                   |                  |
 
 **Weighted Pipeline Coverage:** **0.76:1** ($317,500 / $420,000 remaining)
 
 Wait -- this is critically below target. Let me recalculate for current-period close dates only (deals with close dates in the next 6 weeks):
 
-*Filtering to deals with close dates within the period:* Deals in Proposal + Negotiation close in this period; Demo deals split approximately 50/50; Discovery and Qualified deals are unlikely to close within 45 days given the cycle length.
+_Filtering to deals with close dates within the period:_ Deals in Proposal + Negotiation close in this period; Demo deals split approximately 50/50; Discovery and Qualified deals are unlikely to close within 45 days given the cycle length.
 
-| Applicable to Current Period | # Deals | Weighted Value |
-|-----------------------------|---------|----------------|
-| Negotiation (90%+, all in period) | 3 | $66,000 |
-| Proposal (72%, all in period) | 5 | $90,000 |
-| Demo (48%, ~4 of 7 have in-period close dates) | 4 | $48,000 |
-| **In-Period Weighted Total** | **12** | **$204,000** |
+| Applicable to Current Period                   | # Deals | Weighted Value |
+| ---------------------------------------------- | ------- | -------------- |
+| Negotiation (90%+, all in period)              | 3       | $66,000        |
+| Proposal (72%, all in period)                  | 5       | $90,000        |
+| Demo (48%, ~4 of 7 have in-period close dates) | 4       | $48,000        |
+| **In-Period Weighted Total**                   | **12**  | **$204,000**   |
 
 **In-Period Coverage:** **0.49:1** ($204,000 / $420,000) -- **🔴 CRITICAL: At current pace, team will attain approximately $204K + $180K already closed = $384K, approximately 64% of quarterly quota**
 
@@ -467,13 +469,13 @@ Wait -- this is critically below target. Let me recalculate for current-period c
 
 ### Pipeline Velocity
 
-| Metric | This Period | Prior Period (Q4 Wks 1--6) | Trend |
-|--------|-------------|---------------------------|-------|
-| Pipeline Velocity ($/day) | $7,056/day | $8,200/day | ↓ 14% |
-| New Deals Created (this week) | 8 | 11 (avg per week Q4) | ↓ 27% |
-| Average Deal Size | $25,000 | $24,200 | ↑ 3% |
-| Average Sales Cycle (days) | 47 | 44 | ↓ (slowing) |
-| Weighted Win Rate | 22% | 26% | ↓ concerning |
+| Metric                        | This Period | Prior Period (Q4 Wks 1--6) | Trend        |
+| ----------------------------- | ----------- | -------------------------- | ------------ |
+| Pipeline Velocity ($/day)     | $7,056/day  | $8,200/day                 | ↓ 14%        |
+| New Deals Created (this week) | 8           | 11 (avg per week Q4)       | ↓ 27%        |
+| Average Deal Size             | $25,000     | $24,200                    | ↑ 3%         |
+| Average Sales Cycle (days)    | 47          | 44                         | ↓ (slowing)  |
+| Weighted Win Rate             | 22%         | 26%                        | ↓ concerning |
 
 **Velocity Formula:** (38 deals × $25,000 × 22% win rate) / 47 days = **$4,468/day** -- at this rate, projected Q4 total close = $180K attained + ($4,468 × 30 remaining days) = $314K attained, **52% of quota.** Velocity decline is the leading indicator of the quarter miss and must be addressed.
 
@@ -481,15 +483,15 @@ Wait -- this is critically below target. Let me recalculate for current-period c
 
 ### Pipeline Movement Since Last Review
 
-| Movement Type | # Deals | Total Value | Notes |
-|---------------|---------|-------------|-------|
-| New deals created | 8 | $200,000 | 5 inbound, 3 outbound; below weekly target of 12 |
-| Deals advanced (1+ stages) | 6 | $150,000 | 3 Discovery → Demo; 2 Demo → Proposal; 1 Proposal → Negotiation |
-| Deals won | 1 | $28,000 | Brightwave Corp (Priya) -- Negotiation to Close |
-| Deals lost | 2 | $40,000 | Hartfield Inc (competitor selected); Novion (budget freeze) |
-| Deals disqualified | 1 | $18,000 | ClearPath (champion left company, no replacement identified) |
-| Deals stalled (14+ days no activity) | 5 | $112,000 | See Red deals below |
-| **Net pipeline change** | | **-$238,000** | Won + lost + disqualified offset partially by new adds |
+| Movement Type                        | # Deals | Total Value   | Notes                                                           |
+| ------------------------------------ | ------- | ------------- | --------------------------------------------------------------- |
+| New deals created                    | 8       | $200,000      | 5 inbound, 3 outbound; below weekly target of 12                |
+| Deals advanced (1+ stages)           | 6       | $150,000      | 3 Discovery → Demo; 2 Demo → Proposal; 1 Proposal → Negotiation |
+| Deals won                            | 1       | $28,000       | Brightwave Corp (Priya) -- Negotiation to Close                 |
+| Deals lost                           | 2       | $40,000       | Hartfield Inc (competitor selected); Novion (budget freeze)     |
+| Deals disqualified                   | 1       | $18,000       | ClearPath (champion left company, no replacement identified)    |
+| Deals stalled (14+ days no activity) | 5       | $112,000      | See Red deals below                                             |
+| **Net pipeline change**              |         | **-$238,000** | Won + lost + disqualified offset partially by new adds          |
 
 **Pipeline vitality concern:** The team lost/disqualified $58K and added $200K in new deals -- this seems net positive. However, new Qualified deals will not close for 45+ days, meaning they provide zero help to this quarter. The current-period pipeline is shrinking, not growing.
 
@@ -497,7 +499,7 @@ Wait -- this is critically below target. Let me recalculate for current-period c
 
 ### Stage Definitions and Enforcement Criteria
 
-| Stage | Entry Criteria (Observable Facts) | Exit Criteria | Expected Duration | Probability | MEDDIC Gate |
-|-------|-----------------------------------|---------------|-------------------|-------------|-------------|
-| Qualified | SDR-qualified or AE self-sourced; confirmed ICP match; decision-maker or champion identified by name and title; initial pain hypothesis stated in CRM notes | Discovery call completed; pain documented; decision-making process outlined | 5--7 days | 8% | Pain hypothesis |
-| Discovery | Discovery call completed; business pain statement documented in CRM ("the problem is X and it costs us $
+| Stage     | Entry Criteria (Observable Facts)                                                                                                                           | Exit Criteria                                                               | Expected Duration | Probability | MEDDIC Gate     |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------- | ----------- | --------------- |
+| Qualified | SDR-qualified or AE self-sourced; confirmed ICP match; decision-maker or champion identified by name and title; initial pain hypothesis stated in CRM notes | Discovery call completed; pain documented; decision-making process outlined | 5--7 days         | 8%          | Pain hypothesis |
+| Discovery | Discovery call completed; business pain statement documented in CRM ("the problem is X and it costs us $                                                    |

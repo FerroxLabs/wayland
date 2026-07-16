@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-image-generation design analysis"
-  category: "design-creative"
-  subcategory: "ai-image-generation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-image-generation design analysis'
+  category: 'design-creative'
+  subcategory: 'ai-image-generation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # AI Image Style Transfer
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to replicate a named visual style (Impressionism, Art Nouveau, Bauhaus, cyberpunk, vaporwave) across one or more AI generation models and needs model-specific prompt syntax
 - The user has a reference image and wants to capture its aesthetic in a new generation -- they need the style decomposed, not just described back to them
 - The user's style prompts are producing generic or inconsistent results and they need targeted diagnosis (wrong trigger words, style fighting the subject, stylize parameter too low)
@@ -29,6 +31,7 @@ metadata:
 - The user is building a consistent visual identity across multiple AI generations and needs repeatable style tokens, not one-off prompts
 
 **Do NOT use when:**
+
 - The user wants a complete prompt for a single model without needing style transfer analysis -- use `midjourney-prompting`, `dalle-prompting`, or `stable-diffusion-prompting`
 - The user wants to keep a specific character's face, outfit, or identity consistent across multiple scenes -- use `midjourney-consistency`
 - The user has a complete working prompt in one model and wants it converted to another model's syntax verbatim -- use `prompt-translation`
@@ -55,6 +58,7 @@ Before decomposing anything, collect the minimum required information. Missing a
 Every visual style is a combination of these six properties. Work through all six systematically. Skipping one causes incomplete prompts that produce generic-looking results.
 
 **Property 1: Color Palette**
+
 - Identify the dominant color temperature: warm (sunset orange, ochre, gold), cool (slate blue, steel grey, ice white), or neutral (desaturated, earth tones, sepia)
 - Name specific hues using art vocabulary: cerulean, vermilion, viridian, raw umber, cadmium yellow, Prussian blue -- these terms appear in training data and carry more weight than "red" or "blue"
 - Identify contrast behavior: high contrast (dark darks, light lights with no midtones) vs. tonal range (smooth gradation across all values) vs. low key (predominantly dark) vs. high key (predominantly light)
@@ -62,29 +66,34 @@ Every visual style is a combination of these six properties. Work through all si
 - Flag if the palette has a printing or medium origin: risograph uses two or three overlapping spot colors with halftone dot patterns; woodblock prints show ink bleed at edges; Polaroid shifts toward warm green-yellow shadows
 
 **Property 2: Line Quality and Edge Behavior**
+
 - This is the property most beginners omit. Every style has a characteristic relationship between shapes: hard graphic edges (Art Deco, Pop Art), soft blended edges (Impressionism, Sfumato), visible drawn outlines (cel animation, comic books), no visible outlines (plein air painting, photography)
 - Characterize line weight if present: uniform weight (technical illustration), variable weight calligraphy (traditional ink painting), tapered brush lines (manga), thick contour with no detail interior (bold graphic style)
 - Identify mark-making vocabulary if relevant: stipple (Pointillism, engraving), cross-hatching (pen-and-ink illustration), impasto drag marks (palette knife painting), dry brush texture (traditional Chinese ink wash), gestural swirls (Van Gogh's Post-Impressionist language)
 
 **Property 3: Texture and Surface Quality**
+
 - Identify the implied physical substrate: canvas grain, paper tooth, glass smoothness, concrete roughness, film grain, digital smoothness
 - Note texture behavior: does it appear uniformly across the image or only in specific areas (e.g., visible brushwork in shadows but smooth in highlights)?
 - Quantify grain if applicable: fine film grain (ISO 400 equivalent) vs. heavy grain (ISO 3200 push-processed) vs. halftone dots (offset printing screen at 85 LPI) vs. noise (digital sensor noise)
 - For printed/mechanical styles: risograph mottling, letterpress impression depth, screen printing misregistration, linocut uneven ink coverage -- these have specific vocabulary that AI models recognize
 
 **Property 4: Composition and Spatial Logic**
+
 - Identify the depth model: true 3D perspective with depth recession, shallow depth (Japonisme, Art Nouveau), flat 2D with no depth cues (Matisse cutouts, Swiss design), isometric (pixel art, technical illustration), forced perspective (propaganda posters)
 - Note focal point convention: centered and symmetrical (Art Deco, Byzantine iconography), rule-of-thirds dynamic (photojournalism, landscape painting), all-over composition with no single focal point (Abstract Expressionism, pattern design)
 - Identify compositional framing devices used by this style: decorative borders (Art Nouveau vine frames, medieval illumination), bleed-to-edge (fashion photography), negative space as a compositional element (minimalism, Japanese sumi-e), overlapping planes (Cubism, collage)
 - Note figure-ground relationship: high figure-ground separation (poster art), ambiguous figure-ground (Escher, Op Art), ground as important as figure (landscape tradition)
 
 **Property 5: Lighting Model**
+
 - Identify the light source type: single strong directional (Caravaggio, film noir), diffuse ambient (overcast plein air), multiple sources (studio photography, three-point lighting), no implied light source (flat illustration, stained glass)
 - Characterize shadow behavior: cast shadows vs. form shadows vs. both; hard-edged shadows (high contrast, noon light, harsh artificial) vs. soft gradated penumbra (window light, cloudy sky)
 - Note signature lighting effects: chiaroscuro (90% shadow, dramatic value jump), rim lighting (backlit silhouette effect), bioluminescence, neon glow with light bloom, golden hour color shift (everything shifts +15° hue toward orange), underwater caustic patterns
 - For photography styles: specify the quality of light: Rembrandt lighting (triangle highlight on shadow side cheek), split lighting (50/50 face divide), butterfly lighting (shadow under nose), catchlights in eyes
 
 **Property 6: Rendering and Realism Level**
+
 - Place the style on the realism spectrum: photorealistic (no visible abstraction), hyperreal (more detailed than perception), stylized realistic (recognizable but simplified), semi-abstract (forms suggested), fully abstract (no representational content)
 - Identify the detail distribution: hyperdetailed everywhere (maximalism, Baroque), detailed foreground with loose background (impressionist sketch), flat fill with precise edge detail only (stained glass, cloisonné), overall simplification (icon design, Shaker aesthetic)
 - Note perspective handling: natural single-point perspective, two-point perspective (architectural rendering), three-point (dramatic up/down angles), fish-eye (180° distortion), orthographic (no perspective convergence)
@@ -104,6 +113,7 @@ Most styles share surface similarities with adjacent styles. Identify 2-4 proper
 Each model has different mechanisms for style activation. Using the wrong vocabulary for a model produces weak or ignored style signals.
 
 **Midjourney (v6.1 and v7) Vocabulary and Parameters:**
+
 - Style tokens work best as specific noun phrases placed early in the prompt: "oil painting," "woodblock print," "gouache illustration," "linocut" -- not adjectives like "painterly" or "illustrative"
 - The `--stylize` parameter (range 0-1000, default 100) is the most powerful style fidelity control. Values of 250-400 produce strong aesthetic interpretation. Values above 600 let Midjourney's aesthetic model dominate the reference style. Values below 50 produce literal but aesthetically flat results. For style transfer, 200-500 is the working range.
 - `--style raw` disables Midjourney's default beautification engine. Use this for styles that should look rough, aged, or low-tech (Polaroid, zine aesthetics, risograph, vintage poster)
@@ -113,6 +123,7 @@ Each model has different mechanisms for style activation. Using the wrong vocabu
 - The `--no` parameter is a hard exclusion: `--no photograph, realistic, 3D render` are standard additions for painterly/illustrative styles
 
 **DALL-E 3 Vocabulary:**
+
 - DALL-E 3 processes natural language sentences, not keyword tags. Style must be described in prose: "painted with thick impasto strokes of unmixed color, with a rough canvas texture visible throughout" outperforms "impasto painting"
 - Medium specification is critical: explicitly name "oil paint," "watercolor on cold-press paper," "digital illustration," "gouache on toned paper" -- DALL-E 3 has strong training on medium vocabulary
 - DALL-E 3 responds well to art historical references when framed as technique descriptions: "in the manner of 19th-century French academic painting, with smooth blended skin tones, glazed luminosity, and dramatic chiaroscuro" is effective; naming specific living artists is not permitted and naming deceased artists may produce inconsistent results -- technique descriptions are more reliable
@@ -120,6 +131,7 @@ Each model has different mechanisms for style activation. Using the wrong vocabu
 - DALL-E 3 handles complex compositional instructions better than other models. Describe spatial arrangement explicitly: "the figure occupies the left third of the frame, with a receding landscape in the right two-thirds using atmospheric perspective"
 
 **Stable Diffusion / Flux / ComfyUI Vocabulary:**
+
 - SD prompt architecture uses weighted tags: `(tag:weight)` where 1.0 is default, 1.3 is strong emphasis, 1.5 is very strong, and above 1.5 begins to produce distortion. Common style weights: `(oil painting:1.3)`, `(art nouveau:1.2)`, `(impressionist:1.2)`
 - Leading quality tokens still matter on base models: `masterpiece, best quality, highly detailed` placed first. On SDXL and Flux, these matter less but still provide a quality floor
 - Negative prompts are critical for style isolation. Standard style-contamination exclusions: `photorealistic, 3d render, cgi, digital art` (when targeting traditional media), or `painting, brushstrokes, traditional media` (when targeting photography)
@@ -149,6 +161,7 @@ Be honest and specific about what each model can and cannot do with each style p
 ### Step 7: Compile the Complete Style Transfer Specification
 
 Assemble all outputs into the standard format below. Include:
+
 - The full style analysis table
 - Model-specific prompts with all required syntax
 - Key trigger terms called out explicitly
@@ -163,23 +176,28 @@ Assemble all outputs into the standard format below. Include:
 ## Style Transfer: [Style Name]
 
 ### Style Differentiators
-*What distinguishes this style from commonly confused alternatives:*
+
+_What distinguishes this style from commonly confused alternatives:_
+
 - [Differentiator 1: "Unlike X, this style uses Y because Z"]
 - [Differentiator 2]
 - [Differentiator 3]
 
 ### Style Analysis
-| Property           | Visual Description                                         | Key Descriptors for Prompts                              |
-|--------------------|------------------------------------------------------------|----------------------------------------------------------|
-| Color Palette      | [Specific hues, temperature, contrast behavior]            | [Art vocabulary terms for prompts]                       |
-| Line & Edge        | [Edge quality, line weight, outline behavior]              | [Specific line/edge vocabulary]                          |
-| Texture & Surface  | [Physical substrate, mark-making, grain/print artifacts]   | [Texture vocabulary]                                     |
-| Composition        | [Depth model, focal point, spatial logic]                  | [Compositional terms]                                    |
-| Lighting           | [Source type, shadow behavior, signature effects]          | [Lighting vocabulary]                                    |
-| Rendering Level    | [Realism spectrum, detail distribution, distortions]       | [Rendering vocabulary]                                   |
+
+| Property          | Visual Description                                       | Key Descriptors for Prompts        |
+| ----------------- | -------------------------------------------------------- | ---------------------------------- |
+| Color Palette     | [Specific hues, temperature, contrast behavior]          | [Art vocabulary terms for prompts] |
+| Line & Edge       | [Edge quality, line weight, outline behavior]            | [Specific line/edge vocabulary]    |
+| Texture & Surface | [Physical substrate, mark-making, grain/print artifacts] | [Texture vocabulary]               |
+| Composition       | [Depth model, focal point, spatial logic]                | [Compositional terms]              |
+| Lighting          | [Source type, shadow behavior, signature effects]        | [Lighting vocabulary]              |
+| Rendering Level   | [Realism spectrum, detail distribution, distortions]     | [Rendering vocabulary]             |
 
 ### Style Conflict Warnings
-*These subject or prompt terms will fight this style -- avoid them:*
+
+_These subject or prompt terms will fight this style -- avoid them:_
+
 - [Conflict term 1]: [Why it conflicts and what to use instead]
 - [Conflict term 2]: [Why it conflicts and what to use instead]
 
@@ -189,7 +207,9 @@ Assemble all outputs into the standard format below. Include:
 
 #### Midjourney (v6.1)
 ```
+
 /imagine prompt: [subject], [medium/style anchor], [color palette description], [texture/line quality], [composition description], [lighting description], [rendering level], [2-3 reinforcing style adjectives] --ar [ratio] --v 6.1 --s [200-500] --style raw (if applicable) --no [conflict terms]
+
 ```
 **Key trigger terms:** [list 4-6 terms that activate this style in MJ, with notes on why they work]
 **Parameter rationale:** `--s [value]` because [specific reason]; `--style raw` [use/omit] because [specific reason]
@@ -199,7 +219,9 @@ Assemble all outputs into the standard format below. Include:
 
 #### DALL-E 3
 ```
+
 [2-4 sentence natural language prompt. First sentence: medium and style name. Second sentence: color palette and texture description. Third sentence: composition and lighting. Fourth sentence: what this image is NOT (photorealistic, etc.) using affirmative exclusion language.]
+
 ```
 **Key trigger phrases:** [list 4-5 descriptive phrases that DALL-E 3 responds to for this style]
 **DALL-E 3 notes:** [Any specific handling notes: what this model does well vs. poorly for this style]
@@ -208,11 +230,13 @@ Assemble all outputs into the standard format below. Include:
 
 #### Stable Diffusion (SDXL / Flux.1)
 ```
+
 Positive prompt:
 masterpiece, best quality, [medium tag], [(style name:1.2)], [(color palette terms:1.1)], [texture/surface terms], [composition terms], [lighting terms], [(rendering terms:1.1)], [reinforcing style vocabulary], <lora:suggested_lora_name:0.7>
 
 Negative prompt:
 [terms that contaminate this style], lowres, bad anatomy, worst quality, blurry, [medium-specific exclusions]
+
 ```
 **Key trigger tags:** [list with weights -- which tags carry the most style activation signal]
 **LoRA recommendation:** [Specific LoRA category to search for + typical weight range 0.6-0.8; note user must install locally]
@@ -305,23 +329,28 @@ Run the four-failure-mode diagnostic before suggesting any changes. Ask to see: 
 ## Style Transfer: Risograph Print
 
 ### Style Differentiators
-*What distinguishes Risograph printing from commonly confused alternatives:*
+
+_What distinguishes Risograph printing from commonly confused alternatives:_
+
 - **Risograph vs. screenprint:** Both use spot colors, but risograph produces distinctive mottled ink coverage (ink sits on paper unevenly at microscopic level) and halftone dot patterns at 65-85 LPI. Screenprints have more uniform coverage and smoother gradients.
 - **Risograph vs. CMYK offset print:** Risograph uses only 2-3 colors maximum per image (limited by ink drums), creating a distinctively limited palette. CMYK offset printing can reproduce full color. Risograph's color mixing is only possible where ink layers overlap, producing secondary colors only at intersections.
 - **Risograph vs. linocut:** Both have a handmade, textured quality, but risograph uses photomechanical reproduction with dot-screen halftones. Linocut shows carved marks and directional cut lines. Risograph looks printed; linocut looks carved.
 
 ### Style Analysis
-| Property           | Visual Description                                                        | Key Descriptors for Prompts                                                    |
-|--------------------|---------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| Color Palette      | 2-3 spot colors maximum: classic combos are fluorescent pink + teal, or black + orange + yellow. Colors only mix where layers overlap, producing secondary colors at intersections. Paper shows through as a neutral. | risograph print, 2-color print, spot color, fluorescent pink, teal, ink overlap, limited palette, paper white showing through |
-| Line & Edge        | Shapes defined by flat color fills rather than drawn outlines. Halftone dot screens at 65 LPI create value gradations. Slight misregistration between color layers is a characteristic feature, not an error. | halftone dots, flat color fills, spot color misregistration, no outlines, screen dot pattern |
-| Texture & Surface  | Mottled ink coverage -- especially in mid-tones -- creating a grainy, slightly uneven look. Paper grain visible. Fine halftone dot screen visible at close inspection. Ink builds up at shape edges. | mottled ink texture, paper grain texture, halftone screen, ink density variation, slightly uneven coverage |
-| Composition        | Bold, graphic, simplified forms. Strong figure-ground separation. Flat depth with no atmospheric perspective. Designed for poster readability at a distance -- large simple shapes dominate. Space for typographic elements is a compositional assumption. | flat composition, bold graphic shapes, strong silhouette, poster design, flat depth, 2D |
-| Lighting           | No traditional lighting model. Forms are defined by flat color fills, not light/shadow. Any "shadow" areas are indicated by a second color layer overlap, not gradient shading. The overall effect reads as illuminated from nowhere -- or equally from all directions. | flat lighting, no shadows, color layer overlap indicates depth, graphic flat light |
-| Rendering Level    | Highly stylized. Forms simplified to bold shapes. Detail is sacrificed for graphic impact. Human figures become iconic silhouettes or semi-abstract shapes. Textures are pattern-based (halftone dots) rather than realistic. | highly stylized, simplified forms, iconic, poster art, graphic, abstract simplified, bold shapes |
+
+| Property          | Visual Description                                                                                                                                                                                                                                                      | Key Descriptors for Prompts                                                                                                   |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Color Palette     | 2-3 spot colors maximum: classic combos are fluorescent pink + teal, or black + orange + yellow. Colors only mix where layers overlap, producing secondary colors at intersections. Paper shows through as a neutral.                                                   | risograph print, 2-color print, spot color, fluorescent pink, teal, ink overlap, limited palette, paper white showing through |
+| Line & Edge       | Shapes defined by flat color fills rather than drawn outlines. Halftone dot screens at 65 LPI create value gradations. Slight misregistration between color layers is a characteristic feature, not an error.                                                           | halftone dots, flat color fills, spot color misregistration, no outlines, screen dot pattern                                  |
+| Texture & Surface | Mottled ink coverage -- especially in mid-tones -- creating a grainy, slightly uneven look. Paper grain visible. Fine halftone dot screen visible at close inspection. Ink builds up at shape edges.                                                                    | mottled ink texture, paper grain texture, halftone screen, ink density variation, slightly uneven coverage                    |
+| Composition       | Bold, graphic, simplified forms. Strong figure-ground separation. Flat depth with no atmospheric perspective. Designed for poster readability at a distance -- large simple shapes dominate. Space for typographic elements is a compositional assumption.              | flat composition, bold graphic shapes, strong silhouette, poster design, flat depth, 2D                                       |
+| Lighting          | No traditional lighting model. Forms are defined by flat color fills, not light/shadow. Any "shadow" areas are indicated by a second color layer overlap, not gradient shading. The overall effect reads as illuminated from nowhere -- or equally from all directions. | flat lighting, no shadows, color layer overlap indicates depth, graphic flat light                                            |
+| Rendering Level   | Highly stylized. Forms simplified to bold shapes. Detail is sacrificed for graphic impact. Human figures become iconic silhouettes or semi-abstract shapes. Textures are pattern-based (halftone dots) rather than realistic.                                           | highly stylized, simplified forms, iconic, poster art, graphic, abstract simplified, bold shapes                              |
 
 ### Style Conflict Warnings
-*These subject or prompt terms will fight this style -- avoid them:*
+
+_These subject or prompt terms will fight this style -- avoid them:_
+
 - **"night scene" or "dark atmosphere"**: pulls toward photorealistic nighttime photography. Replace with "nighttime color palette represented in spot colors" or specify the limited palette explicitly (black ink + fluorescent teal) rather than describing atmospheric darkness
 - **"realistic," "photograph," "photorealistic," "3D render"**: directly conflicts with flat graphic style; add to negative prompts in all models
 - **"detailed face" or "portrait"**: pulls toward photorealistic facial rendering; replace with "graphic stylized face," "simplified face," "poster figure"
@@ -332,10 +361,13 @@ Run the four-failure-mode diagnostic before suggesting any changes. Ask to see: 
 ### Model-Specific Prompts
 
 #### Midjourney (v6.1)
+
 ```
 /imagine prompt: jazz musician playing trumpet, city skyline at night, risograph print poster, 2-color spot color printing, flat graphic shapes, fluorescent pink and teal ink on cream paper, halftone dot screen, bold simplified silhouette, slight ink misregistration, mottled ink texture, flat depth, graphic poster composition, 1980s indie concert poster aesthetic, no photorealism, no gradients --ar 2:3 --v 6.1 --s 350 --style raw --no photograph realistic 3d render airbrush smooth gradient shadow
 ```
+
 **Key trigger terms:**
+
 - `risograph print` -- direct style name with strong training signal in MJ v6.1
 - `2-color spot color printing` -- constrains palette behavior and flat fill rendering
 - `halftone dot screen` -- activates the texture characteristic; without this term, MJ defaults to smooth fills
@@ -350,10 +382,13 @@ Run the four-failure-mode diagnostic before suggesting any changes. Ask to see: 
 ---
 
 #### DALL-E 3
+
 ```
 A risograph-printed event poster illustration of a jazz musician playing trumpet, set against a simplified city skyline at night. The image uses only two spot colors -- fluorescent pink and deep teal -- printed on cream-white paper, with color mixing only occurring where the two ink layers overlap, creating a darker secondary color at those intersections. All forms are flat graphic shapes with no photographic shading or gradients; depth is suggested through color layer overlap alone. A visible halftone dot screen texture (approximately 65 dots per inch) creates value variation in the colored areas. The ink coverage is slightly uneven and mottled, as is characteristic of actual risograph printing. The composition uses bold simplified silhouettes with strong graphic readability, designed as a vertical portrait-format poster with empty space at the top and bottom for text overlay. The style is flat, graphic, and deliberately imperfect -- not smooth, not realistic, not photographic.
 ```
+
 **Key trigger phrases:**
+
 - "two spot colors -- fluorescent pink and deep teal" -- DALL-E 3 responds strongly to color specificity at this level of detail
 - "color mixing only occurring where the two ink layers overlap" -- this sentence teaches DALL-E 3 the risograph color logic, which is non-obvious
 - "halftone dot screen texture (approximately 65 dots per inch)" -- quantifying the halftone is more effective than just saying "halftone"
@@ -367,6 +402,7 @@ A risograph-printed event poster illustration of a jazz musician playing trumpet
 #### Stable Diffusion (SDXL / Flux.1)
 
 **SDXL prompt:**
+
 ```
 Positive prompt:
 masterpiece, best quality, risograph print, (2 spot colors:1.3), (flat graphic illustration:1.2), (halftone dots:1.3), jazz musician trumpet player, city skyline silhouette, (fluorescent pink and teal ink:1.2), cream paper background, ink mottling, ink misregistration, spot color overlap, (bold simplified shapes:1.2), (poster art:1.1), flat depth, no shading, graphic design, indie concert poster, paper texture, 1980s print aesthetic, <lora:risograph_print_style:0.75>
@@ -374,7 +410,9 @@ masterpiece, best quality, risograph print, (2 spot colors:1.3), (flat graphic i
 Negative prompt:
 photorealistic, photograph, 3d render, cgi, smooth gradient, realistic shading, airbrush, blurry, soft focus, full color, CMYK, digital painting, watercolor, oil painting, overly detailed, complex background, lowres, bad anatomy, worst quality
 ```
+
 **Key trigger tags:**
+
 - `(halftone dots:1.3)` -- highest weight tag; this is the single most recognizable visual property of risograph. Without strong weighting it disappears
 - `(2 spot colors:1.3)` -- constrains the palette; without this, SD defaults to full color
 - `ink misregistration` -- a distinctive risograph property that has good training coverage in SDXL
@@ -386,30 +424,34 @@ photorealistic, photograph, 3d render, cgi, smooth gradient, realistic shading, 
 **CFG recommendation:** 8-9. Risograph requires precise adherence to the color constraint, which benefits from higher guidance. Below 7, the 2-color limitation breaks down and additional colors creep in.
 
 **Flux.1 variation:**
+
 ```
 Risograph-printed poster illustration of a jazz musician playing trumpet against a city skyline silhouette. Two spot colors only: fluorescent pink and teal, printed on cream paper. Flat graphic shapes, visible halftone dot screen texture, slight ink misregistration between layers, mottled uneven ink coverage. No photographic shading, no gradients, no full color. Bold simplified silhouette forms, flat poster composition. Indie concert poster aesthetic.
 ```
+
 With Flux.1, use natural language but retain the most critical technical tags (`halftone dot screen`, `ink misregistration`, `2 spot colors`) as they are present in Flux training data. Flux.1 does not benefit from aggressive weight syntax -- the natural language description carries more weight than `(term:1.3)` notation.
 
 ---
 
 ### Transfer Fidelity Assessment
-| Property           | Midjourney  | DALL-E 3   | SD/Flux    | Specific Notes                                                                                     |
-|--------------------|-------------|------------|------------|----------------------------------------------------------------------------------------------------|
-| Color Palette      | High        | High       | Medium     | MJ and DALL-E 3 both follow the 2-color constraint reliably. SD without LoRA often adds extra colors; LoRA brings this to High. |
-| Line & Edge        | High        | Medium     | High       | Flat graphic fills with halftone are well-represented in MJ. DALL-E 3 tends to soften edges slightly. SD with LoRA excels here. |
-| Texture & Surface  | Medium      | Low        | High       | Ink mottling and halftone dots transfer medium in MJ (present but smooth). DALL-E 3 struggles with surface texture specificity. SD with risograph LoRA handles this best. |
-| Composition        | High        | High       | Medium     | Poster-format graphic composition is strong in both MJ (with `--ar 2:3`) and DALL-E 3. SD requires explicit compositional guidance. |
-| Lighting           | High        | High       | High       | Flat lighting (no shadows or gradient illumination) is achievable in all models when negative prompts exclude shading vocabulary. |
-| Rendering Level    | High        | Medium     | High       | MJ with `--style raw` achieves the simplified graphic rendering consistently. DALL-E 3 occasionally adds unwanted detail to figures. SD with LoRA is very strong. |
+
+| Property          | Midjourney | DALL-E 3 | SD/Flux | Specific Notes                                                                                                                                                            |
+| ----------------- | ---------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Color Palette     | High       | High     | Medium  | MJ and DALL-E 3 both follow the 2-color constraint reliably. SD without LoRA often adds extra colors; LoRA brings this to High.                                           |
+| Line & Edge       | High       | Medium   | High    | Flat graphic fills with halftone are well-represented in MJ. DALL-E 3 tends to soften edges slightly. SD with LoRA excels here.                                           |
+| Texture & Surface | Medium     | Low      | High    | Ink mottling and halftone dots transfer medium in MJ (present but smooth). DALL-E 3 struggles with surface texture specificity. SD with risograph LoRA handles this best. |
+| Composition       | High       | High     | Medium  | Poster-format graphic composition is strong in both MJ (with `--ar 2:3`) and DALL-E 3. SD requires explicit compositional guidance.                                       |
+| Lighting          | High       | High     | High    | Flat lighting (no shadows or gradient illumination) is achievable in all models when negative prompts exclude shading vocabulary.                                         |
+| Rendering Level   | High       | Medium   | High    | MJ with `--style raw` achieves the simplified graphic rendering consistently. DALL-E 3 occasionally adds unwanted detail to figures. SD with LoRA is very strong.         |
 
 ---
 
 ### Limitations and Workarounds
-| Limitation                                      | Why It Occurs                                                                          | Workaround                                                                                                     |
-|-------------------------------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| AI cannot strictly enforce exactly 2 spot colors | Models generate full RGB images and simulate a limited palette rather than actually printing in 2 ink layers | Post-process in Photoshop: convert to Indexed Color with exactly 3 colors (ink 1, ink 2, paper), then colorize each channel |
-| Halftone dots are often rendered too subtly     | Models average texture across regions rather than rendering coarse dot patterns         | Increase weight: `(halftone dots:1.4)` in SD; add "large visible coarse halftone dots like a newspaper" to DALL-E 3 prose; add "coarse halftone screen" to MJ |
-| Text/typography in the poster will not be usable | AI-generated text has high error rate in all models; letter forms are decorative approximations | Generate the image with no text, then add typographic elements in Figma, Photoshop, or Canva as a separate layer |
-| Ink misregistration is subtle or absent         | Models trained on "correct" images trend toward alignment; misregistration requires explicit emphasis | Strengthen with: "dramatic ink misregistration, offset layers by 3-4 pixels" in prose (DALL-E 3); `(ink misregistration:1.4)` in SD; "obvious ink misregistration offset" in MJ |
-| Night scene pulls toward photographic darkness  | "Night" vocabulary has strong photographic training signal -- blue gradient sky, lens flare, bokeh | Replace "night" with "dark blue ink as background color," describe the nighttime mood through palette choices rather than atmospheric description |
+
+| Limitation                                       | Why It Occurs                                                                                                | Workaround                                                                                                                                                                      |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AI cannot strictly enforce exactly 2 spot colors | Models generate full RGB images and simulate a limited palette rather than actually printing in 2 ink layers | Post-process in Photoshop: convert to Indexed Color with exactly 3 colors (ink 1, ink 2, paper), then colorize each channel                                                     |
+| Halftone dots are often rendered too subtly      | Models average texture across regions rather than rendering coarse dot patterns                              | Increase weight: `(halftone dots:1.4)` in SD; add "large visible coarse halftone dots like a newspaper" to DALL-E 3 prose; add "coarse halftone screen" to MJ                   |
+| Text/typography in the poster will not be usable | AI-generated text has high error rate in all models; letter forms are decorative approximations              | Generate the image with no text, then add typographic elements in Figma, Photoshop, or Canva as a separate layer                                                                |
+| Ink misregistration is subtle or absent          | Models trained on "correct" images trend toward alignment; misregistration requires explicit emphasis        | Strengthen with: "dramatic ink misregistration, offset layers by 3-4 pixels" in prose (DALL-E 3); `(ink misregistration:1.4)` in SD; "obvious ink misregistration offset" in MJ |
+| Night scene pulls toward photographic darkness   | "Night" vocabulary has strong photographic training signal -- blue gradient sky, lens flare, bokeh           | Replace "night" with "dark blue ink as background color," describe the nighttime mood through palette choices rather than atmospheric description                               |

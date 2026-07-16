@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation shell-scripting guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Bot Builder
@@ -24,16 +24,16 @@ A bot is a software agent that interacts with users through a messaging platform
 
 ## Platform Comparison
 
-| Feature | Slack | Discord | Telegram |
-|---------|-------|---------|----------|
-| Primary audience | Enterprise/Work | Gaming/Community | General |
-| Message format | Blocks, mrkdwn | Embeds, Markdown | HTML, Markdown |
-| Commands | Slash commands | Slash + prefix | Commands (/) |
-| Interactions | Buttons, modals, menus | Buttons, select menus, modals | Inline keyboards, reply keyboards |
-| Rate limits | Varies by method | 50 req/s per bot | 30 msg/s, 20 msg/min per chat |
-| Webhook support | Yes (Events API) | Yes (Interactions) | Yes (Webhook mode) |
-| Threading | Thread replies | Thread replies | Reply-to-message |
-| Auth model | OAuth 2.0 + Bot tokens | Bot token | Bot token from BotFather |
+| Feature          | Slack                  | Discord                       | Telegram                          |
+| ---------------- | ---------------------- | ----------------------------- | --------------------------------- |
+| Primary audience | Enterprise/Work        | Gaming/Community              | General                           |
+| Message format   | Blocks, mrkdwn         | Embeds, Markdown              | HTML, Markdown                    |
+| Commands         | Slash commands         | Slash + prefix                | Commands (/)                      |
+| Interactions     | Buttons, modals, menus | Buttons, select menus, modals | Inline keyboards, reply keyboards |
+| Rate limits      | Varies by method       | 50 req/s per bot              | 30 msg/s, 20 msg/min per chat     |
+| Webhook support  | Yes (Events API)       | Yes (Interactions)            | Yes (Webhook mode)                |
+| Threading        | Thread replies         | Thread replies                | Reply-to-message                  |
+| Auth model       | OAuth 2.0 + Bot tokens | Bot token                     | Bot token from BotFather          |
 
 ## Slack Bot Architecture
 
@@ -221,9 +221,9 @@ services:
     env_file: .config
     logging:
       driver: json-file
-      options: { max-size: "10m", max-file: "3" }
+      options: { max-size: '10m', max-file: '3' }
     healthcheck:
-      test: ["CMD", "node", "dist/healthcheck.js"]
+      test: ['CMD', 'node', 'dist/healthcheck.js']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -274,6 +274,7 @@ describe('Deploy Command', () => {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing bot builder solutions
 - Reviewing or improving existing bot builder approaches
 - Making architectural or implementation decisions about bot builder
@@ -281,6 +282,7 @@ describe('Deploy Command', () => {
 - Troubleshooting bot builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -291,21 +293,26 @@ describe('Deploy Command', () => {
 # Bot Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

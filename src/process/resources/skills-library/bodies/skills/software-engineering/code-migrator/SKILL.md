@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices clean-code automation"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices clean-code automation'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Code Migrator
@@ -32,13 +32,13 @@ You are an expert code migration specialist. Plan and execute migrations that ar
 
 ### Phase 2: Strategy Selection
 
-| Strategy | Best for | Risk | Duration |
-|----------|----------|------|----------|
-| Strangler Fig | Replacing system incrementally | Low | Long |
-| Branch by Abstraction | Swapping implementations | Low | Medium |
-| Big Bang | Small, isolated components | High | Short |
-| Parallel Run | Critical systems needing validation | Low | Long |
-| Blue-Green | Infrastructure migrations | Medium | Short |
+| Strategy              | Best for                            | Risk   | Duration |
+| --------------------- | ----------------------------------- | ------ | -------- |
+| Strangler Fig         | Replacing system incrementally      | Low    | Long     |
+| Branch by Abstraction | Swapping implementations            | Low    | Medium   |
+| Big Bang              | Small, isolated components          | High   | Short    |
+| Parallel Run          | Critical systems needing validation | Low    | Long     |
+| Blue-Green            | Infrastructure migrations           | Medium | Short    |
 
 ### Phase 3: Execution Plan
 
@@ -48,19 +48,22 @@ Create a migration checklist with ordered steps:
 ## Migration: React Class Components -> Hooks
 
 ### Pre-migration
+
 - [ ] Audit: List all class components (found: 47)
 - [ ] Categorize by complexity (simple: 30, medium: 12, complex: 5)
 - [ ] Write integration tests for components without coverage
 - [ ] Set up linting rule to warn on new class components
 
 ### Migration waves
-- [ ] Wave 1: Simple components (no lifecycle, no state)    [Week 1-2]
-- [ ] Wave 2: Stateful components (useState conversion)     [Week 3-4]
-- [ ] Wave 3: Lifecycle components (useEffect conversion)   [Week 5-6]
-- [ ] Wave 4: Complex components (HOCs, render props)       [Week 7-8]
-- [ ] Wave 5: Shared/library components                     [Week 9-10]
+
+- [ ] Wave 1: Simple components (no lifecycle, no state) [Week 1-2]
+- [ ] Wave 2: Stateful components (useState conversion) [Week 3-4]
+- [ ] Wave 3: Lifecycle components (useEffect conversion) [Week 5-6]
+- [ ] Wave 4: Complex components (HOCs, render props) [Week 7-8]
+- [ ] Wave 5: Shared/library components [Week 9-10]
 
 ### Post-migration
+
 - [ ] Remove class component utilities/base classes
 - [ ] Update coding standards documentation
 - [ ] Enable lint rule to error on class components
@@ -94,6 +97,7 @@ Phase 4: Remove old system
 ```
 
 ### Implementation Steps
+
 1. Create a routing layer (proxy, facade, adapter) in front of the old system.
 2. Identify the first piece to migrate (choose the simplest, most isolated piece).
 3. Implement the new version of that piece.
@@ -103,14 +107,16 @@ Phase 4: Remove old system
 7. Repeat for the next piece.
 
 ### Example: Migrating Express Routes to Fastify
+
 ```javascript
 // Facade: proxy routes to old or new handler
 app.all('/api/*', (req, res) => {
   const migratedRoutes = ['/api/users', '/api/users/:id'];
 
-  if (migratedRoutes.some(r => req.path.match(routeToRegex(r)))) {
-    return fastifyApp.inject({ method: req.method, url: req.url, payload: req.body })
-      .then(response => res.status(response.statusCode).send(response.body));
+  if (migratedRoutes.some((r) => req.path.match(routeToRegex(r)))) {
+    return fastifyApp
+      .inject({ method: req.method, url: req.url, payload: req.body })
+      .then((response) => res.status(response.statusCode).send(response.body));
   }
 
   return oldExpressRouter.handle(req, res);
@@ -122,6 +128,7 @@ app.all('/api/*', (req, res) => {
 Use when swapping an internal implementation (e.g., replacing an ORM, changing a data store).
 
 ### Steps
+
 1. Create an abstraction (interface) over the current implementation.
 2. Refactor all callers to use the abstraction instead of the concrete implementation.
 3. Build the new implementation behind the same abstraction.
@@ -158,14 +165,16 @@ def create_user_repository(config) -> UserRepository:
 Use feature flags to control migration rollout and enable instant rollback.
 
 ### Flag Types for Migration
-| Flag Type | Use Case | Lifetime |
-|-----------|----------|----------|
-| Release flag | Gate new implementation | Weeks |
-| Experiment flag | A/B test old vs new | Days-weeks |
-| Ops flag | Kill switch for rollback | Permanent until removed |
-| Permission flag | Migrate specific users/tenants first | Weeks |
+
+| Flag Type       | Use Case                             | Lifetime                |
+| --------------- | ------------------------------------ | ----------------------- |
+| Release flag    | Gate new implementation              | Weeks                   |
+| Experiment flag | A/B test old vs new                  | Days-weeks              |
+| Ops flag        | Kill switch for rollback             | Permanent until removed |
+| Permission flag | Migrate specific users/tenants first | Weeks                   |
 
 ### Gradual Rollout Strategy
+
 ```
 Day 1:   Enable for internal users only          (1% traffic)
 Day 3:   Enable for beta users                    (5% traffic)
@@ -176,6 +185,7 @@ Day 21:  Remove flag and old code                 (cleanup)
 ```
 
 ### Flag Implementation
+
 ```typescript
 async function getUser(userId: string): Promise<User> {
   if (await featureFlags.isEnabled('use-new-user-service', { userId })) {
@@ -192,14 +202,13 @@ async function getUser(userId: string): Promise<User> {
 #### Expand-Contract Pattern (Zero Downtime)
 
 **Expand phase** (backward-compatible):
+
 1. Add new column (nullable or with default).
 2. Deploy code that writes to both old and new columns.
 3. Backfill new column from old column data.
 4. Deploy code that reads from new column.
 
-**Contract phase** (cleanup):
-5. Deploy code that stops writing to old column.
-6. Drop old column.
+**Contract phase** (cleanup): 5. Deploy code that stops writing to old column. 6. Drop old column.
 
 ```sql
 -- Step 1: Expand - add new column
@@ -214,15 +223,17 @@ ALTER TABLE users DROP COLUMN last_name;
 ```
 
 #### Data Migration Tools
-| Ecosystem | Tool | Notes |
-|-----------|------|-------|
-| Node.js | Knex, TypeORM, Prisma Migrate | JS-based migration files |
-| Python | Alembic, Django migrations | Auto-generated from models |
-| Java | Flyway, Liquibase | SQL or XML-based |
-| Go | golang-migrate, goose | SQL-based |
-| Ruby | ActiveRecord Migrations | Ruby DSL |
+
+| Ecosystem | Tool                          | Notes                      |
+| --------- | ----------------------------- | -------------------------- |
+| Node.js   | Knex, TypeORM, Prisma Migrate | JS-based migration files   |
+| Python    | Alembic, Django migrations    | Auto-generated from models |
+| Java      | Flyway, Liquibase             | SQL or XML-based           |
+| Go        | golang-migrate, goose         | SQL-based                  |
+| Ruby      | ActiveRecord Migrations       | Ruby DSL                   |
 
 #### Migration Safety Rules
+
 1. **Never delete a column in the same deploy that stops using it.** Wait at least one deploy cycle.
 2. **Never rename a column directly.** Use expand-contract (add new, copy, drop old).
 3. **Always make migrations reversible.** Include a down/rollback migration.
@@ -242,13 +253,15 @@ ALTER TABLE users DROP COLUMN last_name;
 ## API Versioning During Migration
 
 ### Versioning Strategies
-| Strategy | Example | Pros | Cons |
-|----------|---------|------|------|
-| URL path | `/v1/users`, `/v2/users` | Simple, explicit | URL clutter |
-| Header | `Accept: application/vnd.api+json;version=2` | Clean URLs | Easy to skip |
-| Query param | `/users?version=2` | Simple | Pollutes query string |
+
+| Strategy    | Example                                      | Pros             | Cons                  |
+| ----------- | -------------------------------------------- | ---------------- | --------------------- |
+| URL path    | `/v1/users`, `/v2/users`                     | Simple, explicit | URL clutter           |
+| Header      | `Accept: application/vnd.api+json;version=2` | Clean URLs       | Easy to skip          |
+| Query param | `/users?version=2`                           | Simple           | Pollutes query string |
 
 ### API Migration Steps
+
 1. Deploy v2 alongside v1 (both work).
 2. Update documentation to recommend v2.
 3. Notify consumers with deprecation timeline.
@@ -258,12 +271,14 @@ ALTER TABLE users DROP COLUMN last_name;
 7. Remove v1 code.
 
 ### Backward-Compatible API Changes (Safe)
+
 - Adding a new endpoint
 - Adding a new optional field to request
 - Adding a new field to response
 - Adding a new query parameter
 
 ### Breaking API Changes (Require New Version)
+
 - Removing or renaming a field
 - Changing a field's type
 - Changing validation rules to be more restrictive
@@ -275,15 +290,18 @@ ALTER TABLE users DROP COLUMN last_name;
 Every migration step must have a documented rollback procedure.
 
 ### Rollback Template
+
 ```markdown
 ## Rollback Plan: [Migration Step Name]
 
 ### Trigger conditions
+
 - Error rate exceeds 1% on affected endpoints
 - P95 latency exceeds 500ms (baseline: 200ms)
 - Data inconsistency detected between old and new systems
 
 ### Rollback steps
+
 1. Disable feature flag `use-new-service` (immediate, < 1 minute)
 2. Verify traffic routes to old system (check dashboards)
 3. If database migration was applied:
@@ -292,11 +310,13 @@ Every migration step must have a documented rollback procedure.
 4. Notify team in #incidents channel
 
 ### Rollback verification
+
 - [ ] Old system handles traffic correctly
 - [ ] Error rate returns to baseline
 - [ ] No data was lost or corrupted
 
 ### Post-rollback analysis
+
 - What caused the rollback?
 - What needs to change before retrying?
 ```
@@ -306,6 +326,7 @@ Every migration step must have a documented rollback procedure.
 ### Verification Strategies
 
 1. **Shadow testing**: Run both old and new systems, compare outputs for every request.
+
 ```python
 async def get_user_with_verification(user_id):
     old_result = await old_service.get_user(user_id)
@@ -320,6 +341,7 @@ async def get_user_with_verification(user_id):
 ```
 
 2. **Data checksums**: Compare aggregated data between systems.
+
 ```sql
 -- Row count comparison
 SELECT COUNT(*) FROM old_db.users;
@@ -335,6 +357,7 @@ FROM old_db.users WHERE id BETWEEN 1 AND 10000;
 4. **Canary analysis**: Compare error rates and latency between old and new systems during gradual rollout.
 
 ### Migration Completeness Checklist
+
 - [ ] All functional tests pass against new implementation
 - [ ] Performance benchmarks meet or exceed old implementation
 - [ ] Data integrity verified (row counts, checksums, sampling)
@@ -347,6 +370,7 @@ FROM old_db.users WHERE id BETWEEN 1 AND 10000;
 ## Communication Template
 
 ### Migration Announcement
+
 ```markdown
 ## Migration: [Old Thing] -> [New Thing]
 
@@ -355,16 +379,20 @@ FROM old_db.users WHERE id BETWEEN 1 AND 10000;
 **Action required**: [What consumers need to do]
 
 ### Why
+
 [1-2 sentences on motivation]
 
 ### What changes
+
 [Specific changes consumers will see]
 
 ### Migration steps for consumers
+
 1. [Step 1]
 2. [Step 2]
 
 ### Support
+
 - Questions: #migration-channel
 - Issues: [link to issue tracker]
 - Docs: [link to migration guide]
@@ -373,6 +401,7 @@ FROM old_db.users WHERE id BETWEEN 1 AND 10000;
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing code migrator solutions
 - Reviewing or improving existing code migrator approaches
 - Making architectural or implementation decisions about code migrator
@@ -380,6 +409,7 @@ FROM old_db.users WHERE id BETWEEN 1 AND 10000;
 - Troubleshooting code migrator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -390,21 +420,26 @@ FROM old_db.users WHERE id BETWEEN 1 AND 10000;
 # Code Migrator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

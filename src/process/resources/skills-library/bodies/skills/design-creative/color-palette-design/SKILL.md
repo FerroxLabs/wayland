@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design template accessibility"
-  category: "design-creative"
-  subcategory: "graphic-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design template accessibility'
+  category: 'design-creative'
+  subcategory: 'graphic-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Color Palette Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to create a color palette for a website, mobile app, SaaS product, or brand from scratch
 - The user has an existing brand color (e.g., a logo hex code) and needs a full system built around it
 - The user needs to verify whether color combinations pass WCAG AA or AAA contrast requirements for accessibility compliance
@@ -30,6 +32,7 @@ metadata:
 - The user is auditing an existing palette for contrast failures, visual inconsistency, or accessibility gaps
 
 **Do NOT use when:**
+
 - The user wants a complete design system including spacing scales, elevation, radius, and motion tokens -- use `design-system-foundations` instead
 - The user wants font pairings, type scale, or typographic hierarchy -- use `typography-system` instead
 - The user wants a full brand identity including logo direction, voice, and positioning -- use `brand-identity-brief` instead
@@ -60,14 +63,14 @@ Ask the user for the following before generating anything. If the conversation a
 
 Choose the harmonic relationship between the primary, secondary, and accent colors. This is not aesthetic preference -- it is structural.
 
-| Harmony | Construction Method | Best Application |
-|---|---|---|
-| Monochromatic | Single hue, varying saturation (S) and lightness (L) in HSL | Minimal products, luxury brands, portfolios, B2B SaaS |
-| Analogous | 2--3 hues within 30° of each other on the HSL wheel | Consumer apps, lifestyle brands, natural/organic products |
-| Complementary | Two hues 180° apart on the HSL wheel | High-contrast marketing, sports, food, entertainment |
-| Split-complementary | Base hue + two hues 150° away (not the direct complement) | Balanced contrast without visual harshness; versatile |
-| Triadic | Three hues at 120° intervals | Creative agencies, gaming, children's education |
-| Tetradic/Square | Four hues at 90° intervals | Complex applications needing multiple category colors; requires careful weighting |
+| Harmony             | Construction Method                                         | Best Application                                                                  |
+| ------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Monochromatic       | Single hue, varying saturation (S) and lightness (L) in HSL | Minimal products, luxury brands, portfolios, B2B SaaS                             |
+| Analogous           | 2--3 hues within 30° of each other on the HSL wheel         | Consumer apps, lifestyle brands, natural/organic products                         |
+| Complementary       | Two hues 180° apart on the HSL wheel                        | High-contrast marketing, sports, food, entertainment                              |
+| Split-complementary | Base hue + two hues 150° away (not the direct complement)   | Balanced contrast without visual harshness; versatile                             |
+| Triadic             | Three hues at 120° intervals                                | Creative agencies, gaming, children's education                                   |
+| Tetradic/Square     | Four hues at 90° intervals                                  | Complex applications needing multiple category colors; requires careful weighting |
 
 **Decision rule:** For product UI, default to analogous or split-complementary. Complementary harmonies are visually aggressive and require restraint in UI contexts -- they work for CTAs and marketing but not for whole-product color systems. Monochromatic is the safest choice for conservative industries.
 
@@ -97,6 +100,7 @@ The primary-500 is the most important decision. Everything else derives from it.
 For each core color (primary, secondary, and any accent), generate a 10-step scale using the 50--900 naming convention. This is the same convention used by Tailwind CSS, Material Design, and Radix UI, making it immediately familiar to developers.
 
 **Construction method using HSL:**
+
 - Hold the hue constant (or allow ±3° of drift for visual warmth/coolness at extremes).
 - **50:** L ≈ 97%, S reduced to 30--50% of base saturation. Near-white with a color whisper.
 - **100:** L ≈ 93%, S ≈ 50--60% of base saturation.
@@ -112,6 +116,7 @@ For each core color (primary, secondary, and any accent), generate a 10-step sca
 **Critical spacing rule:** The perceptual difference between each step must be roughly equal. If the 300 and 400 look nearly identical, widen the lightness gap. Avoid bunching steps in the middle of the scale.
 
 **Usage assignments per step:**
+
 - 50: Page tinted background, selected row background, subtle section divider
 - 100: Badge background, tag background, light-mode alert background
 - 200: Hover state for list items, interactive surface hover
@@ -130,6 +135,7 @@ For each core color (primary, secondary, and any accent), generate a 10-step sca
 Apply the same 10-step method to secondary and accent hues.
 
 **Secondary color guidance:**
+
 - The secondary color shares the workload of the primary without competing with it.
 - For analogous harmony: secondary hue is 20--35° away from primary.
 - For split-complementary: secondary is 150° away.
@@ -137,6 +143,7 @@ Apply the same 10-step method to secondary and accent hues.
 - Secondary is used for: secondary buttons (outlined style), category labels, navigation sub-items, data visualization second series.
 
 **Accent color guidance:**
+
 - Accent is a single high-energy color used only for attention-critical moments: promotional banners, "new feature" badges, pricing callouts, notification badges.
 - Accent should contrast with both the primary and secondary -- often a complementary or triadic relationship.
 - Limit accent presence to less than 5% of any screen. If it appears more than that, it is no longer accent -- it is a third primary.
@@ -149,11 +156,13 @@ Apply the same 10-step method to secondary and accent hues.
 Neutrals are the backbone of every UI. They carry the bulk of text, backgrounds, and borders. A poorly designed neutral scale is the most common source of visual incoherence in products.
 
 **Undertone strategy:**
+
 - Pure grays (HSL: H=0, S=0%) look clinical and flat. Nearly every successful product uses chromatic neutrals -- grays with a subtle hue tint.
 - The neutral hue should match the primary color's temperature: warm primary (oranges, reds, yellows) → warm neutral (hue 30--45°, S 4--8%); cool primary (blues, greens) → cool neutral (hue 200--220°, S 4--8%).
 - Keep saturation below 10% for neutrals. Above 10% the neutrals read as colors, not neutral grays.
 
 **10-step neutral construction:**
+
 - Neutral-50: L ≈ 98%, S 3--6%. Page background. Should read as white at a glance.
 - Neutral-100: L ≈ 95%, S 4--6%. Card and panel background on neutral-50 pages.
 - Neutral-200: L ≈ 90%, S 5--7%. Borders, dividers, table row alternate fill.
@@ -174,26 +183,31 @@ Neutrals are the backbone of every UI. They carry the bulk of text, backgrounds,
 Semantic colors are non-negotiable for any UI product. They communicate system state. They must be recognizable regardless of the brand palette.
 
 **Success (green family):**
+
 - Base hue: 130--160° (true green to emerald). Avoid yellow-greens (80--120°), which read as caution in context.
 - Exception: If the primary is already green, shift the success hue slightly warmer (140--150°) or use a blue-green (165--175°) and differentiate with saturation.
 - Success-500: The action color. Success-100: Alert/banner background. Success-700: Alert text.
 - Usage: Completed steps, positive balance, successful transactions, form validation passed.
 
 **Warning (amber/yellow family):**
+
 - Base hue: 35--45° (amber). Pure yellow (60°) fails WCAG contrast on white backgrounds at any useful lightness and should be avoided for text.
 - Warning-500 on white background typically achieves only 2.5--3.0:1 contrast -- insufficient for text. Use warning-700 for warning text on warning-100 backgrounds.
 - Usage: Approaching limits, pending states, caution notices, reversible destructive actions.
 
 **Error (red family):**
+
 - Base hue: 0--10° (true red to red-orange). Avoid pink-reds (340--360°) for error -- they read as brand accent, not danger.
 - Error is the highest-urgency semantic color. It must be immediately distinguishable from the primary brand color.
 - Usage: Failed transactions, validation errors, deleted states, destructive action confirmations.
 
 **Info (blue family):**
+
 - Base hue: 205--225° (sky to cornflower blue). If the primary brand color is blue, shift info to 190--200° (cyan-blue) to differentiate.
 - Usage: Informational tooltips, help text, neutral system notifications, new feature announcements.
 
 **Each semantic color must have three variants:**
+
 - Light (100-equivalent): Background for alert boxes, banners, inline notifications. Low saturation, very light.
 - Base (500-equivalent): Icon color, border color for the alert box, badge background.
 - Dark (700-equivalent): Text color within alert boxes on the light background. Must pass 4.5:1 against the light variant.
@@ -205,6 +219,7 @@ Semantic colors are non-negotiable for any UI product. They communicate system s
 WCAG contrast ratio is calculated using the relative luminance formula (WCAG 2.x). The ratio ranges from 1:1 (no contrast, identical colors) to 21:1 (pure black on pure white).
 
 **Key thresholds:**
+
 - **WCAG AA normal text (< 18px regular or < 14px bold):** Minimum 4.5:1
 - **WCAG AA large text (≥ 18px regular or ≥ 14px bold):** Minimum 3:1
 - **WCAG AA UI components and graphical objects (icons, borders, chart lines):** Minimum 3:1
@@ -212,6 +227,7 @@ WCAG contrast ratio is calculated using the relative luminance formula (WCAG 2.x
 - **WCAG AAA large text:** Minimum 4.5:1
 
 **Required pairings to verify for every palette:**
+
 1. White (#FFFFFF) on primary-500 -- determines if the base color works for button backgrounds
 2. White (#FFFFFF) on primary-600 -- the typical button background
 3. Primary-700 on white -- color as text on light backgrounds
@@ -397,10 +413,13 @@ Convert each RGB channel to linear: if channel/255 ≤ 0.04045, divide by 12.92;
 ## Edge Cases
 
 ### Single-Color Request ("Just give me a blue palette")
+
 Generate a monochromatic palette using a single blue hue (choose an appropriate starting point such as 212° for a balanced sky-to-navy blue). Produce the full 10-step primary scale. For the neutral scale, derive cool grays using the same hue at S ≤ 8%. Add standard semantic colors using industry-standard hues -- green for success, amber for warning, red for error, and differentiate info blue from the primary blue by shifting the info hue 20--30° toward cyan (190--200°) to prevent confusion. Include the full WCAG verification table. Explain that a monochromatic palette works best when the product relies heavily on the neutral scale for layout and uses the blue only for interactive and branded elements.
 
 ### Dark Mode Primary Palette
+
 Dark mode is not a simple inversion. Specific adjustments required:
+
 - Page background: neutral-900 (not neutral-50 inverted to black)
 - Surface layers: neutral-800 (cards on neutral-900), neutral-700 (popovers on neutral-800) -- each layer uses a slightly lighter neutral to create elevation hierarchy
 - Interactive color: shift from primary-500 to primary-400. On dark backgrounds, a lighter primary step provides better visual punch and maintains contrast against dark surfaces. Primary-500 at typical luminance may achieve only 2.8:1 on neutral-800.
@@ -409,14 +428,18 @@ Dark mode is not a simple inversion. Specific adjustments required:
 - Always provide the full mapping table. Never just describe dark mode verbally.
 
 ### Colorblind-Accessible Palette
+
 Approximately 8% of males and 0.5% of females have a form of color vision deficiency. Three major types require consideration:
+
 - **Deuteranopia/Deuteranomaly (red-green, green deficiency -- most common):** Red and green are confused. Error (red) and success (green) will be indistinguishable. Mitigation: pair semantic color with an icon (✓ for success, ✗ for error, ⚠ for warning), never rely on hue alone. Adjust success green toward a more blue-green (155--165°) which is more distinguishable under deuteranopia simulation. Adjust error red toward a warmer red-orange (10--15°) rather than pure red (0°).
 - **Protanopia/Protanomaly (red-green, red deficiency):** Similar to deuteranopia but reds appear darker. The same mitigations apply.
 - **Tritanopia (blue-yellow -- rare):** Blue and green are confused, yellow and violet are confused. If using blue and green in the same semantic hierarchy, differentiate by saturation and lightness, not just hue.
 - Flag any palette that uses red-green as the only difference between two data categories in charts or status indicators. Always add a secondary signal (pattern, shape, label).
 
 ### Extending an Existing Palette
+
 When the user has partial colors but needs a complete system:
+
 1. Collect all existing hex codes. Convert to HSL to identify the hue temperature and saturation register.
 2. Identify which scale steps are already defined (e.g., they have a primary button color but no tint or shade scale).
 3. Generate only the missing elements. Do not replace or suggest changing existing anchored colors unless they present accessibility failures -- in which case flag the issue and offer the fix as an option, not a directive.
@@ -424,14 +447,18 @@ When the user has partial colors but needs a complete system:
 5. For semantic colors in extended palettes: check that the existing primary color is not already too close in hue to a proposed semantic color (e.g., if brand primary is red, error red needs differentiation).
 
 ### Print-First or Print-Also Palette
+
 When the palette must also work in print (brochures, packaging, business cards):
+
 - Provide CMYK values alongside every hex. Hex is RGB; CMYK is the print model.
 - **Gamut warning:** Saturated blues (hue 220--240°, S > 80%), vivid cyans (hue 180--200°, S > 85%), and bright greens (hue 120--160°, S > 80%) are often out of CMYK gamut. The printed version will look dull or shifted. Flag these colors explicitly with a note like: "This color is outside standard CMYK gamut. Recommended print substitute: [hex of gamut-safe alternative]."
 - For brand hero colors that must be exactly reproduced in print (logos, packaging), recommend specifying a spot color (Pantone/PMS) rather than relying on process CMYK. The PMS system guarantees color consistency across printers.
 - Neutrals print reliably in CMYK. Primary text and backgrounds are the safest print elements.
 
 ### Multiple Brand Colors Already Defined (Existing Brand Refresh)
+
 When a user comes with 2+ existing brand colors and needs the full system:
+
 1. Identify which is primary (highest visual weight in existing usage) and which is secondary.
 2. Check whether the two existing colors already form a valid harmony. If they are 180° apart, they are complementary; if 30° apart, analogous. Name the harmony and note if it is unconventional.
 3. Check whether white text on both colors passes WCAG AA. If either fails, discuss the button strategy: can the secondary always use outlined buttons (avoiding the contrast problem), or does it need a darkened variant?
@@ -439,7 +466,9 @@ When a user comes with 2+ existing brand colors and needs the full system:
 5. For semantic colors: check whether any existing brand color is close in hue to a semantic standard (if one brand color is orange, the warning amber must be differentiated). Propose semantic adjustments and explain the cognitive conflict.
 
 ### High-Contrast or AAA Target
+
 When WCAG AAA (7:1 normal text) is required:
+
 - Primary-500 used as a text color on white must achieve 7:1. This requires L ≤ 35% in HSL. Many brand-vivid colors fail this at their natural saturation. Options: darken the primary text variant to primary-700 or primary-800, or inform the user that vivid/saturated brand colors are decorative and must be paired with neutral text for body copy.
 - Background colors must be near-white or near-black for AAA body text. The "soft background" pattern (using primary-50 as a page background) may reduce the contrast of neutral-600 text below 7:1. Check neutral-600 on primary-50 explicitly for AAA targets.
 - Interactive elements still only require 3:1 for WCAG AA -- focus rings, input borders, icon outlines do not need 7:1.
@@ -455,6 +484,7 @@ When WCAG AAA (7:1 normal text) is required:
 ## Color Palette: Project Management SaaS
 
 ### Color Strategy
+
 - **Harmony Type:** Analogous (violet primary, blue secondary)
 - **Primary Hue:** 246° -- violet-blue
 - **Industry Context:** B2B SaaS -- project management, team productivity
@@ -465,73 +495,77 @@ When WCAG AAA (7:1 normal text) is required:
 ---
 
 ### Primary Color: Violet
+
 **Base (500):** #5B4FE8 -- HSL(246°, 77%, 61%)
 
-| Step | Hex     | RGB                  | Usage                                      |
-|------|---------|----------------------|--------------------------------------------|
-| 50   | #F3F2FD | rgb(243, 242, 253)   | Page tinted bg, selected row bg            |
-| 100  | #E5E3FB | rgb(229, 227, 251)   | Badge bg, alert bg, selected state fill    |
-| 200  | #C9C5F7 | rgb(201, 197, 247)   | List item hover bg, tag bg                 |
-| 300  | #A49EF0 | rgb(164, 158, 240)   | Interactive element borders, progress bar  |
-| 400  | #7B72EC | rgb(123, 114, 236)   | Icon fill on light bg, inactive tab label  |
-| 500  | #5B4FE8 | rgb(91, 79, 232)     | PRIMARY: buttons, links, active indicators |
-| 600  | #4538D4 | rgb(69, 56, 212)     | Button hover, link hover                   |
-| 700  | #3428B0 | rgb(52, 40, 176)     | Button pressed, color-as-text on white     |
-| 800  | #241C85 | rgb(36, 28, 133)     | High-emphasis color text, dark headings    |
-| 900  | #16115C | rgb(22, 17, 92)      | Max contrast, dark overlays                |
+| Step | Hex     | RGB                | Usage                                      |
+| ---- | ------- | ------------------ | ------------------------------------------ |
+| 50   | #F3F2FD | rgb(243, 242, 253) | Page tinted bg, selected row bg            |
+| 100  | #E5E3FB | rgb(229, 227, 251) | Badge bg, alert bg, selected state fill    |
+| 200  | #C9C5F7 | rgb(201, 197, 247) | List item hover bg, tag bg                 |
+| 300  | #A49EF0 | rgb(164, 158, 240) | Interactive element borders, progress bar  |
+| 400  | #7B72EC | rgb(123, 114, 236) | Icon fill on light bg, inactive tab label  |
+| 500  | #5B4FE8 | rgb(91, 79, 232)   | PRIMARY: buttons, links, active indicators |
+| 600  | #4538D4 | rgb(69, 56, 212)   | Button hover, link hover                   |
+| 700  | #3428B0 | rgb(52, 40, 176)   | Button pressed, color-as-text on white     |
+| 800  | #241C85 | rgb(36, 28, 133)   | High-emphasis color text, dark headings    |
+| 900  | #16115C | rgb(22, 17, 92)    | Max contrast, dark overlays                |
 
 ---
 
 ### Secondary Color: Slate Blue
+
 **Base (500):** #3D7BE8 -- HSL(216°, 77%, 58%)
 
 The secondary hue is placed 30° counterclockwise from the primary (216° vs 246°), making this an analogous pair. The secondary's saturation matches the primary (77%) but lightness is 3% higher at the 500 step, ensuring the eye reads the primary violet as dominant when both appear together.
 
-| Step | Hex     | RGB                  | Usage                                       |
-|------|---------|----------------------|---------------------------------------------|
-| 50   | #EEF5FD | rgb(238, 245, 253)   | Secondary tinted bg, info banner bg         |
-| 100  | #D9EAFB | rgb(217, 234, 251)   | Secondary badge bg, selected secondary item |
-| 200  | #B1D3F7 | rgb(177, 211, 247)   | Secondary hover bg                          |
-| 300  | #7DB6F1 | rgb(125, 182, 241)   | Secondary element borders, category chip    |
-| 400  | #5B9AEC | rgb(91, 154, 236)    | Secondary icon fill, second-level nav item  |
-| 500  | #3D7BE8 | rgb(61, 123, 232)    | Secondary buttons, category color dots      |
-| 600  | #2D65CC | rgb(45, 101, 204)    | Secondary button hover                      |
-| 700  | #1F4DA8 | rgb(31, 77, 168)     | Secondary pressed, secondary text on white  |
-| 800  | #163880 | rgb(22, 56, 128)     | High-contrast secondary text                |
-| 900  | #0E2458 | rgb(14, 36, 88)      | Max contrast secondary                      |
+| Step | Hex     | RGB                | Usage                                       |
+| ---- | ------- | ------------------ | ------------------------------------------- |
+| 50   | #EEF5FD | rgb(238, 245, 253) | Secondary tinted bg, info banner bg         |
+| 100  | #D9EAFB | rgb(217, 234, 251) | Secondary badge bg, selected secondary item |
+| 200  | #B1D3F7 | rgb(177, 211, 247) | Secondary hover bg                          |
+| 300  | #7DB6F1 | rgb(125, 182, 241) | Secondary element borders, category chip    |
+| 400  | #5B9AEC | rgb(91, 154, 236)  | Secondary icon fill, second-level nav item  |
+| 500  | #3D7BE8 | rgb(61, 123, 232)  | Secondary buttons, category color dots      |
+| 600  | #2D65CC | rgb(45, 101, 204)  | Secondary button hover                      |
+| 700  | #1F4DA8 | rgb(31, 77, 168)   | Secondary pressed, secondary text on white  |
+| 800  | #163880 | rgb(22, 56, 128)   | High-contrast secondary text                |
+| 900  | #0E2458 | rgb(14, 36, 88)    | Max contrast secondary                      |
 
 ---
 
 ### Accent Color: Amber
+
 **Base:** #F59E0B -- HSL(38°, 92%, 50%)
 
 Amber sits at 38° -- nearly 210° from the primary violet on the color wheel. It is not a strict complementary (which would be 66°, yellow-green), but functions as a high-contrast accent that stands out immediately against the violet-blue palette. Amber signals "attention" without the urgency connotation of red.
 
-| Variant | Hex     | RGB                  | Usage                                        |
-|---------|---------|----------------------|----------------------------------------------|
-| Light   | #FFFBEB | rgb(255, 251, 235)   | Promo banner bg, "new" feature highlight bg  |
-| Base    | #F59E0B | rgb(245, 158, 11)    | "New" badge, priority indicator, promo CTAs  |
-| Dark    | #B45309 | rgb(180, 83, 9)      | Accent text on amber-100 bg (in banners)     |
+| Variant | Hex     | RGB                | Usage                                       |
+| ------- | ------- | ------------------ | ------------------------------------------- |
+| Light   | #FFFBEB | rgb(255, 251, 235) | Promo banner bg, "new" feature highlight bg |
+| Base    | #F59E0B | rgb(245, 158, 11)  | "New" badge, priority indicator, promo CTAs |
+| Dark    | #B45309 | rgb(180, 83, 9)    | Accent text on amber-100 bg (in banners)    |
 
 **Constraint:** Amber accent must not exceed 5% of any screen's color presence. Use exclusively for promotional elements, priority badges, and "new feature" callouts.
 
 ---
 
 ### Neutral Scale: Cool Gray with violet undertone
+
 **Undertone:** HSL(240°, 7%, variable L%) -- the violet primary's hue reduced to a trace saturation
 
-| Step | Hex     | RGB                  | Usage                                       |
-|------|---------|----------------------|---------------------------------------------|
-| 50   | #F8F8FC | rgb(248, 248, 252)   | Page background                             |
-| 100  | #F1F1F8 | rgb(241, 241, 248)   | Card bg, panel bg, alternating table row    |
-| 200  | #E2E2ED | rgb(226, 226, 237)   | Borders, dividers, table lines              |
-| 300  | #C7C7D9 | rgb(199, 199, 217)   | Disabled element borders, skeleton loaders  |
-| 400  | #9595AE | rgb(149, 149, 174)   | Placeholder text, muted icons, captions     |
-| 500  | #6B6B87 | rgb(107, 107, 135)   | Supporting body text, metadata, labels      |
-| 600  | #4A4A62 | rgb(74, 74, 98)      | Primary body text, list items               |
-| 700  | #343448 | rgb(52, 52, 72)      | Section headings, subheadings               |
-| 800  | #1F1F30 | rgb(31, 31, 48)      | Display headings, high-emphasis text        |
-| 900  | #11111E | rgb(17, 17, 30)      | Max contrast text, near-black               |
+| Step | Hex     | RGB                | Usage                                      |
+| ---- | ------- | ------------------ | ------------------------------------------ |
+| 50   | #F8F8FC | rgb(248, 248, 252) | Page background                            |
+| 100  | #F1F1F8 | rgb(241, 241, 248) | Card bg, panel bg, alternating table row   |
+| 200  | #E2E2ED | rgb(226, 226, 237) | Borders, dividers, table lines             |
+| 300  | #C7C7D9 | rgb(199, 199, 217) | Disabled element borders, skeleton loaders |
+| 400  | #9595AE | rgb(149, 149, 174) | Placeholder text, muted icons, captions    |
+| 500  | #6B6B87 | rgb(107, 107, 135) | Supporting body text, metadata, labels     |
+| 600  | #4A4A62 | rgb(74, 74, 98)    | Primary body text, list items              |
+| 700  | #343448 | rgb(52, 52, 72)    | Section headings, subheadings              |
+| 800  | #1F1F30 | rgb(31, 31, 48)    | Display headings, high-emphasis text       |
+| 900  | #11111E | rgb(17, 17, 30)    | Max contrast text, near-black              |
 
 The violet undertone (H=240°) creates visual continuity between the neutral scale and the primary brand violet. The grays feel "of a piece" with the interface rather than generic.
 
@@ -539,14 +573,15 @@ The violet undertone (H=240°) creates visual continuity between the neutral sca
 
 ### Semantic Colors
 
-| Purpose | Light (bg/100) | Base (500)  | Dark (text/700) | WCAG (dark on light) | Usage                                     |
-|---------|----------------|-------------|-----------------|----------------------|-------------------------------------------|
-| Success | #ECFDF5        | #10B981     | #047857         | 5.1:1 -- PASS        | Task completed, milestone hit, approval   |
-| Warning | #FFFBEB        | #F59E0B     | #B45309         | 4.8:1 -- PASS        | Overdue tasks, approaching deadline       |
-| Error   | #FEF2F2        | #EF4444     | #B91C1C         | 5.8:1 -- PASS        | Failed saves, permission denied, conflict |
-| Info    | #EFF6FF        | #3B82F6     | #1D4ED8         | 6.1:1 -- PASS        | Tips, inline help, neutral notifications  |
+| Purpose | Light (bg/100) | Base (500) | Dark (text/700) | WCAG (dark on light) | Usage                                     |
+| ------- | -------------- | ---------- | --------------- | -------------------- | ----------------------------------------- |
+| Success | #ECFDF5        | #10B981    | #047857         | 5.1:1 -- PASS        | Task completed, milestone hit, approval   |
+| Warning | #FFFBEB        | #F59E0B    | #B45309         | 4.8:1 -- PASS        | Overdue tasks, approaching deadline       |
+| Error   | #FEF2F2        | #EF4444    | #B91C1C         | 5.8:1 -- PASS        | Failed saves, permission denied, conflict |
+| Info    | #EFF6FF        | #3B82F6    | #1D4ED8         | 6.1:1 -- PASS        | Tips, inline help, neutral notifications  |
 
 **Semantic differentiation notes:**
+
 - Success green (160°) is clearly distinct from the primary violet (246°) -- no confusion possible.
 - Info blue (217°) is adjacent to the secondary blue (216°). Do not use info blue and secondary blue interchangeably. Info is exclusively for system-generated informational messages. Secondary is for brand interactive elements.
 - Warning amber base (38°) doubles as the accent color -- this is intentional and reduces palette size. Promotional uses are suppressed when the same screen shows warning states. Avoid using amber accent on screens where warning states appear.
@@ -556,8 +591,8 @@ The violet undertone (H=240°) creates visual continuity between the neutral sca
 
 ### WCAG Contrast Verification
 
-| Foreground         | Background       | Hex Codes                    | Ratio    | Required | Result       |
-|--------------------|------------------|------------------------------|----------|----------|--------------|
-| white              | primary-500      | #FFFFFF on #5B4FE8           | 3.6:1    | 4.5:1    | **FAIL** (normal text) |
-| white              | primary-500      | #FFFFFF on #5B4FE8           | 3.6:1    | 3:1      | PASS (large text only) |
-| white              |
+| Foreground | Background  | Hex Codes          | Ratio | Required | Result                 |
+| ---------- | ----------- | ------------------ | ----- | -------- | ---------------------- |
+| white      | primary-500 | #FFFFFF on #5B4FE8 | 3.6:1 | 4.5:1    | **FAIL** (normal text) |
+| white      | primary-500 | #FFFFFF on #5B4FE8 | 3.6:1 | 3:1      | PASS (large text only) |
+| white      |

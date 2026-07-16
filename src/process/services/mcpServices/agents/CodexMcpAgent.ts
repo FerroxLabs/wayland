@@ -127,7 +127,9 @@ export function parseCodexMcpListOutput(result: string): IMcpServer[] {
  * at agent-spawn time (where the live token is injected into the scoped env).
  */
 export function codexBearerEnvVar(serverName: string): string {
-  return `WAYLAND_MCP_BEARER_${cliSafeMcpServerName(serverName).replace(/[^A-Za-z0-9]/g, '_').toUpperCase()}`;
+  return `WAYLAND_MCP_BEARER_${cliSafeMcpServerName(serverName)
+    .replace(/[^A-Za-z0-9]/g, '_')
+    .toUpperCase()}`;
 }
 
 /**

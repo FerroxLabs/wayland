@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fitness workout-planning advanced"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'fitness workout-planning advanced'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'advanced'
 ---
+
 # Training Program Periodization
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user with 1+ years of consistent, structured training asks how to organize their training across multiple months toward a specific or general goal
 - A user is preparing for a powerlifting meet, Olympic weightlifting competition, bodybuilding show, strength test, or physical fitness assessment and needs a structured buildup
 - A user explicitly asks about periodization models -- linear, undulating, block, conjugate, or polarized -- and wants to understand which applies to their situation
@@ -32,6 +34,7 @@ metadata:
 - A recreational athlete wants to peak for a seasonal event (rugby preseason, ski season, an obstacle race) and has 12-24 weeks of preparation time
 
 **Do NOT use when:**
+
 - The user has less than 1 year of structured training history -- use `beginner-strength-training` instead, since linear progression (add weight each session) delivers faster results and periodization complexity is premature
 - The user is asking for a single workout session design -- use `workout-design` instead
 - The user asks specifically about sport-specific conditioning, speed, agility, or energy system development for team sports -- use `sports-specific-conditioning`
@@ -59,6 +62,7 @@ Before selecting any model or designing any structure, collect the following. Mi
 This decision drives all downstream architecture. Match the model to the user's training age, goal type, and whether a specific peak date exists.
 
 **Linear Periodization (LP):**
+
 - Structure: Begin macrocycle at high volume / low intensity, systematically reduce volume and increase intensity week-over-week toward the goal date.
 - Volume-intensity relationship follows a negative correlation: as intensity (% 1RM) rises, total sets and reps fall.
 - Best for: Intermediate lifters (1-3 years) with a single peak date 12-20 weeks away. Predictable, easy to monitor, tolerates lower training frequency.
@@ -66,6 +70,7 @@ This decision drives all downstream architecture. Match the model to the user's 
 - Volume landmark: Start at approximately 15-20 total weekly sets per major muscle group at 65-70% 1RM, ending at 6-10 sets per week at 85-95%+ 1RM in the peaking phase.
 
 **Daily Undulating Periodization (DUP):**
+
 - Structure: Vary rep ranges and intensity within each week. A 3-day DUP week might look like: Day 1 -- power (3x3-5 at 82-88%), Day 2 -- strength (4x4-6 at 75-80%), Day 3 -- hypertrophy (4x8-10 at 65-72%).
 - Best for: Experienced lifters (3+ years) without an imminent peak date, or those who respond poorly to extended single-quality blocks (common complaint: losing strength gains during extended hypertrophy phases).
 - Weekly undulation allows simultaneous maintenance of multiple fitness qualities, reducing detraining risk during long off-season periods.
@@ -73,6 +78,7 @@ This decision drives all downstream architecture. Match the model to the user's 
 - Limitation: Requires careful session-to-session fatigue management. Two heavy CNS-demanding sessions within 48 hours will accumulate fatigue faster than volume metrics alone suggest.
 
 **Block Periodization (Issurin Model):**
+
 - Structure: 3-6 week concentrated loading blocks, each targeting one or two training qualities in sequence. Residual training effect (RTE) dictates block sequencing -- train qualities in order from longest to shortest RTE.
 - RTE hierarchy (approximate retention after cessation of training stimulus):
   - Aerobic endurance: 25-35 days
@@ -87,11 +93,13 @@ This decision drives all downstream architecture. Match the model to the user's 
 - Limitation: Requires sufficient training frequency within each block (minimum 3 sessions/week for primary quality) to produce meaningful concentrated overload.
 
 **Conjugate / Concurrent Periodization:**
+
 - Structure: Train multiple qualities in parallel, every week, with emphasis rotation across the training week. Classic example: Max Effort (ME) day -- work up to a heavy single, double, or triple in a competition movement or variation; Dynamic Effort (DE) day -- sub-maximal loads (50-65%) with maximal bar speed to develop rate of force development.
 - Best for: Advanced strength athletes (4+ years), experienced powerlifters using accommodating resistance (bands, chains), or any athlete needing simultaneous maintenance of multiple high-level qualities.
 - Limitation: Requires sophisticated exercise rotation and accessory selection knowledge. Not suitable without at least 2-3 years of structured barbell training and a solid foundation in movement variations.
 
 **Polarized Periodization:**
+
 - Used primarily in endurance sports but increasingly applied to hybrid athletes and GPP-focused training. Approximately 80% of training volume at low intensity (conversational pace, RPE 2-4), 20% at high intensity (near-maximal effort, RPE 8-10). Middle intensities (RPE 5-7) are deliberately minimized.
 - Best for: Endurance athletes, hybrid athletes with a significant cardiovascular component, or strength athletes in an off-season GPP phase building aerobic base.
 
@@ -433,14 +441,14 @@ A body weight cut of more than 5% of total body weight within 4 weeks of competi
 
 ### Macrocycle Architecture
 
-| Mesocycle | Weeks | Phase         | Primary Quality         | Weekly Sets (primary lifts) | Intensity Range  | RPE Target |
-|-----------|-------|---------------|-------------------------|-----------------------------|------------------|------------|
-| 1         | 1-4   | Accumulation  | Hypertrophy / Work Cap  | 16-20                       | 65-77% 1RM       | 7-8        |
-| T1        | 5     | Transition    | Recovery                | 6-8                         | 55-65%           | 5-6        |
-| 2         | 6-9   | Transmutation | Maximal Strength        | 12-14                       | 78-88% 1RM       | 8-9        |
-| T2        | 10    | Transition    | Recovery / Peak Prep    | 6-8                         | 65-72%           | 6-7        |
-| 3         | 11-13 | Realization   | Peaking / Neural Eff.   | 6-9                         | 87-97%+ 1RM      | 9-9.5      |
-| 4         | 14    | Taper / Meet  | Competition             | 3-4 (competition only)      | 90% (opener)     | 7-8 opener |
+| Mesocycle | Weeks | Phase         | Primary Quality        | Weekly Sets (primary lifts) | Intensity Range | RPE Target |
+| --------- | ----- | ------------- | ---------------------- | --------------------------- | --------------- | ---------- |
+| 1         | 1-4   | Accumulation  | Hypertrophy / Work Cap | 16-20                       | 65-77% 1RM      | 7-8        |
+| T1        | 5     | Transition    | Recovery               | 6-8                         | 55-65%          | 5-6        |
+| 2         | 6-9   | Transmutation | Maximal Strength       | 12-14                       | 78-88% 1RM      | 8-9        |
+| T2        | 10    | Transition    | Recovery / Peak Prep   | 6-8                         | 65-72%          | 6-7        |
+| 3         | 11-13 | Realization   | Peaking / Neural Eff.  | 6-9                         | 87-97%+ 1RM     | 9-9.5      |
+| 4         | 14    | Taper / Meet  | Competition            | 3-4 (competition only)      | 90% (opener)    | 7-8 opener |
 
 ---
 
@@ -454,11 +462,11 @@ A body weight cut of more than 5% of total body weight within 4 weeks of competi
 
 ### 1RM Update Schedule
 
-| Review Point       | Action                                                                     |
-|--------------------|----------------------------------------------------------------------------|
-| End of Week 4      | Re-estimate 1RM based on last working set RPE; adjust transmutation %s    |
-| End of Week 9      | Re-estimate 1RM; finalize realization loading and opener weight targets    |
-| End of Week 13     | Confirm meet openers (90-92% of revised 1RM estimate)                     |
+| Review Point   | Action                                                                  |
+| -------------- | ----------------------------------------------------------------------- |
+| End of Week 4  | Re-estimate 1RM based on last working set RPE; adjust transmutation %s  |
+| End of Week 9  | Re-estimate 1RM; finalize realization loading and opener weight targets |
+| End of Week 13 | Confirm meet openers (90-92% of revised 1RM estimate)                   |
 
 ---
 
@@ -474,26 +482,29 @@ A body weight cut of more than 5% of total body weight within 4 weeks of competi
 **Volume target:** 16-20 weekly sets per primary pattern
 
 **Baseline loading reference:**
+
 - Squat 180 kg: 65% = 117 kg, 72% = 130 kg, 77% = 139 kg
 - Bench 120 kg: 65% = 78 kg, 72% = 86 kg, 77% = 92 kg
 - Deadlift 210 kg: 65% = 137 kg, 72% = 151 kg, 77% = 162 kg
 
-| Week | Primary Scheme | Squat Intensity | Bench Intensity | DL Intensity | Accessory Volume | Notes                                          |
-|------|---------------|-----------------|-----------------|--------------|------------------|------------------------------------------------|
-| 1    | 4 x 8         | 65%             | 65%             | 65%          | High (4 x 10-12) | Intro week -- groove technical patterns         |
-| 2    | 4 x 8         | 70%             | 70%             | 70%          | High (4 x 10-12) | Volume build, confirm bar path consistency     |
-| 3    | 5 x 6         | 75%             | 75%             | 72%*         | High (3 x 10-12) | Peak accumulation volume week                  |
-| 4    | 4 x 6         | 77%             | 77%             | 75%          | Moderate (3 x 10)| Intensity step up, volume slightly down        |
-| 5    | 2 x 5 (deload)| 55-60%          | 55-60%          | 55-60%       | Low (1-2 x 10)   | Transition week -- restoration focus           |
+| Week | Primary Scheme | Squat Intensity | Bench Intensity | DL Intensity | Accessory Volume  | Notes                                      |
+| ---- | -------------- | --------------- | --------------- | ------------ | ----------------- | ------------------------------------------ |
+| 1    | 4 x 8          | 65%             | 65%             | 65%          | High (4 x 10-12)  | Intro week -- groove technical patterns    |
+| 2    | 4 x 8          | 70%             | 70%             | 70%          | High (4 x 10-12)  | Volume build, confirm bar path consistency |
+| 3    | 5 x 6          | 75%             | 75%             | 72%\*        | High (3 x 10-12)  | Peak accumulation volume week              |
+| 4    | 4 x 6          | 77%             | 77%             | 75%          | Moderate (3 x 10) | Intensity step up, volume slightly down    |
+| 5    | 2 x 5 (deload) | 55-60%          | 55-60%          | 55-60%       | Low (1-2 x 10)    | Transition week -- restoration focus       |
 
-*Deadlift volume is intentionally 1 week behind squat/bench intensity progression due to higher CNS and spinal recovery demand.
+\*Deadlift volume is intentionally 1 week behind squat/bench intensity progression due to higher CNS and spinal recovery demand.
 
 **Primary exercise selection:**
+
 - **Squat:** Paused Back Squat (2-second pause at parallel) -- develops strength in the bottom position, directly addresses the "fails in the hole" weakness without competition-specific practice fatigue
 - **Bench:** Close-Grip Bench Press (grip approximately 1.5-2 inches inside competition grip) -- overloads the triceps for lockout development; switches to competition grip in transmutation
 - **Deadlift:** Conventional Deadlift (competition stance) with controlled 3-second eccentric -- reinforces proprioceptive awareness and hamstring loading
 
 **Key accessory exercises:**
+
 - Romanian Deadlift: 3 x 10-12 -- posterior chain development, squat and deadlift support
 - DB Incline Press: 3 x 10-12 -- upper pec and shoulder stability for bench
 - Lat Pulldown (overhand, full range): 4 x 10-12 -- upper back for squat bar position stability and deadlift

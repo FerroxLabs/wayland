@@ -14,16 +14,7 @@
  */
 
 import React, { useCallback } from 'react';
-import {
-  BookOpen,
-  ChevronRight,
-  Clock,
-  Diamond,
-  RefreshCw,
-  Settings,
-  Triangle,
-  Eye,
-} from 'lucide-react';
+import { BookOpen, ChevronRight, Clock, Diamond, RefreshCw, Settings, Triangle, Eye } from 'lucide-react';
 import type { MemoryEntry, MemoryType } from '@/common/types/memory';
 import styles from './MemoryRow.module.css';
 
@@ -112,7 +103,7 @@ const MemoryRow: React.FC<MemoryRowProps> = ({ entry, selected = false, onClick 
         onClick?.(entry.id);
       }
     },
-    [onClick, entry.id],
+    [onClick, entry.id]
   );
 
   const typeDef = TYPE_ICONS[entry.type];

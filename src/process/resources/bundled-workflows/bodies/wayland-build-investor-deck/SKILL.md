@@ -14,14 +14,15 @@ description: >-
   atomic pitch skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "pitch-deck"
+skills: 'pitch-deck'
 metadata:
   author: wayland
   version: 1.0.0
   tags: pitch fundraising deck investor narrative step-by-step planning
   category: marketing
-  depends: "pitch-deck"
+  depends: 'pitch-deck'
 ---
+
 # Build an Investor Deck
 
 **Estimated time:** 60-90 minutes

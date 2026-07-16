@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing research study-skills step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'academic-writing research study-skills step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Annotated Bibliography
 
 ## When to Use
@@ -67,9 +68,9 @@ Match the annotation format precisely to the assignment's requirements before dr
 
 Produce the full formatted citation before writing the annotation body -- errors in the citation undermine the entire entry.
 
-- For **APA 7th edition**: Author, A. A., & Author, B. B. (Year). Title of article. *Journal Name*, *Volume*(Issue), page range. https://doi.org/xxxxx -- note sentence case for article titles, title case and italics for journal names
-- For **MLA 9th edition**: Author Last, First. "Article Title." *Journal Name*, vol. number, no. number, Year, pp. page range. Database or DOI. -- note title case for article titles in quotes, italics for journal
-- For **Chicago Author-Date**: Author Last, First. Year. "Article Title." *Journal Name* Volume (Issue): page range. DOI. -- note that Chicago Notes-Bibliography places the citation in a footnote format rather than an inline reference list
+- For **APA 7th edition**: Author, A. A., & Author, B. B. (Year). Title of article. _Journal Name_, _Volume_(Issue), page range. https://doi.org/xxxxx -- note sentence case for article titles, title case and italics for journal names
+- For **MLA 9th edition**: Author Last, First. "Article Title." _Journal Name_, vol. number, no. number, Year, pp. page range. Database or DOI. -- note title case for article titles in quotes, italics for journal
+- For **Chicago Author-Date**: Author Last, First. Year. "Article Title." _Journal Name_ Volume (Issue): page range. DOI. -- note that Chicago Notes-Bibliography places the citation in a footnote format rather than an inline reference list
 - For **books**, include publisher and city (Chicago), or publisher only (APA 7th) -- confirm edition if relevant
 - For **websites or reports**, include organization as author if no individual author is listed, access date if required by style, and the full URL or DOI -- the `citation-management` skill can handle complex edge cases
 - Double-check that author names are inverted (Last, First) for the first author in APA and Chicago, and for all authors in MLA
@@ -284,9 +285,9 @@ Sometimes an honest evaluation makes clear the source should not be in the bibli
 **Input from learner:**
 "I'm writing a research paper on the effects of sleep deprivation on academic performance in university students. My thesis is that chronic sleep deprivation (less than 6 hours per night) significantly impairs GPA, working memory, and executive function in undergraduate students, and that institutional scheduling practices contribute to this. I need APA 7th edition analytical annotations, about 200 words each. Here are two sources:
 
-1. Hershner, S. D., & Chervin, R. D. (2014). Causes and consequences of sleepiness among college students. *Nature and Science of Sleep*, 6, 73-84. -- Abstract: This review examines the prevalence of sleep problems in college students, identifies contributing factors (academic schedules, social pressures, technology use), and reviews evidence linking poor sleep to academic performance, mental health, and safety. The authors conclude that sleep deprivation is a public health concern on college campuses.
+1. Hershner, S. D., & Chervin, R. D. (2014). Causes and consequences of sleepiness among college students. _Nature and Science of Sleep_, 6, 73-84. -- Abstract: This review examines the prevalence of sleep problems in college students, identifies contributing factors (academic schedules, social pressures, technology use), and reviews evidence linking poor sleep to academic performance, mental health, and safety. The authors conclude that sleep deprivation is a public health concern on college campuses.
 
-2. Gillen-O'Neel, C., Huynh, V. W., & Fuligni, A. J. (2013). To study or to sleep? The academic costs of extra studying at the expense of sleep. *Child Development*, 84(1), 133-142. -- Abstract: This longitudinal daily diary study followed high school and college students over two weeks, collecting nightly reports of study time and sleep time. On nights when students studied longer than usual, they reported more academic problems the next day, even after accounting for prior academic achievement. Findings suggest that sacrificing sleep for studying is counterproductive."
+2. Gillen-O'Neel, C., Huynh, V. W., & Fuligni, A. J. (2013). To study or to sleep? The academic costs of extra studying at the expense of sleep. _Child Development_, 84(1), 133-142. -- Abstract: This longitudinal daily diary study followed high school and college students over two weeks, collecting nightly reports of study time and sleep time. On nights when students studied longer than usual, they reported more academic problems the next day, even after accounting for prior academic achievement. Findings suggest that sacrificing sleep for studying is counterproductive."
 
 ---
 
@@ -309,17 +310,18 @@ Sometimes an honest evaluation makes clear the source should not be in the bibli
 **Entry 1**
 
 **Citation:**
-> Hershner, S. D., & Chervin, R. D. (2014). Causes and consequences of sleepiness among college students. *Nature and Science of Sleep*, *6*, 73--84. https://doi.org/10.2147/NSS.S62907
 
-*(Apply hanging indent in Word/Google Docs: all lines after the first are indented 0.5 inches)*
+> Hershner, S. D., & Chervin, R. D. (2014). Causes and consequences of sleepiness among college students. _Nature and Science of Sleep_, _6_, 73--84. https://doi.org/10.2147/NSS.S62907
+
+_(Apply hanging indent in Word/Google Docs: all lines after the first are indented 0.5 inches)_
 
 **Annotation:**
 
-*Summary:* Hershner and Chervin (2014) synthesize existing research on sleep problems among college students, identifying contributing factors -- including academic scheduling, social pressures, and technology use -- and reviewing evidence linking sleep deprivation to reduced academic performance, impaired mental health, and increased safety risks. The authors conclude that inadequate sleep constitutes a public health concern at the institutional level and call for campus-wide intervention strategies.
+_Summary:_ Hershner and Chervin (2014) synthesize existing research on sleep problems among college students, identifying contributing factors -- including academic scheduling, social pressures, and technology use -- and reviewing evidence linking sleep deprivation to reduced academic performance, impaired mental health, and increased safety risks. The authors conclude that inadequate sleep constitutes a public health concern at the institutional level and call for campus-wide intervention strategies.
 
-*Evaluation:* Published in *Nature and Science of Sleep*, a peer-reviewed journal focused on sleep medicine, this narrative review draws on a substantial body of empirical literature. The authors are faculty affiliated with the University of Michigan Sleep Disorders Center, lending clinical credibility. As a narrative rather than systematic review, the source does not apply a formal inclusion protocol, which introduces selection bias -- the authors may have preferentially cited studies supporting their conclusions. At nearly a decade old, some technology-use data may be outdated, though the physiological and scheduling findings remain applicable.
+_Evaluation:_ Published in _Nature and Science of Sleep_, a peer-reviewed journal focused on sleep medicine, this narrative review draws on a substantial body of empirical literature. The authors are faculty affiliated with the University of Michigan Sleep Disorders Center, lending clinical credibility. As a narrative rather than systematic review, the source does not apply a formal inclusion protocol, which introduces selection bias -- the authors may have preferentially cited studies supporting their conclusions. At nearly a decade old, some technology-use data may be outdated, though the physiological and scheduling findings remain applicable.
 
-*Relevance:* This source provides the institutional-level framing central to my argument that scheduling practices contribute to student sleep deprivation. Specifically, the review's documentation of academic schedule as a causal factor supports the second component of my thesis, and its breadth makes it suitable as the introductory background source for the paper's opening section.
+_Relevance:_ This source provides the institutional-level framing central to my argument that scheduling practices contribute to student sleep deprivation. Specifically, the review's documentation of academic schedule as a causal factor supports the second component of my thesis, and its breadth makes it suitable as the introductory background source for the paper's opening section.
 
 **Word count: 202**
 
@@ -328,17 +330,18 @@ Sometimes an honest evaluation makes clear the source should not be in the bibli
 **Entry 2**
 
 **Citation:**
-> Gillen-O'Neel, C., Huynh, V. W., & Fuligni, A. J. (2013). To study or to sleep? The academic costs of extra studying at the expense of sleep. *Child Development*, *84*(1), 133--142. https://doi.org/10.1111/j.1467-8624.2012.01834.x
 
-*(Apply hanging indent in Word/Google Docs)*
+> Gillen-O'Neel, C., Huynh, V. W., & Fuligni, A. J. (2013). To study or to sleep? The academic costs of extra studying at the expense of sleep. _Child Development_, _84_(1), 133--142. https://doi.org/10.1111/j.1467-8624.2012.01834.x
+
+_(Apply hanging indent in Word/Google Docs)_
 
 **Annotation:**
 
-*Summary:* Gillen-O'Neel et al. (2013) investigate the short-term academic consequences of sacrificing sleep for studying using a longitudinal daily diary design. Over two weeks, high school and college students recorded nightly study duration and sleep duration. On nights when participants studied longer than their average, they reported significantly more academic problems the following day -- difficulty understanding material, inability to complete homework, poor test performance -- even after controlling for baseline academic achievement. The findings directly contradict the common student belief that late-night studying improves academic outcomes.
+_Summary:_ Gillen-O'Neel et al. (2013) investigate the short-term academic consequences of sacrificing sleep for studying using a longitudinal daily diary design. Over two weeks, high school and college students recorded nightly study duration and sleep duration. On nights when participants studied longer than their average, they reported significantly more academic problems the following day -- difficulty understanding material, inability to complete homework, poor test performance -- even after controlling for baseline academic achievement. The findings directly contradict the common student belief that late-night studying improves academic outcomes.
 
-*Evaluation:* The daily diary methodology is well-suited to capturing within-person variation in behavior, avoiding the retrospective bias that affects survey-based sleep research. The authors control for prior academic achievement, which strengthens causal inference. A key limitation is the reliance on self-reported academic problems rather than objective performance measures (e.g., exam scores or GPA), which introduces social desirability bias. The mixed high school and college sample also reduces specificity to the university population at the center of my research question -- findings may not cleanly generalize to undergraduates alone.
+_Evaluation:_ The daily diary methodology is well-suited to capturing within-person variation in behavior, avoiding the retrospective bias that affects survey-based sleep research. The authors control for prior academic achievement, which strengthens causal inference. A key limitation is the reliance on self-reported academic problems rather than objective performance measures (e.g., exam scores or GPA), which introduces social desirability bias. The mixed high school and college sample also reduces specificity to the university population at the center of my research question -- findings may not cleanly generalize to undergraduates alone.
 
-*Relevance:* This study provides the most direct empirical support for my GPA component, demonstrating that the sleep-academic performance trade-off operates at the day-to-day level, not only as a chronic aggregate effect. It will anchor the evidence section of the paper and serve as a methodological counterpoint to cross-sectional studies, demonstrating that longitudinal designs capture mechanisms that one-time surveys miss.
+_Relevance:_ This study provides the most direct empirical support for my GPA component, demonstrating that the sleep-academic performance trade-off operates at the day-to-day level, not only as a chronic aggregate effect. It will anchor the evidence section of the paper and serve as a methodological counterpoint to cross-sectional studies, demonstrating that longitudinal designs capture mechanisms that one-time surveys miss.
 
 **Word count: 207**
 
@@ -346,16 +349,16 @@ Sometimes an honest evaluation makes clear the source should not be in the bibli
 
 ### Bibliography Quality Checklist
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| All citations complete and correctly formatted | ✓ | DOIs included for both entries |
-| Annotations alphabetized by author last name | ✓ | Gillen-O'Neel precedes Hershner alphabetically -- reverse order in final document |
-| Consistent annotation length across entries | ✓ | 202 and 207 words -- within acceptable range |
-| Every relevance section names a specific argument component | ✓ | Entry 1: scheduling/institutional section; Entry 2: GPA evidence section |
-| Evaluations address methodology or credibility | ✓ | Narrative review limitation noted; self-report bias flagged |
-| No annotations begin with a quotation | ✓ | |
-| Hanging indent noted for manual formatting | ✓ | Flagged beneath each citation |
-| Annotation type matches assignment requirement | ✓ | Analytical with all three components |
+| Criterion                                                   | Status | Notes                                                                             |
+| ----------------------------------------------------------- | ------ | --------------------------------------------------------------------------------- |
+| All citations complete and correctly formatted              | ✓      | DOIs included for both entries                                                    |
+| Annotations alphabetized by author last name                | ✓      | Gillen-O'Neel precedes Hershner alphabetically -- reverse order in final document |
+| Consistent annotation length across entries                 | ✓      | 202 and 207 words -- within acceptable range                                      |
+| Every relevance section names a specific argument component | ✓      | Entry 1: scheduling/institutional section; Entry 2: GPA evidence section          |
+| Evaluations address methodology or credibility              | ✓      | Narrative review limitation noted; self-report bias flagged                       |
+| No annotations begin with a quotation                       | ✓      |                                                                                   |
+| Hanging indent noted for manual formatting                  | ✓      | Flagged beneath each citation                                                     |
+| Annotation type matches assignment requirement              | ✓      | Analytical with all three components                                              |
 
 ---
 

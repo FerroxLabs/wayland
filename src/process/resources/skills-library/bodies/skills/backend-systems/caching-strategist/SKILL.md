@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design guide"
-  category: "backend-systems"
-  subcategory: "server-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'backend api-design guide'
+  category: 'backend-systems'
+  subcategory: 'server-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Caching Strategist
@@ -184,7 +184,7 @@ class AnalyticsService {
     const batch = Array.from(this.writeBuffer.values());
     this.writeBuffer.clear();
 
-    await this.db.analytics.insertMany(batch.map(b => b.data));
+    await this.db.analytics.insertMany(batch.map((b) => b.data));
   }
 }
 ```
@@ -289,7 +289,7 @@ await cache.invalidateByTag('category:electronics');
 
 ```ts
 // Use a version counter in the cache key
-const version = await cache.get('products:version') || '1';
+const version = (await cache.get('products:version')) || '1';
 const cacheKey = `products:list:v${version}`;
 const products = await cache.get(cacheKey);
 
@@ -512,6 +512,7 @@ LAYER 5: Database Query Cache
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing caching strategist solutions
 - Reviewing or improving existing caching strategist approaches
 - Making architectural or implementation decisions about caching strategist
@@ -519,6 +520,7 @@ LAYER 5: Database Query Cache
 - Troubleshooting caching strategist-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -529,21 +531,26 @@ LAYER 5: Database Query Cache
 # Caching Strategist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

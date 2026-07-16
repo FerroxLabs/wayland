@@ -96,9 +96,7 @@ describe('Migration v51 - audit_log table (bun:sqlite)', () => {
 
   it('up() is idempotent (re-run does not throw or drop existing rows)', () => {
     migration_v51!.up(driver);
-    driver
-      .prepare(`INSERT INTO audit_log (action, created_at) VALUES (?, ?)`)
-      .run('provider.connect', 1);
+    driver.prepare(`INSERT INTO audit_log (action, created_at) VALUES (?, ?)`).run('provider.connect', 1);
 
     expect(() => migration_v51!.up(driver)).not.toThrow();
     const row = driver.prepare('SELECT 1 FROM audit_log WHERE action = ?').get('provider.connect');

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing writing template"
-  category: "writing"
-  subcategory: "academic-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'academic-writing writing template'
+  category: 'writing'
+  subcategory: 'academic-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Citation Reference
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user provides raw source information (author, title, year, journal, etc.) and asks for it formatted in APA, MLA, Chicago, or IEEE style
 - The user pastes existing citations that may be incorrect and asks for a formatting check or correction
 - The user wants to convert an entire reference list or bibliography from one style to another (e.g., switching a manuscript from APA to Chicago for resubmission)
@@ -29,6 +31,7 @@ metadata:
 - The user is preparing a manuscript for journal submission and needs to verify citation compliance with a specific publication's style requirements
 
 **Do NOT use this skill when:**
+
 - The user wants to write, synthesize, or analyze a body of literature -- use `literature-review`
 - The user wants guidance on structuring sections of a research paper -- use `research-paper-structure`
 - The user wants grammatical or stylistic editing of their prose -- use `copy-editing`
@@ -68,37 +71,42 @@ Common source-type trap: A report from the World Health Organization or a govern
 Apply style-specific rules precisely. The rules below cover the most frequently encountered scenarios:
 
 **APA 7th In-Text:**
+
 - 1 author: (Smith, 2023) or Smith (2023) -- narrative form is acceptable and encouraged for integration into prose
 - 2 authors: always cite both: (Smith & Jones, 2023)
 - 3+ authors: first author et al. from the first citation: (Smith et al., 2023) -- "et al." is now standard from first use for 3+ authors
 - Corporate author: Spell out fully on first use with abbreviation introduced if the name is long and recurs: (World Health Organization [WHO], 2022) then (WHO, 2022)
 - Same author, same year: alphabetical title disambiguation: (Smith, 2023a) and (Smith, 2023b)
-- No author: use the first few words of the title in the position of the author, in italics if the title would be italicized in the reference list, or in quotation marks if the title would be in quotes: (*Diagnostic Manual*, 2023) or ("Understanding Sleep," 2023)
+- No author: use the first few words of the title in the position of the author, in italics if the title would be italicized in the reference list, or in quotation marks if the title would be in quotes: (_Diagnostic Manual_, 2023) or ("Understanding Sleep," 2023)
 - Secondary source (citing a source found in another source): (Original Author, year, as cited in Secondary Author, year) -- only the secondary source appears in the reference list; flag that the primary source should be sought
 - Specific page/paragraph: (Smith, 2023, p. 45), (Smith, 2023, pp. 45-47), (Smith, 2023, para. 3), (Smith, 2023, Table 2)
 - Multiple sources in one parenthetical: alphabetical by first author, semicolon-separated: (Jones, 2021; Smith, 2023; Walker, 2020)
 
 **MLA 9th In-Text:**
+
 - Author-page: (Smith 45) -- no comma, no "p."
 - 2 authors: (Smith and Jones 45) -- spelled out "and," not ampersand
 - 3+ authors: (Smith et al. 45) -- "et al." with no period after "et"
 - No page numbers (common for websites, ebooks): cite the author only: (Smith) or, if no author, first significant word(s) of title
-- No author: first words of the title, formatted to match the Works Cited entry (italics or quotes): (*Diagnostic Manual* 23) or ("Understanding Sleep")
+- No author: first words of the title, formatted to match the Works Cited entry (italics or quotes): (_Diagnostic Manual_ 23) or ("Understanding Sleep")
 - Multiple works by same author: include a short title: (Smith, "Memory" 45)
 - Entire work, not specific page: author name only in parenthetical or work name in prose is sufficient; no parenthetical needed if the author is named in the sentence
 
 **Chicago Notes-Bibliography (NB) In-Text:**
+
 - Superscript footnote/endnote numbers in the running text, placed after punctuation
-- First full note: Author First Last, *Title*, (Place: Publisher, Year), page.
-- Subsequent notes for same work (short form): Last, *Short Title*, page. -- OR use "Ibid." only if citing the same work consecutively with no intervening note; Ibid. with a different page: Ibid., 23.
+- First full note: Author First Last, _Title_, (Place: Publisher, Year), page.
+- Subsequent notes for same work (short form): Last, _Short Title_, page. -- OR use "Ibid." only if citing the same work consecutively with no intervening note; Ibid. with a different page: Ibid., 23.
 - Cross-references: "n. 12 above" or "n. 12 below" for notes referring to other notes
 
 **Chicago Author-Date (AD) In-Text:**
+
 - (Author Year) or (Author Year, page): (Smith 2023) or (Smith 2023, 45)
 - 3 authors: all named first time: (Smith, Jones, and Walker 2023); et al. for 4+
 - Multiple sources: (Jones 2021; Smith 2023)
 
 **IEEE In-Text:**
+
 - Numbered in square brackets in order of first appearance: [1], [2], [3]
 - Multiple references: [1], [2] or [1]--[3] for a range
 - If a single reference is cited multiple times, always use the same number
@@ -110,112 +118,140 @@ The following templates cover the most common source types across all four style
 
 **Peer-Reviewed Journal Article:**
 
-*APA 7th:*
-> Last, F. M., & Last, F. M. (Year). Title of article in sentence case. *Title of Journal in Title Case*, *Volume*(Issue), first page--last page. https://doi.org/xxxxx
+_APA 7th:_
+
+> Last, F. M., & Last, F. M. (Year). Title of article in sentence case. _Title of Journal in Title Case_, _Volume_(Issue), first page--last page. https://doi.org/xxxxx
 
 Key rules: DOI formatted as hyperlink (https://doi.org/), no "Retrieved from," sentence case for article title, title case for journal name, volume italicized, issue NOT italicized (inside parentheses immediately after volume), no space between volume and parenthetical issue number.
 
-*MLA 9th:*
-> Last, First, and First Last. "Title of Article in Title Case." *Title of Journal*, vol. #, no. #, Year, pp. first--last, https://doi.org/xxxxx.
+_MLA 9th:_
+
+> Last, First, and First Last. "Title of Article in Title Case." _Title of Journal_, vol. #, no. #, Year, pp. first--last, https://doi.org/xxxxx.
 
 Key rules: title case for article title, "vol." and "no." in lowercase, "pp." for page range, DOI or URL as final element followed by period.
 
-*Chicago NB -- Bibliography:*
-> Last, First, and First Last. "Title of Article." *Title of Journal* Volume, no. Issue (Year): first--last page. https://doi.org/xxxxx.
+_Chicago NB -- Bibliography:_
 
-*Chicago AD -- Reference List:*
-> Last, First, and First Last. Year. "Title of Article." *Title of Journal* Volume (Issue): first--last page. https://doi.org/xxxxx.
+> Last, First, and First Last. "Title of Article." _Title of Journal_ Volume, no. Issue (Year): first--last page. https://doi.org/xxxxx.
 
-*IEEE:*
-> F. M. Last and F. M. Last, "Title of article," *Title of Journal*, vol. #, no. #, pp. first--last, Mon. Year, doi: 10.xxxxx.
+_Chicago AD -- Reference List:_
+
+> Last, First, and First Last. Year. "Title of Article." _Title of Journal_ Volume (Issue): first--last page. https://doi.org/xxxxx.
+
+_IEEE:_
+
+> F. M. Last and F. M. Last, "Title of article," _Title of Journal_, vol. #, no. #, pp. first--last, Mon. Year, doi: 10.xxxxx.
 
 Key rules: author initials before last name, no quotes around article title (just standard type), journal name italicized, month abbreviation (Jan., Feb., Mar., Apr., May, Jun., Jul., Aug., Sep., Oct., Nov., Dec.), doi: without https://.
 
 **Edited Book Chapter:**
 
-*APA 7th:*
-> Chapter Author, F. M. (Year). Title of chapter. In F. M. Editor (Ed.), *Title of Book* (pp. first--last). Publisher. https://doi.org/xxxxx [if applicable]
+_APA 7th:_
 
-*MLA 9th:*
-> Chapter Author, First. "Title of Chapter." *Title of Book*, edited by First Last, Publisher, Year, pp. first--last.
+> Chapter Author, F. M. (Year). Title of chapter. In F. M. Editor (Ed.), _Title of Book_ (pp. first--last). Publisher. https://doi.org/xxxxx [if applicable]
 
-*Chicago NB -- Bibliography:*
-> Chapter Author, First. "Title of Chapter." In *Title of Book*, edited by First Last, first--last. Place: Publisher, Year.
+_MLA 9th:_
 
-*Chicago AD:*
-> Chapter Author, First. Year. "Title of Chapter." In *Title of Book*, edited by First Last, first--last. Place: Publisher.
+> Chapter Author, First. "Title of Chapter." _Title of Book_, edited by First Last, Publisher, Year, pp. first--last.
 
-*IEEE:*
-> F. M. Last, "Title of chapter," in *Title of Book*, F. M. Editor, Ed. City: Publisher, Year, pp. first--last.
+_Chicago NB -- Bibliography:_
+
+> Chapter Author, First. "Title of Chapter." In _Title of Book_, edited by First Last, first--last. Place: Publisher, Year.
+
+_Chicago AD:_
+
+> Chapter Author, First. Year. "Title of Chapter." In _Title of Book_, edited by First Last, first--last. Place: Publisher.
+
+_IEEE:_
+
+> F. M. Last, "Title of chapter," in _Title of Book_, F. M. Editor, Ed. City: Publisher, Year, pp. first--last.
 
 **Entire Book:**
 
-*APA 7th:*
-> Last, F. M. (Year). *Title of book: Subtitle in sentence case* (Nth ed.). Publisher. https://doi.org/xxxxx [for ebooks with DOI]
+_APA 7th:_
+
+> Last, F. M. (Year). _Title of book: Subtitle in sentence case_ (Nth ed.). Publisher. https://doi.org/xxxxx [for ebooks with DOI]
 
 Key rules: edition information in parentheses before publisher (2nd ed.), no place of publication in APA 7th (removed from 7th edition -- a significant change from 6th).
 
-*MLA 9th:*
-> Last, First. *Title of Book: Subtitle*. Nth ed., Publisher, Year.
+_MLA 9th:_
 
-*Chicago NB:*
-> Last, First. *Title of Book: Subtitle*. Nth ed. Place: Publisher, Year.
+> Last, First. _Title of Book: Subtitle_. Nth ed., Publisher, Year.
 
-*Chicago AD:*
-> Last, First. Year. *Title of Book: Subtitle*. Nth ed. Place: Publisher.
+_Chicago NB:_
 
-*IEEE:*
-> F. M. Last, *Title of Book*, Nth ed. City: Publisher, Year.
+> Last, First. _Title of Book: Subtitle_. Nth ed. Place: Publisher, Year.
+
+_Chicago AD:_
+
+> Last, First. Year. _Title of Book: Subtitle_. Nth ed. Place: Publisher.
+
+_IEEE:_
+
+> F. M. Last, _Title of Book_, Nth ed. City: Publisher, Year.
 
 **Webpage / Online Document:**
 
-*APA 7th:*
+_APA 7th:_
+
 > Last, F. M. (Year, Month Day). Title of page in sentence case. Site Name. [Retrieved Month Day, Year, from] URL
 
 Retrieval date required only if the content is expected to change or has no date. For dated, stable pages, no retrieval date.
 
-*MLA 9th:*
-> Last, First. "Title of Page." *Site Name*, Day Month Year, URL. Accessed Day Month Year.
+_MLA 9th:_
+
+> Last, First. "Title of Page." _Site Name_, Day Month Year, URL. Accessed Day Month Year.
 
 "Accessed" date always required for online sources in MLA 9th.
 
-*Chicago NB:*
+_Chicago NB:_
+
 > Last, First. "Title of Page." Site Name. Last modified Month Day, Year. URL.
--- or --
+> -- or --
 > Last, First. "Title of Page." Site Name. Accessed Month Day, Year. URL.
 
-*Chicago AD:*
+_Chicago AD:_
+
 > Last, First. Year. "Title of Page." Site Name. Month Day, Year. URL.
 
-*IEEE:*
-> F. M. Last, "Title of page," *Site Name*. [Online]. Available: URL. Accessed: Mon. DD, YYYY.
+_IEEE:_
+
+> F. M. Last, "Title of page," _Site Name_. [Online]. Available: URL. Accessed: Mon. DD, YYYY.
 
 **Conference Paper (Published in Proceedings):**
 
-*APA 7th:*
+_APA 7th:_
+
 > Last, F. M. (Year, Month Day--Day). Title of paper [Paper presentation]. Conference Name, City, Country. https://doi.org/xxxxx
 
-*MLA 9th:*
-> Last, First. "Title of Paper." *Proceedings of Conference Name*, edited by First Last, Publisher, Year, pp. first--last.
+_MLA 9th:_
 
-*Chicago NB:*
+> Last, First. "Title of Paper." _Proceedings of Conference Name_, edited by First Last, Publisher, Year, pp. first--last.
+
+_Chicago NB:_
+
 > Last, First. "Title of Paper." Paper presented at Conference Name, City, Country, Month Day--Day, Year.
 
-*IEEE:*
-> F. M. Last, "Title of paper," in *Proc. Conference Name (ABBREV)*, City, Country, Year, pp. first--last.
+_IEEE:_
+
+> F. M. Last, "Title of paper," in _Proc. Conference Name (ABBREV)_, City, Country, Year, pp. first--last.
 
 **Report (Government, Institutional, or Think-Tank):**
 
-*APA 7th:*
-> Author, F. M., or Institution Name. (Year). *Title of report* (Report No. XXX if applicable). Publisher/Institution. https://doi.org/xxxxx or URL
+_APA 7th:_
 
-*MLA 9th:*
-> Author/Institution. *Title of Report*. Report No. XXX, Institution, Year.
+> Author, F. M., or Institution Name. (Year). _Title of report_ (Report No. XXX if applicable). Publisher/Institution. https://doi.org/xxxxx or URL
 
-*Chicago NB:*
-> Institution Name. *Title of Report*. Report No. XXX. Place: Institution, Year.
+_MLA 9th:_
 
-*IEEE:*
+> Author/Institution. _Title of Report_. Report No. XXX, Institution, Year.
+
+_Chicago NB:_
+
+> Institution Name. _Title of Report_. Report No. XXX. Place: Institution, Year.
+
+_IEEE:_
+
 > Institution Name, "Title of report," Institution, City, Country, Tech. Rep. No. XXX, Month Year.
 
 ### Step 5: Apply Capitalization Rules -- The Most Error-Prone Element
@@ -223,20 +259,24 @@ Retrieval date required only if the content is expected to change or has no date
 Capitalization rules differ dramatically by style and by what element is being formatted:
 
 **APA 7th:**
+
 - Article/chapter titles: sentence case -- capitalize only the first word, the first word after a colon, and proper nouns. "The role of sleep in memory consolidation" is correct; "The Role of Sleep in Memory Consolidation" is wrong.
-- Journal/book titles: title case in the reference list. *Journal of Abnormal Psychology*, *Cognitive Development in Adolescence*.
+- Journal/book titles: title case in the reference list. _Journal of Abnormal Psychology_, _Cognitive Development in Adolescence_.
 - In-text: no special capitalization beyond normal grammar rules.
 
 **MLA 9th:**
+
 - All titles in the Works Cited list: title case. Capitalize the first and last words of any title and subtitle, and all "principal words" (nouns, verbs, adjectives, adverbs, pronouns). Do not capitalize prepositions, articles (a, an, the), or coordinating conjunctions (and, but, or, nor, for, so, yet) unless they are the first or last word.
 - Article titles appear in quotation marks in title case; book/journal titles in italics in title case.
 
 **Chicago NB and AD:**
+
 - Book and journal titles: title case, italicized.
 - Article and chapter titles: title case, in quotation marks.
 - Subtitles: capitalize the first word after a colon in addition to principal words.
 
 **IEEE:**
+
 - Article titles in the reference list: standard mixed case (no title case, no sentence case) -- capitalize only proper nouns and the first word; similar to sentence case but less strictly defined by the style manual. In practice, use sentence case for article titles and title case for journal/conference names.
 
 ### Step 6: Handle Author Name Formatting
@@ -244,6 +284,7 @@ Capitalization rules differ dramatically by style and by what element is being f
 Author name formatting rules are style-specific and error-prone:
 
 **APA 7th:**
+
 - Invert all author names: Last, F. M.
 - Up to 20 authors listed in full: Last1, F., Last2, F., Last3, F., ... Last20, F., & LastN, F.
 - For 21+ authors: list first 19, insert an ellipsis (three spaced periods: . . .), then add the final author's name. No ampersand.
@@ -251,21 +292,25 @@ Author name formatting rules are style-specific and error-prone:
 - Corporate author: write out the full name: American Psychological Association
 
 **MLA 9th:**
+
 - First author inverted (Last, First); subsequent authors in natural order (First Last)
 - "and" (spelled out, not "&") between the penultimate and final author
 - For 3+ authors: list first author inverted, then "et al." -- however, the full list may always be used. "et al." is optional.
 - Editors: "edited by First Last" (lowercase "edited by") in the source element
 
 **Chicago NB (Bibliography):**
+
 - First author inverted; all subsequent authors in natural order
 - All authors listed (no truncation rule, though very long lists are sometimes shortened with "et al." at 10+ in practice)
 - Editors without authors: First Last, ed. or eds.
 
 **Chicago AD (Reference List):**
+
 - Same as NB for author formatting
 - For 10+ authors: list the first 7, then "et al."
 
 **IEEE:**
+
 - ALL authors listed with initials first: F. M. Last -- NO inversion
 - First initials, then last name: "B. P. Smith" not "Smith, B. P."
 - Up to 6 authors listed; for 7+ use "et al." after the first author
@@ -378,16 +423,18 @@ Author, F. M. (Year). Title of article. *Journal Title*, *Vol*(Iss), pp--pp. htt
 ## Edge Cases
 
 **1. Preprints (arXiv, bioRxiv, SSRN, PsyArXiv, medRxiv)**
-Preprints are not peer-reviewed publications and must be identified as such. In APA 7th, cite as: Author, F. M. (Year). *Title of preprint*. Preprint Server Name. https://doi.org/xxxxx -- include "[Preprint]" before the DOI. In MLA 9th, treat the preprint server as the container (*bioRxiv*). In Chicago, note "[preprint]" in the entry. In IEEE, use the arXiv identifier: "arXiv:xxxx.xxxxx." If the preprint has since been published as a peer-reviewed article, use the final published version and note the update. Alert the user that citing a preprint in published work requires checking whether a final version now exists.
+Preprints are not peer-reviewed publications and must be identified as such. In APA 7th, cite as: Author, F. M. (Year). _Title of preprint_. Preprint Server Name. https://doi.org/xxxxx -- include "[Preprint]" before the DOI. In MLA 9th, treat the preprint server as the container (_bioRxiv_). In Chicago, note "[preprint]" in the entry. In IEEE, use the arXiv identifier: "arXiv:xxxx.xxxxx." If the preprint has since been published as a peer-reviewed article, use the final published version and note the update. Alert the user that citing a preprint in published work requires checking whether a final version now exists.
 
 **2. Sources with No Author**
-- APA 7th: Use the organization name if it is an institution. If truly authorless (e.g., a government statute, an anonymous online article), move the title to the author position. Alphabetize by the first significant word of the title. In-text: (*Title Fragment*, Year).
-- MLA 9th: Move the title to the first position. In-text: (*Short Title* page) or ("Short Title" page).
+
+- APA 7th: Use the organization name if it is an institution. If truly authorless (e.g., a government statute, an anonymous online article), move the title to the author position. Alphabetize by the first significant word of the title. In-text: (_Title Fragment_, Year).
+- MLA 9th: Move the title to the first position. In-text: (_Short Title_ page) or ("Short Title" page).
 - Chicago NB: For anonymous authored works, use the title in the footnote and bibliography, sorted by title. The label "Anonymous" or "Anon." is not used in Chicago.
 - IEEE: If no author, use the organization or title in the author position.
 - Never use "Anonymous" as an author name in APA or MLA. It is only acceptable in Chicago for historical documents that were genuinely published as "Anonymous."
 
 **3. Sources with No Date**
+
 - APA 7th: (n.d.) in place of the year in both in-text and reference list -- (Smith, n.d.) and Smith, F. (n.d.).
 - MLA 9th: Omit the date element if no date is available. If it is a webpage, include "Accessed" date.
 - Chicago: Use "n.d." in place of year.
@@ -398,13 +445,15 @@ Preprints are not peer-reviewed publications and must be identified as such. In 
 Add a lowercase letter immediately after the year, both in-text and in the reference list. The letter assignment follows alphabetical title order: the title beginning with "A" or earlier in alphabetical sequence gets "a"; the next gets "b," etc. Example: (Smith, 2023a) and (Smith, 2023b). In the reference list, order these entries alphabetically by title to confirm the a/b assignment.
 
 **5. Translators, Editors Without Authors, and Multi-Role Contributors**
-- A translated work in APA 7th: Author, F. M. (Year). *Title* (F. M. Translator, Trans.). Publisher. (Original work published Year). In-text: (Author, Original Year/Translation Year) -- e.g., (Freud, 1900/1965).
-- An edited volume with no single author: Editor, F. M. (Ed.). (Year). *Title*. Publisher.
+
+- A translated work in APA 7th: Author, F. M. (Year). _Title_ (F. M. Translator, Trans.). Publisher. (Original work published Year). In-text: (Author, Original Year/Translation Year) -- e.g., (Freud, 1900/1965).
+- An edited volume with no single author: Editor, F. M. (Ed.). (Year). _Title_. Publisher.
 - Chicago distinguishes primary creative role (author) from secondary editorial role (editor) with "ed." or "trans." labels.
 - IEEE typically does not cite translated works frequently; use the translator's name in the optional note field.
 
 **6. Legal and Legislative Sources**
 Legal citation is a specialized sub-discipline. For law review articles, primary legal documents (statutes, court cases, regulations), and treaty texts, the Bluebook (21st ed.) is the authoritative legal style -- not APA, MLA, or Chicago. However:
+
 - APA 7th has a dedicated appendix for legal references. Format as: Name v. Name, Volume Reporter Page (Court Year) for court cases. For statutes: Title of Act, Volume U.S.C. § Section (Year).
 - Chicago 17th section 14.269--14.294 covers legal references in detail.
 - MLA 9th recommends following Bluebook or institutional convention for legal documents.
@@ -413,13 +462,15 @@ Legal citation is a specialized sub-discipline. For law review articles, primary
 
 **7. AI-Generated Content (ChatGPT, Gemini, Claude, Midjourney, etc.)**
 This is an actively evolving area where style guides are updating in real time:
-- APA 7th (updated guidance 2023): Treat as software. Author is the company (e.g., OpenAI). Cite as: OpenAI. (2023). *ChatGPT* (March 14 version) [Large language model]. https://chat.openai.com -- the specific prompt or exchange is noted in-text but not separately in the reference list. Note that AI content is not retrievable by readers and many journals prohibit citing it as a source.
+
+- APA 7th (updated guidance 2023): Treat as software. Author is the company (e.g., OpenAI). Cite as: OpenAI. (2023). _ChatGPT_ (March 14 version) [Large language model]. https://chat.openai.com -- the specific prompt or exchange is noted in-text but not separately in the reference list. Note that AI content is not retrievable by readers and many journals prohibit citing it as a source.
 - MLA 9th (updated guidance 2023): Author is the AI tool name. "Title" is a description of the prompt. Container is the company platform.
 - Chicago does not yet have official AI guidance in the 17th edition; recommend following the spirit of the software citation format with a note describing the query.
 - Always alert the user: most journals and many institutions have policies restricting or prohibiting citation of AI-generated content as an authoritative source.
 
 **8. Converting an Entire Reference List Between Styles**
 When converting 10+ references from one style to another systematically:
+
 1. First inventory all source types present, because each type has a different conversion complexity.
 2. Build a conversion map: identify which elements exist in both styles, which are dropped, and which are added. For example, APA-to-Chicago conversion requires adding place of publication (dropped in APA 7th but required in Chicago) -- this information must be sourced or flagged.
 3. Process by source type, not by individual entry -- format all journal articles together, then all books, etc. This reduces template-switching errors.
@@ -454,13 +505,14 @@ I'll be quoting Chen and Park on page 208 and paraphrasing Webb at the start of 
 
 ### In-Text Citations
 
-| Context | Formatted In-Text Citation |
-|---------|---------------------------|
-| Direct quote from Chen & Park, p. 208 | (Chen & Park, 2022, p. 208) |
-| Paraphrase of Webb, no specific page | (Webb, 2021) |
+| Context                                   | Formatted In-Text Citation                 |
+| ----------------------------------------- | ------------------------------------------ |
+| Direct quote from Chen & Park, p. 208     | (Chen & Park, 2022, p. 208)                |
+| Paraphrase of Webb, no specific page      | (Webb, 2021)                               |
 | General background reference, APA webpage | (American Psychological Association, 2023) |
 
 **Notes on in-text forms:**
+
 - For the direct quote, APA 7th requires p. + page number after the year.
 - For the Webb paraphrase, APA 7th recommends (but does not require) a page number for paraphrases. Including one is best practice if the specific passage is being paraphrased closely.
 - The American Psychological Association is a corporate author. On first use, write out in full. If you cite this source again, "(American Psychological Association, 2023)" is repeated in full each time unless you introduce an abbreviation: (American Psychological Association [APA], 2023) on first use, then (APA, 2023) subsequently. Use the abbreviation only if it is widely recognized and the abbreviation is used more than once.
@@ -469,26 +521,26 @@ I'll be quoting Chen and Park on page 208 and paraphrasing Webb at the start of 
 
 ### References
 
-American Psychological Association. (2023, November). Stress and your health. *American Psychological Association*. https://www.apa.org/topics/stress/health
+American Psychological Association. (2023, November). Stress and your health. _American Psychological Association_. https://www.apa.org/topics/stress/health
 
-Chen, E., & Park, D. (2022). Cognitive flexibility and executive function in bilingual adults. *Journal of Cognitive Psychology*, *34*(3), 201--219. https://doi.org/10.1080/20445911.2022.2054321
+Chen, E., & Park, D. (2022). Cognitive flexibility and executive function in bilingual adults. _Journal of Cognitive Psychology_, _34_(3), 201--219. https://doi.org/10.1080/20445911.2022.2054321
 
-Webb, M. (2021). Self-regulation in adolescence. In S. Okafor & J. Lim (Eds.), *Handbook of developmental psychology* (pp. 88--115). Guilford Press.
+Webb, M. (2021). Self-regulation in adolescence. In S. Okafor & J. Lim (Eds.), _Handbook of developmental psychology_ (pp. 88--115). Guilford Press.
 
 ---
 
 ### Formatting Notes
 
-| Source | Element | Note |
-|--------|---------|------|
-| Chen & Park (2022) | DOI | Formatted as https://doi.org/ hyperlink per APA 7th. The doi: prefix (APA 6th style) is incorrect in 7th edition. |
-| Chen & Park (2022) | Journal title | *Journal of Cognitive Psychology* in title case and italicized -- correct for journal names in APA 7th. |
-| Chen & Park (2022) | Article title | Sentence case applied: "Cognitive flexibility and executive function in bilingual adults" -- only first word capitalized, no other words capitalized except proper nouns (none present here). |
-| Webb (2021) | Book title | Sentence case applied: *Handbook of developmental psychology* -- "Handbook" capitalized because it is the first word. "Developmental" is NOT capitalized in the reference list even though the book title renders it capitalized on the cover. |
-| Webb (2021) | Editor format | In APA 7th, editors appear with initials before last name (not inverted) after "In," followed by "(Ed.)" or "(Eds.)" in parentheses. Two editors take "(Eds.)." |
-| Webb (2021) | Publisher | No place of publication listed -- correct per APA 7th, which eliminated city/country from book references. |
-| APA webpage | Date | Only month and year provided (no day). APA 7th format when day is unknown: (Year, Month). If neither month nor day is known, use year only. |
-| APA webpage | Retrieval date | APA 7th does not require a retrieval date for stable pages with a publication date. However, organizational pages on health topics can change. Consider adding "Retrieved [date], from" before the URL if this document may be updated or removed. |
+| Source             | Element        | Note                                                                                                                                                                                                                                               |
+| ------------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chen & Park (2022) | DOI            | Formatted as https://doi.org/ hyperlink per APA 7th. The doi: prefix (APA 6th style) is incorrect in 7th edition.                                                                                                                                  |
+| Chen & Park (2022) | Journal title  | _Journal of Cognitive Psychology_ in title case and italicized -- correct for journal names in APA 7th.                                                                                                                                            |
+| Chen & Park (2022) | Article title  | Sentence case applied: "Cognitive flexibility and executive function in bilingual adults" -- only first word capitalized, no other words capitalized except proper nouns (none present here).                                                      |
+| Webb (2021)        | Book title     | Sentence case applied: _Handbook of developmental psychology_ -- "Handbook" capitalized because it is the first word. "Developmental" is NOT capitalized in the reference list even though the book title renders it capitalized on the cover.     |
+| Webb (2021)        | Editor format  | In APA 7th, editors appear with initials before last name (not inverted) after "In," followed by "(Ed.)" or "(Eds.)" in parentheses. Two editors take "(Eds.)."                                                                                    |
+| Webb (2021)        | Publisher      | No place of publication listed -- correct per APA 7th, which eliminated city/country from book references.                                                                                                                                         |
+| APA webpage        | Date           | Only month and year provided (no day). APA 7th format when day is unknown: (Year, Month). If neither month nor day is known, use year only.                                                                                                        |
+| APA webpage        | Retrieval date | APA 7th does not require a retrieval date for stable pages with a publication date. However, organizational pages on health topics can change. Consider adding "Retrieved [date], from" before the URL if this document may be updated or removed. |
 
 ---
 
@@ -510,5 +562,5 @@ Webb, M. (2021). Self-regulation in adolescence. In S. Okafor & J. Lim (Eds.), *
 - [x] Journal article title and chapter title NOT italicized; journal name, book title italicized
 - [x] Reference list in alphabetical order by first author's last name (American Psychological Association → A; Chen → C; Webb → W)
 - [x] DOI formatted as https://doi.org/xxxxx (APA 7th style), not doi: prefix
-- [x] Volume number italicized, issue number in parentheses NOT italicized: *34*(3)
+- [x] Volume number italicized, issue number in parentheses NOT italicized: _34_(3)
 - [x] Page ranges use en dash (--), not hyphen (-), per APA 7th convention

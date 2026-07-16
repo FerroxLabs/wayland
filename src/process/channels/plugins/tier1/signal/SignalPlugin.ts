@@ -80,9 +80,7 @@ export class SignalPlugin extends BasePlugin {
     }
 
     this.phoneNumber = phone;
-    this.cliPath = resolveSignalCliPath(
-      typeof creds.cliPath === 'string' ? creds.cliPath : undefined,
-    );
+    this.cliPath = resolveSignalCliPath(typeof creds.cliPath === 'string' ? creds.cliPath : undefined);
 
     this.daemon = new SignalDaemon({
       phoneNumber: phone,
@@ -130,16 +128,14 @@ export class SignalPlugin extends BasePlugin {
 
     for (const chunk of chunks) {
       const params = unifiedToSignalSend(chatId, { ...message, text: chunk }, this.phoneNumber);
-      const result = await this.daemon.rpc('send', params as unknown as Record<string, JsonValue>) as
-        | { timestamp?: number }
-        | null;
+      const result = (await this.daemon.rpc('send', params as unknown as Record<string, JsonValue>)) as {
+        timestamp?: number;
+      } | null;
       // signal-cli's `send` RPC always returns `{ timestamp: <long> }` on success;
       // a missing timestamp indicates a malformed/unhandled response - surface it
       // rather than synthesising a wall-clock id that hides transport failures.
       if (!result?.timestamp) {
-        throw new Error(
-          'Signal send returned malformed response (no timestamp); message may not have been delivered',
-        );
+        throw new Error('Signal send returned malformed response (no timestamp); message may not have been delivered');
       }
       lastTimestamp = String(result.timestamp);
     }
@@ -184,9 +180,7 @@ export class SignalPlugin extends BasePlugin {
 
     this.activeUsers.add(unified.user.id);
 
-    void this.emitMessage(unified).catch((err) =>
-      console.error('[SignalPlugin] inbound handler failed:', err),
-    );
+    void this.emitMessage(unified).catch((err) => console.error('[SignalPlugin] inbound handler failed:', err));
   }
 
   // ── Static testConnection ─────────────────────────────────────────────────
@@ -204,7 +198,7 @@ export class SignalPlugin extends BasePlugin {
    * Returns success:false with a clear human-readable error otherwise.
    */
   static override async testConnection(
-    tokenJson: string,
+    tokenJson: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     type Creds = {
       phoneNumber?: string;
@@ -241,10 +235,7 @@ export class SignalPlugin extends BasePlugin {
     }
 
     // Try to list contacts - works only for registered accounts.
-    const args = [
-      '--output', 'json',
-      '-a', phone,
-    ];
+    const args = ['--output', 'json', '-a', phone];
     if (creds.configDir?.trim()) {
       args.unshift('--config', creds.configDir.trim());
     }

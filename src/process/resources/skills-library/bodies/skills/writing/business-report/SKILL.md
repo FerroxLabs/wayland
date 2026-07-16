@@ -9,14 +9,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "report writing business-writing"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'report writing business-writing'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Business Report Writing
 
 ## When to Use
@@ -24,6 +25,7 @@ metadata:
 Use this skill when the user needs a complete, formal business report -- a structured analytical document that presents data, interprets findings, and delivers actionable recommendations to support a specific organizational decision.
 
 **Trigger scenarios:**
+
 - User requests a performance report covering a defined period (monthly, quarterly, annual) for a function, team, product, or business unit
 - User needs a market analysis, competitive landscape report, or feasibility study to inform a go/no-go decision
 - User requires an operational review documenting process efficiency, cost structure, or resource utilization with proposed improvements
@@ -34,6 +36,7 @@ Use this skill when the user needs a complete, formal business report -- a struc
 - User requires an investment case or business case report with financial modeling, risk assessment, and recommendation tiers
 
 **Do NOT use when:**
+
 - The user wants only a 1-2 page executive summary (use `executive-summary` instead) -- business reports always contain full body content with data and analysis
 - The user wants a weekly or biweekly status update with RAG indicators (use `status-update` instead) -- status updates are progress snapshots, not analytical documents
 - The user needs a narrative for a board presentation or investor deck (use `board-update-narrative` instead) -- board narratives follow slide logic, not report logic
@@ -471,14 +474,14 @@ This report examines the drivers of Q3 user engagement decline and elevated SMB 
 
 The decline began in the second week of July and accelerated through August before partially stabilizing in September. The drop is concentrated in accounts in their first 90 days of use.
 
-| Metric | Q2 2025 | Q3 2025 | Change | Prior 4-Q Avg |
-|--------|---------|---------|--------|--------------|
-| Peak DAU | 8,400 | 6,900 | -17.9% | +4.2% per Q |
-| Avg monthly DAU | 8,100 | 7,300 | -9.9% | +3.8% per Q |
-| DAU from accounts 0--90 days | 1,820 | 980 | -46.2% | +8.1% per Q |
-| DAU from accounts 90+ days | 6,280 | 5,920 | -5.7% | +2.9% per Q |
+| Metric                       | Q2 2025 | Q3 2025 | Change | Prior 4-Q Avg |
+| ---------------------------- | ------- | ------- | ------ | ------------- |
+| Peak DAU                     | 8,400   | 6,900   | -17.9% | +4.2% per Q   |
+| Avg monthly DAU              | 8,100   | 7,300   | -9.9%  | +3.8% per Q   |
+| DAU from accounts 0--90 days | 1,820   | 980     | -46.2% | +8.1% per Q   |
+| DAU from accounts 90+ days   | 6,280   | 5,920   | -5.7%  | +2.9% per Q   |
 
-*Table 1: Daily active user metrics, Q2 vs. Q3 2025. Source: Product analytics platform, extracted October 10, 2025.*
+_Table 1: Daily active user metrics, Q2 vs. Q3 2025. Source: Product analytics platform, extracted October 10, 2025._
 
 **The decline is disproportionately driven by new accounts.** Users in accounts older than 90 days declined only 5.7%, consistent with normal seasonal variation. Users in new accounts (0--90 days) declined 46.2%, indicating a sharp degradation in early activation, not broad disengagement from the existing user base.
 
@@ -490,14 +493,14 @@ The decline began in the second week of July and accelerated through August befo
 
 Industry benchmark for SaaS onboarding completion in the SMB segment is 65--75% for well-optimized flows. The Q3 rate of 54% falls below this range for the first time in six quarters.
 
-| Metric | Q1 2025 | Q2 2025 | Q3 2025 | Change Q2-Q3 | SMB SaaS Benchmark |
-|--------|---------|---------|---------|-------------|-------------------|
-| Onboarding completion rate | 68% | 71% | 54% | -17 pts | 65--75% |
-| Median time to complete onboarding | 4.2 days | 3.9 days | 9.1 days | +133% | 3--5 days |
-| % completing within 7 days | 74% | 79% | 41% | -38 pts | 70--80% |
-| % completing within 30 days | 88% | 91% | 62% | -29 pts | 85--95% |
+| Metric                             | Q1 2025  | Q2 2025  | Q3 2025  | Change Q2-Q3 | SMB SaaS Benchmark |
+| ---------------------------------- | -------- | -------- | -------- | ------------ | ------------------ |
+| Onboarding completion rate         | 68%      | 71%      | 54%      | -17 pts      | 65--75%            |
+| Median time to complete onboarding | 4.2 days | 3.9 days | 9.1 days | +133%        | 3--5 days          |
+| % completing within 7 days         | 74%      | 79%      | 41%      | -38 pts      | 70--80%            |
+| % completing within 30 days        | 88%      | 91%      | 62%      | -29 pts      | 85--95%            |
 
-*Table 2: Onboarding completion metrics, Q1--Q3 2025. Source: Onboarding system logs. Benchmark: SaaS Metrics Benchmarks 2025, Product-Led Growth segment.*
+_Table 2: Onboarding completion metrics, Q1--Q3 2025. Source: Onboarding system logs. Benchmark: SaaS Metrics Benchmarks 2025, Product-Led Growth segment._
 
 The median time to complete onboarding more than doubled, from 3.9 days in Q2 to 9.1 days in Q3. Accounts that do not complete onboarding within 14 days have a historically 3.4x higher churn rate in their first 6 months, based on internal cohort analysis.
 
@@ -509,15 +512,15 @@ The median time to complete onboarding more than doubled, from 3.9 days in Q2 to
 
 At 5.8% monthly churn, the implied annual churn rate is approximately 50%. The enterprise tier showed no comparable deterioration, holding at 94% annual retention.
 
-| Metric | Q2 2025 | Q3 2025 | Change | SMB SaaS Benchmark |
-|--------|---------|---------|--------|--------------------|
-| SMB monthly churn rate | 3.1% | 5.8% | +87% | ≤2.0% |
-| SMB implied annual churn | ~34% | ~50% | +16 pts | ≤22% |
-| Enterprise annual retention | 94% | 94% | 0 pts | N/A |
-| Accounts churned (SMB) | 37 | 70 | +89% | -- |
-| Estimated ARR at risk | -- | ~$380K | -- | -- |
+| Metric                      | Q2 2025 | Q3 2025 | Change  | SMB SaaS Benchmark |
+| --------------------------- | ------- | ------- | ------- | ------------------ |
+| SMB monthly churn rate      | 3.1%    | 5.8%    | +87%    | ≤2.0%              |
+| SMB implied annual churn    | ~34%    | ~50%    | +16 pts | ≤22%               |
+| Enterprise annual retention | 94%     | 94%     | 0 pts   | N/A                |
+| Accounts churned (SMB)      | 37      | 70      | +89%    | --                 |
+| Estimated ARR at risk       | --      | ~$380K  | --      | --                 |
 
-*Table 3: Churn metrics by segment, Q2 vs. Q3 2025. Source: Billing system, October 11, 2025. ARR at risk includes confirmed churn and at-risk flagged accounts.*
+_Table 3: Churn metrics by segment, Q2 vs. Q3 2025. Source: Billing system, October 11, 2025. ARR at risk includes confirmed churn and at-risk flagged accounts._
 
 **Of the 70 SMB accounts that churned in Q3, 61 (87%) had not completed the onboarding flow** at the time of cancellation. This is the strongest single data point connecting onboarding failure to churn outcome.
 
@@ -529,17 +532,17 @@ At 5.8% monthly churn, the implied annual churn rate is approximately 50%. The e
 
 Total new-user support tickets increased from 210 in Q2 to 588 in Q3. The three high-volume categories are data import (31% of new-user tickets), dashboard customization (22%), and API key generation (15%).
 
-| Ticket Category | Q2 Volume | Q3 Volume | Change | % of Q3 New-User Tickets |
-|----------------|-----------|-----------|--------|--------------------------|
-| Data import | 28 | 182 | +550% | 31% |
-| Dashboard customization | 19 | 129 | +579% | 22% |
-| API key generation | 11 | 88 | +700% | 15% |
-| Password/login issues | 41 | 52 | +27% | 9% |
-| Billing questions | 33 | 44 | +33% | 7% |
-| Other | 78 | 93 | +19% | 16% |
-| **Total new-user tickets** | **210** | **588** | **+180%** | -- |
+| Ticket Category            | Q2 Volume | Q3 Volume | Change    | % of Q3 New-User Tickets |
+| -------------------------- | --------- | --------- | --------- | ------------------------ |
+| Data import                | 28        | 182       | +550%     | 31%                      |
+| Dashboard customization    | 19        | 129       | +579%     | 22%                      |
+| API key generation         | 11        | 88        | +700%     | 15%                      |
+| Password/login issues      | 41        | 52        | +27%      | 9%                       |
+| Billing questions          | 33        | 44        | +33%      | 7%                       |
+| Other                      | 78        | 93        | +19%      | 16%                      |
+| **Total new-user tickets** | **210**   | **588**   | **+180%** | --                       |
 
-*Table 4: Support ticket volume by category, new users (accounts aged 0--90 days), Q2 vs. Q3 2025. Source: CRM export, October 9, 2025.*
+_Table 4: Support ticket volume by category, new users (accounts aged 0--90 days), Q2 vs. Q3 2025. Source: CRM export, October 9, 2025._
 
 The 550--700% increases in the three feature-specific categories are not consistent with volume growth or seasonal variation. The baseline "Other" and administrative categories (billing, login) grew only 19--33%, indicating a feature-specific rather than a systemic support load increase.
 
@@ -573,13 +576,13 @@ The connection between the July onboarding change and the Q3 metrics is highly s
 
 The following recommendations address the SMB onboarding and churn crisis in sequence: first stopping the immediate damage (R1, R2), then diagnosing and fixing the root cause (R3, R4), then preventing recurrence (R5).
 
-| # | Recommendation | Addresses Finding | Expected Impact | Responsible Party | Timeline | Cost Estimate | Priority |
-|---|---------------|------------------|----------------|-------------------|----------|---------------|----------|
-| R1 | Immediately offer SMB new accounts access to the legacy (pre-July) onboarding path as an alternative while the redesign is fixed | 2.2, 2.3 | Onboarding completion rate returns to ~68--71%; SMB churn begins declining within 30 days | VP Engineering + VP Customer Success | Within 7 days | Engineering: ~20 hours to re-enable legacy path | **High** |
-| R2 | Publish self-service help articles and in-app tooltips for the top 3 ticket categories: data import, dashboard customization, API key generation | 2.4 | Reduce new-user ticket volume by estimated 50--60%; partially offset churn for users mid-onboarding | Head of Support + Product Marketing | Within 14 days | ~30 hours content creation | **High** |
-| R3 | Conduct structured usability testing (minimum 12 SMB-profile participants) on the redesigned onboarding flow before re-releasing | 2.1, 2.2 | Identifies specific friction points; ensures redesign achieves ≥70% completion rate before launch | Product Design + UX Research | 30--45 days | ~$8,000--$12,000 for external participants + facilitation | **High** |
-| R4 | Resequence API key generation step in onboarding to occur after data import and dashboard setup, not before | 2.2, 2.4 | Removes single largest blocker for non-technical SMB administrators; estimated to recover 8--12 pts of onboarding completion rate | Product + Engineering | 30 days | Engineering: ~15 hours | **High** |
-| R5 | Implement a 14-day onboarding health check for all new SMB accounts: automated trigger if onboarding completion < 40% by day 14, routed to Customer Success for outreach | 2.1, 2.2, 2.3 | Identifies at-risk accounts before churn decision; estimated 15--20% recovery of abandoning accounts | Customer Success + Engineering (automation) | 60 days | Engineering: ~40 hours; CS: 0.25 FTE ongoing | **Medium** |
+| #   | Recommendation                                                                                                                                                           | Addresses Finding | Expected Impact                                                                                                                   | Responsible Party                           | Timeline       | Cost Estimate                                             | Priority   |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | -------------- | --------------------------------------------------------- | ---------- |
+| R1  | Immediately offer SMB new accounts access to the legacy (pre-July) onboarding path as an alternative while the redesign is fixed                                         | 2.2, 2.3          | Onboarding completion rate returns to ~68--71%; SMB churn begins declining within 30 days                                         | VP Engineering + VP Customer Success        | Within 7 days  | Engineering: ~20 hours to re-enable legacy path           | **High**   |
+| R2  | Publish self-service help articles and in-app tooltips for the top 3 ticket categories: data import, dashboard customization, API key generation                         | 2.4               | Reduce new-user ticket volume by estimated 50--60%; partially offset churn for users mid-onboarding                               | Head of Support + Product Marketing         | Within 14 days | ~30 hours content creation                                | **High**   |
+| R3  | Conduct structured usability testing (minimum 12 SMB-profile participants) on the redesigned onboarding flow before re-releasing                                         | 2.1, 2.2          | Identifies specific friction points; ensures redesign achieves ≥70% completion rate before launch                                 | Product Design + UX Research                | 30--45 days    | ~$8,000--$12,000 for external participants + facilitation | **High**   |
+| R4  | Resequence API key generation step in onboarding to occur after data import and dashboard setup, not before                                                              | 2.2, 2.4          | Removes single largest blocker for non-technical SMB administrators; estimated to recover 8--12 pts of onboarding completion rate | Product + Engineering                       | 30 days        | Engineering: ~15 hours                                    | **High**   |
+| R5  | Implement a 14-day onboarding health check for all new SMB accounts: automated trigger if onboarding completion < 40% by day 14, routed to Customer Success for outreach | 2.1, 2.2, 2.3     | Identifies at-risk accounts before churn decision; estimated 15--20% recovery of abandoning accounts                              | Customer Success + Engineering (automation) | 60 days        | Engineering: ~40 hours; CS: 0.25 FTE ongoing              | **Medium** |
 
 ### Implementation Notes
 
@@ -593,16 +596,16 @@ Budget authority: R1, R2, and R4 are within standard engineering and content bud
 
 ### Appendix A: Full SMB Churn Data by Month, Q1--Q3 2025
 
-| Month | SMB Accounts (Start) | Churned | Churn Rate | New Accounts Added |
-|-------|---------------------|---------|------------|-------------------|
-| Jan | 1,090 | 28 | 2.6% | 54 |
-| Feb | 1,116 | 27 | 2.4% | 48 |
-| Mar | 1,137 | 31 | 2.7% | 62 |
-| Apr | 1,168 | 33 | 2.8% | 51 |
-| May | 1,186 | 34 | 2.9% | 58 |
-| Jun | 1,210 | 37 | 3.1% | 47 |
-| **Jul** | **1,220** | **58** | **4.8%** | **44** |
-| **Aug** | **1,206** | **71** | **5.9%** | **38** |
-| **Sep** | **1,173** | **70** | **6.0%** | **41** |
+| Month   | SMB Accounts (Start) | Churned | Churn Rate | New Accounts Added |
+| ------- | -------------------- | ------- | ---------- | ------------------ |
+| Jan     | 1,090                | 28      | 2.6%       | 54                 |
+| Feb     | 1,116                | 27      | 2.4%       | 48                 |
+| Mar     | 1,137                | 31      | 2.7%       | 62                 |
+| Apr     | 1,168                | 33      | 2.8%       | 51                 |
+| May     | 1,186                | 34      | 2.9%       | 58                 |
+| Jun     | 1,210                | 37      | 3.1%       | 47                 |
+| **Jul** | **1,220**            | **58**  | **4.8%**   | **44**             |
+| **Aug** | **1,206**            | **71**  | **5.9%**   | **38**             |
+| **Sep** | **1,173**            | **70**  | **6.0%**   | **41**             |
 
-*Table A-1: Monthly SMB churn, January -- September 2025. Source: Billing system. Note: July onboarding redesign deployed July 8,
+\*Table A-1: Monthly SMB churn, January -- September 2025. Source: Billing system. Note: July onboarding redesign deployed July 8,

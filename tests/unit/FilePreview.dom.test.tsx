@@ -31,11 +31,11 @@ vi.mock('../../src/renderer/services/FileService', () => {
     const dot = name.lastIndexOf('.');
     return dot >= 0 ? name.slice(dot).toLowerCase() : '';
   };
-  const DOC_EXTS = ['.pdf', '.doc', '.docx', '.pptx', '.xlsx', '.odt', '.odp', '.ods'];
+  const DOC_EXTS = new Set(['.pdf', '.doc', '.docx', '.pptx', '.xlsx', '.odt', '.odp', '.ods']);
   return {
     getFileExtension,
     // #655: real document classification used by the attach-time doc hint.
-    isDocumentFile: (name: string) => DOC_EXTS.includes(getFileExtension(name)),
+    isDocumentFile: (name: string) => DOC_EXTS.has(getFileExtension(name)),
   };
 });
 

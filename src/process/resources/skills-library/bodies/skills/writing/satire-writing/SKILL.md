@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing analysis"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'creative-writing writing analysis'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Satire Writing
@@ -53,11 +53,11 @@ Collect or determine these inputs:
 - **Satirical thesis:** What is the piece actually arguing, underneath the comedy? Every strong satirical piece has a thesis that could be stated seriously. The Onion headline "No Way To Prevent This, Says Only Nation Where This Regularly Happens" has a clear thesis: American gun policy is uniquely and willfully negligent. If you cannot articulate the thesis, the piece will lack focus.
 - **Format:** Match the format to the target. A corporate absurdity is best satirized as a fake memo or press release. A cultural trend is best satirized as a mock news article. A philosophical or political position is best satirized as a modest proposal or absurdist fiction. The wrong format weakens the satire even if the writing is sharp.
 - **Tone:** Determine where the piece sits on the satirical tonal spectrum:
-  - *Deadpan* (The Onion, Borowitz): Completely straight-faced presentation of absurdity. The writer never winks. The humor lives in the gap between the insane content and the sober delivery.
-  - *Escalating absurdist* (Kafka, Catch-22): Starts in recognizable reality and drifts into surreal territory so gradually the reader cannot identify the exact moment things went wrong.
-  - *Savage/Juvenalian* (Swift, early Mark Twain): Anger underneath the comedy. The satire is an indictment dressed as entertainment.
-  - *Gentle/Horatian* (Twain's later work, P.G. Wodehouse): Affectionate mockery. The target is human folly rather than malice. The reader laughs with recognition, not outrage.
-  - *Ironic praise* (Colbert Report model): The satirist adopts the voice of someone who sincerely holds the position being mocked and plays it completely straight, letting the audience see the absurdity from inside.
+  - _Deadpan_ (The Onion, Borowitz): Completely straight-faced presentation of absurdity. The writer never winks. The humor lives in the gap between the insane content and the sober delivery.
+  - _Escalating absurdist_ (Kafka, Catch-22): Starts in recognizable reality and drifts into surreal territory so gradually the reader cannot identify the exact moment things went wrong.
+  - _Savage/Juvenalian_ (Swift, early Mark Twain): Anger underneath the comedy. The satire is an indictment dressed as entertainment.
+  - _Gentle/Horatian_ (Twain's later work, P.G. Wodehouse): Affectionate mockery. The target is human folly rather than malice. The reader laughs with recognition, not outrage.
+  - _Ironic praise_ (Colbert Report model): The satirist adopts the voice of someone who sincerely holds the position being mocked and plays it completely straight, letting the audience see the absurdity from inside.
 - **Boundary line:** Where does edgy become harmful for this specific target? Establish this before drafting. The general principle -- satire punches up, not down -- is necessary but not sufficient. A piece satirizing corporate greed can still cross a line if it uses a real employee's name and fabricates quotes. Define the boundary concretely for each piece.
 
 ### 2. Design the Satirical Mechanism
@@ -297,7 +297,7 @@ Validate the impulse -- satire is one of the oldest tools for confronting injust
 
 ## Study Finds Employees 47% More Collaborative When Forced To Sit In Traffic For 90 Minutes
 
-*Mock news article*
+_Mock news article_
 
 MENLO PARK, CA -- A groundbreaking study released Tuesday by the Hawthorne Institute for Workplace Synergy has confirmed that employees who are mandated to commute to a physical office and sit in designated chairs for eight hours are 47% more likely to experience what researchers are calling "proximity-based collaboration events," defined as any instance in which two or more employees occupy the same floor of a building simultaneously.
 
@@ -316,6 +316,7 @@ At press time, a follow-up study was being planned to determine whether employee
 ---
 
 ### Satire Notes
+
 - **Target:** Corporate return-to-office mandates justified by "collaboration" claims
 - **Thesis:** RTO mandates use "collaboration" as a euphemism for control and real estate sunk costs
 - **Mechanism:** Straight-faced absurdity (The Onion model) -- treating proximity as collaboration and reporting it as legitimate research
@@ -348,6 +349,7 @@ The author of this proposal holds no financial interest in the Individual Human 
 ---
 
 ### Satire Notes
+
 - **Target:** The framing of education as a personal financial investment rather than a public good
 - **Thesis:** The "education as investment" metaphor, taken to its logical conclusion, reduces human beings to financial instruments -- and we are closer to that reality than we admit
 - **Mechanism:** Modest proposal -- monstrous solution (selling equity in yourself) delivered with earnest, logical argumentation
@@ -364,7 +366,7 @@ The author of this proposal holds no financial interest in the Individual Human 
 
 ## INTERNAL MEMO: Introducing the Transition Gratitude Experience (TGE)
 
-*Parody of corporate HR communications*
+_Parody of corporate HR communications_
 
 **TO:** All Team Members
 **FROM:** People & Culture Transformation Office
@@ -392,13 +394,13 @@ Additionally, this change aligns with our Q2 cost optimization targets while sim
 
 **FAQs**
 
-*Q: Is the tote bag optional?*
+_Q: Is the tote bag optional?_
 A: The tote bag is a core component of the TGE and cannot be substituted for cash value.
 
-*Q: What if the departing employee does not want a ceremony?*
+_Q: What if the departing employee does not want a ceremony?_
 A: We respect individual preferences. Employees who decline the TGE will receive a digital thank-you card and a LinkedIn endorsement from their manager for the skill "Resilience."
 
-*Q: Does TGE replace COBRA health insurance continuation?*
+_Q: Does TGE replace COBRA health insurance continuation?_
 A: The Transition Gratitude Experience is focused on emotional wellness. Questions about health insurance should be directed to our third-party benefits administrator, whose contact information can be found on the intranet page that was archived last quarter.
 
 We are incredibly excited about this next chapter in our people journey. As always, our door is open -- though please book a 15-minute slot via Calendly, as walk-ins are no longer supported following last month's Accessibility Optimization Initiative.
@@ -406,11 +408,12 @@ We are incredibly excited about this next chapter in our people journey. As alwa
 With gratitude,
 The People & Culture Transformation Office
 
-*This memo has been reviewed by Legal, Brand, and the Optics Team.*
+_This memo has been reviewed by Legal, Brand, and the Optics Team._
 
 ---
 
 ### Satire Notes
+
 - **Target:** Corporate euphemisms that rebrand cost-cutting and employee mistreatment as culture initiatives
 - **Thesis:** Corporate language has evolved to make any decision, no matter how harmful to employees, sound like a benefit
 - **Genre conventions adopted:** Internal memo formatting, corporate jargon (holistic, human-centered, journey, next chapter), FAQ section, mandatory enthusiasm, sign-off with team name instead of individual

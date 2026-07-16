@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness self-care stress-management emotional-health"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mental-wellness self-care stress-management emotional-health'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Emotional Regulation Skills
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health. If you are experiencing a mental health emergency, contact emergency services or a crisis line immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to manage a specific strong emotion -- anger, frustration, jealousy, shame, anxiety, overwhelm, or resentment -- in daily situations
 - The user describes a recurring trigger situation where their emotional reaction causes regret, conflict, or physical stress (clenched jaw, heart pounding, stomach dropping)
 - The user wants to stop reacting impulsively and create space between trigger and response
@@ -33,6 +35,7 @@ metadata:
 - The user wants a daily practice to develop emotional awareness before a crisis forces it
 
 **Do NOT use when:**
+
 - The user describes self-harm urges, thoughts of suicide, or harm to others -- stop immediately and direct to a crisis line or emergency services; do not attempt regulation coaching
 - The user's emotional difficulties are persistent, severe, and significantly impair work, relationships, or basic self-care most days (possible clinical territory -- recommend a licensed mental health professional without delay)
 - The user asks specifically about managing bipolar mood episodes, borderline personality patterns, PTSD flashbacks, or dissociative states -- these require clinical assessment and treatment, not self-help toolkits
@@ -71,12 +74,14 @@ Select 3-4 techniques total for the toolkit. More than 4 creates decision fatigu
 ### Step 3: Teach Each Selected Technique With Exact Step-by-Step Instructions
 
 For every technique selected, provide:
+
 - The precise trigger condition for deploying it
 - The exact sequence of steps with specific durations and sensory details
 - The realistic outcome (what will and will not change as a result)
 - One common mistake people make when using it for the first time
 
 **Emotional Labeling:**
+
 - The neuroscience basis: naming an emotion activates the prefrontal cortex and reduces amygdala activation -- the "putting feelings into words" effect. This is not metaphor; it is a measurable shift in brain activity.
 - Step 1: Notice a physical signal (jaw tight, face hot, chest compressed).
 - Step 2: Name the emotion with specificity. Not "stressed" but "I feel humiliated because my suggestion was laughed at without explanation."
@@ -86,6 +91,7 @@ For every technique selected, provide:
 - Common mistake: Using vague labels like "upset" or "emotional." Vague labels provide no regulation benefit. Specificity is the mechanism.
 
 **STOP Technique:**
+
 - A structured 4-step interruption sequence: Stop the action. Take three breaths (4-second inhale, 6-second exhale -- the extended exhale activates the parasympathetic nervous system via vagal stimulation). Observe what is present in the body and mind without judgment. Proceed with one deliberately chosen next action.
 - The "Proceed" step requires choosing one option explicitly -- not just "calming down" and reacting again. Explicit choice is what makes STOP a regulation tool rather than a brief delay.
 - Duration: 1-2 minutes. Can be made invisible with a sip of water, a moment of looking at notes, or a pause to write something down.
@@ -93,6 +99,7 @@ For every technique selected, provide:
 - Common mistake: Skipping the Proceed step and letting the pause be followed by the original reactive impulse.
 
 **Urge Surfing:**
+
 - Derived from the observation that urges are physiological events with a natural arc: they rise, peak (typically at 45-90 seconds), and subside if not acted upon. Acting on the urge -- even partially -- resets the arc back to the beginning.
 - Step 1: Notice the specific urge ("I want to send a sharp reply," "I want to slam the door," "I want to say something cutting").
 - Step 2: Locate where the urge lives in the body (usually chest, throat, jaw, or hands). Give it a shape and intensity number (1-10).
@@ -104,6 +111,7 @@ For every technique selected, provide:
 - Common mistake: Re-feeding the urge by mentally replaying what the other person said. This extends the arc indefinitely.
 
 **Cognitive Reframing:**
+
 - Targets the interpretation layer. Emotions are driven by what an event means to us, not only by the event itself. Two people can be interrupted in the same meeting and one feels mildly inconvenienced while the other feels deeply disrespected -- the difference is interpretation.
 - Step 1: Write the automatic interpretation: "They did that because they do not respect me."
 - Step 2: Write 2-3 pieces of evidence that support this interpretation.
@@ -116,6 +124,7 @@ For every technique selected, provide:
 - Common mistake: Writing the reframe without first genuinely engaging with the evidence on both sides. Skipping to the answer generates intellectual reframing without emotional change.
 
 **Opposite Action:**
+
 - Based on the principle that emotions create behavioral action urges, and deliberately acting opposite to the urge -- when the urge is not justified or is disproportionate to the situation -- interrupts the emotional loop.
 - Action urge map:
   - Anger urges: attack, argue, confront -- Opposite action: speak gently or do something kind for the person (or for yourself if the anger is self-directed)
@@ -128,6 +137,7 @@ For every technique selected, provide:
 - Common mistake: Treating opposite action as suppression ("don't be sad"). The technique acknowledges the emotion fully, then chooses a different behavior.
 
 **Physiological Soothing:**
+
 - The only technique that works directly on the nervous system to reduce physiological arousal before the brain can engage higher cognitive functions.
 - Three primary methods:
   - Cold water face immersion or cold water on the wrists and back of the neck: activates the mammalian dive reflex, triggering parasympathetic response and measurably reducing heart rate within 30-60 seconds. Fill a bowl of cold water and submerge the face for 15-30 seconds, or run cold water on pulse points for 45 seconds.
@@ -140,6 +150,7 @@ For every technique selected, provide:
 ### Step 4: Build a Trigger-Specific Situation-Response Plan
 
 Map the user's specific triggers to specific technique sequences. Every plan entry must have:
+
 - The specific trigger (not "work stress" but "when my manager gives feedback in front of the team")
 - The likely emotion and its typical intensity (1-10)
 - The first-response technique with duration
@@ -151,6 +162,7 @@ The plan should be a table that the user can reference before entering high-risk
 ### Step 5: Create an Emotion Tracking Log for Pattern Detection
 
 The tracking log serves one purpose: pattern identification over 10-14 days. Do not frame it as measurement of success or failure. Patterns to look for:
+
 - Time-of-day clusters (afternoon crashes, morning irritability before coffee)
 - Cumulative load effect (small triggers hitting harder after a difficult week)
 - Which technique reliably reduces intensity by 2+ points vs. which does not seem to help
@@ -170,6 +182,7 @@ Regulation skills that are only practiced during emotional crises never become a
 ### Step 7: Deliver the Complete Toolkit and Address Questions
 
 After delivering the toolkit:
+
 - Ask if any technique feels unworkable for their specific context (office environment, physical limitations, cultural context)
 - Offer to adjust the situation-response plan if any trigger mapping does not feel accurate
 - Remind the user that the first several uses of any technique during a real emotional episode will feel effortful and partially effective -- this is normal skill acquisition, not technique failure
@@ -198,7 +211,7 @@ After delivering the toolkit:
 | [specific trigger] | [specific emotion] | [X/10] | [Technique name, X min] | [Backup technique, X min] |
 | [specific trigger] | [specific emotion] | [X/10] | [Technique name, X min] | [Backup technique, X min] |
 
-**Communication Delay Rule:** For triggers involving [specific person/situation], no messages, emails, or calls 
+**Communication Delay Rule:** For triggers involving [specific person/situation], no messages, emails, or calls
 about the triggering topic for [20 / 30] minutes after the emotion peaks.
 
 ---
@@ -279,11 +292,11 @@ Use this log for pattern identification, not self-assessment. Fill in one row pe
 
 ### When to Seek Professional Support
 
-If after 3-4 weeks of consistent daily practice you notice no reduction in intensity scores and 
-no improvement in the ability to pause before reacting, this is a signal that self-directed tools 
-have reached their limit for your situation. A licensed mental health professional -- particularly 
-one experienced with emotion-focused approaches -- can provide structured assessment and support 
-that goes beyond what a self-directed toolkit can offer. This is not a failure of the toolkit 
+If after 3-4 weeks of consistent daily practice you notice no reduction in intensity scores and
+no improvement in the ability to pause before reacting, this is a signal that self-directed tools
+have reached their limit for your situation. A licensed mental health professional -- particularly
+one experienced with emotion-focused approaches -- can provide structured assessment and support
+that goes beyond what a self-directed toolkit can offer. This is not a failure of the toolkit
 or of you; some emotional patterns are deeply rooted and benefit from professional guidance.
 ```
 
@@ -324,18 +337,20 @@ This sits at the boundary of this skill's scope. Acknowledge the honesty it take
 
 **The user wants to manage emotions in a setting where no visible techniques are possible (court, high-stakes meeting, medical appointment, job interview):**
 This is a real constraint that must shape the entire toolkit. Every technique selected must be invisible and internal:
+
 - Emotional Labeling: always internal and silent, no adaptation needed
 - STOP Technique: the "stop" becomes a sip of water or a moment of looking at notes; the breathing is slow and through the nose (4-second inhale, 6-second exhale), invisible in any setting
 - Urge Surfing: entirely internal; rating the urge silently requires no physical action
 - Physiological Soothing must be adapted: cold water is not available mid-meeting, but pressing fingertips firmly together under the table for 10 seconds achieves a mild physical grounding effect; slow nasal breathing achieves a partial physiological reset
 - Cognitive Reframing is post-event only in this context -- during the high-stakes event, internal labeling and STOP are the only feasible tools
-Make the constraints explicit in the toolkit so the user does not attempt physiological soothing during a meeting and feel exposed.
+  Make the constraints explicit in the toolkit so the user does not attempt physiological soothing during a meeting and feel exposed.
 
 **The user describes persistent sadness, low energy, feeling empty, or inability to feel positive emotions for more than a few weeks:**
 Apply the techniques to the current situation while explicitly and gently noting that persistent low mood lasting more than two weeks affecting daily energy, motivation, or enjoyment of activities warrants a conversation with a primary care physician or licensed mental health professional -- not because this is a "serious problem" but because there are effective supports available that go beyond self-directed regulation. Do not treat this with opposite action alone. Emotional labeling and low-stimulation opposite action (a 10-minute walk, one social text, making a meal) are appropriate and gentle starting points. Do NOT suggest that the person should feel better through effort or positive thinking. Acknowledge that some low mood is weather, not character.
 
 **The user describes emotional numbness -- feeling nothing, going flat, or being "past the point of caring" after a significant stressor:**
 Emotional numbness is not the absence of emotion -- it is often the nervous system's protective response to sustained high-load emotional experience. It requires a different entry point than acute emotional intensity. Build the toolkit around signal detection rather than regulation:
+
 - Daily emotional labeling check-ins 3 times per day, naming physical sensations even when no emotion is identifiable ("I notice tension in my shoulders and a slight heaviness in my chest")
 - Physical sensations are the accessible layer when emotional awareness is dampened
 - Opposite action for the behavioral pattern of numbness (withdrawal, reduced engagement, decreased activity) -- small incremental re-engagement rather than large behavioral change
@@ -372,12 +387,12 @@ Acute regulation skills address the moment-to-moment spike. But this user likely
 
 ### Situation-Response Plan
 
-| Trigger | Likely Emotion | Typical Intensity | First Response (Duration) | If Intensity Stays Above 5 |
-|---------|---------------|-------------------|--------------------------|---------------------------|
-| Sister comments on parenting | Fury, defensiveness | 7-9/10 | Emotional Labeling + STOP Technique, 2 min | Urge Surfing for the explosion urge, 3 min |
-| Sister comments on job or home | Resentment, dismissal | 6-8/10 | Emotional Labeling, 30 sec | STOP Technique, 1-2 min |
-| During the drive home -- replay begins | Resentment, injustice | 5-7/10 | Cognitive Reframing (written), 8 min | Opposite Action: text a friend something unrelated |
-| Pre-event anticipatory dread (before family gathering) | Anxiety, dread | 4-6/10 | Box Breathing 4 cycles, 3 min | Cognitive Reframing on what you can and cannot control |
+| Trigger                                                | Likely Emotion        | Typical Intensity | First Response (Duration)                  | If Intensity Stays Above 5                             |
+| ------------------------------------------------------ | --------------------- | ----------------- | ------------------------------------------ | ------------------------------------------------------ |
+| Sister comments on parenting                           | Fury, defensiveness   | 7-9/10            | Emotional Labeling + STOP Technique, 2 min | Urge Surfing for the explosion urge, 3 min             |
+| Sister comments on job or home                         | Resentment, dismissal | 6-8/10            | Emotional Labeling, 30 sec                 | STOP Technique, 1-2 min                                |
+| During the drive home -- replay begins                 | Resentment, injustice | 5-7/10            | Cognitive Reframing (written), 8 min       | Opposite Action: text a friend something unrelated     |
+| Pre-event anticipatory dread (before family gathering) | Anxiety, dread        | 4-6/10            | Box Breathing 4 cycles, 3 min              | Cognitive Reframing on what you can and cannot control |
 
 **Communication Delay Rule:** No texts, calls, or messages to your sister about anything said at a family gathering for a minimum of 24 hours after the event. This rule applies regardless of how justified the message feels. The 24-hour window is the buffer between the emotional peak and any communication you will not regret.
 
@@ -390,6 +405,7 @@ Acute regulation skills address the moment-to-moment spike. But this user likely
 **Duration:** 30 seconds
 
 **Step-by-Step:**
+
 1. Notice the physical signal. Do not wait for the emotion to be fully formed -- the body signals first.
 2. Silently name the emotion with full specificity: not "I'm angry" but "I feel furious and humiliated because my parenting was criticized in front of other family members and I feel like I have to defend myself."
 3. Add the cause clause: "...because this happens repeatedly and I interpret it as my sister believing I am not competent as a parent."
@@ -409,6 +425,7 @@ Acute regulation skills address the moment-to-moment spike. But this user likely
 **Duration:** 1-2 minutes
 
 **Step-by-Step:**
+
 1. **Stop:** Do not speak. If your mouth was about to open, take a deliberate sip of a drink, look down at your plate or phone, or simply pause. You are buying 3-5 seconds.
 2. **Take:** Three slow breaths through your nose only. Inhale for 4 seconds. Exhale for 6 seconds. The extended exhale is not optional -- it is what activates the calming response. No one at the table will notice.
 3. **Observe:** Silently run through: "My chest is tight. My face is hot. I want to say something cutting. If I say it, I will feel powerful for 4 seconds and terrible for the next 3 days. My kids may be watching."
@@ -431,6 +448,7 @@ Acute regulation skills address the moment-to-moment spike. But this user likely
 **Duration:** 3-4 minutes
 
 **Step-by-Step:**
+
 1. Identify the specific urge: "I want to tell her she has no right to comment on my parenting. I want to say it loudly."
 2. Locate the urge in your body. (Likely: chest, throat, jaw, or hands.) Give it an intensity rating: "8 out of 10."
 3. Observe it. Do not fight it, suppress it, or justify it with mental replays of what she said. Just watch it. The urge is a wave. It has already started moving toward its peak.
@@ -452,6 +470,7 @@ Acute regulation skills address the moment-to-moment spike. But this user likely
 **Duration:** 8-10 minutes
 
 **Step-by-Step:**
+
 1. Write the automatic interpretation that is driving the loop. Be honest: "My sister criticized my parenting because she thinks I am doing a bad job and she does not respect me as a parent."
 2. Write evidence that supports this interpretation: "She has criticized my parenting choices at least four times this year. She never acknowledges when things go well. She gives advice I did not ask for."
 3. Write evidence that contradicts or complicates this interpretation: "She also criticizes her own choices obsessively -- this may be how she relates to anyone she is close to. Last Christmas she defended me to my aunt. She has asked for my advice on her own kids twice this year. She is under significant stress at work right now and tends to be more critical when stressed."
@@ -469,15 +488,16 @@ Acute regulation skills address the moment-to-moment spike. But this user likely
 Use this log for pattern identification, not self-assessment. One row per notable emotional event.
 
 | Date | Trigger | Emotion | Intensity Before (1-10) | Technique Used | Intensity After (1-10) | Notes |
-|------|---------|---------|------------------------|----------------|------------------------|-------|
-|      |         |         |                        |                |                        |       |
-|      |         |         |                        |                |                        |       |
-|      |         |         |                        |                |                        |       |
-|      |         |         |                        |                |                        |       |
-|      |         |         |                        |                |                        |       |
-|      |         |         |                        |                |                        |       |
+| ---- | ------- | ------- | ----------------------- | -------------- | ---------------------- | ----- |
+|      |         |         |                         |                |                        |       |
+|      |         |         |                         |                |                        |       |
+|      |         |         |                         |                |                        |       |
+|      |         |         |                         |                |                        |       |
+|      |         |         |                         |                |                        |       |
+|      |         |         |                         |                |                        |       |
 
 **After 10-14 days, look for:**
+
 - Are sister-related triggers the dominant entry, or are other triggers also appearing at high intensity?
 - Which technique produces the largest drop in intensity score for you specifically?
 - Are there days or times when the same trigger hits harder? (End of week, after poor sleep, around other family stress?)
@@ -496,12 +516,14 @@ This data belongs to you for your own awareness. It is not diagnostic. A single 
 **Frequency:** 3 labeling check-ins per day; 1 box breathing session per day
 
 **Morning Check-In (with coffee, 4 minutes total):**
+
 1. Before looking at your phone, pause and notice your current physical state. Where is tension? Where is ease?
 2. Name the emotion present with specificity and cause: "I feel mildly anxious because I have a full day and I am not sure I have enough time." OR "I feel relatively calm because nothing pressing is scheduled this morning."
 3. If no strong emotion is present, note that: "I feel neutral because the morning has been uneventful." This is valid data.
 4. Follow immediately with 4 cycles of box breathing: inhale 4 seconds, hold 4, exhale 4, hold 4. Approximately 64 seconds total. This is not because you are stressed -- this is daily nervous system maintenance.
 
 **Midday and Evening Check-Ins (1 minute each, labeling only):**
+
 1. Pause for 30 seconds and notice physical state.
 2. Name the emotion and cause.
 3. Note whether it is different from the morning. No action required -- only awareness.

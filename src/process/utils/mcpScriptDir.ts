@@ -145,7 +145,7 @@ export function inspectMcpScripts(): McpScriptCanaryResult {
   }
   let dirContents: string[] = [];
   try {
-    dirContents = fs.readdirSync(dir).sort();
+    dirContents = fs.readdirSync(dir).toSorted();
   } catch {
     dirContents = ['<unreadable>'];
   }

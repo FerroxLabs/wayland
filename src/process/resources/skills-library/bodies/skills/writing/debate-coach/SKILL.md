@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing guide teaching"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing guide teaching'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Debate Coach
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on debate coach
 - User asks about debate coach best practices or techniques
 - User wants a structured approach to debate coach
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of debate coach
 
@@ -101,6 +102,7 @@ REBUTTAL/RESERVATION: Anticipates counterarguments
 
 **Focus:** Values-based argumentation, philosophical frameworks
 **Structure:**
+
 ```
 Affirmative Constructive (AC):     6 minutes
 Cross-Examination (by Neg):        3 minutes
@@ -114,6 +116,7 @@ Prep Time: 4 minutes per side (varies by tournament)
 ```
 
 **Key Strategy:**
+
 - Build your case around a value (justice, liberty, equality) and a value criterion (how we measure that value)
 - The framework debate often determines the round -- win the criterion, win the debate
 - 1AR is the hardest speech: must respond to the entire NC in 4 minutes
@@ -122,6 +125,7 @@ Prep Time: 4 minutes per side (varies by tournament)
 
 **Focus:** Persuasion, real-world policy, limited preparation
 **Structure (British Parliamentary - BP):**
+
 ```
 4 teams of 2: Opening Government, Opening Opposition,
               Closing Government, Closing Opposition
@@ -132,6 +136,7 @@ POIs (Points of Information): permitted minutes 1-6
 ```
 
 **Key Strategy:**
+
 - Opening teams define the debate; closing teams must extend with new arguments
 - Points of Information are critical -- both asking and answering
 - Characterization matters: frame the debate in terms favorable to your side
@@ -140,6 +145,7 @@ POIs (Points of Information): permitted minutes 1-6
 
 **Focus:** Evidence-heavy, technical, policy analysis
 **Structure:**
+
 ```
 1AC (First Affirmative Constructive):  8 minutes
 Cross-Ex of 1AC by 2NC:               3 minutes
@@ -158,6 +164,7 @@ Prep Time: 8 minutes per side
 ```
 
 **Key Strategy:**
+
 - The Affirmative must present a plan with inherency, harms, solvency, and significance
 - Negative strategies: disadvantages, counterplans, kritiks, topicality
 - Spread (speed reading) is common in competitive circuits -- but clarity still matters
@@ -410,18 +417,23 @@ DELIVERY (typically 20-25%):
 ## Practice Exercises
 
 ### Exercise 1: Argument Construction Drill
+
 Take any news headline. In 5 minutes, construct a full Toulmin argument (claim, evidence, warrant, backing, qualifier, reservation) both for and against.
 
 ### Exercise 2: Fallacy Spotting
+
 Watch a political debate or opinion segment. Identify every logical fallacy. Write a one-sentence rebuttal for each.
 
 ### Exercise 3: Speed Rebuttal
+
 Record yourself giving a 2-minute argument. Then give yourself 1 minute to prepare and 2 minutes to deliver a full rebuttal. Repeat until responses are sharp.
 
 ### Exercise 4: Cross-Ex Preparation
+
 For your next debate topic, write 10 questions for cross-examination. For each, write the best and worst possible answer your opponent could give, and your follow-up for each.
 
 ### Exercise 5: Flowing Practice
+
 Watch a recorded debate round at 1.5x speed. Flow it completely. Then compare your flow to the actual arguments made. Repeat until you capture 90%+ of arguments.
 
 ## Quick Reference: Pre-Round Checklist
@@ -436,7 +448,6 @@ Watch a recorded debate round at 1.5x speed. Flow it completely. Then compare yo
 - [ ] Water bottle accessible
 - [ ] Deep breaths taken -- confidence prepared
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -449,13 +460,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with debate coach for a mid-size project."
 
 **Output:** A complete debate coach framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

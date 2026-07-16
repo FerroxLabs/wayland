@@ -15,9 +15,9 @@ steps:
   - id: api-key
     title: Paste your PagerDuty user API token
     estSeconds: 90
-    externalAction: { label: "Open PagerDuty", url: "https://app.pagerduty.com" }
+    externalAction: { label: 'Open PagerDuty', url: 'https://app.pagerduty.com' }
     inputs:
-      - { name: PAGERDUTY_USER_API_KEY, label: "PagerDuty user API token", secret: true }
+      - { name: PAGERDUTY_USER_API_KEY, label: 'PagerDuty user API token', secret: true }
     body: |
       User tokens scope to your own account permissions - incidents you
       can't see in the PagerDuty UI won't appear here either. Use a user

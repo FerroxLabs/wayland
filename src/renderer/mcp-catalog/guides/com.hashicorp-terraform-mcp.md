@@ -19,9 +19,9 @@ steps:
   - id: token
     title: Paste your HCP Terraform token
     estSeconds: 120
-    externalAction: { label: "Create an HCP Terraform token", url: "https://app.terraform.io/app/settings/tokens" }
+    externalAction: { label: 'Create an HCP Terraform token', url: 'https://app.terraform.io/app/settings/tokens' }
     inputs:
-      - { name: TFE_TOKEN, label: "HCP Terraform / TFE token", secret: true }
+      - { name: TFE_TOKEN, label: 'HCP Terraform / TFE token', secret: true }
     body: |
       Adding a token unlocks workspace management, organization / project
       listing, and access to the private module registry.

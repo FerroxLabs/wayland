@@ -584,11 +584,7 @@ const WebviewHost: React.FC<WebviewHostProps> = ({
             <ChevronRight size={16} />
           </button>
           <button onClick={handleRefresh} className='toolbar-btn icon-btn' title='Refresh'>
-            {isLoading ? (
-              <Loader2 size={16} className='animate-spin' />
-            ) : (
-              <RefreshCw size={16} />
-            )}
+            {isLoading ? <Loader2 size={16} className='animate-spin' /> : <RefreshCw size={16} />}
           </button>
           {isStarOffice && (
             <div className='flex items-center gap-6px ml-2px'>

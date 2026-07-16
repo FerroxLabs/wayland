@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts step-by-step"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts step-by-step'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
 
 # Legal Document Explainer
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User has a legal, financial, or technical document they do not understand
 - User needs a plain-language summary of a complex document
 - User wants specific clauses or sections of a document explained
 - User needs to understand implications of document terms before acting
 
 **Do NOT use this skill when:**
+
 - User needs legal advice on document terms -- refer to qualified professional
 - User wants a document drafted or written -- use appropriate writing skills
 - User needs contract negotiation help -- use contract-reviewer for that scope
@@ -66,16 +68,16 @@ Before analyzing any legal document, gather the following information:
 
 ### Identify the Document Type
 
-| Document Type | Key Characteristics | Primary Concerns |
-|---|---|---|
-| Residential Lease | Fixed term, rent amount, property address | Habitability, deposits, termination |
-| Employment Contract | Job title, compensation, duties | Non-compete, IP assignment, termination |
-| Terms of Service | Online acceptance, service description | Data use, liability limits, arbitration |
-| Insurance Policy | Coverage limits, deductibles, exclusions | What is NOT covered, claim process |
-| Loan Agreement | Principal, interest rate, repayment schedule | Default triggers, prepayment penalties |
-| NDA | Confidential info definition, duration | Scope of restriction, carve-outs |
-| Service Agreement | Scope of work, deliverables, timeline | Payment terms, liability, warranties |
-| Settlement Agreement | Release of claims, payment terms | What rights you give up, confidentiality |
+| Document Type        | Key Characteristics                          | Primary Concerns                         |
+| -------------------- | -------------------------------------------- | ---------------------------------------- |
+| Residential Lease    | Fixed term, rent amount, property address    | Habitability, deposits, termination      |
+| Employment Contract  | Job title, compensation, duties              | Non-compete, IP assignment, termination  |
+| Terms of Service     | Online acceptance, service description       | Data use, liability limits, arbitration  |
+| Insurance Policy     | Coverage limits, deductibles, exclusions     | What is NOT covered, claim process       |
+| Loan Agreement       | Principal, interest rate, repayment schedule | Default triggers, prepayment penalties   |
+| NDA                  | Confidential info definition, duration       | Scope of restriction, carve-outs         |
+| Service Agreement    | Scope of work, deliverables, timeline        | Payment terms, liability, warranties     |
+| Settlement Agreement | Release of claims, payment terms             | What rights you give up, confidentiality |
 
 ### Identify the Parties
 
@@ -98,6 +100,7 @@ Party Identification Template:
 Most legal documents follow a predictable structure. Read them in this order for best comprehension:
 
 #### Pass 1 - The Big Picture (5 minutes)
+
 1. Read the title and recitals (the "WHEREAS" clauses)
 2. Identify who the parties are
 3. Find the term (start date and end date)
@@ -105,6 +108,7 @@ Most legal documents follow a predictable structure. Read them in this order for
 5. Note how many pages/sections exist
 
 #### Pass 2 - Core Terms (15-30 minutes)
+
 6. Read the definitions section carefully -- every defined term changes meaning throughout
 7. Identify the core obligations of each party (what each side must do)
 8. Find the payment/consideration terms
@@ -112,6 +116,7 @@ Most legal documents follow a predictable structure. Read them in this order for
 10. Read the dispute resolution clause
 
 #### Pass 3 - Risk Assessment (15-30 minutes)
+
 11. Read limitation of liability clauses
 12. Find indemnification obligations
 13. Check for warranty disclaimers
@@ -120,6 +125,7 @@ Most legal documents follow a predictable structure. Read them in this order for
 16. Examine default and remedy provisions
 
 #### Pass 4 - Fine Print (10-20 minutes)
+
 17. Read the miscellaneous/general provisions
 18. Check for automatic renewal clauses
 19. Look for amendment requirements
@@ -133,38 +139,38 @@ Most legal documents follow a predictable structure. Read them in this order for
 
 ### Foundational Terms
 
-| Term | Plain Language Meaning |
-|---|---|
-| **Indemnify / Hold Harmless** | You agree to pay for the other party's losses if something goes wrong because of you |
-| **Liability** | Legal responsibility for something; often "limited" in contracts meaning they cap how much they owe you |
-| **Force Majeure** | Neither side is at fault if extraordinary events (natural disasters, pandemics, war) prevent performance |
-| **Severability** | If one part of the contract is found invalid, the rest still applies |
-| **Governing Law** | Which state/country's laws apply if there is a dispute |
-| **Arbitration** | Disputes go to a private decision-maker instead of court; often binding (you cannot appeal) |
-| **Waiver** | Giving up a right; "no waiver" means not enforcing a rule once does not mean you lose that right permanently |
-| **Assignment** | Transferring your rights/obligations to someone else |
-| **Consideration** | What each side gives in exchange (money, services, promises) |
-| **Breach** | Failure to fulfill an obligation under the contract |
-| **Remedy** | What the non-breaching party can do when a breach occurs |
-| **Covenant** | A binding promise to do or not do something |
-| **Warrant / Represent** | A formal statement of fact; if false, it is a breach |
-| **Notwithstanding** | "Despite anything else that says otherwise" -- this clause supersedes others |
-| **Herein / Hereto / Hereby** | In this document / to this document / by this document |
-| **Pursuant to** | In accordance with; following the rules of |
-| **Pro rata** | Proportionally; your fair share based on time or amount |
+| Term                          | Plain Language Meaning                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Indemnify / Hold Harmless** | You agree to pay for the other party's losses if something goes wrong because of you                         |
+| **Liability**                 | Legal responsibility for something; often "limited" in contracts meaning they cap how much they owe you      |
+| **Force Majeure**             | Neither side is at fault if extraordinary events (natural disasters, pandemics, war) prevent performance     |
+| **Severability**              | If one part of the contract is found invalid, the rest still applies                                         |
+| **Governing Law**             | Which state/country's laws apply if there is a dispute                                                       |
+| **Arbitration**               | Disputes go to a private decision-maker instead of court; often binding (you cannot appeal)                  |
+| **Waiver**                    | Giving up a right; "no waiver" means not enforcing a rule once does not mean you lose that right permanently |
+| **Assignment**                | Transferring your rights/obligations to someone else                                                         |
+| **Consideration**             | What each side gives in exchange (money, services, promises)                                                 |
+| **Breach**                    | Failure to fulfill an obligation under the contract                                                          |
+| **Remedy**                    | What the non-breaching party can do when a breach occurs                                                     |
+| **Covenant**                  | A binding promise to do or not do something                                                                  |
+| **Warrant / Represent**       | A formal statement of fact; if false, it is a breach                                                         |
+| **Notwithstanding**           | "Despite anything else that says otherwise" -- this clause supersedes others                                 |
+| **Herein / Hereto / Hereby**  | In this document / to this document / by this document                                                       |
+| **Pursuant to**               | In accordance with; following the rules of                                                                   |
+| **Pro rata**                  | Proportionally; your fair share based on time or amount                                                      |
 
 ### Contract-Specific Terms
 
-| Term | Plain Language Meaning |
-|---|---|
-| **Non-compete** | You cannot work for competitors or start a competing business for a specified time/area |
-| **Non-solicitation** | You cannot recruit the other party's employees or customers |
-| **Liquidated damages** | A pre-agreed amount of money owed if a specific breach occurs |
-| **Consequential damages** | Indirect losses (lost profits, lost opportunities) -- often excluded in contracts |
-| **Cure period** | Time you have to fix a breach before the other side can terminate |
-| **Estoppel** | You cannot take a position contradicting what you previously said or did |
-| **Lien** | A legal claim on property as security for a debt |
-| **Subordination** | Agreeing that your claim ranks below someone else's |
+| Term                      | Plain Language Meaning                                                                  |
+| ------------------------- | --------------------------------------------------------------------------------------- |
+| **Non-compete**           | You cannot work for competitors or start a competing business for a specified time/area |
+| **Non-solicitation**      | You cannot recruit the other party's employees or customers                             |
+| **Liquidated damages**    | A pre-agreed amount of money owed if a specific breach occurs                           |
+| **Consequential damages** | Indirect losses (lost profits, lost opportunities) -- often excluded in contracts       |
+| **Cure period**           | Time you have to fix a breach before the other side can terminate                       |
+| **Estoppel**              | You cannot take a position contradicting what you previously said or did                |
+| **Lien**                  | A legal claim on property as security for a debt                                        |
+| **Subordination**         | Agreeing that your claim ranks below someone else's                                     |
 
 ---
 
@@ -195,6 +201,7 @@ RED FLAG CHECKLIST:
 ### Document-Specific Red Flags
 
 #### Lease Red Flags
+
 - Landlord can enter without notice
 - Tenant responsible for all repairs including structural
 - Security deposit return conditions are vague
@@ -202,6 +209,7 @@ RED FLAG CHECKLIST:
 - Restrictions on subletting with no reasonable standard
 
 #### Employment Contract Red Flags
+
 - IP assignment covers work done on your own time with your own resources
 - Non-compete exceeds 1 year or covers unreasonably large geography
 - At-will termination for you but "for cause" required for employer
@@ -209,6 +217,7 @@ RED FLAG CHECKLIST:
 - Forced relocation clauses
 
 #### Terms of Service Red Flags
+
 - They can share your data with unlimited third parties
 - You grant them a perpetual, irrevocable license to your content
 - They can terminate your account and keep your data/money
@@ -216,6 +225,7 @@ RED FLAG CHECKLIST:
 - They can change terms at any time without notification
 
 #### Insurance Policy Red Flags
+
 - Exclusions that cover your primary risk
 - High deductibles that effectively nullify coverage
 - Subrogation clauses that limit your ability to settle
@@ -288,6 +298,7 @@ RECOMMENDATION:
 ## Step 6: Questions to Ask Before Signing Any Document
 
 ### General Questions
+
 1. What happens if I need to get out of this agreement early?
 2. Can they change the terms after I sign, and how will I be notified?
 3. What is my maximum financial exposure under this agreement?
@@ -297,6 +308,7 @@ RECOMMENDATION:
 7. Who else is bound by this agreement (guarantors, successors)?
 
 ### Red Flag Questions
+
 1. Why is this clause one-sided? Can we make it mutual?
 2. Can the arbitration clause include an opt-out period?
 3. Can we add a cap on liability that is proportional to the contract value?
@@ -356,8 +368,7 @@ You should consult an attorney if any of the following apply:
 
 ---
 
-*This skill provides a framework for understanding legal documents. For any document with significant financial or legal consequences, professional legal review is strongly recommended.*
-
+_This skill provides a framework for understanding legal documents. For any document with significant financial or legal consequences, professional legal review is strongly recommended._
 
 ## Output Format
 
@@ -387,6 +398,7 @@ Section 3: Resources
 ## Document Explanation: Cease and Desist Letter (Trademark)
 
 ### What This Document Is
+
 A cease and desist letter is a formal demand to stop an activity. It is NOT a lawsuit -- it is a warning before potential legal action. Receiving one does not mean you are guilty of anything.
 
 ### Key Sections Explained
@@ -401,16 +413,19 @@ Plain language: They want you to stop using the name/mark/logo entirely and by a
 Plain language: If you do not stop, they may file a lawsuit. This is a threat, not a certainty.
 
 ### Your Obligations Right Now
+
 - You are NOT required to respond immediately
 - You are NOT required to comply automatically
 - You SHOULD consult an intellectual property attorney before responding
 - Do NOT ignore it entirely -- ignoring can weaken your position if they do file suit
 
 ### Timeline
+
 - Typical response deadline: 10-30 days from receipt
 - Use this time to consult an attorney
 
 ### Key Questions for an Attorney
+
 1. Is their trademark registration valid and enforceable?
 2. Is your use actually infringing, or is it different enough?
 3. Do you have any prior use rights?

@@ -13,11 +13,11 @@ steps:
   - id: connection-string
     title: Paste your MongoDB connection string
     estSeconds: 210
-    externalAction: { label: "Open MongoDB Atlas", url: "https://cloud.mongodb.com" }
+    externalAction: { label: 'Open MongoDB Atlas', url: 'https://cloud.mongodb.com' }
     inputs:
-      - { name: MDB_MCP_CONNECTION_STRING, label: "MongoDB connection string", secret: true }
-      - { name: MDB_MCP_API_CLIENT_ID, label: "Atlas API client ID (optional)" }
-      - { name: MDB_MCP_API_CLIENT_SECRET, label: "Atlas API client secret (optional)", secret: true }
+      - { name: MDB_MCP_CONNECTION_STRING, label: 'MongoDB connection string', secret: true }
+      - { name: MDB_MCP_API_CLIENT_ID, label: 'Atlas API client ID (optional)' }
+      - { name: MDB_MCP_API_CLIENT_SECRET, label: 'Atlas API client secret (optional)', secret: true }
     warning: |
       Set `MDB_MCP_READ_ONLY=true` in the env for a safe sandbox - it allows
       only read/connect/metadata operations. The connection string includes

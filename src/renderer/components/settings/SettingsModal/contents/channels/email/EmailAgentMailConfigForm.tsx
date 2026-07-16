@@ -63,17 +63,12 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
   // Audit fix v0.4.2: same pattern as webhook channel. Don't compose a URL
   // with the placeholder literal - AgentMail will reject the webhook config.
   const TUNNEL_PLACEHOLDER = '(configure tunnel in Phase 4)';
-  const rawTunnelHost = t(
-    'settings.channels.emailAgentMail.webhookUrl.tunnelPlaceholder',
-    TUNNEL_PLACEHOLDER
-  );
-  const tunnelConfigured =
-    rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
+  const rawTunnelHost = t('settings.channels.emailAgentMail.webhookUrl.tunnelPlaceholder', TUNNEL_PLACEHOLDER);
+  const tunnelConfigured = rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
 
   const webhookUrl = useMemo(() => {
     if (!tunnelConfigured) return '';
-    const tokenSegment =
-      webhookToken ?? t('settings.channels.emailAgentMail.webhookUrl.notMinted', '<not-minted>');
+    const tokenSegment = webhookToken ?? t('settings.channels.emailAgentMail.webhookUrl.notMinted', '<not-minted>');
     return `https://${rawTunnelHost}/webhooks/email-agentmail/${tokenSegment}`;
   }, [webhookToken, tunnelConfigured, rawTunnelHost, t]);
 
@@ -94,14 +89,9 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
       });
       if (result.success && result.data) {
         setWebhookToken(result.data.token);
-        Message.success(
-          t('settings.channels.emailAgentMail.webhookUrl.rotateSuccess', 'Webhook URL rotated')
-        );
+        Message.success(t('settings.channels.emailAgentMail.webhookUrl.rotateSuccess', 'Webhook URL rotated'));
       } else {
-        Message.error(
-          result.msg ??
-            t('settings.channels.emailAgentMail.webhookUrl.rotateFailed', 'Rotation failed')
-        );
+        Message.error(result.msg ?? t('settings.channels.emailAgentMail.webhookUrl.rotateFailed', 'Rotation failed'));
       }
     } catch (error: unknown) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -112,9 +102,7 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
 
   const handleTestAndEnable = useCallback(async () => {
     if (!apiKey.trim()) {
-      Message.error(
-        t('settings.channels.emailAgentMail.credentials.apiKey.required', 'API key is required')
-      );
+      Message.error(t('settings.channels.emailAgentMail.credentials.apiKey.required', 'API key is required'));
       return;
     }
     setTesting(true);
@@ -125,8 +113,7 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
       });
       if (!testResult.success) {
         Message.error(
-          testResult.msg ??
-            t('settings.channels.emailAgentMail.connectionFailed', 'Connection test failed')
+          testResult.msg ?? t('settings.channels.emailAgentMail.connectionFailed', 'Connection test failed')
         );
         return;
       }
@@ -136,15 +123,11 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
       // auto-populate the state field AND use the freshly-resolved value in
       // the enablePlugin payload - React state setters are async, so we can't
       // rely on `inboxAddress` updating in time for the call below.
-      const discoveredInbox =
-        typeof testResult.data?.botUsername === 'string' ? testResult.data.botUsername : '';
+      const discoveredInbox = typeof testResult.data?.botUsername === 'string' ? testResult.data.botUsername : '';
       const resolvedInbox = inboxAddress.trim() || discoveredInbox;
       if (!resolvedInbox) {
         Message.warning(
-          t(
-            'settings.channels.emailAgentMail.credentials.inboxAddress.required',
-            'AgentMail inbox address required'
-          )
+          t('settings.channels.emailAgentMail.credentials.inboxAddress.required', 'AgentMail inbox address required')
         );
         return;
       }
@@ -162,13 +145,10 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
         },
       });
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.emailAgentMail.pluginEnabled', 'AgentMail channel enabled')
-        );
+        Message.success(t('settings.channels.emailAgentMail.pluginEnabled', 'AgentMail channel enabled'));
       } else {
         Message.error(
-          enableResult.msg ??
-            t('settings.channels.emailAgentMail.enableFailed', 'Failed to enable plugin')
+          enableResult.msg ?? t('settings.channels.emailAgentMail.enableFailed', 'Failed to enable plugin')
         );
       }
     } catch (error: unknown) {
@@ -199,20 +179,14 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
         <Input.Password
           value={apiKey}
           onChange={(value) => setApiKey(value)}
-          placeholder={t(
-            'settings.channels.emailAgentMail.credentials.apiKey.placeholder',
-            'am_xxxxxxxxxxxxxxxx'
-          )}
+          placeholder={t('settings.channels.emailAgentMail.credentials.apiKey.placeholder', 'am_xxxxxxxxxxxxxxxx')}
           visibilityToggle
           style={{ width: 280 }}
         />
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.emailAgentMail.credentials.inboxAddress.label',
-          'Inbox Address'
-        )}
+        label={t('settings.channels.emailAgentMail.credentials.inboxAddress.label', 'Inbox Address')}
         description={t(
           'settings.channels.emailAgentMail.credentials.inboxAddress.help',
           'The dedicated inbox AgentMail provisioned for this agent, e.g. agent@workspace.agentmail.to.'
@@ -231,10 +205,7 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.emailAgentMail.credentials.webhookSecret.label',
-          'Webhook Secret'
-        )}
+        label={t('settings.channels.emailAgentMail.credentials.webhookSecret.label', 'Webhook Secret')}
         description={t(
           'settings.channels.emailAgentMail.credentials.webhookSecret.help',
           'Optional HMAC secret AgentMail uses to sign webhook deliveries. Copy from the AgentMail dashboard.'
@@ -286,7 +257,6 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
         </Button>
       </div>
       <ChannelAgentModelSelector platform='email-agentmail' modelSelection={modelSelection} />
-
     </div>
   );
 };

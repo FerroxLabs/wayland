@@ -7,9 +7,7 @@
   "websiteUrl": "https://context7.com/docs/mcp",
   "repository": { "url": "https://github.com/upstash/context7", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.context7.com/mcp" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.context7.com/mcp" }],
   "x-wayland": {
     "tier": "builder",
     "categories": ["developer", "research"],

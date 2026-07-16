@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting sleep template"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'parenting sleep template'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Bedtime Routine Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A parent or caregiver asks how to build, fix, or overhaul a bedtime routine for a child of any age from 4 months to 17 years
 - A user describes bedtime taking too long (more than 45 minutes from start to lights-out) and wants a structured solution
 - A user needs age-specific bedtimes, sleep duration targets, or help calculating a wake time that works with a school or daycare schedule
@@ -29,6 +31,7 @@ metadata:
 - A user has had a routine disrupted by travel, illness, daylight saving time, a new sibling, or a move and needs a reset protocol
 
 **Do NOT use when:**
+
 - The child has symptoms consistent with a sleep disorder: witnessed apnea pauses, chronic loud snoring, sleep paralysis, sleepwalking or night terrors occurring more than 2-3 times per week, excessive daytime sleepiness that impairs functioning -- refer to pediatrician or pediatric sleep specialist
 - The user asks about infant sleep training methods (cry-it-out, Ferber, chair method, pick-up/put-down) as standalone protocols with medical implications -- these have distinct frameworks and should be handled with a pediatric-informed lens; refer to infant sleep training skill
 - The child is under 4 months -- sleep consolidation has not yet developed and routines serve limited function; safe sleep environment guidance takes priority
@@ -83,6 +86,7 @@ Before designing a new routine, identify what is broken in the current one. This
 Every effective bedtime routine has three distinct phases. Present them clearly and distinguish their purposes.
 
 **Phase 1: Wind-Down (20-30 minutes before routine begins)**
+
 - This is not part of the routine itself -- it is the deceleration ramp leading into it
 - Dim lights throughout the living space (overhead lights off, lamps on, or smart bulb dimming). Dimming light triggers melatonin production in children as young as 4 months.
 - Screens off: minimum 45 minutes before lights-out for children under 12; 60 minutes for teens
@@ -91,6 +95,7 @@ Every effective bedtime routine has three distinct phases. Present them clearly 
 - Temperature: begin cooling the sleep environment (drop thermostat or open window) -- sleep onset is facilitated by a drop in core body temperature of 1-2 degrees Fahrenheit; a bedroom at 65-68°F is optimal for children over 12 months
 
 **Phase 2: The Routine Sequence (15-30 minutes, same steps, same order, every night)**
+
 - The power of a routine is neurological -- repetition builds a conditioned response. The sequence itself becomes the sleep cue. Changing the order or adding optional steps undermines this.
 - Select 4-6 discrete activities in a fixed order. Each activity should be: (a) finite in duration, (b) calming, (c) familiar
 - Front-load hygiene (bath, teeth, face wash) -- these are non-negotiable and child knows it
@@ -98,6 +103,7 @@ Every effective bedtime routine has three distinct phases. Present them clearly 
 - Every step should have a natural start and stop signal the child can anticipate
 
 **Phase 3: Goodnight Ritual (2-5 minutes)**
+
 - The goodnight ritual is a brief, consistent, affectionate closing sequence
 - Use identical words every night -- not similar words, identical. "Hug. Kiss. I love you to the moon. See you in the morning." The repetition is neurological anchoring, not sentimentality.
 - Exit the room within 2 minutes of the final words. Do not linger.
@@ -109,6 +115,7 @@ Every effective bedtime routine has three distinct phases. Present them clearly 
 Resistance management is not an afterthought -- it is the most skill-intensive part of the routine for most families. Design it explicitly.
 
 **Identify the child's specific resistance pattern:**
+
 - **Curtain calls** -- the repeated exits from the room for new requests (water, hug, scared, "I forgot to tell you..."). Each request is individually reasonable, which makes it hard for parents to refuse. The structure fix is proactive saturation: offer water, hugs, and a brief "is there anything you need to tell me?" as formal steps in the routine before lights out. Remove the legitimate reasons for return.
 - **Physical resistance to leaving the parent** -- the child who clings, cries at separation, or follows the parent out. This is often developmentally appropriate separation anxiety, not manipulation. The response is empathic but consistent: "I know it's hard to say goodnight. I love you. I will see you in the morning." Then exit. Validate feeling, maintain boundary, do not re-enter for non-urgent needs.
 - **Stalling loops** -- "one more story," "one more song," "I need to ask you something." Stalling is a skill the child has learned because it has worked. The fix is a hard rule with no negotiation: "We read two books. Book time is done." Give no reason beyond the rule. Reasons invite counter-arguments.
@@ -116,12 +123,14 @@ Resistance management is not an afterthought -- it is the most skill-intensive p
 - **The "I can't sleep" exit** -- distinguish between the child who genuinely cannot fall asleep (wrong bedtime, sleep association issue) and the child who does not want to be alone. If the bedtime is biologically correct and the routine is consistent, the response to this is: "You don't have to sleep. You need to rest quietly in your bed." Quiet time in bed is the boundary, not mandated sleep.
 
 **Design response scripts with these properties:**
+
 - Brief -- under 10 words when possible after the first occurrence
 - Warm but boring -- not cold rejection, but not engaging enough to reward the exit
 - Identical each time -- same words, same tone, same outcome
 - No new information -- do not start a new conversation at the door at 9 PM
 
 **The walk-back protocol for room exits:**
+
 - First exit: brief acknowledgment + return to bed + goodnight ritual repeat (abbreviated)
 - Second exit: 5-word acknowledgment + silent walk back + tuck in + leave
 - Third and subsequent exits: silent walk back + leave. No words. This is not punitive -- it is boring, which removes the social reward of the exit.
@@ -156,16 +165,17 @@ A routine that works for one week and then falls apart is a failure. Build in su
 ---
 
 ### Sleep Architecture Summary
-| Parameter | Target |
-|-----------|--------|
-| Required wake time | [Time] |
-| Lights-out target | [Time] |
-| Target sleep duration | [X] hours |
-| Nap status | [Still napping / transitioning / fully dropped] |
-| Nap cutoff (if applicable) | [Time -- e.g., cap at 90 min, end by 2:30 PM] |
-| Wind-down start | [Time] |
-| Routine start | [Time] |
-| Estimated routine duration | [X] minutes |
+
+| Parameter                  | Target                                          |
+| -------------------------- | ----------------------------------------------- |
+| Required wake time         | [Time]                                          |
+| Lights-out target          | [Time]                                          |
+| Target sleep duration      | [X] hours                                       |
+| Nap status                 | [Still napping / transitioning / fully dropped] |
+| Nap cutoff (if applicable) | [Time -- e.g., cap at 90 min, end by 2:30 PM]   |
+| Wind-down start            | [Time]                                          |
+| Routine start              | [Time]                                          |
+| Estimated routine duration | [X] minutes                                     |
 
 **Sleep pressure note:** [One sentence about what biological factors are at play -- e.g., "At age 4, nap timing directly competes with nighttime sleep pressure; a late or long nap will push natural sleep onset to 9 PM or later regardless of routine quality."]
 
@@ -174,6 +184,7 @@ A routine that works for one week and then falls apart is a failure. Build in su
 ### Phase 1: Wind-Down ([Time] -- [Time], [X] minutes)
 
 **Environment changes to make:**
+
 - Lights: [Specific instruction -- e.g., overhead off, kitchen lamp at 50%, hall nightlight on]
 - Screens: Off by [Time]
 - Sound: [e.g., reduce household TV volume, switch to calm music or silence]
@@ -190,16 +201,17 @@ A routine that works for one week and then falls apart is a failure. Build in su
 
 ### Phase 2: Routine Sequence ([Time] -- [Time], [X] minutes)
 
-| Step | Activity | Duration | Key Notes |
-|------|----------|----------|-----------|
-| 1 | [Activity] | [X] min | [Specific technique detail] |
-| 2 | [Activity] | [X] min | [Specific technique detail] |
-| 3 | [Activity] | [X] min | [Specific technique detail] |
-| 4 | [Activity] | [X] min | [Specific technique detail] |
-| 5 | [Activity] | [X] min | [Specific technique detail] |
-| 6 | [Activity] | [X] min | [Specific technique detail] |
+| Step | Activity   | Duration | Key Notes                   |
+| ---- | ---------- | -------- | --------------------------- |
+| 1    | [Activity] | [X] min  | [Specific technique detail] |
+| 2    | [Activity] | [X] min  | [Specific technique detail] |
+| 3    | [Activity] | [X] min  | [Specific technique detail] |
+| 4    | [Activity] | [X] min  | [Specific technique detail] |
+| 5    | [Activity] | [X] min  | [Specific technique detail] |
+| 6    | [Activity] | [X] min  | [Specific technique detail] |
 
 **Non-negotiables in this sequence:**
+
 - [Specific rule 1 for this child's age or situation]
 - [Specific rule 2]
 - [Specific rule 3]
@@ -209,9 +221,11 @@ A routine that works for one week and then falls apart is a failure. Build in su
 ### Phase 3: Goodnight Ritual ([Time], 2-5 minutes)
 
 **Exact closing sequence (use these words every night):**
+
 > "[Consistent, specific goodnight words]"
 
 **Environmental final check:**
+
 - [ ] White noise: [On / Off / Setting]
 - [ ] Nightlight: [On / Off / Location]
 - [ ] Door: [Open / Cracked / Closed]
@@ -222,14 +236,15 @@ A routine that works for one week and then falls apart is a failure. Build in su
 
 ### Resistance Management Scripts
 
-| Stalling Behavior | First Occurrence Response | Second+ Occurrence Response |
-|-------------------|--------------------------|------------------------------|
-| [Specific behavior] | "[Specific script]" | "[Abbreviated script]" |
-| [Specific behavior] | "[Specific script]" | "[Abbreviated script]" |
-| [Specific behavior] | "[Specific script]" | "[Abbreviated script]" |
-| [Specific behavior] | "[Specific script]" | "[Abbreviated script]" |
+| Stalling Behavior   | First Occurrence Response | Second+ Occurrence Response |
+| ------------------- | ------------------------- | --------------------------- |
+| [Specific behavior] | "[Specific script]"       | "[Abbreviated script]"      |
+| [Specific behavior] | "[Specific script]"       | "[Abbreviated script]"      |
+| [Specific behavior] | "[Specific script]"       | "[Abbreviated script]"      |
+| [Specific behavior] | "[Specific script]"       | "[Abbreviated script]"      |
 
 **Walk-back protocol for room exits:**
+
 1. First exit: [Script + action]
 2. Second exit: [Script + action]
 3. Third and beyond: [Action only -- silent walk-back]
@@ -238,27 +253,28 @@ A routine that works for one week and then falls apart is a failure. Build in su
 
 ### Troubleshooting Guide
 
-| Problem | Diagnosis | Specific Solution |
-|---------|-----------|-------------------|
-| [Issue] | [Root cause] | [Concrete fix] |
-| [Issue] | [Root cause] | [Concrete fix] |
-| [Issue] | [Root cause] | [Concrete fix] |
-| [Issue] | [Root cause] | [Concrete fix] |
-| [Issue] | [Root cause] | [Concrete fix] |
+| Problem | Diagnosis    | Specific Solution |
+| ------- | ------------ | ----------------- |
+| [Issue] | [Root cause] | [Concrete fix]    |
+| [Issue] | [Root cause] | [Concrete fix]    |
+| [Issue] | [Root cause] | [Concrete fix]    |
+| [Issue] | [Root cause] | [Concrete fix]    |
+| [Issue] | [Root cause] | [Concrete fix]    |
 
 ---
 
 ### Adjustment Timeline
 
-| Days 1-3 | [What to expect -- typically hardest nights] |
-|----------|----------------------------------------------|
-| Days 4-7 | [Typical improvement pattern] |
-| Days 8-14 | [Expected steady state] |
-| If no improvement by Day 14 | [Specific diagnostic questions to revisit] |
+| Days 1-3                    | [What to expect -- typically hardest nights] |
+| --------------------------- | -------------------------------------------- |
+| Days 4-7                    | [Typical improvement pattern]                |
+| Days 8-14                   | [Expected steady state]                      |
+| If no improvement by Day 14 | [Specific diagnostic questions to revisit]   |
 
 ---
 
 ### Notes for This Specific Child/Situation
+
 [2-4 sentences addressing the particular circumstances the parent described -- nap transition, recent disruption, fear, shared room -- with targeted advice that would not appear in a generic routine template]
 ```
 
@@ -333,16 +349,17 @@ Fear at bedtime is developmentally normal from age 2 through approximately age 7
 ---
 
 ### Sleep Architecture Summary
-| Parameter | Target |
-|-----------|--------|
-| Required wake time | 7:00 AM |
-| Lights-out target | 7:45 PM |
-| Target sleep duration | 11 hours |
-| Nap status | Transitioning -- naps at school (partial days), not at home |
-| Nap cutoff (school days) | Confirm school nap ends by 2:30 PM; if it extends later, flag for preschool teacher |
-| Wind-down start | 6:45 PM |
-| Routine start | 7:00 PM |
-| Estimated routine duration | 22 minutes |
+
+| Parameter                  | Target                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| Required wake time         | 7:00 AM                                                                             |
+| Lights-out target          | 7:45 PM                                                                             |
+| Target sleep duration      | 11 hours                                                                            |
+| Nap status                 | Transitioning -- naps at school (partial days), not at home                         |
+| Nap cutoff (school days)   | Confirm school nap ends by 2:30 PM; if it extends later, flag for preschool teacher |
+| Wind-down start            | 6:45 PM                                                                             |
+| Routine start              | 7:00 PM                                                                             |
+| Estimated routine duration | 22 minutes                                                                          |
 
 **Sleep pressure note:** At age 4, Leo is in the nap transition zone. On school days with a nap, sleep pressure at 7:00 PM is lower, which is why bedtime feels hard -- his body may not be ready for sleep until 8:00-8:30 PM on those days. On non-nap days, sleep pressure will be much higher and he should fall asleep within 10-15 minutes of lights-out. The current 9:00-9:30 PM bedtime is not laziness or willfulness -- it is the result of starting the routine too early, having no consistent structure, and a stalling loop that his parents have inadvertently reinforced by re-entering the room.
 
@@ -351,6 +368,7 @@ Fear at bedtime is developmentally normal from age 2 through approximately age 7
 ### Phase 1: Wind-Down (6:45 PM -- 7:00 PM, 15 minutes)
 
 **Environment changes to make:**
+
 - Lights: All overhead lights off by 6:45 PM. Use one lamp in the living room. Turn on Leo's nightlight in his room now so it does not become a negotiation point at 7:45 PM.
 - Screens: Off no later than 6:30 PM. Do not negotiate on this -- a show that ends at 6:45 PM is still too close.
 - Sound: Lower household ambient noise. If the TV stays on for the adults after Leo is in bed, use headphones or keep the volume low enough that he cannot hear it.
@@ -367,17 +385,18 @@ Fear at bedtime is developmentally normal from age 2 through approximately age 7
 
 ### Phase 2: Routine Sequence (7:00 PM -- 7:22 PM, 22 minutes)
 
-| Step | Activity | Duration | Key Notes |
-|------|----------|----------|-----------|
-| 1 | Pajamas (Leo chooses between 2 options you pre-select) | 3 min | Giving a binary choice ("dinosaur PJs or rocket PJs?") preserves Leo's autonomy while keeping you in control of the sequence. This dramatically reduces "I don't WANT to" resistance at this step. |
-| 2 | Brush teeth (parent-led, 2 minutes) | 2 min | Use a 2-minute sand timer or a Bluetooth toothbrush with a built-in timer. Same timer every night -- the timer ends the step, not a negotiation. Brush for him at age 4; supervision alone is not sufficient for plaque removal. |
-| 3 | Bathroom (last trip, explicitly stated) | 2 min | "This is your last bathroom trip tonight." Say this every single night. It closes the door on "I have to go potty" as a later stalling tactic. |
-| 4 | Water (offered proactively by you, not requested by him) | 1 min | Pour a small cup of water. Hand it to him. "Here's your water for tonight." This removes "I need water" as a post-lights-out stalling tool permanently. He gets it as a routine step. |
-| 5 | Two books (Leo chooses from 3 you pre-select) | 10 min | Pre-selecting 3 options limits the "which book" negotiation to 30 seconds. Two books is the limit -- state this at the start of step 5: "You pick two from these three." Read with him in bed, not on the floor or in another room. Reading in bed associates the bed with calm, safe, connected experience. |
-| 6 | One conversation moment: "What was one good thing today?" | 2 min | This is the connection moment. Brief, open-ended, parent listens more than speaks. This step is the primary emotional deposit of the night and makes the subsequent separation easier. Keep it to 2 minutes -- if Leo tries to extend it, gently close: "That's a great thing. We'll talk more tomorrow. Time for sleep." |
-| 7 | Room check together (fear-proofing step) | 1 min | Walk to the door and closet together. "Let's check the room. Closet -- all clear. Door -- all clear. Mr. Bear is at his post." This is done INSIDE the routine, before the goodnight ritual. It is never done in response to a call from the room after you've exited. |
+| Step | Activity                                                  | Duration | Key Notes                                                                                                                                                                                                                                                                                                                 |
+| ---- | --------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Pajamas (Leo chooses between 2 options you pre-select)    | 3 min    | Giving a binary choice ("dinosaur PJs or rocket PJs?") preserves Leo's autonomy while keeping you in control of the sequence. This dramatically reduces "I don't WANT to" resistance at this step.                                                                                                                        |
+| 2    | Brush teeth (parent-led, 2 minutes)                       | 2 min    | Use a 2-minute sand timer or a Bluetooth toothbrush with a built-in timer. Same timer every night -- the timer ends the step, not a negotiation. Brush for him at age 4; supervision alone is not sufficient for plaque removal.                                                                                          |
+| 3    | Bathroom (last trip, explicitly stated)                   | 2 min    | "This is your last bathroom trip tonight." Say this every single night. It closes the door on "I have to go potty" as a later stalling tactic.                                                                                                                                                                            |
+| 4    | Water (offered proactively by you, not requested by him)  | 1 min    | Pour a small cup of water. Hand it to him. "Here's your water for tonight." This removes "I need water" as a post-lights-out stalling tool permanently. He gets it as a routine step.                                                                                                                                     |
+| 5    | Two books (Leo chooses from 3 you pre-select)             | 10 min   | Pre-selecting 3 options limits the "which book" negotiation to 30 seconds. Two books is the limit -- state this at the start of step 5: "You pick two from these three." Read with him in bed, not on the floor or in another room. Reading in bed associates the bed with calm, safe, connected experience.              |
+| 6    | One conversation moment: "What was one good thing today?" | 2 min    | This is the connection moment. Brief, open-ended, parent listens more than speaks. This step is the primary emotional deposit of the night and makes the subsequent separation easier. Keep it to 2 minutes -- if Leo tries to extend it, gently close: "That's a great thing. We'll talk more tomorrow. Time for sleep." |
+| 7    | Room check together (fear-proofing step)                  | 1 min    | Walk to the door and closet together. "Let's check the room. Closet -- all clear. Door -- all clear. Mr. Bear is at his post." This is done INSIDE the routine, before the goodnight ritual. It is never done in response to a call from the room after you've exited.                                                    |
 
 **Non-negotiables in this sequence:**
+
 - Steps happen in this order every night. Not sometimes in this order -- every night.
 - Two books means two books. Not two and a half. Not "one short one and then one long one." Two books.
 - The proactive water offering (Step 4) must replace reactive water-fetching. If Leo asks for water at the door after the routine, the answer is: "You had your water at bedtime."
@@ -387,11 +406,13 @@ Fear at bedtime is developmentally normal from age 2 through approximately age 7
 ### Phase 3: Goodnight Ritual (7:22 PM -- 7:26 PM, approximately 4 minutes)
 
 **Exact closing sequence -- use these words every night:**
+
 > "Okay, it's time. Big hug. Kiss. I love you to the moon and back. Mr. Bear is right here. I'll see you in the morning. Night-night."
 
 Turn on white noise (set to 60-65 dB, similar to a running shower -- this also masks household sounds that can re-alert a child who is on the edge of sleep). Exit. Close the door to his preferred position.
 
 **Environmental final check:**
+
 - [ ] White noise: On, 60-65 dB
 - [ ] Nightlight: On (already set up at 6:45 PM wind-down)
 - [ ] Door: Cracked (or his preference -- establish one preference and keep it consistent)
@@ -403,16 +424,17 @@ Turn on white noise (set to 60-65 dB, similar to a running shower -- this also m
 
 ### Resistance Management Scripts
 
-| Stalling Behavior | First Occurrence Response | Second+ Occurrence Response |
-|-------------------|--------------------------|------------------------------|
-| "I need water!" | "You had your water at bedtime. Your body is fine. Night-night." (Close door.) | Silent walk-back to bed. Tuck in. Leave. |
-| "I'm scared!" | "I hear you. We already checked the room together -- it's all clear. Mr. Bear is your guard tonight. I love you. Night-night." (Close door.) | "The room is safe. Mr. Bear is there. Night-night." (Close door.) |
-| "One more story!" | "We read our two books. Book time is done. I love you. Night-night." (Do not pick up a book. Do not explain further.) | Walk back to bed silently. Tuck in. Leave. |
-| "I have to go potty!" | First time: honor it, 60-second bathroom trip, silent return to bed, abbreviated goodnight. Second time: "You went at bedtime. Your body is okay. Night-night." | Walk back. Tuck in. Leave. No bathroom trip. |
-| Exits room ("I need a hug!") | Walk him back. Tuck in. "I love you. It's bedtime. Night-night." | Walk him back silently. Tuck in. Leave. No words after the second exit. |
-| "I'm not tired!" | "Your body needs rest even when your brain feels awake. Lie quietly. You don't have to sleep -- just rest." (Leave.) | [No response needed if he stays in bed and rests quietly -- this is acceptable.] |
+| Stalling Behavior            | First Occurrence Response                                                                                                                                       | Second+ Occurrence Response                                                      |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| "I need water!"              | "You had your water at bedtime. Your body is fine. Night-night." (Close door.)                                                                                  | Silent walk-back to bed. Tuck in. Leave.                                         |
+| "I'm scared!"                | "I hear you. We already checked the room together -- it's all clear. Mr. Bear is your guard tonight. I love you. Night-night." (Close door.)                    | "The room is safe. Mr. Bear is there. Night-night." (Close door.)                |
+| "One more story!"            | "We read our two books. Book time is done. I love you. Night-night." (Do not pick up a book. Do not explain further.)                                           | Walk back to bed silently. Tuck in. Leave.                                       |
+| "I have to go potty!"        | First time: honor it, 60-second bathroom trip, silent return to bed, abbreviated goodnight. Second time: "You went at bedtime. Your body is okay. Night-night." | Walk back. Tuck in. Leave. No bathroom trip.                                     |
+| Exits room ("I need a hug!") | Walk him back. Tuck in. "I love you. It's bedtime. Night-night."                                                                                                | Walk him back silently. Tuck in. Leave. No words after the second exit.          |
+| "I'm not tired!"             | "Your body needs rest even when your brain feels awake. Lie quietly. You don't have to sleep -- just rest." (Leave.)                                            | [No response needed if he stays in bed and rests quietly -- this is acceptable.] |
 
 **Walk-back protocol for room exits:**
+
 1. First exit: Brief warm acknowledgment + return to bed + abbreviated goodnight ("I love you. Night-night.")
 2. Second exit: 5 words maximum ("It's bedtime. Night-night.") + silent walk-back + tuck in
 3. Third and beyond: Silent walk-back. No words. No eye contact. Tuck in. Leave. This is not punishing Leo -- it is boring him. The social interaction is the reward he is seeking. Remove the reward.
@@ -423,23 +445,23 @@ Turn on white noise (set to 60-65 dB, similar to a running shower -- this also m
 
 ### Troubleshooting Guide
 
-| Problem | Diagnosis | Specific Solution |
-|---------|-----------|-------------------|
-| Routine still taking 60+ minutes after 2 weeks of consistency | Either bedtime is biologically too early on nap days, or the routine steps are expanding through negotiation | On school-nap days, push lights-out to 8:15 PM. Audit each step -- have any steps extended? Pull them back to original durations. |
-| Leo wakes at 5:30-6:00 AM after falling asleep faster | Routine is working; wake time may be his natural rhythm at 11 hours from 7:00 PM lights-out | This is likely correct sleep. If it is genuinely too early, push lights-out 15 minutes later every 3 nights until he wakes at 7:00 AM. |
-| Night waking (1-3 AM) with difficulty returning to sleep | If he was always falling asleep with a parent present previously, night waking may be a residual sleep association -- he does not have the skill to resettle independently yet | Brief, boring response: "It's still nighttime. You're okay. Back to sleep." Exit within 45 seconds. Same script every time. This resolves in 5-10 nights if consistent. |
-| Mr. Bear falls out of bed and Leo wakes screaming | Positional -- not a routine failure, but preventable | Put Mr. Bear against the wall or in the corner of the bed, not on top. Add a second identical transitional object to keep at the head of the bed ("home base bear") so there is always one in position. |
-| Resistance intensifies on nights 3-5 compared to nights 1-2 | This is the extinction burst -- exactly as expected | Stay the course. The escalation is evidence the new boundary is working, not evidence it is failing. Nights 6-8 will show a marked reduction if consistency is maintained. |
-| Leo gets out of bed 8+ times in one night | Single-night intensity peak, often occurs at the transition to a new routine | Do not problem-solve during the night. Walk back every single time without change. Review the morning after: was something different (missed nap at school, later wind-down, exciting evening event)? |
+| Problem                                                       | Diagnosis                                                                                                                                                                      | Specific Solution                                                                                                                                                                                       |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routine still taking 60+ minutes after 2 weeks of consistency | Either bedtime is biologically too early on nap days, or the routine steps are expanding through negotiation                                                                   | On school-nap days, push lights-out to 8:15 PM. Audit each step -- have any steps extended? Pull them back to original durations.                                                                       |
+| Leo wakes at 5:30-6:00 AM after falling asleep faster         | Routine is working; wake time may be his natural rhythm at 11 hours from 7:00 PM lights-out                                                                                    | This is likely correct sleep. If it is genuinely too early, push lights-out 15 minutes later every 3 nights until he wakes at 7:00 AM.                                                                  |
+| Night waking (1-3 AM) with difficulty returning to sleep      | If he was always falling asleep with a parent present previously, night waking may be a residual sleep association -- he does not have the skill to resettle independently yet | Brief, boring response: "It's still nighttime. You're okay. Back to sleep." Exit within 45 seconds. Same script every time. This resolves in 5-10 nights if consistent.                                 |
+| Mr. Bear falls out of bed and Leo wakes screaming             | Positional -- not a routine failure, but preventable                                                                                                                           | Put Mr. Bear against the wall or in the corner of the bed, not on top. Add a second identical transitional object to keep at the head of the bed ("home base bear") so there is always one in position. |
+| Resistance intensifies on nights 3-5 compared to nights 1-2   | This is the extinction burst -- exactly as expected                                                                                                                            | Stay the course. The escalation is evidence the new boundary is working, not evidence it is failing. Nights 6-8 will show a marked reduction if consistency is maintained.                              |
+| Leo gets out of bed 8+ times in one night                     | Single-night intensity peak, often occurs at the transition to a new routine                                                                                                   | Do not problem-solve during the night. Walk back every single time without change. Review the morning after: was something different (missed nap at school, later wind-down, exciting evening event)?   |
 
 ---
 
 ### Adjustment Timeline
 
-| Days 1-3 | These will likely be harder than the current situation. Leo's existing strategy (escalate until a parent re-enters and stays) is not working the same way, and he will intensify. Expect 6-12 room exits per night, some crying at the door. This is normal and temporary. |
-|----------|------|
-| Days 4-7 | Room exits decrease to 2-4 per night. Leo may still protest but the duration of protest shortens. Falling-asleep time moves from 75-90 minutes after routine start to approximately 25-35 minutes. |
-| Days 8-14 | If consistency has held, Leo should be falling asleep within 10-20 minutes of lights-out with 0-2 room exits. The routine should feel automatic to him. |
+| Days 1-3                    | These will likely be harder than the current situation. Leo's existing strategy (escalate until a parent re-enters and stays) is not working the same way, and he will intensify. Expect 6-12 room exits per night, some crying at the door. This is normal and temporary.                      |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Days 4-7                    | Room exits decrease to 2-4 per night. Leo may still protest but the duration of protest shortens. Falling-asleep time moves from 75-90 minutes after routine start to approximately 25-35 minutes.                                                                                              |
+| Days 8-14                   | If consistency has held, Leo should be falling asleep within 10-20 minutes of lights-out with 0-2 room exits. The routine should feel automatic to him.                                                                                                                                         |
 | If no improvement by Day 14 | Revisit three things: (1) Is the lights-out time correctly calibrated for nap vs. non-nap days? (2) Are both parents using identical scripts and protocols? (3) Is there any unaddressed sleep association -- a habit introduced during night wakings that re-establishes the original dynamic? |
 
 ---

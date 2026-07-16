@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition fitness step-by-step"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'nutrition fitness step-by-step'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Macro Calculation
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to calculate their macros (protein, carbohydrates, fat) and wants to understand the math, not just get a number
 - A user wants to estimate their Total Daily Energy Expenditure (TDEE) or asks "how many calories should I eat"
 - A user asks specifically how much protein they need per day for fat loss, muscle gain, or maintenance
@@ -35,6 +37,7 @@ metadata:
 - A user wants to understand what percentage of their calories should come from each macronutrient
 
 **Do NOT use when:**
+
 - The user has Type 1 or Type 2 diabetes, chronic kidney disease, phenylketonuria, or any condition requiring clinically supervised macronutrient management -- refer to a Registered Dietitian (RD) or Registered Dietitian Nutritionist (RDN)
 - The user describes symptoms consistent with an eating disorder: restriction below 1,000-1,200 calories, fear of eating specific foods, obsessive tracking, binge-purge patterns, or extreme distress about food -- do not engage with calculation requests; instead, recommend professional support
 - The user asks for a specific meal plan, food list, or recipe guidance -- this skill produces targets only, not food prescriptions (use a meal planning skill instead)
@@ -64,10 +67,12 @@ Before calculating anything, collect the following. If any data is missing, ask 
 The Mifflin-St Jeor equation is the most validated for non-athletic populations and outperforms the older Harris-Benedict equation in accuracy studies. Use it as the default. The Katch-McArdle equation (BMR = 370 + 21.6 x lean body mass in kg) is superior when the user knows their body fat percentage -- use it when that data is available.
 
 **Mifflin-St Jeor:**
+
 - Male: BMR = (10 x weight in kg) + (6.25 x height in cm) - (5 x age in years) + 5
 - Female: BMR = (10 x weight in kg) + (6.25 x height in cm) - (5 x age in years) - 161
 
 **Katch-McArdle (when body fat % is known):**
+
 - Lean Body Mass (kg) = total weight in kg x (1 - body fat % as decimal)
 - BMR = 370 + (21.6 x lean body mass in kg)
 - Example: 82 kg at 20% body fat: LBM = 82 x 0.80 = 65.6 kg; BMR = 370 + (21.6 x 65.6) = 370 + 1,417 = 1,787 kcal/day
@@ -82,15 +87,16 @@ TDEE = BMR x Activity Multiplier. The multiplier accounts for all caloric expend
 
 **Activity multiplier reference:**
 
-| Activity Level | Definition | Multiplier |
-|---|---|---|
-| Sedentary | Desk job, no structured exercise, minimal walking | 1.2 |
-| Lightly active | 1-3 days/week light exercise or 7,500+ steps/day | 1.375 |
-| Moderately active | 3-5 days/week moderate exercise, active job or 10,000+ steps | 1.55 |
-| Very active | 6-7 days/week hard training, physically demanding job | 1.725 |
-| Extremely active | Twice-daily training or professional athlete level | 1.9 |
+| Activity Level    | Definition                                                   | Multiplier |
+| ----------------- | ------------------------------------------------------------ | ---------- |
+| Sedentary         | Desk job, no structured exercise, minimal walking            | 1.2        |
+| Lightly active    | 1-3 days/week light exercise or 7,500+ steps/day             | 1.375      |
+| Moderately active | 3-5 days/week moderate exercise, active job or 10,000+ steps | 1.55       |
+| Very active       | 6-7 days/week hard training, physically demanding job        | 1.725      |
+| Extremely active  | Twice-daily training or professional athlete level           | 1.9        |
 
 **Critical guidance on multiplier selection:**
+
 - Most people significantly overestimate their activity level. A 4-day/week gym-goer who has a desk job and drives to work is moderately active (1.55), not very active.
 - NEAT is the most variable and underappreciated factor -- people with physically active jobs (construction, nursing, retail) can burn 500-1,000 more calories per day than desk workers doing the same structured exercise.
 - When in doubt, use the lower multiplier and adjust upward after 2-3 weeks of tracking -- it is easier to add calories than explain why the user is gaining weight on a calculated deficit.
@@ -101,6 +107,7 @@ TDEE = BMR x Activity Multiplier. The multiplier accounts for all caloric expend
 Apply the appropriate adjustment to TDEE. These adjustments are calibrated to maximize the rate of progress while minimizing negative adaptations (muscle loss, hormonal disruption, metabolic adaptation).
 
 **Fat loss:**
+
 - Standard deficit: TDEE minus 300-500 kcal/day
 - A 500 kcal/day deficit produces a theoretical deficit of 3,500 kcal/week, roughly equivalent to 1 lb of fat (note: the 3,500 kcal/lb rule is an approximation -- actual fat loss rate varies due to metabolic adaptation)
 - For users with significant excess body fat (BMI > 30), a deficit of up to 750 kcal/day is generally acceptable given higher fat stores available for mobilization
@@ -108,10 +115,12 @@ Apply the appropriate adjustment to TDEE. These adjustments are calibrated to ma
 - Rate of loss guideline: 0.5-1.0% of body weight per week is optimal for muscle preservation. At 180 lbs, this is 0.9-1.8 lbs/week. Losses consistently above 1% of body weight per week signal the deficit is too aggressive.
 
 **Maintenance:**
+
 - Use TDEE as calculated
 - Particularly useful during diet breaks (planned 1-2 week return to maintenance during a prolonged fat loss phase to partially reverse metabolic adaptation)
 
 **Muscle gain (lean bulk):**
+
 - Standard surplus: TDEE plus 200-350 kcal/day
 - Novice lifters (< 1 year of consistent training): can support 300-500 kcal/day surplus with higher muscle accrual rates (0.5-1 lb muscle/week)
 - Intermediate lifters (1-3 years): 200-300 kcal/day surplus; muscle gain rate slows to approximately 0.25-0.5 lbs/week
@@ -124,13 +133,13 @@ Protein is always calculated first because it is the most critical macro for bod
 
 **Protein guidelines by goal:**
 
-| Goal | Protein Target | Rationale |
-|---|---|---|
-| Fat loss | 2.0-2.4 g/kg body weight | Elevated protein in a deficit preserves lean mass (leucine-mediated muscle protein synthesis signaling) and increases satiety via peptide YY and GLP-1 release |
-| Maintenance | 1.6-2.0 g/kg body weight | Supports muscle protein turnover and recovery |
-| Muscle gain | 1.8-2.2 g/kg body weight | Supports net positive muscle protein synthesis; research shows diminishing returns above 2.2 g/kg |
-| Over 50, any goal | Upper end of respective range | Age-related anabolic resistance requires higher leucine intake per meal to maximally stimulate MPS |
-| High body fat (> 30% BF) | Calculate from lean body mass x 2.4-2.8 g/kg LBM | Using total body weight overestimates protein needs in high-BF individuals; fat tissue has no protein requirement |
+| Goal                     | Protein Target                                   | Rationale                                                                                                                                                      |
+| ------------------------ | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fat loss                 | 2.0-2.4 g/kg body weight                         | Elevated protein in a deficit preserves lean mass (leucine-mediated muscle protein synthesis signaling) and increases satiety via peptide YY and GLP-1 release |
+| Maintenance              | 1.6-2.0 g/kg body weight                         | Supports muscle protein turnover and recovery                                                                                                                  |
+| Muscle gain              | 1.8-2.2 g/kg body weight                         | Supports net positive muscle protein synthesis; research shows diminishing returns above 2.2 g/kg                                                              |
+| Over 50, any goal        | Upper end of respective range                    | Age-related anabolic resistance requires higher leucine intake per meal to maximally stimulate MPS                                                             |
+| High body fat (> 30% BF) | Calculate from lean body mass x 2.4-2.8 g/kg LBM | Using total body weight overestimates protein needs in high-BF individuals; fat tissue has no protein requirement                                              |
 
 **Practical limits:** Research does not show harm from protein intakes up to 3.0-3.5 g/kg in healthy adults. No evidence supports recommendations above 2.4 g/kg for most goals -- beyond this, additional protein provides minimal additional muscle protein synthesis benefit.
 
@@ -143,6 +152,7 @@ Protein is always calculated first because it is the most critical macro for bod
 Fat intake is set second because it has a physiological minimum that must be respected before carbohydrates are allocated.
 
 **Fat guidelines:**
+
 - Minimum: 0.8 g/kg body weight -- below this threshold, steroid hormone production (testosterone, estrogen, cortisol) is impaired, fat-soluble vitamin absorption (A, D, E, K) is reduced, and essential fatty acid (omega-3, omega-6) needs cannot be met
 - Standard recommendation: 1.0 g/kg body weight for most goals -- this provides a practical margin above the minimum
 - Upper practical limit: 1.2 g/kg -- above this, carbohydrates are squeezed out, which reduces glycogen availability for training performance
@@ -155,12 +165,14 @@ Fat intake is set second because it has a physiological minimum that must be res
 After protein and fat are set, all remaining calories go to carbohydrates. This "carbs by difference" approach is intentional -- carbohydrates are the most flexible macro and the most responsive to adjustment.
 
 **Carbohydrate calculation:**
+
 - Remaining calories = Total caloric target - (protein calories + fat calories)
 - Carbohydrate grams = remaining calories / 4
 
 **Verify the math:** Sum all three macro calories and confirm they equal the caloric target within 5 calories (rounding error is acceptable).
 
 **Sanity checks:**
+
 - If carbohydrate grams fall below 100g/day, the caloric target may be too low or protein and fat allocations are consuming too many calories -- review and adjust
 - Athletes doing > 60 minutes of moderate-to-high intensity exercise daily may need carbohydrates as high as 5-7 g/kg -- if calculated carbs fall well below this, flag it and note that training performance may suffer
 - Low carbohydrate outcomes (< 100g/day) are not inherently harmful but should be flagged so the user is aware
@@ -170,6 +182,7 @@ After protein and fat are set, all remaining calories go to carbohydrates. This 
 A calculation is only the starting point. Metabolic adaptation, TDEE estimation error, and individual variation mean that virtually everyone will need to adjust their targets within the first few weeks. Provide a specific, systematic protocol.
 
 **Adjustment triggers:**
+
 - **Fat loss:** If scale weight (averaged across 7 days) is not declining after 3 full weeks, reduce total calories by 100-150 kcal/day by cutting carbohydrates (25-37g carbs) -- never protein, rarely fat
 - **Fat loss, too fast:** If weight loss exceeds 1% body weight/week consistently, add 100-150 kcal/day via carbohydrates to slow loss and preserve muscle
 - **Muscle gain:** If scale weight is not increasing by 0.25-0.5 lbs/week (intermediate) or 0.5-1.0 lbs/week (novice) after 3 weeks, add 100-150 kcal/day via carbohydrates
@@ -183,8 +196,8 @@ A calculation is only the starting point. Metabolic adaptation, TDEE estimation 
 ```
 ## Macro Calculation: [Goal] -- [Name/identifier if provided]
 
-> Disclaimer: These are estimates based on population-average equations. Actual energy 
-> needs vary by 10-20% from calculated values. Adjust based on real-world results over 
+> Disclaimer: These are estimates based on population-average equations. Actual energy
+> needs vary by 10-20% from calculated values. Adjust based on real-world results over
 > 2-3 weeks, not on the calculation alone.
 
 ---
@@ -280,7 +293,7 @@ A calculation is only the starting point. Metabolic adaptation, TDEE estimation 
 
 ---
 
-*For individualized nutrition guidance, consult a Registered Dietitian (RD) or Registered 
+*For individualized nutrition guidance, consult a Registered Dietitian (RD) or Registered
 Dietitian Nutritionist (RDN). These calculations are starting estimates only.*
 ```
 
@@ -347,6 +360,7 @@ Some users come in with a percentage-based framework (e.g., "I want 40% protein,
 ### Users on Medications That Affect Metabolism or Body Composition
 
 Several medications significantly affect the accuracy of TDEE estimates or alter macro needs:
+
 - **SSRIs (fluoxetine, sertraline, etc.):** Can increase appetite and cause weight gain through multiple mechanisms; TDEE estimates may understate actual intake needed for maintenance or overstate deficit
 - **Beta-blockers:** Reduce exercise capacity and lower TDEE by 5-10% -- consider using a lower activity multiplier
 - **Corticosteroids:** Promote muscle catabolism and fat redistribution; protein needs may be at the high end of any range
@@ -370,15 +384,15 @@ Do not diagnose or recommend medication changes. Simply note that these variable
 
 ### Input Data
 
-| Variable | Value |
-|---|---|
-| Sex | Female |
-| Age | 28 years |
-| Height | 167.6 cm (5'6") |
-| Weight | 70.3 kg (155 lbs) |
+| Variable       | Value                                                                  |
+| -------------- | ---------------------------------------------------------------------- |
+| Sex            | Female                                                                 |
+| Age            | 28 years                                                               |
+| Height         | 167.6 cm (5'6")                                                        |
+| Weight         | 70.3 kg (155 lbs)                                                      |
 | Activity Level | Moderately active -- desk job + 4 days/week resistance training (1.55) |
-| Goal | Fat loss with muscle preservation |
-| Equation Used | Mifflin-St Jeor (body fat % not provided) |
+| Goal           | Fat loss with muscle preservation                                      |
+| Equation Used  | Mifflin-St Jeor (body fat % not provided)                              |
 
 ---
 
@@ -436,16 +450,17 @@ Using 1.0 g/kg (standard recommendation, meets hormonal health requirements, pre
 1,850 - 620 - 630 = 600 kcal remaining
 600 / 4 = **150g carbohydrates/day**
 
-| Macro | Target Basis | Grams/Day | Calories/Day | % of Total |
-|---|---|---|---|---|
-| Protein | 2.2 g/kg x 70.3 kg | 155g | 620 kcal | 33% |
-| Fat | 1.0 g/kg x 70.3 kg | 70g | 630 kcal | 34% |
-| Carbohydrates | Remaining calories / 4 | 150g | 600 kcal | 33% |
-| **TOTAL** | | | **1,850 kcal** | **100%** |
+| Macro         | Target Basis           | Grams/Day | Calories/Day   | % of Total |
+| ------------- | ---------------------- | --------- | -------------- | ---------- |
+| Protein       | 2.2 g/kg x 70.3 kg     | 155g      | 620 kcal       | 33%        |
+| Fat           | 1.0 g/kg x 70.3 kg     | 70g       | 630 kcal       | 34%        |
+| Carbohydrates | Remaining calories / 4 | 150g      | 600 kcal       | 33%        |
+| **TOTAL**     |                        |           | **1,850 kcal** | **100%**   |
 
 **Verification:** 620 + 630 + 600 = 1,850 kcal ✓
 
 **Calculation chain shown:**
+
 - Protein: 70.3 kg x 2.2 = 154.7g (rounded to 155g) x 4 = 620 kcal
 - Fat: 70.3 kg x 1.0 = 70.3g (rounded to 70g) x 9 = 630 kcal
 - Carbs: (1,850 - 620 - 630) = 600 kcal ÷ 4 = 150g
@@ -456,13 +471,13 @@ Using 1.0 g/kg (standard recommendation, meets hormonal health requirements, pre
 
 **When to adjust:** After 3 full weeks of consistent tracking (7-day average weight, not day-to-day fluctuations)
 
-| Scenario | Action |
-|---|---|
-| Weight not declining after 3 weeks | Reduce carbs by 25g/day (−100 kcal) → new total 1,750 kcal |
-| Weight dropping faster than ~0.8 lbs/week | Add carbs by 25g/day (+100 kcal) → new total 1,950 kcal |
-| Weight dropping and training performance declining noticeably | Add carbs by 25g on training days only (carb cycling) |
-| Plateau lasting 4+ weeks despite calorie reduction | Consider 1-2 week diet break at 2,248 kcal (TDEE) to partially reverse metabolic adaptation |
-| 10+ lbs of weight lost | Recalculate all targets from scratch at new body weight |
+| Scenario                                                      | Action                                                                                      |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Weight not declining after 3 weeks                            | Reduce carbs by 25g/day (−100 kcal) → new total 1,750 kcal                                  |
+| Weight dropping faster than ~0.8 lbs/week                     | Add carbs by 25g/day (+100 kcal) → new total 1,950 kcal                                     |
+| Weight dropping and training performance declining noticeably | Add carbs by 25g on training days only (carb cycling)                                       |
+| Plateau lasting 4+ weeks despite calorie reduction            | Consider 1-2 week diet break at 2,248 kcal (TDEE) to partially reverse metabolic adaptation |
+| 10+ lbs of weight lost                                        | Recalculate all targets from scratch at new body weight                                     |
 
 **Protein floor:** 155g/day -- never reduce this regardless of caloric adjustments. Protein is the last macro to cut.
 **Absolute caloric floor:** 1,450 kcal/day (your BMR)
@@ -483,4 +498,4 @@ Using 1.0 g/kg (standard recommendation, meets hormonal health requirements, pre
 
 ---
 
-*For individualized nutrition guidance, consult a Registered Dietitian (RD) or Registered Dietitian Nutritionist (RDN). These calculations are starting estimates -- adjust based on real-world results, not just the math.*
+_For individualized nutrition guidance, consult a Registered Dietitian (RD) or Registered Dietitian Nutritionist (RDN). These calculations are starting estimates -- adjust based on real-world results, not just the math._

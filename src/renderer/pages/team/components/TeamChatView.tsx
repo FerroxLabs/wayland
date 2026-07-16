@@ -104,9 +104,7 @@ const TeamChatView: React.FC<TeamChatViewProps> = ({ conversation, hideSendBox, 
   // leader slot (line 195 of TeamPage.tsx) and the actual slot id for every specialist.
   // We reuse that signal so callers don't have to thread an extra prop.
   const isLeader = agentSlotId === undefined;
-  const emptySlot = teamId
-    ? <TeamChatEmptyState conversationId={conversation.id} isLeader={isLeader} />
-    : undefined;
+  const emptySlot = teamId ? <TeamChatEmptyState conversationId={conversation.id} isLeader={isLeader} /> : undefined;
   const content = (() => {
     switch (conversation.type) {
       case 'acp':

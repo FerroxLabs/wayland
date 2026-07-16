@@ -7,25 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance decluttering guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance decluttering guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Organization Coach
-> **Further reading:** For deeper exploration of specific organizing philosophies, see Marie Kondo's *The Life-Changing Magic of Tidying Up* (the KonMari(TM) Method), Julie Morgenstern's *Organizing from the Inside Out*, Peter Walsh's *It's All Too Much*, and the FlyLady system. Each offers a distinct approach to decluttering and home organization.
+
+> **Further reading:** For deeper exploration of specific organizing philosophies, see Marie Kondo's _The Life-Changing Magic of Tidying Up_ (the KonMari(TM) Method), Julie Morgenstern's _Organizing from the Inside Out_, Peter Walsh's _It's All Too Much_, and the FlyLady system. Each offers a distinct approach to decluttering and home organization.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about organization coach
 - User needs guidance on organization coach topics
 - User wants a structured approach to organization coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -50,6 +54,7 @@ metadata:
 Many professional organizers recommend sorting by category rather than by room, because belongings of the same type are often scattered across multiple locations. This approach -- popularized by Marie Kondo's KonMari(TM) Method and adopted widely in the organizing profession -- ensures you see the full scope of what you own before making decisions.
 
 **Recommended category order** (start with easiest decisions, build to hardest):
+
 1. Clothing and accessories
 2. Books and media
 3. Papers and documents
@@ -57,6 +62,7 @@ Many professional organizers recommend sorting by category rather than by room, 
 5. Sentimental items (last, because you have built decision-making confidence)
 
 **For each category:**
+
 - Gather ALL items of that type from every room
 - Evaluate each item: Does it serve a clear purpose? Does it add value to my life? Would I choose to acquire this today?
 - Decide: Keep, Donate, Sell, Trash, or Relocate
@@ -65,6 +71,7 @@ Many professional organizers recommend sorting by category rather than by room, 
 > For the complete KonMari(TM) Method including its specific principles and techniques, see Marie Kondo's books or visit konmari.com.
 
 ### The SPACE Method (Professional Organizers)
+
 ```
 S.P.A.C.E. FRAMEWORK:
 
@@ -105,6 +112,7 @@ If the answer to both is no, the item is a candidate for removal. This simple tw
 ## Room-by-Room Organization Guide
 
 ### Kitchen Organization
+
 ```
 KITCHEN ORGANIZATION PLAN:
 DECLUTTER FIRST:
@@ -152,6 +160,7 @@ COUNTER RULES:
 ```
 
 ### Closet Organization
+
 ```
 CLOSET ORGANIZATION PLAN:
 STEP 1: EMPTY COMPLETELY
@@ -199,6 +208,7 @@ STEP 5: MAINTENANCE RULES
 ```
 
 ### Garage Organization
+
 ```
 GARAGE ORGANIZATION PLAN:
 
@@ -244,6 +254,7 @@ GARAGE RULES:
 ```
 
 ### Home Office / Paper Management
+
 ```
 PAPER MANAGEMENT SYSTEM:
 
@@ -296,6 +307,7 @@ GO DIGITAL:
 ```
 
 ## Digital Organization
+
 ```
 DIGITAL ORGANIZATION SYSTEM:
 
@@ -341,6 +353,7 @@ PASSWORDS:
 ## Maintaining Organization
 
 ### Daily Habits (5-10 Minutes)
+
 ```
 DAILY MAINTENANCE ROUTINE:
 
@@ -361,6 +374,7 @@ Pick up one thing that doesn't belong and return it to its home.
 ```
 
 ### Weekly Reset (30-60 Minutes)
+
 ```
 WEEKLY RESET CHECKLIST:
 
@@ -380,6 +394,7 @@ Without weekly maintenance, systems degrade within 2-3 weeks.
 ```
 
 ### The One-In-One-Out Rule
+
 ```
 ONE-IN-ONE-OUT PRINCIPLE:
 
@@ -401,6 +416,7 @@ ADVANCED: One-in-two-out
 ## Decluttering Decision Frameworks
 
 ### For Difficult Items
+
 ```
 DECISION HELPER FOR HARD ITEMS:
 
@@ -438,6 +454,7 @@ DECISION HELPER FOR HARD ITEMS:
 ```
 
 ## Supply Recommendations
+
 ```
 ORGANIZING SUPPLIES (buy AFTER decluttering):
 
@@ -481,6 +498,7 @@ You'll buy less, and you'll buy the right things.
 ## Output Format
 
 When providing organization guidance:
+
 ```
 ORGANIZATION PLAN
 

@@ -281,7 +281,10 @@ const JsonImportModal: React.FC<JsonImportModalProps> = ({ visible, server, onCa
               }}
               style={{
                 fontSize: '13px',
-                border: validation.isValid || !jsonInput.trim() ? '1px solid var(--color-border-1)' : '1px solid var(--danger)',
+                border:
+                  validation.isValid || !jsonInput.trim()
+                    ? '1px solid var(--color-border-1)'
+                    : '1px solid var(--danger)',
                 borderRadius: '6px',
                 marginBottom: '20px',
                 overflow: 'hidden',

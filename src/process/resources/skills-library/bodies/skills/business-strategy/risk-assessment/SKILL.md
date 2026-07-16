@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis planning strategy decision-making"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis planning strategy decision-making'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Risk Assessment
 
 ## When to Use
@@ -135,6 +136,7 @@ Choose the appropriate mitigation strategy for each risk:
 - **Accept:** Document the conscious decision to accept the risk without further mitigation. Acceptance is appropriate when: (a) the cost of mitigation exceeds the expected cost of the risk, (b) the risk is below the organization's tolerance threshold, or (c) mitigation options are genuinely unavailable. Acceptance is never the default -- it requires an explicit decision by an appropriate authority.
 
 For each mitigation plan, specify:
+
 - The specific actions to be taken (numbered, concrete, not vague)
 - The owner by role, not just name -- roles persist when people change
 - The completion deadline in concrete terms (e.g., "before first integration sprint begins" rather than "soon")
@@ -416,6 +418,7 @@ Some risks -- macroeconomic downturns, regulatory changes not yet finalized, geo
 **Total Risk Exposure Score:** 114 / 225 maximum
 
 **Top 3 Risks Requiring Immediate Attention:**
+
 1. R1: Regression in existing reports -- Score: 20/25 -- New dashboard code shares the reporting data pipeline; incomplete test coverage means a breaking change could cause customer-visible outages in existing reports that sales has committed as a contractual deliverable
 2. R2: Feature incomplete at launch date -- Score: 20/25 -- Engineering is already behind sprint velocity; at current pace the feature will reach QA 2 weeks late, making the committed launch date infeasible without a scope reduction decision
 3. R3: Performance degradation under production load -- Score: 15/25 -- Load testing has not been completed; B2B customers will generate concurrent queries against the dashboard at business-hours peaks that have not been validated against the database query plan
@@ -428,15 +431,16 @@ Some risks -- macroeconomic downturns, regulatory changes not yet finalized, geo
 
 ### Likelihood-Impact Matrix
 
-|  | **Negligible (1)** | **Minor (2)** | **Moderate (3)** | **Major (4)** | **Severe (5)** |
-|---|---|---|---|---|---|
-| **Almost Certain (5)** | 5 -- MED | 10 -- MED | 15 -- HIGH | 20 -- CRIT | 25 -- CRIT |
-| **Likely (4)** | 4 -- LOW | 8 -- MED | 12 -- HIGH | 16 -- HIGH | **20 -- CRIT** |
-| **Possible (3)** | 3 -- LOW | 6 -- MED | 9 -- MED | **12 -- HIGH** | **15 -- HIGH** |
-| **Unlikely (2)** | 2 -- LOW | 4 -- LOW | 6 -- MED | 8 -- MED | 10 -- MED |
-| **Rare (1)** | 1 -- LOW | 2 -- LOW | 3 -- LOW | 4 -- LOW | 5 -- MED |
+|                        | **Negligible (1)** | **Minor (2)** | **Moderate (3)** | **Major (4)**  | **Severe (5)** |
+| ---------------------- | ------------------ | ------------- | ---------------- | -------------- | -------------- |
+| **Almost Certain (5)** | 5 -- MED           | 10 -- MED     | 15 -- HIGH       | 20 -- CRIT     | 25 -- CRIT     |
+| **Likely (4)**         | 4 -- LOW           | 8 -- MED      | 12 -- HIGH       | 16 -- HIGH     | **20 -- CRIT** |
+| **Possible (3)**       | 3 -- LOW           | 6 -- MED      | 9 -- MED         | **12 -- HIGH** | **15 -- HIGH** |
+| **Unlikely (2)**       | 2 -- LOW           | 4 -- LOW      | 6 -- MED         | 8 -- MED       | 10 -- MED      |
+| **Rare (1)**           | 1 -- LOW           | 2 -- LOW      | 3 -- LOW         | 4 -- LOW       | 5 -- MED       |
 
 **Risk ID Placement:**
+
 - Almost Certain / Major (20 -- CRIT): R1, R2
 - Possible / Severe (15 -- HIGH): R3
 - Possible / Major (12 -- HIGH): R4
@@ -449,33 +453,33 @@ Some risks -- macroeconomic downturns, regulatory changes not yet finalized, geo
 
 ### Risk Register (Priority Order)
 
-| ID | Risk Statement | Category | Likelihood (1-5) | Impact (1-5) | Score | Priority | Owner | Status |
-|----|----------------|----------|-----------------|-------------|-------|----------|-------|--------|
-| R1 | Dashboard code touches the shared reporting data pipeline without a full regression test suite in place, causing a breaking change that creates customer-visible outages in existing contractual reports | Technical | 4 | 5 | 20 | Critical | Engineering Lead | Open |
-| R2 | Engineering sprint velocity is running at 65% of planned story points; at current pace, dashboard feature will reach QA 2 weeks past the committed launch date, forcing a binary choice between delaying launch or releasing an incomplete feature | Operational | 4 | 5 | 20 | Critical | Product Manager | Open |
-| R3 | Load testing has not been run against the dashboard's database query plan; concurrent B2B user queries at business-hours peak may cause query timeouts and degrade performance for all platform users, not just dashboard users | Technical | 3 | 5 | 15 | High | Engineering Lead | Open |
-| R4 | Sales team has made verbal commitments to 6 named enterprise accounts that the dashboard will be available in Q2; if launch is delayed, these accounts may invoke churn conversations or contractual penalty clauses | Market/Reputational | 3 | 4 | 12 | High | Account Management Lead | Open |
-| R5 | Support team has not been trained on the new dashboard feature, resulting in a surge of unresolved support tickets and negative customer experience in the first 2 weeks post-launch | Operational | 4 | 3 | 12 | High | Customer Success Lead | Open |
-| R6 | Dashboard displays calculated metrics that depend on customer-specific configuration; edge cases in non-standard configurations could produce incorrect metric values that customers act on | Technical | 3 | 3 | 9 | Medium | Engineering Lead | Open |
-| R7 | Key front-end engineer is the only person who understands the dashboard's component architecture; if this person becomes unavailable during the launch window, debugging and hotfixes will be severely delayed | People | 3 | 3 | 9 | Medium | Engineering Manager | Open |
-| R8 | User documentation and in-app help text has not been scoped into the sprint; customers will onboard to the feature without guidance, increasing time-to-value and support volume | Operational | 2 | 3 | 6 | Medium | Product Manager | Open |
-| R9 | A direct competitor is rumored to be releasing analytics functionality this quarter; if they launch first, the PR value of our announcement is reduced | External | 2 | 2 | 4 | Low | Marketing Lead | Open |
+| ID  | Risk Statement                                                                                                                                                                                                                                     | Category            | Likelihood (1-5) | Impact (1-5) | Score | Priority | Owner                   | Status |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------- | ------------ | ----- | -------- | ----------------------- | ------ |
+| R1  | Dashboard code touches the shared reporting data pipeline without a full regression test suite in place, causing a breaking change that creates customer-visible outages in existing contractual reports                                           | Technical           | 4                | 5            | 20    | Critical | Engineering Lead        | Open   |
+| R2  | Engineering sprint velocity is running at 65% of planned story points; at current pace, dashboard feature will reach QA 2 weeks past the committed launch date, forcing a binary choice between delaying launch or releasing an incomplete feature | Operational         | 4                | 5            | 20    | Critical | Product Manager         | Open   |
+| R3  | Load testing has not been run against the dashboard's database query plan; concurrent B2B user queries at business-hours peak may cause query timeouts and degrade performance for all platform users, not just dashboard users                    | Technical           | 3                | 5            | 15    | High     | Engineering Lead        | Open   |
+| R4  | Sales team has made verbal commitments to 6 named enterprise accounts that the dashboard will be available in Q2; if launch is delayed, these accounts may invoke churn conversations or contractual penalty clauses                               | Market/Reputational | 3                | 4            | 12    | High     | Account Management Lead | Open   |
+| R5  | Support team has not been trained on the new dashboard feature, resulting in a surge of unresolved support tickets and negative customer experience in the first 2 weeks post-launch                                                               | Operational         | 4                | 3            | 12    | High     | Customer Success Lead   | Open   |
+| R6  | Dashboard displays calculated metrics that depend on customer-specific configuration; edge cases in non-standard configurations could produce incorrect metric values that customers act on                                                        | Technical           | 3                | 3            | 9     | Medium   | Engineering Lead        | Open   |
+| R7  | Key front-end engineer is the only person who understands the dashboard's component architecture; if this person becomes unavailable during the launch window, debugging and hotfixes will be severely delayed                                     | People              | 3                | 3            | 9     | Medium   | Engineering Manager     | Open   |
+| R8  | User documentation and in-app help text has not been scoped into the sprint; customers will onboard to the feature without guidance, increasing time-to-value and support volume                                                                   | Operational         | 2                | 3            | 6     | Medium   | Product Manager         | Open   |
+| R9  | A direct competitor is rumored to be releasing analytics functionality this quarter; if they launch first, the PR value of our announcement is reduced                                                                                             | External            | 2                | 2            | 4     | Low      | Marketing Lead          | Open   |
 
 ---
 
 ### Existing Controls Assessment
 
-| Risk ID | Existing Control | Control Type | Effectiveness | Gap |
-|---------|-----------------|--------------|---------------|-----|
-| R1 | Manual QA regression checklist for existing reports | Detective | Weak | Checklist is manual and incomplete -- does not cover all 47 existing report configurations; cannot run at the speed of development |
-| R2 | Weekly sprint review with Engineering Lead | Detective | Moderate | Reviews surface the delay but do not produce a quantified delivery forecast -- decision-makers lack a concrete revised date |
-| R3 | Staging environment used for pre-deploy testing | Preventive | Weak | Staging database is seeded with synthetic data at 10% of production volume -- does not replicate peak concurrent load |
-| R4 | CRM notes documenting verbal commitments to accounts | Detective | Moderate | Notes are logged but not reviewed against launch risk; Account Management Lead is not part of the risk review process |
-| R5 | Product release notes sent to Customer Success team | Preventive | Weak | Release notes are informational only -- no structured training or support runbook for the new feature |
-| R6 | Unit tests on individual metric calculation functions | Preventive | Moderate | Unit tests cover standard configurations; integration tests for non-standard customer configurations are not in scope for this sprint |
-| R7 | None identified | -- | -- | No documentation of dashboard component architecture; no cross-training |
-| R8 | None identified | -- | -- | Documentation is currently out of scope for the sprint |
-| R9 | Competitive intelligence subscription | Detective | Moderate | Provides market signals but cannot change the risk -- no preventive control available |
+| Risk ID | Existing Control                                      | Control Type | Effectiveness | Gap                                                                                                                                   |
+| ------- | ----------------------------------------------------- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| R1      | Manual QA regression checklist for existing reports   | Detective    | Weak          | Checklist is manual and incomplete -- does not cover all 47 existing report configurations; cannot run at the speed of development    |
+| R2      | Weekly sprint review with Engineering Lead            | Detective    | Moderate      | Reviews surface the delay but do not produce a quantified delivery forecast -- decision-makers lack a concrete revised date           |
+| R3      | Staging environment used for pre-deploy testing       | Preventive   | Weak          | Staging database is seeded with synthetic data at 10% of production volume -- does not replicate peak concurrent load                 |
+| R4      | CRM notes documenting verbal commitments to accounts  | Detective    | Moderate      | Notes are logged but not reviewed against launch risk; Account Management Lead is not part of the risk review process                 |
+| R5      | Product release notes sent to Customer Success team   | Preventive   | Weak          | Release notes are informational only -- no structured training or support runbook for the new feature                                 |
+| R6      | Unit tests on individual metric calculation functions | Preventive   | Moderate      | Unit tests cover standard configurations; integration tests for non-standard customer configurations are not in scope for this sprint |
+| R7      | None identified                                       | --           | --            | No documentation of dashboard component architecture; no cross-training                                                               |
+| R8      | None identified                                       | --           | --            | Documentation is currently out of scope for the sprint                                                                                |
+| R9      | Competitive intelligence subscription                 | Detective    | Moderate      | Provides market signals but cannot change the risk -- no preventive control available                                                 |
 
 ---
 
@@ -485,115 +489,115 @@ Some risks -- macroeconomic downturns, regulatory changes not yet finalized, geo
 
 **R1: Regression in existing reports -- CRITICAL (Score: 20/25)**
 
-| Element | Details |
-|---------|---------|
-| **Strategy** | Reduce |
-| **Action 1** | Engineering Lead to audit which existing report components share code paths with the new dashboard pipeline -- complete within 3 business days |
-| **Action 2** | Build automated regression test coverage for all shared code paths, targeting the 47 existing report configurations -- minimum 80% automated coverage before any dashboard code merges to main branch |
-| **Action 3** | Add regression test pass as a required CI/CD gate -- no PR merges to main branch without passing regression suite |
-| **Action 4** | Run 48-hour staging burn-in with production-representative data before deployment to production |
-| **Owner** | Engineering Lead |
-| **Completion Deadline** | Automated regression suite operational 4 weeks before launch date |
-| **Estimated Mitigation Cost** | 10 engineering days to build test suite (~$8,000 at blended engineering rate) |
-| **Residual Likelihood** | 2 (Unlikely) -- automated tests catch the majority of breaking changes |
-| **Residual Impact** | 4 (Major) -- a breaking change that escapes automated tests still causes customer impact |
-| **Residual Risk Score** | 8 (Medium) -- significant improvement from 20 |
-| **Early Warning Indicator** | Any regression test failure during dashboard development, even in a non-critical test, signals integration fragility and triggers immediate code review |
-| **Escalation Trigger** | If regression test suite is not operational 4 weeks before launch, launch date must be reviewed by the executive sponsor |
+| Element                       | Details                                                                                                                                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Strategy**                  | Reduce                                                                                                                                                                                                |
+| **Action 1**                  | Engineering Lead to audit which existing report components share code paths with the new dashboard pipeline -- complete within 3 business days                                                        |
+| **Action 2**                  | Build automated regression test coverage for all shared code paths, targeting the 47 existing report configurations -- minimum 80% automated coverage before any dashboard code merges to main branch |
+| **Action 3**                  | Add regression test pass as a required CI/CD gate -- no PR merges to main branch without passing regression suite                                                                                     |
+| **Action 4**                  | Run 48-hour staging burn-in with production-representative data before deployment to production                                                                                                       |
+| **Owner**                     | Engineering Lead                                                                                                                                                                                      |
+| **Completion Deadline**       | Automated regression suite operational 4 weeks before launch date                                                                                                                                     |
+| **Estimated Mitigation Cost** | 10 engineering days to build test suite (~$8,000 at blended engineering rate)                                                                                                                         |
+| **Residual Likelihood**       | 2 (Unlikely) -- automated tests catch the majority of breaking changes                                                                                                                                |
+| **Residual Impact**           | 4 (Major) -- a breaking change that escapes automated tests still causes customer impact                                                                                                              |
+| **Residual Risk Score**       | 8 (Medium) -- significant improvement from 20                                                                                                                                                         |
+| **Early Warning Indicator**   | Any regression test failure during dashboard development, even in a non-critical test, signals integration fragility and triggers immediate code review                                               |
+| **Escalation Trigger**        | If regression test suite is not operational 4 weeks before launch, launch date must be reviewed by the executive sponsor                                                                              |
 
 ---
 
 **R2: Feature incomplete at launch date -- CRITICAL (Score: 20/25)**
 
-| Element | Details |
-|---------|---------|
-| **Strategy** | Reduce + contingency plan for Accept/Contain |
-| **Action 1** | Engineering Lead to produce a revised delivery forecast with story points remaining, current velocity, and projected completion date -- complete within 48 hours of this assessment |
-| **Action 2** | Product Manager and Engineering Lead to identify a Minimum Viable Scope (MVS): the smallest feature set that fulfills the core customer commitment and can be delivered on time -- present to executive sponsor within 1 week |
-| **Action 3** | If full scope cannot be delivered on time, prepare a phased launch plan: launch MVS on committed date, communicate remaining features with specific delivery dates to sales-committed accounts |
-| **Action 4** | If MVS cannot be delivered on time, prepare a launch delay recommendation with a revised date and the business cost of delay (churn risk from R4) for executive decision |
-| **Owner** | Product Manager (forecast and scope decision), Engineering Lead (delivery execution) |
-| **Completion Deadline** | Delivery forecast in 48 hours; scope decision in 1 week; launch decision finalized 6 weeks before current launch date |
-| **Estimated Mitigation Cost** | 1 day of Product Manager time for scoping; potential cost of contractor engineering support if scope cannot be reduced ($15,000-$25,000 for 2 weeks of senior contractor) |
-| **Residual Likelihood** | 2 (Unlikely) -- with MVS defined and active sprint management, a partial delivery is recoverable |
-| **Residual Impact** | 3 (Moderate) -- MVS launch instead of full feature is a reputational setback but not a customer-loss event |
-| **Residual Risk Score** | 6 (Medium) |
-| **Early Warning Indicator** | Sprint velocity below 70% of planned story points for one sprint is the trigger to activate the MVS scoping exercise immediately |
-| **Escalation Trigger** | If sprint velocity does not recover to 85%+ within 2 sprints after this assessment, escalate to executive sponsor with launch delay recommendation |
+| Element                       | Details                                                                                                                                                                                                                       |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Strategy**                  | Reduce + contingency plan for Accept/Contain                                                                                                                                                                                  |
+| **Action 1**                  | Engineering Lead to produce a revised delivery forecast with story points remaining, current velocity, and projected completion date -- complete within 48 hours of this assessment                                           |
+| **Action 2**                  | Product Manager and Engineering Lead to identify a Minimum Viable Scope (MVS): the smallest feature set that fulfills the core customer commitment and can be delivered on time -- present to executive sponsor within 1 week |
+| **Action 3**                  | If full scope cannot be delivered on time, prepare a phased launch plan: launch MVS on committed date, communicate remaining features with specific delivery dates to sales-committed accounts                                |
+| **Action 4**                  | If MVS cannot be delivered on time, prepare a launch delay recommendation with a revised date and the business cost of delay (churn risk from R4) for executive decision                                                      |
+| **Owner**                     | Product Manager (forecast and scope decision), Engineering Lead (delivery execution)                                                                                                                                          |
+| **Completion Deadline**       | Delivery forecast in 48 hours; scope decision in 1 week; launch decision finalized 6 weeks before current launch date                                                                                                         |
+| **Estimated Mitigation Cost** | 1 day of Product Manager time for scoping; potential cost of contractor engineering support if scope cannot be reduced ($15,000-$25,000 for 2 weeks of senior contractor)                                                     |
+| **Residual Likelihood**       | 2 (Unlikely) -- with MVS defined and active sprint management, a partial delivery is recoverable                                                                                                                              |
+| **Residual Impact**           | 3 (Moderate) -- MVS launch instead of full feature is a reputational setback but not a customer-loss event                                                                                                                    |
+| **Residual Risk Score**       | 6 (Medium)                                                                                                                                                                                                                    |
+| **Early Warning Indicator**   | Sprint velocity below 70% of planned story points for one sprint is the trigger to activate the MVS scoping exercise immediately                                                                                              |
+| **Escalation Trigger**        | If sprint velocity does not recover to 85%+ within 2 sprints after this assessment, escalate to executive sponsor with launch delay recommendation                                                                            |
 
 ---
 
 **R3: Performance degradation under production load -- HIGH (Score: 15/25)**
 
-| Element | Details |
-|---------|---------|
-| **Strategy** | Reduce |
-| **Action 1** | Define load testing target: concurrent users equal to the top 20 enterprise accounts' combined peak user count, plus 50% headroom -- obtain this number from the Customer Success team within 1 week |
-| **Action 2** | Engineer team to run load test against staging environment seeded with production-representative data volume -- complete 3 weeks before launch |
-| **Action 3** | If load test reveals query timeouts above 2 seconds at peak load, implement query result caching layer (e.g., materialized views or application-level cache with 5-minute TTL) before launch |
-| **Action 4** | Define a performance circuit breaker: if dashboard query response time exceeds 5 seconds in production, automatically disable dashboard queries and display a maintenance message rather than degrading the entire platform |
-| **Owner** | Engineering Lead |
-| **Completion Deadline** | Load test complete 3 weeks before launch; performance circuit breaker deployed before launch |
-| **Estimated Mitigation Cost** | 5 engineering days for load testing and optimization; cache implementation 3-5 additional engineering days if required |
-| **Residual Likelihood** | 2 (Unlikely) -- load-tested architecture with circuit breaker reduces probability significantly |
-| **Residual Impact** | 3 (Moderate) -- dashboard may be temporarily unavailable but will not degrade existing platform |
-| **Residual Risk Score** | 6 (Medium) |
-| **Early Warning Indicator** | Staging load test showing query response times above 1.5 seconds at 50% of target load signals performance risk before production |
-| **Escalation Trigger** | Load test failure at 50% of target load with no clear optimization path escalates to executive sponsor for launch readiness review |
+| Element                       | Details                                                                                                                                                                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Strategy**                  | Reduce                                                                                                                                                                                                                      |
+| **Action 1**                  | Define load testing target: concurrent users equal to the top 20 enterprise accounts' combined peak user count, plus 50% headroom -- obtain this number from the Customer Success team within 1 week                        |
+| **Action 2**                  | Engineer team to run load test against staging environment seeded with production-representative data volume -- complete 3 weeks before launch                                                                              |
+| **Action 3**                  | If load test reveals query timeouts above 2 seconds at peak load, implement query result caching layer (e.g., materialized views or application-level cache with 5-minute TTL) before launch                                |
+| **Action 4**                  | Define a performance circuit breaker: if dashboard query response time exceeds 5 seconds in production, automatically disable dashboard queries and display a maintenance message rather than degrading the entire platform |
+| **Owner**                     | Engineering Lead                                                                                                                                                                                                            |
+| **Completion Deadline**       | Load test complete 3 weeks before launch; performance circuit breaker deployed before launch                                                                                                                                |
+| **Estimated Mitigation Cost** | 5 engineering days for load testing and optimization; cache implementation 3-5 additional engineering days if required                                                                                                      |
+| **Residual Likelihood**       | 2 (Unlikely) -- load-tested architecture with circuit breaker reduces probability significantly                                                                                                                             |
+| **Residual Impact**           | 3 (Moderate) -- dashboard may be temporarily unavailable but will not degrade existing platform                                                                                                                             |
+| **Residual Risk Score**       | 6 (Medium)                                                                                                                                                                                                                  |
+| **Early Warning Indicator**   | Staging load test showing query response times above 1.5 seconds at 50% of target load signals performance risk before production                                                                                           |
+| **Escalation Trigger**        | Load test failure at 50% of target load with no clear optimization path escalates to executive sponsor for launch readiness review                                                                                          |
 
 ---
 
 **R4: Customer churn risk from delayed or incomplete launch -- HIGH (Score: 12/25)**
 
-| Element | Details |
-|---------|---------|
-| **Strategy** | Reduce (proactive communication) + Transfer (contractual review) |
-| **Action 1** | Account Management Lead to audit the 6 named enterprise accounts with verbal commitments -- confirm within 1 week whether any written contractual obligations exist |
-| **Action 2** | If verbal commitments only: Account Management Lead to schedule proactive calls with each account 6 weeks before launch with a specific feature availability date and, if scope is reduced, a roadmap for remaining features |
-| **Action 3** | If contractual obligations exist: Legal to review penalty clause exposure and Product Manager to factor contractual risk into launch/delay decision |
-| **Owner** | Account Management Lead (communication), Legal (contractual review) |
-| **Completion Deadline** | Contract audit within 1 week; proactive account communication plan in place 6 weeks before launch |
-| **Estimated Mitigation Cost** | 2 days of Account Management time; Legal review if contracts are involved |
-| **Residual Likelihood** | 2 (Unlikely) -- proactive communication reduces churn risk significantly; customers generally accept delays when communicated early with a credible revised commitment |
-| **Residual Impact** | 3 (Moderate) -- some accounts may still be disappointed; churn risk does not disappear but is reduced |
-| **Residual Risk Score** | 6 (Medium) |
-| **Early Warning Indicator** | Any inbound inquiry from a named account asking about dashboard launch timing signals the risk is present and the account should be prioritized in the communication plan |
-| **Escalation Trigger** | Any account referencing contractual terms or making a churn threat escalates immediately to VP of Sales |
+| Element                       | Details                                                                                                                                                                                                                      |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Strategy**                  | Reduce (proactive communication) + Transfer (contractual review)                                                                                                                                                             |
+| **Action 1**                  | Account Management Lead to audit the 6 named enterprise accounts with verbal commitments -- confirm within 1 week whether any written contractual obligations exist                                                          |
+| **Action 2**                  | If verbal commitments only: Account Management Lead to schedule proactive calls with each account 6 weeks before launch with a specific feature availability date and, if scope is reduced, a roadmap for remaining features |
+| **Action 3**                  | If contractual obligations exist: Legal to review penalty clause exposure and Product Manager to factor contractual risk into launch/delay decision                                                                          |
+| **Owner**                     | Account Management Lead (communication), Legal (contractual review)                                                                                                                                                          |
+| **Completion Deadline**       | Contract audit within 1 week; proactive account communication plan in place 6 weeks before launch                                                                                                                            |
+| **Estimated Mitigation Cost** | 2 days of Account Management time; Legal review if contracts are involved                                                                                                                                                    |
+| **Residual Likelihood**       | 2 (Unlikely) -- proactive communication reduces churn risk significantly; customers generally accept delays when communicated early with a credible revised commitment                                                       |
+| **Residual Impact**           | 3 (Moderate) -- some accounts may still be disappointed; churn risk does not disappear but is reduced                                                                                                                        |
+| **Residual Risk Score**       | 6 (Medium)                                                                                                                                                                                                                   |
+| **Early Warning Indicator**   | Any inbound inquiry from a named account asking about dashboard launch timing signals the risk is present and the account should be prioritized in the communication plan                                                    |
+| **Escalation Trigger**        | Any account referencing contractual terms or making a churn threat escalates immediately to VP of Sales                                                                                                                      |
 
 ---
 
 **R5: Support team unprepared for launch -- HIGH (Score: 12/25) -- Monitoring Plan**
 
-| Element | Details |
-|---------|---------|
-| **Strategy** | Reduce |
-| **Action 1** | Customer Success Lead to develop a dashboard support runbook (top 10 anticipated support questions and resolution steps) -- complete 2 weeks before launch |
-| **Action 2** | Run a 90-minute internal training session for support team on dashboard functionality, common edge cases, and escalation path -- complete 1 week before launch |
-| **Owner** | Customer Success Lead |
-| **Completion Deadline** | Training complete 1 week before launch |
-| **Estimated Mitigation Cost** | 3 days of Customer Success Lead time |
-| **Residual Likelihood** | 2 | **Residual Impact** | 2 | **Residual Score** | 4 (Low) |
-| **Escalation Trigger** | If Customer Success Lead cannot commit training time due to competing priorities, escalate to VP of Customer Success for resource prioritization |
+| Element                       | Details                                                                                                                                                        |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | --- | ------------------ | ------- |
+| **Strategy**                  | Reduce                                                                                                                                                         |
+| **Action 1**                  | Customer Success Lead to develop a dashboard support runbook (top 10 anticipated support questions and resolution steps) -- complete 2 weeks before launch     |
+| **Action 2**                  | Run a 90-minute internal training session for support team on dashboard functionality, common edge cases, and escalation path -- complete 1 week before launch |
+| **Owner**                     | Customer Success Lead                                                                                                                                          |
+| **Completion Deadline**       | Training complete 1 week before launch                                                                                                                         |
+| **Estimated Mitigation Cost** | 3 days of Customer Success Lead time                                                                                                                           |
+| **Residual Likelihood**       | 2                                                                                                                                                              | **Residual Impact** | 2   | **Residual Score** | 4 (Low) |
+| **Escalation Trigger**        | If Customer Success Lead cannot commit training time due to competing priorities, escalate to VP of Customer Success for resource prioritization               |
 
 ---
 
 **R6: Data accuracy errors in non-standard configurations -- MEDIUM (Score: 9/25)**
 
-| Element | Details |
-|---------|---------|
-| **Strategy** | Reduce with monitoring |
-| **Monitoring Indicator** | Customer support tickets containing keywords "wrong number," "incorrect metric," or "data looks off" |
-| **Review Frequency** | Daily in the first 2 weeks post-launch |
-| **Escalation Trigger** | Two or more tickets citing data accuracy from different accounts within the same 48-hour window triggers an immediate engineering investigation and potential dashboard disable for affected configurations |
+| Element                  | Details                                                                                                                                                                                                     |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Strategy**             | Reduce with monitoring                                                                                                                                                                                      |
+| **Monitoring Indicator** | Customer support tickets containing keywords "wrong number," "incorrect metric," or "data looks off"                                                                                                        |
+| **Review Frequency**     | Daily in the first 2 weeks post-launch                                                                                                                                                                      |
+| **Escalation Trigger**   | Two or more tickets citing data accuracy from different accounts within the same 48-hour window triggers an immediate engineering investigation and potential dashboard disable for affected configurations |
 
 ---
 
 **R7: Key-person dependency in front-end architecture -- MEDIUM (Score: 9/25)**
 
-| Element | Details |
-|---------|---------|
-| **Strategy** | Reduce |
-| **Monitoring Indicator** | Front-end engineer's availability and health status -- flag immediately if PTO, illness, or resignation notice occurs in the 6 weeks before launch |
-| **Action** | Schedule two 2-hour architecture walkthrough sessions where front-end engineer documents and presents the dashboard component architecture to at least one other engineer before the launch date |
-| **Review Frequency** | Weekly check-in on documentation progress |
-| **Escalation Trigger** | If front-end engineer is unavailable for more than 3 
+| Element                  | Details                                                                                                                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Strategy**             | Reduce                                                                                                                                                                                           |
+| **Monitoring Indicator** | Front-end engineer's availability and health status -- flag immediately if PTO, illness, or resignation notice occurs in the 6 weeks before launch                                               |
+| **Action**               | Schedule two 2-hour architecture walkthrough sessions where front-end engineer documents and presents the dashboard component architecture to at least one other engineer before the launch date |
+| **Review Frequency**     | Weekly check-in on documentation progress                                                                                                                                                        |
+| **Escalation Trigger**   | If front-end engineer is unavailable for more than 3                                                                                                                                             |

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks stress-management beginner-friendly advanced planning tax-planning marketing"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks stress-management beginner-friendly advanced planning tax-planning marketing'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Kanban Method Expert
 
 You are a Kanban Method practitioner who helps teams improve their workflow by making work visible, limiting work in progress, and managing flow. You understand that Kanban is not just a board with columns but a method for evolutionary change management that starts with what you do now and improves incrementally.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about kanban method expert techniques or best practices
 - User needs guidance on kanban method expert concepts
 - User wants to implement or improve their approach to kanban method expert
 
 **Do NOT use when:**
+
 - The request falls outside the scope of kanban method expert
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -284,7 +285,6 @@ Most teams operate at Level 1-2. Level 3 is excellent.
 Level 4 is rare and takes years of deliberate practice.
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -292,7 +292,6 @@ Level 4 is rare and takes years of deliberate practice.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -313,14 +312,12 @@ Level 4 is rare and takes years of deliberate practice.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

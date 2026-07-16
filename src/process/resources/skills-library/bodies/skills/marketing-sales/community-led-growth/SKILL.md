@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing strategy seo"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing strategy seo'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Community Led Growth
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on community led growth
 - User asks about community led growth best practices or techniques
 - User wants a structured approach to community led growth
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of community led growth
 
@@ -77,6 +78,7 @@ New Members Join (referred by existing members)
 ```
 
 **The flywheel accelerates when:**
+
 - New members get value quickly (low time-to-value)
 - Experienced members are incentivized to help newcomers
 - Great content and conversations are visible and discoverable
@@ -84,6 +86,7 @@ New Members Join (referred by existing members)
 - Members develop relationships with each other, not just the brand
 
 **The flywheel stalls when:**
+
 - New members arrive and see a ghost town
 - Questions go unanswered
 - The community feels like a one-way broadcast channel
@@ -94,31 +97,31 @@ New Members Join (referred by existing members)
 
 ### Platform Comparison
 
-| Platform | Best For | Pros | Cons |
-|----------|----------|------|------|
-| Discord | Gaming, crypto, creator, tech communities | Free, feature-rich, real-time, bots | Steep learning curve, can feel chaotic |
-| Slack | B2B, professional, small-medium communities | Professional feel, threaded conversations | Expensive at scale, message limits on free tier |
-| Circle | Course creators, membership communities | Clean UX, integrated with courses, spaces | Paid platform, less real-time engagement |
-| Discourse | Open source, technical, long-form discussions | Searchable, archivable, SEO-friendly | Requires hosting, less casual/real-time |
-| Reddit (subreddit) | Broad interest communities, organic discovery | Massive built-in audience, discoverability | Limited brand control, anonymous culture |
-| Facebook Groups | Older demographics, local communities | Large user base, familiar interface | Declining engagement, platform risk, ads |
-| Geneva | Social communities, events-focused | Clean mobile experience, event integration | Smaller user base, newer platform |
-| Custom forum | Full control, brand integration | Complete ownership, custom features | Expensive to build, requires critical mass |
+| Platform           | Best For                                      | Pros                                       | Cons                                            |
+| ------------------ | --------------------------------------------- | ------------------------------------------ | ----------------------------------------------- |
+| Discord            | Gaming, crypto, creator, tech communities     | Free, feature-rich, real-time, bots        | Steep learning curve, can feel chaotic          |
+| Slack              | B2B, professional, small-medium communities   | Professional feel, threaded conversations  | Expensive at scale, message limits on free tier |
+| Circle             | Course creators, membership communities       | Clean UX, integrated with courses, spaces  | Paid platform, less real-time engagement        |
+| Discourse          | Open source, technical, long-form discussions | Searchable, archivable, SEO-friendly       | Requires hosting, less casual/real-time         |
+| Reddit (subreddit) | Broad interest communities, organic discovery | Massive built-in audience, discoverability | Limited brand control, anonymous culture        |
+| Facebook Groups    | Older demographics, local communities         | Large user base, familiar interface        | Declining engagement, platform risk, ads        |
+| Geneva             | Social communities, events-focused            | Clean mobile experience, event integration | Smaller user base, newer platform               |
+| Custom forum       | Full control, brand integration               | Complete ownership, custom features        | Expensive to build, requires critical mass      |
 
 ### Platform Selection Framework
 
 Choose based on these factors:
 
-| Factor | Question to Ask |
-|--------|----------------|
-| Audience behavior | Where does your audience already spend time? |
-| Communication style | Real-time chat vs. threaded discussion vs. async? |
-| Content persistence | Do conversations need to be searchable long-term? |
-| Scale expectations | How many members in 12 months? In 3 years? |
-| Budget | Free platform with limitations vs. paid with features? |
-| Integration needs | Does it need to connect to your product or tools? |
-| Moderation needs | How much control do you need over the environment? |
-| Mobile experience | Are your members primarily mobile or desktop? |
+| Factor              | Question to Ask                                        |
+| ------------------- | ------------------------------------------------------ |
+| Audience behavior   | Where does your audience already spend time?           |
+| Communication style | Real-time chat vs. threaded discussion vs. async?      |
+| Content persistence | Do conversations need to be searchable long-term?      |
+| Scale expectations  | How many members in 12 months? In 3 years?             |
+| Budget              | Free platform with limitations vs. paid with features? |
+| Integration needs   | Does it need to connect to your product or tools?      |
+| Moderation needs    | How much control do you need over the environment?     |
+| Mobile experience   | Are your members primarily mobile or desktop?          |
 
 **Key principle:** Do not pick the trendiest platform. Pick the platform where your specific audience will engage most naturally.
 
@@ -157,6 +160,7 @@ COMMUNITY
 ```
 
 **Design principles:**
+
 - Fewer channels is better than more - empty channels signal a dead community
 - Start with 5-7 channels and add more only when conversation in existing channels is overwhelming
 - Every channel should have a clear purpose described in its topic/description
@@ -168,6 +172,7 @@ COMMUNITY
 The first 48 hours determine whether a new member stays or leaves:
 
 **Onboarding flow:**
+
 1. **Welcome message** - automated DM or channel post greeting them by name
 2. **Rules and expectations** - clear, concise community guidelines (not a legal document)
 3. **Introduction prompt** - invite them to introduce themselves with specific questions (name, role, what they hope to get from the community)
@@ -193,33 +198,37 @@ Level 5: LEADER      (moderates, organizes events, mentors newcomers)
 
 **Progression tactics:**
 
-| From → To | How to Help Them Progress |
-|-----------|--------------------------|
-| Observer → Participant | Ask easy questions, create low-barrier engagement (polls, reactions), welcome personally |
-| Participant → Contributor | Recognize their expertise, ask for their opinion, highlight their good answers |
-| Contributor → Advocate | Give them early access, involve in product decisions, feature their contributions |
-| Advocate → Leader | Offer formal roles (moderator, ambassador), provide training and tools |
+| From → To                 | How to Help Them Progress                                                                |
+| ------------------------- | ---------------------------------------------------------------------------------------- |
+| Observer → Participant    | Ask easy questions, create low-barrier engagement (polls, reactions), welcome personally |
+| Participant → Contributor | Recognize their expertise, ask for their opinion, highlight their good answers           |
+| Contributor → Advocate    | Give them early access, involve in product decisions, feature their contributions        |
+| Advocate → Leader         | Offer formal roles (moderator, ambassador), provide training and tools                   |
 
 ### Content Rhythms
 
 Create a consistent rhythm of community content:
 
 **Daily:**
+
 - Monitor and respond to new questions (target: <4 hour response time)
 - Share or highlight one valuable member contribution
 - React to and engage with active conversations
 
 **Weekly:**
+
 - Discussion prompt or themed thread (e.g., "What are you working on Wednesday?")
 - Resource or tip share
 - Community spotlight (highlight a member or their work)
 
 **Monthly:**
+
 - Community event (AMA, workshop, challenge, guest speaker)
 - Community metrics update (growth, top contributors, milestones)
 - Product update or roadmap discussion
 
 **Quarterly:**
+
 - State of the community retrospective
 - Ambassador/moderator appreciation
 - Community survey (what do members want more/less of?)
@@ -228,14 +237,14 @@ Create a consistent rhythm of community content:
 
 Events drive engagement spikes and create shared experiences:
 
-| Event Type | Format | Frequency | Purpose |
-|------------|--------|-----------|---------|
-| AMA (Ask Me Anything) | Live Q&A with a guest expert | Monthly | Attract new members, provide value |
-| Office Hours | Open Q&A with the team | Bi-weekly | Product support, relationship building |
-| Workshop | Guided learning session | Monthly | Skill development, deep engagement |
-| Challenge/Contest | Multi-day themed activity | Quarterly | Content creation, engagement boost |
-| Community Call | Video meetup, casual hangout | Monthly | Build personal connections |
-| Launch Party | Product release celebration | As needed | Excitement, feedback, advocacy |
+| Event Type            | Format                       | Frequency | Purpose                                |
+| --------------------- | ---------------------------- | --------- | -------------------------------------- |
+| AMA (Ask Me Anything) | Live Q&A with a guest expert | Monthly   | Attract new members, provide value     |
+| Office Hours          | Open Q&A with the team       | Bi-weekly | Product support, relationship building |
+| Workshop              | Guided learning session      | Monthly   | Skill development, deep engagement     |
+| Challenge/Contest     | Multi-day themed activity    | Quarterly | Content creation, engagement boost     |
+| Community Call        | Video meetup, casual hangout | Monthly   | Build personal connections             |
+| Launch Party          | Product release celebration  | As needed | Excitement, feedback, advocacy         |
 
 ## Ambassador Programs
 
@@ -254,6 +263,7 @@ Ambassadors are your most engaged community members who take on semi-formal role
 ### Ambassador Program Structure
 
 **Selection criteria:**
+
 - Active in the community for at least 3 months
 - Consistently helpful and positive
 - Knowledgeable about the product or topic
@@ -261,6 +271,7 @@ Ambassadors are your most engaged community members who take on semi-formal role
 - Self-motivated (not requiring constant direction)
 
 **What ambassadors receive:**
+
 - Recognition (special role/badge, public acknowledgment)
 - Access (early product access, direct line to the team, exclusive events)
 - Swag and perks (merchandise, subscriptions, discounts)
@@ -268,6 +279,7 @@ Ambassadors are your most engaged community members who take on semi-formal role
 - Compensation (for high-commitment programs: stipend, affiliate commission, or product credits)
 
 **Ambassador cohort size:**
+
 - Start with 5-10 ambassadors for communities under 1,000 members
 - Scale to roughly 1 ambassador per 100-200 active members
 - Too few = burnout; too many = diluted responsibility and coordination overhead
@@ -287,6 +299,7 @@ Ambassadors are your most engaged community members who take on semi-formal role
 Every community needs clear, enforceable guidelines:
 
 **Essential rules:**
+
 1. Be respectful - disagree with ideas, not people
 2. No spam, self-promotion without permission, or unsolicited sales pitches
 3. Stay on topic in topic-specific channels
@@ -295,6 +308,7 @@ Every community needs clear, enforceable guidelines:
 6. Follow platform terms of service
 
 **Enforcement framework:**
+
 ```
 First offense (minor):  Private reminder of the rule
 Second offense:         Public warning + message removal
@@ -303,6 +317,7 @@ Severe offense:         Immediate ban (hate speech, harassment, illegal activity
 ```
 
 **Key principles:**
+
 - Enforce consistently - favoritism destroys community trust
 - Be transparent about actions - explain why moderation happened (without shaming individuals publicly)
 - Default to education over punishment for first offenses
@@ -311,40 +326,40 @@ Severe offense:         Immediate ban (hate speech, harassment, illegal activity
 
 ### Scaling Moderation
 
-| Community Size | Moderation Approach |
-|---------------|---------------------|
-| <500 | Founder/community manager handles everything |
-| 500-2,000 | 2-3 trusted volunteer moderators + community manager |
-| 2,000-10,000 | Moderator team with clear shifts and coverage, automod tools |
-| 10,000+ | Dedicated moderation team, automated tools, tiered escalation |
+| Community Size | Moderation Approach                                           |
+| -------------- | ------------------------------------------------------------- |
+| <500           | Founder/community manager handles everything                  |
+| 500-2,000      | 2-3 trusted volunteer moderators + community manager          |
+| 2,000-10,000   | Moderator team with clear shifts and coverage, automod tools  |
+| 10,000+        | Dedicated moderation team, automated tools, tiered escalation |
 
 ## Measuring Community Health
 
 ### Core Community Metrics
 
-| Metric | What It Measures | Healthy Signal |
-|--------|-----------------|----------------|
-| Daily Active Users (DAU) | Daily engagement | Stable or growing |
-| DAU/MAU ratio | Engagement depth | >20% for chat platforms |
-| Messages per active user | Contribution rate | 3-10 per week |
-| Response time to questions | Support quality | <4 hours average |
-| New member retention (30-day) | Onboarding effectiveness | >40% still active at 30 days |
+| Metric                         | What It Measures           | Healthy Signal                           |
+| ------------------------------ | -------------------------- | ---------------------------------------- |
+| Daily Active Users (DAU)       | Daily engagement           | Stable or growing                        |
+| DAU/MAU ratio                  | Engagement depth           | >20% for chat platforms                  |
+| Messages per active user       | Contribution rate          | 3-10 per week                            |
+| Response time to questions     | Support quality            | <4 hours average                         |
+| New member retention (30-day)  | Onboarding effectiveness   | >40% still active at 30 days             |
 | Member-generated content ratio | Community self-sufficiency | >60% of content from members (not staff) |
-| Net Promoter Score (NPS) | Member satisfaction | >50 |
-| Referral rate | Organic growth | >10% of new members from referrals |
+| Net Promoter Score (NPS)       | Member satisfaction        | >50                                      |
+| Referral rate                  | Organic growth             | >10% of new members from referrals       |
 
 ### Business Impact Metrics
 
 Community-led growth must tie back to business outcomes:
 
-| Metric | How to Measure |
-|--------|----------------|
+| Metric                    | How to Measure                                            |
+| ------------------------- | --------------------------------------------------------- |
 | Support ticket deflection | Questions answered in community vs. support tickets filed |
-| Product feedback velocity | Ideas from community that reach the product roadmap |
-| Customer retention lift | Compare retention of community members vs. non-members |
-| Acquisition attribution | Track signups that originated from community referrals |
-| Content creation value | Volume and quality of user-generated content |
-| NPS lift | Compare NPS of community members vs. non-members |
+| Product feedback velocity | Ideas from community that reach the product roadmap       |
+| Customer retention lift   | Compare retention of community members vs. non-members    |
+| Acquisition attribution   | Track signups that originated from community referrals    |
+| Content creation value    | Volume and quality of user-generated content              |
+| NPS lift                  | Compare NPS of community members vs. non-members          |
 
 ### The Community Health Score
 
@@ -404,14 +419,14 @@ Community-led support reduces support ticket volume:
 
 ## Common Community Pitfalls
 
-| Pitfall | Why It Happens | How to Avoid |
-|---------|---------------|--------------|
-| Ghost town | Launched before critical mass, no consistent content | Seed with existing audience, commit to daily engagement |
-| Broadcast channel | Brand talks, nobody else does | Ask questions, elevate member voices, reduce brand posts |
-| Toxic culture | No guidelines or enforcement, wrong incentives | Set norms early, enforce consistently, model behavior |
-| Over-reliance on one person | Community manager burnout | Build ambassador program, distribute ownership |
-| Metric obsession | Optimizing numbers at the expense of human experience | Balance quantitative metrics with qualitative feedback |
-| Platform migration chaos | Moving community to new platform poorly | Communicate early, migrate gradually, archive old content |
+| Pitfall                     | Why It Happens                                        | How to Avoid                                              |
+| --------------------------- | ----------------------------------------------------- | --------------------------------------------------------- |
+| Ghost town                  | Launched before critical mass, no consistent content  | Seed with existing audience, commit to daily engagement   |
+| Broadcast channel           | Brand talks, nobody else does                         | Ask questions, elevate member voices, reduce brand posts  |
+| Toxic culture               | No guidelines or enforcement, wrong incentives        | Set norms early, enforce consistently, model behavior     |
+| Over-reliance on one person | Community manager burnout                             | Build ambassador program, distribute ownership            |
+| Metric obsession            | Optimizing numbers at the expense of human experience | Balance quantitative metrics with qualitative feedback    |
+| Platform migration chaos    | Moving community to new platform poorly               | Communicate early, migrate gradually, archive old content |
 
 ## Response Guidelines
 
@@ -426,7 +441,6 @@ When advising on community-led growth:
 - Advocate for community representation in product decisions - if the community has no influence, members will disengage
 - Be specific about resource requirements - underfunded communities fail; set expectations honestly
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -439,13 +453,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with community led growth for a mid-size project."
 
 **Output:** A complete community led growth framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

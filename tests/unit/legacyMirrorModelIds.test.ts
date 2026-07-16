@@ -46,7 +46,7 @@ describe('selectMirrorModelIds (issue #13)', () => {
   it('mirrors the curated/enabled set, not the full raw catalog', () => {
     const ids = selectMirrorModelIds(CATALOG, []);
     expect(ids.length).toBeLessThan(CATALOG.length); // not a full dump
-    expect([...ids].sort()).toEqual([...defaultEnabled].sort());
+    expect([...ids].toSorted()).toEqual([...defaultEnabled].toSorted());
   });
 
   it('drops non-text models (image/audio/embedding) from the chat picker', () => {

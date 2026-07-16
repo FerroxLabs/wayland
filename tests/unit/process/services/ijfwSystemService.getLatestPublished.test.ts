@@ -37,11 +37,16 @@ vi.mock('@process/services/ijfw/safeSpawn', () => ({
  * `.on('data', ...)` synchronously, we schedule emissions via setImmediate
  * inside a Promise so they land one macrotask after the await resolves.
  */
-function queueFakeChild(stdoutText: string, exitCode = 0): Promise<EventEmitter & {
-  stdout: EventEmitter;
-  stderr: EventEmitter;
-  kill: () => void;
-}> {
+function queueFakeChild(
+  stdoutText: string,
+  exitCode = 0
+): Promise<
+  EventEmitter & {
+    stdout: EventEmitter;
+    stderr: EventEmitter;
+    kill: () => void;
+  }
+> {
   const child = new EventEmitter() as EventEmitter & {
     stdout: EventEmitter;
     stderr: EventEmitter;

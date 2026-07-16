@@ -13,9 +13,9 @@ steps:
   - id: api-key
     title: Paste your Brave Search API key
     estSeconds: 90
-    externalAction: { label: "Get a free API key", url: "https://api-dashboard.search.brave.com/register" }
+    externalAction: { label: 'Get a free API key', url: 'https://api-dashboard.search.brave.com/register' }
     inputs:
-      - { name: BRAVE_API_KEY, label: "Brave API key", secret: true }
+      - { name: BRAVE_API_KEY, label: 'Brave API key', secret: true }
     body: |
       Brave's **Data for Search - Free** plan gives you 2,000 queries/month at
       1 query/second. No credit card required for the Free tier.

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fitness workout-planning beginner-friendly"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'fitness workout-planning beginner-friendly'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Beginner Strength Training
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before starting a new fitness program, especially if you have pre-existing conditions, joint pain, cardiovascular concerns, or have been sedentary for an extended period. If you experience chest pain, dizziness, or acute joint pain during training, stop immediately and seek medical attention.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly states they are new to strength training, have never followed a structured lifting program, or are starting from zero
 - The user asks how to "get started with weights," "build a beginner gym routine," or "learn to lift properly"
 - The user has fewer than 3-4 months of consistent, structured barbell or dumbbell training history -- inconsistent gym visits over a year still qualify as beginner
@@ -33,6 +35,7 @@ metadata:
 - The user is a parent, student, or busy professional looking for a time-efficient entry point into structured resistance training
 
 **Do NOT use when:**
+
 - The user has 6+ months of consistent structured training -- use `intermediate-strength-training` instead, which covers undulating periodization and more complex split structures
 - The user is recovering from a rotator cuff tear, spinal surgery, ACL repair, or any acute orthopedic injury -- refer them to a licensed physical therapist before programming
 - The user needs a sport-specific strength program (e.g., in-season athlete, rugby player building power) -- use `sports-specific-conditioning`
@@ -71,6 +74,7 @@ Use this decision tree based on the user's input:
 Assign exercises in this exact loading order -- do not deviate, because this sequence places the most neurologically demanding, fatigue-sensitive movements first when the nervous system is freshest.
 
 **Workout A -- Squat-Dominant Full Body:**
+
 1. Primary compound lower (squat pattern): Barbell back squat, barbell front squat, goblet squat, dumbbell squat, leg press as last resort
 2. Primary compound upper push (horizontal): Barbell bench press, dumbbell bench press, push-up with added load (weighted vest or band)
 3. Primary compound upper pull (horizontal): Barbell bent-over row, dumbbell single-arm row, cable seated row
@@ -79,6 +83,7 @@ Assign exercises in this exact loading order -- do not deviate, because this seq
 6. Core anti-extension: Plank variations, ab wheel rollout (regression: plank; progression: ab wheel), cable Pallof press
 
 **Workout B -- Hinge-Dominant Full Body:**
+
 1. Primary compound lower (hinge pattern): Conventional barbell deadlift (if comfortable), Romanian deadlift (safer for beginners due to reduced lumbar load at initiation), dumbbell RDL, trap bar deadlift (ideal for beginners -- more upright torso, reduced shear on spine)
 2. Primary compound upper push (incline or vertical): Dumbbell incline bench press (30-45 degree angle), barbell overhead press, landmine press
 3. Primary compound upper pull (horizontal variation): Cable seated row (close grip or wide grip, alternating from Workout A), chest-supported dumbbell row (eliminates lower back fatigue from standing rows)
@@ -93,11 +98,13 @@ Assign exercises in this exact loading order -- do not deviate, because this seq
 Apply the following scheme based on the user's stated goal. These are not arbitrary -- they align with the minimum effective dose of volume for neuromuscular adaptation in untrained individuals:
 
 **Strength emphasis (primary goal: getting stronger):**
+
 - Compound movements (exercises 1-3 in each workout): 3 sets x 5-6 reps, 3 minutes rest
 - Accessory movements: 3 sets x 8-10 reps, 90 seconds rest
 - Core: 3 sets x 8-12 reps or 20-30 seconds, 60 seconds rest
 
 **Hypertrophy/general fitness emphasis (primary goal: muscle size or body composition):**
+
 - Compound movements: 3 sets x 8-10 reps, 2-3 minutes rest
 - Accessory movements: 3 sets x 10-12 reps, 60-90 seconds rest
 - Core: 2-3 sets x 30-60 seconds or 10-15 reps, 60 seconds rest
@@ -120,6 +127,7 @@ The most common beginner mistake is starting too heavy. Provide this explicit gu
 This is the most critical long-term element of beginner programming. Beginners can add weight to the bar more frequently than any other population -- taking advantage of this window is the primary programming objective.
 
 **Linear progression standard (works for the first 2-4 months):**
+
 - Lower body compound lifts (squat, deadlift, leg press): Add 5 lbs (2.5 kg) when the user completes all prescribed sets at the top of the rep range for TWO consecutive sessions. Example: 3 sets x 10 reps of goblet squat with 45 lbs on Monday and Wednesday both → add 5 lbs, start next session at 50 lbs x 8-10.
 - Upper body compound lifts (bench press, overhead press, rows): Add 2.5 lbs (1.25 kg) using microplates. If microplates are unavailable, use double progression -- add reps within the range before adding weight (e.g., 3x8 → 3x9 → 3x10 → add weight, drop back to 3x8).
 - Accessory lifts (lateral raises, curls, tricep work): Add 2.5-5 lbs when completing all sets at the top rep range for two consecutive sessions. Dumbbell accessory progression is often limited by equipment increments (fixed dumbbells jump 5 lbs at a time) -- use double progression in this case.
@@ -131,6 +139,7 @@ This is the most critical long-term element of beginner programming. Beginners c
 ### Step 7: Define the Deload Protocol and 12-Week Cycle Structure
 
 **Standard deload (every 4th week):**
+
 - Reduce all working weights by 40% (a 100-lb squat becomes a 60-lb squat during deload week)
 - Reduce sets by 1 per exercise (3 sets becomes 2 sets for compounds; 2 sets becomes 1-2 sets for accessories)
 - Maintain the same rep ranges and exercises -- deload is not a vacation, it is planned under-stimulation that allows connective tissue, the nervous system, and systemic fatigue to recover
@@ -138,6 +147,7 @@ This is the most critical long-term element of beginner programming. Beginners c
 - After deload, resume at PRE-DELOAD weights and continue progression from there. Do not resume at deload weights.
 
 **12-week cycle structure:**
+
 - Weeks 1-3: Training weeks with progressive overload applied session by session
 - Week 4: Deload
 - Weeks 5-7: Training weeks (resume at Week 3 weights, continue progression)
@@ -157,6 +167,7 @@ This is the most critical long-term element of beginner programming. Beginners c
 4. For subsequent compound exercises in the session: One warm-up set at 60-70% of working weight for that exercise. No additional warm-up needed for accessory movements.
 
 **Cooldown (recommended but not mandatory if time is limited):**
+
 - 5 minutes of walking at a slow pace to bring heart rate back toward resting
 - Static stretching held 30-40 seconds per position (not 20 seconds -- research shows 30+ seconds is needed to produce meaningful acute flexibility changes): Hip flexor stretch (kneeling lunge position), hamstring stretch (supine or standing), pectoral stretch (doorway or foam roller), thoracic extension over foam roller (especially valuable for desk workers who will be squatting and pressing)
 
@@ -295,33 +306,42 @@ Notes: ___________
 ## Edge Cases
 
 ### Dumbbells Only (No Barbell or Cable Machines)
+
 Replace all barbell movements with dumbbell equivalents: goblet squat (primary lower body), dumbbell bench press (horizontal push), single-arm dumbbell row (horizontal pull), dumbbell Romanian deadlift (hinge), dumbbell overhead press (vertical push), dumbbell pullover (vertical pull substitute). The goblet squat has a natural load ceiling of approximately 80-100 lbs for most people due to the grip and position -- when the user approaches this ceiling and it feels light, transition to dumbbell front squat (holding two dumbbells at shoulder height) or recommend a barbell as the next equipment investment. Progression increments become 2.5-5 lbs for all movements since the smallest dumbbell jump is typically 5 lbs (2.5 kg) -- double progression (adding reps before adding weight) is mandatory for every movement in this setup.
 
 ### Only 2 Days Per Week Available
+
 Combine A and B elements into a single full-body session. Include one squat pattern, one hinge pattern, one horizontal push, one horizontal pull, one vertical pull, and one core movement per session. Increase compound sets from 3 to 4 per exercise to compensate for reduced weekly frequency. Deload every 3rd week (not every 4th) because per-session volume is higher and fatigue accumulates faster. Warn the user that twice-weekly training is sufficient for measurable progress -- research indicates ~70% of the strength gains achievable with 3 days/week can be obtained in 2 days/week for beginners -- but that 3 days is meaningfully more effective if scheduling can be adjusted.
 
 ### User Is 50+ Years Old or Returning After 12+ Months Inactive
+
 Prescribe a 2-week "practice phase" before formal progressive overload begins. During weeks 1-2, the user trains with 50-60% of perceived maximum effort -- focusing entirely on movement quality, not load. Extend rest intervals to 3-4 minutes between compound sets. Begin deloading every 3rd week instead of every 4th. Reduce initial rep range to 8-10 instead of 8-12 to limit time under tension while connective tissue readapts. Note that the neuromuscular system retains muscle memory ("muscle memory" via myonuclei retention) from prior training -- if the user trained seriously in their 20s or 30s, they will regain strength faster than a true beginner, which may mean the linear progression phase is shorter.
 
 ### User Cannot Perform Conventional Deadlift (Lower Back Sensitivity)
+
 Do not remove the hinge pattern -- instead, regress aggressively. The safety hierarchy from lowest lumbar shear load to highest is: dumbbell RDL with dumbbells held at sides → barbell RDL starting from hip height (rack pulls) → trap bar deadlift with high handles → conventional deadlift from the floor. Start the user at the appropriate position in this hierarchy. Educate them that the deadlift family is not inherently dangerous -- technique, starting position, and load selection determine spinal load, not the movement pattern itself. Recommend consulting a physical therapist specifically about the deadlift if they have had a prior disc injury before progressing to conventional loading.
 
 ### User Has No Microplates (Cannot Add 2.5 lbs to Upper Body Barbell Lifts)
+
 Implement mandatory double progression for all upper body barbell work. Use the following explicit progression table:
+
 - Session 1: 3 sets x 8 reps at weight X (bottom of range)
 - Session 2: 3 sets x 9 reps at X
 - Session 3: 3 sets x 10 reps at X (top of range, achieved for all sets)
 - Session 4: 3 sets x 10 reps at X again (second consecutive session confirming readiness)
 - Session 5: Add 5 lbs (the smallest available increment), drop back to 3 x 8
-Repeat. This prevents the stalling that occurs when a 5-lb jump is applied before the nervous system has fully adapted to the current weight.
+  Repeat. This prevents the stalling that occurs when a 5-lb jump is applied before the nervous system has fully adapted to the current weight.
 
 ### User Has a Demanding Physical Job (Construction, Nursing, Manual Labor)
+
 The user is not truly sedentary, but their fatigue profile is different -- their work creates high cumulative lower body and grip fatigue from walking, lifting patients, carrying materials. Reduce the initial starting intensity to 50-60% perceived effort for the first 2 weeks. Prioritize upper body training on days following especially demanding work shifts. Consider programming training days on lighter work days if schedule allows. Warn the user that progress may stall faster than average because total systemic stress (training + occupational) must be managed. Deload protocols become more important, not less.
 
 ### User Asks About Adding Cardio to This Program
+
 Beginner strength training and cardio are compatible but require intelligent scheduling. For fat loss goals, 2-3 sessions of 20-30 minute low-intensity steady-state cardio (LISS) per week on non-training days is additive and does not meaningfully interfere with strength adaptations. High-intensity interval training (HIIT) done on the same day as lower body strength training significantly impairs strength adaptation through the "interference effect" -- specifically, AMPK-mediated inhibition of mTOR signaling. Recommend LISS on off days if cardio is desired. Never program HIIT on lower body strength training days.
 
 ### User Has Access to a Smith Machine But No Squat Rack
+
 The Smith machine is a viable tool for beginners with caveats. For squats, the fixed bar path means the feet need to be placed approximately 6-12 inches further forward than a free barbell squat to accommodate the vertical movement pattern without excessive lumbar flexion. Smith machine rows are acceptable. Overhead pressing on the Smith machine is useful for beginners learning to press without balance concerns. Clearly explain to the user that the Smith machine reduces stabilizer muscle activation compared to free weights -- it is a training tool with a ceiling, and transitioning to free weights should occur within 4-8 weeks as motor patterns develop.
 
 ---
@@ -344,14 +364,14 @@ The Smith machine is a viable tool for beginners with caveats. For squats, the f
 
 ### Workout A -- Squat-Dominant Full Body
 
-| Order | Exercise                 | Sets x Reps   | Rest    | Key Form Cue                                                                 |
-|-------|--------------------------|--------------|---------|------------------------------------------------------------------------------|
-| A1    | Barbell Back Squat       | 3 x 8-10     | 2-3 min | Brace your core before unracking. Push knees out over toes. Descend to parallel -- do not force depth if hips are tight. |
-| A2    | Barbell Bench Press      | 3 x 8-10     | 2-3 min | Retract and depress shoulder blades before lowering the bar. Touch lower chest. Feet flat on the floor. |
-| A3    | Barbell Bent-Over Row    | 3 x 8-10     | 2-3 min | Hinge to roughly 45 degrees. Pull the bar to your lower ribcage. Do not use momentum -- lower under control. |
-| A4    | Dumbbell Overhead Press  | 3 x 10-12    | 90s     | Press in a slight forward arc (about 15 degrees in front of the head), not perfectly vertical. Elbows at 30-45 degrees to the torso at the bottom. |
-| A5    | Lat Pulldown             | 3 x 10-12    | 90s     | Lean back 10-15 degrees. Initiate by depressing the shoulder blades, then drive elbows toward your hips. Pull to upper chest. |
-| A6    | Dead Bug                 | 2 x 10/side  | 60s     | Press your lower back firmly into the floor throughout. Extend opposite arm and leg simultaneously. Do not let your spine arch off the mat. |
+| Order | Exercise                | Sets x Reps | Rest    | Key Form Cue                                                                                                                                       |
+| ----- | ----------------------- | ----------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1    | Barbell Back Squat      | 3 x 8-10    | 2-3 min | Brace your core before unracking. Push knees out over toes. Descend to parallel -- do not force depth if hips are tight.                           |
+| A2    | Barbell Bench Press     | 3 x 8-10    | 2-3 min | Retract and depress shoulder blades before lowering the bar. Touch lower chest. Feet flat on the floor.                                            |
+| A3    | Barbell Bent-Over Row   | 3 x 8-10    | 2-3 min | Hinge to roughly 45 degrees. Pull the bar to your lower ribcage. Do not use momentum -- lower under control.                                       |
+| A4    | Dumbbell Overhead Press | 3 x 10-12   | 90s     | Press in a slight forward arc (about 15 degrees in front of the head), not perfectly vertical. Elbows at 30-45 degrees to the torso at the bottom. |
+| A5    | Lat Pulldown            | 3 x 10-12   | 90s     | Lean back 10-15 degrees. Initiate by depressing the shoulder blades, then drive elbows toward your hips. Pull to upper chest.                      |
+| A6    | Dead Bug                | 2 x 10/side | 60s     | Press your lower back firmly into the floor throughout. Extend opposite arm and leg simultaneously. Do not let your spine arch off the mat.        |
 
 **Workout A Total Volume:** 17 working sets -- estimated 50-60 minutes including warm-up
 
@@ -359,14 +379,14 @@ The Smith machine is a viable tool for beginners with caveats. For squats, the f
 
 ### Workout B -- Hinge-Dominant Full Body
 
-| Order | Exercise                     | Sets x Reps   | Rest    | Key Form Cue                                                                 |
-|-------|------------------------------|--------------|---------|------------------------------------------------------------------------------|
-| B1    | Romanian Deadlift (Barbell)  | 3 x 8-10     | 2-3 min | Start from the rack at hip height. Hinge back by pushing hips behind you -- the bar stays in contact with your legs throughout. Lower until you feel a hamstring stretch (usually just below the knee), then drive hips forward to stand. |
-| B2    | Dumbbell Incline Press       | 3 x 8-10     | 2-3 min | Set bench at 30-45 degrees. Press dumbbells in a slight arc, touching them lightly at the top. Do not let elbows flare past 45 degrees from torso. |
-| B3    | Cable Seated Row (Close Grip)| 3 x 8-10     | 2-3 min | Sit upright -- do not lean back. Pull the handle to your lower sternum, squeeze shoulder blades together at the end of the pull. Return under control. |
-| B4    | Dumbbell Walking Lunge       | 3 x 10/side  | 90s     | Step forward far enough that your front shin stays vertical when your back knee nearly touches the floor. Take your time -- do not rush the rhythm at the expense of knee alignment. |
-| B5    | Face Pull (Cable, rope)      | 3 x 12-15    | 60s     | Set the cable at roughly eye level. Pull the rope to your ears, not your face. External rotation at the end of the movement is the goal. Critical for long-term shoulder health if you are pressing frequently. |
-| B6    | Pallof Press (Cable)         | 2 x 10/side  | 60s     | Stand perpendicular to the cable stack. Hold the handle at chest height with both hands. Press directly forward and hold 2 seconds, then return. Resist the cable pulling you to rotate -- that resistance IS the exercise. |
+| Order | Exercise                      | Sets x Reps | Rest    | Key Form Cue                                                                                                                                                                                                                              |
+| ----- | ----------------------------- | ----------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| B1    | Romanian Deadlift (Barbell)   | 3 x 8-10    | 2-3 min | Start from the rack at hip height. Hinge back by pushing hips behind you -- the bar stays in contact with your legs throughout. Lower until you feel a hamstring stretch (usually just below the knee), then drive hips forward to stand. |
+| B2    | Dumbbell Incline Press        | 3 x 8-10    | 2-3 min | Set bench at 30-45 degrees. Press dumbbells in a slight arc, touching them lightly at the top. Do not let elbows flare past 45 degrees from torso.                                                                                        |
+| B3    | Cable Seated Row (Close Grip) | 3 x 8-10    | 2-3 min | Sit upright -- do not lean back. Pull the handle to your lower sternum, squeeze shoulder blades together at the end of the pull. Return under control.                                                                                    |
+| B4    | Dumbbell Walking Lunge        | 3 x 10/side | 90s     | Step forward far enough that your front shin stays vertical when your back knee nearly touches the floor. Take your time -- do not rush the rhythm at the expense of knee alignment.                                                      |
+| B5    | Face Pull (Cable, rope)       | 3 x 12-15   | 60s     | Set the cable at roughly eye level. Pull the rope to your ears, not your face. External rotation at the end of the movement is the goal. Critical for long-term shoulder health if you are pressing frequently.                           |
+| B6    | Pallof Press (Cable)          | 2 x 10/side | 60s     | Stand perpendicular to the cable stack. Hold the handle at chest height with both hands. Press directly forward and hold 2 seconds, then return. Resist the cable pulling you to rotate -- that resistance IS the exercise.               |
 
 **Workout B Total Volume:** 17 working sets -- estimated 50-60 minutes including warm-up
 
@@ -374,33 +394,33 @@ The Smith machine is a viable tool for beginners with caveats. For squats, the f
 
 ### Weekly Schedule
 
-| Week Type     | Monday     | Wednesday  | Friday     |
-|---------------|------------|------------|------------|
-| Weeks 1, 3    | Workout A  | Workout B  | Workout A  |
-| Weeks 2       | Workout B  | Workout A  | Workout B  |
-| Week 4 (Deload)| Deload A  | Deload B   | Deload A   |
-| Weeks 5, 7    | Workout A  | Workout B  | Workout A  |
-| Week 6        | Workout B  | Workout A  | Workout B  |
-| Week 8 (Deload)| Deload A  | Deload B   | Deload A   |
-| Weeks 9, 11   | Workout A  | Workout B  | Workout A  |
-| Week 10       | Workout B  | Workout A  | Workout B  |
-| Week 12 (Deload + Test) | Deload A | Deload B | 5-Rep Max Test |
+| Week Type               | Monday    | Wednesday | Friday         |
+| ----------------------- | --------- | --------- | -------------- |
+| Weeks 1, 3              | Workout A | Workout B | Workout A      |
+| Weeks 2                 | Workout B | Workout A | Workout B      |
+| Week 4 (Deload)         | Deload A  | Deload B  | Deload A       |
+| Weeks 5, 7              | Workout A | Workout B | Workout A      |
+| Week 6                  | Workout B | Workout A | Workout B      |
+| Week 8 (Deload)         | Deload A  | Deload B  | Deload A       |
+| Weeks 9, 11             | Workout A | Workout B | Workout A      |
+| Week 10                 | Workout B | Workout A | Workout B      |
+| Week 12 (Deload + Test) | Deload A  | Deload B  | 5-Rep Max Test |
 
 ---
 
 ### Progressive Overload Protocol
 
-| Movement Type               | Weight Increment   | Trigger                                                      |
-|-----------------------------|--------------------|--------------------------------------------------------------|
-| Barbell Back Squat          | +5 lbs (2.5 kg)    | 3 x 10 achieved for 2 consecutive sessions                   |
-| Romanian Deadlift           | +5 lbs (2.5 kg)    | 3 x 10 achieved for 2 consecutive sessions                   |
-| Barbell Bench Press         | +2.5 lbs (1.25 kg) | 3 x 10 achieved for 2 consecutive sessions (use microplates) |
-| Barbell Bent-Over Row       | +2.5 lbs (1.25 kg) | 3 x 10 achieved for 2 consecutive sessions                   |
-| Dumbbell Incline Press      | Double progression  | Add reps (8→9→10) before adding weight (then drop back to 8) |
-| Cable Seated Row            | +5 lbs on stack    | 3 x 10 achieved for 2 consecutive sessions                   |
-| Dumbbell Overhead Press     | Double progression  | Add reps (10→11→12) before adding weight                     |
-| Lat Pulldown                | +5 lbs on stack    | 3 x 12 achieved for 2 consecutive sessions                   |
-| All other accessories       | +2.5-5 lbs         | Top rep range achieved for all sets x 2 sessions             |
+| Movement Type           | Weight Increment   | Trigger                                                      |
+| ----------------------- | ------------------ | ------------------------------------------------------------ |
+| Barbell Back Squat      | +5 lbs (2.5 kg)    | 3 x 10 achieved for 2 consecutive sessions                   |
+| Romanian Deadlift       | +5 lbs (2.5 kg)    | 3 x 10 achieved for 2 consecutive sessions                   |
+| Barbell Bench Press     | +2.5 lbs (1.25 kg) | 3 x 10 achieved for 2 consecutive sessions (use microplates) |
+| Barbell Bent-Over Row   | +2.5 lbs (1.25 kg) | 3 x 10 achieved for 2 consecutive sessions                   |
+| Dumbbell Incline Press  | Double progression | Add reps (8→9→10) before adding weight (then drop back to 8) |
+| Cable Seated Row        | +5 lbs on stack    | 3 x 10 achieved for 2 consecutive sessions                   |
+| Dumbbell Overhead Press | Double progression | Add reps (10→11→12) before adding weight                     |
+| Lat Pulldown            | +5 lbs on stack    | 3 x 12 achieved for 2 consecutive sessions                   |
+| All other accessories   | +2.5-5 lbs         | Top rep range achieved for all sets x 2 sessions             |
 
 **If you miss reps:** Stay at the same weight. After 3 failed sessions in a row, reduce by 10% and rebuild.
 
@@ -408,21 +428,22 @@ The Smith machine is a viable tool for beginners with caveats. For squats, the f
 
 ### Deload Protocol (Every 4th Week)
 
-| Variable          | Normal Training Week       | Deload Week                              |
-|-------------------|---------------------------|------------------------------------------|
-| Working weight    | Prescribed load            | Reduce by 40% (e.g., 135 lb squat → 81 lbs -- round to 80 lbs) |
-| Compound sets     | 3 sets                     | 2 sets                                   |
-| Accessory sets    | 3 sets                     | 1-2 sets                                 |
-| Rep ranges        | Prescribed                 | Same -- do not change                    |
-| Exercise selection| Prescribed                 | Same -- do not swap movements            |
-| Training days     | Mon/Wed/Fri                | Mon/Wed/Fri -- do not skip               |
-| After deload      | --                         | Return to pre-deload weights             |
+| Variable           | Normal Training Week | Deload Week                                                    |
+| ------------------ | -------------------- | -------------------------------------------------------------- |
+| Working weight     | Prescribed load      | Reduce by 40% (e.g., 135 lb squat → 81 lbs -- round to 80 lbs) |
+| Compound sets      | 3 sets               | 2 sets                                                         |
+| Accessory sets     | 3 sets               | 1-2 sets                                                       |
+| Rep ranges         | Prescribed           | Same -- do not change                                          |
+| Exercise selection | Prescribed           | Same -- do not swap movements                                  |
+| Training days      | Mon/Wed/Fri          | Mon/Wed/Fri -- do not skip                                     |
+| After deload       | --                   | Return to pre-deload weights                                   |
 
 ---
 
 ### Warm-Up Protocol
 
 **Workout A (Squat Day) Warm-Up:**
+
 1. 5 minutes brisk walk on treadmill at 3.5 mph, 1% incline -- or stationary bike at moderate resistance
 2. Dynamic mobility (3 minutes): Leg swings front-to-back x 10 each leg → lateral leg swings x 10 each leg → kneeling hip flexor stretch 30 seconds each side (directly addresses your hip tightness) → bodyweight squat x 10 with 2-second pause at bottom
 3. Barbell Back Squat warm-up: Empty bar x 10 → 50% working weight x 6 → 75% working weight x 3 → working weight
@@ -430,6 +451,7 @@ The Smith machine is a viable tool for beginners with caveats. For squats, the f
 5. Barbell Bent-Over Row warm-up: 1 set at 60% of working weight x 5 reps
 
 **Workout B (Hinge Day) Warm-Up:**
+
 1. 5 minutes stationary bike or walking
 2. Dynamic mobility (3 minutes): Cat-cow x 10 → glute bridge x 15 → single-leg glute bridge x 8 each side → bodyweight Romanian deadlift x 10 (use a PVC pipe or empty barbell to feel the movement)
 3. Romanian Deadlift warm-up: Empty bar x 10 → 50% working weight x 6 → 75% working weight x 3 → working weight
@@ -439,18 +461,18 @@ The Smith machine is a viable tool for beginners with caveats. For squats, the f
 
 ### Training Log Template (Copy for Each Session)
 
-**Date:** ___________  **Workout:** A / B  **Week #:** ___ of 12  **Deload week?** Y / N
+**Date:** ****\_\_\_**** **Workout:** A / B **Week #:** \_\_\_ of 12 **Deload week?** Y / N
 
-| Exercise | Set 1 (wt x reps) | Set 2 (wt x reps) | Set 3 (wt x reps) | Target Next Session |
-|----------|--------------------|--------------------|--------------------|---------------------|
-|          | ___ x ___          | ___ x ___          | ___ x ___          | +weight / same / reduce |
-|          | ___ x ___          | ___ x ___          | ___ x ___          | +weight / same / reduce |
-|          | ___ x ___          | ___ x ___          | ___ x ___          | +weight / same / reduce |
-|          | ___ x ___          | ___ x ___          | ___ x ___          | +weight / same / reduce |
-|          | ___ x ___          | ___ x ___          | ___ x ___          | +weight / same / reduce |
-|          | ___ x ___          | ___ x ___          | ___ x ___          | +weight / same / reduce |
+| Exercise | Set 1 (wt x reps) | Set 2 (wt x reps) | Set 3 (wt x reps) | Target Next Session     |
+| -------- | ----------------- | ----------------- | ----------------- | ----------------------- |
+|          | **_ x _**         | **_ x _**         | **_ x _**         | +weight / same / reduce |
+|          | **_ x _**         | **_ x _**         | **_ x _**         | +weight / same / reduce |
+|          | **_ x _**         | **_ x _**         | **_ x _**         | +weight / same / reduce |
+|          | **_ x _**         | **_ x _**         | **_ x _**         | +weight / same / reduce |
+|          | **_ x _**         | **_ x _**         | **_ x _**         | +weight / same / reduce |
+|          | **_ x _**         | **_ x _**         | **_ x _**         | +weight / same / reduce |
 
-**Session notes (energy level, anything that felt off, form issues):** ___________
+**Session notes (energy level, anything that felt off, form issues):** ****\_\_\_****
 
 ---
 

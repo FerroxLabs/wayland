@@ -6,13 +6,13 @@ The user says "the pipeline number is wrong," "the forecast keeps missing," "our
 
 ## What CRM hygiene is for
 
-A CRM is a single source of truth for two questions: *what is the realistic next 90 days of revenue, and which deals deserve an hour this week.* Both answers degrade fast. Stale stages, duplicates, unowned deals, "next step: follow up" with no date — each is a small lie. The forecast sums them.
+A CRM is a single source of truth for two questions: _what is the realistic next 90 days of revenue, and which deals deserve an hour this week._ Both answers degrade fast. Stale stages, duplicates, unowned deals, "next step: follow up" with no date — each is a small lie. The forecast sums them.
 
 Hygiene is the discipline of writing down what's actually true.
 
 ## The procedure
 
-**1. Define stages by buyer behavior, not seller activity.** A stage is what the *buyer* has done. "Demo scheduled" is a stage. "Reach out" is a task. Map every stage to a buyer-observable event:
+**1. Define stages by buyer behavior, not seller activity.** A stage is what the _buyer_ has done. "Demo scheduled" is a stage. "Reach out" is a task. Map every stage to a buyer-observable event:
 
 - Stage 1: buyer confirmed a meeting on calendar
 - Stage 2: buyer named the problem and the cost out loud
@@ -36,7 +36,7 @@ If a deal can't be mapped to an observable event, it's a hope. Move it to "not a
 
 **4. Reconcile pipeline math against history.** Sum the active pipeline. Multiply by historical close rate per stage (if unknown: 20% stage-2, 40% stage-3, 70% stage-4 as starting estimate, flag as hypothesis). Compare against the rep's verbal forecast. Verbal beats math by 30%+ → rep is forecasting from feeling. Math beats verbal by 30%+ → rep has stopped trusting the CRM. Both diagnostic.
 
-**5. Install a 15-minute weekly hygiene ritual.** Every rep, before the tactical: sweep their pipeline. Stale flagged. Next steps dated. Stages moved on buyer behavior. The weekly reviews the *result*, not raw chaos.
+**5. Install a 15-minute weekly hygiene ritual.** Every rep, before the tactical: sweep their pipeline. Stale flagged. Next steps dated. Stages moved on buyer behavior. The weekly reviews the _result_, not raw chaos.
 
 ## Decision rules
 

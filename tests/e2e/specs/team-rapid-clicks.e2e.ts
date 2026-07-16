@@ -128,9 +128,7 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
     // Open delete modal via sidebar three-dot menu.
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
-    const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
-    );
+    const row = sidebarEntry.locator('xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]');
     await row.hover();
     const threeDot = row.locator('span.flex-center.cursor-pointer').last();
     await expect(threeDot).toBeVisible({ timeout: 5_000 });
@@ -241,9 +239,7 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
     // duplicate the roster if the guard is broken).
     await page.waitForTimeout(2_000);
 
-    const teammateCount = await page
-      .locator('[data-testid^="launcher-row-teammate-"]')
-      .count();
+    const teammateCount = await page.locator('[data-testid^="launcher-row-teammate-"]').count();
     // Suggest returns at most ~4 teammates per `targetSize: 5` (leader + 4).
     // If multiple invocations leaked through, the count would be >> 5.
     expect(teammateCount).toBeLessThanOrEqual(6);

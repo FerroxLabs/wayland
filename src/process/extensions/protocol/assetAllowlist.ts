@@ -22,12 +22,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import {
-  EXTENSION_MANIFEST_FILE,
-  getExtensionScanSources,
-  getHubResourcesDir,
-  getVoiceModelsDir,
-} from '../constants';
+import { EXTENSION_MANIFEST_FILE, getExtensionScanSources, getHubResourcesDir, getVoiceModelsDir } from '../constants';
 import { isPathWithinDirectory } from '../sandbox/pathSafety';
 
 /**

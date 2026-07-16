@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend javascript"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend javascript'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Next.js Architect
@@ -201,7 +201,7 @@ export async function createPost(formData: FormData) {
 ```tsx
 // Time-based revalidation
 const data = await get('[reference URL]', {
-  next: { revalidate: 3600 },  // Revalidate every hour
+  next: { revalidate: 3600 }, // Revalidate every hour
 });
 
 // Tag-based revalidation
@@ -216,9 +216,9 @@ const liveData = await get('[reference URL]', {
 });
 
 // Route segment config
-export const revalidate = 3600;  // Page-level revalidation
-export const dynamic = 'force-dynamic';  // Always SSR
-export const dynamic = 'force-static';   // Always static
+export const revalidate = 3600; // Page-level revalidation
+export const dynamic = 'force-dynamic'; // Always SSR
+export const dynamic = 'force-static'; // Always static
 ```
 
 ## Middleware
@@ -349,7 +349,7 @@ export default async function PhotoPage({ params }: { params: Promise<{ id: stri
   const { id } = await params;
   const photo = await getPhoto(id);
   return (
-    <div className="full-photo-page">
+    <div className='full-photo-page'>
       <img src={photo.url} alt={photo.alt} />
       <p>{photo.description}</p>
       <Comments photoId={id} />
@@ -432,13 +432,14 @@ export default function Loading() {
 - [ ] ISR or time-based revalidation configured for semi-static content
 - [ ] Parallel routes used for independent page sections
 - [ ] Intercepting routes used for modal patterns
-- [ ] Environment variables properly split (NEXT_PUBLIC_ vs server-only)
+- [ ] Environment variables properly split (NEXT*PUBLIC* vs server-only)
 - [ ] Metadata API used for SEO (generateMetadata)
 - [ ] Bundle analyzer used to verify client bundle size
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing nextjs architect solutions
 - Reviewing or improving existing nextjs architect approaches
 - Making architectural or implementation decisions about nextjs architect
@@ -446,6 +447,7 @@ export default function Loading() {
 - Troubleshooting nextjs architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -456,21 +458,26 @@ export default function Loading() {
 # Nextjs Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning event-planning budgeting journaling checklist template guide beginner-friendly"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning event-planning budgeting journaling checklist template guide beginner-friendly'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Summer Activity Planner
 
 You are a summer planning strategist who helps families and individuals design intentional, balanced summers that blend adventure, relaxation, learning, and fun while staying within budget and avoiding overscheduling.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about summer activity planner techniques or best practices
 - User needs guidance on summer activity planner concepts
 - User wants to implement or improve their approach to summer activity planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of summer activity planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -54,24 +55,25 @@ Before planning your summer, clarify:
 
 A well-planned summer includes five types of time:
 
-| Type | Description | Target % | Examples |
-|------|-------------|----------|----------|
-| Adventure | New experiences and exploration | 20% | Trips, new activities, day excursions |
-| Learning | Skill building and intellectual growth | 15% | Camps, reading, projects, classes |
-| Social | Time with friends and community | 20% | Playdates, team activities, group outings |
-| Active | Physical movement and outdoor time | 20% | Sports, hiking, swimming, biking |
-| Rest | Unstructured downtime and relaxation | 25% | Free play, reading for fun, creative time |
+| Type      | Description                            | Target % | Examples                                  |
+| --------- | -------------------------------------- | -------- | ----------------------------------------- |
+| Adventure | New experiences and exploration        | 20%      | Trips, new activities, day excursions     |
+| Learning  | Skill building and intellectual growth | 15%      | Camps, reading, projects, classes         |
+| Social    | Time with friends and community        | 20%      | Playdates, team activities, group outings |
+| Active    | Physical movement and outdoor time     | 20%      | Sports, hiking, swimming, biking          |
+| Rest      | Unstructured downtime and relaxation   | 25%      | Free play, reading for fun, creative time |
 
 ### Week-by-Week Summer Planner Template
 
 | Week | Theme/Focus | Monday | Tuesday | Wednesday | Thursday | Friday | Weekend |
-|------|-------------|--------|---------|-----------|----------|--------|---------|
-| 1 | | | | | | | |
-| 2 | | | | | | | |
-| 3 | | | | | | | |
-| 4 | | | | | | | |
+| ---- | ----------- | ------ | ------- | --------- | -------- | ------ | ------- |
+| 1    |             |        |         |           |          |        |         |
+| 2    |             |        |         |           |          |        |         |
+| 3    |             |        |         |           |          |        |         |
+| 4    |             |        |         |           |          |        |         |
 
 **Weekly Theme Ideas:**
+
 - Water week (pool, sprinklers, water balloons, lake trip)
 - Science exploration week (experiments, nature study, museum visit)
 - Creative arts week (painting, crafting, music, drama)
@@ -85,16 +87,16 @@ A well-planned summer includes five types of time:
 
 ### Types of Summer Camps
 
-| Camp Type | Ages | Typical Duration | Cost Range | Best For |
-|-----------|------|-----------------|------------|----------|
-| Day camp (general) | 5-14 | 1-8 weeks | $150-500/week | Childcare + fun |
-| Specialty day camp | 6-16 | 1-2 weeks | $200-800/week | Specific skill building |
-| Sleepaway camp | 7-17 | 1-8 weeks | $500-2,000/week | Independence, immersion |
-| Sports camp | 6-18 | 1-2 weeks | $200-600/week | Athletic development |
-| Academic camp | 10-18 | 1-4 weeks | $300-3,000/week | Intellectual growth |
-| Arts camp | 6-18 | 1-4 weeks | $200-1,000/week | Creative expression |
-| STEM camp | 8-18 | 1-2 weeks | $250-800/week | Technology and science |
-| Nature/outdoor camp | 6-16 | 1-4 weeks | $200-1,500/week | Outdoor skills, nature |
+| Camp Type           | Ages  | Typical Duration | Cost Range      | Best For                |
+| ------------------- | ----- | ---------------- | --------------- | ----------------------- |
+| Day camp (general)  | 5-14  | 1-8 weeks        | $150-500/week   | Childcare + fun         |
+| Specialty day camp  | 6-16  | 1-2 weeks        | $200-800/week   | Specific skill building |
+| Sleepaway camp      | 7-17  | 1-8 weeks        | $500-2,000/week | Independence, immersion |
+| Sports camp         | 6-18  | 1-2 weeks        | $200-600/week   | Athletic development    |
+| Academic camp       | 10-18 | 1-4 weeks        | $300-3,000/week | Intellectual growth     |
+| Arts camp           | 6-18  | 1-4 weeks        | $200-1,000/week | Creative expression     |
+| STEM camp           | 8-18  | 1-2 weeks        | $250-800/week   | Technology and science  |
+| Nature/outdoor camp | 6-16  | 1-4 weeks        | $200-1,500/week | Outdoor skills, nature  |
 
 ### Camp Selection Checklist
 
@@ -111,6 +113,7 @@ A well-planned summer includes five types of time:
 - [ ] Philosophy and values align with your family
 
 ### Camp Cost Reduction Strategies
+
 - Register during early-bird deadlines (typically 10-20% savings)
 - Ask about sibling discounts or multi-session discounts
 - Apply for financial aid or scholarships (many camps offer these)
@@ -125,6 +128,7 @@ A well-planned summer includes five types of time:
 ### By Effort Level
 
 **Low Effort (Backyard/Neighborhood)**
+
 - Sprinkler and water play
 - Sidewalk chalk art
 - Nature scavenger hunts
@@ -137,6 +141,7 @@ A well-planned summer includes five types of time:
 - Popsicle-making and outdoor snacking
 
 **Medium Effort (Local Outings)**
+
 - Hiking local trails (pack snacks and water)
 - Swimming at public pools, lakes, or beaches
 - Biking on trails or paths
@@ -149,6 +154,7 @@ A well-planned summer includes five types of time:
 - Outdoor movie nights in parks
 
 **High Effort (Day Trips or Multi-Day)**
+
 - State or national park visits
 - Beach or lake vacations
 - Mountain hiking or backpacking
@@ -160,6 +166,7 @@ A well-planned summer includes five types of time:
 - Outdoor festivals or concerts
 
 ### Safety Essentials for Outdoor Activities
+
 - Sunscreen (SPF 30+, reapply every 2 hours)
 - Adequate water (more than you think you need)
 - Appropriate footwear for the activity
@@ -175,6 +182,7 @@ A well-planned summer includes five types of time:
 ### By Age Group
 
 **Ages 5-8**
+
 - Build a fairy garden or miniature landscape
 - Create a summer journal with drawings and photos
 - Learn to cook 5 simple recipes independently
@@ -184,6 +192,7 @@ A well-planned summer includes five types of time:
 - Make a time capsule to open next summer
 
 **Ages 9-12**
+
 - Write and illustrate a short story or comic book
 - Build a working model (robot, volcano, catapult)
 - Start a small business (lemonade stand, pet sitting, crafts)
@@ -194,6 +203,7 @@ A well-planned summer includes five types of time:
 - Learn a musical instrument basics
 
 **Ages 13-17**
+
 - Complete a community service project (40+ hours)
 - Learn a new language using free apps and conversation practice
 - Start a blog, podcast, or video channel on an interest
@@ -206,6 +216,7 @@ A well-planned summer includes five types of time:
 ### Summer Reading Program
 
 **Setting Up a Reading Challenge**
+
 - Set a goal (number of books or minutes per day)
 - Mix genres to keep things interesting
 - Include audiobooks and graphic novels
@@ -220,6 +231,7 @@ A well-planned summer includes five types of time:
 ### Family Trip Planning Checklist
 
 **2-3 Months Before**
+
 - [ ] Choose destination based on family interests and budget
 - [ ] Book accommodations (look for kitchen access to save on meals)
 - [ ] Purchase transportation (flights, rental car)
@@ -227,6 +239,7 @@ A well-planned summer includes five types of time:
 - [ ] Check for any required documents (passports, permits)
 
 **1 Month Before**
+
 - [ ] Create a loose daily itinerary (avoid over-planning)
 - [ ] Make reservations for popular activities or restaurants
 - [ ] Arrange pet care or house sitting
@@ -234,6 +247,7 @@ A well-planned summer includes five types of time:
 - [ ] Download offline maps and entertainment for travel time
 
 **1 Week Before**
+
 - [ ] Confirm all reservations
 - [ ] Pack using checklist
 - [ ] Prepare travel snack bag
@@ -243,28 +257,28 @@ A well-planned summer includes five types of time:
 
 ### Budget-Friendly Trip Ideas
 
-| Trip Type | Typical Cost (Family of 4) | Duration |
-|-----------|---------------------------|----------|
-| Camping at state park | $50-150 total | 2-3 nights |
-| Road trip with motel stops | $500-1,000 | 4-5 days |
-| Beach rental (off-peak) | $800-2,000 | 5-7 days |
-| Staycation with day trips | $200-500 | 5-7 days |
-| Visit family/friends | $200-500 (travel only) | 4-7 days |
-| National park trip | $500-1,500 | 3-5 days |
+| Trip Type                  | Typical Cost (Family of 4) | Duration   |
+| -------------------------- | -------------------------- | ---------- |
+| Camping at state park      | $50-150 total              | 2-3 nights |
+| Road trip with motel stops | $500-1,000                 | 4-5 days   |
+| Beach rental (off-peak)    | $800-2,000                 | 5-7 days   |
+| Staycation with day trips  | $200-500                   | 5-7 days   |
+| Visit family/friends       | $200-500 (travel only)     | 4-7 days   |
+| National park trip         | $500-1,500                 | 3-5 days   |
 
 ## Summer Budget Tracker
 
 ### Expense Categories
 
-| Category | Budgeted | Spent Week 1 | Spent Week 2 | Running Total |
-|----------|----------|-------------|-------------|---------------|
-| Camps and classes | $_______ | | | |
-| Travel and trips | $_______ | | | |
-| Activities and admissions | $_______ | | | |
-| Supplies and equipment | $_______ | | | |
-| Food (activity-related) | $_______ | | | |
-| Entertainment | $_______ | | | |
-| **Total** | **$_______** | | | |
+| Category                  | Budgeted        | Spent Week 1 | Spent Week 2 | Running Total |
+| ------------------------- | --------------- | ------------ | ------------ | ------------- |
+| Camps and classes         | $**\_\_\_**     |              |              |               |
+| Travel and trips          | $**\_\_\_**     |              |              |               |
+| Activities and admissions | $**\_\_\_**     |              |              |               |
+| Supplies and equipment    | $**\_\_\_**     |              |              |               |
+| Food (activity-related)   | $**\_\_\_**     |              |              |               |
+| Entertainment             | $**\_\_\_**     |              |              |               |
+| **Total**                 | **$**\_\_\_**** |              |              |               |
 
 ### Free and Low-Cost Activity List
 
@@ -289,6 +303,7 @@ Build your personal list of free activities to fill unplanned days:
 ## Preventing Summer Slide
 
 ### Academic Maintenance Without Burnout
+
 - 20-30 minutes of reading daily is the single most impactful activity
 - Math practice through cooking, shopping, and games
 - Science through nature observation and simple experiments
@@ -301,6 +316,7 @@ Build your personal list of free activities to fill unplanned days:
 ## End-of-Summer Transition
 
 ### Two Weeks Before School
+
 - [ ] Gradually shift bedtime and wake time earlier
 - [ ] Review school supply lists and begin shopping
 - [ ] Schedule any needed checkups or appointments
@@ -310,7 +326,6 @@ Build your personal list of free activities to fill unplanned days:
 - [ ] Organize school clothes and assess what is needed
 - [ ] Visit the school if there is an orientation or open house
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -318,7 +333,6 @@ Build your personal list of free activities to fill unplanned days:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -339,14 +353,12 @@ Build your personal list of free activities to fill unplanned days:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

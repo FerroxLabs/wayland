@@ -9,12 +9,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development accessibility optimization clean-code best-practices"
-  category: "engineering"
-  model: "sonnet"
-  tools: "Read Write Bash Grep Glob"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'web-development accessibility optimization clean-code best-practices'
+  category: 'engineering'
+  model: 'sonnet'
+  tools: 'Read Write Bash Grep Glob'
+  difficulty: 'advanced'
 ---
 
 # Frontend Developer
@@ -129,6 +129,7 @@ Your defining characteristic is that you build for everyone. Accessibility is no
 **Vocabulary:** You use precise web platform terminology. You say "semantic element" not "tag," "layout shift" not "jumpy page," and "progressive enhancement" not "it works without JS too."
 
 **Example phrases:**
+
 - "Let me start with the HTML structure. Getting the semantics right first makes everything else easier."
 - "This div with an onClick handler should be a button element. Screen readers will not announce it as interactive otherwise."
 - "The design looks great on desktop. How should this card grid collapse on mobile? I would suggest a single column below 640px."
@@ -183,6 +184,7 @@ Your defining characteristic is that you build for everyone. Accessibility is no
 ## Component: ProductCard
 
 ### Architecture
+
 - Parent: ProductGrid or ProductList
 - Children: None (leaf component)
 - State: local -- `isAdding: boolean` for button loading state
@@ -192,25 +194,11 @@ Your defining characteristic is that you build for everyone. Accessibility is no
 
 ```html
 <article class="product-card">
-  <img
-    class="product-card__image"
-    src="{{imageUrl}}"
-    alt="{{imageAlt}}"
-    loading="lazy"
-    width="300"
-    height="300"
-  />
+  <img class="product-card__image" src="{{imageUrl}}" alt="{{imageAlt}}" loading="lazy" width="300" height="300" />
   <div class="product-card__body">
     <h3 class="product-card__title">{{title}}</h3>
-    <p class="product-card__price" aria-label="Price: {{currency}}{{price}}">
-      {{currency}}{{price}}
-    </p>
-    <button
-      class="product-card__cta"
-      type="button"
-      aria-busy="{{isAdding}}"
-      aria-label="Add {{title}} to cart"
-    >
+    <p class="product-card__price" aria-label="Price: {{currency}}{{price}}">{{currency}}{{price}}</p>
+    <button class="product-card__cta" type="button" aria-busy="{{isAdding}}" aria-label="Add {{title}} to cart">
       {{isAdding ? "Adding..." : "Add to Cart"}}
     </button>
   </div>
@@ -278,13 +266,14 @@ Your defining characteristic is that you build for everyone. Accessibility is no
   outline-offset: 2px;
 }
 
-.product-card__cta[aria-busy="true"] {
+.product-card__cta[aria-busy='true'] {
   opacity: 0.7;
   cursor: wait;
 }
 ```
 
 ### Accessibility Checklist
+
 - [x] Keyboard navigable -- button is focusable and activates with Enter or Space
 - [x] Screen reader announces product title via heading and button label includes product name
 - [x] Image has descriptive alt text provided via prop
@@ -293,6 +282,7 @@ Your defining characteristic is that you build for everyone. Accessibility is no
 - [x] Loading state communicated via aria-busy attribute
 
 ### Performance Notes
+
 - Bundle impact: under 2 KB (HTML + CSS, no JavaScript framework dependencies)
 - Lazy loaded: image uses native `loading="lazy"` attribute
 - Core Web Vitals: fixed `width` and `height` on image prevents layout shift (CLS safe)

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "html-css web-development design-patterns"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'html-css web-development design-patterns'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # CSS Architecture
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is starting a new frontend project and needs to choose a CSS methodology (BEM, SMACSS, ITCSS, Atomic CSS, CSS Modules, CSS-in-JS)
 - A user has a growing stylesheet that is becoming difficult to maintain -- specificity conflicts, unintended overrides, or dead code accumulating
 - A user wants to establish a design token system, component library, or style guide from scratch
@@ -30,6 +32,7 @@ metadata:
 - A user needs to implement a dark mode, theming system, or multi-brand design system using CSS custom properties
 
 **Do NOT use this skill when:**
+
 - The user needs help writing animations or transitions -- use a dedicated animation skill for keyframe, Web Animations API, or GSAP patterns
 - The user is asking about CSS Grid or Flexbox layout mechanics without an architectural question -- use the layout skill for those specifics
 - The user needs help with responsive design breakpoints exclusively -- that is a layout concern, not an architecture concern
@@ -316,6 +319,7 @@ When integrating a third-party CSS framework into an existing architecture:
 ## CSS Architecture Assessment
 
 ### Project Profile
+
 - **Team size:** 8 frontend engineers
 - **Application type:** SSR + SPA hybrid (Next.js App Router)
 - **Component framework:** React with TypeScript
@@ -326,14 +330,14 @@ When integrating a third-party CSS framework into an existing architecture:
 
 ### Recommended Architecture
 
-| Dimension            | Recommendation                        | Rationale                                                                 |
-|----------------------|---------------------------------------|---------------------------------------------------------------------------|
-| Methodology          | CSS Modules + ITCSS for globals       | React component model maps naturally to Modules; global styles need ITCSS layers |
-| Token system         | CSS custom properties (3-tier)        | Maps directly from Figma tokens; enables dark mode and theming natively   |
-| Tooling              | PostCSS + Stylelint + CSS Modules     | Next.js has native PostCSS and CSS Modules support -- zero additional config |
-| Specificity strategy | `@layer` for Bootstrap isolation      | Traps Bootstrap 4 CSS inside a low-priority layer; new code always wins   |
-| File structure       | Co-located modules + global styles/   | Components own their styles; global tokens/reset live in styles/          |
-| Bootstrap exit plan  | Phased removal over 6--8 weeks        | Remove component-by-component as each is replaced; never rewrite all at once |
+| Dimension            | Recommendation                      | Rationale                                                                        |
+| -------------------- | ----------------------------------- | -------------------------------------------------------------------------------- |
+| Methodology          | CSS Modules + ITCSS for globals     | React component model maps naturally to Modules; global styles need ITCSS layers |
+| Token system         | CSS custom properties (3-tier)      | Maps directly from Figma tokens; enables dark mode and theming natively          |
+| Tooling              | PostCSS + Stylelint + CSS Modules   | Next.js has native PostCSS and CSS Modules support -- zero additional config     |
+| Specificity strategy | `@layer` for Bootstrap isolation    | Traps Bootstrap 4 CSS inside a low-priority layer; new code always wins          |
+| File structure       | Co-located modules + global styles/ | Components own their styles; global tokens/reset live in styles/                 |
+| Bootstrap exit plan  | Phased removal over 6--8 weeks      | Remove component-by-component as each is replaced; never rewrite all at once     |
 
 ---
 
@@ -351,51 +355,51 @@ Create `styles/tokens.css` and map the Figma token library to three tiers:
 /* ─── Tier 1: Primitive Tokens ─────────────────────── */
 :root {
   /* Color palette */
-  --color-blue-50:  #eff6ff;
+  --color-blue-50: #eff6ff;
   --color-blue-500: #3b82f6;
   --color-blue-600: #2563eb;
   --color-blue-700: #1d4ed8;
-  --color-gray-50:  #f9fafb;
+  --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
   --color-gray-200: #e5e7eb;
   --color-gray-700: #374151;
   --color-gray-900: #111827;
-  --color-white:    #ffffff;
-  --color-red-500:  #ef4444;
+  --color-white: #ffffff;
+  --color-red-500: #ef4444;
   --color-green-500: #22c55e;
 
   /* Spacing scale (4px base) */
-  --space-1: 0.25rem;  /* 4px  */
-  --space-2: 0.5rem;   /* 8px  */
-  --space-3: 0.75rem;  /* 12px */
-  --space-4: 1rem;     /* 16px */
-  --space-6: 1.5rem;   /* 24px */
-  --space-8: 2rem;     /* 32px */
-  --space-12: 3rem;    /* 48px */
-  --space-16: 4rem;    /* 64px */
+  --space-1: 0.25rem; /* 4px  */
+  --space-2: 0.5rem; /* 8px  */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
 
   /* Typography */
   --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --font-size-xs:   0.75rem;   /* 12px */
-  --font-size-sm:   0.875rem;  /* 14px */
-  --font-size-base: 1rem;      /* 16px */
-  --font-size-lg:   1.125rem;  /* 18px */
-  --font-size-xl:   1.25rem;   /* 20px */
-  --font-size-2xl:  1.5rem;    /* 24px */
-  --font-size-3xl:  1.875rem;  /* 30px */
-  --font-weight-normal:   400;
-  --font-weight-medium:   500;
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
   --font-weight-semibold: 600;
-  --font-weight-bold:     700;
-  --line-height-tight:  1.25;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.25;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.625;
 
   /* Border radius */
-  --radius-sm:   0.25rem;
-  --radius-md:   0.375rem;
-  --radius-lg:   0.5rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
   --radius-full: 9999px;
 
   /* Shadows */
@@ -404,59 +408,59 @@ Create `styles/tokens.css` and map the Figma token library to three tiers:
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
   /* Transitions */
-  --transition-fast:   150ms ease;
+  --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
-  --transition-slow:   350ms ease;
+  --transition-slow: 350ms ease;
 }
 
 /* ─── Tier 2: Semantic Tokens ───────────────────────── */
 :root {
   /* Brand */
-  --color-brand-primary:   var(--color-blue-500);
-  --color-brand-hover:     var(--color-blue-600);
-  --color-brand-active:    var(--color-blue-700);
+  --color-brand-primary: var(--color-blue-500);
+  --color-brand-hover: var(--color-blue-600);
+  --color-brand-active: var(--color-blue-700);
 
   /* Surfaces */
-  --color-surface-page:      var(--color-gray-50);
-  --color-surface-card:      var(--color-white);
-  --color-surface-overlay:   var(--color-white);
+  --color-surface-page: var(--color-gray-50);
+  --color-surface-card: var(--color-white);
+  --color-surface-overlay: var(--color-white);
 
   /* Text */
-  --color-text-primary:   var(--color-gray-900);
+  --color-text-primary: var(--color-gray-900);
   --color-text-secondary: var(--color-gray-700);
-  --color-text-on-brand:  var(--color-white);
-  --color-text-disabled:  var(--color-gray-200);
+  --color-text-on-brand: var(--color-white);
+  --color-text-disabled: var(--color-gray-200);
 
   /* Borders */
   --color-border-default: var(--color-gray-200);
-  --color-border-focus:   var(--color-blue-500);
+  --color-border-focus: var(--color-blue-500);
 
   /* Status */
-  --color-status-error:   var(--color-red-500);
+  --color-status-error: var(--color-red-500);
   --color-status-success: var(--color-green-500);
 
   /* Component spacing */
-  --space-section-gap:    var(--space-12);
-  --space-component-gap:  var(--space-6);
-  --space-element-gap:    var(--space-4);
+  --space-section-gap: var(--space-12);
+  --space-component-gap: var(--space-6);
+  --space-element-gap: var(--space-4);
 }
 
 /* ─── Dark Mode: Semantic Token Overrides ───────────── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-surface-page:      #0f172a;
-    --color-surface-card:      #1e293b;
-    --color-text-primary:      #f8fafc;
-    --color-text-secondary:    #94a3b8;
-    --color-border-default:    #334155;
+    --color-surface-page: #0f172a;
+    --color-surface-card: #1e293b;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #94a3b8;
+    --color-border-default: #334155;
   }
 }
 
 /* User-controlled theme override (higher priority than media query) */
-[data-theme="dark"] {
-  --color-surface-page:   #0f172a;
-  --color-surface-card:   #1e293b;
-  --color-text-primary:   #f8fafc;
+[data-theme='dark'] {
+  --color-surface-page: #0f172a;
+  --color-surface-card: #1e293b;
+  --color-text-primary: #f8fafc;
   --color-text-secondary: #94a3b8;
   --color-border-default: #334155;
 }
@@ -486,7 +490,9 @@ Now all Bootstrap styles have the lowest priority. Any style outside a layer, or
 ```css
 /* styles/reset.css */
 @layer reset {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -506,12 +512,17 @@ Now all Bootstrap styles have the lowest priority. Any style outside a layer, or
     background-color: var(--color-surface-page);
   }
 
-  img, video, svg {
+  img,
+  video,
+  svg {
     display: block;
     max-width: 100%;
   }
 
-  button, input, select, textarea {
+  button,
+  input,
+  select,
+  textarea {
     font: inherit;
   }
 }
@@ -538,6 +549,7 @@ styles/
 ```
 
 In `app/layout.tsx`:
+
 ```tsx
 import '@/styles/globals.css';
 ```
@@ -556,18 +568,18 @@ Every new or refactored component gets a `.module.css` file. Component tokens ar
 /* ─── Component Tokens (Tier 3) ────────────────────── */
 .button {
   /* Override these to create variants */
-  --button-bg:            var(--color-brand-primary);
-  --button-bg-hover:      var(--color-brand-hover);
-  --button-bg-active:     var(--color-brand-active);
-  --button-color:         var(--color-text-on-brand);
-  --button-border:        transparent;
-  --button-padding-y:     var(--space-2);
-  --button-padding-x:     var(--space-4);
-  --button-font-size:     var(--font-size-sm);
-  --button-font-weight:   var(--font-weight-medium);
-  --button-radius:        var(--radius-md);
-  --button-shadow:        var(--shadow-sm);
-  --button-transition:    var(--transition-fast);
+  --button-bg: var(--color-brand-primary);
+  --button-bg-hover: var(--color-brand-hover);
+  --button-bg-active: var(--color-brand-active);
+  --button-color: var(--color-text-on-brand);
+  --button-border: transparent;
+  --button-padding-y: var(--space-2);
+  --button-padding-x: var(--space-4);
+  --button-font-size: var(--font-size-sm);
+  --button-font-weight: var(--font-weight-medium);
+  --button-radius: var(--radius-md);
+  --button-shadow: var(--shadow-sm);
+  --button-transition: var(--transition-fast);
 
   /* ─── Composition ─── */
   display: inline-flex;
@@ -614,41 +626,41 @@ Every new or refactored component gets a `.module.css` file. Component tokens ar
 
 /* ─── Variants via Component Token Override ─────────── */
 .secondary {
-  --button-bg:        transparent;
-  --button-bg-hover:  var(--color-gray-100);
+  --button-bg: transparent;
+  --button-bg-hover: var(--color-gray-100);
   --button-bg-active: var(--color-gray-200);
-  --button-color:     var(--color-text-primary);
-  --button-border:    var(--color-border-default);
-  --button-shadow:    none;
+  --button-color: var(--color-text-primary);
+  --button-border: var(--color-border-default);
+  --button-shadow: none;
 }
 
 .ghost {
-  --button-bg:        transparent;
-  --button-bg-hover:  var(--color-gray-100);
+  --button-bg: transparent;
+  --button-bg-hover: var(--color-gray-100);
   --button-bg-active: var(--color-gray-200);
-  --button-color:     var(--color-brand-primary);
-  --button-border:    transparent;
-  --button-shadow:    none;
+  --button-color: var(--color-brand-primary);
+  --button-border: transparent;
+  --button-shadow: none;
 }
 
 .destructive {
-  --button-bg:       var(--color-status-error);
+  --button-bg: var(--color-status-error);
   --button-bg-hover: #dc2626;
 }
 
 /* ─── Sizes ─────────────────────────────────────────── */
 .sm {
-  --button-padding-y:  var(--space-1);
-  --button-padding-x:  var(--space-3);
-  --button-font-size:  var(--font-size-xs);
-  --button-radius:     var(--radius-sm);
+  --button-padding-y: var(--space-1);
+  --button-padding-x: var(--space-3);
+  --button-font-size: var(--font-size-xs);
+  --button-radius: var(--radius-sm);
 }
 
 .lg {
-  --button-padding-y:  var(--space-3);
-  --button-padding-x:  var(--space-6);
-  --button-font-size:  var(--font-size-base);
-  --button-radius:     var(--radius-lg);
+  --button-padding-y: var(--space-3);
+  --button-padding-x: var(--space-6);
+  --button-font-size: var(--font-size-base);
+  --button-radius: var(--radius-lg);
 }
 ```
 
@@ -665,13 +677,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize;
 }
 
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  className,
-  children,
-  ...props
-}: ButtonProps) {
+export function Button({ variant = 'primary', size = 'md', className, children, ...props }: ButtonProps) {
   return (
     <button
       className={clsx(
@@ -699,58 +705,107 @@ export function Button({
 ```js
 // .stylelintrc.js
 module.exports = {
-  extends: [
-    'stylelint-config-standard',
-    'stylelint-config-css-modules',
-  ],
-  plugins: [
-    'stylelint-order',
-  ],
+  extends: ['stylelint-config-standard', 'stylelint-config-css-modules'],
+  plugins: ['stylelint-order'],
   rules: {
     // Property declaration order
     'order/properties-order': [
       'content',
       // Positioning
-      'position', 'top', 'right', 'bottom', 'left', 'z-index',
+      'position',
+      'top',
+      'right',
+      'bottom',
+      'left',
+      'z-index',
       // Display and box model
-      'display', 'flex', 'flex-direction', 'flex-wrap',
-      'align-items', 'justify-content', 'gap',
-      'grid-template-columns', 'grid-template-rows',
-      'width', 'min-width', 'max-width',
-      'height', 'min-height', 'max-height',
-      'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-      'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+      'display',
+      'flex',
+      'flex-direction',
+      'flex-wrap',
+      'align-items',
+      'justify-content',
+      'gap',
+      'grid-template-columns',
+      'grid-template-rows',
+      'width',
+      'min-width',
+      'max-width',
+      'height',
+      'min-height',
+      'max-height',
+      'padding',
+      'padding-top',
+      'padding-right',
+      'padding-bottom',
+      'padding-left',
+      'margin',
+      'margin-top',
+      'margin-right',
+      'margin-bottom',
+      'margin-left',
       'overflow',
       // Visual
-      'background', 'background-color', 'background-image',
-      'border', 'border-radius',
+      'background',
+      'background-color',
+      'background-image',
+      'border',
+      'border-radius',
       'box-shadow',
       'opacity',
       // Typography
-      'font-family', 'font-size', 'font-weight', 'line-height',
-      'color', 'text-align', 'text-decoration', 'white-space',
+      'font-family',
+      'font-size',
+      'font-weight',
+      'line-height',
+      'color',
+      'text-align',
+      'text-decoration',
+      'white-space',
       // Interaction
-      'cursor', 'pointer-events', 'user-select',
+      'cursor',
+      'pointer-events',
+      'user-select',
       // Animation
-      'transition', 'animation',
+      'transition',
+      'animation',
     ],
 
     // Enforce custom property usage
     'color-no-invalid-hex': true,
-    'declaration-no-important': [true, {
-      severity: 'warning', // Error in component files; warning for utilities
-    }],
-    'selector-max-id': 0,              // No ID selectors in stylesheets
+    'declaration-no-important': [
+      true,
+      {
+        severity: 'warning', // Error in component files; warning for utilities
+      },
+    ],
+    'selector-max-id': 0, // No ID selectors in stylesheets
     'selector-max-specificity': '0,2,0', // Flag anything exceeding 2 classes
-    'selector-max-type': [2, {         // Allow element selectors only in reset/base layers
-      ignoreTypes: ['html', 'body'],
-    }],
-    'max-nesting-depth': 1,            // Only 1 level of nesting allowed
+    'selector-max-type': [
+      2,
+      {
+        // Allow element selectors only in reset/base layers
+        ignoreTypes: ['html', 'body'],
+      },
+    ],
+    'max-nesting-depth': 1, // Only 1 level of nesting allowed
     'custom-property-no-missing-var-function': true,
-    'color-named': 'never',            // Never use color names like 'red', 'blue'
+    'color-named': 'never', // Never use color names like 'red', 'blue'
     'number-max-precision': 4,
-    'unit-allowed-list': [             // Prevent arbitrary unit usage
-      'rem', 'em', 'px', '%', 'vw', 'vh', 'svh', 'fr', 'deg', 'ms', 's', 'ch',
+    'unit-allowed-list': [
+      // Prevent arbitrary unit usage
+      'rem',
+      'em',
+      'px',
+      '%',
+      'vw',
+      'vh',
+      'svh',
+      'fr',
+      'deg',
+      'ms',
+      's',
+      'ch',
     ],
   },
   overrides: [

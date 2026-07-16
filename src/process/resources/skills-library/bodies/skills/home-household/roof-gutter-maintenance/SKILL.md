@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance checklist planning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance checklist planning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Roof and Gutter Maintenance
 
 ## When to Use
@@ -80,12 +81,14 @@ Match the user's roof material to the industry-standard lifespan range, then est
 - **Built-up (tar-and-gravel):** 15-30 years; granule aggregate surface is the wear indicator; ponding is the primary failure accelerator
 
 **Remaining life calculation logic:**
+
 - Roof under 50% of expected lifespan with no reported symptoms: "Healthy, maintain per schedule"
 - Roof at 50-75% of expected lifespan: "Monitor closely, annual professional inspection, begin replacement budget planning"
 - Roof at 75-90% of expected lifespan with symptoms: "Plan replacement within 2-5 years"
 - Roof beyond 90% of expected lifespan or showing multiple failure indicators: "Replace soon -- continuing to patch is economically inefficient"
 
 **Symptom-based adjustments that accelerate the estimate:**
+
 - Granule accumulation equivalent to a full cup or more per downspout per cleaning cycle: subtract 3-5 years from estimate
 - Shingles cracking or cupping (edges turning upward): subtract 3-5 years
 - Active moss or lichen coverage exceeding 25% of roof area: subtract 2-4 years (moisture retention accelerates shingle decomposition)
@@ -97,11 +100,13 @@ Match the user's roof material to the industry-standard lifespan range, then est
 Generate an inspection schedule customized to the roof's age, material, tree coverage, and climate:
 
 **Ground-level visual inspection (homeowner-conducted):**
+
 - Every roof: minimum 2x per year (early spring after winter, late fall after leaf drop)
 - Add: after any storm with winds exceeding 50 mph, hail, or falling branches
 - Method: binoculars (8x or 10x magnification) from multiple vantage points 20-40 feet from the home, plus examination from a ladder positioned at the gutter line (not on the roof surface)
 
 **Professional inspection intervals by roof age:**
+
 - Under 10 years old: every 3-5 years, or after any significant storm event
 - 10-15 years old: every 2-3 years
 - Over 15 years old: annually
@@ -109,6 +114,7 @@ Generate an inspection schedule customized to the roof's age, material, tree cov
 - After any hail event (any size, any roof age): schedule professional inspection within 30 days -- insurance claims typically have a 1-year reporting window but evidence degrades
 
 **Gutter cleaning schedule by tree coverage:**
+
 - No trees within 40 feet: 2x per year (May and November)
 - Moderate coverage: 3x per year (April, August, November)
 - Heavy canopy or pine trees overhead: 4x per year (March, June, September, November); pine needles are particularly dangerous because they compact into dense mats that hold moisture and accelerate gutter corrosion
@@ -119,6 +125,7 @@ Generate an inspection schedule customized to the roof's age, material, tree cov
 Organize the checklist by component. Make each item specific enough that the user knows exactly what a problem looks like:
 
 **Shingles and roof surface (viewed with binoculars from ground):**
+
 - Missing shingles: gaps in the surface where substrate (felt or ice/water shield) is exposed to weather
 - Cracked shingles: visible fractures running across the shingle face -- common in older 3-tab and wood shake
 - Curling: two failure modes -- cupping (edges curl upward, caused by moisture differential between top and bottom of shingle) and clawing (middle lifts while edges stay flat, caused by nail pull-through or adhesive failure)
@@ -129,6 +136,7 @@ Organize the checklist by component. Make each item specific enough that the use
 - Hip cap alignment: similar to ridge caps, hip caps on hipped roofs experience high wind exposure
 
 **Flashing (the thin metal strips sealing roof penetrations and transitions):**
+
 - Chimney flashing: step flashing along the sides, counter-flashing embedded in the mortar joint, and saddle/cricket behind the chimney for chimneys wider than 30 inches; look for gaps, rust, or lifted sections
 - Pipe boot flashing: rubber boot around plumbing vents; rubber degrades and cracks at 15-20 years even when shingles remain in good condition -- a very common source of leaks
 - Skylight flashing: self-flashing skylights have integrated flanges; curb-mounted skylights rely on step flashing; look for lifted edges or gaps at corners
@@ -136,6 +144,7 @@ Organize the checklist by component. Make each item specific enough that the use
 - Valley flashing: open metal valleys (exposed aluminum or galvanized steel) or closed/woven valleys; look for rust, perforations, or debris accumulation in the valley channel
 
 **Gutters and drainage system:**
+
 - Gutter slope: gutters should slope toward downspouts at approximately 1/4 inch per 10 feet; standing water after rain indicates inadequate slope or a sag caused by bracket failure
 - Gutter separation from fascia: look for gaps between the back of the gutter and the fascia board, indicating bracket failure or fascia rot
 - Downspout quantity and placement: one downspout per 30-40 linear feet of gutter is a baseline -- overloaded downspouts back up in heavy rain
@@ -143,6 +152,7 @@ Organize the checklist by component. Make each item specific enough that the use
 - Overflow points: gutters with no overflow relief overflow into the fascia and soffit area during heavy rain; some systems use planned overflow notches to direct water away from the structure
 
 **Attic interior inspection (from inside the attic with a flashlight):**
+
 - Daylight through decking: any visible light from outside indicates gaps, cracks, or missing decking sections
 - Water stains on rafters or decking: dark brown or gray staining indicates past or current moisture intrusion; active drips during or after rain confirm an ongoing leak
 - Mold or mildew on sheathing: black, green, or white growth indicates chronically elevated moisture, often from condensation (inadequate ventilation) rather than a roof leak -- both need resolution
@@ -154,6 +164,7 @@ Organize the checklist by component. Make each item specific enough that the use
 This is a sequential, safety-first procedure. Provide every step -- do not assume the user knows ladder safety or tool selection:
 
 **Equipment needed:**
+
 - Extension ladder with standoff/stabilizer arms (prevents ladder from resting against and crushing gutters, and creates safer working position)
 - Work gloves (leather or heavy rubber -- decomposed leaf matter harbors bacteria and can contain sharp debris)
 - Safety glasses
@@ -165,6 +176,7 @@ This is a sequential, safety-first procedure. Provide every step -- do not assum
 - Gutter screws (hex head, self-tapping, 1/4 inch) to replace failed gutter spike-and-ferrule systems -- screws hold 5-10x longer than the original spikes
 
 **Procedure:**
+
 1. **Set up the ladder safely.** Position the base 1 foot away from the wall for every 4 feet of vertical height (the 4:1 ratio gives the correct 75-degree angle). Extend the ladder 3 rungs above the gutter line for stability. Use a standoff bracket to keep the rails off the gutter. Have a second person hold the base if working above 8 feet. Wear non-slip footwear. Never rest a ladder against a vinyl gutter -- it will collapse under the lateral load.
 
 2. **Work systematically from one end to the other.** Start at the end opposite the downspout. Remove large debris by hand into the bucket. Move the ladder every 3-4 feet -- never lean more than arm's length to either side. This is the most dangerous part of gutter maintenance; ladder falls kill approximately 300 Americans per year and injure 164,000.
@@ -180,6 +192,7 @@ This is a sequential, safety-first procedure. Provide every step -- do not assum
 7. **Reinstall gutter guards if present.** Micro-mesh guards require occasional surface scrubbing with a soft brush to clear pollen and fine debris from the mesh surface -- the debris does not fall through but can impede flow if it accumulates.
 
 **Time estimates:**
+
 - Single-story home, no gutter guards, moderate debris: 1-2 hours
 - Two-story home: 2-3 hours, with significantly higher ladder risk -- professional cleaning ($150-350 per visit) is strongly recommended for two-story work
 - Home with heavy debris and compacted clogs: 3-5 hours, plus any repair time
@@ -205,12 +218,14 @@ Gutter guards vary enormously in effectiveness. Provide an honest evaluation:
 Use a clear decision framework:
 
 **Continue maintaining (repair as needed) when:**
+
 - Roof is under 70% of expected lifespan with no symptoms or minor isolated issues
 - Repair cost for any single incident is under $500-800
 - The roof has no more than 10-15% of its surface area showing wear indicators
 - A professional inspection confirms no systemic failures (widespread cracking, delamination, adhesive failure)
 
 **Begin replacement planning (12-36 month horizon) when:**
+
 - Roof is between 70-90% of expected lifespan
 - Annual repair costs are exceeding $500/year
 - A professional finds 15-25% of shingle area showing significant wear
@@ -218,6 +233,7 @@ Use a clear decision framework:
 - The roof has already been re-roofed once (most jurisdictions allow a maximum of two layers of asphalt shingles before a full tear-off is required -- a second re-roof means tear-off is mandatory, which adds $1-3 per square foot to cost)
 
 **Replace immediately when:**
+
 - Roof is beyond 90% of expected lifespan with any symptoms
 - A professional finds active leakage at multiple points
 - Any roofer quotes repair costs exceeding 20% of replacement cost
@@ -225,6 +241,7 @@ Use a clear decision framework:
 - Storm damage is extensive enough that an insurance claim will cover most of replacement cost (document everything with photos and timestamps before any temporary repairs)
 
 **Replacement cost reference ranges (national average, residential, per typical 1,500-2,000 sq ft footprint):**
+
 - 3-tab asphalt tear-off and replacement: $6,000-10,000
 - Architectural asphalt tear-off and replacement: $8,000-16,000
 - Metal standing seam (new install): $18,000-40,000
@@ -379,27 +396,35 @@ Note: Regional variation is significant. Coastal California and New York markets
 ## Edge Cases
 
 ### 1. Flat or Low-Slope Roof (0:12 to 3:12 pitch)
+
 Flat roofs have fundamentally different failure modes and maintenance protocols than pitched roofs. The primary enemies are ponding water and membrane seam failure. Ponding water -- defined as water remaining on the surface 48 or more hours after rain -- is a catastrophic accelerator of membrane degradation: it adds structural dead load, promotes membrane blistering and delamination, creates freeze-thaw cycling damage at the water mass, and prevents UV-protective surfaces from functioning correctly. Any homeowner describing ponding on a flat roof should be directed to professional assessment for drain correction (adding roof drains, reconfiguring slope with tapered insulation) before membrane replacement. Do not walk on flat roofing membranes without first identifying the membrane type: TPO and EPDM typically tolerate foot traffic when installed correctly, but modified bitumen and built-up roofs with aggregate surfaces can be walked on with care, while heavily degraded or blistered surfaces of any type should not be walked on. Flat roof cleaning priority: keep roof drains and drain guards clear of debris after every storm. A single clogged drain on a flat roof during a heavy rain event can add thousands of pounds of water load to the structure and can collapse a roof deck.
 
 ### 2. Ice Dam Formation in Freeze-Thaw Climates
+
 Ice dams form when heat loss from the conditioned living space warms the attic and roof deck above the freezing point, melting snow on the upper roof surface. The meltwater flows down the slope and refreezes at the cold eaves overhang, which is not heated from below. The resulting ice mass backs up under shingles and forces liquid water into the attic. The complete solution to ice dams is attic performance improvement -- not roofing repair. The three-part attic approach: (1) air sealing all penetrations through the attic floor (wiring holes, pipe penetrations, recessed light cans, HVAC chases) to stop warm air movement into the attic; (2) increasing attic insulation to R-49 minimum (approximately 14-16 inches of blown cellulose or fiberglass), with R-60 preferable in very cold climates; (3) maintaining continuous ventilation from soffit to ridge to keep the roof deck cold and uniform. For immediate relief of an active ice dam: use a roof rake to remove snow from the lower 3-4 feet of the roof from the ground -- do not use the rake on ice already formed. Place calcium chloride ice melt in a nylon stocking, tie it closed, and drape it perpendicular over the dam's crest every 3-4 feet to melt drainage channels. Heating cables (self-regulating type) installed in a zigzag pattern along the eaves before winter are a mechanical mitigation -- they address the symptom but not the cause, consume electricity, and require annual inspection for physical damage. Metal roofs (standing seam) resist ice dam backup penetration significantly better than asphalt because the interlocked seams provide no pathway for backed-up water.
 
 ### 3. Hurricane and High-Wind Coastal Zones
+
 Roofs in hurricane zones (FEMA-designated Wind Zones II, III, and IV, broadly covering Gulf Coast, Florida, Atlantic coastal states) face fundamentally higher wind loads -- up to 150-180 mph design winds in Zone IV. Inspection protocol after any wind event exceeding 60 mph must include a professional visit within 30 days: lifted shingle tabs may be wind-sealed back down by heat and sun, giving the appearance of intact shingles, while the adhesive integrity has been compromised and the shingles will lift again in the next wind event. In the attic, confirm hurricane clips or straps connect every rafter to the top plate of the wall -- these should be visible as metal connector plates at each rafter end. Missing or corroded straps represent a structural uplift vulnerability and require contractor evaluation. After any declared hurricane or tropical storm, photograph all roof damage (and lack of visible damage) within 24 hours for insurance documentation. Sealed roof deck (ice-and-water shield over the entire deck rather than just the eaves and valleys) is now required in many wind zones for new construction and re-roofing; if the user is re-roofing in a wind zone, verify local code requirements for this upgrade.
 
 ### 4. Very Steep Roof (12:12 pitch or greater)
+
 On a 12:12 pitch roof, the surface angle is 45 degrees. At this angle, walking without fall protection equipment is dangerous even for experienced roofers. For homeowners, all inspection is ground-only -- no ladder work other than to inspect gutters at the eave. Gutter cleaning on very steep roofs may require professional service because safely positioning a ladder at the gutter line is complicated by the steep fascia angle. When obtaining professional roofing bids on steep roofs, expect a 20-40% labor premium over standard (4:12-7:12) pitch pricing, reflecting the increased time, fall protection equipment requirements, and safety complexity. For users in areas with steep roofs, recommend gutter guards more strongly because the cleaning difficulty means that less-frequent cleaning leads to more overflowing and damage.
 
 ### 5. Wood Shake or Shingle Roofs
+
 Wood shake and shingle roofs require specific maintenance not applicable to other systems. In humid climates (Pacific Northwest, Southeast, Great Lakes), moss, lichen, and algae growth on wood roofs is nearly universal and must be actively managed. Annual treatment with zinc sulfate solution (applied by sprayer in dry conditions and left to weather in) inhibits biological growth. Installing zinc strips at the ridge (2-4 inch wide galvanized or zinc metal strips) allows zinc to leach down the roof with rain, providing continuous biological suppression -- this is the most effective long-term passive treatment. Wood roofs require airflow under the shakes to dry after rain: roofs with no gap between the shakes and the solid decking (or those with blocked airflow due to debris accumulation) suffer significantly accelerated rot from the underside. Check that the gaps between shakes have not closed from expansion/swelling -- gaps less than 1/4 inch need trimming or individual shake replacement. Never pressure-wash a wood roof -- the high-pressure water drives moisture deep into the wood grain and removes natural oils, accelerating cracking and splitting. Use only low-pressure soft washing with a moss treatment solution.
 
 ### 6. Copper or Premium Metal Gutters
+
 Copper gutters are a 50-100 year system that require specific care distinctions from aluminum. Never use dissimilar metal fasteners (steel or aluminum screws) with copper gutters -- galvanic corrosion at the contact point will destroy the screw and eventually the gutter wall. Use copper or stainless steel screws only. The natural patina development (green verdigris) on copper is protective and should not be cleaned off -- it is not corrosion in the harmful sense. Copper gutters can be cleaned with the same techniques as aluminum, but avoid any abrasive tools that scratch the surface. Downspout connections to aluminum underground drains require an insulating coupler or rubber transition fitting to prevent galvanic corrosion at the dissimilar metal joint.
 
 ### 7. Home with No Gutters -- Evaluating Whether to Install
+
 Some homes intentionally have no gutters (wide overhangs in arid climates, some architectural styles) and some homes lack gutters simply due to deferred maintenance. Evaluate whether gutters are necessary by looking for these damage indicators: soil erosion and splash-back marking along the foundation drip line, efflorescence or moisture staining on the foundation masonry, landscape washout from concentrated drip-line discharge, and water staining or mold on siding in the splash zone. If none of these indicators are present and the home is in a low-rainfall climate, no gutters may be the correct choice. If indicators are present, gutter installation is justified. Installation cost ranges: sectional K-style aluminum, $5-15 per linear foot; seamless K-style aluminum (rolled on-site), $8-20 per linear foot; copper half-round (premium), $25-50 per linear foot. Half-round profiles require different hangers (exposed spike-and-ferrule or rounded brackets) and pair with round downspouts -- they have better self-cleaning characteristics than K-style because debris does not accumulate in corners.
 
 ### 8. Asphalt Roof with Algae Streaks (Dark Staining)
+
 The dark gray-to-black streaks that appear on north-facing and shaded roof slopes are almost always Gloeocapsa magma, a blue-green algae bacteria that feeds on the limestone filler in asphalt shingles. This is primarily cosmetic but the moisture conditions it indicates are favorable to moss colonization, which causes actual physical shingle damage. Cleaning method: 50/50 solution of liquid sodium hypochlorite (pool chlorine, not laundry bleach which has additives) and water, applied with a low-pressure garden sprayer, left for 15-20 minutes, then rinsed with low-pressure water. Never pressure-wash -- it removes granules. The streaks will lighten significantly within 24-48 hours. Algae-resistant shingles contain copper granules that provide approximately 10 years of protection; after that point, the copper granules have eroded from the surface and algae returns. For long-term prevention after cleaning, install zinc strips at the ridge.
 
 ---
@@ -425,14 +450,14 @@ The dark gray-to-black streaks that appear on north-facing and shaded roof slope
 
 ### Lifespan and Condition Summary
 
-| Factor | Status | Impact |
-|--------|--------|--------|
-| Age vs. expected lifespan | 18 of 25-30 years (60-72%) | Moderate -- entering the monitoring phase |
-| Granule loss | Significant accumulation reported | High concern -- granules are the UV protection layer; their loss accelerates shingle degradation |
-| Shingle condition | Unknown (no cupping or cracking reported) | Moderate -- professional inspection needed to confirm |
-| Algae streaking | Present on north slope | Low immediate concern -- cosmetic, but indicates moisture conditions favorable to moss |
-| Flashing condition | Unknown | Moderate -- pipe boots on an 18-year roof are approaching or past their typical replacement window |
-| Attic condition | Not checked | Unknown -- strongly recommend one attic inspection given the age and climate |
+| Factor                    | Status                                    | Impact                                                                                             |
+| ------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Age vs. expected lifespan | 18 of 25-30 years (60-72%)                | Moderate -- entering the monitoring phase                                                          |
+| Granule loss              | Significant accumulation reported         | High concern -- granules are the UV protection layer; their loss accelerates shingle degradation   |
+| Shingle condition         | Unknown (no cupping or cracking reported) | Moderate -- professional inspection needed to confirm                                              |
+| Algae streaking           | Present on north slope                    | Low immediate concern -- cosmetic, but indicates moisture conditions favorable to moss             |
+| Flashing condition        | Unknown                                   | Moderate -- pipe boots on an 18-year roof are approaching or past their typical replacement window |
+| Attic condition           | Not checked                               | Unknown -- strongly recommend one attic inspection given the age and climate                       |
 
 **Overall Assessment: Monitor Closely -- Annual Professional Inspection Required, Begin Replacement Budget Planning**
 
@@ -440,12 +465,12 @@ The dark gray-to-black streaks that appear on north-facing and shaded roof slope
 
 ### Inspection Schedule
 
-| Inspection Type | Frequency | Next Due | DIY Cost | Professional Cost |
-|----------------|-----------|----------|----------|------------------|
-| Ground-level visual (binoculars) | 2x/year + after any storm above 50 mph | Next: April (spring check) | $0 | N/A |
-| Ladder gutter inspection | With each gutter cleaning | Included below | $0 | N/A |
-| Professional roof inspection | Annually (roof is over 15 years old) | Schedule within 60 days | N/A | $150-400 |
-| Gutter cleaning | 4x/year (heavy oak coverage) | March, June, September, November | $0 + 2-3 hrs per session | $175-325 per visit |
+| Inspection Type                  | Frequency                              | Next Due                         | DIY Cost                 | Professional Cost  |
+| -------------------------------- | -------------------------------------- | -------------------------------- | ------------------------ | ------------------ |
+| Ground-level visual (binoculars) | 2x/year + after any storm above 50 mph | Next: April (spring check)       | $0                       | N/A                |
+| Ladder gutter inspection         | With each gutter cleaning              | Included below                   | $0                       | N/A                |
+| Professional roof inspection     | Annually (roof is over 15 years old)   | Schedule within 60 days          | N/A                      | $150-400           |
+| Gutter cleaning                  | 4x/year (heavy oak coverage)           | March, June, September, November | $0 + 2-3 hrs per session | $175-325 per visit |
 
 **Note on the professional inspection:** With significant granule accumulation already reported, do not skip this. An inspector can walk specific areas (valleys, south slope, any spots below oak limb contact zones) and give you a quantified assessment of remaining shingle thickness using a granule loss scale. This will either confirm your 7-12 year estimate or tighten it to a 5-8 year window, which changes your budgeting timeline.
 
@@ -456,6 +481,7 @@ The dark gray-to-black streaks that appear on north-facing and shaded roof slope
 Complete in April (post-winter) and October (pre-winter). Use 8x or 10x binoculars from 20-40 feet away, viewing all four elevations.
 
 **Shingles and Roof Surface:**
+
 - [ ] Missing shingles -- gaps exposing felt underlayment or bare wood decking
 - [ ] Cracked shingles -- fractures across the shingle face (more common after Midwest freeze-thaw cycling)
 - [ ] Cupping -- shingle edges turning upward (sign of moisture stress and adhesion loss)
@@ -468,12 +494,14 @@ Complete in April (post-winter) and October (pre-winter). Use 8x or 10x binocula
 - [ ] Roof line straightness -- viewed from the street, the ridge should be laser-straight; any waviness or sag indicates potential decking issues
 
 **Flashing (critical given the roof's age):**
+
 - [ ] Pipe boot flashings -- look for rubber boots that are cracked, separated from the pipe, or misshapen; on an 18-year roof, this is the highest-probability active leak source
 - [ ] Chimney flashing -- if applicable, check for separation at the counter-flashing mortar joint or rust
 - [ ] Valley flashing -- the V-shaped channels where roof planes meet; check for rust, debris accumulation, or distortion
 - [ ] Any roof-to-wall junctions (dormers, additions) -- step flashing at these transitions should be tight and rust-free
 
 **Gutters and Drainage:**
+
 - [ ] No standing water in gutters 24 hours after rain (slope is correct)
 - [ ] Gutters tight to fascia -- no separation or sagging sections
 - [ ] Downspouts clear and discharging at least 4-6 feet from foundation -- critical in Chicago freeze-thaw climate where pooled foundation water freezes and causes cracking
@@ -481,6 +509,7 @@ Complete in April (post-winter) and October (pre-winter). Use 8x or 10x binocula
 - [ ] Gutter guards (if present) -- clear of oak pollen and debris on mesh surface
 
 **Attic (inspect once this season with a flashlight):**
+
 - [ ] No daylight visible through roof sheathing
 - [ ] No water stains or drip marks on rafters or decking
 - [ ] No mold or mildew (black, green, or white growth) on sheathing -- Chicago winters create significant condensation risk in under-ventilated attics

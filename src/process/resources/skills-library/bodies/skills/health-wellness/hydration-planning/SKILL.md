@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition fitness guide"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'nutrition fitness guide'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Hydration Planning
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how much water they should drink per day and wants a personalized, weight-based calculation rather than the generic "8 glasses a day" rule
 - A user wants a structured hydration strategy for recreational exercise -- running, cycling, strength training, team sports, hiking -- including pre-, during-, and post-exercise protocols
 - A user asks when electrolytes matter, what sodium/potassium/magnesium do in the body, or how to tell if they need an electrolyte drink versus plain water
@@ -34,6 +36,7 @@ metadata:
 - A user asks specifically about hydration during long travel, hot weather days off, or shift work
 
 **Do NOT use when:**
+
 - The user has kidney disease, chronic kidney failure, or is on dialysis -- fluid restriction protocols are clinical and require a nephrologist's guidance; refer to a healthcare provider
 - The user has congestive heart failure or other conditions requiring precise fluid balance management -- daily fluid limits in these patients can be life-critical; refer to a cardiologist
 - The user describes symptoms of severe dehydration: no urination for 8+ hours, sunken eyes, extreme confusion, rapid heart rate, inability to keep fluids down -- this is a medical emergency; direct them to emergency services
@@ -64,22 +67,26 @@ Do not jump to calculations without collecting the following. Ask conversational
 Use the established clinical formula as the starting point, then layer in modifiers:
 
 **Base formula:**
+
 - 30-35 mL per kg of body weight per day for sedentary to lightly active adults
 - This represents total fluid from all sources -- beverages plus food (food typically contributes 750-1,000 mL/day for adults eating a balanced diet)
 - To isolate beverage needs: subtract ~750-1,000 mL from the total target
 
 **Worked formula example:**
+
 - User weighs 80 kg (176 lbs)
 - Baseline: 80 kg × 32 mL = 2,560 mL total fluid
 - From beverages: 2,560 - 800 = ~1,760 mL (~60 oz) from drinks on sedentary days
 
 **Activity multipliers (add to baseline beverages, not total fluid):**
+
 - Lightly active (30 min low-intensity exercise): add 300-400 mL on training days
 - Moderately active (30-60 min moderate intensity): add 500-750 mL on training days
 - Very active (60-90 min vigorous exercise): add 750-1,200 mL on training days
 - High-intensity 90+ min sessions: add 1,000-1,500 mL; electrolytes become essential
 
 **Environmental modifiers (add to daily total, independent of exercise):**
+
 - Hot-dry climate: add 500-1,000 mL/day above baseline
 - Hot-humid climate: add 500-750 mL/day (humidity impairs evaporative cooling, increasing sweat burden)
 - Cold-dry environments with heated indoor air: add 250-500 mL/day (respiratory fluid loss increases, thirst perception decreases)
@@ -92,6 +99,7 @@ Use the established clinical formula as the starting point, then layer in modifi
 Treat exercise hydration as three distinct phases with separate targets and different fluid compositions:
 
 **Pre-exercise hydration (the most neglected phase):**
+
 - Goal: arrive at exercise euhydrated (normal body water), not try to catch up during the session
 - 2-4 hours before: 5-7 mL/kg body weight (for an 80 kg person: 400-560 mL / 14-19 oz)
 - 10-20 minutes before: an additional 200-300 mL if urine is still dark after the 2-4 hour drink
@@ -106,6 +114,7 @@ The goal is to replace sweat losses without exceeding them. The American College
 - Drink on a schedule during intense exercise -- thirst lags behind physiological fluid need by 15-20 minutes at high intensities; waiting for thirst means you're already 1-1.5% dehydrated
 
 **Session duration determines fluid composition:**
+
 - Under 45 minutes at moderate intensity: water only, no electrolytes needed
 - 45-60 minutes in cool conditions: water remains sufficient for most people
 - 45-60 minutes in heat or humidity: small amount of sodium (200-300 mg) beneficial to support fluid retention
@@ -113,6 +122,7 @@ The goal is to replace sweat losses without exceeding them. The American College
 - Over 90 minutes especially in heat: full electrolyte replacement critical (sodium 500-1,000 mg/hr, potassium 100-200 mg/hr)
 
 **Post-exercise rehydration:**
+
 - Weigh yourself before and after exercise (in minimal clothing, after toweling off sweat)
 - Each 1 kg of body weight lost equals approximately 1 liter of fluid deficit
 - Rehydrate at 1.5x the amount lost over the 4-6 hours following exercise (the 1.5x multiplier accounts for ongoing urine losses during recovery)
@@ -125,6 +135,7 @@ The goal is to replace sweat losses without exceeding them. The American College
 Electrolytes are minerals that carry an electrical charge and regulate fluid movement between body compartments. Provide this context before the numbers:
 
 **Sodium (Na+) -- the critical one:**
+
 - Primary electrolyte in extracellular fluid; controls where water goes in the body
 - Typical sweat sodium concentration: 460-1,150 mg per liter of sweat (average ~900 mg/L, but there is enormous individual variation -- "salty sweaters" can lose 1,500+ mg/L)
 - Signs of low sodium need: muscle cramps during prolonged exercise, feeling bloated while drinking, hyponatremia symptoms (nausea, headache, confusion) after long events where large volumes of plain water were consumed
@@ -132,6 +143,7 @@ Electrolytes are minerals that carry an electrical charge and regulate fluid mov
 - Exercise replacement guideline: 300-600 mg sodium per hour of exercise beyond 60 minutes; up to 1,000-1,500 mg/hr for high-intensity exercise in extreme heat or for documented salty sweaters
 
 **Potassium (K+):**
+
 - Primary intracellular electrolyte; involved in muscle contraction and nerve signaling
 - Sweat losses are relatively low: 120-225 mg per liter of sweat
 - Adequate intake (AI): 2,600 mg/day for adult women, 3,400 mg/day for adult men
@@ -139,6 +151,7 @@ Electrolytes are minerals that carry an electrical charge and regulate fluid mov
 - Specific potassium supplementation is rarely needed outside of prolonged multi-day endurance events
 
 **Magnesium (Mg2+):**
+
 - Involved in over 300 enzymatic reactions including energy metabolism and muscle relaxation
 - Sweat loss is modest but cumulative in high-volume training
 - RDA: 310-420 mg/day depending on age and sex
@@ -148,6 +161,7 @@ Electrolytes are minerals that carry an electrical charge and regulate fluid mov
 **Chloride, phosphate, bicarbonate:** Lost in sweat in smaller amounts; adequately covered by normal dietary sodium and food variety. Not relevant for planning recreational exercise hydration.
 
 **The practical decision tree for electrolytes:**
+
 - Exercise under 60 min, any intensity: water only
 - Exercise 60-90 min, cool conditions, moderate intensity: water plus a salty snack after
 - Exercise 60-90 min, hot or humid: electrolyte-containing fluid during exercise
@@ -158,6 +172,7 @@ Electrolytes are minerals that carry an electrical charge and regulate fluid mov
 Teach the user a layered monitoring approach with three methods in order of practicality:
 
 **Method 1 -- Urine Color (WUT scale: Well-hydrated, Underhydrated, Thirsty):**
+
 - Color 1-2 (pale straw/lemonade yellow): well hydrated -- maintain current intake
 - Color 3-4 (medium yellow): mild underhydration -- add 300-500 mL over the next 2-3 hours
 - Color 5-6 (dark yellow/amber like apple juice): significant underhydration -- drink 500-750 mL promptly and investigate why
@@ -166,6 +181,7 @@ Teach the user a layered monitoring approach with three methods in order of prac
 - **Caveats:** Multivitamins (especially B2/riboflavin) artificially brighten urine to vivid yellow regardless of hydration. First morning void is naturally concentrated and not representative of overall status. Beets and blackberries cause reddish discoloration.
 
 **Method 2 -- Pre/Post Exercise Weight:**
+
 - Most objective field method available outside a sports science lab
 - Equipment: same scale, same time of day (or same protocol: minimal clothing, after drying off sweat), same conditions
 - Less than 1% body weight lost: optimal exercise hydration
@@ -175,6 +191,7 @@ Teach the user a layered monitoring approach with three methods in order of prac
 - Weight gain during exercise: a warning sign of hyponatremia risk from drinking too much plain water; more common in slower endurance athletes who over-drink
 
 **Method 3 -- Thirst and Physical Signals:**
+
 - Thirst for daily hydration: reliable enough for most adults in non-exercise contexts. Research shows the thirst mechanism, when not blunted by age or medication, keeps healthy adults within 0.5-1% of optimal hydration.
 - Thirst during exercise: unreliable -- use scheduled drinking instead
 - Early dehydration signals: dry lips/mouth, slight headache, reduced urine frequency (less than 4 voids in an 8-hour waking day), mild fatigue without sleep cause
@@ -186,6 +203,7 @@ Teach the user a layered monitoring approach with three methods in order of prac
 The best hydration schedule is one that requires no willpower -- it attaches to existing behavioral cues. Use habit-stacking methodology:
 
 **Anchor points in the typical day:**
+
 - Wake up: 300-500 mL before coffee. The body loses 300-500 mL overnight through respiration and perspiration, making morning the most consistent underhydrated moment of the day. A glass of water before the coffee maker finishes is the single highest-leverage habit change.
 - With each meal: 250-350 mL. Eating naturally creates a pause and social permission to drink; using this anchor takes zero additional behavior change.
 - Exercise transitions: pre-exercise drink (habit anchor: when changing into workout clothes), post-exercise drink (habit anchor: entering the shower/locker room)
@@ -193,11 +211,13 @@ The best hydration schedule is one that requires no willpower -- it attaches to 
 - Pre-bedtime taper: taper fluid after dinner to reduce nocturia (waking for bathroom trips). Anyone who wants to reduce overnight bathroom trips should stop drinking within 90-120 minutes of sleep, but must ensure afternoon intake was adequate to prevent a net daily deficit.
 
 **Spacing guidance:**
+
 - Distribute intake across 6-8 occasions throughout the day -- gut absorption rate peaks at about 400-600 mL per hour; consuming more than 800 mL in one bolus results in significant urinary losses with minimal net retention
 - Large single volumes are not only inefficient but can create discomfort (gastric distension) and in rare cases at very high volumes (3-4 liters at once) can cause acute hyponatremia
 - Front-load toward the first two-thirds of the day for better absorption and sleep quality
 
 **For shift workers and irregular schedules:**
+
 - Anchor hydration to shift transitions, meal breaks, and task checkpoints rather than clock times
 - Night-shift workers in heated or physically demanding environments are at higher risk of chronic mild dehydration because the sensation of thirst is mildly suppressed in the body's biological night hours
 
@@ -206,6 +226,7 @@ The best hydration schedule is one that requires no willpower -- it attaches to 
 Hydration needs are not static. Provide a framework for recalibrating:
 
 **When to increase intake from baseline:**
+
 - Any increase in exercise volume or intensity (add 500 mL per additional 30 minutes of vigorous activity)
 - Temperature rises above 28°C / 82°F: add 250-500 mL/day
 - Fever: general guidance is 200-300 mL per degree C above 37°C (per hour of fever), though this is a wellness estimate -- prolonged fever with dehydration warrants medical care
@@ -214,6 +235,7 @@ Hydration needs are not static. Provide a framework for recalibrating:
 - Spicy or very salty diet: may increase sweat and thirst; monitor urine color and adjust
 
 **When to decrease intake from baseline:**
+
 - Sedentary period (injury, illness rest): reduce activity adjustment, maintain baseline
 - Cool or cold weather with low activity: lower end of the 30-35 mL/kg range is appropriate
 - High fruit and vegetable diet: food-derived fluid may be 1,000-1,200 mL/day, reducing beverage requirements by 200-400 mL relative to a low-produce diet
@@ -224,6 +246,7 @@ After the first two weeks, review: Is urine consistently pale yellow by mid-morn
 ### Step 8: Generate the Final Hydration Plan Output
 
 Compile all calculations and guidance into the structured output format below. Always include:
+
 - Numerical targets (in both mL and oz)
 - Day-type distinction (rest day vs. training day)
 - Exercise protocol table if applicable
@@ -370,13 +393,17 @@ If any boxes are unchecked, increase intake in 250 mL increments at the unchecke
 ## Edge Cases
 
 ### User Is Over 65 or Reports Not Feeling Thirsty Even When Likely Dehydrated
+
 Age-related decline in thirst sensitivity is well-documented beginning around age 65 and becomes progressively more pronounced. These users must use a schedule-based plan, not a thirst-based one. The morning urine color check becomes especially important as their primary monitoring tool since thirst cannot be trusted. Increase the number of scheduled drinking occasions to 7-9 per day in smaller volumes (200-250 mL each). Ensure the schedule does not front-load so heavily that evening fluid is insufficient -- older adults are also at higher fall risk with nocturia, so the evening taper is genuinely important.
 
 ### User Drinks Primarily Coffee, Tea, or Other Caffeinated Beverages
+
 The myth that coffee and tea "don't count" toward hydration is medically outdated. Moderate caffeine (up to 400 mg/day, approximately 4 cups of drip coffee) produces a mild, transient diuretic effect but the net fluid balance from consuming a caffeinated beverage is positive -- you retain more fluid than you lose. Regular caffeine consumers develop tolerance to even the mild diuretic effect within 3-4 days of consistent use. Caffeinated beverages count fully toward the daily fluid target. However: caffeinated beverages are not appropriate for intra-exercise hydration for most people (GI distress risk, palatability issues), and the diuretic effect is more pronounced at intakes above 600 mg/day -- flag this if the user is reporting 6+ cups daily.
 
 ### User Exercises Outdoors in Extreme Heat (Above 35°C / 95°F) or High Humidity (Above 80%)
+
 Sweat rates can reach 1.5-2.5 liters per hour in these conditions for moderately to highly fit individuals. Standard hydration recommendations do not scale linearly to these conditions. Guidance:
+
 - Pre-exercise hyperhydration strategy: 600-750 mL in the 2-4 hours before, plus 200-300 mL in the final 15 minutes (the upper limit of the standard range)
 - During-exercise rate: target the upper end of the 600-800 mL/hr range; experienced exercisers in extreme heat may need 800-1,000 mL/hr but this should be coupled with 500+ mg sodium/hr to prevent hyponatremia from dilution
 - Mandatory sodium supplementation for any session over 45 minutes in these conditions
@@ -384,21 +411,27 @@ Sweat rates can reach 1.5-2.5 liters per hour in these conditions for moderately
 - Post-exercise: aggressive rehydration at 1.5x weight loss, with sodium-containing food or fluid, within 30 minutes
 
 ### User Wants to Reduce Frequent Nighttime Urination (Nocturia)
+
 This is one of the most common complaints from users trying to follow higher daily intake targets. The solution is redistribution, not reduction:
+
 - Goal: consume 80% of daily fluid before 5 PM, with the final 20% spread through the evening and tapering by 90-120 minutes before sleep
 - Specifically: 500 mL at wake, 500-600 mL during morning, 400-500 mL at lunch and early afternoon, 300-400 mL in mid-afternoon, then only 250-400 mL with dinner and afterward
 - If the user currently under-drinks during the day and compensates at night -- the most common pattern -- evening tapering will feel very uncomfortable until the morning/afternoon intake habit is established
 - Note: persistent nocturia (3+ times per night) despite appropriate fluid distribution warrants medical evaluation to rule out conditions unrelated to fluid intake (e.g., benign prostatic hyperplasia, overactive bladder, sleep apnea-related fluid shifts)
 
 ### User Is Traveling at High Altitude (Above 2,500 m / 8,200 ft)
+
 Altitude presents a unique multi-mechanism dehydration challenge:
+
 - Increased respiratory water loss: breathing rate increases to compensate for lower oxygen partial pressure; each breath at altitude loses more water vapor due to the cold, dry air typical of high-altitude environments
 - Reduced thirst sensation: despite greater fluid need, the perception of thirst is blunted at altitude
 - Diuresis: in the first 24-48 hours, the body compensates for altitude by excreting bicarbonate to manage respiratory alkalosis (increased breathing); this process increases urine output
 - Practical guidance: drink 500-750 mL above baseline daily during the first 3-5 days of acclimatization regardless of thirst; continue monitoring urine color; altitude headache that responds to hydration is common in the first 1-3 days -- headache that worsens or is accompanied by confusion or ataxia requires medical evaluation to rule out acute mountain sickness
 
 ### User Has Previously Had Heat Illness (Heat Exhaustion or Heat Stroke)
+
 Prior heat illness increases susceptibility to future episodes -- this is physiologically documented. The user's hydration plan should be conservative:
+
 - Always use the upper end of environmental and exercise adjustment ranges
 - Pre-exercise hydration is non-negotiable, not optional, for these individuals
 - Session length should be reduced and recovery time extended in warm conditions
@@ -406,7 +439,9 @@ Prior heat illness increases susceptibility to future episodes -- this is physio
 - Any recurrence of symptoms during exercise (nausea, dizziness, cessation of sweating despite heat, confusion) is a medical emergency -- stop activity immediately, move to shade, apply cool water to skin, call for help
 
 ### User Exercises at Very High Volumes (2+ Hours Daily, 6+ Days per Week)
+
 Standard recreational formulas under-estimate needs for serious amateur athletes significantly. Key adjustments:
+
 - The 30-35 mL/kg baseline does not account for large daily energy expenditure -- use 40-45 mL/kg as the baseline when training volume exceeds 10 hours per week
 - Cumulative daily sweat loss across multiple sessions can reach 4-6 liters for endurance athletes training in warm environments
 - Electrolyte management shifts from reactive to proactive -- these users should assess electrolyte intake as a daily planning concern, not only during long sessions
@@ -420,6 +455,7 @@ Standard recreational formulas under-estimate needs for serious amateur athletes
 **User Input:** "I'm 68 kg, I work a desk job and go to an indoor cycling class 4 mornings a week (55 minutes per class). I live in Phoenix, Arizona. I currently drink about 4-5 cups of coffee a day and maybe one or two glasses of water. I keep getting afternoon headaches."
 
 **Analysis before output:**
+
 - Weight: 68 kg (150 lbs)
 - Baseline: 68 × 32 mL = 2,176 mL total daily fluid; subtract ~800 mL food-derived = ~1,376 mL beverages on rest days
 - Activity: 55-min indoor cycling, 4x/week -- aerobic, moderate-high intensity; indoor but vigorous sweat expected; duration is just under the 60-min threshold but intensity warrants sodium consideration, especially given heat climate
@@ -440,17 +476,17 @@ Standard recreational formulas under-estimate needs for serious amateur athletes
 
 ### Calculated Targets
 
-| Metric                         | Value                                      |
-|--------------------------------|--------------------------------------------|
-| Body weight                    | 68 kg (150 lbs)                            |
-| Baseline formula               | 68 × 32 mL = 2,176 mL total fluid/day      |
-| Estimated food-derived fluid   | ~800 mL/day (mixed diet)                   |
-| Baseline beverage target       | ~1,400 mL (47 oz) on rest days             |
-| Hot-dry climate adjustment     | +600 mL/day (Phoenix summer baseline)       |
-| Cycling session adjustment     | +600-750 mL per session day                |
-| Rest day target (beverages)    | ~2,000 mL (68 oz) -- includes climate adj  |
-| Cycling day target (beverages) | ~2,600-2,750 mL (88-93 oz)                 |
-| Current estimated intake       | ~1,300-1,500 mL/day (600-700 mL deficit)   |
+| Metric                         | Value                                     |
+| ------------------------------ | ----------------------------------------- |
+| Body weight                    | 68 kg (150 lbs)                           |
+| Baseline formula               | 68 × 32 mL = 2,176 mL total fluid/day     |
+| Estimated food-derived fluid   | ~800 mL/day (mixed diet)                  |
+| Baseline beverage target       | ~1,400 mL (47 oz) on rest days            |
+| Hot-dry climate adjustment     | +600 mL/day (Phoenix summer baseline)     |
+| Cycling session adjustment     | +600-750 mL per session day               |
+| Rest day target (beverages)    | ~2,000 mL (68 oz) -- includes climate adj |
+| Cycling day target (beverages) | ~2,600-2,750 mL (88-93 oz)                |
+| Current estimated intake       | ~1,300-1,500 mL/day (600-700 mL deficit)  |
 
 **Your afternoon headaches are almost certainly connected to this deficit.** Your current intake of coffee and minimal water is meeting roughly 60-65% of your need before the Phoenix climate adjustment is factored in. The good news: this is straightforward to fix by redistributing drinking throughout the day.
 
@@ -460,31 +496,31 @@ Standard recreational formulas under-estimate needs for serious amateur athletes
 
 ### Daily Hydration Schedule -- Rest Day (Target: ~2,000 mL / 68 oz)
 
-| Time Window           | Amount              | Habit Anchor                           | Notes                                     |
-|-----------------------|---------------------|----------------------------------------|-------------------------------------------|
-| Wake-up (first act)   | 500 mL (17 oz)      | Large glass before turning on phone    | Highest-leverage single habit change      |
-| First coffee          | Count ~250 mL       | Already happening -- note it counts    | Contributes to daily total                |
-| Mid-morning           | 400 mL (13 oz)      | 750 mL bottle visible on desk          | Refill becomes the mid-day anchor         |
-| Lunch                 | 300 mL (10 oz)      | With lunch                             | Water, not additional coffee here         |
-| Early afternoon       | 350 mL (12 oz)      | Bottle refill immediately after lunch  | Front-loading to prevent the 2-3 PM crash |
-| Second coffee window  | Count ~250 mL       | Already happening                      | Limit to 1 coffee in afternoon            |
-| Dinner                | 300 mL (10 oz)      | With dinner                            |                                           |
-| Evening               | 200 mL (7 oz)       | 90 minutes before bed at latest        | Taper to protect sleep                    |
-| **Daily total**       | **~1,950-2,050 mL** |                                        | Meets target with food fluid              |
+| Time Window          | Amount              | Habit Anchor                          | Notes                                     |
+| -------------------- | ------------------- | ------------------------------------- | ----------------------------------------- |
+| Wake-up (first act)  | 500 mL (17 oz)      | Large glass before turning on phone   | Highest-leverage single habit change      |
+| First coffee         | Count ~250 mL       | Already happening -- note it counts   | Contributes to daily total                |
+| Mid-morning          | 400 mL (13 oz)      | 750 mL bottle visible on desk         | Refill becomes the mid-day anchor         |
+| Lunch                | 300 mL (10 oz)      | With lunch                            | Water, not additional coffee here         |
+| Early afternoon      | 350 mL (12 oz)      | Bottle refill immediately after lunch | Front-loading to prevent the 2-3 PM crash |
+| Second coffee window | Count ~250 mL       | Already happening                     | Limit to 1 coffee in afternoon            |
+| Dinner               | 300 mL (10 oz)      | With dinner                           |                                           |
+| Evening              | 200 mL (7 oz)       | 90 minutes before bed at latest       | Taper to protect sleep                    |
+| **Daily total**      | **~1,950-2,050 mL** |                                       | Meets target with food fluid              |
 
 ---
 
 ### Cycling Day Hydration Protocol (Target: ~2,600-2,750 mL / 88-93 oz)
 
-| Phase                | Timing                  | Amount               | Fluid Type                          | Notes                                           |
-|----------------------|-------------------------|----------------------|-------------------------------------|-------------------------------------------------|
-| Pre-workout wake     | First thing AM          | 500 mL (17 oz)       | Water                               | Do this before coffee; ride is in the AM        |
-| Pre-exercise         | 30-45 min before class  | 350 mL (12 oz)       | Water                               | Check urine is pale yellow before leaving       |
-| During cycling class | Every 15-20 min         | 150-200 mL per interval| Water                             | ~600-750 mL total across 55-min class           |
-| Post-exercise        | Within 30 min of class  | 400-500 mL (16 oz)   | Water + salty snack (crackers/pretzels) | 55-min class in Phoenix warrants sodium         |
-| Post-exercise cont.  | Over next 2-3 hours     | 400 mL (13 oz)       | Water                               | Spread it; don't drink it all at once           |
-| Rest of day          | Per rest-day schedule   | ~1,000-1,100 mL      | Water + coffee as per rest day plan |                                                 |
-| **Cycling day total**| **~2,650-2,800 mL**     |                      |                                     | On target                                       |
+| Phase                 | Timing                 | Amount                  | Fluid Type                              | Notes                                     |
+| --------------------- | ---------------------- | ----------------------- | --------------------------------------- | ----------------------------------------- |
+| Pre-workout wake      | First thing AM         | 500 mL (17 oz)          | Water                                   | Do this before coffee; ride is in the AM  |
+| Pre-exercise          | 30-45 min before class | 350 mL (12 oz)          | Water                                   | Check urine is pale yellow before leaving |
+| During cycling class  | Every 15-20 min        | 150-200 mL per interval | Water                                   | ~600-750 mL total across 55-min class     |
+| Post-exercise         | Within 30 min of class | 400-500 mL (16 oz)      | Water + salty snack (crackers/pretzels) | 55-min class in Phoenix warrants sodium   |
+| Post-exercise cont.   | Over next 2-3 hours    | 400 mL (13 oz)          | Water                                   | Spread it; don't drink it all at once     |
+| Rest of day           | Per rest-day schedule  | ~1,000-1,100 mL         | Water + coffee as per rest day plan     |                                           |
+| **Cycling day total** | **~2,650-2,800 mL**    |                         |                                         | On target                                 |
 
 **Why a salty snack after your cycling class?** A 55-minute vigorous cycling class in a hot climate environment -- especially Phoenix, where heat exposure begins before and after class -- means meaningful sodium loss in sweat. Drinking water post-exercise without sodium can temporarily suppress thirst before you're fully rehydrated. Adding salt to the equation retains the water you're drinking. A small handful of pretzels, salted nuts, or crackers with your post-ride drink costs nothing and makes a measurable difference.
 
@@ -492,11 +528,11 @@ Standard recreational formulas under-estimate needs for serious amateur athletes
 
 ### Electrolyte Guidelines for Your Training
 
-| Session Duration           | Conditions         | Recommendation                                                     |
-|----------------------------|--------------------|--------------------------------------------------------------------|
-| 55-min indoor cycling      | Indoor (AC)        | Water during; salty snack within 30 min after class               |
-| 55-min cycling, heat exposure around session | Phoenix summer | Add 200-300 mg sodium post-ride; monitor if cramping occurs |
-| If you extend sessions to 75+ min | Any       | Include sodium-containing fluid during class (look for 150-300 mg sodium per 500 mL serving) |
+| Session Duration                             | Conditions     | Recommendation                                                                               |
+| -------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------- |
+| 55-min indoor cycling                        | Indoor (AC)    | Water during; salty snack within 30 min after class                                          |
+| 55-min cycling, heat exposure around session | Phoenix summer | Add 200-300 mg sodium post-ride; monitor if cramping occurs                                  |
+| If you extend sessions to 75+ min            | Any            | Include sodium-containing fluid during class (look for 150-300 mg sodium per 500 mL serving) |
 
 Your potassium and magnesium needs are met by a balanced diet. One banana or a serving of leafy greens most days covers it at your training volume.
 
@@ -504,15 +540,15 @@ Your potassium and magnesium needs are met by a balanced diet. One banana or a s
 
 ### Self-Assessment Reference
 
-| Method                   | Optimal Signal              | What to Do                                        |
-|--------------------------|-----------------------------|---------------------------------------------------|
-| Urine color at wake      | Medium to dark yellow       | Normal; drink 500 mL immediately (expected)       |
-| Urine color mid-morning  | Pale straw / lemonade       | On track -- maintain plan                         |
-| Urine color mid-afternoon| Pale yellow                 | Afternoon hydration is working                    |
-| Urine color (amber/dark) | Any time outside of wake    | Add 400-500 mL over the next 90 minutes           |
-| Afternoon headache check | None by week 2              | Hydration gap is closed                           |
-| Post-cycling weight loss | Under 0.7 kg (1.5 lbs)      | Exercise hydration is adequate                    |
-| Post-cycling weight loss | 1-1.5 kg (2-3 lbs)          | Increase during-class intake to upper range       |
+| Method                    | Optimal Signal           | What to Do                                  |
+| ------------------------- | ------------------------ | ------------------------------------------- |
+| Urine color at wake       | Medium to dark yellow    | Normal; drink 500 mL immediately (expected) |
+| Urine color mid-morning   | Pale straw / lemonade    | On track -- maintain plan                   |
+| Urine color mid-afternoon | Pale yellow              | Afternoon hydration is working              |
+| Urine color (amber/dark)  | Any time outside of wake | Add 400-500 mL over the next 90 minutes     |
+| Afternoon headache check  | None by week 2           | Hydration gap is closed                     |
+| Post-cycling weight loss  | Under 0.7 kg (1.5 lbs)   | Exercise hydration is adequate              |
+| Post-cycling weight loss  | 1-1.5 kg (2-3 lbs)       | Increase during-class intake to upper range |
 
 ---
 

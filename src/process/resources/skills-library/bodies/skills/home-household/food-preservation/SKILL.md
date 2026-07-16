@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking home-maintenance meal-planning budgeting nutrition guide step-by-step beginner-friendly"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'cooking home-maintenance meal-planning budgeting nutrition guide step-by-step beginner-friendly'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Food Preservation
 
 You are an expert food preservation instructor who teaches safe, science-based methods for preserving food at home. You emphasize safety above all else - especially regarding botulism prevention - while making the practices accessible and enjoyable. You base all canning guidance on USDA-tested recipes and established food science. You help people build confidence with preservation, connect with seasonal eating, reduce food waste, and stock their pantries with foods they have made themselves.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about food preservation techniques or best practices
 - User needs guidance on food preservation concepts
 - User wants to implement or improve their approach to food preservation
 
 **Do NOT use when:**
+
 - The request falls outside the scope of food preservation
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -157,13 +158,13 @@ Step 5: Cool and Check Seals
 
 ### Altitude Adjustments for Water Bath Canning
 
-| Altitude | Adjustment |
-|---|---|
-| 0-1,000 ft | Use recipe time as written |
-| 1,001-3,000 ft | Add 5 minutes |
-| 3,001-6,000 ft | Add 10 minutes |
-| 6,001-8,000 ft | Add 15 minutes |
-| 8,001-10,000 ft | Add 20 minutes |
+| Altitude        | Adjustment                 |
+| --------------- | -------------------------- |
+| 0-1,000 ft      | Use recipe time as written |
+| 1,001-3,000 ft  | Add 5 minutes              |
+| 3,001-6,000 ft  | Add 10 minutes             |
+| 6,001-8,000 ft  | Add 15 minutes             |
+| 8,001-10,000 ft | Add 20 minutes             |
 
 ## Pressure Canning (Low-Acid Foods)
 
@@ -366,15 +367,15 @@ Safety Notes:
 
 ### Dehydrating Guide by Food
 
-| Food | Preparation | Temperature | Time | Doneness Test |
-|---|---|---|---|---|
-| Apples | Peel, core, slice 1/4 inch, treat with lemon water | 135 degrees F | 6-12 hours | Pliable, leathery, no moisture when squeezed |
-| Tomatoes | Halve or slice 1/4 inch | 135 degrees F | 8-14 hours | Leathery, brittle |
-| Herbs | Rinse, pat dry, remove stems | 95-105 degrees F | 2-4 hours | Crumble easily |
-| Jerky | Slice 1/4 inch against the grain, marinate | 155-165 degrees F | 4-8 hours | Bends and cracks but does not break |
-| Bananas | Slice 1/4 inch, treat with lemon water | 135 degrees F | 8-12 hours | Crispy or pliable (preference) |
-| Mushrooms | Slice 1/4 inch | 125 degrees F | 6-10 hours | Crispy, snap when bent |
-| Hot peppers | Halve or leave whole | 135 degrees F | 8-14 hours | Brittle, crumble easily |
+| Food        | Preparation                                        | Temperature       | Time       | Doneness Test                                |
+| ----------- | -------------------------------------------------- | ----------------- | ---------- | -------------------------------------------- |
+| Apples      | Peel, core, slice 1/4 inch, treat with lemon water | 135 degrees F     | 6-12 hours | Pliable, leathery, no moisture when squeezed |
+| Tomatoes    | Halve or slice 1/4 inch                            | 135 degrees F     | 8-14 hours | Leathery, brittle                            |
+| Herbs       | Rinse, pat dry, remove stems                       | 95-105 degrees F  | 2-4 hours  | Crumble easily                               |
+| Jerky       | Slice 1/4 inch against the grain, marinate         | 155-165 degrees F | 4-8 hours  | Bends and cracks but does not break          |
+| Bananas     | Slice 1/4 inch, treat with lemon water             | 135 degrees F     | 8-12 hours | Crispy or pliable (preference)               |
+| Mushrooms   | Slice 1/4 inch                                     | 125 degrees F     | 6-10 hours | Crispy, snap when bent                       |
+| Hot peppers | Halve or leave whole                               | 135 degrees F     | 8-14 hours | Brittle, crumble easily                      |
 
 ### Storage
 
@@ -417,16 +418,16 @@ Blanching Times:
 
 ### Freezer Storage Guide
 
-| Food | Freezer Life | Preparation |
-|---|---|---|
-| Berries | 8-12 months | Flash freeze on sheet pan, then bag |
-| Stone fruit | 6-12 months | Halve, pit, toss with lemon juice, flash freeze |
-| Blanched vegetables | 8-12 months | Blanch, dry, flash freeze, bag |
-| Herbs | 3-6 months | Chop, freeze in ice cube trays with olive oil or water |
-| Bread and dough | 3-6 months | Wrap tightly in plastic then foil |
-| Cooked soups/stews | 2-3 months | Cool completely, freeze in portions |
-| Raw meat | 4-12 months | Wrap tightly, remove air, label with date |
-| Cooked meat | 2-3 months | Cool completely, freeze in sauce if possible |
+| Food                | Freezer Life | Preparation                                            |
+| ------------------- | ------------ | ------------------------------------------------------ |
+| Berries             | 8-12 months  | Flash freeze on sheet pan, then bag                    |
+| Stone fruit         | 6-12 months  | Halve, pit, toss with lemon juice, flash freeze        |
+| Blanched vegetables | 8-12 months  | Blanch, dry, flash freeze, bag                         |
+| Herbs               | 3-6 months   | Chop, freeze in ice cube trays with olive oil or water |
+| Bread and dough     | 3-6 months   | Wrap tightly in plastic then foil                      |
+| Cooked soups/stews  | 2-3 months   | Cool completely, freeze in portions                    |
+| Raw meat            | 4-12 months  | Wrap tightly, remove air, label with date              |
+| Cooked meat         | 2-3 months   | Cool completely, freeze in sauce if possible           |
 
 ### Preventing Freezer Burn
 
@@ -519,7 +520,6 @@ WINTER:
 6. **Share the abundance.** Home-preserved food makes the best gifts. A jar of homemade jam or brined vegetables carries meaning that store-bought cannot match.
 7. **Keep learning.** Take an Extension course, join a canning community, read tested resources. The preservation community is generous and passionate.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -527,7 +527,6 @@ WINTER:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -548,14 +547,12 @@ WINTER:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

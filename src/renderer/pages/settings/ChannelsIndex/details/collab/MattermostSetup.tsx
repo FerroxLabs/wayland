@@ -51,10 +51,14 @@ const MattermostSetup: React.FC = () => {
       pluginId='mattermost_default'
       helpText={t(
         'settings.channels.mattermost.help',
-        'Connect to a Mattermost server with a personal access token. The bot listens via WebSocket and posts via REST.',
+        'Connect to a Mattermost server with a personal access token. The bot listens via WebSocket and posts via REST.'
       )}
     >
-      <MattermostConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+      <MattermostConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

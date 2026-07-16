@@ -23,11 +23,10 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { brainInvokeMock } = vi.hoisted(() => ({
-  brainInvokeMock: vi.fn<
-    (args: { verb: string; args?: Record<string, unknown> }) => Promise<
-      { ok: true } | { ok: false; error?: string }
-    >
-  >(),
+  brainInvokeMock:
+    vi.fn<
+      (args: { verb: string; args?: Record<string, unknown> }) => Promise<{ ok: true } | { ok: false; error?: string }>
+    >(),
 }));
 
 vi.mock('react-i18next', () => ({
@@ -35,9 +34,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@arco-design/web-react', async () => {
-  const actual = await vi.importActual<typeof import('@arco-design/web-react')>(
-    '@arco-design/web-react'
-  );
+  const actual = await vi.importActual<typeof import('@arco-design/web-react')>('@arco-design/web-react');
   return {
     ...actual,
     Message: {

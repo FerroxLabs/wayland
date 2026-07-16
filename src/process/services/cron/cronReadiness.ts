@@ -30,9 +30,7 @@ export function getCronReadyPromise(): Promise<void> | undefined {
  * init resolved before the deadline, `'timeout'` if not, `'unset'` if
  * `setCronReadyPromise` was never called (e.g. test harness).
  */
-export async function waitForCronReady(
-  timeoutMs: number
-): Promise<'ready' | 'timeout' | 'unset'> {
+export async function waitForCronReady(timeoutMs: number): Promise<'ready' | 'timeout' | 'unset'> {
   const p = cronReadyPromise;
   if (!p) return 'unset';
   let timer: ReturnType<typeof setTimeout> | undefined;

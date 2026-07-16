@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary guide"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel itinerary guide'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Cultural Etiquette Guide
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User is traveling to a new country and wants to understand local customs
 - User needs cultural etiquette guidance for business or social situations abroad
 - User wants to learn about a culture food, traditions, or social norms
 - User needs to avoid cultural faux pas in a specific country or region
 
 **Do NOT use this skill when:**
+
 - User needs travel logistics (flights, hotels, visas) -- use travel planning skills
 - User wants language learning -- use language-specific skills
 - User needs safety advisories -- check official government travel advisories
@@ -63,6 +65,7 @@ This skill helps travelers understand and respect the cultural norms of their de
 ## Step 1: Greeting Protocols by Region
 
 ### How to Greet People
+
 ```
 GREETING GUIDE:
 
@@ -129,6 +132,7 @@ understood as friendly. Let the local person initiate physical greeting.
 ## Step 2: Dining Etiquette
 
 ### Universal Dining Rules
+
 ```
 DINING ETIQUETTE BY REGION:
 
@@ -206,6 +210,7 @@ LATIN AMERICA:
 ## Step 3: Tipping Practices
 
 ### Tipping Guide by Country
+
 ```
 TIPPING GUIDE:
 
@@ -250,6 +255,7 @@ WHEN IN DOUBT:
 ## Step 4: Dress Codes
 
 ### Dressing Appropriately
+
 ```
 DRESS CODE GUIDE:
 
@@ -293,6 +299,7 @@ Change into proper clothes before entering towns, shops, or restaurants.
 ---
 
 ## Step 5: Common Faux Pas by Region
+
 ```
 COMMON MISTAKES TO AVOID:
 
@@ -355,6 +362,7 @@ UNIVERSAL FAUX PAS:
 ## Step 6: Basic Phrases
 
 ### Essential Phrases Template
+
 ```
 ESSENTIAL PHRASES FOR {{DESTINATION}}:
 
@@ -392,6 +400,7 @@ offline language packs before your trip.
 ---
 
 ## Step 7: Gesture Meanings
+
 ```
 GESTURES THAT MEAN DIFFERENT THINGS:
 
@@ -441,6 +450,7 @@ what locals do before mimicking.
 ---
 
 ## Step 8: Gift-Giving Customs
+
 ```
 GIFT-GIVING GUIDE:
 
@@ -492,6 +502,7 @@ UNIVERSAL TIPS:
 ---
 
 ## Cultural Sensitivity Quick Reference
+
 ```
 UNIVERSAL RESPECTFUL BEHAVIOR:
 
@@ -518,8 +529,7 @@ DO NOT:
 
 ---
 
-*This skill provides general cultural guidance. Cultures are diverse even within a single country. When in doubt, observe, ask politely, and show genuine respect. Most people are forgiving of honest mistakes made with good intentions.*
-
+_This skill provides general cultural guidance. Cultures are diverse even within a single country. When in doubt, observe, ask politely, and show genuine respect. Most people are forgiving of honest mistakes made with good intentions._
 
 ## Output Format
 
@@ -551,6 +561,7 @@ Section 3: Resources
 ### Essential Etiquette
 
 **Greetings:**
+
 - Bow when greeting (15-degree bow for casual, 30-degree for business, 45-degree for deep respect)
 - Business cards: present and receive with BOTH hands, read the card carefully, never write on it or put it in your back pocket
 - Address people as [Last name]-san until invited to use first names
@@ -565,6 +576,7 @@ Section 3: Resources
 | Bring small gifts from your country | Give gifts in sets of 4 (unlucky number) |
 
 **Dining:**
+
 - Say "itadakimasu" before eating (gratitude for the meal)
 - Never stick chopsticks upright in rice (funeral ritual)
 - Slurping noodles is polite (shows enjoyment)
@@ -572,12 +584,14 @@ Section 3: Resources
 - Tipping is NOT customary and can be seen as insulting
 
 **Temple/Shrine Visits:**
+
 - Bow at the torii gate before entering
 - Purify hands and mouth at the water basin
 - Remove shoes when entering buildings
 - Quiet and respectful behavior (no loud talking or phone calls)
 
 ### Common Mistakes
+
 1. Blowing your nose in public (use the restroom)
 2. Talking loudly on trains (keep phone on silent, no calls)
 3. Walking and eating simultaneously (eat at the restaurant or stand by the vendor)

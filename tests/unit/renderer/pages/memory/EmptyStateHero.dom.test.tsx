@@ -44,17 +44,15 @@ vi.mock('@arco-design/web-react', async () => {
   return {
     ...actual,
     Message: { success: vi.fn(), error: vi.fn() },
-    Input: ({ placeholder, onChange, 'data-testid': testId }: {
+    Input: ({
+      placeholder,
+      onChange,
+      'data-testid': testId,
+    }: {
       placeholder?: string;
       onChange?: (val: string) => void;
       'data-testid'?: string;
-    }) => (
-      <input
-        placeholder={placeholder}
-        data-testid={testId}
-        onChange={(e) => onChange?.(e.target.value)}
-      />
-    ),
+    }) => <input placeholder={placeholder} data-testid={testId} onChange={(e) => onChange?.(e.target.value)} />,
   };
 });
 
@@ -86,7 +84,7 @@ describe('EmptyStateHero', () => {
       render(<EmptyStateHero />);
     });
     const headline = screen.getByTestId('empty-hero-headline');
-    expect(headline.textContent).toContain("Your memory is empty");
+    expect(headline.textContent).toContain('Your memory is empty');
   });
 
   it('renders the search input', async () => {

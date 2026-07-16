@@ -5,10 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import {
-  buildSmtpEnvelope,
-  parseImapMessage,
-} from '@process/channels/plugins/tier1/email-imap/EmailImapAdapter';
+import { buildSmtpEnvelope, parseImapMessage } from '@process/channels/plugins/tier1/email-imap/EmailImapAdapter';
 
 describe('parseImapMessage', () => {
   const inboxAddress = 'agent@example.com';
@@ -145,17 +142,13 @@ describe('buildSmtpEnvelope', () => {
   });
 
   it('throws when the body is empty', () => {
-    expect(() =>
-      buildSmtpEnvelope({ type: 'text', text: '' }, 'alice@example.com', fromAddress)
-    ).toThrow(/cannot be empty/i);
+    expect(() => buildSmtpEnvelope({ type: 'text', text: '' }, 'alice@example.com', fromAddress)).toThrow(
+      /cannot be empty/i
+    );
   });
 
   it('defaults the subject to "(no subject)" when missing', () => {
-    const envelope = buildSmtpEnvelope(
-      { type: 'text', text: 'body' },
-      'alice@example.com',
-      fromAddress
-    );
+    const envelope = buildSmtpEnvelope({ type: 'text', text: 'body' }, 'alice@example.com', fromAddress);
     expect(envelope.subject).toBe('(no subject)');
   });
 });

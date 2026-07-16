@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "python best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'python best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Python Idioms
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to write more "Pythonic" code or wants a code review focused on idiomatic style
 - User is translating patterns from Java, C++, or JavaScript and the result feels wrong in Python (e.g., explicit index loops, abstract base class hierarchies for everything, factory class patterns)
 - User asks specifically about comprehensions, generator expressions, or lazy evaluation
@@ -32,6 +34,7 @@ metadata:
 - User wants to understand when to use `__slots__`, `__repr__`, `__eq__`, or other dunder methods idiomatically
 
 **Do NOT use this skill when:**
+
 - User wants to create a new Python project with packaging, virtual environments, or pyproject.toml -- use `python-project-setup`
 - User is asking about pytest fixtures, test doubles, or test organization -- use `python-testing-patterns`
 - User wants `asyncio`, `async`/`await`, `TaskGroup`, or concurrent programming -- use `python-async-patterns`
@@ -81,6 +84,7 @@ Comprehensions are for pure transformations without side effects. The moment a l
   unique_domains = {email.split("@")[1] for email in emails}
   ```
 - **Nested comprehensions** -- only one level of nesting is acceptable in idiomatic Python. Two-level nesting is the hard limit.
+
   ```python
   # Acceptable: one-level nesting
   flat = [cell for row in matrix for cell in row]
@@ -88,6 +92,7 @@ Comprehensions are for pure transformations without side effects. The moment a l
   # NOT acceptable: extract to a named generator
   # result = [f(x) for outer in data for inner in outer for x in inner]
   ```
+
 - **Generator function with `yield`** -- when the generation logic is too complex for an expression, involves try/except inside the loop, or needs to maintain state across yields.
   ```python
   def read_chunks(file_path: Path, size: int = 4096) -> Generator[bytes, None, None]:
@@ -105,34 +110,39 @@ Comprehensions are for pure transformations without side effects. The moment a l
 Apply this decision tree precisely -- the wrong container choice is one of the most common sources of non-Pythonic Python.
 
 **Step A -- Is the data mutable or immutable?**
+
 - Immutable with no behavior: consider `NamedTuple` (tuple semantics, zero-overhead slots) or `@dataclass(frozen=True)` (hashable, usable as dict key or set member)
 - Mutable with behavior: use `@dataclass`
 
 **Step B -- Does the data need runtime validation?**
+
 - If yes, refer to `python-data-modeling` for Pydantic -- do not add validation inside `__post_init__` beyond simple invariant checks
 
 **Step C -- Will this be used as a dict (JSON-compatible) or typed positionally?**
+
 - If typed dict structure for JSON interop: `TypedDict` -- allows optional keys via `total=False` or `Required`/`NotRequired` annotations
 - If positional tuple access matters: `NamedTuple`
 
 **Step D -- Is this an enumerated constant set?**
+
 - Integers with no string meaning: `enum.IntEnum`
 - String values for serialization: `enum.StrEnum` (Python 3.11+) or `str, enum.Enum` mixin
 - Auto-generated values: `enum.auto()`
 
 **Full selection table:**
 
-| Requirement | Container | Key Feature |
-|---|---|---|
-| Mutable fields, type hints, defaults | `@dataclass` | Generated `__init__`, `__repr__`, `__eq__` |
-| Immutable, hashable value object | `@dataclass(frozen=True)` | Usable as dict key, set member |
-| Lightweight tuple with named fields | `NamedTuple` | Tuple unpacking, indexing, zero overhead |
-| JSON-like data, optional keys | `TypedDict` | `total=False`, structural dict typing |
-| String constants for serialization | `enum.StrEnum` | `str` subclass, `auto()` gives lowercased name |
-| Ordered integer constants | `enum.IntEnum` | Comparable to int literals |
-| Namespace of related functions | `types.SimpleNamespace` or module | Rarely a class, avoid over-engineering |
+| Requirement                          | Container                         | Key Feature                                    |
+| ------------------------------------ | --------------------------------- | ---------------------------------------------- |
+| Mutable fields, type hints, defaults | `@dataclass`                      | Generated `__init__`, `__repr__`, `__eq__`     |
+| Immutable, hashable value object     | `@dataclass(frozen=True)`         | Usable as dict key, set member                 |
+| Lightweight tuple with named fields  | `NamedTuple`                      | Tuple unpacking, indexing, zero overhead       |
+| JSON-like data, optional keys        | `TypedDict`                       | `total=False`, structural dict typing          |
+| String constants for serialization   | `enum.StrEnum`                    | `str` subclass, `auto()` gives lowercased name |
+| Ordered integer constants            | `enum.IntEnum`                    | Comparable to int literals                     |
+| Namespace of related functions       | `types.SimpleNamespace` or module | Rarely a class, avoid over-engineering         |
 
 **Dataclass field patterns to know:**
+
 ```python
 from dataclasses import dataclass, field
 from typing import ClassVar
@@ -147,6 +157,7 @@ class OrderBatch:
 ### 4. Define Structural Interfaces with Protocol
 
 Protocol is the idiomatic way to express "any object that supports these methods" without requiring inheritance. Use it when:
+
 - You cannot modify the third-party class to inherit from your ABC
 - You want structural (duck) typing rather than nominal typing
 - You want a minimal interface -- define only what the consumer actually calls
@@ -162,6 +173,7 @@ class Readable(Protocol):
 ```
 
 Key decisions:
+
 - Use `@runtime_checkable` only when you need `isinstance(obj, MyProtocol)` at runtime -- it only checks method existence, not signatures, so it is a partial check
 - Compose Protocols with inheritance: `class ReadableCloseable(Readable, Closeable): ...`
 - For callable interfaces, use `Protocol` with `__call__` rather than `Callable[..., T]` when the signature matters:
@@ -172,6 +184,7 @@ Key decisions:
 - Do NOT define a Protocol with more than 5--7 methods -- that is an indication the abstraction is too broad; split it
 
 Protocols vs ABCs:
+
 - Use `Protocol` for behavior-based contracts (what it can do)
 - Use `ABC` only when you want shared implementation via `super()` in subclasses, or when nominal inheritance is intentional (e.g., a plugin system where `issubclass` checks matter)
 
@@ -180,17 +193,20 @@ Protocols vs ABCs:
 `match`/`case` (Python 3.10+) is not a switch statement -- it matches against the structure, type, and values of objects simultaneously. Use it when you have 3 or more branches that discriminate on type, shape, or a combination.
 
 **When to use match:**
+
 - Dispatching on command/event type with attribute destructuring
 - Processing AST nodes or recursive data structures
 - Implementing state machines where transitions depend on both state and event shape
 - Handling API response variants (success/error with different payloads)
 
 **When NOT to use match:**
+
 - Simple if/elif on a single boolean or integer flag -- match adds syntax overhead without clarity gain
 - When all cases do the same thing to different values -- use a dict dispatch instead
 - Python 3.9 or earlier target environments
 
 **Pattern types:**
+
 ```python
 match event:
     # Value pattern -- equality check
@@ -225,6 +241,7 @@ Class patterns require that the class declares `__match_args__` (dataclasses do 
 Every resource with an explicit lifecycle (file handles, locks, network connections, database transactions, temporary directories) should be managed with a context manager. Never leave cleanup to the garbage collector.
 
 **`contextlib.contextmanager` -- the 90% solution:**
+
 ```python
 from contextlib import contextmanager
 from typing import Generator
@@ -243,12 +260,14 @@ def managed_cursor(conn: Connection) -> Generator[Cursor, None, None]:
 ```
 
 Rules for `contextmanager`:
+
 - Code before `yield` is `__enter__` -- do NOT yield inside a bare `try` without `finally`
 - Code after `yield` in `finally` always runs -- this is your cleanup
 - Re-raise exceptions after rollback -- do not swallow them silently
 - Yield exactly one value (the resource) or `None`
 
 **`contextlib.suppress` -- replace empty except blocks:**
+
 ```python
 # Non-idiomatic
 try:
@@ -263,6 +282,7 @@ with suppress(FileNotFoundError):
 ```
 
 **`contextlib.ExitStack` -- dynamic resource composition:**
+
 ```python
 from contextlib import ExitStack
 
@@ -274,6 +294,7 @@ def process_files(paths: list[Path]) -> None:
 ```
 
 **Custom `__enter__`/`__exit__` class** -- use only when the context manager needs its own state, supports multiple entry, or has complex teardown that does not map cleanly to the linear `try/yield/finally` model:
+
 ```python
 class Timer:
     def __enter__(self) -> "Timer":
@@ -290,6 +311,7 @@ class Timer:
 Python's EAFP (Easier to Ask Forgiveness than Permission) is idiomatic because exceptions in CPython are fast when not raised -- the `try` block has near-zero overhead in the happy path.
 
 **Key patterns:**
+
 ```python
 # LBYL (non-idiomatic for attribute access)
 if hasattr(obj, "process") and callable(obj.process):
@@ -331,6 +353,7 @@ host = getattr(config, "database", None) and getattr(config.database, "host", "l
 ```
 
 **When LBYL IS appropriate:**
+
 - When the exception path would be extremely common (> ~10% of calls) and performance is measured to matter
 - When the check is semantically meaningful ("does this file exist before I tell the user?")
 - When the side effect of attempting the operation is irreversible
@@ -340,6 +363,7 @@ host = getattr(config, "database", None) and getattr(config.database, "host", "l
 These are the standard library's idiomatic building blocks for iteration and callable manipulation. Do not reinvent them.
 
 **`itertools` patterns to know:**
+
 ```python
 import itertools
 
@@ -369,6 +393,7 @@ pairs = list(itertools.product(colors, sizes))
 ```
 
 **`functools` patterns:**
+
 ```python
 import functools
 
@@ -479,6 +504,7 @@ Always include a "What Changed and Why" summary after the code block, with numbe
 ### Legacy Codebase Without Type Hints or Tests
 
 Do not introduce dataclasses, Protocol, or pattern matching until the changed code has test coverage. The safest migration order is:
+
 1. Add type hints to existing functions first (zero behavior change)
 2. Replace raw dict returns with `TypedDict` (structural change only, fully backward compatible)
 3. Replace `dict`-based objects with `NamedTuple` for read-only data (tuple indexing still works)
@@ -489,6 +515,7 @@ Never rewrite an entire module of dict-based data structures to dataclasses in a
 ### Python 3.9 or 3.10 Target Environment
 
 Several idioms in this skill require specific Python versions:
+
 - `match`/`case`: Python 3.10+ only. For 3.9, use `if`/`elif` with `isinstance` chains
 - `enum.StrEnum`: Python 3.11+. For 3.10, use `class Color(str, enum.Enum)`
 - `functools.cache`: Python 3.9+. For 3.8, use `functools.lru_cache(maxsize=None)`
@@ -500,6 +527,7 @@ Always confirm the target Python version before recommending 3.10+ features. Che
 ### Team Unfamiliar with These Patterns
 
 When the user is introducing idioms to a team that primarily knows procedural Python:
+
 - Introduce one pattern category per sprint, not all at once
 - The order of easiest adoption: comprehensions → `enumerate`/`zip` → `pathlib` → dataclasses → `contextlib` → Protocol → pattern matching
 - Write a one-page team ADR (Architectural Decision Record) for each adopted pattern explaining why it was chosen
@@ -509,6 +537,7 @@ When the user is introducing idioms to a team that primarily knows procedural Py
 ### Interoperability with C Extensions and Cython
 
 Certain idiomatic Python patterns prevent Cython optimization and native extension interop:
+
 - Generators and generator expressions cannot be typed with Cython's `cdef` -- use explicit typed loops in Cython source files
 - `@dataclass` with `__eq__` and `__hash__` prevents Cython's struct-like memory layout; prefer C structs via `ctypes.Structure` for performance-critical data exchange
 - `Protocol` isinstance checks work at Python level but have no meaning to C extensions -- use explicit type tags or discriminated unions for C FFI boundaries
@@ -517,6 +546,7 @@ Certain idiomatic Python patterns prevent Cython optimization and native extensi
 ### `__slots__` and Dataclass Interactions
 
 `__slots__` dramatically reduces memory per-instance (from ~200 bytes per dict to ~50 bytes per fixed slot) and is worth adding when creating millions of small objects. With dataclasses:
+
 ```python
 @dataclass
 class Point:
@@ -530,11 +560,13 @@ class Point:
     x: float
     y: float
 ```
+
 Slots interact badly with multiple inheritance -- two classes with disjoint `__slots__` cannot be easily combined. Do not add slots to classes intended for mixin-heavy inheritance.
 
 ### Generator Exhaustion Bugs
 
 Generators are one-time iterators. The most common mistake is iterating a generator twice:
+
 ```python
 def even_numbers(n):
     return (x for x in range(n) if x % 2 == 0)
@@ -546,11 +578,13 @@ print(list(evens))   # returns [] -- generator is exhausted
 # Fix: either use a list, or make the source a function
 # If callers iterate it multiple times, return a list or provide a method
 ```
+
 Diagnose generator exhaustion bugs by checking if `list(gen)` on second call returns `[]`. When a generator must be reusable, wrap it in a class with `__iter__` returning a fresh generator, or document clearly that it is single-use.
 
 ### Overuse of Pattern Matching
 
 `match`/`case` is sometimes applied where a dict dispatch table is cleaner and faster:
+
 ```python
 # Pattern matching -- good when structure varies
 match command:
@@ -570,6 +604,7 @@ if handler is None:
     raise ValueError(f"Unknown action: {command['action']}")
 handler(command)
 ```
+
 Use pattern matching for structural discrimination (different shapes require different destructuring). Use dict dispatch for behavioral dispatch (same shape, different function to call).
 
 ---

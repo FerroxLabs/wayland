@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql guide"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql guide'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # dbt Engineer
@@ -83,16 +83,16 @@ models:
 
 ### Decision Matrix
 
-| Criteria | View | Table | Incremental | Ephemeral |
-|----------|------|-------|-------------|-----------|
-| Source rows < 100K | Best | OK | Overkill | OK |
-| Source rows 100K-10M | Slow | Best | Good | Avoid |
-| Source rows > 10M | Avoid | OK | Best | Avoid |
-| Queried by BI tools | Avoid | Best | Best | N/A |
-| Referenced by many models | OK | Best | Best | Good |
-| Staging layer | Best | Fallback | Avoid | OK |
-| Intermediate layer | OK | Fallback | Avoid | Best |
-| Marts layer | Avoid | Best | Best for large | Avoid |
+| Criteria                  | View  | Table    | Incremental    | Ephemeral |
+| ------------------------- | ----- | -------- | -------------- | --------- |
+| Source rows < 100K        | Best  | OK       | Overkill       | OK        |
+| Source rows 100K-10M      | Slow  | Best     | Good           | Avoid     |
+| Source rows > 10M         | Avoid | OK       | Best           | Avoid     |
+| Queried by BI tools       | Avoid | Best     | Best           | N/A       |
+| Referenced by many models | OK    | Best     | Best           | Good      |
+| Staging layer             | Best  | Fallback | Avoid          | OK        |
+| Intermediate layer        | OK    | Fallback | Avoid          | Best      |
+| Marts layer               | Avoid | Best     | Best for large | Avoid     |
 
 ### Incremental Model Patterns
 
@@ -242,8 +242,8 @@ sources:
     database: raw
     schema: salesforce
     freshness:
-      warn_after: {count: 12, period: hour}
-      error_after: {count: 24, period: hour}
+      warn_after: { count: 12, period: hour }
+      error_after: { count: 24, period: hour }
     loaded_at_field: _fivetran_synced
     tables:
       - name: account
@@ -252,7 +252,7 @@ sources:
             data_tests: [unique, not_null]
       - name: opportunity
         freshness:
-          error_after: {count: 6, period: hour}
+          error_after: { count: 6, period: hour }
 ```
 
 ## CI/CD Integration
@@ -314,19 +314,20 @@ models:
 
 ## Troubleshooting Guide
 
-| Symptom | Likely Cause | Fix |
-|---------|-------------|-----|
-| Data wrong after incremental | Incorrect watermark logic | `dbt run --full-refresh -s model_name` |
-| CI "relation does not exist" | Missing defer state | Ensure prod manifest artifact available |
-| Compilation error in Jinja | Macro syntax issue | `dbt compile -s model_name` to isolate |
-| Source freshness warning | Upstream pipeline delay | Check ingestion tool status |
-| Tests pass but BI wrong | Stale cache in BI tool | Refresh BI extract; verify grain |
-| Slow incremental run | Too many merge keys | Check unique_key cardinality |
-| Schema drift errors | Source changed columns | Update source YAML; use `on_schema_change` |
+| Symptom                      | Likely Cause              | Fix                                        |
+| ---------------------------- | ------------------------- | ------------------------------------------ |
+| Data wrong after incremental | Incorrect watermark logic | `dbt run --full-refresh -s model_name`     |
+| CI "relation does not exist" | Missing defer state       | Ensure prod manifest artifact available    |
+| Compilation error in Jinja   | Macro syntax issue        | `dbt compile -s model_name` to isolate     |
+| Source freshness warning     | Upstream pipeline delay   | Check ingestion tool status                |
+| Tests pass but BI wrong      | Stale cache in BI tool    | Refresh BI extract; verify grain           |
+| Slow incremental run         | Too many merge keys       | Check unique_key cardinality               |
+| Schema drift errors          | Source changed columns    | Update source YAML; use `on_schema_change` |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing dbt engineer solutions
 - Reviewing or improving existing dbt engineer approaches
 - Making architectural or implementation decisions about dbt engineer
@@ -334,6 +335,7 @@ models:
 - Troubleshooting dbt engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -344,21 +346,26 @@ models:
 # Dbt Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -12,14 +12,15 @@ description: >-
   licensed legal advice. This produces drafts and triage only; counsel review is required.
 license: Apache-2.0
 type: workflow
-skills: "legal-contract"
+skills: 'legal-contract'
 metadata:
   author: wayland
   version: 1.0.0
   tags: legal contract review red-line counsel step-by-step business-legal
   category: business-legal
-  depends: ""
+  depends: ''
 ---
+
 # Contract Review
 
 **Estimated time:** 20-30 minutes

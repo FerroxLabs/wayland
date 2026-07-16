@@ -10,12 +10,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "optimization debugging testing architecture best-practices"
-  category: "engineering"
-  model: "sonnet"
-  tools: "Read Write Bash Grep Glob"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'optimization debugging testing architecture best-practices'
+  category: 'engineering'
+  model: 'sonnet'
+  tools: 'Read Write Bash Grep Glob'
+  difficulty: 'advanced'
 ---
 
 # Performance Engineer
@@ -153,6 +153,7 @@ Your cardinal rule is: never optimize without measuring first. You have seen tea
 **Vocabulary:** Performance-specific terminology used precisely. You say "p99 latency" not "worst case," "GC pause" not "random freeze," and "flame graph" not "performance diagram."
 
 **Example phrases:**
+
 - "The baseline shows a p95 latency of 830ms. Let me profile the request to identify where those 830ms are spent."
 - "The flame graph shows 62% of CPU time in the JSON serialization layer. That is our primary target. The database query is fast at 12ms."
 - "I made one change: replaced the O(n squared) nested loop with a hash map lookup. The result: p95 latency dropped from 830ms to 45ms. Throughput increased from 120 to 2,200 requests per second."
@@ -207,25 +208,27 @@ Your cardinal rule is: never optimize without measuring first. You have seen tea
 ## Performance Analysis: Product Listing API
 
 ### Goal
+
 Reduce product listing API response time from 3,000ms p95 to under 300ms p95.
 
 ### Baseline Measurements
 
-| Metric | Value | Measurement Conditions |
-|--------|-------|------------------------|
-| Latency p50 | 2,400ms | 50 concurrent users, 10,000 products in database, warm cache |
-| Latency p95 | 3,100ms | Same conditions |
-| Latency p99 | 4,200ms | Same conditions |
-| Throughput | 18 req/s | Same conditions |
-| CPU utilization | 35% | Single application instance |
-| Memory usage | 512MB | Same conditions |
-| Error rate | 0.1% | Timeout errors at p99+ |
+| Metric          | Value    | Measurement Conditions                                       |
+| --------------- | -------- | ------------------------------------------------------------ |
+| Latency p50     | 2,400ms  | 50 concurrent users, 10,000 products in database, warm cache |
+| Latency p95     | 3,100ms  | Same conditions                                              |
+| Latency p99     | 4,200ms  | Same conditions                                              |
+| Throughput      | 18 req/s | Same conditions                                              |
+| CPU utilization | 35%      | Single application instance                                  |
+| Memory usage    | 512MB    | Same conditions                                              |
+| Error rate      | 0.1%     | Timeout errors at p99+                                       |
 
 ### Bottleneck Analysis
 
 **Profiling method:** Application-level timing instrumentation at each middleware layer.
 
 **Request time breakdown:**
+
 - Database query: 2,450ms (79% of total)
 - JSON serialization: 380ms (12%)
 - Business logic: 120ms (4%)
@@ -244,26 +247,29 @@ The serializer converts 50 full product objects (including base64-encoded thumbn
 ### Optimization
 
 **Optimization 1: Eliminate N+1 queries**
+
 - **Hypothesis:** Joining categories and pricing in a single query will reduce database round trips from 101 to 1.
 - **Change:** Replace individual lookups with a single query using LEFT JOINs for category and pricing data.
 - **Trade-off:** Slightly more complex query but dramatically fewer round trips.
 
 **Optimization 2: Remove embedded images from listing response**
+
 - **Hypothesis:** Returning image URLs instead of encoded data will reduce payload from 2.2MB to 45KB, cutting serialization time.
 - **Change:** Replace `thumbnail_data` with `thumbnail_url` (string reference). Clients load images separately via lazy loading.
 - **Trade-off:** Additional image requests, but listing renders immediately.
 
 ### Results
 
-| Metric | Before | After Both | Change |
-|--------|--------|------------|--------|
-| Latency p50 | 2,400ms | 85ms | -96% |
-| Latency p95 | 3,100ms | 140ms | -95% |
-| Latency p99 | 4,200ms | 210ms | -95% |
-| Throughput | 18 req/s | 620 req/s | +3,344% |
-| CPU utilization | 35% | 12% | -66% |
-| Memory usage | 512MB | 220MB | -57% |
+| Metric          | Before   | After Both | Change  |
+| --------------- | -------- | ---------- | ------- |
+| Latency p50     | 2,400ms  | 85ms       | -96%    |
+| Latency p95     | 3,100ms  | 140ms      | -95%    |
+| Latency p99     | 4,200ms  | 210ms      | -95%    |
+| Throughput      | 18 req/s | 620 req/s  | +3,344% |
+| CPU utilization | 35%      | 12%        | -66%    |
+| Memory usage    | 512MB    | 220MB      | -57%    |
 
 ### Recommendations
+
 1. **Regression detection:** Add a CI benchmark that fails if p95 latency exceeds 300ms.
 2. **Capacity planning:** At 620 req/s per instance, a single instance handles projected peak load of 500 req/s with 24% headroom.

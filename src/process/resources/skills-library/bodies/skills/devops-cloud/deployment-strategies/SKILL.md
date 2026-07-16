@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ci-cd devops best-practices"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ci-cd devops best-practices'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Deployment Strategies
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks which deployment strategy (blue/green, canary, rolling, recreate, A/B, shadow) fits their application and infrastructure
 - User needs to implement or improve a zero-downtime deployment pipeline for a production service
 - User wants to reduce deployment risk for a high-traffic or business-critical application
@@ -30,6 +32,7 @@ metadata:
 - User is migrating from a legacy deploy-and-pray approach to a modern, observable deployment workflow
 
 **Do NOT use this skill when:**
+
 - User needs infrastructure-as-code authoring (Terraform, Pulumi) -- use the infrastructure-as-code skill
 - User needs container orchestration configuration (Kubernetes manifests, Helm charts) beyond what is required to implement a deployment strategy -- use the kubernetes-configuration skill
 - User is asking about CI pipeline construction (build steps, test stages, artifact management) without a deployment context -- use the ci-pipeline-design skill
@@ -186,12 +189,12 @@ Ruled out:             [Strategy X -- reason; Strategy Y -- reason]
 # Automated promotion/rollback criteria
 gates:
   error_rate:
-    threshold: 1.0%          # HTTP 5xx / total requests
+    threshold: 1.0% # HTTP 5xx / total requests
     window: 5m
     action: rollback
 
   latency_p99:
-    threshold: +20%           # relative increase vs. 30m baseline
+    threshold: +20% # relative increase vs. 30m baseline
     window: 5m
     action: rollback
 
@@ -201,7 +204,7 @@ gates:
     action: rollback
 
   soak_time_minimum:
-    per_stage: 10m            # minimum time at each canary stage before promotion
+    per_stage: 10m # minimum time at each canary stage before promotion
     action: hold_until_elapsed
 
 canary_stages:
@@ -216,7 +219,7 @@ canary_stages:
   - weight: 50
     soak: 20m
   - weight: 100
-    soak: 0m    # final promotion, monitoring continues
+    soak: 0m # final promotion, monitoring continues
 ```
 
 ### Rolling Update Configuration (Kubernetes example)
@@ -308,15 +311,15 @@ PIPELINE blue_green_deploy(artifact_tag):
 
 ### Decision Matrix
 
-| Factor | Recreate | Rolling | Blue/Green | Canary | Shadow |
-|---|---|---|---|---|---|
-| Downtime | Full | Near-zero | Zero | Zero | Zero |
-| Rollback speed | Minutes (redeploy) | 3--15 min | <30 sec | <2 min | N/A |
-| Infrastructure cost | 1x | 1x--1.25x | 2x | 1x--1.25x | 2x |
-| Blast radius | 100% | Staged | 100% then flip | 1%--100% staged | 0% (shadow only) |
-| DB migration safety | Simple | Moderate | Complex (shared DB) | Best (staged) | Read-only test |
-| Implementation complexity | Low | Low--Medium | Medium | Medium--High | High |
-| Best for | Dev/test, batch | General purpose | Stateless, critical | User-facing, risk-averse | Validation before canary |
+| Factor                    | Recreate           | Rolling         | Blue/Green          | Canary                   | Shadow                   |
+| ------------------------- | ------------------ | --------------- | ------------------- | ------------------------ | ------------------------ |
+| Downtime                  | Full               | Near-zero       | Zero                | Zero                     | Zero                     |
+| Rollback speed            | Minutes (redeploy) | 3--15 min       | <30 sec             | <2 min                   | N/A                      |
+| Infrastructure cost       | 1x                 | 1x--1.25x       | 2x                  | 1x--1.25x                | 2x                       |
+| Blast radius              | 100%               | Staged          | 100% then flip      | 1%--100% staged          | 0% (shadow only)         |
+| DB migration safety       | Simple             | Moderate        | Complex (shared DB) | Best (staged)            | Read-only test           |
+| Implementation complexity | Low                | Low--Medium     | Medium              | Medium--High             | High                     |
+| Best for                  | Dev/test, batch    | General purpose | Stateless, critical | User-facing, risk-averse | Validation before canary |
 
 ---
 
@@ -351,6 +354,7 @@ PIPELINE blue_green_deploy(artifact_tag):
 **Scenario:** The application maintains server-side state (WebSocket connections, long-polling, sticky sessions) and cannot be dropped mid-session during a rolling update.
 
 **Handling:**
+
 - Configure load balancer sticky sessions (cookie-based affinity, not IP-based -- IP affinity breaks under NAT) before initiating the rollout.
 - Set `terminationGracePeriodSeconds` to at least the maximum expected session duration (for WebSockets, this may be 300--900 seconds).
 - Configure the application to reject new connections gracefully during shutdown (`SIGTERM` handler closes the accept loop, drains existing connections, then exits).
@@ -362,6 +366,7 @@ PIPELINE blue_green_deploy(artifact_tag):
 **Scenario:** A new application version requires schema changes (column rename, table restructure, index addition) that are incompatible with the running version.
 
 **Handling:**
+
 - Apply the expand-contract (also called parallel change) pattern across three sequential deployments:
   1. **Expand:** Add new schema elements (new column, new table) without removing old ones. Deploy application version that writes to both old and new schema simultaneously.
   2. **Migrate:** Run data migration to backfill new schema from old data. Application continues writing to both. Validate backfill completeness.
@@ -375,6 +380,7 @@ PIPELINE blue_green_deploy(artifact_tag):
 **Scenario:** A team is deploying dozens of times per day, and heavyweight strategies (full blue/green environment provisioning) introduce unacceptable pipeline latency.
 
 **Handling:**
+
 - Use pre-warmed environment pools (one blue, one green always running) rather than on-demand provisioning. Provisioning a new environment from scratch takes 3--10 minutes; swapping a pre-warmed slot takes 30 seconds.
 - Implement progressive delivery with feature flags as the primary risk-reduction mechanism, separate from the deployment event. The deployment ships the code (dark launch); the feature flag controls who sees it. This decouples deployment risk from feature risk.
 - Use rolling updates with aggressive automated gates rather than blue/green for most services. Reserve blue/green for the highest-criticality services (payment processing, authentication) where rollback speed justifies 2x infrastructure cost.
@@ -385,6 +391,7 @@ PIPELINE blue_green_deploy(artifact_tag):
 **Scenario:** The service runs across 3+ AWS regions or Kubernetes clusters, and a deployment must be coordinated across all of them.
 
 **Handling:**
+
 - Never deploy to all regions simultaneously. Use a progressive regional rollout: deploy to the lowest-traffic region first (often us-west-2 or a non-primary region), observe for 15--30 minutes, then proceed to additional regions.
 - The primary (highest traffic) region should be the last region deployed. This limits blast radius to a fraction of global traffic during the most dangerous phase.
 - Define a "region health gate" -- before promoting to the next region, confirm that the previous region's error rate, latency, and saturation are within bounds.
@@ -396,6 +403,7 @@ PIPELINE blue_green_deploy(artifact_tag):
 **Scenario:** Automated rollback triggers during a canary deploy, but the new version has already written data in a format the old version cannot read.
 
 **Handling:**
+
 - This scenario indicates the expand-contract pattern was not followed. The root fix is procedural (enforce backward-compatible migrations), but the immediate handling is:
   1. Do NOT roll back the application if doing so would cause data corruption or application crashes in the old version.
   2. Instead, roll forward with a hotfix that restores read compatibility.
@@ -408,6 +416,7 @@ PIPELINE blue_green_deploy(artifact_tag):
 **Scenario:** Shadow/mirroring deployment is used to test a new service version, but the shadow path triggers unintended side effects (emails sent, payments charged, messages published to queues).
 
 **Handling:**
+
 - Shadow deployments require a strict read-only contract for the mirrored path. The shadow service must never write to production databases, call external payment processors, send notifications, or publish to production message queues.
 - Implement a shadow-mode flag in the application that, when enabled, replaces all write operations with no-ops or writes to a shadow-specific database.
 - Alternatively, provide stub implementations of all side-effecting dependencies for the shadow environment: a stub payment service that accepts but does not process, a stub email service that logs but does not send.
@@ -419,6 +428,7 @@ PIPELINE blue_green_deploy(artifact_tag):
 **Scenario:** A service handles 20 RPS peak. At 5% canary weight, only 1 request per second goes to the canary. Statistical significance for a 1% error rate requires hundreds of requests, meaning the soak time must be very long.
 
 **Handling:**
+
 - Adjust canary stages for low-traffic services: skip the 1% and 5% stages (too little traffic to be meaningful) and start at 10--20%.
 - Extend soak times proportionally. For a service at 2 RPS canary traffic, achieving 500 requests requires 250 seconds (4.2 minutes). Set minimum soak time to at least 10 minutes at 10% to accumulate sufficient data.
 - Use wider error rate confidence intervals for low-traffic gates. A single 500 error in 50 requests is 2% -- this should not trigger rollback on its own. Require at least 5 errors in the window, or use a Bayesian error rate model rather than a simple threshold.
@@ -441,6 +451,7 @@ The root cause with rolling rollbacks is that `kubectl rollout undo` re-deploys 
 **Recommendation: Blue/Green for this service.**
 
 **Ruled out:**
+
 - Rolling update -- current strategy. Rollback RTO of 6--10 minutes is incompatible with payment SLO. Ruled out.
 - Canary -- suitable as a secondary risk gate, but canary rollback still takes 2--5 minutes. Payment processing needs faster rollback as the primary mechanism.
 - Recreate -- requires full downtime. Payment API cannot have planned downtime. Ruled out completely.
@@ -485,26 +496,26 @@ The current rolling update setup needs these additions:
 gates:
   error_rate:
     metric: 'rate(http_requests_total{status=~"5..",service="payment-api"}[5m]) /
-             rate(http_requests_total{service="payment-api"}[5m])'
-    threshold: 0.5%        # tighter than default for payment -- half of 1%
+      rate(http_requests_total{service="payment-api"}[5m])'
+    threshold: 0.5% # tighter than default for payment -- half of 1%
     window: 5m
     action: rollback
 
   latency_p99:
     metric: 'histogram_quantile(0.99, rate(http_request_duration_seconds_bucket
-             {service="payment-api"}[5m]))'
-    threshold: +15%        # relative increase vs. 30m baseline
+      {service="payment-api"}[5m]))'
+    threshold: +15% # relative increase vs. 30m baseline
     window: 5m
     action: rollback
 
-  payment_success_rate:    # business metric gate -- specific to payment API
+  payment_success_rate: # business metric gate -- specific to payment API
     metric: 'rate(payment_transactions_total{status="success"}[5m]) /
-             rate(payment_transactions_total[5m])'
-    threshold: -2%         # alert if success rate drops more than 2 percentage points
+      rate(payment_transactions_total[5m])'
+    threshold: -2% # alert if success rate drops more than 2 percentage points
     window: 5m
     action: rollback
 
-  soak_time_pre_switch:    # minimum observation at 5% traffic (canary pre-validation)
+  soak_time_pre_switch: # minimum observation at 5% traffic (canary pre-validation)
     duration: 15m
     action: hold_until_elapsed
 
@@ -529,7 +540,7 @@ metadata:
   name: payment-api-green
   namespace: payments
   annotations:
-    deployment.kubernetes.io/change-cause: "a3f92c1 PYMT-1042 fix retry idempotency"
+    deployment.kubernetes.io/change-cause: 'a3f92c1 PYMT-1042 fix retry idempotency'
 spec:
   replicas: 6
   selector:
@@ -537,7 +548,7 @@ spec:
       app: payment-api
       slot: green
   strategy:
-    type: RollingUpdate    # used only within the green slot during warm-up
+    type: RollingUpdate # used only within the green slot during warm-up
     rollingUpdate:
       maxUnavailable: 0
       maxSurge: 2
@@ -547,7 +558,7 @@ spec:
       labels:
         app: payment-api
         slot: green
-        version: "a3f92c1"   # git sha -- enables per-version metric segmentation
+        version: 'a3f92c1' # git sha -- enables per-version metric segmentation
     spec:
       containers:
         - name: payment-api
@@ -556,12 +567,12 @@ spec:
             - containerPort: 8080
           readinessProbe:
             httpGet:
-              path: /health/ready   # checks DB, cache, downstream payment processor
+              path: /health/ready # checks DB, cache, downstream payment processor
               port: 8080
             initialDelaySeconds: 15
             periodSeconds: 5
             failureThreshold: 3
-            successThreshold: 2     # must pass TWICE before marked ready (extra safety)
+            successThreshold: 2 # must pass TWICE before marked ready (extra safety)
           livenessProbe:
             httpGet:
               path: /health/live
@@ -578,11 +589,11 @@ spec:
               memory: 1.5Gi
           env:
             - name: SLOT
-              value: "green"
+              value: 'green'
             - name: VERSION
-              value: "a3f92c1"
-      terminationGracePeriodSeconds: 90    # payment requests can take up to 60s
-      podDisruptionBudget:                 # defined separately, shown below
+              value: 'a3f92c1'
+      terminationGracePeriodSeconds: 90 # payment requests can take up to 60s
+      podDisruptionBudget: # defined separately, shown below
         maxUnavailable: 1
 ---
 apiVersion: policy/v1
@@ -591,11 +602,11 @@ metadata:
   name: payment-api-pdb
   namespace: payments
 spec:
-  maxUnavailable: 1          # at most 1 pod unavailable at a time (cluster maintenance)
+  maxUnavailable: 1 # at most 1 pod unavailable at a time (cluster maintenance)
   selector:
     matchLabels:
       app: payment-api
-      slot: blue             # PDB applies to whichever slot is active
+      slot: blue # PDB applies to whichever slot is active
 ```
 
 **Service (traffic switching mechanism):**
@@ -609,7 +620,7 @@ metadata:
 spec:
   selector:
     app: payment-api
-    slot: blue              # CURRENT ACTIVE SLOT -- change to "green" to switch traffic
+    slot: blue # CURRENT ACTIVE SLOT -- change to "green" to switch traffic
   ports:
     - port: 80
       targetPort: 8080
@@ -691,12 +702,12 @@ STEP 7 -- Post-deploy validation:
 
 ### Expected Improvements
 
-| Metric | Current (Rolling) | Target (Blue/Green) |
-|---|---|---|
-| Rollback time | 6--10 minutes | <30 seconds |
+| Metric                           | Current (Rolling)            | Target (Blue/Green)              |
+| -------------------------------- | ---------------------------- | -------------------------------- |
+| Rollback time                    | 6--10 minutes                | <30 seconds                      |
 | Traffic impact during bad deploy | Full 100% degraded for 8 min | Max 5% for 15 min (canary phase) |
-| SLO budget consumed per incident | ~3% of annual | ~0.06% of annual |
-| Deploy pipeline duration | ~8 min | ~25 min (longer, but safer) |
-| Time-to-detect bad deploy | When rollback starts | Within 30s of canary stage |
+| SLO budget consumed per incident | ~3% of annual                | ~0.06% of annual                 |
+| Deploy pipeline duration         | ~8 min                       | ~25 min (longer, but safer)      |
+| Time-to-detect bad deploy        | When rollback starts         | Within 30s of canary stage       |
 
 The 25-minute pipeline duration is the primary trade-off. For a payment API deploying 3--5 times per week, 25 minutes is acceptable. If pipeline duration becomes a blocker, the canary pre-validation stage (Step 3) can be parallelized with synthetic load to reduce the soak time while maintaining statistical significance.

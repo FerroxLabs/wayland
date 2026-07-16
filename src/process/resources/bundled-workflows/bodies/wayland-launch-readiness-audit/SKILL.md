@@ -12,14 +12,15 @@ description: >-
   full launch workflow) or has a single quick question.
 license: Apache-2.0
 type: workflow
-skills: "launch"
+skills: 'launch'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing launch audit readiness step-by-step go-no-go
   category: marketing
-  depends: "launch"
+  depends: 'launch'
 ---
+
 # Launch Readiness Audit
 
 **Estimated time:** 15-25 minutes

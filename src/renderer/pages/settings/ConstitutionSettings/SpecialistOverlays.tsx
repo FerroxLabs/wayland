@@ -58,20 +58,12 @@ const SpecialistOverlays: React.FC = () => {
     const id = newId.trim();
     if (!ID_PATTERN.test(id)) {
       setAddError(
-        t(
-          'settings.constitutionSpecialists.idInvalid',
-          'Use only letters, numbers, hyphens, and underscores.'
-        )
+        t('settings.constitutionSpecialists.idInvalid', 'Use only letters, numbers, hyphens, and underscores.')
       );
       return;
     }
     if (items.some((entry) => entry.id === id)) {
-      setAddError(
-        t(
-          'settings.constitutionSpecialists.idDuplicate',
-          'An overlay with that ID already exists.'
-        )
-      );
+      setAddError(t('settings.constitutionSpecialists.idDuplicate', 'An overlay with that ID already exists.'));
       return;
     }
     const ok = isElectronDesktop()
@@ -139,10 +131,7 @@ const SpecialistOverlays: React.FC = () => {
                 setNewId(v);
                 setAddError(null);
               }}
-              placeholder={t(
-                'settings.constitutionSpecialists.idPlaceholder',
-                'e.g. copy, spark, humanizer'
-              )}
+              placeholder={t('settings.constitutionSpecialists.idPlaceholder', 'e.g. copy, spark, humanizer')}
               onPressEnter={() => void handleCreate()}
             />
             <Button type='primary' size='default' onClick={() => void handleCreate()}>
@@ -220,21 +209,14 @@ const SpecialistOverlays: React.FC = () => {
                     <Button size='small' onClick={() => setConfirmDeleteId(null)}>
                       {t('settings.constitutionSpecialists.cancel', 'Cancel')}
                     </Button>
-                    <Button
-                      size='small'
-                      type='primary'
-                      status='danger'
-                      onClick={() => void handleDelete(entry.id)}
-                    >
+                    <Button size='small' type='primary' status='danger' onClick={() => void handleDelete(entry.id)}>
                       {t('settings.constitutionSpecialists.delete', 'Delete')}
                     </Button>
                   </div>
                 </div>
               )}
 
-              {editingId === entry.id && (
-                <SpecialistOverlayEditor id={entry.id} onClose={() => setEditingId(null)} />
-              )}
+              {editingId === entry.id && <SpecialistOverlayEditor id={entry.id} onClose={() => setEditingId(null)} />}
             </div>
           ))}
         </div>

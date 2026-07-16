@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart best-practices checklist"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart best-practices checklist'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Git Panic Recovery
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has made a destructive or mistaken git operation and needs immediate recovery -- lost commits, deleted branches, broken merges, accidental force pushes, botched rebases
 - A user reports seeing terrifying output like "HEAD detached at", "fatal: refusing to merge unrelated histories", or "Your branch and origin have diverged"
 - A user ran `git reset --hard`, `git clean -fd`, or `git push --force` and immediately regrets it
@@ -30,6 +32,7 @@ metadata:
 - A user needs to understand the reflog as a recovery mechanism after any history-rewriting operation
 
 **Do NOT use when:**
+
 - The user wants to learn git fundamentals from scratch -- redirect to a git fundamentals skill covering staging, branching, and commit model
 - The user wants to set up a new repository or configure git for a new project -- redirect to a git repository setup skill
 - The user is designing a branching strategy (GitFlow, trunk-based, etc.) -- redirect to a git workflow design skill
@@ -96,6 +99,7 @@ Every git recovery ultimately comes down to finding the SHA of the state you wan
 Use the minimal destructive command needed -- prefer non-destructive operations when possible.
 
 **For Category B (unreachable commits):**
+
 ```shell
 # Restore a deleted branch
 git branch <branch-name> <sha>
@@ -108,6 +112,7 @@ git checkout <sha> -- path/to/file.ext
 ```
 
 **For Category C (force push overwrote remote):**
+
 ```shell
 # If your local reflog still has the old state
 git reflog show origin/<branch-name>
@@ -118,6 +123,7 @@ git log origin/<branch-name>@{1}  # the state one movement ago
 ```
 
 **For Category E (secret in history, not yet pushed):**
+
 ```shell
 # Soft reset to before the commit, remove the file, recommit
 git reset --soft HEAD~1
@@ -128,6 +134,7 @@ git commit -m "Remove accidentally added secret"
 ```
 
 **For Category E (secret already pushed -- use git-filter-repo, not filter-branch):**
+
 ```shell
 # Install git-filter-repo first (pip install git-filter-repo or via homebrew)
 git filter-repo --invert-paths --path path/to/secret-file --force
@@ -136,6 +143,7 @@ git push --force --tags
 ```
 
 **For Category F (wrong branch):**
+
 ```shell
 # Move the last N commits from wrong-branch to correct-branch
 git log --oneline -5                       # identify the commits
@@ -146,6 +154,7 @@ git reset --hard HEAD~N                    # N = number of commits moved
 ```
 
 **For Category G (dropped stash):**
+
 ```shell
 git fsck --no-reflog | awk '/dangling commit/ {print $3}' | \
   xargs -I{} git show {} --stat | grep -B5 "WIP on"
@@ -313,6 +322,7 @@ When editing the rebase todo list, accidentally deleting a `pick` line silently 
 ## Git Panic Recovery: Deleted Local Branch With Unmerged Commits
 
 ### Situation Assessment
+
 - **Current state:** Local branch `feature/payment-gateway` deleted via `git branch -D`, HEAD is now on a different branch
 - **Pushed to remote:** No -- work exists only in this local clone
 - **Shared branch:** No -- this was a personal feature branch
@@ -320,6 +330,7 @@ When editing the rebase todo list, accidentally deleting a `pick` line silently 
 - **Data loss risk:** None -- `git branch -D` only deletes the ref pointer, not the commit objects themselves. The commits are still in the object store and will remain there until `git gc` prunes them (default grace period: 14 days for unreachable objects)
 
 ### Pre-Recovery Checklist
+
 - [x] No in-progress operations to abort (`git status` shows clean working tree)
 - [ ] Locate the target SHA via reflog before running any recovery command
 - [ ] Verify the SHA via `git show <sha> --stat` before recreating the branch
@@ -362,6 +373,7 @@ git push -u origin feature/payment-gateway
 ```
 
 ### Verification Steps
+
 1. Run `git log --oneline -15` -- you should see the full two weeks of commits with correct messages and timestamps
 2. Run `git diff main...feature/payment-gateway --stat` -- you should see all the files you changed across the feature
 3. Run `git status` -- should show "Your branch is up to date with 'origin/feature/payment-gateway'" after the push

@@ -31,16 +31,8 @@
   "remotes": [],
   "x-wayland": {
     "tier": "core",
-    "categories": [
-      "search",
-      "research"
-    ],
-    "tags": [
-      "perplexity",
-      "sonar",
-      "search",
-      "research"
-    ],
+    "categories": ["search", "research"],
+    "tags": ["perplexity", "sonar", "search", "research"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-06-13",
@@ -62,11 +54,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }

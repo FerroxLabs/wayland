@@ -161,9 +161,7 @@ describe('MattermostPlugin lifecycle: created → ready → running → stopped'
 
   it('transitions to error when accessToken is missing', async () => {
     const plugin = new MattermostPlugin();
-    await expect(
-      plugin.initialize(makeConfig({ accessToken: '' })),
-    ).rejects.toThrow(/access token/i);
+    await expect(plugin.initialize(makeConfig({ accessToken: '' }))).rejects.toThrow(/access token/i);
     expect(plugin.status).toBe('error');
   });
 
@@ -187,12 +185,8 @@ describe('MattermostPlugin lifecycle: created → ready → running → stopped'
 
     mockWsInstance.send.mockImplementation(() => {
       setTimeout(
-        () =>
-          mockWsInstance.emit(
-            'message',
-            JSON.stringify({ seq_reply: 1, status: 'FAIL', error: 'Invalid token' }),
-          ),
-        0,
+        () => mockWsInstance.emit('message', JSON.stringify({ seq_reply: 1, status: 'FAIL', error: 'Invalid token' })),
+        0
       );
     });
 
@@ -255,11 +249,7 @@ describe('MattermostPlugin teamId filter', () => {
     return plugin;
   }
 
-  function emitPostedEvent(opts: {
-    userId?: string;
-    teamId?: string;
-    broadcastTeamId?: string;
-  }) {
+  function emitPostedEvent(opts: { userId?: string; teamId?: string; broadcastTeamId?: string }) {
     const post = {
       id: 'post-1',
       user_id: opts.userId ?? 'alice-id',

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis data-science planning"
-  category: "data-analysis"
-  subcategory: "business-intelligence"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis data-science planning'
+  category: 'data-analysis'
+  subcategory: 'business-intelligence'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Segmentation Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to segment customers, users, or accounts into distinct groups for differentiated treatment -- marketing, product prioritization, pricing, customer success resourcing, or sales territory planning
 - The user wants to build audience groups for targeted campaigns, onboarding flows, or feature rollouts and needs the underlying logic to define who belongs in each group
 - The user asks how to apply RFM analysis, behavioral clustering, firmographic grouping, needs-based segmentation, or a hybrid approach to their customer base
@@ -29,6 +31,7 @@ metadata:
 - The user has an existing segmentation that has become stale or too coarse and wants to redesign it with sharper variable selection and updated thresholds
 
 **Do NOT use when:**
+
 - The user wants to compare behavioral patterns across user cohorts defined by sign-up period or first purchase date -- use `cohort-analysis` instead, which handles time-based group comparisons with retention curves and decay rates
 - The user wants to map step-by-step conversion rates through a process (sign-up to activation, trial to paid, awareness to purchase) -- use `funnel-analysis`, which is specifically designed for sequential drop-off analysis
 - The user wants to define and track individual business KPIs or metric trees -- use `kpi-definition` for structured metric definition with owners, targets, and data sources
@@ -234,27 +237,35 @@ Before delivering the final design, run through this checklist to catch the most
 ## Edge Cases
 
 ### Highly Skewed Base (>50% in One Segment)
+
 If more than 50% of the customer base falls into a single segment after initial criteria definition, the segmentation is under-specified. A segment containing the majority of customers cannot drive differentiated treatment because "most customers" is not a specific audience. Resolution: identify the most differentiating secondary variable within the dominant segment and use it to split the segment into 2-3 sub-segments. For an e-commerce RFM model where 60% of customers are in the "Low-Recency Low-Frequency" bucket, add an average order value threshold to separate low-value-passive (probable one-time buyers) from high-value-dormant (formerly loyal, high-spend customers who have lapsed). The two sub-segments have entirely different reactivation economics and warrant different interventions.
 
 ### Small Customer Base (Under 200 Accounts)
+
 Statistical clustering methods (k-means, DBSCAN) are unreliable with small populations -- they produce artifacts that reflect data noise rather than real behavioral patterns. Use a manual rules-based approach with 3-4 segments defined by the 2-3 most observable and consequential variables. For a 150-account B2B SaaS company, a 2x2 matrix of ARR tier (above/below median) by usage health (healthy/at-risk) produces 4 actionable cells. This simple model will outperform a complex clustering model because it is stable, interpretable, and maintainable by a small CS team. Revisit clustering methods when the account base exceeds 500.
 
 ### Mixed B2B and B2C Customer Base
+
 Do not create a single segmentation model that attempts to classify both individual consumers and business accounts. The variables, value drivers, and treatment protocols are structurally different. Build two separate segmentations -- one at the individual user level (B2C model, behavioral and demographic variables) and one at the account level (B2B model, firmographic and usage variables). If the same product serves both, create a company-type flag upstream and branch the segmentation logic at that point. A CRM that stores both individual consumers and business accounts must use a record type or custom field to fork the segmentation query.
 
 ### Behavioral Data for Features with Seasonal or Event-Driven Usage Spikes
+
 Some features are used heavily at specific times (year-end financial reporting tools, event management software, tax preparation features). If usage frequency is measured over a fixed window, seasonal users will consistently appear in the Low-Engagement segment outside their active season despite being high-value. Resolution: use a rolling 12-month window for frequency calculations rather than a trailing 30 or 90-day window, and supplement with a "last active date" flag to distinguish truly dormant users from seasonally dormant users. For businesses with a well-defined seasonality, maintain a seasonal flag on the account record and suppress the Low-Engagement classification during the known off-season.
 
 ### The User Requests a Segmentation That Requires Data Not Yet Collected
+
 When the proposed segmentation method requires behavioral or attitudinal data that does not yet exist (e.g., needs-based segmentation with no survey data, or product engagement segmentation with no event tracking), do not design a phantom segmentation. Instead, deliver a two-phase output: Phase 1 -- an interim segmentation using the best available data (firmographic + limited behavioral proxy signals) with explicit acknowledgment of its limitations; Phase 2 -- the target segmentation design that will be achievable after a specified data collection milestone (e.g., "after 60 days of event tracking instrumentation and a 200-response NPS survey"). Define the instrumentation requirements and the survey questions needed to enable Phase 2 as part of the deliverable.
 
 ### Existing Segmentation That Has Become Stale
+
 When a company has an existing segmentation that was designed 2+ years ago and has not been updated, the immediate task is a diagnostic, not a redesign. First, evaluate the existing model: check segment size drift (have the segment proportions shifted significantly?), criterion validity (do the original variable thresholds still produce meaningful differentiation given distribution shifts in the underlying data?), and treatment adherence (are the recommended treatments actually being executed?). If fewer than 30% of accounts have changed segments in 12 months, the model may be overly static -- add a more sensitive trigger variable. If more than 50% of accounts have changed segments in 12 months, the model may be too volatile -- apply smoothing or widen the threshold bands.
 
 ### Segmentation for a Marketplace (Buyers and Sellers as Separate Sides)
+
 Two-sided marketplace businesses require two separate segmentation models -- one for the demand side (buyers, subscribers, renters) and one for the supply side (sellers, providers, listers). The variables, value metrics, and strategic goals are different on each side. On the supply side, the value metric is typically GMV generated or listing quality score. On the demand side, it is purchase frequency, basket size, and category breadth. The two segmentations should be linked at the transaction level (a "Champion Buyer" transacting with a "Low-Quality Seller" is a retention risk) but designed and maintained as independent models. Do not attempt to create a unified buyer-seller segment.
 
 ### Multi-Product or Multi-Product-Line Business
+
 When a company has distinct product lines with different buyer personas (e.g., a company selling both a self-serve SMB product and an enterprise platform), a single segmentation model applied to the full customer base will produce segments that are internally heterogeneous by product. Build separate segmentations per product line and unify only at the executive level for portfolio views. If a customer uses both products, record their segment in each product's model independently. The enterprise product's champion accounts almost certainly do not look like the self-serve product's champion accounts in any behavioral variable, and treating them with the same model produces false signal.
 
 ---
@@ -270,6 +281,7 @@ When a company has distinct product lines with different buyer personas (e.g., a
 ## Segmentation Design: Customer Success Account Segmentation -- Project Management SaaS
 
 ### 1. Purpose and Scope
+
 - **Business decision informed:** Customer success resource allocation -- determining CSM model, touchpoint cadence, and playbook (upsell, retain, automate, save) per account
 - **Primary consuming team:** Customer Success (8 CSMs)
 - **Segmentation method:** Hybrid -- Behavioral Usage (primary axis) crossed with ARR Value tier (secondary axis), collapsed into 5 actionable segments
@@ -279,14 +291,14 @@ When a company has distinct product lines with different buyer personas (e.g., a
 
 ### 2. Segmentation Variables
 
-| Variable | Definition | Source Table / Field | Completeness | Range / Scale |
-|----------|------------|---------------------|--------------|---------------|
-| Seat Utilization Rate | (Active users in last 28 days) / (Licensed seats) | accounts.licensed_seats, events.user_id | 99% | 0-100% |
-| Feature Adoption Score | Count of distinct feature categories used in last 28 days / 5 total categories (Tasks, Projects, Integrations, Reports, Collaboration) | events.feature_category | 97% | 0-5 (integer) |
-| Weekly Active Usage | Average weekly logins per active seat in last 28 days | events.login, accounts.active_seats | 97% | 0-7+ sessions/week/user |
-| ARR | Current annualized contract value | contracts.arr | 100% | $3K - $120K |
-| Days to Renewal | Calendar days until current contract renewal date | contracts.renewal_date | 100% | 0-365 days |
-| Account Age | Days since contract start date | contracts.start_date | 100% | 0-2,000+ days |
+| Variable               | Definition                                                                                                                             | Source Table / Field                    | Completeness | Range / Scale           |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------ | ----------------------- |
+| Seat Utilization Rate  | (Active users in last 28 days) / (Licensed seats)                                                                                      | accounts.licensed_seats, events.user_id | 99%          | 0-100%                  |
+| Feature Adoption Score | Count of distinct feature categories used in last 28 days / 5 total categories (Tasks, Projects, Integrations, Reports, Collaboration) | events.feature_category                 | 97%          | 0-5 (integer)           |
+| Weekly Active Usage    | Average weekly logins per active seat in last 28 days                                                                                  | events.login, accounts.active_seats     | 97%          | 0-7+ sessions/week/user |
+| ARR                    | Current annualized contract value                                                                                                      | contracts.arr                           | 100%         | $3K - $120K             |
+| Days to Renewal        | Calendar days until current contract renewal date                                                                                      | contracts.renewal_date                  | 100%         | 0-365 days              |
+| Account Age            | Days since contract start date                                                                                                         | contracts.start_date                    | 100%         | 0-2,000+ days           |
 
 **Note on Feature Adoption Score:** The 5 feature categories are Tasks (core), Projects (core), Integrations (advanced), Reports (advanced), and Collaboration/Comments (core). An account using all 5 categories scores 5/5. An account using only Tasks and Projects scores 2/5. This score is a proxy for product depth and is more predictive of retention than raw login count alone.
 
@@ -299,6 +311,7 @@ Expressed as 0-100. This weighting prioritizes seat utilization as the strongest
 ---
 
 #### Segment 1: Champions
+
 - **Criteria:** Health Score >= 75 AND ARR >= $20,000 AND Account Age > 90 days
 - **Tie-breaking priority:** Champions criteria take priority over Steady Performers. If Health Score drops to 50-74, reclassify as Steady Performer even if ARR qualifies.
 - **Expected size:** 14% of base (~252 accounts)
@@ -315,6 +328,7 @@ Expressed as 0-100. This weighting prioritizes seat utilization as the strongest
 ---
 
 #### Segment 2: Steady Performers
+
 - **Criteria:** Health Score 50-74 AND ARR $10,000-$60,000 AND Account Age > 90 days
 - **Tie-breaking priority:** If Health Score drops below 40, At-Risk criteria override Steady Performer regardless of ARR.
 - **Expected size:** 32% of base (~576 accounts)
@@ -331,6 +345,7 @@ Expressed as 0-100. This weighting prioritizes seat utilization as the strongest
 ---
 
 #### Segment 3: At-Risk
+
 - **Criteria:** Health Score < 40 AND Account Age > 90 days (any ARR tier)
 - **Tie-breaking priority:** At-Risk criteria override all other segment criteria. A $100K ARR account with a Health Score of 35 is At-Risk, not a Champion.
 - **Expected size:** 18% of base (~324 accounts)
@@ -347,6 +362,7 @@ Expressed as 0-100. This weighting prioritizes seat utilization as the strongest
 ---
 
 #### Segment 4: New Accounts (Onboarding)
+
 - **Criteria:** Account Age <= 90 days (any ARR, any health score)
 - **Tie-breaking priority:** Account Age <= 90 days always assigns to this segment regardless of health score. Do not score new accounts against behavioral thresholds until 90-day mark.
 - **Expected size:** 11% of base (~198 accounts) -- assumes ~22 new accounts per month at current growth rate
@@ -363,6 +379,7 @@ Expressed as 0-100. This weighting prioritizes seat utilization as the strongest
 ---
 
 #### Segment 5: Low-Value Passive
+
 - **Criteria:** ARR < $8,000 AND Health Score < 40 AND Account Age > 180 days
 - **Tie-breaking priority:** If account meets both At-Risk and Low-Value Passive criteria, Low-Value Passive applies only if ARR < $8,000; higher-ARR at-risk accounts always remain in At-Risk segment.
 - **Expected size:** 25% of base (~450 accounts)

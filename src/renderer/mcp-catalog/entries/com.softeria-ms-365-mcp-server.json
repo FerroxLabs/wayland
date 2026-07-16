@@ -15,8 +15,19 @@
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "MS365_CLIENT_ID", "description": "Azure AD app client ID.", "isRequired": true, "isSecret": false },
-        { "name": "MS365_TENANT_ID", "description": "Azure AD tenant ID (use 'common' for personal accounts).", "isRequired": true, "isSecret": false, "default": "common" },
-        { "name": "MS365_CLIENT_SECRET", "description": "Azure AD client secret.", "isRequired": false, "isSecret": true }
+        {
+          "name": "MS365_TENANT_ID",
+          "description": "Azure AD tenant ID (use 'common' for personal accounts).",
+          "isRequired": true,
+          "isSecret": false,
+          "default": "common"
+        },
+        {
+          "name": "MS365_CLIENT_SECRET",
+          "description": "Azure AD client secret.",
+          "isRequired": false,
+          "isSecret": true
+        }
       ]
     }
   ],

@@ -102,9 +102,7 @@ export const WorkflowHeader: React.FC<WorkflowHeaderProps> = ({
   const elapsedMs = Date.now() - session.created_at;
   const isErrored = session.status === 'errored';
   const rootClass = `${styles.root}${isErrored ? ` ${styles.errored}` : ''}`;
-  const pauseLabel = paused
-    ? t('workflow.header.resume', 'Resume')
-    : t('workflow.header.pause', 'Pause');
+  const pauseLabel = paused ? t('workflow.header.resume', 'Resume') : t('workflow.header.pause', 'Pause');
   const PauseIcon = paused ? Play : Pause;
   const interactivity = session.interactivity;
   const modeLabel =

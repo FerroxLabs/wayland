@@ -350,10 +350,7 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
                                 </div>
                               )}
                               {!result.available && !result.checking && (
-                                <XCircle
-                                  size={14}
-                                  className='absolute -top-2px -right-2px text-t-tertiary'
-                                />
+                                <XCircle size={14} className='absolute -top-2px -right-2px text-t-tertiary' />
                               )}
                             </div>
                             <div className='text-13px font-medium mb-2px text-t-primary'>{result.name}</div>

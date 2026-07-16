@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "presentation data-visualization template"
-  category: "design-creative"
-  subcategory: "presentation-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'presentation data-visualization template'
+  category: 'design-creative'
+  subcategory: 'presentation-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Data In Slides
 
 ## When to Use
@@ -66,20 +67,21 @@ If the data could support multiple comparison types, ask which conclusion the pr
 
 Once the comparison type is confirmed, map directly to the chart type. Do not deviate from this mapping without an explicit reason.
 
-| Comparison Type | Recommended Chart | Slide-Specific Constraints | Never Use Instead |
-|---|---|---|---|
-| Ranking | Horizontal bar chart | Max 7 bars; sort descending by value, never alphabetically | Vertical bar (labels truncate), pie chart |
-| Trend (1-2 series) | Line chart | Annotate start and end values on the line itself; no more than 3 lines | Area chart with fill (obscures crossover), bar chart for time data |
-| Trend (3-4 series) | Line chart with emphasis | Highlight 1-2 lines in color, gray out context lines | Stacked area (impossible to read individual series) |
-| Part-to-whole (1 level) | Donut chart | Max 5 segments; label percentages inside or adjacent; leave hole empty | Pie chart (donut is visually clearer at distance), 3D pie |
-| Part-to-whole (2 levels) | 100% stacked horizontal bar | Use for comparing composition across 2-4 groups side by side | Nested donut (illegible on projected screens) |
-| Before/After or Point Comparison (2 values) | Two large numbers side by side with arrow | Show the delta prominently; no chart needed | Bar chart with 2 bars (underuses the emotional impact of large numbers) |
-| Before/After or Point Comparison (3-7 values) | Clustered bar chart (side-by-side pairs) | Group by category, not by time period | Grouped bar with >3 groupings (becomes unreadable) |
-| Correlation | Scatter plot | Only if the audience is analytically literate; add trend line; label only outliers | Line chart (implies sequence, not relationship) |
-| Distribution | Do not use histogram in presentations | Replace with: "median was X, 80% of respondents fell between Y and Z" as a stat callout | Histogram, box plot (too technical for presentation pace) |
-| Single Metric | Large number with comparison | 72pt+ font for the primary number; secondary comparison in 24-28pt below | Any chart type (overkill for one number) |
+| Comparison Type                               | Recommended Chart                         | Slide-Specific Constraints                                                              | Never Use Instead                                                       |
+| --------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Ranking                                       | Horizontal bar chart                      | Max 7 bars; sort descending by value, never alphabetically                              | Vertical bar (labels truncate), pie chart                               |
+| Trend (1-2 series)                            | Line chart                                | Annotate start and end values on the line itself; no more than 3 lines                  | Area chart with fill (obscures crossover), bar chart for time data      |
+| Trend (3-4 series)                            | Line chart with emphasis                  | Highlight 1-2 lines in color, gray out context lines                                    | Stacked area (impossible to read individual series)                     |
+| Part-to-whole (1 level)                       | Donut chart                               | Max 5 segments; label percentages inside or adjacent; leave hole empty                  | Pie chart (donut is visually clearer at distance), 3D pie               |
+| Part-to-whole (2 levels)                      | 100% stacked horizontal bar               | Use for comparing composition across 2-4 groups side by side                            | Nested donut (illegible on projected screens)                           |
+| Before/After or Point Comparison (2 values)   | Two large numbers side by side with arrow | Show the delta prominently; no chart needed                                             | Bar chart with 2 bars (underuses the emotional impact of large numbers) |
+| Before/After or Point Comparison (3-7 values) | Clustered bar chart (side-by-side pairs)  | Group by category, not by time period                                                   | Grouped bar with >3 groupings (becomes unreadable)                      |
+| Correlation                                   | Scatter plot                              | Only if the audience is analytically literate; add trend line; label only outliers      | Line chart (implies sequence, not relationship)                         |
+| Distribution                                  | Do not use histogram in presentations     | Replace with: "median was X, 80% of respondents fell between Y and Z" as a stat callout | Histogram, box plot (too technical for presentation pace)               |
+| Single Metric                                 | Large number with comparison              | 72pt+ font for the primary number; secondary comparison in 24-28pt below                | Any chart type (overkill for one number)                                |
 
 **Absolute prohibitions for presentation charts:**
+
 - **3D charts of any kind:** They distort proportional accuracy and are never worth the visual interest they create
 - **Dual-axis charts:** Two Y-axes require the audience to pause and decode the chart while the presenter is speaking -- live audiences will misread them
 - **Pie charts:** Humans cannot accurately compare arc lengths; donut charts are marginally better only because the central hole eliminates the misleading area comparison at the center
@@ -90,17 +92,20 @@ Once the comparison type is confirmed, map directly to the chart type. Do not de
 Presentations operate at a different data resolution than reports or dashboards. A report can show 24 months of data across 12 product lines. A slide can show 4-6 time periods across 3-4 product lines. Apply these reductions methodically:
 
 **Category reduction:**
+
 - If ranking data has more than 7 categories, show the top 5 by value and group everything below into a single "All others" bar. Label "All others" with its aggregate value so the chart remains arithmetically honest.
 - If trend data has more than 4 series, identify the 2 most important series for the insight (the ones the headline references) and show 1-2 context series in gray. Drop the rest entirely or note them in a footnote.
 - If part-to-whole data has more than 5 segments, group the smallest into "Other." The threshold: any segment below 5% of the total should be considered for grouping unless it is the specific segment the insight is about.
 
 **Time period reduction:**
+
 - Monthly data over 2+ years: aggregate to quarters unless the insight is about a specific month
 - Monthly data for 1 year: show all 12 months only if the trend pattern requires it; otherwise show Q1 through Q4
 - Daily or weekly data: never show in a presentation; aggregate to the level that makes the trend visible without noise
 - Label only the time periods that matter: the start, the end, and any inflection points. Do not label every period.
 
 **Number rounding rules (mandatory):**
+
 - Millions: $4,287,341 → $4.3M (one decimal place; drop the "4.30M" trailing zero)
 - Billions: $1,847,000,000 → $1.8B
 - Percentages: 67.4% → 67% for rankings and part-to-whole; 67.4% → 67% unless the decimal is the insight (e.g., "just barely above the 67.3% threshold")
@@ -110,6 +115,7 @@ Presentations operate at a different data resolution than reports or dashboards.
 
 **Contextual anchoring (mandatory):**
 A number without a reference point has no emotional weight for an audience. Every data point that appears on a slide must have at least one comparison point:
+
 - vs. prior period (year-over-year, quarter-over-quarter, month-over-month)
 - vs. target or plan
 - vs. industry benchmark or competitor
@@ -124,15 +130,16 @@ The insight headline is the most leveraged sentence in the entire presentation. 
 
 Diagnostic test: Read the headline aloud. If someone could respond "so what?" the headline is a label, not an insight.
 
-| Label headline (wrong) | Insight headline (right) |
-|---|---|
-| "Q3 Revenue by Region" | "Western region drove 60% of Q3 revenue growth" |
+| Label headline (wrong)         | Insight headline (right)                                                 |
+| ------------------------------ | ------------------------------------------------------------------------ |
+| "Q3 Revenue by Region"         | "Western region drove 60% of Q3 revenue growth"                          |
 | "Customer Satisfaction Scores" | "API Suite satisfaction fell 11 points -- the only product below target" |
-| "Headcount by Department" | "Engineering grew 40% while Sales headcount stayed flat" |
-| "Monthly Active Users" | "MAU crossed 1M for the first time in October, up from 820K in January" |
-| "Budget Allocation" | "72% of the budget is in three programs -- talent, cloud, and marketing" |
+| "Headcount by Department"      | "Engineering grew 40% while Sales headcount stayed flat"                 |
+| "Monthly Active Users"         | "MAU crossed 1M for the first time in October, up from 820K in January"  |
+| "Budget Allocation"            | "72% of the budget is in three programs -- talent, cloud, and marketing" |
 
 **Headline writing rules:**
+
 - State the most important number in the headline. "60% of growth" is more compelling than "Western region was the growth leader."
 - If there are two important numbers, include both in one sentence: "Cloud Platform surged 17 points while API Suite fell 11"
 - Keep headlines to one line (under 80 characters) where possible; two lines at most
@@ -144,6 +151,7 @@ Diagnostic test: Read the headline aloud. If someone could respond "so what?" th
 Every data slide should have exactly one visually dominant element that is the focus of the audience's attention. The rest of the chart provides context but should not compete visually.
 
 **Color assignment:**
+
 - The data point or series that the insight headline references gets the **primary accent color** -- typically the brand's primary action color (often a saturated blue, green, or red appropriate to the message direction)
 - All other data points receive a **neutral gray** (recommended: #9B9B9B or similar mid-gray that reads clearly on both light and dark slide backgrounds)
 - Use **red or warm orange** for a declining or negative metric; **blue or green** for a rising or positive metric; **gray** for context data
@@ -151,12 +159,14 @@ Every data slide should have exactly one visually dominant element that is the f
 - If the chart is a trend line comparison, the highlighted series should be 2-2.5x the stroke weight of the gray context lines
 
 **Annotations and callouts:**
+
 - Place annotation text directly adjacent to the data point it references -- do not rely on legends for the most important data
 - Use callout box style: a small leader line pointing to the data point with a brief label ("74 -- below target")
 - Show the delta as the annotation, not the absolute value, when the insight is about change: "+17 pts" not "89"
 - Add a target or benchmark line as a dashed horizontal line when the insight is about whether a metric crossed a threshold
 
 **What to remove:**
+
 - Remove the Y-axis entirely if you annotate key values directly on the chart -- axes are reference tools, annotations are communication tools
 - Remove grid lines entirely for presentations; if gridlines are needed for readability, use one set of light horizontal lines only (no vertical)
 - Remove the chart border
@@ -187,12 +197,14 @@ A data slide has five zones. Every element must be placed in exactly one zone. D
 ```
 
 **Zone-specific rules:**
+
 - **Zone 1 (Headline):** Never truncate. If the insight needs more than 2 lines, the headline is too long -- rewrite it. No subtitle below the headline unless the subtitle adds a number not in the headline.
 - **Zone 2 (Chart):** Maintain at least 15% whitespace margin on all four sides of the chart area. A chart that bleeds to the slide edge looks unpolished. Leave breathing room.
 - **Zone 3 (Callout/Context):** Optional zone. Use a single large callout number or 2-3 short bullet points that extend the insight. Never put a second chart in Zone 3 -- that creates a multi-message slide.
 - **Zone 4 (Source):** Mandatory. Every data slide must have a source citation. Format: "Source: [Organization name or internal system], [Month Year]"
 
 **Slide background considerations:**
+
 - White or very light gray (#F5F5F5) backgrounds work for most presentation contexts and allow maximum chart contrast
 - Dark backgrounds (corporate navy, charcoal) require adjusted chart colors: use lighter neutrals (white-gray series) and bright accent colors; ensure all text is white or very light
 - Never use a gradient background behind a data chart -- it creates false color gradations that can interfere with color-coded data
@@ -366,9 +378,11 @@ When presenting data that spans multiple currencies or when the audience include
 Users sometimes ask for multiple charts on a single slide -- for example, "Can I put the revenue chart and the satisfaction chart on the same slide?" For live presentations, the answer is almost always no. Two charts on one slide creates competing attention anchors. The audience cannot watch the presenter, listen to the narration, AND decode two charts simultaneously.
 
 **When to maintain the single-chart-per-slide rule:**
+
 - Always, for live oral presentations to any audience
 
 **When a multi-chart layout is acceptable:**
+
 - Emailed decks read at the recipient's own pace -- a 2-chart layout is acceptable if both charts support the same insight headline
 - Printed handouts (conference leave-behinds, analyst packs) -- up to 4 charts per page is acceptable with appropriate labeling
 - The slide is explicitly a "summary" or "scorecard" slide at the end of a section -- up to 4 KPI tiles (large number + context) in a 2x2 grid is acceptable as a recap
@@ -401,21 +415,23 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 
 **Data (simplified for presentation):**
 
-| Metric | Value |
-|---|---|
-| Current ARR | $12.4M |
-| Prior Year ARR | $9.8M |
-| YoY Growth | +27% |
-| Target Growth | 25% |
+| Metric         | Value               |
+| -------------- | ------------------- |
+| Current ARR    | $12.4M              |
+| Prior Year ARR | $9.8M               |
+| YoY Growth     | +27%                |
+| Target Growth  | 25%                 |
 | ARR vs. Target | +$0.4M above target |
 
 **Data Simplification Applied:**
+
 - Original: $12,387,000 current; $9,801,000 prior year
 - Shown: $12.4M and $9.8M
 - Excluded: Monthly ARR progression (available in appendix if board requests it)
 - Rounded: Both values to one decimal place at the million level; growth rate rounded to whole percent (actual: 26.4%, shown as 27% -- note that 27% rounds favorably from 26.4%; confirm with user whether to show 26% to be conservative or 27% for rounding-up convention)
 
 **Chart Configuration:**
+
 - Layout: Large number display, no chart axes
 - Primary large number: "$12.4M" -- centered, 72pt bold, brand blue
 - Secondary figure: "$9.8M last year" -- below and right, 24pt, gray
@@ -426,6 +442,7 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 - Grid lines: none
 
 **Slide Layout:**
+
 - Zone 1 -- Headline: "ARR reached $12.4M -- 27% year-over-year growth, ahead of 25% target" -- top-left, 28pt bold
 - Zone 2 -- Primary number: "$12.4M" centered at 72pt, "$9.8M last year" at 24pt gray below-right
 - Zone 3 -- Delta and context: "+27% ↑" in brand blue 36pt; "Target was 25%" in gray 18pt below it
@@ -445,20 +462,22 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 
 **Data (simplified for presentation):**
 
-| Metric | Value |
-|---|---|
-| Current NRR | 118% |
-| Prior Year NRR | 109% |
-| YoY Change | +9 percentage points |
-| Industry benchmark (SaaS median) | 106% |
-| Threshold meaning | >100% = expansion exceeds churn |
+| Metric                           | Value                           |
+| -------------------------------- | ------------------------------- |
+| Current NRR                      | 118%                            |
+| Prior Year NRR                   | 109%                            |
+| YoY Change                       | +9 percentage points            |
+| Industry benchmark (SaaS median) | 106%                            |
+| Threshold meaning                | >100% = expansion exceeds churn |
 
 **Data Simplification Applied:**
+
 - Original: NRR values are typically calculated to one decimal place (e.g., 118.3% and 109.1%); rounded to whole percentages for executive presentation
 - Excluded: NRR by customer segment (SMB NRR is likely significantly below 100%; if shown, it will require explanation -- move to appendix or a dedicated slide)
 - Rounded: To nearest whole percentage point
 
 **Chart Configuration:**
+
 - Layout: Large number display, no chart axes
 - Primary large number: "118%" -- centered, 72pt bold, brand green (growth color)
 - Secondary figure: "109% last year" -- 24pt gray, below and right
@@ -468,6 +487,7 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 - Legend: none
 
 **Slide Layout:**
+
 - Zone 1 -- Headline: top-left, 28pt bold
 - Zone 2 -- "118%" at 72pt centered, with "109% last year" at 24pt gray below-right
 - Zone 3 -- Delta "+9 pts ↑" at 36pt green; "100% = zero net churn" reference line; "Industry median: 106%" in gray box right side
@@ -485,18 +505,20 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 
 **Data (simplified for presentation):**
 
-| Segment | Annual Churn Rate | Direction vs. Prior Year |
-|---|---|---|
-| SMB | 21% | worsening |
-| Mid-Market | 8% | stable |
-| Enterprise | 2% | improving |
+| Segment    | Annual Churn Rate | Direction vs. Prior Year |
+| ---------- | ----------------- | ------------------------ |
+| SMB        | 21%               | worsening                |
+| Mid-Market | 8%                | stable                   |
+| Enterprise | 2%                | improving                |
 
 **Data Simplification Applied:**
+
 - Original: All values rounded from decimal data (SMB: 20.7% → 21%; Mid-Market: 7.9% → 8%; Enterprise: 2.1% → 2%)
 - Excluded: Monthly churn progression by segment (available in appendix)
 - Shown order: Sorted highest to lowest churn (SMB first) -- this order emphasizes the problem at the top and the strength at the bottom, matching the insight narrative
 
 **Chart Configuration:**
+
 - X-axis: "Annual Churn Rate (%)" -- label shown; range 0% to 25% (starts at zero -- mandatory); tick marks at 0%, 5%, 10%, 15%, 20%, 25%
 - Y-axis: Segment names -- "SMB", "Mid-Market", "Enterprise" -- no axis label needed
 - Primary accent color: SMB bar in brand red (#CC2200) -- the problem data point
@@ -513,6 +535,7 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 - Chart border: none
 
 **Slide Layout:**
+
 - Zone 1 -- Headline: "SMB churn at 21% is masking strong Enterprise retention -- segments are diverging" -- top-left, 28pt bold (note: this headline is 2 lines; acceptable given the dual-insight content that is intentionally one slide because the divergence IS the single insight)
 - Zone 2 -- Horizontal bar chart, left-aligned, 65% of slide width, centered vertically
 - Zone 3 -- Right of chart: Two stat tiles stacked -- "Enterprise: 2% churn" in green and "SMB: 21% churn" in red, each at 24pt with directional arrows (↓ improving for Enterprise, ↑ worsening for SMB)
@@ -532,18 +555,20 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 
 **Data (simplified for presentation):**
 
-| Period | Customer Count | Net New Customers |
-|---|---|---|
-| Start of Year | 840 | -- |
-| End of Year | 1,140 | +300 |
-| Growth Rate | +36% | -- |
+| Period        | Customer Count | Net New Customers |
+| ------------- | -------------- | ----------------- |
+| Start of Year | 840            | --                |
+| End of Year   | 1,140          | +300              |
+| Growth Rate   | +36%           | --                |
 
 **Data Simplification Applied:**
+
 - Original customer counts are whole numbers -- no rounding needed
 - Excluded: Monthly new customer acquisition progression (if available, move to appendix; Q4 acceleration claim in headline needs support -- either show quarterly breakdown or remove the "accelerating into Q4" qualifier from the headline if data is not available to support it)
 - Important: The headline includes "growth rate accelerating into Q4" -- confirm with user that Q4 specifically showed higher net adds than Q1-Q3 before including this qualifier. If not verifiable, simplify headline to "Customer count grew 36% to 1,140 -- 300 net new customers this year"
 
 **Chart Configuration:**
+
 - Layout: Two large numbers side by side, no chart axes
 - Left number: "840" at 48pt gray (prior year, de-emphasized)
 - Center: Arrow "→ +300 customers → +36% ↑" at 32pt brand blue
@@ -554,6 +579,7 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 - Legend: none
 
 **Slide Layout:**
+
 - Zone 1 -- Headline: top-left, 28pt bold
 - Zone 2 -- Side-by-side numbers as specified, centered
 - Zone 3 -- If quarterly breakdown available: small bar chart showing quarterly net adds, 30% of slide width, bottom-right; otherwise a single stat: "+300 net new customers in 2025"
@@ -571,20 +597,22 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 
 **Data (simplified for presentation):**
 
-| Metric | Value |
-|---|---|
-| Current CAC Payback Period | 14 months |
-| Prior Year CAC Payback Period | 19 months |
-| Improvement | -5 months (-26%) |
-| SaaS benchmark (efficient) | <18 months |
-| Gross Margin | 74% (flat YoY -- not the driver of payback improvement) |
+| Metric                        | Value                                                   |
+| ----------------------------- | ------------------------------------------------------- |
+| Current CAC Payback Period    | 14 months                                               |
+| Prior Year CAC Payback Period | 19 months                                               |
+| Improvement                   | -5 months (-26%)                                        |
+| SaaS benchmark (efficient)    | <18 months                                              |
+| Gross Margin                  | 74% (flat YoY -- not the driver of payback improvement) |
 
 **Data Simplification Applied:**
+
 - No rounding needed on month figures
 - Gross margin (74%, flat) included as a supporting context note, not as a primary chart element -- it confirms that the payback improvement came from sales efficiency, not from margin expansion
 - "3-year high" qualifier in headline requires historical data to support -- confirm with user that prior years showed 22+ months or similar to justify this superlative
 
 **Chart Configuration:**
+
 - Layout: Two large numbers side by side
 - Left number: "19 months" at 48pt gray
 - Center: Arrow "→ -5 months → -26% ↓ (improvement)" at 28pt green
@@ -594,6 +622,7 @@ Users sometimes ask for multiple charts on a single slide -- for example, "Can I
 - Legend: none
 
 **Slide Layout:**
+
 - Zone 1 -- Headline: top-left, 28pt bold
 - Zone 2 -- Side-by-side number layout as specified, centered
 - Zone 3 -- Benchmark callout and gross margin supporting note

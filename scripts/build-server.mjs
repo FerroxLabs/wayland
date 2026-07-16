@@ -96,7 +96,17 @@ const sharedConfig = {
   tsconfig: 'tsconfig.json',
   // Voice/native deps (Discord voice stack) are runtime-optional: keep them as
   // runtime requires rather than inlining native .node bindings into the bundle.
-  external: ['bun:sqlite', 'keytar', 'node-pty', 'ws', '@snazzah/davey', 'prism-media', 'ffmpeg-static', '@discordjs/opus', 'opusscript'],
+  external: [
+    'bun:sqlite',
+    'keytar',
+    'node-pty',
+    'ws',
+    '@snazzah/davey',
+    'prism-media',
+    'ffmpeg-static',
+    '@discordjs/opus',
+    'opusscript',
+  ],
   logLevel: 'info',
 };
 

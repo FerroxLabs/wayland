@@ -18,15 +18,8 @@
   ],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "productivity",
-      "database"
-    ],
-    "tags": [
-      "airtable",
-      "records",
-      "database"
-    ],
+    "categories": ["productivity", "database"],
+    "tags": ["airtable", "records", "database"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-06-13",
@@ -48,11 +41,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }

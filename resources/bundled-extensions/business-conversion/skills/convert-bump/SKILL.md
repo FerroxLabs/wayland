@@ -27,14 +27,24 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [convert, convert-checkout-page, convert-oto-page, convert-bullets, convert-proof, convert-voice, convert-bullshit-filter, convert-four-questions]
+    related_skills:
+      [
+        convert,
+        convert-checkout-page,
+        convert-oto-page,
+        convert-bullets,
+        convert-proof,
+        convert-voice,
+        convert-bullshit-filter,
+        convert-four-questions,
+      ]
 attribution:
   lineage: "The Donahoe Method (Wayland-owned operating system); references direct-response order-form bump canon, Cialdini commitment-and-consistency, behavioral-economics 'completion bias' framing"
 ---
 
 # Convert Bump - Order-Form Bump Offer
 
-> *"The bump is the smallest piece of copy in the funnel and the highest dollars-per-word. Eighty words and a checkbox. If you get it right, AOV jumps 12-30% across the whole funnel."*
+> _"The bump is the smallest piece of copy in the funnel and the highest dollars-per-word. Eighty words and a checkbox. If you get it right, AOV jumps 12-30% across the whole funnel."_
 
 This skill builds the bump: a single relevant low-friction add-on, presented as a checkbox above the order button, with Method-compressed micro-copy.
 
@@ -54,6 +64,7 @@ Use when the user has a checkout page and wants to add a single low-friction add
 ## Inputs
 
 Required:
+
 1. **The flagship product** - what's already in the cart.
 2. **The bump product** - what's being added. Must be:
    - Genuinely relevant to the flagship (no random "buy a t-shirt with your course" bumps).
@@ -63,6 +74,7 @@ Required:
 4. **Real bump-only price reasoning** - the bump price is genuinely lower than buying the same thing later.
 
 Optional:
+
 - **Brand colors / logo.**
 - **One specific Receipt or Snapshot proof beat** - optional but valuable.
 - **`out_path`** - defaults via `build_report_path`.
@@ -74,6 +86,7 @@ A bump is 30–80 words. Every Method framework collapses to one or two sentence
 ### Phase 0 - Four Questions (call `convert-four-questions`)
 
 The bump answers all four in a single short paragraph:
+
 - **Why You** = the bump fills a gap the flagship leaves.
 - **Why Me** = inherited.
 - **Why This** = "the [bump product] does [specific job] that [flagship] doesn't cover."
@@ -81,11 +94,11 @@ The bump answers all four in a single short paragraph:
 
 ### Phase 1 - Temperature
 
-Boiling. The buyer is on the order form. Don't pitch - *suggest*.
+Boiling. The buyer is on the order form. Don't pitch - _suggest_.
 
 ### Phase 2 - Four-Layer Open (call `convert-open`)
 
-Compressed to 1 sentence: a Nerve Strike that anticipates the next question they're about to ask. *"Most people who get [flagship] hit the same wall by week two - no [thing the bump solves]."*
+Compressed to 1 sentence: a Nerve Strike that anticipates the next question they're about to ask. _"Most people who get [flagship] hit the same wall by week two - no [thing the bump solves]."_
 
 ### Phase 3 - Three Locks
 
@@ -103,7 +116,7 @@ One Receipt or one Drive-By. Optional. The bump is short enough that the proof i
 
 ### Phase 6 - Cascade Close
 
-The checkbox **is** the close. The label is the Door. *"Yes! Add the [bump] to my order for an extra $X."*
+The checkbox **is** the close. The label is the Door. _"Yes! Add the [bump] to my order for an extra $X."_
 
 ### Phase 7 - Greased Chute
 
@@ -115,14 +128,14 @@ A bump that sounds salesy at this stage triggers cart abandonment. Read aloud - 
 
 ## The Bump Anatomy (30–80 words)
 
-| Element | Words | Job |
-|---------|-------|-----|
-| Yellow/highlighted box | - | Break visual rhythm of the order form |
-| 1-line headline (bold) | ~8 | The Nerve Strike compressed |
-| 1–2 sentence body | ~30–50 | Side Door + Skin + Excuse compressed |
-| Bullet (optional, 2 max) | ~10–20 | Snapshot bullet if needed |
-| Checkbox label | ~10–20 | The Door |
-| Price line | ~5 | The Math |
+| Element                  | Words  | Job                                   |
+| ------------------------ | ------ | ------------------------------------- |
+| Yellow/highlighted box   | -      | Break visual rhythm of the order form |
+| 1-line headline (bold)   | ~8     | The Nerve Strike compressed           |
+| 1–2 sentence body        | ~30–50 | Side Door + Skin + Excuse compressed  |
+| Bullet (optional, 2 max) | ~10–20 | Snapshot bullet if needed             |
+| Checkbox label           | ~10–20 | The Door                              |
+| Price line               | ~5     | The Math                              |
 
 Total: 30–80 words. Period.
 
@@ -131,27 +144,62 @@ Total: 30–80 words. Period.
 ```html
 <!-- Drop-in bump component for order-form pages. -->
 <style>
-  .bump{
-    --bump-bg:#fff8d8;
-    --bump-border:#e2c34a;
-    --bump-ink:#1a1408;
-    --bump-accent:#c0392b;
-    background:var(--bump-bg);
-    border:2px dashed var(--bump-border);
-    color:var(--bump-ink);
-    padding:18px 18px 14px;
-    border-radius:8px;
-    margin:18px 0;
-    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  .bump {
+    --bump-bg: #fff8d8;
+    --bump-border: #e2c34a;
+    --bump-ink: #1a1408;
+    --bump-accent: #c0392b;
+    background: var(--bump-bg);
+    border: 2px dashed var(--bump-border);
+    color: var(--bump-ink);
+    padding: 18px 18px 14px;
+    border-radius: 8px;
+    margin: 18px 0;
+    font:
+      16px/1.5 -apple-system,
+      BlinkMacSystemFont,
+      'Helvetica Neue',
+      Arial,
+      sans-serif;
   }
-  .bump h3{margin:0 0 8px;font-size:18px}
-  .bump p{margin:0 0 10px}
-  .bump ul{margin:0 0 10px 18px;padding:0}
-  .bump label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-weight:600;border-top:1px dashed var(--bump-border);padding-top:10px}
-  .bump label input[type=checkbox]{margin-top:4px;width:18px;height:18px;accent-color:var(--bump-accent)}
-  .bump label input[type=checkbox]:focus-visible{outline:3px solid var(--bump-accent);outline-offset:2px}
-  .bump .price{font-weight:700}
-  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  .bump h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+  }
+  .bump p {
+    margin: 0 0 10px;
+  }
+  .bump ul {
+    margin: 0 0 10px 18px;
+    padding: 0;
+  }
+  .bump label {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    cursor: pointer;
+    font-weight: 600;
+    border-top: 1px dashed var(--bump-border);
+    padding-top: 10px;
+  }
+  .bump label input[type='checkbox'] {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--bump-accent);
+  }
+  .bump label input[type='checkbox']:focus-visible {
+    outline: 3px solid var(--bump-accent);
+    outline-offset: 2px;
+  }
+  .bump .price {
+    font-weight: 700;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 </style>
 
 <aside class="bump" aria-label="Optional add-on">
@@ -162,7 +210,7 @@ Total: 30–80 words. Period.
     <li>{{SNAPSHOT_BULLET_OPTIONAL}}</li>
   </ul>
   <label>
-    <input type="checkbox" name="bump_{{BUMP_SLUG}}" value="1" aria-describedby="bump-price-{{BUMP_SLUG}}">
+    <input type="checkbox" name="bump_{{BUMP_SLUG}}" value="1" aria-describedby="bump-price-{{BUMP_SLUG}}" />
     <span>
       {{CHECKBOX_LABEL_DOOR_VISION}}
       <span id="bump-price-{{BUMP_SLUG}}" class="price">- add ${{BUMP_PRICE}}</span>
@@ -172,6 +220,7 @@ Total: 30–80 words. Period.
 ```
 
 CSS notes:
+
 - The yellow/dashed-border treatment is the canonical bump visual signal. It breaks the order-form's visual rhythm and pulls the eye exactly once. Do NOT make this look like the rest of the form.
 - `accent-color` styles the checkbox to brand color in modern browsers. Falls back gracefully.
 - `aria-describedby` links the checkbox to the price line for screen readers.
@@ -188,6 +237,7 @@ CSS notes:
 **Word count:** {{N}} (target: 30–80)
 
 ## Phase 0–8 (compressed)
+
 - Why You / Me / This / Now → answers (one sentence each)
 - Bump body collapses Open + Want + Excuse into one paragraph
 - Checkbox label = Door (Vision-flavored)
@@ -202,22 +252,25 @@ CSS notes:
 - **Price line:** "+ ${{PRICE}}"
 
 ## HTML reference
+
 {{HTML_BLOCK}}
 
 ## Method coverage report
 ```
+
 Method coverage report:
-  Open:           partial - Nerve Strike compressed to checkbox-area headline; Layers 2-4 not applicable at 30-80 words
-  Three Locks:    compressed - Want + Trust signaled by parent page; Excuse via the price line (the math)
-  Proof:          partial - optional one-line Receipt or the price comparison itself; full proof block not applicable at this scale
-  Bullets:        partial - 0-2 bullets max (Snapshot or Keyhole); the bullet block as a system not applicable
-  Cascade Close:  partial - Stack / Vision / Math collapse into one price line; the Door = the checkbox itself; Safety Net inherited from parent page
-  Greased Chute:  not applicable - single-component element, no internal momentum to engineer
-  Voice Rules:    full - first person, contractions, no marketing-speak; voice continuous with the checkout page
-  Temperature:    Boiling (post-decision, hand on credit card)
+Open: partial - Nerve Strike compressed to checkbox-area headline; Layers 2-4 not applicable at 30-80 words
+Three Locks: compressed - Want + Trust signaled by parent page; Excuse via the price line (the math)
+Proof: partial - optional one-line Receipt or the price comparison itself; full proof block not applicable at this scale
+Bullets: partial - 0-2 bullets max (Snapshot or Keyhole); the bullet block as a system not applicable
+Cascade Close: partial - Stack / Vision / Math collapse into one price line; the Door = the checkbox itself; Safety Net inherited from parent page
+Greased Chute: not applicable - single-component element, no internal momentum to engineer
+Voice Rules: full - first person, contractions, no marketing-speak; voice continuous with the checkout page
+Temperature: Boiling (post-decision, hand on credit card)
 
 Required next step: Run /convert bullshit-filter on this draft before shipping.
 The Filter is a SEPARATE pass - this skill cannot grade its own output.
+
 ```
 
 ## Notes / Cross-Skill Composition
@@ -253,3 +306,4 @@ When the user wants a bump variant, here are the canonical patterns:
 - Commitment-and-consistency at point of purchase - Cialdini (Influence, 1984).
 - Completion-bias framing ("you're already getting X - finish the set with Y") - behavioral-economics literature on bundle effects.
 - The Method itself - Wayland-owned operating system.
+```

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing-copy marketing writing"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing-copy marketing writing'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Copywriter
 
 ## When to Use
-
 
 ## Process
 
@@ -32,13 +31,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on copywriter
 - User asks about copywriter best practices or techniques
 - User wants a structured approach to copywriter
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of copywriter
+
 ## Questions to Ask the User First
 
 1. **What are you writing?** (Landing page, email, ad, product description, sales page, website)
@@ -51,10 +53,13 @@ metadata:
 8. **What is your unique selling proposition (USP)?**
 9. **What is the competitive alternative?** (What they do instead of buying from you)
 10. **What is the emotional transformation?** (How does the customer feel before vs. after?)
+
 ---
+
 ## Core Copywriting Frameworks
 
 ### AIDA Framework
+
 ```
 AIDA: ATTENTION - INTEREST - DESIRE - ACTION
 
@@ -102,6 +107,7 @@ ACTION (Tell them exactly what to do):
 ```
 
 ### PAS Framework
+
 ```
 PAS: PROBLEM - AGITATION - SOLUTION
 
@@ -127,6 +133,7 @@ PAS is ideal for:
 ```
 
 ### BAB Framework (Before-After-Bridge)
+
 ```
 BAB: BEFORE - AFTER - BRIDGE
 
@@ -148,6 +155,7 @@ BRIDGE (How to get there -- your product):
 ```
 
 ### 4Ps Framework
+
 ```
 4Ps: PROMISE - PICTURE - PROOF - PUSH
 
@@ -163,10 +171,13 @@ PROOF: Back up the promise with evidence.
 PUSH: Drive action with urgency and a clear CTA.
   "Get started today for {{offer}}. {{Scarcity_element}}. {{CTA_button}}"
 ```
+
 ---
+
 ## Step 1: Headlines That Convert
 
 ### Headline Formulas
+
 ```
 PROVEN HEADLINE FORMULAS
 
@@ -207,8 +218,11 @@ HEADLINE TESTING CHECKLIST:
 - [ ] Is it under 10 words? (Shorter = stronger, usually)
 - [ ] Would YOU click on it?
 ```
+
 ---
+
 ## Step 2: Landing Page Copy Structure
+
 ```
 LANDING PAGE COPY TEMPLATE
 
@@ -271,8 +285,11 @@ SECTION 8: FINAL CTA
   CTA Button: {{Action-oriented text}}
   Subtext: "No credit card required. Cancel anytime."
 ```
+
 ---
+
 ## Step 3: Email Copywriting
+
 ```
 EMAIL COPY FRAMEWORK
 
@@ -308,8 +325,11 @@ EMAIL TYPES:
   Re-engagement: "We miss you" + incentive to return
   Transactional: Clear information, on-brand, cross-sell opportunity
 ```
+
 ---
+
 ## Step 4: Product Descriptions
+
 ```
 PRODUCT DESCRIPTION TEMPLATE
 
@@ -345,8 +365,11 @@ CTA:
   {{Urgency if applicable: "Only {{count}} left in stock"}}
   {{Risk reducer: "Free returns within 30 days"}}
 ```
+
 ---
+
 ## Step 5: Calls-to-Action (CTAs)
+
 ```
 CTA OPTIMIZATION GUIDE
 
@@ -387,8 +410,11 @@ CTA A/B TEST IDEAS:
   4. With vs without subtext/risk reducer
   5. Single CTA vs repeated CTA
 ```
+
 ---
+
 ## Step 6: Voice & Tone Guide
+
 ```
 BRAND VOICE DEFINITION
 
@@ -417,8 +443,11 @@ VOCABULARY:
   Words we use: {{list_of_preferred_terms}}
   Words we avoid: {{list_of_banned_terms}}
 ```
+
 ---
+
 ## Step 7: A/B Testing Copy
+
 ```
 COPY A/B TESTING FRAMEWORK
 
@@ -458,8 +487,11 @@ TESTING RULES:
   - Winners become the new control
   - Test continuously (there is always room to improve)
 ```
+
 ---
+
 ## Step 8: Storytelling in Marketing
+
 ```
 STORYTELLING FRAMEWORK
 
@@ -492,7 +524,9 @@ STORYTELLING RULES:
   6. Keep it concise (every sentence earns its place)
   7. End with a lesson or CTA that connects to the reader
 ```
+
 ---
+
 ## Output Checklist
 
 - [ ] Copy uses an appropriate framework for the format (AIDA, PAS, BAB)
@@ -506,7 +540,6 @@ STORYTELLING RULES:
 - [ ] Copy is scannable (short paragraphs, bullets, subheadings)
 - [ ] Reading level is appropriate for the target audience
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -519,13 +552,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with copywriter for a mid-size project."
 
 **Output:** A complete copywriter framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

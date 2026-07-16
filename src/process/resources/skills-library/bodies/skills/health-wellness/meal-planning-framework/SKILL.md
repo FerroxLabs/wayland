@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition meal-planning template"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'nutrition meal-planning template'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Meal Planning Framework
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to build or receive a weekly meal plan (e.g., "plan my meals for the week," "help me figure out what to eat each day")
 - The user wants to reduce the daily cognitive burden of deciding what to eat -- decision fatigue around meals is a specific trigger
 - The user wants to integrate batch cooking or meal prep into their routine and needs a structural workflow, not just individual recipes
@@ -32,6 +34,7 @@ metadata:
 - The user wants to save money on food by planning purchases in advance and minimizing impulse buying
 
 **Do NOT use when:**
+
 - The user needs specific caloric or macronutrient targets calculated (use `macro-calculation` -- meal planning is structural, not numerical)
 - The user has a clinically managed condition such as kidney disease (requiring phosphorus/potassium restriction), phenylketonuria, type 1 diabetes requiring precise carbohydrate counting, or celiac disease requiring clinical-grade cross-contamination protocols -- refer to a registered dietitian
 - The user asks for a specific recipe with ingredients, technique, and step-by-step cooking instructions (use a recipe-generation skill)
@@ -287,24 +290,31 @@ A meal plan that cannot flex is a plan that will be abandoned by Wednesday. Buil
 ## Edge Cases
 
 ### Single-Person Household
+
 Single-person meal planning has a unique failure mode: standard recipes yield 4 servings, and eating the same thing for 4 consecutive days causes abandonment before the week ends. Apply the 2×2 approach: cook 2 different proteins and 2 different starches on prep day, each yielding 2 servings. This produces 4 distinct dinner combinations across the week (Protein A + Starch 1, Protein A + Starch 2, Protein B + Starch 1, Protein B + Starch 2) using only 2 batch cooks. For the remaining 2-3 dinners, use freezer-pull meals (meals portioned and frozen from a previous batch week) and one fresh cook. Emphasize freezer-friendly proteins (cooked ground meat, roasted chicken, bean-based dishes) over delicate proteins that do not freeze well (cooked fish, eggs). Weekly grocery spend for a single person should target $40-60 in the moderate budget tier.
 
 ### Very Tight Budget (Under $75/Week for a Family of 4)
+
 Protein is the highest food cost driver; budget plans restructure around plant proteins as the weekly foundation. Build a plan where 3 of 5 dinners use plant-forward protein: dried lentils ($1.50-2.00 per pound, yields 6-8 servings), canned chickpeas ($0.89-1.20 per can, serves 2-3), dried black beans ($1.50/lb, serves 6-8), and eggs ($3-5/dozen, serves 4-6 at 2 eggs per person). The remaining 2 dinners use the most cost-effective animal proteins: chicken thighs (bone-in skin-on cost $1.00-1.50/lb, significantly cheaper than boneless), canned tuna ($1-2 per can), or ground turkey ($3-5/lb). Frozen vegetables cost 30-50% less than fresh with equivalent nutritional value -- normalize frozen broccoli, edamame, peas, and corn in budget plans without apology. Dried grains in bulk (brown rice, oats, dried pasta) cost $0.50-1.00/lb compared to $2-4/lb for convenience packaged portions. Seasonal produce purchased from the produce section (not pre-cut or packaged) reduces costs by 40-60%. A budget plan should contain no pre-marinated proteins, no single-use condiments, and no single-serving packaged items.
 
 ### No-Cook or Minimal-Cook Household
+
 Some users genuinely cannot or will not cook, and a plan full of cooking instructions will fail immediately. Build an assembly-based plan using components that require no heat application or only microwave/toaster use: rotisserie chicken (purchased ready-to-eat) pulled over bagged microwaveable rice with bagged salad kit is a complete PSV dinner in 5 minutes. Deli turkey and sliced cheese on whole-grain bread with a cup of cherry tomatoes and hummus is a complete PSV lunch with zero cooking. Hard-boiled eggs (sold pre-cooked in most grocery stores), canned fish, and cottage cheese are no-cook protein sources. Introduce one simple cooked meal each week with explicit permission to skip it if energy is low -- this is the foot-in-the-door technique for building cooking habits gradually. Label this the "one warm meal" for the week to reduce psychological pressure.
 
 ### Multiple Dietary Needs in One Household
+
 The most common scenario: one partner is vegetarian, the other is not; or one child has a nut allergy while others do not. The resolution strategy is the shared-base method: build the PSV base using shared starch and vegetable components, then diverge only at the protein. Example: Tuesday dinner base is roasted sweet potatoes + sauteed kale + garlic olive oil. One person's plate adds pan-seared salmon; the other's adds pan-seared tofu with identical seasoning. This requires cooking two proteins simultaneously (2-3 extra minutes of effort) rather than cooking two entirely separate meals. The shopping list diverges only in the protein section. For allergy management, keep the allergen protein entirely separate from shared components during prep -- cross-contact with shared oils or cooking surfaces is a real risk. If the allergy is severe (anaphylaxis risk), note that this is a food safety issue and the household should consult an allergist about kitchen management protocols.
 
 ### User Has a Variable or Shift-Work Schedule
+
 Standard Mon-Fri planning does not work for nurses, first responders, service industry workers, or anyone with rotating schedules. Shift to a cycle-based plan rather than a day-of-week plan: Plan for "Day 1 of work stretch," "Rest day," "Day before long shift," etc. On days before long or demanding shifts, plan extra-batch cooking and ensure the next on-shift day has a purely reheatable meal requiring zero decisions. Keep at least 2-3 fully frozen, ready-to-reheat meals in the freezer at all times as a safety net for unplanned schedule changes. The batch cooking day becomes the first rest day after a long stretch, not a fixed Sunday.
 
 ### User Wants to Lose Weight (Without Clinical Oversight)
+
 The user may mention weight loss as a context for meal planning. This skill does not produce calorie-restricted plans, but it can acknowledge the goal structurally: (1) emphasize volume -- larger vegetable portions create satiety without increasing caloric density; (2) use the lower end of the PSV starch serving (3/4 cup rather than 1 cup) as the default; (3) suggest cooking methods that do not add significant fat (baking, steaming, air-frying rather than pan-frying in large amounts of oil); (4) include snack planning using high-satiety combinations (protein + fiber: apple + nut butter, Greek yogurt + berries, hummus + vegetables). Explicitly redirect any request for specific calorie targets to the `macro-calculation` skill and note that sustainable weight management is best guided by a registered dietitian, particularly for significant goals.
 
 ### User Plans a Vacation Week or Holiday Week
+
 Mid-week holidays, long weekends, and vacations disrupt standard planning. For a week with a Thursday holiday gathering, the plan changes structurally: plan only Monday through Wednesday as normal cooking days, note the holiday gathering as an eating-out or potluck event (no plan needed), and plan only one simple meal for the remaining days assuming the user will have holiday leftovers. Reduce batch cooking quantities proportionally -- a half-week of dinners does not require a full Sunday prep session. For a week where the user travels Tuesday through Friday, plan only Monday and the weekend, note that travel days are out-of-plan, and build a "return day" meal that can be made from pantry staples after travel (pasta + canned sauce + frozen vegetables requires no fresh shopping).
 
 ---
@@ -330,27 +340,27 @@ Mid-week holidays, long weekends, and vacations disrupt standard planning. For a
 
 ### Weekly Dinner Grid
 
-| Day       | Dinner                                              | Cook Time  | Notes                             |
-|-----------|-----------------------------------------------------|------------|-----------------------------------|
-| Monday    | Batch chicken thighs + brown rice + roasted broccoli | 10 min    | Reheat Sunday batch; broil broccoli 5 min if desired |
-| Tuesday   | Baked salmon + roasted sweet potato + steamed spinach | 30 min   | Fresh cook; oven at 400°F         |
-| Wednesday | Chicken thighs (batch) + farro + roasted peppers/zucchini (batch) | 15 min | Reheat; no new cooking |
-| Thursday  | Black bean tacos + shredded cabbage slaw + avocado  | 20 min     | Assembly + 5 min stovetop beans   |
-| Friday    | Flexible                                            | --         | Use leftovers, pantry meal, or eat out |
-| Saturday  | Sheet-pan tofu + jasmine rice + bok choy and snap peas | 30 min  | Wildcard night; fresh cook        |
-| Sunday    | Batch cooking day                                   | ~1.75 hrs  | See prep workflow below           |
+| Day       | Dinner                                                            | Cook Time | Notes                                                |
+| --------- | ----------------------------------------------------------------- | --------- | ---------------------------------------------------- |
+| Monday    | Batch chicken thighs + brown rice + roasted broccoli              | 10 min    | Reheat Sunday batch; broil broccoli 5 min if desired |
+| Tuesday   | Baked salmon + roasted sweet potato + steamed spinach             | 30 min    | Fresh cook; oven at 400°F                            |
+| Wednesday | Chicken thighs (batch) + farro + roasted peppers/zucchini (batch) | 15 min    | Reheat; no new cooking                               |
+| Thursday  | Black bean tacos + shredded cabbage slaw + avocado                | 20 min    | Assembly + 5 min stovetop beans                      |
+| Friday    | Flexible                                                          | --        | Use leftovers, pantry meal, or eat out               |
+| Saturday  | Sheet-pan tofu + jasmine rice + bok choy and snap peas            | 30 min    | Wildcard night; fresh cook                           |
+| Sunday    | Batch cooking day                                                 | ~1.75 hrs | See prep workflow below                              |
 
 ---
 
 ### PSV Composition for Each Dinner
 
-| Day       | Protein (P)                     | Starch (S)               | Vegetable (V)                      | Fat Modifier            | Flavor Profile       |
-|-----------|----------------------------------|--------------------------|------------------------------------|-------------------------|----------------------|
-| Monday    | Roasted chicken thigh (5 oz each)| Brown rice (3/4 cup)     | Roasted broccoli (1.5 cups)        | Olive oil from batch    | Simple garlic-herb   |
-| Tuesday   | Baked salmon fillet (5 oz each)  | Roasted sweet potato (3/4 cup) | Steamed baby spinach (2 cups wilted) | Lemon-olive oil drizzle | Mediterranean        |
-| Wednesday | Roasted chicken thigh (5 oz each)| Farro (3/4 cup)          | Roasted peppers + zucchini (1.5 cups) | Olive oil from batch  | Italian herb         |
-| Thursday  | Black beans (3/4 cup cooked each)| Corn tortillas (2 each)  | Shredded cabbage + tomato slaw     | Avocado (1/4 each)      | Mexican-lime         |
-| Saturday  | Baked tofu (3.5 oz each)         | Jasmine rice (3/4 cup)   | Bok choy + snap peas (2 cups)      | Sesame oil + soy drizzle| East Asian           |
+| Day       | Protein (P)                       | Starch (S)                     | Vegetable (V)                         | Fat Modifier             | Flavor Profile     |
+| --------- | --------------------------------- | ------------------------------ | ------------------------------------- | ------------------------ | ------------------ |
+| Monday    | Roasted chicken thigh (5 oz each) | Brown rice (3/4 cup)           | Roasted broccoli (1.5 cups)           | Olive oil from batch     | Simple garlic-herb |
+| Tuesday   | Baked salmon fillet (5 oz each)   | Roasted sweet potato (3/4 cup) | Steamed baby spinach (2 cups wilted)  | Lemon-olive oil drizzle  | Mediterranean      |
+| Wednesday | Roasted chicken thigh (5 oz each) | Farro (3/4 cup)                | Roasted peppers + zucchini (1.5 cups) | Olive oil from batch     | Italian herb       |
+| Thursday  | Black beans (3/4 cup cooked each) | Corn tortillas (2 each)        | Shredded cabbage + tomato slaw        | Avocado (1/4 each)       | Mexican-lime       |
+| Saturday  | Baked tofu (3.5 oz each)          | Jasmine rice (3/4 cup)         | Bok choy + snap peas (2 cups)         | Sesame oil + soy drizzle | East Asian         |
 
 ---
 
@@ -358,18 +368,19 @@ Mid-week holidays, long weekends, and vacations disrupt standard planning. For a
 
 **Estimated total time:** 1 hour 45 minutes (45 min active, 60 min passive/oven)
 
-| Step | Task                                                        | Method              | Time        | Yields                                      | Storage                            |
-|------|-------------------------------------------------------------|---------------------|-------------|---------------------------------------------|------------------------------------|
-| 1    | Season 1.5 lbs bone-in skinless chicken thighs (4 thighs), load bottom rack at 425°F | Oven           | 38-42 min   | 4 portions (Mon dinner + Wed dinner for 2)  | Glass container; fridge 3-4 days   |
-| 2    | Rinse and start 1.5 cups dry farro on stovetop (3 cups water, simmer 25-30 min) | Stovetop      | 30 min passive | 3 cups cooked (~4 portions)               | Glass container; fridge 4-5 days   |
-| 3    | Toss 2 bell peppers (sliced) + 2 zucchini (sliced) in olive oil, load top rack at 425°F | Oven  | 22-25 min   | 4 portions roasted veg (Mon + Wed dinners)  | Glass container; fridge 3-4 days   |
-| 4    | Cook 1.5 cups dry brown rice (rice cooker or stovetop, 45 min stovetop / 25 min rice cooker) | Concurrent | 25-45 min passive | 3.5 cups cooked (~5 portions)   | Glass container; fridge 4-5 days   |
-| 5    | While oven runs: wash and dry broccoli, portion into florets, set aside for Monday (fresh broil takes 5 min Mon night) | Cold prep | 10 min active | Ready-to-cook broccoli for Mon            | Zip bag or container; fridge 4 days |
-| 6    | Make a simple herb marinade: 3 tbsp olive oil + 2 cloves minced garlic + 1 tsp dried oregano + lemon zest -- whisk in jar | Manual | 8 min | ~1/4 cup; used Mon-Wed as finishing sauce   | Jar with lid; fridge 5 days        |
-| 7    | Check chicken: internal temp must reach 165°F (use instant-read thermometer at thickest point, not touching bone). Rest 5 min before slicing. | Check temp | 5 min | Confirm doneness     | Slice or leave whole for portioning |
-| 8    | Portion and label 6 containers (4 dinners + 2 extra portions for opportunistic lunches) | Manual | 15 min | 6 labeled containers in fridge             | Date label; consume by Wednesday   |
+| Step | Task                                                                                                                                          | Method     | Time              | Yields                                     | Storage                             |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ----------------- | ------------------------------------------ | ----------------------------------- |
+| 1    | Season 1.5 lbs bone-in skinless chicken thighs (4 thighs), load bottom rack at 425°F                                                          | Oven       | 38-42 min         | 4 portions (Mon dinner + Wed dinner for 2) | Glass container; fridge 3-4 days    |
+| 2    | Rinse and start 1.5 cups dry farro on stovetop (3 cups water, simmer 25-30 min)                                                               | Stovetop   | 30 min passive    | 3 cups cooked (~4 portions)                | Glass container; fridge 4-5 days    |
+| 3    | Toss 2 bell peppers (sliced) + 2 zucchini (sliced) in olive oil, load top rack at 425°F                                                       | Oven       | 22-25 min         | 4 portions roasted veg (Mon + Wed dinners) | Glass container; fridge 3-4 days    |
+| 4    | Cook 1.5 cups dry brown rice (rice cooker or stovetop, 45 min stovetop / 25 min rice cooker)                                                  | Concurrent | 25-45 min passive | 3.5 cups cooked (~5 portions)              | Glass container; fridge 4-5 days    |
+| 5    | While oven runs: wash and dry broccoli, portion into florets, set aside for Monday (fresh broil takes 5 min Mon night)                        | Cold prep  | 10 min active     | Ready-to-cook broccoli for Mon             | Zip bag or container; fridge 4 days |
+| 6    | Make a simple herb marinade: 3 tbsp olive oil + 2 cloves minced garlic + 1 tsp dried oregano + lemon zest -- whisk in jar                     | Manual     | 8 min             | ~1/4 cup; used Mon-Wed as finishing sauce  | Jar with lid; fridge 5 days         |
+| 7    | Check chicken: internal temp must reach 165°F (use instant-read thermometer at thickest point, not touching bone). Rest 5 min before slicing. | Check temp | 5 min             | Confirm doneness                           | Slice or leave whole for portioning |
+| 8    | Portion and label 6 containers (4 dinners + 2 extra portions for opportunistic lunches)                                                       | Manual     | 15 min            | 6 labeled containers in fridge             | Date label; consume by Wednesday    |
 
 **Oven schedule:**
+
 - 0:00 -- Preheat oven to 425°F. Season chicken; load bottom rack.
 - 0:05 -- Start farro on stovetop (medium heat, bring to boil, reduce to low simmer). Start rice in rice cooker.
 - 0:15 -- Toss and load sheet pan of peppers and zucchini on top rack. Set 22-minute timer for vegetables.
@@ -386,6 +397,7 @@ Mid-week holidays, long weekends, and vacations disrupt standard planning. For a
 ### Shopping List
 
 **Produce** (assign perishable items to early-week meals):
+
 - [ ] Broccoli -- 2 medium crowns -- for Monday -- perishable, store unwashed in bag
 - [ ] Baby spinach -- 5 oz bag -- for Tuesday -- perishable; use by Wednesday
 - [ ] Sweet potatoes -- 2 medium -- for Tuesday -- stable; store at room temp
@@ -399,26 +411,31 @@ Mid-week holidays, long weekends, and vacations disrupt standard planning. For a
 - [ ] Lemon -- 2 -- for Tuesday + Sunday marinade -- stable
 
 **Proteins** (raw weights; 20-25% cooking shrinkage factored in):
+
 - [ ] Chicken thighs (bone-in, skinless) -- 1.5 lbs (4 thighs) -- for Sunday batch (Mon + Wed dinners) -- buy fresh; refrigerate and cook within 2 days of purchase
 - [ ] Salmon fillets -- 2 fillets, 5-6 oz each -- for Tuesday -- buy fresh Tuesday morning or keep frozen and thaw in fridge overnight Monday
 - [ ] Firm tofu (extra-firm preferred for baking) -- 1 block (14-16 oz) -- for Saturday -- press for 20 min before cooking for best texture
 - [ ] Black beans -- 1 can (15 oz) or 1 cup dried (cook Sunday) -- for Thursday
 
 **Dairy and Refrigerated:**
+
 - [ ] Parmesan (for pantry failsafe meal) -- small wedge or grated -- pantry backup only
 
 **Grains and Dry Starches:**
+
 - [ ] Brown rice -- 1.5 cups dry (yields ~3.5 cups cooked) -- for Monday batch
 - [ ] Farro -- 1.5 cups dry (yields ~3 cups cooked) -- for Sunday batch / Wednesday
 - [ ] Jasmine rice -- 1 cup dry (yields ~2.5 cups cooked) -- for Saturday
 - [ ] Corn tortillas -- 8-count package -- for Thursday
 
 **Canned and Pantry (new purchases):**
+
 - [ ] Canned black beans -- 1 can (15 oz) -- for Thursday (if not cooking dried)
 - [ ] Soy sauce -- small bottle -- for Saturday tofu glaze
 - [ ] Rice vinegar -- small bottle -- for Saturday and slaw dressing
 
 **Pantry Check Before Buying (likely already have):**
+
 - [ ] Olive oil
 - [ ] Sesame oil
 - [ ] Garlic (fresh)
@@ -431,12 +448,12 @@ Mid-week holidays, long weekends, and vacations disrupt standard planning. For a
 
 ### Protein Source Rotation Summary
 
-| Protein         | Days Used        | Cooking Method       | Batch or Fresh |
-|-----------------|------------------|----------------------|----------------|
+| Protein         | Days Used         | Cooking Method       | Batch or Fresh |
+| --------------- | ----------------- | -------------------- | -------------- |
 | Chicken thighs  | Monday, Wednesday | Oven-roasted (425°F) | Batch (Sunday) |
-| Salmon fillet   | Tuesday          | Oven-baked (400°F)   | Fresh cook     |
-| Black beans     | Thursday         | Stovetop sauté       | Fresh (5 min)  |
-| Extra-firm tofu | Saturday         | Sheet-pan baked      | Fresh cook     |
+| Salmon fillet   | Tuesday           | Oven-baked (400°F)   | Fresh cook     |
+| Black beans     | Thursday          | Stovetop sauté       | Fresh (5 min)  |
+| Extra-firm tofu | Saturday          | Sheet-pan baked      | Fresh cook     |
 
 **3-protein-minimum check:** Chicken, fish, legumes, and soy protein -- 4 distinct sources. ✓
 
@@ -444,19 +461,19 @@ Mid-week holidays, long weekends, and vacations disrupt standard planning. For a
 
 ### Quick Swap Guide
 
-| Planned Meal              | Swap Option                                                 | Extra Time |
-|---------------------------|-------------------------------------------------------------|------------|
-| Batch chicken (Mon/Wed)   | Rotisserie chicken from store (skip batch cooking)          | 0 min      |
-| Baked salmon (Tuesday)    | Canned salmon or canned tuna tossed with olive oil + lemon  | 5 min      |
-| Sheet-pan tofu (Saturday) | Fried eggs (2 per person) over jasmine rice + any vegetable | 10 min     |
-| Any dinner                | Pantry failsafe: pasta + canned tomatoes + olive oil + parmesan + frozen peas | 18 min |
+| Planned Meal              | Swap Option                                                                   | Extra Time |
+| ------------------------- | ----------------------------------------------------------------------------- | ---------- |
+| Batch chicken (Mon/Wed)   | Rotisserie chicken from store (skip batch cooking)                            | 0 min      |
+| Baked salmon (Tuesday)    | Canned salmon or canned tuna tossed with olive oil + lemon                    | 5 min      |
+| Sheet-pan tofu (Saturday) | Fried eggs (2 per person) over jasmine rice + any vegetable                   | 10 min     |
+| Any dinner                | Pantry failsafe: pasta + canned tomatoes + olive oil + parmesan + frozen peas | 18 min     |
 
 ---
 
 ### PSV Portion Reference
 
-| Component   | Per Person           | Visual Cue              | Notes                                    |
-|-------------|----------------------|-------------------------|------------------------------------------|
-| Protein     | 4-6 oz / 110-170g cooked | Palm of your hand   | Use lower end for lighter appetite       |
-| Starch      | 3/4-1 cup cooked     | One cupped hand         | Add second serving for higher energy days|
-| Vegetable   | 1-2 
+| Component | Per Person               | Visual Cue        | Notes                                     |
+| --------- | ------------------------ | ----------------- | ----------------------------------------- |
+| Protein   | 4-6 oz / 110-170g cooked | Palm of your hand | Use lower end for lighter appetite        |
+| Starch    | 3/4-1 cup cooked         | One cupped hand   | Add second serving for higher energy days |
+| Vegetable | 1-2                      |

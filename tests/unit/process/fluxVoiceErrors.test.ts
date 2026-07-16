@@ -115,9 +115,7 @@ describe('SpeechToTextService — Flux Voice error mapping', () => {
   });
 
   it('sends the correct Authorization header and URL', async () => {
-    vi.mocked(fetch).mockResolvedValue(
-      new Response(JSON.stringify({ text: 'hi' }), { status: 200 })
-    );
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ text: 'hi' }), { status: 200 }));
     await SpeechToTextService.transcribe(AUDIO_REQUEST);
     const [url, init] = vi.mocked(fetch).mock.calls[0];
     expect(String(url)).toBe('https://api.fluxrouter.ai/v1/audio/transcriptions');

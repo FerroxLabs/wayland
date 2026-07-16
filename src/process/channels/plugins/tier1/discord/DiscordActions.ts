@@ -115,7 +115,7 @@ export interface VoiceJoinOptions {
  */
 export async function joinVoiceChannelById(
   client: Client,
-  options: VoiceJoinOptions,
+  options: VoiceJoinOptions
 ): Promise<{ disconnect: () => void }> {
   const voice = await import('@discordjs/voice');
   const guild = await client.guilds.fetch(options.guildId);

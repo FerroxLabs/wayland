@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance design guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance design guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Interior Designer
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about interior designer
 - User needs guidance on interior designer topics
 - User wants a structured approach to interior designer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -46,6 +49,7 @@ metadata:
 ## Design Style Guide
 
 ### Major Interior Design Styles
+
 ```
 STYLE IDENTIFICATION MATRIX:
 MODERN
@@ -116,6 +120,7 @@ MINIMALIST
 ## Color Theory for Interiors
 
 ### The Color Wheel in Practice
+
 ```
 COLOR RELATIONSHIPS:
 MONOCHROMATIC: One color in varying shades/tints
@@ -130,6 +135,7 @@ SPLIT COMPLEMENTARY: One color + two adjacent to its complement
 ```
 
 ### The 60-30-10 Rule
+
 ```
 COLOR DISTRIBUTION FORMULA:
 60% - DOMINANT COLOR (walls, large furniture, rug)
@@ -146,22 +152,23 @@ APPLICATION:
 
 ### Color Psychology for Rooms
 
-| Color Family | Psychological Effect | Best Rooms | Avoid In |
-|-------------|---------------------|------------|----------|
-| Blue | Calm, trust, focus | Bedrooms, bathrooms, offices | Dark dining rooms |
-| Green | Balance, nature, renewal | Any room, especially bedrooms | -- |
-| Yellow | Energy, optimism, warmth | Kitchens, dining rooms, entries | Bedrooms (too stimulating) |
-| Red | Appetite, energy, passion | Dining rooms, accent walls | Bedrooms (raises heart rate) |
-| Orange | Social, creative, warm | Living rooms, studios | Bedrooms |
-| Purple | Luxury, creativity, calm | Bedrooms (lavender), living rooms | Kitchens |
-| White | Clean, spacious, fresh | Any room | Can feel cold without warm accents |
-| Gray | Sophisticated, neutral | Any room | Can feel depressing without warm accents |
-| Black | Drama, sophistication | Accents, powder rooms | Small rooms without light |
-| Brown/Beige | Grounding, warm, safe | Living rooms, bedrooms | Can feel dated without fresh accents |
+| Color Family | Psychological Effect      | Best Rooms                        | Avoid In                                 |
+| ------------ | ------------------------- | --------------------------------- | ---------------------------------------- |
+| Blue         | Calm, trust, focus        | Bedrooms, bathrooms, offices      | Dark dining rooms                        |
+| Green        | Balance, nature, renewal  | Any room, especially bedrooms     | --                                       |
+| Yellow       | Energy, optimism, warmth  | Kitchens, dining rooms, entries   | Bedrooms (too stimulating)               |
+| Red          | Appetite, energy, passion | Dining rooms, accent walls        | Bedrooms (raises heart rate)             |
+| Orange       | Social, creative, warm    | Living rooms, studios             | Bedrooms                                 |
+| Purple       | Luxury, creativity, calm  | Bedrooms (lavender), living rooms | Kitchens                                 |
+| White        | Clean, spacious, fresh    | Any room                          | Can feel cold without warm accents       |
+| Gray         | Sophisticated, neutral    | Any room                          | Can feel depressing without warm accents |
+| Black        | Drama, sophistication     | Accents, powder rooms             | Small rooms without light                |
+| Brown/Beige  | Grounding, warm, safe     | Living rooms, bedrooms            | Can feel dated without fresh accents     |
 
 ## Room Layout Principles
 
 ### Furniture Arrangement Fundamentals
+
 ```
 LAYOUT PRINCIPLES:
 1. FOCAL POINT FIRST
@@ -195,6 +202,7 @@ LAYOUT PRINCIPLES:
 ```
 
 ### Room-Specific Layout Templates
+
 ```
 LIVING ROOM LAYOUTS:
 Layout A: SYMMETRICAL (formal)
@@ -219,6 +227,7 @@ Layout D: DUAL ZONE (multipurpose)
 ## Lighting Design
 
 ### The Three Layers of Lighting
+
 ```
 LIGHTING LAYERS:
 LAYER 1: AMBIENT (general illumination)
@@ -243,6 +252,7 @@ LAYER 4 (BONUS): DECORATIVE (the fixture itself is the feature)
 ```
 
 ### Lighting by Room
+
 ```
 ROOM LIGHTING PLANS:
 LIVING ROOM:
@@ -273,6 +283,7 @@ HOME OFFICE:
 ## Small Space Optimization
 
 ### Strategies for Small Rooms
+
 ```
 SMALL SPACE PRINCIPLES:
 VISUAL EXPANSION:
@@ -304,6 +315,7 @@ LAYOUT RULES:
 ## Budget Decorating Strategies
 
 ### Impact by Price Point
+
 ```
 $0 - REARRANGE AND EDIT:
   - Rearrange furniture layout (biggest impact for free)
@@ -341,6 +353,7 @@ $2000-5000 - SIGNIFICANT REDESIGN:
 ```
 
 ### Budget Shopping Hierarchy
+
 ```
 WHERE TO SHOP (by price point):
 FREE/MINIMAL:
@@ -373,6 +386,7 @@ Save on pieces you look at (decor, accessories, art).
 ## Room-by-Room Design Guides
 
 ### Living Room Design Template
+
 ```
 LIVING ROOM DESIGN PLAN:
 FUNCTION: Primary: ___________ Secondary: ___________
@@ -411,6 +425,7 @@ BUDGET ALLOCATION:
 ```
 
 ### Bedroom Design Template
+
 ```
 BEDROOM DESIGN PLAN:
 SLEEPERS: ___ (single/couple)
@@ -450,6 +465,7 @@ SLEEP OPTIMIZATION:
 ```
 
 ## Design Process Workflow
+
 ```
 ROOM DESIGN PROCESS:
 PHASE 1: ASSESS (Day 1)
@@ -488,6 +504,7 @@ PHASE 4: REFINE (Ongoing)
 ## Output Format
 
 When providing design advice:
+
 ```
 DESIGN RECOMMENDATION
 Room: [room type and dimensions]

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design security"
-  category: "backend-systems"
-  subcategory: "server-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend api-design security'
+  category: 'backend-systems'
+  subcategory: 'server-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Rate Limiter Designer
@@ -22,25 +22,25 @@ You are an expert in designing and implementing rate limiting systems. Rate limi
 
 ## Why Rate Limit
 
-| Threat | Without Rate Limiting | With Rate Limiting |
-|--------|----------------------|-------------------|
-| DDoS attack | Service overwhelmed, all users affected | Attack absorbed, legitimate traffic served |
-| Misbehaving client | One client consumes all resources | Client throttled, others unaffected |
-| Bug causing retry storm | Cascading failure across services | Retry storms contained |
-| Expensive API abuse | Cost explosion (AI/ML endpoints) | Costs predictable and bounded |
-| Data scraping | Entire database exfiltrated | Scraping slowed to impractical speed |
+| Threat                  | Without Rate Limiting                   | With Rate Limiting                         |
+| ----------------------- | --------------------------------------- | ------------------------------------------ |
+| DDoS attack             | Service overwhelmed, all users affected | Attack absorbed, legitimate traffic served |
+| Misbehaving client      | One client consumes all resources       | Client throttled, others unaffected        |
+| Bug causing retry storm | Cascading failure across services       | Retry storms contained                     |
+| Expensive API abuse     | Cost explosion (AI/ML endpoints)        | Costs predictable and bounded              |
+| Data scraping           | Entire database exfiltrated             | Scraping slowed to impractical speed       |
 
 ## Algorithm Selection
 
 ### Algorithm Comparison
 
-| Algorithm | Accuracy | Memory | Burst Handling | Complexity | Best For |
-|-----------|----------|--------|----------------|------------|----------|
-| **Fixed Window** | Low (boundary burst) | Very Low | Poor | Simple | Basic protection |
-| **Sliding Window Log** | High | High | Good | Medium | Small-scale precision |
-| **Sliding Window Counter** | Good | Low | Good | Medium | Most applications |
-| **Token Bucket** | Good | Low | Controlled burst | Medium | APIs with burst allowance |
-| **Leaky Bucket** | High | Low | No burst (smoothed) | Medium | Steady rate enforcement |
+| Algorithm                  | Accuracy             | Memory   | Burst Handling      | Complexity | Best For                  |
+| -------------------------- | -------------------- | -------- | ------------------- | ---------- | ------------------------- |
+| **Fixed Window**           | Low (boundary burst) | Very Low | Poor                | Simple     | Basic protection          |
+| **Sliding Window Log**     | High                 | High     | Good                | Medium     | Small-scale precision     |
+| **Sliding Window Counter** | Good                 | Low      | Good                | Medium     | Most applications         |
+| **Token Bucket**           | Good                 | Low      | Controlled burst    | Medium     | APIs with burst allowance |
+| **Leaky Bucket**           | High                 | Low      | No burst (smoothed) | Medium     | Steady rate enforcement   |
 
 ### Fixed Window Counter
 
@@ -213,16 +213,18 @@ const slidingWindowScript = `
 class RedisRateLimiter {
   constructor(private redis: Redis) {}
 
-  async isAllowed(key: string, limit: number, windowMs: number): Promise<{
+  async isAllowed(
+    key: string,
+    limit: number,
+    windowMs: number
+  ): Promise<{
     allowed: boolean;
     remaining: number;
     retryAfter?: number;
   }> {
     const now = Date.now();
     // Execute the Lua script atomically on Redis
-    const result = await this.redis.executeScript(
-      slidingWindowScript, 1, key, windowMs, limit, now
-    );
+    const result = await this.redis.executeScript(slidingWindowScript, 1, key, windowMs, limit, now);
 
     if (result === 1) {
       const count = await this.redis.zcard(key);
@@ -231,9 +233,7 @@ class RedisRateLimiter {
 
     // Calculate retry-after from oldest entry in window
     const oldest = await this.redis.zrange(key, 0, 0, 'WITHSCORES');
-    const retryAfter = oldest.length > 1
-      ? Math.ceil((parseInt(oldest[1]) + windowMs - now) / 1000)
-      : 1;
+    const retryAfter = oldest.length > 1 ? Math.ceil((parseInt(oldest[1]) + windowMs - now) / 1000) : 1;
 
     return { allowed: false, remaining: 0, retryAfter };
   }
@@ -317,10 +317,10 @@ async function checkRateLimits(apiKey: string, endpoint: string): Promise<RateLi
 
   // Check all levels (fail fast: cheapest check first)
   const checks = [
-    { key: `rl:${apiKey}:sec`,  limit: tier.limits.perSecond,  window: 1000 },
-    { key: `rl:${apiKey}:min`,  limit: tier.limits.perMinute,  window: 60000 },
-    { key: `rl:${apiKey}:day`,  limit: tier.limits.perDay,     window: 86400000 },
-    { key: `rl:global:sec`,     limit: 10000,                   window: 1000 },
+    { key: `rl:${apiKey}:sec`, limit: tier.limits.perSecond, window: 1000 },
+    { key: `rl:${apiKey}:min`, limit: tier.limits.perMinute, window: 60000 },
+    { key: `rl:${apiKey}:day`, limit: tier.limits.perDay, window: 86400000 },
+    { key: `rl:global:sec`, limit: 10000, window: 1000 },
   ];
 
   for (const check of checks) {
@@ -375,14 +375,10 @@ import { Request, Response, NextFunction } from 'express';
 
 function rateLimitMiddleware(limiter: RedisRateLimiter) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const key = extractKey(req);  // API key, user ID, or IP
+    const key = extractKey(req); // API key, user ID, or IP
     const tier = await getTier(key);
 
-    const result = await limiter.isAllowed(
-      `rl:${key}:min`,
-      tier.limits.perMinute,
-      60000
-    );
+    const result = await limiter.isAllowed(`rl:${key}:min`, tier.limits.perMinute, 60000);
 
     // Always set headers (even when allowed)
     res.set('RateLimit-Limit', String(tier.limits.perMinute));
@@ -442,10 +438,13 @@ function buildRateLimitResponse(result: RateLimitResult, tier: Tier) {
         window: '1 minute',
         resetsAt: new Date(result.resetAt).toISOString(),
       },
-      upgrade: tier.name !== 'enterprise' ? {
-        message: `Upgrade to ${nextTier(tier).name} for higher limits.`,
-        url: '[reference URL]',
-      } : undefined,
+      upgrade:
+        tier.name !== 'enterprise'
+          ? {
+              message: `Upgrade to ${nextTier(tier).name} for higher limits.`,
+              url: '[reference URL]',
+            }
+          : undefined,
     },
   };
 }
@@ -483,6 +482,7 @@ function buildRateLimitResponse(result: RateLimitResult, tier: Tier) {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing rate limiter designer solutions
 - Reviewing or improving existing rate limiter designer approaches
 - Making architectural or implementation decisions about rate limiter designer
@@ -490,6 +490,7 @@ function buildRateLimitResponse(result: RateLimitResult, tier: Tier) {
 - Troubleshooting rate limiter designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -500,21 +501,26 @@ function buildRateLimitResponse(result: RateLimitResult, tier: Tier) {
 # Rate Limiter Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

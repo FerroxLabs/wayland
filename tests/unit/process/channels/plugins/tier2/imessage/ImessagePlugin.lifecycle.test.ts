@@ -21,33 +21,37 @@ afterAll(() => Object.defineProperty(process, 'platform', { value: ORIGINAL_PLAT
 // Hoist mocks - must be at module top level per MANDATORY Vitest hoisting rules
 // ---------------------------------------------------------------------------
 
-const { mockDbInstance, mockDbConstructor, mockExecFileNoThrow, mockFsExistsSync, mockFsAccessSync } = vi.hoisted(() => {
-  const stmtMock = { all: vi.fn(() => [] as unknown[]) };
-  const seedStmt = { get: vi.fn(() => ({ maxid: 5 })) };
+const { mockDbInstance, mockDbConstructor, mockExecFileNoThrow, mockFsExistsSync, mockFsAccessSync } = vi.hoisted(
+  () => {
+    const stmtMock = { all: vi.fn(() => [] as unknown[]) };
+    const seedStmt = { get: vi.fn(() => ({ maxid: 5 })) };
 
-  const dbInstance = {
-    prepare: vi.fn(function (sql: string) {
-      if (sql.includes('MAX(rowid)')) return seedStmt;
-      return stmtMock;
-    }),
-    close: vi.fn(),
-  };
+    const dbInstance = {
+      prepare: vi.fn(function (sql: string) {
+        if (sql.includes('MAX(rowid)')) return seedStmt;
+        return stmtMock;
+      }),
+      close: vi.fn(),
+    };
 
-  // vi.fn(function() { return instance }) is the correct pattern for new-able mocks
-  const dbConstructor = vi.fn(function () { return dbInstance; });
+    // vi.fn(function() { return instance }) is the correct pattern for new-able mocks
+    const dbConstructor = vi.fn(function () {
+      return dbInstance;
+    });
 
-  const execMock = vi.fn(async () => ({ stdout: 'ok', stderr: '', exitCode: 0 }));
-  const existsSyncMock = vi.fn(() => true);
-  const accessSyncMock = vi.fn(() => undefined);
+    const execMock = vi.fn(async () => ({ stdout: 'ok', stderr: '', exitCode: 0 }));
+    const existsSyncMock = vi.fn(() => true);
+    const accessSyncMock = vi.fn(() => undefined);
 
-  return {
-    mockDbInstance: dbInstance,
-    mockDbConstructor: dbConstructor,
-    mockExecFileNoThrow: execMock,
-    mockFsExistsSync: existsSyncMock,
-    mockFsAccessSync: accessSyncMock,
-  };
-});
+    return {
+      mockDbInstance: dbInstance,
+      mockDbConstructor: dbConstructor,
+      mockExecFileNoThrow: execMock,
+      mockFsExistsSync: existsSyncMock,
+      mockFsAccessSync: accessSyncMock,
+    };
+  }
+);
 
 vi.mock('better-sqlite3', () => ({ default: mockDbConstructor }));
 vi.mock('@/utils/execFileNoThrow', () => ({ execFileNoThrow: mockExecFileNoThrow }));

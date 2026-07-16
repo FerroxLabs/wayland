@@ -117,9 +117,7 @@ describe('gateAcpFileOp - imported team capability gate', () => {
       getTeam: async () => team,
     });
     const fallback = vi.fn();
-    await expectSandboxed(
-      gateAcpFileOp('conv-1', 'write', { path: 'a.txt', content: 'x' }, fallback)
-    );
+    await expectSandboxed(gateAcpFileOp('conv-1', 'write', { path: 'a.txt', content: 'x' }, fallback));
     expect(fallback).not.toHaveBeenCalled();
   });
 
@@ -163,9 +161,7 @@ describe('gateAcpFileOp - imported team workspace sandbox', () => {
       isImported: true,
       getTeam: async () => team,
     });
-    await expectSandboxed(
-      gateAcpFileOp('conv-1', 'read', { path: '../../etc/passwd' }, vi.fn())
-    );
+    await expectSandboxed(gateAcpFileOp('conv-1', 'read', { path: '../../etc/passwd' }, vi.fn()));
   });
 
   it('rejects absolute paths like /etc/passwd even when canReadFiles granted', async () => {
@@ -175,9 +171,7 @@ describe('gateAcpFileOp - imported team workspace sandbox', () => {
       isImported: true,
       getTeam: async () => team,
     });
-    await expectSandboxed(
-      gateAcpFileOp('conv-1', 'read', { path: '/etc/passwd' }, vi.fn())
-    );
+    await expectSandboxed(gateAcpFileOp('conv-1', 'read', { path: '/etc/passwd' }, vi.fn()));
   });
 
   it('rejects .env (denylist) even when canReadFiles granted', async () => {
@@ -198,12 +192,7 @@ describe('gateAcpFileOp - imported team workspace sandbox', () => {
       isImported: true,
       getTeam: async () => team,
     });
-    const out = await gateAcpFileOp(
-      'conv-1',
-      'write',
-      { path: 'out.txt', content: 'hello' },
-      vi.fn()
-    );
+    const out = await gateAcpFileOp('conv-1', 'write', { path: 'out.txt', content: 'hello' }, vi.fn());
     expect(out).toEqual({ kind: 'write', result: null });
     const written = await fs.readFile(path.join(workspaceDir, 'out.txt'), 'utf-8');
     expect(written).toBe('hello');
@@ -220,12 +209,7 @@ describe('gateAcpFileOp - imported team workspace sandbox', () => {
     // reach the denylist check, not the parent-existence check.
     await fs.mkdir(path.join(workspaceDir, 'node_modules', '.bin'), { recursive: true });
     await expectSandboxed(
-      gateAcpFileOp(
-        'conv-1',
-        'write',
-        { path: 'node_modules/.bin/evil', content: '#!/bin/sh\n' },
-        vi.fn()
-      )
+      gateAcpFileOp('conv-1', 'write', { path: 'node_modules/.bin/evil', content: '#!/bin/sh\n' }, vi.fn())
     );
   });
 });

@@ -154,9 +154,7 @@ describe('MattermostPlugin.sendMessage - happy paths', () => {
     const id = await plugin.sendMessage('channel-xyz', { type: 'text', text: longText });
 
     // At least 2 POST calls (1 users/me + 2+ chunks).
-    const postCalls = mockFetch.mock.calls.filter(([url]: [string]) =>
-      (url as string).endsWith('/api/v4/posts'),
-    );
+    const postCalls = mockFetch.mock.calls.filter(([url]: [string]) => (url as string).endsWith('/api/v4/posts'));
     expect(postCalls.length).toBeGreaterThan(1);
     expect(id).toBe('chunk-post-id');
 
@@ -171,9 +169,7 @@ describe('MattermostPlugin.sendMessage - error path', () => {
       .mockResolvedValueOnce({ ok: false, status: 500, text: () => Promise.resolve('error') });
 
     const plugin = await startPlugin();
-    await expect(
-      plugin.sendMessage('channel-xyz', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/500/);
+    await expect(plugin.sendMessage('channel-xyz', { type: 'text', text: 'hello' })).rejects.toThrow(/500/);
     await plugin.stop();
   });
 });
@@ -274,7 +270,7 @@ describe('MattermostPlugin inbound message emission', () => {
         event: 'posted',
         data: { post: JSON.stringify(post) },
         broadcast: { channel_id: 'channel-xyz' },
-      }),
+      })
     );
     await new Promise((r) => setTimeout(r, 0));
 
@@ -303,7 +299,7 @@ describe('MattermostPlugin inbound message emission', () => {
         event: 'posted',
         data: { post: JSON.stringify(post) },
         broadcast: { channel_id: 'channel-xyz' },
-      }),
+      })
     );
     await new Promise((r) => setTimeout(r, 0));
 

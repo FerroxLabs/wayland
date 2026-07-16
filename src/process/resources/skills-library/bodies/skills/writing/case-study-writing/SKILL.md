@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing writing template"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing writing template'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Case Study Writing
 
 ## When to Use
@@ -51,6 +52,7 @@ Use this skill when the user presents one of these specific scenarios:
 Before writing a single word of the case study, collect specific inputs. If the user provides a prompt without complete information, ask targeted follow-up questions before drafting. Do not fill in missing details with assumptions.
 
 **Required information -- do not proceed without these:**
+
 - Customer name (or anonymized descriptor if the customer's identity is confidential -- see Edge Cases)
 - Customer's industry, company size (employees or revenue band), geography, and relevant business context
 - The specific business problem that existed before the solution was implemented -- including the root cause and the operational manifestation (what broke, what was slow, what cost money)
@@ -60,6 +62,7 @@ Before writing a single word of the case study, collect specific inputs. If the 
 - At least one direct customer quote about the challenge and one about the results
 
 **Helpful but optional information:**
+
 - The customer's evaluation and decision process (why they chose this solution over alternatives)
 - Named champion at the customer company (title, role -- full name if the customer approved it)
 - Implementation challenges that were overcome (makes the story more credible)
@@ -75,11 +78,13 @@ Before writing a single word of the case study, collect specific inputs. If the 
 A case study is not written for the customer it features -- it is written for the next customer who resembles them. Before drafting, identify:
 
 **The target reader persona:**
+
 - Seniority level: Economic buyer (CFO, VP), functional buyer (Director of Operations, IT Manager), or technical evaluator (Engineer, Analyst)? Each needs a different emphasis -- financial buyers want ROI and payback period, functional buyers want process relief and adoption rates, technical evaluators want integration depth and implementation honesty.
 - Industry vertical: If the reader is in the same industry as the featured customer, use industry-specific language (healthcare readers expect HIPAA references, financial services readers expect mentions of audit trails and compliance)
 - Deal stage: Is this case study used at top-of-funnel (awareness) or bottom-of-funnel (proof before purchase)? Top-of-funnel case studies lead with the challenge; bottom-of-funnel case studies lead with the metric and ROI calculation.
 
 **Tone register:**
+
 - Enterprise B2B software: Formal, third-person, results-forward. Avoid superlatives. Let numbers carry the claims.
 - Professional services: Warmer, narrative-driven. Can use "our team" language if the case study is written from the vendor's perspective.
 - Consumer or SMB product: Conversational, accessible. Use the customer's name frequently. Avoid corporate jargon.
@@ -94,17 +99,20 @@ A case study is not written for the customer it features -- it is written for th
 A case study is a story with three acts, not a feature announcement with supporting quotes. Map the arc explicitly before drafting:
 
 **Act 1 -- The Before State (Challenge Section):**
+
 - What did the customer's world look like before? Paint the operational picture: the manual process, the legacy tool, the workaround, the team friction.
 - What was the cost of the problem? Measure it in time (hours per week), money (cost per error, revenue lost per month), risk (compliance exposure, churn rate), or competitive disadvantage (falling behind market peers).
 - What made the problem urgent enough to act on? There is always a trigger -- a failed audit, a competitor gaining ground, a key employee leaving who held the manual process in their head. Find it and include it.
 - The reader must see their own situation in this section. If the challenge section does not make a similar prospect think "that is exactly what we deal with," the case study will not convert.
 
 **Act 2 -- The Turning Point and Solution (Solution Section):**
+
 - Why did the customer choose this solution? Include their evaluation criteria, even briefly. This pre-answers the objection "why wouldn't they just use [competitor]?"
 - What did implementation look like? Timeframe, resource requirements, disruption to operations. Be honest -- if it required 3 months and dedicated IT resources, say so. Prospects who discover implementation complexity during sales will distrust the case study.
 - What was the methodology or approach, not just the feature list? Focus on how the customer used the solution, not on product capabilities in isolation.
 
 **Act 3 -- The After State (Results Section):**
+
 - Lead with the single most impressive, most credible metric. This is the headline number.
 - Present 3-5 additional quantified outcomes as a before/after table.
 - Attribute results to specific, identifiable changes -- not vague causation. "Response time dropped 40% because automated triage eliminated the manual email routing step" is credible. "Response time improved with our platform" is not.
@@ -119,11 +127,13 @@ The headline is the most important line in the case study because it determines 
 **Headline formula:** `[Customer Name] + [Verb] + [Specific Metric] + [Timeframe if impressive]`
 
 **Strong headlines:**
+
 - "Meridian Health Cuts Patient Intake Time by 47% in 60 Days"
 - "How a 200-Person Logistics Firm Eliminated $2.3M in Annual Shipping Errors"
 - "Coastal Realty Group Closes Deals 3x Faster with Automated Document Management"
 
 **Weak headlines to avoid:**
+
 - "Greenfield Construction Success Story" -- no metric, no specificity
 - "How Our Software Helped a Construction Company" -- no customer name, no result
 - "Greenfield Construction Transforms Their Operations" -- "transforms" is marketing language, not a result
@@ -137,12 +147,14 @@ The headline is the most important line in the case study because it determines 
 This section runs 200-350 words. Its job is empathy first, credibility second.
 
 **Structural sequence within the challenge section:**
+
 1. Establish the operational context -- what the company does, at what scale, with what complexity (2-3 sentences)
 2. Describe the specific problem with concrete detail -- name the tool they were using, name the process that was failing, name the department feeling the pain
 3. Quantify the cost of the problem in at least two dimensions (time AND money, or risk AND time)
 4. Include a customer quote about the pain that any similar prospect would recognize as authentic
 
 **Challenge section techniques:**
+
 - Use the customer's own terminology for their process -- if they call it a "dispatch queue," not a "work order system," use their language
 - Describe the problem at ground level (what a frontline employee experienced) before summarizing it at executive level (what it cost the business)
 - If the customer tried and failed with a previous solution, include it -- it makes the final decision more credible
@@ -157,6 +169,7 @@ This section runs 150-250 words. Its job is to describe the approach without bec
 **The cardinal rule of the solution section:** The customer is the subject, not the product. Write "Meridian Health deployed automated triage workflows" not "Our triage automation module, which features AI-powered routing..."
 
 **Structural sequence:**
+
 1. State what was implemented and why (the decision criteria that led to selection)
 2. Describe the implementation timeline and any significant effort required
 3. Highlight 2-3 specific ways the customer configured or used the solution (shows real-world application, not just theoretical capability)
@@ -173,6 +186,7 @@ This section runs 200-300 words plus the metrics table. It is the payoff of the 
 **Lead with the headline metric in prose, not just in the table.** The first sentence of the results section should state the most important outcome in plain language with the timeframe.
 
 **Quantified results standards:**
+
 - Minimum 3 metrics, maximum 6 (beyond 6, results lose individual impact)
 - Every metric must have a before value, an after value, and a percentage or absolute change
 - Metrics must be measured over a defined period -- "within 90 days," "in the first year," "by Q3"
@@ -200,6 +214,7 @@ Before delivering the draft, ensure these elements are included and checked:
 **Word count check:** The finished case study should land between 800-1,500 words. Under 800 words signals insufficient depth. Over 1,500 words will not be read to completion by a busy prospect. If the user's inputs yield more content than this, prioritize the results section and cut implementation detail first.
 
 **Final credibility audit:** Read through the draft and flag any claim that is:
+
 - Not attributed to a specific metric or timeframe
 - A superlative without substantiation ("best," "most efficient," "transformative")
 - A result without a before-state comparison
@@ -385,6 +400,7 @@ This scenario, while outside the writing process itself, should be anticipated b
 **Output:**
 
 # Valley Orthopedic Group Cuts Days in AR from 51 to 29 and Drops Claim Denials by 70%
+
 ### Billing team recaptures the equivalent of 9 FTEs through automated claim management
 
 ---
@@ -420,12 +436,12 @@ The integration with Valley Orthopedic's existing EHR required a custom data map
 
 ### Implementation at a Glance
 
-| Detail | Specifics |
-|--------|-----------|
-| Implementation timeline | 11 weeks from contract to full go-live |
-| Users trained | 22 billing staff, 4 revenue cycle managers |
-| EHR integration | Custom specialty billing code mapping layer |
-| Rollout approach | Phased -- 4 pilot locations, then 8-location cutover |
+| Detail                          | Specifics                                                       |
+| ------------------------------- | --------------------------------------------------------------- |
+| Implementation timeline         | 11 weeks from contract to full go-live                          |
+| Users trained                   | 22 billing staff, 4 revenue cycle managers                      |
+| EHR integration                 | Custom specialty billing code mapping layer                     |
+| Rollout approach                | Phased -- 4 pilot locations, then 8-location cutover            |
 | Time to first measurable result | Denial rate improvement visible within 30 days of pilot go-live |
 
 ---
@@ -440,15 +456,15 @@ The most significant operational transformation was in how the billing team spen
 
 ### Results by the Numbers
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Days in accounts receivable (AR) | 51 days | 29 days | -43% (22-day reduction) |
-| Claim denial rate | 14.0% | 4.2% | -70% |
-| Billing team time on manual follow-up | 60% of capacity | 18% of capacity | -42 percentage points |
-| Billing capacity freed for strategic work | 0 FTE equivalent | 9 FTE equivalent | +9 FTEs redeployed |
-| Estimated additional quarterly collections | Baseline | +$2.4M recovered | $9.6M annualized |
+| Metric                                     | Before           | After            | Improvement             |
+| ------------------------------------------ | ---------------- | ---------------- | ----------------------- |
+| Days in accounts receivable (AR)           | 51 days          | 29 days          | -43% (22-day reduction) |
+| Claim denial rate                          | 14.0%            | 4.2%             | -70%                    |
+| Billing team time on manual follow-up      | 60% of capacity  | 18% of capacity  | -42 percentage points   |
+| Billing capacity freed for strategic work  | 0 FTE equivalent | 9 FTE equivalent | +9 FTEs redeployed      |
+| Estimated additional quarterly collections | Baseline         | +$2.4M recovered | $9.6M annualized        |
 
-*Results measured over the six months following full deployment (February -- August). Metrics sourced from Valley Orthopedic Group's internal revenue cycle reporting.*
+_Results measured over the six months following full deployment (February -- August). Metrics sourced from Valley Orthopedic Group's internal revenue cycle reporting._
 
 > "The billing team went from chasing denials all day to actually analyzing trends and improving our coding quality. That shift alone is worth more than the platform cost -- because now we're preventing the problems instead of cleaning them up."
 > -- Sandra Tate, Revenue Cycle Director, Valley Orthopedic Group
@@ -469,4 +485,4 @@ The practice's CFO has also indicated that Valley Orthopedic plans to use the de
 
 ---
 
-*Note: All metrics in this case study have been reviewed and approved by Valley Orthopedic Group's CFO and Revenue Cycle Director. Verification documentation is on file.*
+_Note: All metrics in this case study have been reviewed and approved by Valley Orthopedic Group's CFO and Revenue Cycle Director. Verification documentation is on file._

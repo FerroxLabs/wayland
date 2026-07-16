@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart career budgeting checklist template python javascript analysis"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'quickstart career budgeting checklist template python javascript analysis'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Resume Quick Polish
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user shares their resume and asks for fast, targeted improvements before submitting to a specific job posting
 - A user has an interview or application deadline within 24-48 hours and needs immediate, prioritized fixes
 - A user wants to understand why their resume is not generating callbacks despite applying to roles they qualify for
@@ -29,6 +31,7 @@ metadata:
 - A user needs to convert a duties-focused resume into an achievement-focused one without a full rewrite
 
 **Do NOT use when:**
+
 - The user needs a resume written from scratch with no existing content -- use a resume-writing or career-narrative skill instead
 - The user is asking about cover letter writing -- that is a separate skill domain with different conventions
 - The user is a student with no work experience and needs a resume structure designed around academics, projects, and internships -- use a first-resume or student-resume skill
@@ -59,6 +62,7 @@ Ask the user which job description they are targeting. If they do not have one, 
 Check every item systematically. Mark each as Pass, Fix, or N/A. Do not skip items -- a failing item you do not catch will cost the user an interview.
 
 **Format and Structure Audit:**
+
 - File name follows convention: `FirstName-LastName-Resume.pdf` (never "My Resume Final v3.pdf")
 - Page count: one page for under 10 years of experience, two pages maximum for 10+ years, never three pages unless the user is an academic with publications
 - Margins: 0.5 to 0.75 inches on all sides -- tight enough to fit content, wide enough to be readable
@@ -70,6 +74,7 @@ Check every item systematically. Mark each as Pass, Fix, or N/A. Do not skip ite
 - Reverse chronological order in every section
 
 **Content Audit:**
+
 - Every bullet begins with a strong past-tense action verb (present tense only for current role)
 - No bullet begins with "Responsible for," "Helped with," "Worked on," or "Was involved in"
 - At least 60% of bullets contain a quantified result (number, percentage, dollar amount, time saved, scale)
@@ -104,6 +109,7 @@ Every bullet should answer: "What did you do, how big was it, and what happened 
 Apply this formula to the five most visible bullets first (top role, top bullets). Then work down.
 
 **Quantification sourcing -- when the user says "I don't have numbers":**
+
 - Revenue: pull from CRM reports, commission statements, quarterly business reviews, deal announcements
 - Cost savings: calculate as (hours saved per week) x (average hourly rate of people involved) x (weeks in the period)
 - Volume: count tickets resolved, emails sent, reports produced, customers served, lines of code merged
@@ -115,6 +121,7 @@ Apply this formula to the five most visible bullets first (top role, top bullets
 If a user genuinely cannot find any numbers, use scope language: "across 12-person cross-functional team," "supporting Fortune 500 client base," "in a $50M business unit." Scope signals magnitude even without a precise metric.
 
 **Verb selection by function:**
+
 - Leadership roles: Led, Directed, Spearheaded, Orchestrated, Championed, Oversaw
 - Technical / engineering: Architected, Engineered, Refactored, Deployed, Automated, Optimized, Migrated
 - Analysis / research: Synthesized, Modeled, Forecasted, Benchmarked, Diagnosed, Evaluated, Identified
@@ -141,12 +148,14 @@ Address formatting in this exact sequence -- each issue affects readability and 
 The summary sits directly below the contact block and is the first content a recruiter reads. It must earn its space in three to four sentences.
 
 **Summary formula for experienced professionals:**
+
 - Sentence 1: Role identity + years of experience + two to three core competency areas
 - Sentence 2: A specific, quantified achievement that is the single most impressive thing on the resume
 - Sentence 3: A differentiator -- the unique angle or second strongest signal (industry specialization, technical depth, scope of leadership)
 - Sentence 4 (optional): Target statement -- what type of role or impact the candidate is seeking (skip if it narrows unnecessarily)
 
 **Summary anti-patterns to eliminate:**
+
 - "Results-driven professional" -- meaningless filler; replace with an actual result
 - "Passionate about [field]" -- passion is not a credential; replace with demonstrated commitment (e.g., "Built two open-source tools with 2K+ GitHub stars")
 - "Proven track record" -- claim without evidence; replace with the actual track record in one sentence
@@ -382,6 +391,7 @@ Technical-to-management transitions require restructuring the resume's signal hi
 ## Resume Quick Polish Report
 
 ### Triage Assessment
+
 **Primary Failure Mode:** Duties Language -- the bullet describes responsibilities rather than results, and uses passive construction ("Responsible for," "helping")
 **Secondary Issues:** Keyword Mismatch -- the bullet contains none of the exact-match keywords from the job description (Python, REST API, PostgreSQL optimization, technical design reviews, mentoring)
 **Estimated Time to Fix:** 25 minutes total -- 5 minutes keyword analysis, 10 minutes bullet rewrites, 5 minutes summary, 5 minutes final review
@@ -392,16 +402,17 @@ Technical-to-management transitions require restructuring the resume's signal hi
 
 **Target Role:** Senior Software Engineer -- Mid-size SaaS Company
 
-| Keyword / Phrase | In Job Description | On Resume | Action Needed |
-|---|---|---|---|
-| Python | Yes | No | Inject into backend API bullet |
-| REST API development | Yes | Partial (says "backend API" not "REST API") | Reword to exact match |
-| PostgreSQL optimization | Yes | No (says "database performance issues" vaguely) | Inject with specific result |
-| Cross-functional collaboration | Yes | No | Add to scope language in bullet |
-| Technical design reviews | Yes | No | Add as standalone bullet if experience exists |
-| Mentoring junior engineers | Yes | No | Add as standalone bullet if experience exists |
+| Keyword / Phrase               | In Job Description | On Resume                                       | Action Needed                                 |
+| ------------------------------ | ------------------ | ----------------------------------------------- | --------------------------------------------- |
+| Python                         | Yes                | No                                              | Inject into backend API bullet                |
+| REST API development           | Yes                | Partial (says "backend API" not "REST API")     | Reword to exact match                         |
+| PostgreSQL optimization        | Yes                | No (says "database performance issues" vaguely) | Inject with specific result                   |
+| Cross-functional collaboration | Yes                | No                                              | Add to scope language in bullet               |
+| Technical design reviews       | Yes                | No                                              | Add as standalone bullet if experience exists |
+| Mentoring junior engineers     | Yes                | No                                              | Add as standalone bullet if experience exists |
 
 **Keywords to inject (priority order):**
+
 1. PostgreSQL optimization -- inject into the database performance bullet with a quantified result
 2. REST API development -- replace "backend API" with exact-match language
 3. Mentoring junior engineers -- add as a dedicated bullet if the user has any mentorship experience
@@ -415,16 +426,16 @@ Technical-to-management transitions require restructuring the resume's signal hi
 
 **[Current Company] -- Software Engineer**
 
-| Original Bullet | Rewritten Bullet | Improvement Type |
-|---|---|---|
+| Original Bullet                                                                                     | Rewritten Bullet                                                                                                                                                                                                                  | Improvement Type                                        |
+| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | "Responsible for working on the backend API and helping the team with database performance issues." | "Engineered Python-based REST APIs handling 2M+ daily requests, and led PostgreSQL query optimization initiative that reduced average query latency from 1,400ms to 180ms -- an 87% improvement -- for a 50K-user SaaS platform." | Quantified + Strong verb + Exact-match keywords + Scope |
 
 **Two additional bullets to add (if the underlying experience exists -- confirm with user):**
 
-| New Bullet (if applicable) | Rationale |
-|---|---|
+| New Bullet (if applicable)                                                                                                                                               | Rationale                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
 | "Led technical design reviews for 4 major backend features, aligning engineering approach with product and design stakeholders and reducing post-release rework by 30%." | Addresses "technical design reviews" and "cross-functional collaboration" keywords directly |
-| "Mentored 3 junior engineers through weekly 1:1 sessions and code reviews, all of whom were promoted to mid-level within 18 months." | Addresses "mentoring junior engineers" keyword -- critical signal for Senior level |
+| "Mentored 3 junior engineers through weekly 1:1 sessions and code reviews, all of whom were promoted to mid-level within 18 months."                                     | Addresses "mentoring junior engineers" keyword -- critical signal for Senior level          |
 
 ---
 
@@ -437,7 +448,7 @@ None present.
 
 "Software Engineer with 6 years of backend and API development experience in Python and PostgreSQL, with a track record of optimizing high-throughput systems at scale. Reduced database query latency by 87% on a 50K-user SaaS platform through targeted PostgreSQL optimization. Experienced in technical design reviews and mentoring junior engineers toward promotion. Seeking a Senior Software Engineer role where technical depth drives measurable product reliability."
 
-*Why this works: Sentence 1 establishes identity and tech stack. Sentence 2 leads with the single most impressive quantified result. Sentence 3 directly mirrors the two softer keywords from the JD (design reviews, mentoring). Sentence 4 signals intentionality about the senior-level move.*
+_Why this works: Sentence 1 establishes identity and tech stack. Sentence 2 leads with the single most impressive quantified result. Sentence 3 directly mirrors the two softer keywords from the JD (design reviews, mentoring). Sentence 4 signals intentionality about the senior-level move._
 
 ---
 
@@ -453,14 +464,14 @@ None present.
 
 ### 30-Minute Action Plan
 
-| Time Block | Action | Expected Outcome |
-|---|---|---|
-| 0-5 min | Copy the full job description. Highlight every required skill, preferred skill, and repeated role descriptor. Build a checklist of 10-15 keywords to inject. | Clear keyword target list; nothing missed from JD |
-| 5-15 min | Rewrite the backend API / database bullet using the rewritten version above. Add the design review bullet and the mentoring bullet if the experience is real. | Three strong, keyword-dense bullets that mirror the JD |
-| 15-18 min | Add the professional summary using the template above, customized with actual numbers from the user's experience | First thing a recruiter reads now signals Senior-level value |
-| 18-22 min | Add or update Technical Skills section: Python, PostgreSQL, REST API development, [other relevant tools the user knows] -- verify all entries are honest and interview-ready | ATS keyword density on skills section dramatically increases |
-| 22-27 min | Fix any formatting issues from the checklist above. Standardize dates, remove any tables, verify font consistency. | Document passes ATS structural requirements |
-| 27-30 min | Export as PDF. Open it. Copy all text into Notepad or TextEdit to verify plain text extraction is clean. Rename file correctly. Do a final read-aloud proofread. | Submission-ready document with no last-minute errors |
+| Time Block | Action                                                                                                                                                                       | Expected Outcome                                             |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 0-5 min    | Copy the full job description. Highlight every required skill, preferred skill, and repeated role descriptor. Build a checklist of 10-15 keywords to inject.                 | Clear keyword target list; nothing missed from JD            |
+| 5-15 min   | Rewrite the backend API / database bullet using the rewritten version above. Add the design review bullet and the mentoring bullet if the experience is real.                | Three strong, keyword-dense bullets that mirror the JD       |
+| 15-18 min  | Add the professional summary using the template above, customized with actual numbers from the user's experience                                                             | First thing a recruiter reads now signals Senior-level value |
+| 18-22 min  | Add or update Technical Skills section: Python, PostgreSQL, REST API development, [other relevant tools the user knows] -- verify all entries are honest and interview-ready | ATS keyword density on skills section dramatically increases |
+| 22-27 min  | Fix any formatting issues from the checklist above. Standardize dates, remove any tables, verify font consistency.                                                           | Document passes ATS structural requirements                  |
+| 27-30 min  | Export as PDF. Open it. Copy all text into Notepad or TextEdit to verify plain text extraction is clean. Rename file correctly. Do a final read-aloud proofread.             | Submission-ready document with no last-minute errors         |
 
 ---
 

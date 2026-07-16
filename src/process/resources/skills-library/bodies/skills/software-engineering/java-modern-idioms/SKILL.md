@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "java best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'java best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Java Modern Idioms
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to model immutable data structures in Java 16+ and wants to avoid verbose POJO boilerplate
 - The user wants to express a closed type hierarchy (e.g., a discriminated union, AST node, or result type) and asks about sealed classes or interfaces
 - The user is working with Java 21 and wants to use pattern matching in `switch` expressions, `instanceof` checks, or deconstruction patterns
@@ -31,6 +33,7 @@ metadata:
 - The user asks about `SequencedCollection`, `SequencedMap`, or the new collection view APIs added in Java 21
 
 **Do NOT use this skill when:**
+
 - The user is asking how to scaffold a new Maven or Gradle Java project -- use `java-project-setup` instead
 - The user is asking about JUnit 5, Mockito, AssertJ, or test architecture -- use `java-testing-patterns` instead
 - The user needs `ExecutorService`, `CompletableFuture`, `ForkJoinPool`, lock-free algorithms, or the full `java.util.concurrent` toolkit -- use `java-concurrency-patterns` instead (virtual threads at a conceptual level are covered here; deep scheduling and synchronization belong in `java-concurrency-patterns`)
@@ -87,10 +90,12 @@ metadata:
 ### 4. Apply Pattern Matching
 
 **`instanceof` pattern:**
+
 - Replace `if (obj instanceof Foo) { Foo f = (Foo) obj; }` with `if (obj instanceof Foo f)` -- the binding variable `f` is scoped to the true-branch
 - Use negated pattern matching for early-return guards: `if (!(shape instanceof Circle c)) return 0;`
 
 **`switch` expression with patterns (Java 21 GA):**
+
 - Use `switch` expressions (not statements) to return a value exhaustively:
   ```java
   double area = switch (shape) {
@@ -104,6 +109,7 @@ metadata:
 - Use `null` case explicitly rather than relying on `NullPointerException`: `case null -> throw new IllegalArgumentException("shape must not be null");`
 
 **Record patterns (Java 21 GA):**
+
 - Destructure records inline in patterns:
   ```java
   if (event instanceof UserCreated(var id, var email)) {
@@ -208,7 +214,7 @@ metadata:
 
 When responding to a user question about modern Java idioms, structure the response as follows:
 
-```
+````
 ## Feature Assessment
 
 | Feature          | Java Version Required | Project Status | Recommended |
@@ -230,14 +236,16 @@ When responding to a user question about modern Java idioms, structure the respo
 ### Code -- Before (Legacy Approach)
 ```java
 [concrete before-code with realistic class/method names]
-```
+````
 
 ### Code -- After (Modern Java Idiom)
+
 ```java
 [concrete after-code using the modern feature]
 ```
 
 ### Key Observations
+
 - [Specific behavioral difference 1]
 - [Specific behavioral difference 2]
 - [Compile-time or runtime guarantee gained]
@@ -245,16 +253,18 @@ When responding to a user question about modern Java idioms, structure the respo
 
 ## Trade-offs and Constraints
 
-| Concern              | Impact | Mitigation |
-|----------------------|--------|------------|
-| Serialization        | ...    | ...        |
-| Reflection/proxying  | ...    | ...        |
-| Team familiarity     | ...    | ...        |
-| Library compatibility| ...    | ...        |
+| Concern               | Impact | Mitigation |
+| --------------------- | ------ | ---------- |
+| Serialization         | ...    | ...        |
+| Reflection/proxying   | ...    | ...        |
+| Team familiarity      | ...    | ...        |
+| Library compatibility | ...    | ...        |
 
 ## Migration Notes
+
 [Incremental path if applying to existing code]
-```
+
+````
 
 ---
 
@@ -353,10 +363,12 @@ public class Payment {
         throw new IllegalStateException("Unknown type: " + type);
     }
 }
-```
+````
+
 Problems: no compile-time exhaustiveness, nullable fields for all possible sub-types, adding a new type requires hunting through every `if`-chain.
 
 ### Code -- After (Modern Java Idiom)
+
 ```java
 // domain/payment/PaymentMethod.java
 public sealed interface PaymentMethod permits CreditCardPayment, BankTransferPayment, CryptoPayment {}
@@ -517,6 +529,7 @@ record PaymentResult(String transactionId, BigDecimal fee, String auditJson) {}
 ```
 
 ### Key Observations
+
 - Adding a fourth payment method (e.g., `WalletPayment`) causes compile errors in `FeeCalculator.calculateFee()` and `AuditLogger.buildAuditEntry()` -- exhaustiveness is compiler-enforced, not convention-enforced
 - Each record validates its own domain constraints in the compact constructor, so a `CreditCardPayment` with an expired card cannot be constructed -- invalid state is impossible, not just checked
 - The text block in `AuditLogger` has its closing `"""` at 12 spaces of indentation, matching the content indentation -- this strips exactly those 12 characters from each line
@@ -525,15 +538,16 @@ record PaymentResult(String transactionId, BigDecimal fee, String auditJson) {}
 
 ## Trade-offs and Constraints
 
-| Concern                  | Impact                                     | Mitigation                                                      |
-|--------------------------|--------------------------------------------|-----------------------------------------------------------------|
-| Jackson deserialization  | Records need Jackson 2.12+ or `@JsonCreator` | Verify Jackson version; add `jackson-module-parameter-names`    |
-| JPA / Hibernate          | Records cannot be JPA entities             | Use records as DTOs only; map to/from JPA entity classes        |
-| Mocking in tests         | Records are final; Mockito cannot subclass | Use real instances (records are cheap to construct) or interfaces |
-| Team familiarity         | Pattern switch may be unfamiliar           | Code review with inline comments; link to JEP 441 in team wiki  |
-| Serialization (Java)     | `record` serialization is serial-version sensitive | Define `serialVersionUID` if using Java serialization; prefer JSON |
+| Concern                 | Impact                                             | Mitigation                                                         |
+| ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------ |
+| Jackson deserialization | Records need Jackson 2.12+ or `@JsonCreator`       | Verify Jackson version; add `jackson-module-parameter-names`       |
+| JPA / Hibernate         | Records cannot be JPA entities                     | Use records as DTOs only; map to/from JPA entity classes           |
+| Mocking in tests        | Records are final; Mockito cannot subclass         | Use real instances (records are cheap to construct) or interfaces  |
+| Team familiarity        | Pattern switch may be unfamiliar                   | Code review with inline comments; link to JEP 441 in team wiki     |
+| Serialization (Java)    | `record` serialization is serial-version sensitive | Define `serialVersionUID` if using Java serialization; prefer JSON |
 
 ## Migration Notes
+
 - If starting from the legacy `Payment` class: introduce the `sealed interface PaymentMethod` first, then migrate one subtype at a time (starting with `CreditCardPayment`), running the existing test suite after each record extraction
 - Replace the fee `if`-chain with the pattern `switch` only after all three records are in place -- the compiler will signal any missing cases
 - Enable virtual threads in `processAll()` only after confirming that `gatewayClient` does not use `synchronized` blocks around its socket I/O; if it does, update it to use `ReentrantLock` first

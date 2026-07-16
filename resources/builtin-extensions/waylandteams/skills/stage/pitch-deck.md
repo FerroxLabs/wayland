@@ -16,12 +16,12 @@ Sequoia template, refined with Raskin's spine. Eleven slides if the ask warrants
 2. **The stakes.** Who wins and who loses under the new rules. The slide where the room leans in or checks their phone.
 3. **The problem.** The new winner criterion, stated as a problem the buyer feels today. Customer-voice phrasing if available.
 4. **The old way and why it fails.** Name the incumbent approach. State the dimension on which it falls short of the new criterion. Do not insult the incumbent — explain its design assumption and why the shift broke it.
-5. **The new way.** Name the new approach as a category, not a product. *"We're building a [category] for [audience] in the era of [shift]."*
+5. **The new way.** Name the new approach as a category, not a product. _"We're building a [category] for [audience] in the era of [shift]."_
 6. **The product.** One screen, one workflow, one frame. The product is the proof of the category, not the category itself.
 7. **Traction or design-partner evidence.** Revenue, users, retention, design partners, waitlist — in that priority. Real numbers only.
 8. **Market built bottom-up.** Number of buyers × annual willingness to pay × adoption assumption, with the source for each. Top-down TAM goes in the appendix.
 9. **Business model.** Pricing, unit economics, payback period. Coin sets these; you place them.
-10. **Team.** One sentence per founder naming the earned advantage relevant to *this* problem.
+10. **Team.** One sentence per founder naming the earned advantage relevant to _this_ problem.
 11. **The ask.** Round size, runway it buys, three milestones it will produce.
 
 ## Procedure
@@ -56,13 +56,15 @@ Sequoia template, refined with Raskin's spine. Eleven slides if the ask warrants
 **Brief:** "Seed deck for a B2B tool that pulls product analytics into Slack."
 
 **Before** (product-first, no shift, generic stakes):
-> Slide 1: *"Acme — product analytics, simplified."*
-> Slide 2: *"The problem: product analytics is hard."*
-> Slide 3: *"Our solution: Slack-native dashboards."*
+
+> Slide 1: _"Acme — product analytics, simplified."_
+> Slide 2: _"The problem: product analytics is hard."_
+> Slide 3: _"Our solution: Slack-native dashboards."_
 
 **After** (shift-first, stakes named, product on slide six):
-> Slide 1: *"In 2025, every product team moved standups into Slack. Their analytics stayed in a browser tab nobody opens."*
-> Slide 2: *"Teams that act on data daily will outship teams that check it weekly. The week-checkers are losing."*
-> Slide 3: *"Product managers want one number every morning. They have eleven dashboards and check none."*
+
+> Slide 1: _"In 2025, every product team moved standups into Slack. Their analytics stayed in a browser tab nobody opens."_
+> Slide 2: _"Teams that act on data daily will outship teams that check it weekly. The week-checkers are losing."_
+> Slide 3: _"Product managers want one number every morning. They have eleven dashboards and check none."_
 
 The "after" earns slide six. The "before" dies on slide three.

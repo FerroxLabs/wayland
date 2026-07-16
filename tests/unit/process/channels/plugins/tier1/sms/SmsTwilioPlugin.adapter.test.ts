@@ -139,26 +139,23 @@ describe('SmsTwilioPlugin.handleWebhookPayload', () => {
     }
   );
 
-  it.each(['START', 'unstop', 'HELP', 'info'])(
-    'intercepts opt-in / help keyword "%s" (F3)',
-    async (keyword) => {
-      const plugin = new SmsTwilioPlugin();
-      const emitted: IUnifiedIncomingMessage[] = [];
-      plugin.onMessage(async (msg) => {
-        emitted.push(msg);
-      });
-      await plugin.handleWebhookPayload(
-        {
-          From: '+15551234567',
-          MessageSid: 'SM_optin',
-          Body: keyword,
-        },
-        {},
-        'sms-twilio_default'
-      );
-      expect(emitted).toHaveLength(0);
-    }
-  );
+  it.each(['START', 'unstop', 'HELP', 'info'])('intercepts opt-in / help keyword "%s" (F3)', async (keyword) => {
+    const plugin = new SmsTwilioPlugin();
+    const emitted: IUnifiedIncomingMessage[] = [];
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
+    await plugin.handleWebhookPayload(
+      {
+        From: '+15551234567',
+        MessageSid: 'SM_optin',
+        Body: keyword,
+      },
+      {},
+      'sms-twilio_default'
+    );
+    expect(emitted).toHaveLength(0);
+  });
 
   // F4 (R7): inbound MMS NumMedia / MediaUrl{i} / MediaContentType{i} convert
   // into IUnifiedAttachment entries; Body is preserved as the caption text.

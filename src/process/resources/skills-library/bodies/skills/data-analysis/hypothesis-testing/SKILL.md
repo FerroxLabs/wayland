@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "statistics analysis data-science"
-  category: "data-analysis"
-  subcategory: "exploratory-data-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'statistics analysis data-science'
+  category: 'data-analysis'
+  subcategory: 'exploratory-data-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Hypothesis Testing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks whether a difference between two groups is "real," "statistically significant," or "due to chance" -- including A/B test results, before/after comparisons, and control vs. treatment outcomes
 - The user has already collected data and needs to determine whether an observed pattern (higher revenue, lower churn, different click-through rates) reflects a genuine effect or random noise
 - The user provides a p-value, test statistic, or confidence interval and needs help interpreting it in the context of their business decision
@@ -29,6 +31,7 @@ metadata:
 - The user ran a survey, experiment, or audit and wants to know whether their findings are generalizable or could have happened by chance in a sample of this size
 
 **Do NOT use when:**
+
 - The user wants to explore an unfamiliar dataset without a specific question to answer -- use `eda-framework` instead to profile, summarize, and surface patterns before formulating a testable claim
 - The user wants to quantify the strength or direction of a linear relationship between two continuous variables -- use `correlation-analysis`, which covers Pearson r, Spearman rho, and scatterplot interpretation
 - The user wants to build a model that predicts an outcome from one or more predictors -- use `regression-guide`, even if the user uses the word "test" informally
@@ -72,27 +75,33 @@ This is the most intellectually critical step. Sloppy hypothesis formulation lea
 Use this decision framework systematically. Do not let the user's preferred test override the correct test for their data.
 
 **Category 1 -- Comparing a continuous metric between two independent groups:**
+
 - n ≥ 30 in both groups AND the metric is approximately normally distributed (or the distribution is roughly symmetric without extreme outliers): **Independent samples t-test (Welch's version)** -- Welch's t-test does not assume equal variances between groups and is preferred over Student's t-test in almost all business data applications. It adjusts the degrees of freedom automatically.
 - n < 30 in either group OR the metric is heavily skewed (e.g., revenue, session length, support ticket resolution time, any metric with a long right tail): **Mann-Whitney U test** -- this is a rank-based non-parametric test that compares whether values from one group tend to be larger than values from the other. It does not require normality and is robust to outliers.
 - Rule of thumb on skewness: if the mean is more than 2x the median in either group, the distribution is likely too skewed for a t-test with small samples.
 
 **Category 2 -- Comparing a continuous metric before and after in the same subjects (paired data):**
+
 - n ≥ 30 paired observations AND the differences (after minus before) are approximately normally distributed: **Paired t-test**
 - n < 30 OR the differences are skewed: **Wilcoxon signed-rank test** -- ranks the absolute differences and tests whether positive differences dominate negative differences.
 
 **Category 3 -- Comparing a continuous metric across three or more independent groups:**
+
 - n ≥ 30 per group AND approximately normal or symmetric distributions: **One-way ANOVA (Analysis of Variance)** -- tests whether at least one group mean differs significantly from the others. If ANOVA rejects H0, follow with a post-hoc test: **Tukey's HSD** when all pairwise comparisons are needed, **Dunnett's test** when comparing multiple groups against a single control, **Bonferroni correction** when the number of comparisons is small and controlled in advance.
 - n < 30 per group OR skewed distributions: **Kruskal-Wallis test** -- non-parametric generalization of ANOVA. Follow with **Dunn's test** with Bonferroni correction for pairwise comparisons.
 
 **Category 4 -- Comparing proportions or rates between two groups:**
+
 - Both groups have large samples (expected cell counts ≥ 5 for all cells): **Chi-square test of independence** or **two-proportion z-test** -- these are mathematically equivalent for 2x2 tables. The two-proportion z-test is easier to set up manually and gives a z-statistic that is more interpretable.
 - Any expected cell count < 5: **Fisher's exact test** -- computationally exact for small samples, no large-sample approximation needed.
 - One group vs. a known or claimed proportion (e.g., "is our 4.2% defect rate different from the industry standard of 3.0%?"): **One-sample proportion z-test**
 
 **Category 5 -- Comparing proportions before and after in the same subjects (paired binary data):**
+
 - Same users or units with a binary outcome measured at two time points: **McNemar's test** -- only uses the discordant pairs (people who changed their response), ignoring those who stayed the same.
 
 **Category 6 -- Testing whether a continuous variable's mean equals a claimed value:**
+
 - "Is our average delivery time of 4.3 days different from our SLA of 4 days?": **One-sample t-test** (n ≥ 30 or data normal) or **Wilcoxon signed-rank test against a known median** (n < 30 or skewed)
 
 **Normality checking guidance:** For samples over 50, normality rarely matters due to the Central Limit Theorem -- the sampling distribution of the mean will be approximately normal regardless of the underlying data. For samples under 30, check normality with a Shapiro-Wilk test (use the non-parametric alternative if p < 0.05 on Shapiro-Wilk) or a Q-Q plot. For samples between 30 and 50, use judgment based on how severely skewed the data appears.
@@ -126,6 +135,7 @@ Every test has assumptions. Checking them prevents invalid results.
 Give precise, tool-specific instructions based on what the user has available.
 
 **Python (scipy.stats):**
+
 - Independent t-test (Welch's): `scipy.stats.ttest_ind(group_a, group_b, equal_var=False)` -- returns the t-statistic and two-tailed p-value
 - Mann-Whitney U: `scipy.stats.mannwhitneyu(group_a, group_b, alternative='two-sided')` -- use `alternative='greater'` or `'less'` for one-tailed
 - Paired t-test: `scipy.stats.ttest_rel(before, after)`
@@ -136,6 +146,7 @@ Give precise, tool-specific instructions based on what the user has available.
 - Two-proportion z-test: `statsmodels.stats.proportion.proportions_ztest([count1, count2], [nobs1, nobs2])`
 
 **R:**
+
 - Welch's t-test: `t.test(x, y, var.equal = FALSE)`
 - Mann-Whitney: `wilcox.test(x, y, paired = FALSE)`
 - Paired t-test: `t.test(before, after, paired = TRUE)`
@@ -144,6 +155,7 @@ Give precise, tool-specific instructions based on what the user has available.
 - Fisher's exact: `fisher.test(matrix(c(a, b, c, d), nrow = 2))`
 
 **Excel:**
+
 - Independent t-test: Data tab → Data Analysis → t-Test: Two-Sample Assuming Unequal Variances. Variable 1 Range = Group A column, Variable 2 Range = Group B column, Alpha = 0.05. Read "P(T<=t) two-tail" from the output.
 - Paired t-test: Data Analysis → t-Test: Paired Two Sample for Means.
 - One-way ANOVA: Data Analysis → Anova: Single Factor.
@@ -151,6 +163,7 @@ Give precise, tool-specific instructions based on what the user has available.
 - Two-proportion z-test: Must be computed manually using the formula structure provided in Step 7 below.
 
 **Google Sheets:**
+
 - Use `=T.TEST(range_a, range_b, tails, type)` where tails = 2 for two-tailed, type = 2 for independent equal variance, type = 3 for Welch's (unequal variance), type = 1 for paired.
 - Chi-square: `=CHITEST(actual_range, expected_range)` returns the p-value directly.
 
@@ -167,7 +180,7 @@ When the user provides actual test output, interpret every relevant number.
   - For two-group mean comparisons: **Cohen's d** = (mean_A -- mean_B) / pooled standard deviation. Benchmarks: d = 0.2 is small, d = 0.5 is medium, d = 0.8 is large (Cohen, 1988 conventions).
   - For ANOVA: **Eta-squared (η²)** = SS_between / SS_total. Values: 0.01 = small, 0.06 = medium, 0.14 = large.
   - For chi-square / proportions: **Risk difference** (p1 -- p2), **relative risk** (p1 / p2), or **odds ratio** ((p1/(1-p1)) / (p2/(1-p2))). In business contexts, relative risk and absolute risk difference are more interpretable than odds ratios.
-  - For Mann-Whitney or Kruskal-Wallis: **rank-biserial correlation (r)** = 1 -- (2U / n1*n2). Values: r = 0.1 small, r = 0.3 medium, r = 0.5 large.
+  - For Mann-Whitney or Kruskal-Wallis: **rank-biserial correlation (r)** = 1 -- (2U / n1\*n2). Values: r = 0.1 small, r = 0.3 medium, r = 0.5 large.
 - **Confidence interval:** Report the 95% CI for the difference (or ratio). "The mean session duration for Group B was 12.4 seconds longer than Group A (95% CI: 3.1 to 21.7 seconds)."
 - **Plain language conclusion:** Write a single sentence that any stakeholder could understand without statistical training, followed by the business implication.
 - **Practical significance assessment:** Compare the effect size to the minimum meaningful difference for the business context. A statistically significant improvement of 0.2 seconds in page load time may not justify a six-week engineering sprint. A statistically significant 0.3 percentage point improvement in conversion rate may represent millions of dollars in revenue.
@@ -290,27 +303,35 @@ confidence interval, and whether H0 is rejected or not rejected]
 ## Edge Cases
 
 ### Very Large Sample Sizes (n > 10,000 per group)
+
 With sample sizes in the tens of thousands, even trivially small differences achieve statistical significance. A p-value of 0.000001 might correspond to a difference of 0.003 seconds in page load time or a 0.05 percentage point difference in conversion rate -- statistically robust, but commercially irrelevant. In this regime, **de-emphasize the p-value entirely** and center the analysis on effect size and the confidence interval. Ask the user: "What is the smallest difference that would change your business decision?" Then check whether the observed effect exceeds that threshold. Report Cohen's d or the absolute risk difference prominently. A useful heuristic: with n > 50,000, almost any non-zero difference will be significant -- the question is never "is it real?" but always "is it large enough to act on?"
 
 ### User Has Results but Does Not Know What Test Was Run
+
 Ask for the test statistic name and value, the degrees of freedom if reported, the p-value, and the software that produced the output. Identify the test from the statistic symbol: t indicates a t-test or Welch's t-test, z indicates a z-test or proportions test, χ² (or X-squared) indicates chi-square, F indicates ANOVA or an F-test, U indicates Mann-Whitney, H indicates Kruskal-Wallis, W indicates Wilcoxon signed-rank. If the user only has a p-value with no other context, interpret it against α = 0.05 but explicitly state: "Without knowing the test that generated this p-value, I cannot verify that the correct test was used, that assumptions were met, or that the effect size is meaningful. I recommend obtaining the full output."
 
 ### Unequal and Severely Imbalanced Sample Sizes
+
 When one group is 10x or more larger than the other (e.g., 50 in the treatment group vs. 5,000 in the control), standard tests remain mathematically valid but the interpretation requires care. Welch's t-test handles unequal n automatically. For chi-square and proportions tests, unequal sample sizes do not violate assumptions but they do affect the width of confidence intervals asymmetrically. Flag that the precision of the estimate for the smaller group dominates the precision of the overall comparison. Also check: with a very small treatment group (n < 30), power may be too low to detect effects of business-relevant magnitude even if the control group is enormous.
 
 ### Multiple Metrics Tested Simultaneously on the Same Experiment
+
 This is extremely common in product analytics: a single A/B test has a primary metric (conversion rate) and 10 secondary metrics (bounce rate, session duration, pages per session, revenue per visitor, etc.). Testing all 11 metrics at α = 0.05 with no correction yields an expected 0.55 false positives under the global null -- roughly a 43% chance of at least one false positive. Prescribe: (1) designate one metric as the primary endpoint in advance; (2) report secondary metrics descriptively unless they are pre-specified; (3) apply Bonferroni or Benjamini-Hochberg correction if secondary metrics are also tested formally; (4) use the primary metric alone to make the go/no-go decision.
 
 ### Clustered or Hierarchical Data Treated as Independent
+
 Business data is frequently clustered: users within stores, transactions within customers, students within classrooms, calls within agents. Treating clustered data as independent observations inflates the effective sample size and produces p-values that are systematically too small -- false positives are much more likely. Identify clustering when the user describes data where multiple rows belong to the same higher-level unit. Recommend: use the customer-level (or store-level) aggregate as the unit of analysis rather than the transaction-level row, or apply a mixed-effects model or a cluster-robust standard error correction. A t-test on 50,000 transactions from 500 customers has approximately the same statistical power as a t-test on 500 independent observations, not 50,000.
 
 ### The User Wants to Interpret a Non-Significant Result as Proof of Equivalence
+
 A common business scenario: "We tested the new process and found no significant difference -- therefore it performs the same as the old one." This is a logical error unless the study was explicitly designed as an **equivalence test** or a **non-inferiority test**. Explain: a non-significant result could mean (a) there is no meaningful effect, (b) the study was underpowered, or (c) the true effect is small but real. To formally conclude equivalence, the user needs to pre-specify an equivalence margin (e.g., ±10% of the control mean), run a Two One-Sided Tests (TOST) procedure, and demonstrate that the 90% confidence interval for the difference lies entirely within the equivalence margin. Guide the user through TOST if this is the actual business question.
 
 ### Pre-Test Data Imbalance (Failing the Sanity Check)
+
 Before interpreting a test result, verify that the randomization worked: run the same test comparing the control and treatment groups on a pre-treatment metric that should not be affected (e.g., prior-period revenue, demographics, tenure). If this sanity check yields p < 0.05, the groups were not comparable at baseline and the treatment effect estimate is confounded. This is called a **balance check** or **A/A test equivalent**. A failed balance check does not mean the experiment is worthless, but the analysis must shift to a difference-in-differences approach or regression adjustment to control for baseline differences before the treatment effect can be estimated.
 
 ### One-Sample Tests Against a Claimed Standard
+
 The user asks: "Our defect rate is 2.8% this quarter. Our contractual SLA is below 3.0%. Are we compliant?" This requires a one-sample test, not a two-group comparison. For proportions: one-sample z-test where H0: p = 0.030 and H1: p < 0.030 (one-tailed). For means: one-sample t-test where H0: μ = 4.0 days. The key distinction is that the reference value (3.0%, 4.0 days) is a **known constant**, not an estimate from a second sample, so no standard error for the reference group is needed. The null value is treated as exact.
 
 ---
@@ -324,17 +345,20 @@ The user asks: "Our defect rate is 2.8% this quarter. Our contractual SLA is bel
 ## Hypothesis Test Report
 
 ### Business Question
+
 Did the new email subject line produce a higher open rate than the old subject line, and is this improvement large enough and reliable enough to justify permanently switching?
 
 ### Data Summary
-| Parameter              | Group A (Old subject line) | Group B (New subject line) |
-|------------------------|---------------------------|---------------------------|
-| Sample size (n)        | 14,200 sends              | 11,800 sends              |
-| Observed open rate     | 22.1% (3,138 opens)       | 24.7% (2,915 opens)       |
-| Observed difference    | +2.6 percentage points (new minus old) |                |
-| Relative change        | +11.8% relative improvement |                          |
+
+| Parameter           | Group A (Old subject line)             | Group B (New subject line) |
+| ------------------- | -------------------------------------- | -------------------------- |
+| Sample size (n)     | 14,200 sends                           | 11,800 sends               |
+| Observed open rate  | 22.1% (3,138 opens)                    | 24.7% (2,915 opens)        |
+| Observed difference | +2.6 percentage points (new minus old) |                            |
+| Relative change     | +11.8% relative improvement            |                            |
 
 ### Hypotheses
+
 - **H0 (Null):** The open rate is the same for the old and new subject lines.
   Formal: p_old = p_new
 - **H1 (Alternative):** The new subject line has a higher open rate than the old subject line.
@@ -342,14 +366,16 @@ Did the new email subject line produce a higher open rate than the old subject l
 - **Direction:** One-tailed -- the business decision is whether to implement the new version. A lower open rate would not lead to switching; only an improvement is actionable. The directional hypothesis was specified before observing the data direction (new subject line was designed to improve opens).
 
 ### Assumptions Check
-| Assumption              | Status | Notes                                                      |
-|-------------------------|--------|------------------------------------------------------------|
-| Independent observations | Met    | Different email recipients in each cohort; no recipient appears in both sends |
-| Sample size adequacy    | Met    | np and n(1-p) both >> 10 for both groups (3,138 and 2,915 opens; 11,062 and 8,885 non-opens) |
-| Large sample for z-test | Met    | n = 14,200 and 11,800 comfortably satisfy the large-sample approximation |
-| Expected cell counts    | Met    | All expected counts > 5 (chi-square equivalent condition satisfied) |
+
+| Assumption               | Status | Notes                                                                                        |
+| ------------------------ | ------ | -------------------------------------------------------------------------------------------- |
+| Independent observations | Met    | Different email recipients in each cohort; no recipient appears in both sends                |
+| Sample size adequacy     | Met    | np and n(1-p) both >> 10 for both groups (3,138 and 2,915 opens; 11,062 and 8,885 non-opens) |
+| Large sample for z-test  | Met    | n = 14,200 and 11,800 comfortably satisfy the large-sample approximation                     |
+| Expected cell counts     | Met    | All expected counts > 5 (chi-square equivalent condition satisfied)                          |
 
 ### Test Selection
+
 - **Test:** Two-proportion z-test (one-tailed, testing p_new > p_old)
 - **Rationale:** The outcome is binary (opened / did not open), the two groups are independent (different recipients), and both sample sizes are large (14,200 and 11,800), satisfying the large-sample approximation for the normal distribution of the difference in proportions.
 - **Alternative considered:** Chi-square test of independence would also be valid and gives an equivalent result for this 2x2 table, but the two-proportion z-test is preferred here because it directly produces a z-statistic and one-tailed p-value, and because we have a directional hypothesis.
@@ -357,6 +383,7 @@ Did the new email subject line produce a higher open rate than the old subject l
 ### Implementation Instructions
 
 **Python:**
+
 ```python
 from statsmodels.stats.proportion import proportions_ztest
 import numpy as np
@@ -408,6 +435,7 @@ Step 4 -- One-tailed p-value:
 p = P(Z > 15.90) ≈ **< 0.001** (this z-value is far beyond the 99.9th percentile of the standard normal distribution; the p-value is effectively zero)
 
 **Excel:**
+
 ```
 Cell A1: 3138    (old opens)
 Cell B1: 14200   (old sends)
@@ -423,20 +451,22 @@ p-value:  =1-NORM.S.DIST(z, TRUE)    [≈ 0.000 -- report as < 0.001]
 ```
 
 ### Decision Rule
+
 - **Significance level (α):** 0.05 (one-tailed)
 - **Reject H0 if:** p-value < 0.05
 - **Fail to reject H0 if:** p-value ≥ 0.05
 
 ### Results
-| Metric                         | Value                              |
-|--------------------------------|------------------------------------|
-| Test statistic                 | z = 15.90                          |
-| p-value                        | < 0.001                            |
-| 95% CI for difference (p_new -- p_old) | +2.13 to +3.07 percentage points |
-| Absolute risk difference       | +2.6 percentage points             |
-| Relative improvement           | +11.8%                             |
-| Odds ratio                     | 1.155                              |
-| Effect size classification     | Small-to-medium by absolute difference standards; highly reliable |
+
+| Metric                                 | Value                                                             |
+| -------------------------------------- | ----------------------------------------------------------------- |
+| Test statistic                         | z = 15.90                                                         |
+| p-value                                | < 0.001                                                           |
+| 95% CI for difference (p_new -- p_old) | +2.13 to +3.07 percentage points                                  |
+| Absolute risk difference               | +2.6 percentage points                                            |
+| Relative improvement                   | +11.8%                                                            |
+| Odds ratio                             | 1.155                                                             |
+| Effect size classification             | Small-to-medium by absolute difference standards; highly reliable |
 
 **95% Confidence Interval computation:**
 For reporting purposes, use the unpooled SE for the CI (not the pooled SE used for the hypothesis test):
@@ -449,6 +479,7 @@ SE_unpooled = √[(p_new(1-p_new)/n_new) + (p_old(1-p_old)/n_old)]
 = **+1.61 to +3.68 percentage points**
 
 ### Statistical Interpretation
+
 A two-proportion z-test (one-tailed) was conducted to determine whether the new email subject line produced a higher open rate than the old subject line. The new subject line achieved a 24.7% open rate (2,915 opens out of 11,800 sends) compared to 22.1% (3,138 opens out of 14,200 sends) for the old subject line. The test produced z = 15.90, p < 0.001. The 95% confidence interval for the true difference in open rates is +1.61 to +3.68 percentage points. The null hypothesis is rejected. The improvement is not attributable to random variation in email sends.
 
 ### Plain Language Conclusion
@@ -456,6 +487,7 @@ A two-proportion z-test (one-tailed) was conducted to determine whether the new 
 > The new subject line produced an open rate of 24.7%, compared to 22.1% for the old subject line -- a difference of 2.6 percentage points that is highly statistically significant (p < 0.001). You can be confident this improvement reflects a genuine difference in how recipients respond to the new subject line, not random chance. The true improvement is estimated to be between 1.6 and 3.7 percentage points with 95% confidence.
 
 ### Practical Significance Assessment
+
 - **Absolute difference:** +2.6 percentage points (22.1% to 24.7%)
 - **Relative improvement:** +11.8% more opens per send
 - **Business impact estimate:** At 11,800 sends per month, the new subject line generates approximately 307 additional opens per month (2,915 vs. 2,608 at the old rate). At typical email-to-revenue conversion values for newsletters, this difference can be estimated against the cost of the switch (near zero, since this is a copy change).
@@ -463,6 +495,7 @@ A two-proportion z-test (one-tailed) was conducted to determine whether the new 
 - **Business verdict:** The result is both statistically significant and practically meaningful. The improvement is large, reliable (extremely low p-value, tight confidence interval), and the cost of switching is negligible. Recommendation: implement the new subject line permanently.
 
 ### Caveats and Next Steps
+
 - **Causation vs. correlation:** This was not a randomized controlled experiment run simultaneously -- the two sends happened in different months. Factors like day of week, time of day, list freshness, and seasonal variation could partially explain the difference. If perfect certainty is required before switching, run a proper A/B test in which both subject lines are sent to randomly split subsets of the same list on the same day.
 - **Novelty effect:** Email audiences sometimes respond positively to anything new. Monitor open rates for the new subject line over the next 2--3 months to confirm the improvement persists.
 - **Segment analysis:** The aggregate improvement may mask heterogeneous effects -- some subscriber segments may have driven most of the lift while others showed no change. A follow-up analysis segmenting by acquisition source or engagement tier would increase confidence.

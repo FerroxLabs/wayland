@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production creative-writing"
-  category: "design-creative"
-  subcategory: "video-animation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production creative-writing'
+  category: 'design-creative'
+  subcategory: 'video-animation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Short Film Director
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on short film director
 - User asks about short film director best practices or techniques
 - User wants a structured approach to short film director
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of short film director
 
@@ -60,7 +61,9 @@ Before guiding any short film project:
 ## Concept Development for Shorts
 
 ### What Makes a Strong Short Film Concept
+
 Short films succeed when they:
+
 - Focus on one central idea, conflict, or emotion
 - Have a clear beginning, turning point, and ending
 - Show rather than tell
@@ -68,6 +71,7 @@ Short films succeed when they:
 - Use constraint as a creative advantage, not a limitation
 
 ### Common Short Film Structures
+
 - **The twist**: Build expectation, then subvert it. The audience sees the world differently after the final moment.
 - **The slice of life**: A window into a specific moment or day. No grand plot, but deep observation and emotional truth.
 - **The escalation**: A situation intensifies progressively until it reaches a breaking point.
@@ -76,6 +80,7 @@ Short films succeed when they:
 - **The single scene**: One unbroken dramatic situation with a clear arc.
 
 ### Developing the Concept
+
 1. Start with the ending. What feeling or revelation does the audience arrive at?
 2. Work backward. What is the minimum setup needed to make that ending land?
 3. Strip away everything that does not serve the core idea.
@@ -85,6 +90,7 @@ Short films succeed when they:
 ## Script Development
 
 ### Short Film Script Principles
+
 - Every line of dialogue must earn its place. If a look or gesture can replace a line, cut the line.
 - Enter scenes as late as possible. Leave as early as possible.
 - Limit locations. Fewer settings executed well beats many settings rushed.
@@ -93,6 +99,7 @@ Short films succeed when they:
 - Page count guide: 1 page = roughly 1 minute of screen time, but action-heavy scripts run shorter per page.
 
 ### Script Feedback Process
+
 1. Write the first draft without self-editing.
 2. Set it aside for at least 3 days.
 3. Reread and do a personal revision pass.
@@ -103,6 +110,7 @@ Short films succeed when they:
 ## Casting
 
 ### Finding Actors
+
 - Local theater companies and acting schools
 - Casting websites: Backstage, Actors Access, Mandy.com
 - Social media casting calls in filmmaker and actor groups
@@ -110,6 +118,7 @@ Short films succeed when they:
 - Previous collaborations and referrals
 
 ### The Audition Process
+
 1. Post a clear breakdown: character descriptions, age range, project details, compensation (even if deferred), dates needed.
 2. Prepare audition sides: 1-2 scenes that show the character's range. Not necessarily the most dramatic scene, but one that reveals character.
 3. In the audition room: let actors perform their prepared take first. Then give direction and see how they adjust. Directability matters as much as initial talent.
@@ -117,6 +126,7 @@ Short films succeed when they:
 5. Trust your instinct. The right actor feels inevitable.
 
 ### Working with Non-Professional Actors
+
 - Cast people as versions of themselves when possible
 - Reduce dialogue and increase physical action
 - Use improvisation to find natural line delivery
@@ -126,6 +136,7 @@ Short films succeed when they:
 ## Location Scouting
 
 ### What to Evaluate
+
 - **Visual interest**: Does the space tell a story on its own? Production design is expensive; locations that already look right save time and money.
 - **Light**: Where do windows face? What is the light like at your planned shooting time?
 - **Sound**: Visit during the time you plan to shoot. Traffic, airplanes, construction, HVAC systems can ruin audio.
@@ -135,7 +146,9 @@ Short films succeed when they:
 - **Permits**: Does the location require a filming permit? Public property usually does. Private property requires written permission from the owner.
 
 ### Location as Character
+
 The best short films use their location as more than a backdrop:
+
 - A cramped apartment amplifies claustrophobia and tension
 - A vast empty landscape amplifies isolation
 - A familiar space (kitchen, bedroom) made unfamiliar through lighting or framing creates unease
@@ -144,12 +157,14 @@ The best short films use their location as more than a backdrop:
 ## Directing Actors
 
 ### Preparation Before Set
+
 - Have a private conversation with each actor before the shoot about their character's inner life, history, and objectives
 - Create a character backstory together, even if none of it appears on screen
 - Discuss the character's objective in each scene (what do they want?) and their obstacle (what stands in the way?)
 - Establish a vocabulary: agree on shorthand terms you can use on set without lengthy explanations
 
 ### On-Set Direction Techniques
+
 - **Direct with verbs, not adjectives**: Say "fight for their attention" not "be desperate." Playable actions produce authentic performances.
 - **Speak privately**: Pull actors aside for direction rather than announcing notes to the whole set. Protect their vulnerability.
 - **Use "what if" scenarios**: "What if you just found out the news five minutes ago and you are still processing it?"
@@ -159,6 +174,7 @@ The best short films use their location as more than a backdrop:
 - **Give positive anchors**: "That moment when you paused before speaking -- hold onto that. It was perfect."
 
 ### Directing Non-Verbal Performance
+
 - Eyes communicate more than words. Direct where the actor looks and when.
 - Hands reveal inner state. Nervous fidgeting, deliberate stillness, reaching, withdrawing.
 - Tempo of movement: fast vs. slow, decisive vs. hesitant.
@@ -167,6 +183,7 @@ The best short films use their location as more than a backdrop:
 ## Blocking and Visual Storytelling
 
 ### Blocking Fundamentals
+
 Blocking is the arrangement and movement of actors within the frame. It communicates power dynamics, emotional states, and relationships without dialogue.
 
 - **Proximity**: Characters close together = intimacy or confrontation. Far apart = distance or conflict.
@@ -176,6 +193,7 @@ Blocking is the arrangement and movement of actors within the frame. It communic
 - **Foreground/background**: A character sharp in the foreground with another soft in the background emphasizes the foreground character's perspective.
 
 ### Shot Selection as Storytelling
+
 - **Wide shot**: Establishes context, shows relationship to environment, can emphasize loneliness or grandeur.
 - **Medium shot**: Conversational, neutral, informational.
 - **Close-up**: Emotional intensity, intimacy, revelation. The closer you are, the higher the emotional stakes.
@@ -185,9 +203,11 @@ Blocking is the arrangement and movement of actors within the frame. It communic
 - **High angle**: Subject appears vulnerable, diminished, or observed.
 
 ### The 180-Degree Rule
+
 Draw an imaginary line between two characters in conversation. Keep the camera on one side of that line for all shots in the scene. Crossing the line disorients the audience. You may break this rule intentionally for disorientation, but never accidentally.
 
 ### Continuity Management
+
 - Assign someone (even yourself) to take continuity photos between takes: where were the props, what was the actor wearing, which hand held the cup?
 - Note screen direction: if a character exits frame right, they should enter the next shot from frame left.
 - Match action: if an actor begins standing in the wide shot, they must begin standing in the close-up of the same moment.
@@ -196,6 +216,7 @@ Draw an imaginary line between two characters in conversation. Keep the camera o
 ## Production Planning
 
 ### Creating a Shooting Schedule
+
 1. Break down the script by scene, noting location, cast, props, time of day (day/night), and estimated setup time.
 2. Group scenes by location. Shoot everything at one location before moving.
 3. Within each location, shoot in order of lighting setup complexity, not script order.
@@ -205,6 +226,7 @@ Draw an imaginary line between two characters in conversation. Keep the camera o
 7. Limit to 8-10 hours of shooting per day. Exhausted crews and actors produce diminishing returns.
 
 ### Day-of Directing Priorities
+
 1. Protect the performances. Everything else serves the actors' ability to do their best work.
 2. Stay calm. Your mood sets the tone for the entire set.
 3. Communicate the plan clearly at the start of each scene. Tell the crew what you are shooting and why.
@@ -214,6 +236,7 @@ Draw an imaginary line between two characters in conversation. Keep the camera o
 ## Post-Production
 
 ### The Director's Role in Editing
+
 - Stay out of the edit room for the first assembly if possible. Let the editor make their best version first. Fresh perspective is valuable.
 - Watch the assembly without making notes the first time. Absorb the overall feeling.
 - Focus on story and performance first. Technical polish comes later.
@@ -221,7 +244,9 @@ Draw an imaginary line between two characters in conversation. Keep the camera o
 - Kill your darlings. Brilliant shots that do not serve the story must go.
 
 ### Sound Design for Shorts
+
 Sound design matters enormously in short films because you have limited time to build a world:
+
 - Replace or augment all production audio with clean effects
 - Design silence intentionally. A sudden drop in ambient sound is as powerful as a loud moment.
 - Use environmental sound to establish location before the audience sees it
@@ -229,6 +254,7 @@ Sound design matters enormously in short films because you have limited time to 
 - Musical choices: less is often more. A single instrument or motif can be more effective than a full score.
 
 ### Color and Visual Tone
+
 - Establish a color palette during pre-production and maintain it through post
 - Reference films: pull stills from films with the look you want
 - Color grade to support the emotional arc, not just to look cinematic
@@ -237,6 +263,7 @@ Sound design matters enormously in short films because you have limited time to 
 ## Festival Strategy for Short Films
 
 ### Choosing the Right Festivals
+
 - Research which festivals program your genre and style
 - Prioritize festivals with industry attendance if you want career advancement
 - Look at previous selections to see if your film fits
@@ -244,6 +271,7 @@ Sound design matters enormously in short films because you have limited time to 
 - Short-specific festivals: Clermont-Ferrand, Palm Springs ShortFest, Aspen Shortsfest, Encounters
 
 ### Premiere Strategy
+
 - **World premiere**: First public screening anywhere. Most valuable at top-tier festivals.
 - **International premiere**: First screening outside the country of origin.
 - **Regional premiere**: First screening in a specific geographic region.
@@ -251,6 +279,7 @@ Sound design matters enormously in short films because you have limited time to 
 - Do not post the film publicly online before your festival run is complete.
 
 ### After Festivals
+
 - Submit to online platforms: Short of the Week, Vimeo Staff Picks
 - Create a free streaming strategy: YouTube or Vimeo for portfolio and visibility
 - Use the short as a proof of concept for a feature version if applicable
@@ -260,12 +289,14 @@ Sound design matters enormously in short films because you have limited time to 
 ## The Director's Mindset
 
 ### Creative Leadership
+
 - Have a clear vision but remain open to collaboration. The best ideas can come from any crew member.
 - Make decisions. Indecision is the most destructive force on a film set.
 - Admit when you do not know something. Ask your DP, your sound person, your actors. They are experts in their areas.
 - Protect your energy. Rest, eat, stay hydrated. You cannot direct well when you are depleted.
 
 ### Learning Through Repetition
+
 - Direct as many short films as you can. Volume builds skill faster than perfection.
 - Watch shorts critically: Vimeo Staff Picks, festival compilations, short film anthologies.
 - After every project, do a personal post-mortem. What worked? What would you change? Write it down.
@@ -274,23 +305,25 @@ Sound design matters enormously in short films because you have limited time to 
 ## Common Short Film Pitfalls
 
 ### Story Problems
+
 - Twist endings that cheat the audience (the twist must be set up, not pulled from nowhere)
 - Too much exposition or backstory. A short should begin in medias res whenever possible.
 - Unearned emotion: characters crying or screaming in the first minute without the audience having a reason to care
 - Imitating feature film pacing. A short is not a compressed feature. It is its own form.
 
 ### Production Problems
+
 - Shooting without a shot list. This leads to missed coverage and continuity errors.
 - Underestimating sound. Audiences will accept imperfect visuals but not inaudible dialogue or constant background noise.
 - Not checking the weather forecast for exterior shoots
 - Failing to secure location access in writing before production day
 
 ### Post-Production Problems
+
 - Falling in love with footage that does not serve the story. Cut ruthlessly.
 - Adding music to scenes that do not need it. Silence is a powerful tool.
 - Over-grading the color to prove you know how to color grade
 - Spending months in post when the film would benefit from a quick turnaround and moving on to the next project
-
 
 ## Output Format
 
@@ -304,13 +337,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with short film director for a mid-size project."
 
 **Output:** A complete short film director framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

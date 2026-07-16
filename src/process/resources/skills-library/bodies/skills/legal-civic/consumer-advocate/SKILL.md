@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts guide"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts guide'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
 
 # Consumer Rights Advocate
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User has a consumer dispute with a company or service provider
 - User needs to understand their consumer rights for a purchase or service
 - User wants to write an effective complaint letter or escalation
 - User needs guidance navigating refund, warranty, or return processes
 
 **Do NOT use this skill when:**
+
 - User needs legal representation -- refer to qualified attorney
 - User has a landlord-tenant dispute -- use tenant-rights skill
 - User needs contract drafting or review -- use contract-reviewer skill
@@ -66,6 +68,7 @@ This skill empowers consumers to understand and exercise their rights when deali
 ### Legal Framework
 
 There is no federal law requiring stores to accept returns. Return rights come from:
+
 1. **Store return policies** (contractual obligation once posted)
 2. **State laws** (some states require posting of return policies; some mandate a cooling-off period)
 3. **Credit card protections** (Fair Credit Billing Act)
@@ -74,15 +77,15 @@ There is no federal law requiring stores to accept returns. Return rights come f
 
 ### Return Strategy by Situation
 
-| Situation | Your Rights | Best Approach |
-|---|---|---|
-| Defective product within return window | Full refund or exchange | Return with receipt |
-| Defective product outside return window | Warranty claim | Contact manufacturer |
-| Changed your mind, within return window | Per store policy | Follow store policy exactly |
-| Changed your mind, outside return window | Limited | Ask for store credit; escalate to manager |
-| Item not as described (online) | Strong rights under FTC rules | Demand refund; chargeback if refused |
-| Subscription you cannot cancel | Various state laws | Written cancellation; chargeback |
-| Service not performed as promised | Breach of contract | Demand refund; dispute; small claims |
+| Situation                                | Your Rights                   | Best Approach                             |
+| ---------------------------------------- | ----------------------------- | ----------------------------------------- |
+| Defective product within return window   | Full refund or exchange       | Return with receipt                       |
+| Defective product outside return window  | Warranty claim                | Contact manufacturer                      |
+| Changed your mind, within return window  | Per store policy              | Follow store policy exactly               |
+| Changed your mind, outside return window | Limited                       | Ask for store credit; escalate to manager |
+| Item not as described (online)           | Strong rights under FTC rules | Demand refund; chargeback if refused      |
+| Subscription you cannot cancel           | Various state laws            | Written cancellation; chargeback          |
+| Service not performed as promised        | Breach of contract            | Demand refund; dispute; small claims      |
 
 ### Return Request Template
 
@@ -142,16 +145,17 @@ Enclosures: {{LIST_OF_ATTACHMENTS}}
 
 ### Types of Warranties
 
-| Type | Description | Duration |
-|---|---|---|
-| **Express Written Warranty** | Specific promises by manufacturer in writing | As stated |
-| **Implied Warranty of Merchantability** | Product works as a reasonable buyer would expect | Varies by state (typically 4 years) |
-| **Implied Warranty of Fitness** | Product is suitable for the specific purpose you told the seller | Varies by state |
-| **Extended Warranty / Service Contract** | Purchased additional coverage | As stated in contract |
+| Type                                     | Description                                                      | Duration                            |
+| ---------------------------------------- | ---------------------------------------------------------------- | ----------------------------------- |
+| **Express Written Warranty**             | Specific promises by manufacturer in writing                     | As stated                           |
+| **Implied Warranty of Merchantability**  | Product works as a reasonable buyer would expect                 | Varies by state (typically 4 years) |
+| **Implied Warranty of Fitness**          | Product is suitable for the specific purpose you told the seller | Varies by state                     |
+| **Extended Warranty / Service Contract** | Purchased additional coverage                                    | As stated in contract               |
 
 ### Magnuson-Moss Warranty Act (Federal)
 
 Key consumer protections:
+
 - Warranties must be available before purchase
 - "Full" warranty must include free repair or replacement within reasonable time
 - If product cannot be repaired after reasonable attempts, consumer can choose refund or replacement
@@ -196,12 +200,14 @@ Step 4: If claim is denied
 ## Step 3: Dispute Resolution Escalation Ladder
 
 ### Level 1: Direct Resolution (Try First)
+
 1. Contact customer service (phone, email, chat)
 2. Be polite but firm; state facts, not emotions
 3. Ask for a supervisor if first representative cannot help
 4. Document every contact (date, name, what was said)
 
 ### Level 2: Written Complaint
+
 1. Send formal complaint letter (template above)
 2. Send via email AND certified mail
 3. CC relevant parties (corporate HQ, regulatory agency)
@@ -254,17 +260,18 @@ Important Notes:
 
 ### Level 4: Regulatory Complaints
 
-| Agency | What They Handle | How to File |
-|---|---|---|
-| **FTC** | Deceptive practices, scams, false advertising | ftc.gov/complaint |
-| **CFPB** | Financial products (loans, credit cards, debt collection) | consumerfinance.gov/complaint |
-| **State Attorney General** | State consumer protection violations | Search "[your state] attorney general consumer complaint" |
-| **BBB** | General business complaints (not government) | bbb.org |
-| **FCC** | Phone, internet, TV service issues | fcc.gov/consumers/guides/filing-informal-complaint |
-| **FDA** | Food, drug, medical device issues | fda.gov/safety/report-problem |
-| **NHTSA** | Vehicle safety defects | nhtsa.gov/report-a-safety-problem |
+| Agency                     | What They Handle                                          | How to File                                               |
+| -------------------------- | --------------------------------------------------------- | --------------------------------------------------------- |
+| **FTC**                    | Deceptive practices, scams, false advertising             | ftc.gov/complaint                                         |
+| **CFPB**                   | Financial products (loans, credit cards, debt collection) | consumerfinance.gov/complaint                             |
+| **State Attorney General** | State consumer protection violations                      | Search "[your state] attorney general consumer complaint" |
+| **BBB**                    | General business complaints (not government)              | bbb.org                                                   |
+| **FCC**                    | Phone, internet, TV service issues                        | fcc.gov/consumers/guides/filing-informal-complaint        |
+| **FDA**                    | Food, drug, medical device issues                         | fda.gov/safety/report-problem                             |
+| **NHTSA**                  | Vehicle safety defects                                    | nhtsa.gov/report-a-safety-problem                         |
 
 ### Level 5: Small Claims Court
+
 - See the Small Claims Guide skill for detailed process
 - Generally for disputes under $5,000-$10,000 (varies by state)
 - No attorney required
@@ -309,6 +316,7 @@ Potential remedies:
 ```
 
 ### Lemon Law Action Steps
+
 1. **Keep meticulous records** of every repair visit
 2. **Report issues in writing** every time, not just verbally
 3. **Give adequate repair attempts** (required before filing)
@@ -323,6 +331,7 @@ Potential remedies:
 ### FTC Mail, Internet, or Telephone Order Rule
 
 Sellers must:
+
 - Ship within the timeframe stated (or 30 days if none stated)
 - Notify you of delays and give you the option to cancel for a full refund
 - Issue refunds within 7 business days of cancellation (credit card) or 10 days (other methods)
@@ -352,18 +361,19 @@ IF SOMETHING GOES WRONG:
 
 ### Common Scam Types
 
-| Scam Type | Red Flags | Protection |
-|---|---|---|
-| **Phishing** | Urgent emails/texts asking for personal info | Never click links in unsolicited messages |
-| **Tech Support** | Unsolicited call claiming your computer is infected | Real companies do not cold-call about viruses |
-| **Advance Fee** | Pay a fee to receive a prize/inheritance/loan | Legitimate winnings never require upfront payment |
-| **Fake Online Store** | Too-good-to-be-true prices, no physical address | Research seller, use credit card, check reviews |
-| **Moving Scam** | Low estimate, holds belongings hostage for more money | Get 3+ in-person estimates; verify DOT number |
-| **Contractor Scam** | Demands full payment upfront, no written contract | Never pay more than 1/3 upfront; verify license |
-| **Rental Scam** | Asks for deposit before showing property | Never wire money; verify ownership |
-| **Charity Scam** | Pressure to donate immediately, vague about mission | Check charitynavigator.org; give.org |
+| Scam Type             | Red Flags                                             | Protection                                        |
+| --------------------- | ----------------------------------------------------- | ------------------------------------------------- |
+| **Phishing**          | Urgent emails/texts asking for personal info          | Never click links in unsolicited messages         |
+| **Tech Support**      | Unsolicited call claiming your computer is infected   | Real companies do not cold-call about viruses     |
+| **Advance Fee**       | Pay a fee to receive a prize/inheritance/loan         | Legitimate winnings never require upfront payment |
+| **Fake Online Store** | Too-good-to-be-true prices, no physical address       | Research seller, use credit card, check reviews   |
+| **Moving Scam**       | Low estimate, holds belongings hostage for more money | Get 3+ in-person estimates; verify DOT number     |
+| **Contractor Scam**   | Demands full payment upfront, no written contract     | Never pay more than 1/3 upfront; verify license   |
+| **Rental Scam**       | Asks for deposit before showing property              | Never wire money; verify ownership                |
+| **Charity Scam**      | Pressure to donate immediately, vague about mission   | Check charitynavigator.org; give.org              |
 
 ### Universal Scam Warning Signs
+
 1. Urgency pressure ("Act now or lose this opportunity")
 2. Request for unusual payment methods (wire transfer, gift cards, crypto)
 3. Too good to be true (below-market prices, guaranteed returns)
@@ -505,21 +515,20 @@ Documentation Attached:
 
 ## Quick Reference: Consumer Rights by Payment Method
 
-| Payment Method | Dispute Rights | Fraud Protection | Timeframe |
-|---|---|---|---|
-| Credit Card | Strong (FCBA) | $50 max liability | 60 days from statement |
-| Debit Card | Moderate (EFTA) | $50 if reported in 2 days; up to $500 after | 2-60 days |
-| PayPal | Good (Buyer Protection) | Full coverage for qualified purchases | 180 days |
-| Cash | None | None | N/A |
-| Check | Limited | Stop payment possible | Before check is cashed |
-| Wire Transfer | Very limited | Difficult to reverse | Immediately (if at all) |
-| Cryptocurrency | None | None | N/A |
-| Gift Card | None | None | N/A |
+| Payment Method | Dispute Rights          | Fraud Protection                            | Timeframe               |
+| -------------- | ----------------------- | ------------------------------------------- | ----------------------- |
+| Credit Card    | Strong (FCBA)           | $50 max liability                           | 60 days from statement  |
+| Debit Card     | Moderate (EFTA)         | $50 if reported in 2 days; up to $500 after | 2-60 days               |
+| PayPal         | Good (Buyer Protection) | Full coverage for qualified purchases       | 180 days                |
+| Cash           | None                    | None                                        | N/A                     |
+| Check          | Limited                 | Stop payment possible                       | Before check is cashed  |
+| Wire Transfer  | Very limited            | Difficult to reverse                        | Immediately (if at all) |
+| Cryptocurrency | None                    | None                                        | N/A                     |
+| Gift Card      | None                    | None                                        | N/A                     |
 
 ---
 
-*This skill provides general consumer rights information. For disputes involving significant money, consult a consumer protection attorney. Many offer free consultations and work on contingency.*
-
+_This skill provides general consumer rights information. For disputes involving significant money, consult a consumer protection attorney. Many offer free consultations and work on contingency._
 
 ## Output Format
 
@@ -553,6 +562,7 @@ Section 3: Resources
 **Company claim:** Physical damage (disputed)
 
 ### Step 1: Gather Evidence
+
 - [ ] Original order confirmation and receipt
 - [ ] Warranty terms (screenshot from website at time of purchase)
 - [ ] Photos of laptop showing no physical damage
@@ -560,7 +570,9 @@ Section 3: Resources
 - [ ] All email/chat correspondence with company
 
 ### Step 2: Formal Dispute Letter
+
 Send via email AND certified mail:
+
 - State: product, purchase date, defect description
 - State: no physical damage occurred -- defect is a manufacturing issue
 - Reference: warranty terms covering manufacturing defects
@@ -568,6 +580,7 @@ Send via email AND certified mail:
 - Note: "If this matter is not resolved, I will file complaints with the FTC and my state Attorney General's office"
 
 ### Step 3: Escalation Path (if denied again)
+
 1. Credit card chargeback (if paid by card -- you have 60 days from statement)
 2. File complaint with state Attorney General consumer protection division
 3. File complaint with FTC at reportfraud.ftc.gov
@@ -575,6 +588,7 @@ Send via email AND certified mail:
 5. Small claims court (for amounts under your state's limit, typically $5,000-$10,000)
 
 ### Key Right
+
 Many states have implied warranty of merchantability laws that supersede company warranty limitations. A $1,200 laptop should function for more than 6 weeks regardless of written warranty terms.
 
 ## Edge Cases

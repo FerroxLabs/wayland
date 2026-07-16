@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance expenses analysis savings"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance expenses analysis savings'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Spending Analysis
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user shares actual spending data (bank export, manual log, app summary) and wants to understand where their money is going relative to what they care about
 - The user expresses a felt mismatch -- "I make decent money but have nothing to show for it" -- and needs a structured diagnostic
 - The user has been tracking expenses for at least 2--4 weeks and wants an analytical review of that data
@@ -34,6 +36,7 @@ metadata:
 - The user has noticed category creep -- spending in a single category that has drifted upward month over month without a deliberate decision
 
 **Do NOT use when:**
+
 - The user has no spending data at all and needs to set up a tracking system first -- use `expense-tracking-setup` to help them capture data, then return to this skill after 30 days
 - The user wants to build a forward-looking spending plan with category limits -- use `budget-planning`, which is prescriptive rather than analytical
 - The user's question is exclusively about recurring subscription charges -- use `subscription-audit`, which performs deeper contract and billing-cycle analysis
@@ -308,45 +311,49 @@ Variable income requires a modified baseline approach. Use the average of the la
 ---
 
 ## Spending Analysis Report
+
 **Analysis period:** 2-month average (May--June)
 **Data completeness:** Strong -- all categories accounted for. Gap of $215/month flagged below.
 
 ---
 
 ### Income and Cash Flow Summary
-| Metric                          | Amount    | Notes                                         |
-|---------------------------------|----------|-----------------------------------------------|
-| Monthly net income              | $5,200   |                                               |
-| Total tracked spending          | $4,337   |                                               |
-| Unaccounted gap                 | $863     | 16.6% of income -- significant, see note below |
-| Directed savings rate           | 2.9%     | $150 ÷ $5,200                                 |
-| Total savings rate (incl. above-min debt) | 2.9% | No above-minimum debt payments identified |
+
+| Metric                                    | Amount | Notes                                          |
+| ----------------------------------------- | ------ | ---------------------------------------------- |
+| Monthly net income                        | $5,200 |                                                |
+| Total tracked spending                    | $4,337 |                                                |
+| Unaccounted gap                           | $863   | 16.6% of income -- significant, see note below |
+| Directed savings rate                     | 2.9%   | $150 ÷ $5,200                                  |
+| Total savings rate (incl. above-min debt) | 2.9%   | No above-minimum debt payments identified      |
 
 **Note on unaccounted gap:** Income of $5,200 minus tracked spending of $4,337 leaves $863 unaccounted. This is 16.6% of net income -- too large to ignore. Common sources: ATM cash withdrawals, Venmo/Zelle payments, app purchases, fuel or parking paid in cash, or categories not yet listed. This gap should be tracked and categorized before the next analysis cycle. It is possible some of this flows into savings accounts not mentioned, but it should be confirmed.
 
 ---
 
 ### Spending by Category
-| Category                  | Monthly  | % of Net Income | 50/30/20 Bucket | Benchmark Note              |
-|---------------------------|---------|-----------------|-----------------|----------------------------|
-| Housing                   | $1,800  | 34.6%           | Needs           | At upper edge (norm: ≤33%) |
-| Transportation            | $255    | 4.9%            | Needs           | Within norm                |
-| Groceries and household   | $310    | 6.0%            | Needs           | Within norm                |
-| Dining and food service   | $580    | 11.2%           | Wants           | Elevated (norm: 5--7%)     |
-| Utilities and comms       | $140    | 2.7%            | Needs           | Within norm                |
-| Health and wellness       | $55     | 1.1%            | Needs/Wants     | Below norm for stated priority |
-| Personal care             | $0      | 0%              | Wants           | Not reported               |
-| Entertainment/recreation  | $62     | 1.2%            | Wants           | Within norm                |
-| Shopping/discretionary    | $620    | 11.9%           | Wants           | Elevated -- see flags      |
-| Financial/savings         | $425    | 8.2%            | Savings         | Below 20% benchmark        |
-| Education and growth      | $0      | 0%              | Wants/Savings   | Not reported               |
-| Giving                    | $90     | 1.7%            | Wants           | Within norm                |
-| **Total Tracked**         |**$4,337**| **83.4%**      |                 |                            |
 
-*Shopping/discretionary combines Amazon/random ($440) + clothing ($180) = $620*
-*Financial/savings combines savings transfer ($150) + student loan minimum ($275) = $425*
+| Category                 | Monthly    | % of Net Income | 50/30/20 Bucket | Benchmark Note                 |
+| ------------------------ | ---------- | --------------- | --------------- | ------------------------------ |
+| Housing                  | $1,800     | 34.6%           | Needs           | At upper edge (norm: ≤33%)     |
+| Transportation           | $255       | 4.9%            | Needs           | Within norm                    |
+| Groceries and household  | $310       | 6.0%            | Needs           | Within norm                    |
+| Dining and food service  | $580       | 11.2%           | Wants           | Elevated (norm: 5--7%)         |
+| Utilities and comms      | $140       | 2.7%            | Needs           | Within norm                    |
+| Health and wellness      | $55        | 1.1%            | Needs/Wants     | Below norm for stated priority |
+| Personal care            | $0         | 0%              | Wants           | Not reported                   |
+| Entertainment/recreation | $62        | 1.2%            | Wants           | Within norm                    |
+| Shopping/discretionary   | $620       | 11.9%           | Wants           | Elevated -- see flags          |
+| Financial/savings        | $425       | 8.2%            | Savings         | Below 20% benchmark            |
+| Education and growth     | $0         | 0%              | Wants/Savings   | Not reported                   |
+| Giving                   | $90        | 1.7%            | Wants           | Within norm                    |
+| **Total Tracked**        | **$4,337** | **83.4%**       |                 |                                |
+
+_Shopping/discretionary combines Amazon/random ($440) + clothing ($180) = $620_
+_Financial/savings combines savings transfer ($150) + student loan minimum ($275) = $425_
 
 **50/30/20 Actual Split (of tracked spending):**
+
 - Needs (housing, transport, groceries, utilities, health, student loan minimum): $2,835 -- 54.5% of income (benchmark: ≤50%) -- **over by 4.5 percentage points**
 - Wants (dining, streaming, shopping, clothing, giving): $1,352 -- 26.0% of income (benchmark: ≤30%) -- within norm
 - Savings (directed savings only): $150 -- 2.9% of income (benchmark: ≥20%) -- **severely under benchmark**
@@ -356,11 +363,12 @@ Variable income requires a modified baseline approach. Use the average of the la
 ---
 
 ### Values Alignment Map
-| Stated Priority        | Rank | Supporting Categories                                    | Monthly $  | % of Net Income | Spending Rank |
-|------------------------|------|----------------------------------------------------------|-----------|-----------------|---------------|
-| Financial security     | #1   | Savings ($150), Student loan minimum ($275)              | $425      | 8.2%            | #5            |
-| Health                 | #2   | Gym ($55), Groceries partial (est. $180 of $310)         | $235      | 4.5%            | #7            |
-| Family and relationships| #3  | Giving/gifts ($90), Dining-as-social partial (est. $100) | $190      | 3.7%            | #8            |
+
+| Stated Priority          | Rank | Supporting Categories                                    | Monthly $ | % of Net Income | Spending Rank |
+| ------------------------ | ---- | -------------------------------------------------------- | --------- | --------------- | ------------- |
+| Financial security       | #1   | Savings ($150), Student loan minimum ($275)              | $425      | 8.2%            | #5            |
+| Health                   | #2   | Gym ($55), Groceries partial (est. $180 of $310)         | $235      | 4.5%            | #7            |
+| Family and relationships | #3   | Giving/gifts ($90), Dining-as-social partial (est. $100) | $190      | 3.7%            | #8            |
 
 **Discretionary spending total** (total spending minus fixed unavoidable costs: housing, utilities, transportation, student loan minimum): $4,337 - $2,470 = $1,867/month
 
@@ -372,13 +380,14 @@ The self-assessment of 6/10 is reasonably calibrated to the actual alignment dat
 ---
 
 ### Misalignment Findings
-| # | Type                 | Finding                                                                                         | Monthly Gap | Annual Impact |
-|---|----------------------|-------------------------------------------------------------------------------------------------|------------|---------------|
-| 1 | Priority inversion   | Financial security (#1 stated priority) receives $150/mo in savings -- dining alone receives $580/mo | $430/mo  | $5,160/yr     |
-| 2 | Goal funding deficit | Emergency fund goal: $15,600 target, $800 current. At $150/mo, goal reached in 99 months (8+ years). Target timeline requires $595/mo | $445/mo | $5,340/yr |
-| 3 | Ghost spending       | Shopping/discretionary at $620/mo (11.9% of income) is not a stated priority -- largest single Wants category | $620/mo | $7,440/yr |
-| 4 | Minimum floor        | Health (#2 priority) receives $55/mo gym + partial groceries -- no medical spending, no dental, no vision reported; priority may be underfunded | -- | -- |
-| 5 | Unaccounted gap      | $863/mo (16.6% of income) is untracked -- at this scale it almost certainly contains meaningful spending that would change the analysis | $863/mo | $10,356/yr |
+
+| #   | Type                 | Finding                                                                                                                                         | Monthly Gap | Annual Impact |
+| --- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------- |
+| 1   | Priority inversion   | Financial security (#1 stated priority) receives $150/mo in savings -- dining alone receives $580/mo                                            | $430/mo     | $5,160/yr     |
+| 2   | Goal funding deficit | Emergency fund goal: $15,600 target, $800 current. At $150/mo, goal reached in 99 months (8+ years). Target timeline requires $595/mo           | $445/mo     | $5,340/yr     |
+| 3   | Ghost spending       | Shopping/discretionary at $620/mo (11.9% of income) is not a stated priority -- largest single Wants category                                   | $620/mo     | $7,440/yr     |
+| 4   | Minimum floor        | Health (#2 priority) receives $55/mo gym + partial groceries -- no medical spending, no dental, no vision reported; priority may be underfunded | --          | --            |
+| 5   | Unaccounted gap      | $863/mo (16.6% of income) is untracked -- at this scale it almost certainly contains meaningful spending that would change the analysis         | $863/mo     | $10,356/yr    |
 
 ---
 
@@ -386,13 +395,14 @@ The self-assessment of 6/10 is reasonably calibrated to the actual alignment dat
 
 **Highest Leverage Change:** Reduce shopping/discretionary from $620 to $300/month and redirect to emergency fund. This single change closes the majority of the emergency fund timeline gap.
 
-| # | Reduce This             | From    | To      | Shift  | Increase This            | Mechanism                                                               | Annual Impact        |
-|---|-------------------------|--------|--------|--------|--------------------------|-------------------------------------------------------------------------|---------------------|
-| 1 | Shopping/discretionary  | $620   | $300   | -$320  | Emergency fund savings   | Implement a "48-hour rule" for non-grocery purchases over $30 before buying; unsubscribe from retail email lists this week | +$3,840 saved/yr |
-| 2 | Dining and food service | $580   | $380   | -$200  | Emergency fund savings   | Reduce delivery orders from current frequency to 2x/week max; cook dinner at home Sunday through Thursday | +$2,400 saved/yr |
-| 3 | Streaming + misc        | $62    | $30    | -$32   | Health investment        | Audit streaming for unused services (use `subscription-audit`); reallocate to one out-of-pocket health visit (dental, vision, or preventive care) per quarter | +$384/yr to health |
+| #   | Reduce This             | From | To   | Shift | Increase This          | Mechanism                                                                                                                                                     | Annual Impact      |
+| --- | ----------------------- | ---- | ---- | ----- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| 1   | Shopping/discretionary  | $620 | $300 | -$320 | Emergency fund savings | Implement a "48-hour rule" for non-grocery purchases over $30 before buying; unsubscribe from retail email lists this week                                    | +$3,840 saved/yr   |
+| 2   | Dining and food service | $580 | $380 | -$200 | Emergency fund savings | Reduce delivery orders from current frequency to 2x/week max; cook dinner at home Sunday through Thursday                                                     | +$2,400 saved/yr   |
+| 3   | Streaming + misc        | $62  | $30  | -$32  | Health investment      | Audit streaming for unused services (use `subscription-audit`); reallocate to one out-of-pocket health visit (dental, vision, or preventive care) per quarter | +$384/yr to health |
 
 **Combined impact if all three recommendations implemented:**
+
 - New monthly savings directed to emergency fund: $150 + $320 + $200 = $670/month
 - New total savings rate: $670 ÷ $5,200 = **12.9%** (up from 2.9%)
 - Emergency fund target of $15,600 reached in: ($15,600 - $800) ÷ $670 = **22 months** (down from 99 months)
@@ -402,17 +412,19 @@ The self-assessment of 6/10 is reasonably calibrated to the actual alignment dat
 ---
 
 ### Spending Alignment Score
-| Metric                         | Current  | After All Recommendations |
-|--------------------------------|---------|--------------------------|
-| Alignment ratio                | 45.5%   | ~60%                     |
-| Savings rate (directed)        | 2.9%    | 12.9%                    |
-| Emergency fund timeline        | 99 months | 22 months              |
-| Shopping as % of income        | 11.9%   | 5.8%                     |
-| Dining as % of income          | 11.2%   | 7.3%                     |
+
+| Metric                  | Current   | After All Recommendations |
+| ----------------------- | --------- | ------------------------- |
+| Alignment ratio         | 45.5%     | ~60%                      |
+| Savings rate (directed) | 2.9%      | 12.9%                     |
+| Emergency fund timeline | 99 months | 22 months                 |
+| Shopping as % of income | 11.9%     | 5.8%                      |
+| Dining as % of income   | 11.2%     | 7.3%                      |
 
 ---
 
 ### 30-Day Action Plan
+
 - [ ] **Week 1:** Track all spending including cash, Venmo, and app purchases to close the $863/month data gap -- this is the single most important data quality action
 - [ ] **Week 1:** Audit streaming services to identify unused subscriptions (target: reduce from $62 to $30/month or below)
 - [ ] **Week 1:** Implement the 48-hour rule for all non-grocery purchases over $30 -- place items in a digital cart and revisit 48 hours later before buying

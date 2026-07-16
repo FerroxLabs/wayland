@@ -152,6 +152,31 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(err.message).toContain('waiting for provider handshake');
   });
 
+  it('honors WAYLAND_WCORE_READY_TIMEOUT_MS to extend the ready-timeout for slow cold starts (#551)', async () => {
+    vi.useFakeTimers();
+    process.env.WAYLAND_WCORE_READY_TIMEOUT_MS = '60000';
+    try {
+      const child = makeChild();
+      spawnMock.mockReturnValue(child);
+
+      const agent = new WCoreAgent(baseOptions());
+      const result = agent.start().catch((e: unknown) => e);
+
+      await vi.advanceTimersByTimeAsync(0);
+
+      // The default 30s elapses with no ready event; the overridden 60s timeout
+      // must not have fired yet.
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(spawnMock).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(30_000);
+      const err = (await result) as Error;
+      expect(err.message).toContain('wcore ready timeout (60s)');
+    } finally {
+      delete process.env.WAYLAND_WCORE_READY_TIMEOUT_MS;
+    }
+  });
+
   it('resume-fallback tears down the stale child, resets the tail, and surfaces only the retry error (#484 audit)', async () => {
     vi.useFakeTimers();
     const first = makeChild();

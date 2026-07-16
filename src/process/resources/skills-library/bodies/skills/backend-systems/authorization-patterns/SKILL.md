@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security backend design-patterns"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security backend design-patterns'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Authorization Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to implement access control in a backend service and needs to choose between RBAC, ABAC, ReBAC, or PBAC models
 - User needs to design a permission system for a multi-tenant SaaS application with varying customer-level access policies
 - User wants to implement fine-grained authorization and evaluate tools like OPA (Open Policy Agent), Casbin, or a homegrown policy engine
@@ -30,6 +32,7 @@ metadata:
 - User is adding audit logging to an authorization system and needs to capture the right decision metadata
 
 **Do NOT use this skill when:**
+
 - User asks about authentication (login flows, session management, OAuth2/OIDC provider configuration) -- use the authentication skill instead
 - User needs API gateway configuration in isolation without an authorization design question attached -- use the API gateway skill
 - User asks about database access control at the PostgreSQL row security policy level as a standalone DBA topic -- use the database security skill
@@ -53,6 +56,7 @@ Start by gathering the access control requirements precisely. The model you choo
 - Ask the user: How many distinct permission types exist? Do permissions depend on resource ownership? Do they depend on organizational hierarchy? Do they change per tenant?
 
 Quantitative thresholds:
+
 - Fewer than 10 roles, no attribute conditions: pure RBAC is correct
 - 10-50 roles with some attribute conditions: RBAC with attribute augmentation
 - Dynamic policies that reference resource properties or relationships: ABAC or ReBAC
@@ -76,7 +80,7 @@ Where and how authorization checks run has major performance and correctness imp
 - **Inline enforcement (embedded policy library):** The application imports a library (Casbin, OPA Go SDK, or a homegrown role checker) and evaluates authorization directly in the request handler. Latency is <1ms. Correct for monoliths or single-service APIs. Risk: policy logic gets duplicated across services over time.
 - **Sidecar enforcement:** A policy engine (OPA) runs as a sidecar container. The application sends authorization requests over localhost HTTP/gRPC. Latency is 1-5ms. Correct for containerized microservices. Policies are centrally authored and pushed to all sidecars via a bundle server.
 - **Centralized PDP (Policy Decision Point):** A standalone authorization service (Open Policy Agent, Oso, SpiceDB, Permit.io's engine) evaluates all policy decisions. Applications act as PEPs (Policy Enforcement Points) and call the PDP over the network. Latency is 5-50ms per decision without caching. Correct for organizations that need a single audit trail and unified policy management. Requires a caching layer (Redis with short TTL, or the PDP's built-in cache) to avoid the network being a bottleneck.
-- **Gateway enforcement:** Authorization is checked at the API gateway or service mesh layer (Envoy + OPA, Kong + a plugin, AWS API Gateway authorizers). Coarse-grained decisions ("is this token valid and does it have the `api:access` scope") belong here. Fine-grained decisions ("can this user read *this specific document*") must remain in the service, because the gateway does not have resource-level context.
+- **Gateway enforcement:** Authorization is checked at the API gateway or service mesh layer (Envoy + OPA, Kong + a plugin, AWS API Gateway authorizers). Coarse-grained decisions ("is this token valid and does it have the `api:access` scope") belong here. Fine-grained decisions ("can this user read _this specific document_") must remain in the service, because the gateway does not have resource-level context.
 - **Never** rely solely on gateway enforcement. Always enforce at the service layer as well (defense in depth). The gateway catches unauthenticated requests; the service enforces business-level permissions.
 - For microservices, the canonical pattern is: JWT validation at gateway → scope check at gateway → resource-level authorization check inside the service (using its own PEP call to the PDP).
 
@@ -106,6 +110,7 @@ The PEP is the code that halts request processing and asks "is this allowed?" Wr
 Write the actual policy rules using the chosen model's primitives.
 
 **For RBAC with a permission table (SQL example):**
+
 ```sql
 -- Three-table RBAC schema
 CREATE TABLE roles (id UUID PRIMARY KEY, name TEXT UNIQUE, tenant_id UUID);
@@ -124,6 +129,7 @@ SELECT EXISTS (
 ```
 
 **For ABAC with OPA/Rego:**
+
 ```rego
 package authz
 
@@ -146,6 +152,7 @@ document_is_archived {
 
 **For ReBAC with SpiceDB (Zanzibar-inspired):**
 Define a schema that expresses relations:
+
 ```
 definition user {}
 definition organization {
@@ -160,6 +167,7 @@ definition document {
   permission write = owner + org->admin
 }
 ```
+
 Then call `CheckPermission(user:alice, read, document:123)` which traverses the relationship graph.
 
 - Cache policy decisions aggressively when the policy and data are stable. Use a read-through cache keyed by `(principal_id, resource_id, action)` with a TTL of 30-60 seconds. Invalidate on role changes and resource ownership changes.
@@ -195,7 +203,7 @@ Authorization bugs are often silent -- the system returns 200 OK when it should 
 
 When responding to a user authorization design question, produce the following structured output:
 
-```
+````
 ## Authorization Design -- [System Name]
 
 ### Model Selection
@@ -230,18 +238,22 @@ When responding to a user authorization design question, produce the following s
   "iat": 1700000000,
   "exp": 1700003600
 }
-```
+````
 
 ### Core Policy Implementation
+
 [Code block: SQL schema, Rego policy, or SpiceDB schema as appropriate]
 
 ### Enforcement Point Code
+
 [Code block: middleware or decorator implementation in the user's language]
 
 ### List Endpoint Strategy
+
 [Description of query rewriting or lookup approach for collection filtering]
 
 ### Testing Checklist
+
 - [ ] Permission matrix tests (all role × action combinations)
 - [ ] Cross-tenant isolation tests
 - [ ] Deactivated principal tests
@@ -250,8 +262,10 @@ When responding to a user authorization design question, produce the following s
 - [ ] Authorization audit log format confirmed
 
 ### Known Trade-offs and Risks
+
 [Specific risks for the chosen approach and mitigations]
-```
+
+````
 
 ---
 
@@ -380,7 +394,7 @@ CREATE TABLE organization_members (
 
 -- Index for fast membership lookup
 CREATE INDEX idx_org_members_user ON organization_members(user_id, organization_id);
-```
+````
 
 ---
 
@@ -427,9 +441,7 @@ const { createAuditLog } = require('../services/auditLog');
 function authorize(requiredPermission, options = {}) {
   return async (req, res, next) => {
     const principal = req.user; // set by JWT validation middleware upstream
-    const orgId = options.getOrgId
-      ? options.getOrgId(req)
-      : req.params.orgId || req.body.organizationId;
+    const orgId = options.getOrgId ? options.getOrgId(req) : req.params.orgId || req.body.organizationId;
 
     if (!orgId) {
       return res.status(400).json({ error: 'Organization context required' });
@@ -478,20 +490,31 @@ function authorize(requiredPermission, options = {}) {
 // Role-permission mapping -- single source of truth
 const ROLE_PERMISSIONS = {
   admin: [
-    'organization:read', 'organization:update', 'organization:manage_members',
-    'project:create', 'project:read', 'project:update', 'project:delete', 'project:list',
-    'document:create', 'document:read', 'document:update', 'document:delete', 'document:list',
+    'organization:read',
+    'organization:update',
+    'organization:manage_members',
+    'project:create',
+    'project:read',
+    'project:update',
+    'project:delete',
+    'project:list',
+    'document:create',
+    'document:read',
+    'document:update',
+    'document:delete',
+    'document:list',
   ],
   editor: [
     'organization:read',
-    'project:read', 'project:update', 'project:list',
-    'document:create', 'document:read', 'document:update', 'document:list',
+    'project:read',
+    'project:update',
+    'project:list',
+    'document:create',
+    'document:read',
+    'document:update',
+    'document:list',
   ],
-  viewer: [
-    'organization:read',
-    'project:read', 'project:list',
-    'document:read', 'document:list',
-  ],
+  viewer: ['organization:read', 'project:read', 'project:list', 'document:read', 'document:list'],
 };
 
 function roleHasPermission(role, permission) {
@@ -508,9 +531,10 @@ module.exports = { authorize, roleHasPermission };
 
 ```javascript
 // routes/documents.js
-router.delete('/:orgId/projects/:projectId/documents/:documentId',
+router.delete(
+  '/:orgId/projects/:projectId/documents/:documentId',
   authenticate,
-  authorize('document:delete', { getOrgId: req => req.params.orgId }),
+  authorize('document:delete', { getOrgId: (req) => req.params.orgId }),
   async (req, res) => {
     const { documentId } = req.params;
     const principal = req.user;

@@ -84,9 +84,7 @@ const MAX_RECENT_PALETTE_ROWS = 10;
 const DOCS_URL = 'https://getwayland.com/docs';
 
 /** Static palette actions (commands that are not chat launches). */
-const PALETTE_ACTIONS: PaletteAction[] = [
-  { id: 'docs', label: 'common.cmdk.actions.docs', url: DOCS_URL },
-];
+const PALETTE_ACTIONS: PaletteAction[] = [{ id: 'docs', label: 'common.cmdk.actions.docs', url: DOCS_URL }];
 
 /**
  * Coarse categorization for assistants.
@@ -135,7 +133,7 @@ export function useCommandPaletteSources(): CommandPaletteSources {
   const recents = useMemo<PaletteRecent[]>(() => {
     return conversations
       .slice()
-      .sort((a: TChatConversation, b: TChatConversation) => (b.modifyTime ?? 0) - (a.modifyTime ?? 0))
+      .toSorted((a: TChatConversation, b: TChatConversation) => (b.modifyTime ?? 0) - (a.modifyTime ?? 0))
       .slice(0, MAX_RECENT_PALETTE_ROWS)
       .map((conv: TChatConversation) => ({
         id: conv.id,

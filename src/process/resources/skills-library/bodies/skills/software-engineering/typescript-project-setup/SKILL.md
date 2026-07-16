@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # TypeScript Project Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is initializing a new TypeScript project and needs a tsconfig.json configured from scratch -- including a library, application, CLI tool, or monorepo package
 - The user is experiencing module resolution errors such as "Cannot find module" or "File is not a module" and needs to understand how `moduleResolution` settings interact with their runtime or bundler
 - The user wants to configure path aliases (`@/components`, `~utils`) and needs both the TypeScript and the runtime/bundler sides of that configuration
@@ -30,6 +32,7 @@ metadata:
 - The user asks about `tsc --build` (project references), watch mode performance, or build output caching with TypeScript
 
 **Do NOT use this skill when:**
+
 - The user wants TypeScript type system patterns (generics, conditional types, mapped types, template literal types) -- use `typescript-type-patterns`
 - The user wants runtime validation (Zod, Valet, class-validator, io-ts) to complement TypeScript's compile-time types -- use `typescript-runtime-safety`
 - The user wants Node.js-specific project setup beyond TypeScript configuration (package.json structure, scripts, ESLint, Prettier, CI) -- use `nodejs-project-setup`
@@ -52,6 +55,7 @@ Determine which of four project archetypes applies, because every subsequent dec
 - **Monorepo package:** One or more packages depend on others in the same repo. Every internal package must use `"composite": true`. Use project references (`references` array) so `tsc --build` can incrementally compile in dependency order. Never cross-import source files across package boundaries.
 
 Secondary environment questions to resolve now, not later:
+
 - Is JSX required? (React, Preact, Solid) -- determines `"jsx"` setting and `lib` needs
 - What is the minimum runtime target? ES2022 for Node.js 18+, ES2020 for Node.js 14+, never below ES2015 for new projects
 - Is this a dual-CJS/ESM library? (requires two separate tsconfig files and two build outputs)
@@ -71,6 +75,7 @@ The core strict flags and what each one buys you:
 - `"forceConsistentCasingInFileNames": true` -- prevents import casing mismatches that pass on macOS/Windows (case-insensitive filesystems) but break Linux CI. Always enable.
 
 Flags that are deliberately excluded from the default recommendation and why:
+
 - `"noPropertyAccessFromIndexSignature": true` -- forces bracket notation for index signature access. Useful in some codebases but creates friction with common patterns. Evaluate per project.
 - `"allowUnusedLabels": false` and `"allowUnreachableCode": false` -- catch dead code, but conflict with common debugging patterns. Better handled by ESLint.
 
@@ -80,14 +85,14 @@ This is the single most error-prone area of TypeScript configuration. The `modul
 
 **Decision matrix:**
 
-| Scenario | `module` | `moduleResolution` | Notes |
-|---|---|---|---|
-| Vite/webpack/esbuild app | `ESNext` | `bundler` | Most ergonomic, extensionless imports |
-| Next.js app | `ESNext` | `bundler` | Next.js plugin handles actual compilation |
-| Node.js with ESM (`"type": "module"`) | `Node16` or `NodeNext` | `node16` or `nodenext` | Requires `.js` extensions in imports |
-| Node.js with CJS (`"type": "commonjs"`) | `CommonJS` | `node16` or `nodenext` | Can use extensionless imports |
-| npm library (ESM output) | `Node16` | `node16` | Matches consumer constraints |
-| npm library (dual CJS+ESM) | Two tsconfig files | See edge cases | One per output format |
+| Scenario                                | `module`               | `moduleResolution`     | Notes                                     |
+| --------------------------------------- | ---------------------- | ---------------------- | ----------------------------------------- |
+| Vite/webpack/esbuild app                | `ESNext`               | `bundler`              | Most ergonomic, extensionless imports     |
+| Next.js app                             | `ESNext`               | `bundler`              | Next.js plugin handles actual compilation |
+| Node.js with ESM (`"type": "module"`)   | `Node16` or `NodeNext` | `node16` or `nodenext` | Requires `.js` extensions in imports      |
+| Node.js with CJS (`"type": "commonjs"`) | `CommonJS`             | `node16` or `nodenext` | Can use extensionless imports             |
+| npm library (ESM output)                | `Node16`               | `node16`               | Matches consumer constraints              |
+| npm library (dual CJS+ESM)              | Two tsconfig files     | See edge cases         | One per output format                     |
 
 Critical pitfalls in module resolution:
 
@@ -101,6 +106,7 @@ Critical pitfalls in module resolution:
 Path aliases improve import ergonomics but require configuration in two places: TypeScript (for type checking) and the runtime/bundler (for actual resolution). TypeScript's `paths` do not affect compilation output -- they are hints for the type checker only.
 
 **TypeScript side:**
+
 ```json
 {
   "compilerOptions": {
@@ -125,6 +131,7 @@ Path aliases improve import ergonomics but require configuration in two places: 
 - **ts-node / tsx:** These tools read `tsconfig.json` paths directly via `tsconfig-paths` package, or natively in newer versions.
 
 Alias naming conventions that minimize confusion:
+
 - `@/*` for the general source root -- widely understood convention
 - `#` prefix only for Node.js subpath imports (different semantic)
 - Avoid single-character aliases (`~`, `$`) -- they conflict with shell expansion in some contexts
@@ -135,6 +142,7 @@ Alias naming conventions that minimize confusion:
 Output configuration differs fundamentally between applications and libraries:
 
 **For applications (bundler handles compilation):**
+
 ```json
 {
   "compilerOptions": {
@@ -143,9 +151,11 @@ Output configuration differs fundamentally between applications and libraries:
   }
 }
 ```
+
 `noEmit: true` tells TypeScript to run only type checking. The bundler produces actual output. Source maps are irrelevant here -- the bundler generates its own.
 
 **For libraries:**
+
 ```json
 {
   "compilerOptions": {
@@ -162,6 +172,7 @@ Output configuration differs fundamentally between applications and libraries:
 ```
 
 Key output decisions for libraries:
+
 - `"declarationDir"` separates `.d.ts` files from `.js` files when you want a flat `dist/` with `types/` subdirectory. Omit it to colocate `.d.ts` with `.js`.
 - `"declarationMap": true` generates `.d.ts.map` files that map declaration file positions back to source. This enables "Go to Definition" in consuming projects to jump to your TypeScript source instead of the compiled declaration file. Always include it in libraries -- it has zero runtime cost.
 - `"sourceMap": true` generates `.js.map` files for debugger integration. Include in libraries so consumers can debug into your code.
@@ -170,6 +181,7 @@ Key output decisions for libraries:
 The `rootDir`/`outDir` relationship is critical: `rootDir` must be an ancestor of all source files. If any source file is outside `rootDir`, TypeScript errors. This is why `rootDir: "src"` and `include: ["src/**/*.ts"]` must be consistent.
 
 **Incremental compilation:**
+
 - `"incremental": true` writes a `.tsbuildinfo` file that caches type checking results. Dramatically speeds up repeated `tsc` runs. Safe to enable in both applications and libraries.
 - `"tsBuildInfoFile": "./.tsbuildinfo"` controls where the cache file is written. For monorepos, put it inside each package's directory.
 - `"composite": true` implies `"incremental": true` automatically.
@@ -177,18 +189,21 @@ The `rootDir`/`outDir` relationship is critical: `rootDir` must be an ancestor o
 ### Step 6: Configure for Specific Frameworks and Runtimes
 
 **React / Preact (Vite):**
+
 - `"jsx": "react-jsx"` -- uses the automatic JSX transform (no `import React` required). Default for React 17+.
 - `"jsx": "react"` -- classic transform, requires `import React from 'react'` in every JSX file. Only for React 16.
 - `"jsx": "preserve"` -- emits JSX unchanged for a downstream bundler to transform. Used by Next.js (Next handles JSX compilation via SWC).
 - Add `"DOM"` and `"DOM.Iterable"` to `lib` for browser API types.
 
 **Next.js 14/15:**
+
 - Use `"plugins": [{ "name": "next" }]` in compilerOptions for the Next.js TypeScript plugin, which provides route type checking and other Next-specific features in the IDE.
 - `"moduleResolution": "bundler"` is correct for Next.js (confirmed in Next.js docs).
 - Next.js generates `next-env.d.ts` -- include this file in the `include` array.
 - Do not set `"module"` to `"CommonJS"` -- Next.js expects `"ESNext"`.
 
 **Node.js 18+ with native ESM:**
+
 - Set `"type": "module"` in `package.json`.
 - Set `"module": "Node16"` and `"moduleResolution": "node16"` in tsconfig.
 - All relative imports in TypeScript source must use `.js` extension (not `.ts`).
@@ -196,6 +211,7 @@ The `rootDir`/`outDir` relationship is critical: `rootDir` must be an ancestor o
 - Named exports from `package.json` `exports` field are fully supported.
 
 **Deno:**
+
 - `"moduleResolution": "bundler"` or `"node16"` both work.
 - Deno supports URL imports -- add `"allowImportingTsExtensions": true` for first-party `.ts` imports.
 - Use Deno's `deno.json` or `deno.jsonc` for import maps rather than tsconfig paths.
@@ -205,6 +221,7 @@ The `rootDir`/`outDir` relationship is critical: `rootDir` must be an ancestor o
 For any monorepo with multiple TypeScript packages, project references are mandatory for correct incremental builds and cross-package "Go to Definition" support.
 
 **Structure requirements:**
+
 - Every package that is referenced by another must have `"composite": true`.
 - `composite: true` requires: `"declaration": true`, an explicit `"rootDir"`, and all input files covered by `include`/`files`.
 - The consuming package lists references: `"references": [{ "path": "../shared-types" }]`.
@@ -212,12 +229,14 @@ For any monorepo with multiple TypeScript packages, project references are manda
 - `tsc --build --watch` for development mode.
 
 **Base config inheritance:**
+
 - Create a `tsconfig.base.json` at the repo root with shared strict settings.
 - Each package's tsconfig extends it: `"extends": "../../tsconfig.base.json"`.
 - The base config should NOT include `include`/`exclude`/`references` -- these are package-specific.
 - Override only what differs per package (module system, jsx, outDir).
 
 **The `paths` problem in monorepos:**
+
 - TypeScript `paths` do not cross package boundaries via project references -- they are local to each tsconfig.
 - Do not use `paths` to reference sibling packages. Use actual npm package names (`@myorg/shared-types`) resolved via `node_modules` symlinks (pnpm workspaces, yarn workspaces, npm workspaces) plus `project references`.
 - The `paths` alias and the project reference must agree: if you alias `@myorg/shared-types` to a local path, also add the corresponding reference.
@@ -269,12 +288,12 @@ Each tsconfig with inline comments explaining non-obvious settings:
 {
   "compilerOptions": {
     // -- Language target --
-    "target": "ES2022",           // Minimum: ES2022 for Node 18+, ES2020 for Node 14+
-    "lib": ["ES2022"],            // Match target unless polyfilling
+    "target": "ES2022", // Minimum: ES2022 for Node 18+, ES2020 for Node 14+
+    "lib": ["ES2022"], // Match target unless polyfilling
 
     // -- Module system --
-    "module": "ESNext",           // Use Node16/NodeNext for native Node ESM
-    "moduleResolution": "bundler",// Use node16/nodenext when emitting files
+    "module": "ESNext", // Use Node16/NodeNext for native Node ESM
+    "moduleResolution": "bundler", // Use node16/nodenext when emitting files
 
     // -- Strict type checking --
     "strict": true,
@@ -285,21 +304,21 @@ Each tsconfig with inline comments explaining non-obvious settings:
     "forceConsistentCasingInFileNames": true,
 
     // -- Emit --
-    "noEmit": true,              // Set to false for libraries
-    "sourceMap": true,           // For libraries: true; for bundler apps: false
+    "noEmit": true, // Set to false for libraries
+    "sourceMap": true, // For libraries: true; for bundler apps: false
     "incremental": true,
 
     // -- Interop --
     "esModuleInterop": true,
-    "isolatedModules": true,     // Required when using esbuild/SWC for compilation
+    "isolatedModules": true, // Required when using esbuild/SWC for compilation
     "skipLibCheck": true,
 
     // -- Path aliases --
     "baseUrl": ".",
-    "paths": { "@/*": ["./src/*"] }
+    "paths": { "@/*": ["./src/*"] },
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
 }
 ```
 
@@ -309,16 +328,16 @@ Provide the matching alias configuration for the build tool:
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
-})
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+});
 ```
 
 ### package.json Exports (for libraries)
@@ -427,6 +446,7 @@ Publishing a library that works in both CommonJS and ESM environments requires t
 Build script: `tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json`
 
 `package.json` exports field:
+
 ```json
 {
   "exports": {
@@ -449,22 +469,22 @@ TypeScript does not know about non-standard file types. Create declaration files
 
 // CSS Modules
 declare module '*.module.css' {
-  const classes: Record<string, string>
-  export default classes
+  const classes: Record<string, string>;
+  export default classes;
 }
 
 // SVG as React components (SVGR)
 declare module '*.svg' {
-  import type { FC, SVGProps } from 'react'
-  const ReactComponent: FC<SVGProps<SVGSVGElement>>
-  export { ReactComponent }
-  export default ReactComponent
+  import type { FC, SVGProps } from 'react';
+  const ReactComponent: FC<SVGProps<SVGSVGElement>>;
+  export { ReactComponent };
+  export default ReactComponent;
 }
 
 // WebAssembly -- typed at instantiation level
 declare module '*.wasm' {
-  const content: WebAssembly.Module
-  export default content
+  const content: WebAssembly.Module;
+  export default content;
 }
 
 // JSON -- TypeScript handles this natively with "resolveJsonModule": true
@@ -487,6 +507,7 @@ NestJS currently requires legacy decorators. Angular 15+ supports standard decor
 The most common post-setup failure: TypeScript is happy, the build works, but tests fail with "Cannot find module '@/utils/format'". This is because Jest and Vitest resolve modules independently of TypeScript and the application bundler.
 
 For Jest:
+
 ```json
 // jest.config.json
 {
@@ -497,18 +518,19 @@ For Jest:
 ```
 
 For Vitest:
+
 ```ts
 // vitest.config.ts
-import { defineConfig } from 'vitest/config'
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vitest/config';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
   test: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
-})
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+});
 ```
 
 Alternatively, Vitest can extend the Vite config: `import { defineConfig } from 'vitest/config'` combined with `mergeConfig(viteConfig, vitestConfig)` -- this automatically inherits Vite's `resolve.alias` settings and avoids duplication.
@@ -522,6 +544,7 @@ Alternatively, Vitest can extend the Vite config: `import { defineConfig } from 
 - Incorrectly placed types that should be in a separate base package.
 
 Resolution strategy:
+
 1. Draw the dependency graph explicitly (package names as nodes, references as directed edges).
 2. The graph must be a DAG (directed acyclic graph). Any cycle must be broken.
 3. Extract the shared type or utility into a third package that neither A nor B imports from each other.
@@ -532,6 +555,7 @@ Resolution strategy:
 `skipLibCheck: true` skips ALL `.d.ts` files, including your own generated declarations if you mistakenly include `dist/` in `include`. This can hide malformed declaration output.
 
 Safe practice:
+
 - Add `"dist"` and `"**/*.d.ts"` to `exclude` in your source tsconfig.
 - Run a separate type validation step in CI: `tsc --noEmit -p tsconfig.check-declarations.json` where that config has `skipLibCheck: false` and includes only the `dist/` types.
 - Use `@arethetypeswrong/cli` (attw) to validate your published package's types resolve correctly from multiple module resolution modes.
@@ -642,10 +666,10 @@ tempo-date/
 
     // Incremental: cache type checking state for faster subsequent runs.
     "incremental": true,
-    "tsBuildInfoFile": "./.tsbuildinfo"
+    "tsBuildInfoFile": "./.tsbuildinfo",
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
 }
 ```
 
@@ -677,11 +701,11 @@ tempo-date/
 
     // Disable incremental cache for build -- use a clean build in CI
     "incremental": false,
-    "tsBuildInfoFile": undefined
+    "tsBuildInfoFile": undefined,
   },
   "include": ["src/**/*.ts"],
   // Exclude tests from declaration output
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
 }
 ```
 
@@ -690,7 +714,7 @@ tempo-date/
 ### `build.ts` (esbuild script for JS compilation)
 
 ```ts
-import { build } from 'esbuild'
+import { build } from 'esbuild';
 
 const sharedConfig = {
   entryPoints: ['src/index.ts'],
@@ -702,28 +726,28 @@ const sharedConfig = {
   // No minification in library output -- consumers handle that
   minify: false,
   sourcemap: true,
-}
+};
 
 // ESM output
 await build({
   ...sharedConfig,
   format: 'esm',
   outfile: 'dist/esm/index.js',
-})
+});
 
 // CJS output
 await build({
   ...sharedConfig,
   format: 'cjs',
   outfile: 'dist/cjs/index.js',
-})
+});
 
 // Generate package.json shims for each output directory
-import { writeFile } from 'node:fs/promises'
-await writeFile('dist/esm/package.json', JSON.stringify({ type: 'module' }))
-await writeFile('dist/cjs/package.json', JSON.stringify({ type: 'commonjs' }))
+import { writeFile } from 'node:fs/promises';
+await writeFile('dist/esm/package.json', JSON.stringify({ type: 'module' }));
+await writeFile('dist/cjs/package.json', JSON.stringify({ type: 'commonjs' }));
 
-console.log('Build complete')
+console.log('Build complete');
 ```
 
 ---
@@ -752,9 +776,7 @@ console.log('Build complete')
       }
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "tsx build.ts && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
@@ -779,14 +801,14 @@ Because `"module": "Node16"` is set, TypeScript enforces explicit `.js` extensio
 
 ```ts
 // src/index.ts -- CORRECT
-export { format } from './format.js'      // .js extension, even though source is .ts
-export { parse } from './parse.js'
-export { createLocale } from './locale.js'
-export type { FormatOptions, ParseResult } from './types.js'
+export { format } from './format.js'; // .js extension, even though source is .ts
+export { parse } from './parse.js';
+export { createLocale } from './locale.js';
+export type { FormatOptions, ParseResult } from './types.js';
 
 // src/index.ts -- WRONG -- TypeScript will error under node16 resolution
-export { format } from './format'         // Missing .js extension
-export { format } from './format.ts'      // .ts extension not valid in output
+export { format } from './format'; // Missing .js extension
+export { format } from './format.ts'; // .ts extension not valid in output
 ```
 
 TypeScript resolves `'./format.js'` to `./format.ts` in source -- the `.js` refers to the compiled output that will exist at runtime. This is the correct mental model.

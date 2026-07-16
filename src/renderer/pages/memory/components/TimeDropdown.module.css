@@ -12,7 +12,9 @@
   color: var(--color-text-2);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.1s, border-color 0.1s;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
   line-height: 1.5;
 }
 
@@ -22,7 +24,7 @@
 }
 
 .triggerActive {
-  border-color: var(--color-primary-6, #FF7A45);
+  border-color: var(--color-primary-6, #ff7a45);
   color: var(--color-text-1);
 }
 
@@ -63,8 +65,8 @@
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 4px;
-  border: 1px solid var(--color-primary-6, #FF7A45);
-  background: var(--color-primary-6, #FF7A45);
+  border: 1px solid var(--color-primary-6, #ff7a45);
+  background: var(--color-primary-6, #ff7a45);
   color: #fff;
   cursor: pointer;
   transition: opacity 0.1s;

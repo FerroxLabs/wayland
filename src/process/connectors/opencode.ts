@@ -27,12 +27,7 @@ import { FLUX_SURFACE } from '@/common/config/flux';
 import { writeAtomic } from '@process/services/ijfw/atomicFile';
 
 import { deleteReceipt, getReceipt, setReceipt } from './manifest';
-import type {
-  ConnectorContext,
-  ConnectorStatus,
-  FluxConnectorReport,
-  InstallReceipt,
-} from './types';
+import type { ConnectorContext, ConnectorStatus, FluxConnectorReport, InstallReceipt } from './types';
 
 const TOOL = 'opencode';
 
@@ -81,7 +76,7 @@ function parseConfig(raw: string, configPath: string): JsonObject {
     parsed = JSON.parse(raw);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    throw new Error(`opencode config at ${configPath} is not valid JSON: ${message}`);
+    throw new Error(`opencode config at ${configPath} is not valid JSON: ${message}`, { cause: err });
   }
   if (!isObject(parsed)) {
     throw new Error(`opencode config at ${configPath} root must be a JSON object`);
@@ -165,10 +160,7 @@ export async function setupOpencode(ctx: ConnectorContext): Promise<FluxConnecto
     const installedAtForBackup = new Date().toISOString();
     const snapshotDir = path.join(ctx.backupDir, TOOL);
     const nonce = randomBytes(4).toString('hex');
-    backupPath = path.join(
-      snapshotDir,
-      `opencode.${isoSafeTimestamp(installedAtForBackup)}.${nonce}.json`,
-    );
+    backupPath = path.join(snapshotDir, `opencode.${isoSafeTimestamp(installedAtForBackup)}.${nonce}.json`);
     await writeAtomic(backupPath, raw);
   } else {
     backupPath = null;

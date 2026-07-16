@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching parenting guide research"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'teaching parenting guide research'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Science Fair Advisor
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on science fair advisor
 - User asks about science fair advisor best practices or techniques
 - User wants a structured approach to science fair advisor
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of science fair advisor
 
@@ -60,6 +61,7 @@ metadata:
 ### Project Ideas by Age Group
 
 **Grades K-2 (Ages 5-8) -- Observational and Simple Comparison Projects:**
+
 - Does the color of light affect plant growth?
 - Which paper towel brand is the strongest?
 - Do different surfaces affect how far a toy car rolls?
@@ -69,6 +71,7 @@ metadata:
 - Which type of soil holds the most water?
 
 **Grades 3-5 (Ages 8-11) -- Controlled Experiments:**
+
 - Does music affect plant growth?
 - Which bridge design holds the most weight?
 - How does salt concentration affect water's boiling point?
@@ -79,6 +82,7 @@ metadata:
 - How does surface area affect evaporation rate?
 
 **Grades 6-8 (Ages 11-14) -- Multi-Variable Experiments:**
+
 - How do different fertilizers affect plant growth over time?
 - Does the shape of a wing affect lift?
 - How does pH level affect enzyme activity?
@@ -89,6 +93,7 @@ metadata:
 - What factors affect solar panel efficiency?
 
 **Grades 9-12 (Ages 14-18) -- Advanced Research Projects:**
+
 - How do microplastics affect seed germination and root growth?
 - Can machine learning predict local weather patterns better than traditional methods?
 - How does antibiotic concentration affect bacterial resistance development?
@@ -126,6 +131,7 @@ TOTAL                           | _______   | _______   | _______
 
 **Step 1: Ask a Question**
 A good science fair question is:
+
 - Specific and focused (not too broad)
 - Testable through experimentation
 - Measurable (you can collect data)
@@ -134,11 +140,13 @@ A good science fair question is:
 **Format:** "How does [independent variable] affect [dependent variable]?"
 
 **Examples:**
+
 - "How does the amount of sunlight affect the growth rate of bean plants?"
 - "How does the temperature of water affect how quickly sugar dissolves?"
 
 **Step 2: Research the Topic**
 Before experimenting, learn what is already known:
+
 - Read books, articles, and reliable websites about the topic
 - Understand the science behind the question
 - Find out what similar experiments have shown
@@ -153,6 +161,7 @@ A hypothesis is an educated guess based on research.
 **Example:** "If I increase the amount of sunlight bean plants receive, then they will grow taller because photosynthesis increases with more light energy."
 
 **Key characteristics:**
+
 - Must be testable
 - Must be specific and measurable
 - Based on research, not random guessing
@@ -162,11 +171,13 @@ A hypothesis is an educated guess based on research.
 **Step 4: Design the Experiment**
 
 **Identify your variables:**
+
 - **Independent variable:** What you change on purpose (only ONE)
 - **Dependent variable:** What you measure (the result)
 - **Controlled variables:** Everything you keep the same (to make it a fair test)
 
 **Example:**
+
 ```
 Question: How does sunlight affect bean plant growth?
 Independent variable: Hours of sunlight per day (2, 4, 6, 8 hours)
@@ -176,11 +187,13 @@ same amount of water, same starting date, same temperature
 ```
 
 **Sample size and trials:**
+
 - Run at least 3 trials (repetitions) for each condition
 - More trials = more reliable data
 - For living things, use multiple specimens per condition
 
 **Step 5: Conduct the Experiment**
+
 - Follow your procedure exactly
 - Record all observations and measurements
 - Note anything unexpected
@@ -189,6 +202,7 @@ same amount of water, same starting date, same temperature
 - Do NOT change your procedure midway (if you must, note it)
 
 **Step 6: Analyze Data**
+
 - Calculate averages across trials
 - Create graphs and charts to visualize results
 - Look for patterns and trends
@@ -196,6 +210,7 @@ same amount of water, same starting date, same temperature
 - Determine if results support or contradict your hypothesis
 
 **Step 7: Draw Conclusions**
+
 - State whether results supported your hypothesis
 - Explain why you think you got these results
 - Discuss any errors or problems
@@ -229,15 +244,16 @@ Measurement frequency: _____________
 
 ### Choosing the Right Graph
 
-| Data Type | Best Graph | When to Use |
-|-----------|-----------|-------------|
-| Comparing categories | Bar graph | Comparing different groups or conditions |
-| Change over time | Line graph | Showing trends over days/weeks |
-| Parts of a whole | Pie chart | Showing percentages or proportions |
-| Relationship between two variables | Scatter plot | Showing correlation between variables |
-| Distribution of data | Histogram | Showing frequency of measurements |
+| Data Type                          | Best Graph   | When to Use                              |
+| ---------------------------------- | ------------ | ---------------------------------------- |
+| Comparing categories               | Bar graph    | Comparing different groups or conditions |
+| Change over time                   | Line graph   | Showing trends over days/weeks           |
+| Parts of a whole                   | Pie chart    | Showing percentages or proportions       |
+| Relationship between two variables | Scatter plot | Showing correlation between variables    |
+| Distribution of data               | Histogram    | Showing frequency of measurements        |
 
 ### Graph Requirements
+
 - Title that describes what the graph shows
 - Labeled x-axis (independent variable) with units
 - Labeled y-axis (dependent variable) with units
@@ -281,6 +297,7 @@ Measurement frequency: _____________
 ### Display Board Best Practices
 
 **Visual Design:**
+
 - Use a consistent color scheme (2-3 colors maximum)
 - Black or dark text on light backgrounds for readability
 - Section headers in larger, bold font
@@ -290,6 +307,7 @@ Measurement frequency: _____________
 - Borders or frames around sections for organization
 
 **Content Guidelines:**
+
 - Keep text concise -- bullets and short paragraphs
 - Let visuals (graphs, photos) do heavy lifting
 - Every section should have a clear heading
@@ -297,6 +315,7 @@ Measurement frequency: _____________
 - Have someone else read it for clarity
 
 **What NOT to Do:**
+
 - Do not handwrite text (print or type everything)
 - Do not overcrowd the board
 - Do not use clip art or unrelated decorations
@@ -331,25 +350,25 @@ Measurement frequency: _____________
 ### Oral Presentation Structure (3-5 Minutes Typical)
 
 **Opening (30 seconds):**
-"My name is _______ and my project is about _______. I wanted to find out _______."
+"My name is **\_\_\_** and my project is about **\_\_\_**. I wanted to find out **\_\_\_**."
 
 **Background (30-60 seconds):**
-"Before I started my experiment, I researched _______. I learned that _______."
+"Before I started my experiment, I researched **\_\_\_**. I learned that **\_\_\_**."
 
 **Hypothesis (15 seconds):**
-"Based on my research, I predicted that _______."
+"Based on my research, I predicted that **\_\_\_**."
 
 **Procedure (30-60 seconds):**
-"To test my hypothesis, I _______. I measured _______ and controlled _______."
+"To test my hypothesis, I **\_\_\_**. I measured **\_\_\_** and controlled **\_\_\_**."
 
 **Results (60 seconds):**
-"My results showed _______." [Point to graphs/data on board.] "As you can see in this graph, _______."
+"My results showed **\_\_\_**." [Point to graphs/data on board.] "As you can see in this graph, **\_\_\_**."
 
 **Conclusion (30 seconds):**
-"My hypothesis was [supported/not supported]. I think this happened because _______."
+"My hypothesis was [supported/not supported]. I think this happened because **\_\_\_**."
 
 **What I Learned (15-30 seconds):**
-"If I did this again, I would _______. A good follow-up experiment would be _______."
+"If I did this again, I would **\_\_\_**. A good follow-up experiment would be **\_\_\_**."
 
 ### Common Judge Questions (Prepare Answers)
 
@@ -367,6 +386,7 @@ Measurement frequency: _____________
 ### Presentation Tips for Students
 
 **Body Language:**
+
 - Stand to the side of your board, not in front of it
 - Face the judges, not the board
 - Use a pointer or gesture to direct attention to specific areas
@@ -374,12 +394,14 @@ Measurement frequency: _____________
 - Stand up straight with hands visible (not in pockets)
 
 **Voice:**
+
 - Speak loudly enough to be heard clearly
 - Slow down (nervousness speeds up speech)
 - Show enthusiasm for your project
 - Practice with a timer at home
 
 **Attitude:**
+
 - It is okay to say "I don't know, but I could find out by..."
 - It is okay if your hypothesis was wrong -- explain what you learned
 - Show genuine curiosity and interest in the science
@@ -391,17 +413,18 @@ Measurement frequency: _____________
 
 ### Common Judging Categories
 
-| Category | Weight | What Judges Look For |
-|----------|--------|---------------------|
-| Scientific thought | 25-30% | Clear question, testable hypothesis, proper experimental design, controlled variables |
-| Thoroughness | 20-25% | Adequate trials, complete data, careful execution, attention to detail |
-| Skill and clarity | 15-20% | Appropriate methods, accurate measurements, clear presentation |
-| Creativity/originality | 15-20% | Unique question, creative approach, novel application |
-| Display and presentation | 10-15% | Organized board, clear communication, ability to answer questions |
+| Category                 | Weight | What Judges Look For                                                                  |
+| ------------------------ | ------ | ------------------------------------------------------------------------------------- |
+| Scientific thought       | 25-30% | Clear question, testable hypothesis, proper experimental design, controlled variables |
+| Thoroughness             | 20-25% | Adequate trials, complete data, careful execution, attention to detail                |
+| Skill and clarity        | 15-20% | Appropriate methods, accurate measurements, clear presentation                        |
+| Creativity/originality   | 15-20% | Unique question, creative approach, novel application                                 |
+| Display and presentation | 10-15% | Organized board, clear communication, ability to answer questions                     |
 
 ### What Makes a Winning Project
 
 **Strong projects share these characteristics:**
+
 1. A specific, focused question that the student is genuinely curious about
 2. Thorough background research that informs the experimental design
 3. Well-designed experiment with clear variables and adequate controls
@@ -463,6 +486,7 @@ Week 7: FINAL PREP
 ```
 
 ### Common Mistakes to Avoid
+
 1. Choosing a topic that is a demonstration, not an experiment (volcanoes, unless you are testing a variable)
 2. Starting too late and rushing the experiment
 3. Only doing one trial (always do at least three)
@@ -476,7 +500,6 @@ Week 7: FINAL PREP
 
 The best science fair projects come from genuine curiosity. Help the student find a question they actually want to answer, and the motivation to do good work will follow naturally.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -489,13 +512,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with science fair advisor for a mid-size project."
 
 **Output:** A complete science fair advisor framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

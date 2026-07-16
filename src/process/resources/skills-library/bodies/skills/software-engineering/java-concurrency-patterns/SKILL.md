@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "java backend optimization"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'java backend optimization'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Java Concurrency Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is choosing between platform threads, virtual threads (Project Loom), CompletableFuture chains, or reactive streams (Project Reactor) for a new feature
 - The user is implementing an ExecutorService and needs to choose between fixed, cached, work-stealing, or virtual-thread-backed pools
 - The user is designing a pipeline that coordinates multiple async operations -- fan-out, fan-in, scatter-gather, or sequential chains
@@ -30,6 +32,7 @@ metadata:
 - The user needs concurrent data structure selection -- ConcurrentHashMap, CopyOnWriteArrayList, BlockingQueue variants, Disruptor
 
 **Do NOT use this skill when:**
+
 - The user asks about Java records, sealed classes, pattern matching, or text blocks -- use `java-modern-idioms`
 - The user is profiling JVM memory, GC tuning, JIT compilation, or measuring throughput with JMH -- use `java-performance`
 - The user is wiring Spring beans, configuring Spring WebFlux, or using Spring's @Async and TaskExecutor -- use `java-spring-patterns`
@@ -69,9 +72,11 @@ Virtual threads (JDK 21 GA) change the cost model for thread-per-request servers
   - The framework is already reactive (Reactor, RxJava) -- mixing blocking virtual thread calls into a reactive pipeline blocks the scheduler thread
 
 - **Create a virtual-thread executor:**
+
   ```java
   ExecutorService vte = Executors.newVirtualThreadPerTaskExecutor();
   ```
+
   This creates one virtual thread per submitted task -- appropriate for I/O-bound work where tasks spend most of their time parked.
 
 - **Detect pinning** with JVM flag `-Djdk.tracePinnedThreads=full` -- log output identifies synchronized blocks that hold a carrier thread during a blocking park.
@@ -328,22 +333,24 @@ A subtle deadlock occurs when all threads in a fixed pool are occupied by `thenA
 **Output:**
 
 ## Workload Classification
+
 - Type: I/O-bound with fan-out and fan-in
 - Reasoning: All three sub-tasks (PostgreSQL fetch, two REST calls, audit write) are network/disk I/O. There is no CPU-intensive transformation. The two REST calls are independent and can run concurrently. Total request latency is dominated by the longest I/O operation in each phase.
 
 ## Recommended Approach
+
 - Primary API: StructuredTaskScope (JDK 21) for the parallel REST phase; virtual threads throughout
 - ExecutorService: `Executors.newVirtualThreadPerTaskExecutor()` at the HTTP server level
 - JDK Minimum: JDK 21 (StructuredTaskScope is in preview; enable with `--enable-preview`)
 
 ## Decision Rationale
 
-| Factor                  | Option Considered           | Chosen                          | Reason                                                     |
-|-------------------------|-----------------------------|---------------------------------|------------------------------------------------------------|
-| Thread model            | Platform threads            | Virtual threads                 | All work is I/O-bound; virtual threads park during blocking with ~1KB overhead vs ~1MB per platform thread |
-| Parallel REST calls     | CompletableFuture allOf     | StructuredTaskScope.ShutdownOnFailure | Structured scope cancels both calls if either fails; no orphaned connections |
-| DB access               | Reactive R2DBC              | JDBC with virtual threads       | Team uses existing JPA/Hibernate; simpler code; virtual threads absorb blocking cost |
-| Lock primitive          | synchronized                | ReentrantLock                   | synchronized pins carrier threads; ReentrantLock parks the virtual thread instead |
+| Factor              | Option Considered       | Chosen                                | Reason                                                                                                     |
+| ------------------- | ----------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Thread model        | Platform threads        | Virtual threads                       | All work is I/O-bound; virtual threads park during blocking with ~1KB overhead vs ~1MB per platform thread |
+| Parallel REST calls | CompletableFuture allOf | StructuredTaskScope.ShutdownOnFailure | Structured scope cancels both calls if either fails; no orphaned connections                               |
+| DB access           | Reactive R2DBC          | JDBC with virtual threads             | Team uses existing JPA/Hibernate; simpler code; virtual threads absorb blocking cost                       |
+| Lock primitive      | synchronized            | ReentrantLock                         | synchronized pins carrier threads; ReentrantLock parks the virtual thread instead                          |
 
 ## Implementation
 

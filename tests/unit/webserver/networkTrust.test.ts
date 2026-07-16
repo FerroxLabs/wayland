@@ -1,63 +1,12 @@
+import os from 'os';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-const { mockNetworkInterfaces } = vi.hoisted(() => ({ mockNetworkInterfaces: vi.fn(() => ({})) }));
-vi.mock('node:os', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('node:os')>()),
-  networkInterfaces: mockNetworkInterfaces,
-}));
-
 import {
   classifyClientTrust,
   isPrivateNetworkIp,
-  resetNetworkTrustCache,
+  __resetTailscaleIfaceCacheForTests,
 } from '@process/webserver/middleware/networkTrust';
 
-/** A host with only a physical NIC — i.e. NOT on a tailnet. */
-const NO_TAILNET = { en0: [{ address: '192.168.1.20', family: 'IPv4', internal: false }] };
-/** Tailscale on macOS: the tailnet address rides a `utun`, NOT an iface named "tailscale". */
-const TAILNET_MACOS = {
-  en0: [{ address: '192.168.1.20', family: 'IPv4', internal: false }],
-  utun3: [
-    { address: '100.101.102.103', family: 'IPv4', internal: false },
-    { address: 'fd7a:115c:a1e0::9f2c:1a4b', family: 'IPv6', internal: false },
-  ],
-};
-/** Tailscale on Linux. */
-const TAILNET_LINUX = { tailscale0: [{ address: '100.90.1.2', family: 'IPv4', internal: false }] };
-/** Host sitting DIRECTLY on carrier NAT: a 100.64/10 address on a PHYSICAL nic. */
-const CARRIER_NAT_HOST = { en0: [{ address: '100.71.4.9', family: 'IPv4', internal: false }] };
-/**
- * A REAL stock-macOS + Tailscale host (captured from a live machine). Note the
- * decoys: utun0/1/3/4 exist with NO VPN at all (Handoff / Private Relay / AWDL) and
- * carry only fe80:: link-local. Only utun2 is Tailscale - it holds both the CGNAT
- * v4 and the fd7a:115c:a1e0::/48 ULA.
- */
-const REAL_MACOS_TAILSCALE = {
-  utun0: [{ address: 'fe80::2aab:bd68:5fe3:36de', family: 'IPv6', internal: false }],
-  utun1: [{ address: 'fe80::4fab:4ab:94bf:6f16', family: 'IPv6', internal: false }],
-  utun2: [
-    { address: '100.79.121.109', family: 'IPv4', internal: false },
-    { address: 'fd7a:115c:a1e0::4d3b:796d', family: 'IPv6', internal: false },
-  ],
-  en0: [{ address: '192.168.1.116', family: 'IPv4', internal: false }],
-  awdl0: [{ address: 'fe80::f0ac:afff:feb6:aed3', family: 'IPv6', internal: false }],
-};
-/** The VICTIM of #529: carrier-NAT uplink on the physical nic AND Tailscale on utun. */
-const CARRIER_NAT_PLUS_TAILSCALE = {
-  en0: [{ address: '100.71.4.9', family: 'IPv4', internal: false }],
-  utun2: [
-    { address: '100.79.121.109', family: 'IPv4', internal: false },
-    { address: 'fd7a:115c:a1e0::4d3b:796d', family: 'IPv6', internal: false },
-  ],
-};
-/** The host's own tailnet address — what a tailnet connection lands on. */
-const TS_LOCAL = '100.90.1.2';
-/** Carrier NAT + an UNRELATED VPN whose tunnel carries no tailnet address. */
-const CARRIER_NAT_PLUS_VPN = {
-  en0: [{ address: '100.71.4.9', family: 'IPv4', internal: false }],
-  utun0: [{ address: 'fe80::1', family: 'IPv6', internal: false }],
-  tun0: [{ address: '10.8.0.6', family: 'IPv4', internal: false }],
-};
+vi.mock('os');
 
 describe('classifyClientTrust (narrow default operator set)', () => {
   const originalCidrs = process.env.WAYLAND_OPERATOR_CIDRS;
@@ -65,19 +14,16 @@ describe('classifyClientTrust (narrow default operator set)', () => {
 
   beforeEach(() => {
     delete process.env.WAYLAND_OPERATOR_CIDRS;
-    delete process.env.WAYLAND_TAILSCALE_CGNAT_OPERATOR;
-    // Default for the pre-existing cases below: a real tailnet is present, which is
-    // the context in which "CGNAT == operator" was ever true.
-    mockNetworkInterfaces.mockReturnValue(TAILNET_LINUX as never);
-    resetNetworkTrustCache();
+    // Default: no Tailscale interface on this host.
+    vi.mocked(os.networkInterfaces).mockReturnValue({});
+    __resetTailscaleIfaceCacheForTests();
   });
 
   afterEach(() => {
     if (originalCidrs === undefined) delete process.env.WAYLAND_OPERATOR_CIDRS;
     else process.env.WAYLAND_OPERATOR_CIDRS = originalCidrs;
-    if (originalOverride === undefined) delete process.env.WAYLAND_TAILSCALE_CGNAT_OPERATOR;
-    else process.env.WAYLAND_TAILSCALE_CGNAT_OPERATOR = originalOverride;
-    resetNetworkTrustCache();
+    vi.clearAllMocks();
+    __resetTailscaleIfaceCacheForTests();
   });
 
   it('treats loopback as operator (IPv4 + IPv6)', () => {
@@ -87,10 +33,23 @@ describe('classifyClientTrust (narrow default operator set)', () => {
     expect(classifyClientTrust('::ffff:127.0.0.1')).toBe('operator');
   });
 
-  it('treats CGNAT (100.64/10) as operator when it ARRIVED over the tailnet', () => {
-    expect(classifyClientTrust('100.64.0.1', TS_LOCAL)).toBe('operator');
-    expect(classifyClientTrust('100.100.50.2', TS_LOCAL)).toBe('operator');
-    expect(classifyClientTrust('100.127.255.254', TS_LOCAL)).toBe('operator');
+  it('does NOT treat a CGNAT peer (100.64/10) as operator without a Tailscale interface (#529, RFC6598 CGNAT)', () => {
+    // No tailscale* interface configured in beforeEach - a carrier-grade-NAT'd
+    // ISP customer must not be escalated to operator.
+    expect(classifyClientTrust('100.64.0.1')).toBe('restricted');
+    expect(classifyClientTrust('100.100.50.2')).toBe('restricted');
+    expect(classifyClientTrust('100.127.255.254')).toBe('restricted');
+  });
+
+  it('treats Tailscale CGNAT (100.64/10) as operator when a tailscale interface is present', () => {
+    vi.mocked(os.networkInterfaces).mockReturnValue({
+      tailscale0: [{ address: '100.100.50.2', family: 'IPv4' } as os.NetworkInterfaceInfo],
+    });
+    __resetTailscaleIfaceCacheForTests();
+
+    expect(classifyClientTrust('100.64.0.1')).toBe('operator');
+    expect(classifyClientTrust('100.100.50.2')).toBe('operator');
+    expect(classifyClientTrust('100.127.255.254')).toBe('operator');
     // 100.63.x and 100.128.x are OUTSIDE 100.64/10.
     expect(classifyClientTrust('100.63.0.1', TS_LOCAL)).toBe('restricted');
     expect(classifyClientTrust('100.128.0.1', TS_LOCAL)).toBe('restricted');
@@ -277,15 +236,25 @@ describe('XFF cannot flip the decision (trust reads the socket peer)', () => {
   // passes req.socket.remoteAddress (never req.ip). This proves that a forged XFF
   // value, if it ever reached the classifier, is judged on its merits: a public
   // socket peer is restricted regardless of any header an attacker controls.
+  afterEach(() => {
+    vi.clearAllMocks();
+    __resetTailscaleIfaceCacheForTests();
+  });
+
   it('a public peer is restricted even if a private IP is forged elsewhere', () => {
+    vi.mocked(os.networkInterfaces).mockReturnValue({
+      tailscale0: [{ address: '100.100.50.2', family: 'IPv4' } as os.NetworkInterfaceInfo],
+    });
+    __resetTailscaleIfaceCacheForTests();
+
     const forgedXffValue = '100.64.0.1'; // attacker-chosen "operator" IP
     const realSocketPeer = '203.0.113.7'; // the actual public peer
 
     // The guard classifies the REAL socket peer, not the forged value.
     expect(classifyClientTrust(realSocketPeer)).toBe('restricted');
-    // (The forged value alone would look like operator on a tailnet - which is
-    // exactly why we must never classify it.)
-    expect(classifyClientTrust(forgedXffValue, TS_LOCAL)).toBe('operator');
+    // (The forged value alone would look like operator on a host with a Tailscale
+    // interface - which is exactly why we must never classify it.)
+    expect(classifyClientTrust(forgedXffValue)).toBe('operator');
   });
 });
 

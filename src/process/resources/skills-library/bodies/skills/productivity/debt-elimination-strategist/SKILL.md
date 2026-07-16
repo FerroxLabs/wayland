@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks checklist research emergency-preparedness waste-reduction tax-planning cooking"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks checklist research emergency-preparedness waste-reduction tax-planning cooking'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Debt Elimination Strategist
@@ -22,15 +22,16 @@ You are an expert in debt elimination strategies who helps users build a customi
 
 **IMPORTANT DISCLAIMER: This skill provides general financial education about debt elimination strategies. It is NOT financial advice. Debt situations involve legal, tax, and credit implications that vary by jurisdiction and individual circumstance. Consult a qualified financial advisor, credit counselor (such as through NFCC-member agencies), or attorney for personalized advice. Never make major financial decisions based solely on general frameworks.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about debt elimination strategist techniques or best practices
 - User needs guidance on debt elimination strategist concepts
 - User wants to implement or improve their approach to debt elimination strategist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of debt elimination strategist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -63,12 +64,12 @@ PHASE 4: PROTECT      - Prevent reaccumulation; build financial resilience
 
 ## Source Strategy Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Debt Snowball (Ramsey) | People who need motivational wins; those with many small debts | Pay smallest balance first; the psychological momentum of eliminating debts is powerful | Mathematically suboptimal; you pay more total interest |
-| Debt Avalanche (mathematical) | Disciplined people motivated by numbers; large interest rate differences | Pay highest interest rate first; minimizes total interest paid | Largest balances often have highest rates; first win can take months/years |
-| Debt Consolidation | People with decent credit; multiple high-rate debts | Combine multiple debts into one lower-rate payment; simplifies management | Requires qualifying credit; can mask bad habits; closing cards may hurt credit score |
-| Balance Transfer | Credit card debt holders with good credit | Transfer high-rate balances to 0% promotional rate cards; buy time | Promotional periods end; transfer fees (3-5%); requires discipline to pay off in time |
+| Approach                      | Best For                                                                 | Key Insight                                                                             | Limitation                                                                            |
+| ----------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Debt Snowball (Ramsey)        | People who need motivational wins; those with many small debts           | Pay smallest balance first; the psychological momentum of eliminating debts is powerful | Mathematically suboptimal; you pay more total interest                                |
+| Debt Avalanche (mathematical) | Disciplined people motivated by numbers; large interest rate differences | Pay highest interest rate first; minimizes total interest paid                          | Largest balances often have highest rates; first win can take months/years            |
+| Debt Consolidation            | People with decent credit; multiple high-rate debts                      | Combine multiple debts into one lower-rate payment; simplifies management               | Requires qualifying credit; can mask bad habits; closing cards may hurt credit score  |
+| Balance Transfer              | Credit card debt holders with good credit                                | Transfer high-rate balances to 0% promotional rate cards; buy time                      | Promotional periods end; transfer fees (3-5%); requires discipline to pay off in time |
 
 ## Phase 1: Stabilize
 
@@ -343,19 +344,20 @@ Is your debt-to-income ratio over 40%?
 
 ### Common Mistakes and Fixes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Paying minimums on everything | Feels like you are addressing all debts | Focus extra payments on ONE debt at a time |
-| No emergency fund | All money going to debt | Even $500 prevents new debt spirals |
-| Closing paid-off credit cards immediately | Feels good to close accounts | Keep them open (especially oldest) to protect credit score |
-| Using consolidation to free up credit, then spending again | Treats the symptom, not the cause | Address spending behavior; cut up or freeze cards |
-| Stopping when motivation fades | Debt fatigue is real, especially with long timelines | Review progress; celebrate milestones; find community |
-| Ignoring retirement while paying debt | "I'll start saving after debt is gone" | If employer offers a match, contribute enough to get the match even while paying debt |
-| Not negotiating with lenders | Assuming rates and terms are fixed | Call every lender; ask for rate reduction; many will comply |
+| Mistake                                                    | Why It Happens                                       | Fix                                                                                   |
+| ---------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Paying minimums on everything                              | Feels like you are addressing all debts              | Focus extra payments on ONE debt at a time                                            |
+| No emergency fund                                          | All money going to debt                              | Even $500 prevents new debt spirals                                                   |
+| Closing paid-off credit cards immediately                  | Feels good to close accounts                         | Keep them open (especially oldest) to protect credit score                            |
+| Using consolidation to free up credit, then spending again | Treats the symptom, not the cause                    | Address spending behavior; cut up or freeze cards                                     |
+| Stopping when motivation fades                             | Debt fatigue is real, especially with long timelines | Review progress; celebrate milestones; find community                                 |
+| Ignoring retirement while paying debt                      | "I'll start saving after debt is gone"               | If employer offers a match, contribute enough to get the match even while paying debt |
+| Not negotiating with lenders                               | Assuming rates and terms are fixed                   | Call every lender; ask for rate reduction; many will comply                           |
 
 ## Special Situations
 
 ### Student Loan Considerations
+
 - Research income-driven repayment plans
 - Investigate employer student loan assistance programs
 - Understand the tax implications of any forgiveness programs
@@ -363,6 +365,7 @@ Is your debt-to-income ratio over 40%?
 - Consult a financial advisor familiar with student loan strategies
 
 ### Medical Debt
+
 - Always negotiate medical bills before paying (many will reduce 20-50%)
 - Ask about financial assistance programs (most hospitals have them)
 - Request itemized bills and check for errors
@@ -380,7 +383,6 @@ For deeper exploration of the source strategies:
 
 The Debt Freedom Roadmap gives you a structured, personalized path from debt to financial freedom by combining the right strategy for your situation with the behavioral systems to follow through.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -388,7 +390,6 @@ The Debt Freedom Roadmap gives you a structured, personalized path from debt to 
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -409,14 +410,12 @@ The Debt Freedom Roadmap gives you a structured, personalized path from debt to 
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

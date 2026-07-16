@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management decision-making planning"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management decision-making planning'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Eisenhower Matrix
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user presents a task list -- however informal -- and wants to know what to work on first, what to drop, or how to structure their day or week
 - The user describes feeling overwhelmed, scattered, or reactive, and needs a structured triage of competing demands
 - The user explicitly mentions urgency versus importance, the Eisenhower Matrix, the priority matrix, or the urgent/important grid
@@ -30,6 +32,7 @@ metadata:
 - The user wants to audit whether their current task list is aligned with their stated goals -- a strategic reality check
 
 **Do NOT use when:**
+
 - The user needs to score and rank tasks using weighted criteria like cost, effort, ROI, or strategic alignment -- use `task-prioritization` instead
 - The user's problem is not sorting tasks but scheduling them into specific time slots -- use `time-blocking` after this skill produces sorted quadrants
 - The user is allocating resources across a team, department, or portfolio of projects -- organizational prioritization requires capacity modeling, not a personal urgency matrix
@@ -266,75 +269,83 @@ This usually means the task is underspecified (it is actually a project) or the 
 ## Eisenhower Matrix: Product Manager Weekly Triage -- [Current Week]
 
 ### Sorting Criteria Applied
+
 - **Urgent threshold:** Consequence activates within 48 hours OR a key stakeholder (client, hiring manager, direct manager) is actively waiting
 - **Important threshold:** Directly advances Goal 1 (board-level product alignment), Goal 2 (team quality and hiring), or Goal 3 (enterprise client retention); OR produces irreversible or high-cost consequences if not done; OR requires this PM's specific judgment
 
 ---
 
 ### Q1: Do First -- Urgent + Important
-*Action: Handle today. Sequenced by consequence severity.*
 
-| Priority | Task | Deadline | Why Urgent | Why Important | Next Action (Specific) | Est. Time |
-|----------|------|----------|------------|---------------|------------------------|-----------|
-| 1 | Respond to Acme bug report | Today (client flagged this morning) | Largest enterprise account; SaaS churn risk activates within hours of unacknowledged escalations | Enterprise client retention is a direct business goal; only this PM can communicate product response | Send acknowledgment to Acme contact now; pull bug ticket, assess severity, set engineering triage within 2 hours; send resolution timeline by EOD | 45 min |
-| 2 | Finalize product roadmap for board | Thursday (2 days) | Hard board presentation deadline; stakeholders need pre-read 24 hours prior = Wednesday | Core strategic deliverable; reflects product direction and PM credibility at executive level | Open roadmap deck, complete Q3/Q4 initiative table, add resource dependency column, send draft to VP for review by 5 PM today | 2.5 hrs |
-| 3 | Prepare 1-on-1 agenda with manager | Tomorrow morning | Manager meeting is tomorrow; agenda sent same-day or no-agenda is a professional norm violation | Manager alignment supports role performance and surfaces blockers for board prep and hiring | Draft 5-item agenda: board prep status, Acme escalation update, PM hire progress, Q3 spec timeline, one blocker to surface -- send tonight | 20 min |
+_Action: Handle today. Sequenced by consequence severity._
+
+| Priority | Task                               | Deadline                            | Why Urgent                                                                                       | Why Important                                                                                        | Next Action (Specific)                                                                                                                            | Est. Time |
+| -------- | ---------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 1        | Respond to Acme bug report         | Today (client flagged this morning) | Largest enterprise account; SaaS churn risk activates within hours of unacknowledged escalations | Enterprise client retention is a direct business goal; only this PM can communicate product response | Send acknowledgment to Acme contact now; pull bug ticket, assess severity, set engineering triage within 2 hours; send resolution timeline by EOD | 45 min    |
+| 2        | Finalize product roadmap for board | Thursday (2 days)                   | Hard board presentation deadline; stakeholders need pre-read 24 hours prior = Wednesday          | Core strategic deliverable; reflects product direction and PM credibility at executive level         | Open roadmap deck, complete Q3/Q4 initiative table, add resource dependency column, send draft to VP for review by 5 PM today                     | 2.5 hrs   |
+| 3        | Prepare 1-on-1 agenda with manager | Tomorrow morning                    | Manager meeting is tomorrow; agenda sent same-day or no-agenda is a professional norm violation  | Manager alignment supports role performance and surfaces blockers for board prep and hiring          | Draft 5-item agenda: board prep status, Acme escalation update, PM hire progress, Q3 spec timeline, one blocker to surface -- send tonight        | 20 min    |
 
 ---
 
 ### Q2: Schedule -- Not Urgent + Important
-*Action: Block calendar time now. These will be displaced by Q1 pressure if not scheduled.*
 
-| # | Task | Goal or Outcome It Serves | Scheduled Date | Start Time | Duration |
-|---|------|--------------------------|----------------|------------|----------|
-| 1 | Write Q3 authentication feature spec | Goal 3 (product delivery quality); only this PM can author; no external deadline this week but Q3 kick-off is 3 weeks away | Wednesday | 10:00 AM | 2 hours |
-| 2 | Review three PM applicant resumes | Goal 2 (team quality); hiring manager needs feedback by end of week | Thursday | 4:00 PM | 1 hour |
+_Action: Block calendar time now. These will be displaced by Q1 pressure if not scheduled._
+
+| #   | Task                                 | Goal or Outcome It Serves                                                                                                  | Scheduled Date | Start Time | Duration |
+| --- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------- | -------- |
+| 1   | Write Q3 authentication feature spec | Goal 3 (product delivery quality); only this PM can author; no external deadline this week but Q3 kick-off is 3 weeks away | Wednesday      | 10:00 AM   | 2 hours  |
+| 2   | Review three PM applicant resumes    | Goal 2 (team quality); hiring manager needs feedback by end of week                                                        | Thursday       | 4:00 PM    | 1 hour   |
 
 ---
 
 ### Q3: Minimize -- Urgent + Not Important
-*No delegation available noted -- applying Minimize protocol with batch window.*
 
-| # | Task | Deadline | Delegate To | Handoff or Minimize Plan | Batch Window |
-|---|------|----------|-------------|--------------------------|--------------|
-| 1 | Set up new laptop | This week (needed for board presentation Thursday) | IT support can handle initial config | Submit IT setup request immediately; they handle OS config, VPN, and app installs -- PM only needs to provide credentials at end | Submit IT ticket today (5 min); final setup session Friday 9:00-9:30 AM |
-| 2 | Renew professional association membership | 10 days (before auto-renewal rate hike) | Automated -- can be self-handled in under 5 minutes | Not urgent enough for this week given board prep; schedule as a specific to-do | Friday 4:45 PM (5-minute admin task in end-of-week batch) |
+_No delegation available noted -- applying Minimize protocol with batch window._
+
+| #   | Task                                      | Deadline                                           | Delegate To                                         | Handoff or Minimize Plan                                                                                                         | Batch Window                                                            |
+| --- | ----------------------------------------- | -------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 1   | Set up new laptop                         | This week (needed for board presentation Thursday) | IT support can handle initial config                | Submit IT setup request immediately; they handle OS config, VPN, and app installs -- PM only needs to provide credentials at end | Submit IT ticket today (5 min); final setup session Friday 9:00-9:30 AM |
+| 2   | Renew professional association membership | 10 days (before auto-renewal rate hike)            | Automated -- can be self-handled in under 5 minutes | Not urgent enough for this week given board prep; schedule as a specific to-do                                                   | Friday 4:45 PM (5-minute admin task in end-of-week batch)               |
 
 ---
 
 ### Q4: Eliminate -- Not Urgent + Not Important
-*Action: Remove from all lists. Reason documented to prevent guilt-based return.*
 
-| # | Task | Reason for Elimination | Time Recovered |
-|---|------|------------------------|----------------|
-| 1 | Skim SaaS metrics benchmarking report | No deadline, no goal connection this week, no one is waiting, low-value passive reading -- move to "Read Later" folder and review during a Q2 learning block next month | ~45 min this week |
+_Action: Remove from all lists. Reason documented to prevent guilt-based return._
+
+| #   | Task                                  | Reason for Elimination                                                                                                                                                  | Time Recovered    |
+| --- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| 1   | Skim SaaS metrics benchmarking report | No deadline, no goal connection this week, no one is waiting, low-value passive reading -- move to "Read Later" folder and review during a Q2 learning block next month | ~45 min this week |
 
 ---
 
 ### Validation Summary
-| Check | Result | Status |
-|-------|--------|--------|
-| Q1 item count | 3 items | OK -- within 3-5 target |
-| Q2 item count | 2 items | OK -- strategic work scheduled |
-| Q3 delegation feasibility | 1 partially delegatable (laptop to IT), 1 minimized (membership renewal) | OK -- batch window assigned |
-| Q4 time recovered | Est. 45 min this week | Noted |
-| Total Q1 time estimate | ~3 hrs 35 min | OK -- fits within workday; prioritize Acme response first thing |
+
+| Check                     | Result                                                                   | Status                                                          |
+| ------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Q1 item count             | 3 items                                                                  | OK -- within 3-5 target                                         |
+| Q2 item count             | 2 items                                                                  | OK -- strategic work scheduled                                  |
+| Q3 delegation feasibility | 1 partially delegatable (laptop to IT), 1 minimized (membership renewal) | OK -- batch window assigned                                     |
+| Q4 time recovered         | Est. 45 min this week                                                    | Noted                                                           |
+| Total Q1 time estimate    | ~3 hrs 35 min                                                            | OK -- fits within workday; prioritize Acme response first thing |
 
 ---
 
 ### Systemic Observations
+
 The board presentation falling into Q1 with only 48 hours remaining suggests the roadmap finalization was a Q2 item earlier this week that drifted into Q1. In future planning cycles, finalize board materials 5+ days in advance to prevent this. The PM hire review task is a recurring Q2 item -- if hiring is ongoing, consider a recurring weekly 1-hour block for candidate review to prevent accumulation.
 
 ---
 
 ### Today's Action Sequence
+
 Execute in this order:
 
-1. **Respond to Acme bug report** -- Send acknowledgment email to Acme contact immediately, pull bug ticket from issue tracker, set engineering triage for within 2 hours, send resolution timeline by EOD -- *45 minutes*
-2. **Work on board roadmap** -- Open deck, complete Q3/Q4 initiative table and resource dependency column, send to VP for review by 5 PM -- *2.5 hours*
-3. **Submit IT laptop setup ticket** -- 5 minutes right now; removes laptop from mental load immediately -- *5 minutes*
-4. **Draft 1-on-1 agenda** -- 5 items listed above, send to manager tonight -- *20 minutes*
-5. **Schedule Q2 blocks** -- Open calendar: block Wednesday 10:00 AM-12:00 PM for auth feature spec; block Thursday 4:00-5:00 PM for resume review -- *5 minutes*
-6. **Clear Q4 items** -- Move SaaS benchmarking report to "Read Later" folder; delete from task list and Slack notifications -- *2 minutes*
+1. **Respond to Acme bug report** -- Send acknowledgment email to Acme contact immediately, pull bug ticket from issue tracker, set engineering triage for within 2 hours, send resolution timeline by EOD -- _45 minutes_
+2. **Work on board roadmap** -- Open deck, complete Q3/Q4 initiative table and resource dependency column, send to VP for review by 5 PM -- _2.5 hours_
+3. **Submit IT laptop setup ticket** -- 5 minutes right now; removes laptop from mental load immediately -- _5 minutes_
+4. **Draft 1-on-1 agenda** -- 5 items listed above, send to manager tonight -- _20 minutes_
+5. **Schedule Q2 blocks** -- Open calendar: block Wednesday 10:00 AM-12:00 PM for auth feature spec; block Thursday 4:00-5:00 PM for resume review -- _5 minutes_
+6. **Clear Q4 items** -- Move SaaS benchmarking report to "Read Later" folder; delete from task list and Slack notifications -- _2 minutes_
 
-*If a new task arrives today: Ask "Does a consequence activate within 48 hours?" (urgency) and "Does this advance client retention, board prep, or team quality?" (importance). Insert into the correct quadrant before acting on it.*
+_If a new task arrives today: Ask "Does a consequence activate within 48 hours?" (urgency) and "Does this advance client retention, board prep, or team quality?" (importance). Insert into the correct quadrant before acting on it._

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "composting sustainability step-by-step guide"
-  category: "sustainability"
-  subcategory: "home-sustainability"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'composting sustainability step-by-step guide'
+  category: 'sustainability'
+  subcategory: 'home-sustainability'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Composting Starter Guide
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about starting a compost bin or pile at home
 - User wants to choose between composting methods (tumbler, bin, worm bin)
 - User needs help with the green/brown ratio or compost ingredients
@@ -29,6 +30,7 @@ metadata:
 - User asks what can and cannot be composted
 
 **Do NOT use when:**
+
 - User needs commercial or large-scale composting solutions
 - User asks about biogas systems or methane digesters
 - User wants to design a municipal composting program
@@ -132,14 +134,14 @@ metadata:
 
 5. **Provide troubleshooting guidance.** Address the most common composting problems:
 
-   | Problem | Likely Cause | Fix |
-   |---------|-------------|-----|
-   | Bad smell (rotten, ammonia) | Too many greens, too wet, or not enough air | Add brown materials to restore 3:1 ratio. Turn the pile. If waterlogged, add dry browns and turn |
-   | Not decomposing (nothing happening) | Too dry, not enough greens, pile too small | Add water until moist. Add green materials. Ensure pile is at least 3x3x3 ft |
-   | Pests (fruit flies) | Exposed food scraps | Always bury food under browns. In worm bins, freeze scraps before adding (kills fly eggs) |
-   | Pests (rodents) | Meat, dairy, or oils in compost; open pile | Remove prohibited items. Use a closed bin or tumbler. Add hardware cloth to bottom of open bins |
-   | Compost is slimy | Too wet, too many greens, compacted | Add dry browns, turn to introduce air, spread pile slightly to increase airflow |
-   | Worms dying or escaping | Too hot, too acidic, or too wet in worm bin | Reduce citrus and onion scraps. Add dry bedding. Ensure drainage holes are working. Move bin to cooler location |
+   | Problem                             | Likely Cause                                | Fix                                                                                                             |
+   | ----------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+   | Bad smell (rotten, ammonia)         | Too many greens, too wet, or not enough air | Add brown materials to restore 3:1 ratio. Turn the pile. If waterlogged, add dry browns and turn                |
+   | Not decomposing (nothing happening) | Too dry, not enough greens, pile too small  | Add water until moist. Add green materials. Ensure pile is at least 3x3x3 ft                                    |
+   | Pests (fruit flies)                 | Exposed food scraps                         | Always bury food under browns. In worm bins, freeze scraps before adding (kills fly eggs)                       |
+   | Pests (rodents)                     | Meat, dairy, or oils in compost; open pile  | Remove prohibited items. Use a closed bin or tumbler. Add hardware cloth to bottom of open bins                 |
+   | Compost is slimy                    | Too wet, too many greens, compacted         | Add dry browns, turn to introduce air, spread pile slightly to increase airflow                                 |
+   | Worms dying or escaping             | Too hot, too acidic, or too wet in worm bin | Reduce citrus and onion scraps. Add dry bedding. Ensure drainage holes are working. Move bin to cooler location |
 
 6. **Provide seasonal and climate guidance:**
    - **Hot climate:** Compost in shade, water more frequently (moisture evaporates fast), decomposition is very fast (tumbler may produce compost in 3-4 weeks)
@@ -234,42 +236,44 @@ metadata:
 ## Home Composting Setup Plan
 
 ### Composting Profile
-| Parameter          | Value                                   |
-|--------------------|-----------------------------------------|
-| Housing type       | House with small backyard               |
-| Space available    | Backyard (small)                        |
-| Waste volume       | Medium (3-4 gallons/week food scraps)   |
-| Climate            | Pacific Northwest (temperate, wet winters, mild summers) |
-| Budget             | Minimal to moderate                     |
+
+| Parameter       | Value                                                    |
+| --------------- | -------------------------------------------------------- |
+| Housing type    | House with small backyard                                |
+| Space available | Backyard (small)                                         |
+| Waste volume    | Medium (3-4 gallons/week food scraps)                    |
+| Climate         | Pacific Northwest (temperate, wet winters, mild summers) |
+| Budget          | Minimal to moderate                                      |
 
 ### Recommended Method: Static Bin
 
 A simple static bin is the best fit for your situation: you have yard space, a good supply of dry leaves (browns), and medium waste volume.
 
-| Feature                 | Your Setup                                |
-|-------------------------|-------------------------------------------|
-| Method                  | Static compost bin                        |
-| Bin type                | DIY wire mesh bin (4 wooden pallets or hardware cloth cylinder) or purchased bin ($30-60) |
-| Location                | Back corner of yard, partial shade, on soil (not concrete) |
-| Starting cost           | $0-30 (DIY) or $30-60 (purchased bin)    |
-| Capacity                | Handles 3-5 gallons of food scraps per week plus dry leaves |
-| Time to first compost   | 4-6 months with active turning; faster in summer, slower in winter |
+| Feature               | Your Setup                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| Method                | Static compost bin                                                                        |
+| Bin type              | DIY wire mesh bin (4 wooden pallets or hardware cloth cylinder) or purchased bin ($30-60) |
+| Location              | Back corner of yard, partial shade, on soil (not concrete)                                |
+| Starting cost         | $0-30 (DIY) or $30-60 (purchased bin)                                                     |
+| Capacity              | Handles 3-5 gallons of food scraps per week plus dry leaves                               |
+| Time to first compost | 4-6 months with active turning; faster in summer, slower in winter                        |
 
 ### Green/Brown Ratio Guide
 
 **Your target: 3 parts brown to 1 part green by volume**
 
-| Add This (Green -- 1 part)     | Add This (Brown -- 3 parts)    | Never Add              |
-|-------------------------------|-------------------------------|------------------------|
-| Fruit and vegetable scraps     | Dry leaves (your main supply) | Meat, fish, or bones   |
-| Coffee grounds and tea leaves  | Shredded cardboard boxes      | Dairy products         |
-| Eggshells                      | Shredded newspaper            | Cooking oils and fats  |
-| Fresh plant trimmings          | Paper towels (unbleached)     | Dog or cat waste       |
-| Grass clippings (thin layer)   | Small twigs and stems         | Diseased plant material|
+| Add This (Green -- 1 part)    | Add This (Brown -- 3 parts)   | Never Add               |
+| ----------------------------- | ----------------------------- | ----------------------- |
+| Fruit and vegetable scraps    | Dry leaves (your main supply) | Meat, fish, or bones    |
+| Coffee grounds and tea leaves | Shredded cardboard boxes      | Dairy products          |
+| Eggshells                     | Shredded newspaper            | Cooking oils and fats   |
+| Fresh plant trimmings         | Paper towels (unbleached)     | Dog or cat waste        |
+| Grass clippings (thin layer)  | Small twigs and stems         | Diseased plant material |
 
 **Pacific Northwest tip:** You have abundant dry leaves in fall. Bag them and store dry for year-round brown material supply. This is your single greatest composting advantage.
 
 ### Setup Steps
+
 1. Choose a spot in partial shade, on bare soil, accessible with a path (you will visit it every few days)
 2. Build or place the bin. Minimum size: 3 ft x 3 ft x 3 ft
 3. Collect 3-4 bags of dry leaves if available (your year-round brown supply)
@@ -280,27 +284,30 @@ A simple static bin is the best fit for your situation: you have yard space, a g
 8. Repeat each time you add scraps: food goes in, leaves go on top, always covered
 
 ### Maintenance Schedule
-| Task                          | Frequency        | Notes                                      |
-|-------------------------------|------------------|--------------------------------------------|
-| Add kitchen scraps + leaves   | Every 2-3 days   | Always bury scraps under browns            |
-| Turn pile with garden fork    | Every 1-2 weeks  | Mixes air in, speeds decomposition         |
-| Check moisture level          | Weekly           | Should feel like a wrung-out sponge. PNW rain may over-wet in winter -- cover with a tarp if needed |
-| Harvest finished compost      | Every 4-6 months | Compost is ready when it looks like dark, crumbly soil and smells earthy |
+
+| Task                        | Frequency        | Notes                                                                                               |
+| --------------------------- | ---------------- | --------------------------------------------------------------------------------------------------- |
+| Add kitchen scraps + leaves | Every 2-3 days   | Always bury scraps under browns                                                                     |
+| Turn pile with garden fork  | Every 1-2 weeks  | Mixes air in, speeds decomposition                                                                  |
+| Check moisture level        | Weekly           | Should feel like a wrung-out sponge. PNW rain may over-wet in winter -- cover with a tarp if needed |
+| Harvest finished compost    | Every 4-6 months | Compost is ready when it looks like dark, crumbly soil and smells earthy                            |
 
 ### Troubleshooting Quick Reference
-| Problem              | Likely Cause              | Fix                                         |
-|----------------------|---------------------------|---------------------------------------------|
-| Smells bad           | Too many greens, too wet  | Add a thick layer of dry leaves, turn the pile |
-| Not decomposing      | Too dry or pile too small | Add water, ensure pile is at least 3x3x3 ft |
-| Fruit flies          | Exposed food scraps       | Always bury scraps under 3 inches of leaves |
-| Soggy in PNW winter  | Too much rain             | Cover with a tarp, leaving sides open for air |
-| Rodents              | Food exposed or prohibited items added | Ensure food is always buried; remove any meat/dairy if accidentally added |
+
+| Problem             | Likely Cause                           | Fix                                                                       |
+| ------------------- | -------------------------------------- | ------------------------------------------------------------------------- |
+| Smells bad          | Too many greens, too wet               | Add a thick layer of dry leaves, turn the pile                            |
+| Not decomposing     | Too dry or pile too small              | Add water, ensure pile is at least 3x3x3 ft                               |
+| Fruit flies         | Exposed food scraps                    | Always bury scraps under 3 inches of leaves                               |
+| Soggy in PNW winter | Too much rain                          | Cover with a tarp, leaving sides open for air                             |
+| Rodents             | Food exposed or prohibited items added | Ensure food is always buried; remove any meat/dairy if accidentally added |
 
 ### Estimated Impact
-| Metric                | Value                                     |
-|-----------------------|-------------------------------------------|
-| Food waste diverted   | 600-800 lbs/year (3-4 gal/week x 52 weeks) |
-| Dry leaves composted  | 400-600 lbs/year (your brown supply)      |
-| Compost produced      | 4-8 cubic feet of finished compost per year |
-| CO2e avoided          | ~500-700 lbs CO2e/year (food waste in landfill produces methane; composting produces CO2 instead, which has ~25x lower warming impact) |
-| Cost savings          | Reduced trash bag usage; free compost for garden (worth $30-60/year if purchased) |
+
+| Metric               | Value                                                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Food waste diverted  | 600-800 lbs/year (3-4 gal/week x 52 weeks)                                                                                             |
+| Dry leaves composted | 400-600 lbs/year (your brown supply)                                                                                                   |
+| Compost produced     | 4-8 cubic feet of finished compost per year                                                                                            |
+| CO2e avoided         | ~500-700 lbs CO2e/year (food waste in landfill produces methane; composting produces CO2 instead, which has ~25x lower warming impact) |
+| Cost savings         | Reduced trash bag usage; free compost for garden (worth $30-60/year if purchased)                                                      |

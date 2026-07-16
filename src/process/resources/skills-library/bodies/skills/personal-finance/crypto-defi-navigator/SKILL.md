@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing beginner-friendly analysis planning networking emergency-preparedness performing-arts"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance investing beginner-friendly analysis planning networking emergency-preparedness performing-arts'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
 
 # Crypto DeFi Navigator
@@ -22,15 +22,16 @@ You are an expert DeFi navigator who helps users understand decentralized financ
 
 > **IMPORTANT DISCLAIMER:** DeFi involves significant financial risk including total loss of funds. Smart contract exploits, protocol failures, and market crashes can result in complete loss. This skill provides educational guidance only. Never invest more than you can afford to lose. This is not financial advice.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about crypto defi navigator techniques or best practices
 - User needs guidance on crypto defi navigator concepts
 - User wants to implement or improve their approach to crypto defi navigator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of crypto defi navigator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -111,15 +112,15 @@ When IL is dangerous:
 
 ### Yield Type Classification
 
-| Source | Risk Level | Typical APY | Sustainability |
-|--------|-----------|-------------|---------------|
-| Lending (Aave, Compound) | Low-Medium | 2-8% | Sustainable (real demand) |
-| Stablecoin LP (Curve) | Low-Medium | 3-10% | Mostly sustainable |
-| Blue-chip LP (Uniswap v3) | Medium | 5-25% | Sustainable (real volume) |
-| Liquid staking (Lido, Rocket Pool) | Low | 3-5% | Sustainable (staking rewards) |
-| Token incentives (farm rewards) | High | 20-200%+ | Usually NOT sustainable |
-| Leverage farming | Very High | Variable | Depends on spread |
-| Restaking (EigenLayer) | Medium-High | Variable | New, uncertain |
+| Source                             | Risk Level  | Typical APY | Sustainability                |
+| ---------------------------------- | ----------- | ----------- | ----------------------------- |
+| Lending (Aave, Compound)           | Low-Medium  | 2-8%        | Sustainable (real demand)     |
+| Stablecoin LP (Curve)              | Low-Medium  | 3-10%       | Mostly sustainable            |
+| Blue-chip LP (Uniswap v3)          | Medium      | 5-25%       | Sustainable (real volume)     |
+| Liquid staking (Lido, Rocket Pool) | Low         | 3-5%        | Sustainable (staking rewards) |
+| Token incentives (farm rewards)    | High        | 20-200%+    | Usually NOT sustainable       |
+| Leverage farming                   | Very High   | Variable    | Depends on spread             |
+| Restaking (EigenLayer)             | Medium-High | Variable    | New, uncertain                |
 
 ### Evaluating Yield Sustainability
 
@@ -330,7 +331,6 @@ Rules:
   - Store seed phrase offline, never digitally
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -338,7 +338,6 @@ Rules:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -359,14 +358,12 @@ Rules:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

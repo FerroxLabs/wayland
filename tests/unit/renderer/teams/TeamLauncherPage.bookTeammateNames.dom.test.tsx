@@ -187,7 +187,11 @@ describe('TeamLauncherPage - book teammate friendly names (A1)', () => {
     await waitFor(() => expect(teamCreateInvokeMock).toHaveBeenCalledTimes(1));
     const arg = teamCreateInvokeMock.mock.calls[0][0];
     expect(arg.agents[0]).toEqual(
-      expect.objectContaining({ role: 'leader', customAgentId: 'builtin-book-story-architect', agentName: 'Story Architect' })
+      expect.objectContaining({
+        role: 'leader',
+        customAgentId: 'builtin-book-story-architect',
+        agentName: 'Story Architect',
+      })
     );
     expect(arg.agents[1]).toEqual(
       expect.objectContaining({

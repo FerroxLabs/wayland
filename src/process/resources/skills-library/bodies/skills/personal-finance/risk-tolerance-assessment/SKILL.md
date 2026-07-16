@@ -14,14 +14,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "investing personal-finance analysis planning"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'investing personal-finance analysis planning'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Risk Tolerance Assessment
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
@@ -31,6 +32,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user explicitly asks to assess, understand, or quantify their investment risk tolerance before making portfolio decisions
 - A user is starting their investing journey and needs a structured framework to understand where they fall on the risk spectrum before choosing asset allocations
 - A user questions whether their current portfolio matches their actual risk comfort level (for example, they feel anxious about their holdings or feel underinvested for their goals)
@@ -40,6 +42,7 @@ metadata:
 - A user is preparing to use the `portfolio-allocation-framework` skill and needs a validated risk profile as an input
 
 **Do NOT use this skill when:**
+
 - The user already has a confirmed risk profile and wants to apply it to specific holdings -- use `portfolio-allocation-framework` instead
 - The user wants to choose between specific securities, funds, or ETFs -- that is an investment selection question, not a risk profile question
 - The user is asking about tax-advantaged account types (401k, IRA, Roth IRA) or which account to use -- use `investment-account-types` instead
@@ -80,20 +83,23 @@ Present questions one at a time or in clear grouped sections. Record every answe
 This category captures how long losses can be left to recover and whether the portfolio is the person's primary financial safety net. Maximum category score: 12.
 
 Q1. **Primary time horizon:** When do you need to access the majority of this money?
-- (a) Fewer than 3 years -- Score: 1 *(capital must be protected; volatility is unacceptable because there is insufficient time to recover)*
-- (b) 3 to 7 years -- Score: 2 *(moderate losses possible but significant downturns could meaningfully impair the goal)*
-- (c) 8 to 15 years -- Score: 3 *(can absorb a major correction with time for recovery)*
-- (d) More than 15 years -- Score: 4 *(historically, any diversified equity portfolio has recovered within this window, including from the Great Depression and 2008-2009)*
+
+- (a) Fewer than 3 years -- Score: 1 _(capital must be protected; volatility is unacceptable because there is insufficient time to recover)_
+- (b) 3 to 7 years -- Score: 2 _(moderate losses possible but significant downturns could meaningfully impair the goal)_
+- (c) 8 to 15 years -- Score: 3 _(can absorb a major correction with time for recovery)_
+- (d) More than 15 years -- Score: 4 _(historically, any diversified equity portfolio has recovered within this window, including from the Great Depression and 2008-2009)_
 
 Q2. **Withdrawal pattern:** When you begin using this money, how will you draw it down?
+
 - (a) I will need most or all of it within 1-2 years of accessing it -- Score: 1
 - (b) I will draw it down over roughly 5-10 years -- Score: 2
 - (c) I will draw it down over 10-20 years (typical retirement drawdown) -- Score: 3
 - (d) I will draw it gradually over 20+ years and the remainder may be inherited -- Score: 4
 
-*Note: A 30-year time horizon to retirement but a lump-sum withdrawal pattern (e.g., buying a home) collapses the effective time horizon. Q2 corrects for this.*
+_Note: A 30-year time horizon to retirement but a lump-sum withdrawal pattern (e.g., buying a home) collapses the effective time horizon. Q2 corrects for this._
 
 Q3. **Financial redundancy:** If this portfolio dropped 35% today and stayed there for 3 years, could you fund your essential goals from other sources?
+
 - (a) No -- this is my primary or only significant financial asset -- Score: 1
 - (b) Partially -- I have some other savings but would be forced to delay or reduce goals -- Score: 2
 - (c) Yes, mostly -- I have other savings, income, or resources to cover essential needs -- Score: 3
@@ -103,50 +109,57 @@ Q3. **Financial redundancy:** If this portfolio dropped 35% today and stayed the
 This category assesses the strength of the financial foundation surrounding the portfolio. Maximum category score: 8.
 
 Q4. **Income stability:** Which best describes your current employment and income situation?
+
 - (a) Highly variable or uncertain -- freelance, commission-only, contract work without renewal certainty, recently started a business -- Score: 1
 - (b) Somewhat variable -- significant bonus dependency, seasonal work, or employment in a cyclical or volatile industry -- Score: 2
 - (c) Generally stable with some uncertainty -- salaried employee in a sector with occasional layoffs, or self-employed with established, recurring client base -- Score: 3
 - (d) Very stable -- long-tenured employment, government or academic position, multiple independent income streams, or retired with predictable pension/Social Security income -- Score: 4
 
 Q5. **Emergency fund depth:** How many months of your total living expenses could you fund from liquid, accessible savings (excluding this investment portfolio)?
-- (a) Fewer than 2 months -- Score: 1 *(critically undercushioned; any disruption forces portfolio liquidation)*
-- (b) 2 to 3 months -- Score: 2 *(below the standard 3-6 month guideline; limited buffer)*
-- (c) 3 to 6 months -- Score: 3 *(meets the standard guidance for emergency reserves)*
-- (d) More than 6 months or significant other liquid assets -- Score: 4 *(substantial cushion; portfolio does not need to serve an emergency role)*
+
+- (a) Fewer than 2 months -- Score: 1 _(critically undercushioned; any disruption forces portfolio liquidation)_
+- (b) 2 to 3 months -- Score: 2 _(below the standard 3-6 month guideline; limited buffer)_
+- (c) 3 to 6 months -- Score: 3 _(meets the standard guidance for emergency reserves)_
+- (d) More than 6 months or significant other liquid assets -- Score: 4 _(substantial cushion; portfolio does not need to serve an emergency role)_
 
 **Category C -- Emotional and Behavioral Response (Questions 6-8)**
 This is the willingness dimension. Behavioral finance research consistently shows that self-reported emotional tolerance overpredicts actual behavior. Present concrete dollar scenarios wherever possible to make responses more accurate. Maximum category score: 12.
 
 Q6. **Behavioral response to a sharp decline:** Imagine you invested $50,000 and within three months it dropped to $37,500 -- a 25% loss. Markets are uncertain and recovery timeline is unknown. What would you most likely do?
+
 - (a) Sell the entire position to stop further losses and wait on the sidelines -- Score: 1
 - (b) Sell a portion to reduce exposure and feel more secure -- Score: 2
 - (c) Hold your current position and wait for recovery without making changes -- Score: 3
 - (d) Invest additional money at the lower prices (dollar-cost average into the decline) -- Score: 4
 
-*Note: If the user has been through a real crash (2008-2009, March 2020), ask what they actually did rather than what they would hypothetically do. Actual past behavior is far more predictive than hypothetical response.*
+_Note: If the user has been through a real crash (2008-2009, March 2020), ask what they actually did rather than what they would hypothetically do. Actual past behavior is far more predictive than hypothetical response._
 
 Q7. **Monitoring frequency as a behavioral proxy:** How often do you check your portfolio balances during normal (non-crisis) market conditions?
-- (a) Daily or multiple times per day -- Score: 1 *(high-frequency checking correlates strongly with reactive selling; this is a behavioral red flag)*
+
+- (a) Daily or multiple times per day -- Score: 1 _(high-frequency checking correlates strongly with reactive selling; this is a behavioral red flag)_
 - (b) Several times per week -- Score: 2
 - (c) Roughly once a month -- Score: 3
-- (d) Quarterly or less, or only when rebalancing -- Score: 4 *(associated with significantly better long-term investor returns)*
+- (d) Quarterly or less, or only when rebalancing -- Score: 4 _(associated with significantly better long-term investor returns)_
 
 Q8. **Loss aversion calibration:** Which statement best captures your emotional relationship with investment losses?
-- (a) Even modest losses cause me significant anxiety; I find it very hard to hold through any drawdown -- Score: 1 *(high loss aversion; corresponds to the behavioral finance finding that losses feel roughly 2x as painful as equivalent gains feel good)*
+
+- (a) Even modest losses cause me significant anxiety; I find it very hard to hold through any drawdown -- Score: 1 _(high loss aversion; corresponds to the behavioral finance finding that losses feel roughly 2x as painful as equivalent gains feel good)_
 - (b) Small losses are tolerable, but a drop of 15% or more would cause meaningful stress and make me question my strategy -- Score: 2
 - (c) I understand losses are part of investing; I feel uncomfortable during downturns but stay focused on long-term results -- Score: 3
-- (d) Market declines don't affect me emotionally; I view them as normal and even as opportunity -- Score: 4 *(honest score 4 responses are rare; verify with Q6 for consistency)*
+- (d) Market declines don't affect me emotionally; I view them as normal and even as opportunity -- Score: 4 _(honest score 4 responses are rare; verify with Q6 for consistency)_
 
 **Category D -- Knowledge, Experience, and Investment Goals (Questions 9-10)**
 Investment knowledge reduces panic during volatility because the investor understands WHY prices fluctuate and that fluctuation is not evidence of permanent impairment. Maximum category score: 8.
 
 Q9. **Investment literacy:** How would you honestly describe your understanding of how capital markets and investment products work?
+
 - (a) Very limited -- I am new to investing and do not yet understand the basics of stocks, bonds, or diversification -- Score: 1
 - (b) Basic -- I understand that stocks can grow but also lose value, and that bonds are generally more stable, but I do not understand asset allocation, volatility, or how portfolio construction works -- Score: 2
 - (c) Intermediate -- I understand asset classes, diversification, the risk-return tradeoff, and the general effect of time horizon on appropriate risk levels -- Score: 3
 - (d) Advanced -- I understand portfolio theory including correlation, standard deviation as a measure of volatility, factor investing, and how market cycles typically behave -- Score: 4
 
 Q10. **Goal orientation:** What best describes your primary financial goal for this money?
+
 - (a) Preserve what I have -- I am not trying to grow it significantly; avoiding loss is my top priority -- Score: 1
 - (b) Generate modest, stable growth with income; I prefer predictability over maximum return -- Score: 2
 - (c) Grow my wealth over time meaningfully; I understand that achieving this requires tolerating periodic significant fluctuations of 20-30% -- Score: 3
@@ -157,6 +170,7 @@ Q10. **Goal orientation:** What best describes your primary financial goal for t
 Sum all 10 responses (range: 10 to 40).
 
 Separately calculate:
+
 - **Capacity score** = Q1 + Q2 + Q3 + Q4 + Q5 (maximum 20) -- represents financial ability to sustain losses
 - **Willingness score** = Q6 + Q7 + Q8 + Q9 + Q10 (maximum 20) -- represents emotional and behavioral tolerance
 
@@ -164,13 +178,13 @@ The overall risk profile is determined by the total score. The capacity/willingn
 
 ### Step 5: Map Total Score to a Risk Profile Tier
 
-| Score Range | Profile | Core Characteristic |
-|-------------|---------|---------------------|
-| 10 -- 16 | **Conservative** | Capital preservation is the primary objective; principal protection outweighs growth |
-| 17 -- 22 | **Moderately Conservative** | Modest growth acceptable; stability and income prioritized over appreciation |
-| 23 -- 29 | **Moderate** | Balanced between growth and stability; accepts periodic significant fluctuations |
-| 30 -- 35 | **Moderately Aggressive** | Growth-focused; comfortable with substantial short-term volatility |
-| 36 -- 40 | **Aggressive** | Maximum long-term growth; willing to sustain severe drawdowns without altering course |
+| Score Range | Profile                     | Core Characteristic                                                                   |
+| ----------- | --------------------------- | ------------------------------------------------------------------------------------- |
+| 10 -- 16    | **Conservative**            | Capital preservation is the primary objective; principal protection outweighs growth  |
+| 17 -- 22    | **Moderately Conservative** | Modest growth acceptable; stability and income prioritized over appreciation          |
+| 23 -- 29    | **Moderate**                | Balanced between growth and stability; accepts periodic significant fluctuations      |
+| 30 -- 35    | **Moderately Aggressive**   | Growth-focused; comfortable with substantial short-term volatility                    |
+| 36 -- 40    | **Aggressive**              | Maximum long-term growth; willing to sustain severe drawdowns without altering course |
 
 **Profile Characteristics to communicate:**
 
@@ -195,10 +209,10 @@ This analysis produces the most actionable insight from the entire assessment. D
 
 **Interpreting the mismatch direction:**
 
-*High Capacity, Low Willingness (Capacity score significantly exceeds Willingness score):*
+_High Capacity, Low Willingness (Capacity score significantly exceeds Willingness score):_
 The user's financial situation CAN support more risk than they are emotionally comfortable with. This is extremely common and is a completely valid position. The correct response is NOT to push the user toward their capacity level. Emotional discomfort that triggers reactive selling destroys more value than a conservatively positioned portfolio. The user should invest at their willingness level and potentially work toward closing the gap through education and gradual exposure. Frame this as: "Your finances could support a more aggressive approach, but your emotional comfort is the binding constraint -- and that is a legitimate constraint."
 
-*High Willingness, Low Capacity (Willingness score significantly exceeds Capacity score):*
+_High Willingness, Low Capacity (Willingness score significantly exceeds Capacity score):_
 This is the more dangerous mismatch. The user WANTS to take more risk than their situation can actually sustain. Examples: a freelancer with no emergency fund who wants to invest aggressively, or someone with a 3-year goal horizon who selected aggressive answers because they feel comfortable with volatility. This mismatch must be clearly flagged as a potential financial hazard. The user may be forced to liquidate risk assets at the worst possible time -- during a market decline -- due to an income disruption or liquidity need. Recommend addressing capacity weaknesses (build emergency fund, stabilize income) before increasing portfolio risk.
 
 ### Step 7: Deliver Results With Contextual Interpretation
@@ -427,6 +441,7 @@ Great -- you have given me several useful context signals already. Let me run th
 ---
 
 **Context noted:**
+
 - Age 34 -- long accumulation runway ahead
 - Software engineer, stable employer -- strong capacity signal
 - 8 months emergency fund -- above the 6-month threshold
@@ -441,7 +456,7 @@ Let me work through the remaining questions. Based on what you have shared, I ca
 → **(d) More than 15 years -- Score: 4** ✓ Please confirm.
 
 **Q2 -- Withdrawal pattern:** For retirement savings, how do you plan to draw this down?
-*(Typical answer is over 20-30 years of retirement spending)*
+_(Typical answer is over 20-30 years of retirement spending)_
 → **Please select:** All at once / Over 5-10 years / Over 10-20 years / Gradually over 20+ years
 
 **User response:** Gradually over 20+ years.
@@ -454,9 +469,9 @@ Let me work through the remaining questions. Based on what you have shared, I ca
 → **(c) Significant other resources -- Score: 3**
 
 **Q4 -- Income stability:** You said you are a software engineer at a stable tech company.
-→ **(c) Generally stable with some uncertainty** *(tech layoffs do occur)* **-- Score: 3**
+→ **(c) Generally stable with some uncertainty** _(tech layoffs do occur)_ **-- Score: 3**
 
-*Note: I am scoring this as 3 rather than 4 because tech employment, while well-compensated, has experienced notable layoff cycles. If you have been at this company 5+ years and feel your position is very secure, this could be scored as 4. Please confirm which feels more accurate.*
+_Note: I am scoring this as 3 rather than 4 because tech employment, while well-compensated, has experienced notable layoff cycles. If you have been at this company 5+ years and feel your position is very secure, this could be scored as 4. Please confirm which feels more accurate._
 
 **User response:** Yeah, there have been layoffs at my company before -- 3 feels right.
 → **Score: 3 confirmed**
@@ -502,40 +517,40 @@ Let me work through the remaining questions. Based on what you have shared, I ca
 
 ### Your Responses
 
-| # | Question | Your Answer | Score |
-|---|----------|-------------|-------|
-| 1 | Time horizon | More than 15 years (31 years) | 4 |
-| 2 | Withdrawal pattern | Gradually over 20+ years | 4 |
-| 3 | Financial redundancy | Significant other resources | 3 |
-| 4 | Income stability | Generally stable, some uncertainty (tech) | 3 |
-| 5 | Emergency fund depth | More than 6 months (8 months) | 4 |
-| 6 | Response to 25% decline | Bought more (actual behavior, March 2020) | 4 |
-| 7 | Monitoring frequency | Monthly | 3 |
-| 8 | Loss aversion | Accept losses, focus on long-term | 3 |
-| 9 | Investment literacy | Intermediate | 3 |
-| 10 | Primary goal | Grow meaningfully with moderate fluctuations | 3 |
+| #   | Question                | Your Answer                                  | Score |
+| --- | ----------------------- | -------------------------------------------- | ----- |
+| 1   | Time horizon            | More than 15 years (31 years)                | 4     |
+| 2   | Withdrawal pattern      | Gradually over 20+ years                     | 4     |
+| 3   | Financial redundancy    | Significant other resources                  | 3     |
+| 4   | Income stability        | Generally stable, some uncertainty (tech)    | 3     |
+| 5   | Emergency fund depth    | More than 6 months (8 months)                | 4     |
+| 6   | Response to 25% decline | Bought more (actual behavior, March 2020)    | 4     |
+| 7   | Monitoring frequency    | Monthly                                      | 3     |
+| 8   | Loss aversion           | Accept losses, focus on long-term            | 3     |
+| 9   | Investment literacy     | Intermediate                                 | 3     |
+| 10  | Primary goal            | Grow meaningfully with moderate fluctuations | 3     |
 
 ---
 
 ### Score Breakdown
 
-| Category | Questions | Your Score | Maximum |
-|----------|-----------|------------|---------|
-| Time Horizon & Liquidity | Q1-Q3 | 11 | 12 |
-| Financial Stability & Cushion | Q4-Q5 | 7 | 8 |
-| Emotional & Behavioral Response | Q6-Q8 | 10 | 12 |
-| Knowledge & Goal Orientation | Q9-Q10 | 6 | 8 |
-| **TOTAL** | **Q1-Q10** | **34** | **40** |
+| Category                        | Questions  | Your Score | Maximum |
+| ------------------------------- | ---------- | ---------- | ------- |
+| Time Horizon & Liquidity        | Q1-Q3      | 11         | 12      |
+| Financial Stability & Cushion   | Q4-Q5      | 7          | 8       |
+| Emotional & Behavioral Response | Q6-Q8      | 10         | 12      |
+| Knowledge & Goal Orientation    | Q9-Q10     | 6          | 8       |
+| **TOTAL**                       | **Q1-Q10** | **34**     | **40**  |
 
 ---
 
 ### Capacity vs. Willingness Split
 
-| Dimension | Questions | Your Score | Maximum | Percentage |
-|-----------|-----------|------------|---------|------------|
-| Financial Capacity | Q1-Q5 | 18 | 20 | 90% |
-| Emotional Willingness | Q6-Q10 | 16 | 20 | 80% |
-| **Divergence** | | **2** | | **Well Aligned** |
+| Dimension             | Questions | Your Score | Maximum | Percentage       |
+| --------------------- | --------- | ---------- | ------- | ---------------- |
+| Financial Capacity    | Q1-Q5     | 18         | 20      | 90%              |
+| Emotional Willingness | Q6-Q10    | 16         | 20      | 80%              |
+| **Divergence**        |           | **2**      |         | **Well Aligned** |
 
 ---
 

@@ -239,10 +239,7 @@ export class WorkflowSessionService {
     const depends: string[] = Array.isArray(rawDepends)
       ? (rawDepends as string[])
       : typeof rawDepends === 'string'
-        ? rawDepends
-            .trim()
-            .split(/\s+/)
-            .filter(Boolean)
+        ? rawDepends.trim().split(/\s+/).filter(Boolean)
         : [];
     const resolved = await this.resolveSkillEntries(depends);
     const skills = resolved.skills;
@@ -291,9 +288,7 @@ export class WorkflowSessionService {
     // account"). Carry the selected model id through so the workflow runs on
     // the model the user actually chose. (GitHub #111.)
     const selectedAcpModelId =
-      conversationType === 'acp' && typeof resolvedModel.useModel === 'string'
-        ? resolvedModel.useModel.trim()
-        : '';
+      conversationType === 'acp' && typeof resolvedModel.useModel === 'string' ? resolvedModel.useModel.trim() : '';
 
     const conversationParams: CreateConversationParams = {
       type: conversationType,

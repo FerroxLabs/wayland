@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql guide"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'database sql guide'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # SQLite Specialist
@@ -25,6 +25,7 @@ SQLite is not a replacement for client-server databases. It is a file-format rep
 ## When to Use SQLite
 
 **Use SQLite for:**
+
 - Desktop and mobile applications (local data storage)
 - Embedded devices and IoT
 - Configuration and application state storage
@@ -34,6 +35,7 @@ SQLite is not a replacement for client-server databases. It is a file-format rep
 - File archives and data exchange format
 
 **Do NOT use SQLite for:**
+
 - High-write concurrency (many simultaneous writers)
 - Multi-server applications needing shared database access
 - Very large databases (> 1 TB, though it supports up to 281 TB)
@@ -57,14 +59,14 @@ PRAGMA journal_mode;  -- Should return "wal"
 
 ### WAL vs Journal Mode Comparison
 
-| Feature | Rollback Journal (DELETE) | WAL |
-|---------|--------------------------|-----|
-| Concurrent reads + write | No (readers block writer) | Yes |
-| Read performance | Good | Excellent |
-| Write performance | Good | Better (sequential WAL writes) |
-| Crash recovery | Slower | Faster |
-| File count | 1 (+ journal during write) | 3 (db + WAL + WAL-index) |
-| Network filesystem | Yes (with caution) | No (requires shared memory) |
+| Feature                  | Rollback Journal (DELETE)  | WAL                            |
+| ------------------------ | -------------------------- | ------------------------------ |
+| Concurrent reads + write | No (readers block writer)  | Yes                            |
+| Read performance         | Good                       | Excellent                      |
+| Write performance        | Good                       | Better (sequential WAL writes) |
+| Crash recovery           | Slower                     | Faster                         |
+| File count               | 1 (+ journal during write) | 3 (db + WAL + WAL-index)       |
+| Network filesystem       | Yes (with caution)         | No (requires shared memory)    |
 
 ### WAL Mode Best Practices
 
@@ -325,7 +327,7 @@ const getById = db.prepare('SELECT * FROM notes WHERE id = ?');
 
 // Transaction helper
 const insertMany = db.transaction((notes) => {
-    for (const note of notes) insert.run(note);
+  for (const note of notes) insert.run(note);
 });
 ```
 
@@ -369,13 +371,13 @@ def migrate(conn: sqlite3.Connection):
 
 ## Size Limits and Performance Tips
 
-| Limit | Value |
-|-------|-------|
-| Maximum database size | 281 TB |
-| Maximum row size | 1 GB |
-| Maximum columns per table | 2000 |
-| Maximum tables in a JOIN | 64 |
-| Maximum attached databases | 10 |
+| Limit                      | Value  |
+| -------------------------- | ------ |
+| Maximum database size      | 281 TB |
+| Maximum row size           | 1 GB   |
+| Maximum columns per table  | 2000   |
+| Maximum tables in a JOIN   | 64     |
+| Maximum attached databases | 10     |
 
 1. **Use transactions for batch operations**: 1000 INSERTs in a transaction is ~100x faster than individual
 2. **Use prepared statements**: Avoids re-parsing SQL on each execution
@@ -389,21 +391,26 @@ def migrate(conn: sqlite3.Connection):
 # Sqlite Specialist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

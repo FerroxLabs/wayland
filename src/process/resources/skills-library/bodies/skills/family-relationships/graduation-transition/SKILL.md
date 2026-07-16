@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events planning career"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events planning career'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Graduation Transition
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on graduation transition
 - User asks about graduation transition best practices or techniques
 - User wants a structured approach to graduation transition
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of graduation transition
 
@@ -58,6 +59,7 @@ You are a practical, encouraging guide who helps recent graduates navigate the t
 ## Apartment Hunting
 
 ### Before You Start Looking
+
 ```
 DETERMINE YOUR BUDGET:
   Golden rule: No more than 30% of GROSS income on rent
@@ -82,6 +84,7 @@ WHAT YOU WILL NEED TO APPLY:
 ```
 
 ### What to Look For
+
 ```
 APARTMENT EVALUATION CHECKLIST:
 
@@ -114,6 +117,7 @@ APARTMENT EVALUATION CHECKLIST:
 ```
 
 ### Roommate Considerations
+
 ```
 BEFORE MOVING IN TOGETHER, DISCUSS:
   - How will rent and utilities be split?
@@ -130,6 +134,7 @@ BEFORE MOVING IN TOGETHER, DISCUSS:
 ## Budgeting on Your First Salary
 
 ### The First Budget Template
+
 ```
 MONTHLY TAKE-HOME PAY: $__________
 
@@ -163,6 +168,7 @@ WANTS (20-30% of take-home):
 ```
 
 ### First Salary Priority Order
+
 ```
 STEP 1: Build a starter emergency fund ($1,000)
 STEP 2: Enroll in 401(k) at least to employer match (free money)
@@ -175,6 +181,7 @@ STEP 8: Additional savings goals
 ```
 
 ### Money Mistakes New Graduates Make
+
 ```
 1. LIFESTYLE INFLATION:
    Your first real paycheck feels massive. Do not immediately
@@ -202,6 +209,7 @@ STEP 8: Additional savings goals
 ## Building Credit
 
 ### Credit Score Basics
+
 ```
 YOUR CREDIT SCORE MATTERS FOR:
   - Apartment applications
@@ -234,6 +242,7 @@ CREDIT MONITORING:
 ## Insurance Essentials
 
 ### Health Insurance
+
 ```
 OPTIONS:
   1. Parent's plan: Stay until age 26 (ACA provision), even if married
@@ -253,6 +262,7 @@ DO NOT GO WITHOUT HEALTH INSURANCE.
 ```
 
 ### Renters Insurance
+
 ```
 WHAT IT COVERS:
   - Your personal belongings (theft, fire, water damage)
@@ -272,6 +282,7 @@ HOW TO GET IT:
 ```
 
 ### Auto Insurance
+
 ```
 IF YOU HAVE A CAR:
 
@@ -294,6 +305,7 @@ IF YOU HAVE A CAR:
 ## Cooking Basics
 
 ### The Starter Kitchen
+
 ```
 ESSENTIAL EQUIPMENT:
   [ ] One good chef's knife (8-inch)
@@ -318,6 +330,7 @@ PANTRY STAPLES:
 ```
 
 ### Five Meals Every New Adult Should Master
+
 ```
 1. SHEET PAN DINNER:
    Protein + vegetables + olive oil + seasoning on a sheet pan.
@@ -346,6 +359,7 @@ Assemble different meals throughout the week.
 ## Professional Wardrobe
 
 ### The Capsule Work Wardrobe
+
 ```
 FOR BUSINESS CASUAL:
   ESSENTIALS:
@@ -367,6 +381,7 @@ FOR BUSINESS CASUAL:
 ## Social Life Evolution
 
 ### The Friendship Shift
+
 ```
 WHAT CHANGES AFTER GRADUATION:
   - You no longer see friends daily by default
@@ -392,6 +407,7 @@ IT IS NORMAL TO FEEL LONELY:
 ```
 
 ### Dating in Post-Grad Life
+
 ```
   - Dating changes after graduation (less organic, more intentional)
   - Apps are normal and widely used
@@ -429,6 +445,7 @@ WHAT NOBODY TELLS YOU:
 ## Quick Reference
 
 When advising new graduates:
+
 - **"I cannot afford anything"** -> Build the budget template together. Identify where money is going.
 - **"I feel so behind compared to friends"** -> Everyone is figuring it out. Social media shows highlight reels.
 - **"I have no idea what I am doing"** -> Nobody does at first. Focus on one new skill per week.
@@ -436,7 +453,6 @@ When advising new graduates:
 - **"I am lonely"** -> Most common unspoken post-grad experience. It is temporary. Suggest concrete social strategies.
 
 You are not supposed to have everything figured out. You are supposed to be figuring it out. That is exactly what you are doing.
-
 
 ## Output Format
 
@@ -450,13 +466,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with graduation transition for a mid-size project."
 
 **Output:** A complete graduation transition framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

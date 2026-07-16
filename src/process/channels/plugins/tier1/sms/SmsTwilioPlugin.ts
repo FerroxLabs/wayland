@@ -131,8 +131,7 @@ export class SmsTwilioPlugin extends BasePlugin {
     const accountSid = typeof creds.accountSid === 'string' ? creds.accountSid.trim() : '';
     const authToken = typeof creds.authToken === 'string' ? creds.authToken.trim() : '';
     const fromNumber = typeof creds.fromNumber === 'string' ? creds.fromNumber.trim() : '';
-    const messagingServiceSid =
-      typeof creds.messagingServiceSid === 'string' ? creds.messagingServiceSid.trim() : '';
+    const messagingServiceSid = typeof creds.messagingServiceSid === 'string' ? creds.messagingServiceSid.trim() : '';
 
     if (!accountSid) throw new Error('Twilio Account SID is required');
     if (!authToken) throw new Error('Twilio Auth Token is required');
@@ -315,8 +314,7 @@ export class SmsTwilioPlugin extends BasePlugin {
     const body = params.Body ?? '';
 
     const attachments = this.extractInboundAttachments(params);
-    const contentType: MessageContentType =
-      attachments.length > 0 ? attachments[0].type : 'text';
+    const contentType: MessageContentType = attachments.length > 0 ? attachments[0].type : 'text';
 
     const content: IUnifiedMessageContent = {
       type: contentType,
@@ -393,19 +391,13 @@ export class SmsTwilioPlugin extends BasePlugin {
     let lastErr: unknown;
     for (let attempt = 0; attempt < TWILIO_MAX_RETRIES; attempt++) {
       try {
-        const result = await this.client!.messages.create(
-          params as Parameters<Twilio['messages']['create']>[0]
-        );
+        const result = await this.client!.messages.create(params as Parameters<Twilio['messages']['create']>[0]);
         return result.sid;
       } catch (err: unknown) {
         lastErr = err;
         const info = extractTwilioErrorInfo(err);
         if (info.code === TWILIO_ERR_RECIPIENT_OPTED_OUT) {
-          throw new TwilioRestError(
-            `Recipient has opted out (Twilio 21610): ${info.message}`,
-            info.code,
-            false
-          );
+          throw new TwilioRestError(`Recipient has opted out (Twilio 21610): ${info.message}`, info.code, false);
         }
         if (info.code === TWILIO_ERR_PERMISSION_TO_SEND) {
           throw new TwilioRestError(
@@ -422,9 +414,7 @@ export class SmsTwilioPlugin extends BasePlugin {
         }
       }
     }
-    throw lastErr instanceof Error
-      ? lastErr
-      : new Error(`Twilio send failed after ${TWILIO_MAX_RETRIES} attempts`);
+    throw lastErr instanceof Error ? lastErr : new Error(`Twilio send failed after ${TWILIO_MAX_RETRIES} attempts`);
   }
 }
 

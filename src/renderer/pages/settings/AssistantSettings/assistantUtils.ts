@@ -14,10 +14,7 @@ export type AssistantSource = 'builtin' | 'custom' | 'extension';
  * Without this the Settings editor cleared their skills list (they failed the
  * preset lookup), so native specialists could not view/edit their skills.
  */
-export const hasBuiltinSkills = (
-  assistantId: string,
-  record?: { enabledSkills?: string[] | null } | null
-): boolean => {
+export const hasBuiltinSkills = (assistantId: string, record?: { enabledSkills?: string[] | null } | null): boolean => {
   if (!assistantId.startsWith('builtin-')) return false;
   if (record && Array.isArray(record.enabledSkills) && record.enabledSkills.length > 0) {
     return true;
@@ -151,19 +148,12 @@ export const normalizeExtensionAssistants = (extensionAssistants: Record<string,
         // Prefer the bundle-declared `kind` ('team' | 'specialist' for the
         // /assistants library page). Fall back to legacy `_kind` if older
         // bundles set it.
-        _kind:
-          typeof ext.kind === 'string'
-            ? ext.kind
-            : typeof ext._kind === 'string'
-              ? ext._kind
-              : undefined,
+        _kind: typeof ext.kind === 'string' ? ext.kind : typeof ext._kind === 'string' ? ext._kind : undefined,
         // W1a - Carry the launcher roster, ritual cadences, and standing flag
         // through to the renderer so W2a (Standing Companies sub-group) and
         // W2b (pre-configured spawn) can render without re-reading bundle.
         _teammates: Array.isArray(ext.teammates) ? (ext.teammates as string[]) : undefined,
-        _rituals: Array.isArray(ext.rituals)
-          ? (ext.rituals as Array<{ name: string; cadence: string }>)
-          : undefined,
+        _rituals: Array.isArray(ext.rituals) ? (ext.rituals as Array<{ name: string; cadence: string }>) : undefined,
         _standing: typeof ext.standing === 'boolean' ? ext.standing : undefined,
         // v0.4.7 - Kickoff cards. Normalize through a strict mapper that drops
         // entries missing required fields rather than passing junk through to

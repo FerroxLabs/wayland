@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career template guide"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career template guide'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Performance Review Writer
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about performance review writer
 - User needs guidance on performance review writer topics
 - User wants a structured approach to performance review writer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **Have you received any notable feedback (positive or constructive) during the period?**
 9. **Are there any challenges or setbacks you need to address?**
 10. **What are your career aspirations for the next 1-2 years?**
+
 ---
+
 ## Step 1: Achievement Documentation (CAR Method)
 
 ### The CAR Framework
+
 ```
 CAR METHOD:
 
@@ -57,6 +63,7 @@ interview answers do. CAR is more concise for written reviews.
 ```
 
 ### CAR Achievement Worksheet
+
 ```
 ACHIEVEMENT DOCUMENTATION TEMPLATE:
 
@@ -82,6 +89,7 @@ CONSOLIDATED VERSION (for the actual review):
 ```
 
 ### Achievement Categories to Consider
+
 ```
 ACHIEVEMENT CATEGORIES:
 
@@ -124,10 +132,13 @@ COLLABORATION:
 [ ] Knowledge sharing (documentation, training)
 [ ] Helping others succeed
 ```
+
 ---
+
 ## Step 2: Goal Reflection
 
 ### Reviewing Last Period's Goals
+
 ```
 GOAL REFLECTION TEMPLATE:
 
@@ -158,6 +169,7 @@ UNPLANNED ACCOMPLISHMENTS:
 ```
 
 ### Framing Goals You Did Not Fully Meet
+
 ```
 ADDRESSING MISSED GOALS:
 
@@ -179,10 +191,13 @@ The primary challenge was {{HONEST_ASSESSMENT}}. Going forward,
 I am addressing this by {{SPECIFIC_ACTION}}, and I am confident
 this will result in {{EXPECTED_OUTCOME}}."
 ```
+
 ---
+
 ## Step 3: SMART Goal Setting for Next Period
 
 ### SMART Goal Framework
+
 ```
 SMART GOAL TEMPLATE:
 
@@ -211,6 +226,7 @@ retrospectives, and a peer recognition program."
 ```
 
 ### Goal Categories
+
 ```
 BALANCED GOAL SETTING:
 
@@ -234,10 +250,13 @@ Set 4-6 goals across these categories:
 manager's stated objectives. Ask your manager: "What would make
 the biggest impact for the team this year?"
 ```
+
 ---
+
 ## Step 4: Strength and Development Area Framing
 
 ### Positioning Strengths
+
 ```
 STRENGTH FRAMING TEMPLATE:
 
@@ -257,6 +276,7 @@ integration initiative."
 ```
 
 ### Positioning Development Areas
+
 ```
 DEVELOPMENT AREA FRAMING:
 
@@ -280,10 +300,13 @@ DEVELOPMENT AREAS TO AVOID MENTIONING:
 - Anything that suggests you cannot do your job
 - Vague statements without action plans ("I need to be better at...")
 ```
+
 ---
+
 ## Step 5: Self-Evaluation Templates
 
 ### Comprehensive Self-Evaluation Template
+
 ```
 SELF-EVALUATION
 
@@ -348,10 +371,13 @@ CAREER ASPIRATIONS:
 appreciate the opportunity to {{SPECIFIC_REQUEST: take on more
 leadership, work on specific projects, develop specific skills}}."
 ```
+
 ---
+
 ## Step 6: 360 Feedback Preparation
 
 ### Requesting 360 Feedback
+
 ```
 360 FEEDBACK REQUEST:
 
@@ -379,6 +405,7 @@ WHO TO ASK:
 ```
 
 ### Incorporating 360 Feedback
+
 ```
 INCORPORATING FEEDBACK:
 
@@ -391,10 +418,13 @@ addressing by {{SPECIFIC_ACTION}}."
 
 Third-party validation is more powerful than self-assessment alone.
 ```
+
 ---
+
 ## Step 7: Building a Case for Promotion
 
 ### Promotion Case Framework
+
 ```
 PROMOTION CASE BUILDER:
 
@@ -459,6 +489,7 @@ At the {{NEXT_LEVEL}}, I plan to {{VALUE_YOU_WILL_DELIVER}}."
 ```
 
 ### Promotion Conversation Script
+
 ```
 PROMOTION DISCUSSION WITH MANAGER:
 
@@ -479,8 +510,11 @@ FOLLOW-UP QUESTIONS:
 - "What timeline is realistic?"
 - "What can I do in the next 90 days to strengthen my case?"
 ```
+
 ---
+
 ## Review Writing Best Practices
+
 ```
 SELF-EVALUATION DO'S AND DON'TS:
 
@@ -504,8 +538,11 @@ DON'T:
 - Wait until the last minute to write it
 - skip to track achievements throughout the year
 ```
+
 ---
+
 ## Year-Round Achievement Tracking
+
 ```
 WEEKLY ACHIEVEMENT LOG:
 
@@ -520,9 +557,10 @@ Week of: {{DATE}}
 
 Set a recurring calendar reminder every Friday at 4 PM.
 ```
----
-*This skill provides performance review guidance. Tailor your approach to your company's specific review format and culture. The most effective self-assessments are well-documented, metric-driven, and aligned with organizational goals.*
 
+---
+
+_This skill provides performance review guidance. Tailor your approach to your company's specific review format and culture. The most effective self-assessments are well-documented, metric-driven, and aligned with organizational goals._
 
 ## Output Format
 

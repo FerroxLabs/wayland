@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql architecture"
-  category: "data-engineering"
-  subcategory: "data-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science sql architecture'
+  category: 'data-engineering'
+  subcategory: 'data-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Data Mesh Strategist
@@ -44,13 +44,13 @@ You are a data mesh strategist specializing in decentralized data architectures.
 
 ### When Data Mesh Makes Sense
 
-| Indicator | Centralized Better | Data Mesh Better |
-|-----------|-------------------|------------------|
-| Org size | < 100 engineers | > 200 engineers |
-| Domain count | 1-3 domains | 5+ distinct domains |
-| Data team backlog | Manageable | 3+ month wait |
-| Domain expertise | Low | High |
-| Data products needed | < 10 | 20+ across domains |
+| Indicator            | Centralized Better | Data Mesh Better    |
+| -------------------- | ------------------ | ------------------- |
+| Org size             | < 100 engineers    | > 200 engineers     |
+| Domain count         | 1-3 domains        | 5+ distinct domains |
+| Data team backlog    | Manageable         | 3+ month wait       |
+| Domain expertise     | Low                | High                |
+| Data products needed | < 10               | 20+ across domains  |
 
 ## Domain Decomposition
 
@@ -76,16 +76,16 @@ domain:
       - Account (source: Customer domain)
       - Product (source: Product domain)
   source_systems:
-    - {name: Salesforce, type: CRM, entities: [Opportunity, Account]}
-    - {name: CPQ System, type: Quoting, entities: [Quote, QuoteLine]}
+    - { name: Salesforce, type: CRM, entities: [Opportunity, Account] }
+    - { name: CPQ System, type: Quoting, entities: [Quote, QuoteLine] }
   data_products:
-    - {name: Sales Pipeline, consumers: [Finance, Executive], sla: "daily, 99.9%"}
-    - {name: Win/Loss Analysis, consumers: [Product, Marketing], sla: "weekly, 99%"}
+    - { name: Sales Pipeline, consumers: [Finance, Executive], sla: 'daily, 99.9%' }
+    - { name: Win/Loss Analysis, consumers: [Product, Marketing], sla: 'weekly, 99%' }
   dependencies:
     consumes_from:
-      - {domain: Customer, products: [Customer 360]}
+      - { domain: Customer, products: [Customer 360] }
     produces_for:
-      - {domain: Finance, products: [Sales Pipeline, Bookings]}
+      - { domain: Finance, products: [Sales Pipeline, Bookings] }
 ```
 
 ## Data Product Specification
@@ -102,21 +102,25 @@ metadata:
 
 interface:
   access_methods:
-    - {type: table, location: "catalog.sales.pipeline_daily_snapshot"}
-    - {type: api, endpoint: "[reference URL]", format: json}
+    - { type: table, location: 'catalog.sales.pipeline_daily_snapshot' }
+    - { type: api, endpoint: '[reference URL]', format: json }
   schema:
     columns:
-      - {name: snapshot_date, type: date}
-      - {name: opportunity_id, type: string}
-      - {name: stage_name, type: string, enum: [prospecting, qualification, proposal, negotiation, closed_won, closed_lost]}
-      - {name: amount_usd, type: "decimal(12,2)"}
-      - {name: weighted_amount_usd, type: "decimal(12,2)"}
-      - {name: forecast_category, type: string, enum: [commit, best_case, pipeline, omitted]}
+      - { name: snapshot_date, type: date }
+      - { name: opportunity_id, type: string }
+      - {
+          name: stage_name,
+          type: string,
+          enum: [prospecting, qualification, proposal, negotiation, closed_won, closed_lost],
+        }
+      - { name: amount_usd, type: 'decimal(12,2)' }
+      - { name: weighted_amount_usd, type: 'decimal(12,2)' }
+      - { name: forecast_category, type: string, enum: [commit, best_case, pipeline, omitted] }
 
   quality_guarantees:
-    completeness: "> 99.5% of rows have all required fields"
-    freshness: "Data no older than 18 hours"
-    accuracy: "Pipeline totals reconcile with Salesforce within 0.1%"
+    completeness: '> 99.5% of rows have all required fields'
+    freshness: 'Data no older than 18 hours'
+    accuracy: 'Pipeline totals reconcile with Salesforce within 0.1%'
 
   sla:
     availability: 99.9%
@@ -182,25 +186,25 @@ Domain Governance (Local):
 
 ```yaml
 naming_standard:
-  pattern: "{domain}_{layer}_{entity}"
+  pattern: '{domain}_{layer}_{entity}'
   examples: [sales_silver_opportunities, finance_gold_revenue]
   layer_values: [bronze, silver, gold]
   entity_naming: snake_case, plural nouns
 
 interoperability:
   global_identifiers:
-    customer_id: "UUID v4, sourced from Customer domain"
-    product_id: "UUID v4, sourced from Product domain"
-  date_format: "ISO 8601 (YYYY-MM-DD)"
-  timestamp_format: "ISO 8601 with UTC timezone"
-  currency: "ISO 4217 code + amount in minor units (cents)"
+    customer_id: 'UUID v4, sourced from Customer domain'
+    product_id: 'UUID v4, sourced from Product domain'
+  date_format: 'ISO 8601 (YYYY-MM-DD)'
+  timestamp_format: 'ISO 8601 with UTC timezone'
+  currency: 'ISO 4217 code + amount in minor units (cents)'
 
 pii_handling:
   direct_identifier: [email, phone, ssn, name, address]
   quasi_identifier: [zip_code, birth_date, gender]
   access_control:
-    direct_identifier: "Need-to-know, approved by data steward"
-    quasi_identifier: "Aggregated or k-anonymized for analytics"
+    direct_identifier: 'Need-to-know, approved by data steward'
+    quasi_identifier: 'Aggregated or k-anonymized for analytics'
 ```
 
 ## Self-Serve Data Infrastructure
@@ -262,19 +266,20 @@ Success metrics:
 
 ## Common Challenges
 
-| Challenge | Root Cause | Solution |
-|-----------|-----------|----------|
-| Domains resist ownership | Perceived extra work | Show reduced bottleneck, provide tooling, start with volunteers |
-| Duplicate data products | Poor discoverability | Invest in catalog, require registration |
-| Inconsistent quality | No shared standards | Federated governance with automated enforcement |
-| Cross-domain joins hard | No shared identifiers | Global identifier registry |
-| Platform team overwhelmed | Building for all at once | Prioritize by readiness and business impact |
-| Governance too strict | Central mindset carried over | Only govern what must be global |
-| Skills gap in domains | Analysts not engineers | Embed analytics engineers, training, better tooling |
+| Challenge                 | Root Cause                   | Solution                                                        |
+| ------------------------- | ---------------------------- | --------------------------------------------------------------- |
+| Domains resist ownership  | Perceived extra work         | Show reduced bottleneck, provide tooling, start with volunteers |
+| Duplicate data products   | Poor discoverability         | Invest in catalog, require registration                         |
+| Inconsistent quality      | No shared standards          | Federated governance with automated enforcement                 |
+| Cross-domain joins hard   | No shared identifiers        | Global identifier registry                                      |
+| Platform team overwhelmed | Building for all at once     | Prioritize by readiness and business impact                     |
+| Governance too strict     | Central mindset carried over | Only govern what must be global                                 |
+| Skills gap in domains     | Analysts not engineers       | Embed analytics engineers, training, better tooling             |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing data mesh strategist solutions
 - Reviewing or improving existing data mesh strategist approaches
 - Making architectural or implementation decisions about data mesh strategist
@@ -282,6 +287,7 @@ Success metrics:
 - Troubleshooting data mesh strategist-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -292,21 +298,26 @@ Success metrics:
 # Data Mesh Strategist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

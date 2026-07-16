@@ -33,6 +33,7 @@ Build a Form 6765 R&D credit prep package and §174 capitalization schedule for 
 ## Section 174 capitalization mandate - read FIRST
 
 > ⚠️ **For tax years beginning after 12/31/2021, §174 requires capitalization and amortization of "specified research or experimental (SRE) expenditures":**
+>
 > - **5-year amortization** for **domestic** R&E
 > - **15-year amortization** for **foreign** R&E
 > - Half-year convention applies in year of incurrence
@@ -70,10 +71,13 @@ Years 2–15 (foreign): 6.67% per year
 For activities to qualify, **ALL FOUR** must be satisfied:
 
 ### 1. Permitted Purpose (§41(d)(1)(B)(ii))
+
 The activity must be undertaken to develop a **new or improved business component** - function, performance, reliability, or quality. Cosmetic / style / aesthetic improvements do NOT qualify.
 
 ### 2. Technological in Nature (§41(d)(1)(B)(i))
+
 The activity must rely on principles of:
+
 - Physical sciences (physics, chemistry)
 - Biological sciences (biology, biochemistry)
 - Engineering (mechanical, electrical, civil, chemical)
@@ -82,7 +86,9 @@ The activity must rely on principles of:
 Activities relying solely on social sciences, arts, or humanities do NOT qualify.
 
 ### 3. Elimination of Uncertainty (§41(d)(1)(A))
+
 At the outset, the taxpayer must face uncertainty about:
+
 - **Capability** - can it be done?
 - **Methodology** - how should it be done?
 - **Appropriate design** - what is the optimal design?
@@ -90,7 +96,9 @@ At the outset, the taxpayer must face uncertainty about:
 If the answer was already known via existing public knowledge, professional skill, or off-the-shelf solutions, the activity does NOT qualify.
 
 ### 4. Process of Experimentation (§41(d)(1)(C))
+
 Substantially all (≥80%) of the research activities must constitute a **process of experimentation** - systematic evaluation of one or more alternatives. Examples:
+
 - Modeling, simulation
 - Iterative testing and refinement
 - Trial and error to converge on a solution
@@ -100,26 +108,31 @@ Documented hypotheses, alternatives evaluated, and iterations are key audit defe
 ## Qualified Research Expenses (QRE) categories
 
 ### Wages - IRC §41(b)(2)
+
 - W-2 wages of employees performing qualified services (research, direct supervision, direct support).
 - **Box 1 wages** are the base; specifically excludes amounts not reported in Box 1 (e.g., 401(k) deferrals are still in QRE; some bonuses included; verify).
 - Time-tracking by activity is the strongest documentation - % of time on QRA × wages.
 - Officer / owner wages can qualify if performing qualified services.
 
 ### Supplies - IRC §41(b)(2)(A)(ii)
+
 - Tangible property (other than land and depreciable property) used in qualified research.
 - Includes prototype materials, lab supplies, materials consumed in testing.
 - Does NOT include capital assets (computers, lab equipment) - those are depreciated separately.
 
 ### Contract Research - IRC §41(b)(3)
+
 - 65% of payments to non-employees performing qualified research on the taxpayer's behalf.
 - The taxpayer must bear the financial risk and have substantial rights in the research.
 - 75% if payment is to a qualified research consortium.
 
 ### Computer Leasing / Cloud Computing - IRC §41(b)(2)(A)(iii)
+
 - Payments for the use of computers in qualified research, where the computer is owned and operated by a third party and located off-premises.
 - Cloud / SaaS used for qualified research (training ML models, simulation, dev environments) - qualifying when the third party is not related and not the primary user.
 
 ### Excluded activities (§41(d)(4))
+
 - Research after commercial production
 - Adaptation of existing components for a particular customer
 - Duplication of existing components
@@ -133,26 +146,33 @@ Documented hypotheses, alternatives evaluated, and iterations are key audit defe
 ## Credit calculation methods
 
 ### Regular Credit (RRC) - IRC §41(a)(1)
+
 ```
 Regular credit = 20% × (QRE - base amount)
 base amount    = MAX(fixed-base % × avg gross receipts of 4 prior years, 50% × current QRE)
 ```
+
 Complex; requires gross-receipts history; better for high-growth firms with established baselines.
 
 ### Alternative Simplified Credit (ASC) - IRC §41(c)(5)
+
 ```
 ASC = 14% × (current-year QRE − 50% × avg of 3 prior years' QRE)
 If no QRE in any of prior 3 years:  ASC = 6% × current-year QRE
 ```
+
 Most SMBs use ASC because it's simpler and doesn't require gross-receipts history.
 
 ### Section 280C(c)(3) reduced credit election
+
 Under §280C(c), the §174 / §162 deduction must be reduced by the §41 credit (or equivalently, an election under §280C(c)(2) to take a reduced credit at 79% × marginal rate × full credit). Most pass-through entities historically elect §280C(c) reduction to avoid book-tax adjustments. **Verify mechanics for `{filing_year}` since §174 capitalization changes the math.**
 
 ### Payroll-tax election (small startups) - IRC §41(h)
+
 **Qualified Small Businesses** (≤$5M gross receipts in current year + no gross receipts more than 5 years prior) may elect to apply up to **$500K of §41 credit against employer payroll tax (Social Security + Medicare portion)** rather than income tax (Inflation Reduction Act of 2022 raised cap to $500K from $250K - verify cap for `{filing_year}`).
 
 This is a **major SMB benefit** - credit becomes useful even for pre-revenue / loss-position startups.
+
 - Election made on Form 6765, Section D.
 - Applied via Form 8974 attached to Form 941.
 - Verify cap and qualifications for `{filing_year}` (inflation adjustments + legislation).
@@ -200,6 +220,7 @@ Tools: project-management exports (Jira, Linear, Asana), git commit history, des
 ## State R&D credits
 
 Many states have separate R&D credits - sometimes more generous than federal:
+
 - **CA FTB §23609** - 15% credit, separate state QRE rules
 - **NY DTF** - investment incentive in NY (DTF-216)
 - **MA DOR** - 10% incremental + 15% basic research

@@ -208,7 +208,14 @@ type SlashMenuPopupProps = SlashState & {
   onClose: () => void;
 };
 
-export const SlashMenuPopup: React.FC<SlashMenuPopupProps> = ({ open, items, command, rect, keyHandleRef, onClose }) => {
+export const SlashMenuPopup: React.FC<SlashMenuPopupProps> = ({
+  open,
+  items,
+  command,
+  rect,
+  keyHandleRef,
+  onClose,
+}) => {
   const [selected, setSelected] = useState(0);
   const safeSelected = items.length === 0 ? 0 : Math.min(Math.max(selected, 0), items.length - 1);
   const popupRef = useRef<HTMLDivElement>(null);

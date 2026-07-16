@@ -11,12 +11,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting planning checklist step-by-step"
-  category: "life-event"
-  depends: "budget-planning new-baby-preparation home-safety-inspection room-organization-system workplace-conversation-prep developmental-milestones"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting planning checklist step-by-step'
+  category: 'life-event'
+  depends: 'budget-planning new-baby-preparation home-safety-inspection room-organization-system workplace-conversation-prep developmental-milestones'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Prepare for a Baby

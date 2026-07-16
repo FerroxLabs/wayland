@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts guide research"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts guide research'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Consumer Protection Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user received a product that arrived defective, broken, or significantly different from how it was described in the listing or advertisement
 - A user wants to understand whether their warranty claim is valid, what type of warranty applies, and how to enforce it against a manufacturer or retailer
 - A user needs to dispute a charge on a credit card, debit card, or through a payment platform and does not know the correct procedure or applicable deadlines
@@ -32,6 +34,7 @@ metadata:
 - A user was enrolled in a subscription or recurring billing arrangement they did not knowingly authorize
 
 **Do NOT use when:**
+
 - The dispute is between two businesses (use commercial contract dispute frameworks instead -- B2B disputes fall under the UCC Article 2 merchant provisions and standard contract law, not consumer protection statutes)
 - The user wants to participate in, opt out of, or file a class action lawsuit (requires an attorney and is governed by Rule 23 of the Federal Rules of Civil Procedure)
 - The user suffered physical injury, property damage, or personal harm from a defective product (this is product liability territory requiring immediate attorney consultation -- use a product liability or personal injury referral approach)
@@ -62,6 +65,7 @@ Identify the type, size, and urgency of the problem before explaining any legal 
 Consumer protection in the U.S. operates in overlapping layers. Identify which apply to the specific situation.
 
 **Layer 1 -- Federal Statutory Protections:**
+
 - **FTC Act Section 5:** Prohibits unfair or deceptive acts or practices in commerce -- applies to essentially all commercial transactions; the FTC investigates patterns of misconduct and does not resolve individual complaints, but complaint volume triggers enforcement
 - **Fair Credit Billing Act (FCBA, 15 U.S.C. § 1666):** Covers credit card billing disputes; the operative deadline is 60 days from the statement date on which the charge appears; the card issuer has two billing cycles (maximum 90 days) to resolve
 - **Fair Credit Billing Act Section 170 (Claims and Defenses):** A separate and often overlooked right -- allows credit card holders to assert against the card issuer any claims or defenses they have against the merchant for purchases over $50 made in the consumer's home state or within 100 miles of their billing address
@@ -72,6 +76,7 @@ Consumer protection in the U.S. operates in overlapping layers. Identify which a
 - **FTC Negative Option Rule (16 C.F.R. Part 425, updated 2023):** Requires sellers to clearly disclose subscription and automatic renewal terms before the consumer agrees; prohibits enrolling consumers in subscriptions without express, informed consent; requires simple cancellation mechanisms that are at least as easy as enrollment
 
 **Layer 2 -- State Consumer Protection Statutes:**
+
 - Every U.S. state has at least one consumer protection statute, often called a "UDAP" (Unfair and Deceptive Acts and Practices) law
 - Many state statutes are stronger than the FTC Act because they permit private individual lawsuits -- the FTC Act itself does not create a private right of action
 - Many state UDAP statutes provide statutory damages (e.g., $200-$500 per violation regardless of actual loss), treble damages (three times actual damages), and mandatory attorney fee awards -- these make it financially feasible for attorneys to take small consumer cases
@@ -79,6 +84,7 @@ Consumer protection in the U.S. operates in overlapping layers. Identify which a
 - Always advise the user to verify their specific state's UDAP statute with the state Attorney General's office
 
 **Layer 3 -- Implied Warranty Protections (UCC-Based):**
+
 - The Uniform Commercial Code (UCC) Article 2, adopted in some form in all states, creates two automatic implied warranties in sales by merchants:
 - **Implied warranty of merchantability (UCC § 2-314):** The product must be fit for the ordinary purposes for which such goods are used. A computer that won't boot fails this warranty. A jacket whose zipper breaks on first use fails this warranty. This warranty attaches automatically to every sale by a merchant and does not require any written promise -- the seller's silence does not disclaim it unless done explicitly and conspicuously in writing.
 - **Implied warranty of fitness for a particular purpose (UCC § 2-315):** Applies when the seller knows the buyer's specific intended use and the buyer is relying on the seller's judgment to recommend a product -- if the recommended product fails at that specific use, the seller breaches this warranty
@@ -86,6 +92,7 @@ Consumer protection in the U.S. operates in overlapping layers. Identify which a
 - Implied warranty duration is typically the same as the statute of limitations for breach of warranty in the state (often 4 years from tender of delivery under UCC § 2-725)
 
 **Layer 4 -- Vehicle-Specific Lemon Laws:**
+
 - All 50 states have lemon laws, but the scope, requirements, and remedies differ significantly
 - **Typical coverage triggers:** 3-4 unsuccessful repair attempts for the same substantial defect, OR the vehicle has been out of service for 30 or more cumulative days within a defined period (usually the first year or 12,000-18,000 miles, whichever comes first)
 - **What counts as "substantial":** The defect must impair the vehicle's use, value, or safety -- a rattling door panel may not qualify; a malfunctioning airbag system does
@@ -99,6 +106,7 @@ Consumer protection in the U.S. operates in overlapping layers. Identify which a
 Payment method is often the fastest and most powerful tool available. Assess this early.
 
 **Credit Card (FCBA Dispute Process):**
+
 - Disputes must be submitted to the card issuer in writing (email to the disputes department or the card issuer's online portal satisfies "in writing" for most issuers)
 - The formal deadline is 60 days from the statement date on which the charge first appeared -- not 60 days from the purchase date and not 60 days from when the problem was discovered
 - Valid chargeback reasons under FCBA: charge for goods not received, goods significantly not as described, unauthorized charge, mathematical error, charge for goods returned but credit not issued
@@ -110,6 +118,7 @@ Payment method is often the fastest and most powerful tool available. Assess thi
 - If the chargeback succeeds, the card issuer reverses the charge -- the merchant can contest with counter-documentation, triggering a re-examination
 
 **Debit Card (EFTA Dispute Process):**
+
 - Debit card disputes are governed by the EFTA, not the FCBA -- the protections are substantially weaker
 - The money has already left the account -- there is no "float" period during which it can be frozen
 - For unauthorized transactions: report within 2 business days to cap liability at $50; between 2 and 60 days = $500 cap; after 60 days from the statement showing the unauthorized charge = potentially unlimited liability
@@ -118,12 +127,14 @@ Payment method is often the fastest and most powerful tool available. Assess thi
 - Advise: for large purchases or purchases where disputes may arise, always recommend using a credit card
 
 **PayPal, Venmo, and Other Payment Platforms:**
+
 - PayPal Buyer Protection covers eligible items -- the claim window is 180 days from the transaction date, which is longer than the FCBA window; covers items not received and items significantly not as described
 - PayPal requires the dispute to be escalated to a claim within 20 days of opening a dispute -- failure to escalate closes the case
 - Venmo, Zelle, and Cash App generally do NOT offer the same buyer protections -- money sent via these platforms is treated more like cash; recovering it if a seller is fraudulent is extremely difficult
 - Bank transfers (ACH, wire): essentially no consumer protection recourse once funds leave; recommend against using for consumer purchases from unknown sellers
 
 **Buy Now, Pay Later (BNPL) Platforms:**
+
 - Platforms like Affirm, Afterpay, Klarna, and Zip have varying dispute processes -- generally follow a similar process to credit card disputes but the legal framework is less settled
 - The CFPB has issued guidance treating BNPL products similarly to credit cards in some respects, but consumer rights are less clear and vary by platform terms
 - BNPL disputes should be filed with the BNPL platform first, and if unresolved, with the CFPB
@@ -133,6 +144,7 @@ Payment method is often the fastest and most powerful tool available. Assess thi
 Warranty disputes require careful mapping because multiple warranties may apply simultaneously and the optimal strategy depends on which is strongest.
 
 **Evaluate the manufacturer's written warranty:**
+
 - Locate the written warranty that came with the product -- it is often in the box, in a manual, or on the manufacturer's website under "support" or "warranty"
 - Confirm the warranty period has not expired
 - Identify whether it is labeled "Full" or "Limited" -- this determines Magnuson-Moss Act requirements
@@ -142,12 +154,14 @@ Warranty disputes require careful mapping because multiple warranties may apply 
 - The warranty should specify the remedy: repair, replacement, or refund -- if repair is the remedy, the manufacturer must repair within a "reasonable time" at no charge under a Full warranty
 
 **Evaluate the retailer's obligations:**
+
 - Retailers are bound by the implied warranty of merchantability independently of the manufacturer's warranty
 - A defective product that fails on arrival almost certainly breaches the implied warranty -- the 30-day return window is the retailer's RETURN POLICY (discretionary), not the expiration of their implied warranty obligation
 - Distinguish this clearly: the return policy window does not extinguish warranty rights; it is simply the retailer's preferred process for handling returns
 - If the implied warranty still applies (i.e., the product failed within the useful life of the warranty), the consumer can demand repair, replacement, or refund from the retailer under UCC Article 2 breach of warranty
 
 **Evaluate extended warranty / service contract terms:**
+
 - These are contracts, not warranties -- read the actual contract, particularly the exclusions section
 - Common exclusions: cosmetic damage, damage from normal wear, damage caused by the consumer, pre-existing conditions (which is why new-item conditions matter), and "acts of God"
 - Note whether the service contract is administered by the retailer, the manufacturer, or a third-party administrator -- third-party administrators have more frequent insolvency problems
@@ -158,6 +172,7 @@ Warranty disputes require careful mapping because multiple warranties may apply 
 Escalation must be sequential and documented. Provide a clear, tiered path.
 
 **Tier 1 -- Direct Merchant Contact (Week 1-2):**
+
 - Contact customer service in writing (email, not phone) -- written communication is enforceable, phone calls are not
 - State the facts clearly and without emotional language: date of purchase, order number, description of defect, what remedy you are requesting (refund, replacement, or repair), and a specific deadline for response (14 days is reasonable)
 - Cite the specific legal basis briefly: "This product appears to have failed to meet the implied warranty of merchantability. I am requesting a full refund under UCC § 2-314 and [your state] consumer protection law."
@@ -165,12 +180,14 @@ Escalation must be sequential and documented. Provide a clear, tiered path.
 - Keep screen captures of the chat, print PDFs of emails, photograph the product defect in good lighting
 
 **Tier 2 -- Credit Card Chargeback or Payment Platform Dispute (Week 2-3, before deadline expires):**
+
 - File the chargeback dispute WHILE the merchant negotiation continues -- the FCBA 60-day clock does not stop while you negotiate
 - Filing a chargeback is not "giving up" on the merchant -- if the merchant resolves it, you can cancel the chargeback; if they do not, the chargeback has already been initiated within the deadline
 - For the dispute narrative: be specific, factual, and concise -- describe what was ordered, what arrived, what is defective, and what the merchant said when contacted; attach photos, receipts, and correspondence
 - Do not characterize the merchant as fraudulent unless you have clear evidence of intent to deceive -- describe the facts and let the card issuer make the determination
 
 **Tier 3 -- Regulatory Complaints (Week 3-4):**
+
 - **FTC (reportfraud.ftc.gov):** File a consumer complaint -- the FTC does not resolve individual disputes but aggregates complaint data to identify enforcement targets; filing is quick and establishes a public record
 - **CFPB (consumerfinance.gov/complaint):** File if the dispute involves a financial product, payment card, BNPL, or financial institution; the CFPB routes complaints to the company and requires a response within 15 days and resolution within 60 days; this is one of the most effective tools available
 - **State Attorney General:** Every state AG has a consumer protection division; many states require the company to respond to AG complaints; some states have informal mediation programs that can resolve disputes without litigation; find your state AG at naag.org
@@ -178,6 +195,7 @@ Escalation must be sequential and documented. Provide a clear, tiered path.
 - **Industry-specific regulators:** State insurance department for insurance product complaints; state banking department for bank-related issues; FCC for telecommunications; CPSC (Consumer Product Safety Commission) for product safety hazards
 
 **Tier 4 -- Formal Legal Action:**
+
 - **Small claims court:** The optimal venue for consumer disputes under the jurisdictional limit; limits vary by state from $2,500 (Kentucky, Rhode Island) to $25,000 (Tennessee); most states are in the $5,000-$10,000 range; filing fees are $30-$100; no attorney required; many courthouses have self-help forms; the informal process favors well-organized, documented consumers
 - **Attorney consultation for larger amounts:** Consumer protection attorneys often work on contingency (no upfront fee) or fee-shifting basis because many UDAP statutes and the Magnuson-Moss Act require defendants to pay plaintiff attorney fees when the consumer wins -- this makes consumer cases economically viable for attorneys
 - **Demand letter before filing:** A formal demand letter on attorney letterhead citing specific consumer protection statutes often prompts settlement before filing; the cost of a demand letter ($100-$500) is frequently recovered through settlement
@@ -187,6 +205,7 @@ Escalation must be sequential and documented. Provide a clear, tiered path.
 Documentation is the single most impactful action a consumer can take. Build the file immediately, before memories fade and evidence disappears.
 
 **Essential documents to gather and preserve:**
+
 - Original purchase confirmation email or receipt showing price, date, and product description
 - Original product listing or advertisement (take a timestamped screenshot -- listings are often altered or removed after disputes arise)
 - All communication with the seller, manufacturer, and any third parties -- export email threads, save chat transcripts as PDFs, note dates and times of all phone calls including the name of the representative
@@ -197,6 +216,7 @@ Documentation is the single most impactful action a consumer can take. Build the
 - Any tracking information or delivery confirmation for items claimed as not delivered
 
 **How to preserve digital evidence:**
+
 - Use PDF "print to file" to capture webpages with a timestamp in the header/footer
 - Screenshot product listings, seller profiles, and return policy pages immediately -- these frequently change
 - For email, forward the entire thread to a personal archive address or export as PDF
@@ -207,6 +227,7 @@ Documentation is the single most impactful action a consumer can take. Build the
 Multiple deadlines run simultaneously and independently. Missing any one can forfeit a powerful remedy.
 
 **Critical deadlines to track:**
+
 - **FCBA chargeback:** 60 days from the statement date on which the charge appeared -- this is the hardest, most consequential deadline; it cannot be extended
 - **EFTA unauthorized charge report:** 2 business days for $50 liability cap; 60 calendar days from statement date before unlimited liability attaches
 - **FTC Cooling-Off Rule cancellation:** 3 business days from the date of the door-to-door or off-premises sale
@@ -494,26 +515,26 @@ Dealer sales of used vehicles occupy a middle ground between new lemon law prote
 
 ### Situation Summary
 
-| Field | Details |
-|-------|---------|
-| Product / Service | Espresso machine (high-end, $1,800) |
-| Purchase Date | 50 days ago |
-| Purchase Method | Online |
-| Payment Method | Credit card |
-| Seller Type | Small specialty retailer (online) |
-| Amount in Dispute | $1,800 (machine cost); $350 manufacturer repair estimate |
-| Issue Type | Defective product -- pump failure after 6 uses; within 1-year warranty |
-| Current Status | Seller declined return citing 30-day policy; manufacturer demanding $350 prepaid repair shipping to NJ |
+| Field             | Details                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| Product / Service | Espresso machine (high-end, $1,800)                                                                    |
+| Purchase Date     | 50 days ago                                                                                            |
+| Purchase Method   | Online                                                                                                 |
+| Payment Method    | Credit card                                                                                            |
+| Seller Type       | Small specialty retailer (online)                                                                      |
+| Amount in Dispute | $1,800 (machine cost); $350 manufacturer repair estimate                                               |
+| Issue Type        | Defective product -- pump failure after 6 uses; within 1-year warranty                                 |
+| Current Status    | Seller declined return citing 30-day policy; manufacturer demanding $350 prepaid repair shipping to NJ |
 
 ---
 
 ### Applicable Consumer Protections
 
-| Protection Layer | Applies? | Key Provision | What It Means for You |
-|-----------------|----------|---------------|----------------------|
-| Implied warranty of merchantability (UCC § 2-314) | **Yes** | Product must be fit for ordinary purpose | A $1,800 espresso machine that fails after 6 uses does not work for its ordinary purpose; this warranty has been breached regardless of the retailer's 30-day return window |
-| Express warranty -- manufacturer "Limited" 1-year | **Yes** | Covers defects in materials and workmanship | Pump failure after 6 uses is almost certainly a manufacturing defect; warranty appears to apply |
-| Magnuson-Moss Warranty Act | **Yes -- and there may be a violation** | Full vs. Limited label rules; anti-tying provisions | The warranty is labeled "Limited" (acceptable); however, requiring you to pay shipping to an authorized repair center at your own expense for a warranty repair may violate the Act's requirement that warranty service under a Limited warranty not impose unreasonable burdens -- the Magnuson-Moss Act does allow some cost burden on the consumer for a Limited warranty, but the reasonableness of a $350 cost for a $1,800 machine under a defect claim warrants challenge |
-| Advertising claim -- "commercial-grade built to last" | **Yes -- potential deceptive practice** | FTC Act and state UDAP statutes prohibit deceptive advertising | The claim "commercial-grade components built to last" could be interpreted as an express warranty or, if false, as a deceptive trade practice; a pump that fails after 6 home uses is hard to reconcile with "commercial-grade" |
-| Fair Credit Billing Act (FCBA) chargeback | **Yes -- act immediately** | 60-day dispute window from statement date | At 50 days from purchase, your statement date may have been 10-20 days after purchase -- your chargeback window may be closing; check your credit card statement immediately for the statement date and filing deadline |
-| FCBA § 170 claims and defenses | **Maybe** | Purchase over
+| Protection Layer                                      | Applies?                                | Key Provision                                                  | What It Means for You                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Implied warranty of merchantability (UCC § 2-314)     | **Yes**                                 | Product must be fit for ordinary purpose                       | A $1,800 espresso machine that fails after 6 uses does not work for its ordinary purpose; this warranty has been breached regardless of the retailer's 30-day return window                                                                                                                                                                                                                                                                                                      |
+| Express warranty -- manufacturer "Limited" 1-year     | **Yes**                                 | Covers defects in materials and workmanship                    | Pump failure after 6 uses is almost certainly a manufacturing defect; warranty appears to apply                                                                                                                                                                                                                                                                                                                                                                                  |
+| Magnuson-Moss Warranty Act                            | **Yes -- and there may be a violation** | Full vs. Limited label rules; anti-tying provisions            | The warranty is labeled "Limited" (acceptable); however, requiring you to pay shipping to an authorized repair center at your own expense for a warranty repair may violate the Act's requirement that warranty service under a Limited warranty not impose unreasonable burdens -- the Magnuson-Moss Act does allow some cost burden on the consumer for a Limited warranty, but the reasonableness of a $350 cost for a $1,800 machine under a defect claim warrants challenge |
+| Advertising claim -- "commercial-grade built to last" | **Yes -- potential deceptive practice** | FTC Act and state UDAP statutes prohibit deceptive advertising | The claim "commercial-grade components built to last" could be interpreted as an express warranty or, if false, as a deceptive trade practice; a pump that fails after 6 home uses is hard to reconcile with "commercial-grade"                                                                                                                                                                                                                                                  |
+| Fair Credit Billing Act (FCBA) chargeback             | **Yes -- act immediately**              | 60-day dispute window from statement date                      | At 50 days from purchase, your statement date may have been 10-20 days after purchase -- your chargeback window may be closing; check your credit card statement immediately for the statement date and filing deadline                                                                                                                                                                                                                                                          |
+| FCBA § 170 claims and defenses                        | **Maybe**                               | Purchase over                                                  |

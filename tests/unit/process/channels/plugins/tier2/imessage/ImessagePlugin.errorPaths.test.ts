@@ -22,37 +22,33 @@ afterAll(() => Object.defineProperty(process, 'platform', { value: ORIGINAL_PLAT
 // Hoist mocks
 // ---------------------------------------------------------------------------
 
-const {
-  mockStmt,
-  mockDbInstance,
-  mockDbConstructor,
-  mockExecFileNoThrow,
-  mockFsExistsSync,
-  mockFsAccessSync,
-} = vi.hoisted(() => {
-  const stmtMock = { all: vi.fn(() => [] as unknown[]) };
-  const dbInst = {
-    prepare: vi.fn(function (sql: string) {
-      if (sql.includes('MAX(rowid)')) return { get: vi.fn(() => ({ maxid: 0 })) };
-      if (sql.includes('WHERE rowid')) return { get: vi.fn(() => ({ text: 'orig' })) };
-      return stmtMock;
-    }),
-    close: vi.fn(),
-  };
-  // Will be swapped per-test in F16.
-  const ctor = vi.fn(function () { return dbInst; });
-  const execMock = vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 }));
-  const existsMock = vi.fn(() => true);
-  const accessMock = vi.fn(() => undefined);
-  return {
-    mockStmt: stmtMock,
-    mockDbInstance: dbInst,
-    mockDbConstructor: ctor,
-    mockExecFileNoThrow: execMock,
-    mockFsExistsSync: existsMock,
-    mockFsAccessSync: accessMock,
-  };
-});
+const { mockStmt, mockDbInstance, mockDbConstructor, mockExecFileNoThrow, mockFsExistsSync, mockFsAccessSync } =
+  vi.hoisted(() => {
+    const stmtMock = { all: vi.fn(() => [] as unknown[]) };
+    const dbInst = {
+      prepare: vi.fn(function (sql: string) {
+        if (sql.includes('MAX(rowid)')) return { get: vi.fn(() => ({ maxid: 0 })) };
+        if (sql.includes('WHERE rowid')) return { get: vi.fn(() => ({ text: 'orig' })) };
+        return stmtMock;
+      }),
+      close: vi.fn(),
+    };
+    // Will be swapped per-test in F16.
+    const ctor = vi.fn(function () {
+      return dbInst;
+    });
+    const execMock = vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 }));
+    const existsMock = vi.fn(() => true);
+    const accessMock = vi.fn(() => undefined);
+    return {
+      mockStmt: stmtMock,
+      mockDbInstance: dbInst,
+      mockDbConstructor: ctor,
+      mockExecFileNoThrow: execMock,
+      mockFsExistsSync: existsMock,
+      mockFsAccessSync: accessMock,
+    };
+  });
 
 vi.mock('better-sqlite3', () => ({ default: mockDbConstructor }));
 vi.mock('@/utils/execFileNoThrow', () => ({ execFileNoThrow: mockExecFileNoThrow }));
@@ -90,7 +86,9 @@ beforeEach(() => {
   mockFsAccessSync.mockReturnValue(undefined);
   mockExecFileNoThrow.mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 });
   mockStmt.all.mockReturnValue([]);
-  mockDbConstructor.mockImplementation(function () { return mockDbInstance; });
+  mockDbConstructor.mockImplementation(function () {
+    return mockDbInstance;
+  });
   mockDbInstance.prepare.mockImplementation(function (sql: string) {
     if (sql.includes('MAX(rowid)')) return { get: vi.fn(() => ({ maxid: 0 })) };
     if (sql.includes('WHERE rowid')) return { get: vi.fn(() => ({ text: 'orig body' })) };
@@ -116,22 +114,23 @@ describe('ImessagePlugin.sendMessage Automation-denied mapping (F13)', () => {
     });
     await plugin.initialize(cfg());
     await plugin.start();
-    await expect(
-      plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' }),
-    ).rejects.toThrow(/Automation access denied/i);
+    await expect(plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' })).rejects.toThrow(
+      /Automation access denied/i
+    );
   });
 
   it('maps "not allowed to send Apple events" stderr to the friendly error', async () => {
     mockExecFileNoThrow.mockResolvedValue({
       stdout: '',
-      stderr: 'osascript: execution error: Not authorised to send Apple events to Messages. (not allowed to send Apple events)',
+      stderr:
+        'osascript: execution error: Not authorised to send Apple events to Messages. (not allowed to send Apple events)',
       exitCode: 1,
     });
     await plugin.initialize(cfg());
     await plugin.start();
-    await expect(
-      plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' }),
-    ).rejects.toThrow(/Automation access denied/i);
+    await expect(plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' })).rejects.toThrow(
+      /Automation access denied/i
+    );
   });
 });
 
@@ -148,7 +147,7 @@ describe('ImessagePlugin.sendMessage group-chat path (F14)', () => {
     expect(mockExecFileNoThrow).toHaveBeenCalledWith(
       'osascript',
       ['-e', expect.stringContaining('chat id')],
-      expect.any(Object),
+      expect.any(Object)
     );
     const scriptArg = mockExecFileNoThrow.mock.calls.at(-1)?.[1] as string[] | undefined;
     expect(scriptArg?.[1]).toContain('chat id');

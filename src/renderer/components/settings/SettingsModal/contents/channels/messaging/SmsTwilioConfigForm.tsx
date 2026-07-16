@@ -47,7 +47,11 @@ interface SmsTwilioConfigFormProps {
   onStatusChange?: (status: IChannelPluginStatus | null) => void;
 }
 
-const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus, modelSelection, onStatusChange: _onStatusChange }) => {
+const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({
+  pluginStatus,
+  modelSelection,
+  onStatusChange: _onStatusChange,
+}) => {
   const { t } = useTranslation();
 
   const [accountSid, setAccountSid] = useState('');
@@ -66,10 +70,7 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
   // placeholder - Twilio Console rejects the URL on save and the operator
   // gets a confusing error after pasting `(configure tunnel in Phase 4)`.
   const TUNNEL_PLACEHOLDER = '(configure tunnel in Phase 4)';
-  const rawTunnelHost = t(
-    'settings.channels.smsTwilio.webhookUrl.tunnelPlaceholder',
-    TUNNEL_PLACEHOLDER
-  );
+  const rawTunnelHost = t('settings.channels.smsTwilio.webhookUrl.tunnelPlaceholder', TUNNEL_PLACEHOLDER);
   const tunnelConfigured = rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
 
   const webhookUrl = useMemo(() => {
@@ -113,32 +114,22 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
 
   const handleTestAndEnable = useCallback(async () => {
     if (!accountSid.trim()) {
-      Message.error(
-        t('settings.channels.smsTwilio.credentials.accountSid.required', 'Account SID is required')
-      );
+      Message.error(t('settings.channels.smsTwilio.credentials.accountSid.required', 'Account SID is required'));
       return;
     }
     if (!authToken.trim()) {
-      Message.error(
-        t('settings.channels.smsTwilio.credentials.authToken.required', 'Auth Token is required')
-      );
+      Message.error(t('settings.channels.smsTwilio.credentials.authToken.required', 'Auth Token is required'));
       return;
     }
     if (!fromNumber.trim() && !messagingServiceSid.trim()) {
       Message.error(
-        t(
-          'settings.channels.smsTwilio.fromOrServiceRequired',
-          'A From Number or Messaging Service SID is required'
-        )
+        t('settings.channels.smsTwilio.fromOrServiceRequired', 'A From Number or Messaging Service SID is required')
       );
       return;
     }
     if (fromNumber.trim() && !E164_REGEX.test(fromNumber.trim())) {
       Message.error(
-        t(
-          'settings.channels.smsTwilio.credentials.fromNumber.invalid',
-          'Must be E.164 format, e.g. +14155550123'
-        )
+        t('settings.channels.smsTwilio.credentials.fromNumber.invalid', 'Must be E.164 format, e.g. +14155550123')
       );
       return;
     }
@@ -150,8 +141,7 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
       });
       if (!testResult.success) {
         Message.error(
-          testResult.msg ??
-            t('settings.channels.smsTwilio.connectionFailed', 'Twilio connection test failed')
+          testResult.msg ?? t('settings.channels.smsTwilio.connectionFailed', 'Twilio connection test failed')
         );
         return;
       }
@@ -162,19 +152,14 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
           accountSid: accountSid.trim(),
           authToken: authToken.trim(),
           ...(fromNumber.trim() ? { fromNumber: fromNumber.trim() } : {}),
-          ...(messagingServiceSid.trim()
-            ? { messagingServiceSid: messagingServiceSid.trim() }
-            : {}),
+          ...(messagingServiceSid.trim() ? { messagingServiceSid: messagingServiceSid.trim() } : {}),
         },
       });
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.smsTwilio.pluginEnabled', 'SMS (Twilio) channel enabled')
-        );
+        Message.success(t('settings.channels.smsTwilio.pluginEnabled', 'SMS (Twilio) channel enabled'));
       } else {
         Message.error(
-          enableResult.msg ??
-            t('settings.channels.smsTwilio.enableFailed', 'Failed to enable Twilio SMS plugin')
+          enableResult.msg ?? t('settings.channels.smsTwilio.enableFailed', 'Failed to enable Twilio SMS plugin')
         );
       }
     } catch (error: unknown) {
@@ -323,7 +308,6 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
         </Button>
       </div>
       <ChannelAgentModelSelector platform='sms-twilio' modelSelection={modelSelection} />
-
     </div>
   );
 };

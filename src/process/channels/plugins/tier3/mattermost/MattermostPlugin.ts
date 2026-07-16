@@ -105,13 +105,14 @@ async function assertSsrfAllowed(urlString: string, allowPrivate: boolean): Prom
       resolved = result.address;
     } catch (err) {
       throw new Error(
-        `Mattermost SSRF guard: DNS lookup failed for ${cleaned}: ${err instanceof Error ? err.message : String(err)}`, { cause: err },
+        `Mattermost SSRF guard: DNS lookup failed for ${cleaned}: ${err instanceof Error ? err.message : String(err)}`,
+        { cause: err }
       );
     }
   }
   if (isPrivateAddress(resolved)) {
     throw new Error(
-      `Mattermost SSRF guard: ${cleaned} resolved to private/loopback address ${resolved} (enable "I'm running Mattermost on my LAN" to allow)`,
+      `Mattermost SSRF guard: ${cleaned} resolved to private/loopback address ${resolved} (enable "I'm running Mattermost on my LAN" to allow)`
     );
   }
 }
@@ -225,11 +226,7 @@ export class MattermostPlugin extends BasePlugin {
     return lastId;
   }
 
-  async editMessage(
-    _chatId: string,
-    messageId: string,
-    message: IUnifiedOutgoingMessage,
-  ): Promise<void> {
+  async editMessage(_chatId: string, messageId: string, message: IUnifiedOutgoingMessage): Promise<void> {
     if (!this.creds) throw new Error('Mattermost client not initialized');
     const text = message.text ?? '';
     if (!text.trim()) return;
@@ -265,7 +262,7 @@ export class MattermostPlugin extends BasePlugin {
             seq: WS_AUTH_SEQ,
             action: 'authentication_challenge',
             data: { token: accessToken },
-          }),
+          })
         );
       };
 
@@ -275,9 +272,7 @@ export class MattermostPlugin extends BasePlugin {
         if (!evt) return;
 
         // The server echoes our auth challenge back with seq_reply=1, status=OK.
-        if (
-          (evt as { seq_reply?: number; status?: string }).seq_reply === WS_AUTH_SEQ
-        ) {
+        if ((evt as { seq_reply?: number; status?: string }).seq_reply === WS_AUTH_SEQ) {
           const status = (evt as { status?: string }).status;
           if (status === 'OK') {
             this.ws = ws;
@@ -306,9 +301,7 @@ export class MattermostPlugin extends BasePlugin {
           if (post) this.activeUsers.add(post.user_id ?? '');
           const unified = toUnifiedIncomingFromMattermost(evt, this.selfUserId);
           if (unified) {
-            void this.emitMessage(unified).catch((err) =>
-              console.error('[MattermostPlugin] emitMessage failed:', err),
-            );
+            void this.emitMessage(unified).catch((err) => console.error('[MattermostPlugin] emitMessage failed:', err));
           }
         }
       };
@@ -365,12 +358,11 @@ export class MattermostPlugin extends BasePlugin {
 
     // Audit gemini MED1 2026-05-18: jitter (0-1000ms) to avoid synchronized
     // WS reconnects during Mattermost server restarts.
-    const delay = Math.min(
-      RECONNECT_BACKOFF_START_MS * 2 ** (this.reconnectFailureCount - 1),
-      RECONNECT_BACKOFF_CAP_MS,
-    ) + Math.floor(Math.random() * 1000);
+    const delay =
+      Math.min(RECONNECT_BACKOFF_START_MS * 2 ** (this.reconnectFailureCount - 1), RECONNECT_BACKOFF_CAP_MS) +
+      Math.floor(Math.random() * 1000);
     console.warn(
-      `[MattermostPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`,
+      `[MattermostPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`
     );
     this.setError(`Mattermost WS disconnected; retrying in ${delay}ms`);
 
@@ -395,11 +387,7 @@ export class MattermostPlugin extends BasePlugin {
     return this.restFetch<T>('PUT', path, body);
   }
 
-  private async restFetch<T>(
-    method: string,
-    path: string,
-    body?: Record<string, unknown>,
-  ): Promise<T> {
+  private async restFetch<T>(method: string, path: string, body?: Record<string, unknown>): Promise<T> {
     if (!this.creds) throw new Error('Mattermost client not initialized');
     const url = this.creds.serverUrl + path;
     await assertSsrfAllowed(url, this.creds.allowPrivateNetwork);
@@ -442,7 +430,7 @@ export class MattermostPlugin extends BasePlugin {
    * mirrors the MatrixPlugin.testConnection multi-field pattern.
    */
   static override async testConnection(
-    tokenJson: string,
+    tokenJson: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let creds: { serverUrl?: string; accessToken?: string; allowPrivateNetwork?: boolean };
     try {

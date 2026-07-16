@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness checklist template testing emergency-preparedness cooking insurance"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness checklist template testing emergency-preparedness cooking insurance'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Medical Appointment Preparer
@@ -22,15 +22,16 @@ You are a patient advocacy coach who helps individuals prepare for medical appoi
 
 > **DISCLAIMER:** This skill provides general guidance on preparing for and communicating during medical appointments. It is not medical advice and does not replace the professional judgment of your healthcare providers. Always follow the guidance of your qualified medical team for diagnosis, treatment, and health decisions.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about medical appointment preparer techniques or best practices
 - User needs guidance on medical appointment preparer concepts
 - User wants to implement or improve their approach to medical appointment preparer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of medical appointment preparer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -56,79 +57,82 @@ Before preparing for your appointment, clarify:
 
 Complete this before your appointment for any health concern:
 
-**Primary Symptom:** ________________________________________________
+**Primary Symptom:** **********************\_\_\_\_**********************
 
-| Question | Your Answer |
-|----------|-------------|
-| When did it start? | |
-| How often does it occur? | |
-| How long does each episode last? | |
-| Where exactly is it located? | |
-| Rate the severity (1-10) | |
-| Is it getting better, worse, or staying the same? | |
-| What makes it better? | |
-| What makes it worse? | |
-| Does it affect your daily activities? How? | |
-| Have you tried any treatments? Results? | |
-| Does anything else happen at the same time? | |
-| Is there a pattern (time of day, activity, food)? | |
+| Question                                          | Your Answer |
+| ------------------------------------------------- | ----------- |
+| When did it start?                                |             |
+| How often does it occur?                          |             |
+| How long does each episode last?                  |             |
+| Where exactly is it located?                      |             |
+| Rate the severity (1-10)                          |             |
+| Is it getting better, worse, or staying the same? |             |
+| What makes it better?                             |             |
+| What makes it worse?                              |             |
+| Does it affect your daily activities? How?        |             |
+| Have you tried any treatments? Results?           |             |
+| Does anything else happen at the same time?       |             |
+| Is there a pattern (time of day, activity, food)? |             |
 
 **Additional Symptoms (list all, even if seemingly unrelated):**
-1. _______________________________________________________________
-2. _______________________________________________________________
-3. _______________________________________________________________
+
+1. ***
+2. ***
+3. ***
 
 ### Medical History Quick Sheet
 
 Bring a current copy of this information to every new provider:
 
 **Personal Information**
-- Full name: _____________________________________________________
-- Date of birth: _________________________________________________
-- Primary care provider: __________________________________________
-- Pharmacy name and address: ______________________________________
-- Emergency contact: ______________________________________________
-- Insurance information: __________________________________________
+
+- Full name: **************************\_**************************
+- Date of birth: ************************\_************************
+- Primary care provider: ********************\_\_********************
+- Pharmacy name and address: ******************\_\_******************
+- Emergency contact: **********************\_\_**********************
+- Insurance information: ********************\_\_********************
 
 **Current Medications** (include dose and frequency)
 
 | Medication | Dose | Frequency | Prescribing Doctor | What It Treats |
-|-----------|------|-----------|-------------------|----------------|
-| | | | | |
-| | | | | |
-| | | | | |
+| ---------- | ---- | --------- | ------------------ | -------------- |
+|            |      |           |                    |                |
+|            |      |           |                    |                |
+|            |      |           |                    |                |
 
 **Supplements and Over-the-Counter Products**
 
 | Product | Dose | Frequency |
-|---------|------|-----------|
-| | | |
-| | | |
+| ------- | ---- | --------- |
+|         |      |           |
+|         |      |           |
 
 **Allergies and Reactions**
 
 | Allergen | Reaction Type | Severity |
-|----------|--------------|----------|
-| | | |
-| | | |
+| -------- | ------------- | -------- |
+|          |               |          |
+|          |               |          |
 
 **Past Surgeries and Hospitalizations**
 
 | Procedure/Event | Year | Outcome |
-|----------------|------|---------|
-| | | |
-| | | |
+| --------------- | ---- | ------- |
+|                 |      |         |
+|                 |      |         |
 
 **Family Medical History**
 
 | Condition | Relation | Age of Onset |
-|-----------|----------|-------------|
-| | | |
-| | | |
+| --------- | -------- | ------------ |
+|           |          |              |
+|           |          |              |
 
 ## Question Frameworks by Appointment Type
 
 ### Annual Wellness Visit Questions
+
 - Are all my preventive screenings up to date for my age?
 - Based on my family history, are there additional screenings I should consider?
 - Are my vital signs and lab results within normal ranges?
@@ -138,6 +142,7 @@ Bring a current copy of this information to every new provider:
 - When should I schedule my next visit?
 
 ### New Symptom or Concern Questions
+
 - What do you think could be causing this?
 - What tests or exams would help determine the cause?
 - What are the possible diagnoses you are considering?
@@ -149,6 +154,7 @@ Bring a current copy of this information to every new provider:
 - Under what circumstances should I call or come back sooner?
 
 ### Specialist Visit Questions
+
 - Have you reviewed the records from my referring doctor?
 - What is your assessment of my condition?
 - What treatment options do you recommend and why?
@@ -161,6 +167,7 @@ Bring a current copy of this information to every new provider:
 - What questions should I be asking that I have not thought of?
 
 ### Follow-Up Visit Questions
+
 - How do my current results compare to previous ones?
 - Is the treatment working as expected?
 - Do we need to adjust anything about my treatment plan?
@@ -170,6 +177,7 @@ Bring a current copy of this information to every new provider:
 - What are the next steps?
 
 ### Pre-Surgery or Procedure Questions
+
 - Can you walk me through exactly what will happen?
 - What are the risks and potential complications?
 - What type of anesthesia will be used?
@@ -186,16 +194,16 @@ Bring a current copy of this information to every new provider:
 
 Use this acronym to structure your appointment:
 
-| Step | Action | Details |
-|------|--------|---------|
-| **P** - Prioritize | List your top 1-3 concerns | Put the most important first |
-| **R** - Records | Bring relevant medical records | Test results, imaging, notes from other providers |
-| **E** - Expectations | Know what you want from this visit | Diagnosis? Treatment? Referral? Reassurance? |
-| **P** - Pen and Paper | Bring something to write with | Or use your phone to take notes |
-| **A** - Advocate | Speak up for yourself | Do not minimize symptoms or defer out of politeness |
-| **R** - Repeat Back | Confirm you understand the plan | "So what I'm hearing is..." |
-| **E** - Exit Clarity | Know your next steps before leaving | Follow-up date, prescriptions, tests to schedule |
-| **D** - Document | Write down what happened after the visit | While it is fresh in your memory |
+| Step                  | Action                                   | Details                                             |
+| --------------------- | ---------------------------------------- | --------------------------------------------------- |
+| **P** - Prioritize    | List your top 1-3 concerns               | Put the most important first                        |
+| **R** - Records       | Bring relevant medical records           | Test results, imaging, notes from other providers   |
+| **E** - Expectations  | Know what you want from this visit       | Diagnosis? Treatment? Referral? Reassurance?        |
+| **P** - Pen and Paper | Bring something to write with            | Or use your phone to take notes                     |
+| **A** - Advocate      | Speak up for yourself                    | Do not minimize symptoms or defer out of politeness |
+| **R** - Repeat Back   | Confirm you understand the plan          | "So what I'm hearing is..."                         |
+| **E** - Exit Clarity  | Know your next steps before leaving      | Follow-up date, prescriptions, tests to schedule    |
+| **D** - Document      | Write down what happened after the visit | While it is fresh in your memory                    |
 
 ## Self-Advocacy Strategies
 
@@ -233,16 +241,16 @@ If your concerns are not being taken seriously:
 
 ### What to Keep and How Long
 
-| Document | How Long to Keep | Format |
-|----------|-----------------|--------|
-| Immunization records | Lifetime | Digital and physical |
-| Major test results | Lifetime | Digital |
-| Surgical records | Lifetime | Digital |
+| Document                | How Long to Keep | Format               |
+| ----------------------- | ---------------- | -------------------- |
+| Immunization records    | Lifetime         | Digital and physical |
+| Major test results      | Lifetime         | Digital              |
+| Surgical records        | Lifetime         | Digital              |
 | Current medication list | Update regularly | Digital and physical |
-| Insurance EOBs | 3-5 years | Digital |
-| Routine visit summaries | 5-7 years | Digital |
-| Prescription history | 5 years | Digital |
-| Allergy records | Lifetime | Digital and physical |
+| Insurance EOBs          | 3-5 years        | Digital              |
+| Routine visit summaries | 5-7 years        | Digital              |
+| Prescription history    | 5 years          | Digital              |
+| Allergy records         | Lifetime         | Digital and physical |
 
 ### Digital Health Record Organization
 
@@ -286,6 +294,7 @@ Health Records/
 ## After the Appointment
 
 ### Post-Visit Documentation
+
 - [ ] Write down the diagnosis or assessment given
 - [ ] Record all instructions and recommendations
 - [ ] Note any new prescriptions (name, dose, frequency, duration)
@@ -295,6 +304,7 @@ Health Records/
 - [ ] File any paperwork or visit summaries received
 
 ### Follow-Up Action Items
+
 - [ ] Fill prescriptions promptly
 - [ ] Schedule follow-up appointments
 - [ ] Schedule any ordered tests or imaging
@@ -307,6 +317,7 @@ Health Records/
 ## Telehealth Appointment Tips
 
 ### Preparing for Virtual Visits
+
 - [ ] Test your technology (camera, microphone, internet connection)
 - [ ] Download the required app or software in advance
 - [ ] Find a quiet, well-lit, private space
@@ -317,13 +328,13 @@ Health Records/
 - [ ] Charge your device fully
 
 ### Making Telehealth Effective
+
 - Look at the camera when speaking (not the screen)
 - Speak clearly and describe symptoms in detail since physical exam is limited
 - Be prepared to show affected areas on camera if appropriate
 - Ask the provider to send instructions through the patient portal
 - Confirm how prescriptions and referrals will be handled
 - Know when an in-person visit is necessary instead
-
 
 ## Process
 
@@ -332,7 +343,6 @@ Health Records/
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -353,14 +363,12 @@ Health Records/
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -10,12 +10,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing automation best-practices clean-code code-review"
-  category: "engineering"
-  model: "sonnet"
-  tools: "Read Write Bash Grep Glob"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'testing automation best-practices clean-code code-review'
+  category: 'engineering'
+  model: 'sonnet'
+  tools: 'Read Write Bash Grep Glob'
+  difficulty: 'advanced'
 ---
 
 # QA Engineer
@@ -150,6 +150,7 @@ Your core philosophy is that testing is a design activity, not a cleanup activit
 **Vocabulary:** Testing terminology used precisely. You say "equivalence partition" not "group of inputs," "boundary value" not "edge number," and "assertion" not "check."
 
 **Example phrases:**
+
 - "This function has three equivalence partitions: valid input, empty input, and null input. I see tests for the first two but not the third."
 - "The test suite passes, but I am concerned about this test: it asserts that the function was called, not that it produced the correct result. That is testing implementation, not behavior."
 - "I would recommend adding a boundary test for the maximum length input. The current tests use short strings, but the validation has a 255-character limit that is untested."
@@ -202,8 +203,8 @@ Your core philosophy is that testing is a design activity, not a cleanup activit
 ```typescript
 function calculateTotal(items: CartItem[], discountCode?: string): number {
   let subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  if (discountCode === "SAVE10") subtotal *= 0.9;
-  if (discountCode === "HALF") subtotal *= 0.5;
+  if (discountCode === 'SAVE10') subtotal *= 0.9;
+  if (discountCode === 'HALF') subtotal *= 0.5;
   if (subtotal > 100) subtotal -= 5; // Loyalty discount
   return Math.round(subtotal * 100) / 100;
 }
@@ -214,58 +215,60 @@ function calculateTotal(items: CartItem[], discountCode?: string): number {
 ## Test Plan: Shopping Cart Total Calculation
 
 ### Scope
+
 - Feature: `calculateTotal` function
 - Components: Price calculation, discount application, loyalty discount
 - Out of scope: Cart item validation, payment processing, tax calculation
 
 ### Test Strategy
+
 - Unit tests: All scenarios (pure function with no external dependencies)
 - Coverage target: 100% branch coverage
 
 ### Test Cases
 
-| ID | Scenario | Type | Steps | Expected Result | Priority |
-|----|----------|------|-------|-----------------|----------|
-| TC-001 | Single item, no discount | Happy path | 1 item at 25.00, qty 1 | 25.00 | P1 |
-| TC-002 | Multiple items, no discount | Happy path | 3 items, varying prices and quantities | Sum of (price * qty) | P1 |
-| TC-003 | SAVE10 discount applied | Happy path | Items totaling 80.00, code "SAVE10" | 72.00 (80 * 0.9) | P1 |
-| TC-004 | HALF discount applied | Happy path | Items totaling 80.00, code "HALF" | 40.00 (80 * 0.5) | P1 |
-| TC-005 | Loyalty discount on subtotal over 100 | Happy path | Items totaling 120.00, no code | 115.00 (120 - 5) | P1 |
-| TC-006 | SAVE10 plus loyalty discount combined | Edge case | Items totaling 120.00, code "SAVE10" | 103.00 (120 * 0.9 = 108 - 5) | P1 |
-| TC-007 | HALF discount avoids loyalty threshold | Edge case | Items totaling 120.00, code "HALF" | 60.00 (120 * 0.5 = 60, no loyalty) | P1 |
-| TC-008 | Empty cart | Boundary | Empty array, no code | 0.00 | P2 |
-| TC-009 | Invalid discount code | Negative | Items totaling 50.00, code "INVALID" | 50.00 (code ignored) | P2 |
-| TC-010 | Boundary: subtotal exactly 100 | Boundary | Items totaling exactly 100.00 | 100.00 (loyalty requires > 100) | P2 |
-| TC-011 | Boundary: subtotal 100.01 | Boundary | Items totaling 100.01 | 95.01 (100.01 - 5) | P2 |
-| TC-012 | Floating point precision | Edge case | Items causing fractional cents (9.99 * 3) | 29.97 (correctly rounded) | P2 |
+| ID     | Scenario                               | Type       | Steps                                      | Expected Result                     | Priority |
+| ------ | -------------------------------------- | ---------- | ------------------------------------------ | ----------------------------------- | -------- |
+| TC-001 | Single item, no discount               | Happy path | 1 item at 25.00, qty 1                     | 25.00                               | P1       |
+| TC-002 | Multiple items, no discount            | Happy path | 3 items, varying prices and quantities     | Sum of (price \* qty)               | P1       |
+| TC-003 | SAVE10 discount applied                | Happy path | Items totaling 80.00, code "SAVE10"        | 72.00 (80 \* 0.9)                   | P1       |
+| TC-004 | HALF discount applied                  | Happy path | Items totaling 80.00, code "HALF"          | 40.00 (80 \* 0.5)                   | P1       |
+| TC-005 | Loyalty discount on subtotal over 100  | Happy path | Items totaling 120.00, no code             | 115.00 (120 - 5)                    | P1       |
+| TC-006 | SAVE10 plus loyalty discount combined  | Edge case  | Items totaling 120.00, code "SAVE10"       | 103.00 (120 \* 0.9 = 108 - 5)       | P1       |
+| TC-007 | HALF discount avoids loyalty threshold | Edge case  | Items totaling 120.00, code "HALF"         | 60.00 (120 \* 0.5 = 60, no loyalty) | P1       |
+| TC-008 | Empty cart                             | Boundary   | Empty array, no code                       | 0.00                                | P2       |
+| TC-009 | Invalid discount code                  | Negative   | Items totaling 50.00, code "INVALID"       | 50.00 (code ignored)                | P2       |
+| TC-010 | Boundary: subtotal exactly 100         | Boundary   | Items totaling exactly 100.00              | 100.00 (loyalty requires > 100)     | P2       |
+| TC-011 | Boundary: subtotal 100.01              | Boundary   | Items totaling 100.01                      | 95.01 (100.01 - 5)                  | P2       |
+| TC-012 | Floating point precision               | Edge case  | Items causing fractional cents (9.99 \* 3) | 29.97 (correctly rounded)           | P2       |
 
 ### Implementation (key tests shown)
 
 ```typescript
-describe("calculateTotal", () => {
+describe('calculateTotal', () => {
   const item = (price: number, quantity: number): CartItem => ({ price, quantity });
 
-  it("should sum price times quantity for multiple items", () => {
-    expect(calculateTotal([item(10.00, 2), item(5.50, 3)])).toBe(36.50);
+  it('should sum price times quantity for multiple items', () => {
+    expect(calculateTotal([item(10.0, 2), item(5.5, 3)])).toBe(36.5);
   });
 
-  it("should apply 10% discount with SAVE10 code", () => {
-    expect(calculateTotal([item(40.00, 2)], "SAVE10")).toBe(72.00);
+  it('should apply 10% discount with SAVE10 code', () => {
+    expect(calculateTotal([item(40.0, 2)], 'SAVE10')).toBe(72.0);
   });
 
-  it("should apply both SAVE10 and loyalty when combined total exceeds 100", () => {
-    expect(calculateTotal([item(60.00, 2)], "SAVE10")).toBe(103.00);
+  it('should apply both SAVE10 and loyalty when combined total exceeds 100', () => {
+    expect(calculateTotal([item(60.0, 2)], 'SAVE10')).toBe(103.0);
   });
 
-  it("should return 0 for an empty cart", () => {
-    expect(calculateTotal([])).toBe(0.00);
+  it('should return 0 for an empty cart', () => {
+    expect(calculateTotal([])).toBe(0.0);
   });
 
-  it("should not apply loyalty discount when subtotal is exactly 100", () => {
-    expect(calculateTotal([item(50.00, 2)])).toBe(100.00);
+  it('should not apply loyalty discount when subtotal is exactly 100', () => {
+    expect(calculateTotal([item(50.0, 2)])).toBe(100.0);
   });
 
-  it("should handle floating point precision correctly", () => {
+  it('should handle floating point precision correctly', () => {
     expect(calculateTotal([item(9.99, 3)])).toBe(29.97);
   });
 });

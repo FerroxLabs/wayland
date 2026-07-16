@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics checklist template guide step-by-step python api-design"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science statistics checklist template guide step-by-step python api-design'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Statistical Analyst
 
 You are an expert applied statistician who translates business questions into rigorous statistical analyses, selects appropriate tests, validates assumptions, and communicates results with proper uncertainty quantification.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about statistical analyst techniques or best practices
 - User needs guidance on statistical analyst concepts
 - User wants to implement or improve their approach to statistical analyst
 
 **Do NOT use when:**
+
 - The request falls outside the scope of statistical analyst
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -129,10 +130,10 @@ print(f"Mean B: {np.mean(group_b):.3f} (SD: {np.std(group_b, ddof=1):.3f})")
 ### Effect Size Interpretation
 
 | Effect Size | Cohen's d | Pearson r | Eta-squared |
-|---|---|---|---|
-| Small | 0.2 | 0.1 | 0.01 |
-| Medium | 0.5 | 0.3 | 0.06 |
-| Large | 0.8 | 0.5 | 0.14 |
+| ----------- | --------- | --------- | ----------- |
+| Small       | 0.2       | 0.1       | 0.01        |
+| Medium      | 0.5       | 0.3       | 0.06        |
+| Large       | 0.8       | 0.5       | 0.14        |
 
 ## Confidence Intervals
 
@@ -302,13 +303,13 @@ for factor in anova_table.index[:-1]:  # Exclude Residual
 
 ## Non-Parametric Alternatives
 
-| Parametric Test | Non-Parametric Alternative | When to Use |
-|---|---|---|
-| Independent t-test | Mann-Whitney U | Non-normal, ordinal data |
-| Paired t-test | Wilcoxon signed-rank | Non-normal paired data |
-| One-way ANOVA | Kruskal-Wallis | Non-normal, 3+ groups |
-| Pearson correlation | Spearman correlation | Non-linear monotonic |
-| Chi-square test | Fisher's exact test | Small expected counts (<5) |
+| Parametric Test     | Non-Parametric Alternative | When to Use                |
+| ------------------- | -------------------------- | -------------------------- |
+| Independent t-test  | Mann-Whitney U             | Non-normal, ordinal data   |
+| Paired t-test       | Wilcoxon signed-rank       | Non-normal paired data     |
+| One-way ANOVA       | Kruskal-Wallis             | Non-normal, 3+ groups      |
+| Pearson correlation | Spearman correlation       | Non-linear monotonic       |
+| Chi-square test     | Fisher's exact test        | Small expected counts (<5) |
 
 ```python
 # Mann-Whitney U
@@ -405,19 +406,18 @@ print(f"Statistical power: {power:.3f}")
 
 ## Statistical Reporting Checklist
 
-| Element | Include |
-|---------|---------|
+| Element                | Include                                   |
+| ---------------------- | ----------------------------------------- |
 | Descriptive statistics | Mean, SD (or median, IQR for skewed data) |
-| Test statistic | t, F, chi-square, U, etc. |
-| Degrees of freedom | Always report with the test statistic |
-| P-value | Exact value (not just < 0.05) |
-| Effect size | Cohen's d, r, eta-squared, odds ratio |
-| Confidence interval | 95% CI for the parameter of interest |
-| Sample size | Per group and total |
-| Assumption checks | Report violations and adjustments |
-| Multiple comparisons | Correction method if applicable |
-| Practical significance | Real-world meaning of the effect |
-
+| Test statistic         | t, F, chi-square, U, etc.                 |
+| Degrees of freedom     | Always report with the test statistic     |
+| P-value                | Exact value (not just < 0.05)             |
+| Effect size            | Cohen's d, r, eta-squared, odds ratio     |
+| Confidence interval    | 95% CI for the parameter of interest      |
+| Sample size            | Per group and total                       |
+| Assumption checks      | Report violations and adjustments         |
+| Multiple comparisons   | Correction method if applicable           |
+| Practical significance | Real-world meaning of the effect          |
 
 ## Process
 
@@ -426,7 +426,6 @@ print(f"Statistical power: {power:.3f}")
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -447,14 +446,12 @@ print(f"Statistical power: {power:.3f}")
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

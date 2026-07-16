@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "language-learning study-skills step-by-step guide"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'language-learning study-skills step-by-step guide'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Translation Practice
 
 ## When to Use
@@ -324,6 +325,7 @@ This includes low-resource languages such as Welsh, Swahili, Faroese, Quechua, o
 ### Exercise 1: Journalistic Reporting -- Past Tense Narration
 
 **Source Text (Spanish):**
+
 > El alcalde anunció ayer que el ayuntamiento destinará tres millones de euros a la reforma de los parques municipales. La medida, que fue apoyada por la mayoría del pleno, entrará en vigor a principios del próximo año.
 
 **Vocabulary Support:**
@@ -348,15 +350,18 @@ _(Write your English translation now before reading the model.)_
 ---
 
 **Model Translation (English):**
+
 > The mayor announced yesterday that the city will allocate three million euros to renovating municipal parks. The measure, which won majority support on the city council, is set to take effect at the beginning of next year.
 
 **Translation Decision Log:**
+
 1. "destinará" → "will allocate" not "will destine" -- "destine" does not collocate with money in English; "allocate" or "earmark" are the natural journalistic verbs for budget decisions
 2. "fue apoyada por la mayoría del pleno" → "won majority support on the city council" -- the passive relative clause was converted to an active construction; English newspaper prose strongly prefers active voice, and this restructuring also removes the slightly awkward "majority of the plenary"
 3. "entrará en vigor" → "is set to take effect" -- Spanish journalism uses simple future; English journalism more commonly uses "is set to + infinitive" for announced future events, which signals official announcement rather than mere prediction
 4. "a principios del próximo año" → "at the beginning of next year" -- literal translation works here; "early next year" is a slightly more natural alternative in English press but changes the precision slightly
 
 **Alternative Valid Translations:**
+
 - "The city has earmarked three million euros for park renovations" -- tightens the sentence and uses "earmarked," a common English budget verb, but loses the attribution to the mayor
 - "is expected to take effect" instead of "is set to take effect" -- slightly softer register, more appropriate if the measure is not fully confirmed; here it is confirmed, so "is set to" is marginally better
 
@@ -372,6 +377,7 @@ _(Write your English translation now before reading the model.)_
 ### Exercise 2: Journalistic Reporting -- Quote Integration and Attribution (No Vocabulary Support)
 
 **Source Text (Spanish):**
+
 > "Llevamos años esperando esta inversión", declaró una vecina del barrio de Salamanca. "Los parques están en muy mal estado y los niños no tienen dónde jugar." Las obras comenzarán, según fuentes municipales, en el mes de abril.
 
 **Structural Note:**
@@ -387,15 +393,18 @@ _(Attempt before reading the model.)_
 ---
 
 **Model Translation (English):**
+
 > "We have been waiting years for this investment," said a resident of the Salamanca neighborhood. "The parks are in very poor condition and children have nowhere to play." According to municipal sources, construction will begin in April.
 
 **Translation Decision Log:**
+
 1. "Llevamos años esperando" → "We have been waiting years" -- this is the Spanish "llevar + gerund" construction expressing duration up to the present moment; English uses present perfect continuous ("have been waiting") to capture this meaning; "We carry years waiting" is a calque error to avoid
 2. "declaró una vecina" → "said a resident" -- "declaró" technically means "declared" but in Spanish journalistic attribution it functions as a neutral verb equivalent to "said"; "declared" in English carries a stronger, more formal connotation and would misrepresent the register of the original
 3. "muy mal estado" → "very poor condition" -- "very bad state" is technically correct but "poor condition" is the standard English collocation for describing infrastructure deterioration
 4. "fuentes municipales" → "municipal sources" -- this is the standard equivalent; "city hall sources" is an acceptable alternative; "municipal fountain" is a catastrophic false cognate error that appears occasionally
 
 **Alternative Valid Translations:**
+
 - "city sources" instead of "municipal sources" -- slightly more conversational, acceptable in tabloid-register English press
 - "The parks are in a terrible state" instead of "very poor condition" -- higher register equivalence if the original speaker was being emphatic; "very bad state" is grammatical but not idiomatic
 
@@ -411,6 +420,7 @@ _(Attempt before reading the model.)_
 ### Error Analysis (Learner Attempt -- Example)
 
 **Learner's Translation (Exercise 1):**
+
 > The mayor announced yesterday that the city hall will destine three million euros to the reform of the municipal parks. The measure, which was supported by the majority of the plenary, will enter in vigor at the beginning of the next year.
 
 **Error Analysis Table:**

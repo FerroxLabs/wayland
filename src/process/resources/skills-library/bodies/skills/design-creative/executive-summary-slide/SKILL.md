@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "presentation template analysis"
-  category: "design-creative"
-  subcategory: "presentation-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'presentation template analysis'
+  category: 'design-creative'
+  subcategory: 'presentation-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Executive Summary Slide
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the request is specifically about designing or writing a single executive summary slide -- the concentrated, single-frame artifact used to brief a senior audience on a situation and drive a decision.
 
 **Trigger scenarios:**
+
 - User needs to distill a complex project, initiative, or finding into a single slide for a C-suite or board audience
 - User has a recommendation to make and needs to structure the supporting argument in Situation-Insight-Recommendation form
 - User is presenting at an executive business review (EBR), monthly operating review (MOR), or quarterly business review (QBR) and needs the opening or closing summary slide
@@ -36,6 +38,7 @@ Use this skill when the request is specifically about designing or writing a sin
 - User has been asked to produce a "one-pager" or "exec brief" and wants it in slide rather than document form
 
 **Do NOT use when:**
+
 - User needs a full multi-slide presentation structure with section flow -- use `slide-deck-structure` instead
 - User is building a startup pitch deck for investors -- use `pitch-deck-structure` instead, which uses Problem-Solution-Traction-Ask rather than SIR framing
 - User needs to choose or design data visualizations for charts or graphs embedded in slides -- use `data-in-slides` for chart type selection
@@ -373,6 +376,7 @@ This is the most common structural failure in executive slide writing. It occurs
 ### Three-Panel Content
 
 #### Panel 1: Situation
+
 **One-sentence version (≤25 words):** Average ED wait time across the network has risen from 38 to 71 minutes over 18 months -- a 87% increase.
 **Supporting detail:** The network's 6 EDs processed 312,000 visits last year. Patient satisfaction scores (HCAHPS) for ED wait time have declined from the 61st to the 39th percentile nationally. Extended wait times are now a contributing factor in 3 active patient complaint escalations and two regulatory inquiries.
 **Primary metric:** 71 minutes -- current average ED wait time, network-wide (up from 38 min, 18 months ago)
@@ -381,6 +385,7 @@ This is the most common structural failure in executive slide writing. It occurs
 ---
 
 #### Panel 2: Insight
+
 **One-sentence version (≤25 words):** Boarding -- admitted patients waiting in the ED for inpatient beds -- accounts for 74% of excess wait time, and it is operationally solvable.
 **Supporting detail:** Analysis of 6 months of ED flow data identified that boarding patients occupy an average of 3.2 ED beds at any given time across the network. The root cause is not bed shortage but information latency: charge nurses cannot see real-time bed availability or predicted discharge times, causing manual coordination delays of 2-4 hours. Competing factors (staffing, acuity) account for the remaining 26% of wait time increase and are being addressed separately.
 **Primary metric:** 74% -- share of excess ED wait time attributable to boarding delays
@@ -389,6 +394,7 @@ This is the most common structural failure in executive slide writing. It occurs
 ---
 
 #### Panel 3: Recommendation
+
 **One-sentence version (≤25 words):** Deploy real-time bed management dashboards across all 6 hospitals by Q2 at a one-time cost of $220K, based on validated pilot results.
 **Supporting detail:** A 3-month pilot at St. Luke's (the network's highest-volume hospital) reduced boarding wait time from 4.1 hours to 1.8 hours -- a 56% reduction -- with no additional staffing. Network-wide deployment requires $220,000 in one-time implementation and training costs plus $30,000 annually for software maintenance. At the piloted impact rate, network-wide ED wait times are projected to fall from 71 minutes to approximately 48 minutes, returning the network to the 58th national HCAHPS percentile. This deployment does not require new headcount or changes to nursing staff ratios.
 **Primary metric:** 56% reduction in boarding wait time -- validated in 3-month, single-site pilot (4.1 hrs → 1.8 hrs)
@@ -398,11 +404,11 @@ This is the most common structural failure in executive slide writing. It occurs
 
 ### Three-Number Story Check
 
-| Panel | Metric | What It Proves |
-|-------|--------|----------------|
-| Situation | 71 minutes (up from 38) | The problem is large and growing -- an 87% deterioration in 18 months |
-| Insight | 74% of excess wait time from boarding | The problem has a primary, identifiable, addressable root cause |
-| Recommendation | 56% boarding reduction validated in pilot | The solution works at scale in our own operating environment |
+| Panel          | Metric                                    | What It Proves                                                        |
+| -------------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| Situation      | 71 minutes (up from 38)                   | The problem is large and growing -- an 87% deterioration in 18 months |
+| Insight        | 74% of excess wait time from boarding     | The problem has a primary, identifiable, addressable root cause       |
+| Recommendation | 56% boarding reduction validated in pilot | The solution works at scale in our own operating environment          |
 
 **Coherence note:** The audience can follow the logic in one pass: wait times nearly doubled, 74% of the increase traces to boarding, and the pilot showed a 56% boarding reduction -- the math strongly supports approval without requiring the audience to perform any mental calculations.
 
@@ -423,20 +429,20 @@ This is the most common structural failure in executive slide writing. It occurs
 
 ### Layout Specification
 
-| Element | Specification |
-|---------|--------------|
-| Panel structure | 3 columns (approval slide, horizontal scan) |
-| Slide headline | Top of slide, full width, left-aligned, 28pt bold |
-| Panel headers | 22pt bold, color-coded per color scheme below |
-| One-sentence versions | 16pt bold, immediately below panel header |
-| Body text | 14pt, regular weight, left-aligned |
-| Primary metric callout | 32pt bold, centered in panel, displayed above body text |
-| Decision prompt | Bottom of slide, full-width blue bar, 16pt bold, white text |
-| Situation panel color | Neutral slate header (#64748B) |
-| Insight panel color | Amber header (#D97706) |
-| Recommendation panel color | Action green header (#059669) |
-| White space budget | Minimum 25% of each panel area -- cut body text before cutting white space |
-| Confidentiality label | Top-right corner, 10pt: "Confidential -- Internal Leadership Only" |
+| Element                    | Specification                                                              |
+| -------------------------- | -------------------------------------------------------------------------- |
+| Panel structure            | 3 columns (approval slide, horizontal scan)                                |
+| Slide headline             | Top of slide, full width, left-aligned, 28pt bold                          |
+| Panel headers              | 22pt bold, color-coded per color scheme below                              |
+| One-sentence versions      | 16pt bold, immediately below panel header                                  |
+| Body text                  | 14pt, regular weight, left-aligned                                         |
+| Primary metric callout     | 32pt bold, centered in panel, displayed above body text                    |
+| Decision prompt            | Bottom of slide, full-width blue bar, 16pt bold, white text                |
+| Situation panel color      | Neutral slate header (#64748B)                                             |
+| Insight panel color        | Amber header (#D97706)                                                     |
+| Recommendation panel color | Action green header (#059669)                                              |
+| White space budget         | Minimum 25% of each panel area -- cut body text before cutting white space |
+| Confidentiality label      | Top-right corner, 10pt: "Confidential -- Internal Leadership Only"         |
 
 ---
 

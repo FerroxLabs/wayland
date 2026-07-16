@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning guide"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy planning guide'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Board Governance
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to structure or improve nonprofit board governance, roles, and fiduciary duties
 - The user wants help with board meeting facilitation, committee structures, or succession planning
 - The user is recruiting, evaluating, or onboarding new board members
 - The user needs guidance on board policies, conflict of interest procedures, or governance best practices
 
 **Do NOT use this skill when:**
+
 - The user is starting a nonprofit from scratch (use nonprofit-starter instead)
 - The user needs corporate board governance for a for-profit company
 - The user wants fundraising strategy rather than board oversight (use fundraising-strategist instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on board governance
 - User asks about board governance best practices or techniques
 - User wants a structured approach to board governance
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of board governance
 
@@ -68,6 +72,7 @@ Before advising on board governance:
 ## Board Roles and Responsibilities
 
 ### The Board's Core Functions
+
 1. **Set strategic direction**: Approve mission, vision, strategic plan
 2. **Hire, support, and evaluate the ED/CEO**: The board's single most important employee decision
 3. **Ensure financial health**: Approve budget, monitor finances, ensure adequate resources
@@ -76,6 +81,7 @@ Before advising on board governance:
 6. **Fundraise**: Give personally and help raise funds
 
 ### What the Board Does NOT Do
+
 - Manage day-to-day operations (that is staff's job)
 - Supervise employees other than the ED/CEO
 - Make unilateral decisions outside of board meetings
@@ -85,6 +91,7 @@ Before advising on board governance:
 ### Officer Roles
 
 **Board Chair / President**
+
 - Presides over board meetings
 - Sets agenda in consultation with ED
 - Serves as primary liaison between board and ED
@@ -93,12 +100,14 @@ Before advising on board governance:
 - Manages board member performance issues
 
 **Vice Chair / Vice President**
+
 - Presides in Chair's absence
 - Often chairs a major committee
 - Typically the Chair-elect (succession pipeline)
 - Takes on special projects as assigned
 
 **Secretary**
+
 - Ensures accurate meeting minutes are recorded
 - Maintains official records (articles, bylaws, policies, minutes)
 - Manages correspondence on behalf of the board
@@ -106,6 +115,7 @@ Before advising on board governance:
 - Maintains board member contact information
 
 **Treasurer**
+
 - Oversees financial reporting to the board
 - Chairs Finance Committee
 - Ensures proper financial controls exist
@@ -114,6 +124,7 @@ Before advising on board governance:
 - Oversees audit or financial review process
 
 ### Individual Board Member Responsibilities
+
 - Attend meetings regularly (set minimum attendance policy, e.g., 75%)
 - Prepare for meetings by reading materials in advance
 - Participate actively in discussions and decisions
@@ -128,6 +139,7 @@ Before advising on board governance:
 ## Meeting Facilitation
 
 ### Meeting Preparation
+
 1. **Set the agenda**: Chair and ED collaborate, 1-2 weeks before meeting
 2. **Distribute board packet**: Agenda, minutes, financial statements, committee reports, action items - at least 5 days before meeting
 3. **Include consent agenda**: Routine items (minutes approval, standard reports) bundled for single vote
@@ -135,6 +147,7 @@ Before advising on board governance:
 5. **Assign time blocks**: Keep meetings to 90-120 minutes maximum
 
 ### Sample Board Meeting Agenda
+
 ```
 1. Call to Order and Welcome (5 min)
 2. Consent Agenda (5 min)
@@ -153,9 +166,11 @@ Before advising on board governance:
 ```
 
 ### Robert's Rules of Order (Simplified)
+
 Most nonprofit boards use simplified Robert's Rules:
 
 **Making a Decision**:
+
 1. A member makes a motion: "I move that we approve the 2027 budget as presented."
 2. Another member seconds the motion: "I second."
 3. Chair opens discussion: "Is there discussion on the motion?"
@@ -164,6 +179,7 @@ Most nonprofit boards use simplified Robert's Rules:
 6. Chair announces result: "The motion carries / fails."
 
 **Key Parliamentary Terms**:
+
 - **Quorum**: Minimum number of members needed to conduct business (defined in bylaws, typically majority)
 - **Motion**: Formal proposal for board action
 - **Second**: Another member supporting the motion (brings it to discussion)
@@ -172,6 +188,7 @@ Most nonprofit boards use simplified Robert's Rules:
 - **Call the question**: Request to end discussion and vote immediately
 
 ### Virtual Meeting Best Practices
+
 - Use video when possible (camera on builds connection)
 - Mute when not speaking
 - Use chat for procedural comments (seconds, quick clarifications)
@@ -181,6 +198,7 @@ Most nonprofit boards use simplified Robert's Rules:
 - Check state law on virtual meeting requirements
 
 ### Executive Session
+
 - Portion of meeting without staff present
 - Used for: ED evaluation, compensation, legal matters, personnel issues
 - Minutes should be kept (by Secretary) but may be sealed/confidential
@@ -190,6 +208,7 @@ Most nonprofit boards use simplified Robert's Rules:
 ## Fiduciary Duties
 
 ### Duty of Care
+
 - Exercise the same care a reasonably prudent person would in managing their own affairs
 - Attend meetings and stay informed
 - Read financial statements and ask questions
@@ -197,6 +216,7 @@ Most nonprofit boards use simplified Robert's Rules:
 - If you do not understand something, ask before voting
 
 ### Duty of Loyalty
+
 - Put the organization's interests above personal interests
 - Disclose any conflicts of interest (financial or personal)
 - Recuse yourself from discussions and votes where you have a conflict
@@ -204,13 +224,16 @@ Most nonprofit boards use simplified Robert's Rules:
 - Maintain confidentiality of board deliberations
 
 ### Duty of Obedience
+
 - Ensure the organization follows its mission
 - Ensure compliance with laws, regulations, bylaws, and policies
 - Do not authorize activities outside the organization's mission
 - Ensure proper use of charitable funds (donor intent)
 
 ### Conflict of Interest Policy
+
 Every board should have a written conflict of interest policy that includes:
+
 1. Definition of conflict (financial interest, family relationships, business dealings)
 2. Annual disclosure requirement (board members complete disclosure form yearly)
 3. Procedure when conflict arises during a meeting
@@ -223,11 +246,13 @@ Every board should have a written conflict of interest policy that includes:
 ### Standing Committees
 
 **Executive Committee**
+
 - Officers + at most 1-2 additional members
 - Acts on behalf of full board between meetings (limited authority per bylaws)
 - Should not replace full board deliberation on major decisions
 
 **Finance Committee**
+
 - Reviews financial statements monthly
 - Develops annual budget recommendation
 - Monitors cash flow and reserves
@@ -235,6 +260,7 @@ Every board should have a written conflict of interest policy that includes:
 - Investment policy oversight
 
 **Governance / Nominating Committee**
+
 - Board recruitment and nomination
 - Board orientation and ongoing education
 - Annual board self-evaluation
@@ -242,6 +268,7 @@ Every board should have a written conflict of interest policy that includes:
 - Board composition analysis (skills, diversity, gaps)
 
 **Development / Fundraising Committee**
+
 - Supports fundraising strategy
 - Identifies prospective donors
 - Plans fundraising events
@@ -249,18 +276,21 @@ Every board should have a written conflict of interest policy that includes:
 - Thanks donors and stewarding relationships
 
 **Program Committee** (optional)
+
 - Reviews program effectiveness
 - Makes recommendations on program direction
 - Connects board to community needs
 - Not managing programs (that is staff's role)
 
 ### Ad Hoc Committees (Temporary)
+
 - Created for specific purposes: Strategic planning, ED search, capital campaign, special event
 - Defined scope and timeline
 - Disbanded when task is complete
 - Can include non-board members
 
 ### Committee Best Practices
+
 - Every committee has written terms of reference (purpose, authority, membership, meeting schedule)
 - Committee chairs report to the full board
 - Committees recommend, the board decides (committees do not have independent authority unless bylaws specify)
@@ -271,15 +301,17 @@ Every board should have a written conflict of interest policy that includes:
 ## Board Recruitment
 
 ### Board Matrix
+
 Create a grid mapping current board composition against needs:
 
-| Member | Finance | Legal | Marketing | Fundraising | Program Expertise | Community Connection | Diversity |
-|--------|---------|-------|-----------|-------------|-------------------|---------------------|-----------|
+| Member                      | Finance | Legal | Marketing | Fundraising | Program Expertise | Community Connection | Diversity |
+| --------------------------- | ------- | ----- | --------- | ----------- | ----------------- | -------------------- | --------- |
 | Current members mapped here |
 
 Identify gaps and recruit to fill them.
 
 ### Recruitment Process
+
 1. Governance committee identifies skill and diversity gaps
 2. Board members nominate potential candidates from their networks
 3. Staff can suggest candidates (community leaders, engaged volunteers)
@@ -292,6 +324,7 @@ Identify gaps and recruit to fill them.
 10. Formal orientation for new member
 
 ### What to Look For
+
 - Passion for the mission (not just resume building)
 - Willingness to give/get financially
 - Availability to attend meetings and participate
@@ -302,6 +335,7 @@ Identify gaps and recruit to fill them.
 - Willingness to learn (no board experience required if they bring other strengths)
 
 ### Orientation for New Board Members
+
 - Organization mission, history, and programs (with site visit)
 - Bylaws, policies, and board manual
 - Financial overview (current budget, financial position)
@@ -314,7 +348,9 @@ Identify gaps and recruit to fill them.
 ## Board Evaluation
 
 ### Annual Board Self-Assessment
+
 Survey all board members on:
+
 - Meeting effectiveness and preparation
 - Understanding of mission and strategy
 - Quality of financial oversight
@@ -325,12 +361,14 @@ Survey all board members on:
 - Individual member engagement
 
 ### Individual Member Assessment
+
 - Self-evaluation against expectations (attendance, giving, committee work)
 - Peer feedback (optional, handled sensitively)
 - Chair conversation with each member annually
 - Opportunity to address concerns and reset expectations
 
 ### Using Evaluation Results
+
 - Discuss aggregate results at a board meeting or retreat
 - Identify 2-3 areas for improvement
 - Create action plan with specific steps
@@ -340,11 +378,13 @@ Survey all board members on:
 ## Succession Planning
 
 ### ED/CEO Succession
+
 - **Emergency succession plan**: Who acts if the ED is suddenly unavailable? (Board should have this documented NOW)
 - **Planned succession**: 6-12 month process when ED departure is known
 - **Transition types**: Interim, internal promotion, external search
 
 ### ED Search Process
+
 1. Board forms search committee (3-5 members, may include non-board stakeholders)
 2. Hire search firm or conduct search internally
 3. Develop position profile based on organizational needs
@@ -357,6 +397,7 @@ Survey all board members on:
 10. Announce and plan transition
 
 ### Board Leadership Succession
+
 - Vice Chair should be prepared to step into Chair role
 - Governance committee maintains a pipeline of future officers
 - Staggered terms prevent entire board turning over at once
@@ -366,20 +407,24 @@ Survey all board members on:
 ## Common Governance Challenges
 
 ### Founder Syndrome
+
 - Founder treats organization as personal property
 - Board members are friends/family unable to provide oversight
 - Solution: Strengthen governance, diversify board, clearly define ED and board roles
 
 ### Disengaged Board
+
 - Members attend but do not participate or contribute
 - Solution: Clear expectations, annual evaluation, meaningful meeting discussions, term limits
 
 ### Micromanagement
+
 - Board members directing staff or programs
 - Solution: Define "noses in, fingers out" - board monitors but does not manage
 - Strong ED empowered by clear delegation of authority
 
 ### Board-ED Conflict
+
 - Disagreement about direction, authority, or performance
 - Solution: Clear role definitions, regular check-ins, annual ED evaluation, mediation if needed
 
@@ -401,7 +446,6 @@ Survey all board members on:
 - **CompassPoint**: Nonprofit management and governance training
 - **Blue Avocado**: Online magazine for nonprofit governance
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -414,13 +458,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with board governance for a mid-size project."
 
 **Output:** A complete board governance framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

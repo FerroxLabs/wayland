@@ -13,9 +13,9 @@ steps:
   - id: api-key
     title: (Optional) Paste a NewsAPI key
     estSeconds: 90
-    externalAction: { label: "Get a free NewsAPI key", url: "https://newsapi.org/register" }
+    externalAction: { label: 'Get a free NewsAPI key', url: 'https://newsapi.org/register' }
     inputs:
-      - { name: NEWSAPI_KEY, label: "NewsAPI key (optional)", secret: true }
+      - { name: NEWSAPI_KEY, label: 'NewsAPI key (optional)', secret: true }
     body: |
       Skip this step entirely if you only need Hacker News and RSS. NewsAPI
       adds search across ~80,000 mainstream news sources.

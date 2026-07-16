@@ -86,9 +86,7 @@ describe('GoogleChatPlugin.sendMessage', () => {
     } as Response);
 
     const plugin = await initPlugin();
-    await expect(
-      plugin.sendMessage('spaces/AAA', { type: 'text', text: 'Hi' }),
-    ).rejects.toThrow(/429/);
+    await expect(plugin.sendMessage('spaces/AAA', { type: 'text', text: 'Hi' })).rejects.toThrow(/429/);
   });
 
   it('throws when the response is missing a message name', async () => {
@@ -98,16 +96,14 @@ describe('GoogleChatPlugin.sendMessage', () => {
     } as Response);
 
     const plugin = await initPlugin();
-    await expect(
-      plugin.sendMessage('spaces/AAA', { type: 'text', text: 'Hi' }),
-    ).rejects.toThrow(/missing message name/i);
+    await expect(plugin.sendMessage('spaces/AAA', { type: 'text', text: 'Hi' })).rejects.toThrow(
+      /missing message name/i
+    );
   });
 
   it('throws when not initialized', async () => {
     const plugin = new GoogleChatPlugin();
-    await expect(
-      plugin.sendMessage('spaces/X', { type: 'text', text: 'Hi' }),
-    ).rejects.toThrow(/not initialized/i);
+    await expect(plugin.sendMessage('spaces/X', { type: 'text', text: 'Hi' })).rejects.toThrow(/not initialized/i);
   });
 });
 
@@ -131,11 +127,7 @@ describe('GoogleChatPlugin.editMessage', () => {
     } as Response);
 
     const plugin = await initPlugin();
-    await plugin.editMessage(
-      'spaces/AAA',
-      'spaces/AAA/messages/MSG-001',
-      { type: 'text', text: 'Updated text' },
-    );
+    await plugin.editMessage('spaces/AAA', 'spaces/AAA/messages/MSG-001', { type: 'text', text: 'Updated text' });
 
     const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
     expect(url).toContain('spaces/AAA/messages/MSG-001');
@@ -153,15 +145,15 @@ describe('GoogleChatPlugin.editMessage', () => {
 
     const plugin = await initPlugin();
     await expect(
-      plugin.editMessage('spaces/AAA', 'spaces/AAA/messages/GONE', { type: 'text', text: 'x' }),
+      plugin.editMessage('spaces/AAA', 'spaces/AAA/messages/GONE', { type: 'text', text: 'x' })
     ).rejects.toThrow(/404/);
   });
 
   it('throws when not initialized', async () => {
     const plugin = new GoogleChatPlugin();
-    await expect(
-      plugin.editMessage('spaces/X', 'spaces/X/messages/Y', { type: 'text', text: 'x' }),
-    ).rejects.toThrow(/not initialized/i);
+    await expect(plugin.editMessage('spaces/X', 'spaces/X/messages/Y', { type: 'text', text: 'x' })).rejects.toThrow(
+      /not initialized/i
+    );
   });
 });
 
@@ -180,7 +172,9 @@ describe('GoogleChatPlugin.handleWebhookPayload', () => {
   it('emits a unified message for a MESSAGE event', async () => {
     const plugin = await initPlugin();
     const emitted: IUnifiedIncomingMessage[] = [];
-    plugin.onMessage(async (msg) => { emitted.push(msg); });
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
 
     await plugin.handleWebhookPayload(
       {
@@ -191,7 +185,7 @@ describe('GoogleChatPlugin.handleWebhookPayload', () => {
         eventTime: '2026-05-18T00:00:00Z',
       },
       {},
-      'google-chat_default',
+      'google-chat_default'
     );
 
     expect(emitted).toHaveLength(1);
@@ -204,12 +198,14 @@ describe('GoogleChatPlugin.handleWebhookPayload', () => {
   it('drops ADDED_TO_SPACE events without emitting', async () => {
     const plugin = await initPlugin();
     const emitted: IUnifiedIncomingMessage[] = [];
-    plugin.onMessage(async (msg) => { emitted.push(msg); });
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
 
     await plugin.handleWebhookPayload(
       { type: 'ADDED_TO_SPACE', space: { name: 'spaces/X' } },
       {},
-      'google-chat_default',
+      'google-chat_default'
     );
 
     expect(emitted).toHaveLength(0);
@@ -218,12 +214,14 @@ describe('GoogleChatPlugin.handleWebhookPayload', () => {
   it('drops REMOVED_FROM_SPACE events without emitting', async () => {
     const plugin = await initPlugin();
     const emitted: IUnifiedIncomingMessage[] = [];
-    plugin.onMessage(async (msg) => { emitted.push(msg); });
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
 
     await plugin.handleWebhookPayload(
       { type: 'REMOVED_FROM_SPACE', space: { name: 'spaces/X' } },
       {},
-      'google-chat_default',
+      'google-chat_default'
     );
 
     expect(emitted).toHaveLength(0);
@@ -233,7 +231,9 @@ describe('GoogleChatPlugin.handleWebhookPayload', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const plugin = await initPlugin();
     const emitted: IUnifiedIncomingMessage[] = [];
-    plugin.onMessage(async (msg) => { emitted.push(msg); });
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
 
     await plugin.handleWebhookPayload(
       {
@@ -242,7 +242,7 @@ describe('GoogleChatPlugin.handleWebhookPayload', () => {
         message: { name: undefined, text: '', argumentText: '' },
       },
       {},
-      'google-chat_default',
+      'google-chat_default'
     );
 
     expect(emitted).toHaveLength(0);
@@ -260,8 +260,8 @@ describe('GoogleChatPlugin.handleWebhookPayload', () => {
           message: { name: 'spaces/X/messages/M2', text: 'hi' },
         },
         {},
-        'google-chat_default',
-      ),
+        'google-chat_default'
+      )
     ).resolves.toBeUndefined();
   });
 });

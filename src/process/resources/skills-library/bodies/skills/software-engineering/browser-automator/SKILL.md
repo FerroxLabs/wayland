@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting web-development"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation shell-scripting web-development'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Browser Automator
@@ -26,16 +26,16 @@ Browser automation programmatically controls a web browser to perform tasks that
 
 ### Playwright vs Puppeteer
 
-| Feature | Playwright | Puppeteer |
-|---------|-----------|-----------|
-| Languages | JS/TS, Python, Java, .NET | JS/TS only |
-| Browsers | Chromium, Firefox, WebKit | Chrome/Chromium (Firefox experimental) |
-| Auto-wait | Built-in for all actions | Manual waits needed |
-| Selectors | Role, text, CSS, XPath, test ID | CSS, XPath |
-| Network interception | Yes, full API | Yes |
-| Downloads/Uploads | First-class support | Supported |
-| Parallel execution | Browser contexts (lightweight) | Incognito pages |
-| Debugging | Trace viewer, codegen | DevTools Protocol |
+| Feature              | Playwright                      | Puppeteer                              |
+| -------------------- | ------------------------------- | -------------------------------------- |
+| Languages            | JS/TS, Python, Java, .NET       | JS/TS only                             |
+| Browsers             | Chromium, Firefox, WebKit       | Chrome/Chromium (Firefox experimental) |
+| Auto-wait            | Built-in for all actions        | Manual waits needed                    |
+| Selectors            | Role, text, CSS, XPath, test ID | CSS, XPath                             |
+| Network interception | Yes, full API                   | Yes                                    |
+| Downloads/Uploads    | First-class support             | Supported                              |
+| Parallel execution   | Browser contexts (lightweight)  | Incognito pages                        |
+| Debugging            | Trace viewer, codegen           | DevTools Protocol                      |
 
 **Recommendation:** Use Playwright for new projects. It has better auto-waiting, cross-browser support, and a richer API.
 
@@ -69,9 +69,7 @@ await page.locator('[data-type="premium"]');
 await page.locator('xpath=//div[@class="results"]//span[contains(text(), "Total")]');
 
 // Chaining locators
-await page.getByRole('listitem')
-    .filter({ hasText: 'Premium Plan' })
-    .getByRole('button', { name: 'Select' });
+await page.getByRole('listitem').filter({ hasText: 'Premium Plan' }).getByRole('button', { name: 'Select' });
 
 // nth element
 await page.getByRole('listitem').nth(2);
@@ -111,9 +109,7 @@ await page.waitForURL('**/dashboard');
 await page.waitForURL(/\/orders\/\d+/);
 
 // Wait for network response
-const responsePromise = page.waitForResponse(
-    resp => resp.url().includes('/api/data') && resp.status() === 200
-);
+const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/data') && resp.status() === 200);
 await page.getByRole('button', { name: 'Load' }).click();
 const response = await responsePromise;
 
@@ -121,9 +117,12 @@ const response = await responsePromise;
 await page.waitForLoadState('networkidle');
 
 // Wait for JavaScript condition
-await page.waitForFunction(() => {
+await page.waitForFunction(
+  () => {
     return document.querySelectorAll('.item').length >= 10;
-}, { timeout: 15000 });
+  },
+  { timeout: 15000 }
+);
 
 // Wait for custom event
 await page.waitForEvent('download');
@@ -135,36 +134,36 @@ await page.waitForEvent('popup');
 ```typescript
 // Mock API responses
 await page.route('**/api/users', async (route) => {
-    await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ users: [{ id: 1, name: 'Alice' }] }),
-    });
+  await route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ users: [{ id: 1, name: 'Alice' }] }),
+  });
 });
 
 // Modify requests
 await page.route('**/api/**', async (route) => {
-    const headers = { ...route.request().headers(), 'X-Custom-Header': 'test' };
-    await route.continue({ headers });
+  const headers = { ...route.request().headers(), 'X-Custom-Header': 'test' };
+  await route.continue({ headers });
 });
 
 // Block resources (speed up automation)
-await page.route('**/*.{png,jpg,jpeg,gif,svg,ico}', route => route.abort());
-await page.route('**/analytics/**', route => route.abort());
-await page.route('**/ads/**', route => route.abort());
+await page.route('**/*.{png,jpg,jpeg,gif,svg,ico}', (route) => route.abort());
+await page.route('**/analytics/**', (route) => route.abort());
+await page.route('**/ads/**', (route) => route.abort());
 
 // Capture and inspect responses
 const responses: Response[] = [];
 page.on('response', (response) => {
-    if (response.url().includes('/api/')) {
-        responses.push(response);
-    }
+  if (response.url().includes('/api/')) {
+    responses.push(response);
+  }
 });
 
 // Wait for specific API call
 const [response] = await Promise.all([
-    page.waitForResponse(resp => resp.url().includes('/api/search')),
-    page.getByRole('button', { name: 'Search' }).click(),
+  page.waitForResponse((resp) => resp.url().includes('/api/search')),
+  page.getByRole('button', { name: 'Search' }).click(),
 ]);
 const data = await response.json();
 ```
@@ -196,10 +195,7 @@ console.log(download.suggestedFilename());
 await page.getByLabel('Upload file').setInputFiles('/path/to/file.pdf');
 
 // Multiple files
-await page.getByLabel('Upload files').setInputFiles([
-    '/path/to/file1.pdf',
-    '/path/to/file2.pdf',
-]);
+await page.getByLabel('Upload files').setInputFiles(['/path/to/file1.pdf', '/path/to/file2.pdf']);
 
 // Clear file selection
 await page.getByLabel('Upload file').setInputFiles([]);
@@ -230,8 +226,8 @@ await newTab.goto('[reference URL]');
 
 // Switch between tabs
 const pages = context.pages();
-await pages[0].bringToFront();  // Switch to first tab
-await pages[1].bringToFront();  // Switch to second tab
+await pages[0].bringToFront(); // Switch to first tab
+await pages[1].bringToFront(); // Switch to second tab
 
 // Handle popup windows
 const popupPromise = page.waitForEvent('popup');
@@ -248,46 +244,46 @@ await popup.close();
 ```typescript
 // Save authenticated state
 async function authenticate(page: Page): Promise<void> {
-    await page.goto('[reference URL]');
-    await page.getByLabel('Email').fill('user@example.com');
-    await page.getByLabel('Password').fill('password');
-    await page.getByRole('button', { name: 'Sign In' }).click();
-    await page.waitForURL('**/dashboard');
+  await page.goto('[reference URL]');
+  await page.getByLabel('Email').fill('user@example.com');
+  await page.getByLabel('Password').fill('password');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.waitForURL('**/dashboard');
 
-    // Save state for reuse
-    await page.context().storageState({ path: '.auth/state.json' });
+  // Save state for reuse
+  await page.context().storageState({ path: '.auth/state.json' });
 }
 
 // Reuse authenticated state
 const context = await browser.newContext({
-    storageState: '.auth/state.json',
+  storageState: '.auth/state.json',
 });
 const page = await context.newPage();
-await page.goto('[reference URL]');  // Already logged in
+await page.goto('[reference URL]'); // Already logged in
 ```
 
 ### OAuth Flow
 
 ```typescript
 async function handleOAuth(page: Page): Promise<void> {
-    await page.goto('[reference URL]');
-    await page.getByRole('button', { name: 'Sign in with Google' }).click();
+  await page.goto('[reference URL]');
+  await page.getByRole('button', { name: 'Sign in with Google' }).click();
 
-    // Handle OAuth popup or redirect
-    if (await page.url().includes('accounts.google.com')) {
-        await page.getByLabel('Email').fill('user@gmail.com');
-        await page.getByRole('button', { name: 'Next' }).click();
-        await page.getByLabel('Password').fill('password');
-        await page.getByRole('button', { name: 'Next' }).click();
+  // Handle OAuth popup or redirect
+  if (await page.url().includes('accounts.google.com')) {
+    await page.getByLabel('Email').fill('user@gmail.com');
+    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByLabel('Password').fill('password');
+    await page.getByRole('button', { name: 'Next' }).click();
 
-        // Handle consent screen
-        const allowButton = page.getByRole('button', { name: 'Allow' });
-        if (await allowButton.isVisible()) {
-            await allowButton.click();
-        }
+    // Handle consent screen
+    const allowButton = page.getByRole('button', { name: 'Allow' });
+    if (await allowButton.isVisible()) {
+      await allowButton.click();
     }
+  }
 
-    await page.waitForURL('**/dashboard');
+  await page.waitForURL('**/dashboard');
 }
 ```
 
@@ -299,19 +295,19 @@ const browser = await chromium.launch({ headless: true });
 
 // Headed (for debugging)
 const browser = await chromium.launch({
-    headless: false,
-    slowMo: 100,  // Slow down actions by 100ms for visibility
+  headless: false,
+  slowMo: 100, // Slow down actions by 100ms for visibility
 });
 
 // Headless with viewport
 const context = await browser.newContext({
-    viewport: { width: 1920, height: 1080 },
-    deviceScaleFactor: 2,  // Retina display
-    userAgent: 'Custom User Agent',
-    locale: 'en-US',
-    timezoneId: 'America/New_York',
-    geolocation: { longitude: -73.935242, latitude: 40.730610 },
-    permissions: ['geolocation'],
+  viewport: { width: 1920, height: 1080 },
+  deviceScaleFactor: 2, // Retina display
+  userAgent: 'Custom User Agent',
+  locale: 'en-US',
+  timezoneId: 'America/New_York',
+  geolocation: { longitude: -73.935242, latitude: 40.73061 },
+  permissions: ['geolocation'],
 });
 ```
 
@@ -322,8 +318,8 @@ const context = await browser.newContext({
 ```typescript
 // Full page screenshot
 await page.screenshot({
-    path: 'fullpage.png',
-    fullPage: true,
+  path: 'fullpage.png',
+  fullPage: true,
 });
 
 // Element screenshot
@@ -332,22 +328,22 @@ await element.screenshot({ path: 'chart.png' });
 
 // Specific region
 await page.screenshot({
-    path: 'region.png',
-    clip: { x: 0, y: 0, width: 800, height: 600 },
+  path: 'region.png',
+  clip: { x: 0, y: 0, width: 800, height: 600 },
 });
 
 // High quality
 await page.screenshot({
-    path: 'hd.png',
-    type: 'png',
-    scale: 'device',  // Use device pixel ratio
+  path: 'hd.png',
+  type: 'png',
+  scale: 'device', // Use device pixel ratio
 });
 
 // JPEG with quality
 await page.screenshot({
-    path: 'photo.jpg',
-    type: 'jpeg',
-    quality: 90,
+  path: 'photo.jpg',
+  type: 'jpeg',
+  quality: 90,
 });
 
 // Buffer instead of file
@@ -359,13 +355,14 @@ const buffer = await page.screenshot({ type: 'png' });
 ```typescript
 // Generate PDF (Chromium only)
 await page.pdf({
-    path: 'document.pdf',
-    format: 'A4',
-    printBackground: true,
-    margin: { top: '1cm', right: '1cm', bottom: '1cm', left: '1cm' },
-    displayHeaderFooter: true,
-    headerTemplate: '<div style="font-size:10px; text-align:center; width:100%">Report</div>',
-    footerTemplate: '<div style="font-size:10px; text-align:center; width:100%">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>',
+  path: 'document.pdf',
+  format: 'A4',
+  printBackground: true,
+  margin: { top: '1cm', right: '1cm', bottom: '1cm', left: '1cm' },
+  displayHeaderFooter: true,
+  headerTemplate: '<div style="font-size:10px; text-align:center; width:100%">Report</div>',
+  footerTemplate:
+    '<div style="font-size:10px; text-align:center; width:100%">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>',
 });
 
 // PDF from HTML string
@@ -387,7 +384,7 @@ await page.pdf({ path: 'invoice.pdf', format: 'Letter' });
 name: Browser Automation
 on:
   schedule:
-    - cron: '0 6 * * *'  # Daily at 6 AM
+    - cron: '0 6 * * *' # Daily at 6 AM
 
 jobs:
   automate:
@@ -425,8 +422,8 @@ await context.tracing.stop({ path: 'trace.zip' });
 // View: npx playwright show-trace trace.zip
 
 // Console log forwarding
-page.on('console', msg => console.log(`BROWSER: ${msg.type()}: ${msg.text()}`));
-page.on('pageerror', error => console.error(`BROWSER ERROR: ${error.message}`));
+page.on('console', (msg) => console.log(`BROWSER: ${msg.type()}: ${msg.text()}`));
+page.on('pageerror', (error) => console.error(`BROWSER ERROR: ${error.message}`));
 
 // Codegen (generate code by interacting with browser)
 // npx playwright codegen [reference URL]
@@ -448,6 +445,7 @@ page.on('pageerror', error => console.error(`BROWSER ERROR: ${error.message}`));
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing browser automator solutions
 - Reviewing or improving existing browser automator approaches
 - Making architectural or implementation decisions about browser automator
@@ -455,6 +453,7 @@ page.on('pageerror', error => console.error(`BROWSER ERROR: ${error.message}`));
 - Troubleshooting browser automator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -465,21 +464,26 @@ page.on('pageerror', error => console.error(`BROWSER ERROR: ${error.message}`));
 # Browser Automator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

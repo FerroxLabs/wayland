@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research checklist guide analysis"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'research checklist guide analysis'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Outdoor Gear Selection Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to choose hiking boots, trail runners, or approach shoes for a specific terrain or activity type
 - User wants to understand how to build or optimize a layering system for a specific climate zone or season
 - User needs to select a backpack by volume, frame type, torso length, or load type
@@ -30,6 +32,7 @@ metadata:
 - User is transitioning between activity levels -- car camping to backpacking, day hiking to overnight, or occasional to frequent use
 
 **Do NOT use when:**
+
 - User asks for specific brand or product names -- provide category criteria, specifications, and selection frameworks only
 - User needs professional mountaineering, technical ice climbing, or glacial travel equipment (ropes, crampons, ice axes, harnesses, belay devices)
 - User asks about cycling-specific gear such as helmets, cycling shoes, or bike-mounted bags (use `cycling-route-planner`)
@@ -428,7 +431,7 @@ This transition requires the most targeted gear replacement advice. The weight t
 3. Shelter: car camping family tents are 8-20 lbs. A 2-person backpacking tent is 3-5 lbs. Replace in the first or second purchasing cycle.
 4. Pack: car camping duffels and coolers are not trail-compatible. A 50-55 liter internal frame pack with hip belt is the transition vehicle that makes everything else manageable.
 5. Cook system: large car camping stoves and full cooksets are too heavy. Transition to a canister-top stove (100-150g) and a 0.9-1 liter titanium or hard-anodized aluminum pot.
-Frame the transition as a 2-3 purchasing cycle project, not a single purchase. Do not recommend replacing everything simultaneously -- it creates sticker shock and causes buyers to over-compromise on quality.
+   Frame the transition as a 2-3 purchasing cycle project, not a single purchase. Do not recommend replacing everything simultaneously -- it creates sticker shock and causes buyers to over-compromise on quality.
 
 ### User buying gear for a child or fast-growing teenager
 
@@ -441,11 +444,12 @@ Standard 3-season layering rules are insufficient above 10,000 feet where temper
 ### User with a pre-existing injury or chronic condition affecting gear selection
 
 This is a common scenario that generic gear guides ignore. The most frequent presentations:
+
 - **Chronic knee pain or prior knee surgery:** Trekking poles are close to mandatory, not optional -- specify proper length and anti-shock feature if available. Footwear should prioritize cushioned midsole (not minimalist). Avoid downhill-heavy routes in early trips. Pack weight should stay well below 20% of body weight initially.
 - **Plantar fasciitis:** Recommend footwear with structured arch support and cushioned heel cup. Avoid zero-drop or minimal-stack footwear. Replace footwear at the lower end of the mileage range -- midsole compression is the primary issue.
 - **Wide feet or bunions:** Fit testing becomes even more critical. Request a wide-width (EE or 2E for men, D or EE for women) sizing option. Never force a narrow-last boot onto a wide foot -- the compression causes metatarsal stress fractures over time.
 - **Back problems:** Pack fit and hip belt load transfer are critical. A poor-fitting pack with 25 lbs transfers load to the lumbar spine rather than hips. Trekking poles reduce trunk rotational load during walking.
-Do not provide medical advice. Recommend consulting a sports medicine physician or certified pedorthist for footwear fitting if the condition is severe. Focus guidance on gear selection criteria that reduce mechanical stress.
+  Do not provide medical advice. Recommend consulting a sports medicine physician or certified pedorthist for footwear fitting if the condition is severe. Focus guidance on gear selection criteria that reduce mechanical stress.
 
 ---
 
@@ -458,8 +462,9 @@ Do not provide medical advice. Recommend consulting a sports medicine physician 
 ## Outdoor Gear Selection Guide
 
 ### Gear Profile
-| Parameter          | Value                                                         |
-|--------------------|---------------------------------------------------------------|
-| Primary activity   | Day hiking (initially), overnight backpacking (later season)  |
+
+| Parameter          | Value                                                                                                                                                                                                                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary activity   | Day hiking (initially), overnight backpacking (later season)                                                                                                                                                                                                                          |
 | Region and climate | Colorado Front Range and mountains -- elevation typically 6,000-14,000 ft depending on trail; daytime temps 40-75°F spring/fall; afternoon thunderstorms frequent May-September; UV index very high above 10,000 ft; possible snow on high trails through June and starting September |
-| Use frequency      | Regular (
+| Use frequency      | Regular (                                                                                                                                                                                                                                                                             |

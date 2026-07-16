@@ -30,17 +30,17 @@ Build a state-by-state nexus exposure report and multi-state filing checklist. H
 
 ## Wayfair economic nexus - the 2018 inflection
 
-Before *South Dakota v. Wayfair* (2018), states required **physical presence** before they could compel out-of-state sellers to collect sales tax. *Wayfair* upheld South Dakota's law imposing collection duty on remote sellers exceeding **$100,000 in sales OR 200 transactions** per year. **All states with sales tax now have economic nexus rules** (45 states + DC). **Specific thresholds, transaction-count tests, look-back periods, and registration triggers vary by state.**
+Before _South Dakota v. Wayfair_ (2018), states required **physical presence** before they could compel out-of-state sellers to collect sales tax. _Wayfair_ upheld South Dakota's law imposing collection duty on remote sellers exceeding **$100,000 in sales OR 200 transactions** per year. **All states with sales tax now have economic nexus rules** (45 states + DC). **Specific thresholds, transaction-count tests, look-back periods, and registration triggers vary by state.**
 
 ### Common state thresholds (verify against state tax authority - these change)
 
-| Tier | Examples | Threshold (re-verify) |
-|---|---|---|
-| Largest tier ($500K) | CA, NY, TX | $500,000 (no transaction count) |
-| $250K | KY, MD | $100K-$250K (varies) |
-| $100K + 200 transactions | Most states historically | $100K OR 200 transactions |
-| $100K only (200-tx test removed) | Many states have dropped the transaction count | $100K |
-| AK | Multiple municipalities; ARSSTC | Varies by city |
+| Tier                             | Examples                                       | Threshold (re-verify)           |
+| -------------------------------- | ---------------------------------------------- | ------------------------------- |
+| Largest tier ($500K)             | CA, NY, TX                                     | $500,000 (no transaction count) |
+| $250K                            | KY, MD                                         | $100K-$250K (varies)            |
+| $100K + 200 transactions         | Most states historically                       | $100K OR 200 transactions       |
+| $100K only (200-tx test removed) | Many states have dropped the transaction count | $100K                           |
+| AK                               | Multiple municipalities; ARSSTC                | Varies by city                  |
 
 > ⚠️ States have been **removing** the 200-transaction test over the past 3 years to reduce small-seller burden. Always verify current threshold for the state you're checking.
 
@@ -60,6 +60,7 @@ NOMAD: **N**ew Hampshire, **O**regon, **M**ontana, **A**laska, **D**elaware.
 Since 2018–2020, every state with sales tax has enacted Marketplace Facilitator laws requiring platforms (Amazon, Etsy, eBay, Walmart, Shopify-as-marketplace, etc.) to collect and remit sales tax on behalf of third-party sellers.
 
 **Implications for SMB sellers:**
+
 - Marketplace-collected sales tax is **NOT** the seller's tax obligation - but counts toward economic-nexus thresholds in many (not all) states.
 - **Direct sales** (own website / Shopify standalone / Faire / WooCommerce) are NOT covered by marketplace facilitator → seller still must register and remit if nexus.
 - Some states allow seller to **deduct** marketplace sales when calculating nexus; others **include** marketplace sales in threshold calculation. Verify per state.
@@ -67,15 +68,15 @@ Since 2018–2020, every state with sales tax has enacted Marketplace Facilitato
 
 ## Tax-on-shipping rules (varies wildly by state)
 
-| State | Shipping taxable? |
-|---|---|
-| CA | Generally not taxable if separately stated and actual cost; taxable if charged as a flat handling fee |
-| NY | Taxable if the underlying goods are taxable |
-| TX | Taxable if the underlying goods are taxable |
-| IL | Generally not taxable if separately stated and direct shipment to customer |
-| FL | Taxable if delivery is part of the sale; varies by contract |
-| Most states | Taxable if the goods are taxable; some exempt if separately stated |
-| AK | No statewide; depends on municipality |
+| State       | Shipping taxable?                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| CA          | Generally not taxable if separately stated and actual cost; taxable if charged as a flat handling fee |
+| NY          | Taxable if the underlying goods are taxable                                                           |
+| TX          | Taxable if the underlying goods are taxable                                                           |
+| IL          | Generally not taxable if separately stated and direct shipment to customer                            |
+| FL          | Taxable if delivery is part of the sale; varies by contract                                           |
+| Most states | Taxable if the goods are taxable; some exempt if separately stated                                    |
+| AK          | No statewide; depends on municipality                                                                 |
 
 Always re-verify per state and re-verify product taxability (SaaS, food, clothing, digital goods all vary).
 
@@ -84,6 +85,7 @@ Always re-verify per state and re-verify product taxability (SaaS, food, clothin
 When a buyer claims a sales-tax exemption (resale, manufacturer, nonprofit, government, agricultural), the seller must collect and retain a **valid exemption certificate** before zero-rating tax. Otherwise the seller is liable for the tax on audit.
 
 ### Best practices
+
 - Use **Streamlined Sales Tax (SSUTA) Multi-State Exemption Certificate** for participating states (24 SST states accept)
 - Otherwise use state-specific form (CA CDTFA-230, NY ST-120, TX 01-339, etc.)
 - Store certificate digitally with **expiration date** (some states require renewal annually; some are good "until revoked")

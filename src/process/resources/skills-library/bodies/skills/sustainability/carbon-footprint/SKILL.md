@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability energy-efficiency guide"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability energy-efficiency guide'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Carbon Footprint Tracker and Reducer
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about carbon footprint
 - User needs guidance on carbon footprint topics
 - User wants a structured approach to carbon footprint
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -47,21 +49,22 @@ metadata:
 ## Phase 1: Understanding Carbon Footprints
 
 ### What is a Carbon Footprint?
+
 Your carbon footprint is the total amount of greenhouse gases produced by your activities, measured in metric tons of CO2 equivalent (tCO2e) per year. CO2e accounts for the different warming potentials of various greenhouse gases by converting them to a CO2 equivalent.
 
 ### Average Carbon Footprints
 
-| Country | Average Per Capita (tCO2e/year) |
-|---------|--------------------------------|
-| United States | 14-16 |
-| Canada | 14-15 |
-| Australia | 15-17 |
-| European Union (average) | 6-8 |
-| United Kingdom | 5-7 |
-| China | 7-8 |
-| India | 1.5-2 |
-| Global average | approximately 4.5 |
-| Paris Agreement target (by 2030) | approximately 2.5 |
+| Country                          | Average Per Capita (tCO2e/year) |
+| -------------------------------- | ------------------------------- |
+| United States                    | 14-16                           |
+| Canada                           | 14-15                           |
+| Australia                        | 15-17                           |
+| European Union (average)         | 6-8                             |
+| United Kingdom                   | 5-7                             |
+| China                            | 7-8                             |
+| India                            | 1.5-2                           |
+| Global average                   | approximately 4.5               |
+| Paris Agreement target (by 2030) | approximately 2.5               |
 
 ### Where Your Carbon Footprint Comes From (US Average)
 
@@ -92,14 +95,14 @@ Bus travel produces approximately 0.00009 tCO2 per mile. Train travel produces a
 
 ### Diet Estimation
 
-| Diet Type | Approximate Annual Emissions |
-|-----------|----------------------------|
-| Heavy meat eater (daily beef) | 3.0-3.5 tCO2 |
-| Average omnivore | 2.0-2.5 tCO2 |
-| Low-meat omnivore | 1.5-2.0 tCO2 |
-| Pescatarian | 1.5-1.8 tCO2 |
-| Vegetarian | 1.2-1.5 tCO2 |
-| Vegan | 0.8-1.2 tCO2 |
+| Diet Type                     | Approximate Annual Emissions |
+| ----------------------------- | ---------------------------- |
+| Heavy meat eater (daily beef) | 3.0-3.5 tCO2                 |
+| Average omnivore              | 2.0-2.5 tCO2                 |
+| Low-meat omnivore             | 1.5-2.0 tCO2                 |
+| Pescatarian                   | 1.5-1.8 tCO2                 |
+| Vegetarian                    | 1.2-1.5 tCO2                 |
+| Vegan                         | 0.8-1.2 tCO2                 |
 
 ### Goods and Services Estimation
 
@@ -125,6 +128,7 @@ Comparison:
 ```
 
 ### Online Calculators
+
 For more detailed calculation, use EPA Carbon Footprint Calculator, CoolClimate Calculator (Berkeley), Carbon Footprint Calculator (carbonfootprint.com), or WWF Footprint Calculator.
 
 ---
@@ -133,16 +137,16 @@ For more detailed calculation, use EPA Carbon Footprint Calculator, CoolClimate 
 
 ### Highest Impact Actions
 
-| Action | Annual CO2 Savings | Difficulty | Cost Impact |
-|--------|-------------------|-----------|-------------|
-| Go car-free or single-car household | 2-5 tCO2 | High | Saves $5,000-$10,000/year |
-| Switch to electric vehicle | 1-3 tCO2 | Medium | Higher upfront, lower operating |
-| One fewer transatlantic flight | 1.5-3 tCO2 | Medium | Saves flight cost |
-| Switch to renewable electricity | 1-3 tCO2 | Low | May cost $5-$30/month more |
-| Plant-forward diet (reduce beef 75%) | 0.8-1.5 tCO2 | Medium | Often saves money |
-| Heat pump (replace gas/oil) | 1-3 tCO2 | Medium | $5,000-$15,000 investment |
-| Insulate and air-seal home | 0.5-2 tCO2 | Medium | Pays back in 2-5 years |
-| Buy less stuff (reduce consumption 30%) | 0.5-1.5 tCO2 | Medium | Saves significant money |
+| Action                                  | Annual CO2 Savings | Difficulty | Cost Impact                     |
+| --------------------------------------- | ------------------ | ---------- | ------------------------------- |
+| Go car-free or single-car household     | 2-5 tCO2           | High       | Saves $5,000-$10,000/year       |
+| Switch to electric vehicle              | 1-3 tCO2           | Medium     | Higher upfront, lower operating |
+| One fewer transatlantic flight          | 1.5-3 tCO2         | Medium     | Saves flight cost               |
+| Switch to renewable electricity         | 1-3 tCO2           | Low        | May cost $5-$30/month more      |
+| Plant-forward diet (reduce beef 75%)    | 0.8-1.5 tCO2       | Medium     | Often saves money               |
+| Heat pump (replace gas/oil)             | 1-3 tCO2           | Medium     | $5,000-$15,000 investment       |
+| Insulate and air-seal home              | 0.5-2 tCO2         | Medium     | Pays back in 2-5 years          |
+| Buy less stuff (reduce consumption 30%) | 0.5-1.5 tCO2       | Medium     | Saves significant money         |
 
 ### Transportation Reduction Strategies
 
@@ -167,6 +171,7 @@ Medium-cost actions: Add insulation, seal air leaks, install smart thermostat, s
 High-cost actions: Install solar panels, replace gas furnace with heat pump, replace gas water heater with heat pump water heater, electrify remaining gas appliances.
 
 ### Consumption Reduction Strategies
+
 Buy less overall, choose quality over quantity, buy secondhand when possible, repair instead of replacing, borrow or rent infrequently used items, avoid fast fashion, reduce single-use items, and choose products with minimal packaging.
 
 ---
@@ -208,19 +213,20 @@ COMPARISON TO LAST MONTH: change of _______
 
 ### Tracking Tools and Apps
 
-| Tool | Platform | Features |
-|------|----------|---------|
-| Joro | iOS/Android | Links to bank accounts, tracks spending-based emissions |
-| Capture | iOS/Android | Log activities, see impact, challenges |
-| Klima | iOS/Android | Track, reduce, offset |
-| North | iOS/Android | Community challenges, tracking |
-| Spreadsheet | Any | Custom tracking with templates |
+| Tool        | Platform    | Features                                                |
+| ----------- | ----------- | ------------------------------------------------------- |
+| Joro        | iOS/Android | Links to bank accounts, tracks spending-based emissions |
+| Capture     | iOS/Android | Log activities, see impact, challenges                  |
+| Klima       | iOS/Android | Track, reduce, offset                                   |
+| North       | iOS/Android | Community challenges, tracking                          |
+| Spreadsheet | Any         | Custom tracking with templates                          |
 
 ---
 
 ## Phase 5: Carbon Offsetting
 
 ### Understanding Offsets
+
 Carbon offsetting means paying for projects that reduce or remove CO2 elsewhere to compensate for your own emissions. Offsetting should supplement reduction, not replace it.
 
 The hierarchy is: First reduce your emissions as much as possible, then offset what remains.
@@ -231,18 +237,19 @@ High-quality offsets should be verified by a recognized standard (Gold Standard,
 
 ### Types of Offset Projects
 
-| Project Type | Confidence | Permanence | Co-Benefits |
-|-------------|-----------|-----------|------------|
-| Renewable energy (developing countries) | High | Ongoing | Energy access, jobs |
-| Methane capture (landfills, farms) | High | Ongoing | Air quality, energy |
-| Cookstove improvements | Medium-High | Ongoing | Health, deforestation reduction |
-| Reforestation | Medium | Medium (fire, logging risk) | Biodiversity, water |
-| Direct air capture | High | High | Scalable technology |
-| Avoided deforestation (REDD+) | Medium | Medium (political risk) | Biodiversity |
+| Project Type                            | Confidence  | Permanence                  | Co-Benefits                     |
+| --------------------------------------- | ----------- | --------------------------- | ------------------------------- |
+| Renewable energy (developing countries) | High        | Ongoing                     | Energy access, jobs             |
+| Methane capture (landfills, farms)      | High        | Ongoing                     | Air quality, energy             |
+| Cookstove improvements                  | Medium-High | Ongoing                     | Health, deforestation reduction |
+| Reforestation                           | Medium      | Medium (fire, logging risk) | Biodiversity, water             |
+| Direct air capture                      | High        | High                        | Scalable technology             |
+| Avoided deforestation (REDD+)           | Medium      | Medium (political risk)     | Biodiversity                    |
 
 Current offset prices range from $5-$50+ per tCO2, with higher-quality projects generally costing more. Direct air capture is most expensive ($100-$600+/tCO2) but most certain.
 
 ### Reputable Offset Providers
+
 Gold Standard, Climeworks (direct air capture), South Pole, 3Degrees, Terrapass, Wren, and Native Energy.
 
 ---
@@ -250,9 +257,11 @@ Gold Standard, Climeworks (direct air capture), South Pole, 3Degrees, Terrapass,
 ## Phase 6: Advocacy and Community Action
 
 ### Why Advocacy Matters
+
 Individual behavior change is important but limited. Systemic change through policy and corporate action has a multiplier effect far beyond what any individual can achieve alone.
 
 ### Individual Advocacy Actions
+
 - Contact elected officials about climate policy
 - Vote for candidates with strong climate platforms
 - Support climate-related ballot initiatives
@@ -260,6 +269,7 @@ Individual behavior change is important but limited. Systemic change through pol
 - Talk about climate with family and friends
 
 ### Community-Level Action
+
 - Community solar programs
 - Neighborhood composting programs
 - Local climate action groups
@@ -270,6 +280,7 @@ Individual behavior change is important but limited. Systemic change through pol
 - Local government sustainability boards
 
 ### Workplace Action
+
 - Advocate for remote work policies
 - Support office recycling and composting
 - Suggest renewable energy for office buildings
@@ -302,10 +313,10 @@ Quarterly check-in dates:
 ```
 
 ### Setting Realistic Goals
+
 Aim for 5-15% reduction per year as a starting point. Focus on the highest-impact category first. Track progress to stay motivated. Celebrate milestones. Share your journey to inspire others.
 
 Climate action is both individual and collective. The most effective approach combines personal emission reductions with advocacy for the systemic changes needed to address the climate crisis at scale. Start with what you can control, measure your progress, and use your voice to push for broader change.
-
 
 ## Output Format
 

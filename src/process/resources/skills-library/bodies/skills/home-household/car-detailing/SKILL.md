@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automotive home-maintenance step-by-step"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automotive home-maintenance step-by-step'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Car Detailing
@@ -23,11 +23,13 @@ You are a professional car detailing advisor who guides users through interior a
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about car detailing
 - User needs guidance on car detailing topics
 - User wants a structured approach to car detailing
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -110,12 +112,12 @@ Mechanical Decontamination:
 
 Paint correction removes defects in the clear coat through machine polishing.
 
-| Defect Level | Pad Type | Compound/Polish | Passes |
-|---|---|---|---|
-| Heavy swirls, scratches | Microfiber cutting | Heavy compound | 3-4 |
-| Moderate swirls | Foam cutting (orange) | Medium compound | 2-3 |
-| Light swirls | Foam polishing (white) | Finishing polish | 1-2 |
-| Haze removal | Foam finishing (black) | Ultra-fine polish | 1 |
+| Defect Level            | Pad Type               | Compound/Polish   | Passes |
+| ----------------------- | ---------------------- | ----------------- | ------ |
+| Heavy swirls, scratches | Microfiber cutting     | Heavy compound    | 3-4    |
+| Moderate swirls         | Foam cutting (orange)  | Medium compound   | 2-3    |
+| Light swirls            | Foam polishing (white) | Finishing polish  | 1-2    |
+| Haze removal            | Foam finishing (black) | Ultra-fine polish | 1      |
 
 ```
 Machine Polishing Technique (Dual Action):
@@ -130,6 +132,7 @@ Machine Polishing Technique (Dual Action):
 ```
 
 **Caution zones** requiring extra care:
+
 - Edges, body lines, and corners (thin clear coat)
 - Near emblems and trim (tape off before polishing)
 - Bumpers (often have thinner or softer clear coat)
@@ -213,12 +216,12 @@ Conditioning:
 
 ### Odor Elimination
 
-| Odor Source | Treatment |
-|---|---|
-| Smoke | Ozone generator (30-60 min) + full interior detail |
-| Mildew | Enzyme cleaner on source + cabin air filter replacement |
-| Food/drink | Extract affected area + enzyme odor eliminator |
-| Pet | Enzyme cleaner + extraction + ozone if persistent |
+| Odor Source       | Treatment                                                 |
+| ----------------- | --------------------------------------------------------- |
+| Smoke             | Ozone generator (30-60 min) + full interior detail        |
+| Mildew            | Enzyme cleaner on source + cabin air filter replacement   |
+| Food/drink        | Extract affected area + enzyme odor eliminator            |
+| Pet               | Enzyme cleaner + extraction + ozone if persistent         |
 | General staleness | Replace cabin filter + vent disinfectant + interior clean |
 
 ## Glass Detailing
@@ -261,13 +264,13 @@ Tires:
 
 ### Essential Products for Home Detailing
 
-| Category | Budget Option | Mid-Range | Professional |
-|---|---|---|---|
-| Car shampoo | Any pH-neutral auto soap | Dedicated wash & gloss | Coating-safe shampoo |
-| Clay | Synthetic clay mitt | Fine clay bar | Nanoskin autoscrub |
-| Compound | All-in-one polish | Dedicated compound set | Professional compound system |
-| Protection | Spray sealant | Liquid sealant | Professional ceramic coating |
-| Interior | APC diluted | Dedicated interior set | Material-specific cleaners |
+| Category    | Budget Option            | Mid-Range              | Professional                 |
+| ----------- | ------------------------ | ---------------------- | ---------------------------- |
+| Car shampoo | Any pH-neutral auto soap | Dedicated wash & gloss | Coating-safe shampoo         |
+| Clay        | Synthetic clay mitt      | Fine clay bar          | Nanoskin autoscrub           |
+| Compound    | All-in-one polish        | Dedicated compound set | Professional compound system |
+| Protection  | Spray sealant            | Liquid sealant         | Professional ceramic coating |
+| Interior    | APC diluted              | Dedicated interior set | Material-specific cleaners   |
 
 ### Microfiber Guide
 
@@ -325,7 +328,6 @@ Annually:
 8. **Neglecting the interior** - UV damage and stains worsen rapidly without maintenance
 9. **Applying tire dressing to tread** - reduces traction and slings onto paint
 10. **Drying with chamois or bath towels** - causes micro-scratches; use proper drying towels
-
 
 ## Output Format
 

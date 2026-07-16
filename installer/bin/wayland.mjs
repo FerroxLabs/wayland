@@ -46,19 +46,29 @@ let _stdinEnded = false;
 function rlInstance() {
   if (!_rl) {
     _rl = createInterface({ input: process.stdin, output: process.stdout });
-    _rl.on('close', () => { _stdinEnded = true; });
+    _rl.on('close', () => {
+      _stdinEnded = true;
+    });
   }
   return _rl;
 }
 function closeRl() {
-  if (_rl) { _rl.close(); _rl = null; }
+  if (_rl) {
+    _rl.close();
+    _rl = null;
+  }
 }
 function ask(question) {
   if (_stdinEnded) return Promise.resolve('');
   return new Promise((res) => {
     const rl = rlInstance();
     let done = false;
-    const finish = (v) => { if (!done) { done = true; res(v); } };
+    const finish = (v) => {
+      if (!done) {
+        done = true;
+        res(v);
+      }
+    };
     rl.question(question, (a) => finish(a.trim()));
     rl.once('close', () => finish(''));
   });
@@ -92,7 +102,10 @@ function writeEnvFile(env) {
   const merged = { ...base, ...env };
   const body =
     '# Written by `wayland setup`. Loaded by `wayland start`.\n' +
-    Object.entries(merged).map(([k, v]) => `${k}=${v}`).join('\n') + '\n';
+    Object.entries(merged)
+      .map(([k, v]) => `${k}=${v}`)
+      .join('\n') +
+    '\n';
   writeFileSync(ENV_FILE, body, { mode: 0o600 });
 }
 
@@ -148,7 +161,11 @@ function ensureUnzipCurl() {
   const root = typeof process.getuid === 'function' && process.getuid() === 0;
   const sudo = root ? '' : 'sudo ';
   console.log(c.dim('  Installing prerequisites (unzip, curl)…'));
-  spawnSync('bash', ['-c', `${sudo}apt-get update -qq >/dev/null 2>&1; ${sudo}apt-get install -y -qq unzip curl >/dev/null 2>&1`], { stdio: 'inherit' });
+  spawnSync(
+    'bash',
+    ['-c', `${sudo}apt-get update -qq >/dev/null 2>&1; ${sudo}apt-get install -y -qq unzip curl >/dev/null 2>&1`],
+    { stdio: 'inherit' }
+  );
 }
 
 /** The bundled wayland-core engine binary links libasound (ALSA). A minimal
@@ -174,7 +191,7 @@ function ensureEngineRuntimeLibs() {
 
 async function ensureBun() {
   if (hasBun()) return true;
-  console.log(c.dim('\n  The server runs on the bun runtime, which isn\'t installed.'));
+  console.log(c.dim("\n  The server runs on the bun runtime, which isn't installed."));
   const yes = (await ask('  Install bun now? [Y/n] ')).toLowerCase();
   if (yes === 'n' || yes === 'no') {
     console.log(c.r('\n  Skipped. Install bun (https://bun.sh) then re-run `wayland setup`.'));
@@ -332,7 +349,11 @@ function resetpass() {
   env.DATA_DIR = env.DATA_DIR || DATA_DIR;
   env.NODE_ENV = env.NODE_ENV || 'production';
   // Forward any extra args (e.g. a username) after the subcommand.
-  const child = spawn(bunExe, [SERVER, '--resetpass', ...process.argv.slice(3)], { cwd: PAYLOAD, env, stdio: 'inherit' });
+  const child = spawn(bunExe, [SERVER, '--resetpass', ...process.argv.slice(3)], {
+    cwd: PAYLOAD,
+    env,
+    stdio: 'inherit',
+  });
   child.on('exit', (code) => process.exit(code ?? 0));
 }
 

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy guide research checklist"
-  category: "legal-civic"
-  subcategory: "business-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy guide research checklist'
+  category: 'legal-civic'
+  subcategory: 'business-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # IP Protection Overview
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has created something -- software, a product design, a brand name, a manufacturing process, creative content, a business method -- and wants to understand what legal protections may apply
 - The user is a founder, entrepreneur, or small business owner preparing to launch a product and wants to understand which IP assets to protect before going to market
 - The user wants to understand the conceptual differences between copyright, trademark, patent, and trade secret before meeting with an IP attorney, so they can ask informed questions and make better use of billable time
@@ -32,6 +34,7 @@ metadata:
 - The user is building a brand and wants to understand the difference between registering a business name, a domain name, and a trademark (these are three entirely separate legal concepts)
 
 **Do NOT use when:**
+
 - The user wants to file a patent or trademark application -- this requires a registered U.S. patent attorney or agent (patent bar admission) or trademark attorney and cannot be safely navigated with general guidance alone (use a specialist referral workflow)
 - The user suspects active IP infringement and wants to pursue legal action -- this requires litigation counsel and infringement analysis, not general education
 - The user wants to draft, review, or negotiate a licensing agreement, IP assignment clause, or co-inventor agreement -- use `contract-clause-explainer` or direct to legal counsel
@@ -469,6 +472,7 @@ Investors -- especially institutional venture capital -- conduct IP due diligenc
 ---
 
 ### What You're Protecting
+
 - **Creation/Asset:** Mobile application for personal finance tracking, including: a proprietary transaction categorization algorithm, the application's source code and UI/UX design, the app's brand name and logo, and the overall app product
 - **Current Status:** Development complete; publicly demonstrated at an investor pitch event last month; not yet publicly released to users
 - **Primary Jurisdiction:** United States (assumed)
@@ -478,35 +482,38 @@ Investors -- especially institutional venture capital -- conduct IP due diligenc
 
 ### IP Protection Comparison Table
 
-| Factor | Copyright | Trademark | Utility Patent | Trade Secret |
-|---|---|---|---|---|
-| **Relevant to your situation?** | Yes -- code, UI design, logo | Yes -- app name, logo as source identifier | Possibly -- for the categorization algorithm | Yes -- algorithm (as alternative to patent); source code; training data |
-| **What it covers here** | The source code (as a literary work), the UI visual design, the original logo artwork, any written content in the app | The app name and logo used to identify the app in the marketplace | The novel, non-obvious, useful aspects of the transaction categorization algorithm as a software-implemented process | The algorithm implementation, the source code, any proprietary training data or scoring models kept confidential |
-| **What it does NOT cover** | The idea of automatic transaction categorization, the functional logic of the algorithm, any generic UI elements or standard design patterns | The generic concept of a finance app, descriptive terms, any elements likely to cause confusion with existing fintech marks | Abstract mathematical formulas, broad generic categorization concepts, anything obvious to a skilled developer -- and post-Alice, purely abstract software logic without a technical improvement | Anything already publicly disclosed at the pitch event; anything a competitor could independently develop or reverse-engineer from the app once released |
-| **How protection is obtained** | Automatic on creation; file with U.S. Copyright Office for enforcement advantages | Use in app stores = common law rights; file TEAS application with USPTO | File provisional application immediately to preserve priority date; follow with non-provisional application within 12 months | Implement NDA with incoming developer before first line of code is shared; restrict code repository access; document secrecy measures |
-| **Cost estimate** | $45-$65 per work registered online | $250-$350 per class (USPTO filing fee) + $500-$2,000 attorney time for search and filing | $320 for provisional (small entity) + $5,000-$15,000+ for non-provisional including attorney fees | $0-$1,000 (NDA drafting, access controls) |
-| **Time to protection** | Immediate (copyright exists now); registration takes 3-7 months | Common law rights exist now; USPTO registration: 8-14 months | "Patent Pending" status immediately on provisional filing; grant: 2-4 years | Immediate upon executing NDA with developer and restricting access |
-| **Duration** | Life of author + 70 years for source code and design | Indefinite with continued use and renewals every 10 years | 20 years from filing date; not renewable | Indefinite -- until the code or algorithm becomes publicly known |
-| **Registration required?** | No, but copyright registration is strongly recommended for the source code and UI before app launch | No, but USPTO registration is strongly recommended before launch to establish nationwide priority | Yes -- patent rights only exist upon grant; provisional secures priority date | No -- protection comes from maintaining secrecy |
-| **Key strategic consideration** | Register the source code before app launch so statutory damages are available if a competitor copies the app design | Conduct a trademark clearance search before finalizing the app name -- the fintech space is crowded with registered marks | The pitch event disclosure started the 1-year U.S. clock; international patent options may already be foreclosed; consult a patent attorney this week to evaluate the algorithm's patentability | Executing the developer NDA BEFORE sharing any code or algorithm details is non-negotiable; without it, the developer may have no confidentiality obligation |
+| Factor                          | Copyright                                                                                                                                    | Trademark                                                                                                                   | Utility Patent                                                                                                                                                                                   | Trade Secret                                                                                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Relevant to your situation?** | Yes -- code, UI design, logo                                                                                                                 | Yes -- app name, logo as source identifier                                                                                  | Possibly -- for the categorization algorithm                                                                                                                                                     | Yes -- algorithm (as alternative to patent); source code; training data                                                                                      |
+| **What it covers here**         | The source code (as a literary work), the UI visual design, the original logo artwork, any written content in the app                        | The app name and logo used to identify the app in the marketplace                                                           | The novel, non-obvious, useful aspects of the transaction categorization algorithm as a software-implemented process                                                                             | The algorithm implementation, the source code, any proprietary training data or scoring models kept confidential                                             |
+| **What it does NOT cover**      | The idea of automatic transaction categorization, the functional logic of the algorithm, any generic UI elements or standard design patterns | The generic concept of a finance app, descriptive terms, any elements likely to cause confusion with existing fintech marks | Abstract mathematical formulas, broad generic categorization concepts, anything obvious to a skilled developer -- and post-Alice, purely abstract software logic without a technical improvement | Anything already publicly disclosed at the pitch event; anything a competitor could independently develop or reverse-engineer from the app once released     |
+| **How protection is obtained**  | Automatic on creation; file with U.S. Copyright Office for enforcement advantages                                                            | Use in app stores = common law rights; file TEAS application with USPTO                                                     | File provisional application immediately to preserve priority date; follow with non-provisional application within 12 months                                                                     | Implement NDA with incoming developer before first line of code is shared; restrict code repository access; document secrecy measures                        |
+| **Cost estimate**               | $45-$65 per work registered online                                                                                                           | $250-$350 per class (USPTO filing fee) + $500-$2,000 attorney time for search and filing                                    | $320 for provisional (small entity) + $5,000-$15,000+ for non-provisional including attorney fees                                                                                                | $0-$1,000 (NDA drafting, access controls)                                                                                                                    |
+| **Time to protection**          | Immediate (copyright exists now); registration takes 3-7 months                                                                              | Common law rights exist now; USPTO registration: 8-14 months                                                                | "Patent Pending" status immediately on provisional filing; grant: 2-4 years                                                                                                                      | Immediate upon executing NDA with developer and restricting access                                                                                           |
+| **Duration**                    | Life of author + 70 years for source code and design                                                                                         | Indefinite with continued use and renewals every 10 years                                                                   | 20 years from filing date; not renewable                                                                                                                                                         | Indefinite -- until the code or algorithm becomes publicly known                                                                                             |
+| **Registration required?**      | No, but copyright registration is strongly recommended for the source code and UI before app launch                                          | No, but USPTO registration is strongly recommended before launch to establish nationwide priority                           | Yes -- patent rights only exist upon grant; provisional secures priority date                                                                                                                    | No -- protection comes from maintaining secrecy                                                                                                              |
+| **Key strategic consideration** | Register the source code before app launch so statutory damages are available if a competitor copies the app design                          | Conduct a trademark clearance search before finalizing the app name -- the fintech space is crowded with registered marks   | The pitch event disclosure started the 1-year U.S. clock; international patent options may already be foreclosed; consult a patent attorney this week to evaluate the algorithm's patentability  | Executing the developer NDA BEFORE sharing any code or algorithm details is non-negotiable; without it, the developer may have no confidentiality obligation |
 
 ---
 
 ### Applicable Protections for Your Situation (Prioritized)
 
 **1. Trade Secret (Categorization Algorithm and Source Code) -- Act Immediately**
-- *Why it applies:* The algorithm and source code are information that derive economic value from not being known to competitors, and they have not yet been publicly distributed (only described at a pitch, not disclosed in technical detail). Trade secret protection is available immediately.
-- *What specifically it would cover:* The technical implementation of the categorization algorithm (the specific logic, weighting, data structures), the source code, any proprietary training datasets or scoring models, and the business logic behind the categorization methodology.
-- *What it would NOT cover:* The general concept of transaction categorization (not a secret); anything that could be reverse-engineered from inspecting the app once distributed; anything already technically disclosed at the pitch event.
-- *Priority action:* Execute a written NDA with the incoming developer BEFORE sharing any code, algorithm details, repository access, or technical documentation. The NDA should cover all confidential business and technical information, survive termination, and include an IP assignment provision so the developer's contributions belong to you.
-- *Key risk if ignored:* Sharing the codebase with a developer who has no confidentiality obligation means the code is not subject to reasonable secrecy measures -- trade secret status may be destroyed or unenforceable. This is the most urgent item before onboarding.
+
+- _Why it applies:_ The algorithm and source code are information that derive economic value from not being known to competitors, and they have not yet been publicly distributed (only described at a pitch, not disclosed in technical detail). Trade secret protection is available immediately.
+- _What specifically it would cover:_ The technical implementation of the categorization algorithm (the specific logic, weighting, data structures), the source code, any proprietary training datasets or scoring models, and the business logic behind the categorization methodology.
+- _What it would NOT cover:_ The general concept of transaction categorization (not a secret); anything that could be reverse-engineered from inspecting the app once distributed; anything already technically disclosed at the pitch event.
+- _Priority action:_ Execute a written NDA with the incoming developer BEFORE sharing any code, algorithm details, repository access, or technical documentation. The NDA should cover all confidential business and technical information, survive termination, and include an IP assignment provision so the developer's contributions belong to you.
+- _Key risk if ignored:_ Sharing the codebase with a developer who has no confidentiality obligation means the code is not subject to reasonable secrecy measures -- trade secret status may be destroyed or unenforceable. This is the most urgent item before onboarding.
 
 **2. Trademark (App Name and Logo) -- Act Before Launch**
-- *Why it applies:* You have a distinctive app name and logo that identify the app as coming from you. Using this name in app store listings constitutes use in commerce, establishing common law rights. Federal registration is critical before public launch in the fintech space, which has an extremely dense concentration of registered marks.
-- *What specifically it would cover:* The app name and logo as source identifiers for a financial software application and related services. Filed in International Class 9 (software) and potentially Class 36 (financial services) depending on features.
-- *What it would NOT cover:* Generic or descriptive terms that describe personal finance apps in general; functional UI elements (those belong to patent or trade dress analysis).
-- *Priority action:* Before launch, conduct a comprehensive trademark clearance search -- both a USPTO TESS search and a broader common law search through a professional search service. File a TEAS Plus application immediately after clearance. Given your investor pitch and upcoming launch, the trademark filing timeline is tight.
-- *Key risk if ignored:* Launching under a name that conflicts with an existing registered trademark creates infringement liability and may require a forced rebrand after you've built brand recognition -- a far more expensive outcome than a clearance search would have been.
+
+- _Why it applies:_ You have a distinctive app name and logo that identify the app as coming from you. Using this name in app store listings constitutes use in commerce, establishing common law rights. Federal registration is critical before public launch in the fintech space, which has an extremely dense concentration of registered marks.
+- _What specifically it would cover:_ The app name and logo as source identifiers for a financial software application and related services. Filed in International Class 9 (software) and potentially Class 36 (financial services) depending on features.
+- _What it would NOT cover:_ Generic or descriptive terms that describe personal finance apps in general; functional UI elements (those belong to patent or trade dress analysis).
+- _Priority action:_ Before launch, conduct a comprehensive trademark clearance search -- both a USPTO TESS search and a broader common law search through a professional search service. File a TEAS Plus application immediately after clearance. Given your investor pitch and upcoming launch, the trademark filing timeline is tight.
+- _Key risk if ignored:_ Launching under a name that conflicts with an existing registered trademark creates infringement liability and may require a forced rebrand after you've built brand recognition -- a far more expensive outcome than a clearance search would have been.
 
 **3. Patent (Categorization Algorithm) -- Consult Attorney This Week**
-- *Why it applies:* A novel, non-obvious method for automatically categorizing financial transactions may be patentable if it achieves a specific technical improvement rather than merely performing an abstract categorization task on
+
+- _Why it applies:_ A novel, non-obvious method for automatically categorizing financial transactions may be patentable if it achieves a specific technical improvement rather than merely performing an abstract categorization task on

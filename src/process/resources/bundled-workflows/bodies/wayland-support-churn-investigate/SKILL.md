@@ -12,14 +12,15 @@ description: >-
   skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "support-churn-investigate support-nps-analysis"
+skills: 'support-churn-investigate support-nps-analysis'
 metadata:
   author: wayland
   version: 1.0.0
   tags: support churn retention root-cause action-plan step-by-step
   category: support
-  depends: "support-churn-investigate support-nps-analysis"
+  depends: 'support-churn-investigate support-nps-analysis'
 ---
+
 # Investigate Churn
 
 **Estimated time:** 30-45 minutes

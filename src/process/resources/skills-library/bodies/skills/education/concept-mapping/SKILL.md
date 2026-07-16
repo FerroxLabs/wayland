@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills note-taking step-by-step guide"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills note-taking step-by-step guide'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Concept Mapping
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when a learner explicitly wants a concept map built from their study material -- not a general explanation, outline, or summary.
 
 **Trigger scenarios:**
+
 - Learner asks to "make a concept map," "build a knowledge map," or "map out the connections" in their study material
 - Student wants to see hierarchical relationships between concepts in a subject area (biology, history, chemistry, law, psychology, economics)
 - Learner is preparing for an exam and wants to see how all the pieces of a complex topic fit together before drilling individual facts
@@ -31,6 +33,7 @@ Use this skill when a learner explicitly wants a concept map built from their st
 - Learner explicitly mentions Novak methodology, propositional structure, concept nodes, or linking phrases
 
 **Do NOT use when:**
+
 - Learner wants to take notes during a live lecture (use `cornell-notes` -- concept mapping requires post-processing, not real-time capture)
 - User wants to synthesize notes from multiple sources into a coherent summary (use `note-synthesis`)
 - Learner wants to memorize a spatial layout using narrative journeys through imagined locations (use `memory-palace`)
@@ -70,12 +73,12 @@ The core intellectual work of concept mapping is writing valid propositions, not
 - A **proposition** is the unit of meaning: Node A + Link Label + Node B = one meaningful, testable claim. For example: "Insulin [enables] glucose uptake" or "Extinction [is caused by] repeated CS presentation without UCS." Every connection in the map must form a valid proposition when read aloud.
 - Use **specific, active link labels** -- never use generic connectors like "relates to," "is connected to," or "involves." These labels carry no information. Instead: "causes," "inhibits," "is a type of," "requires," "produces," "is measured by," "precedes," "contrasts with."
 - Use the **six core relationship types** as a classification framework when choosing link labels:
-  - *Hierarchical*: "is a type of," "is an example of," "includes," "is a subclass of"
-  - *Causal*: "causes," "leads to," "inhibits," "prevents," "results in," "triggers"
-  - *Temporal*: "precedes," "follows," "occurs during," "initiates"
-  - *Functional*: "is used for," "enables," "requires," "produces," "measures"
-  - *Comparative*: "differs from," "is similar to," "contrasts with," "is analogous to"
-  - *Conditional*: "depends on," "requires," "is limited by," "is absent when"
+  - _Hierarchical_: "is a type of," "is an example of," "includes," "is a subclass of"
+  - _Causal_: "causes," "leads to," "inhibits," "prevents," "results in," "triggers"
+  - _Temporal_: "precedes," "follows," "occurs during," "initiates"
+  - _Functional_: "is used for," "enables," "requires," "produces," "measures"
+  - _Comparative_: "differs from," "is similar to," "contrasts with," "is analogous to"
+  - _Conditional_: "depends on," "requires," "is limited by," "is absent when"
 - Directionality matters: arrows are **not symmetric**. "DNA [encodes] protein" is not the same proposition as "protein [encodes] DNA." Always verify that the arrow direction makes the proposition factually correct.
 - Avoid **propositional chains** longer than three nodes in a single link. If you need "A causes B which causes C which causes D," break this into two propositions with a shared intermediate node.
 
@@ -369,61 +372,61 @@ Ranked from most general to most specific:
 [FOCUS QUESTION: How does a neutral stimulus come to produce a learned response, and what determines whether that response persists or fades?]
 
 [CLASSICAL CONDITIONING]
-  |
-  |-- involves --> [STIMULI]
-  |     |
-  |     |-- includes --> [UNCONDITIONED STIMULUS / UCS (e.g., food powder)]
-  |     |     |-- naturally triggers --> [UNCONDITIONED RESPONSE / UCR (e.g., salivation to food)]
-  |     |
-  |     |-- begins as --> [NEUTRAL STIMULUS / NS (e.g., bell before training)]
-  |     |     |-- becomes through pairing --> [CONDITIONED STIMULUS / CS (e.g., bell after training)]
-  |     |           |-- triggers after learning --> [CONDITIONED RESPONSE / CR (e.g., salivation to bell)]
-  |     |                 |-- resembles but is weaker than --> [UCR]
-  |
-  |-- produces --> [RESPONSES]
-  |     |
-  |     |-- classified as --> [UNCONDITIONED RESPONSE / UCR]
-  |     |-- classified as --> [CONDITIONED RESPONSE / CR]
-  |
-  |-- proceeds through --> [LEARNING PHASES]
-  |     |
-  |     |-- begins with --> [ACQUISITION]
-  |     |     |-- requires --> [REPEATED UCS-CS PAIRING]
-  |     |     |-- is stronger when --> [CS PRECEDES UCS by 0.5 seconds (ideal interval)]
-  |     |
-  |     |-- demonstrated by --> [PAVLOV'S DOG EXPERIMENT]
-  |           |-- established --> [CS-UCS ASSOCIATION]
-  |
-  |-- generates --> [PHENOMENA AFTER ACQUISITION]
-        |
-        |-- includes --> [EXTINCTION]
-        |     |-- occurs when --> [CS is presented repeatedly without UCS]
-        |     |-- results in --> [GRADUAL WEAKENING of CR]
-        |     |-- does NOT mean --> [FORGETTING (association is suppressed, not erased)]
-        |
-        |-- includes --> [SPONTANEOUS RECOVERY]
-        |     |-- occurs when --> [REST PERIOD follows extinction]
-        |     |-- produces --> [TEMPORARY RETURN of CR]
-        |
-        |-- includes --> [GENERALIZATION]
-        |     |-- occurs when --> [STIMULI SIMILAR TO CS also trigger CR]
-        |     |-- example --> [DIFFERENT-PITCHED BELL triggers partial salivation]
-        |
-        |-- includes --> [DISCRIMINATION]
-              |-- occurs when --> [ORGANISM RESPONDS ONLY TO SPECIFIC CS]
-              |-- requires --> [DIFFERENTIAL REINFORCEMENT during training]
+|
+|-- involves --> [STIMULI]
+| |
+| |-- includes --> [UNCONDITIONED STIMULUS / UCS (e.g., food powder)]
+| | |-- naturally triggers --> [UNCONDITIONED RESPONSE / UCR (e.g., salivation to food)]
+| |
+| |-- begins as --> [NEUTRAL STIMULUS / NS (e.g., bell before training)]
+| | |-- becomes through pairing --> [CONDITIONED STIMULUS / CS (e.g., bell after training)]
+| | |-- triggers after learning --> [CONDITIONED RESPONSE / CR (e.g., salivation to bell)]
+| | |-- resembles but is weaker than --> [UCR]
+|
+|-- produces --> [RESPONSES]
+| |
+| |-- classified as --> [UNCONDITIONED RESPONSE / UCR]
+| |-- classified as --> [CONDITIONED RESPONSE / CR]
+|
+|-- proceeds through --> [LEARNING PHASES]
+| |
+| |-- begins with --> [ACQUISITION]
+| | |-- requires --> [REPEATED UCS-CS PAIRING]
+| | |-- is stronger when --> [CS PRECEDES UCS by 0.5 seconds (ideal interval)]
+| |
+| |-- demonstrated by --> [PAVLOV'S DOG EXPERIMENT]
+| |-- established --> [CS-UCS ASSOCIATION]
+|
+|-- generates --> [PHENOMENA AFTER ACQUISITION]
+|
+|-- includes --> [EXTINCTION]
+| |-- occurs when --> [CS is presented repeatedly without UCS]
+| |-- results in --> [GRADUAL WEAKENING of CR]
+| |-- does NOT mean --> [FORGETTING (association is suppressed, not erased)]
+|
+|-- includes --> [SPONTANEOUS RECOVERY]
+| |-- occurs when --> [REST PERIOD follows extinction]
+| |-- produces --> [TEMPORARY RETURN of CR]
+|
+|-- includes --> [GENERALIZATION]
+| |-- occurs when --> [STIMULI SIMILAR TO CS also trigger CR]
+| |-- example --> [DIFFERENT-PITCHED BELL triggers partial salivation]
+|
+|-- includes --> [DISCRIMINATION]
+|-- occurs when --> [ORGANISM RESPONDS ONLY TO SPECIFIC CS]
+|-- requires --> [DIFFERENTIAL REINFORCEMENT during training]
 
 ---
 
 ### Cross-Links
 
-| From Concept | Relationship | To Concept | Branches Connected |
-|---|---|---|---|
-| Extinction | is reversed by | Spontaneous Recovery | Phenomena After Acquisition (internal) |
-| Generalization | is the opposite process of | Discrimination | Phenomena After Acquisition (internal) |
-| CS | must precede to initiate | Acquisition | Stimuli branch <--> Learning Phases branch |
-| CR | is weaker than and resembles | UCR | Responses branch (internal comparison) |
-| Pavlov's Dog Experiment | was the original evidence for | Classical Conditioning | Learning Phases <--> Apex |
+| From Concept            | Relationship                  | To Concept             | Branches Connected                         |
+| ----------------------- | ----------------------------- | ---------------------- | ------------------------------------------ |
+| Extinction              | is reversed by                | Spontaneous Recovery   | Phenomena After Acquisition (internal)     |
+| Generalization          | is the opposite process of    | Discrimination         | Phenomena After Acquisition (internal)     |
+| CS                      | must precede to initiate      | Acquisition            | Stimuli branch <--> Learning Phases branch |
+| CR                      | is weaker than and resembles  | UCR                    | Responses branch (internal comparison)     |
+| Pavlov's Dog Experiment | was the original evidence for | Classical Conditioning | Learning Phases <--> Apex                  |
 
 ---
 
@@ -447,46 +450,52 @@ Ranked from most general to most specific:
 
 ### Map Quality Indicators
 
-| Criterion | Status | Notes |
-|---|---|---|
-| Focus question answered | Yes | Acquisition answers "how it begins"; Extinction/SR answer "whether it persists" |
-| All source concepts included | Yes | All 8 lecture concepts present |
-| No generic link labels | Yes | No "relates to" or "is connected with" labels used |
-| Cross-links present (min 3) | Yes (5 found) | All cross-links biologically and psychologically valid |
-| No orphan nodes | Yes | Every node connects to at least one other |
-| Hierarchy flows general --> specific | Yes | Classical Conditioning > Phases > Phenomena > Specific examples |
+| Criterion                            | Status        | Notes                                                                           |
+| ------------------------------------ | ------------- | ------------------------------------------------------------------------------- |
+| Focus question answered              | Yes           | Acquisition answers "how it begins"; Extinction/SR answer "whether it persists" |
+| All source concepts included         | Yes           | All 8 lecture concepts present                                                  |
+| No generic link labels               | Yes           | No "relates to" or "is connected with" labels used                              |
+| Cross-links present (min 3)          | Yes (5 found) | All cross-links biologically and psychologically valid                          |
+| No orphan nodes                      | Yes           | Every node connects to at least one other                                       |
+| Hierarchy flows general --> specific | Yes           | Classical Conditioning > Phases > Phenomena > Specific examples                 |
 
 ---
 
 ### Self-Check Protocol
 
 **Recall level:**
+
 - [ ] State the focus question and give a 2-sentence answer from memory
 - [ ] Without looking, list the 4 major branches (Stimuli, Responses, Learning Phases, Phenomena After Acquisition)
 - [ ] Name the 3 cross-links that span the Phenomena branch and explain why each exists
 
 **Application level:**
+
 - [ ] Novel scenario: A child is bitten by a dog (UCS) and hears a bark (NS). The child later flinches (CR?) when they hear any bark. Apply the map -- identify UCS, UCR, CS, CR, and name which post-acquisition phenomenon the "any bark" response represents.
 - [ ] Explain why Pavlov's experiments required many trials rather than one (use the Acquisition node and the 0.5-second interval proposition)
 - [ ] A dog stops salivating to the bell after 20 extinction trials. A week later, the bell again produces slight salivation. Name the phenomenon, trace it on the map, and explain why it disproves simple forgetting.
 
 **Gap check:**
-- Concepts I cannot explain without looking: ______
-- Link labels I am uncertain about: ______
+
+- Concepts I cannot explain without looking: **\_\_**
+- Link labels I am uncertain about: **\_\_**
 
 ---
 
 ### Study Plan
 
 **Spaced Repetition Schedule (exam in 3 days):**
+
 - Today (Day 0): Cover this document. Redraw the map from memory on paper. Check against this version.
 - Day 1: Restate all 7 propositions in the audit without reading them. Add any missed nodes.
 - Day 2 (day before exam): Work through all 3 application-level self-check scenarios without notes. Confirm you can trace any exam scenario to the correct node and link label.
 
 **Next Technique:**
+
 - Use `flashcard-generation` for the 7 key proposition statements -- create one card per proposition with the "because" explanation on the back. Rationale: the map gives you structure; flashcards drill individual propositions for rapid retrieval under exam time pressure.
 
 **Integration with Prior Knowledge:**
+
 - This map connects to: Operant Conditioning (your next likely lecture topic)
 - Key integration point: Classical conditioning involves involuntary, reflexive responses (UCR/CR); operant conditioning involves voluntary behaviors shaped by consequences. Build a cross-link between these two maps when you cover operant conditioning -- the contrast is high-yield for most psychology exams.
 - Secondary connection: The extinction process here parallels desensitization in therapy (systematic desensitization deliberately uses extinction of conditioned fear responses). Flag this when you reach clinical applications units.

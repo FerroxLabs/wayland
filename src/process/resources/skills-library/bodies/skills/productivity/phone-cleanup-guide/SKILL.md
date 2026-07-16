@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart time-management checklist guide cloud video-production email cleaning"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart time-management checklist guide cloud video-production email cleaning'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Phone Cleanup Guide
 
 You are a device optimization specialist. Help the user reclaim storage, improve performance, and organize their phone. Provide specific steps for both iOS and Android. Focus on quick wins first.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about phone cleanup guide techniques or best practices
 - User needs guidance on phone cleanup guide concepts
 - User wants to implement or improve their approach to phone cleanup guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of phone cleanup guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -39,28 +40,31 @@ You are a device optimization specialist. Help the user reclaim storage, improve
 
 **iPhone:**
 Settings > General > iPhone Storage
+
 - Wait for recommendations to load at top
 - Scroll down to see app-by-app usage
 
 **Android:**
 Settings > Storage (or Settings > Battery and device care > Storage)
+
 - Shows breakdown by category
 
 ### Step 2: Quick Wins (Biggest Space Savers)
 
-| Action | Space Saved | Time |
-|--------|------------|------|
-| Clear messaging attachments | 1-10 GB | 5 min |
-| Delete old downloaded files | 0.5-5 GB | 3 min |
-| Clear app caches | 0.5-3 GB | 5 min |
-| Remove unused apps | 0.5-5 GB | 10 min |
-| Offload/delete old photos & videos | 1-50+ GB | 15 min |
-| Clear browser data | 0.2-2 GB | 2 min |
+| Action                             | Space Saved | Time   |
+| ---------------------------------- | ----------- | ------ |
+| Clear messaging attachments        | 1-10 GB     | 5 min  |
+| Delete old downloaded files        | 0.5-5 GB    | 3 min  |
+| Clear app caches                   | 0.5-3 GB    | 5 min  |
+| Remove unused apps                 | 0.5-5 GB    | 10 min |
+| Offload/delete old photos & videos | 1-50+ GB    | 15 min |
+| Clear browser data                 | 0.2-2 GB    | 2 min  |
 
 ### Clear Message Attachments
 
 **iPhone:**
 Settings > General > iPhone Storage > Messages
+
 - Review Large Attachments
 - Delete old photo/video attachments you don't need
 
@@ -74,6 +78,7 @@ Settings > General > iPhone Storage > [App] > Offload App (keeps data) or Delete
 
 **Android:**
 Settings > Storage > Other Apps > Select app > Clear Cache
+
 - Or: Settings > Apps > [App] > Storage > Clear Cache
 
 ### Clear Browser Data
@@ -83,6 +88,7 @@ Settings > Safari > Clear History and Website Data
 
 **Chrome (both platforms):**
 Chrome > Menu > Settings > Privacy > Clear Browsing Data
+
 - Select: Cached images and files, Browsing history
 - Time range: All time
 
@@ -92,29 +98,33 @@ Chrome > Menu > Settings > Privacy > Clear Browsing Data
 
 **iPhone:**
 Settings > General > iPhone Storage
+
 - Apps sorted by size, "Last Used" date shown
 - Anything not used in 3+ months is a candidate for removal
 
 **Android:**
 Settings > Apps > Sort by "Last used"
+
 - Or use Google Play > Profile > Manage apps > Unused
 
 ### Step 2: Decision Framework
 
-| Last Used | Action |
-|-----------|--------|
-| Never or 6+ months ago | Delete |
-| 3-6 months ago | Probably delete |
-| 1-3 months ago | Keep if intentional (seasonal use) |
-| Weekly | Keep |
+| Last Used              | Action                             |
+| ---------------------- | ---------------------------------- |
+| Never or 6+ months ago | Delete                             |
+| 3-6 months ago         | Probably delete                    |
+| 1-3 months ago         | Keep if intentional (seasonal use) |
+| Weekly                 | Keep                               |
 
 ### Step 3: Handle "Might Need It" Apps
 
 **iPhone:** Use "Offload Unused Apps"
+
 - Settings > General > iPhone Storage > Enable "Offload Unused Apps"
 - Removes app but keeps data, re-downloads when tapped
 
 **Android:** Use "Auto-archive"
+
 - Google Play > Settings > General > Auto-archive apps
 
 ## Photo Management
@@ -122,6 +132,7 @@ Settings > Apps > Sort by "Last used"
 ### Identify Space Hogs
 
 Most storage is consumed by:
+
 1. Videos (especially 4K and slow-motion)
 2. Screenshots you never deleted
 3. Burst photos (multiple shots per tap)
@@ -147,11 +158,11 @@ Google Photos > Library > Utilities > Review and delete
 
 ### Cloud Photo Storage
 
-| Service | Free Storage | Notes |
-|---------|-------------|-------|
-| iCloud | 5 GB | Seamless iPhone integration |
+| Service       | Free Storage                    | Notes                       |
+| ------------- | ------------------------------- | --------------------------- |
+| iCloud        | 5 GB                            | Seamless iPhone integration |
 | Google Photos | 15 GB (shared with Gmail/Drive) | Good search, cross-platform |
-| Amazon Photos | Unlimited (Prime members) | Photos only, not videos |
+| Amazon Photos | Unlimited (Prime members)       | Photos only, not videos     |
 
 **Enable cloud backup, then free local space:**
 
@@ -184,18 +195,19 @@ PERFORMANCE CHECKLIST
 
 ### Battery Life Improvement
 
-| Setting | Battery Impact |
-|---------|---------------|
-| Lower screen brightness | High |
-| Enable dark mode | Medium (OLED screens) |
-| Disable always-on display | Medium |
-| Turn off Bluetooth when not using | Low |
-| Disable "Hey Siri" / "OK Google" | Low-Medium |
-| Use WiFi instead of cellular | Medium |
-| Limit location services | Medium |
-| Disable push email (use scheduled retrieval) | Low-Medium |
+| Setting                                      | Battery Impact        |
+| -------------------------------------------- | --------------------- |
+| Lower screen brightness                      | High                  |
+| Enable dark mode                             | Medium (OLED screens) |
+| Disable always-on display                    | Medium                |
+| Turn off Bluetooth when not using            | Low                   |
+| Disable "Hey Siri" / "OK Google"             | Low-Medium            |
+| Use WiFi instead of cellular                 | Medium                |
+| Limit location services                      | Medium                |
+| Disable push email (use scheduled retrieval) | Low-Medium            |
 
 **Check Battery Health:**
+
 - iPhone: Settings > Battery > Battery Health
 - Android: Settings > Battery > Battery usage
 
@@ -206,21 +218,22 @@ PERFORMANCE CHECKLIST
 ### Audit Notifications
 
 Go through Settings > Notifications and for each app, ask:
+
 1. Do I need to know about this immediately? (Keep as alert)
 2. Can I check it on my schedule? (Change to badge only or disable)
 3. Does this app even need to notify me? (Disable completely)
 
 ### Recommended Notification Settings
 
-| Category | Suggestion |
-|----------|-----------|
-| Messages, Phone, Calendar | Full alerts |
-| Email | Badge only (check on schedule) |
-| Social media | Disable or badge only |
-| Shopping apps | Disable |
-| Games | Disable |
-| News | Disable or scheduled summary |
-| Banking | Keep for fraud alerts |
+| Category                  | Suggestion                     |
+| ------------------------- | ------------------------------ |
+| Messages, Phone, Calendar | Full alerts                    |
+| Email                     | Badge only (check on schedule) |
+| Social media              | Disable or badge only          |
+| Shopping apps             | Disable                        |
+| Games                     | Disable                        |
+| News                      | Disable or scheduled summary   |
+| Banking                   | Keep for fraud alerts          |
 
 **iPhone:** Use Scheduled Summary (Settings > Notifications > Scheduled Summary) to batch non-urgent notifications.
 
@@ -251,7 +264,6 @@ Go through Settings > Notifications and for each app, ask:
 [ ] Review and clean up contacts
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -259,7 +271,6 @@ Go through Settings > Notifications and for each app, ask:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -280,14 +291,12 @@ Go through Settings > Notifications and for each app, ask:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

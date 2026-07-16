@@ -19,7 +19,9 @@
   color: var(--color-text-2);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
   line-height: 1.4;
 }
 
@@ -30,7 +32,7 @@
 
 .chipActive {
   background: rgba(255, 122, 69, 0.12);
-  border-color: var(--color-primary-6, #FF7A45);
+  border-color: var(--color-primary-6, #ff7a45);
   color: var(--color-text-1);
 }
 
@@ -68,7 +70,7 @@
 
 .popoverDelta {
   font-size: 11px;
-  color: #4ADE80;
+  color: #4ade80;
   font-weight: 500;
 }
 
@@ -81,7 +83,7 @@
 
 .sparkBar {
   flex: 1;
-  background: var(--color-primary-6, #FF7A45);
+  background: var(--color-primary-6, #ff7a45);
   opacity: 0.5;
   border-radius: 1px;
   min-height: 2px;
@@ -89,7 +91,7 @@
 
 .popoverLink {
   font-size: 11px;
-  color: var(--color-primary-6, #FF7A45);
+  color: var(--color-primary-6, #ff7a45);
   background: none;
   border: none;
   cursor: pointer;

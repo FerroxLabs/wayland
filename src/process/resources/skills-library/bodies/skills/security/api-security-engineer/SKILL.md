@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security api-security guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security api-security guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # API Security Engineer
@@ -46,6 +46,7 @@ def get_transactions(account_id):
 ```
 
 **BOLA Checklist:**
+
 - [ ] Every endpoint with a resource ID has an authorization check
 - [ ] Authorization verifies the requesting user has access to the specific object
 - [ ] Use UUIDs instead of sequential integers (reduces enumeration)
@@ -94,14 +95,14 @@ def list_products():
 
 ### API5-API10 Summary
 
-| Category | Key Threat | Defense |
-|----------|-----------|---------|
-| API5: Broken Function Auth | User calls admin endpoints | Role-based middleware on every route |
-| API6: Unrestricted Business Flows | Automated abuse (scraping) | Rate limiting, CAPTCHA, business logic checks |
-| API7: SSRF | API fetches attacker URLs | URL allowlists, block private IPs |
-| API8: Security Misconfig | Debug endpoints, verbose errors | Hardened defaults, security headers |
-| API9: Improper Inventory | skipped API versions | API catalog, version lifecycle policy |
-| API10: Unsafe Consumption | Trusting third-party responses | Validate all external data, timeouts |
+| Category                          | Key Threat                      | Defense                                       |
+| --------------------------------- | ------------------------------- | --------------------------------------------- |
+| API5: Broken Function Auth        | User calls admin endpoints      | Role-based middleware on every route          |
+| API6: Unrestricted Business Flows | Automated abuse (scraping)      | Rate limiting, CAPTCHA, business logic checks |
+| API7: SSRF                        | API fetches attacker URLs       | URL allowlists, block private IPs             |
+| API8: Security Misconfig          | Debug endpoints, verbose errors | Hardened defaults, security headers           |
+| API9: Improper Inventory          | skipped API versions            | API catalog, version lifecycle policy         |
+| API10: Unsafe Consumption         | Trusting third-party responses  | Validate all external data, timeouts          |
 
 ## JWT Security
 
@@ -207,17 +208,17 @@ class APIKeyManager:
 ### Multi-Tier Strategy
 
 ```yaml
-global:              10000 req/sec (DDoS protection)
-per_ip:              60 req/min (abuse prevention)
+global: 10000 req/sec (DDoS protection)
+per_ip: 60 req/min (abuse prevention)
 per_key:
-  free:              100 req/hour
-  basic:             1000 req/hour
-  pro:               10000 req/hour
+  free: 100 req/hour
+  basic: 1000 req/hour
+  pro: 10000 req/hour
 per_endpoint:
-  /auth/login:       5 req/min per IP
-  /auth/reset:       3 req/hour per IP
-  /search:           30 req/min per key
-  /export:           10 req/hour per key
+  /auth/login: 5 req/min per IP
+  /auth/reset: 3 req/hour per IP
+  /search: 30 req/min per key
+  /export: 10 req/hour per key
 ```
 
 ### Response Headers
@@ -254,20 +255,20 @@ class OrderCreateRequest(BaseModel):
 ```yaml
 security:
   tls:
-    min_version: "TLSv1.2"
-    hsts: {enabled: true, max_age: 31536000, include_subdomains: true}
+    min_version: 'TLSv1.2'
+    hsts: { enabled: true, max_age: 31536000, include_subdomains: true }
   request_limits:
-    max_body_size: "10MB"
-    max_header_size: "8KB"
+    max_body_size: '10MB'
+    max_header_size: '8KB'
     max_uri_length: 2048
-    request_timeout: "30s"
+    request_timeout: '30s'
   response_headers:
-    X-Content-Type-Options: "nosniff"
-    X-Frame-Options: "DENY"
-    Cache-Control: "no-store"
+    X-Content-Type-Options: 'nosniff'
+    X-Frame-Options: 'DENY'
+    Cache-Control: 'no-store'
   cors:
-    allowed_origins: ["[reference URL]"]
-    allowed_methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+    allowed_origins: ['[reference URL]']
+    allowed_methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
     allow_credentials: true
 ```
 
@@ -321,6 +322,7 @@ docker run -t zaproxy/zap-stable zap-api-scan.py \
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing api security engineer solutions
 - Reviewing or improving existing api security engineer approaches
 - Making architectural or implementation decisions about api security engineer
@@ -328,6 +330,7 @@ docker run -t zaproxy/zap-stable zap-api-scan.py \
 - Troubleshooting api security engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -338,21 +341,26 @@ docker run -t zaproxy/zap-stable zap-api-scan.py \
 # Api Security Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

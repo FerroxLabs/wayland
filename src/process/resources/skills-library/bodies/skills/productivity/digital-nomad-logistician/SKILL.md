@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management budgeting checklist template guide cloud testing automation"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management budgeting checklist template guide cloud testing automation'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Digital Nomad Logistician
@@ -22,15 +22,16 @@ You are a digital nomad logistics advisor who helps remote workers plan and exec
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about digital nomad logistician techniques or best practices
 - User needs guidance on digital nomad logistician concepts
 - User wants to implement or improve their approach to digital nomad logistician
 
 **Do NOT use when:**
+
 - The request falls outside the scope of digital nomad logistician
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -439,7 +440,6 @@ BUDGET TIERS BY DESTINATION TYPE:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -461,7 +461,6 @@ When helping users plan a digital nomad transition, provide:
 7. **Budget estimate** -- Monthly breakdown for their destination
 8. **Risk mitigation** -- Top risks and how to address them
 
-
 ```template
 ## Digital Nomad Logistician -- Structured Output
 
@@ -476,14 +475,12 @@ When helping users plan a digital nomad transition, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "api-design frameworks web-development"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'api-design frameworks web-development'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # REST API Implementation
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is designing or building a new REST API from scratch and needs guidance on resource modeling, endpoint structure, HTTP semantics, and versioning strategy
 - User has an existing API with pain points -- inconsistent naming, poor error messages, versioning problems, authentication gaps -- and wants to refactor toward production-grade patterns
 - User needs to choose between REST and other API paradigms (GraphQL, gRPC, tRPC) and wants a structured comparison for their use case
@@ -29,6 +31,7 @@ metadata:
 - User is debugging API design problems such as N+1 query exposure, chatty APIs causing excessive round trips, or clients breaking on schema changes
 
 **Do NOT use this skill when:**
+
 - User needs help designing a GraphQL schema, resolvers, or subscriptions -- use the GraphQL schema design skill instead
 - User is building event-driven or message-broker integrations (Kafka, RabbitMQ, NATS) -- use the async messaging skill
 - User needs gRPC service definition, Protobuf schema design, or bidirectional streaming -- use the gRPC implementation skill
@@ -143,6 +146,7 @@ Collection endpoints must support pagination from day one. Retrofitting paginati
 These three capabilities define the reliability profile of a production API.
 
 **Caching:**
+
 - Set `ETag` headers on GET responses (hash of the response body or the resource's `updatedAt` timestamp). Support `If-None-Match` conditional requests to return 304 Not Modified and save bandwidth.
 - Set `Cache-Control` headers explicitly:
   - Public, slow-changing data: `Cache-Control: public, max-age=300, stale-while-revalidate=60`
@@ -151,11 +155,13 @@ These three capabilities define the reliability profile of a production API.
 - Use `Vary: Accept, Accept-Encoding, Authorization` to prevent cache poisoning when response varies by these headers.
 
 **Idempotency:**
+
 - Accept an `Idempotency-Key` header (UUID, max 255 chars) on POST and PATCH endpoints that trigger side effects (payments, emails, job dispatch).
 - Store the key in a fast store (Redis with 24-hour TTL) mapped to the response status code and body. On a duplicate request, return the stored response immediately without re-executing the operation.
 - Return `409 Conflict` if the same Idempotency-Key is received while the first request is still being processed (prevents thundering herd on retries).
 
 **Async operations:**
+
 - For operations exceeding 500ms expected duration, return 202 Accepted immediately with a job resource:
   ```json
   { "jobId": "job_01HX4T2Z", "status": "pending", "statusUrl": "/jobs/job_01HX4T2Z" }
@@ -342,17 +348,17 @@ The API contract and the database schema evolve independently. Changes to one mu
 
 ### Resource Model
 
-| Resource         | URL Pattern                                   | Parent   | ID Type  | Notes                                      |
-|------------------|-----------------------------------------------|----------|----------|--------------------------------------------|
-| Users            | /v1/users                                     | --       | UUID v4  | Customers and admins via `role` field       |
-| Products         | /v1/products                                  | --       | UUID v4  | Public read, admin write                   |
-| Categories       | /v1/categories                                | --       | UUID v4  | Hierarchical via `parentCategoryId`        |
-| Carts            | /v1/carts/{cartId}                            | --       | UUID v4  | Anonymous and authenticated carts          |
-| Cart Items       | /v1/carts/{cartId}/items                      | Cart     | UUID v4  | Items exist only within a cart             |
-| Orders           | /v1/orders                                    | --       | UUID v4  | Created from cart checkout                 |
-| Order Items      | /v1/orders/{orderId}/items                    | Order    | UUID v4  | Immutable after order creation             |
-| Payments         | /v1/payments                                  | --       | UUID v4  | One-to-one with orders                     |
-| Shipments        | /v1/shipments                                 | --       | UUID v4  | Linked to orders via `orderId`             |
+| Resource    | URL Pattern                | Parent | ID Type | Notes                                 |
+| ----------- | -------------------------- | ------ | ------- | ------------------------------------- |
+| Users       | /v1/users                  | --     | UUID v4 | Customers and admins via `role` field |
+| Products    | /v1/products               | --     | UUID v4 | Public read, admin write              |
+| Categories  | /v1/categories             | --     | UUID v4 | Hierarchical via `parentCategoryId`   |
+| Carts       | /v1/carts/{cartId}         | --     | UUID v4 | Anonymous and authenticated carts     |
+| Cart Items  | /v1/carts/{cartId}/items   | Cart   | UUID v4 | Items exist only within a cart        |
+| Orders      | /v1/orders                 | --     | UUID v4 | Created from cart checkout            |
+| Order Items | /v1/orders/{orderId}/items | Order  | UUID v4 | Immutable after order creation        |
+| Payments    | /v1/payments               | --     | UUID v4 | One-to-one with orders                |
+| Shipments   | /v1/shipments              | --     | UUID v4 | Linked to orders via `orderId`        |
 
 Products and Categories are NOT nested under each other even though a product belongs to a category -- they both have independent existence and are linked via a foreign key, not a URL hierarchy.
 
@@ -360,21 +366,21 @@ Products and Categories are NOT nested under each other even though a product be
 
 ### Endpoint Inventory
 
-| Method | Path                              | Scopes Required       | Idempotent | Paginated | Status Codes          |
-|--------|-----------------------------------|-----------------------|------------|-----------|-----------------------|
-| GET    | /v1/products                      | public                | Yes        | Cursor    | 200, 400              |
-| POST   | /v1/products                      | products:write        | No*        | --        | 201, 400, 401, 403, 422 |
-| GET    | /v1/products/{productId}          | public                | Yes        | --        | 200, 404              |
-| PATCH  | /v1/products/{productId}          | products:write        | No*        | --        | 200, 400, 401, 403, 404, 409, 412, 422 |
-| DELETE | /v1/products/{productId}          | products:write        | Yes        | --        | 204, 401, 403, 404    |
-| POST   | /v1/carts                         | public                | Yes*       | --        | 201, 422              |
-| POST   | /v1/carts/{cartId}/items          | cart:write            | No*        | --        | 201, 400, 404, 422    |
-| DELETE | /v1/carts/{cartId}/items/{itemId} | cart:write            | Yes        | --        | 204, 404              |
-| POST   | /v1/orders                        | orders:write          | No*        | --        | 202, 400, 409, 422    |
-| GET    | /v1/orders/{orderId}              | orders:read           | Yes        | --        | 200, 401, 403, 404    |
-| POST   | /v1/orders/{orderId}/cancel       | orders:write          | Yes*       | --        | 200, 401, 403, 404, 409 |
-| POST   | /v1/payments                      | payments:write        | No*        | --        | 202, 400, 422         |
-| GET    | /v1/jobs/{jobId}                  | -- (token in URL)     | Yes        | --        | 200, 404              |
+| Method | Path                              | Scopes Required   | Idempotent | Paginated | Status Codes                           |
+| ------ | --------------------------------- | ----------------- | ---------- | --------- | -------------------------------------- |
+| GET    | /v1/products                      | public            | Yes        | Cursor    | 200, 400                               |
+| POST   | /v1/products                      | products:write    | No\*       | --        | 201, 400, 401, 403, 422                |
+| GET    | /v1/products/{productId}          | public            | Yes        | --        | 200, 404                               |
+| PATCH  | /v1/products/{productId}          | products:write    | No\*       | --        | 200, 400, 401, 403, 404, 409, 412, 422 |
+| DELETE | /v1/products/{productId}          | products:write    | Yes        | --        | 204, 401, 403, 404                     |
+| POST   | /v1/carts                         | public            | Yes\*      | --        | 201, 422                               |
+| POST   | /v1/carts/{cartId}/items          | cart:write        | No\*       | --        | 201, 400, 404, 422                     |
+| DELETE | /v1/carts/{cartId}/items/{itemId} | cart:write        | Yes        | --        | 204, 404                               |
+| POST   | /v1/orders                        | orders:write      | No\*       | --        | 202, 400, 409, 422                     |
+| GET    | /v1/orders/{orderId}              | orders:read       | Yes        | --        | 200, 401, 403, 404                     |
+| POST   | /v1/orders/{orderId}/cancel       | orders:write      | Yes\*      | --        | 200, 401, 403, 404, 409                |
+| POST   | /v1/payments                      | payments:write    | No\*       | --        | 202, 400, 422                          |
+| GET    | /v1/jobs/{jobId}                  | -- (token in URL) | Yes        | --        | 200, 404                               |
 
 \* Use `Idempotency-Key` header.
 
@@ -382,17 +388,17 @@ Products and Categories are NOT nested under each other even though a product be
 
 ### Status Code Matrix
 
-| Scenario                                   | Status | Required Headers                              |
-|--------------------------------------------|--------|-----------------------------------------------|
-| Product created                            | 201    | `Location: /v1/products/{id}`, `ETag: "v1"`   |
-| Order checkout initiated (async)           | 202    | `Location: /v1/jobs/{jobId}`                  |
-| Cart item deleted                          | 204    | --                                            |
-| Unknown `productId` in PATCH              | 404    | --                                            |
-| Order cancel on already-shipped order     | 409    | Current order state in response body          |
-| PATCH with stale ETag                     | 412    | `ETag` of current version                     |
-| Validation error on product creation      | 422    | --                                            |
-| Invalid JWT                               | 401    | `WWW-Authenticate: Bearer error="invalid_token"` |
-| Valid JWT, missing `products:write` scope | 403    | --                                            |
+| Scenario                                  | Status | Required Headers                                                                                          |
+| ----------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------- |
+| Product created                           | 201    | `Location: /v1/products/{id}`, `ETag: "v1"`                                                               |
+| Order checkout initiated (async)          | 202    | `Location: /v1/jobs/{jobId}`                                                                              |
+| Cart item deleted                         | 204    | --                                                                                                        |
+| Unknown `productId` in PATCH              | 404    | --                                                                                                        |
+| Order cancel on already-shipped order     | 409    | Current order state in response body                                                                      |
+| PATCH with stale ETag                     | 412    | `ETag` of current version                                                                                 |
+| Validation error on product creation      | 422    | --                                                                                                        |
+| Invalid JWT                               | 401    | `WWW-Authenticate: Bearer error="invalid_token"`                                                          |
+| Valid JWT, missing `products:write` scope | 403    | --                                                                                                        |
 | Rate limit hit                            | 429    | `Retry-After: 30`, `X-RateLimit-Limit: 1000`, `X-RateLimit-Remaining: 0`, `X-RateLimit-Reset: 1715000400` |
 
 ---
@@ -458,7 +464,7 @@ export async function authenticate(req, res, next) {
 export function requireScope(...scopes) {
   return (req, res, next) => {
     const tokenScopes = (req.user.scope || '').split(' ');
-    const hasAll = scopes.every(s => tokenScopes.includes(s));
+    const hasAll = scopes.every((s) => tokenScopes.includes(s));
     if (!hasAll) {
       return res.status(403).json({
         type: 'https://api.example.com/errors/forbidden',
@@ -487,10 +493,12 @@ The cursor encodes the last-seen `createdAt` timestamp and `id` (for tie-breakin
 
 ```javascript
 // Encode cursor
-const cursor = Buffer.from(JSON.stringify({
-  createdAt: lastItem.createdAt,
-  id: lastItem.id,
-})).toString('base64url');
+const cursor = Buffer.from(
+  JSON.stringify({
+    createdAt: lastItem.createdAt,
+    id: lastItem.id,
+  })
+).toString('base64url');
 
 // Decode cursor
 const { createdAt, id } = JSON.parse(Buffer.from(cursor, 'base64url').toString());
@@ -511,7 +519,9 @@ LIMIT :limit + 1;  -- fetch one extra to determine if nextCursor exists
 
 ```json
 {
-  "data": [ /* array of product objects */ ],
+  "data": [
+    /* array of product objects */
+  ],
   "pagination": {
     "nextCursor": "eyJjcmVhdGVkQXQiOiIyMDI0LTAzLTE1VDEwOjMwOjAwWiIsImlkIjoiMDE4ZTQ1YTItN2IzYy03ZThlLWI4MzMtMzE0ZWI3NzllMDJjIn0",
     "prevCursor": null,
@@ -525,14 +535,14 @@ LIMIT :limit + 1;  -- fetch one extra to determine if nextCursor exists
 
 ### Caching Strategy
 
-| Resource Type         | Cache-Control Directive                                    | ETag Strategy                    |
-|-----------------------|------------------------------------------------------------|----------------------------------|
-| Product detail (GET)  | `public, max-age=60, stale-while-revalidate=300`           | Hash of product fields           |
-| Product list (GET)    | `public, max-age=30, stale-while-revalidate=60`            | Hash of result set               |
-| Order detail (GET)    | `private, max-age=0, must-revalidate`                      | Version counter                  |
-| Cart detail (GET)     | `private, max-age=0, must-revalidate`                      | Hash of cart contents            |
-| Payment detail (GET)  | `private, no-store`                                        | None                             |
-| User profile (GET)    | `private, max-age=60, must-revalidate`                     | Hash of user fields              |
+| Resource Type        | Cache-Control Directive                          | ETag Strategy          |
+| -------------------- | ------------------------------------------------ | ---------------------- |
+| Product detail (GET) | `public, max-age=60, stale-while-revalidate=300` | Hash of product fields |
+| Product list (GET)   | `public, max-age=30, stale-while-revalidate=60`  | Hash of result set     |
+| Order detail (GET)   | `private, max-age=0, must-revalidate`            | Version counter        |
+| Cart detail (GET)    | `private, max-age=0, must-revalidate`            | Hash of cart contents  |
+| Payment detail (GET) | `private, no-store`                              | None                   |
+| User profile (GET)   | `private, max-age=60, must-revalidate`           | Hash of user fields    |
 
 Redis cache strategy for product reads: cache product JSON at key `product:{uuid}` with 5-minute TTL. On PATCH/DELETE, invalidate the key synchronously before returning the response. Use Redis pipeline for batch invalidation on bulk updates.
 
@@ -567,26 +577,26 @@ All errors follow RFC 7807. Machine-readable error codes follow the pattern `RES
 
 Error code registry (maintain this in a shared constants file):
 
-| Code                       | Status | Scenario                                        |
-|----------------------------|--------|-------------------------------------------------|
-| `PRODUCT_NOT_FOUND`        | 404    | Product ID does not exist or is deleted         |
-| `PRODUCT_PRICE_NEGATIVE`   | 422    | Price field is zero or negative                 |
-| `PRODUCT_SKU_DUPLICATE`    | 409    | SKU already exists in the catalog               |
-| `ORDER_INVALID_STATE`      | 409    | Cancellation attempted on shipped order         |
-| `CART_ITEM_OUT_OF_STOCK`   | 422    | Product has insufficient inventory              |
-| `PAYMENT_ALREADY_CAPTURED` | 409    | Duplicate payment attempt detected              |
-| `RATE_LIMIT_EXCEEDED`      | 429    | Too many requests                               |
-| `IDEMPOTENCY_CONFLICT`     | 409    | Duplicate Idempotency-Key with different body   |
+| Code                       | Status | Scenario                                      |
+| -------------------------- | ------ | --------------------------------------------- |
+| `PRODUCT_NOT_FOUND`        | 404    | Product ID does not exist or is deleted       |
+| `PRODUCT_PRICE_NEGATIVE`   | 422    | Price field is zero or negative               |
+| `PRODUCT_SKU_DUPLICATE`    | 409    | SKU already exists in the catalog             |
+| `ORDER_INVALID_STATE`      | 409    | Cancellation attempted on shipped order       |
+| `CART_ITEM_OUT_OF_STOCK`   | 422    | Product has insufficient inventory            |
+| `PAYMENT_ALREADY_CAPTURED` | 409    | Duplicate payment attempt detected            |
+| `RATE_LIMIT_EXCEEDED`      | 429    | Too many requests                             |
+| `IDEMPOTENCY_CONFLICT`     | 409    | Duplicate Idempotency-Key with different body |
 
 ---
 
 ### OpenAPI Spec Skeleton
 
 ```yaml
-openapi: "3.1.0"
+openapi: '3.1.0'
 info:
   title: E-Commerce Platform API
-  version: "1.0.0"
+  version: '1.0.0'
   description: >
     Production API for the e-commerce web and mobile clients.
     All timestamps are ISO 8601 UTC. All monetary values are integers in cents.
@@ -624,7 +634,7 @@ components:
           description: Price in the smallest currency unit (e.g., 1999 = $19.99)
         currency:
           type: string
-          pattern: "^[A-Z]{3}$"
+          pattern: '^[A-Z]{3}$'
           description: ISO 4217 currency code
         categoryId:
           type: string
@@ -726,7 +736,7 @@ paths:
             enum: [createdAt:desc, createdAt:asc, price:desc, price:asc, name:asc]
             default: createdAt:desc
       responses:
-        "200":
+        '200':
           description: Paginated product list
           headers:
             ETag:
@@ -744,22 +754,22 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Product"
+                      $ref: '#/components/schemas/Product'
                   pagination:
-                    $ref: "#/components/schemas/CursorPagination"
-        "400":
+                    $ref: '#/components/schemas/CursorPagination'
+        '400':
           description: Invalid query parameters
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetail"
+                $ref: '#/components/schemas/ProblemDetail'
 
     post:
       operationId: createProduct
       summary: Create a product
       tags: [Products]
       parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -779,12 +789,12 @@ paths:
                   minimum: 1
                 currency:
                   type: string
-                  pattern: "^[A-Z]{3}$"
+                  pattern: '^[A-Z]{3}$'
                 categoryId:
                   type: string
                   format: uuid
       responses:
-        "201":
+        '201':
           description: Product created
           headers:
             Location:
@@ -796,13 +806,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
-        "422":
+                $ref: '#/components/schemas/Product'
+        '422':
           description: Validation failed
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetail"
+                $ref: '#/components/schemas/ProblemDetail'
 ```
 
 ---
@@ -811,4 +821,4 @@ paths:
 
 **For a new implementation, apply these patterns from day one:**
 
-1. **
+1. \*\*

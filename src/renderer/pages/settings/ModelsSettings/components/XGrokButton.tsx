@@ -158,7 +158,8 @@ const XGrokButton: React.FC = () => {
             <Spin size={14} />
             <span>
               {t('settings.modelsPage.connect.xaiWaiting', {
-                defaultValue: 'Finishing sign-in in your browser. Approve it in the tab that opened - this completes on its own.',
+                defaultValue:
+                  'Finishing sign-in in your browser. Approve it in the tab that opened - this completes on its own.',
               })}
             </span>
           </div>
@@ -174,10 +175,17 @@ const XGrokButton: React.FC = () => {
                   value={code}
                   onChange={setCode}
                   allowClear
-                  placeholder={t('settings.modelsPage.connect.xaiPastePlaceholder', { defaultValue: 'Paste code from x.ai' })}
+                  placeholder={t('settings.modelsPage.connect.xaiPastePlaceholder', {
+                    defaultValue: 'Paste code from x.ai',
+                  })}
                   onPressEnter={() => void handleSubmitCode()}
                 />
-                <Button type='primary' loading={submitting} disabled={code.trim().length === 0} onClick={() => void handleSubmitCode()}>
+                <Button
+                  type='primary'
+                  loading={submitting}
+                  disabled={code.trim().length === 0}
+                  onClick={() => void handleSubmitCode()}
+                >
                   {t('settings.modelsPage.connect.xaiPasteSubmit', { defaultValue: 'Finish' })}
                 </Button>
               </div>

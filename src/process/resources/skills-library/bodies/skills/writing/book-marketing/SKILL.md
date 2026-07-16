@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing marketing content-marketing"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing marketing content-marketing'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Book Marketing
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on book marketing
 - User asks about book marketing best practices or techniques
 - User wants a structured approach to book marketing
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of book marketing
 
@@ -82,6 +83,7 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 ## Pre-Launch Strategy (8-12 Weeks Before Publication)
 
 ### Week 12-8: Foundation
+
 - [ ] Finalize cover (must be ready for all promotional material)
 - [ ] Write book description / back cover copy (multiple versions for different platforms)
 - [ ] Set up or update author website with book page
@@ -90,6 +92,7 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 - [ ] Set up pre-order (if strategically advantageous)
 
 ### Week 8-4: ARC Distribution
+
 - [ ] Distribute ARCs to review team (digital via BookFunnel, NetGalley, or direct)
 - [ ] Submit to book bloggers and reviewers (research lead times --- many need 6-8 weeks)
 - [ ] Begin social media content ramp-up
@@ -98,6 +101,7 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 - [ ] Begin newsletter promotional sequence
 
 ### Week 4-1: Launch Preparation
+
 - [ ] Confirm Amazon categories and keywords are optimized
 - [ ] Test all buy links
 - [ ] Schedule launch week social media posts
@@ -109,12 +113,14 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 ## ARC (Advance Review Copy) Management
 
 ### Building an ARC Team
+
 - **Sources:** Newsletter subscribers, social media followers, genre-specific reader groups, previous ARC readers
 - **Size target:** 30-100 ARCs for debut; 100-500 for established authors
 - **Selection criteria:** Active reviewers who read your genre and have posted reviews before
 - **Application form:** Collect name, email, preferred format, where they will review (Amazon, Goodreads, BookBub)
 
 ### ARC Distribution Process
+
 1. Create ARC version (clearly marked "Advance Review Copy --- Not for Sale")
 2. Distribute via BookFunnel (preferred --- manages delivery and format) or direct email
 3. Include a one-page note with: publication date, where to post reviews, social media hashtags
@@ -123,6 +129,7 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 6. Thank every reviewer personally
 
 ### ARC Expectations
+
 - Expect 30-50% of ARC recipients to actually post a review
 - Do NOT require positive reviews (this violates platform terms)
 - Do NOT offer compensation for reviews (Amazon will remove them)
@@ -131,7 +138,9 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 ## Social Media Marketing
 
 ### BookTok (TikTok)
+
 **What works:**
+
 - Authentic, personality-driven content (not polished ads)
 - Trope reveals and mood boards
 - "Books like [popular title]" recommendations that include yours
@@ -140,6 +149,7 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 - Short, punchy hooks in first 2 seconds
 
 **What does not work:**
+
 - "Buy my book" posts
 - Over-produced content
 - Posting without engaging in the community first
@@ -150,7 +160,9 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 **Posting frequency:** 3-5 times per week minimum for algorithmic favor
 
 ### Bookstagram (Instagram)
+
 **What works:**
+
 - Aesthetic book photography (flatlays, mood shots, styled shots)
 - Carousel posts with value content (trope lists, reading recommendations)
 - Reels (short video) for reach
@@ -158,6 +170,7 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 - Stories for daily engagement (polls, questions, behind-the-scenes)
 
 **What does not work:**
+
 - Stock images or low-quality photos
 - Only posting about your own book
 - Ignoring the community engagement requirement
@@ -165,34 +178,40 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 **Posting frequency:** 3-5 feed posts per week; daily stories
 
 ### Other Platforms
+
 - **Facebook:** Genre-specific reader groups (do not spam; provide value first). Facebook Ads for targeted reach. Author pages for events and updates.
 - **Twitter/X:** Best for connecting with other authors, agents, and publishing professionals. Less effective for reader acquisition.
 - **YouTube:** AuthorTube community for process content. BookTube for reviews and discussions.
 - **Threads:** Growing book community; early adopter advantage.
 
 ### The 80/20 Social Media Rule
+
 80% of your content should be valuable, entertaining, or community-building (not about your book). 20% can be promotional. The fastest way to kill a social media presence is to make every post a sales pitch.
 
 ## Amazon Advertising
 
 ### Ad Types
+
 - **Sponsored Products:** Appear in search results and on product pages. Best starting point.
 - **Sponsored Brands:** Banner ads in search results. Requires 3+ books. Good for series.
 - **Lockscreen Ads:** Appear on Kindle lock screens. Broad reach, lower conversion.
 
 ### Getting Started with Sponsored Products
+
 1. **Keyword targeting:** Start with author names and book titles in your genre
 2. **Budget:** Start at $5-$10/day
 3. **Bid:** Start at $0.30-$0.50 for fiction; $0.50-$1.00 for non-fiction
 4. **Campaign structure:** One campaign per targeting type (automatic, keyword, product)
 
 ### Key Metrics
+
 - **ACOS (Advertising Cost of Sale):** Ad spend / sales revenue. Target under 70% for ebook.
 - **Impressions:** How many times your ad was shown
 - **CTR (Click-Through Rate):** Clicks / impressions. Above 0.3% is decent.
 - **CPC (Cost Per Click):** What you pay per click. Monitor against royalty per sale.
 
 ### Amazon Ads Optimization Cycle
+
 1. Launch with automatic targeting campaign to discover keywords
 2. After 2 weeks, harvest converting keywords from automatic campaign
 3. Create manual keyword campaigns with harvested keywords
@@ -201,17 +220,20 @@ Every marketing effort targets one of these stages. Know which stage you are wor
 6. Repeat weekly
 
 ### Profitability Calculation
+
 If your ebook earns $3.50 per sale and your ACOS is 70%, you spend $2.45 per sale. That is $1.05 profit per book sold through ads. For series authors, calculate using read-through revenue (Book 1 sale often leads to Book 2, 3, etc.).
 
 ## Newsletter Building
 
 ### Why Email Is King
+
 - You own your list (not dependent on algorithm changes)
 - Email converts 5-10x better than social media for book sales
 - Direct relationship with your most engaged readers
 - Essential for series launches and backlist promotion
 
 ### Building Your List
+
 - **Reader magnet:** Offer a free novella, short story, bonus chapter, or resource in exchange for email signup
 - **BookFunnel:** Host your reader magnet and collect emails
 - **Website signup form:** On every page of your author site
@@ -219,6 +241,7 @@ If your ebook earns $3.50 per sale and your ACOS is 70%, you spend $2.45 per sal
 - **Social media CTAs:** Regular invitations to join your list
 
 ### Newsletter Best Practices
+
 - **Frequency:** Monthly at minimum; weekly or biweekly is ideal for engaged authors
 - **Content mix:** 60% value/entertainment, 30% personal/behind-the-scenes, 10% promotion
 - **Welcome sequence:** 3-5 automated emails that introduce you and your books
@@ -228,11 +251,13 @@ If your ebook earns $3.50 per sale and your ACOS is 70%, you spend $2.45 per sal
 ## Reviews Strategy
 
 ### Where Reviews Matter Most
+
 1. **Amazon:** Social proof for browsers. Target: 50+ reviews for algorithmic benefit
 2. **Goodreads:** Reader discovery platform. Important for genre fiction.
 3. **BookBub:** Required for Featured Deals (need 50+ reviews on retailer sites)
 
 ### How to Get Reviews (Ethically)
+
 - ARC team (see above)
 - Back matter request: "If you enjoyed this book, please consider leaving a review on Amazon"
 - Newsletter ask: Periodic requests to your list
@@ -241,6 +266,7 @@ If your ebook earns $3.50 per sale and your ACOS is 70%, you spend $2.45 per sal
 - Book bloggers and reviewers in your genre
 
 ### Review Rules
+
 - NEVER pay for reviews (violates all platform terms)
 - NEVER ask friends/family to review (Amazon removes these)
 - NEVER review-swap with other authors (against Amazon terms)
@@ -250,9 +276,11 @@ If your ebook earns $3.50 per sale and your ACOS is 70%, you spend $2.45 per sal
 ## Backlist Marketing
 
 ### The Backlist Is Your Engine
+
 Most successful indie authors earn the majority of their income from backlist titles, not new releases. Every new book sells old books.
 
 ### Backlist Strategies
+
 - Price pulse Book 1 to $0.99 or free periodically (drives series read-through)
 - Run Amazon Ads on Book 1 continuously (low budget, long tail)
 - BookBub Featured Deal on backlist titles
@@ -262,7 +290,9 @@ Most successful indie authors earn the majority of their income from backlist ti
 - Bundle backlist titles into box sets
 
 ### Series Read-Through Math
+
 If 50% of Book 1 buyers read Book 2, and 70% of those read Book 3:
+
 - 1,000 Book 1 sales = 500 Book 2 sales = 350 Book 3 sales
 - Total revenue across series at $4.99 each (70% royalty): 1,850 x $3.49 = $6,457
 - Your effective revenue per Book 1 acquisition: $6.46 (not $3.49)
@@ -282,6 +312,7 @@ If 50% of Book 1 buyers read Book 2, and 70% of those read Book 3:
 ## Book Tours and Events
 
 ### Virtual Events
+
 - Instagram Live or TikTok Live readings and Q&A sessions
 - Virtual book clubs (Zoom into existing book clubs reading your book)
 - Podcast guest appearances (pitch yourself to genre-relevant podcasts)
@@ -289,6 +320,7 @@ If 50% of Book 1 buyers read Book 2, and 70% of those read Book 3:
 - Newsletter takeovers (guest-write for another author's newsletter)
 
 ### In-Person Events
+
 - Independent bookstore readings and signings (contact the events coordinator)
 - Library author talks (libraries actively seek authors for programming)
 - Literary festival appearances (apply 6-12 months in advance)
@@ -296,6 +328,7 @@ If 50% of Book 1 buyers read Book 2, and 70% of those read Book 3:
 - Book club visits (local and regional)
 
 ### Event Best Practices
+
 - Always bring your own books to events (do not rely on the venue having stock)
 - Prepare a 5-minute reading of your strongest passage
 - Prepare for Q&A: have answers ready for "Where do you get your ideas?" and "What's your writing process?"
@@ -304,18 +337,17 @@ If 50% of Book 1 buyers read Book 2, and 70% of those read Book 3:
 
 ## Marketing Budget Allocation Guide
 
-| Budget Level | Allocation |
-|-------------|------------|
-| $0 (Hustle only) | Social media, newsletter swaps, ARC team, library events |
-| $50/month | Add: basic Amazon Ads |
-| $200/month | Add: BookBub ads, targeted social ads |
-| $500/month | Add: newsletter promotions (BookBub Featured Deal application, genre newsletters) |
-| $1,000+/month | Add: professional publicist, premium ad campaigns, conference attendance |
+| Budget Level     | Allocation                                                                        |
+| ---------------- | --------------------------------------------------------------------------------- |
+| $0 (Hustle only) | Social media, newsletter swaps, ARC team, library events                          |
+| $50/month        | Add: basic Amazon Ads                                                             |
+| $200/month       | Add: BookBub ads, targeted social ads                                             |
+| $500/month       | Add: newsletter promotions (BookBub Featured Deal application, genre newsletters) |
+| $1,000+/month    | Add: professional publicist, premium ad campaigns, conference attendance          |
 
 The most important investment is not money --- it is consistency. An author who shows up every week with valuable content, engages genuinely with their community, and treats each book as a long-term asset will outsell the author who spends thousands on a launch and disappears.
 
 Book marketing is a marathon, not a sprint. The authors who succeed are not those with the biggest budgets but those who show up consistently, build genuine connections with readers, and treat every book as an asset in a growing catalog.
-
 
 ## Output Format
 
@@ -329,13 +361,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with book marketing for a mid-size project."
 
 **Output:** A complete book marketing framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

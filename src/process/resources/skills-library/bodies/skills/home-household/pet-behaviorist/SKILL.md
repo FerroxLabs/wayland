@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care guide troubleshooting"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'pet-care guide troubleshooting'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pet Behaviorist
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about pet behaviorist
 - User needs guidance on pet behaviorist topics
 - User wants a structured approach to pet behaviorist
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -39,10 +42,13 @@ metadata:
 7. **What have you already tried?** (Training methods, medications, etc.)
 8. **Is anyone in the household at risk?** (Children, elderly, other pets)
 9. **What is your pet's history?** (Rescue, breeder, previous homes, known trauma)
+
 ---
+
 ## Reading Dog Body Language
 
 ### Emotional State Indicators
+
 ```
 RELAXED / HAPPY:
 - Soft, squinty eyes
@@ -86,20 +92,23 @@ communication that prevents escalation to biting.
 
 ### Dog Calming Signals
 
-| Signal | Meaning | Context |
-|--------|---------|---------|
-| Lip licking | Stress, appeasement | Meeting new dogs/people |
-| Yawning | Displacement behavior | Uncomfortable situations |
-| Turning head away | "I mean no harm" | Direct approaches |
-| Sniffing ground | Deflection, calming | Tense social situations |
-| Play bow | Invitation to play or de-escalation | Play or conflict diffusion |
-| Slow blinking | Trust, relaxation | Calm environments |
-| Sitting/lying down | Non-threatening signal | When approached |
-| Curved approach | Non-confrontational greeting | Meeting other dogs |
+| Signal             | Meaning                             | Context                    |
+| ------------------ | ----------------------------------- | -------------------------- |
+| Lip licking        | Stress, appeasement                 | Meeting new dogs/people    |
+| Yawning            | Displacement behavior               | Uncomfortable situations   |
+| Turning head away  | "I mean no harm"                    | Direct approaches          |
+| Sniffing ground    | Deflection, calming                 | Tense social situations    |
+| Play bow           | Invitation to play or de-escalation | Play or conflict diffusion |
+| Slow blinking      | Trust, relaxation                   | Calm environments          |
+| Sitting/lying down | Non-threatening signal              | When approached            |
+| Curved approach    | Non-confrontational greeting        | Meeting other dogs         |
+
 ---
+
 ## Reading Cat Body Language
 
 ### Emotional State Indicators
+
 ```
 RELAXED / CONTENT:
 - Slow blinking (the "cat kiss")
@@ -142,10 +151,13 @@ AGGRESSIVE (Warning Signs):
 6. Swatting
 7. Bite
 ```
+
 ---
+
 ## Common Behavioral Issues
 
 ### Separation Anxiety (Dogs)
+
 ```
 SYMPTOMS:
 - Destructive behavior when left alone (especially doors/windows)
@@ -188,6 +200,7 @@ together has the highest success rate.
 ```
 
 ### Excessive Barking (Dogs)
+
 ```
 IDENTIFY THE TYPE:
 Alert Barking: At sounds, visitors, passing people
@@ -217,6 +230,7 @@ TEACHING "QUIET" COMMAND:
 ```
 
 ### Aggression (Dogs)
+
 ```
 TYPES OF AGGRESSION:
 Fear Aggression:
@@ -253,6 +267,7 @@ GENERAL APPROACH (Counter-Conditioning + Desensitization):
 ```
 
 ### Cat Litter Box Issues
+
 ```
 RULE OUT MEDICAL CAUSES FIRST:
 - UTI, kidney disease, diabetes, arthritis (painful to access box)
@@ -282,10 +297,13 @@ CLEANING ACCIDENTS:
 - Clean thoroughly to prevent re-marking
 - Temporarily block access to accident spots if possible
 ```
+
 ---
+
 ## Positive Reinforcement Principles
 
 ### The Four Quadrants of Operant Conditioning
+
 ```
 Increase Behavior   POSITIVE         NEGATIVE
                                       dog walks nice)
@@ -300,6 +318,7 @@ RECOMMENDED APPROACH:
 ```
 
 ### Reward Hierarchy
+
 ```
 LOW VALUE (for easy asks in low-distraction settings):
 - Verbal praise ("good boy/girl!")
@@ -321,10 +340,13 @@ New behavior being learned → Medium-High value
 Behavior near triggers → Highest value
 Recall from high distraction → Jackpot (multiple high-value treats)
 ```
+
 ---
+
 ## Environmental Enrichment
 
 ### Dog Enrichment Ideas
+
 ```
 FOOD ENRICHMENT:
 - Kong (stuffed and frozen): 20-40 min activity
@@ -359,6 +381,7 @@ SOCIAL ENRICHMENT:
 ```
 
 ### Cat Enrichment Ideas
+
 ```
 VERTICAL SPACE:
 - Cat trees (multi-level)
@@ -390,10 +413,13 @@ SOCIAL:
 - Clicker training (yes, cats can be trained)
 - Safe outdoor access (catio, harness training)
 ```
+
 ---
+
 ## Multi-Pet Household Dynamics
 
 ### Introducing a New Dog to a Resident Dog
+
 ```
 PREPARATION (Before bringing new dog home):
 - Set up separate spaces (crates, rooms, gates)
@@ -433,6 +459,7 @@ RED FLAGS TO WATCH:
 ```
 
 ### Introducing a New Cat to a Resident Cat
+
 ```
 PHASE 1: TOTAL SEPARATION (Week 1-2)
 - New cat in a separate room with own litter box, food, water, bed
@@ -464,10 +491,13 @@ PHASE 5: INTEGRATION (Week 6+)
 - Ensure enough resources (litter boxes, food stations, perches)
 - Some cats may never be best friends -- tolerance is okay
 ```
+
 ---
+
 ## Socialization Guidance
 
 ### Critical Socialization Periods
+
 ```
 DOGS:
 Primary socialization window: 3-14 weeks of age
@@ -489,10 +519,13 @@ Secondary socialization: 7-14 weeks
 - Carrier and car rides
 - Gentle grooming and handling
 ```
+
 ---
+
 ## Output Format
 
 When providing behavioral guidance, present it as:
+
 ```
 BEHAVIORAL ASSESSMENT
 Pet: [Species / Breed / Age]

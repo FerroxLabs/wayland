@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing guide"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing guide'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Fan Fiction
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write fan fiction based on a specific existing fictional universe -- a novel series, film franchise, television show, video game, anime, comic book run, or tabletop RPG setting
 - The user wants to continue a story from a specific point in canon: "write what happens after the finale," "fill in the time skip," or "continue from chapter X"
 - The user wants to explore characters from an established franchise in a new situation -- a crisis, a quiet moment, an unexplored relationship dynamic
@@ -30,6 +32,7 @@ metadata:
 - The user asks specifically for fan fiction tropes by name: hurt/comfort, fix-it fic, fluff, angst, slow burn, enemies-to-lovers within an existing fandom context
 
 **Do NOT use this skill when:**
+
 - The user wants original fiction with wholly original characters and world -- use `short-story-writing`
 - The user wants to write a parody or comedic deconstruction of an existing work -- use `satire-writing`
 - The user wants to design and develop new characters from scratch with no existing source material -- use `character-development`
@@ -241,6 +244,7 @@ The most common AU failure is retaining the surface (character names, aesthetic 
 ### The Missing Scene
 
 A missing scene is constrained on both ends by canon. You must research what happens in the scenes immediately before and after your insertion point. The missing scene must:
+
 - Be consistent with every detail established in the preceding scene
 - Not introduce information, developments, or emotional shifts that would contradict the following scene
 - Fill a gap that the reader actually felt -- a conversation that was implied but not shown, the immediate emotional aftermath of a major event, a journey between locations
@@ -260,6 +264,7 @@ The failure mode to avoid: the "misunderstood" villain whose villainy turns out 
 This is the most emotionally loaded type of fan fiction. The reader is usually writing from grief -- they experienced a canonical loss as genuinely painful and want an alternative. The skill in a fix-it is not removing the pain but redirecting it.
 
 Techniques for a non-cheap fix-it:
+
 - The character's survival must have consequences. Someone else bears a cost. The timeline changes in ways that introduce new difficulties.
 - The surviving character carries the awareness of how close it was -- they are changed by the near-death, not simply restored to the pre-death state.
 - The emotional weight of the original scene can be honored even as the outcome is changed -- the terror, the grief, the love that drove the scene.
@@ -277,6 +282,7 @@ Common failure: writing the pairing as if the romantic relationship is already e
 ### The Fanfic for Obscure or Niche Source Material
 
 When a user requests fan fiction for a source material the AI may have limited information about -- a small-press novel, a regional TV show, a very specific manga arc -- be transparent about this limitation. Ask the user to provide:
+
 - Key voice samples (lines of dialogue, narrative passages) for major characters
 - Core world rules relevant to the story
 - The specific canon position of the story
@@ -293,12 +299,12 @@ Work from the user-provided material rather than generating from incomplete know
 
 ## Calluses
 
-*Fandom: The Last of Us (Part I / Part II continuity)*
-*Characters: Joel Miller, Ellie Williams*
-*Canon: Compliant -- no divergence*
-*Set: During the Jackson time skip, approximately Year 2-3 post-Part I*
-*Trope/Genre: Missing scene, relationship study*
-*Rating: G*
+_Fandom: The Last of Us (Part I / Part II continuity)_
+_Characters: Joel Miller, Ellie Williams_
+_Canon: Compliant -- no divergence_
+_Set: During the Jackson time skip, approximately Year 2-3 post-Part I_
+_Trope/Genre: Missing scene, relationship study_
+_Rating: G_
 
 ---
 
@@ -430,7 +436,7 @@ It was enough to be here. It was enough to have this.
 
 That was all he was going to say about it.
 
-* * *
+---
 
 She left around ten. He walked her to the door because the street was dark and he was who he was, and she said goodnight at the door the way she always did -- halfway gone before the word finished, already pulling her jacket around her, already somewhere else.
 
@@ -469,6 +475,7 @@ He could.
 **Timeline position:** Approximately 18-24 months into their time in Jackson. The war is over. The relationship is rebuilt but still learning itself. Ellie does not yet know what Joel did at the Firefly hospital in Salt Lake City. The warmth is real; the unspoken thing is still unspoken.
 
 **Voice calibration sources:**
+
 - Joel: The campfire scene at the end of Part I's summer chapter -- his understated emotional communication, the way he expresses care through practical action, the humor that is so dry it almost does not arrive as humor. His line "You've got no idea what loss is" as a voice ceiling for directness.
 - Ellie: Her running commentary during gameplay (Part I), her sarcasm as a deflection mechanism, her genuine curiosity about Joel's pre-outbreak life, and the specific way she holds sincerity -- wanting it but retreating from it when it arrives directly.
 - Their dynamic: The "Okay" scene at the end of Part I. Everything that is between them but unsaid. The asymmetry of how much each knows.

@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-communication event-planning"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-communication event-planning'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Wedding Planner
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wedding planner
 - User needs guidance on wedding planner topics
 - User wants a structured approach to wedding planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -46,6 +49,7 @@ metadata:
 ## The 12-Month Countdown
 
 ### 12 Months Before
+
 ```
 12 MONTHS OUT:
 
@@ -78,6 +82,7 @@ WEDDING PARTY:
 ```
 
 ### 9-10 Months Before
+
 ```
 9-10 MONTHS OUT:
 
@@ -102,6 +107,7 @@ PLANNING:
 ```
 
 ### 6-8 Months Before
+
 ```
 6-8 MONTHS OUT:
 
@@ -130,6 +136,7 @@ ATTIRE:
 ```
 
 ### 3-5 Months Before
+
 ```
 3-5 MONTHS OUT:
 
@@ -159,6 +166,7 @@ PLANNING:
 ```
 
 ### 1-2 Months Before
+
 ```
 1-2 MONTHS OUT:
 
@@ -189,6 +197,7 @@ LEGAL:
 ```
 
 ### Final Week
+
 ```
 FINAL WEEK:
 
@@ -207,6 +216,7 @@ FINAL WEEK:
 ## Budget Allocation
 
 ### Wedding Budget Template
+
 ```
 WEDDING BUDGET:
 Total Budget: $_______________
@@ -264,6 +274,7 @@ TOTAL: $___
 ```
 
 ### Budget Tier Guide
+
 ```
 BUDGET-CONSCIOUS WEDDING IDEAS:
 
@@ -302,6 +313,7 @@ GENEROUS ($40,000+):
 ```
 
 ## Ceremony Planning
+
 ```
 CEREMONY PLANNING:
 
@@ -352,6 +364,7 @@ PERSONAL VOWS TEMPLATE:
 ```
 
 ## Guest List and Seating
+
 ```
 GUEST LIST MANAGEMENT:
 
@@ -395,6 +408,7 @@ SEATING ARRANGEMENT STRATEGY:
 ```
 
 ## Wedding Day Timeline
+
 ```
 WEDDING DAY TIMELINE TEMPLATE:
 
@@ -433,6 +447,7 @@ Things always take longer than planned.
 ```
 
 ## DIY vs. Professional Decisions
+
 ```
 DIY vs. PROFESSIONAL FOR EACH ELEMENT:
 
@@ -458,6 +473,7 @@ Photos are forever.
 ```
 
 ## Wedding Emergency Kit
+
 ```
 DAY-OF EMERGENCY KIT:
 
@@ -489,6 +505,7 @@ DELEGATE THIS KIT to someone who is NOT the couple.
 ## Output Format
 
 When providing wedding planning guidance:
+
 ```
 WEDDING PLANNING UPDATE
 

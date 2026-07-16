@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops debugging architecture"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops debugging architecture'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Monitoring Alerting
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to instrument a new service or application with metrics, logs, and traces from scratch
 - User needs to design or audit an alerting strategy -- defining SLOs, SLIs, error budgets, or on-call escalation policies
 - User wants to debug why an alert is too noisy, never fires, or fires at the wrong time (alert fatigue, false positives, missed incidents)
@@ -30,6 +32,7 @@ metadata:
 - User wants to design a multi-environment (dev/staging/prod) observability architecture with consistent instrumentation
 
 **Do NOT use this skill when:**
+
 - User needs CI/CD pipeline configuration -- use the CI/CD pipeline skill instead
 - User is asking about infrastructure provisioning or IaC (Terraform, Pulumi) without a monitoring context -- use the infrastructure-as-code skill
 - User needs container orchestration design (Kubernetes resource limits, HPA) without a monitoring integration angle -- use the container-orchestration skill
@@ -50,6 +53,7 @@ Before writing any configuration, understand the three pillars and how they appl
 - **Traces** are causally linked spans across service boundaries. They answer "where did latency come from?" Essential for microservice architectures. Traces are expensive -- sample at 1--10% for high-volume services; use tail-based sampling to keep 100% of error traces.
 
 Audit what the user already has:
+
 - What instrumentation libraries are in use? (OpenTelemetry SDKs, Micrometer, Prometheus client libraries, Datadog APM agents)
 - What collection infrastructure exists? (Prometheus scraping, OTLP push, CloudWatch agent, Fluentd/Fluent Bit)
 - What storage backends are available? (Prometheus TSDB, Thanos, Cortex, Mimir, VictoriaMetrics, Datadog, New Relic)
@@ -72,6 +76,7 @@ burn_rate = (1 - SLO_target - error_budget_remaining) / time_elapsed_fraction
 ```
 
 Recommended SLO tiers:
+
 - Critical user journey (checkout, login, payment): 99.95%
 - Core product features: 99.9%
 - Internal tools and admin surfaces: 99.5%
@@ -87,6 +92,7 @@ Flat threshold alerts produce chronic noise. Use Google SRE's multi-window, mult
 - **Informational:** Burn rate > 1x -- track but do not alert.
 
 For each alert tier, define:
+
 - Severity label (critical, warning, info)
 - Routing destination (on-call engineer, team Slack channel, ticketing system)
 - Response SLA (15 minutes for critical, 4 hours for warning, next business day for info)
@@ -113,29 +119,34 @@ Label cardinality is the most common instrumentation failure mode. Never use lab
 Design the metrics pipeline based on scale:
 
 **Single-cluster Prometheus (up to ~1 million active series):**
+
 - Scrape interval: 15 seconds for most targets; 30 seconds for infrastructure
 - Retention: 15 days local TSDB (fast queries); remote write to object storage for long-term
 - Chunk encoding: Gorilla compression (default in Prometheus 2.x)
 - WAL (Write-Ahead Log) size: 2--3x scrape interval data
 
 **Federated or multi-cluster (1--10 million active series):**
+
 - Use Thanos or Grafana Mimir for horizontally scalable storage
 - Thanos: deploy Sidecar on each Prometheus, Query layer for global view, Store for object storage queries, Compactor for downsampling
 - Downsampling strategy: raw data for 15 days, 5-minute resolution for 90 days, 1-hour resolution for 2 years
 - Recording rules to pre-aggregate expensive queries before they hit dashboards
 
 **High-cardinality or large-scale (>10 million active series):**
+
 - VictoriaMetrics or Grafana Mimir -- both support horizontal write sharding
 - VictoriaMetrics single-node handles ~30 million active series on commodity hardware
 - Separate ingest path from query path to avoid query storms degrading ingestion
 
 For logs:
+
 - Ship with Fluent Bit (preferred over Fluentd for resource efficiency -- ~40MB RAM vs ~100MB)
 - Parse structured JSON at source; avoid parsing regex at aggregation layer
 - Route to Loki (label-indexed), Elasticsearch/OpenSearch (full-text), or CloudWatch Logs (AWS-native)
 - Loki label strategy: match your Prometheus labels exactly (`service`, `environment`, `pod`) to enable metric-to-log correlation
 
 For traces:
+
 - Deploy OpenTelemetry Collector as a DaemonSet (Kubernetes) or sidecar
 - Use OTLP gRPC for efficient transport (4--5x more efficient than HTTP/JSON)
 - Backend: Jaeger (open source), Grafana Tempo (integrates with Loki/Prometheus), or Datadog APM
@@ -146,16 +157,19 @@ For traces:
 Dashboards exist to answer operational questions, not to display every metric:
 
 **The USE Method (for infrastructure/resources):**
+
 - Utilization: % of time resource is busy
 - Saturation: queue depth or wait time due to resource being overloaded
 - Errors: error rate of the resource
 
 **The RED Method (for services/endpoints):**
+
 - Rate: requests per second
 - Errors: error rate (4xx + 5xx / total)
 - Duration: latency at p50, p95, p99
 
 Structure every service dashboard with these sections in order:
+
 1. **SLO status panel** -- current error budget remaining (burn gauge 0--100%)
 2. **Traffic overview** -- RPS by endpoint, geographic distribution
 3. **Error rate** -- 5xx rate, 4xx rate, separated by endpoint and error type
@@ -167,6 +181,7 @@ Structure every service dashboard with these sections in order:
 Dashboard naming convention: `[team]-[service]-[overview|detail|slo]` (e.g., `payments-checkout-slo`). Tag dashboards with service, team, and environment. Every dashboard must have a `last updated` annotation and an owner label.
 
 Panel guidelines:
+
 - Use aligned color conventions: green = healthy, yellow = warning, red = critical -- use the same thresholds as your alerts
 - Always include a time range selector and a refresh interval (15s for incident response, 5m for routine monitoring)
 - Avoid table panels with more than 15 rows -- they are unreadable during incidents
@@ -177,6 +192,7 @@ Panel guidelines:
 Write alerts as code in version-controlled files. Never create alerts manually through a UI.
 
 **Prometheus alert rule structure:**
+
 ```yaml
 groups:
   - name: service.slo
@@ -193,10 +209,10 @@ groups:
           severity: critical
           team: payments
         annotations:
-          summary: "Error burn rate critical for {{ $labels.service }}"
-          description: "Error burn rate is {{ $value | humanizePercentage }} -- consuming 30-day error budget in < 2 hours"
-          runbook_url: "https://wiki.internal/runbooks/payments-high-error-rate"
-          dashboard_url: "https://grafana.internal/d/payments-checkout-slo"
+          summary: 'Error burn rate critical for {{ $labels.service }}'
+          description: 'Error burn rate is {{ $value | humanizePercentage }} -- consuming 30-day error budget in < 2 hours'
+          runbook_url: 'https://wiki.internal/runbooks/payments-high-error-rate'
+          dashboard_url: 'https://grafana.internal/d/payments-checkout-slo'
 ```
 
 Alert naming convention: `[Category][Condition][Severity]` -- e.g., `PaymentServiceHighErrorBurnRateCritical`, `DatabaseConnectionPoolSaturationWarning`.
@@ -204,12 +220,13 @@ Alert naming convention: `[Category][Condition][Severity]` -- e.g., `PaymentServ
 The `for` duration prevents flapping: set to 2--5 minutes for critical alerts, 10--15 minutes for warnings. Never set `for: 0s` except for catastrophic conditions (all instances down).
 
 **Alertmanager routing tree:**
+
 ```yaml
 route:
   group_by: ['alertname', 'service', 'environment']
-  group_wait: 30s        # Wait for more alerts before firing group
-  group_interval: 5m     # Minimum time between notifications for same group
-  repeat_interval: 4h    # Re-notify if alert still firing after this duration
+  group_wait: 30s # Wait for more alerts before firing group
+  group_interval: 5m # Minimum time between notifications for same group
+  repeat_interval: 4h # Re-notify if alert still firing after this duration
   receiver: 'slack-general'
   routes:
     - match:
@@ -225,10 +242,11 @@ route:
     - match:
         environment: staging
       receiver: slack-staging
-      inhibit_rules: []   # Never page for staging
+      inhibit_rules: [] # Never page for staging
 ```
 
 Inhibition rules prevent alert storms:
+
 - If "all instances of service X are down" fires, inhibit individual instance alerts
 - If "database is unreachable" fires, inhibit all application-level errors that are downstream consequences
 - If a deployment is in progress (add a `deploying=true` label via webhook), inhibit latency alerts for 10 minutes
@@ -241,27 +259,33 @@ Every critical alert must have a runbook before it goes into production. A runbo
 ## Alert: [AlertName]
 
 ### What is happening
+
 One sentence: what this alert means in plain language.
 
 ### Impact
+
 Who is affected and how severely.
 
 ### Diagnostic steps
+
 1. Check the SLO dashboard: [link]
 2. Run this query to identify affected instances: [PromQL/log query]
 3. Check recent deployments: [link to deployment dashboard]
 4. Examine error logs: [log query with filters]
 
 ### Remediation options
+
 - If caused by traffic spike: [specific scaling action]
 - If caused by bad deployment: [rollback command]
 - If caused by downstream dependency: [escalation path]
 
 ### Escalation
+
 - After 15 minutes without resolution: page [team lead]
 - After 30 minutes: engage [on-call architect]
 
 ### Post-incident
+
 Link to post-mortem template.
 ```
 
@@ -273,11 +297,11 @@ Runbooks must be tested: during each incident, a secondary responder follows the
 
 ### SLO Definition Table
 
-| Service | SLI | SLO Target | Window | Error Budget | Burn Rate (Page) | Burn Rate (Ticket) |
-|---------|-----|------------|--------|--------------|-------------------|--------------------|
-| checkout-api | Success rate of POST /v1/orders | 99.9% | 30 days | 43.2 min | >14.4x over 1h | >3x over 3d |
-| checkout-api | p99 latency of POST /v1/orders | < 500ms | 30 days | 43.2 min | >14.4x over 1h | >3x over 3d |
-| inventory-service | Success rate of all reads | 99.5% | 30 days | 3.6 hours | >14.4x over 1h | >3x over 3d |
+| Service           | SLI                             | SLO Target | Window  | Error Budget | Burn Rate (Page) | Burn Rate (Ticket) |
+| ----------------- | ------------------------------- | ---------- | ------- | ------------ | ---------------- | ------------------ |
+| checkout-api      | Success rate of POST /v1/orders | 99.9%      | 30 days | 43.2 min     | >14.4x over 1h   | >3x over 3d        |
+| checkout-api      | p99 latency of POST /v1/orders  | < 500ms    | 30 days | 43.2 min     | >14.4x over 1h   | >3x over 3d        |
+| inventory-service | Success rate of all reads       | 99.5%      | 30 days | 3.6 hours    | >14.4x over 1h   | >3x over 3d        |
 
 ### Alert Rule Configuration
 
@@ -328,15 +352,15 @@ groups:
 
 ### Monitoring Stack Decision Matrix
 
-| Factor | Prometheus + Grafana + Thanos | Datadog | Grafana Cloud | AWS CloudWatch |
-|--------|-------------------------------|---------|---------------|----------------|
-| Cost at scale (10M series) | $300--600/mo (infra only) | $15,000--40,000/mo | $2,000--5,000/mo | $3,000--8,000/mo |
-| Operational overhead | High (self-managed) | None | Low | Low |
-| Cardinality limits | Configurable (no hard limit) | 1M series per org | 10M series | Limited |
-| Custom metrics | Unlimited | $0.05/metric/mo | Included | $0.30/metric/mo |
-| Trace/log/metric correlation | Excellent (Tempo + Loki) | Excellent (native) | Excellent (native) | Poor |
-| Compliance (HIPAA/SOC2) | Self-managed | Available | Available | Available |
-| Best for | Cost-conscious teams, >5M series | Fully-managed, enterprise budget | Mid-size, mixed stack | AWS-native workloads |
+| Factor                       | Prometheus + Grafana + Thanos    | Datadog                          | Grafana Cloud         | AWS CloudWatch       |
+| ---------------------------- | -------------------------------- | -------------------------------- | --------------------- | -------------------- |
+| Cost at scale (10M series)   | $300--600/mo (infra only)        | $15,000--40,000/mo               | $2,000--5,000/mo      | $3,000--8,000/mo     |
+| Operational overhead         | High (self-managed)              | None                             | Low                   | Low                  |
+| Cardinality limits           | Configurable (no hard limit)     | 1M series per org                | 10M series            | Limited              |
+| Custom metrics               | Unlimited                        | $0.05/metric/mo                  | Included              | $0.30/metric/mo      |
+| Trace/log/metric correlation | Excellent (Tempo + Loki)         | Excellent (native)               | Excellent (native)    | Poor                 |
+| Compliance (HIPAA/SOC2)      | Self-managed                     | Available                        | Available             | Available            |
+| Best for                     | Cost-conscious teams, >5M series | Fully-managed, enterprise budget | Mid-size, mixed stack | AWS-native workloads |
 
 ### Dashboard Template Sections
 
@@ -424,6 +448,7 @@ Your current alert -- `5xx rate > 0.1%` for 1 minute -- has three problems:
 ### Step 1 -- Define Your SLO
 
 For a payments API, use a 99.9% success rate SLO over a 30-day window:
+
 - Error budget: 43.2 minutes per month
 - This means: tolerate up to 43.2 minutes of 100% outage, OR indefinite low-level errors as long as they don't exceed 0.1% of total requests over the month.
 
@@ -457,13 +482,13 @@ groups:
           team: payments
           service: payments-api
         annotations:
-          summary: "CRITICAL: Payments API burning through error budget"
+          summary: 'CRITICAL: Payments API burning through error budget'
           description: >
             Error burn rate {{ $value | humanizePercentage }} --
             entire 30-day error budget will be consumed in less than 2 hours.
             Immediate investigation required.
-          runbook_url: "https://wiki.internal/runbooks/payments-api-high-error-rate"
-          dashboard_url: "https://grafana.internal/d/payments-api-slo"
+          runbook_url: 'https://wiki.internal/runbooks/payments-api-high-error-rate'
+          dashboard_url: 'https://grafana.internal/d/payments-api-slo'
 
       # WARNING: Slow burn -- create a ticket, no page
       # Fires when sustained errors will exhaust budget in < 5 days
@@ -479,12 +504,12 @@ groups:
           team: payments
           service: payments-api
         annotations:
-          summary: "WARNING: Payments API error rate elevated"
+          summary: 'WARNING: Payments API error rate elevated'
           description: >
             Sustained error rate {{ $value | humanizePercentage }} over 6h.
             At this rate, 30-day error budget exhausted in < 5 days.
             Investigate before next business day.
-          runbook_url: "https://wiki.internal/runbooks/payments-api-high-error-rate"
+          runbook_url: 'https://wiki.internal/runbooks/payments-api-high-error-rate'
 
       # LATENCY: p99 burn rate -- separate SLO for latency
       - alert: PaymentsAPIHighLatencyBurnRateCritical
@@ -506,11 +531,11 @@ groups:
           team: payments
           service: payments-api
         annotations:
-          summary: "CRITICAL: Payments API p99 latency SLO burning"
+          summary: 'CRITICAL: Payments API p99 latency SLO burning'
           description: >
             Less than {{ $value | humanizePercentage }} of payment requests
             completing within 500ms. Latency SLO at risk.
-          runbook_url: "https://wiki.internal/runbooks/payments-api-high-latency"
+          runbook_url: 'https://wiki.internal/runbooks/payments-api-high-latency'
 ```
 
 ### Step 3 -- Fix Histogram Buckets in Your Node.js Instrumentation
@@ -534,7 +559,7 @@ app.use((req, res, next) => {
   const end = httpRequestDuration.startTimer({
     service: 'payments-api',
     method: req.method,
-    route: req.route?.path ?? 'unknown',  // Express route pattern, not actual path
+    route: req.route?.path ?? 'unknown', // Express route pattern, not actual path
   });
   res.on('finish', () => end({ code: res.statusCode }));
   next();
@@ -558,8 +583,8 @@ route:
         severity: critical
         environment: production
       receiver: pagerduty-payments-oncall
-      group_wait: 1m       # Slight delay to group related alerts
-      repeat_interval: 1h  # Re-page every hour if still firing
+      group_wait: 1m # Slight delay to group related alerts
+      repeat_interval: 1h # Re-page every hour if still firing
 
     # Warnings go to Slack only -- no page
     - match:
@@ -572,7 +597,7 @@ route:
     - match:
         environment: staging
       receiver: slack-payments-staging
-      routes: []  # Override all sub-routes
+      routes: [] # Override all sub-routes
 
 inhibit_rules:
   # If all payment API pods are down, suppress individual endpoint alerts
@@ -591,10 +616,12 @@ Create `runbooks/payments-api-high-error-rate.md`:
 ## PaymentsAPIHighErrorBurnRateCritical
 
 ### What is happening
+
 The payments API is returning 5xx errors at a rate that will exhaust the
 monthly error budget (43 minutes) within 2 hours.
 
 ### Immediate impact
+
 Customers may see failed payment submissions. Revenue impact is likely.
 
 ### Diagnostic steps (execute in order)
@@ -603,22 +630,28 @@ Customers may see failed payment submissions. Revenue impact is likely.
    https://grafana.internal/d/payments-api-slo
 
 2. Identify which endpoint is failing:
-   ```
-   sum by (route) (rate(http_requests_total{service="payments-api",code=~"5.."}[5m]))
-   ```
+```
+
+sum by (route) (rate(http_requests_total{service="payments-api",code=~"5.."}[5m]))
+
+```
 
 3. Check recent deployments (last 2 hours):
-   https://grafana.internal/d/deployments?service=payments-api
+https://grafana.internal/d/deployments?service=payments-api
 
 4. Check downstream dependencies (Stripe, database):
-   ```
-   sum(rate(http_requests_total{service="payments-api",upstream="stripe",code=~"5.."}[5m]))
-   ```
+```
+
+sum(rate(http_requests_total{service="payments-api",upstream="stripe",code=~"5.."}[5m]))
+
+```
 
 5. Examine error logs:
-   ```
-   {service="payments-api"} |= "error" | level="error" | json
-   ```
+```
+
+{service="payments-api"} |= "error" | level="error" | json
+
+```
 
 ### Remediation
 
@@ -635,14 +668,15 @@ Customers may see failed payment submissions. Revenue impact is likely.
 ### Expected Outcome
 
 With this change:
+
 - **False positive pages eliminated:** Multi-window burn rate requires sustained errors across two time windows, not a momentary spike. Your 0.1% noise events will not exceed the 14.4x burn rate threshold.
 - **Expected alert volume:** From ~8 pages/week down to 0--1 real incidents/week. The slow-burn warning catches degradation before it becomes a page.
 - **Response quality:** Every page comes with a runbook link and burn rate context, so responders arrive with a diagnosis framework rather than raw panic.
 
 ### SLO Summary
 
-| SLI | SLO | Error Budget (30d) | Critical Threshold |
-|-----|-----|--------------------|--------------------|
-| Success rate | 99.9% | 43.2 min | >14.4x burn over 1h+5m |
-| p99 latency < 500ms | 99.9% | 43.2 min | >14.4x burn over 1h |
-| Slow-burn warning | 99.9% | 43.2 min | >6x burn over 6h |
+| SLI                 | SLO   | Error Budget (30d) | Critical Threshold     |
+| ------------------- | ----- | ------------------ | ---------------------- |
+| Success rate        | 99.9% | 43.2 min           | >14.4x burn over 1h+5m |
+| p99 latency < 500ms | 99.9% | 43.2 min           | >14.4x burn over 1h    |
+| Slow-burn warning   | 99.9% | 43.2 min           | >6x burn over 6h       |

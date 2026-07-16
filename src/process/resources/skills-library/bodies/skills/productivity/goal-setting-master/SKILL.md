@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks template guide testing research planning safety"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks template guide testing research planning safety'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Goal Setting Master
 
 You are an expert in goal-setting methodology who helps individuals and teams build a complete goal architecture. Rather than defaulting to one goal framework, you understand that different time horizons and contexts require different approaches. You help users design a layered goal system that provides both long-term direction and daily traction.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about goal setting master techniques or best practices
 - User needs guidance on goal setting master concepts
 - User wants to implement or improve their approach to goal setting master
 
 **Do NOT use when:**
+
 - The request falls outside the scope of goal setting master
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -62,13 +63,13 @@ Each layer draws from the methodology best suited to that time horizon.
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| SMART Goals (Doran/Locke) | Specific individual targets | Specificity and measurability dramatically increase achievement rates | Can encourage playing it safe; no system for prioritization or hierarchy |
-| OKRs (Grove/Doerr) | Quarterly team and company alignment | Separate ambitious objectives from measurable key results; embrace stretch | Designed for organizations; overhead can be excessive for individuals |
-| BHAG (Collins/Porras) | Long-term organizational vision | Audacious goals that are 50-70% achievable create extraordinary motivation | Too distant for daily action; vague on execution path |
-| WIG/4DX (Covey/McChesney) | Execution discipline on top priorities | Focus on Wildly Important Goals; act on lead measures, not lag measures | Only addresses one or two goals; no framework for the rest |
-| North Star Metric (Lean/Growth) | Product and business focus | One metric that captures the core value you create; aligns all activity | Oversimplifies to one number; not designed for personal use |
+| Approach                        | Best For                               | Key Insight                                                                | Limitation                                                               |
+| ------------------------------- | -------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| SMART Goals (Doran/Locke)       | Specific individual targets            | Specificity and measurability dramatically increase achievement rates      | Can encourage playing it safe; no system for prioritization or hierarchy |
+| OKRs (Grove/Doerr)              | Quarterly team and company alignment   | Separate ambitious objectives from measurable key results; embrace stretch | Designed for organizations; overhead can be excessive for individuals    |
+| BHAG (Collins/Porras)           | Long-term organizational vision        | Audacious goals that are 50-70% achievable create extraordinary motivation | Too distant for daily action; vague on execution path                    |
+| WIG/4DX (Covey/McChesney)       | Execution discipline on top priorities | Focus on Wildly Important Goals; act on lead measures, not lag measures    | Only addresses one or two goals; no framework for the rest               |
+| North Star Metric (Lean/Growth) | Product and business focus             | One metric that captures the core value you create; aligns all activity    | Oversimplifies to one number; not designed for personal use              |
 
 ## Layer 4: The Purpose Horizon (5-25 Years)
 
@@ -79,6 +80,7 @@ This layer provides direction, not precision. It answers: "What would be extraor
 ### Designing Your Purpose Horizon
 
 **For individuals:**
+
 ```
 1. Imagine yourself 10 years from now, living your best possible life.
 2. What are you doing? Where? With whom? What have you created?
@@ -93,6 +95,7 @@ BHAG: "Build a self-sustaining education platform reaching 100,000 students."
 ```
 
 **For organizations:**
+
 ```
 What would make our industry fundamentally different because we exist?
 What would we attempt if we knew we could not fail?
@@ -229,11 +232,11 @@ LEAD MEASURE: The predictive action that drives the outcome
 
 **Examples:**
 
-| Lag Measure (Outcome) | Lead Measure (Action) |
-|-----------------------|----------------------|
-| Lose 10 pounds | Calories consumed per day; workouts per week |
-| $10K MRR | Sales calls made per week; demos delivered |
-| Ship MVP by March 31 | Features completed per sprint; bugs resolved per day |
+| Lag Measure (Outcome)   | Lead Measure (Action)                                     |
+| ----------------------- | --------------------------------------------------------- |
+| Lose 10 pounds          | Calories consumed per day; workouts per week              |
+| $10K MRR                | Sales calls made per week; demos delivered                |
+| Ship MVP by March 31    | Features completed per sprint; bugs resolved per day      |
 | Pass certification exam | Practice questions answered per day; study hours per week |
 
 ### The Weekly Execution Template
@@ -278,13 +281,13 @@ Weekly actions -> drive Key Results -> achieve Strategic Goals -> approach Purpo
 
 ### Step 2: Choose Your Starting Point
 
-| Situation | Start At |
-|-----------|----------|
-| "I have no idea what I want long-term" | Start at Layer 2 (quarterly goals) and work up later |
-| "I know my vision but never execute" | Start at Layer 1 (weekly execution) connected to Layer 2 |
-| "I achieve goals but they feel meaningless" | Start at Layer 4 (purpose) - your goals may be misaligned |
-| "I set goals and set aside them" | Start at Layer 1 with a visible scoreboard and weekly review |
-| "I have too many goals" | Use the Priority Filter; select one WIG per quarter |
+| Situation                                   | Start At                                                     |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| "I have no idea what I want long-term"      | Start at Layer 2 (quarterly goals) and work up later         |
+| "I know my vision but never execute"        | Start at Layer 1 (weekly execution) connected to Layer 2     |
+| "I achieve goals but they feel meaningless" | Start at Layer 4 (purpose) - your goals may be misaligned    |
+| "I set goals and set aside them"            | Start at Layer 1 with a visible scoreboard and weekly review |
+| "I have too many goals"                     | Use the Priority Filter; select one WIG per quarter          |
 
 ### Step 3: Set Your Review Cadence
 
@@ -307,14 +310,14 @@ Goals achieved in isolation are rare. Build in accountability:
 
 ## Common Goal-Setting Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Too many goals | Fear of missing out; everything feels important | WIG discipline: pick ONE wildly important per quarter |
-| Only outcome goals | Outcome feels motivating at first | Add lead measures you can control daily |
-| No review cadence | Setting goals feels productive; reviewing feels tedious | Schedule reviews in calendar; use the templates |
-| Goals too safe | Fear of failure | Use 70% confidence rule; redefine failure as data |
-| Goals not connected to purpose | Setting goals others expect of you | Start with identity and purpose work first |
-| Abandoning goals at first setback | All-or-nothing thinking | Quarterly reviews allow course correction, not abandonment |
+| Mistake                           | Why It Happens                                          | Fix                                                        |
+| --------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------- |
+| Too many goals                    | Fear of missing out; everything feels important         | WIG discipline: pick ONE wildly important per quarter      |
+| Only outcome goals                | Outcome feels motivating at first                       | Add lead measures you can control daily                    |
+| No review cadence                 | Setting goals feels productive; reviewing feels tedious | Schedule reviews in calendar; use the templates            |
+| Goals too safe                    | Fear of failure                                         | Use 70% confidence rule; redefine failure as data          |
+| Goals not connected to purpose    | Setting goals others expect of you                      | Start with identity and purpose work first                 |
+| Abandoning goals at first setback | All-or-nothing thinking                                 | Quarterly reviews allow course correction, not abandonment |
 
 ## The Goal Alignment Audit
 
@@ -349,7 +352,6 @@ For deeper exploration of the source methodologies:
 
 The Goal Architecture Method provides the integration layer that connects visionary thinking to daily action, something no single methodology does on its own.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -357,7 +359,6 @@ The Goal Architecture Method provides the integration layer that connects vision
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -378,14 +379,12 @@ The Goal Architecture Method provides the integration layer that connects vision
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

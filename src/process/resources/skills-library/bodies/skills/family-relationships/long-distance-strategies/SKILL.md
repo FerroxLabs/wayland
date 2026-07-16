@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships planning strategy"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'relationships planning strategy'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Long Distance Strategies
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is in an established long-distance relationship (romantic partner, spouse, parent, sibling, close friend) and wants structured strategies for maintaining connection
 - A user is about to enter a long-distance phase -- relocation for work, military deployment, university enrollment, immigration processing, extended travel -- and wants to prepare in advance
 - A user has a specific long-distance communication breakdown (calls feel empty, they've stopped calling, arguments escalate over text) and needs concrete techniques to fix it
@@ -30,6 +32,7 @@ metadata:
 - A user needs child-appropriate connection strategies for a separated or deployed parent situation
 
 **Do NOT use when:**
+
 - The user is asking whether to pursue, continue, or end a long-distance relationship -- this is a values and life-planning decision, not a communication framework problem (use your judgment about listening and reflection, not strategy delivery)
 - The user describes active infidelity, dishonesty, or trust violations -- these require therapeutic intervention, not better scheduling (recommend couples counseling or individual therapy)
 - The user is experiencing a relationship crisis (emotional abuse, controlling behavior, isolation tactics disguised as check-in routines) -- address safety first
@@ -60,6 +63,7 @@ Do not jump to solutions. Ask enough questions to build a real picture. A 2-hour
 The architecture has three tiers: daily micro-contact, weekly anchor, and monthly depth. All three serve different functions and none can substitute for the others.
 
 **Daily micro-contact (5 minutes or less, low-stakes):**
+
 - The purpose is not to have a meaningful conversation -- it is to say "I still exist in your daily life." This is proximity simulation.
 - Voice notes outperform texts for emotional warmth. A 30-second voice note saying "Walking to the subway, just thinking about you" carries tone, energy, and presence that no text can replicate.
 - Photo-a-day practices -- one image from each person's day, no caption required -- create visual windows into each other's world and require no coordination.
@@ -67,6 +71,7 @@ The architecture has three tiers: daily micro-contact, weekly anchor, and monthl
 - Do not treat daily contact as obligatory reporting. If it feels like homework, the cadence is wrong or the format needs to change.
 
 **Weekly anchor call (45-120 minutes, protected time):**
+
 - This is the single most important structural element. It must be scheduled, not improvised. "We'll call whenever we're both free" reliably drifts to "We haven't called in 3 weeks."
 - Choose a specific day, time, and duration. Put it in both calendars with a reminder. Treat it like a standing appointment you don't cancel without rescheduling immediately.
 - The length should match the relationship and lifestyle, but 60-90 minutes is the most common sustainable range. Under 30 minutes feels rushed. Over 2 hours becomes exhausting if repeated weekly.
@@ -74,6 +79,7 @@ The architecture has three tiers: daily micro-contact, weekly anchor, and monthl
 - Video calls are strongly preferred over phone-only for romantic partnerships -- seeing facial expression and body language provides data that voice alone omits and that matters especially for reading emotional states.
 
 **Monthly depth activity (2+ hours, shared experience):**
+
 - The purpose is to create a memory together, not just exchange information. This is what differentiates an active relationship from two people checking in on each other.
 - Detailed options are covered in Step 4, but the principle is: shared experience at the same time, or asynchronous parallel experience with synchronous debrief.
 - Monthly also includes visit planning (see Step 5) -- a visit is the highest-intensity monthly depth activity.
@@ -85,21 +91,25 @@ The architecture has three tiers: daily micro-contact, weekly anchor, and monthl
 Time zone management is an engineering problem with a human constraint. Run the actual math, then optimize for the relationship.
 
 **Calculate the overlap window precisely:**
+
 - List both people's typical waking hours (not work hours -- waking hours). A person who wakes at 7am and sleeps at 11pm has a 16-hour window.
 - Find the intersection. If Person A is in New York (EST) and Person B is in Singapore (SGT, +13 hours), Person A's 7am-11pm is Person B's 8pm-midnight the same calendar day or 8am-noon the following day. The usable overlap is approximately 8am-noon EST (9pm-1am SGT for same night, or 8am-noon SGT for next morning EST). That is a narrow 4-hour window.
 - For differences over 9 hours: identify the single best synchronous window for the weekly call. Accept that daily contact will be almost entirely asynchronous. Build the daily rhythm around voice notes, photos, and messages -- not calls.
 
 **Thresholds and strategies by difference:**
+
 - 0-3 hours: Real-time communication is largely unrestricted. Schedule the weekly call at a mutually convenient time. Daily contact can be voice calls, not just texts.
 - 4-6 hours: Morning-evening asymmetry. One person is starting their day while the other is ending theirs. Evening overlap usually works: 6-9pm for the "ahead" person, 12-3pm or 1-4pm for the "behind" person. This is workable for daily calls.
 - 7-9 hours: The workable real-time window is small -- typically one person's evening and the other's very late night or early morning. Alternate who takes the inconvenient slot. Week A: one person stays up late. Week B: the other wakes early. Neither person should permanently own the inconvenient slot.
 - 10+ hours: Fully asynchronous daily rhythm with one or two synchronous anchors weekly. Voice note threads are the spine of the relationship. Accept that you will often respond hours after a message was sent and build expectations around that explicitly. The "left on read" anxiety disappears once both people agree: "We respond when we can, not immediately."
 
 **Daylight saving time complications:**
+
 - The US and Europe shift DST at different times -- typically 2-3 weeks apart -- meaning the time difference changes twice a year by one hour. Build this into the standing call schedule: "Our call is Saturday 11am ET, which is 4pm GMT in winter and 5pm BST in summer."
 - The US and Australia can shift by two different hours at different points. Anyone managing a US-Australia relationship should have both time zones displayed on their phone's clock.
 
 **Asynchronous communication tools that matter:**
+
 - Voice notes (WhatsApp, iMessage, Telegram): best for emotional warmth, no scheduling required
 - Shared photo albums (Google Photos, iCloud shared albums): passive, low-effort daily presence
 - Video messages (Snapchat, Marco Polo, Instagram): allows face-to-face presence without real-time coordination -- the recipient watches when ready
@@ -144,23 +154,27 @@ The absence of physical presence is the central deficit of long-distance relatio
 Visits are the highest-stakes component of long-distance maintenance. Poorly planned visits create disappointment, pressure, and conflict. Well-planned visits recharge the relationship for months.
 
 **Frequency:**
+
 - As a baseline, visits every 4-8 weeks for 1-4 days is sustainable for most long-distance couples with standard income levels and domestic travel distances. For international long-distance, every 6-12 weeks is more realistic. For relationships with very significant travel costs (intercontinental, difficult routes), quarterly is common.
 - The metric that matters more than frequency is "predictability." Knowing the next visit date has a documented anxiety-reduction effect. Never end a visit without having the next one booked or at minimum agreed in principle.
 - For friendships and family relationships, lower frequency is normal -- 2-4 times per year for siblings or close friends is typical and sustainable.
 
 **Budget and financial management:**
+
 - Establish a "visit fund" -- both people contribute monthly. The contribution does not have to be equal in absolute dollars; it should be proportional to discretionary income. If one person earns significantly more, the more financially able person traveling more often is a reasonable arrangement and should be discussed explicitly, not assumed.
 - Track flight prices using fare alert tools at least 6-8 weeks in advance for domestic travel and 8-16 weeks for international. Flight prices for popular routes (e.g., transatlantic) follow patterns: booking 8-12 weeks out typically captures mid-range pricing. Last-minute booking on long-distance routes is almost always expensive.
 - Alternate who travels when possible and when income allows. Permanent one-directional travel creates resentment in the traveler and guilt or obligation in the host, even when no one acknowledges it directly.
 - Budget not just for travel but for the visit itself: accommodation (staying with each other eliminates this), meals, activities. A 4-day visit to a major city can easily cost $800-1,500 all-in for the traveling partner even before flight costs.
 
 **Visit design:**
+
 - Do not overschedule. The most common visit mistake is filling every hour with activities and people, leaving no space for the relationship itself. The most valuable time in a visit is often unstructured: cooking together, sitting in the same room, doing ordinary errands side by side. These are the experiences that most closely replicate what daily proximity feels like.
 - Allocate roughly one-third of visit time to planned activities, one-third to semi-structured activities (a neighborhood walk, cooking, a casual dinner), and one-third to truly unstructured time.
 - Introduce the visiting partner to the local person's actual life, not just their best life. Show them your grocery store, your commute, your regular coffee shop. This integration into daily context is critical for maintaining shared mental models of each other's lives.
 - Discuss expectations before the visit: What does each person need from this visit? Rest? Adventure? Deep conversation? Physical affection? Mismatched expectations are the primary source of post-visit disappointment. Neither person should have to guess.
 
 **The departure transition:**
+
 - The 24-48 hours after a visit ends are the hardest period in any long-distance relationship cycle. Expect a drop in mood, an increase in longing, and sometimes a spike in anxiety or irritability. This is predictable, not a sign of dysfunction.
 - Practical mitigation: book the next visit before the current one ends. Have a plan for the first 24 hours after departure -- a scheduled call that evening, a voice note during the travel home. This converts "I don't know when I'll see you again" into "I'll see you on [date]."
 - Avoid scheduling difficult conversations or making major decisions in the first 48 hours after a visit ends. Both people are in emotional withdrawal and the cognitive distortion risk is high.
@@ -173,12 +187,14 @@ Visits are the highest-stakes component of long-distance maintenance. Poorly pla
 The most common long-distance communication problem is not too little contact -- it is contact that feels hollow. This is solvable.
 
 **Why calls feel empty:**
+
 - Both people are exhausted and treat the call as another obligation to get through, not an experience to enter.
 - The call has no structure, so it defaults to logistics and problem-solving, which are not the building blocks of intimacy.
 - There is a performance pressure to have "things to talk about," and when there is nothing dramatic to report, people interpret the silence as evidence of growing distance.
 - Both people are half-distracted (on their phones, in transit, doing tasks) while on the call.
 
 **Techniques to make calls feel alive:**
+
 - **Question prompts:** Keep a list of prompts to draw from when the call stalls. Not interrogation questions -- curiosity questions. "What is something you changed your mind about recently?" "What was the most surprising moment of your week?" "Is there something you've been meaning to tell me and keep forgetting?" These work because they invite genuine reflection, not reporting.
 - **The 5-minute rule:** For the first 5 minutes of any call, both people stop whatever else they are doing. Full presence for just the opening. This sets the tone for the entire call.
 - **Theme weeks:** Introduce a lightweight shared focus for the week -- both try the same restaurant category, both listen to the same podcast episode, both start the same book. This creates automatic conversation material.
@@ -186,6 +202,7 @@ The most common long-distance communication problem is not too little contact --
 - **Distinguish types of calls:** Not every call needs to be a relationship-maintenance session. Sometimes you just want to talk while walking. Name this: "I'm on my commute, want to just walk and talk?" Removing the expectation of a "meaningful call" allows for a more natural, companionable interaction.
 
 **Managing conflict over distance:**
+
 - Text is the worst medium for conflict. Tone is unreadable, response delays feel like stonewalling, and it is easy to escalate without intending to.
 - Establish a conflict protocol in advance, before a conflict happens: "If we have a serious disagreement, we agree to move it to a video call within 24 hours rather than resolve it by text."
 - The most common long-distance conflict triggers: perceived unequal effort (one person feels like they always initiate), scheduling failures (cancelled calls without clear rescheduling), jealousy about activities the other person is doing, and anxiety about the unknown end date.
@@ -198,18 +215,21 @@ The most common long-distance communication problem is not too little contact --
 Long-distance relationships require periodic meta-conversations about the structure itself. Without these, small problems compound.
 
 **Monthly micro-review (10-15 minutes, end of the weekly call):**
+
 - "Is this working for you right now?"
 - "Is there something you need more of or less of?"
 - "Are there things you've been wanting to talk about that we keep not getting to?"
 - Document adjustments. If a new routine works, note it. If something stopped working, name it and change it.
 
 **Quarterly relationship check-in (dedicated time, 60+ minutes):**
+
 - Discuss the overall arc: How is the distance affecting each person? What has gotten easier? What is still hard?
 - Revisit the end-date situation: Has anything changed? Are there decisions to make or plans to accelerate?
 - Discuss the visit plan for the next quarter and budget accordingly.
 - Name appreciations explicitly: what has the other person done over the past three months that has mattered? Long-distance partners often focus conversations on logistics and problems without acknowledging what is working.
 
 **Adjusting the plan when life changes:**
+
 - A new job, a move, a health event, a major project, or a shift in financial situation can change someone's capacity for the communication routine significantly. When life changes, the plan must change. Do not silently reduce contact and hope the other person doesn't notice.
 - Frame adjustments as shared problem-solving: "My schedule is very different now. Can we look at how to adjust our routine so it fits both of us?"
 
@@ -337,16 +357,21 @@ Produce a personalized Long-Distance Connection Plan following this structure. F
 ## Edge Cases
 
 ### Significant Time Zone Difference (10+ Hours)
+
 When the time difference exceeds 10 hours, synchronous daily contact is effectively impossible without one person consistently sacrificing sleep. Do not recommend it. The architecture should be: asynchronous daily contact as the spine, one synchronous call per week at a pre-negotiated time (with alternating inconvenient-slot rotation), and monthly synchronous depth activity. Be explicit with the user: "You are not failing the relationship by not calling every day. With your time difference, the relationship is primarily built through voice notes and messages, with weekly calls as your real-time anchor." Removing the guilt from asymmetry is part of the service.
 
 ### Indefinite Long-Distance (No Known End Date)
+
 The absence of a countdown is a genuine psychological hardship. Address it directly rather than offering false reassurance. Strategies: reframe from "counting down" to "building a life in parallel" -- the goal becomes creating a rich individual life that is also shared through communication, rather than waiting for the distance to end. Set quarterly review points where both people revisit the question: "What would it take for one of us to relocate? What are the conditions?" This transforms indefinite into reviewable-at-intervals. Warn the user that indefinite long-distance without periodic honest renegotiation tends to drift rather than resolve.
 
 ### Communication Style Mismatch (One Person Wants More Contact, One Wants Less)
+
 This is one of the most common long-distance conflicts and is almost never about love -- it is about attachment style and communication norms. Do not frame the high-contact person as "needy" or the low-contact person as "cold." Frame it as a calibration problem. Practical approach: negotiate a floor (minimum contact below which the high-contact person feels disconnected) and a ceiling (maximum contact above which the low-contact person feels overwhelmed). The plan lives in that range. Common floor-ceiling agreements: minimum of one voice note daily and one video call weekly; maximum of no more than three check-ins per day unless there is something specific to discuss.
 
 ### Long-Distance With Young Children (Deployed Parent, Immigration Separation, Separated Families)
+
 Young children (ages 2-10) experience parent absence very differently from adults. They need:
+
 - Predictability over variety -- the same call at the same time every night matters more than creative activities
 - Physical objects (a recorded video or audio, a stuffed animal the parent has "held," a photo on the wall)
 - Age-appropriate language about the absence: "Daddy is far away for work and will come home in [timeframe]" -- children cannot process indefinite well; provide the best honest frame you can
@@ -354,12 +379,15 @@ Young children (ages 2-10) experience parent absence very differently from adult
 - Activities: bedtime stories over video, the deployed parent reading books onto audio recordings, drawing pictures sent by mail, parallel crafts (both make the same thing), a shared stuffed animal that "visits" via photos
 
 ### Financial Asymmetry Severe Enough to Prevent Visits
+
 When one person genuinely cannot afford to travel and the other cannot visit frequently enough to compensate, the visit framework breaks down. Options in order of practicality: the higher-income partner travels more and this is explicitly named and accepted (not assumed); both contribute to a dedicated visit fund proportional to income (even $25/month from the lower-income partner is a meaningful signal of investment); the couple extends the between-visit interval and compensates with higher-investment async communication (care packages, letters, monthly depth activities); and -- if visits become truly impossible for 6+ months -- name that this is a relationship stressor and consider what other decisions it is pointing toward. Do not ignore financial reality by recommending visits the user cannot afford.
 
 ### Relationship Has Already Drifted (Contact Has Dropped, Both Parties Are Disconnected)
+
 When the user is not setting up a new structure but repairing a lapsed one, the approach changes. Avoid starting over with a full new plan as if nothing happened -- that creates performance pressure. Instead: start with one small re-engagement gesture (a voice note, a specific message, not a "we need to talk" text). Have an honest, short conversation about what happened: "We drifted. I want to reconnect. Can we start fresh?" Then build a simpler, lower-stakes version of the plan. The failure of the old plan is usually a complexity/sustainability mismatch, not a relationship failure. A drifted relationship needs a small restart, not a comprehensive architecture -- build to full structure over weeks, not immediately.
 
 ### Military Deployment (Restricted Communication Conditions)
+
 Deployed service members often have severely restricted communication: limited or no internet, scheduled phone access, censored or delayed communication. The civilian partner must plan for silence and for communication bursts. Strategies: write letters and emails even if you don't know when they'll be received -- the accumulation of received messages during limited access windows is powerful; do not make the contact contingent on response (send, do not wait); have a contact on the deployed person's end who can relay urgent information; set an expectation with yourself that silence is logistics, not emotional withdrawal; have your own support system (other military spouses/partners, a therapist, a support group) because you cannot put all of your emotional maintenance need onto the deployed partner.
 
 ---
@@ -373,6 +401,7 @@ Deployed service members often have severely restricted communication: limited o
 **Output:**
 
 ## Long-Distance Connection Plan
+
 Romantic partners, 4 years together | Chicago (CST) to Melbourne (AEDT) | 16-17 hours ahead | 2-year defined phase with post-phase planning needed
 
 ---
@@ -386,15 +415,17 @@ A 16-hour difference between Chicago and Melbourne is one of the most challengin
 ### Communication Architecture
 
 #### Daily Micro-Contact
-| Format | Activity | Who Initiates | When |
-|--------|----------|--------------|------|
-| Voice note | 1-2 minute audio message: one moment from the day, no response required | Alternates daily | Send anytime -- received on the other's schedule |
-| Photo | One image from the day, no caption needed -- just a visual window | Alternates or both | Anytime |
-| Brief text | One check-in: "Good morning / goodnight" OR one link or observation | Either | On wake-up in each person's zone |
+
+| Format     | Activity                                                                | Who Initiates      | When                                             |
+| ---------- | ----------------------------------------------------------------------- | ------------------ | ------------------------------------------------ |
+| Voice note | 1-2 minute audio message: one moment from the day, no response required | Alternates daily   | Send anytime -- received on the other's schedule |
+| Photo      | One image from the day, no caption needed -- just a visual window       | Alternates or both | Anytime                                          |
+| Brief text | One check-in: "Good morning / goodnight" OR one link or observation     | Either             | On wake-up in each person's zone                 |
 
 **Daily contact notes:** Do not attempt daily real-time calls. With Melbourne 16 hours ahead of Chicago (17 during US DST), the overlap window is approximately 7:00-9:00 AM CST / 11:00 PM-1:00 AM AEDT the same calendar day. This requires one person to be awake before 9am and the other to be awake past 11pm. This is sustainable for occasional use, not daily. Voice notes are your daily relationship. Treat them as real contact -- because they are.
 
 #### Weekly Anchor
+
 - **Day and time:** Saturday 8:00 AM CST / Sunday 1:00 AM AEDT (Melbourne is technically the next calendar day)
 - **Backup day:** Sunday 8:00 AM CST / Monday 1:00 AM AEDT
 - **Duration:** 75-90 minutes
@@ -405,6 +436,7 @@ A 16-hour difference between Chicago and Melbourne is one of the most challengin
 **DST Alert:** Chicago observes CDT (UTC-5) in summer; AEDT shifts to AEST (UTC+10) in Australian autumn (March/April). This means the difference oscillates between 15 and 17 hours depending on the time of year and which hemisphere's clock has recently changed. Twice a year, verify your standing call time still works in both zones and adjust by one hour if needed.
 
 #### Monthly Depth Activity
+
 - **Activity:** Rotating -- see activity menu below. Month 1: synchronized film night. Month 2: cook the same recipe and video call during the meal. Month 3: online game session.
 - **Format:** Primarily asynchronous with real-time debrief -- given the time difference, fully synchronous monthly activities require late-night scheduling; the asynchronous-with-debrief model (watch independently, discuss on the weekly call) is often more practical.
 - **When:** Incorporated into the weekly Saturday call OR a second, shorter call on a different weekend day for the shared activity.
@@ -412,6 +444,7 @@ A 16-hour difference between Chicago and Melbourne is one of the most challengin
 ---
 
 ### Time Zone Management
+
 - **Chicago (CST):** UTC-6 (CDT UTC-5 in summer, roughly mid-March to early November)
 - **Melbourne (AEDT):** UTC+11 (AEST UTC+10 in autumn/winter, roughly early April to early October)
 - **Current difference:** 16-17 hours (Melbourne is ahead -- when it is 8am Saturday in Chicago, it is 11pm-midnight Saturday/Sunday in Melbourne)
@@ -423,17 +456,18 @@ A 16-hour difference between Chicago and Melbourne is one of the most challengin
 ---
 
 ### Shared Activity Menu
-| Activity | Category | Format | Frequency | What's Needed |
-|----------|----------|--------|-----------|---------------|
-| Voice note diary | Async | Each person sends 1-2 minute audio update daily -- not a report, just a moment | Daily | WhatsApp or Marco Polo |
-| Shared photo album | Async | Both add photos throughout the week; both browse during downtime | Daily | Google Photos or iCloud shared album |
-| Synchronized film night | Real-time | Start the same film simultaneously, text reactions live | Monthly | Same streaming service, WhatsApp thread |
-| Cook the same recipe | Async + debrief | Both cook the same recipe in the same week; share photos, discuss on Saturday call | Monthly | Recipe agreed Tuesday, both cook by Friday |
-| Online co-op game | Real-time | Choose a cooperative game both enjoy; play during overlap window | Monthly | Device, game of choice -- Stardew Valley multiplayer is a popular low-stress option |
-| Shared reading | Async + debrief | Both read the same book at the same pace; use the weekly call as a book club | Ongoing | Same book; agree on weekly chapters |
-| "Dispatch from here" text | Async | Each person narrates one mundane moment per day -- a micro-story from their day, unprompted | Daily | Text -- no response required, just send it |
-| Care package | Tactile | 3-4 times per year: local food item, something small and sensory, a handwritten note | Quarterly | 2-week lead time for international shipping |
-| Handwritten letters | Tactile | One letter per month, written over several days; mailed | Monthly | International postage; expect 7-14 day delivery |
+
+| Activity                  | Category        | Format                                                                                      | Frequency | What's Needed                                                                       |
+| ------------------------- | --------------- | ------------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------- |
+| Voice note diary          | Async           | Each person sends 1-2 minute audio update daily -- not a report, just a moment              | Daily     | WhatsApp or Marco Polo                                                              |
+| Shared photo album        | Async           | Both add photos throughout the week; both browse during downtime                            | Daily     | Google Photos or iCloud shared album                                                |
+| Synchronized film night   | Real-time       | Start the same film simultaneously, text reactions live                                     | Monthly   | Same streaming service, WhatsApp thread                                             |
+| Cook the same recipe      | Async + debrief | Both cook the same recipe in the same week; share photos, discuss on Saturday call          | Monthly   | Recipe agreed Tuesday, both cook by Friday                                          |
+| Online co-op game         | Real-time       | Choose a cooperative game both enjoy; play during overlap window                            | Monthly   | Device, game of choice -- Stardew Valley multiplayer is a popular low-stress option |
+| Shared reading            | Async + debrief | Both read the same book at the same pace; use the weekly call as a book club                | Ongoing   | Same book; agree on weekly chapters                                                 |
+| "Dispatch from here" text | Async           | Each person narrates one mundane moment per day -- a micro-story from their day, unprompted | Daily     | Text -- no response required, just send it                                          |
+| Care package              | Tactile         | 3-4 times per year: local food item, something small and sensory, a handwritten note        | Quarterly | 2-week lead time for international shipping                                         |
+| Handwritten letters       | Tactile         | One letter per month, written over several days; mailed                                     | Monthly   | International postage; expect 7-14 day delivery                                     |
 
 ---
 
@@ -451,6 +485,7 @@ A 16-hour difference between Chicago and Melbourne is one of the most challengin
 ---
 
 ### Conflict Protocol
+
 - **Text rule:** Never attempt to resolve a conflict over text. Text conflict escalates because tone is invisible, response delays read as stonewalling, and both people are imagining the worst version of the other's words.
 - **Escalation move:** When a text exchange starts to feel like an argument, say: "This matters and I don't want to handle it by text. Can we call tonight at our overlap window?" The 2-hour window at 8am CST / 11pm AEDT is your conflict call window when needed.
 - **48-hour post-visit rule:** Do not initiate difficult conversations within 48 hours of a visit ending. Both people are in emotional withdrawal. The distress is real but the cognitive distortion risk is high. Write it down if you need to. Talk about it on the next call.
@@ -459,11 +494,12 @@ A 16-hour difference between Chicago and Melbourne is one of the most challengin
 ---
 
 ### Maintenance Check-In Schedule
-| Check-In Type | Frequency | Duration | Key Questions |
-|---------------|-----------|----------|---------------|
-| Micro-review | Monthly (last 10 min of Saturday call) | 10-15 min | Is our rhythm working? What needs adjusting? |
-| Quarterly review | Every 3 months | 60+ min, dedicated call | How are we? What's harder than expected? What's better? How do we feel about the 2-year arc? |
-| Post-visit debrief | After each visit | 30 min, within one week of return | What worked? What did we miss? What do we want to do differently next time? |
+
+| Check-In Type      | Frequency                              | Duration                          | Key Questions                                                                                |
+| ------------------ | -------------------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------- |
+| Micro-review       | Monthly (last 10 min of Saturday call) | 10-15 min                         | Is our rhythm working? What needs adjusting?                                                 |
+| Quarterly review   | Every 3 months                         | 60+ min, dedicated call           | How are we? What's harder than expected? What's better? How do we feel about the 2-year arc? |
+| Post-visit debrief | After each visit                       | 30 min, within one week of return | What worked? What did we miss? What do we want to do differently next time?                  |
 
 ---
 

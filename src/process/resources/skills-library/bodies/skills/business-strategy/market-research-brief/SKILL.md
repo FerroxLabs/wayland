@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy research planning analysis"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy research planning analysis'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Market Research Brief
 
 ## When to Use
@@ -77,23 +78,27 @@ Research questions and hypotheses are not optional scaffolding -- they are the a
 Methodology selection is a constraint satisfaction problem. The right method is the one that answers the research question reliably, within the available time and budget, using accessible participants.
 
 **Quantitative methods -- use when you need numbers that generalize:**
+
 - Online surveys are the default quantitative method for B2C and SMB research. Effective for behavioral intent, attribute ranking, price sensitivity, and segmentation. Require minimum n=200 for basic reporting, n=400+ for meaningful cross-tabulation by two or more segments. At n=400, you achieve 95% confidence with ±5% margin of error -- the standard threshold for business decisions.
 - Conjoint analysis and MaxDiff are used when you need to understand relative preferences across multiple attributes simultaneously. Conjoint tests realistic trade-offs (price vs. feature vs. brand); MaxDiff identifies the highest and lowest priority items from a long list. These require specialized survey design tools and a minimum of n=150 per segment to be interpretable.
 - Price sensitivity measurement methods: Van Westendorp Price Sensitivity Meter (four-question format identifying acceptable price range), Gabor-Granger (tests specific price points to estimate demand curves), and Newton-Miller-Smith extension (combines both). Van Westendorp is faster; Gabor-Granger is more precise for a narrower range.
 - A/B and multivariate testing are revealed-preference methods (what users actually do, not what they say they would do). Use when you have a live product and sufficient traffic -- minimum 1,000 exposures per variant for binary outcome metrics.
 
 **Qualitative methods -- use when you need to understand why:**
+
 - In-depth interviews (IDIs) are the gold standard for exploratory research and for understanding the nuance behind quantitative patterns. Budget 45-75 minutes per interview. Reach thematic saturation at 8-15 interviews per distinct audience segment. Do not conduct fewer than 5 per segment -- you cannot identify patterns from fewer observations.
 - Focus groups are useful for understanding group dynamics, social desirability effects, and reactions to creative stimuli (concepts, prototypes, messaging). They are NOT useful for uncovering individual decision-making logic -- participants conform to dominant voices. Limit to 6-8 participants per session. Run a minimum of 2 sessions per segment to compare groups.
 - Contextual inquiry and ethnographic observation provide behavioral truth that surveys and interviews cannot -- you watch how people actually behave rather than how they report behaving. Most relevant for product usability, workflow studies, and physical retail environments.
 - Diary studies and longitudinal observation capture behavior over time. Use when the behavior is episodic (purchase decisions, seasonal behavior, change adoption). Require 7-21 day commitment from participants; expect 20-30% dropout.
 
 **Secondary research -- use to set context and reduce primary research scope:**
+
 - Industry analyst reports (syndicated research), government datasets (census, trade statistics, Bureau of Labor Statistics), academic journals, and regulatory filings provide market-level context.
 - Social listening and review mining (analyzing public customer reviews, forum discussions, social posts) surfaces unfiltered language that quantitative surveys miss. Use NLP tools or manual coding to identify themes. Flag that this audience is self-selected and skews toward extreme experiences.
 - Competitive intelligence from public sources: job postings (reveal strategic priorities), patent filings, press releases, and earnings transcripts.
 
 **Choosing and justifying the method mix:**
+
 - If the research question is "how many" or "how much" -- quantitative primary
 - If the research question is "why" or "how do customers think about" -- qualitative primary
 - If both, design mixed methods: qualitative first (exploratory phase defines the right survey questions), then quantitative (measures prevalence of discovered themes). Never reverse this order unless hypotheses are already very well-developed.
@@ -116,6 +121,7 @@ Sampling is where most market research briefs fail. Vague samples produce uninte
 The instrument (survey questionnaire, interview guide, or analysis codebook) is the operational heart of the research. Design it to answer the research questions, not to collect everything that might be interesting.
 
 **For surveys:**
+
 - Open with 2-4 screening questions. Screens must be non-leading -- never reveal what you're looking for in the screen. Use randomized option lists for category usage questions.
 - Group questions by topic, not by the researcher's organizational logic. Respondents should experience a natural conversation flow.
 - Place the most important questions in the first third of the survey. Respondents who abandon mid-way have still answered your core questions.
@@ -125,12 +131,14 @@ The instrument (survey questionnaire, interview guide, or analysis codebook) is 
 - Target 10-15 minutes maximum for consumer surveys; 20 minutes for engaged B2B professionals. Beyond these thresholds, completion rates and data quality drop significantly.
 
 **For interview guides:**
+
 - Structure in four sections: warm-up (5 min, establishes rapport, no leading questions about the topic), exploration (20-30 min, open-ended probing of current behavior and pain points), stimulus reaction (10-15 min, reactions to concepts, prototypes, or hypothetical scenarios), and close (5 min, priorities, open floor).
 - Write probing prompts for each main question: "Can you walk me through the last time that happened?", "What did you do next?", "Why does that matter to you?", "Is there anything else about that?"
 - Never include the hypothesis in the interview guide. Interviewers who know what they expect to hear will inadvertently guide participants toward confirming it.
 - If testing a specific concept or feature, use a "monadic" design: show one concept per participant rather than multiple concepts per participant. Comparison effects distort individual concept evaluation.
 
 **Quality controls:**
+
 - For surveys: attention checks (2 per survey), minimum completion time filter (remove respondents who complete a 10-minute survey in under 3 minutes -- they are straight-lining), duplicate IP address detection, open-end quality review (remove gibberish, single character, or copy-paste responses).
 - For interviews: record all sessions (with consent). Use verbatim transcription rather than summary notes. Conduct a member-checking session where 2-3 participants review a summary of findings for accuracy.
 
@@ -139,6 +147,7 @@ The instrument (survey questionnaire, interview guide, or analysis codebook) is 
 Every research question specified in Step 2 must have a corresponding analysis method. No exceptions. Specifying analysis before data collection forces clarity on what data must be collected and how it must be formatted.
 
 **Quantitative analysis methods:**
+
 - Descriptive statistics (frequencies, means, percentages): the baseline output for every survey question. Always the first pass.
 - Cross-tabulation: compares responses across segments. Requires minimum n=100 per cell for reliable comparison. Use chi-square test for categorical variables; t-test or ANOVA for continuous variables across groups. Report statistical significance at p<0.05 for business research.
 - Regression analysis: identifies which variables predict an outcome (e.g., which product attributes predict purchase intent). Requires n=200+ for reliable regression coefficients.
@@ -146,6 +155,7 @@ Every research question specified in Step 2 must have a corresponding analysis m
 - Penalty-reward analysis: applied to importance-satisfaction grids to identify which attributes are must-haves (their absence destroys satisfaction) versus delighters (their presence unexpectedly increases satisfaction). Standard in product feature prioritization research.
 
 **Qualitative analysis methods:**
+
 - Thematic analysis (Braun and Clarke framework): read transcripts, generate initial codes, develop themes, review themes, define and name themes. Requires a codebook that is reviewed by at least two analysts for inter-rater reliability.
 - Framework analysis: structures qualitative data against a predefined framework (useful when research questions are well-defined in advance). Faster than inductive thematic analysis.
 - Affinity mapping: physical or digital grouping of observations into clusters, then themes. Most appropriate for workshop settings and UX research.
@@ -158,6 +168,7 @@ Every research question specified in Step 2 must have a corresponding analysis m
 Work backward from the report delivery deadline. Build in float -- qualitative research almost always takes longer than planned due to scheduling.
 
 **Standard timeline phases and durations:**
+
 - Brief approval and instrument design: 3-5 business days (longer if multiple stakeholder reviews)
 - Panel or participant recruitment: 3-7 days for consumer panels; 7-14 days for B2B or executive audiences; 14-21 days for hard-to-reach professionals (physicians, C-suite)
 - Survey data collection: 5-10 days to hit sample targets using a panel; keep survey open minimum 5 days to capture different day-of-week response patterns
@@ -169,6 +180,7 @@ Work backward from the report delivery deadline. Build in float -- qualitative r
 - Total minimum realistic timeline: 4 weeks for a clean survey study; 6-8 weeks for mixed methods; 8-12 weeks for complex multi-segment studies
 
 **Standard budget components:**
+
 - Participant incentives: the single largest variable cost; calculate as (n participants) x (incentive per person)
 - Panel or recruitment platform fees: panel providers charge $3-$15 per complete for consumer research, $25-$100 per complete for B2B professionals (on top of incentives), depending on incidence rate (how many screenees qualify per complete) and difficulty of the sample
 - Survey platform: research-grade platforms (Qualtrics, SurveyMonkey Audience, Alchemer) range from $200-$2,000+ depending on features needed; advanced conjoint or MaxDiff requires specialized platforms
@@ -508,6 +520,7 @@ If the user cannot define a single primary research question because internal st
 We are losing a meaningful proportion of competitive deals to a competitor that offers AI-driven candidate screening. Sales is attributing losses to this feature gap, but this attribution comes from post-call notes rather than structured buyer research -- the actual role of AI screening in purchase decisions has not been validated. Before committing 6-9 months of engineering time or entering a partnership agreement, the product team needs direct evidence of how mid-market HR buyers weigh AI screening against other product capabilities, and whether it is a genuine table-stakes requirement or a feature that is strategically useful in sales conversations but not actually determinative.
 
 **Internal Data Available:**
+
 - CRM lost-deal reasons (last 18 months): Contains sales rep attribution of loss reasons. Useful as directional signal; not reliable as primary evidence because rep attribution is subjective and varies by rep.
 - Win/loss call notes (partial): Roughly 40% of lost deals have documented notes. Insufficient for systematic analysis but will inform interview guide development.
 - NPS and CSAT data (existing customers): Can identify which customers are at risk of churning to competitor. Will be used to select interview participants for retention-risk segment.
@@ -532,18 +545,19 @@ AI candidate screening is valued but is not a top-3 purchase driver for most mid
 AI candidate screening is a table-stakes requirement for more than 40% of mid-market HR buyers, meaning its absence is a primary reason to eliminate a vendor from consideration -- confirming the sales team's attribution.
 
 **Decision Trigger:**
+
 - If AI screening is ranked in the top 3 features by 40% or more of buyers AND is cited as a purchase barrier by 30% or more: prioritize build or partner.
 - If AI screening is ranked top 3 by 20-39% of buyers: evaluate white-label partnership as a lower-investment response.
 - If AI screening is ranked top 3 by fewer than 20% of buyers: de-prioritize AI screening investment; address other gaps first.
 
 **Secondary Research Questions:**
 
-| # | Question | Hypothesis | How It Informs the Primary |
-|---|----------|------------|---------------------------|
-| 1 | Which product capabilities are most important when evaluating HR software for mid-market companies (100-2,000 employees)? | Ease of implementation, ATS integration, and reporting/analytics rank higher than AI features among buyers | Establishes the full competitive landscape of priorities so AI screening can be ranked within it |
-| 2 | Among buyers who evaluated our product and chose a competitor, what was the primary stated reason for their decision? | Deal losses are driven by a combination of factors; AI screening is one of several cited, not the sole differentiator | Validates or contradicts sales team's attribution of losses to AI gap specifically |
-| 3 | What is the willingness to pay a premium for AI screening capabilities, if offered as an add-on versus included in base price? | Fewer than 25% of mid-market buyers would pay a premium add-on for AI screening; most expect it included if offered | Informs the partnership economics decision: if buyers won't pay a premium, white-labeling at cost may not be viable |
-| 4 | Which specific AI screening use cases do buyers find most valuable: resume parsing, automated shortlisting, bias detection, or interview scheduling automation? | Automated shortlisting and resume parsing rank highest; bias detection is valued rhetorically but not a purchase driver | Scopes any build or partner decision to the minimum viable AI feature set |
+| #   | Question                                                                                                                                                        | Hypothesis                                                                                                              | How It Informs the Primary                                                                                          |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1   | Which product capabilities are most important when evaluating HR software for mid-market companies (100-2,000 employees)?                                       | Ease of implementation, ATS integration, and reporting/analytics rank higher than AI features among buyers              | Establishes the full competitive landscape of priorities so AI screening can be ranked within it                    |
+| 2   | Among buyers who evaluated our product and chose a competitor, what was the primary stated reason for their decision?                                           | Deal losses are driven by a combination of factors; AI screening is one of several cited, not the sole differentiator   | Validates or contradicts sales team's attribution of losses to AI gap specifically                                  |
+| 3   | What is the willingness to pay a premium for AI screening capabilities, if offered as an add-on versus included in base price?                                  | Fewer than 25% of mid-market buyers would pay a premium add-on for AI screening; most expect it included if offered     | Informs the partnership economics decision: if buyers won't pay a premium, white-labeling at cost may not be viable |
+| 4   | Which specific AI screening use cases do buyers find most valuable: resume parsing, automated shortlisting, bias detection, or interview scheduling automation? | Automated shortlisting and resume parsing rank highest; bias detection is valued rhetorically but not a purchase driver | Scopes any build or partner decision to the minimum viable AI feature set                                           |
 
 ---
 
@@ -556,15 +570,15 @@ The primary research question requires quantitative measurement to produce ranka
 
 **Method Details:**
 
-| Component | Specification |
-|-----------|---------------|
-| Primary Method | MaxDiff survey for feature prioritization, with purchase intent and willingness-to-pay questions using Van Westendorp Price Sensitivity Meter |
-| Secondary Method | 10 in-depth interviews (45 minutes, semi-structured), conducted before survey launch to inform instrument design |
-| Research Design | Sequential mixed methods: qualitative exploration informs quantitative measurement |
-| Confidence Level | 95% |
-| Margin of Error | ±6% (achievable at n=250 within budget) |
-| Total Sample | 10 IDIs + 250 survey completions |
-| Study Duration | Interviews: 8 business days; survey: 10 business days |
+| Component        | Specification                                                                                                                                 |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary Method   | MaxDiff survey for feature prioritization, with purchase intent and willingness-to-pay questions using Van Westendorp Price Sensitivity Meter |
+| Secondary Method | 10 in-depth interviews (45 minutes, semi-structured), conducted before survey launch to inform instrument design                              |
+| Research Design  | Sequential mixed methods: qualitative exploration informs quantitative measurement                                                            |
+| Confidence Level | 95%                                                                                                                                           |
+| Margin of Error  | ±6% (achievable at n=250 within budget)                                                                                                       |
+| Total Sample     | 10 IDIs + 250 survey completions                                                                                                              |
+| Study Duration   | Interviews: 8 business days; survey: 10 business days                                                                                         |
 
 ---
 
@@ -574,12 +588,14 @@ The primary research question requires quantitative measurement to produce ranka
 HR directors, HR managers, VP of HR, Talent Acquisition leads, and CHROs at US-based companies with 200-2,000 employees who have participated in an HR software evaluation (purchase or replacement) in the past 24 months.
 
 **Inclusion Criteria:**
+
 - Job title in HR, People Operations, or Talent Acquisition
 - Company size 200-2,000 US employees
 - Involved in or influenced a purchasing decision for HR software (ATS, HRIS, or recruiting platform) in the past 24 months
 - B2B company (not staffing agencies or professional employer organizations, which have different buyer behavior)
 
 **Exclusion Criteria:**
+
 - Employees of HR software or recruiting technology companies (competitors and category participants)
 - Market research or survey professionals
 - Participated in HR software research survey in the past 6 months (panel fatigue and bias)
@@ -588,17 +604,18 @@ HR directors, HR managers, VP of HR, Talent Acquisition leads, and CHROs at US-b
 
 **Segmentation Plan:**
 
-| Segment | Definition | Target n (Survey) | Target n (IDIs) | Purpose |
-|---------|------------|-------------------|-----------------|---------|
-| Recent switchers | Evaluated and switched HR vendor in past 12 months | 100 | 4 | Direct evidence of purchase drivers; most relevant to competitive loss question |
-| Active evaluators | Currently evaluating HR software vendors | 75 | 3 | Forward-looking intent data; highest purchase decision clarity |
-| Status quo | Using current HR software, no active evaluation | 75 | 3 | Baseline priority data; understand latent demand for AI features |
-| **Total** | | **250** | **10** | |
+| Segment           | Definition                                         | Target n (Survey) | Target n (IDIs) | Purpose                                                                         |
+| ----------------- | -------------------------------------------------- | ----------------- | --------------- | ------------------------------------------------------------------------------- |
+| Recent switchers  | Evaluated and switched HR vendor in past 12 months | 100               | 4               | Direct evidence of purchase drivers; most relevant to competitive loss question |
+| Active evaluators | Currently evaluating HR software vendors           | 75                | 3               | Forward-looking intent data; highest purchase decision clarity                  |
+| Status quo        | Using current HR software, no active evaluation    | 75                | 3               | Baseline priority data; understand latent demand for AI features                |
+| **Total**         |                                                    | **250**           | **10**          |                                                                                 |
 
 **Recruitment Method:**
 B2B professional panel for survey (2-3 panel providers used simultaneously to achieve n=250 within timeline -- single provider rarely delivers 250 B2B completions in under 10 days). LinkedIn Sales Navigator outreach combined with panel for IDI recruitment. IDI participants should not overlap with survey panel participants.
 
 **Participant Incentive:**
+
 - Survey (15 min): $35 Amazon gift code (B2B professional rate)
 - IDI (45 min): $150 Amazon gift code
 
@@ -615,11 +632,11 @@ Estimated 15-20% for survey panel (strict job title, company size, and recency o
 
 **Structure Overview:**
 
-| Section | Purpose | Questions | Key Constructs |
-|---------|---------|-----------|----------------|
-| Screening | Qualify respondent | 4 questions | Title, company size, purchase involvement, recency |
-| HR tech context | Establish baseline | 3 questions | Current vendor, tenure with vendor, overall satisfaction |
+| Section                          | Purpose                 | Questions                                            | Key Constructs                                                               |
+| -------------------------------- | ----------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Screening                        | Qualify respondent      | 4 questions                                          | Title, company size, purchase involvement, recency                           |
+| HR tech context                  | Establish baseline      | 3 questions                                          | Current vendor, tenure with vendor, overall satisfaction                     |
 | Feature prioritization (MaxDiff) | Answer primary question | 12 choice tasks, 5 items per task across 18 features | Relative importance of 18 product features including 4 AI screening variants |
-| Purchase decision attribution | Answer secondary Q2 | 2 questions (evaluators and switchers only) | Top reasons for current vendor selection; barriers to switching |
-| AI screening attitudes | Answer secondary Q4 | 3 questions | Familiarity with AI screening, use cases ranked, perceived value |
-| Pricing and willingness to pay | Answer secondary Q3 | 4 questions
+| Purchase decision attribution    | Answer secondary Q2     | 2 questions (evaluators and switchers only)          | Top reasons for current vendor selection; barriers to switching              |
+| AI screening attitudes           | Answer secondary Q4     | 3 questions                                          | Familiarity with AI screening, use cases ranked, perceived value             |
+| Pricing and willingness to pay   | Answer secondary Q3     | 4 questions                                          |

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science analysis planning"
-  category: "data-analysis"
-  subcategory: "data-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science analysis planning'
+  category: 'data-analysis'
+  subcategory: 'data-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # API Data Extraction
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to plan data extraction from a third-party API (SaaS tool, social media platform, payment processor)
 - User needs to design the extraction logic for an API-to-warehouse integration
 - User wants to document pagination, rate limiting, and error handling for an API data source
@@ -28,6 +29,7 @@ metadata:
 - User needs to evaluate an API's data extraction capabilities before building the pipeline
 
 **Do NOT use when:**
+
 - User wants to build an application-level API client or SDK (that is software engineering)
 - User wants to design the full ETL pipeline including transform and load (use `etl-pipeline-design`)
 - User wants to design API endpoints for others to consume (use API design skills in software development)
@@ -91,7 +93,7 @@ metadata:
 
 ## Output Format
 
-```
+````
 ## API Data Extraction Design: [API Name]
 
 ### API Assessment
@@ -149,25 +151,25 @@ metadata:
   "pagination": { "next_cursor": "..." },
   "meta": { "total_count": N }
 }
-```
+````
 
 **Field mapping:**
 
-| API Field | Target Column | Type Conversion | Notes |
-|-----------|---------------|-----------------|-------|
-| [api_field] | [target_col] | [Conversion] | [Notes] |
+| API Field   | Target Column | Type Conversion | Notes   |
+| ----------- | ------------- | --------------- | ------- |
+| [api_field] | [target_col]  | [Conversion]    | [Notes] |
 
 **Nested data handling:** [Flattening rules for nested objects/arrays]
 
 ### Error Handling
 
-| Error | Detection | Action | Max Retries | Alert |
-|-------|-----------|--------|-------------|-------|
-| 401 Unauthorized | HTTP status 401 | Refresh token; retry | 1 | Critical if refresh fails |
-| 429 Rate Limited | HTTP status 429 | Wait for Retry-After; backoff | 5 | Warning after 3rd retry |
-| 500 Server Error | HTTP status 5xx | Exponential backoff | 3 | Critical after all retries |
-| Timeout | No response in [N]s | Retry with same params | 3 | Warning |
-| Schema change | Missing expected field | Log; continue with available fields | 0 | Warning |
+| Error            | Detection              | Action                              | Max Retries | Alert                      |
+| ---------------- | ---------------------- | ----------------------------------- | ----------- | -------------------------- |
+| 401 Unauthorized | HTTP status 401        | Refresh token; retry                | 1           | Critical if refresh fails  |
+| 429 Rate Limited | HTTP status 429        | Wait for Retry-After; backoff       | 5           | Warning after 3rd retry    |
+| 500 Server Error | HTTP status 5xx        | Exponential backoff                 | 3           | Critical after all retries |
+| Timeout          | No response in [N]s    | Retry with same params              | 3           | Warning                    |
+| Schema change    | Missing expected field | Log; continue with available fields | 0           | Warning                    |
 
 ### Extraction Summary
 
@@ -175,7 +177,8 @@ metadata:
 - **Estimated extraction time:** [Duration]
 - **Estimated data volume per run:** [Rows and bytes]
 - **Recommended schedule:** [Frequency and time]
-```
+
+````
 
 ## Rules
 
@@ -285,32 +288,32 @@ metadata:
     }
   }
 }
-```
+````
 
 **Field mapping:**
 
-| API Field | Target Column | Type Conversion | Notes |
-|-----------|---------------|-----------------|-------|
-| id | hubspot_contact_id | String to BIGINT | HubSpot's internal ID |
-| properties.email | email | None (VARCHAR) | May be null for some contacts |
-| properties.firstname | first_name | None (VARCHAR) | May be null |
-| properties.lastname | last_name | None (VARCHAR) | May be null |
-| properties.company | company_name | None (VARCHAR) | May be null |
-| properties.lifecyclestage | lifecycle_stage | None (VARCHAR) | Enumerated: subscriber, lead, mql, sql, opportunity, customer, evangelist |
-| properties.hs_lastmodifieddate | last_modified_at | String to TIMESTAMP (UTC) | Used as incremental key |
-| createdAt | created_at | String to TIMESTAMP (UTC) | Contact creation date |
+| API Field                      | Target Column      | Type Conversion           | Notes                                                                     |
+| ------------------------------ | ------------------ | ------------------------- | ------------------------------------------------------------------------- |
+| id                             | hubspot_contact_id | String to BIGINT          | HubSpot's internal ID                                                     |
+| properties.email               | email              | None (VARCHAR)            | May be null for some contacts                                             |
+| properties.firstname           | first_name         | None (VARCHAR)            | May be null                                                               |
+| properties.lastname            | last_name          | None (VARCHAR)            | May be null                                                               |
+| properties.company             | company_name       | None (VARCHAR)            | May be null                                                               |
+| properties.lifecyclestage      | lifecycle_stage    | None (VARCHAR)            | Enumerated: subscriber, lead, mql, sql, opportunity, customer, evangelist |
+| properties.hs_lastmodifieddate | last_modified_at   | String to TIMESTAMP (UTC) | Used as incremental key                                                   |
+| createdAt                      | created_at         | String to TIMESTAMP (UTC) | Contact creation date                                                     |
 
 **Nested data handling:** The "properties" object is flattened: each property becomes a top-level column in the target table. Only the 7 properties listed above are extracted (specified in the request's "properties" parameter to minimize response size).
 
 ### Error Handling
 
-| Error | Detection | Action | Max Retries | Alert |
-|-------|-----------|--------|-------------|-------|
-| 401 Unauthorized | HTTP status 401 | Log error; do NOT retry (manual token fix needed) | 0 | CRITICAL: "HubSpot token invalid" to #data-alerts |
-| 429 Rate Limited | HTTP status 429 | Wait Retry-After seconds; exponential backoff | 5 | WARNING after 3rd occurrence in single run |
-| 500/502/503 Server Error | HTTP status 5xx | Exponential backoff (1s, 2s, 4s, 8s) | 3 | CRITICAL after all retries fail |
-| Timeout (no response in 30s) | Response timeout | Retry same request | 3 | WARNING |
-| Unexpected response format | Missing "results" key | Log full response; skip page; continue | 0 | WARNING: "Schema change detected" |
+| Error                        | Detection             | Action                                            | Max Retries | Alert                                             |
+| ---------------------------- | --------------------- | ------------------------------------------------- | ----------- | ------------------------------------------------- |
+| 401 Unauthorized             | HTTP status 401       | Log error; do NOT retry (manual token fix needed) | 0           | CRITICAL: "HubSpot token invalid" to #data-alerts |
+| 429 Rate Limited             | HTTP status 429       | Wait Retry-After seconds; exponential backoff     | 5           | WARNING after 3rd occurrence in single run        |
+| 500/502/503 Server Error     | HTTP status 5xx       | Exponential backoff (1s, 2s, 4s, 8s)              | 3           | CRITICAL after all retries fail                   |
+| Timeout (no response in 30s) | Response timeout      | Retry same request                                | 3           | WARNING                                           |
+| Unexpected response format   | Missing "results" key | Log full response; skip page; continue            | 0           | WARNING: "Schema change detected"                 |
 
 ### Extraction Summary
 

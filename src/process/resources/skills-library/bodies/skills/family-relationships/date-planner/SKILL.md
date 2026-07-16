@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-communication guide"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-communication guide'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Date Planner
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about date planner
 - User needs guidance on date planner topics
 - User wants a structured approach to date planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 

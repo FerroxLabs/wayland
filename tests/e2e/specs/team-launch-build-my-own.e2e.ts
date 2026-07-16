@@ -65,9 +65,7 @@ test.describe('Team Launcher - build my own', () => {
     // Wait for leader row to appear (suggestRoster is deterministic; even
     // the fellBackToDefaults path returns a leader + 3-4 teammates).
     await expect(page.locator('[data-testid="launcher-row-leader"]')).toBeVisible({ timeout: 15_000 });
-    const teammateCountAfterSuggest = await page
-      .locator('[data-testid^="launcher-row-teammate-"]')
-      .count();
+    const teammateCountAfterSuggest = await page.locator('[data-testid^="launcher-row-teammate-"]').count();
     expect(teammateCountAfterSuggest).toBeGreaterThanOrEqual(2);
 
     // +Add teammate opens the picker.
@@ -79,18 +77,15 @@ test.describe('Team Launcher - build my own', () => {
     await expect(picker).toBeVisible({ timeout: 5_000 });
 
     // Pick the first specialist in the picker list (excluding already-on-roster).
-    const firstOption = page
-      .locator('[data-testid^="teams-launcher-picker-option-"]')
-      .first();
+    const firstOption = page.locator('[data-testid^="teams-launcher-picker-option-"]').first();
     await expect(firstOption).toBeVisible({ timeout: 5_000 });
     await firstOption.click();
 
     // Picker closes + one more teammate row appears.
     await expect(picker).toBeHidden({ timeout: 5_000 });
-    await expect(page.locator('[data-testid^="launcher-row-teammate-"]')).toHaveCount(
-      teammateCountAfterSuggest + 1,
-      { timeout: 5_000 }
-    );
+    await expect(page.locator('[data-testid^="launcher-row-teammate-"]')).toHaveCount(teammateCountAfterSuggest + 1, {
+      timeout: 5_000,
+    });
 
     // Name + Create team.
     const teamName = `E2E Build My Own ${Date.now()}`;

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts guide"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts guide'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
 
 # Employment Law Basics
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to understand their workplace rights on a specific issue
 - User needs to know employment law basics for a work situation
 - User wants to understand what constitutes wrongful termination or discrimination
 - User needs guidance on wage, hour, or leave entitlements
 
 **Do NOT use this skill when:**
+
 - User needs legal representation for an active employment dispute -- refer to employment attorney
 - User wants to draft employment contracts -- refer to legal professional
 - User needs advice on specific case outcomes -- this skill teaches literacy, not legal counsel
@@ -70,17 +72,18 @@ At-will employment means either party (employer or employee) can end the employm
 
 ### Exceptions to At-Will Employment
 
-| Exception | Description | Example |
-|---|---|---|
-| **Discrimination** | Cannot fire based on protected class | Firing someone because of their race |
-| **Retaliation** | Cannot fire for exercising legal rights | Firing someone for filing a safety complaint |
-| **Public Policy** | Cannot fire for reasons that violate public policy | Firing someone for serving jury duty |
-| **Implied Contract** | Employer's handbook or statements created an implied contract | Handbook says "employees will only be terminated for cause" |
-| **Covenant of Good Faith** | Some states recognize an obligation of fair dealing | Firing someone the day before their pension vests |
-| **Statutory Protection** | Specific laws prohibit termination in certain situations | Firing someone for taking FMLA leave |
-| **Whistleblower Protection** | Cannot fire for reporting illegal activity | Firing someone for reporting fraud |
+| Exception                    | Description                                                   | Example                                                     |
+| ---------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------- |
+| **Discrimination**           | Cannot fire based on protected class                          | Firing someone because of their race                        |
+| **Retaliation**              | Cannot fire for exercising legal rights                       | Firing someone for filing a safety complaint                |
+| **Public Policy**            | Cannot fire for reasons that violate public policy            | Firing someone for serving jury duty                        |
+| **Implied Contract**         | Employer's handbook or statements created an implied contract | Handbook says "employees will only be terminated for cause" |
+| **Covenant of Good Faith**   | Some states recognize an obligation of fair dealing           | Firing someone the day before their pension vests           |
+| **Statutory Protection**     | Specific laws prohibit termination in certain situations      | Firing someone for taking FMLA leave                        |
+| **Whistleblower Protection** | Cannot fire for reporting illegal activity                    | Firing someone for reporting fraud                          |
 
 ### States That Are NOT At-Will (or Have Significant Modifications)
+
 Montana is the only state that is not an at-will employment state (requires good cause for termination after a probationary period). However, many states have strong implied contract exceptions, public policy exceptions, or additional statutory protections that significantly modify at-will employment.
 
 ---
@@ -89,19 +92,21 @@ Montana is the only state that is not an at-will employment state (requires good
 
 ### Federal Protected Classes
 
-| Protected Class | Law | Employer Size Threshold |
-|---|---|---|
-| Race, Color, National Origin | Title VII, Civil Rights Act | 15+ employees |
-| Sex (incl. pregnancy, sexual orientation, gender identity) | Title VII (per Bostock v. Clayton County) | 15+ employees |
-| Religion | Title VII | 15+ employees |
-| Age (40+) | Age Discrimination in Employment Act (ADEA) | 20+ employees |
-| Disability | Americans with Disabilities Act (ADA) | 15+ employees |
-| Genetic Information | Genetic Information Nondiscrimination Act (GINA) | 15+ employees |
-| Citizenship Status | Immigration and Nationality Act | All employers |
-| Military Service | USERRA | All employers |
+| Protected Class                                            | Law                                              | Employer Size Threshold |
+| ---------------------------------------------------------- | ------------------------------------------------ | ----------------------- |
+| Race, Color, National Origin                               | Title VII, Civil Rights Act                      | 15+ employees           |
+| Sex (incl. pregnancy, sexual orientation, gender identity) | Title VII (per Bostock v. Clayton County)        | 15+ employees           |
+| Religion                                                   | Title VII                                        | 15+ employees           |
+| Age (40+)                                                  | Age Discrimination in Employment Act (ADEA)      | 20+ employees           |
+| Disability                                                 | Americans with Disabilities Act (ADA)            | 15+ employees           |
+| Genetic Information                                        | Genetic Information Nondiscrimination Act (GINA) | 15+ employees           |
+| Citizenship Status                                         | Immigration and Nationality Act                  | All employers           |
+| Military Service                                           | USERRA                                           | All employers           |
 
 ### State and Local Additions
+
 Many states and cities add additional protected classes including:
+
 - Marital status
 - Sexual orientation and gender identity (beyond federal)
 - Political affiliation
@@ -112,6 +117,7 @@ Many states and cities add additional protected classes including:
 - Caregiver status
 
 ### Types of Discrimination
+
 ```
 DISCRIMINATION TYPES:
 
@@ -139,6 +145,7 @@ DISCRIMINATION TYPES:
 ```
 
 ### Filing a Discrimination Complaint
+
 ```
 DISCRIMINATION COMPLAINT PROCESS:
 
@@ -176,6 +183,7 @@ CRITICAL DEADLINES:
 ## Step 3: Wage and Hour Rights
 
 ### Federal Minimums (Fair Labor Standards Act)
+
 ```
 WAGE AND HOUR BASICS:
 
@@ -211,16 +219,17 @@ THINGS TO TRACK:
 
 ### Common Wage Violations
 
-| Violation | What It Looks Like |
-|---|---|
-| Off-the-clock work | Required to set up before clocking in, answer emails after hours |
-| Misclassification as exempt | You make a salary but your duties do not meet the exempt test |
-| Misclassification as contractor | You work like an employee but receive a 1099 |
-| Tip theft | Employer takes a portion of tips (beyond legal tip pools) |
-| Illegal deductions | Deductions for breakage, cash register shortages, uniforms that take pay below minimum |
-| Missed breaks | Not allowed legally required meal/rest periods |
+| Violation                       | What It Looks Like                                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------- |
+| Off-the-clock work              | Required to set up before clocking in, answer emails after hours                       |
+| Misclassification as exempt     | You make a salary but your duties do not meet the exempt test                          |
+| Misclassification as contractor | You work like an employee but receive a 1099                                           |
+| Tip theft                       | Employer takes a portion of tips (beyond legal tip pools)                              |
+| Illegal deductions              | Deductions for breakage, cash register shortages, uniforms that take pay below minimum |
+| Missed breaks                   | Not allowed legally required meal/rest periods                                         |
 
 ### Filing a Wage Claim
+
 ```
 WAGE CLAIM PROCESS:
 
@@ -253,6 +262,7 @@ KEEP RECORDS:
 ## Step 4: FMLA and Leave Rights
 
 ### Family and Medical Leave Act (FMLA)
+
 ```
 FMLA BASICS:
 
@@ -287,21 +297,22 @@ YOUR EMPLOYER MAY:
 
 ### Other Leave Protections
 
-| Leave Type | Law | Key Provisions |
-|---|---|---|
-| Pregnancy | Pregnancy Discrimination Act | Cannot discriminate; must treat same as other medical conditions |
-| Military | USERRA | Job protection during military service; re-employment rights |
-| Voting | State laws | Many states require time off to vote |
-| Jury Duty | Federal + state laws | Job protection during jury service |
-| Domestic Violence | State laws (varies) | Leave for court proceedings, safety planning |
-| State Paid Family Leave | CA, NY, NJ, WA, MA, CT, OR, CO, MD, others | Paid leave for family/medical reasons |
-| State sick leave | Many states + cities | Paid sick leave mandates |
+| Leave Type              | Law                                        | Key Provisions                                                   |
+| ----------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| Pregnancy               | Pregnancy Discrimination Act               | Cannot discriminate; must treat same as other medical conditions |
+| Military                | USERRA                                     | Job protection during military service; re-employment rights     |
+| Voting                  | State laws                                 | Many states require time off to vote                             |
+| Jury Duty               | Federal + state laws                       | Job protection during jury service                               |
+| Domestic Violence       | State laws (varies)                        | Leave for court proceedings, safety planning                     |
+| State Paid Family Leave | CA, NY, NJ, WA, MA, CT, OR, CO, MD, others | Paid leave for family/medical reasons                            |
+| State sick leave        | Many states + cities                       | Paid sick leave mandates                                         |
 
 ---
 
 ## Step 5: Workplace Safety (OSHA)
 
 ### Your OSHA Rights
+
 ```
 OSHA RIGHTS:
 
@@ -335,6 +346,7 @@ TO FILE AN OSHA COMPLAINT:
 ## Step 6: Unemployment Benefits
 
 ### General Eligibility
+
 ```
 UNEMPLOYMENT BENEFITS BASICS:
 
@@ -376,6 +388,7 @@ TIPS:
 ## Step 7: Wrongful Termination Signs
 
 ### Red Flags That Your Termination May Be Illegal
+
 ```
 WRONGFUL TERMINATION INDICATORS:
 
@@ -407,6 +420,7 @@ STATEMENT-BASED RED FLAGS:
 ```
 
 ### What to Do If You Suspect Wrongful Termination
+
 ```
 IMMEDIATE ACTIONS:
 
@@ -429,6 +443,7 @@ IMMEDIATE ACTIONS:
 ## Step 8: Documenting Workplace Issues
 
 ### The Documentation System
+
 ```
 WORKPLACE DOCUMENTATION LOG:
 
@@ -458,6 +473,7 @@ DOCUMENTATION RULES:
 ```
 
 ### Internal Complaint Template
+
 ```
 FORMAL INTERNAL COMPLAINT
 
@@ -509,25 +525,24 @@ Consider also sending certified mail to your home to prove it existed.]
 
 ## Quick Reference: Key Federal Employment Laws
 
-| Law | What It Covers | Applies To |
-|---|---|---|
-| Title VII | Discrimination based on race, sex, religion, national origin, color | 15+ employees |
-| ADA | Disability discrimination and accommodation | 15+ employees |
-| ADEA | Age discrimination (40+) | 20+ employees |
-| FMLA | Family and medical leave | 50+ employees |
-| FLSA | Minimum wage, overtime, child labor | Most employers |
-| OSHA | Workplace safety and health | Most employers |
-| NLRA | Right to organize, collective bargaining | Most private employers |
-| USERRA | Military service member protections | All employers |
-| COBRA | Continuation of health insurance after job loss | 20+ employees |
-| WARN Act | 60-day notice for mass layoffs | 100+ employees |
-| EPA | Equal pay for equal work regardless of sex | All employers |
-| EPPA | Restricts employer use of polygraph tests | Most private employers |
+| Law       | What It Covers                                                      | Applies To             |
+| --------- | ------------------------------------------------------------------- | ---------------------- |
+| Title VII | Discrimination based on race, sex, religion, national origin, color | 15+ employees          |
+| ADA       | Disability discrimination and accommodation                         | 15+ employees          |
+| ADEA      | Age discrimination (40+)                                            | 20+ employees          |
+| FMLA      | Family and medical leave                                            | 50+ employees          |
+| FLSA      | Minimum wage, overtime, child labor                                 | Most employers         |
+| OSHA      | Workplace safety and health                                         | Most employers         |
+| NLRA      | Right to organize, collective bargaining                            | Most private employers |
+| USERRA    | Military service member protections                                 | All employers          |
+| COBRA     | Continuation of health insurance after job loss                     | 20+ employees          |
+| WARN Act  | 60-day notice for mass layoffs                                      | 100+ employees         |
+| EPA       | Equal pay for equal work regardless of sex                          | All employers          |
+| EPPA      | Restricts employer use of polygraph tests                           | Most private employers |
 
 ---
 
-*This skill provides general employment law information. Employment law is complex and fact-specific. For any serious workplace issue, consult a licensed employment attorney. Many offer free initial consultations and work on contingency for discrimination and wrongful termination cases.*
-
+_This skill provides general employment law information. Employment law is complex and fact-specific. For any serious workplace issue, consult a licensed employment attorney. Many offer free initial consultations and work on contingency for discrimination and wrongful termination cases._
 
 ## Output Format
 
@@ -557,25 +572,30 @@ Section 3: Resources
 ## Employment Rights: Unpaid Overtime
 
 ### Applicable Law
+
 The Fair Labor Standards Act (FLSA) is the federal law governing overtime. [JURISDICTION: verify your state may have additional protections]
 
 ### Your Rights Under FLSA
+
 - Non-exempt (hourly) employees MUST receive 1.5x their regular rate for all hours over 40 in a workweek
 - Your employer cannot waive this requirement even if you "agreed" to it
 - You are owed back pay for all unpaid overtime
 
 ### Calculating What You Are Owed
+
 10 extra hours/week x 3 months (roughly 13 weeks) = 130 overtime hours
 130 hours x (1.5 x your hourly rate) = amount owed
 [JURISDICTION: some states require daily overtime after 8 hours, not just weekly after 40]
 
 ### Steps to Take
+
 1. **Document everything:** Save pay stubs, time records, schedules, and any communications about hours worked
 2. **Request in writing:** Send your employer a written request for the unpaid overtime (email creates a record)
 3. **File a wage complaint:** If employer refuses, file with the Department of Labor Wage and Hour Division (WHD) at no cost
 4. **Time limit:** FLSA allows claims going back 2 years (3 years if violation was willful)
 
 ### When to Get an Attorney
+
 If your employer retaliates (reduces hours, fires you, or threatens you) after you raise the overtime issue, that is illegal retaliation. Contact an employment attorney -- many take wage cases on contingency (no upfront cost).
 
 ## Edge Cases

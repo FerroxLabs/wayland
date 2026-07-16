@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture backend microservices"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture backend microservices'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Event Driven Architecture
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is designing a system where multiple services need to react to state changes produced by other services, and direct synchronous coupling would create brittleness or latency problems
 - A user needs to decouple producers from consumers so that either side can scale, fail, or evolve independently -- the classic microservices integration problem
 - A user is implementing workflows that are naturally asynchronous: order processing pipelines, fraud detection, IoT sensor ingestion, audit log streams, or notification fan-out
@@ -30,6 +32,7 @@ metadata:
 - A user is migrating a monolith to microservices and needs a strangler-fig integration strategy using events
 
 **Do NOT use this skill when:**
+
 - The user needs synchronous request-response API design -- use the REST API design or gRPC design skill instead
 - The user is asking about stream processing transformations and analytics (Flink, Spark Streaming, ksqlDB queries) rather than the architecture of producers and consumers -- use the stream processing skill
 - The user needs infrastructure-level message broker configuration (Kafka broker tuning, ZooKeeper/KRaft setup, partition rebalancing) rather than application-level architecture -- use the Kafka operations skill
@@ -65,8 +68,9 @@ Apply this decision tree to choose the primary pattern.
 **CQRS (Command Query Responsibility Segregation)** -- Use in conjunction with event sourcing or high read/write asymmetry. Write side processes commands and emits events. Read side maintains denormalized projections optimized for query patterns. Never use CQRS without a clear performance or complexity reason -- it doubles the data model surface area.
 
 **Saga Pattern** -- Use for distributed transactions that span multiple services. Two flavors:
-- *Choreography*: Each service listens for events and emits its own. No central coordinator. Works well for linear workflows with fewer than 4--5 steps. Gets hard to reason about with complex branching.
-- *Orchestration*: A saga orchestrator (can be a dedicated service, or a workflow engine like Temporal) explicitly commands each step and handles compensating transactions. Use for workflows with more than 5 steps, conditional branching, or complex compensation logic.
+
+- _Choreography_: Each service listens for events and emits its own. No central coordinator. Works well for linear workflows with fewer than 4--5 steps. Gets hard to reason about with complex branching.
+- _Orchestration_: A saga orchestrator (can be a dedicated service, or a workflow engine like Temporal) explicitly commands each step and handles compensating transactions. Use for workflows with more than 5 steps, conditional branching, or complex compensation logic.
 
 **Outbox Pattern** -- ALWAYS use this when services write to a database and publish events. Never publish to a broker inside the same database transaction -- the two-phase commit problem means you can get a committed DB write with no event emitted, or an emitted event with a rolled-back write. Instead: write the event to an outbox table in the same transaction as the domain change. A separate relay process (Debezium CDC, a polling publisher, or Transactional Outbox library) reads the outbox and publishes to the broker. This is not optional for correctness.
 
@@ -74,17 +78,18 @@ Apply this decision tree to choose the primary pattern.
 
 Match broker characteristics to requirements established in Step 1.
 
-| Broker | Delivery Guarantee | Max Throughput | Ordering | Retention | Best For |
-|---|---|---|---|---|---|
-| Apache Kafka | At-least-once; exactly-once with transactions | 1M+ events/s per cluster | Partition-level | Configurable (days to forever) | High-volume streaming, event sourcing, log replay |
-| RabbitMQ | At-least-once with acks; at-most-once without | ~50K--200K msg/s | Queue-level FIFO | Until consumed (or TTL) | Task queues, RPC patterns, complex routing |
-| Apache Pulsar | At-least-once; exactly-once in transactions | 500K+ events/s | Subscription-level | Tiered (disk + object storage) | Multi-tenant, geo-replication, Kafka alternative |
-| NATS JetStream | At-least-once; exactly-once with dedup window | 500K+ msg/s | Subject-level | Configurable | Low-latency, edge, IoT |
-| AWS EventBridge | At-least-once | ~10K events/s per bus | No guarantee | 24h replay window | AWS-native fan-out, SaaS integrations |
-| Google Pub/Sub | At-least-once | Scales automatically | No guarantee (Ordering Keys add partition-level) | 7-day retention | GCP-native, global scale |
-| AWS SQS (FIFO) | Exactly-once (dedup window) | 3K msg/s FIFO; 300K standard | FIFO queue-level | Up to 14 days | Simple task queues, AWS-native |
+| Broker          | Delivery Guarantee                            | Max Throughput               | Ordering                                         | Retention                      | Best For                                          |
+| --------------- | --------------------------------------------- | ---------------------------- | ------------------------------------------------ | ------------------------------ | ------------------------------------------------- |
+| Apache Kafka    | At-least-once; exactly-once with transactions | 1M+ events/s per cluster     | Partition-level                                  | Configurable (days to forever) | High-volume streaming, event sourcing, log replay |
+| RabbitMQ        | At-least-once with acks; at-most-once without | ~50K--200K msg/s             | Queue-level FIFO                                 | Until consumed (or TTL)        | Task queues, RPC patterns, complex routing        |
+| Apache Pulsar   | At-least-once; exactly-once in transactions   | 500K+ events/s               | Subscription-level                               | Tiered (disk + object storage) | Multi-tenant, geo-replication, Kafka alternative  |
+| NATS JetStream  | At-least-once; exactly-once with dedup window | 500K+ msg/s                  | Subject-level                                    | Configurable                   | Low-latency, edge, IoT                            |
+| AWS EventBridge | At-least-once                                 | ~10K events/s per bus        | No guarantee                                     | 24h replay window              | AWS-native fan-out, SaaS integrations             |
+| Google Pub/Sub  | At-least-once                                 | Scales automatically         | No guarantee (Ordering Keys add partition-level) | 7-day retention                | GCP-native, global scale                          |
+| AWS SQS (FIFO)  | Exactly-once (dedup window)                   | 3K msg/s FIFO; 300K standard | FIFO queue-level                                 | Up to 14 days                  | Simple task queues, AWS-native                    |
 
 **Decision rules:**
+
 - If retention and replay are required: Kafka or Pulsar.
 - If complex routing rules (header-based, topic exchanges): RabbitMQ.
 - If exactly-once without custom dedup: Kafka transactions or SQS FIFO.
@@ -96,6 +101,7 @@ Match broker characteristics to requirements established in Step 1.
 A well-designed event schema is the contract between producer and consumer. It must be versioned and schema-managed from day one.
 
 **Event envelope structure (apply to every event regardless of domain):**
+
 ```json
 {
   "eventId": "uuid-v4",
@@ -113,12 +119,14 @@ A well-designed event schema is the contract between producer and consumer. It m
 ```
 
 **Schema evolution rules:**
+
 - Use a schema registry (Confluent Schema Registry, AWS Glue Schema Registry, Apicurio) with Avro, Protobuf, or JSON Schema.
 - Backward-compatible changes (adding optional fields): bump minor version, consumers must ignore unknown fields.
 - Breaking changes (removing fields, changing types): create a new event type version (`order.placed.v2`), run both versions in parallel during migration, deprecate v1 after all consumers have migrated.
 - Never remove a field from a published event schema without a versioned migration period of at least 2 deployment cycles.
 
 **Naming conventions:**
+
 - Event types: `{aggregate}.{past-tense-verb}.v{major}` -- `order.placed.v1`, `payment.failed.v2`, `inventory.reserved.v1`
 - Topics/subjects: `{domain}.{aggregate}.{event-type}` or aggregate-level `{domain}.{aggregate}` with event type in the envelope
 
@@ -127,18 +135,21 @@ A well-designed event schema is the contract between producer and consumer. It m
 At-least-once delivery is the practical reality for most brokers. Design every consumer as if it will receive the same event multiple times.
 
 **Idempotency implementation patterns:**
+
 - **Natural idempotency:** If the operation is naturally idempotent (setting a field to a specific value rather than incrementing it), no extra work is needed. Prefer naturally idempotent operations.
 - **Idempotency key store:** Before processing, check a fast store (Redis with TTL, or a database unique constraint on eventId) to see if the event has been processed. If yes, acknowledge and skip. If no, process and record. The check-then-process must be atomic -- use Redis `SET key value NX EX 86400` or a database unique index.
 - **Optimistic locking with version:** For event-sourced aggregates, the aggregate version number in the event must match expected version in the store. If it does not, the event is a duplicate or out-of-order -- handle accordingly.
 - **Deduplication window:** SQS FIFO provides a 5-minute dedup window. Kafka exactly-once semantics provide producer-side dedup within an epoch. Know the window and design for events that arrive outside it.
 
 **Dead-letter queue (DLQ) strategy:**
+
 - Configure a DLQ for every consumer. After N retries (typically 3--5 with exponential backoff starting at 1s, doubling to a max of 60s), move the message to the DLQ.
 - A poison message (malformed payload, schema violation, downstream system down) must never block the consumer pipeline indefinitely.
 - Alert on DLQ depth. A growing DLQ is a production incident.
 - Build a DLQ replay tool from day one -- operators will need to reprocess DLQ messages after the root cause is fixed.
 
 **Consumer backpressure:**
+
 - Kafka consumers: set `max.poll.records` (default 500, often reduce to 100--200 for heavy processing) and `max.poll.interval.ms` (must be > your per-batch processing time). If processing exceeds the interval, the consumer is evicted from the group.
 - For parallel processing within a consumer, use bounded thread pools or async processing with a semaphore. Unbounded parallelism causes memory pressure and out-of-order commits.
 
@@ -147,17 +158,20 @@ At-least-once delivery is the practical reality for most brokers. Design every c
 EDA systems are harder to debug than synchronous systems because the call graph is implicit. Observability is not optional.
 
 **Distributed tracing:**
+
 - Propagate `correlationId` and `causationId` through every event. These become OpenTelemetry span context.
 - Instrument producers to start a trace span when publishing. Instrument consumers to continue the trace span by extracting context from the event envelope.
 - Use a tracing backend (Jaeger, Zipkin, or managed services) to reconstruct the full event flow graph for debugging.
 
 **Key metrics to instrument on every producer:**
+
 - Events published per second by event type
 - Publish latency (p50, p95, p99)
 - Publish failure rate (broker unavailable, serialization errors)
 - Outbox table depth (for outbox pattern) -- alert if growing
 
 **Key metrics to instrument on every consumer:**
+
 - Consumer lag (Kafka: offset lag per partition; this is the single most important Kafka operational metric)
 - Processing rate and throughput per consumer group
 - Processing latency (p50, p95, p99) per event type
@@ -165,6 +179,7 @@ EDA systems are harder to debug than synchronous systems because the call graph 
 - Rebalance events (frequent rebalancing indicates instability)
 
 **Alert thresholds (starting points, tune to workload):**
+
 - Consumer lag > 10,000 messages: warning
 - Consumer lag > 100,000 messages: page
 - DLQ depth > 0: warning after 5 minutes
@@ -191,7 +206,7 @@ An EDA system without governance degrades into an unmanageable event spaghetti w
 
 When responding to an EDA design request, structure the output as follows:
 
-```
+````
 ## Event-Driven Architecture Design: [System Name]
 
 ### Problem Shape Summary
@@ -289,7 +304,7 @@ When responding to an EDA design request, structure the output as follows:
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
 | [risk] | [H/M/L] | [H/M/L] | [specific action] |
-```
+````
 
 ---
 
@@ -363,14 +378,14 @@ An event-sourced aggregate that accumulates thousands of events makes reconstitu
 
 ### Problem Shape Summary
 
-| Dimension | Value | Implication |
-|-----------|-------|-------------|
+| Dimension                   | Value                                                               | Implication                                                                                                     |
+| --------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Delivery semantics required | Exactly-once for payment/inventory; at-least-once for notifications | Payment and inventory use idempotency key store; notifications use natural idempotency (email dedup by eventId) |
-| Peak throughput | 5,000 orders/min = ~83 events/s sustained, ~500/s burst | Well within a 6-partition topic; no exotic scaling needed |
-| Ordering requirements | Per-order (aggregate-level) | Use orderId as Kafka partition key |
-| Retention requirement | Full audit trail -- indefinite for order events | Kafka with log compaction + time-based retention policy of 2 years minimum |
-| Consumer fan-out | 4 services react to order events | Kafka pub/sub log appropriate; each service is its own consumer group |
-| Team Kafka experience | Basic | Use AWS MSK (managed Kafka) to reduce operational burden; avoid self-hosted cluster management |
+| Peak throughput             | 5,000 orders/min = ~83 events/s sustained, ~500/s burst             | Well within a 6-partition topic; no exotic scaling needed                                                       |
+| Ordering requirements       | Per-order (aggregate-level)                                         | Use orderId as Kafka partition key                                                                              |
+| Retention requirement       | Full audit trail -- indefinite for order events                     | Kafka with log compaction + time-based retention policy of 2 years minimum                                      |
+| Consumer fan-out            | 4 services react to order events                                    | Kafka pub/sub log appropriate; each service is its own consumer group                                           |
+| Team Kafka experience       | Basic                                                               | Use AWS MSK (managed Kafka) to reduce operational burden; avoid self-hosted cluster management                  |
 
 ---
 
@@ -381,6 +396,7 @@ An event-sourced aggregate that accumulates thousands of events makes reconstitu
 **Rationale:** The audit trail requirement makes event sourcing the correct choice -- the event log is the system of record for all order state transitions. Event-carried state transfer is used in the event payload so that Payment, Inventory, and Notification services can act without fetching back to Order Service, reducing coupling and latency.
 
 **Supporting Patterns:**
+
 - **Outbox Pattern:** Yes -- Order Service writes to PostgreSQL. The OrderPlaced event must be written atomically with the order record. Use Debezium connected to the PostgreSQL WAL to relay outbox table entries to Kafka. This prevents lost events on Order Service crash between DB write and Kafka publish.
 - **CQRS:** Yes -- Order Service maintains a write model (event store in PostgreSQL: `order_events` table). A separate read projection consumer maintains a `orders_read` table with current order state for API queries. This separates write throughput from read query patterns.
 - **Saga Type:** Orchestration -- The payment + inventory + notification workflow has compensating transactions (if payment fails, the order must be cancelled and inventory released). With 3 services and branching compensation logic, choreography would require each service to understand the full workflow. An Order Saga Orchestrator service (a thin stateful service, or using AWS Step Functions for the managed option) explicitly sequences the steps.
@@ -395,16 +411,16 @@ An event-sourced aggregate that accumulates thousands of events makes reconstitu
 
 **Configuration parameters to set immediately:**
 
-| Parameter | Value | Reason |
-|-----------|-------|--------|
-| `log.retention.ms` | `63072000000` (2 years) | Audit trail requirement |
-| `log.cleanup.policy` | `compact,delete` | Compaction preserves latest event per key; delete prunes beyond retention |
-| `min.insync.replicas` | `2` | Data durability -- require 2 of 3 brokers to acknowledge before producer ack |
-| `acks` (producer) | `all` | All in-sync replicas must acknowledge; prevents data loss on broker failure |
-| `enable.idempotence` (producer) | `true` | Exactly-once producer-side deduplication within an epoch |
-| `max.poll.records` (consumer) | `100` | Limit per-poll batch; prevents long processing intervals triggering rebalance |
-| `max.poll.interval.ms` (consumer) | `120000` | 2-minute max for Notification Service which calls external email API |
-| `partition.assignment.strategy` | `CooperativeStickyAssignor` | Incremental rebalancing; reduces processing pauses during rolling deployments |
+| Parameter                         | Value                       | Reason                                                                        |
+| --------------------------------- | --------------------------- | ----------------------------------------------------------------------------- |
+| `log.retention.ms`                | `63072000000` (2 years)     | Audit trail requirement                                                       |
+| `log.cleanup.policy`              | `compact,delete`            | Compaction preserves latest event per key; delete prunes beyond retention     |
+| `min.insync.replicas`             | `2`                         | Data durability -- require 2 of 3 brokers to acknowledge before producer ack  |
+| `acks` (producer)                 | `all`                       | All in-sync replicas must acknowledge; prevents data loss on broker failure   |
+| `enable.idempotence` (producer)   | `true`                      | Exactly-once producer-side deduplication within an epoch                      |
+| `max.poll.records` (consumer)     | `100`                       | Limit per-poll batch; prevents long processing intervals triggering rebalance |
+| `max.poll.interval.ms` (consumer) | `120000`                    | 2-minute max for Notification Service which calls external email API          |
+| `partition.assignment.strategy`   | `CooperativeStickyAssignor` | Incremental rebalancing; reduces processing pauses during rolling deployments |
 
 ---
 
@@ -448,15 +464,15 @@ An event-sourced aggregate that accumulates thousands of events makes reconstitu
 
 #### Key Event Types for This System
 
-| Event Type | Producer | Consumers | Key Payload Fields | Kafka Topic | Partition Key |
-|---|---|---|---|---|---|
-| `order.placed.v1` | order-service | order-saga-orchestrator, analytics-service | orderId, customerId, lineItems, totalAmountCents | `ecommerce.order.events` | orderId |
-| `payment.charged.v1` | payment-service | order-saga-orchestrator, analytics-service | orderId, paymentId, amountCents, paymentMethod | `ecommerce.payment.events` | orderId |
-| `payment.failed.v1` | payment-service | order-saga-orchestrator, analytics-service | orderId, paymentId, failureReason, failureCode | `ecommerce.payment.events` | orderId |
-| `inventory.reserved.v1` | inventory-service | order-saga-orchestrator, analytics-service | orderId, reservationId, lineItems, warehouseId | `ecommerce.inventory.events` | orderId |
-| `inventory.reservation-failed.v1` | inventory-service | order-saga-orchestrator | orderId, skuId, requestedQty, availableQty | `ecommerce.inventory.events` | orderId |
-| `order.confirmed.v1` | order-service | notification-service, analytics-service | orderId, customerId, customerEmail, confirmedAt | `ecommerce.order.events` | orderId |
-| `order.cancelled.v1` | order-service | notification-service, analytics-service | orderId, customerId, cancellationReason | `ecommerce.order.events` | orderId |
+| Event Type                        | Producer          | Consumers                                  | Key Payload Fields                               | Kafka Topic                  | Partition Key |
+| --------------------------------- | ----------------- | ------------------------------------------ | ------------------------------------------------ | ---------------------------- | ------------- |
+| `order.placed.v1`                 | order-service     | order-saga-orchestrator, analytics-service | orderId, customerId, lineItems, totalAmountCents | `ecommerce.order.events`     | orderId       |
+| `payment.charged.v1`              | payment-service   | order-saga-orchestrator, analytics-service | orderId, paymentId, amountCents, paymentMethod   | `ecommerce.payment.events`   | orderId       |
+| `payment.failed.v1`               | payment-service   | order-saga-orchestrator, analytics-service | orderId, paymentId, failureReason, failureCode   | `ecommerce.payment.events`   | orderId       |
+| `inventory.reserved.v1`           | inventory-service | order-saga-orchestrator, analytics-service | orderId, reservationId, lineItems, warehouseId   | `ecommerce.inventory.events` | orderId       |
+| `inventory.reservation-failed.v1` | inventory-service | order-saga-orchestrator                    | orderId, skuId, requestedQty, availableQty       | `ecommerce.inventory.events` | orderId       |
+| `order.confirmed.v1`              | order-service     | notification-service, analytics-service    | orderId, customerId, customerEmail, confirmedAt  | `ecommerce.order.events`     | orderId       |
+| `order.cancelled.v1`              | order-service     | notification-service, analytics-service    | orderId, customerId, cancellationReason          | `ecommerce.order.events`     | orderId       |
 
 **Schema registry:** AWS Glue Schema Registry with `BACKWARD` compatibility enforced on all topics. JSON Schema format for team familiarity. Migration to Avro if binary serialization overhead becomes a concern at scale.
 
@@ -513,13 +529,13 @@ Order Saga Orchestrator (consumer group: order-team.saga-orchestrator.order-plac
 
 ### Dead-Letter Queue Configuration
 
-| Consumer Group | Max Retries | Backoff Strategy | DLQ Topic | Alert Threshold |
-|---|---|---|---|---|
-| `order-team.saga-orchestrator.order-placed` | 3 | Exponential: 1s, 4s, 16s | `ecommerce.order.events.dlq` | Depth > 0 for > 2 min |
-| `payment-team.payment-service.saga-commands` | 5 | Exponential: 2s, 4s, 8s, 16s, 32s | `ecommerce.order.saga.commands.dlq` | Depth > 0 for > 2 min |
-| `inventory-team.inventory-service.saga-commands` | 5 | Exponential: 2s, 4s, 8s, 16s, 32s | `ecommerce.inventory.events.dlq` | Depth > 0 for > 2 min |
-| `notification-team.notification-service.order-confirmed` | 3 | Exponential: 5s, 30s, 120s | `ecommerce.notification.events.dlq` | Depth > 5 for > 5 min |
-| `analytics-team.analytics-service.all-events` | 3 | Exponential: 1s, 4s, 16s | `ecommerce.analytics.events.dlq` | Depth > 100 |
+| Consumer Group                                           | Max Retries | Backoff Strategy                  | DLQ Topic                           | Alert Threshold       |
+| -------------------------------------------------------- | ----------- | --------------------------------- | ----------------------------------- | --------------------- |
+| `order-team.saga-orchestrator.order-placed`              | 3           | Exponential: 1s, 4s, 16s          | `ecommerce.order.events.dlq`        | Depth > 0 for > 2 min |
+| `payment-team.payment-service.saga-commands`             | 5           | Exponential: 2s, 4s, 8s, 16s, 32s | `ecommerce.order.saga.commands.dlq` | Depth > 0 for > 2 min |
+| `inventory-team.inventory-service.saga-commands`         | 5           | Exponential: 2s, 4s, 8s, 16s, 32s | `ecommerce.inventory.events.dlq`    | Depth > 0 for > 2 min |
+| `notification-team.notification-service.order-confirmed` | 3           | Exponential: 5s, 30s, 120s        | `ecommerce.notification.events.dlq` | Depth > 5 for > 5 min |
+| `analytics-team.analytics-service.all-events`            | 3           | Exponential: 1s, 4s, 16s          | `ecommerce.analytics.events.dlq`    | Depth > 100           |
 
 **DLQ replay tool:** A CLI or internal admin UI that reads from a DLQ topic, optionally filters by event type or time range, and re-publishes events to the original topic. Include a dry-run mode. Required before production launch.
 
@@ -531,15 +547,15 @@ Order Saga Orchestrator (consumer group: order-team.saga-orchestrator.order-plac
 
 **Key Alerts:**
 
-| Metric | Warning Threshold | Critical Threshold | Owner |
-|---|---|---|---|
-| Consumer lag: saga-orchestrator | > 1,000 messages | > 10,000 messages | Order Team |
-| Consumer lag: payment-service | > 500 messages | > 5,000 messages | Payment Team |
-| Consumer lag: inventory-service | > 500 messages | > 5,000 messages | Inventory Team |
-| DLQ depth: any DLQ | > 0 for 2 min | > 10 for any duration | Owning team |
-| Publish failure rate | > 0.5% | > 2% | Order Team |
-| Payment service idempotency key hit rate | > 5% (unexpected surge in dupes) | > 20% | Payment Team |
-| Saga completion time p95 | > 10s | > 30s | Order Team |
+| Metric                                   | Warning Threshold                | Critical Threshold    | Owner          |
+| ---------------------------------------- | -------------------------------- | --------------------- | -------------- |
+| Consumer lag: saga-orchestrator          | > 1,000 messages                 | > 10,000 messages     | Order Team     |
+| Consumer lag: payment-service            | > 500 messages                   | > 5,000 messages      | Payment Team   |
+| Consumer lag: inventory-service          | > 500 messages                   | > 5,000 messages      | Inventory Team |
+| DLQ depth: any DLQ                       | > 0 for 2 min                    | > 10 for any duration | Owning team    |
+| Publish failure rate                     | > 0.5%                           | > 2%                  | Order Team     |
+| Payment service idempotency key hit rate | > 5% (unexpected surge in dupes) | > 20%                 | Payment Team   |
+| Saga completion time p95                 | > 10s                            | > 30s                 | Order Team     |
 
 ---
 
@@ -599,10 +615,10 @@ Topic: ecommerce.*.dlq  (one per source topic)
 
 ### Risks and Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| Debezium connector lag causes delayed event relay from Order Service outbox | Medium | High -- orders appear stuck | Monitor outbox table row count and `created_at` vs `relayed_at` delta; alert if unrelayed rows > 100 or delay > 10s; have manual relay runbook |
-| Payment Service Redis idempotency store becomes a single point of failure | Low | High -- duplicate charges | Deploy Redis with replication (AWS ElastiCache Multi-AZ); fall back to database idempotency table if Redis is unavailable |
-| Saga state table in Order Saga Orchestrator becomes a hotspot at peak load | Medium | Medium -- slow saga completion | Partition saga state table by orderId hash; add read replica for state queries; index on (order_id, current_step, status) |
-| Schema evolution breaks a consumer deployed on a slow release cycle | Medium | Medium -- consumer processing errors | Enforce BACKWARD compatibility; test each schema change against all registered consumer schemas in CI before merge |
-| Consumer group rebalancing during Black Friday peak causes processing pauses | Medium | High -- order backlog during peak | Enable CooperativeStickyAssignor; use static group membership (`group.instance.id` per pod); pre-scale consumer groups 30 minutes before peak traffic window |
+| Risk                                                                         | Likelihood | Impact                               | Mitigation                                                                                                                                                   |
+| ---------------------------------------------------------------------------- | ---------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Debezium connector lag causes delayed event relay from Order Service outbox  | Medium     | High -- orders appear stuck          | Monitor outbox table row count and `created_at` vs `relayed_at` delta; alert if unrelayed rows > 100 or delay > 10s; have manual relay runbook               |
+| Payment Service Redis idempotency store becomes a single point of failure    | Low        | High -- duplicate charges            | Deploy Redis with replication (AWS ElastiCache Multi-AZ); fall back to database idempotency table if Redis is unavailable                                    |
+| Saga state table in Order Saga Orchestrator becomes a hotspot at peak load   | Medium     | Medium -- slow saga completion       | Partition saga state table by orderId hash; add read replica for state queries; index on (order_id, current_step, status)                                    |
+| Schema evolution breaks a consumer deployed on a slow release cycle          | Medium     | Medium -- consumer processing errors | Enforce BACKWARD compatibility; test each schema change against all registered consumer schemas in CI before merge                                           |
+| Consumer group rebalancing during Black Friday peak causes processing pauses | Medium     | High -- order backlog during peak    | Enable CooperativeStickyAssignor; use static group membership (`group.instance.id` per pod); pre-scale consumer groups 30 minutes before peak traffic window |

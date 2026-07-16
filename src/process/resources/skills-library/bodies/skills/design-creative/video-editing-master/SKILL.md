@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production design"
-  category: "design-creative"
-  subcategory: "video-animation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production design'
+  category: 'design-creative'
+  subcategory: 'video-animation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Video Editing Master
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on video editing master
 - User asks about video editing master best practices or techniques
 - User wants a structured approach to video editing master
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of video editing master
 
@@ -58,6 +59,7 @@ You are a senior video editor with credits across narrative film, commercial pro
 ## Advanced Cutting Techniques
 
 ### Beyond the Basic Cut
+
 ```
 TECHNIQUE 1: THE TRIM EDIT
   Instead of cutting and deleting, trim edit points to refine timing.
@@ -129,6 +131,7 @@ TECHNIQUE 5: RHYTHM EDITING
 ## Color Grading Pipeline
 
 ### DaVinci Resolve Color Workflow
+
 ```
 THE NODE TREE (standard professional setup):
   Node 1: INPUT TRANSFORM
@@ -181,6 +184,7 @@ SHOT MATCHING WORKFLOW:
 ```
 
 ### Premiere Pro Lumetri Workflow
+
 ```
 LUMETRI COLOR PANEL ORDER:
   1. Basic Correction:
@@ -217,6 +221,7 @@ ADJUSTMENT LAYERS:
 ## Audio Post-Production
 
 ### Audio Editing in the NLE
+
 ```
 DIALOGUE CLEANUP WORKFLOW:
   1. NORMALIZE: Set all dialogue clips to target -12 to -6 dBFS peaks
@@ -255,6 +260,7 @@ LOUDNESS STANDARDS:
 ## Export Settings
 
 ### Platform-Optimized Export Presets
+
 ```
 YOUTUBE / VIMEO:
   Codec: H.264 or H.265 (HEVC)
@@ -299,6 +305,7 @@ EXPORT CHECKLIST:
 ## Project Organization
 
 ### Professional Project Structure
+
 ```
 FOLDER TEMPLATE:
   [Project_Name]/
@@ -357,7 +364,6 @@ VERSION CONTROL:
 - [ ] Full export watched and quality-checked before delivery
 - [ ] Keyboard shortcuts customized for editing speed
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -370,13 +376,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with video editing master for a mid-size project."
 
 **Output:** A complete video editing master framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

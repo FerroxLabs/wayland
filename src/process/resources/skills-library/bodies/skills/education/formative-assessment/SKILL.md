@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching lesson-plan step-by-step active-recall"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching lesson-plan step-by-step active-recall'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Formative Assessment
 
 ## When to Use
@@ -29,6 +30,7 @@ Use this skill when an educator needs ready-to-deploy formative assessment instr
 - A teacher wants to differentiate reteaching decisions and needs response-analysis protocols tied to specific instructional next moves
 
 **Do NOT use this skill when:**
+
 - The user wants a graded quiz, unit test, midterm, or final exam -- use `summative-assessment` or `assessment-design` instead
 - The user asks for a scoring rubric for a project or performance task -- use `rubric-creation` instead
 - A student wants to create self-testing flashcards or practice questions for personal study -- use `active-recall-practice` instead
@@ -59,7 +61,7 @@ Formative assessments serve four distinct instructional functions. Each lesson m
 - **Activation (lesson opening, minutes 1-8):** Purpose is to surface prior knowledge and identify prerequisite gaps before new instruction begins. Tools: anticipation guides, concept sorts, pre-assessment polls, quick writes on prior knowledge, KWL-W (What I Know, What I Wonder, What I Want to Know). Data use: teacher decides whether to proceed, briefly review, or pause for prerequisite reteaching
 - **Monitoring comprehension during instruction (mid-lesson, every 15-20 minutes):** Purpose is to catch misconceptions in real time before they solidify. This is the highest-leverage formative moment. Tools: whiteboard checks, cold-call with structured prompts, think-pair-share with accountable listening, choral response for procedural steps, fist-to-five with follow-up probing
 - **Checking procedural fluency during guided practice:** Purpose is to determine whether students can execute a procedure correctly before working independently. Tools: circulating observation with a class roster clipboard, "show me" with individual whiteboards, worked example analysis (students identify errors in a fictitious student's work), two-problem probe
-- **Consolidation and transfer check (lesson close, last 4-6 minutes):** Purpose is to determine overall lesson mastery and plan the next lesson. Tools: exit tickets (2-3 problems or prompts), 3-2-1 reflections, muddiest point, tweet-length summary, connection prompt ("How does today's concept connect to ___?"), one-sentence synthesis
+- **Consolidation and transfer check (lesson close, last 4-6 minutes):** Purpose is to determine overall lesson mastery and plan the next lesson. Tools: exit tickets (2-3 problems or prompts), 3-2-1 reflections, muddiest point, tweet-length summary, connection prompt ("How does today's concept connect to \_\_\_?"), one-sentence synthesis
 
 Each lesson with a 45-minute period should include at minimum: one activation check, one mid-lesson monitoring check, and one closing check. A 90-minute block warrants five checkpoints.
 
@@ -242,27 +244,35 @@ Produce the following structure for every formative assessment toolkit request:
 ## Edge Cases
 
 ### No Technology Available (Paper-Only Classroom)
+
 Prioritize kinesthetic and visual response strategies that require no materials at all: fist-to-five, thumbs, four corners (students physically move to corners labeled Strongly Agree / Agree / Disagree / Strongly Disagree), stand-if-true, head-nod chains. When paper is available, pre-cut exit ticket slips save 2 minutes of transition time compared to full sheets. For whiteboard alternatives, use plastic sheet protectors over white cardstock, or laminated half-sheets that students write on with dry-erase markers. Index cards work as reusable "choice boards" when students hold up the card color that matches their answer.
 
 ### Very Large Classes (35-45+ Students)
+
 Individual response collection becomes impractical. Use strategic sampling: collect every third seat's exit ticket (8-10 responses in a class of 30 give statistically adequate signal for instructional decisions). Use whole-class visual strategies -- whiteboard hold-ups let the teacher scan the room in 10 seconds and get a rough percentage estimate. Assign table captains to tally responses within their group of 4 and report one number to the teacher. For polling tools, aggregate data is visible instantly on a shared dashboard, making large classes more manageable than paper collection.
 
 ### Kindergarten and Pre-Readers
+
 Eliminate all written response requirements. Acceptable formative strategies: thumbs up/sideways/down, stand-up/sit-down, point to the correct picture on a displayed chart, place a counting chip on the answer choice, act out the concept, sorting manipulatives into categories, draw-a-response (even a quick smiley face or X on a pre-printed template counts). Teacher circulates during tasks and uses a clipboard roster with simple symbols to note who demonstrated understanding. Verbal responses during structured sharing are the richest data source at this level.
 
 ### Block Scheduling (85-100 Minutes)
+
 Human attention research (specifically the ultradian rhythm literature and Bloom's mastery studies) suggests attention cycles of 20-25 minutes before cognitive fatigue sets in. Formative checks serve double duty as engagement resets in block periods. Include 4-5 checks minimum, spaced every 18-22 minutes. Vary the format deliberately: an opening activation check, a mid-direct-instruction whiteboard check, a guided practice monitoring check, a partner-discussion check, and a closing exit ticket. Without this spacing, the last 40 minutes of a block produce no formative data and student attention collapses.
 
 ### Online Synchronous Classes
+
 Adapt strategies for the platform constraints. Chat waterfall: all students type their answer but hold the Enter key until the teacher counts down from 3 -- all responses appear simultaneously, preventing anchoring bias where later students copy earlier ones. Annotation tools: students use the platform's drawing or stamp tools to mark up a displayed image or diagram. Breakout rooms of 3-4 students with one reporter each compress think-pair-share to 3 minutes and scale to 30+ students. Polling features built into most platforms (Zoom, Teams, Google Meet) provide instant data. For exit tickets, a Google Form or Microsoft Form with no more than 3 questions sent in the last 4 minutes works well -- export to a spreadsheet for quick column-sort analysis.
 
 ### Students with IEPs or 504 Plans Requiring Extended Time or Response Modifications
+
 Formative assessment is low-stakes and teacher-managed, so accommodations are simpler to implement than on summative assessments. For extended time: most formative checks are 1-3 minutes -- extend to 5 minutes for these students without disrupting the class pace. For response format modifications: if a student cannot write, accept verbal whisper to the teacher, typed response on a device, or pointing to a choice card. Never put a student with processing speed challenges on the spot in a rapid-fire whole-class choral response -- use partner think-pair-share to give buffer time. When using visual scanning strategies (whiteboard hold-up), scan these students first to confirm they had adequate time, then scan the rest of the class.
 
 ### Objective Was Not Met -- Lesson Must Pivot Mid-Class
+
 When Assessment #2 (the mid-lesson monitoring check) reveals below 50% mastery and there is not enough time to reteach and complete the planned lesson, the teacher must make a real-time curriculum decision. The toolkit should include a pre-planned pivot option for this scenario: identify which portion of the lesson objectives can be deferred to the next day, specify what the reteaching approach will look like (concrete materials, different analogy, peer teaching), and note that the exit ticket should shift to assessing only the prerequisite or the first objective rather than the full lesson scope. This pivot plan prevents teachers from either rushing forward with an unprepared class or standing in front of the room with no clear alternative.
 
 ### Teaching a Concept That Has Only One Right Answer Versus Interpretive Content
+
 Procedural and factual content (math operations, grammar rules, scientific nomenclature) allows for clean binary correct/incorrect analysis. Interpretive content (literary analysis, historical argumentation, ethical reasoning) requires formative instruments that assess quality of reasoning, not answer correctness. For interpretive content: use a two-column quick write (Claim / Evidence), a position statement with one supporting reason, or a ranking task with a written justification. The "expected response" in the output format should specify the criteria for strong reasoning (specific evidence cited, logical connection made, counterargument acknowledged) rather than a single correct answer. The 80% threshold also shifts -- measure it against "students demonstrated a supported claim" rather than "students got the right answer."
 
 ---
@@ -281,11 +291,13 @@ Procedural and factual content (math operations, grammar rules, scientific nomen
 **Unit Context:** Unit 3 -- Molecular Genetics, Lesson 1 of 3 on DNA Replication
 
 **Lesson Objectives Assessed:**
+
 1. Students will identify the three steps of DNA replication in order: unwinding, base pairing, sealing -- (Bloom's Remember)
 2. Students will explain why DNA replication is described as semi-conservative -- that is, each new DNA molecule contains one original strand and one new strand (Bloom's Understand)
 3. Students will apply the base pairing rules (A-T, C-G) to predict the complementary strand for a given DNA template sequence (Bloom's Apply)
 
 **Prerequisite Knowledge This Lesson Depends On:**
+
 - DNA double helix structure: two antiparallel strands, sugar-phosphate backbone, nitrogenous bases
 - Base pairing rules: adenine pairs with thymine, cytosine pairs with guanine
 - The concept that DNA carries genetic information in the sequence of its bases
@@ -302,31 +314,33 @@ Procedural and factual content (math operations, grammar rules, scientific nomen
 **Technology Required:** Yes -- Chromebook with internet. Fallback: same two questions written on the board, students write answers on index cards held up on signal.
 
 **Exact Prompt/Question for Students:**
+
 > "Answer these two questions before we begin today -- no grade, just honest answers so I know where to start.
 > Question 1: What are the four nitrogenous bases in DNA? (Select all that apply)
 > A. Adenine B. Thymine C. Uracil D. Guanine E. Cytosine
 > Question 2: Which bases pair with each other? (Write both pairs)"
 
 **Expected Response(s):**
+
 - Question 1: A, B, D, E (Adenine, Thymine, Guanine, Cytosine -- Uracil is RNA-specific)
 - Question 2: Adenine-Thymine and Guanine-Cytosine
 
 **Diagnostic Distractor Analysis:**
 
-| Student Response | What It Reveals | Instructional Implication |
-|-----------------|-----------------|--------------------------|
-| Selects Uracil in Q1 | Confusion between DNA and RNA bases -- a fundamental prerequisite gap | Pause and draw a two-column DNA vs. RNA comparison before continuing |
+| Student Response                  | What It Reveals                                                                                                               | Instructional Implication                                                        |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Selects Uracil in Q1              | Confusion between DNA and RNA bases -- a fundamental prerequisite gap                                                         | Pause and draw a two-column DNA vs. RNA comparison before continuing             |
 | States Adenine pairs with Guanine | Confuses purine-purine pairing vs. purine-pyrimidine -- indicates surface-level memorization without structural understanding | Re-explain the complementary base pairing rule with a visual of the double helix |
-| Cannot name all four bases | Prerequisite content from last week not retained | Brief 3-minute review using a DNA structure anchor chart before proceeding |
-| All correct | Prerequisite secure | Proceed immediately to replication instruction |
+| Cannot name all four bases        | Prerequisite content from last week not retained                                                                              | Brief 3-minute review using a DNA structure anchor chart before proceeding       |
+| All correct                       | Prerequisite secure                                                                                                           | Proceed immediately to replication instruction                                   |
 
 **Teacher Response Protocol:**
 
-| Result | Threshold | Action |
-|--------|-----------|--------|
-| Strong understanding | 80%+ both correct | Proceed to direct instruction on replication. Verbally acknowledge: "Great -- this means you're ready to see what happens when DNA has to copy itself." |
-| Partial understanding | 50-79% correct | Display the DNA structure diagram used last week. Spend 3 minutes reviewing base pairing with choral response ("What pairs with Adenine? Everyone: Thymine.") Then re-poll Question 2 only before proceeding. |
-| Widespread confusion | Below 50% | Extend prerequisite review to 8 minutes using the DNA structure anchor chart. Defer Objective 3 (base pairing application) to the next lesson -- today focus only on Objectives 1 and 2. |
+| Result                | Threshold         | Action                                                                                                                                                                                                        |
+| --------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Strong understanding  | 80%+ both correct | Proceed to direct instruction on replication. Verbally acknowledge: "Great -- this means you're ready to see what happens when DNA has to copy itself."                                                       |
+| Partial understanding | 50-79% correct    | Display the DNA structure diagram used last week. Spend 3 minutes reviewing base pairing with choral response ("What pairs with Adenine? Everyone: Thymine.") Then re-poll Question 2 only before proceeding. |
+| Widespread confusion  | Below 50%         | Extend prerequisite review to 8 minutes using the DNA structure anchor chart. Defer Objective 3 (base pairing application) to the next lesson -- today focus only on Objectives 1 and 2.                      |
 
 **Logistics Note:** Post the poll link in the LMS the night before so students can open it the moment they sit down. This eliminates transition time. View live results on the teacher dashboard while taking attendance.
 
@@ -342,6 +356,7 @@ Procedural and factual content (math operations, grammar rules, scientific nomen
 **Technology Required:** No.
 
 **Exact Prompt/Question for Students:**
+
 > "Without looking at your notes, number these three things in the correct order they happen during DNA replication. Write 1, 2, or 3 next to each:
 > -- Helicase unwinds the double helix at the origin of replication
 > -- DNA ligase seals the new strand segments together
@@ -355,19 +370,19 @@ Procedural and factual content (math operations, grammar rules, scientific nomen
 
 **Diagnostic Distractor Analysis:**
 
-| Student Response | What It Reveals | Instructional Implication |
-|-----------------|-----------------|--------------------------|
-| Places ligase before polymerase (2-3 reversed) | Does not understand that sealing follows synthesis -- may have memorized enzyme names without understanding their function sequence | Use a construction analogy: polymerase builds the wall brick by brick; ligase is the mortar applied after |
-| Places polymerase first (polymerase-helicase-ligase) | Does not connect unwinding as a prerequisite to copying -- treats steps as interchangeable | Restate explicitly: "You can't copy a ladder if the rungs are still connected. Unwinding must come first." |
-| Correct sequence but writes enzyme names incorrectly | Sequence understanding is present; nomenclature needs reinforcement | Accept as correct for this check; add a brief spelling/name review before the next assessment |
+| Student Response                                     | What It Reveals                                                                                                                     | Instructional Implication                                                                                  |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Places ligase before polymerase (2-3 reversed)       | Does not understand that sealing follows synthesis -- may have memorized enzyme names without understanding their function sequence | Use a construction analogy: polymerase builds the wall brick by brick; ligase is the mortar applied after  |
+| Places polymerase first (polymerase-helicase-ligase) | Does not connect unwinding as a prerequisite to copying -- treats steps as interchangeable                                          | Restate explicitly: "You can't copy a ladder if the rungs are still connected. Unwinding must come first." |
+| Correct sequence but writes enzyme names incorrectly | Sequence understanding is present; nomenclature needs reinforcement                                                                 | Accept as correct for this check; add a brief spelling/name review before the next assessment              |
 
 **Teacher Response Protocol:**
 
-| Result | Threshold | Action |
-|--------|-----------|--------|
-| Strong understanding | 80%+ correct sequence | Advance to explaining semi-conservative nature (Objective 2). Call on one student to explain why they chose that order -- use as a model for the class. |
-| Partial understanding | 50-79% correct | Re-teach the sequence with a physical analogy: have students stand up and act out each step (unzip jacket = helicase, students add blocks = polymerase, tape the seam = ligase). Takes 2 minutes. Re-check verbally. |
-| Widespread confusion | Below 50% | Use a sequencing graphic organizer -- display three labeled boxes on the projector and build the sequence collaboratively with student input, annotating each step. Do not proceed to semi-conservative replication until sequence is secured. |
+| Result                | Threshold             | Action                                                                                                                                                                                                                                         |
+| --------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Strong understanding  | 80%+ correct sequence | Advance to explaining semi-conservative nature (Objective 2). Call on one student to explain why they chose that order -- use as a model for the class.                                                                                        |
+| Partial understanding | 50-79% correct        | Re-teach the sequence with a physical analogy: have students stand up and act out each step (unzip jacket = helicase, students add blocks = polymerase, tape the seam = ligase). Takes 2 minutes. Re-check verbally.                           |
+| Widespread confusion  | Below 50%             | Use a sequencing graphic organizer -- display three labeled boxes on the projector and build the sequence collaboratively with student input, annotating each step. Do not proceed to semi-conservative replication until sequence is secured. |
 
 **Logistics Note:** If whiteboards are not available, students fold a sheet of paper into thirds and write one step in each section, then hold up the paper. Takes the same amount of time.
 
@@ -383,6 +398,7 @@ Procedural and factual content (math operations, grammar rules, scientific nomen
 **Technology Required:** No.
 
 **Exact Prompt/Question for Students:**
+
 > "You have one minute to think silently, then two minutes to explain to your partner:
 > Why is DNA replication called 'semi-conservative'? Your explanation must include what happens to the original two strands of the parent DNA molecule.
 > Be ready to share your partner's explanation, not your own."
@@ -392,19 +408,19 @@ Semi-conservative means each daughter DNA molecule is half old, half new. The or
 
 **Diagnostic Distractor Analysis:**
 
-| Student Response | What It Reveals | Instructional Implication |
-|-----------------|-----------------|--------------------------|
-| "Both strands are new and the original is destroyed" | Full conservation model misconception -- students think replication is like photocopying, producing a brand new copy while the original remains intact and separate | Show the original Watson-Crick Meselson-Stahl experimental logic: heavy nitrogen tracing results make the semi-conservative model the only explanation that fits |
-| "Semi-conservative means it only copies half the DNA" | Misapplication of the prefix "semi" -- students apply it to amount rather than to origin of each strand | Explicitly parse the word: "semi = half; conservative = preserved. Half of each new molecule is preserved from the original." |
-| Correct explanation but cannot state what happens to both original strands | Partial understanding -- knows the result, not the mechanism | Follow-up probing question: "So where exactly does the original top strand end up? And the original bottom strand?" |
+| Student Response                                                           | What It Reveals                                                                                                                                                     | Instructional Implication                                                                                                                                        |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Both strands are new and the original is destroyed"                       | Full conservation model misconception -- students think replication is like photocopying, producing a brand new copy while the original remains intact and separate | Show the original Watson-Crick Meselson-Stahl experimental logic: heavy nitrogen tracing results make the semi-conservative model the only explanation that fits |
+| "Semi-conservative means it only copies half the DNA"                      | Misapplication of the prefix "semi" -- students apply it to amount rather than to origin of each strand                                                             | Explicitly parse the word: "semi = half; conservative = preserved. Half of each new molecule is preserved from the original."                                    |
+| Correct explanation but cannot state what happens to both original strands | Partial understanding -- knows the result, not the mechanism                                                                                                        | Follow-up probing question: "So where exactly does the original top strand end up? And the original bottom strand?"                                              |
 
 **Teacher Response Protocol:**
 
-| Result | Threshold | Action |
-|--------|-----------|--------|
-| Strong understanding | 80%+ of pairs articulate the one-old-one-new strand concept | Proceed to base pairing application (Objective 3). Use a strong student explanation as a class model. |
-| Partial understanding | 50-79% correct | Display side-by-side diagrams: conservative, semi-conservative, and dispersive models. Have students identify which diagram matches "one old strand, one new strand in each molecule." 3-minute visual comparison. |
-| Widespread confusion | Below 50% | Use a physical model: two interlinked paper chains in different colors representing parent strands. Physically pull them apart and add new chain links in a third color. The two resulting chains visually demonstrate the semi-conservative result. |
+| Result                | Threshold                                                   | Action                                                                                                                                                                                                                                               |
+| --------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Strong understanding  | 80%+ of pairs articulate the one-old-one-new strand concept | Proceed to base pairing application (Objective 3). Use a strong student explanation as a class model.                                                                                                                                                |
+| Partial understanding | 50-79% correct                                              | Display side-by-side diagrams: conservative, semi-conservative, and dispersive models. Have students identify which diagram matches "one old strand, one new strand in each molecule." 3-minute visual comparison.                                   |
+| Widespread confusion  | Below 50%                                                   | Use a physical model: two interlinked paper chains in different colors representing parent strands. Physically pull them apart and add new chain links in a third color. The two resulting chains visually demonstrate the semi-conservative result. |
 
 **Logistics Note:** Asking students to report their partner's explanation rather than their own is a critical design choice -- it creates accountable listening, forces students to understand the explanation well enough to translate it, and reduces social anxiety about being wrong because the student can say "my partner said..." This is a structured version of think-pair-share, not a casual one.
 
@@ -420,30 +436,32 @@ Semi-conservative means each daughter DNA molecule is half old, half new. The or
 **Technology Required:** Optional -- can be paper-based with no loss of quality.
 
 **Exact Prompt/Question for Students:**
+
 > "Complete both items on your own. Show the full complementary strand, not just the answer.
 > Item A: The template strand reads 5'-ATCGTA-3'. Write the complementary new strand (3' to 5').
 > Item B: A DNA template strand reads 3'-GCCTAA-5'. Write the complementary new strand (5' to 3')."
 
 **Expected Response(s):**
+
 - Item A: 3'-TAGCAT-5' (A pairs T, T pairs A, C pairs G, G pairs C, T pairs A, A pairs T)
 - Item B: 5'-CGGATT-3' (G pairs C, C pairs G, G pairs C, C pairs G, A pairs T, A pairs T)
 
 **Diagnostic Distractor Analysis:**
 
-| Student Response | What It Reveals | Instructional Implication |
-|-----------------|-----------------|--------------------------|
-| Writes the same sequence as the template (copies instead of complements) | Does not understand the complementary nature of base pairing -- may think "copy" means identical | Return to the base pairing rule: "A pairs with T -- not another A. Complementary means different, not identical." |
-| Correct bases but wrong directionality (writes 5' to 3' for both instead of noting antiparallel orientation) | Base pairing rule is secure; antiparallel orientation is not yet understood | Focus explicitly on the antiparallel concept; use an analogy of two escalators going opposite directions |
-| Uses Uracil instead of Thymine | RNA contamination from prior learning -- student is substituting RNA base pairing rules for DNA | Reiterate: DNA uses Thymine; RNA uses Uracil. This is a DNA molecule, not RNA. |
-| Item A correct, Item B incorrect | The directionality notation (switching 5' to 3') is the source of confusion, not the base pairing itself | Targeted clarification on 5'-3' notation; the base pairing skill itself is solid |
+| Student Response                                                                                             | What It Reveals                                                                                          | Instructional Implication                                                                                         |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Writes the same sequence as the template (copies instead of complements)                                     | Does not understand the complementary nature of base pairing -- may think "copy" means identical         | Return to the base pairing rule: "A pairs with T -- not another A. Complementary means different, not identical." |
+| Correct bases but wrong directionality (writes 5' to 3' for both instead of noting antiparallel orientation) | Base pairing rule is secure; antiparallel orientation is not yet understood                              | Focus explicitly on the antiparallel concept; use an analogy of two escalators going opposite directions          |
+| Uses Uracil instead of Thymine                                                                               | RNA contamination from prior learning -- student is substituting RNA base pairing rules for DNA          | Reiterate: DNA uses Thymine; RNA uses Uracil. This is a DNA molecule, not RNA.                                    |
+| Item A correct, Item B incorrect                                                                             | The directionality notation (switching 5' to 3') is the source of confusion, not the base pairing itself | Targeted clarification on 5'-3' notation; the base pairing skill itself is solid                                  |
 
 **Teacher Response Protocol:**
 
-| Result | Threshold | Action |
-|--------|-----------|--------|
-| Strong understanding | 80%+ both items correct | Students proceed to independent practice. Teacher circulates to the remaining 20% for targeted support. |
-| Partial understanding | 50-79% correct | Pause independent practice. Display a worked example for Item A on the projector, narrating each base pairing decision aloud. Then release to independent practice for Item B only. |
-| Widespread confusion | Below 50% | Stop independent practice entirely. Use a physical letter-card matching activity -- students hold up cards labeled A, T, C, G and physically pair with a partner holding the complementary base. Then return to the written problem. |
+| Result                | Threshold               | Action                                                                                                                                                                                                                               |
+| --------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Strong understanding  | 80%+ both items correct | Students proceed to independent practice. Teacher circulates to the remaining 20% for targeted support.                                                                                                                              |
+| Partial understanding | 50-79% correct          | Pause independent practice. Display a worked example for Item A on the projector, narrating each base pairing decision aloud. Then release to independent practice for Item B only.                                                  |
+| Widespread confusion  | Below 50%               | Stop independent practice entirely. Use a physical letter-card matching activity -- students hold up cards labeled A, T, C, G and physically pair with a partner holding the complementary base. Then return to the written problem. |
 
 **Logistics Note:** Design the Google Form to show responses in a spreadsheet column -- sort by response in under 2 minutes post-class to identify which base pairing errors were most common. If paper-based, use a 4-row tally sheet: correct / base error / directionality error / copied template.
 
@@ -459,31 +477,33 @@ Semi-conservative means each daughter DNA molecule is half old, half new. The or
 **Technology Required:** No.
 
 **Exact Prompt/Question for Students:**
+
 > "Before you leave, complete both prompts on the slip at your table.
 > Prompt 1: In one sentence, explain what 'semi-conservative' means in your own words -- do NOT use the word 'replication.'
 > Prompt 2: The template strand is 3'-TTACGC-5'. Write the new complementary strand."
 
 **Expected Response(s):**
+
 - Prompt 1 (strong response): "Each new DNA molecule keeps one of the original strands and builds a new one alongside it" or "Half of every new DNA molecule is old, half is brand new."
 - Prompt 2: 5'-AATGCG-3'
 
 **Diagnostic Distractor Analysis:**
 
-| Student Response | What It Reveals | Instructional Implication |
-|-----------------|-----------------|--------------------------|
-| Prompt 1: "The DNA makes a copy of itself" -- no reference to original strand | Student knows a procedure occurred but cannot explain the semi-conservative mechanism | Flag for small-group reteach at lesson opening tomorrow; bring a diagram |
-| Prompt 1: "Semi-conservative means it only copies half" | Persistent prefix misinterpretation from Assessment 3 -- this student likely did not resolve the confusion during think-pair-share | Individual follow-up; this student needs a direct explanation with the etymology of the word |
-| Prompt 2: Correct bases, writes as 3'-AATGCG-5' instead of 5'-AATGCG-3' | Antiparallel directionality is not yet secure; base pairing is correct | Begin next lesson with a 5-minute antiparallel review before moving to transcription |
-| Prompt 2: Uses Uracil | RNA/DNA base confusion persists from Assessment 4 -- the guided practice did not resolve it | This student needs an explicit DNA-vs-RNA comparison before Lesson 2 |
+| Student Response                                                              | What It Reveals                                                                                                                    | Instructional Implication                                                                    |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Prompt 1: "The DNA makes a copy of itself" -- no reference to original strand | Student knows a procedure occurred but cannot explain the semi-conservative mechanism                                              | Flag for small-group reteach at lesson opening tomorrow; bring a diagram                     |
+| Prompt 1: "Semi-conservative means it only copies half"                       | Persistent prefix misinterpretation from Assessment 3 -- this student likely did not resolve the confusion during think-pair-share | Individual follow-up; this student needs a direct explanation with the etymology of the word |
+| Prompt 2: Correct bases, writes as 3'-AATGCG-5' instead of 5'-AATGCG-3'       | Antiparallel directionality is not yet secure; base pairing is correct                                                             | Begin next lesson with a 5-minute antiparallel review before moving to transcription         |
+| Prompt 2: Uses Uracil                                                         | RNA/DNA base confusion persists from Assessment 4 -- the guided practice did not resolve it                                        | This student needs an explicit DNA-vs-RNA comparison before Lesson 2                         |
 
 **Teacher Response Protocol:**
 
-| Result | Threshold | Action |
-|--------|-----------|--------|
-| Strong understanding | 80%+ both correct | Begin next lesson with a quick 1-minute review of semi-conservative concept, then advance to transcription |
-| Partial understanding -- Prompt 1 weak | 50-79% correct on Prompt 1 only | Begin next lesson with a 5-minute visual review of the semi-conservative diagram; do not re-teach from scratch |
-| Partial understanding -- Prompt 2 weak | 50-79% on base pairing application | Begin next lesson with 5-10 additional base pairing practice problems before introducing RNA polymerase |
-| Widespread confusion on both | Below 50% on both | Dedicate first 15 minutes of next lesson to reteach both concepts; use physical and visual models; push transcription lesson to the following day |
+| Result                                 | Threshold                          | Action                                                                                                                                            |
+| -------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Strong understanding                   | 80%+ both correct                  | Begin next lesson with a quick 1-minute review of semi-conservative concept, then advance to transcription                                        |
+| Partial understanding -- Prompt 1 weak | 50-79% correct on Prompt 1 only    | Begin next lesson with a 5-minute visual review of the semi-conservative diagram; do not re-teach from scratch                                    |
+| Partial understanding -- Prompt 2 weak | 50-79% on base pairing application | Begin next lesson with 5-10 additional base pairing practice problems before introducing RNA polymerase                                           |
+| Widespread confusion on both           | Below 50% on both                  | Dedicate first 15 minutes of next lesson to reteach both concepts; use physical and visual models; push transcription lesson to the following day |
 
 **Logistics Note:** Sort exit tickets into three piles as you read them: both correct / one correct / neither correct. Tally the numbers. For a class of 28 students, this takes 5-7 minutes maximum. The three-pile sort is faster and more actionable than writing comments on individual slips.
 
@@ -492,6 +512,7 @@ Semi-conservative means each daughter DNA molecule is half old, half new. The or
 ### Cross-Lesson Data Use
 
 **What to look for when analyzing exit tickets tonight:**
+
 - More than 5 students with Uracil errors: Begin next lesson (transcription) by explicitly contrasting DNA replication (Thymine) with RNA synthesis (Uracil) before introducing RNA polymerase
 - More than 5 students with antiparallel directionality errors: Add a 5-minute antiparallel orientation review with a diagram to the opening of Lesson 2 -- this will become critical when the strand directionality of transcription is introduced
 - More than 7 students cannot articulate semi-conservative in their own words: Lesson 2 must begin with reteach; do not proceed to transcription until this conceptual anchor is secure
@@ -503,13 +524,13 @@ Any student who answered Prompt 1 with only a procedural statement ("DNA copies 
 
 ### Quick Reference -- At-a-Glance Lesson Plan
 
-| # | Minute | Function | Strategy | Objective | Duration | Materials |
-|---|--------|----------|----------|-----------|----------|-----------|
-| 1 | 3 | Activation | Digital Poll | Prerequisite | 2 min | Chromebook + poll link |
-| 2 | 18 | Monitoring | Whiteboard Sequencing | Obj 1 | 2 min | Whiteboards or paper |
-| 3 | 30 | Monitoring | Think-Pair-Share | Obj 2 | 4 min | None |
-| 4 | 43 | Practice Check | Two-Item Probe | Obj 3 | 3 min | Chromebook or index card |
-| 5 | 46 | Consolidation | Exit Ticket | Obj 2 + 3 | 4 min | Pre-cut half-sheets |
+| #   | Minute | Function       | Strategy              | Objective    | Duration | Materials                |
+| --- | ------ | -------------- | --------------------- | ------------ | -------- | ------------------------ |
+| 1   | 3      | Activation     | Digital Poll          | Prerequisite | 2 min    | Chromebook + poll link   |
+| 2   | 18     | Monitoring     | Whiteboard Sequencing | Obj 1        | 2 min    | Whiteboards or paper     |
+| 3   | 30     | Monitoring     | Think-Pair-Share      | Obj 2        | 4 min    | None                     |
+| 4   | 43     | Practice Check | Two-Item Probe        | Obj 3        | 3 min    | Chromebook or index card |
+| 5   | 46     | Consolidation  | Exit Ticket           | Obj 2 + 3    | 4 min    | Pre-cut half-sheets      |
 
 **Total formative assessment time:** 15 minutes of 50 minutes (30%)
 **Reteaching buffer built into plan:** Assessments 1 and 2 have 3-5 minute reteach contingencies that consume slack time in the lesson. Assessment 3 reteach (physical model) requires deferring 5 minutes of independent practice to homework. Assessments 4 and 5 reteach actions are allocated to the start of the next lesson, not today.

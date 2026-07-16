@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning event-planning budgeting checklist guide safety performing-arts accessibility"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning event-planning budgeting checklist guide safety performing-arts accessibility'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Wedding Season Guest
 
 You are a wedding etiquette and logistics advisor who helps guests navigate the social, financial, and practical aspects of attending weddings, from managing multiple invitations to choosing appropriate gifts and attire.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wedding season guest techniques or best practices
 - User needs guidance on wedding season guest concepts
 - User wants to implement or improve their approach to wedding season guest
 
 **Do NOT use when:**
+
 - The request falls outside the scope of wedding season guest
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -52,29 +53,30 @@ Before planning your wedding season, clarify:
 
 ### Per-Wedding Cost Estimator
 
-| Expense | Local Wedding | Travel Wedding | Destination Wedding |
-|---------|-------------|----------------|---------------------|
-| Gift | $50-150 | $50-150 | $50-100 |
-| Attire | $0-200 | $0-200 | $100-300 |
-| Travel | $0-50 | $200-800 | $500-2,000+ |
-| Accommodation | $0 | $100-300/night | $150-500/night |
-| Grooming/beauty | $0-100 | $0-100 | $0-150 |
-| Meals (outside wedding) | $0-30 | $50-150 | $100-300 |
-| Incidentals | $20-50 | $50-100 | $100-200 |
-| **Estimated Total** | **$70-580** | **$450-1,800** | **$1,000-3,550** |
+| Expense                 | Local Wedding | Travel Wedding | Destination Wedding |
+| ----------------------- | ------------- | -------------- | ------------------- |
+| Gift                    | $50-150       | $50-150        | $50-100             |
+| Attire                  | $0-200        | $0-200         | $100-300            |
+| Travel                  | $0-50         | $200-800       | $500-2,000+         |
+| Accommodation           | $0            | $100-300/night | $150-500/night      |
+| Grooming/beauty         | $0-100        | $0-100         | $0-150              |
+| Meals (outside wedding) | $0-30         | $50-150        | $100-300            |
+| Incidentals             | $20-50        | $50-100        | $100-200            |
+| **Estimated Total**     | **$70-580**   | **$450-1,800** | **$1,000-3,550**    |
 
 ### Season Budget Tracker
 
-| Wedding | Date | Location | Budget | Gift | Travel | Attire | Other | Total |
-|---------|------|----------|--------|------|--------|--------|-------|-------|
-| Couple 1 | | | $_____ | | | | | |
-| Couple 2 | | | $_____ | | | | | |
-| Couple 3 | | | $_____ | | | | | |
-| **Totals** | | | | | | | | |
+| Wedding    | Date | Location | Budget  | Gift | Travel | Attire | Other | Total |
+| ---------- | ---- | -------- | ------- | ---- | ------ | ------ | ----- | ----- |
+| Couple 1   |      |          | $**\_** |      |        |        |       |       |
+| Couple 2   |      |          | $**\_** |      |        |        |       |       |
+| Couple 3   |      |          | $**\_** |      |        |        |       |       |
+| **Totals** |      |          |         |      |        |        |       |       |
 
 ### Money-Saving Strategies for Multiple Weddings
 
 **Gifts**
+
 - Set a consistent per-wedding gift budget regardless of relationship closeness
 - Consider group gifts with other attendees for higher-impact presents
 - Shop sales and use cashback platforms when purchasing registry items
@@ -82,6 +84,7 @@ Before planning your wedding season, clarify:
 - A heartfelt card with a modest gift is better than a generic expensive one
 
 **Travel**
+
 - Book flights and hotels as soon as you receive save-the-dates
 - Use hotel room blocks the couple has arranged (usually discounted)
 - Coordinate with other guests for ridesharing and room sharing
@@ -89,6 +92,7 @@ Before planning your wedding season, clarify:
 - Consider driving instead of flying for trips under 4-5 hours
 
 **Attire**
+
 - Choose versatile pieces that work across multiple weddings
 - Accessorize differently to create distinct looks from the same base outfit
 - Rent formal wear instead of buying
@@ -99,14 +103,14 @@ Before planning your wedding season, clarify:
 
 ### Gift Giving Guidelines
 
-| Your Relationship | Suggested Range | Registry Preference |
-|-------------------|----------------|---------------------|
-| Close family | $100-300+ | Registry or cash |
-| Close friend | $75-200 | Registry or personal |
-| Extended family | $50-150 | Registry |
-| Coworker | $50-100 | Registry or group gift |
-| Acquaintance | $30-75 | Registry |
-| Plus-one situation | Add $25-50 to your gift | Follow primary guest |
+| Your Relationship  | Suggested Range         | Registry Preference    |
+| ------------------ | ----------------------- | ---------------------- |
+| Close family       | $100-300+               | Registry or cash       |
+| Close friend       | $75-200                 | Registry or personal   |
+| Extended family    | $50-150                 | Registry               |
+| Coworker           | $50-100                 | Registry or group gift |
+| Acquaintance       | $30-75                  | Registry               |
+| Plus-one situation | Add $25-50 to your gift | Follow primary guest   |
 
 ### When and How to Give
 
@@ -117,6 +121,7 @@ Before planning your wedding season, clarify:
 - **Monetary gifts**: Place in a sealed, labeled envelope for the card box
 
 ### Gift Alternatives When Budget Is Tight
+
 - A beautifully written personal letter about your relationship with the couple
 - A framed photo from a shared memory
 - An offer of a specific service (photography prints, home-cooked meal, etc.)
@@ -126,12 +131,14 @@ Before planning your wedding season, clarify:
 ### Registry Dos and Don'ts
 
 **Do:**
+
 - Check the registry early for the best selection
 - Stick to the registry if you do not know the couple's taste well
 - Include a gift receipt for non-registry items
 - Respect cash fund requests without judgment
 
 **Don't:**
+
 - Give something similar to a registry item but in "your preferred" version
 - Assume the couple needs household basics without checking
 - Give gifts that require maintenance or storage the couple may not want
@@ -141,19 +148,19 @@ Before planning your wedding season, clarify:
 
 ### Wedding Dress Codes Explained
 
-| Dress Code | What It Means | Common Mistakes |
-|-----------|---------------|-----------------|
-| **White Tie** | Most formal: floor-length gown, tuxedo with tails | Under-dressing, wrong length |
-| **Black Tie** | Formal: long or elegant cocktail dress, tuxedo | Too casual, inappropriate length |
-| **Black Tie Optional** | Tuxedo or dark suit; formal dress or dressy separates | Treating "optional" as "casual" |
-| **Formal/Evening** | Similar to black tie optional; floor-length or cocktail | Too casual |
-| **Cocktail** | Knee-length or midi dress; suit with or without tie | Too casual or too formal |
-| **Semi-Formal** | Dressy but not full formal; suit, nice dress | Jeans, sneakers |
-| **Dressy Casual** | Elevated everyday: sundress, blazer with khakis | Actual casual wear |
-| **Casual** | Nice but relaxed: sundress, khakis, button-down | Ratty jeans, flip flops |
-| **Beach Formal** | Formal but weather-appropriate; linen suits, flowy dresses | Stiletto heels in sand |
-| **Garden Party** | Bright, floral-friendly; midi dresses, light suits | Dark heavy fabrics |
-| **Festive** | The couple wants fun; bold colors, sparkle encouraged | Playing it too safe |
+| Dress Code             | What It Means                                              | Common Mistakes                  |
+| ---------------------- | ---------------------------------------------------------- | -------------------------------- |
+| **White Tie**          | Most formal: floor-length gown, tuxedo with tails          | Under-dressing, wrong length     |
+| **Black Tie**          | Formal: long or elegant cocktail dress, tuxedo             | Too casual, inappropriate length |
+| **Black Tie Optional** | Tuxedo or dark suit; formal dress or dressy separates      | Treating "optional" as "casual"  |
+| **Formal/Evening**     | Similar to black tie optional; floor-length or cocktail    | Too casual                       |
+| **Cocktail**           | Knee-length or midi dress; suit with or without tie        | Too casual or too formal         |
+| **Semi-Formal**        | Dressy but not full formal; suit, nice dress               | Jeans, sneakers                  |
+| **Dressy Casual**      | Elevated everyday: sundress, blazer with khakis            | Actual casual wear               |
+| **Casual**             | Nice but relaxed: sundress, khakis, button-down            | Ratty jeans, flip flops          |
+| **Beach Formal**       | Formal but weather-appropriate; linen suits, flowy dresses | Stiletto heels in sand           |
+| **Garden Party**       | Bright, floral-friendly; midi dresses, light suits         | Dark heavy fabrics               |
+| **Festive**            | The couple wants fun; bold colors, sparkle encouraged      | Playing it too safe              |
 
 ### Universal Dress Rules
 
@@ -168,6 +175,7 @@ Before planning your wedding season, clarify:
 ### Building a Wedding Season Wardrobe
 
 **Investment Pieces (Reuse Across Events)**
+
 - One versatile midi or cocktail dress in a solid color
 - One quality suit or blazer in navy or charcoal
 - Comfortable dressy shoes that work with multiple outfits
@@ -175,6 +183,7 @@ Before planning your wedding season, clarify:
 - Versatile jewelry that dresses up or down
 
 **Mix-and-Match Strategy**
+
 - 2-3 base outfits + different accessories = 6-9 distinct looks
 - Swap shoes, jewelry, and bags between events
 - Add a bold accessory to transform a simple outfit
@@ -183,6 +192,7 @@ Before planning your wedding season, clarify:
 ## Wedding Day Logistics
 
 ### Pre-Wedding Checklist
+
 - [ ] RSVP by the deadline (this is non-negotiable)
 - [ ] Book travel and accommodations early
 - [ ] Confirm meal selection if requested
@@ -193,6 +203,7 @@ Before planning your wedding season, clarify:
 - [ ] Charge your phone and bring a portable charger
 
 ### Day-Of Essentials to Bring
+
 - [ ] Invitation or event details (digital or physical)
 - [ ] Gift card/envelope if giving at the event
 - [ ] Phone charger or battery pack
@@ -206,6 +217,7 @@ Before planning your wedding season, clarify:
 ### Being a Great Guest
 
 **During the Ceremony**
+
 - Arrive 15-30 minutes early
 - Silence your phone completely (not just vibrate)
 - Do not take photos during the ceremony unless explicitly encouraged
@@ -213,6 +225,7 @@ Before planning your wedding season, clarify:
 - Stay seated during processional and recessional unless asked to stand
 
 **During the Reception**
+
 - Find your seat assignment and respect the seating plan
 - Introduce yourself to tablemates warmly
 - Dance and participate in activities when invited
@@ -226,15 +239,15 @@ Before planning your wedding season, clarify:
 
 ### Additional Costs to Expect
 
-| Expense | Bridesmaid | Groomsman |
-|---------|-----------|-----------|
-| Attire | $100-300+ | $100-300+ |
-| Alterations | $50-150 | $30-100 |
-| Hair and makeup | $50-200 | N/A |
-| Bachelor/bachelorette | $200-1,000+ | $200-1,000+ |
-| Bridal shower | $50-200 | N/A |
-| Rehearsal dinner outfit | $0-100 | $0-100 |
-| Additional gift | $50-150 | $50-150 |
+| Expense                 | Bridesmaid  | Groomsman   |
+| ----------------------- | ----------- | ----------- |
+| Attire                  | $100-300+   | $100-300+   |
+| Alterations             | $50-150     | $30-100     |
+| Hair and makeup         | $50-200     | N/A         |
+| Bachelor/bachelorette   | $200-1,000+ | $200-1,000+ |
+| Bridal shower           | $50-200     | N/A         |
+| Rehearsal dinner outfit | $0-100      | $0-100      |
+| Additional gift         | $50-150     | $50-150     |
 
 ### Managing Wedding Party Expenses
 
@@ -270,12 +283,12 @@ No explanation needed. Ask the bartender for a mocktail or hold a sparkling wate
 Arrange childcare without comment. This is a common and reasonable choice.
 
 ### RSVP Etiquette
+
 - Respond by the deadline, always
 - If you RSVP yes, attend (except genuine emergencies)
 - Do not add guests who were not invited
 - Communicate dietary needs or accessibility requirements at RSVP time
 - If your plans change after RSVPing yes, tell the couple as soon as possible
-
 
 ## Process
 
@@ -284,7 +297,6 @@ Arrange childcare without comment. This is a common and reasonable choice.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -305,14 +317,12 @@ Arrange childcare without comment. This is a common and reasonable choice.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

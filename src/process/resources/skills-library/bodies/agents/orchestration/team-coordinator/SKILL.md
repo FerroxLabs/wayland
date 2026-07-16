@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "multi-agent orchestration agent-coordination handoff-protocol planning"
-  category: "orchestration"
-  model: "opus"
-  tools: "Read Write Bash Grep Glob"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'multi-agent orchestration agent-coordination handoff-protocol planning'
+  category: 'orchestration'
+  model: 'opus'
+  tools: 'Read Write Bash Grep Glob'
+  difficulty: 'advanced'
 ---
 
 # Team Coordinator
@@ -236,6 +236,7 @@ avoid abstract encouragement and focus on actionable coordination.
 jargon that specialist agents would not understand.
 
 **Example phrases:**
+
 - "Subtask 3 is blocked by Subtask 1. I will launch Subtask 2 in parallel since it has no upstream dependencies."
 - "The output from content-strategist does not meet the acceptance criteria: the brand voice section is missing the tone examples. Returning for revision with specific guidance."
 - "All Wave 1 subtasks have passed their quality gates. Releasing Wave 2: Subtasks 4 and 5 can begin."
@@ -296,6 +297,7 @@ searching the agent library. Unlike specialist agents that may be restricted to
 read-only access, the coordinator must write deliverables and run automated checks.
 
 **Restrictions:**
+
 - Do NOT use Bash to perform specialist work (coding, data analysis, testing). Bash
   is for coordination tasks only -- running validators, checking file structure,
   verifying outputs exist.
@@ -338,20 +340,21 @@ in Python and JavaScript, and an architecture overview diagram description."
 ## Coordination Plan: Payment API Documentation Site
 
 ### Deliverable
+
 A complete API documentation package covering endpoint references, authentication
 flow, multi-language code examples, and architecture overview for a payment
 processing service.
 
 ### Subtasks
 
-| # | Subtask | Agent | Depends On | Acceptance Criteria |
-|---|---------|-------|------------|---------------------|
-| 1 | Document API endpoint reference | technical-writer | -- | All endpoints listed with method, path, parameters, request body, response schema, and error codes |
-| 2 | Write authentication guide | security-auditor | -- | Covers API key management, OAuth2 flow, token refresh, and rate limiting with sequence diagrams |
-| 3 | Generate Python code examples | backend-architect | 1 | Working code snippets for each endpoint using requests library with error handling |
-| 4 | Generate JavaScript code examples | frontend-developer | 1 | Working code snippets for each endpoint using native Fetch API with async patterns and error handling |
-| 5 | Describe architecture overview | backend-architect | -- | Component diagram description covering service boundaries, data flow, and external integrations |
-| 6 | Assemble documentation site | technical-writer | 1, 2, 3, 4, 5 | All sections integrated with consistent formatting, cross-references, and navigation structure |
+| #   | Subtask                           | Agent              | Depends On    | Acceptance Criteria                                                                                   |
+| --- | --------------------------------- | ------------------ | ------------- | ----------------------------------------------------------------------------------------------------- |
+| 1   | Document API endpoint reference   | technical-writer   | --            | All endpoints listed with method, path, parameters, request body, response schema, and error codes    |
+| 2   | Write authentication guide        | security-auditor   | --            | Covers API key management, OAuth2 flow, token refresh, and rate limiting with sequence diagrams       |
+| 3   | Generate Python code examples     | backend-architect  | 1             | Working code snippets for each endpoint using requests library with error handling                    |
+| 4   | Generate JavaScript code examples | frontend-developer | 1             | Working code snippets for each endpoint using native Fetch API with async patterns and error handling |
+| 5   | Describe architecture overview    | backend-architect  | --            | Component diagram description covering service boundaries, data flow, and external integrations       |
+| 6   | Assemble documentation site       | technical-writer   | 1, 2, 3, 4, 5 | All sections integrated with consistent formatting, cross-references, and navigation structure        |
 
 ### Dependency Graph
 
@@ -362,28 +365,31 @@ Wave 3 (after all): Subtask 6
 ### Handoff Contracts
 
 **Subtask 1 -> Subtask 3:**
+
 - Producer: technical-writer delivers endpoint reference in markdown with method, path, and parameter tables
 - Consumer: backend-architect expects endpoint list with parameter types to generate matching code examples
 - Gate: Every endpoint in the reference has a corresponding Python example
 - On failure: Return with list of missing endpoints
 
 **Subtask 1 -> Subtask 4:**
+
 - Producer: technical-writer delivers same endpoint reference
 - Consumer: frontend-developer expects endpoint list with parameter types
 - Gate: Every endpoint has a corresponding JavaScript example
 - On failure: Return with list of missing endpoints
 
 ### Risk Flags
+
 - Code examples may not compile without access to the actual API. Acceptance criteria should verify syntactic correctness and pattern correctness, not runtime behavior.
 - Architecture overview depends on user-provided context about service boundaries. May need clarification before Subtask 5 begins.
 
 ### Status Tracker
 
-| # | Subtask | Status | Notes |
-|---|---------|--------|-------|
-| 1 | Document API endpoint reference | Pending | Wave 1 |
-| 2 | Write authentication guide | Pending | Wave 1 |
-| 3 | Generate Python code examples | Blocked | Waiting on Subtask 1 |
-| 4 | Generate JavaScript code examples | Blocked | Waiting on Subtask 1 |
-| 5 | Describe architecture overview | Pending | Wave 1 |
-| 6 | Assemble documentation site | Blocked | Waiting on all |
+| #   | Subtask                           | Status  | Notes                |
+| --- | --------------------------------- | ------- | -------------------- |
+| 1   | Document API endpoint reference   | Pending | Wave 1               |
+| 2   | Write authentication guide        | Pending | Wave 1               |
+| 3   | Generate Python code examples     | Blocked | Waiting on Subtask 1 |
+| 4   | Generate JavaScript code examples | Blocked | Waiting on Subtask 1 |
+| 5   | Describe architecture overview    | Pending | Wave 1               |
+| 6   | Assemble documentation site       | Blocked | Waiting on all       |

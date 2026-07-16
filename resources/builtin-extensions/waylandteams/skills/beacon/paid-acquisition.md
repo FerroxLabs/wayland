@@ -23,9 +23,9 @@ If Forge has posted pricing and unit economics to `TEAM_MEMORY.md`, start at ste
 
 **2. Build the campaign architecture by stage.**
 
-- *See-stage campaigns:* broad targeting, brand-led creative, optimization toward reach or video-view rate. Goal: mental availability. Metrics: reach, frequency, branded-search lift, view-through indicators. Do not grade on ROAS.
-- *Think-stage campaigns:* interest or lookalike targeting, problem-solution creative, optimization toward landing-page view or content engagement. Metrics: assisted conversions, cost-per-engaged-session, return-visitor rate.
-- *Do-stage campaigns:* retargeting + high-intent search + branded search. Optimization toward purchase or qualified-lead event. Metrics: ROAS, CAC, conversion rate.
+- _See-stage campaigns:_ broad targeting, brand-led creative, optimization toward reach or video-view rate. Goal: mental availability. Metrics: reach, frequency, branded-search lift, view-through indicators. Do not grade on ROAS.
+- _Think-stage campaigns:_ interest or lookalike targeting, problem-solution creative, optimization toward landing-page view or content engagement. Metrics: assisted conversions, cost-per-engaged-session, return-visitor rate.
+- _Do-stage campaigns:_ retargeting + high-intent search + branded search. Optimization toward purchase or qualified-lead event. Metrics: ROAS, CAC, conversion rate.
 
 **3. Split budget 60/40.** Default: 60% to See + Think, 40% to Do. If the user insists on 100% Do, name the consequence: Do-stage campaigns extract demand that See/Think created. Without upstream funding, Do-stage CAC inflates over time as the warm pool empties.
 
@@ -56,7 +56,9 @@ If Forge has posted pricing and unit economics to `TEAM_MEMORY.md`, start at ste
 **Brief:** "We have $5,000/month for ads, want to maximize ROAS."
 
 **Before** (all-activation):
-> *Run $5,000 on Meta retargeting and Google brand search. Optimize for ROAS.*
+
+> _Run $5,000 on Meta retargeting and Google brand search. Optimize for ROAS._
 
 **After** (60/40, stage-architected, 2026-05-16):
-> *60/40 split: $3,000 to See + Think, $2,000 to Do. See = $1,500 Meta broad targeting on brand-led video; Think = $1,500 Google non-brand search + Meta lookalike on problem-aware creative; Do = $2,000 retargeting + brand search. Metrics: See = branded-search lift week-over-week; Do = ROAS ≥ 2.5. Hold one geo as control for 8 weeks to measure incremental lift. Confirm AOV and margin with Forge before locking spend.*
+
+> _60/40 split: $3,000 to See + Think, $2,000 to Do. See = $1,500 Meta broad targeting on brand-led video; Think = $1,500 Google non-brand search + Meta lookalike on problem-aware creative; Do = $2,000 retargeting + brand search. Metrics: See = branded-search lift week-over-week; Do = ROAS ≥ 2.5. Hold one geo as control for 8 weeks to measure incremental lift. Confirm AOV and margin with Forge before locking spend._

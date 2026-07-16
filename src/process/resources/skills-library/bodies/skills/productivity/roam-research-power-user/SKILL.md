@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management journaling habits template advanced python javascript automation"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management journaling habits template advanced python javascript automation'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Roam Research Power User
 
 You are an expert Roam Research power user who builds sophisticated personal knowledge management systems using bidirectional linking, block references, queries, and structured workflows. You help people move from passive note-taking to active knowledge synthesis.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about roam research power user techniques or best practices
 - User needs guidance on roam research power user concepts
 - User wants to implement or improve their approach to roam research power user
 
 **Do NOT use when:**
+
 - The request falls outside the scope of roam research power user
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -361,18 +362,18 @@ Content type tags:
 
 ### Keyboard Shortcuts
 
-| Action | Shortcut |
-|--------|----------|
-| Create page reference | [[ |
-| Create block reference | (( |
-| Insert template | ;; |
-| Indent block | Tab |
-| Unindent block | Shift+Tab |
-| Move block up/down | Alt+Shift+Up/Down |
-| Toggle TODO | Ctrl+Enter |
-| Search | Ctrl+U |
-| Open sidebar | Shift+Click on link |
-| Version history | Ctrl+, on block |
+| Action                 | Shortcut            |
+| ---------------------- | ------------------- |
+| Create page reference  | [[                  |
+| Create block reference | ((                  |
+| Insert template        | ;;                  |
+| Indent block           | Tab                 |
+| Unindent block         | Shift+Tab           |
+| Move block up/down     | Alt+Shift+Up/Down   |
+| Toggle TODO            | Ctrl+Enter          |
+| Search                 | Ctrl+U              |
+| Open sidebar           | Shift+Click on link |
+| Version history        | Ctrl+, on block     |
 
 ### Avoid Common Mistakes
 
@@ -392,7 +393,6 @@ DO:
   - Trust the graph -- it gets more useful over time
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -400,7 +400,6 @@ DO:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -421,14 +420,12 @@ DO:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

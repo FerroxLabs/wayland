@@ -17,7 +17,10 @@
   border-radius: var(--radius-card);
   text-align: left;
   cursor: pointer;
-  transition: border-color var(--motion-fast), box-shadow var(--motion-fast), background var(--motion-fast);
+  transition:
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast),
+    background var(--motion-fast);
 }
 
 .card:hover {
@@ -205,7 +208,9 @@
   font-weight: 600;
   color: var(--color-text-1);
   cursor: pointer;
-  transition: border-color var(--motion-fast), color var(--motion-fast);
+  transition:
+    border-color var(--motion-fast),
+    color var(--motion-fast);
 }
 
 .cardInstall:hover {
@@ -247,7 +252,9 @@
   background: transparent;
   color: var(--color-text-3);
   cursor: pointer;
-  transition: background var(--motion-fast), color var(--motion-fast);
+  transition:
+    background var(--motion-fast),
+    color var(--motion-fast);
 }
 
 .cardKebab:hover {

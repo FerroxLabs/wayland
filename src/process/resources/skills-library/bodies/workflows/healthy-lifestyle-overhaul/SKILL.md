@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "fitness-trainer nutrition-advisor meal-planner sleep-optimizer habit-tracker"
+skills: 'fitness-trainer nutrition-advisor meal-planner sleep-optimizer habit-tracker'
 trigger_phrases: >-
   I want to get healthy help me transform my lifestyle healthy lifestyle plan
   get fit and eat better total health overhaul improve my health start living
@@ -22,10 +22,11 @@ metadata:
   version: 1.0.0
   tags: health-wellness fitness nutrition sleep habits step-by-step planning
   category: life-event
-  depends: "fitness-trainer nutrition-advisor meal-planner sleep-optimizer habit-tracker"
+  depends: 'fitness-trainer nutrition-advisor meal-planner sleep-optimizer habit-tracker'
   disclaimer: not-medical-advice
   difficulty: beginner
 ---
+
 # Healthy Lifestyle Overhaul
 
 This workflow references health and fitness information for educational purposes only. It is not medical advice. Consult a qualified healthcare provider before starting any fitness or nutrition program.
@@ -168,6 +169,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -178,7 +180,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **All-or-nothing thinking:** An imperfect day is not a failure. Consistency over perfection.
 - **Ignoring sleep:** Sleep is the multiplier. Poor sleep undermines both exercise and nutrition.
 - **Overly restrictive nutrition:** Extreme diets fail long-term. Aim for 80/20 compliance.
-
 
 ### Timeline Considerations
 

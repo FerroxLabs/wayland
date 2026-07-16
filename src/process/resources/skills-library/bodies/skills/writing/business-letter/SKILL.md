@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing business-writing email"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'writing business-writing email'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Business Letter Writing
 
 ## When to Use
@@ -25,6 +26,7 @@ metadata:
 Use this skill when the user needs a formal written communication directed to an **external party** -- an entity or individual outside their own organization -- where the correspondence will exist as a standalone, signed document (physical mail, scanned PDF, or formally transmitted digital letter).
 
 **Use this skill for:**
+
 - Vendor or supplier correspondence: delivery failures, pricing disputes, contract renewals, onboarding communications
 - Client-facing formal notices: service changes, payment demands, contract amendments, account terminations
 - Partnership or collaboration requests to external organizations
@@ -37,6 +39,7 @@ Use this skill when the user needs a formal written communication directed to an
 - Formal thank-you correspondence following significant business milestones
 
 **Do NOT use this skill for:**
+
 - Internal communications within the same organization -- use `business-memo` instead
 - Emails, even formal ones -- use `professional-email` instead; letters sent by email as body text lose legal standing as formal correspondence
 - Business proposals, RFP responses, or pitch documents -- use `business-proposal` instead
@@ -74,6 +77,7 @@ Business letters follow one of three established format conventions. Select base
 For this skill, default to **Full Block Format** unless the user specifies otherwise.
 
 **Margin and spacing standards:**
+
 - Margins: 1 inch on all sides (standard business letter)
 - Font: 12-point Times New Roman or 11-point Calibri or Arial -- nothing smaller than 10.5pt
 - Spacing: single-spaced within paragraphs, one blank line between paragraphs
@@ -85,6 +89,7 @@ For this skill, default to **Full Block Format** unless the user specifies other
 The header block is not merely administrative -- it establishes the legal identity of the correspondence and creates the chain of record. Build it precisely.
 
 **Sender Block (top of letter):**
+
 - Full legal name of the sender
 - Official title (do not abbreviate titles like "VP" if writing for formal or legal correspondence -- use "Vice President")
 - Organization's full legal name (e.g., "Westfield Manufacturing, Inc." not "Westfield Mfg.")
@@ -92,11 +97,13 @@ The header block is not merely administrative -- it establishes the legal identi
 - Direct email and direct phone number (not a general switchboard)
 
 **Date Line:**
+
 - Skip one line after the sender block
 - Write the date the letter will be signed and sent, not the date it was drafted
 - Use the full written-out format: "March 15, 2026"
 
 **Recipient Block:**
+
 - Skip two lines after the date
 - Recipient's full name with appropriate honorific (Mr., Ms., Dr., Professor, The Honorable)
 - Exact title as it appears on their official communications or LinkedIn (mismatched titles cause friction)
@@ -104,6 +111,7 @@ The header block is not merely administrative -- it establishes the legal identi
 - Full mailing address
 
 **Reference Line (optional but valuable for complex correspondence):**
+
 - After the recipient block, add "Re: [Subject]" -- e.g., "Re: Purchase Order #PO-2026-0183 -- Late Delivery Claim"
 - This allows the recipient to route the letter immediately and file it correctly
 - Use for any letter referencing a specific contract, invoice, order, or prior correspondence
@@ -113,6 +121,7 @@ The header block is not merely administrative -- it establishes the legal identi
 The salutation in a business letter is not a formality -- it signals your level of acquaintance with the recipient and the register of the correspondence.
 
 **Salutation rules by scenario:**
+
 - Known recipient, formal relationship: "Dear Mr. Mitchell," or "Dear Dr. Reyes," -- use last name only, followed by a comma (US convention) or colon (more formal, also acceptable)
 - Known recipient, established first-name relationship: "Dear James," is acceptable if you regularly address each other by first name -- but err toward the formal if in doubt
 - Unknown name, known title: "Dear Vice President of Operations," or "Dear Hiring Manager," or "Dear Director of Procurement,"
@@ -126,36 +135,42 @@ The salutation in a business letter is not a formality -- it signals your level 
 Each letter type has a distinct structural logic. Do not apply a one-size-fits-all paragraph structure.
 
 **Request Letters:**
+
 - Paragraph 1: State the specific request in the first two sentences. Do not bury it.
 - Paragraph 2: Provide the rationale or business context that makes the request reasonable.
 - Paragraph 3: Address any likely objections or constraints proactively.
 - Closing: Make it easy to say yes -- specify the exact next step, provide contact information, and set a deadline.
 
 **Complaint or Dispute Letters:**
+
 - Paragraph 1: State the specific problem and its impact in factual, unemotional terms.
 - Paragraph 2: Provide the documented chronology: what was agreed, what happened, when, with reference numbers.
 - Paragraph 3: State the remedy requested precisely -- a specific dollar amount, replacement, corrective action, or written explanation.
 - Closing: Specify the response deadline and the consequence of non-response (without threats -- "we will be required to escalate this matter" is appropriate; "we will sue you" is not).
 
 **Announcement Letters:**
+
 - Paragraph 1: Lead with the news itself. Do not build to it.
 - Paragraph 2: Provide the context, rationale, or background that helps the recipient understand why.
 - Paragraph 3: State the practical impact on the recipient -- effective dates, required actions, changes to their relationship with your organization.
 - Closing: Provide a contact for questions and express willingness to discuss.
 
 **Confirmation or Agreement Letters:**
+
 - Paragraph 1: Reference the conversation, meeting, or agreement being confirmed and its date.
 - Paragraph 2: Restate the agreed terms with specificity -- dollar amounts, deliverable dates, responsibilities of each party.
 - Paragraph 3: Identify what each party needs to do next to move forward.
 - Closing: Request acknowledgment -- ask the recipient to sign and return a copy, or confirm receipt by a specific date.
 
 **Reference or Attestation Letters:**
+
 - Paragraph 1: State your relationship to the individual and the capacity in which you know them.
 - Paragraph 2: Provide specific, evidence-based assessments -- not generic praise ("James consistently reduced procurement cycle time by 20% year-over-year").
 - Paragraph 3: Address suitability for the specific purpose for which the letter is being written.
 - Closing: Offer to discuss further and provide direct contact.
 
 **Payment Demand Letters:**
+
 - Paragraph 1: State the amount owed, the original due date, and how many days past due it is.
 - Paragraph 2: Reference the original agreement, invoice numbers, and any prior collection attempts.
 - Paragraph 3: State the payment deadline and the specific consequences of non-payment (collections, legal action, credit reporting).
@@ -164,12 +179,14 @@ Each letter type has a distinct structural logic. Do not apply a one-size-fits-a
 ### Step 6: Write the Closing Paragraph and Signature Block
 
 The closing paragraph is where letters most often fail. Vague closings ("We look forward to hearing from you") are filler. Every closing must contain:
+
 - The **specific action** you want the recipient to take
 - A **specific deadline** -- "by March 10, 2026" not "soon" or "at your earliest convenience"
 - A **direct contact method** -- the sender's direct phone and email
 - A **conditional consequence** if appropriate -- "if we do not receive confirmation by March 10, we will proceed with..." (for demand or dispute letters)
 
 **Complimentary close options by tone:**
+
 - "Sincerely," -- universal, appropriate for all formal business correspondence
 - "Respectfully," or "Respectfully yours," -- appropriate for correspondence to government officials, regulatory bodies, or in highly formal contexts
 - "Cordially," -- appropriate for warm, collegial correspondence where a relationship exists
@@ -177,11 +194,13 @@ The closing paragraph is where letters most often fail. Vague closings ("We look
 - Never use: "Yours truly" (archaic), "Warmly" (too personal), "Thanks" (too casual)
 
 Skip four lines after the complimentary close for the handwritten signature. Then:
+
 - Typed name
 - Title
 - Organization (optional if letterhead is used)
 
 **Notation Lines (below signature block):**
+
 - "Enclosures: [list each document]" or "Enc. (3)" for the number of items
 - "cc: [Name, Title, Organization]" for anyone receiving a copy -- list all cc recipients the primary recipient should know about
 - "Attachment:" if the letter is sent digitally and files are attached rather than physically enclosed
@@ -258,6 +277,7 @@ cc: [Name, Title, Organization]
 ```
 
 **After the letter, include a brief user note if any of the following apply:**
+
 - The letter references legal obligations or potential litigation -- flag for legal review
 - Key facts were inferred because the user did not provide them -- list what was assumed
 - The letter exceeds one page -- note why and confirm with the user
@@ -296,24 +316,31 @@ cc: [Name, Title, Organization]
 ## Edge Cases
 
 ### The Legally Sensitive Letter
+
 When the letter involves potential legal action, breach of contract, or financial liability claims, the writing approach changes significantly. Maintain factual precision at all costs -- every sentence could be read into a court record. Do not characterize intent ("you deliberately delayed..."); document only observable facts and their consequences. Avoid emotional language entirely. Add the notation "CONFIDENTIAL -- ATTORNEY-CLIENT COMMUNICATION" only if the letter was drafted at an attorney's direction -- do not use this notation speculatively. After drafting, include a clear note to the user: "This letter addresses matters that may have legal consequences. I recommend having legal counsel review it before sending." Do not draft cease-and-desist letters without flagging that these are legal instruments that should originate from an attorney, not a business executive.
 
 ### The International Recipient
+
 Business letter conventions differ materially across cultures. In **Germany and Austria**, letters are often more formal and structured, frequently include a subject line in bold, use "Sehr geehrte Damen und Herren" (formal unknown recipient) or "Sehr geehrter Herr/Sehr geehrte Frau [Last Name]," and end with "Mit freundlichen Grüßen." In **Japan**, business correspondence follows strict hierarchical protocols; if writing to a Japanese company, it is more effective to address the letter to the company or department rather than an individual unless you have a direct relationship. In **the United Kingdom**, "Dear Mr./Ms. [Last Name]" is standard, and letters are closed with "Yours sincerely" (when you know the name) or "Yours faithfully" (when you have used "Dear Sir/Madam"). Flag cultural differences to the user when the recipient is in a country with materially different conventions and ask whether they want to apply local conventions or use US-standard format.
 
 ### The Follow-Up Letter After No Response
+
 When drafting a follow-up to a letter that received no reply, the structure changes. Open by referencing the original letter by date and subject ("This letter follows our correspondence of January 15, 2026, regarding PO-2026-0183, to which we have not received a response."). Do not express frustration or imply bad faith -- the original letter may have been lost or misdirected. Restate the core request in condensed form (two to three sentences maximum). Set a new, shorter deadline than the original. State a specific next step if the deadline is not met ("If we do not receive a response by March 15, we will escalate this matter to our legal department / collections agency / regulatory body" -- whichever is appropriate). For payment demands, escalate the tone incrementally: first letter is cordial-firm, second letter is firm, third letter explicitly references next steps such as collections referral or legal action.
 
 ### The Letter on Behalf of Someone Else
+
 When the user is drafting a letter that will be signed by someone else -- their CEO, a client, a supervisor -- the letter must reflect the voice and authority of the signer, not the drafter. Use first-person singular ("I am writing" or "I request") if the signer is an individual; use first-person plural ("We are requesting") if the signer represents the organization in an institutional capacity. Do not include information the signer would not know directly. The drafter's name does not appear in the letter unless they are named as a contact ("Please contact [Drafter Name] at [phone/email] to coordinate follow-up"). If a letter is signed "on behalf of" a senior executive by an assistant or delegate, the convention is to write the executive's name in the signature block, sign the delegate's initials above it, and add "p.p." (per procurationem) before the executive's printed name.
 
 ### The Confidential or Sensitive-Content Letter
+
 For letters containing sensitive business information -- financial terms, personnel matters, proprietary data, or confidential negotiations -- add "CONFIDENTIAL" as a single bold or capitalized line between the date and the recipient block, and again in the header of any second page. This notation has no strict legal force on its own but establishes the sender's intent and can be relevant in disputes. For letters sent by email as a PDF attachment, recommend the user password-protect the PDF or use secure document transmission. Advise the user not to include sensitive information in the email body text accompanying a formal letter -- the body email is not the letter.
 
 ### The Letter Requiring Multiple Signatories
+
 Some formal letters -- joint venture announcements, multi-party agreements, letters co-signed by two executives -- require multiple signature blocks. Place signature blocks side by side if space permits (two columns), or stack them vertically. Each block must include the full name and title of each signer. Both parties must sign before the letter is sent. If the letter is being sent physically, two original copies should be created so each party retains a signed original. If the user describes a scenario where two companies are jointly signing, flag that this type of correspondence often warrants legal review to confirm it does not inadvertently create a binding agreement.
 
 ### The Letter Requiring a Specific Legal Notice Convention
+
 Certain business letters must follow legally prescribed formats to be valid -- notice of contract termination (must often comply with the notice provisions in the contract), notice of default, notice of lease termination, DMCA notices, and COBRA election notices are examples. When the user's request involves a letter that is likely governed by a contractual notice clause or a legal statute, ask: "Does your contract specify how notice must be delivered (certified mail, specific address, specific timeframe)?" If yes, the letter must comply with those provisions exactly. Flag that failure to follow contractual notice requirements can invalidate the notice entirely, even if the letter itself is well-written.
 
 ---
@@ -405,6 +432,7 @@ cc: Michael Torres, CEO, Clearpath Analytics, LLC
 ---
 
 **Note to user:** This letter references Arizona's repair-and-deduct statute (A.R.S. § 33-361) and your lease's repair provisions. Before sending, confirm with your attorney that:
+
 1. Your lease does include a repair-and-deduct provision -- the letter assumes it does based on your description.
 2. Your lease does not require formal written notice to be delivered by certified mail -- if it does, send this via certified mail with return receipt and retain the receipt.
 3. The specific dollar thresholds and procedures for invoking repair-and-deduct in Arizona apply to your commercial lease context.

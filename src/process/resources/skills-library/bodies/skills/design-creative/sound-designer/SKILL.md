@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design guide"
-  category: "design-creative"
-  subcategory: "audio-music"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design guide'
+  category: 'design-creative'
+  subcategory: 'audio-music'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Sound Designer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on sound designer
 - User asks about sound designer best practices or techniques
 - User wants a structured approach to sound designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of sound designer
 
@@ -60,15 +61,18 @@ Before providing sound design guidance:
 ## Foley Recording
 
 ### What Is Foley
+
 Foley is the reproduction of everyday sound effects synchronized to the picture in post-production. It is named after Jack Foley, who pioneered the technique. Foley adds reality, presence, and physicality that production audio alone cannot capture.
 
 ### Core Foley Categories
+
 1. **Footsteps**: Recorded for every character on every surface. The most time-consuming Foley category but essential for grounding characters in the environment.
 2. **Cloth/Movement**: The rustle and movement of clothing as characters move. Subtle but critical for presence.
 3. **Props**: Every object interaction -- picking up a glass, opening a door, handling a weapon, typing, eating.
 4. **Body movements**: Sitting down, standing up, leaning, impact of falls.
 
 ### Foley Recording Setup
+
 - **Foley pit**: A recessed area with interchangeable surfaces (concrete, wood, gravel, tile, dirt, metal grating). At minimum, collect a variety of surface materials you can walk on.
 - **Microphone**: Large-diaphragm condenser or shotgun mic (Sennheiser MKH 416 is the industry standard). Position close to the sound source for detail.
 - **Room**: Quiet, dead room (minimal reverb). The recording should be dry -- reverb is added in the mix to match the on-screen space.
@@ -76,6 +80,7 @@ Foley is the reproduction of everyday sound effects synchronized to the picture 
 - **Props collection**: Build a library of objects over time. Different shoes, glass types, fabric, paper, metal objects, kitchen items, hardware.
 
 ### Foley Performance Tips
+
 - Watch the scene multiple times before performing. Internalize the rhythm and character of the movement.
 - Perform to picture. Sync is critical -- even a few frames off will feel wrong.
 - Vary intensity. A character's footsteps change based on their emotional state (hurried, cautious, exhausted, confident).
@@ -85,9 +90,11 @@ Foley is the reproduction of everyday sound effects synchronized to the picture 
 ## Sound Effects Creation
 
 ### Layering Technique
+
 Complex sounds are built from multiple simple elements layered together:
 
 **Example: Creating a futuristic door sound**
+
 1. Layer 1: A real pneumatic hiss (air release)
 2. Layer 2: A metal scrape or slide
 3. Layer 3: A servo motor whine (pitch-shifted)
@@ -97,6 +104,7 @@ Complex sounds are built from multiple simple elements layered together:
 Each layer contributes one quality: weight, texture, mechanism, feedback. Adjust the timing, pitch, and volume of each layer until the composite sounds unified and believable.
 
 ### Processing Techniques
+
 - **Pitch shifting**: Change the pitch of a recording to create new sounds. A lion roar pitched down becomes a monster. A cat purr pitched down becomes a spacecraft engine.
 - **Time stretching**: Slow a sound down without changing pitch. Reveals hidden textures and creates massive, epic sounds.
 - **Reverse**: Play a sound backward for surreal, otherworldly effects. Reversed reverb tails create powerful anticipatory moments.
@@ -108,17 +116,20 @@ Each layer contributes one quality: weight, texture, mechanism, feedback. Adjust
 ### Designing Specific Sound Categories
 
 **Weapons and impacts**:
+
 - Layer a sharp transient (snap, crack) with a body (thud, boom) and a tail (rattle, ring, debris)
 - Vary the layers based on material: metal impacts ring, wood impacts thud, flesh impacts are dull
 - Distance affects character: close impacts are detailed and bright, distant impacts are delayed and bass-heavy
 
 **Vehicles and machinery**:
+
 - Record the real thing when possible. Nothing replaces authentic mechanical sounds.
 - Layer engine loop, exhaust, mechanical clatter, tire/surface interaction, wind
 - Create speed variations by pitch-shifting and layering different RPM recordings
 - Interior vs exterior perspective changes the entire character of the sound
 
 **Creatures and monsters**:
+
 - Start with real animal recordings. Layer multiple animals.
 - Pitch shift, time stretch, and add processing
 - Add human elements (breath, throat sounds) for relatability
@@ -127,15 +138,18 @@ Each layer contributes one quality: weight, texture, mechanism, feedback. Adjust
 ## Ambient Soundscapes
 
 ### Building an Ambience
+
 An ambient soundscape is the continuous background sound of a location. It is the sonic foundation that tells the audience where they are.
 
 **The layered approach**:
+
 1. **Bed layer**: The constant, broadband sound of the environment. City hum, forest broadband, ocean, room tone. This layer never stops.
 2. **Mid-ground elements**: Regular but not constant sounds. Birds at intervals, distant traffic, wind gusts, mechanical hum cycling on and off.
 3. **Foreground details**: Specific, identifiable sounds that punctuate the ambience. A dog barking, a car horn, a door closing, a specific bird call.
 4. **Movement and variation**: Subtle changes over time so the ambience does not feel like a static loop. Slowly vary the mix of elements, introduce and remove details, shift the frequency balance.
 
 ### Recording Ambiences in the Field
+
 - Record for a minimum of 2-3 minutes at each location. Longer is better for variety.
 - Use a stereo microphone setup (XY, ORTF, or MS) for spatial accuracy.
 - Hold still. Your own clothing and movement noise will ruin the recording.
@@ -144,6 +158,7 @@ An ambient soundscape is the continuous background sound of a location. It is th
 - Wait for disruptive sounds to pass (airplanes, leaf blowers) or accept them and plan to edit around them.
 
 ### Common Ambience Types and Their Components
+
 **City street**: Traffic broadband, engine pass-bys, pedestrian footsteps, distant conversation, crosswalk signals, construction, HVAC exhaust, pigeons.
 
 **Forest**: Broadband leaf rustle, bird calls at various distances, insect buzz, wind through trees, animal movement in underbrush, water if a creek is present.
@@ -155,7 +170,9 @@ An ambient soundscape is the continuous background sound of a location. It is th
 ## Game Audio
 
 ### Game Audio vs Linear Media
+
 Game audio is fundamentally different from film sound design:
+
 - **Non-linear**: Sounds must respond to player actions in real-time. You cannot predict when events will happen.
 - **Interactive**: The player triggers sounds through gameplay. Sound is feedback.
 - **Looping**: Music and ambiences must loop seamlessly. Events repeat. Nothing should feel repetitive.
@@ -163,7 +180,9 @@ Game audio is fundamentally different from film sound design:
 - **Performance**: Game audio competes for CPU and memory with graphics, physics, and AI. Optimization matters.
 
 ### Middleware: Wwise
+
 Audiokinetic Wwise is the most widely used game audio middleware:
+
 - **Events**: Define what happens when the game triggers a sound (play, stop, pause, set switch)
 - **Random containers**: Play a random selection from a pool of variations to prevent repetition
 - **Blend containers**: Layer multiple sounds that play simultaneously
@@ -173,7 +192,9 @@ Audiokinetic Wwise is the most widely used game audio middleware:
 - **Spatial audio**: 3D positioning, occlusion, diffraction, and room reverb modeling
 
 ### Middleware: FMOD
+
 FMOD is another major game audio middleware, popular in indie and mid-size games:
+
 - **Event-based**: Similar to Wwise, sounds are triggered by game events
 - **Timeline**: Visual timeline for composing complex sound events with layers, automation, and randomization
 - **Scatterer instruments**: Automatically scatter sounds in a pattern (rain, crowd, insects)
@@ -182,6 +203,7 @@ FMOD is another major game audio middleware, popular in indie and mid-size games
 - **Integration**: Unity and Unreal Engine plugins for straightforward implementation
 
 ### Game Audio Implementation Workflow
+
 1. **Asset list**: Catalog every sound needed in the game (UI, gameplay, environment, music, dialogue)
 2. **Asset creation**: Record, design, and process all sound effects
 3. **Middleware authoring**: Build events, containers, and parameter mappings in Wwise or FMOD
@@ -194,6 +216,7 @@ FMOD is another major game audio middleware, popular in indie and mid-size games
 ## Film Sound Design Workflow
 
 ### Post-Production Sound Pipeline
+
 1. **Spotting session**: Director and sound team watch the picture and discuss the sonic vision for each scene
 2. **Dialogue editing**: Clean, sync, and smooth all production dialogue
 3. **ADR (Automated Dialogue Replacement)**: Re-record dialogue that cannot be salvaged from production
@@ -204,7 +227,9 @@ FMOD is another major game audio middleware, popular in indie and mid-size games
 8. **Final mix (re-recording mix)**: Combine all elements on the dub stage, balancing for the final delivery format
 
 ### The Spotting Session
+
 The spotting session defines the sonic vision:
+
 - Watch the locked picture with the director
 - Note every sound moment: where ambiences change, where effects are needed, where silence is important, where music enters and exits
 - Discuss the emotional intention of each scene's sound
@@ -214,6 +239,7 @@ The spotting session defines the sonic vision:
 ## Field Recording
 
 ### Essential Field Recording Kit
+
 - **Portable recorder**: Zoom F6, Sound Devices MixPre-6, Zoom H5/H6
 - **Stereo microphone**: Rode NT-SF1 (ambisonic), Sennheiser MKH 8040 pair (for ORTF/XY), or a stereo shotgun
 - **Shotgun microphone**: Sennheiser MKH 416, Rode NTG5 for focused, directional recording
@@ -224,6 +250,7 @@ The spotting session defines the sonic vision:
 - **Cables, batteries, memory cards, bag**: Always bring spares
 
 ### Field Recording Best Practices
+
 - Record at 24-bit, 96kHz or higher when possible (gives you room to pitch shift and time stretch without quality loss)
 - Always record more than you think you need. A 30-second sound event is worth 5 minutes of recording surrounding it.
 - Log everything: location, time, weather, mic setup, distance, notable details. Your future self will thank you.
@@ -234,12 +261,14 @@ The spotting session defines the sonic vision:
 ## Sound Library Management
 
 ### Building a Personal Library
+
 - **Organize by category**: Ambience, Foley, Impacts, Mechanisms, Nature, Vehicles, UI, Weapons, Voices, etc.
 - **Consistent naming**: Include category, subcategory, description, and variation number. Example: "VEH_Car_DoorClose_Sedan_01.wav"
 - **Metadata tagging**: Use metadata fields in your files (iXML, BWF) or a sound library manager (Soundly, BaseHead, Soundminer) to add searchable keywords, descriptions, and categories.
 - **Quality standards**: Maintain consistent sample rates and bit depths within your library. Remove unwanted noise from recordings before adding them to the library.
 
 ### Commercial Sound Libraries
+
 - **Boom Library**: High-quality designed and construction kits. Especially strong in cinematic and game audio.
 - **Sound Ideas**: Massive general-purpose library. Industry standard.
 - **Pro Sound Effects**: Extensive library with subscription access.
@@ -248,7 +277,9 @@ The spotting session defines the sonic vision:
 - **Freesound.org**: Free, community-contributed sounds. Quality varies. Always check the license.
 
 ### Library Workflow
+
 When starting a project:
+
 1. Review the asset list and identify what you need
 2. Search your personal library first
 3. Search commercial libraries for anything missing
@@ -258,13 +289,16 @@ When starting a project:
 ## Creative Sound Design Philosophy
 
 ### Sound Tells Story
+
 Every sound choice communicates something:
+
 - A door closing can sound final, gentle, angry, or mysterious depending on the design
 - The same environment recorded with different microphones tells a different emotional story
 - Silence after noise is one of the most powerful tools in sound design
 - The absence of expected sounds creates unease and tension
 
 ### Realistic vs Hyper-Realistic vs Stylized
+
 - **Realistic**: Sounds as they would actually occur. Documentary, drama, simulation.
 - **Hyper-realistic**: Sounds that are larger, more detailed, or more impactful than reality. Action films, blockbuster games.
 - **Stylized**: Sounds that are clearly not realistic but serve the artistic vision. Animation, abstract, comedy, horror.
@@ -272,6 +306,7 @@ Every sound choice communicates something:
 Match your approach to the project's visual style and directorial vision.
 
 ### The Power of Restraint
+
 - Not every moment needs sound design. Strategic silence and minimal design can be more powerful than wall-to-wall sound.
 - A single, well-chosen sound effect is more impactful than a dozen mediocre ones.
 - Let the audience's imagination fill in gaps. What they imagine is often more powerful than what you can provide.
@@ -279,6 +314,7 @@ Match your approach to the project's visual style and directorial vision.
 ## Building a Sound Design Career
 
 ### Essential Skills to Develop
+
 1. Critical listening: train your ear to deconstruct the sound in every film, game, and piece of media you consume
 2. Microphone technique: understand how microphone choice and placement shape the character of a recording
 3. Signal processing: deep understanding of EQ, compression, reverb, delay, and modulation effects
@@ -286,6 +322,7 @@ Match your approach to the project's visual style and directorial vision.
 5. Storytelling: the ability to think narratively about how sound supports and enhances the story
 
 ### Career Paths in Sound Design
+
 - **Film and television post-production**: Sound effects editor, Foley artist, re-recording mixer, supervising sound editor
 - **Game audio**: Sound designer, audio programmer, audio director, technical sound designer
 - **Theater**: Live sound design for stage productions
@@ -294,11 +331,11 @@ Match your approach to the project's visual style and directorial vision.
 - **Freelance**: Work across multiple mediums as an independent contractor
 
 ### Getting Started
+
 - Build a sound effects demo reel: take a scene from a film or game trailer, remove all audio, and redesign the sound from scratch
 - Contribute to student films, indie games, and community theater for experience and portfolio material
 - Attend game jams where your sound design skills are immediately valuable
 - Network in audio communities: Interactive Audio Special Interest Group (IASIG), Game Audio Network Guild (GANG), film sound forums
-
 
 ## Output Format
 
@@ -312,13 +349,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with sound designer for a mid-size project."
 
 **Output:** A complete sound designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -5,19 +5,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "business-writing writing strategy"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'business-writing writing strategy'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Persuasion Specialist
 
 ## When to Use
 
 **Use this skill when the user needs help with:**
+
 - Writing persuasive copy for a sales email, landing page, proposal, pitch deck, or fundraising appeal where the goal is a specific audience action
 - Designing a persuasion strategy for a high-stakes presentation -- board approval, investor pitch, budget request, or organizational change initiative
 - Diagnosing why a message or campaign is failing to convert and identifying which psychological or structural lever is missing
@@ -29,6 +31,7 @@ metadata:
 - Choosing between framing strategies (gain vs. loss, problem-agitation-solution vs. before-after-bridge) for a specific context and audience
 
 **Do NOT use this skill when:**
+
 - The user needs SEO-optimized content writing with keyword research -- use a content strategy or SEO writing skill instead
 - The request is for debate preparation with formal argumentation rules and refutation structures -- use a debate and argumentation skill
 - The user needs negotiation tactics for salary, contracts, or deal-making with specific BATNA/ZOPA mechanics -- use a negotiation strategy skill
@@ -137,35 +140,40 @@ When delivering a persuasion strategy, use the following structured format. Adap
 
 ### PERSUASION BRIEF SUMMARY
 
-| Field | Detail |
-|---|---|
-| Desired Action | [Single specific audience action] |
-| Audience | [Title, role, industry, seniority, awareness level] |
-| Relationship / Trust Level | [Cold / Warm / Existing / Authority] |
-| Delivery Format | [Email / Presentation / Proposal / Landing page / Other] |
-| Primary Resistance | [The single most likely reason for "no"] |
-| Ethical Status | [Pass / Conditional pass with notes / Fail] |
+| Field                      | Detail                                                   |
+| -------------------------- | -------------------------------------------------------- |
+| Desired Action             | [Single specific audience action]                        |
+| Audience                   | [Title, role, industry, seniority, awareness level]      |
+| Relationship / Trust Level | [Cold / Warm / Existing / Authority]                     |
+| Delivery Format            | [Email / Presentation / Proposal / Landing page / Other] |
+| Primary Resistance         | [The single most likely reason for "no"]                 |
+| Ethical Status             | [Pass / Conditional pass with notes / Fail]              |
 
 ---
 
 ### AUDIENCE MOTIVATION MAP
 
 **Desires (Move Toward)**
+
 - [Explicit desire]
 - [Deeper desire -- one level below]
 - [Emotional core -- two levels below]
 
 **Fears (Move Away From)**
+
 - [Primary fear with specific consequence]
 - [Secondary fear]
 
 **Trusted Authorities**
+
 - [Names, publications, associations this audience trusts]
 
 **Current Belief About the Problem / Solution**
+
 - [What they believe now that must be leveraged or overcome]
 
 **Primary Deal-Breaker**
+
 - [The condition that triggers automatic rejection]
 
 ---
@@ -177,6 +185,7 @@ When delivering a persuasion strategy, use the following structured format. Adap
 **Rationale:** [Why this framework fits this audience and format -- one to three sentences]
 
 **Cialdini Principles in Play:**
+
 - [Principle 1]: [How it will be deployed specifically]
 - [Principle 2]: [How it will be deployed specifically]
 - [Principle 3 if applicable]: [How it will be deployed specifically]
@@ -191,35 +200,35 @@ When delivering a persuasion strategy, use the following structured format. Adap
 
 ### CTA ANALYSIS
 
-| CTA Element | Evaluation |
-|---|---|
-| Specificity | [Specific action + mechanism + timeframe: Yes/No + note] |
-| Value framing | [Names benefit, not just action: Yes/No + note] |
-| Risk reversal | [Friction reduction present: Yes/No + note] |
-| Scarcity (if used) | [Genuine and appropriately placed: Yes/No + note] |
+| CTA Element          | Evaluation                                               |
+| -------------------- | -------------------------------------------------------- |
+| Specificity          | [Specific action + mechanism + timeframe: Yes/No + note] |
+| Value framing        | [Names benefit, not just action: Yes/No + note]          |
+| Risk reversal        | [Friction reduction present: Yes/No + note]              |
+| Scarcity (if used)   | [Genuine and appropriately placed: Yes/No + note]        |
 | Match to trust level | [Ask proportionate to relationship depth: Yes/No + note] |
 
 ---
 
 ### OBJECTION HANDLING GUIDE
 
-| Likely Objection | Inoculation or Response |
-|---|---|
-| [Objection 1] | [Specific, factual response with proof point if available] |
-| [Objection 2] | [Specific response] |
-| [Objection 3] | [Specific response] |
+| Likely Objection | Inoculation or Response                                    |
+| ---------------- | ---------------------------------------------------------- |
+| [Objection 1]    | [Specific, factual response with proof point if available] |
+| [Objection 2]    | [Specific response]                                        |
+| [Objection 3]    | [Specific response]                                        |
 
 ---
 
 ### ETHICAL AUDIT
 
-| Check | Status | Notes |
-|---|---|---|
-| Factual accuracy | Pass / Conditional / Fail | |
-| Genuine audience benefit | Pass / Conditional / Fail | |
-| Transparency test | Pass / Conditional / Fail | |
-| Autonomy respected | Pass / Conditional / Fail | |
-| Dark patterns absent | Pass / Conditional / Fail | |
+| Check                    | Status                    | Notes |
+| ------------------------ | ------------------------- | ----- |
+| Factual accuracy         | Pass / Conditional / Fail |       |
+| Genuine audience benefit | Pass / Conditional / Fail |       |
+| Transparency test        | Pass / Conditional / Fail |       |
+| Autonomy respected       | Pass / Conditional / Fail |       |
+| Dark patterns absent     | Pass / Conditional / Fail |       |
 
 ---
 
@@ -311,38 +320,43 @@ This is a re-persuasion scenario: the audience has already heard the argument an
 
 ### PERSUASION BRIEF SUMMARY
 
-| Field | Detail |
-|---|---|
-| Desired Action | Reply to email agreeing to a 20-minute product demo |
-| Audience | VP of Operations or VP of Supply Chain, logistics companies, 200-2000 employees, likely solution-aware but fatigued by vendor outreach |
-| Relationship / Trust Level | Cold -- no prior relationship, no referral |
-| Delivery Format | Cold email |
-| Primary Resistance | "We've heard this before / we'd have to rip and replace our TMS / not worth the time" |
-| Ethical Status | Pass -- route optimization with documented results is a genuine value proposition with no ethical concerns identified |
+| Field                      | Detail                                                                                                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Desired Action             | Reply to email agreeing to a 20-minute product demo                                                                                    |
+| Audience                   | VP of Operations or VP of Supply Chain, logistics companies, 200-2000 employees, likely solution-aware but fatigued by vendor outreach |
+| Relationship / Trust Level | Cold -- no prior relationship, no referral                                                                                             |
+| Delivery Format            | Cold email                                                                                                                             |
+| Primary Resistance         | "We've heard this before / we'd have to rip and replace our TMS / not worth the time"                                                  |
+| Ethical Status             | Pass -- route optimization with documented results is a genuine value proposition with no ethical concerns identified                  |
 
 ---
 
 ### AUDIENCE MOTIVATION MAP
 
 **Desires (Move Toward)**
+
 - Reduce operating costs to hit margin targets (explicit)
 - Demonstrate operational improvements to justify team and budget to leadership (one level deeper)
 - Establish themselves as the executive who modernized the operation without a risky platform overhaul (emotional core -- career protection and professional identity)
 
 **Fears (Move Away From)**
+
 - Disruptive technology migration that breaks existing workflows and requires re-training -- the "we tried a platform switch in 2019 and it cost us six months" fear
 - Being wrong in front of their team or CFO about a vendor choice that doesn't deliver
 - Wasting time on another vendor pitch that doesn't apply to their specific setup
 
 **Trusted Authorities**
+
 - Freight Tech Advisors, Gartner Supply Chain top 25, peer VPs in similar-size operations, trade publications (Transport Topics, FreightWaves)
 
 **Current Belief About the Problem / Solution**
+
 - They believe fuel and route efficiency is a real problem (problem-aware)
 - They believe optimization software exists but are skeptical about integration pain (solution-aware but resistant to switching cost)
 - Critical insight to leverage: they may not know TMS-native integration is possible -- this is the belief gap this email must close
 
 **Primary Deal-Breaker**
+
 - Requirement to replace or abandon existing TMS system -- if this email does not address this explicitly, it will be deleted as "another platform rip-and-replace pitch"
 
 ---
@@ -354,6 +368,7 @@ This is a re-persuasion scenario: the audience has already heard the argument an
 **Rationale:** PAS is ideal for cold email because it mirrors the reader's internal monologue -- they feel the problem, you articulate it precisely, and the solution arrives when emotional engagement is highest. The inoculation on TMS integration must come before the pitch, not after it, because it is the auto-rejection trigger.
 
 **Cialdini Principles in Play:**
+
 - **Social Proof (similarity):** Reference mid-sized logistics operators specifically, not enterprise clients. The audience needs to see themselves in the proof, not aspire toward an irrelevant success story.
 - **Reciprocity:** Deliver a specific, useful insight in the email body itself -- a number or fact they can use -- before making any ask.
 - **Scarcity (genuine):** Only apply if there is a real constraint (Q4 implementation capacity, a limited onboarding cohort). Do not fabricate.
@@ -405,36 +420,36 @@ Reply with "show me" and I'll send two time options this week.
 
 ### CTA ANALYSIS
 
-| CTA Element | Evaluation |
-|---|---|
-| Specificity | Yes -- "Reply with 'show me' and I'll send two time options" specifies the action, the mechanism, and the timeframe |
-| Value framing | Yes -- "see whether your current TMS is compatible and run the numbers" names the benefit, not just the meeting |
-| Risk reversal | Yes -- "If it doesn't fit, I'll tell you directly and we part ways" removes the fear of wasting time on a bad-fit pitch |
-| Scarcity | Not applied -- no genuine scarcity exists in this scenario; applying fabricated scarcity here would undermine the credibility the email builds |
-| Match to trust level | Yes -- "Reply with two words" is an ultra-low-commitment ask appropriate for cold contact |
+| CTA Element          | Evaluation                                                                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Specificity          | Yes -- "Reply with 'show me' and I'll send two time options" specifies the action, the mechanism, and the timeframe                            |
+| Value framing        | Yes -- "see whether your current TMS is compatible and run the numbers" names the benefit, not just the meeting                                |
+| Risk reversal        | Yes -- "If it doesn't fit, I'll tell you directly and we part ways" removes the fear of wasting time on a bad-fit pitch                        |
+| Scarcity             | Not applied -- no genuine scarcity exists in this scenario; applying fabricated scarcity here would undermine the credibility the email builds |
+| Match to trust level | Yes -- "Reply with two words" is an ultra-low-commitment ask appropriate for cold contact                                                      |
 
 ---
 
 ### OBJECTION HANDLING GUIDE
 
-| Likely Objection | Inoculation or Response |
-|---|---|
-| "We'd have to replace our TMS" | Addressed directly in email body as inoculation -- pre-empted before it forms. If raised in reply: "That's exactly the objection we built around. We have live integrations with [TMS names]. I can show you the architecture in the first five minutes of the call." |
-| "We've tried optimization software before and it didn't deliver" | "That's the most common thing I hear. Can I ask what you used and where it fell short? 80% of the time it comes down to [specific common failure point]. That's the problem we specifically engineered around -- and I'd rather show you proof from a comparable operation than ask you to take my word for it." |
-| "Our routes are too complex / specialized for software to optimize" | "I'd want to test that assumption rather than assume it's true. We work with [specific complex scenarios -- LTL mix, multi-stop residential, hazmat]. Send me a sample week of run data and I'll tell you honestly within 24 hours whether we can add value." |
-| "Not the right time / budget freeze" | "Understood. One question: does your budget situation mean paused until Q1, or is there a specific constraint I should know about? Our implementation is structured so the ROI pays for the first year's license within the first quarter -- some clients run it as an operating savings initiative rather than a capital spend." |
+| Likely Objection                                                    | Inoculation or Response                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "We'd have to replace our TMS"                                      | Addressed directly in email body as inoculation -- pre-empted before it forms. If raised in reply: "That's exactly the objection we built around. We have live integrations with [TMS names]. I can show you the architecture in the first five minutes of the call."                                                             |
+| "We've tried optimization software before and it didn't deliver"    | "That's the most common thing I hear. Can I ask what you used and where it fell short? 80% of the time it comes down to [specific common failure point]. That's the problem we specifically engineered around -- and I'd rather show you proof from a comparable operation than ask you to take my word for it."                  |
+| "Our routes are too complex / specialized for software to optimize" | "I'd want to test that assumption rather than assume it's true. We work with [specific complex scenarios -- LTL mix, multi-stop residential, hazmat]. Send me a sample week of run data and I'll tell you honestly within 24 hours whether we can add value."                                                                     |
+| "Not the right time / budget freeze"                                | "Understood. One question: does your budget situation mean paused until Q1, or is there a specific constraint I should know about? Our implementation is structured so the ROI pays for the first year's license within the first quarter -- some clients run it as an operating savings initiative rather than a capital spend." |
 
 ---
 
 ### ETHICAL AUDIT
 
-| Check | Status | Notes |
-|---|---|---|
-| Factual accuracy | Pass | The 23% and 18% figures must be genuine averages from real customer data, not best-case projections presented as typical outcomes. If these are top-quartile results, the email should say "top-performing clients average" not "clients average." |
-| Genuine audience benefit | Pass | Route optimization with legacy TMS compatibility is genuinely beneficial for this audience if the product delivers. No ethical concerns identified. |
-| Transparency test | Pass | All techniques would withstand disclosure. The inoculation is used to address a real and valid concern, not to manipulate. |
-| Autonomy respected | Pass | The risk reversal statement explicitly gives the reader permission to say no without penalty. The CTA is low-friction and non-coercive. |
-| Dark patterns absent | Pass | No false urgency, no hidden conditions, no manufactured scarcity. |
+| Check                    | Status | Notes                                                                                                                                                                                                                                              |
+| ------------------------ | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Factual accuracy         | Pass   | The 23% and 18% figures must be genuine averages from real customer data, not best-case projections presented as typical outcomes. If these are top-quartile results, the email should say "top-performing clients average" not "clients average." |
+| Genuine audience benefit | Pass   | Route optimization with legacy TMS compatibility is genuinely beneficial for this audience if the product delivers. No ethical concerns identified.                                                                                                |
+| Transparency test        | Pass   | All techniques would withstand disclosure. The inoculation is used to address a real and valid concern, not to manipulate.                                                                                                                         |
+| Autonomy respected       | Pass   | The risk reversal statement explicitly gives the reader permission to say no without penalty. The CTA is low-friction and non-coercive.                                                                                                            |
+| Dark patterns absent     | Pass   | No false urgency, no hidden conditions, no manufactured scarcity.                                                                                                                                                                                  |
 
 ---
 

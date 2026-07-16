@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career analysis guide"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career analysis guide'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Job Description Analyzer
 
 ## When to Use
@@ -35,6 +36,7 @@ Use this skill when any of the following situations apply:
 - The user is re-entering the workforce, changing industries, or stepping up a level and needs help interpreting whether standard requirements are firm or negotiable
 
 **Do NOT use this skill when:**
+
 - The user wants to optimize resume bullets for ATS keyword matching -- use `ats-resume-optimizer` instead
 - The user wants resume bullet points written or rewritten -- use `resume-bullet-writer` instead
 - The user wants to research the company's culture, financials, leadership, or Glassdoor reputation -- use `company-research-guide` instead
@@ -62,17 +64,20 @@ Before analyzing anything, collect what you need. Do not begin analysis with inc
 This is the most consequential step. Misclassifying a nice-to-have as a must-have is what causes qualified candidates to self-screen out unnecessarily.
 
 **Linguistic markers for must-haves:**
+
 - Explicit language: "required," "must have," "minimum," "X+ years of experience in," "proven track record of," "demonstrated ability to"
 - Structural position: requirements listed under headings like "Qualifications," "Required," "Basic Qualifications," or "Minimum Requirements" are almost always treated as real gates
 - Specificity: a named tool or technology ("Salesforce CRM," "Python," "Kubernetes") listed without softening language is a hard requirement even if not labeled explicitly
 - Legal and regulatory requirements: security clearances, licenses (CPA, PE, bar admission), and certifications (PMP, AWS Certified Solutions Architect) are binary -- either you have them or you do not
 
 **Linguistic markers for nice-to-haves:**
+
 - Explicit language: "preferred," "a plus," "nice to have," "ideally," "familiarity with," "exposure to," "bonus if you have," "experience with X is beneficial"
 - Structural position: requirements listed under headings like "Preferred Qualifications," "Bonus Points," or "What Would Make You Stand Out" are consistently treated as wish-list items
 - Stacked alternatives: "experience with Tableau, Power BI, or Looker" -- when a company lists alternatives, they are signaling flexibility, not insisting on a specific tool
 
 **How to handle ambiguous requirements:**
+
 - Apply the position rule: requirements listed in the first third of a qualifications section outrank those listed last. Hiring managers front-load what actually matters.
 - Apply the specificity rule: a named tool is more important than a soft skill, even if the soft skill appears first. "5 years of experience with React" matters more than "excellent problem-solving skills."
 - Apply the role-function rule: if the requirement is directly related to the primary stated function of the role (a DevOps engineer listing that requires Terraform knowledge), classify it as a must-have even without explicit language
@@ -85,28 +90,33 @@ This is the most consequential step. Misclassifying a nice-to-have as a must-hav
 Every job description was written by a human (or assembled from humans' inputs) and reflects real organizational conditions. Read it as a primary source document, not a checklist.
 
 **Scope signals:**
+
 - Count the number of distinct functional domains in the responsibilities section. A Product Manager role that also requires managing the company blog, running vendor negotiations, and mentoring interns is not a PM role -- it is an operational generalist role with a PM title. More than 3-4 distinct function areas signals scope creep or organizational chaos.
 - Watch for telescoping language: "you will define the product roadmap AND manage customer support escalations AND coordinate with legal" -- the AND-stacking of unrelated functions is a structural warning sign.
 - "Player-coach" is a frequently misused term. In healthy organizations, it means a senior individual contributor who also manages 1-3 people. In dysfunction, it means a full management job plus a full IC job with neither being done well. Ask the user to probe this in the interview.
 
 **Team and process maturity signals:**
+
 - "Build from scratch" or "greenfield" signals: early-stage team, high ambiguity, low process. Appeals to builders but exhausting if the user needs structure.
 - "Improve and scale existing systems" signals: team has something working but is hitting limits. Mid-stage, structured but evolving.
 - "Maintain, optimize, and improve" signals: established system, change is incremental, organizational inertia is a real force. Stability-seekers thrive here; change agents often do not.
 - "Define and establish best practices" in a role below director level is a yellow flag -- it either means the company is genuinely immature (is that good or bad for the user?) or management will not actually give the person authority to do it.
 
 **Management and culture signals:**
+
 - "Self-starter," "entrepreneurial mindset," "minimal supervision," "takes initiative without being told" = there is no manager in the traditional sense. The user will need to create their own structure. Not inherently bad, but a specific type of person thrives here.
 - "Collaborative," "team-oriented," "cross-functional stakeholder management," "builds consensus" = the organization has a strong matrix structure or significant internal politics. The role requires political navigation skills.
 - "Move fast," "high-growth environment," "fast-paced," "wear many hats," "comfortable with ambiguity" appearing together -- all four at once is a pattern that correlates with burnout risk and high turnover. One or two is standard startup language.
 - "We work hard and play hard," "hustle culture," "we are a family" -- these specific phrases have documented correlations with poor work-life balance expectations. Flag these explicitly.
 
 **Hiring context signals:**
+
 - If the posting describes the role in terms of building from zero (new function), it may be a new headcount -- positive signal for job security.
 - If the posting describes inheriting an existing system or team, someone recently left -- neutral, but worth probing. Was the departure healthy (promotion, retirement) or unhealthy (termination, mass exodus)?
 - Postings reposted after a short period (visible on LinkedIn as "Reposted" or showing multiple posting dates) suggest either a recently failed hire or that the bar being described does not reflect who they will actually hire.
 
 **Compensation signals:**
+
 - A full salary band (e.g., "$120,000 -- $145,000 base + equity + bonus") signals transparency and often correlates with structured HR and compensation practices.
 - "Competitive salary" alone often means below-market base where the company is relying on equity or mission to close candidates. Not always, but often enough to flag.
 - "Salary commensurate with experience" is maximally vague and often precedes a lowball offer. Recommend the user establish their number before their first call.
@@ -117,12 +127,14 @@ Every job description was written by a human (or assembled from humans' inputs) 
 Separate genuine warning signs from standard boilerplate. Not everything is a red flag -- overcalling flags is just as unhelpful as missing them.
 
 **Major red flags (these warrant serious reconsideration):**
+
 - Experience-compensation mismatch: the posting requires 7-10 years of senior experience but the stated salary range (or Glassdoor/Levels.fyi data for the company) is entry-to-mid level. This is the single most reliable indicator of a posting that will waste the user's time.
 - Responsibilities that combine two or three full-time roles: a startup cannot pay 1 person to do the work of 3, but some post listings that ask them to anyway. If the user can identify 2-3 distinct full-time roles embedded in one posting, that is a major red flag.
 - Contradictory requirements: "entry-level position" with "5+ years required," or "junior engineer" with "architect-level system design required" -- these indicate the posting was assembled carelessly or the company does not understand the market.
 - No mention of reporting structure, team size, or how success will be measured for a senior role -- indicates organizational ambiguity that will manifest post-hire.
 
 **Moderate red flags (worthy of exploration in an interview):**
+
 - Posting age over 45 days without a "Reposted" marker -- either they are not finding candidates or the hiring is frozen but the posting was not taken down.
 - The qualifications section is longer than the responsibilities section -- this suggests the job was written from a screening-out perspective rather than a "here is what you will do" perspective. Companies that do this often have punishing interview processes.
 - No mention of growth, development, or advancement pathways for individual contributor roles below director level.
@@ -130,6 +142,7 @@ Separate genuine warning signs from standard boilerplate. Not everything is a re
 - "Other duties as assigned" appearing 3+ times or dominating more than 25% of the bullet points.
 
 **Minor red flags (note and monitor but do not block application):**
+
 - Missing salary range in a state without disclosure requirements.
 - Standard "fast-paced environment" language when it appears in isolation.
 - "Competitive benefits" without specifics -- may just be lazy copywriting, but worth asking about.
@@ -142,18 +155,21 @@ Separate genuine warning signs from standard boilerplate. Not everything is a re
 Do not make this a simple percentage. Apply nuance about which requirements are actually gateable.
 
 **Calculate the must-have match rate:**
+
 - Match each stated must-have against what the user has told you about their background
 - Track each as: Full Match (they clearly have it), Partial Match (adjacent experience, related tools, shorter tenure), or No Match
 - Count partial matches as 0.5 for the percentage calculation
 - Display the formula: (Full Matches + 0.5 × Partial Matches) / Total Must-Haves × 100
 
 **Apply the recommendation thresholds:**
+
 - **85%+**: Strong candidate. Apply with confidence. The cover letter should lead with the top 2-3 matches.
 - **65-84%**: Viable candidate. Apply with a targeted cover letter that directly addresses the gap area. Do not apologize for the gap -- reframe it as an adjacent skill or transferable experience.
 - **45-64%**: Stretch candidate. Only apply if (a) the user has a referral or insider connection, (b) the job has been posted for 45+ days suggesting they are softening requirements, or (c) the user is deliberately targeting stretch roles as a career growth strategy.
 - **Below 45%**: Poor match on stated requirements. Advise against applying unless there is a networking path into the role, or the user understands they are playing a very long odds game.
 
 **Critical nuances in the fit assessment:**
+
 - Year requirements are routinely negotiated down by 1-2 years if the rest of the profile is strong. A "5+ years required" rarely disqualifies someone with 4 years of directly relevant experience and strong outcomes. Flag this explicitly rather than treating it as a hard no.
 - Industry-specific experience is the hardest gap to bridge, especially in regulated industries (finance, healthcare, legal, government). Technical skills transfer; regulatory knowledge and institutional relationships often do not. Be honest about this.
 - Education requirements below the PhD level are rarely enforced if the candidate's experience is strong. "Bachelor's degree required" almost universally means "or equivalent experience." "MBA preferred" is a nice-to-have even when listed under required qualifications.
@@ -164,23 +180,27 @@ Do not make this a simple percentage. Apply nuance about which requirements are 
 Job descriptions are frequently assembled by someone who is not the hiring manager and sometimes not even someone who understands the role. This creates a gap between the posting's stated requirements and the actual decision criteria.
 
 **Signals the posting was written by the hiring manager directly:**
+
 - Domain-specific language used precisely and correctly
 - Specific tools named by their actual version or implementation context ("experience with Postgres at scale" vs. "SQL experience")
 - Responsibilities written in the first person or in the voice of someone who has done the job
 - The nice-to-haves list items that are clearly complementary to the must-haves (they represent what the manager already has on the team and wants to add to)
 
 **Signals the posting was assembled from a template by HR or a recruiter:**
+
 - Generic soft skills dominate the qualifications section (communication, collaboration, problem-solving)
 - Obvious boilerplate paragraphs about "company culture" that could apply to any company
 - Requirements that do not logically connect to the stated responsibilities
 - The company has 20+ open roles all using similar language -- templated mass hiring
 
 **When you identify a template-heavy posting:**
+
 - The must-haves in the top half of the qualifications section are still reliable signals
 - The soft skills at the bottom are largely meaningless and should not occupy space in the application strategy
 - The responsibilities section (not the requirements section) becomes the primary source of insight -- it is harder to template away from what the role will actually do
 
 **Research the role's real market level:**
+
 - Use the job title, years of experience, and company size/stage to estimate the true seniority level. A "Senior Engineer" at a 15-person startup is often doing principal-level work. A "Senior Engineer" at a 50,000-person corporation may have narrowly scoped responsibilities. This matters for both fit assessment and salary research.
 - Note whether the title matches the scope. "Coordinator" doing "manages relationships with C-suite stakeholders" is underpaid by title. "Director" with "assists the VP in" tasks is overpriced by title.
 
@@ -189,21 +209,25 @@ Job descriptions are frequently assembled by someone who is not the hiring manag
 This is where the analysis converts into action. The user should leave this step knowing exactly what to do next.
 
 **Skills to emphasize:**
+
 - Identify the top 3-4 must-have requirements where the user has a strong match AND where the skill appears in the top third of the requirements list. These are the skills that should appear in the resume headline, the first paragraph of the cover letter, and the opening of any interview answer.
 - Identify any skills the posting signals are unusual for the role type (SQL in a PM posting, Python in a marketing role, financial modeling in an operations role) -- these are differentiators, not standard requirements. Emphasize them disproportionately.
 - For any nice-to-have where the user has even partial experience, include it -- it is free signal to the reader.
 
 **Gaps to address proactively:**
+
 - For each must-have where the user has only a partial match, provide a reframing strategy. Partial matches should be presented as the closest true experience, not as an apology for the gap. "I have not done X specifically, but I have done Y and Z which required the same underlying skill set" is the correct frame.
 - For genuine gaps (no match), advise the user to either leave them unaddressed (do not highlight what is not there) or, if the gap is likely to come up in the interview, prepare a direct and short acknowledgment with a bridge to what they bring instead.
 - Never recommend the user lie about or exaggerate experience. It fails in technical screening and reference checks and is a career-ending risk.
 
 **Interview questions the user should ask:**
+
 - Generate 3-5 questions from the signals identified in steps 3 and 4. These questions serve two purposes: they give the user real information to make a decision, and they signal to the interviewer that the user engaged carefully with the role.
 - The best questions follow the pattern: [hidden signal from the posting] → [clarifying question that reveals whether the signal is concerning or benign]. For example, if the posting signals the company is in a turnaround situation, the question is not "is the company in trouble?" but "What does success look like for this role in the first 90 days, and how has that definition evolved over the past year?"
 - Include one question about team structure, one about success metrics, and one about a specific red flag or signal identified in the analysis.
 
 **Salary research guidance:**
+
 - Based on the role title, scope signals, company stage, and geographic location, provide a directional salary band to research. Name the correct level to research (e.g., "research IC4 or L5 equivalent at mid-stage SaaS companies in San Francisco" rather than just "research market rate").
 - Note which data sources are most relevant: Levels.fyi for tech roles, Robert Half salary guides for finance and accounting, Bureau of Labor Statistics OES data for baseline anchors, Glassdoor for company-specific data with appropriate skepticism.
 - Flag if the role appears to be misleveled (too broad a scope for the title, or too narrow a scope for the seniority) -- this affects both compensation expectations and the negotiation strategy.
@@ -379,12 +403,14 @@ Unrecognized jargon requires specific handling -- do not gloss over it.
 ### The Posting Appears Written for a Specific Named Candidate (Exploding or Precast Listings)
 
 Signs that a posting may already have a candidate in mind:
+
 - Requirements are suspiciously specific: exact combination of 3-4 niche tools that only appear together at one company
 - Year counts are oddly specific ("exactly 3-5 years" rather than "3+ years")
 - The scope described exactly matches one very specific prior role at one company
 - The posting appeared and disappeared and reappeared (visible on LinkedIn)
 
 **Handling:**
+
 - Flag this possibility clearly but without certainty: "Some characteristics of this posting suggest it may have been written with a specific candidate in mind. This does not mean you should not apply, but it does mean you should recalibrate expectations."
 - Still complete the full analysis -- if the user has a referral or strong internal connection, the original candidate may not take the role and the user could be next in consideration.
 - Recommend that the user try to identify the hiring manager via LinkedIn and see whether there is a plausible "written for" candidate -- a former colleague or recent departee from the same team.
@@ -422,11 +448,12 @@ Respect user autonomy while being honest. Do not refuse to complete the analysis
 **User Input:**
 "Here is the job posting I want to analyze. Can you tell me if I should apply and what to emphasize?
 
-*Staff Data Engineer at Meridian Financial (Series D, ~350 employees, fintech, SF-based with remote option)*
+_Staff Data Engineer at Meridian Financial (Series D, ~350 employees, fintech, SF-based with remote option)_
 
 About the role: We are looking for a Staff Data Engineer to lead the design and implementation of our next-generation data platform. You will be the technical anchor for a team of 4 data engineers and will work closely with our Head of Data and VP of Engineering to define the direction of our data infrastructure.
 
 Requirements:
+
 - 7+ years of data engineering experience
 - Expert-level proficiency in Python and SQL
 - Experience designing and building data pipelines in a production environment at scale
@@ -437,6 +464,7 @@ Requirements:
 - Understanding of data governance, data quality frameworks, and observability
 
 Preferred:
+
 - Experience in fintech or a regulated data environment
 - Familiarity with Airflow or Prefect for orchestration
 - Kafka or other streaming infrastructure experience
@@ -499,14 +527,14 @@ Location: Remote (SF hub, quarterly team gatherings)"
 
 ### Hidden Signals
 
-| Signal Observed | Likely Meaning | Confidence | Impact on Role |
-|----------------|---------------|-----------|----------------|
-| "Technical anchor for a team of 4" with "works with Head of Data and VP of Engineering" | This is a tech-lead role with high executive visibility, not a purely hands-on IC role. You will be expected to have and defend architectural opinions in conversations with VP-level stakeholders. | High | Positive if you want influence; concerning if you prefer heads-down IC work |
-| "Next-generation data platform" and "define the direction of data infrastructure" | Greenfield or near-greenfield build -- the current platform is either insufficient or being replaced. High ambiguity, significant autonomy, and real ownership. Expect to make foundational decisions with limited precedent. | High | Positive for builders; concerning if you need established systems to work within |
-| Posting's precision and coherence across all 8 must-haves | This posting was almost certainly written by the Head of Data or a senior engineer close to the role, not by HR. The requirements are technically precise and internally consistent. This is a signal that the hiring bar will be technical and rigorous, not soft. | Medium-High | Neutral -- means the interview will be substantive and your technical depth will be genuinely tested |
-| "$195K -- $235K + significant equity + annual bonus" with full range disclosed | Transparent, above-market compensation. Structured HR and comp practices. The company has done market benchmarking. This also means they know what they are paying for and will not be talked up easily -- your anchor point should be toward the top of the range given your skills. | High | Positive -- reduces compensation negotiation uncertainty |
-| "SF hub, quarterly team gatherings" remote structure | Lightly structured remote with intentional in-person culture. Quarterly gatherings are a meaningful commitment (4 trips/year) but far short of hybrid mandates. Real remote flexibility. | High | Positive for remote candidates; note if SF in-person gatherings are logistically difficult |
-| Series D, 350 employees, fintech | Late growth stage -- some processes are established, but the data function may still be maturing. At 350 employees, a "Staff Data Engineer" is likely the most senior IC on the data engineering side. Expect to be the person others come to. | High | Significant autonomy and influence -- high expectations for self-direction |
+| Signal Observed                                                                         | Likely Meaning                                                                                                                                                                                                                                                                        | Confidence  | Impact on Role                                                                                       |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------- |
+| "Technical anchor for a team of 4" with "works with Head of Data and VP of Engineering" | This is a tech-lead role with high executive visibility, not a purely hands-on IC role. You will be expected to have and defend architectural opinions in conversations with VP-level stakeholders.                                                                                   | High        | Positive if you want influence; concerning if you prefer heads-down IC work                          |
+| "Next-generation data platform" and "define the direction of data infrastructure"       | Greenfield or near-greenfield build -- the current platform is either insufficient or being replaced. High ambiguity, significant autonomy, and real ownership. Expect to make foundational decisions with limited precedent.                                                         | High        | Positive for builders; concerning if you need established systems to work within                     |
+| Posting's precision and coherence across all 8 must-haves                               | This posting was almost certainly written by the Head of Data or a senior engineer close to the role, not by HR. The requirements are technically precise and internally consistent. This is a signal that the hiring bar will be technical and rigorous, not soft.                   | Medium-High | Neutral -- means the interview will be substantive and your technical depth will be genuinely tested |
+| "$195K -- $235K + significant equity + annual bonus" with full range disclosed          | Transparent, above-market compensation. Structured HR and comp practices. The company has done market benchmarking. This also means they know what they are paying for and will not be talked up easily -- your anchor point should be toward the top of the range given your skills. | High        | Positive -- reduces compensation negotiation uncertainty                                             |
+| "SF hub, quarterly team gatherings" remote structure                                    | Lightly structured remote with intentional in-person culture. Quarterly gatherings are a meaningful commitment (4 trips/year) but far short of hybrid mandates. Real remote flexibility.                                                                                              | High        | Positive for remote candidates; note if SF in-person gatherings are logistically difficult           |
+| Series D, 350 employees, fintech                                                        | Late growth stage -- some processes are established, but the data function may still be maturing. At 350 employees, a "Staff Data Engineer" is likely the most senior IC on the data engineering side. Expect to be the person others come to.                                        | High        | Significant autonomy and influence -- high expectations for self-direction                           |
 
 **Signal Summary:** This is a high-autonomy, greenfield-leaning build role with genuine technical ownership, executive exposure, and transparent above-market pay. The company is past early chaos but still in an active scaling phase. The role rewards engineers who can set direction and defend technical decisions, not just execute on specifications. If that matches how you work best, this is a strong opportunity on the intangibles as well as the stated requirements.
 
@@ -514,10 +542,10 @@ Location: Remote (SF hub, quarterly team gatherings)"
 
 ### Red Flag Audit
 
-| Flag | Evidence from Posting | Why It Matters | Severity |
-|------|--------------------|---------------|----------|
-| No mention of how success will be measured in the first 6-12 months | Responsibilities describe the "what" but no OKRs, metrics, or definition of done for the data platform project | At the staff level, unclear success metrics often mean the scope will expand post-hire without guardrails. Ask directly in the interview. | Moderate |
-| "Technical anchor" language without explicit team structure clarity | Is the user managing 4 engineers, tech-leading them, or collaborating peer-to-peer? The language is ambiguous -- "leads the design" could be informal influence or formal authority. | Misunderstood management expectations are a common source of post-hire dissatisfaction at the staff IC level | Minor |
+| Flag                                                                | Evidence from Posting                                                                                                                                                                | Why It Matters                                                                                                                            | Severity |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| No mention of how success will be measured in the first 6-12 months | Responsibilities describe the "what" but no OKRs, metrics, or definition of done for the data platform project                                                                       | At the staff level, unclear success metrics often mean the scope will expand post-hire without guardrails. Ask directly in the interview. | Moderate |
+| "Technical anchor" language without explicit team structure clarity | Is the user managing 4 engineers, tech-leading them, or collaborating peer-to-peer? The language is ambiguous -- "leads the design" could be informal influence or formal authority. | Misunderstood management expectations are a common source of post-hire dissatisfaction at the staff IC level                              | Minor    |
 
 **Red Flag Summary:** 2 flags identified -- 0 major, 1 moderate, 1 minor.
 **Overall risk assessment:** Low -- this is a clean posting with few structural concerns. The moderate flag on success metrics is worth probing but does not indicate dysfunction.
@@ -541,11 +569,13 @@ Location: Remote (SF hub, quarterly team gatherings)"
 ### Application Strategy
 
 **Top Skills to Lead With (prioritized):**
+
 1. **Production dbt at scale** -- the posting names dbt specifically, and most DE candidates at this level have only heard of it. Two years of production dbt experience is a genuine differentiator. Open every conversation about data transformation with this.
 2. **BigQuery expertise** -- the posting names all three major cloud DW platforms and you have depth in one. Lead with the depth, not the breadth. "Deep BigQuery expertise" is more compelling than "familiar with cloud data platforms."
 3. **Python proficiency + end-to-end pipeline delivery** -- the posting calls for "expert-level" Python, which is a high bar. If you have examples of Python-driven pipeline work that delivered measurable business outcomes (reduced query costs, improved data freshness, enabled a product feature), lead with those.
 
 **Differentiating Skills (unusual for this role type -- high signal value):**
+
 - **dbt in production** -- Most fintech data platforms at this stage are still running raw SQL transforms or early dbt implementations. Someone with 2 years of production dbt at this level has a skill that maps directly to their "next-generation platform" language. Mention it early, mention it specifically, mention metrics.
 - **Technical project ownership** -- Staff DE roles frequently struggle because engineers who are technically strong cannot lead projects through ambiguity. Your end-to-end project experience is a differentiator worth framing explicitly: "I have owned the full lifecycle of [project] from scoping through delivery, including cross-team coordination and stakeholder communication."
 
@@ -558,5 +588,6 @@ Location: Remote (SF hub, quarterly team gatherings)"
 | No fintech regulatory experience | Unlikely to disqualify -- listed as preferred | Do not address preemptively. If asked, note your experience with data quality, governance, and accuracy requirements and connect to the regulatory mindset. |
 
 **Questions to Ask in the Interview:**
-1. "The posting describes this role as the technical anchor for the data engineering team -- can you help me understand how the tech lead function relates to the team's day-to-day management? Is there a separate engineering manager, or is this role expected to carry both the technical direction and the people leadership?" -- *Why ask:* The "technical anchor for a team of 4" language is genuinely ambiguous. This question surfaces whether you are walking into an IC role with informal influence or an informal management role without a management title.
+
+1. "The posting describes this role as the technical anchor for the data engineering team -- can you help me understand how the tech lead function relates to the team's day-to-day management? Is there a separate engineering manager, or is this role expected to carry both the technical direction and the people leadership?" -- _Why ask:_ The "technical anchor for a team of 4" language is genuinely ambiguous. This question surfaces whether you are walking into an IC role with informal influence or an informal management role without a management title.
 2.

@@ -24,4 +24,3 @@ steps:
 No keys, no consent screen. The server talks to a real Chrome instance via the
 DevTools Protocol - useful for live page inspection, network/console capture,
 performance traces, and Lighthouse audits.
-

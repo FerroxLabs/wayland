@@ -7,9 +7,7 @@
   "websiteUrl": "https://developers.hubspot.com/docs/mcp",
   "repository": { "url": "https://github.com/HubSpot/hubspot-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.hubspot.com" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.hubspot.com" }],
   "x-wayland": {
     "tier": "worker",
     "categories": ["sales", "crm"],

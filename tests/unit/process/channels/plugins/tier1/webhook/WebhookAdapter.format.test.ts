@@ -24,15 +24,11 @@ describe('WebhookAdapter.toOutboundBody - outbound format', () => {
   });
 
   it('throws when the message text is empty', () => {
-    expect(() =>
-      toOutboundBody('chat-1', { type: 'text' as const, text: '' })
-    ).toThrow(/cannot be empty/i);
+    expect(() => toOutboundBody('chat-1', { type: 'text' as const, text: '' })).toThrow(/cannot be empty/i);
   });
 
   it('throws when message.text is undefined', () => {
-    expect(() =>
-      toOutboundBody('chat-1', { type: 'text' as const })
-    ).toThrow(/cannot be empty/i);
+    expect(() => toOutboundBody('chat-1', { type: 'text' as const })).toThrow(/cannot be empty/i);
   });
 
   it('uses the chatId argument as body.chatId (not any message property)', () => {
@@ -55,8 +51,7 @@ describe('WebhookAdapter.signOutboundBody - HMAC signing', () => {
   it('returns sha256=<hex> header value matching manual HMAC over <ts>.<body>', () => {
     const sig = signOutboundBody(bodyJson, secret, ts);
     expect(sig).not.toBeNull();
-    const expected =
-      'sha256=' + createHmac('sha256', secret).update(`${ts}.${bodyJson}`, 'utf8').digest('hex');
+    const expected = 'sha256=' + createHmac('sha256', secret).update(`${ts}.${bodyJson}`, 'utf8').digest('hex');
     expect(sig).toBe(expected);
   });
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation guide"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'technical-writing documentation guide'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Knowledge Base Writer
@@ -98,19 +98,19 @@ Search Optimization for Knowledge Base Articles:
 
 ### Search Analytics Usage
 
-| Metric | Action |
-|--------|--------|
-| Top searches with no results | Create new articles for these queries |
+| Metric                              | Action                                         |
+| ----------------------------------- | ---------------------------------------------- |
+| Top searches with no results        | Create new articles for these queries          |
 | Top searches with low click-through | Improve title/description of matching articles |
-| High-bounce articles | Article does not answer the question; rewrite |
-| Most-viewed articles | Prioritize keeping these updated |
-| Search terms in support tickets | Cross-reference with KB; fill gaps |
+| High-bounce articles                | Article does not answer the question; rewrite  |
+| Most-viewed articles                | Prioritize keeping these updated               |
+| Search terms in support tickets     | Cross-reference with KB; fill gaps             |
 
 ## Troubleshooting Article Format
 
 ### Template
 
-```markdown
+````markdown
 # Fix: "Connection refused" error when connecting to database
 
 **Applies to:** Version 2.x and later
@@ -126,12 +126,13 @@ Error: connect ECONNREFUSED 127.0.0.1:5432
 \```
 
 # ... (condensed) ...
+
 ## Related Articles
 
 - [Configure database connection settings](/kb/database-connection-settings)
 - [PostgreSQL performance tuning](/kb/postgresql-performance)
 - [Common database errors reference](/kb/database-errors)
-```
+````
 
 ### Troubleshooting Article Structure Rules
 
@@ -175,7 +176,9 @@ account. After enabling 2FA, you will need both your password and a code
 from an authenticator app to sign in.
 
 ## Prerequisites
+
 # ... (condensed) ...
+
 ## Next steps
 
 - [Manage trusted devices](/kb/manage-trusted-devices)
@@ -218,7 +221,9 @@ many requests and ensures fair access for all users.
 ## How it works
 
 When you send an API request, the system tracks how many requests your
+
 # ... (condensed) ...
+
 ## Related articles
 
 - [Handle rate limit errors](/kb/handle-rate-limit-errors)
@@ -278,19 +283,23 @@ FAQ Article Design:
 ## Account & Billing
 
 ### Why was I charged twice?
+
 Duplicate charges typically occur when a payment times out and is retried.
 The duplicate will be automatically refunded within 3-5 business days. If
 you do not see the refund, [contact billing support](/support/billing).
 
 ### Can I switch plans mid-cycle?
+
 Yes. When you upgrade, you will be charged the prorated difference for the
 remainder of the billing cycle. When you downgrade, the credit will be
 applied to your next invoice. See [Change your plan](/kb/change-plan).
 
 # ... (condensed) ...
+
 Enterprise plans. See [Upload limits](/kb/upload-limits) for details.
 
 ### Does the API support GraphQL?
+
 Not currently. The API uses REST with JSON. GraphQL support is on our
 roadmap. Follow [our changelog](/changelog) for updates.
 ```
@@ -302,18 +311,18 @@ roadmap. Follow [our changelog](/changelog) for updates.
 ```yaml
 # Article template metadata (for CMS or static site generator)
 ---
-title: "How to [action]"
-description: "Learn how to [action] in [product]."
-category: "core-features/projects"
-article_type: "how-to"  # conceptual | how-to | troubleshooting | reference | faq
-difficulty: "beginner"   # beginner | intermediate | advanced
-applies_to: "All plans"  # "Pro and Enterprise" | "Version 2.x+"
-last_verified: "2025-01-15"
-author: "docs-team"
-tags: ["projects", "setup", "configuration"]
+title: 'How to [action]'
+description: 'Learn how to [action] in [product].'
+category: 'core-features/projects'
+article_type: 'how-to' # conceptual | how-to | troubleshooting | reference | faq
+difficulty: 'beginner' # beginner | intermediate | advanced
+applies_to: 'All plans' # "Pro and Enterprise" | "Version 2.x+"
+last_verified: '2025-01-15'
+author: 'docs-team'
+tags: ['projects', 'setup', 'configuration']
 related:
-  - "/kb/project-settings"
-  - "/kb/team-permissions"
+  - '/kb/project-settings'
+  - '/kb/team-permissions'
 ---
 ```
 
@@ -348,6 +357,7 @@ Content Reuse Strategy:
 ## Feedback Mechanisms
 
 ### Article-level feedback
+
 Place at the bottom of every article:
 
 ---
@@ -359,7 +369,9 @@ If No → Show: "How can we improve this article?"
 [ Text input field ] [ Submit ]
 
 ### Feedback analysis workflow
+
 # ... (condensed) ...
+
 3. Monthly: Report on feedback trends
    ├── Helpfulness score by category
    ├── Most-improved articles
@@ -369,14 +381,14 @@ If No → Show: "How can we improve this article?"
 
 ### Feedback-Driven Improvement Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Article helpfulness rate | >80% "Yes" | Feedback widget clicks |
-| Support ticket deflection | 30%+ tickets avoided | Tickets vs. KB views correlation |
-| Time to resolution (self-service) | <5 minutes | Average time on article |
-| Search success rate | >70% find relevant article | Search → click-through rate |
-| Content freshness | 100% verified within 6 months | Last-verified date audit |
-| Coverage | <10% of tickets have no KB article | Gap analysis: tickets vs. KB topics |
+| Metric                            | Target                             | Measurement                         |
+| --------------------------------- | ---------------------------------- | ----------------------------------- |
+| Article helpfulness rate          | >80% "Yes"                         | Feedback widget clicks              |
+| Support ticket deflection         | 30%+ tickets avoided               | Tickets vs. KB views correlation    |
+| Time to resolution (self-service) | <5 minutes                         | Average time on article             |
+| Search success rate               | >70% find relevant article         | Search → click-through rate         |
+| Content freshness                 | 100% verified within 6 months      | Last-verified date audit            |
+| Coverage                          | <10% of tickets have no KB article | Gap analysis: tickets vs. KB topics |
 
 ## Content Lifecycle
 
@@ -413,6 +425,7 @@ Article Lifecycle:
 ### Step 1: Generate audit report
 
 Pull the following data for all published articles:
+
 - Last modified date
 - Last verified date
 - Page views (last 90 days)
@@ -422,6 +435,7 @@ Pull the following data for all published articles:
 ### Step 2: Categorize each article
 
 | Category | Criteria | Action |
+
 # ... (condensed) ...
 
 - Create tickets for all required actions
@@ -451,6 +465,7 @@ Pull the following data for all published articles:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing knowledge base writer solutions
 - Reviewing or improving existing knowledge base writer approaches
 - Making architectural or implementation decisions about knowledge base writer
@@ -458,6 +473,7 @@ Pull the following data for all published articles:
 - Troubleshooting knowledge base writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -468,21 +484,26 @@ Pull the following data for all published articles:
 # Knowledge Base Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

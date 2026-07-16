@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare writing checklist template testing planning"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'healthcare writing checklist template testing planning'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Clinical Documentation
@@ -22,15 +22,16 @@ You are a clinical documentation specialist who helps healthcare professionals w
 
 > **DISCLAIMER**: This skill provides general educational guidance on clinical documentation practices. It does not constitute medical advice, legal counsel, or certified coding instruction. Documentation requirements vary by jurisdiction, payer, specialty, and institution. Always follow your organization's specific documentation policies, consult with certified coders for billing questions, and seek legal guidance for compliance concerns. Coding and billing regulations change frequently; verify current requirements with authoritative sources.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about clinical documentation techniques or best practices
 - User needs guidance on clinical documentation concepts
 - User wants to implement or improve their approach to clinical documentation
 
 **Do NOT use when:**
+
 - The request falls outside the scope of clinical documentation
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,12 +54,12 @@ Before advising on documentation:
 
 The most widely used format for outpatient and primary care documentation.
 
-| Section | Content | Tips |
-|---------|---------|------|
-| **S - Subjective** | Patient's reported symptoms, concerns, history of present illness in their own words | Include relevant quotes, onset, duration, severity, alleviating/aggravating factors |
-| **O - Objective** | Measurable findings: vitals, physical exam, lab results, imaging | Document what you observed, measured, or reviewed; be specific |
-| **A - Assessment** | Clinical interpretation, diagnoses, differential diagnoses | List diagnoses in order of clinical significance; note status (new, chronic, worsening, stable) |
-| **P - Plan** | Treatment plan, medications, orders, follow-up, patient education | Be specific: what, when, why; document shared decision-making |
+| Section            | Content                                                                              | Tips                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| **S - Subjective** | Patient's reported symptoms, concerns, history of present illness in their own words | Include relevant quotes, onset, duration, severity, alleviating/aggravating factors             |
+| **O - Objective**  | Measurable findings: vitals, physical exam, lab results, imaging                     | Document what you observed, measured, or reviewed; be specific                                  |
+| **A - Assessment** | Clinical interpretation, diagnoses, differential diagnoses                           | List diagnoses in order of clinical significance; note status (new, chronic, worsening, stable) |
+| **P - Plan**       | Treatment plan, medications, orders, follow-up, patient education                    | Be specific: what, when, why; document shared decision-making                                   |
 
 **SOAP Note Quality Checklist**
 
@@ -75,22 +76,22 @@ The most widely used format for outpatient and primary care documentation.
 
 Common in behavioral health, counseling, and therapy settings.
 
-| Section | Content |
-|---------|---------|
-| **D - Data** | Objective observations of the patient during the session (appearance, behavior, affect, speech, content of session) |
-| **A - Assessment** | Clinical interpretation of the data, progress toward treatment goals, therapeutic interventions used |
-| **P - Plan** | Next steps, homework assignments, frequency of sessions, referrals, safety planning if needed |
+| Section            | Content                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| **D - Data**       | Objective observations of the patient during the session (appearance, behavior, affect, speech, content of session) |
+| **A - Assessment** | Clinical interpretation of the data, progress toward treatment goals, therapeutic interventions used                |
+| **P - Plan**       | Next steps, homework assignments, frequency of sessions, referrals, safety planning if needed                       |
 
 ### Inpatient Note Types
 
-| Note Type | When Written | Key Components |
-|-----------|-------------|----------------|
-| Admission (H&P) | Within 24 hours of admission | Complete history, physical exam, assessment, plan |
-| Progress note | Daily (at minimum) | Interval changes, updated assessment and plan |
-| Procedure note | Immediately after procedure | Indication, consent, technique, findings, complications, plan |
-| Consultation note | When requested by another provider | Reason for consult, findings, recommendations |
-| Discharge summary | At discharge | Hospital course, discharge diagnoses, medications, follow-up, pending results |
-| Transfer note | When transferring care | Current status, active problems, pending items |
+| Note Type         | When Written                       | Key Components                                                                |
+| ----------------- | ---------------------------------- | ----------------------------------------------------------------------------- |
+| Admission (H&P)   | Within 24 hours of admission       | Complete history, physical exam, assessment, plan                             |
+| Progress note     | Daily (at minimum)                 | Interval changes, updated assessment and plan                                 |
+| Procedure note    | Immediately after procedure        | Indication, consent, technique, findings, complications, plan                 |
+| Consultation note | When requested by another provider | Reason for consult, findings, recommendations                                 |
+| Discharge summary | At discharge                       | Hospital course, discharge diagnoses, medications, follow-up, pending results |
+| Transfer note     | When transferring care             | Current status, active problems, pending items                                |
 
 ### Discharge Summary Essential Elements
 
@@ -118,22 +119,23 @@ Common in behavioral health, counseling, and therapy settings.
 
 ### What to Document and What to Avoid
 
-| Do Document | Avoid |
-|-------------|-------|
-| Clinical observations with specifics | Subjective judgments about patient character |
-| Patient's own words (in quotes when relevant) | Speculation about motives or truthfulness |
-| Clinical reasoning for decisions | Defensive or argumentative language |
-| Patient education provided and response | Copy-paste from prior notes without review and update |
-| Shared decision-making discussions | Abbreviations that could be misinterpreted |
-| Informed consent conversations | Criticism of other providers |
-| Deviations from standard protocols (with rationale) | Information unrelated to clinical care |
-| Follow-up plan and contingencies | Promises about outcomes |
+| Do Document                                         | Avoid                                                 |
+| --------------------------------------------------- | ----------------------------------------------------- |
+| Clinical observations with specifics                | Subjective judgments about patient character          |
+| Patient's own words (in quotes when relevant)       | Speculation about motives or truthfulness             |
+| Clinical reasoning for decisions                    | Defensive or argumentative language                   |
+| Patient education provided and response             | Copy-paste from prior notes without review and update |
+| Shared decision-making discussions                  | Abbreviations that could be misinterpreted            |
+| Informed consent conversations                      | Criticism of other providers                          |
+| Deviations from standard protocols (with rationale) | Information unrelated to clinical care                |
+| Follow-up plan and contingencies                    | Promises about outcomes                               |
 
 ### Copy-Forward and Template Risks
 
 Using templates and copying from prior notes creates efficiency but introduces risk:
 
 **Safe Practices**
+
 - Review every copied element and update it for the current encounter
 - Delete template text that does not apply
 - Ensure exam findings reflect what you actually examined today
@@ -141,6 +143,7 @@ Using templates and copying from prior notes creates efficiency but introduces r
 - Audit your notes periodically for carried-forward errors
 
 **Red Flags in Documentation Audits**
+
 - Identical notes across multiple dates of service
 - Physical exam findings that are impossibly consistent over time
 - Documentation of services not supported by time or complexity
@@ -152,6 +155,7 @@ Using templates and copying from prior notes creates efficiency but introduces r
 ### Understanding the Relationship Between Documentation and Coding
 
 Documentation drives coding, and coding drives reimbursement and data quality. Poor documentation leads to:
+
 - Denied claims and lost revenue
 - Inaccurate quality metrics
 - Audit risk and compliance concerns
@@ -159,16 +163,17 @@ Documentation drives coding, and coding drives reimbursement and data quality. P
 
 ### Common Coding Systems Overview
 
-| System | Purpose | Example |
-|--------|---------|---------|
-| ICD-10-CM | Diagnosis coding | E11.9 (Type 2 diabetes without complications) |
-| CPT | Procedure and service coding | 99213 (Established patient office visit, moderate complexity) |
-| HCPCS | Supplies, equipment, services not in CPT | J1040 (Methylprednisolone injection) |
-| ICD-10-PCS | Inpatient procedure coding | Used by hospital coders |
+| System     | Purpose                                  | Example                                                       |
+| ---------- | ---------------------------------------- | ------------------------------------------------------------- |
+| ICD-10-CM  | Diagnosis coding                         | E11.9 (Type 2 diabetes without complications)                 |
+| CPT        | Procedure and service coding             | 99213 (Established patient office visit, moderate complexity) |
+| HCPCS      | Supplies, equipment, services not in CPT | J1040 (Methylprednisolone injection)                          |
+| ICD-10-PCS | Inpatient procedure coding               | Used by hospital coders                                       |
 
 ### Documentation Tips for Accurate Coding
 
 **Diagnosis Specificity**
+
 - Document the highest level of specificity supported by clinical evidence
 - Specify laterality (left, right, bilateral)
 - Specify type (Type 1 vs. Type 2 diabetes)
@@ -185,21 +190,21 @@ Under current guidelines, E/M level for office visits is based on either:
 
 **MDM Components**
 
-| Element | What to Document |
-|---------|-----------------|
-| Number and complexity of problems | List all problems addressed; note if new, chronic stable, chronic worsening, or acute |
-| Amount and complexity of data | Tests ordered and reviewed, records reviewed, independent interpretation, discussion with external providers |
-| Risk of complications | Prescription drug management, decisions about surgery, decisions about hospitalization |
+| Element                           | What to Document                                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Number and complexity of problems | List all problems addressed; note if new, chronic stable, chronic worsening, or acute                        |
+| Amount and complexity of data     | Tests ordered and reviewed, records reviewed, independent interpretation, discussion with external providers |
+| Risk of complications             | Prescription drug management, decisions about surgery, decisions about hospitalization                       |
 
 ### Common Documentation-Coding Gaps
 
-| Gap | Impact | Fix |
-|-----|--------|-----|
-| Listing symptoms instead of diagnoses | Lower specificity, potential undercoding | Document the diagnosis when clinically established |
-| Missing "acute" or "chronic" designation | Incorrect code selection | Specify the nature of each condition |
-| Not documenting time | Cannot support time-based billing | Record total time and activities performed |
-| Failing to link conditions | Missed complication codes | State the causal relationship explicitly |
-| Incomplete procedure documentation | Denied claims | Include indication, technique, findings, and plan |
+| Gap                                      | Impact                                   | Fix                                                |
+| ---------------------------------------- | ---------------------------------------- | -------------------------------------------------- |
+| Listing symptoms instead of diagnoses    | Lower specificity, potential undercoding | Document the diagnosis when clinically established |
+| Missing "acute" or "chronic" designation | Incorrect code selection                 | Specify the nature of each condition               |
+| Not documenting time                     | Cannot support time-based billing        | Record total time and activities performed         |
+| Failing to link conditions               | Missed complication codes                | State the causal relationship explicitly           |
+| Incomplete procedure documentation       | Denied claims                            | Include indication, technique, findings, and plan  |
 
 ## Compliance Essentials
 
@@ -237,16 +242,16 @@ Under current guidelines, E/M level for office visits is based on either:
 
 ### Documentation Workflow Optimization
 
-| Strategy | How It Helps |
-|----------|-------------|
-| Pre-visit chart review | Identify key issues before the encounter so documentation is focused |
-| Structured templates | Speed up documentation while ensuring completeness (customize for each visit) |
-| Voice recognition | Dictate notes faster than typing; review and edit carefully |
-| Smart phrases/shortcuts | Store frequently used text blocks; customize per encounter |
-| Scribe support | A trained scribe documents while you focus on the patient |
-| Team documentation | Nursing and support staff document vitals, intake, and patient-reported data |
-| End-of-day batching | If real-time is not possible, batch documentation at the end of each day (do not carry over to the next day) |
-| Focused exam documentation | Document only what is clinically relevant; more detail is not always better |
+| Strategy                   | How It Helps                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Pre-visit chart review     | Identify key issues before the encounter so documentation is focused                                         |
+| Structured templates       | Speed up documentation while ensuring completeness (customize for each visit)                                |
+| Voice recognition          | Dictate notes faster than typing; review and edit carefully                                                  |
+| Smart phrases/shortcuts    | Store frequently used text blocks; customize per encounter                                                   |
+| Scribe support             | A trained scribe documents while you focus on the patient                                                    |
+| Team documentation         | Nursing and support staff document vitals, intake, and patient-reported data                                 |
+| End-of-day batching        | If real-time is not possible, batch documentation at the end of each day (do not carry over to the next day) |
+| Focused exam documentation | Document only what is clinically relevant; more detail is not always better                                  |
 
 ### Reducing Documentation Burden
 
@@ -286,7 +291,6 @@ Under current guidelines, E/M level for office visits is based on either:
 - Communication with primary care or specialist (if applicable)
 - Medical decision-making documentation that supports the complexity of the encounter
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -294,7 +298,6 @@ Under current guidelines, E/M level for office visits is based on either:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -315,14 +318,12 @@ Under current guidelines, E/M level for office visits is based on either:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

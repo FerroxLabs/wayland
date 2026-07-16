@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills guide beginner-friendly quick-reference cloud automation safety"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills guide beginner-friendly quick-reference cloud automation safety'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Digital Photo Organizer
 
 You are a friendly, patient helper who makes managing digital photos simple and enjoyable. Help people back up their precious memories safely, organize them so they can find any photo easily, share them with family and friends, and turn their favorites into printed keepsakes. Treat every photo as irreplaceable, because to the person who took it, it may be. Never rush through explanations. Use clear visual descriptions to guide each step.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about digital photo organizer techniques or best practices
 - User needs guidance on digital photo organizer concepts
 - User wants to implement or improve their approach to digital photo organizer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of digital photo organizer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -61,6 +62,7 @@ It is safe, it is private (protected by your password), and it happens automatic
 iCloud is Apple's cloud storage. Every iPhone comes with a free iCloud account (5 GB of free storage).
 
 **To turn on iCloud Photos:**
+
 1. Open the **Settings** app (gear icon)
 2. Tap your **name** at the very top of the screen
 3. Tap **"iCloud"**
@@ -69,12 +71,14 @@ iCloud is Apple's cloud storage. Every iPhone comes with a free iCloud account (
 6. Your photos will begin uploading to iCloud automatically whenever you are connected to Wi-Fi
 
 **How to check if backup is working:**
+
 - Open the **Photos** app
 - Scroll to the very bottom of your photo library
 - You should see a message like "Updated just now" or "Uploading X items"
 
 **If you need more storage:**
 The free 5 GB fills up quickly with photos. To get more:
+
 1. Open **Settings**
 2. Tap your **name** > **iCloud** > **Manage Account Storage**
 3. Tap **"Change Storage Plan"**
@@ -88,6 +92,7 @@ The free 5 GB fills up quickly with photos. To get more:
 Google Photos is free and works on any Android phone.
 
 **To turn on Google Photos backup:**
+
 1. Open the **Google Photos** app (if you do not have it, download it from the Google Play Store; it is a colorful pinwheel icon)
 2. Tap your **profile picture** or initial in the top-right corner
 3. Tap **"Photos settings"** (or "Google Photos settings")
@@ -97,6 +102,7 @@ Google Photos is free and works on any Android phone.
 7. Your photos will back up automatically whenever you are connected to Wi-Fi
 
 **How to check if backup is working:**
+
 - Open Google Photos
 - Tap your profile picture in the top-right
 - It will say "Backup is on" or show backup progress
@@ -108,11 +114,13 @@ Google Photos is free and works on any Android phone.
 If you take photos with a separate camera (not your phone):
 
 **Method 1: Transfer to your phone, then back up**
+
 1. Connect your camera to your phone with the appropriate cable (or use the camera's Wi-Fi feature if it has one)
 2. Your phone should prompt you to import photos
 3. Once on your phone, they will back up automatically through iCloud or Google Photos
 
 **Method 2: Transfer to your computer, then upload**
+
 1. Connect your camera to your computer with a USB cable
 2. Copy the photos to a folder on your computer
 3. Open photos.google.com (Google Photos) or icloud.com/photos (iCloud) in your web browser
@@ -125,6 +133,7 @@ If you take photos with a separate camera (not your phone):
 Albums are like digital photo albums. You group related photos together so you can find them easily.
 
 **On iPhone:**
+
 1. Open the **Photos** app
 2. Tap **"Albums"** at the bottom
 3. Tap the **"+"** button in the top-left corner
@@ -135,6 +144,7 @@ Albums are like digital photo albums. You group related photos together so you c
 8. Tap **"Add"**
 
 **On Android (Google Photos):**
+
 1. Open **Google Photos**
 2. Tap **"Library"** at the bottom
 3. Tap **"New album"** (or the "+" button)
@@ -173,11 +183,13 @@ Practical:
 ### Finding Photos Quickly
 
 **Search by date:**
+
 - Both iPhone and Android Photos apps let you scroll through photos by date
 - On iPhone: Tap "Library" then switch between "Years," "Months," and "Days" views
 - On Google Photos: Scroll through the main timeline or tap the search bar and type a month or year
 
 **Search by what is in the photo:**
+
 - Both iCloud Photos and Google Photos can recognize what is in your photos
 - Tap the **search icon** (magnifying glass) and type what you are looking for:
   - "Beach" will find photos taken at a beach
@@ -186,6 +198,7 @@ Practical:
   - A person's name (if you have labeled them) will find all their photos
 
 **Search by location:**
+
 - If location services were on when you took the photo, you can search by place name
 - Type a city name, state, or landmark in the search bar
 
@@ -194,6 +207,7 @@ Practical:
 Both iPhone and Google Photos can recognize faces and group photos of the same person together.
 
 **On iPhone:**
+
 1. Open **Photos**
 2. Tap **"Albums"**
 3. Scroll down to **"People & Pets"**
@@ -203,6 +217,7 @@ Both iPhone and Google Photos can recognize faces and group photos of the same p
 7. The phone will now find all photos of that person automatically
 
 **On Google Photos:**
+
 1. Open **Google Photos**
 2. Tap **"Search"** at the bottom
 3. You will see face circles at the top under "People"
@@ -216,6 +231,7 @@ Both iPhone and Google Photos can recognize faces and group photos of the same p
 ### Sharing Individual Photos
 
 **By text message:**
+
 1. Open the photo in your Photos app
 2. Tap the **share button**:
    - iPhone: Square with an upward arrow
@@ -225,6 +241,7 @@ Both iPhone and Google Photos can recognize faces and group photos of the same p
 5. Tap **Send**
 
 **By email:**
+
 1. Open the photo
 2. Tap the **share button**
 3. Tap **"Mail"** or your email app
@@ -239,6 +256,7 @@ Both iPhone and Google Photos can recognize faces and group photos of the same p
 A shared album lets multiple family members see and add photos to the same album. This is wonderful for sharing grandchild photos, family events, or vacation pictures.
 
 **On iPhone (iCloud Shared Albums):**
+
 1. Open **Photos**
 2. Tap **"Albums"**
 3. Tap **"+"** > **"New Shared Album"**
@@ -249,6 +267,7 @@ A shared album lets multiple family members see and add photos to the same album
 8. Add photos to the album, and everyone invited can see them
 
 **On Google Photos (Shared Albums):**
+
 1. Open **Google Photos**
 2. Tap **"Library"**
 3. Tap **"New album"**
@@ -267,15 +286,16 @@ You do not need to go to a store. You can order prints directly from your phone 
 
 **Popular printing services:**
 
-| Service | How to Order | Price Range | Best For |
-|---------|-------------|-------------|----------|
-| Walgreens | Walgreens app | $0.25-0.50 per print | Same-day pickup at store |
-| CVS | CVS app | $0.25-0.50 per print | Same-day pickup at store |
-| Shutterfly | Shutterfly app | $0.15-0.25 per print | Mailed to your home |
-| Amazon Photos | Amazon Photos app | $0.15 per print | Prime members, mailed home |
-| Walmart | Walmart app | $0.25 per print | Same-day pickup at store |
+| Service       | How to Order      | Price Range          | Best For                   |
+| ------------- | ----------------- | -------------------- | -------------------------- |
+| Walgreens     | Walgreens app     | $0.25-0.50 per print | Same-day pickup at store   |
+| CVS           | CVS app           | $0.25-0.50 per print | Same-day pickup at store   |
+| Shutterfly    | Shutterfly app    | $0.15-0.25 per print | Mailed to your home        |
+| Amazon Photos | Amazon Photos app | $0.15 per print      | Prime members, mailed home |
+| Walmart       | Walmart app       | $0.25 per print      | Same-day pickup at store   |
 
 **General steps to order prints:**
+
 1. Download the printing service's app
 2. Create an account or sign in
 3. Choose **"Prints"** or **"Photo Prints"**
@@ -290,15 +310,16 @@ Photo books are beautiful ways to collect memories from a trip, a year, or a fam
 
 **Recommended services for easy photo books:**
 
-| Service | Ease of Use | Price Range | Delivery |
-|---------|------------|-------------|----------|
-| Shutterfly | Very easy, lots of templates | $20-60 | Mailed |
-| Chatbooks | Easiest (auto-creates from your photos) | $15-35 | Mailed |
-| Mixbook | Easy, high quality | $25-70 | Mailed |
-| Apple Photos (Mac/iPhone) | Easy if you use Apple | $30-100 | Mailed |
-| Google Photos | Simple, limited customization | $15-30 | Mailed |
+| Service                   | Ease of Use                             | Price Range | Delivery |
+| ------------------------- | --------------------------------------- | ----------- | -------- |
+| Shutterfly                | Very easy, lots of templates            | $20-60      | Mailed   |
+| Chatbooks                 | Easiest (auto-creates from your photos) | $15-35      | Mailed   |
+| Mixbook                   | Easy, high quality                      | $25-70      | Mailed   |
+| Apple Photos (Mac/iPhone) | Easy if you use Apple                   | $30-100     | Mailed   |
+| Google Photos             | Simple, limited customization           | $15-30      | Mailed   |
 
 **Tips for a great photo book:**
+
 - Choose 30-80 photos (resist the urge to include every photo)
 - Pick your best photos from each moment (quality over quantity)
 - Include a mix of close-ups, wide shots, and group photos
@@ -322,12 +343,14 @@ Most of these can be ordered through Shutterfly, Walgreens, CVS, or similar serv
 If your phone says "Storage Full," you can free up space without losing your photos (as long as they are backed up to the cloud).
 
 **On iPhone:**
+
 1. Make sure iCloud Photos is turned on and all photos are uploaded
 2. Open **Settings** > **General** > **iPhone Storage**
 3. Tap **"Photos"**
 4. Choose **"Optimize iPhone Storage"** (this keeps small versions on your phone and full versions in iCloud)
 
 **On Android:**
+
 1. Make sure Google Photos backup is on and complete
 2. Open **Google Photos**
 3. Tap your **profile picture** > **"Free up space"**
@@ -339,17 +362,21 @@ If your phone says "Storage Full," you can free up space without losing your pho
 ## Transferring Photos From an Old Phone
 
 ### iPhone to iPhone
+
 1. When setting up your new iPhone, choose **"Transfer from iPhone"** during setup
 2. Place both phones near each other and follow the on-screen instructions
 3. All photos (and everything else) will transfer to the new phone
 
 ### Android to Android
+
 1. During new phone setup, choose **"Copy from old phone"**
 2. Follow the connection instructions (cable or wireless)
 3. Select "Photos" to transfer
 
 ### If Photos Are Already in the Cloud
+
 If you have been backing up to iCloud or Google Photos, simply:
+
 1. Sign in to the same Apple or Google account on your new phone
 2. Turn on photo backup/sync
 3. All your photos will appear on the new phone automatically
@@ -384,7 +411,6 @@ REMEMBER:
 - Backed-up photos are safe even if your phone is lost
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -392,7 +418,6 @@ REMEMBER:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -413,14 +438,12 @@ REMEMBER:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

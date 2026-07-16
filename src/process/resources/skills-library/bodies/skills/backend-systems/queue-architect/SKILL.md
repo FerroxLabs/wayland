@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design architecture"
-  category: "backend-systems"
-  subcategory: "server-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend api-design architecture'
+  category: 'backend-systems'
+  subcategory: 'server-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Queue Architect
@@ -238,9 +238,9 @@ async function reprocessDeadLetters(queueName: string, count: number = 10) {
 import CircuitBreaker from 'opossum';
 
 const breaker = new CircuitBreaker(processMessage, {
-  timeout: 5000,        // 5s per message
+  timeout: 5000, // 5s per message
   errorThresholdPercentage: 50,
-  resetTimeout: 30000,  // 30s before retrying
+  resetTimeout: 30000, // 30s before retrying
 });
 
 breaker.on('open', () => {
@@ -432,7 +432,7 @@ function processOrderEvent(event: OrderEvent) {
       return processV2(event.data as OrderV2);
     default:
       console.warn(`Unknown schema version: ${event.schemaVersion}`);
-      // Forward to DLQ for investigation
+    // Forward to DLQ for investigation
   }
 }
 
@@ -487,6 +487,7 @@ FIFO QUEUES (AWS SQS FIFO):
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing queue architect solutions
 - Reviewing or improving existing queue architect approaches
 - Making architectural or implementation decisions about queue architect
@@ -494,6 +495,7 @@ FIFO QUEUES (AWS SQS FIFO):
 - Troubleshooting queue architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -504,21 +506,26 @@ FIFO QUEUES (AWS SQS FIFO):
 # Queue Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -136,7 +136,12 @@ describe('modelBridge fetchModelList', () => {
 
   it('falls back to the current static MiniMax list when /v1/models fails (dead models gone)', async () => {
     const origFetch = global.fetch;
-    global.fetch = vi.fn(async () => ({ ok: false, status: 500, statusText: 'err', json: async () => ({}) })) as unknown as typeof fetch;
+    global.fetch = vi.fn(async () => ({
+      ok: false,
+      status: 500,
+      statusText: 'err',
+      json: async () => ({}),
+    })) as unknown as typeof fetch;
     try {
       const fetchModelList = getFetchModelListHandler();
       const result = await fetchModelList({ base_url: 'https://api.minimax.io/v1', api_key: 'minimax-key' });

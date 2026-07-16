@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "salary-negotiation career template"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'salary-negotiation career template'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Salary Negotiation Script
@@ -219,6 +219,7 @@ metadata:
 > "Thank you so much for the offer -- I'm genuinely excited about this role and the team. I've done some research on compensation for senior marketing managers in [city] with my level of experience, and the market range I'm seeing is $100,000 to $120,000. Given my 7 years of experience and my track record -- including leading a campaign that generated $2 million in pipeline -- I was hoping we could discuss a base salary closer to $118,000. Is there flexibility to get closer to that range?"
 
 **Key elements in this opening:**
+
 - Leads with enthusiasm (shows you want the job, not just more money)
 - Cites market data as the basis (external justification, not personal need)
 - Includes a specific achievement with a metric ($2M pipeline)
@@ -260,6 +261,7 @@ metadata:
 > **You:** "I appreciate you working to get to $100,000 -- that shows good faith and I value that. Since there isn't more room on base, I'd love to explore a few other elements that would make the total package work for me."
 
 **Non-salary items to negotiate:**
+
 - Signing bonus: "Would a one-time signing bonus of $8,000-$10,000 be possible? That would bridge the gap without affecting the ongoing salary budget."
 - Additional PTO: "Could we add 5 additional PTO days to the standard package?"
 - Remote flexibility: "Would the team be open to a hybrid schedule with 3 days remote per week?"
@@ -292,12 +294,15 @@ metadata:
 ### Closing Scripts
 
 **Accepting:**
+
 > "Thank you -- I'm excited to accept. Could you send the updated offer letter with the agreed terms? I'd like to review and sign within 24-48 hours so we can move forward."
 
 **Requesting time:**
+
 > "I appreciate you working through this with me. I'd like to take 24 hours to review everything before giving my final answer. Is that timeline comfortable for you?"
 
 **Declining respectfully:**
+
 > "I want to thank you sincerely for the offer and for the time you've invested in this process. Unfortunately, the gap between the compensation I need and what's available is too significant for me to accept in good conscience. I have a lot of respect for the team and the work you're doing, and I hope our paths cross again in the future."
 
 ---

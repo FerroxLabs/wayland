@@ -14,12 +14,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "newsletter writing email content-marketing step-by-step planning"
-  category: "content-creation"
-  depends: "audience-analysis content-brief newsletter-writing newsletter-subject-lines editorial-calendar seo-content-strategy"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'newsletter writing email content-marketing step-by-step planning'
+  category: 'content-creation'
+  depends: 'audience-analysis content-brief newsletter-writing newsletter-subject-lines editorial-calendar seo-content-strategy'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Launch a Newsletter
@@ -197,6 +197,7 @@ When this workflow is complete, the user will have:
 ## Newsletter Launch Plan: The PM Framework Lab
 
 ### Positioning
+
 - **Target Subscriber:** Mid-career product managers (3-8 years experience) at tech companies who want to level up strategic thinking with practical frameworks
 - **Value Proposition:** Weekly case study applying one PM framework to a real product decision, with outcome metrics showing what happened
 - **Format:** Original analysis -- weekly (every Wednesday)
@@ -204,6 +205,7 @@ When this workflow is complete, the user will have:
 - **Competitors Analyzed:** 3 newsletters reviewed (Lenny's: broad PM, Product Compass: visual frameworks, Department of Product: career focus). Gap: no newsletter applies frameworks to real company decisions with outcome data.
 
 ### Content Strategy
+
 - **Template Sections:**
   1. Framework of the Week -- name, when to use, when not to use (200 words)
   2. Real Case Study -- company, decision, framework applied, outcome (700 words)
@@ -213,38 +215,42 @@ When this workflow is complete, the user will have:
 - **Welcome Email:** Drafted -- sets expectation for Wednesday delivery, introduces framework+case study format
 
 ### First Issue
+
 - **Topic:** RICE prioritization framework applied to Spotify's podcast investment decision
 - **Word Count:** 1,200
 - **Subject Line:** "Spotify bet $1B on podcasts. Here's the RICE score."
 - **Preview Text:** "This week: applying RICE to a real $1B product decision"
 
 ### Subject Line Bank
-| Content Type          | Template                                          | Example                                   |
-|----------------------|---------------------------------------------------|--------------------------------------------|
-| Framework + Company  | "[Company] [decision verb]. Here's the [Framework]." | "Spotify bet $1B on podcasts. Here's the RICE score." |
-| Data-driven          | "[Number] [metric] from [Framework] at [Company]"    | "3x conversion from Jobs-to-be-Done at Airbnb"       |
-| Question hook        | "How did [Company] decide to [decision]?"            | "How did Netflix decide to cancel House of Cards?"    |
+
+| Content Type        | Template                                             | Example                                               |
+| ------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
+| Framework + Company | "[Company] [decision verb]. Here's the [Framework]." | "Spotify bet $1B on podcasts. Here's the RICE score." |
+| Data-driven         | "[Number] [metric] from [Framework] at [Company]"    | "3x conversion from Jobs-to-be-Done at Airbnb"        |
+| Question hook       | "How did [Company] decide to [decision]?"            | "How did Netflix decide to cancel House of Cards?"    |
 
 ### Editorial Calendar (Issues 1-12)
-| Issue | Date    | Topic                                    | Pillar          | Production Time |
-|-------|---------|------------------------------------------|-----------------|-----------------|
-| 1     | Mar 5   | RICE scoring: Spotify podcast decision   | Prioritization  | 4 hours         |
-| 2     | Mar 12  | MoSCoW: Slack feature releases           | Prioritization  | 4 hours         |
-| 3     | Mar 19  | Kano Model: Netflix recommendations      | User research   | 4 hours         |
-| 4     | Mar 26  | JTBD: Airbnb Experiences launch          | User research   | 4 hours         |
-| 5     | Apr 2   | TAM/SAM/SOM: Notion's market entry       | Market analysis | 4 hours         |
-| 6     | Apr 9   | Subscriber survey + best-of recap        | --              | 2 hours         |
-| 7     | Apr 16  | Porter's Five Forces: Figma acquisition  | Market analysis | 4 hours         |
-| 8     | Apr 23  | ICE scoring: HubSpot growth experiments  | Prioritization  | 4 hours         |
-| 9     | Apr 30  | Design Sprint: Google Maps redesign      | User research   | 4 hours         |
-| 10    | May 7   | GTM framework: Loom's PLG strategy       | Go-to-market    | 4 hours         |
-| 11    | May 14  | Opportunity scoring: Miro collaboration  | Prioritization  | 4 hours         |
-| 12    | May 21  | North Star Metric: Duolingo engagement   | Market analysis | 4 hours         |
+
+| Issue | Date   | Topic                                   | Pillar          | Production Time |
+| ----- | ------ | --------------------------------------- | --------------- | --------------- |
+| 1     | Mar 5  | RICE scoring: Spotify podcast decision  | Prioritization  | 4 hours         |
+| 2     | Mar 12 | MoSCoW: Slack feature releases          | Prioritization  | 4 hours         |
+| 3     | Mar 19 | Kano Model: Netflix recommendations     | User research   | 4 hours         |
+| 4     | Mar 26 | JTBD: Airbnb Experiences launch         | User research   | 4 hours         |
+| 5     | Apr 2  | TAM/SAM/SOM: Notion's market entry      | Market analysis | 4 hours         |
+| 6     | Apr 9  | Subscriber survey + best-of recap       | --              | 2 hours         |
+| 7     | Apr 16 | Porter's Five Forces: Figma acquisition | Market analysis | 4 hours         |
+| 8     | Apr 23 | ICE scoring: HubSpot growth experiments | Prioritization  | 4 hours         |
+| 9     | Apr 30 | Design Sprint: Google Maps redesign     | User research   | 4 hours         |
+| 10    | May 7  | GTM framework: Loom's PLG strategy      | Go-to-market    | 4 hours         |
+| 11    | May 14 | Opportunity scoring: Miro collaboration | Prioritization  | 4 hours         |
+| 12    | May 21 | North Star Metric: Duolingo engagement  | Market analysis | 4 hours         |
 
 - **Backlog:** 25 additional framework + company combinations identified
 - **Subscriber Survey:** Planned at issue 5 (April 2)
 
 ### Growth Strategy
+
 - **Milestone Targets:** 100 (launch from LinkedIn network) / 250 (day 30) / 500 (day 60) / 1,000 (day 90)
 - **Primary Channels:**
   1. LinkedIn -- weekly takeaway post with case study hook (PM audience lives here)

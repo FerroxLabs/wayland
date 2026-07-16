@@ -37,10 +37,7 @@ describe('SlackAdapter - toUnifiedIncomingMessage', () => {
   });
 
   it('drops messages from the bot itself (feedback-loop guard)', () => {
-    const unified = toUnifiedIncomingMessage(
-      makeEvent({ user: 'UBOT' }),
-      'UBOT',
-    );
+    const unified = toUnifiedIncomingMessage(makeEvent({ user: 'UBOT' }), 'UBOT');
     expect(unified).toBeNull();
   });
 
@@ -94,14 +91,8 @@ describe('SlackAdapter - toUnifiedIncomingMessage', () => {
   });
 
   it('classifies audio and video mime prefixes', () => {
-    const audio = toUnifiedIncomingMessage(
-      makeEvent({ files: [{ id: 'F3', mimetype: 'audio/mp3' }] }),
-      undefined,
-    );
-    const video = toUnifiedIncomingMessage(
-      makeEvent({ files: [{ id: 'F4', mimetype: 'video/mp4' }] }),
-      undefined,
-    );
+    const audio = toUnifiedIncomingMessage(makeEvent({ files: [{ id: 'F3', mimetype: 'audio/mp3' }] }), undefined);
+    const video = toUnifiedIncomingMessage(makeEvent({ files: [{ id: 'F4', mimetype: 'video/mp4' }] }), undefined);
     expect(audio?.content.type).toBe('audio');
     expect(video?.content.type).toBe('video');
   });
@@ -134,7 +125,12 @@ describe('SlackAdapter - toSlackSendParams', () => {
     const out: IUnifiedOutgoingMessage = {
       type: 'text',
       text: 'choose',
-      buttons: [[{ label: 'Yes', action: 'yes' }, { label: 'No', action: 'no' }]],
+      buttons: [
+        [
+          { label: 'Yes', action: 'yes' },
+          { label: 'No', action: 'no' },
+        ],
+      ],
     };
     const params = toSlackSendParams(out);
     expect(params.blocks).toBeDefined();
@@ -154,9 +150,7 @@ describe('SlackAdapter - toSlackSendParams', () => {
     const out = {
       type: 'text',
       text: 'see attached',
-      attachments: [
-        { data: Buffer.from('hello'), filename: 'note.txt', mimeType: 'text/plain' },
-      ],
+      attachments: [{ data: Buffer.from('hello'), filename: 'note.txt', mimeType: 'text/plain' }],
     } as unknown as IUnifiedOutgoingMessage;
     const params = toSlackSendParams(out);
     expect(params.attachments).toBeDefined();

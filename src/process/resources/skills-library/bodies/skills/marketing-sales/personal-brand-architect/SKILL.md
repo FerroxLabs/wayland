@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "branding marketing strategy"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'branding marketing strategy'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Personal Brand Architect
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on personal brand architect
 - User asks about personal brand architect best practices or techniques
 - User wants a structured approach to personal brand architect
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of personal brand architect
 
@@ -66,6 +67,7 @@ Content pillars are the 3-5 core topics you consistently create content about. T
 **Step 1: Brainstorm your knowledge areas (list 15-20 topics)**
 
 **Step 2: Filter through three lenses:**
+
 - Expertise: Can you speak about this with genuine authority?
 - Demand: Does your audience actively seek this knowledge?
 - Differentiation: Can you offer a perspective others don't?
@@ -75,6 +77,7 @@ Content pillars are the 3-5 core topics you consistently create content about. T
 **Step 4: Define sub-topics for each pillar (5-10 per pillar)**
 
 ### Content Pillar Template
+
 ```
 Pillar 1: [Main Topic]
   Purpose: [Why this matters to your audience]
@@ -102,6 +105,7 @@ Personal/Behind-the-Scenes (always include as a pillar):
 ```
 
 ### Content Mix Ratio
+
 ```
 Educational/Value content:     40% (teaches something useful)
 Insight/Opinion content:       25% (your unique perspective)
@@ -113,20 +117,21 @@ Promotional content:           15% (your offers, achievements, CTAs)
 
 ### Platform Selection Matrix
 
-| Platform | Best For | Content Type | Time Investment | Authority Signal |
-|----------|---------|-------------|----------------|-----------------|
-| LinkedIn | B2B, career, professional | Long-form posts, articles | Medium | Very High |
-| Twitter/X | Tech, media, thought leadership | Short-form, threads | High (daily) | High |
-| Instagram | Lifestyle, visual, creative | Reels, carousels, stories | High | Medium |
-| YouTube | Education, entertainment | Long-form video | Very High | Very High |
-| TikTok | Gen Z/millennial reach | Short-form video | High | Medium |
-| Substack | Deep expertise, writing | Newsletter, essays | Medium | High |
-| Personal website | Universal foundation | Portfolio, blog, about | Low (setup), then low | Very High |
-| Podcast | Long-form conversation | Audio episodes | High | High |
+| Platform         | Best For                        | Content Type              | Time Investment       | Authority Signal |
+| ---------------- | ------------------------------- | ------------------------- | --------------------- | ---------------- |
+| LinkedIn         | B2B, career, professional       | Long-form posts, articles | Medium                | Very High        |
+| Twitter/X        | Tech, media, thought leadership | Short-form, threads       | High (daily)          | High             |
+| Instagram        | Lifestyle, visual, creative     | Reels, carousels, stories | High                  | Medium           |
+| YouTube          | Education, entertainment        | Long-form video           | Very High             | Very High        |
+| TikTok           | Gen Z/millennial reach          | Short-form video          | High                  | Medium           |
+| Substack         | Deep expertise, writing         | Newsletter, essays        | Medium                | High             |
+| Personal website | Universal foundation            | Portfolio, blog, about    | Low (setup), then low | Very High        |
+| Podcast          | Long-form conversation          | Audio episodes            | High                  | High             |
 
 ### Platform Priority Framework
 
 **Rule: Own one platform, be present on two others.**
+
 ```
 Primary platform (70% of effort):
   Where your target audience spends the most time
@@ -146,16 +151,17 @@ Tertiary platform (10% of effort):
 
 ### Cross-Platform Content Adaptation
 
-| Original Content | LinkedIn Adaptation | Twitter/X Adaptation | Instagram Adaptation |
-|-----------------|--------------------|--------------------|---------------------|
-| Blog post (1,500 words) | Key insights as a post | Thread (10-15 tweets) | Carousel (8-10 slides) |
-| YouTube video (10 min) | Written summary + link | Key quotes as tweets | 60-sec Reel + carousel |
-| Podcast episode (45 min) | 3 takeaways post | Quote clips as tweets | Audiogram + carousel |
-| Newsletter | Excerpt as LinkedIn post | Thread of insights | Behind-the-scenes Story |
+| Original Content         | LinkedIn Adaptation      | Twitter/X Adaptation  | Instagram Adaptation    |
+| ------------------------ | ------------------------ | --------------------- | ----------------------- |
+| Blog post (1,500 words)  | Key insights as a post   | Thread (10-15 tweets) | Carousel (8-10 slides)  |
+| YouTube video (10 min)   | Written summary + link   | Key quotes as tweets  | 60-sec Reel + carousel  |
+| Podcast episode (45 min) | 3 takeaways post         | Quote clips as tweets | Audiogram + carousel    |
+| Newsletter               | Excerpt as LinkedIn post | Thread of insights    | Behind-the-scenes Story |
 
 ## Authority Building
 
 ### The Authority Ladder
+
 ```
 Level 1: VISIBLE
   You post consistently and people see your name
@@ -181,6 +187,7 @@ Level 5: AUTHORITATIVE
 ### Authority-Building Activities
 
 **Content-based:**
+
 - Publish original research or data
 - Write definitive guides on key topics
 - Create frameworks that others reference
@@ -188,6 +195,7 @@ Level 5: AUTHORITATIVE
 - Produce thought leadership essays
 
 **Relationship-based:**
+
 - Collaborate with established names in your field
 - Guest post on respected publications
 - Appear on relevant podcasts
@@ -195,6 +203,7 @@ Level 5: AUTHORITATIVE
 - Mentor emerging professionals
 
 **Credential-based:**
+
 - Speak at conferences
 - Publish in industry journals or major publications
 - Earn relevant certifications
@@ -204,6 +213,7 @@ Level 5: AUTHORITATIVE
 ### The 100-Piece Authority Strategy
 
 Create 100 pieces of content around your core expertise:
+
 1. **Pieces 1-30**: Foundational content (basic concepts, how-tos, definitions)
 2. **Pieces 31-60**: Intermediate content (strategies, frameworks, comparisons)
 3. **Pieces 61-80**: Advanced content (original insights, contrarian takes, predictions)
@@ -215,16 +225,17 @@ By piece 100, you will have a comprehensive body of work that establishes undeni
 
 ### Brand Identity Elements
 
-| Element | Purpose | Where It Appears |
-|---------|---------|-----------------|
-| Color palette (2-3 colors) | Recognition, mood | Graphics, website, presentations |
-| Typography (1-2 fonts) | Personality, readability | Social graphics, website, documents |
-| Profile photo | Personal recognition | All platform profiles |
-| Logo/wordmark (optional) | Brand identity | Website, watermarks, merchandise |
-| Graphic style | Content consistency | Carousels, thumbnails, quotes |
-| Photography style | Aesthetic cohesion | Instagram, website, press |
+| Element                    | Purpose                  | Where It Appears                    |
+| -------------------------- | ------------------------ | ----------------------------------- |
+| Color palette (2-3 colors) | Recognition, mood        | Graphics, website, presentations    |
+| Typography (1-2 fonts)     | Personality, readability | Social graphics, website, documents |
+| Profile photo              | Personal recognition     | All platform profiles               |
+| Logo/wordmark (optional)   | Brand identity           | Website, watermarks, merchandise    |
+| Graphic style              | Content consistency      | Carousels, thumbnails, quotes       |
+| Photography style          | Aesthetic cohesion       | Instagram, website, press           |
 
 ### Visual Brand Checklist
+
 ```
 Profile Photo:
   [ ] Professional quality (not a selfie)
@@ -258,6 +269,7 @@ Content Graphics:
 ## Bio Optimization
 
 ### The Universal Bio Formula
+
 ```
 [Who you are] + [Who you help] + [How you help them] + [Proof/Credential] + [CTA]
 ```
@@ -268,16 +280,19 @@ Content Graphics:
 ### Platform-Specific Bio Templates
 
 **LinkedIn Headline (220 characters):**
+
 ```
 [Role] | Helping [audience] [achieve outcome] | [Credential/proof] | [CTA]
 ```
 
 **Twitter/X Bio (160 characters):**
+
 ```
 [Role/identity] | [What you share] | [Credential or personality] | [CTA or link]
 ```
 
 **Instagram Bio (150 characters):**
+
 ```
 Line 1: [Who you are / what you do]
 Line 2: [What followers get]
@@ -300,6 +315,7 @@ CTA: [Link to something]
 ### Getting Your First Speaking Gig
 
 **Start local and small:**
+
 1. Meetup groups (meetup.com in your topic area)
 2. Local professional associations
 3. Company lunch-and-learns (offer to speak at companies)
@@ -310,6 +326,7 @@ CTA: [Link to something]
 ### Scaling to Conference Speaking
 
 **Application strategy:**
+
 1. Build a speaker page on your website (topics, bio, past talks, testimonials)
 2. Create a speaker reel (2-3 minute highlight video of your best moments)
 3. Apply to 20+ conferences per year (acceptance rate is 5-15%)
@@ -318,6 +335,7 @@ CTA: [Link to something]
 6. Network with conference organizers and program committees
 
 ### Speaking Topic Development
+
 ```
 Talk Title: [Specific, intriguing title]
 Format: [Keynote/Panel/Workshop/Lightning talk]
@@ -340,19 +358,20 @@ Speaker Bio (100 words):
 
 ### Speaker Fee Guidelines
 
-| Level | Experience | Typical Fee |
-|-------|-----------|------------|
-| Emerging | First 10 talks | Free or travel covered |
-| Developing | 10-30 talks, some recognition | $500-2,000 |
-| Established | Known in your field | $2,000-10,000 |
-| Expert | Industry authority | $10,000-25,000 |
-| Celebrity/Keynote | Widely recognized | $25,000-100,000+ |
+| Level             | Experience                    | Typical Fee            |
+| ----------------- | ----------------------------- | ---------------------- |
+| Emerging          | First 10 talks                | Free or travel covered |
+| Developing        | 10-30 talks, some recognition | $500-2,000             |
+| Established       | Known in your field           | $2,000-10,000          |
+| Expert            | Industry authority            | $10,000-25,000         |
+| Celebrity/Keynote | Widely recognized             | $25,000-100,000+       |
 
 ## Media Kit Creation
 
 ### Media Kit Components
 
 **Page 1: Overview**
+
 ```
 - Professional headshot (high-resolution)
 - Name and title
@@ -362,6 +381,7 @@ Speaker Bio (100 words):
 ```
 
 **Page 2: Audience and Reach**
+
 ```
 - Total reach across platforms
 - Platform-by-platform breakdown
@@ -372,6 +392,7 @@ Speaker Bio (100 words):
 ```
 
 **Page 3: Services and Offerings**
+
 ```
 - Speaking topics and formats
 - Content collaboration options
@@ -381,6 +402,7 @@ Speaker Bio (100 words):
 ```
 
 **Page 4: Testimonials and Social Proof**
+
 ```
 - Quotes from event organizers
 - Quotes from clients or collaborators
@@ -390,6 +412,7 @@ Speaker Bio (100 words):
 ```
 
 **Page 5: Contact and Booking**
+
 ```
 - Email address
 - Website URL
@@ -437,6 +460,7 @@ Speaker Bio (100 words):
 - Don't ignore legitimate concerns from your community
 
 ### Crisis Response Template
+
 ```
 Situation: [What happened]
 
@@ -461,6 +485,7 @@ Follow-up (1-7 days):
 ## Personal Brand Audit
 
 ### Quarterly Brand Review Checklist
+
 ```
 CONSISTENCY
   [ ] Profile photos match across all platforms
@@ -495,6 +520,7 @@ ACTION ITEMS
 ```
 
 ## The Personal Brand Building Timeline
+
 ```
 Month 1-2: Foundation
   - Define positioning, pillars, and visual identity
@@ -528,7 +554,6 @@ Year 2+: Influence
   - Building systems to scale (team, automation)
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -541,13 +566,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with personal brand architect for a mid-size project."
 
 **Output:** A complete personal brand architect framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

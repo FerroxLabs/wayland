@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing troubleshooting"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'editing writing troubleshooting'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Passive Voice Fix
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to "fix passive voice," "make writing more active," "convert passive to active," or "remove passive constructions"
 - The user says their writing "feels weak," "lacks energy," "sounds bureaucratic," or "feels distant" -- passive voice overuse is a primary cause of all four
 - The user shares a piece that has a clearly elevated passive rate (above 20--25% of sentences for general prose, above 15% for marketing or persuasive writing)
@@ -29,6 +31,7 @@ metadata:
 - The user shares academic or business writing and asks which sections could be "punched up" without changing the professional tone
 
 **Do NOT use this skill when:**
+
 - The user wants comprehensive line editing beyond voice construction -- use `copy-editing` instead
 - The user wants to reduce overall word count -- many passive constructions are longer, but systematic conciseness work belongs in `conciseness-editing`
 - The user wants a tone shift (e.g., more formal, warmer, more authoritative) that goes beyond active/passive conversion -- use `tone-adjustment`
@@ -73,6 +76,7 @@ For every passive instance, answer these four questions in sequence before assig
 4. **Does active voice create an awkward or longer sentence?** Some passive constructions convert elegantly; others produce tortured syntax. "The award was given to the employee who had been with the company longest" converts to "The company gave the award to the employee who had been there longest" -- marginally better but not dramatically so. "Passive optional" is the right call here.
 
 Assign each instance one of three verdicts:
+
 - **Convert** -- active voice is clearly better; convert and explain why
 - **Keep** -- passive serves a specific purpose; leave it and explain why
 - **Optional** -- either works; present the active version and let the author choose
@@ -239,29 +243,29 @@ Passive headings ("Results Were Significant," "Budget Was Approved") are unusual
 
 ### Metrics
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Total sentences | 6 | 6 |
+| Metric                               | Before   | After   |
+| ------------------------------------ | -------- | ------- |
+| Total sentences                      | 6        | 6       |
 | Sentences with passive constructions | 6 (100%) | 1 (17%) |
-| Total passive instances | 9 | 1 |
-| Passive instance rate | 150% | 17% |
-| Converted to active | -- | 7 |
-| Kept as passive | -- | 1 |
-| Flagged as optional | -- | 1 |
+| Total passive instances              | 9        | 1       |
+| Passive instance rate                | 150%     | 17%     |
+| Converted to active                  | --       | 7       |
+| Kept as passive                      | --       | 1       |
+| Flagged as optional                  | --       | 1       |
 
 ### Passive Voice Instances
 
-| # | Type | Original (Passive) | Revised (Active) | Verdict | Rationale |
-|---|------|--------------------|------------------|---------|-----------|
-| 1 | Standard | "The Q3 product roadmap has been reviewed by the engineering and product teams" | "The engineering and product teams have reviewed the Q3 product roadmap" | Convert | Agent is explicitly stated ("by the engineering and product teams") -- active voice is shorter, more direct, and leads with the responsible parties, which executives value for accountability |
-| 2 | Agentless | "Several timeline adjustments were required" | "Resource constraints required several timeline adjustments" | Convert | Agent recoverable from immediate context ("resource constraints" appears in same sentence) -- surfacing it removes the institutional vagueness and makes the causal chain explicit |
-| 3 | Standard | "resource constraints that were identified during the sprint reviews" | "resource constraints that the sprint reviews surfaced" | Convert | "Were identified" is passive with an implied agent (the sprint review process) -- "surfaced" is an active verb that tightens the clause and eliminates the passive construction |
-| 4 | Hidden passive | "A decision was made to deprioritize the mobile checkout feature" | "We decided to deprioritize the mobile checkout feature" (or "Product leadership decided...") | Convert | Classic hidden passive -- "a decision was made" suppresses who decided, which in an executive email creates ambiguity about ownership; surfacing "we" or the specific team assigns accountability |
-| 5 | Standard | "Customers will be impacted by this change" | "This change will impact customers" | Convert | Agent ("this change") is stated -- active version is more direct and leads with the cause; in executive communications, clarity about cause-and-effect is critical |
-| 6 | Agentless | "a communication plan has been drafted" | "The communications team has drafted a communication plan" | Optional | Agent not stated in the email -- if the author knows who drafted it (e.g., the comms team, a specific person), name them for accountability; if genuinely unknown or irrelevant, the passive is acceptable here |
-| 7 | Passive infinitive | "Approval is needed from the VP of Product before the plan can be distributed" | "The VP of Product must approve the plan before we distribute it" | Convert | Passive infinitive construction ("can be distributed") combined with agentless passive ("is needed") -- the active version makes the dependency chain explicit and the call to action clear, which is exactly what an executive email should do |
-| 8 | Standard | "before the plan can be distributed" | (absorbed into conversion #7 above) | Convert | Converted as part of the full sentence restructuring in instance #7 |
-| 9 | Standard | "The revised roadmap will be shared with all stakeholders by end of week" | Keep -- see rationale | Keep | The receiver ("all stakeholders") is the topic of this sentence -- the reader cares about who receives the roadmap, not specifically who sends it; this passive is appropriate and any active version ("We will share the revised roadmap...") is only marginally better |
+| #   | Type               | Original (Passive)                                                              | Revised (Active)                                                                              | Verdict  | Rationale                                                                                                                                                                                                                                                                |
+| --- | ------------------ | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Standard           | "The Q3 product roadmap has been reviewed by the engineering and product teams" | "The engineering and product teams have reviewed the Q3 product roadmap"                      | Convert  | Agent is explicitly stated ("by the engineering and product teams") -- active voice is shorter, more direct, and leads with the responsible parties, which executives value for accountability                                                                           |
+| 2   | Agentless          | "Several timeline adjustments were required"                                    | "Resource constraints required several timeline adjustments"                                  | Convert  | Agent recoverable from immediate context ("resource constraints" appears in same sentence) -- surfacing it removes the institutional vagueness and makes the causal chain explicit                                                                                       |
+| 3   | Standard           | "resource constraints that were identified during the sprint reviews"           | "resource constraints that the sprint reviews surfaced"                                       | Convert  | "Were identified" is passive with an implied agent (the sprint review process) -- "surfaced" is an active verb that tightens the clause and eliminates the passive construction                                                                                          |
+| 4   | Hidden passive     | "A decision was made to deprioritize the mobile checkout feature"               | "We decided to deprioritize the mobile checkout feature" (or "Product leadership decided...") | Convert  | Classic hidden passive -- "a decision was made" suppresses who decided, which in an executive email creates ambiguity about ownership; surfacing "we" or the specific team assigns accountability                                                                        |
+| 5   | Standard           | "Customers will be impacted by this change"                                     | "This change will impact customers"                                                           | Convert  | Agent ("this change") is stated -- active version is more direct and leads with the cause; in executive communications, clarity about cause-and-effect is critical                                                                                                       |
+| 6   | Agentless          | "a communication plan has been drafted"                                         | "The communications team has drafted a communication plan"                                    | Optional | Agent not stated in the email -- if the author knows who drafted it (e.g., the comms team, a specific person), name them for accountability; if genuinely unknown or irrelevant, the passive is acceptable here                                                          |
+| 7   | Passive infinitive | "Approval is needed from the VP of Product before the plan can be distributed"  | "The VP of Product must approve the plan before we distribute it"                             | Convert  | Passive infinitive construction ("can be distributed") combined with agentless passive ("is needed") -- the active version makes the dependency chain explicit and the call to action clear, which is exactly what an executive email should do                          |
+| 8   | Standard           | "before the plan can be distributed"                                            | (absorbed into conversion #7 above)                                                           | Convert  | Converted as part of the full sentence restructuring in instance #7                                                                                                                                                                                                      |
+| 9   | Standard           | "The revised roadmap will be shared with all stakeholders by end of week"       | Keep -- see rationale                                                                         | Keep     | The receiver ("all stakeholders") is the topic of this sentence -- the reader cares about who receives the roadmap, not specifically who sends it; this passive is appropriate and any active version ("We will share the revised roadmap...") is only marginally better |
 
 ### Revised Document
 
@@ -278,6 +282,7 @@ Passive headings ("Results Were Significant," "Budget Was Approved") are unusual
 **By-zombies test reminder:** "A decision was made [by zombies]" ✓ passive. "We decided [by zombies]" -- does not work ✓ active. Apply this test to any sentence you are unsure about.
 
 ### Adjacent Issues (Out of Scope)
+
 - "Resource constraints" is doing a lot of work as a cause -- consider specifying what resources were constrained (engineering headcount? budget? third-party dependencies?) for executive precision. Address with `clarity-editing`.
 - "A communication plan" is abstract -- executives will likely ask "what does the plan say?" Consider one sentence summarizing the plan's key messages. Address with `clarity-editing`.
 - The email has no clear ask or next step until the second-to-last sentence. Consider restructuring to lead with the request. Address with `copy-editing`.

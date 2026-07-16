@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science analysis spreadsheets"
-  category: "data-analysis"
-  subcategory: "exploratory-data-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science analysis spreadsheets'
+  category: 'data-analysis'
+  subcategory: 'exploratory-data-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Data Cleaning Protocol
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user provides a dataset description (column names, row counts, source system) and asks for a cleaning plan before running analysis, modeling, or reporting
 - A user describes specific data quality symptoms: "some rows are duplicated," "this column has a lot of blanks," "dates are coming through as text," "my revenue totals don't match the source system"
 - A user needs a documented, reproducible cleaning protocol they can hand off to a colleague or apply again when new data arrives
@@ -29,6 +31,7 @@ metadata:
 - A user is merging two datasets and needs to reconcile inconsistent keys, overlapping records, or conflicting values before joining
 
 **Do NOT use when:**
+
 - The user has not yet looked at the data and wants to understand its structure and distribution first -- use `eda-framework` to profile the dataset before identifying cleaning targets
 - The user wants to write Python (pandas, pyarrow), R (tidyr, dplyr), or SQL scripts to implement the cleaning -- that is software-development scope; this skill produces the specification, not the code
 - The user wants to build a reusable validation pipeline or schema enforcement layer to prevent future quality problems -- use `data-validation-setup`
@@ -60,34 +63,40 @@ Before identifying any issues, establish the full context. A cleaning decision t
 Systematically scan every column against a standard checklist. Do not rely on what the user self-reports -- unknown issues are as dangerous as known ones.
 
 **Exact Duplicate Detection:**
+
 - Check for fully identical rows (all columns match): count duplicate row groups
 - Check for duplicate **keys** (primary identifier column matches, but other columns may differ): this is a "conflicting duplicate" -- more dangerous than an exact duplicate because auto-removal destroys information
 - A dataset with 3% duplicate rows in a 100,000-row file contains 3,000 phantom records that inflate every aggregation
 
 **Missing Value Audit (per column):**
+
 - Count explicit nulls/blanks
 - Count **implicit nulls**: placeholder values that represent missing data but are not technically null -- common patterns include: -1, -999, 0 in columns that should never be zero, "N/A", "n/a", "NA", "null", "NULL", "None", "unknown", "?", "#N/A", single space characters, and "00/00/0000" in date fields
 - Calculate missing percentage: below 1% is typically ignorable with removal; 1--5% requires documented strategy; 5--15% requires careful imputation; above 15% requires column-level decision; above 50% in a critical column -- escalate to "column reliability" question
 - Note the **missingness pattern**: is it random (MCAR -- Missing Completely At Random), correlated with another column value (MAR -- Missing At Random), or systematically tied to the value itself (MNAR -- Missing Not At Random)? MNAR missingness is the most dangerous -- removing these rows introduces bias
 
 **Type Mismatch Detection:**
+
 - Text in numeric columns: look for currency symbols ($, £, €), thousand separators (commas in numbers), percentage signs, text annotations embedded in number cells ("1,200 units"), mixed types in the same column
 - Dates stored as text: "January 5, 2023" vs "2023-01-05" vs "01/05/23" vs "1/5/2023" -- all represent the same day but none will parse as dates without cleaning; also check for ambiguous formats (01/02/03 could be Jan 2 or Feb 1 depending on locale)
 - Booleans with non-standard encoding: "Yes"/"No", "Y"/"N", "1"/"0", "TRUE"/"FALSE", "true"/"false", "T"/"F" all in the same column
 - IDs with leading zeros stripped: ZIP code "01234" becoming 1234 after Excel auto-format conversion -- this is a silent corruption
 
 **Format Inconsistency Detection:**
+
 - Case variation: "New York" vs "new york" vs "NEW YORK" vs "New york" -- will appear as four distinct categories in a GROUP BY
 - Whitespace contamination: leading spaces, trailing spaces, double internal spaces -- these create invisible duplicates in joins and group aggregations
 - Category label drift: "Full-Time" vs "Full Time" vs "FT" vs "full-time" -- multiple representations of the same category
 - Unit inconsistencies: revenue in some rows as dollars, others as thousands; weight in kg vs lbs in the same column with no indicator
 
 **Outlier and Range Violation Detection:**
+
 - Hard violations (physically impossible): negative ages, quantities of -500, dates in year 1900 (Excel's default null date), percentages above 100% or below 0%, future dates in historical datasets
 - Soft violations (statistically suspicious): use the IQR method (values below Q1 -- 1.5*IQR or above Q3 + 1.5*IQR) for a first-pass flag; use 3-sigma (mean ± 3 standard deviations) for normally distributed data; use domain-specific thresholds where known (e.g., "no single order should exceed $1M for this business")
 - For each outlier, classify as: data entry error (likely remove or correct), legitimate extreme value (keep, optionally flag), or measurement error (keep with flag, exclude from certain analyses)
 
 **Structural Issue Detection:**
+
 - Multi-value cells: "Product A; Product B" in a single cell, comma-separated lists, pipe-delimited values
 - Merged cells in spreadsheets that span multiple rows
 - Headers duplicated partway through the data (common in Excel exports where filters were reset)
@@ -101,24 +110,28 @@ Systematically scan every column against a standard checklist. Do not rely on wh
 Assign every identified issue a severity level using consistent criteria, not intuition.
 
 **CRITICAL -- Must fix before any analysis can produce valid results:**
+
 - Duplicate primary keys that inflate counts or joins
 - Type errors that prevent a column from being used at all (dates stored as text in the analysis key column)
 - Missing values above 15% in a column that is analytically critical
 - Structural corruption (multi-value cells in join keys, embedded totals in data rows)
 
 **HIGH -- Fix before final analysis; proceeding without fixing produces misleading results:**
+
 - Missing values 5--15% in critical columns
 - Implicit nulls (-999, "unknown") in numeric or categorical columns used in aggregations
 - Date format ambiguity in time-based analysis columns
 - Unit inconsistencies in any numeric column used for calculations
 
 **MEDIUM -- Fix before reporting; may not affect aggregate results significantly but affects detail-level accuracy:**
+
 - Case inconsistencies in categorical grouping columns
 - Whitespace contamination in key or join columns
 - Missing values below 5% with straightforward imputation available
 - Outliers that are statistically suspicious but not logically impossible
 
 **LOW -- Address if time permits; document if not fixed:**
+
 - Format inconsistencies in non-analytical columns (address formatting, name casing in a name column not used for joins)
 - Missing values below 1% in non-critical columns
 - Outliers in columns not central to the analysis
@@ -130,33 +143,38 @@ Assign every identified issue a severity level using consistent criteria, not in
 For every issue in the inventory, specify the operation at a level precise enough that someone else can execute it without asking questions.
 
 **Deduplication -- exact approach by duplicate type:**
+
 - Exact row duplicates: sort by all columns, identify rows where every field matches the prior row, remove all but the first occurrence, count removals
 - Key duplicates (same ID, different values): do not auto-remove -- list the conflicting rows side by side and require a resolution rule from the user; common rules: keep the record with the most recent timestamp, keep the record with the fewest null values, keep the record from the authoritative source system
 - Near-duplicates (same entity, slightly different spellings): "John Smith" vs "John Smyth" -- flag for manual review; never auto-resolve without user confirmation unless a canonical list exists (master data file)
 
 **Missing value treatment -- exact strategy by column type and missingness level:**
+
 - Remove the row: only when missing percentage is very low (below 2%), the value is in a critical column with no derivation possible, and the resulting data loss is documented
 - Mean imputation: only for normally distributed continuous numeric columns (verify with a histogram or skewness check); use the column mean; document: "Imputed 47 missing values in `unit_cost` with column mean of $12.43"
 - Median imputation: preferred for skewed continuous numeric columns (skewness absolute value above 0.5); median is resistant to outlier influence that would distort the mean
 - Mode imputation: for categorical columns with low cardinality (fewer than 20 distinct values) and low missingness (below 5%); document which mode value was used
 - Forward fill / backward fill: only appropriate for time-ordered datasets where the missing value logically inherits from the previous or next record (e.g., sensor readings, daily inventory snapshots)
-- Indicator imputation (predictive): for MNAR data, create a binary flag column "is_{column}_missing" = 1 where value is missing, then impute with median/mode for the numeric column -- this preserves the missingness signal for downstream modeling
+- Indicator imputation (predictive): for MNAR data, create a binary flag column "is\_{column}\_missing" = 1 where value is missing, then impute with median/mode for the numeric column -- this preserves the missingness signal for downstream modeling
 - Leave as missing: when the column is not critical, when the missingness is itself analytically meaningful (customers who didn't fill in a field may be a distinct segment), or when above 50% of values are missing and no imputation is defensible
 
 **Type correction -- exact conversion steps:**
+
 - Text-to-numeric: strip all non-numeric characters (currency symbols, commas, percent signs, units) using SUBSTITUTE or TRIM operations, then convert to number; verify no "#VALUE!" errors remain
 - Text-to-date: determine the actual format in the source data, then apply the appropriate parse rule; if format is ambiguous (01/02/03), ask the user to confirm locale; after conversion, validate all dates fall within a sensible range
 - Boolean normalization: choose one canonical representation (1/0 or TRUE/FALSE), map all variants to that representation, document the mapping table
 
 **Format standardization -- exact operations:**
+
 - Whitespace: TRIM removes leading and trailing spaces and collapses internal multiple spaces to single spaces -- apply to every text column used for joins or group-by operations; also check for non-breaking spaces (character code 160) which TRIM does not remove
 - Case standardization: apply consistently within a column based on the column's role; join keys -- lowercase or uppercase consistently; display names -- title case; codes and IDs -- uppercase
 - Category consolidation: build an explicit mapping table listing each observed variant and its canonical target before executing any replacement; never apply string replacement blindly without reviewing all values first
 
 **Outlier treatment -- exact decision by outlier type:**
+
 - Data entry error (age = 999, quantity = -500): remove or correct; document which records and what the corrected value is based on -- do not guess
 - Legitimate extreme value (a single enterprise customer with $10M revenue in a file where median is $5,000): keep, flag with an outlier indicator column, and note in the cleaning log that it was reviewed and confirmed legitimate
-- Statistically suspicious but domain-plausible: cap at a defined threshold (e.g., 99th percentile value) for modeling purposes, but preserve the original value in a "_raw" column; document the cap threshold
+- Statistically suspicious but domain-plausible: cap at a defined threshold (e.g., 99th percentile value) for modeling purposes, but preserve the original value in a "\_raw" column; document the cap threshold
 
 ---
 
@@ -367,6 +385,7 @@ Present the inventory as a table even before you know exact counts -- mark suspe
 This is a data acquisition problem, not a cleaning problem. Imputing more than 50% of a column means the column is mostly made-up. Do not recommend imputation.
 
 Present three options with explicit trade-offs:
+
 - **Drop the column from analysis:** Lowest risk, safest, but limits what can be analyzed. Document: "Column `gross_margin` dropped from analysis -- 67% of values missing, insufficient data to produce reliable results."
 - **Treat missingness as a feature:** Create a binary indicator column `is_{column}_missing` (1 = missing, 0 = present) and include that indicator in analysis instead of the original values. This is appropriate when the fact of missingness is itself analytically meaningful (e.g., customers who did not provide an income figure may form a distinct behavioral segment).
 - **Acquire the data:** If the column can be sourced from another system or file, document what is needed and return to cleaning after acquisition.
@@ -380,6 +399,7 @@ Never produce an imputation strategy for a column with more than 50% missingness
 This is the most dangerous duplicate type and must never be auto-resolved. Two records with the same `order_id` but different `total` values mean either a legitimate update was not properly deduplicated, data was entered twice with different values, or the records came from two different source systems with different data at the time of export.
 
 Present the conflicting records in a side-by-side comparison table. Then ask the user to choose from one of these resolution rules:
+
 - **Keep most recent (by timestamp):** Only valid if a reliable timestamp column exists. Specify which column.
 - **Keep most complete (fewest nulls):** Count nulls per record in the duplicate set; keep the one with the fewest. Specify tie-breaking rule.
 - **Keep first occurrence (by row order):** Assumes the first occurrence is the canonical record. Lowest risk, but only correct if data is ordered by entry time.
@@ -456,18 +476,18 @@ For outlier detection specifically, at large scale the IQR method with 1.5x mult
 
 ### Issue Inventory
 
-| # | Issue Type | Column(s) | Description | Severity | Est. Records Affected | Est. % | Confirmed or Suspected |
-|---|------------|-----------|-------------|----------|-----------------------|--------|------------------------|
-| 1 | Key duplicate | order_id | Duplicate order_id values from Q2 CRM migration -- same order_id may appear in both legacy and new system exports | CRITICAL | Unknown (est. 200--600) | 2--5% | Confirmed |
-| 2 | Impossible zero | total_revenue | Rows where total_revenue = 0 but quantity > 0 and unit_price > 0 -- implicit null or data entry error | CRITICAL | Unknown (est. 100--400) | 1--3% | Confirmed |
-| 3 | Implicit null (total_revenue) | total_revenue | True zero-revenue orders (fully discounted) need to be distinguished from erroneous zeros -- discount_pct = 100% is a true zero, anything else is an error | HIGH | Subset of Issue 2 | -- | Suspected |
-| 4 | Type mismatch | order_date | CRM exports from legacy systems often store dates as text strings; migration may have produced mixed date and text formats in one column | HIGH | Unknown | Unknown | Suspected |
-| 5 | Format inconsistency | region | CRM migration frequently causes case and label inconsistencies -- "Northeast" vs "NE" vs "north east" appearing as separate regions in board report | HIGH | Unknown | Unknown | Suspected |
-| 6 | Implicit null | discount_pct | Blank discount_pct likely means no discount applied (0%), not missing data -- needs to be confirmed and converted | MEDIUM | Unknown | Unknown | Suspected |
-| 7 | Type mismatch | discount_pct | If stored as "15%" (text with percent symbol) rather than 0.15 (decimal numeric), the column cannot be used in revenue calculations | MEDIUM | Unknown | Unknown | Suspected |
-| 8 | Whitespace contamination | region, product_code, email | Leading/trailing spaces in join and group-by columns create invisible category splits | MEDIUM | Unknown | Unknown | Suspected |
-| 9 | Derived column inconsistency | total_revenue | After cleaning quantity, unit_price, and discount_pct, total_revenue must be recomputed for affected rows | MEDIUM | All rows modified upstream | -- | Will occur |
-| 10 | Conflicting duplicates | order_id + all other columns | Migration may have produced same order_id with different values (different total, different status) -- these cannot be auto-resolved | CRITICAL | Subset of Issue 1 | -- | Suspected |
+| #   | Issue Type                    | Column(s)                    | Description                                                                                                                                                | Severity | Est. Records Affected      | Est. %  | Confirmed or Suspected |
+| --- | ----------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------- | ------- | ---------------------- |
+| 1   | Key duplicate                 | order_id                     | Duplicate order_id values from Q2 CRM migration -- same order_id may appear in both legacy and new system exports                                          | CRITICAL | Unknown (est. 200--600)    | 2--5%   | Confirmed              |
+| 2   | Impossible zero               | total_revenue                | Rows where total_revenue = 0 but quantity > 0 and unit_price > 0 -- implicit null or data entry error                                                      | CRITICAL | Unknown (est. 100--400)    | 1--3%   | Confirmed              |
+| 3   | Implicit null (total_revenue) | total_revenue                | True zero-revenue orders (fully discounted) need to be distinguished from erroneous zeros -- discount_pct = 100% is a true zero, anything else is an error | HIGH     | Subset of Issue 2          | --      | Suspected              |
+| 4   | Type mismatch                 | order_date                   | CRM exports from legacy systems often store dates as text strings; migration may have produced mixed date and text formats in one column                   | HIGH     | Unknown                    | Unknown | Suspected              |
+| 5   | Format inconsistency          | region                       | CRM migration frequently causes case and label inconsistencies -- "Northeast" vs "NE" vs "north east" appearing as separate regions in board report        | HIGH     | Unknown                    | Unknown | Suspected              |
+| 6   | Implicit null                 | discount_pct                 | Blank discount_pct likely means no discount applied (0%), not missing data -- needs to be confirmed and converted                                          | MEDIUM   | Unknown                    | Unknown | Suspected              |
+| 7   | Type mismatch                 | discount_pct                 | If stored as "15%" (text with percent symbol) rather than 0.15 (decimal numeric), the column cannot be used in revenue calculations                        | MEDIUM   | Unknown                    | Unknown | Suspected              |
+| 8   | Whitespace contamination      | region, product_code, email  | Leading/trailing spaces in join and group-by columns create invisible category splits                                                                      | MEDIUM   | Unknown                    | Unknown | Suspected              |
+| 9   | Derived column inconsistency  | total_revenue                | After cleaning quantity, unit_price, and discount_pct, total_revenue must be recomputed for affected rows                                                  | MEDIUM   | All rows modified upstream | --      | Will occur             |
+| 10  | Conflicting duplicates        | order_id + all other columns | Migration may have produced same order_id with different values (different total, different status) -- these cannot be auto-resolved                       | CRITICAL | Subset of Issue 1          | --      | Suspected              |
 
 **Issue Summary:** 3 CRITICAL, 3 HIGH, 4 MEDIUM, 0 LOW
 
@@ -475,14 +495,14 @@ For outlier detection specifically, at large scale the IQR method with 1.5x mult
 
 ### Missing Value Strategy
 
-| Column | Explicit Null Count | Implicit Null Patterns | Total Missing Est. | % Missing Est. | Missingness Type | Strategy | Imputation Value or Rule | Rationale |
-|--------|---------------------|------------------------|-------------------|----------------|------------------|----------|--------------------------|-----------|
-| total_revenue | Unknown | 0 where quantity > 0 and unit_price > 0 and discount_pct < 100 | Unknown | Unknown | MAR (linked to system migration) | Recalculate: `quantity * unit_price * (1 - discount_pct)` | Computed value | Derivable from component fields; do not impute statistically |
-| discount_pct | Unknown | Blank = likely 0% discount | Unknown | Unknown | MCAR (blank on no-discount orders) | Impute 0 where blank, AFTER confirming with user | 0.0 | Most orders have no discount; blank likely means absent, not missing |
-| order_date | Unknown | Text strings, unparsed dates | Unknown | Unknown | Investigate | Convert to date type; flag unconvertible values | N/A -- type fix | Date must be numeric for time-series aggregation by month |
-| email | Unknown | None expected | Unknown | Unknown | MCAR | Leave as missing -- email is contextual, not critical | N/A | Not used in revenue by region/product analysis |
-| product_code | Unknown | Blank | Unknown | Unknown | Investigate | Flag -- CRITICAL column; do not impute | N/A | Cannot assign revenue to a product if product_code is missing |
-| region | Unknown | Blank | Unknown | Unknown | Investigate | Flag -- CRITICAL column; attempt lookup from customer_id reference if available | N/A | Cannot assign revenue to a region if region is missing |
+| Column        | Explicit Null Count | Implicit Null Patterns                                         | Total Missing Est. | % Missing Est. | Missingness Type                   | Strategy                                                                        | Imputation Value or Rule | Rationale                                                            |
+| ------------- | ------------------- | -------------------------------------------------------------- | ------------------ | -------------- | ---------------------------------- | ------------------------------------------------------------------------------- | ------------------------ | -------------------------------------------------------------------- |
+| total_revenue | Unknown             | 0 where quantity > 0 and unit_price > 0 and discount_pct < 100 | Unknown            | Unknown        | MAR (linked to system migration)   | Recalculate: `quantity * unit_price * (1 - discount_pct)`                       | Computed value           | Derivable from component fields; do not impute statistically         |
+| discount_pct  | Unknown             | Blank = likely 0% discount                                     | Unknown            | Unknown        | MCAR (blank on no-discount orders) | Impute 0 where blank, AFTER confirming with user                                | 0.0                      | Most orders have no discount; blank likely means absent, not missing |
+| order_date    | Unknown             | Text strings, unparsed dates                                   | Unknown            | Unknown        | Investigate                        | Convert to date type; flag unconvertible values                                 | N/A -- type fix          | Date must be numeric for time-series aggregation by month            |
+| email         | Unknown             | None expected                                                  | Unknown            | Unknown        | MCAR                               | Leave as missing -- email is contextual, not critical                           | N/A                      | Not used in revenue by region/product analysis                       |
+| product_code  | Unknown             | Blank                                                          | Unknown            | Unknown        | Investigate                        | Flag -- CRITICAL column; do not impute                                          | N/A                      | Cannot assign revenue to a product if product_code is missing        |
+| region        | Unknown             | Blank                                                          | Unknown            | Unknown        | Investigate                        | Flag -- CRITICAL column; attempt lookup from customer_id reference if available | N/A                      | Cannot assign revenue to a region if region is missing               |
 
 ---
 
@@ -498,6 +518,7 @@ For outlier detection specifically, at large scale the IQR method with 1.5x mult
 **Estimated Records Affected:** Unknown -- apply to all rows; affects only rows where contamination exists
 
 **Operation Steps:**
+
 1. For each target column, create a new column named `{column}_cleaned`
 2. Apply TRIM to remove all leading and trailing whitespace from the value
 3. Additionally check for non-breaking space characters (ASCII 160 / Unicode U+00A0) which TRIM does not remove -- replace these with standard spaces before trimming
@@ -519,6 +540,7 @@ For outlier detection specifically, at large scale the IQR method with 1.5x mult
 **Estimated Records Affected:** 200--600 rows estimated (2--5%)
 
 **Operation Steps:**
+
 1. Group all rows by order_id and count rows per group: identify all order_id values with a count greater than 1
 2. For each duplicated order_id group, compare all other column values across the duplicate rows
 3. Classify each group as:
@@ -546,6 +568,7 @@ For outlier detection specifically, at large scale the IQR method with 1.5x mult
 **Estimated Records Affected:** Subset of estimated 200--600 duplicate rows
 
 **Operation Steps:**
+
 1. Filter to all rows where `duplicate_resolution` = "remove"
 2. Log the count of these rows
 3. Remove them from the working dataset (mark as excluded; preserve in a separate "removed_records" tab or audit file)
@@ -555,7 +578,7 @@ For outlier detection specifically, at large scale the IQR method with 1.5x mult
 **Expected Result:** Working dataset row count = original count minus exact duplicate count
 **New Columns Created:** None -- rows excluded from working set, not deleted
 
-**Verification Check:** COUNT(*) of working dataset + COUNT(*) of removed_records tab = original row count of 12,000. Confirm: COUNT(DISTINCT order_id) in working dataset excluding conflicting duplicates = COUNT(*) of same rows.
+**Verification Check:** COUNT(_) of working dataset + COUNT(_) of removed_records tab = original row count of 12,000. Confirm: COUNT(DISTINCT order_id) in working dataset excluding conflicting duplicates = COUNT(\*) of same rows.
 
 ---
 
@@ -567,6 +590,7 @@ For outlier detection specifically, at large scale the IQR method with 1.5x mult
 **Estimated Records Affected:** Unknown -- apply to all rows
 
 **Operation Steps:**
+
 1. Attempt to parse every value in `order_date` as a date using the expected primary format: YYYY-MM-DD (ISO 8601, the most common CRM export format)
 2. For values that fail ISO 8601 parsing, attempt secondary formats in this order: MM/DD/YYYY (US locale), DD/MM/YYYY (UK/EU locale), MM-DD-YYYY, "Month DD YYYY" (text month)
 3. Create column `order_date_cleaned` with the successfully parsed date value (stored as a true date type)
@@ -589,5 +613,6 @@ For outlier detection specifically, at large scale the IQR method with 1.5x mult
 **Affected Columns:** region_cleaned (from Operation 1), product_code_cleaned
 
 **Operation Steps:**
+
 1. Generate a full distinct value list for `region_cleaned` with row counts per value
 2. Present this list to the user and ask them to confirm: (a) which values are the canonical region names for the

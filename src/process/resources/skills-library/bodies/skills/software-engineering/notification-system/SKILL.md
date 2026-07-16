@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation shell-scripting guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Notification Automation Builder
@@ -44,15 +44,15 @@ A notification system is a communication bridge between your application and its
 
 ### Channel Selection Matrix
 
-| Channel | Latency | Reach | Rich Content | Cost | Best For |
-|---------|---------|-------|-------------|------|----------|
-| Email | Minutes | High | Yes (HTML) | Low | Detailed info, receipts, reports |
-| SMS | Seconds | Very High | No (text only) | High | 2FA, urgent alerts |
-| Push (Mobile) | Seconds | Medium | Limited | Free | Real-time updates, reminders |
-| Push (Web) | Seconds | Low | Limited | Free | Re-engagement, updates |
-| Slack/Teams | Seconds | Team-only | Yes (blocks) | Free | Team notifications, alerts |
-| Webhook | Seconds | Developers | JSON | Free | Integrations, automation |
-| In-App | Instant | Active users | Yes | Free | Non-urgent updates, activity |
+| Channel       | Latency | Reach        | Rich Content   | Cost | Best For                         |
+| ------------- | ------- | ------------ | -------------- | ---- | -------------------------------- |
+| Email         | Minutes | High         | Yes (HTML)     | Low  | Detailed info, receipts, reports |
+| SMS           | Seconds | Very High    | No (text only) | High | 2FA, urgent alerts               |
+| Push (Mobile) | Seconds | Medium       | Limited        | Free | Real-time updates, reminders     |
+| Push (Web)    | Seconds | Low          | Limited        | Free | Re-engagement, updates           |
+| Slack/Teams   | Seconds | Team-only    | Yes (blocks)   | Free | Team notifications, alerts       |
+| Webhook       | Seconds | Developers   | JSON           | Free | Integrations, automation         |
+| In-App        | Instant | Active users | Yes            | Free | Non-urgent updates, activity     |
 
 ### Email Delivery
 
@@ -333,21 +333,21 @@ class NotificationRateLimiter {
 
 ```typescript
 enum NotificationPriority {
-    LOW = 'low',           // In-app only, can be batched
-    NORMAL = 'normal',     // Default channels, respects quiet hours
-    HIGH = 'high',         // All enabled channels, respects quiet hours
-    URGENT = 'urgent',     // All channels, ignores quiet hours, no batching
-    CRITICAL = 'critical', // All channels + SMS, ignores all preferences
+  LOW = 'low', // In-app only, can be batched
+  NORMAL = 'normal', // Default channels, respects quiet hours
+  HIGH = 'high', // All enabled channels, respects quiet hours
+  URGENT = 'urgent', // All channels, ignores quiet hours, no batching
+  CRITICAL = 'critical', // All channels + SMS, ignores all preferences
 }
 
 function getPriorityBehavior(priority: NotificationPriority) {
-    return {
-        low:      { respectQuietHours: true,  batchable: true,  fallbackChannel: false },
-        normal:   { respectQuietHours: true,  batchable: true,  fallbackChannel: false },
-        high:     { respectQuietHours: true,  batchable: false, fallbackChannel: true  },
-        urgent:   { respectQuietHours: false, batchable: false, fallbackChannel: true  },
-        critical: { respectQuietHours: false, batchable: false, fallbackChannel: true  },
-    }[priority];
+  return {
+    low: { respectQuietHours: true, batchable: true, fallbackChannel: false },
+    normal: { respectQuietHours: true, batchable: true, fallbackChannel: false },
+    high: { respectQuietHours: true, batchable: false, fallbackChannel: true },
+    urgent: { respectQuietHours: false, batchable: false, fallbackChannel: true },
+    critical: { respectQuietHours: false, batchable: false, fallbackChannel: true },
+  }[priority];
 }
 ```
 
@@ -384,23 +384,23 @@ interface NotificationItem {
 // WebSocket or Server-Sent Events for real-time notification delivery
 // Server-Sent Events (simpler, one-directional)
 app.get('/api/notifications/stream', (req, res) => {
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-    });
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
 
-    const userId = req.user.id;
+  const userId = req.user.id;
 
-    const handler = (notification: NotificationItem) => {
-        res.write(`data: ${JSON.stringify(notification)}\n\n`);
-    };
+  const handler = (notification: NotificationItem) => {
+    res.write(`data: ${JSON.stringify(notification)}\n\n`);
+  };
 
-    notificationBus.subscribe(userId, handler);
+  notificationBus.subscribe(userId, handler);
 
-    req.on('close', () => {
-        notificationBus.unsubscribe(userId, handler);
-    });
+  req.on('close', () => {
+    notificationBus.unsubscribe(userId, handler);
+  });
 });
 ```
 
@@ -420,6 +420,7 @@ app.get('/api/notifications/stream', (req, res) => {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing notification system solutions
 - Reviewing or improving existing notification system approaches
 - Making architectural or implementation decisions about notification system
@@ -427,6 +428,7 @@ app.get('/api/notifications/stream', (req, res) => {
 - Troubleshooting notification system-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -437,21 +439,26 @@ app.get('/api/notifications/stream', (req, res) => {
 # Notification System Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career email writing template"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career email writing template'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Cold Outreach Email
 
 ## When to Use
@@ -229,8 +230,8 @@ Best,
 
 ### One Thing to Verify Before Sending
 
-[One specific, actionable item the user should confirm or double-check before hitting send -- 
-e.g., correct spelling of recipient's name, verifying the role is still open, confirming 
+[One specific, actionable item the user should confirm or double-check before hitting send --
+e.g., correct spelling of recipient's name, verifying the role is still open, confirming
 the company's headquarters time zone, or confirming a detail about the personalization hook]
 ```
 
@@ -345,13 +346,13 @@ This scenario requires additional discretion:
 
 ### Context Summary
 
-| Field | Details |
-|-------|---------|
-| Recipient | Marcus Webb, Director of Engineering, Lattice Systems |
-| Outreach type | Type 1 -- Role exists (Senior Platform Engineer, posted 2 days ago), reaching out to direct hiring manager |
-| Personalization hook | KubeCon talk on multi-tenant GPU scheduling |
-| Key qualification | 5 years Kubernetes, built 200-node multi-tenant GPU cluster serving 50 research teams |
-| Ask | 15-minute conversation about the Senior Platform Engineer role |
+| Field                | Details                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Recipient            | Marcus Webb, Director of Engineering, Lattice Systems                                                      |
+| Outreach type        | Type 1 -- Role exists (Senior Platform Engineer, posted 2 days ago), reaching out to direct hiring manager |
+| Personalization hook | KubeCon talk on multi-tenant GPU scheduling                                                                |
+| Key qualification    | 5 years Kubernetes, built 200-node multi-tenant GPU cluster serving 50 research teams                      |
+| Ask                  | 15-minute conversation about the Senior Platform Engineer role                                             |
 
 ---
 
@@ -382,7 +383,7 @@ Best,
 
 ### Follow-Up Email
 
-*Send 6 business days after initial email if no response. This is the final outreach attempt.*
+_Send 6 business days after initial email if no response. This is the final outreach attempt._
 
 **Subject:** Re: Your KubeCon talk on multi-tenant GPU scheduling
 
@@ -399,15 +400,15 @@ Best,
 
 ### Outreach Notes
 
-| Element | Details |
-|---------|---------|
-| Personalization hook | KubeCon talk on multi-tenant GPU scheduling -- directly validates the user's specific production experience |
-| Key qualification | 200-node, 50-team GPU cluster built from scratch -- strong metric that maps exactly to Lattice's domain |
-| Ask type | 15-minute conversation about the Senior Platform Engineer role |
-| Optimal send window | Tuesday, Wednesday, or Thursday, 8:00-10:00 AM Pacific (Lattice Systems -- confirm their HQ timezone before sending) |
-| Follow-up timing | 6 business days after initial send |
-| Application status | Yes -- submit a formal application through Lattice's careers page in addition to this email. Many directors cannot advance a candidate without an official ATS record, regardless of personal interest |
-| If referred | No referral -- cold outreach. If a mutual contact emerges before sending, revise sentence 1 and subject line to lead with the referral name |
+| Element              | Details                                                                                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Personalization hook | KubeCon talk on multi-tenant GPU scheduling -- directly validates the user's specific production experience                                                                                            |
+| Key qualification    | 200-node, 50-team GPU cluster built from scratch -- strong metric that maps exactly to Lattice's domain                                                                                                |
+| Ask type             | 15-minute conversation about the Senior Platform Engineer role                                                                                                                                         |
+| Optimal send window  | Tuesday, Wednesday, or Thursday, 8:00-10:00 AM Pacific (Lattice Systems -- confirm their HQ timezone before sending)                                                                                   |
+| Follow-up timing     | 6 business days after initial send                                                                                                                                                                     |
+| Application status   | Yes -- submit a formal application through Lattice's careers page in addition to this email. Many directors cannot advance a candidate without an official ATS record, regardless of personal interest |
+| If referred          | No referral -- cold outreach. If a mutual contact emerges before sending, revise sentence 1 and subject line to lead with the referral name                                                            |
 
 ---
 

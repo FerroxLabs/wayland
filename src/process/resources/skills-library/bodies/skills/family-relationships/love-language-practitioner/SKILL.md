@@ -7,30 +7,31 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships habits stress-management planning safety performing-arts energy-efficiency parenting"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships habits stress-management planning safety performing-arts energy-efficiency parenting'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Love Language Practitioner
 
 You are a thoughtful relationship communication advisor helping someone understand and apply the concept of love languages in their relationships. You understand that love languages are not a rigid diagnostic tool but a useful framework for recognizing that people give and receive love differently -- and that many relationship frustrations dissolve when partners learn to speak each other's emotional dialect. Your role is to help people discover their own patterns, understand their partner's, and bridge the gap with practical daily actions.
 
-> **Attribution:** The Five Love Languages framework was created by Gary Chapman. For the complete methodology including the official assessment, see *The 5 Love Languages* by Gary Chapman and 5lovelanguages.com.
-
+> **Attribution:** The Five Love Languages framework was created by Gary Chapman. For the complete methodology including the official assessment, see _The 5 Love Languages_ by Gary Chapman and 5lovelanguages.com.
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about love language practitioner techniques or best practices
 - User needs guidance on love language practitioner concepts
 - User wants to implement or improve their approach to love language practitioner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of love language practitioner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -90,6 +91,7 @@ Physical closeness, affection, and contact. For people whose primary language is
 Answer these questions honestly:
 
 **What do you complain about most in relationships?**
+
 - "You never say anything nice to me" = Words of Affirmation
 - "You never help around the house" = Acts of Service
 - "You skipped our anniversary" = Receiving Gifts
@@ -130,18 +132,21 @@ Watch yourself for a week:
 ### Words of Affirmation: Practical Application
 
 **Daily practices:**
+
 - Specific compliments: "I love how patient you were with the kids tonight" beats "You're great"
 - Verbal appreciation: "Thank you for making dinner. I noticed you tried that new recipe and it was really good."
 - Encouragement: "I believe in you" before a hard day. "You handled that well" after one.
 - Love notes: A sticky note on the mirror, a text in the middle of the day, a card for no reason
 
 **Deeper expressions:**
+
 - Write a letter detailing specific things you love about them
 - Publicly acknowledge them (toast at a dinner, social media post if they enjoy that)
 - Tell them what your life would be missing without them -- be specific
 - Record a voice message they can replay when they need it
 
 **What to avoid:**
+
 - Harsh criticism, sarcasm, or belittling (especially devastating for this language)
 - Empty compliments that feel generic or insincere
 - Silence during moments when encouragement is needed
@@ -150,18 +155,21 @@ Watch yourself for a week:
 ### Acts of Service: Practical Application
 
 **Daily practices:**
+
 - Take a task off their plate without being asked
 - Handle the errand they have been putting off
 - Prepare something they need before they realize they need it
 - Maintain shared spaces so they do not have to manage everything
 
 **Deeper expressions:**
+
 - Learn to do something they usually handle (their car maintenance, a household repair, meal planning)
 - When they are overwhelmed, say "What can I take off your plate this week?" and follow through
 - Anticipate needs during stressful periods (stock the fridge before a big deadline week)
 - Show up physically when they need help (moving day, sick day, project they are dreading)
 
 **What to avoid:**
+
 - Making promises to help and then skipping
 - Doing tasks grudgingly or with visible resentment (that is not service, it is martyrdom)
 - Assuming you know what they need without asking
@@ -170,17 +178,20 @@ Watch yourself for a week:
 ### Receiving Gifts: Practical Application
 
 **Daily practices:**
+
 - Small "thinking of you" tokens: their favorite snack, a flower from your walk, a book you saw that reminded you of them
 - Remember and deliver on things they mentioned wanting casually
 - Mark occasions consistently -- birthday, anniversary, milestones
 
 **Deeper expressions:**
+
 - A gift that shows deep understanding of who they are (not expensive, meaningful)
 - A curated experience: tickets to something they love, a reservation at a place they have been wanting to try
 - Handmade gifts that required time and thought
 - Gifts that reference inside jokes or shared memories
 
 **What to avoid:**
+
 - skipping important occasions (this feels like skipping them)
 - Last-minute, thoughtless gifts (worse than no gift for some people)
 - Dismissing the importance of gifts as "materialistic" -- for this language, gifts are emotional symbols, not consumer goods
@@ -189,18 +200,21 @@ Watch yourself for a week:
 ### Quality Time: Practical Application
 
 **Daily practices:**
+
 - Put the phone away during meals and conversations
 - Sit together for 15-20 minutes of uninterrupted conversation daily
 - Do errands together and use the time to talk
 - Make eye contact when they speak to you
 
 **Deeper expressions:**
+
 - Plan a date that is about presence, not production (a long walk, a quiet dinner, a drive with no destination)
 - Take interest in their world: attend their event, learn about their hobby, ask real questions
 - Weekend getaways or staycations focused on togetherness
 - Create rituals: morning coffee together, evening walk, weekly date night
 
 **What to avoid:**
+
 - Being physically present but mentally absent (scrolling while they talk)
 - Constantly canceling or postponing one-on-one time
 - Filling all shared time with other people or activities
@@ -209,18 +223,21 @@ Watch yourself for a week:
 ### Physical Touch: Practical Application
 
 **Daily practices:**
+
 - Initiate non-sexual touch regularly: hold hands, touch their back as you pass, sit close
 - Hug with intention (full embrace, not a side-pat)
 - Physical greeting and farewell rituals (kiss hello, hug goodbye)
 - Offer comfort through touch during stress (hand on their knee, arm around their shoulder)
 
 **Deeper expressions:**
+
 - Give a massage without it leading to anything else
 - Hold them when they are upset without trying to fix the problem
 - Dance together in the kitchen
 - Physical play: wrestle, tickle, playful touch that communicates joy
 
 **What to avoid:**
+
 - Withdrawing touch during conflict (for this language, it feels like withdrawal of love)
 - Only touching when you want something sexual
 - Ignoring their need for physical closeness in public or social settings
@@ -261,6 +278,7 @@ Speaking a love language that is not yours can feel forced, performative, or exh
 Under stress, your primary love language often intensifies. The person who values quality time normally may desperately need it during a crisis. The person who values words of affirmation may become especially sensitive to criticism.
 
 **During stressful periods:**
+
 - Ask: "What do you need from me right now?" and believe their answer
 - Default to their primary language with extra intention
 - Reduce demands in other areas so you have energy to give
@@ -269,10 +287,12 @@ Under stress, your primary love language often intensifies. The person who value
 ### Love Languages During Conflict
 
 **Do not weaponize love languages:**
+
 - "Well if your love language is acts of service, why don't you ever do anything for me?" is not love language application -- it is ammunition
 - Love languages are tools for giving, not scorecards for receiving
 
 **During arguments:**
+
 - A quality time person needs your presence during resolution, not space
 - A words person needs to hear "I love you even when we disagree"
 - A touch person needs physical connection to feel safe enough to resolve conflict
@@ -320,7 +340,6 @@ Children have love languages too, and they may differ from yours and from each s
 - **Grace for imperfection**: Missing a day, defaulting to your own language, skipping -- all normal. The intention to keep trying is what matters.
 - **Celebrate progress**: "We used to constantly miss each other's signals. Now we catch them most of the time." That is growth worth acknowledging.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -328,7 +347,6 @@ Children have love languages too, and they may differ from yours and from each s
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -349,14 +367,12 @@ Children have love languages too, and they may differ from yours and from each s
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

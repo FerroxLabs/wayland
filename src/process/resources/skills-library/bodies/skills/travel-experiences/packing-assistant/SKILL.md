@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary packing"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel itinerary packing'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Packing Assistant
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about packing assistant
 - User needs guidance on packing assistant topics
 - User wants a structured approach to packing assistant
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **Any special activities planned?** (snorkeling, skiing, cycling, etc.)
 9. **Do you have any medical needs?** (prescriptions, first aid)
 10. **Are you traveling with children?**
+
 ---
+
 ## Step 1: Universal Packing Template
 
 ### The Foundation List (Every Trip)
+
 ```
 UNIVERSAL PACKING LIST:
 DOCUMENTS AND MONEY:
@@ -98,10 +104,13 @@ PERSONAL ITEMS:
 [ ] Reusable shopping bag
 [ ] Snacks for travel
 ```
+
 ---
+
 ## Step 2: Climate-Based Packing
 
 ### Hot Climate (75-100+F / 24-38+C)
+
 ```
 HOT CLIMATE ADDITIONS:
 
@@ -133,6 +142,7 @@ FABRIC TIPS:
 ```
 
 ### Cold Climate (Below 40F / 4C)
+
 ```
 COLD CLIMATE ADDITIONS:
 CLOTHING (layering system):
@@ -168,6 +178,7 @@ ESSENTIALS:
 ```
 
 ### Rainy Climate
+
 ```
 RAINY CLIMATE ADDITIONS:
 
@@ -182,10 +193,13 @@ RAINY CLIMATE ADDITIONS:
 [ ] Ziplock bags for electronics
 [ ] Microfiber towel (dries fast)
 ```
+
 ---
+
 ## Step 3: Trip-Type Specific Lists
 
 ### Business Trip
+
 ```
 BUSINESS TRIP PACKING:
 
@@ -217,6 +231,7 @@ TIPS:
 ```
 
 ### Beach / Resort
+
 ```
 BEACH TRIP PACKING:
 
@@ -246,6 +261,7 @@ BEACH ESSENTIALS:
 ```
 
 ### Hiking / Outdoors
+
 ```
 HIKING TRIP PACKING:
 CLOTHING (layering system):
@@ -286,6 +302,7 @@ OVERNIGHT BACKPACKING ADDITIONS:
 ```
 
 ### City Trip
+
 ```
 CITY TRIP PACKING:
 
@@ -308,10 +325,13 @@ CITY ESSENTIALS:
 [ ] Reusable water bottle
 [ ] Snack bars (for skipping expensive tourist food)
 ```
+
 ---
+
 ## Step 4: Carry-On Optimization
 
 ### The Carry-On Only Strategy
+
 ```
 CARRY-ON MAXIMIZATION:
 STANDARD CARRY-ON LIMITS (verify with your airline):
@@ -346,6 +366,7 @@ FIT MORE IN LESS SPACE:
 ```
 
 ### The 5-4-3-2-1 Packing Rule
+
 ```
 FOR A ONE-WEEK TRIP:
 5 tops (T-shirts, blouses, tanks)
@@ -356,10 +377,13 @@ FOR A ONE-WEEK TRIP:
 
 Adjust numbers up by 30-40% for two weeks (plan to do laundry).
 ```
+
 ---
+
 ## Step 5: Packing Techniques
 
 ### Rolling vs. Folding vs. Bundling
+
 ```
 PACKING TECHNIQUES:
 
@@ -392,8 +416,11 @@ COMPRESSION BAGS (for bulky items):
 - Can reduce volume by 50%
 - Best for: Cold-weather clothing, puffy jackets
 ```
+
 ---
+
 ## Step 6: Essential Documents Checklist
+
 ```
 DOCUMENTS PREPARATION:
 
@@ -429,10 +456,13 @@ Organize in a travel wallet or folder:
 - Insurance card
 - Pen for customs forms
 ```
+
 ---
+
 ## Step 7: Toiletry Optimization
 
 ### The 3-1-1 Rule (Carry-On Liquids)
+
 ```
 TSA 3-1-1 RULE:
 
@@ -462,8 +492,11 @@ SPACE SAVERS:
 - Decant products into small silicone tubes
 - Buy toiletries at your destination for longer trips
 ```
+
 ---
+
 ## Step 8: Electronics and Chargers
+
 ```
 ELECTRONICS PACKING:
 
@@ -494,8 +527,11 @@ China: Type A/C/I (varies -- bring universal)
 Bring a small power strip so you only need one adapter for
 multiple devices.
 ```
+
 ---
+
 ## Pre-Departure Final Check
+
 ```
 THE NIGHT BEFORE DEPARTURE:
 
@@ -516,9 +552,10 @@ THE NIGHT BEFORE DEPARTURE:
 [ ] Mail hold activated (if long trip)
 [ ] Itinerary shared with someone at home
 ```
----
-*This skill provides packing guidance. Always verify airline baggage policies and destination-specific requirements before finalizing your packing list. When in doubt, pack less -- you can almost always buy what you need at your destination.*
 
+---
+
+_This skill provides packing guidance. Always verify airline baggage policies and destination-specific requirements before finalizing your packing list. When in doubt, pack less -- you can almost always buy what you need at your destination._
 
 ## Output Format
 

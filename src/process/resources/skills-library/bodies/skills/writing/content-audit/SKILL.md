@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing analysis planning"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'content-marketing analysis planning'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Content Audit
 
 ## When to Use
@@ -71,23 +72,27 @@ A content inventory is a complete, structured catalog of every piece in scope. I
 This is the most analytically intensive step. Use specific, defensible thresholds -- not gut feel -- to assign each piece to exactly one category. The thresholds below are calibrated for typical B2B and B2C content programs; adjust them with explicit justification if the user's baseline metrics differ significantly.
 
 **Keep threshold criteria (all three should be true):**
+
 - Organic traffic is in the top 25% of the library by sessions over the trailing 12 months, OR the piece ranks in positions 1-10 for at least one target keyword with meaningful search volume (500+ monthly searches)
 - Content is substantively accurate and current -- no outdated statistics, deprecated tools, or retired products
 - The piece aligns with the current audience definition and brand positioning
 
 **Update threshold criteria (at least two should be true):**
+
 - Traffic has declined more than 20% year-over-year, OR average position has dropped more than 5 positions in Search Console in the last 6 months
 - The content is more than 18 months old and has not been meaningfully updated
 - The piece targets a viable keyword (500+ monthly searches) but ranks in positions 11-30, indicating it is close to ranking but needs optimization
 - The content has inbound backlinks (at least 2 referring domains) -- this confirms it has earned authority worth preserving
 
 **Consolidate threshold criteria:**
+
 - Two or more pieces target the same primary keyword or close variants within the same intent cluster
 - Word count for each piece is under 1,000 words on a topic that warrants comprehensive coverage (1,500-2,500 words)
 - Neither piece individually ranks in the top 10, but their combined content quality and backlinks would likely push a merged piece to page one
 - Cannibalization is confirmed: multiple URLs from the same domain appearing in Search Console for the same query
 
 **Remove threshold criteria (at least two should be true):**
+
 - Zero organic sessions in the trailing 90 days AND zero inbound backlinks from external referring domains
 - The content covers a topic that is permanently off-strategy (discontinued product, retired service, dead platform)
 - The content is purely internal/operational (office closure notices, event recaps with no evergreen value)
@@ -329,6 +334,7 @@ Based on analysis of the top-performing pieces:
 ### No Analytics Data Available
 
 When the user has no access to performance data (no Google Analytics, no Search Console, no third-party SEO tool), conduct a qualitative freshness-and-quality audit using the following proxy framework:
+
 - Assign a freshness score of 0-3 based on content age since last update: under 12 months = 3, 12-24 months = 2, 24-36 months = 1, over 36 months = 0
 - Assign a quality score of 0-3 based on word count and structural completeness: over 1,500 words with clear structure = 3, 800-1,500 words with some structure = 2, 300-800 words = 1, under 300 words = 0
 - Assign a relevance score of 0-3 based on alignment with current audience and business: clearly on-strategy = 3, tangentially relevant = 2, off-strategy = 1, irrelevant = 0
@@ -338,6 +344,7 @@ When the user has no access to performance data (no Google Analytics, no Search 
 ### Very Small Content Library (Under 20 Pieces)
 
 For libraries under 20 pieces, abandon table-based inventory in favor of per-piece narrative assessments:
+
 - Provide a dedicated paragraph for each piece covering: what it does well, what its weakness is, what one specific action should be taken, and how it relates to adjacent pieces in the library.
 - The gap analysis becomes the dominant section of the audit. With 20 or fewer pieces, the library almost certainly covers less than 20% of relevant topics. Focus the majority of the output on what does not exist rather than what does.
 - Do not use the four-category system rigidly. With 20 pieces, forcing a Remove category may eliminate a piece that only needs minor updating. Apply category labels but weight recommendations toward Keep and Update.
@@ -345,6 +352,7 @@ For libraries under 20 pieces, abandon table-based inventory in favor of per-pie
 ### Content Spans Multiple Languages
 
 Never combine multilingual content into a single performance analysis:
+
 - Create separate inventory tables for each language. Search performance baselines differ dramatically by market -- a blog in Spanish targeting Latin American SMBs has different competition intensity and keyword volumes than the English equivalent.
 - Assess translation parity: which content exists in Language A but not Language B? These gaps are often the highest-leverage opportunity for multilingual sites because creating a translated/localized version of a proven top-performer is faster than creating net-new content.
 - Note that hreflang implementation issues can suppress performance for all language versions. If the user reports the translated content underperforms despite quality, flag hreflang as a technical audit item outside this skill's scope.
@@ -353,6 +361,7 @@ Never combine multilingual content into a single performance analysis:
 ### Significant Keyword Cannibalization Discovered Mid-Audit
 
 When cannibalization is widespread (more than 15% of the library has at least one cannibalizing counterpart), restructure the audit output:
+
 - Dedicate a full cannibalization map table showing each cannibalizing pair, their competing keywords, their respective traffic and backlink counts, and the recommended canonical winner.
 - Elevate cannibalization resolution above all other action plan items. Cannibalization actively suppresses rankings in real time -- it is the only audit finding that gets worse the longer it goes unaddressed.
 - Provide explicit consolidation guidance: the piece with more referring domains wins the canonical URL. The piece with more traffic but fewer backlinks should be redirected into the canonical piece after its content is merged. Traffic is recoverable; backlinks are not.
@@ -361,6 +370,7 @@ When cannibalization is widespread (more than 15% of the library has at least on
 ### Audit Requested as Part of a Site Migration
 
 Site migration audits require additional outputs beyond standard performance categorization:
+
 - Produce a complete URL disposition table with a column for every URL in scope, categorized as: (a) migrate as-is, (b) migrate with redirect from old URL to new slug, (c) consolidate into another page before migrating, (d) do not migrate -- retire.
 - Prioritize speed over depth. Migration deadlines are typically fixed. Flag the top 20 highest-traffic pages first and ensure their disposition is decided before dealing with lower-traffic pages.
 - Map all internal links that reference URLs being retired or changed. Every internal link pointing to a redirected URL is a PageRank leak. Provide a list of internal link updates required as part of the migration checklist.
@@ -369,6 +379,7 @@ Site migration audits require additional outputs beyond standard performance cat
 ### User Wants Competitor Content Audited
 
 When the user wants to audit a competitor's content library rather than their own, reframe as a Competitive Content Analysis with modified outputs:
+
 - The inventory cannot include performance data from analytics -- use estimated organic traffic from third-party tools (if available) and visible signals like social shares, comment counts, and estimated backlinks.
 - Focus the analysis on three questions: (1) What topics does the competitor cover that the user does not? (2) What content formats does the competitor use effectively that the user has not adopted? (3) Where does the competitor have weak content that the user could out-execute?
 - Do not apply the Remove or Consolidate categories to competitor content -- those are internal decisions only the competitor can make. Use a two-category system instead: Strong Coverage (they own this topic, hard to compete) and Vulnerable Coverage (thin, outdated, or low-quality -- opportunity to surpass).
@@ -377,6 +388,7 @@ When the user wants to audit a competitor's content library rather than their ow
 ### Gated Content and Content Behind Lead Capture
 
 For gated assets (white papers, ebooks, reports, webinars, templates behind an email gate), performance metrics are different and require different thresholds:
+
 - Do not measure gated content by organic sessions -- most gated content receives minimal search traffic by design. Measure by conversion rate on the landing page (form fills / landing page visits). A healthy gated asset conversion rate is 15-35% depending on audience quality requirements and offer value.
 - For gated content with conversion rates under 10%, the problem is usually the offer framing, the landing page copy, or the perceived value of the asset -- not the asset itself. Recommend landing page and offer audit before recommending content changes.
 - For gated content with conversion rates over 35% but low total form fills, the problem is traffic to the landing page -- the content is strong but underpromotd. Recommend adding internal links, promoting via email, or adding paid amplification before recommending content changes.
@@ -411,28 +423,28 @@ The top three priority actions are: (1) consolidate the 9 cannibalizing posts in
 
 ### Content Health Scorecard
 
-| Metric | Value | Benchmark | Status |
-|--------|-------|-----------|--------|
-| Total pieces audited | 62 | -- | -- |
-| % performing (Keep) | 18% (11 posts) | 30-40% healthy library | Red |
-| % needing refresh (Update) | 23% (14 posts) | 30-40% expected | Yellow |
-| % with cannibalization | 15% (9 posts across 4 clusters) | <10% target | Red |
-| % with zero organic traffic (90d) | 19% (12 posts) | <15% target | Red |
-| Top 20% content share of traffic | 81% | 60-80% normal | Red |
-| Content pieces with no internal links | 8 posts | 0 target | Yellow |
+| Metric                                | Value                           | Benchmark              | Status |
+| ------------------------------------- | ------------------------------- | ---------------------- | ------ |
+| Total pieces audited                  | 62                              | --                     | --     |
+| % performing (Keep)                   | 18% (11 posts)                  | 30-40% healthy library | Red    |
+| % needing refresh (Update)            | 23% (14 posts)                  | 30-40% expected        | Yellow |
+| % with cannibalization                | 15% (9 posts across 4 clusters) | <10% target            | Red    |
+| % with zero organic traffic (90d)     | 19% (12 posts)                  | <15% target            | Red    |
+| Top 20% content share of traffic      | 81%                             | 60-80% normal          | Red    |
+| Content pieces with no internal links | 8 posts                         | 0 target               | Yellow |
 
 ---
 
 ### Performance Distribution
 
-| Category | Count | % of Total | Primary Issue | Action |
-|----------|-------|-----------|--------------|--------|
-| Keep | 11 | 18% | None -- performing | Monitor; replicate format and topic patterns |
-| Update | 14 | 23% | Content decay -- stats and structure outdated | Refresh with current data; re-optimize for target keyword |
-| Consolidate | 17 | 27% | Keyword cannibalization + thin content | Merge into 6 comprehensive pieces; consolidate backlink equity |
-| Remove | 12 | 19% | Zero organic traction, no backlinks, off-topic | 301 redirect (4), noindex (5), delete (3) |
-| Investigate (no traffic but new, <6 months old) | 8 | 13% | Too early to categorize -- insufficient data window | Monitor for 90 more days before acting |
-| **Total** | **62** | **100%** | | |
+| Category                                        | Count  | % of Total | Primary Issue                                       | Action                                                         |
+| ----------------------------------------------- | ------ | ---------- | --------------------------------------------------- | -------------------------------------------------------------- |
+| Keep                                            | 11     | 18%        | None -- performing                                  | Monitor; replicate format and topic patterns                   |
+| Update                                          | 14     | 23%        | Content decay -- stats and structure outdated       | Refresh with current data; re-optimize for target keyword      |
+| Consolidate                                     | 17     | 27%        | Keyword cannibalization + thin content              | Merge into 6 comprehensive pieces; consolidate backlink equity |
+| Remove                                          | 12     | 19%        | Zero organic traction, no backlinks, off-topic      | 301 redirect (4), noindex (5), delete (3)                      |
+| Investigate (no traffic but new, <6 months old) | 8      | 13%        | Too early to categorize -- insufficient data window | Monitor for 90 more days before acting                         |
+| **Total**                                       | **62** | **100%**   |                                                     |                                                                |
 
 ---
 
@@ -440,13 +452,13 @@ The top three priority actions are: (1) consolidate the 9 cannibalizing posts in
 
 #### Keep -- High-Performing Content (Protect and Replicate)
 
-| Title | URL | Type | Monthly Organic Sessions | Top Keyword | Avg. Position | Referring Domains | Why It Works |
-|-------|-----|------|--------------------------|-------------|--------------|-------------------|-------------|
-| How to Build a Project Roadmap Your Team Will Actually Use | /project-roadmap-guide | How-to guide | 3,400 | project roadmap template | 4.2 | 18 | Specific outcome in title, includes downloadable template (drives return visits), 2,200 words with clear H2 structure |
-| Project Management Terminology: 47 Terms Every Ops Manager Needs | /project-management-glossary | Glossary | 2,800 | project management terms | 3.7 | 31 | Comprehensive reference format earns links; ranks for 90+ long-tail definition queries |
-| 5 Project Status Report Templates (With Examples) | /project-status-report-templates | Template + guide | 2,200 | project status report template | 2.9 | 24 | Template format captures high-intent query; downloadable asset drives conversions |
-| How Operations Teams Use Taskflow to Eliminate Weekly Status Meetings | /eliminate-status-meetings | Use-case post | 1,900 | replace status meetings with software | 6.1 | 9 | Product-specific use case targets decision-stage query; converts at 4.2% to trial |
-| What Is a RACI Matrix and How Do You Build One? | /raci-matrix-guide | Explainer + how-to | 1,600 | raci matrix | 5.8 | 14 | High-volume evergreen topic; comprehensive enough to hold position against larger competitors |
+| Title                                                                 | URL                              | Type               | Monthly Organic Sessions | Top Keyword                           | Avg. Position | Referring Domains | Why It Works                                                                                                          |
+| --------------------------------------------------------------------- | -------------------------------- | ------------------ | ------------------------ | ------------------------------------- | ------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------- |
+| How to Build a Project Roadmap Your Team Will Actually Use            | /project-roadmap-guide           | How-to guide       | 3,400                    | project roadmap template              | 4.2           | 18                | Specific outcome in title, includes downloadable template (drives return visits), 2,200 words with clear H2 structure |
+| Project Management Terminology: 47 Terms Every Ops Manager Needs      | /project-management-glossary     | Glossary           | 2,800                    | project management terms              | 3.7           | 31                | Comprehensive reference format earns links; ranks for 90+ long-tail definition queries                                |
+| 5 Project Status Report Templates (With Examples)                     | /project-status-report-templates | Template + guide   | 2,200                    | project status report template        | 2.9           | 24                | Template format captures high-intent query; downloadable asset drives conversions                                     |
+| How Operations Teams Use Taskflow to Eliminate Weekly Status Meetings | /eliminate-status-meetings       | Use-case post      | 1,900                    | replace status meetings with software | 6.1           | 9                 | Product-specific use case targets decision-stage query; converts at 4.2% to trial                                     |
+| What Is a RACI Matrix and How Do You Build One?                       | /raci-matrix-guide               | Explainer + how-to | 1,600                    | raci matrix                           | 5.8           | 14                | High-volume evergreen topic; comprehensive enough to hold position against larger competitors                         |
 
 **Notes on top performers:** Every post in the Keep category exceeds 1,800 words, includes at least one downloadable or interactive element (template, framework, checklist), and uses a title that promises a specific, actionable outcome. Average referring domains for Keep posts is 19.2 vs. 2.1 for all other posts -- link acquisition appears to follow practical, reference-style formats strongly.
 
@@ -454,26 +466,26 @@ The top three priority actions are: (1) consolidate the 9 cannibalizing posts in
 
 #### Update -- Refresh Needed (Prioritized by Impact)
 
-| Priority | Title | URL | Current Monthly Sessions | Primary Issue | Keyword Opportunity | Current WC | Target WC | Specific Actions Required | Est. Effort | Est. Monthly Session Recovery |
-|----------|-------|-----|--------------------------|--------------|-------------------|------------|-----------|--------------------------|-------------|-------------------------------|
-| 1 | Best Project Management Software 2024 | /best-project-management-software | 820 (down from 2,100 in Jan 2025) | Year in title; 6 of 10 tools listed have changed pricing; content not updated since Q1 2024 | best project management software (vol: 22,000/mo) | 2,400 | 3,200 | Remove year from title or update to 2026; re-verify all pricing; add 3 tools added to category since 2024; update comparison table; add section on AI-assisted PM tools | 5 hrs | 800-1,200 |
-| 2 | How to Write a Project Brief | /project-brief-guide | 640 (down from 1,100) | Introduction uses dated framing; lacks examples; missing section on stakeholder alignment which is now the top follow-on query | project brief template (vol: 8,100/mo) | 1,400 | 2,000 | Rewrite intro; add 2 concrete annotated examples; add 400-word section on stakeholder sign-off process; update internal links to new RACI post | 3 hrs | 300-500 |
-| 3 | Remote Team Management: A Practical Guide | /remote-team-management | 510 (historically 900) | Written during peak remote-work interest (2021); framing is "how to adapt to remote" not "how to optimize remote/hybrid" -- search intent has shifted | managing remote teams (vol: 5,400/mo) | 1,800 | 2,200 | Rewrite opening to reflect hybrid-normalized context; update all statistics to 2025 sources; add section on async communication tooling; add Taskflow-specific workflow example | 4 hrs | 250-400 |
-| 4 | Sprint Planning Meeting Agenda Template | /sprint-planning-agenda | 390 (was 680) | Directly relevant to upcoming Agile feature launch; currently thin with no examples; Agile keyword traffic is growing 28% YoY in GSC | sprint planning meeting (vol: 4,200/mo) | 900 | 1,800 | Expand from overview to complete guide; add 3 example agendas for different team sizes; link to upcoming Agile feature content; this post should anchor the new Agile cluster | 4 hrs | 200-350 |
-| 5 | KPI Tracking for Operations Teams | /operations-kpi-tracking | 420 (was 710) | Core stats from 2022; missing section on OKRs which now ranks as a co-occurring query in GSC; 3 broken internal links | operations kpis (vol: 3,600/mo) | 1,600 | 2,000 | Replace 2022 benchmark data with current sources; add 600-word OKR integration section; fix 3 broken internal links; update meta title to include "OKR" | 3 hrs | 150-300 |
+| Priority | Title                                     | URL                               | Current Monthly Sessions          | Primary Issue                                                                                                                                         | Keyword Opportunity                               | Current WC | Target WC | Specific Actions Required                                                                                                                                                       | Est. Effort | Est. Monthly Session Recovery |
+| -------- | ----------------------------------------- | --------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ----------------------------- |
+| 1        | Best Project Management Software 2024     | /best-project-management-software | 820 (down from 2,100 in Jan 2025) | Year in title; 6 of 10 tools listed have changed pricing; content not updated since Q1 2024                                                           | best project management software (vol: 22,000/mo) | 2,400      | 3,200     | Remove year from title or update to 2026; re-verify all pricing; add 3 tools added to category since 2024; update comparison table; add section on AI-assisted PM tools         | 5 hrs       | 800-1,200                     |
+| 2        | How to Write a Project Brief              | /project-brief-guide              | 640 (down from 1,100)             | Introduction uses dated framing; lacks examples; missing section on stakeholder alignment which is now the top follow-on query                        | project brief template (vol: 8,100/mo)            | 1,400      | 2,000     | Rewrite intro; add 2 concrete annotated examples; add 400-word section on stakeholder sign-off process; update internal links to new RACI post                                  | 3 hrs       | 300-500                       |
+| 3        | Remote Team Management: A Practical Guide | /remote-team-management           | 510 (historically 900)            | Written during peak remote-work interest (2021); framing is "how to adapt to remote" not "how to optimize remote/hybrid" -- search intent has shifted | managing remote teams (vol: 5,400/mo)             | 1,800      | 2,200     | Rewrite opening to reflect hybrid-normalized context; update all statistics to 2025 sources; add section on async communication tooling; add Taskflow-specific workflow example | 4 hrs       | 250-400                       |
+| 4        | Sprint Planning Meeting Agenda Template   | /sprint-planning-agenda           | 390 (was 680)                     | Directly relevant to upcoming Agile feature launch; currently thin with no examples; Agile keyword traffic is growing 28% YoY in GSC                  | sprint planning meeting (vol: 4,200/mo)           | 900        | 1,800     | Expand from overview to complete guide; add 3 example agendas for different team sizes; link to upcoming Agile feature content; this post should anchor the new Agile cluster   | 4 hrs       | 200-350                       |
+| 5        | KPI Tracking for Operations Teams         | /operations-kpi-tracking          | 420 (was 710)                     | Core stats from 2022; missing section on OKRs which now ranks as a co-occurring query in GSC; 3 broken internal links                                 | operations kpis (vol: 3,600/mo)                   | 1,600      | 2,000     | Replace 2022 benchmark data with current sources; add 600-word OKR integration section; fix 3 broken internal links; update meta title to include "OKR"                         | 3 hrs       | 150-300                       |
 
-*9 additional Update candidates with lower immediate impact are available in the full audit spreadsheet. The 5 above represent the highest impact-to-effort ratio and should be completed within 30 days.*
+_9 additional Update candidates with lower immediate impact are available in the full audit spreadsheet. The 5 above represent the highest impact-to-effort ratio and should be completed within 30 days._
 
 ---
 
 #### Consolidate -- Merge Candidates (Grouped by Cannibalization Cluster)
 
-| Group Name | Pieces to Merge | URL to Keep | Reason | Combined Referring Domains | Full Redirect Map | New Target Keyword | Target WC After Merge |
-|------------|----------------|-------------|--------|---------------------------|-------------------|--------------------|----------------------|
-| Task Management Cluster | "Task Management for Teams" (/task-management-teams) + "How to Manage Team Tasks" (/manage-team-tasks) + "Team Task Tracking Best Practices" (/team-task-tracking) | /task-management-teams | 11 referring domains vs. 3 and 1 | 15 combined | /manage-team-tasks → /task-management-teams; /team-task-tracking → /task-management-teams | team task management (vol: 6,600/mo) | 2,800 |
-| Workflow Automation Cluster | "Introduction to Workflow Automation" (/workflow-automation-intro) + "Workflow Automation for Operations" (/workflow-automation-ops) + "Automating Repetitive Tasks at Work" (/automating-work-tasks) | /workflow-automation-ops | Strongest keyword specificity; 8 referring domains vs. 2 and 0 | 10 combined | /workflow-automation-intro → /workflow-automation-ops; /automating-work-tasks → /workflow-automation-ops | workflow automation for teams (vol: 4,400/mo) | 2,400 |
-| Project Timeline Cluster | "How to Create a Project Timeline" (/create-project-timeline) + "Project Timeline Examples" (/project-timeline-examples) | /create-project-timeline | 7 referring domains; better slug; more traffic | 9 combined | /project-timeline-examples → /create-project-timeline | project timeline template (vol: 5,900/mo) | 2,200 |
-| Meeting Productivity Cluster | "Running Effective Team Meetings" (/effective-team-meetings) + "How to Cut Meeting Time in Half" (/cut-meeting-time) + "Meeting Agenda Best Practices" (/meeting-agenda-best-practices) | /effective-team-meetings | 6 referring domains; broadest scope | 8 combined | /cut-meeting-time → /effective-team-meetings; /meeting-agenda-best-practices → /effective-team-meetings | team meeting best practices (vol: 2,900/mo) | 2,000 |
+| Group Name                   | Pieces to Merge                                                                                                                                                                                       | URL to Keep              | Reason                                                         | Combined Referring Domains | Full Redirect Map                                                                                        | New Target Keyword                            | Target WC After Merge |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | -------------------------------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------- | --------------------- |
+| Task Management Cluster      | "Task Management for Teams" (/task-management-teams) + "How to Manage Team Tasks" (/manage-team-tasks) + "Team Task Tracking Best Practices" (/team-task-tracking)                                    | /task-management-teams   | 11 referring domains vs. 3 and 1                               | 15 combined                | /manage-team-tasks → /task-management-teams; /team-task-tracking → /task-management-teams                | team task management (vol: 6,600/mo)          | 2,800                 |
+| Workflow Automation Cluster  | "Introduction to Workflow Automation" (/workflow-automation-intro) + "Workflow Automation for Operations" (/workflow-automation-ops) + "Automating Repetitive Tasks at Work" (/automating-work-tasks) | /workflow-automation-ops | Strongest keyword specificity; 8 referring domains vs. 2 and 0 | 10 combined                | /workflow-automation-intro → /workflow-automation-ops; /automating-work-tasks → /workflow-automation-ops | workflow automation for teams (vol: 4,400/mo) | 2,400                 |
+| Project Timeline Cluster     | "How to Create a Project Timeline" (/create-project-timeline) + "Project Timeline Examples" (/project-timeline-examples)                                                                              | /create-project-timeline | 7 referring domains; better slug; more traffic                 | 9 combined                 | /project-timeline-examples → /create-project-timeline                                                    | project timeline template (vol: 5,900/mo)     | 2,200                 |
+| Meeting Productivity Cluster | "Running Effective Team Meetings" (/effective-team-meetings) + "How to Cut Meeting Time in Half" (/cut-meeting-time) + "Meeting Agenda Best Practices" (/meeting-agenda-best-practices)               | /effective-team-meetings | 6 referring domains; broadest scope                            | 8 combined                 | /cut-meeting-time → /effective-team-meetings; /meeting-agenda-best-practices → /effective-team-meetings  | team meeting best practices (vol: 2,900/mo)   | 2,000                 |
 
 **Cannibalization analysis:** 4 active cannibalization clusters identified across 12 posts (plus the sprint planning post already flagged in Update). GSC shows split traffic and suppressed rankings for all affected clusters. Conservatively, resolving these 4 clusters by consolidation is estimated to recover 2,800-3,400 combined sessions per month as link equity concentrates and rankings stabilize within 60-90 days of redirects being implemented.
 
@@ -481,11 +493,11 @@ The top three priority actions are: (1) consolidate the 9 cannibalizing posts in
 
 #### Remove -- No Value (With Disposition Plan)
 
-| Title | URL | Last Organic Traffic | Referring Domains | Reason for Removal | Disposition | Redirect Target |
-|-------|-----|---------------------|-------------------|--------------------|-------------|----------------|
-| Taskflow Wins "Best UX" at SaaS Awards 2022 | /saas-award-2022 | None in 18 months | 0 | Press announcement with no audience value; not indexable for search | Delete | -- |
-| Office Hours Recap: Q3 2023 | /office-hours-q3-2023 | None in 12 months | 0 | Internal event recap; no search demand; no links | Noindex | -- |
-| Office Hours Recap: Q1 2024 | /office-hours-q1-2024 | None in 6 months | 0 | Same as above | Noindex | -- |
-| Using Basecamp for Project Management | /basecamp-project-management | 12 sessions/mo (non-organic, direct) | 1 | Competitor-named tool; off-brand; wrong audience; single referring domain is a low-DA blog | 301 redirect | /best-project-management-software |
-| Top Productivity Apps of 2021 | /productivity-apps-2021 | None in 14 months | 0 | Fully outdated; superseded by updated tools coverage; no links | Delete | -- |
-| Why Agile Doesn't Work for Everyone | /agile-doesnt-work | 8 sessions/mo | 0 | Directly contradicts
+| Title                                       | URL                          | Last Organic Traffic                 | Referring Domains | Reason for Removal                                                                         | Disposition  | Redirect Target                   |
+| ------------------------------------------- | ---------------------------- | ------------------------------------ | ----------------- | ------------------------------------------------------------------------------------------ | ------------ | --------------------------------- |
+| Taskflow Wins "Best UX" at SaaS Awards 2022 | /saas-award-2022             | None in 18 months                    | 0                 | Press announcement with no audience value; not indexable for search                        | Delete       | --                                |
+| Office Hours Recap: Q3 2023                 | /office-hours-q3-2023        | None in 12 months                    | 0                 | Internal event recap; no search demand; no links                                           | Noindex      | --                                |
+| Office Hours Recap: Q1 2024                 | /office-hours-q1-2024        | None in 6 months                     | 0                 | Same as above                                                                              | Noindex      | --                                |
+| Using Basecamp for Project Management       | /basecamp-project-management | 12 sessions/mo (non-organic, direct) | 1                 | Competitor-named tool; off-brand; wrong audience; single referring domain is a low-DA blog | 301 redirect | /best-project-management-software |
+| Top Productivity Apps of 2021               | /productivity-apps-2021      | None in 14 months                    | 0                 | Fully outdated; superseded by updated tools coverage; no links                             | Delete       | --                                |
+| Why Agile Doesn't Work for Everyone         | /agile-doesnt-work           | 8 sessions/mo                        | 0                 | Directly contradicts                                                                       |

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance budgeting analysis"
-  category: "personal-finance"
-  subcategory: "life-stage-financial"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance budgeting analysis'
+  category: 'personal-finance'
+  subcategory: 'life-stage-financial'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Bank Account Comparison
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions. Deposit insurance limits, fee regulations, and banking laws vary by jurisdiction -- verify all specifics with your local regulatory authority.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to compare two or more checking accounts, savings accounts, or money market accounts and needs a structured framework to evaluate them side by side
 - A user is opening their first bank account and does not know which features matter most for their usage pattern (e.g., frequent ATM user vs. digital-native who never uses cash)
 - A user suspects their current account is costing them money and wants to evaluate whether switching would produce a measurable financial benefit
@@ -34,6 +36,7 @@ metadata:
 - A user asks specifically about monthly fees, minimum balance requirements, overdraft policies, ATM reimbursement, direct deposit requirements, or mobile check deposit limits
 
 **Do NOT use when:**
+
 - The user wants to compare brokerage accounts, IRAs, 401(k)s, HSAs, or other investment or tax-advantaged accounts -- use investing or tax-advantaged account comparison skills instead
 - The user wants to compare business checking or business savings accounts -- business banking involves different structures (analyzed cash flow, treasury management, payroll integration, merchant services) that are outside this skill's scope
 - The user wants to compare credit cards, debit card rewards programs as a standalone question, or buy-now-pay-later products -- use credit card comparison skills
@@ -81,16 +84,17 @@ Not all criteria matter equally -- and the weights must reflect the user's profi
 
 **Core dimensions and suggested default weights (adjust based on user profile):**
 
-| Dimension | Default Weight | When to Increase Weight | When to Decrease Weight |
-|---|---|---|---|
-| Monthly cost (fees after waivers) | 30 | User has variable income, low balance | User has high balance, fee easily waived |
-| Earnings potential (APY) | 20 | Savings account, balance over $2,000 | Checking account, balance under $1,000 |
-| ATM accessibility | 20 | Frequent cash user, travel | Digital-native, rarely uses cash |
-| Minimum balance feasibility | 15 | Low or variable balance user | High balance user, minimums easily met |
-| Digital features and reliability | 10 | Remote user, no branch preference | Branch user, digital features secondary |
-| Overdraft safety | 5 | User with tight cash flow | User with comfortable checking buffer |
+| Dimension                         | Default Weight | When to Increase Weight               | When to Decrease Weight                  |
+| --------------------------------- | -------------- | ------------------------------------- | ---------------------------------------- |
+| Monthly cost (fees after waivers) | 30             | User has variable income, low balance | User has high balance, fee easily waived |
+| Earnings potential (APY)          | 20             | Savings account, balance over $2,000  | Checking account, balance under $1,000   |
+| ATM accessibility                 | 20             | Frequent cash user, travel            | Digital-native, rarely uses cash         |
+| Minimum balance feasibility       | 15             | Low or variable balance user          | High balance user, minimums easily met   |
+| Digital features and reliability  | 10             | Remote user, no branch preference     | Branch user, digital features secondary  |
+| Overdraft safety                  | 5              | User with tight cash flow             | User with comfortable checking buffer    |
 
 **Scoring rubric for Monthly Cost (1-5):**
+
 - 5: No fees under any reasonable scenario for this user's balance/usage pattern
 - 4: Fee waived with conditions the user will reliably meet; zero expected cost
 - 3: Fee waived with conditions the user may occasionally miss; modest expected annual cost ($0-$30)
@@ -98,6 +102,7 @@ Not all criteria matter equally -- and the weights must reflect the user's profi
 - 1: Fee not waivable or requires conditions incompatible with user's profile; expected annual cost over $100
 
 **Scoring rubric for Earnings Potential (1-5, for savings accounts):**
+
 - 5: APY in top quartile of current market rates (check current FDIC national rate data; as of recent periods, top-tier online savings accounts have ranged from 4.00% to 5.25%)
 - 4: APY within 0.50% of top market rate
 - 3: APY within 1.00% of top market rate
@@ -105,6 +110,7 @@ Not all criteria matter equally -- and the weights must reflect the user's profi
 - 1: APY below 1.00% or at the national average for traditional savings (often 0.40-0.60% at major brick-and-mortar institutions)
 
 **Scoring rubric for ATM Accessibility (1-5):**
+
 - 5: Large proprietary or partner network (15,000+ ATMs) with full out-of-network fee reimbursement or unlimited surcharge refunds
 - 4: Large network with partial reimbursement ($10-15/month) or no-fee access via shared network
 - 3: Moderate network (5,000-15,000 ATMs); some out-of-network fees expected based on user pattern
@@ -328,31 +334,40 @@ _Note: APY is variable and subject to change. Calculations use current stated ra
 ## Edge Cases
 
 ### User Has Only One Account to Evaluate
+
 Do not simply refuse to compare. Evaluate the single account against the user's banking profile and produce a single-account assessment: rate it on each criterion, calculate its annual financial impact, identify which features are genuinely strong, and identify specific gaps (e.g., "the 0.45% APY is well below current market rates for savings accounts; on your $4,000 balance, you are forgoing approximately $120/year in interest compared to top-tier online savings rates"). Then recommend the user obtain at least one competing offer for comparison and specify which account characteristics to prioritize in the search.
 
 ### User Is Comparing an Online-Only Account Against a Traditional Bank Account
+
 This is one of the most common comparison scenarios and carries a consistent pattern: online accounts offer 5-10x higher APY and lower or zero fees; traditional banks offer branch access, cash deposit capability, relationship benefits, and in-person service. The framework to apply:
+
 - Quantify the annual APY difference in dollars (the most persuasive number for most users)
 - Explicitly ask whether the user deposits cash regularly -- online banks generally cannot accept cash deposits (some allow Green Dot reload locations for a $4-5 fee; this is almost never worth it)
 - Ask whether the user has ever needed to visit a branch and what for -- notarizations, cashier's checks, safe deposit boxes, in-person wire transfers, and complex loan applications are not available from online-only accounts
 - Recommend a "hub and spoke" model for many users: a traditional checking account for daily transactions and cash access, paired with a high-yield online savings account for reserves. This captures the best of both and is the optimal structure for most users who keep more than $2,000 in savings.
 
 ### User Has an Irregular Income (Freelancers, Gig Workers, Self-Employed)
+
 Fee waivers tied to minimum balances are preferable to fee waivers tied to direct deposit for users with irregular income, because their deposit frequency and amounts are unpredictable. Key adjustments:
+
 - Weight minimum average balance waiver conditions higher than direct deposit waivers
 - Increase the overdraft risk score -- irregular income creates more frequent near-zero balance periods
 - Flag accounts with "direct deposit required" waivers as higher risk -- ACH transfers from payment platforms (Venmo, PayPal, Stripe) are sometimes rejected as non-qualifying direct deposits
 - Consider credit unions with no monthly fee as a strong option for this profile; credit unions have no profit motive to monetize low-balance periods
 
 ### User Is a College Student or Has Limited Credit/Banking History
+
 Some institutions impose additional restrictions on new customers: lower mobile deposit limits ($500/day vs. $5,000/day), longer check holds (7 business days vs. 1), fewer overdraft protection options. Key adjustments:
+
 - Prioritize accounts explicitly marketed to students or those with starter features -- these are calibrated for thin-file customers
 - Note that some checking accounts require a ChexSystems check (similar to a credit check but for banking history); users with prior account closures due to unpaid negative balances may be declined and need a second-chance checking account
 - De-weight APY entirely; a student keeping $200-400 in checking earns $0.40-1.60/year at 4% APY -- zero practical relevance
 - Highlight overdraft fee risk heavily; students are the demographic most likely to overdraft and least likely to have a buffer
 
 ### User Wants to Maximize FDIC/NCUA Insurance Coverage Above $250,000
+
 This is relevant for users with large savings. Key guidance:
+
 - The $250,000 limit is per depositor per institution per ownership category
 - A married couple can achieve $500,000 in coverage at a single institution using individual accounts ($250K each)
 - Adding beneficiaries to a payable-on-death (POD) account can multiply coverage: one account with 4 beneficiaries = up to $1,000,000 in coverage at one institution
@@ -361,7 +376,9 @@ This is relevant for users with large savings. Key guidance:
 - Verify current FDIC rules as they are subject to change; direct the user to the FDIC's Electronic Deposit Insurance Estimator (EDIE)
 
 ### User Is Evaluating Accounts in Two Different Countries or Currencies
+
 The comparison framework applies universally, but specific values require localization:
+
 - Deposit insurance program, limit, and coverage categories vary by country (e.g., FSCS in the UK covers £85,000; European DGS covers €100,000)
 - Wire transfer fees and foreign exchange conversion fees become relevant -- account for both the institution's spread above mid-market rate (typically 1-3%) and any flat fee per transaction
 - Some jurisdictions impose banking regulations that affect fee structures, overdraft limits, or mandatory features
@@ -369,13 +386,17 @@ The comparison framework applies universally, but specific values require locali
 - Recommend the user work with a professional advisor for multi-currency banking strategy
 
 ### High-Yield Checking Account with Transaction Requirements
+
 These accounts (commonly offered by community banks and credit unions) advertise 3-6% APY on checking balances up to $10,000-$20,000 but require 10-15 debit card transactions per month, at least one direct deposit or ACH transaction, and enrollment in e-statements. They require special handling:
+
 - Calculate the "break-even" transaction burden: at 12 required transactions/month = 144 transactions/year. For a user who naturally makes 2-3 debit transactions/month, manufacturing 9-10 additional small transactions (e.g., $0.01 Amazon reloads or vending machine purchases) is a behavioral overhead that many users will eventually fail to maintain
 - Compute what happens in any month where the user fails to meet the threshold -- the account typically drops to a base rate of 0.01-0.10% for that month, and on a $10,000 balance, one failed month reduces annual interest by approximately $40-50
 - Present the "reliable scenario" APY (user consistently meets requirements) and the "miss scenario" APY (user misses 1-2 months per year) side by side
 
 ### User Is Considering an Account Solely for a New Account Opening Bonus
+
 Opening account bonuses ($200-$400 is common; some premium accounts offer $700-$900) can be valuable but require careful analysis:
+
 - Annualize the bonus: a $300 bonus that requires a $2,000 minimum balance for 90 days represents a 60% annualized return on the locked capital -- a strong deal if the conditions are easily met
 - Calculate the opportunity cost of the minimum balance requirement: $2,000 at 4.75% APY for 90 days = approximately $24 in foregone interest if moved from a high-yield account
 - Check the "net deposit" requirement -- some bonuses require that the deposit be "new money" (not transferred from another account at the same institution)
@@ -404,6 +425,7 @@ For savings, I'm comparing: Online HYSA at 4.60% APY (no fees, no minimum), and 
 ## Bank Account Comparison
 
 **User Profile Summary**
+
 - Account types compared: Checking (3 options) + Savings (2 options)
 - Expected average balance: $1,500 checking, $4,500 savings
 - ATM usage: 3 uses/month -- approximately 2 out-of-network, 1 in-network
@@ -416,33 +438,33 @@ For savings, I'm comparing: Online HYSA at 4.60% APY (no fees, no minimum), and 
 
 **Checking Accounts**
 
-| Feature                        | Account 1: Regional Bank        | Account 2: Online Bank          | Account 3: Credit Union         |
-|--------------------------------|---------------------------------|---------------------------------|---------------------------------|
-| Institution type               | Regional bank                   | Online-only bank                | Credit union                    |
-| Account type                   | Checking                        | Checking                        | Checking                        |
-| Monthly maintenance fee        | $12                             | $0                              | $5                              |
-| Fee waiver condition           | $500+/month direct deposit      | None required                   | 10 debit transactions/month     |
-| Minimum opening deposit        | [Not stated -- verify]          | [Not stated -- verify]          | [Not stated -- verify]          |
-| APY on checking                | None stated                     | None stated                     | None stated                     |
-| ATM network                    | Proprietary, 3,000 in-state     | No proprietary network          | CO-OP, 40,000 ATMs              |
-| Out-of-network ATM fee (own)   | $2.50/use                       | $3.50/use (reimbursed)          | $0 own fee                      |
-| Out-of-network surcharge reimb.| None                            | Up to $15/month                 | None (ATM owner surcharges apply) |
-| Overdraft fee                  | $35/item                        | $0 (transaction declined)       | $0 (linked savings transfer)    |
-| Overdraft protection           | Not stated                      | Decline only (no fee)           | Linked savings sweep, $5/transfer |
-| Mobile check deposit limit     | $3,000/day                      | $5,000/day                      | $2,500/day                      |
-| Branch access                  | Yes                             | No                              | Likely (verify local branches)  |
-| Deposit insurance              | FDIC -- verify $250K coverage   | FDIC -- verify pass-through     | NCUA -- verify $250K coverage   |
+| Feature                         | Account 1: Regional Bank      | Account 2: Online Bank      | Account 3: Credit Union           |
+| ------------------------------- | ----------------------------- | --------------------------- | --------------------------------- |
+| Institution type                | Regional bank                 | Online-only bank            | Credit union                      |
+| Account type                    | Checking                      | Checking                    | Checking                          |
+| Monthly maintenance fee         | $12                           | $0                          | $5                                |
+| Fee waiver condition            | $500+/month direct deposit    | None required               | 10 debit transactions/month       |
+| Minimum opening deposit         | [Not stated -- verify]        | [Not stated -- verify]      | [Not stated -- verify]            |
+| APY on checking                 | None stated                   | None stated                 | None stated                       |
+| ATM network                     | Proprietary, 3,000 in-state   | No proprietary network      | CO-OP, 40,000 ATMs                |
+| Out-of-network ATM fee (own)    | $2.50/use                     | $3.50/use (reimbursed)      | $0 own fee                        |
+| Out-of-network surcharge reimb. | None                          | Up to $15/month             | None (ATM owner surcharges apply) |
+| Overdraft fee                   | $35/item                      | $0 (transaction declined)   | $0 (linked savings transfer)      |
+| Overdraft protection            | Not stated                    | Decline only (no fee)       | Linked savings sweep, $5/transfer |
+| Mobile check deposit limit      | $3,000/day                    | $5,000/day                  | $2,500/day                        |
+| Branch access                   | Yes                           | No                          | Likely (verify local branches)    |
+| Deposit insurance               | FDIC -- verify $250K coverage | FDIC -- verify pass-through | NCUA -- verify $250K coverage     |
 
 **Savings Accounts**
 
-| Feature                        | Online HYSA                     | Regional Bank Savings           |
-|--------------------------------|---------------------------------|---------------------------------|
-| APY                            | 4.60%                           | 0.50%                           |
-| Monthly fee                    | $0                              | $0                              |
-| Minimum balance                | $0                              | $0                              |
-| Access type                    | Online only; transfers to linked checking | Online + branch         |
-| Branch access                  | No                              | Yes (same institution as Account 1) |
-| Deposit insurance              | FDIC -- verify pass-through     | FDIC -- verify $250K            |
+| Feature           | Online HYSA                               | Regional Bank Savings               |
+| ----------------- | ----------------------------------------- | ----------------------------------- |
+| APY               | 4.60%                                     | 0.50%                               |
+| Monthly fee       | $0                                        | $0                                  |
+| Minimum balance   | $0                                        | $0                                  |
+| Access type       | Online only; transfers to linked checking | Online + branch                     |
+| Branch access     | No                                        | Yes (same institution as Account 1) |
+| Deposit insurance | FDIC -- verify pass-through               | FDIC -- verify $250K                |
 
 ---
 
@@ -450,17 +472,17 @@ For savings, I'm comparing: Online HYSA at 4.60% APY (no fees, no minimum), and 
 
 **Checking Account Analysis**
 
-| Calculation Line                         | Account 1: Regional Bank | Account 2: Online Bank  | Account 3: Credit Union |
-|------------------------------------------|--------------------------|-------------------------|-------------------------|
-| Annual maintenance fee (after waiver)    | $0 (direct deposit meets $500 threshold) | $0           | $0 (if 10 debit transactions met reliably) |
-| Annual fee if waiver condition fails     | $144 (12 months × $12) as risk | $0 (no condition) | $60 (12 months × $5) as risk |
-| Annual ATM cost -- own institution fee   | 1 use × $2.50 × 12 = $30 | 2 uses × $3.50 × 12 = $84 (reimbursed) | $0 (CO-OP network, 40K ATMs) |
-| Annual ATM surcharge (ATM owner fee ~$3/use) | 2 uses × $3.00 × 12 = $72 | 2 uses × $3.00 × 12 = $72 (reimbursed up to $15/mo) | 2 uses × $3.00 × 12 = $72 (not reimbursed) |
-| Annual ATM reimbursement                 | $0                       | Up to $180 (covers all surcharges and own fees above) | $0 |
-| **Net annual ATM cost**                  | **$102**                 | **$0** (fully covered by $15/mo limit) | **$72** |
-| Annual estimated overdraft cost          | ~$35 (assume 1 event/year -- tight month) | $0 (transaction declined) | $5 (1 savings sweep/year) |
-| Annual interest earned on checking       | $0                       | $0                       | $0                       |
-| **Net annual checking cost**             | **$102** (ATM) + **$35** (OD risk) = **$137** | **$0** | **$72** (ATM) + **$5** (OD) = **$77** |
+| Calculation Line                             | Account 1: Regional Bank                      | Account 2: Online Bank                                | Account 3: Credit Union                    |
+| -------------------------------------------- | --------------------------------------------- | ----------------------------------------------------- | ------------------------------------------ |
+| Annual maintenance fee (after waiver)        | $0 (direct deposit meets $500 threshold)      | $0                                                    | $0 (if 10 debit transactions met reliably) |
+| Annual fee if waiver condition fails         | $144 (12 months × $12) as risk                | $0 (no condition)                                     | $60 (12 months × $5) as risk               |
+| Annual ATM cost -- own institution fee       | 1 use × $2.50 × 12 = $30                      | 2 uses × $3.50 × 12 = $84 (reimbursed)                | $0 (CO-OP network, 40K ATMs)               |
+| Annual ATM surcharge (ATM owner fee ~$3/use) | 2 uses × $3.00 × 12 = $72                     | 2 uses × $3.00 × 12 = $72 (reimbursed up to $15/mo)   | 2 uses × $3.00 × 12 = $72 (not reimbursed) |
+| Annual ATM reimbursement                     | $0                                            | Up to $180 (covers all surcharges and own fees above) | $0                                         |
+| **Net annual ATM cost**                      | **$102**                                      | **$0** (fully covered by $15/mo limit)                | **$72**                                    |
+| Annual estimated overdraft cost              | ~$35 (assume 1 event/year -- tight month)     | $0 (transaction declined)                             | $5 (1 savings sweep/year)                  |
+| Annual interest earned on checking           | $0                                            | $0                                                    | $0                                         |
+| **Net annual checking cost**                 | **$102** (ATM) + **$35** (OD risk) = **$137** | **$0**                                                | **$72** (ATM) + **$5** (OD) = **$77**      |
 
 _Account 1 waiver note: The $3,200/month employer direct deposit reliably meets the $500 threshold. Fee waiver risk for Account 1 is low. However, the ATM cost remains regardless of waiver status._
 
@@ -468,12 +490,12 @@ _Account 3 waiver note: At 10 required debit transactions per month, assess your
 
 **Savings Account Analysis (at $4,500 average balance)**
 
-| Calculation Line                         | Online HYSA             | Regional Bank Savings   |
-|------------------------------------------|-------------------------|-------------------------|
-| Annual interest earned                   | $4,500 × 4.60% = **$207** | $4,500 × 0.50% = **$22.50** |
-| Annual fee                               | $0                      | $0                      |
-| **Net annual savings benefit**           | **$207**                | **$22.50**              |
-| **Annual earnings difference**           | **$184.50 more in Online HYSA** | -- |
+| Calculation Line               | Online HYSA                     | Regional Bank Savings       |
+| ------------------------------ | ------------------------------- | --------------------------- |
+| Annual interest earned         | $4,500 × 4.60% = **$207**       | $4,500 × 0.50% = **$22.50** |
+| Annual fee                     | $0                              | $0                          |
+| **Net annual savings benefit** | **$207**                        | **$22.50**                  |
+| **Annual earnings difference** | **$184.50 more in Online HYSA** | --                          |
 
 ---
 
@@ -483,15 +505,15 @@ _Weights adjusted for this user: fee avoidance is highest priority for checking;
 
 **Checking Accounts**
 
-| Criterion              | Weight | Acct 1 Score | Acct 1 Weighted | Acct 2 Score | Acct 2 Weighted | Acct 3 Score | Acct 3 Weighted |
-|------------------------|--------|--------------|-----------------|--------------|-----------------|--------------|-----------------|
-| Monthly cost (fee + ATM) | 35%  | 2            | 0.70            | 5            | 1.75            | 4            | 1.40            |
-| ATM accessibility      | 25%    | 3            | 0.75            | 5            | 1.25            | 4            | 1.00            |
-| Overdraft safety       | 20%    | 2            | 0.40            | 5            | 1.00            | 4            | 0.80            |
-| Digital features       | 10%    | 3            | 0.30            | 5            | 0.50            | 3            | 0.30            |
-| Minimum feasibility    | 5%     | 5            | 0.25            | 5            | 0.25            | 4            | 0.20            |
-| Branch access          | 5%     | 5            | 0.25            | 1            | 0.05            | 3            | 0.15            |
-| **Total**              | **100%** |            | **2.65 / 5.0**  |              | **4.80 / 5.0**  |              | **3.85 / 5.0**  |
+| Criterion                | Weight   | Acct 1 Score | Acct 1 Weighted | Acct 2 Score | Acct 2 Weighted | Acct 3 Score | Acct 3 Weighted |
+| ------------------------ | -------- | ------------ | --------------- | ------------ | --------------- | ------------ | --------------- |
+| Monthly cost (fee + ATM) | 35%      | 2            | 0.70            | 5            | 1.75            | 4            | 1.40            |
+| ATM accessibility        | 25%      | 3            | 0.75            | 5            | 1.25            | 4            | 1.00            |
+| Overdraft safety         | 20%      | 2            | 0.40            | 5            | 1.00            | 4            | 0.80            |
+| Digital features         | 10%      | 3            | 0.30            | 5            | 0.50            | 3            | 0.30            |
+| Minimum feasibility      | 5%       | 5            | 0.25            | 5            | 0.25            | 4            | 0.20            |
+| Branch access            | 5%       | 5            | 0.25            | 1            | 0.05            | 3            | 0.15            |
+| **Total**                | **100%** |              | **2.65 / 5.0**  |              | **4.80 / 5.0**  |              | **3.85 / 5.0**  |
 
 ---
 

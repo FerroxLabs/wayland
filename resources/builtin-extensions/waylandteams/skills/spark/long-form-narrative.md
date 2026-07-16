@@ -2,7 +2,7 @@
 
 ## When to load this mode
 
-The user has a module map or chapter list and the question is now *how does this read.* Load whenever you hear "what's the throughline," "how should chapters flow," "this feels disconnected," or "I have the pieces but it's not a book yet."
+The user has a module map or chapter list and the question is now _how does this read._ Load whenever you hear "what's the throughline," "how should chapters flow," "this feels disconnected," or "I have the pieces but it's not a book yet."
 
 ## Procedure
 
@@ -50,6 +50,6 @@ For courses, the last lesson is the recommitment moment — one final artifact, 
 
 ## Before / after
 
-**Before:** *"Chapter one: what is consulting. Chapter two: the consulting industry. Chapter three: how to pick a niche. Chapter four: how to find clients..."*
+**Before:** _"Chapter one: what is consulting. Chapter two: the consulting industry. Chapter three: how to pick a niche. Chapter four: how to find clients..."_
 
-**After:** *"Throughline: a generalist consultant earns less than a specialist with worse skills, because pricing follows positioning, and the reader should rewrite their headline by Friday. Arc: problem-to-resolution. Ch 1: a generalist loses a deal to a worse specialist. Ch 2: positioning beats skill in buyer perception. Ch 3: the niche the reader is already standing in but hasn't named. Ch 4: writing the headline. Ch 5: the first three messages from the new position. Close: the reader rewrites the headline and sends one message before closing the book."*
+**After:** _"Throughline: a generalist consultant earns less than a specialist with worse skills, because pricing follows positioning, and the reader should rewrite their headline by Friday. Arc: problem-to-resolution. Ch 1: a generalist loses a deal to a worse specialist. Ch 2: positioning beats skill in buyer perception. Ch 3: the niche the reader is already standing in but hasn't named. Ch 4: writing the headline. Ch 5: the first three messages from the new position. Close: the reader rewrites the headline and sends one message before closing the book."_

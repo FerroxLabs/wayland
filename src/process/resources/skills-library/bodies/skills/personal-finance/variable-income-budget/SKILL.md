@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance freelancing savings"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance freelancing savings'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Variable Income Budget
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions. Self-employment tax treatment varies by jurisdiction and individual situation -- consult a tax professional before making decisions based on any tax estimates provided here.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when any of the following are true:**
+
 - The user earns income that fluctuates by more than 20% between months -- including freelancers, independent contractors, gig platform workers, commission-only sales roles, real estate agents, seasonal workers, creative professionals (photographers, designers, writers), and consultants
 - The user explicitly says they do not know what they will earn next month and are trying to build a budget despite that uncertainty
 - The user has transitioned within the past 12 months from a salaried or hourly wage role to self-employment or variable income and has not yet rebuilt their financial structure
@@ -31,6 +33,7 @@ metadata:
 - The user wants to build a savings system or debt payoff plan despite not having a fixed monthly income
 
 **Do NOT use this skill when:**
+
 - The user has stable, predictable monthly income from a salary or consistent hourly wage -- use `budget-planning` or `fifty-thirty-twenty-budget` instead
 - The user is building a cash flow model for a business entity, not personal finances -- use a business cash flow or revenue forecasting skill
 - The user's only question is how to invest a lump sum or irregular windfall -- use an investing allocation skill
@@ -84,29 +87,36 @@ The surplus priority list is the engine that transforms variable income from cha
 Construct the list in this specific order. The user may adjust amounts within each tier, but the tier ordering should not be reversed without strong justification.
 
 **Priority 1 -- Income Buffer Fund:**
+
 - Purpose: to cover months where income falls below the baseline budget. This is not an emergency fund -- it is a cash flow smoothing mechanism specific to variable income. These are separate accounts serving different functions.
 - Target amount: 1-2 months of baseline budget total for users with income volatility below 75%; 2-3 months for users with volatility above 75% or single-client concentration risk.
 - Replenishment rule: any time the buffer is drawn down, it becomes Priority 1 again until fully restored.
 - Until the buffer reaches its target, it absorbs the majority of every surplus dollar.
 
 **Priority 2 -- Additional Tax Reserve:**
+
 - The baseline budget already includes a tax reserve calculated on baseline income. When income exceeds baseline, that additional income also generates tax liability. In the surplus allocation, add the same reserve percentage (25-30%) to the surplus amount going to the tax reserve account.
 - Maintain the tax reserve in a separate savings account labeled for taxes only. Do not commingle with the income buffer. Treat quarterly estimated tax payment dates (if applicable in the user's jurisdiction) as a hard calendar constraint.
 
 **Priority 3 -- Emergency Fund:**
+
 - Distinct from the income buffer. The emergency fund covers true unexpected events: medical expenses, car breakdown, job loss event. Standard target: 3-6 months of baseline expenses.
 - If the income buffer is fully funded, the emergency fund becomes the next highest priority because variable-income earners face compounded risk -- not just income drops, but unexpected expenses while income is also volatile.
 
 **Priority 4 -- High-Interest Debt Acceleration:**
+
 - Extra payments above the minimums already in the baseline budget. Target highest-interest-rate debts first (avalanche method). Once a debt is cleared, redirect its allocation to the next highest-rate debt. Do not add debt acceleration to the priority list until Priorities 1-3 are at least partially established, because doing so while the buffer is unfunded exposes the user to a debt-financed shortfall in low months.
 
 **Priority 5 -- Specific Savings Goals:**
+
 - Income-producing equipment, professional development, tax-advantaged retirement contributions (self-employed individuals often have access to SEP-IRA or solo 401(k) type structures -- consult a tax professional), a home down payment fund, vacation, or any other named goal. Each goal should have a specific dollar target and a target date so the required monthly contribution is calculable.
 
 **Priority 6 -- Discretionary Lifestyle Spending:**
+
 - Whatever remains after Priorities 1-5 are funded is available for restaurants, entertainment, clothing, subscriptions, and personal enjoyment. This is not a luxury -- it is the reward mechanism that makes the system sustainable. If a good month produces zero discretionary money, the user will abandon the system. Size this so that strong months feel good.
 
 **Construct each priority line with:**
+
 - A specific dollar amount or percentage rule (not just "some money")
 - A target balance or end state (not open-ended)
 - A time estimate for reaching the target at current surplus rates
@@ -294,6 +304,7 @@ Produce the output in the following structure. Use actual numbers from the user'
 A user who has been freelancing for 2-3 months has data that cannot produce a reliable baseline -- early freelance income is often unrepresentative of the medium-term pattern because the user is still building a client pipeline.
 
 **Handling:**
+
 - Use whatever data exists. Take the lowest month and reduce it by 20% as a safety margin. Be explicit: "This baseline will likely need to be revised at the 6-month mark."
 - Build the baseline budget especially conservatively -- only non-negotiable fixed costs and genuine essentials. This is a transitional budget, not a permanent one.
 - Make building a 6-month income history the explicit Priority 0 goal, before any surplus allocation decisions are finalized.
@@ -305,6 +316,7 @@ A user who has been freelancing for 2-3 months has data that cannot produce a re
 This is simultaneously a financial planning issue and an income risk issue. The budget must reflect the actual risk, not suppress it.
 
 **Handling:**
+
 - Flag the concentration prominently in the Income Sources table.
 - Increase the income buffer target to 3 months of baseline expenses (not 2).
 - Add "Income Diversification" as a named Priority 5 savings goal -- this might fund: time to pursue new clients, professional development to enter adjacent markets, or marketing spend. The budget is acknowledging that resilience requires spending on income development.
@@ -316,6 +328,7 @@ This is simultaneously a financial planning issue and an income risk issue. The 
 A user earning $9,000/month from May-September and $800-1,200/month from October-April (e.g., a landscaper, a ski instructor, a tour guide) cannot use the standard lowest-month baseline because it is so low it covers almost nothing.
 
 **Handling:**
+
 - Calculate true annual income and divide by 12 to get the real monthly average.
 - Apply the seasonal baseline method: baseline = 70% of the monthly average.
 - Build one baseline budget using this blended baseline.
@@ -329,6 +342,7 @@ A user earning $9,000/month from May-September and $800-1,200/month from October
 A user with, for example, a part-time employed role ($1,800/month guaranteed) plus freelance income ($0-$4,000/month variable) has a structural advantage that simplifies the framework considerably.
 
 **Handling:**
+
 - Separate the income into two explicit layers.
 - **Layer 1 (Stable):** The $1,800/month guaranteed income funds as much of the baseline budget as it can. This portion of the baseline does not require a buffer.
 - **Layer 2 (Variable):** The freelance income covers the remainder of the baseline budget if Layer 1 is insufficient, and any excess flows to the surplus priority list.
@@ -341,6 +355,7 @@ A user with, for example, a part-time employed role ($1,800/month guaranteed) pl
 If the user's baseline budget -- even stripped to absolute essentials -- exceeds their baseline income, this is a structural deficit. The budget cannot be made to work without intervention.
 
 **Handling:**
+
 - Do not soften or avoid this finding. State it directly: "At your current baseline income of $X, your essential expenses of $Y exceed what your income can cover in your worst recent months. This requires action beyond budgeting."
 - Work through each baseline expense line and identify:
   - What is fixed and truly non-negotiable (lease with penalty, insurance, minimum loan payments)
@@ -354,6 +369,7 @@ If the user's baseline budget -- even stripped to absolute essentials -- exceeds
 Some freelancers -- particularly those who work with small business clients or who do not use contracts -- experience non-payment at a rate that materially affects their income. If the user mentions unpaid invoices, slow-paying clients, or payment disputes as a recurring pattern, the standard framework needs adjustment.
 
 **Handling:**
+
 - Ask how much of their average monthly invoiced revenue is actually collected. If the collection rate is below 90%, the effective income is lower than the raw figures suggest.
 - Adjust the income history analysis to use collected income, not invoiced income.
 - Recommend, as part of the financial system (not just legal advice), contract use and deposit or milestone payment structures as practical tools that improve payment reliability. This is financial system design, not legal guidance.
@@ -364,6 +380,7 @@ Some freelancers -- particularly those who work with small business clients or w
 A user who received a $20,000 project payment in one month will have a distorted income history if that month is included in the 6-month baseline calculation. Including it inflates the average but does not change the floor.
 
 **Handling:**
+
 - The standard lowest-month baseline is not affected by one outlier high month -- the baseline calculation correctly ignores it.
 - However, the average income will be inflated, which can mislead surplus allocation projections. Note explicitly: "Your $X,XXX month in [month] was a one-time project. Excluding it, your average income is approximately $Y -- a more representative figure for projecting monthly surplus."
 - Do not use the outlier month as evidence that the user's income is robust. It is a single data point, not a trend.
@@ -385,48 +402,51 @@ A user who received a $20,000 project payment in one month will have a distorted
 ---
 
 ### Income Analysis
-| Metric                           | Amount      |
-|----------------------------------|-------------|
-| Period analyzed                  | 8 months    |
-| Lowest month                     | $2,800      |
-| Highest month                    | $7,800      |
-| Average monthly income           | $4,988      |
+
+| Metric                           | Amount                              |
+| -------------------------------- | ----------------------------------- |
+| Period analyzed                  | 8 months                            |
+| Lowest month                     | $2,800                              |
+| Highest month                    | $7,800                              |
+| Average monthly income           | $4,988                              |
 | Income volatility ratio          | (7,800 -- 2,800) ÷ 4,988 = **100%** |
-| **Baseline income**              | **$2,800**  |
-| Baseline budget total            | $2,587      |
-| Baseline surplus (to Priority 1) | $213        |
+| **Baseline income**              | **$2,800**                          |
+| Baseline budget total            | $2,587                              |
+| Baseline surplus (to Priority 1) | $213                                |
 
 **Volatility note:** A 100% volatility ratio is high. This means your best month earns nearly three times your worst month. This is manageable with the right structure -- but it means the income buffer needs to be funded to 2-3 months of baseline expenses, and the system must be followed consistently. Your average monthly income ($4,988) is significantly better than your floor -- that gap is where the surplus priority system does its work.
 
 ---
 
 ### Income Sources
-| Source                      | Type       | Monthly Range      | Reliability | Payment Lag  |
-|-----------------------------|-----------|---------------------|-------------|--------------|
-| Anchor retainer client      | Retainer  | ~$2,500/month       | Tier 1      | Net-15 typical |
-| Project client (Client B)   | Project   | $0--$3,500/month   | Tier 2      | Net-30 typical |
-| Referral / one-off projects | Project   | $0--$2,000/month   | Tier 3      | Varies         |
+
+| Source                      | Type     | Monthly Range    | Reliability | Payment Lag    |
+| --------------------------- | -------- | ---------------- | ----------- | -------------- |
+| Anchor retainer client      | Retainer | ~$2,500/month    | Tier 1      | Net-15 typical |
+| Project client (Client B)   | Project  | $0--$3,500/month | Tier 2      | Net-30 typical |
+| Referral / one-off projects | Project  | $0--$2,000/month | Tier 3      | Varies         |
 
 **Concentration risk flag:** Your retainer client represents approximately 50% of your average monthly income -- just below the 60% threshold. This is worth watching. If the retainer were cancelled, your income floor would drop to near $0 in any month without a project. Building your income buffer to 3 months (rather than the standard 2) accounts for this risk while you continue diversifying your client base.
 
 ---
 
 ### Baseline Budget (Built on $2,800 baseline income)
-*This budget applies every month, regardless of how much you earn. It is the floor your income can reliably cover.*
 
-| Category                   | Monthly Amount | Category Type  | Notes                              |
-|----------------------------|---------------|----------------|------------------------------------|
-| Rent                        | $1,550        | Fixed          | Lease obligation                   |
-| Car insurance               | $130          | Fixed          | Required coverage                  |
-| Phone                       | $80           | Fixed          | Work-essential communication       |
-| Work software subscriptions | $220          | Fixed          | Essential to income generation     |
-| Credit card minimum         | $95           | Fixed          | Minimum only -- extra goes to P4   |
-| Personal loan minimum       | $180          | Fixed          | Minimum only -- extra goes to P4   |
-| Groceries                   | $400          | Essential Var  | Household food, lean estimate      |
-| Gas / transportation        | $180          | Essential Var  | Work and essential errands only    |
-| Tax reserve (27%)           | $756          | Essential      | 27% of $2,800 baseline             |
-| Minimum savings             | $50           | Essential      | Habit maintenance -- never skip    |
-| **Baseline Budget Total**   | **$3,641**    |                | --                                 |
+_This budget applies every month, regardless of how much you earn. It is the floor your income can reliably cover._
+
+| Category                    | Monthly Amount | Category Type | Notes                            |
+| --------------------------- | -------------- | ------------- | -------------------------------- |
+| Rent                        | $1,550         | Fixed         | Lease obligation                 |
+| Car insurance               | $130           | Fixed         | Required coverage                |
+| Phone                       | $80            | Fixed         | Work-essential communication     |
+| Work software subscriptions | $220           | Fixed         | Essential to income generation   |
+| Credit card minimum         | $95            | Fixed         | Minimum only -- extra goes to P4 |
+| Personal loan minimum       | $180           | Fixed         | Minimum only -- extra goes to P4 |
+| Groceries                   | $400           | Essential Var | Household food, lean estimate    |
+| Gas / transportation        | $180           | Essential Var | Work and essential errands only  |
+| Tax reserve (27%)           | $756           | Essential     | 27% of $2,800 baseline           |
+| Minimum savings             | $50            | Essential     | Habit maintenance -- never skip  |
+| **Baseline Budget Total**   | **$3,641**     |               | --                               |
 
 **Problem identified:** Your baseline budget total of $3,641 exceeds your baseline income of $2,800 by $841. This is a structural shortfall in your worst-case month.
 
@@ -435,6 +455,7 @@ A user who received a $20,000 project payment in one month will have a distorted
 **Tax reserve note:** The $756 estimate uses 27% of baseline income as a proxy for self-employment income tax and national insurance / self-employment tax obligations. This is a rough estimate only. Your actual tax obligation depends on your jurisdiction, allowable deductions, and filing status. Consult a tax professional to determine the correct reservation percentage for your situation.
 
 **Recommended immediate actions:**
+
 1. Confirm your baseline budget against your actual monthly statements. If your groceries or gas can be trimmed without meaningful life impact, reducing even $100-200 here helps.
 2. Call your personal loan servicer and ask whether a lower minimum payment is available through income-based adjustment or refinancing. Reducing the minimum does not prevent you from paying more in surplus months.
 3. Accept that the income buffer must be built as the top financial priority until it covers 3 months of baseline expenses ($3,641 × 3 = $10,923).
@@ -442,17 +463,18 @@ A user who received a $20,000 project payment in one month will have a distorted
 ---
 
 ### Surplus Allocation Priority List
-*Applied when monthly income exceeds $3,641 (your baseline budget total). Allocate every surplus dollar in strict priority order before spending anything discretionary.*
 
-| Priority | Category                  | Allocation Rule                       | Target Balance       | Est. Months to Fund     |
-|----------|---------------------------|---------------------------------------|----------------------|-------------------------|
-| 1        | Income Buffer Fund        | First $800 of surplus, then 50% of remaining | $10,923 (3 months)| ~18 months at avg surplus |
-| 2        | Additional Tax Reserve    | 27% of all surplus after Priority 1   | Ongoing (quarterly)  | Ongoing                 |
-| 3        | Emergency Fund            | $300/month from surplus after P1+P2   | $10,923 (3 months baseline) | ~36+ months (starts after buffer) |
-| 4        | Credit card extra payment | $150/month from surplus after P1-P3   | Full payoff          | Depends on balance      |
-| 5        | Personal loan extra pmt   | $100/month from surplus after P1-P4   | Full payoff          | Depends on balance      |
-| 6        | Professional development  | $75/month from surplus after P1-P5    | Rolling $900/year    | Ongoing                 |
-| 7        | Lifestyle discretionary   | Remainder                             | No target            | --                      |
+_Applied when monthly income exceeds $3,641 (your baseline budget total). Allocate every surplus dollar in strict priority order before spending anything discretionary._
+
+| Priority | Category                  | Allocation Rule                              | Target Balance              | Est. Months to Fund               |
+| -------- | ------------------------- | -------------------------------------------- | --------------------------- | --------------------------------- |
+| 1        | Income Buffer Fund        | First $800 of surplus, then 50% of remaining | $10,923 (3 months)          | ~18 months at avg surplus         |
+| 2        | Additional Tax Reserve    | 27% of all surplus after Priority 1          | Ongoing (quarterly)         | Ongoing                           |
+| 3        | Emergency Fund            | $300/month from surplus after P1+P2          | $10,923 (3 months baseline) | ~36+ months (starts after buffer) |
+| 4        | Credit card extra payment | $150/month from surplus after P1-P3          | Full payoff                 | Depends on balance                |
+| 5        | Personal loan extra pmt   | $100/month from surplus after P1-P4          | Full payoff                 | Depends on balance                |
+| 6        | Professional development  | $75/month from surplus after P1-P5           | Rolling $900/year           | Ongoing                           |
+| 7        | Lifestyle discretionary   | Remainder                                    | No target                   | --                                |
 
 **Note on Priorities 4 and 5:** Provide your credit card and personal loan balances and interest rates, and the order of these can be refined using the debt avalanche method (highest rate first). The allocations above assume the credit card carries a higher interest rate.
 
@@ -473,22 +495,22 @@ Transfer $841 from buffer. Buffer decreases by $841. Budget covered.
 
 Let's build your budget for a $5,200 month (representative of a moderate-good month):
 
-| Line                              | Amount     |
-|-----------------------------------|------------|
-| Monthly income received           | $5,200     |
-| Minus baseline budget total       | ($3,641)   |
-| **Surplus to allocate**           | **$1,559** |
+| Line                        | Amount     |
+| --------------------------- | ---------- |
+| Monthly income received     | $5,200     |
+| Minus baseline budget total | ($3,641)   |
+| **Surplus to allocate**     | **$1,559** |
 
-| Priority | Category                     | Amount Allocated | Calculation                          | Running Surplus Remaining |
-|----------|------------------------------|-----------------|--------------------------------------|---------------------------|
-| 1        | Income Buffer Fund           | $800            | First $800 of surplus                | $759                      |
-| 2        | Additional Tax Reserve       | $205            | 27% of $759 remaining                | $554                      |
-| 3        | Emergency Fund               | $300            | Fixed $300/month rule                | $254                      |
-| 4        | Credit Card Extra Payment    | $150            | Fixed $150/month rule                | $104                      |
-| 5        | Personal Loan Extra Payment  | $100            | Fixed $100/month rule                | $4                        |
-| 6        | Professional Development     | $4              | Remainder before lifestyle (partial) | $0                        |
-| 7        | Lifestyle Discretionary      | $0              | Nothing left this month              | $0                        |
-| **Total**| --                           | **$1,559**      | --                                   | $0                        |
+| Priority  | Category                    | Amount Allocated | Calculation                          | Running Surplus Remaining |
+| --------- | --------------------------- | ---------------- | ------------------------------------ | ------------------------- |
+| 1         | Income Buffer Fund          | $800             | First $800 of surplus                | $759                      |
+| 2         | Additional Tax Reserve      | $205             | 27% of $759 remaining                | $554                      |
+| 3         | Emergency Fund              | $300             | Fixed $300/month rule                | $254                      |
+| 4         | Credit Card Extra Payment   | $150             | Fixed $150/month rule                | $104                      |
+| 5         | Personal Loan Extra Payment | $100             | Fixed $100/month rule                | $4                        |
+| 6         | Professional Development    | $4               | Remainder before lifestyle (partial) | $0                        |
+| 7         | Lifestyle Discretionary     | $0               | Nothing left this month              | $0                        |
+| **Total** | --                          | **$1,559**       | --                                   | $0                        |
 
 **Observation:** A $5,200 month -- nearly $1,200 above your average -- leaves zero for discretionary spending because your buffer is unfunded. This is temporary. Once the buffer reaches $10,923 (approximately 18 months at this allocation rate), Priority 1 drops and lifestyle spending becomes available in every surplus month.
 
@@ -496,56 +518,59 @@ Let's build your budget for a $5,200 month (representative of a moderate-good mo
 
 Now the same calculation for a strong $7,800 month (your highest):
 
-| Line                              | Amount     |
-|-----------------------------------|------------|
-| Monthly income received           | $7,800     |
-| Minus baseline budget total       | ($3,641)   |
-| **Surplus to allocate**           | **$4,159** |
+| Line                        | Amount     |
+| --------------------------- | ---------- |
+| Monthly income received     | $7,800     |
+| Minus baseline budget total | ($3,641)   |
+| **Surplus to allocate**     | **$4,159** |
 
-| Priority | Category                     | Amount Allocated | Calculation                          | Running Surplus Remaining |
-|----------|------------------------------|-----------------|--------------------------------------|---------------------------|
-| 1        | Income Buffer Fund           | $800 + 50% × $3,359 = $2,480 | P1 rule applied    | $1,679                    |
-| 2        | Additional Tax Reserve       | $453            | 27% of $1,679                        | $1,226                    |
-| 3        | Emergency Fund               | $300            | Fixed $300/month                     | $926                      |
-| 4        | Credit Card Extra Payment    | $150            | Fixed $150/month                     | $776                      |
-| 5        | Personal Loan Extra Payment  | $100            | Fixed $100/month                     | $676                      |
-| 6        | Professional Development     | $75             | Fixed $75/month                      | $601                      |
-| 7        | Lifestyle Discretionary      | $601            | Remainder                            | $0                        |
-| **Total**| --                           | **$4,159**      | --                                   | $0                        |
+| Priority  | Category                    | Amount Allocated             | Calculation      | Running Surplus Remaining |
+| --------- | --------------------------- | ---------------------------- | ---------------- | ------------------------- |
+| 1         | Income Buffer Fund          | $800 + 50% × $3,359 = $2,480 | P1 rule applied  | $1,679                    |
+| 2         | Additional Tax Reserve      | $453                         | 27% of $1,679    | $1,226                    |
+| 3         | Emergency Fund              | $300                         | Fixed $300/month | $926                      |
+| 4         | Credit Card Extra Payment   | $150                         | Fixed $150/month | $776                      |
+| 5         | Personal Loan Extra Payment | $100                         | Fixed $100/month | $676                      |
+| 6         | Professional Development    | $75                          | Fixed $75/month  | $601                      |
+| 7         | Lifestyle Discretionary     | $601                         | Remainder        | $0                        |
+| **Total** | --                          | **$4,159**                   | --               | $0                        |
 
 **A strong month gives you $601 in discretionary spending** after building the buffer aggressively and covering all financial priorities. This is the reward for following the system -- strong months feel good again because the spending is intentional rather than default.
 
 ---
 
 ### Income Buffer Fund Tracker
-| Metric                        | Value           |
-|-------------------------------|-----------------|
-| Target balance                | $10,923 (3 months of baseline budget) |
-| Current balance               | $0 (starting)   |
-| Months of coverage at target  | 3.0 months      |
-| Buffer drawdown trigger       | Income < $3,641 |
-| Drawdown amount rule          | Exact shortfall only -- not more |
-| Replenishment rule            | Priority 1 status until fully restored |
-| Estimated months to target    | ~14-18 months at average surplus pace |
-| Recommended account type      | Separate savings account, easily accessible but not linked to debit card for impulse transfers |
+
+| Metric                       | Value                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------- |
+| Target balance               | $10,923 (3 months of baseline budget)                                                          |
+| Current balance              | $0 (starting)                                                                                  |
+| Months of coverage at target | 3.0 months                                                                                     |
+| Buffer drawdown trigger      | Income < $3,641                                                                                |
+| Drawdown amount rule         | Exact shortfall only -- not more                                                               |
+| Replenishment rule           | Priority 1 status until fully restored                                                         |
+| Estimated months to target   | ~14-18 months at average surplus pace                                                          |
+| Recommended account type     | Separate savings account, easily accessible but not linked to debit card for impulse transfers |
 
 ---
 
 ### Key Milestones
-| Milestone                              | Approximate Date      | What Changes                              |
-|----------------------------------------|-----------------------|-------------------------------------------|
-| Income Buffer at 1 month ($3,641)      | Month 5-6             | First month of real buffer protection     |
-| Income Buffer at 3 months ($10,923)    | Month 14-18           | P1 drops; lifestyle budget opens significantly |
-| Emergency Fund at 1 month ($3,641)     | Month 20-24           | Second layer of protection established    |
-| Credit card fully paid                 | Depends on balance    | Frees $95/month from baseline budget      |
-| Personal loan fully paid               | Depends on balance    | Frees $180/month from baseline budget     |
-| Post-debt payoff                       | After loans cleared   | $275/month freed from baseline -- re-allocate to buffer or goals |
+
+| Milestone                           | Approximate Date    | What Changes                                                     |
+| ----------------------------------- | ------------------- | ---------------------------------------------------------------- |
+| Income Buffer at 1 month ($3,641)   | Month 5-6           | First month of real buffer protection                            |
+| Income Buffer at 3 months ($10,923) | Month 14-18         | P1 drops; lifestyle budget opens significantly                   |
+| Emergency Fund at 1 month ($3,641)  | Month 20-24         | Second layer of protection established                           |
+| Credit card fully paid              | Depends on balance  | Frees $95/month from baseline budget                             |
+| Personal loan fully paid            | Depends on balance  | Frees $180/month from baseline budget                            |
+| Post-debt payoff                    | After loans cleared | $275/month freed from baseline -- re-allocate to buffer or goals |
 
 ---
 
 ### Monthly Ritual Checklist
 
 **Day 1-3 of each month:**
+
 - [ ] Log all income received in the past month (cash basis -- only what hit your account)
 - [ ] List invoices due this month: Tier 1 retainer ($2,500 -- count it), Tier 2 project (only if actively in progress and on track), Tier 3 referrals (exclude until received)
 - [ ] Compare estimated income to $3,641 -- determine Scenario A or B
@@ -553,11 +578,13 @@ Now the same calculation for a strong $7,800 month (your highest):
 - [ ] Transfer the tax reserve amount to your dedicated tax savings account immediately
 
 **Day 14-16:**
+
 - [ ] Has your retainer payment arrived? (Should be by Day 15 based on Net-15 terms)
 - [ ] Any project invoices overdue more than 15 days? If yes, exclude from this month's income and downgrade to Scenario A if needed
 - [ ] Reverse any surplus allocations that were planned but not yet transferred if you are downgrading
 
 **Last day of each month:**
+
 - [ ] Record actual income received in your 8-month rolling log
 - [ ] Update buffer fund balance (contribution or drawdown)
 - [ ] Note anything unusual (large one-time payment, non-payment, new client)

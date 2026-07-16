@@ -17,10 +17,10 @@ steps:
   - id: api-key
     title: Paste your Cal.com API key
     estSeconds: 90
-    externalAction: { label: "Open Cal.com API keys", url: "https://app.cal.com/settings/developer/api-keys" }
+    externalAction: { label: 'Open Cal.com API keys', url: 'https://app.cal.com/settings/developer/api-keys' }
     inputs:
-      - { name: CALCOM_API_KEY, label: "Cal.com API key", secret: true }
-      - { name: CALCOM_BASE_URL, label: "Base URL (self-hosted only)", default: "https://api.cal.com/v2" }
+      - { name: CALCOM_API_KEY, label: 'Cal.com API key', secret: true }
+      - { name: CALCOM_BASE_URL, label: 'Base URL (self-hosted only)', default: 'https://api.cal.com/v2' }
     body: |
       Cal.com authenticates the MCP with a personal API key minted from your
       account settings.
@@ -50,4 +50,3 @@ steps:
 Cal.com is open-source and self-hostable. The MCP works against the hosted
 cal.com service by default; point `CALCOM_BASE_URL` at your own instance for
 self-hosted deployments.
-

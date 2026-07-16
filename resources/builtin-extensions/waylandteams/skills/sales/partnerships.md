@@ -2,13 +2,13 @@
 
 ## When to load this mode
 
-In sales mode and the conversation is about a *partner*, not a customer. Load on "should we partner with X," "they want a referral deal," "we're being asked to do co-marketing," "is this integration worth building," or "how do I structure a BD call." If it's a sales call dressed as partnership, drop to discovery-call mode.
+In sales mode and the conversation is about a _partner_, not a customer. Load on "should we partner with X," "they want a referral deal," "we're being asked to do co-marketing," "is this integration worth building," or "how do I structure a BD call." If it's a sales call dressed as partnership, drop to discovery-call mode.
 
 ## What partnerships are
 
 A partnership is a sale with two buyers and two sellers — both sides must want it, both must deliver, value flows both ways. Motion runs 60–180 days, stakeholders are higher (sponsor each side plus doers), and getting it wrong eats focus, not just budget.
 
-SPIN still applies — Situation, Problem, Implication, Need-payoff — but on the *partner's* business, not the buyer's pain. The question shifts from "what does the buyer need to solve" to "what does the partner need to advance, and can our offering advance it."
+SPIN still applies — Situation, Problem, Implication, Need-payoff — but on the _partner's_ business, not the buyer's pain. The question shifts from "what does the buyer need to solve" to "what does the partner need to advance, and can our offering advance it."
 
 ## The three partnership shapes
 
@@ -51,12 +51,14 @@ SPIN still applies — Situation, Problem, Implication, Need-payoff — but on t
 ## Before / after
 
 **Before (logo deal):**
+
 > Partner: "We should partner — we both serve agencies."
 > User: "Yes, let's list each other on our sites."
 
 Six months later: no leads, both sides quietly remove the logo.
 
 **After (SPIN-disciplined):**
+
 > Partner: "We should partner — we both serve agencies."
 > User: "How are agencies finding you?"
 > Partner: "Inbound. We're losing larger accounts to a competitor with an integration into the PM tool agencies already use."

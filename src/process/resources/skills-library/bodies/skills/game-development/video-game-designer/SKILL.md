@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design guide"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design guide'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Video Game Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to design a video game and needs help with Game Design Documents, core mechanics, or the design-to-playtest pipeline
 - The user needs guidance on player motivation (Bartle types), difficulty curves, or game feel and juice
 - The user is scoping a game project and needs help with team structure, timeline, or business model decisions
@@ -26,6 +27,7 @@ metadata:
 - The user needs a structured playtesting methodology or feedback analysis framework
 
 **Do NOT use this skill when:**
+
 - The user is designing a board game or tabletop game (use board-game-creator or tabletop-rpg-designer instead)
 - The user needs specialized mobile F2P design (use mobile-game-designer instead)
 - The user needs deep expertise in a specific subsystem like audio, economy, or narrative (use the relevant specialized skill)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on video game designer
 - User asks about video game designer best practices or techniques
 - User wants a structured approach to video game designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of video game designer
 
@@ -472,23 +476,28 @@ DESIGN PRINCIPLES FOR ETHICAL MONETIZATION:
 ## Practice Exercises
 
 ### Exercise 1: Core Loop Design
+
 Design 3 different core loops for the same theme (e.g., "space exploration"). Each loop should create a fundamentally different experience. Prototype the one that excites you most.
 
 ### Exercise 2: Toy Test
+
 Build the simplest possible version of your main mechanic. No goals, no score, no enemies. Just the mechanic. Is it fun as a toy? If not, iterate until it is.
 
 ### Exercise 3: Juice Pass
+
 Take a simple game prototype (even Pong). Add juice: screen shake, particles, sound effects, animation easing. Compare before and after. Note how much feel changes.
 
 ### Exercise 4: Playtest Observation
+
 Watch 3 people play a game you're designing (or any game). Don't help them. Take notes on every moment of confusion, frustration, or delight. Identify the top 3 patterns.
 
 ### Exercise 5: Level Design Language
+
 Design a level that teaches a new mechanic WITHOUT any text, tutorials, or UI prompts. Use only environmental design to guide the player.
 
 ### Exercise 6: One-Page GDD
-Write a complete game concept on a single page. If you can't communicate the vision in one page, the concept isn't clear enough yet.
 
+Write a complete game concept on a single page. If you can't communicate the vision in one page, the concept isn't clear enough yet.
 
 ## Output Format
 
@@ -502,13 +511,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with video game designer for a mid-size project."
 
 **Output:** A complete video game designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

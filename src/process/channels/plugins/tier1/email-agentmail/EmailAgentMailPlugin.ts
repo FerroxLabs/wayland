@@ -183,9 +183,7 @@ export class EmailAgentMailPlugin extends BasePlugin {
   ): Promise<void> {
     const unified = this.toUnifiedIncomingMessage(payload as AgentMailInboundPayload);
     if (!unified) {
-      console.warn(
-        '[email-agentmailPlugin] Dropping payload without required message_id/from fields'
-      );
+      console.warn('[email-agentmailPlugin] Dropping payload without required message_id/from fields');
       return;
     }
     this.activeUsers.add(unified.user.id);
@@ -207,9 +205,7 @@ export class EmailAgentMailPlugin extends BasePlugin {
    * first inbox address found so the renderer can persist it as
    * `credentials.inboxAddress`.
    */
-  static async testConnection(
-    apiKey: string
-  ): Promise<{ success: boolean; inboxAddress?: string; error?: string }> {
+  static async testConnection(apiKey: string): Promise<{ success: boolean; inboxAddress?: string; error?: string }> {
     const trimmed = apiKey.trim();
     if (!trimmed) {
       return { success: false, error: 'API key is required' };

@@ -64,16 +64,12 @@ export function toUnifiedIncomingFromAgentMail(
   if (!messageId || !from) return null;
 
   const toRaw = message.to;
-  const to = Array.isArray(toRaw) ? (toRaw[0] ?? inboxAddress) : (typeof toRaw === 'string' ? toRaw : inboxAddress);
+  const to = Array.isArray(toRaw) ? (toRaw[0] ?? inboxAddress) : typeof toRaw === 'string' ? toRaw : inboxAddress;
 
   const text = pickBodyText(message.text, message.html);
-  const subject = typeof message.subject === 'string' && message.subject.length > 0
-    ? message.subject
-    : DEFAULT_SUBJECT;
+  const subject = typeof message.subject === 'string' && message.subject.length > 0 ? message.subject : DEFAULT_SUBJECT;
 
-  const displayName = typeof message.from_name === 'string' && message.from_name.length > 0
-    ? message.from_name
-    : from;
+  const displayName = typeof message.from_name === 'string' && message.from_name.length > 0 ? message.from_name : from;
 
   const timestamp = normalizeTimestamp(message.received_at);
 
@@ -115,9 +111,7 @@ export function toAgentMailSendBody(message: IUnifiedOutgoingMessage, chatId: st
   if (!text) {
     throw new Error('AgentMail send body cannot be empty');
   }
-  const subject = typeof message.subject === 'string' && message.subject.length > 0
-    ? message.subject
-    : DEFAULT_SUBJECT;
+  const subject = typeof message.subject === 'string' && message.subject.length > 0 ? message.subject : DEFAULT_SUBJECT;
 
   const body: AgentMailSendBody = {
     to: chatId,

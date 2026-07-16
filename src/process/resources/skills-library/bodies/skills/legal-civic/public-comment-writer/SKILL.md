@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "civic-engagement writing guide template"
-  category: "legal-civic"
-  subcategory: "civic-engagement"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'civic-engagement writing guide template'
+  category: 'legal-civic'
+  subcategory: 'civic-engagement'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Public Comment Writer
 
 > **Disclaimer:** This skill provides general civic literacy and educational information to help you understand public participation processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Procedural rules vary significantly by jurisdiction and agency, and change over time. Consult the specific agency's published rules or a qualified attorney for advice on formal proceedings affecting your legal rights.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to submit a written comment on a proposed local ordinance, zoning variance, conditional use permit, general plan amendment, or subdivision approval
 - The user wants to prepare oral or written testimony for a city council, planning commission, school board, water district board, air quality management district, or similar special district hearing
 - The user wants to respond to a state or federal agency's Notice of Proposed Rulemaking (NPRM) through a formal notice-and-comment period under the Administrative Procedure Act or its state equivalents
@@ -33,6 +35,7 @@ metadata:
 - The user wants to make an existing draft comment stronger, more specific, more persuasive, or better targeted to the decision-making criteria the body is legally required to apply
 
 **Do NOT use when:**
+
 - The user wants to draft political campaign materials, candidate endorsements, or election-related advocacy content -- use a political writing skill
 - The user wants to draft actual proposed legislation, bill language, or statutory text -- use a legislative drafting skill
 - The user needs to write a legal brief, motion, or court filing for a contested case proceeding -- refer to an attorney
@@ -80,18 +83,21 @@ Ask the user directly: "Do you know what specific findings or criteria the [body
 IPAR (Identify, Position, Argue, Request) is not merely an organizational preference -- it reflects how decision-makers actually process public input. Use the following guidance for each component.
 
 **I -- Identify the Issue and Establish Standing**
+
 - First sentence: state the exact name and reference number of the proposal. Example: "I am writing regarding proposed Zoning Ordinance Amendment No. ZA-2024-0047, which would rezone approximately 2.3 acres at the northeast corner of Maple Avenue and 12th Street from R-1 Single-Family Residential to C-2 General Commercial."
 - Second sentence: establish standing. Example: "I am a licensed civil engineer and a homeowner at [address], located 175 feet from the eastern boundary of the subject parcel, and I have resided in this neighborhood for 14 years."
 - Include any relevant professional credentials if they are germane to the argument -- engineers, physicians, environmental scientists, traffic planners, and educators all carry epistemic authority that strengthens comment weight.
 - If commenting on behalf of an organization, state the organization's name, its purpose, its membership count or constituency, and the fact that the board or leadership authorized the comment.
 
 **P -- State Your Position in One Sentence**
+
 - This must appear in the first paragraph -- not after two pages of background.
 - Use unambiguous language: "I oppose," "I support," "I support the proposal if the following modifications are adopted," or "I request that the comment period be extended to allow adequate review."
 - Do not say "I have concerns about" or "I have questions regarding" -- this is not a position. State the position.
 - Decision-makers and their staff read hundreds of comments, often under time pressure. A buried position is a lost position.
 
 **A -- Argue with Specific, Verifiable Evidence**
+
 - Each argument should be its own clearly labeled paragraph or section.
 - Use 2-4 arguments for most proceedings. More than 4 dilutes impact. Agencies and commissions are more likely to respond to three well-supported arguments than to eight thin ones.
 - Types of evidence ranked by general persuasive weight in most proceedings:
@@ -110,6 +116,7 @@ IPAR (Identify, Position, Argue, Request) is not merely an organizational prefer
   - Repetitive statements: saying the same thing five times does not make it five arguments
 
 **R -- Request Specific, Legally Actionable Relief**
+
 - Tell the body exactly what you want them to do. Vague requests ("please reconsider") give the decision-maker nothing to grant.
 - Specific requests: "I request that the Commission deny the conditional use permit application for the reasons stated above." "I request that the final rule include a 180-day delayed effective date for small businesses with fewer than 50 employees." "I request that the lead agency prepare a full EIR rather than relying on a Mitigated Negative Declaration, given the unresolved issues identified in this comment."
 - If you support with modifications, list each modification as a numbered item with enough specificity that a staff member could draft it: "Condition of Approval No. 3 should be revised to require a 6-foot solid masonry wall rather than the proposed 4-foot wood fence along the northern property boundary."
@@ -120,6 +127,7 @@ IPAR (Identify, Position, Argue, Request) is not merely an organizational prefer
 ### Step 4: Format the Comment for the Specific Submission Type
 
 **Written Letter or Email (Standard Format):**
+
 - Header: your name and address, date, recipient (body name and address or email), subject line with full proposal reference
 - Salutation: "Dear [Commission/Council/Board] Members" or "Dear [Clerk/Administrator] [Last Name]"
 - Length: 1-2 pages for most local proceedings. For complex environmental or federal rulemaking comments, longer technical submissions are appropriate -- but organize with headers, numbered sections, and page numbers so staff can navigate them.
@@ -127,6 +135,7 @@ IPAR (Identify, Position, Argue, Request) is not merely an organizational prefer
 - Signature: name, title (if relevant), contact information, and a request to be notified of the decision.
 
 **Online Portal Submission (regulations.gov and State Equivalents):**
+
 - Many federal comment portals accept comments of unlimited length. Some local portals impose 2,000-5,000 character limits.
 - If there is a character limit, prioritize: (1) the proposal reference, (2) your position, (3) your single strongest argument with specific evidence, (4) your specific request.
 - For federal rulemaking, attach supporting documents (reports, studies, data) as separate files. Attached documents become part of the docket and receive the same consideration as the comment text.
@@ -134,6 +143,7 @@ IPAR (Identify, Position, Argue, Request) is not merely an organizational prefer
 - Submit well before the deadline. High-traffic comment periods can cause portal slowdowns in the final hours.
 
 **Oral Testimony at a Public Hearing:**
+
 - Standard speaking time: 2-3 minutes at most local bodies (varies; confirm with the clerk before the meeting). Some bodies allow 1 minute; some up to 5.
 - Spoken word rate at a comfortable, clear pace: approximately 130 words per minute. A 2-minute testimony should be approximately 250-260 words. A 3-minute testimony should be approximately 380-390 words. Time yourself.
 - Structure: State your name and address (required for the record), state your position in the first sentence, give your one or two strongest arguments, make your specific request. Save nothing for a closing flourish -- use every second for substance.
@@ -142,6 +152,7 @@ IPAR (Identify, Position, Argue, Request) is not merely an organizational prefer
 - If you run over time and are cut off, your submitted written copy preserves the rest of your testimony.
 
 **Hybrid (Written Comment + Oral Testimony at Same Proceeding):**
+
 - These are not redundant -- they serve different functions. Written comments create a formal record. Oral testimony allows you to respond to what other speakers have said and to look decision-makers in the eye.
 - Your oral testimony can be a compressed version of the written comment, or it can address a new development raised at the hearing (an applicant's last-minute revision, a staff report error identified that day).
 
@@ -193,6 +204,7 @@ Run the finished comment through this checklist:
 ### Step 8: Produce the Final Deliverables
 
 Produce the following outputs based on the user's situation:
+
 1. A complete written comment following the Output Format below
 2. A condensed oral testimony script (if the user will attend a hearing), timed to the specific limit they confirmed
 3. A brief submission checklist with the specific deadline, submission address, and formatting requirements the user identified
@@ -336,6 +348,7 @@ SUBMISSION CHECKLIST
 Federal agencies publish proposed rules in the Federal Register with a docket number (e.g., EPA-HQ-OAR-2024-0001). Comments are typically submitted through regulations.gov. The standard comment period is 30-60 days, though significant rules may have 60-90 day periods. Major rules affecting many stakeholders sometimes receive extensions upon request.
 
 Key differences from local proceedings:
+
 - Comments must reference the specific docket number and, for technical rules, the specific section or paragraph being addressed (e.g., "Proposed 40 CFR § 60.112b(a)(1)").
 - The agency must publish a final rule that addresses all significant comments. If your comment raises a point that, if true, would require modifying the proposed rule, the agency must explain why it accepts or rejects that point in the preamble to the final rule.
 - Cost-benefit analysis challenges are among the most effective comment types for major rules. If the agency's Regulatory Impact Analysis (RIA) uses flawed assumptions, outdated data, or ignores a category of costs or benefits, identifying this with specificity is high-value advocacy.
@@ -347,6 +360,7 @@ Key differences from local proceedings:
 Environmental review under CEQA (California) and NEPA (federal, triggered by federal nexus) has its own distinct comment logic. The comment period on a Draft EIR is typically 45 days under CEQA (30 days for a Negative Declaration or MND). NEPA draft EIS comment periods are typically 45 days, sometimes 60 days for complex projects.
 
 The purpose of environmental review comments is to force the agency to analyze impacts it may have underestimated or overlooked and to consider alternatives and mitigations it may have rejected too quickly. Comments should:
+
 - Identify the specific section of the document being critiqued (chapter, section, page number).
 - Identify the specific legal standard not met (e.g., CEQA Guidelines § 15126.6 requires analysis of a "no project" alternative and a "reduced intensity" alternative -- if these are missing or inadequate, say so and cite the provision).
 - Reference peer-reviewed studies, agency guidelines (e.g., FHWA noise standards, EPA air quality thresholds), or technical manuals that establish a standard the document failed to apply.
@@ -361,6 +375,7 @@ This situation requires honesty about the procedural consequences. For federal r
 For local quasi-judicial proceedings, the comment period typically ends at the close of the hearing. If the hearing has not yet occurred, written comments may still be submitted (often to the clerk by a specified date before the hearing, or in person at the hearing itself).
 
 Advise the user to:
+
 1. Contact the specific agency's clerk or docket office immediately to ask whether late submissions will be accepted and under what conditions.
 2. If attending a hearing is possible, prepare oral testimony -- most local hearings allow public comment at the hearing itself regardless of whether written comments were timely.
 3. If the matter affects legal rights, consult an attorney immediately about whether the deadline can be challenged and whether participation can be preserved through other procedural mechanisms.
@@ -379,6 +394,7 @@ Critical caution: 501(c)(3) public charities may not engage in substantial legis
 This is a common and legitimate concern. Decision-makers sometimes have clearly signaled their intentions before the public comment period closes. Address this directly:
 
 The answer depends on the user's goals. If the goal is to change tonight's vote, a predetermined outcome is discouraging. But public comments serve purposes beyond the immediate vote:
+
 - **Building the administrative record for appeal:** In quasi-judicial proceedings, the record is what a court reviews. If the decision was legally flawed, the record that supports that challenge must exist. A detailed, legally precise comment creates that record.
 - **Influencing conditions of approval:** Even when the core approval is predetermined, specific requests for conditions (hours of operation, buffer requirements, monitoring programs, mitigation measures) are often negotiable and responsive to well-documented requests.
 - **Establishing a political record:** Decision-makers who vote against a documented record of community concern face accountability at the ballot box. A public record of opposition has lasting political value beyond the immediate proceeding.
@@ -389,6 +405,7 @@ Explain these purposes to the user and let them decide whether the comment is wo
 ### Case 6: The User Wants to Comment in Support, Not Opposition
 
 Support comments are often neglected but are strategically important. Applicants, developers, and agencies are sometimes surprised by opposition and need documented support in the record to counter it. A well-structured support comment should:
+
 - Explain specifically why the proposal meets the required findings (using the same legal criteria an opponent would challenge).
 - Provide affirmative evidence of benefit: economic data, public health research, documented need the proposal addresses.
 - Respond directly to specific objections raised by opponents -- if the comment period is open, you can often see what opponents are saying and address it.
@@ -399,6 +416,7 @@ Support without substance ("I think this is great") contributes less to the reco
 ### Case 7: The User Is Not a Fluent English Writer
 
 Public comment processes are legally open to all residents, including those who write in languages other than English. Advise the user:
+
 - Many local agencies have translation services for written submissions or oral testimony. Contact the clerk's office in advance to request interpretation.
 - Writing in a clear, simple style is more effective than attempting complex rhetorical constructions in a second language. The IPAR structure is inherently simple and transfers across languages.
 - If the user has a family member, community organization, or advocate who can help with translation, that is worth pursuing. A comment should not go unsubmitted because of language barriers.
@@ -407,6 +425,7 @@ Public comment processes are legally open to all residents, including those who 
 ### Case 8: The User Wants to Comment on a School Board Decision
 
 School board proceedings have specific features that differ from planning and regulatory proceedings:
+
 - School boards are typically bound by state education codes and board-adopted policies rather than a zoning code or administrative procedure act.
 - Agenda items at school board meetings are tightly controlled. Public comment is often limited to agenda items only; comment on non-agenda items may be permitted during a general public comment period but the board cannot act on it at that meeting.
 - School board meetings often have very short speaking times -- sometimes 1 minute per speaker, with a cap on total public comment time.
@@ -449,151 +468,151 @@ WRITTEN COMMENT
 Dear Planning Commissioners,
 
 [IDENTIFY]
-I am writing regarding Zoning Amendment No. ZA-2024-0091 and 
-Conditional Use Permit No. CUP-2024-0044, which together would 
-allow construction of an approximately 80,000-square-foot grocery 
-store at the corner of Harbor Boulevard and Lincoln Avenue -- 
-more than three times the 25,000-square-foot maximum currently 
-applicable to the NC (Neighborhood Commercial) zone. I am a 
-resident of [address], located [X] feet from the project site, 
+I am writing regarding Zoning Amendment No. ZA-2024-0091 and
+Conditional Use Permit No. CUP-2024-0044, which together would
+allow construction of an approximately 80,000-square-foot grocery
+store at the corner of Harbor Boulevard and Lincoln Avenue --
+more than three times the 25,000-square-foot maximum currently
+applicable to the NC (Neighborhood Commercial) zone. I am a
+resident of [address], located [X] feet from the project site,
 and I have lived in this neighborhood for [X] years.
 
 [POSITION]
-I oppose both the proposed zoning amendment and the conditional 
+I oppose both the proposed zoning amendment and the conditional
 use permit application.
 
-[ARGUMENT 1: TRAFFIC IMPACT -- FAILURE TO DEMONSTRATE 
+[ARGUMENT 1: TRAFFIC IMPACT -- FAILURE TO DEMONSTRATE
 ADEQUACY UNDER THE CITY'S LEVEL OF SERVICE STANDARD]
-Traffic Impacts on Harbor Boulevard Exceed Acceptable Level of 
+Traffic Impacts on Harbor Boulevard Exceed Acceptable Level of
 Service:
-The applicant's Traffic Impact Analysis (TIA), dated [date], 
-concludes that the project will generate 6,200 net new daily 
-vehicle trips, including 485 PM peak-hour trips. However, the 
-TIA's base year traffic counts at Harbor Boulevard and Lincoln 
-Avenue were collected in October 2022 -- before the 312-unit 
-apartment complex at [nearby address] opened in early 2024, 
-which the city's own approval resolution estimated would add 
-1,800 daily trips to Harbor Boulevard. The TIA therefore 
-understates existing and cumulative traffic conditions at this 
-intersection. According to the Institute of Transportation 
-Engineers Trip Generation Manual (11th Ed., Land Use Code 
-850), a grocery store of 80,000 square feet generates a median 
-of 6.84 trips per 1,000 square feet in the AM peak hour -- a 
-rate the applicant's TIA does not appear to apply. Using the 
-ITE rate, AM peak-hour trips would be approximately 547, not 
-the 312 stated in the TIA. The city's Municipal Code Section 
-[X] requires Level of Service C or better at intersections 
-adjacent to commercial projects. The TIA's own data shows 
-Harbor/Lincoln operating at Level of Service D during the PM 
-peak hour even without project trips. The Commission cannot 
-make the required finding that traffic facilities will be 
-adequate without an independent traffic study using current 
+The applicant's Traffic Impact Analysis (TIA), dated [date],
+concludes that the project will generate 6,200 net new daily
+vehicle trips, including 485 PM peak-hour trips. However, the
+TIA's base year traffic counts at Harbor Boulevard and Lincoln
+Avenue were collected in October 2022 -- before the 312-unit
+apartment complex at [nearby address] opened in early 2024,
+which the city's own approval resolution estimated would add
+1,800 daily trips to Harbor Boulevard. The TIA therefore
+understates existing and cumulative traffic conditions at this
+intersection. According to the Institute of Transportation
+Engineers Trip Generation Manual (11th Ed., Land Use Code
+850), a grocery store of 80,000 square feet generates a median
+of 6.84 trips per 1,000 square feet in the AM peak hour -- a
+rate the applicant's TIA does not appear to apply. Using the
+ITE rate, AM peak-hour trips would be approximately 547, not
+the 312 stated in the TIA. The city's Municipal Code Section
+[X] requires Level of Service C or better at intersections
+adjacent to commercial projects. The TIA's own data shows
+Harbor/Lincoln operating at Level of Service D during the PM
+peak hour even without project trips. The Commission cannot
+make the required finding that traffic facilities will be
+adequate without an independent traffic study using current
 traffic counts.
 
-[ARGUMENT 2: INCONSISTENCY WITH THE GENERAL PLAN AND ZONING 
+[ARGUMENT 2: INCONSISTENCY WITH THE GENERAL PLAN AND ZONING
 CODE PURPOSE STATEMENT]
-The Project Contradicts the Purpose and Intent of the 
+The Project Contradicts the Purpose and Intent of the
 Neighborhood Commercial Zone:
-The city's Zoning Code Section [X] establishes the NC zone to 
-"provide for small-scale retail and service uses that serve 
-the daily needs of nearby residents, with a scale and 
-character compatible with adjacent residential neighborhoods." 
-The 25,000-square-foot maximum building size is not an 
-arbitrary number -- it reflects the Planning Commission's 
-2018 finding (Resolution No. [X]) that buildings above this 
-threshold "generate regional-scale traffic and operational 
-impacts inconsistent with the pedestrian-scaled character of 
-the NC zone." Approving a zoning amendment to allow 80,000 
-square feet at this location would be the functional equivalent 
-of creating a new Regional Commercial designation at this 
-intersection without the environmental review or community 
-input that a general plan amendment would require. The 
-General Plan Land Use Element (Policy LU-3.4) directs the 
-city to "protect the viability of neighborhood-serving 
+The city's Zoning Code Section [X] establishes the NC zone to
+"provide for small-scale retail and service uses that serve
+the daily needs of nearby residents, with a scale and
+character compatible with adjacent residential neighborhoods."
+The 25,000-square-foot maximum building size is not an
+arbitrary number -- it reflects the Planning Commission's
+2018 finding (Resolution No. [X]) that buildings above this
+threshold "generate regional-scale traffic and operational
+impacts inconsistent with the pedestrian-scaled character of
+the NC zone." Approving a zoning amendment to allow 80,000
+square feet at this location would be the functional equivalent
+of creating a new Regional Commercial designation at this
+intersection without the environmental review or community
+input that a general plan amendment would require. The
+General Plan Land Use Element (Policy LU-3.4) directs the
+city to "protect the viability of neighborhood-serving
 commercial areas by preventing the intrusion of regional-
-scale commercial uses that would generate incompatible 
-traffic and operational impacts." This project is 
+scale commercial uses that would generate incompatible
+traffic and operational impacts." This project is
 incompatible with Policy LU-3.4.
 
-[ARGUMENT 3: OPERATING HOURS -- NOISE AND LIGHT IMPACTS 
+[ARGUMENT 3: OPERATING HOURS -- NOISE AND LIGHT IMPACTS
 ON ADJACENT RESIDENTIAL PROPERTIES]
-Proposed 24-Hour Operations Will Create Unmitigated Noise 
+Proposed 24-Hour Operations Will Create Unmitigated Noise
 and Light Impacts on Adjacent Residents:
-The project proposes 24-hour, 7-day operations, including 
-overnight delivery and restocking activities. The applicant's 
-Noise Assessment identifies projected loading dock noise 
-levels of 72 dB(A) at the property line during overnight 
-delivery operations (11:00 PM to 6:00 AM). The city's 
-Noise Ordinance Section [X] establishes a nighttime exterior 
-noise limit of 50 dB(A) for residential zones. The loading 
-dock, as proposed, would generate noise 22 dB(A) above the 
-applicable nighttime limit at the residential property line 
--- a difference audible as approximately four times louder 
-than the permitted level. The Noise Assessment proposes a 
-"solid masonry screen wall" as mitigation but does not 
-specify its height, materials, or location with sufficient 
-precision to evaluate whether it would achieve compliance. 
-Similarly, the photometric plan submitted with the project 
-shows parking lot lighting at 3.8 foot-candles at the 
-residential property line during overnight hours; the city's 
-lighting standards limit spill light to 0.1 foot-candles 
-at a residential property line. These are not minor 
-discrepancies -- they represent a 38-fold exceedance of 
-the applicable light standard. The Commission cannot make 
-the conditional use permit finding that the project "will 
-not be detrimental to the health, safety, and welfare of 
+The project proposes 24-hour, 7-day operations, including
+overnight delivery and restocking activities. The applicant's
+Noise Assessment identifies projected loading dock noise
+levels of 72 dB(A) at the property line during overnight
+delivery operations (11:00 PM to 6:00 AM). The city's
+Noise Ordinance Section [X] establishes a nighttime exterior
+noise limit of 50 dB(A) for residential zones. The loading
+dock, as proposed, would generate noise 22 dB(A) above the
+applicable nighttime limit at the residential property line
+-- a difference audible as approximately four times louder
+than the permitted level. The Noise Assessment proposes a
+"solid masonry screen wall" as mitigation but does not
+specify its height, materials, or location with sufficient
+precision to evaluate whether it would achieve compliance.
+Similarly, the photometric plan submitted with the project
+shows parking lot lighting at 3.8 foot-candles at the
+residential property line during overnight hours; the city's
+lighting standards limit spill light to 0.1 foot-candles
+at a residential property line. These are not minor
+discrepancies -- they represent a 38-fold exceedance of
+the applicable light standard. The Commission cannot make
+the conditional use permit finding that the project "will
+not be detrimental to the health, safety, and welfare of
 the surrounding neighborhood" based on the current record.
 
 [ACKNOWLEDGMENT OF COUNTERARGUMENT]
-I recognize that this site has been vacant for several years 
-and that the applicant's proposal would bring significant 
-sales tax revenue and approximately 200 permanent jobs to the 
-city. These are legitimate public benefits. However, the 
-existence of economic benefits does not eliminate the legal 
-obligation to make specific findings under the Zoning Code 
-and General Plan, and those findings cannot be made on the 
-current record given the inadequate traffic analysis, the 
-zoning inconsistency, and the unresolved noise and light 
-impacts. The right outcome is not denial of any commercial 
-development, but rather a project designed and conditioned 
+I recognize that this site has been vacant for several years
+and that the applicant's proposal would bring significant
+sales tax revenue and approximately 200 permanent jobs to the
+city. These are legitimate public benefits. However, the
+existence of economic benefits does not eliminate the legal
+obligation to make specific findings under the Zoning Code
+and General Plan, and those findings cannot be made on the
+current record given the inadequate traffic analysis, the
+zoning inconsistency, and the unresolved noise and light
+impacts. The right outcome is not denial of any commercial
+development, but rather a project designed and conditioned
 to actually comply with applicable standards.
 
 [REQUEST]
-For the foregoing reasons, I respectfully request that the 
+For the foregoing reasons, I respectfully request that the
 Planning Commission:
 
-1. Deny Conditional Use Permit No. CUP-2024-0044 on the 
-   grounds that the required findings under Zoning Code 
-   Section [X](B) cannot be made on the current record, 
-   specifically the findings regarding traffic adequacy, 
+1. Deny Conditional Use Permit No. CUP-2024-0044 on the
+   grounds that the required findings under Zoning Code
+   Section [X](B) cannot be made on the current record,
+   specifically the findings regarding traffic adequacy,
    general plan consistency, and neighborhood compatibility.
 
-2. Deny Zoning Amendment No. ZA-2024-0091 as inconsistent 
-   with General Plan Policy LU-3.4 and the purpose and 
+2. Deny Zoning Amendment No. ZA-2024-0091 as inconsistent
+   with General Plan Policy LU-3.4 and the purpose and
    intent of the NC zone.
 
-3. In the alternative, if the Commission is inclined to 
-   approve the project in some form, I request that the 
+3. In the alternative, if the Commission is inclined to
+   approve the project in some form, I request that the
    following conditions be imposed at a minimum:
-   (a) An independent traffic study using 2024 base year 
-       counts, including cumulative trips from the 
-       [nearby complex], be completed and reviewed by the 
+   (a) An independent traffic study using 2024 base year
+       counts, including cumulative trips from the
+       [nearby complex], be completed and reviewed by the
        city's traffic engineer before any approval;
-   (b) Operating hours be restricted to 6:00 AM to 
-       11:00 PM, seven days per week, with all deliveries 
+   (b) Operating hours be restricted to 6:00 AM to
+       11:00 PM, seven days per week, with all deliveries
        and restocking confined to those hours;
-   (c) Parking lot lighting be redesigned to comply with 
-       the 0.1 foot-candle spill light limit at the 
-       residential property line, with a photometric 
+   (c) Parking lot lighting be redesigned to comply with
+       the 0.1 foot-candle spill light limit at the
+       residential property line, with a photometric
        study submitted for review; and
-   (d) A noise monitoring program be required as a 
-       condition of CUP approval, with the CUP subject 
-       to revocation if nighttime noise levels at the 
-       residential property line exceed 50 dB(A) on 
-       two or more measured occasions within any 
+   (d) A noise monitoring program be required as a
+       condition of CUP approval, with the CUP subject
+       to revocation if nighttime noise levels at the
+       residential property line exceed 50 dB(A) on
+       two or more measured occasions within any
        12-month period.
 
-I respectfully request written notification of the 
+I respectfully request written notification of the
 Commission's decision and any appeal deadline.
 
 Respectfully submitted,
@@ -603,13 +622,14 @@ Respectfully submitted,
 [Contact Information]
 
 EXHIBITS:
-Exhibit A: City of [City] Zoning Code, Section [X], NC Zone 
-           Purpose Statement and Development Standards 
+Exhibit A: City of [City] Zoning Code, Section [X], NC Zone
+           Purpose Statement and Development Standards
            (downloaded from city website, [date])
-Exhibit B: Planning Commission Resolution No. [X] (2018), 
+Exhibit B: Planning Commission Resolution No. [X] (2018),
            Findings Regarding NC Zone Maximum Building Size
-Exhibit C: General Plan Land Use Element, Policy LU-3.4, 
+Exhibit C: General Plan Land Use Element, Policy LU-3.4,
            page [X] (adopted [year])
-Exhibit D: Institute of Transportation Engineers, Trip 
-           Generation Manual, 11th Edition, Land Use Code 
+Exhibit D: Institute of Transportation Engineers, Trip
+           Generation Manual, 11th Edition, Land Use Code
            850 (Supermarket), Table of Rates, page [X]
+```

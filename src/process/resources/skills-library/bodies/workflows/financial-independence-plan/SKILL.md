@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "fire-planner expense-analyzer index-fund-strategist tax-assistant"
+skills: 'fire-planner expense-analyzer index-fund-strategist tax-assistant'
 trigger_phrases: >-
   I want to achieve financial independence help me plan for FIRE how to retire
   early create a financial independence plan build wealth for early retirement
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: investing budgeting retirement-planning savings step-by-step planning
   category: business-operations
-  depends: "fire-planner expense-analyzer index-fund-strategist tax-assistant"
+  depends: 'fire-planner expense-analyzer index-fund-strategist tax-assistant'
 ---
+
 # Financial Independence Plan
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -160,6 +161,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -170,7 +172,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Ignoring tax optimization:** Tax drag can add years to the timeline. Asset location and Roth conversions are powerful levers.
 - **Trying to beat the market:** Decades of data show that low-cost index funds outperform most active strategies. Stay the course.
 - **Inflexible plans:** Life changes. Build flexibility into the plan and revisit annually.
-
 
 ### Timeline Considerations
 

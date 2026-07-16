@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy guide relationships"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy guide relationships'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Inheritance Conversation Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand concepts, communication strategies, and processes related to estate planning conversations. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -30,6 +31,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - An adult child wants to open a first conversation with aging parents (typically 65+) about whether a will, trust, power of attorney, or healthcare directive exists
 - A user is preparing for a family meeting after a health scare, hospitalization, retirement, or the death of a peer or sibling of the aging family member
 - Spouses or domestic partners want to initiate a mutual estate planning conversation but feel awkward about raising the topic
@@ -40,6 +42,7 @@ metadata:
 - A caregiver or healthcare provider wants guidance on how to raise estate planning with a patient or client who has no advance directive on file
 
 **Do NOT use when:**
+
 - The user describes an active inheritance dispute, contested will, or probate litigation -- refer them to a probate or estate litigation attorney
 - The user is experiencing acute grief and needs emotional processing support rather than a communication framework -- refer to grief counseling resources
 - The user wants legal advice about whether they are entitled to inherit, whether an existing will is valid, or how assets should be divided -- refer to an estate attorney
@@ -91,22 +94,23 @@ Not all conversation openers are equally effective for all relationships and con
 
 The user will almost certainly face resistance. Prepare specific, tested responses for the most common objections, matched to the likely subtext behind each objection.
 
-| Objection | Likely subtext | Effective response approach |
-|---|---|---|
-| "I do not want to talk about it" | Mortality anxiety; control concern | Validate the discomfort, lower the stakes, defer the date: "I completely understand. You do not have to decide anything today. Can we just pick a date to talk sometime in the next month?" |
-| "We have plenty of time" | Denial; genuine belief that youth or health protects them | Acknowledge without argument, focus on low cost of action: "You are probably right. The good news is that getting a plan in place should not take long. Once it is done, we do not have to think about it again." |
-| "Are you after my money?" | Fear of exploitation; unresolved trust issues | Respond without defensiveness: "This is not about money at all. I would never want to know the details of your plan. I just want to know that a plan exists and that someone can step in if you ever needed help." |
-| "Everything is already taken care of" | May be true; may be deflection; may be outdated plan | Do not argue -- accept it and ask one follow-up question: "That is great to hear. Do you mind telling me where you keep those documents? I would not need to read them, I just want to know where to look if I ever needed to." |
-| "It is none of your business" | Strong boundary protection; autonomy concern | Respect the boundary and reframe the minimum: "I respect that completely. I am not asking about the contents of your plan. I am only asking whether a plan exists and whether someone other than you knows where it is." |
-| "I will get to it eventually" | Overwhelm; low perceived urgency | Reduce the ask to one small step: "What if we just took one piece? Even just knowing the name of your attorney or where your documents are stored would help. That is it for now." |
-| "The kids will figure it out" | Misunderstanding of how intestate succession and probate work | Use a concrete example: "Without a plan, figuring it out means going to court. In most states that process takes 12-18 months and costs thousands of dollars, even when everyone agrees." |
-| "We have already talked about it with [sibling]" | Information asymmetry; may be deflection | Acknowledge without jealousy: "That is great. Is there anything I should know? I just want to make sure all of us have the same information." |
+| Objection                                        | Likely subtext                                                | Effective response approach                                                                                                                                                                                                     |
+| ------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "I do not want to talk about it"                 | Mortality anxiety; control concern                            | Validate the discomfort, lower the stakes, defer the date: "I completely understand. You do not have to decide anything today. Can we just pick a date to talk sometime in the next month?"                                     |
+| "We have plenty of time"                         | Denial; genuine belief that youth or health protects them     | Acknowledge without argument, focus on low cost of action: "You are probably right. The good news is that getting a plan in place should not take long. Once it is done, we do not have to think about it again."               |
+| "Are you after my money?"                        | Fear of exploitation; unresolved trust issues                 | Respond without defensiveness: "This is not about money at all. I would never want to know the details of your plan. I just want to know that a plan exists and that someone can step in if you ever needed help."              |
+| "Everything is already taken care of"            | May be true; may be deflection; may be outdated plan          | Do not argue -- accept it and ask one follow-up question: "That is great to hear. Do you mind telling me where you keep those documents? I would not need to read them, I just want to know where to look if I ever needed to." |
+| "It is none of your business"                    | Strong boundary protection; autonomy concern                  | Respect the boundary and reframe the minimum: "I respect that completely. I am not asking about the contents of your plan. I am only asking whether a plan exists and whether someone other than you knows where it is."        |
+| "I will get to it eventually"                    | Overwhelm; low perceived urgency                              | Reduce the ask to one small step: "What if we just took one piece? Even just knowing the name of your attorney or where your documents are stored would help. That is it for now."                                              |
+| "The kids will figure it out"                    | Misunderstanding of how intestate succession and probate work | Use a concrete example: "Without a plan, figuring it out means going to court. In most states that process takes 12-18 months and costs thousands of dollars, even when everyone agrees."                                       |
+| "We have already talked about it with [sibling]" | Information asymmetry; may be deflection                      | Acknowledge without jealousy: "That is great. Is there anything I should know? I just want to make sure all of us have the same information."                                                                                   |
 
 ### Step 5: Design the Right Meeting Structure
 
 When the estate owner is willing to have a substantive conversation, the structure of that conversation dramatically affects its outcome. A poorly structured meeting becomes either an emotional confrontation or a vague exchange that produces no useful information and no next steps.
 
 **Pre-meeting logistics:**
+
 - **Setting:** The estate owner's home (not a restaurant, not a sibling's house, not a holiday gathering). Their home reinforces that this is their space, their plan, and their control.
 - **Timing:** A weekday or weekend afternoon during a calm period -- not before or after a medical appointment, not during a health crisis, not during or within a week of a major holiday. Research on emotional regulation consistently shows that people engage more constructively with difficult topics when they are not already emotionally activated.
 - **Attendees:** For a first conversation, fewer is better. One adult child is almost always better than two or three. If multiple siblings are involved, agree on a single spokesperson for the first meeting. The estate owner should feel like they are having a conversation, not facing a committee.
@@ -412,21 +416,22 @@ This is an educational question that pairs naturally with the conversation guide
 **Output:**
 
 ## Estate Planning Conversation Preparation
-*Prepared for: Adult daughter initiating a conversation with her 77-year-old mother following a minor stroke*
+
+_Prepared for: Adult daughter initiating a conversation with her 77-year-old mother following a minor stroke_
 
 ---
 
 ### Conversation Context
 
-| Element                  | Details                                                                               |
-|--------------------------|---------------------------------------------------------------------------------------|
-| Participants             | You and your mother (private, one-on-one first)                                       |
-| Relationship dynamic     | Adult daughter to widowed mother, 77                                                  |
-| Previous conversations   | None about estate planning                                                            |
-| Known sensitivities      | Recent health scare; concern about appearing pushy or opportunistic; sister's resistance |
-| Triggering event         | Minor stroke, recently recovered; general uncertainty about whether documents exist   |
-| Urgency level            | **HIGH** -- see urgency note below                                                   |
-| Cultural factors         | None identified -- adjust if applicable to your family                                |
+| Element                | Details                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------- |
+| Participants           | You and your mother (private, one-on-one first)                                          |
+| Relationship dynamic   | Adult daughter to widowed mother, 77                                                     |
+| Previous conversations | None about estate planning                                                               |
+| Known sensitivities    | Recent health scare; concern about appearing pushy or opportunistic; sister's resistance |
+| Triggering event       | Minor stroke, recently recovered; general uncertainty about whether documents exist      |
+| Urgency level          | **HIGH** -- see urgency note below                                                       |
+| Cultural factors       | None identified -- adjust if applicable to your family                                   |
 
 ---
 
@@ -468,13 +473,13 @@ This works because it starts with healthcare rather than money, and it frames th
 
 ### Anticipated Objections and Your Prepared Responses
 
-| Likely Objection | What It Probably Means | Your Prepared Response |
-|---|---|---|
-| "I just had a stroke, I do not want to think about this right now" | The timing feels exploitative to her; she is emotionally raw | "I know. We do not have to do it today. Can we pick a date when you are feeling more settled? Maybe two weeks from now?" |
-| "Your sister and I have already talked about it" | Information asymmetry; may be deflection; may be partial truth | "That is great. Is there anything you are comfortable telling me? I am not asking for details -- just whether there are documents and where to find them." |
-| "Everything is already taken care of" | May be true; may be outdated plan from decades ago | "That is a relief. Can you tell me who your attorney is and where the documents are stored? I would never need to read them -- just want to know who to contact." |
-| "You are scaring me by bringing this up" | She is associating the conversation with death or decline | "I do not mean to scare you at all. Actually, having a plan would make me feel less worried, not more. It is the not knowing that is scary for me." |
-| "I will get to it when I am ready" | Procrastination; discomfort with the topic | "I understand. Would you be willing to do just one thing? Even just telling me the name of your attorney -- or whether you have one -- would help me feel better." |
+| Likely Objection                                                   | What It Probably Means                                         | Your Prepared Response                                                                                                                                             |
+| ------------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "I just had a stroke, I do not want to think about this right now" | The timing feels exploitative to her; she is emotionally raw   | "I know. We do not have to do it today. Can we pick a date when you are feeling more settled? Maybe two weeks from now?"                                           |
+| "Your sister and I have already talked about it"                   | Information asymmetry; may be deflection; may be partial truth | "That is great. Is there anything you are comfortable telling me? I am not asking for details -- just whether there are documents and where to find them."         |
+| "Everything is already taken care of"                              | May be true; may be outdated plan from decades ago             | "That is a relief. Can you tell me who your attorney is and where the documents are stored? I would never need to read them -- just want to know who to contact."  |
+| "You are scaring me by bringing this up"                           | She is associating the conversation with death or decline      | "I do not mean to scare you at all. Actually, having a plan would make me feel less worried, not more. It is the not knowing that is scary for me."                |
+| "I will get to it when I am ready"                                 | Procrastination; discomfort with the topic                     | "I understand. Would you be willing to do just one thing? Even just telling me the name of your attorney -- or whether you have one -- would help me feel better." |
 
 ---
 
@@ -509,13 +514,13 @@ You do not need your sister's agreement to have a direct conversation with your 
 
 **Time limit:** Tell her in advance: "I only need about 45 minutes of your time."
 
-| Phase | Time | What to Cover |
-|---|---|---|
-| Opening | 5 min | "Thank you for talking with me about this. The only thing I want to accomplish today is making sure I know who to call and what you want if you ever needed help. Nothing has to be decided." |
-| Healthcare documents | 15 min | Does a healthcare directive exist? Who is her healthcare proxy? Do they know? Where is the document? |
-| Financial POA | 10 min | If she became unable to manage her finances, who is authorized to help? Is that person named in a document? |
-| Will and executor | 10 min | Does a will exist? Who is the executor? When was it last updated? Who is the attorney? |
-| Next steps | 5 min | Summarize what you learned. Identify one next step together. |
+| Phase                | Time   | What to Cover                                                                                                                                                                                 |
+| -------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Opening              | 5 min  | "Thank you for talking with me about this. The only thing I want to accomplish today is making sure I know who to call and what you want if you ever needed help. Nothing has to be decided." |
+| Healthcare documents | 15 min | Does a healthcare directive exist? Who is her healthcare proxy? Do they know? Where is the document?                                                                                          |
+| Financial POA        | 10 min | If she became unable to manage her finances, who is authorized to help? Is that person named in a document?                                                                                   |
+| Will and executor    | 10 min | Does a will exist? Who is the executor? When was it last updated? Who is the attorney?                                                                                                        |
+| Next steps           | 5 min  | Summarize what you learned. Identify one next step together.                                                                                                                                  |
 
 ---
 
@@ -556,13 +561,13 @@ That is her right. You cannot force this conversation. Options:
 
 Complete this within 24 hours:
 
-- [ ] Healthcare directive: [Exists / Does not exist / Unknown] -- Location: ____________
-- [ ] Healthcare POA: [Exists / Does not exist / Unknown] -- Named agent: ____________
-- [ ] Financial POA: [Exists / Does not exist / Unknown] -- Named agent: ____________
-- [ ] Will: [Exists / Does not exist / Unknown] -- Last updated: ______ -- Attorney: ____________
-- [ ] Document storage location: ____________
-- [ ] Attorney name and firm: ____________
-- [ ] Follow-up items agreed: ____________
+- [ ] Healthcare directive: [Exists / Does not exist / Unknown] -- Location: ****\_\_\_\_****
+- [ ] Healthcare POA: [Exists / Does not exist / Unknown] -- Named agent: ****\_\_\_\_****
+- [ ] Financial POA: [Exists / Does not exist / Unknown] -- Named agent: ****\_\_\_\_****
+- [ ] Will: [Exists / Does not exist / Unknown] -- Last updated: **\_\_** -- Attorney: ****\_\_\_\_****
+- [ ] Document storage location: ****\_\_\_\_****
+- [ ] Attorney name and firm: ****\_\_\_\_****
+- [ ] Follow-up items agreed: ****\_\_\_\_****
 
 ---
 
@@ -573,4 +578,4 @@ Complete this within 24 hours:
 - [ ] Choose the primary or alternative conversation starter -- practice saying it once out loud so it sounds natural
 - [ ] If she confirms documents exist, ask the attorney's name -- you want a point of contact, nothing more
 - [ ] If she does not have documents, offer to find two or three estate planning attorneys and offer to come with her to the first meeting
-- [ ] Send a warm follow-up within 
+- [ ] Send a warm follow-up within

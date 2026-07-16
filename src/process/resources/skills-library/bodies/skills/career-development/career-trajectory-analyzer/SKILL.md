@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment career budgeting template analysis research planning resume-writing"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment career budgeting template analysis research planning resume-writing'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Career Trajectory Analyzer
@@ -22,15 +22,16 @@ You are a senior career strategist with expertise in workforce development, labo
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about career trajectory analyzer techniques or best practices
 - User needs guidance on career trajectory analyzer concepts
 - User wants to implement or improve their approach to career trajectory analyzer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of career trajectory analyzer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -40,6 +41,7 @@ You are a senior career strategist with expertise in workforce development, labo
 Work through these questions systematically to build a complete career profile:
 
 ### Current Position & History
+
 1. What is your current job title and how long have you been in this role?
 2. What industry and company size do you work in?
 3. Walk me through your career history -- list your last 3-5 roles with approximate durations.
@@ -47,6 +49,7 @@ Work through these questions systematically to build a complete career profile:
 5. Are you in a management role, individual contributor role, or hybrid?
 
 ### Skills Inventory
+
 6. What are your top 5 technical or hard skills? Rate each 1-5 (1=beginner, 5=expert).
 7. What are your top 5 soft skills? Rate each 1-5.
 8. What certifications, licenses, or credentials do you hold?
@@ -54,6 +57,7 @@ Work through these questions systematically to build a complete career profile:
 10. What skills have you developed in the last 12 months?
 
 ### Career Satisfaction & Direction
+
 11. On a scale of 1-10, how satisfied are you with your current role?
 12. What aspects of your work energize you most?
 13. What aspects drain you or feel misaligned?
@@ -61,6 +65,7 @@ Work through these questions systematically to build a complete career profile:
 15. Are you open to changing industries, roles, or locations?
 
 ### Market Context
+
 16. How would you describe demand for your current role in the job market?
 17. Have you received recruiter outreach in the last 6 months? How frequently?
 18. Do you know what adjacent roles or growth paths exist from your current position?
@@ -68,6 +73,7 @@ Work through these questions systematically to build a complete career profile:
 20. How does your compensation compare to what you see in job postings?
 
 ### Growth & Development
+
 21. Does your current employer offer development opportunities (training budget, mentorship, promotions)?
 22. When was your last promotion or significant role change?
 23. Do you have a mentor or professional network you actively engage with?
@@ -80,39 +86,39 @@ Work through these questions systematically to build a complete career profile:
 
 ### Dimension 1: Career Momentum (0-25 points)
 
-| Indicator | Score Range | Criteria |
-|-----------|------------|---------|
-| Progression pace | 0-8 | Frequency and quality of role advancement over career span |
-| Recent growth | 0-7 | New skills, promotions, or expanded responsibilities in last 2 years |
-| Trajectory direction | 0-5 | Upward, lateral, stagnant, or declining trend |
-| Career narrative coherence | 0-5 | How well roles connect into a clear professional story |
+| Indicator                  | Score Range | Criteria                                                             |
+| -------------------------- | ----------- | -------------------------------------------------------------------- |
+| Progression pace           | 0-8         | Frequency and quality of role advancement over career span           |
+| Recent growth              | 0-7         | New skills, promotions, or expanded responsibilities in last 2 years |
+| Trajectory direction       | 0-5         | Upward, lateral, stagnant, or declining trend                        |
+| Career narrative coherence | 0-5         | How well roles connect into a clear professional story               |
 
 ### Dimension 2: Skills Currency (0-25 points)
 
-| Indicator | Score Range | Criteria |
-|-----------|------------|---------|
-| Core skills relevance | 0-8 | How in-demand are current primary skills in today's market |
-| Emerging skills adoption | 0-7 | Investment in skills that will matter in 2-5 years |
-| Skills depth vs. breadth | 0-5 | Appropriate balance for career stage and goals |
-| Credential strength | 0-5 | Certifications, education, and formal credentials relative to field norms |
+| Indicator                | Score Range | Criteria                                                                  |
+| ------------------------ | ----------- | ------------------------------------------------------------------------- |
+| Core skills relevance    | 0-8         | How in-demand are current primary skills in today's market                |
+| Emerging skills adoption | 0-7         | Investment in skills that will matter in 2-5 years                        |
+| Skills depth vs. breadth | 0-5         | Appropriate balance for career stage and goals                            |
+| Credential strength      | 0-5         | Certifications, education, and formal credentials relative to field norms |
 
 ### Dimension 3: Market Alignment (0-25 points)
 
-| Indicator | Score Range | Criteria |
-|-----------|------------|---------|
-| Compensation positioning | 0-8 | Current pay relative to market rate for role, level, and location |
-| Industry health | 0-7 | Growth trajectory and stability of current industry sector |
-| Role demand | 0-5 | Current and projected demand for the specific role |
-| Geographic or remote flexibility | 0-5 | Access to opportunities given location preferences |
+| Indicator                        | Score Range | Criteria                                                          |
+| -------------------------------- | ----------- | ----------------------------------------------------------------- |
+| Compensation positioning         | 0-8         | Current pay relative to market rate for role, level, and location |
+| Industry health                  | 0-7         | Growth trajectory and stability of current industry sector        |
+| Role demand                      | 0-5         | Current and projected demand for the specific role                |
+| Geographic or remote flexibility | 0-5         | Access to opportunities given location preferences                |
 
 ### Dimension 4: Growth Infrastructure (0-25 points)
 
-| Indicator | Score Range | Criteria |
-|-----------|------------|---------|
-| Employer development support | 0-7 | Training budget, mentorship, promotion pathways at current company |
-| Professional network strength | 0-6 | Active connections, mentors, sponsors, community involvement |
-| Self-directed learning | 0-6 | Consistent investment in personal professional development |
-| Career clarity | 0-6 | Clear understanding of desired path and required steps |
+| Indicator                     | Score Range | Criteria                                                           |
+| ----------------------------- | ----------- | ------------------------------------------------------------------ |
+| Employer development support  | 0-7         | Training budget, mentorship, promotion pathways at current company |
+| Professional network strength | 0-6         | Active connections, mentors, sponsors, community involvement       |
+| Self-directed learning        | 0-6         | Consistent investment in personal professional development         |
+| Career clarity                | 0-6         | Clear understanding of desired path and required steps             |
 
 ---
 
@@ -165,13 +171,13 @@ Growth Infrastructure
 
 ## Results Interpretation
 
-| Score Range | Rating | Interpretation |
-|-------------|--------|---------------|
-| 85-100 | Excellent | Career is well-positioned with strong momentum. Focus on optimization and strategic bets. |
-| 70-84 | Strong | Solid foundation with specific areas to strengthen. Targeted improvements will compound. |
-| 55-69 | Moderate | Career is functional but vulnerable to market shifts. Proactive investment needed in weak dimensions. |
-| 40-54 | Needs Attention | Multiple gaps are limiting growth. Develop a 6-month action plan addressing lowest-scoring dimensions. |
-| Below 40 | Critical | Career trajectory requires significant intervention. Prioritize the single lowest dimension first. |
+| Score Range | Rating          | Interpretation                                                                                         |
+| ----------- | --------------- | ------------------------------------------------------------------------------------------------------ |
+| 85-100      | Excellent       | Career is well-positioned with strong momentum. Focus on optimization and strategic bets.              |
+| 70-84       | Strong          | Solid foundation with specific areas to strengthen. Targeted improvements will compound.               |
+| 55-69       | Moderate        | Career is functional but vulnerable to market shifts. Proactive investment needed in weak dimensions.  |
+| 40-54       | Needs Attention | Multiple gaps are limiting growth. Develop a 6-month action plan addressing lowest-scoring dimensions. |
+| Below 40    | Critical        | Career trajectory requires significant intervention. Prioritize the single lowest dimension first.     |
 
 ### Dimension-Specific Interpretation
 
@@ -188,18 +194,21 @@ Growth Infrastructure
 ## Recommendations by Score Profile
 
 ### Quick Wins (implement within 30 days)
+
 - Update resume and LinkedIn to reflect current skills and achievements
 - Research market rate for your role using salary databases
 - Identify one skill gap and enroll in a course or start a project to address it
 - Reconnect with 3 professional contacts
 
 ### Medium-Term Actions (1-6 months)
+
 - Build a skills development plan targeting your two lowest-scoring skill areas
 - Negotiate compensation if significantly below market rate
 - Secure a mentor or join a professional community in your target field
 - Take on a stretch project that builds evidence of growth
 
 ### Strategic Moves (6-18 months)
+
 - Pursue a meaningful credential if your field values formal certification
 - Build a portfolio or track record of achievements that demonstrates trajectory
 - Evaluate whether your current employer supports your 3-year vision
@@ -275,7 +284,6 @@ NEXT REVIEW DATE: ____________
 5. When market data is uncertain, say so rather than guessing.
 6. Offer to deep-dive on any dimension where the user wants more detail.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -283,7 +291,6 @@ NEXT REVIEW DATE: ____________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -304,14 +311,12 @@ NEXT REVIEW DATE: ____________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

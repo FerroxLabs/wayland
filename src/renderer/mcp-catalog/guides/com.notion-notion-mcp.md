@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Notion (OAuth)
     estSeconds: 90
-    primaryAction: { label: "Sign in with Notion", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Notion', action: 'oauth-flow' }
     warning: |
       Pick the smallest scope that makes sense. If you grant access to
       your whole workspace, *everything* you can see - private notes,
@@ -56,7 +56,7 @@ steps:
 
 # Notion setup
 
-Notion hosts the MCP. The defining choice is *what* you grant - pick the
+Notion hosts the MCP. The defining choice is _what_ you grant - pick the
 narrowest set of pages and databases that lets the agent do its job.
 You can adjust the scope any time from **Settings → My connections**
 without re-authorizing.

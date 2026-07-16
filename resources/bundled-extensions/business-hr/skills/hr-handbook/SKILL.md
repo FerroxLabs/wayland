@@ -2,7 +2,7 @@
 name: hr-handbook
 description: Generate employee handbook sections covering required-by-law policies (EEO, anti-harassment, ADA accommodation, FMLA, lactation, voting/jury/military, pay transparency, whistleblower, at-will + handbook-not-a-contract, NLRA §7 carve-outs) and standard-but-optional perks. Templates only - not employment-law advice.
 slash_command: false
-argument-hint: "<section topic>"
+argument-hint: '<section topic>'
 attribution:
   lineage: anthropics/knowledge-work-plugins/human-resources/skills/policy-lookup/SKILL.md (Apache-2.0)
   upstream_commit: 9789ea78ad66
@@ -35,74 +35,82 @@ Generate clear, professional, **legally-defensible** employee handbook sections.
 
 ### Required-by-law sections (every US handbook should have)
 
-| Section | Why it's required / strongly recommended |
-|---------|------------------------------------------|
-| **EEO / Anti-Discrimination policy** | Title VII / ADEA / ADA / GINA / state FEPAs; affirmative-action contractors required |
-| **Anti-Harassment with reporting + non-retaliation** | CA FEHA explicit requirement (2 CCR §11023); Faragher/Ellerth defense in any harassment case |
-| **ADA reasonable-accommodation request process (interactive)** | ADA + state equivalents; failure to engage = automatic loss |
-| **Religious accommodation** | *Groff v. DeJoy* (2023) raised standard from "de minimis" to "substantial burden" |
-| **Pregnancy / PWFA accommodation** | PWFA (June 2023, 15+ EE) + state PFLA-like statutes |
-| **Lactation accommodation** | PUMP Act (2022) - federal, nearly all employers; private space + reasonable break time |
-| **FMLA + state PFML** | FMLA at 50+ EE; state PFML thresholds vary (CA CFRA 5+, NY 1+, etc.) |
-| **PTO / sick leave** | State paid-sick-leave laws (CA, AZ, CO, CT, IL, ME, MA, MD, MI, MN, NJ, NM, NV, NY, OR, RI, VT, WA + cities) |
-| **Voting / jury duty / military leave (USERRA)** | State voting-leave laws; federal USERRA |
-| **Domestic-violence leave** | CA, NY, IL, KS, RI, others |
-| **Pay transparency / right to discuss wages** | NLRA §7 - handbooks regularly violate this with confidentiality clauses; explicit carve-out required |
-| **Whistleblower / SOX protection** | SOX, Dodd-Frank, state whistleblower acts |
-| **At-will disclaimer + handbook-not-a-contract** | Case-law-driven; without it, handbook may be construed as contract |
-| **NLRA §7 carve-outs** in confidentiality, social-media, off-duty-conduct sections | Handbook policies that "chill" §7 activity are unfair labor practices |
-| **Social media + off-duty conduct** | NLRA §7 limits employer rights; CA Lab. Code §96(k) protects off-duty lawful conduct |
-| **Drug & alcohol** with cannabis-jurisdiction nuance | NY Lab. §201-d, NJ CREAMM, CT, NV - recreational-use protection; CA AB 2188 (2024) |
-| **Open-door / grievance process** | Faragher/Ellerth defense |
-| **Records access** | GDPR Art. 15 (1-month response), CA CPRA (employee data rights since Jan 1 2023) |
-| **Anti-retaliation** | EEOC, FMLA, OSHA, NLRA, FLSA all have anti-retaliation provisions |
-| **Acknowledgment receipt** | Legal hook for handbook enforceability + at-will reaffirmation |
+| Section                                                                            | Why it's required / strongly recommended                                                                     |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **EEO / Anti-Discrimination policy**                                               | Title VII / ADEA / ADA / GINA / state FEPAs; affirmative-action contractors required                         |
+| **Anti-Harassment with reporting + non-retaliation**                               | CA FEHA explicit requirement (2 CCR §11023); Faragher/Ellerth defense in any harassment case                 |
+| **ADA reasonable-accommodation request process (interactive)**                     | ADA + state equivalents; failure to engage = automatic loss                                                  |
+| **Religious accommodation**                                                        | _Groff v. DeJoy_ (2023) raised standard from "de minimis" to "substantial burden"                            |
+| **Pregnancy / PWFA accommodation**                                                 | PWFA (June 2023, 15+ EE) + state PFLA-like statutes                                                          |
+| **Lactation accommodation**                                                        | PUMP Act (2022) - federal, nearly all employers; private space + reasonable break time                       |
+| **FMLA + state PFML**                                                              | FMLA at 50+ EE; state PFML thresholds vary (CA CFRA 5+, NY 1+, etc.)                                         |
+| **PTO / sick leave**                                                               | State paid-sick-leave laws (CA, AZ, CO, CT, IL, ME, MA, MD, MI, MN, NJ, NM, NV, NY, OR, RI, VT, WA + cities) |
+| **Voting / jury duty / military leave (USERRA)**                                   | State voting-leave laws; federal USERRA                                                                      |
+| **Domestic-violence leave**                                                        | CA, NY, IL, KS, RI, others                                                                                   |
+| **Pay transparency / right to discuss wages**                                      | NLRA §7 - handbooks regularly violate this with confidentiality clauses; explicit carve-out required         |
+| **Whistleblower / SOX protection**                                                 | SOX, Dodd-Frank, state whistleblower acts                                                                    |
+| **At-will disclaimer + handbook-not-a-contract**                                   | Case-law-driven; without it, handbook may be construed as contract                                           |
+| **NLRA §7 carve-outs** in confidentiality, social-media, off-duty-conduct sections | Handbook policies that "chill" §7 activity are unfair labor practices                                        |
+| **Social media + off-duty conduct**                                                | NLRA §7 limits employer rights; CA Lab. Code §96(k) protects off-duty lawful conduct                         |
+| **Drug & alcohol** with cannabis-jurisdiction nuance                               | NY Lab. §201-d, NJ CREAMM, CT, NV - recreational-use protection; CA AB 2188 (2024)                           |
+| **Open-door / grievance process**                                                  | Faragher/Ellerth defense                                                                                     |
+| **Records access**                                                                 | GDPR Art. 15 (1-month response), CA CPRA (employee data rights since Jan 1 2023)                             |
+| **Anti-retaliation**                                                               | EEOC, FMLA, OSHA, NLRA, FLSA all have anti-retaliation provisions                                            |
+| **Acknowledgment receipt**                                                         | Legal hook for handbook enforceability + at-will reaffirmation                                               |
 
 ### Standard-but-optional perks sections
 
-| Section | Coverage |
-|---------|----------|
-| Remote work / WFH | Equipment stipend, location restrictions, tax considerations |
-| Parental leave (paid) | If exceeding statutory minimum |
-| Bereavement | Number of days, family definition |
-| Sabbatical | Eligibility, duration, pay continuation |
-| Professional development | Learning budget, conference policy, tuition |
-| Wellness / EAP | Employee assistance program, wellness stipend |
-| Travel | Booking, accommodations, international |
-| Equipment / BYOD | Laptop policy, software requests |
-| Conflicts of interest | Outside employment, vendors, investments |
-| Performance management | Review cadence, ratings, PIP framework |
+| Section                  | Coverage                                                     |
+| ------------------------ | ------------------------------------------------------------ |
+| Remote work / WFH        | Equipment stipend, location restrictions, tax considerations |
+| Parental leave (paid)    | If exceeding statutory minimum                               |
+| Bereavement              | Number of days, family definition                            |
+| Sabbatical               | Eligibility, duration, pay continuation                      |
+| Professional development | Learning budget, conference policy, tuition                  |
+| Wellness / EAP           | Employee assistance program, wellness stipend                |
+| Travel                   | Booking, accommodations, international                       |
+| Equipment / BYOD         | Laptop policy, software requests                             |
+| Conflicts of interest    | Outside employment, vendors, investments                     |
+| Performance management   | Review cadence, ratings, PIP framework                       |
 
 ## Output Format
 
 ```markdown
 ## [Section Title]
+
 **Last Updated:** [Date] | **Owned By:** People / HR | **Jurisdiction:** [State, Country]
 
 ### Policy Statement
+
 [1-2 sentence summary of what this policy covers and who it applies to]
 
 ### Details
 
 #### [Subsection 1]
+
 [Policy text - clear, plain language, specific where it needs to be]
 
 #### [Subsection 2]
+
 [Policy text]
 
 ### How It Works
+
 [Step-by-step process if applicable - e.g., how to request PTO, how to file an expense]
 
 ### Eligibility
+
 [Who this applies to - full-time, part-time, contractors, by tenure, etc.]
 
 ### Anti-retaliation
+
 Employees are protected from retaliation for reporting concerns, requesting
 accommodations, taking protected leave, or participating in any investigation,
 under federal and state law including [Title VII, ADA, ADEA, FMLA, OSHA, NLRA,
 state FEPA]. Report retaliation to [contact].
 
 ### NLRA §7 carve-out (where relevant)
+
 Nothing in this policy restricts employees' rights to (i) discuss wages, hours, or
 terms and conditions of employment with co-workers, (ii) communicate with
 government agencies (NLRB, EEOC, OSHA, SEC, DOL, state DOL), (iii) exercise
@@ -110,16 +118,19 @@ Section 7 rights under the National Labor Relations Act, or (iv) testify truthfu
 under oath.
 
 ### Exceptions
+
 [When the standard policy may not apply and how exceptions are handled]
 
 ### Questions?
+
 Contact [HR/People team] at [contact] for questions about this policy.
 
 ---
-*This policy is subject to change. Material updates will be communicated and a
+
+_This policy is subject to change. Material updates will be communicated and a
 new acknowledgment may be requested. This policy and the handbook in which it
 appears do not constitute a contract of employment, and employment remains at-will
-[except as required by Montana law / EU member-state employment law / UK ERA 1996].*
+[except as required by Montana law / EU member-state employment law / UK ERA 1996]._
 ```
 
 ## Acknowledgment receipt template (issue at hire and on material updates)
@@ -144,8 +155,8 @@ I acknowledge that I have received and read the [Company] Employee Handbook date
    and other rights under federal and state law are NOT restricted by this
    Handbook.
 
-Employee signature: __________________________ Date: __________
-Printed name: ________________________________
+Employee signature: ************\_\_************ Date: ****\_\_****
+Printed name: **************\_\_\_\_**************
 ```
 
 ## Writing Principles

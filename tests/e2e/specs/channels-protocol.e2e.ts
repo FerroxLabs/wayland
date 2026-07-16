@@ -80,7 +80,11 @@ test.describe('Channels protocol surface', () => {
         });
         return { reached: true, status: res.status, error: null as string | null };
       } catch (err) {
-        return { reached: false, status: null as number | null, error: err instanceof Error ? err.message : String(err) };
+        return {
+          reached: false,
+          status: null as number | null,
+          error: err instanceof Error ? err.message : String(err),
+        };
       }
     });
 
@@ -97,20 +101,8 @@ test.describe('Channels protocol surface', () => {
   });
 
   // ── Real-platform webhook flows: credentials required ─────────────────────
-  test.skip(
-    'weixin OA: full encrypt+decrypt webhook round-trip requires a real WeChat AppID - see src/process/channels/plugins/weixin/',
-    () => {}
-  );
-  test.skip(
-    'dingtalk: signed callback verification requires a real DingTalk corp + signing key - see src/process/channels/plugins/dingtalk/',
-    () => {}
-  );
-  test.skip(
-    'lark: event-subscription handshake requires a real Lark app verification token - see src/process/channels/plugins/lark/',
-    () => {}
-  );
-  test.skip(
-    'wecom: WecomCrypto AES round-trip requires a real WeCom corp + EncodingAESKey - see src/process/channels/plugins/wecom/WecomCrypto.ts',
-    () => {}
-  );
+  test.skip('weixin OA: full encrypt+decrypt webhook round-trip requires a real WeChat AppID - see src/process/channels/plugins/weixin/', () => {});
+  test.skip('dingtalk: signed callback verification requires a real DingTalk corp + signing key - see src/process/channels/plugins/dingtalk/', () => {});
+  test.skip('lark: event-subscription handshake requires a real Lark app verification token - see src/process/channels/plugins/lark/', () => {});
+  test.skip('wecom: WecomCrypto AES round-trip requires a real WeCom corp + EncodingAESKey - see src/process/channels/plugins/wecom/WecomCrypto.ts', () => {});
 });

@@ -6,10 +6,23 @@ version: 1.0.0
 author: Wayland Business Pack
 license: MIT
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
-    tags: [ecommerce, ugc, review-prompt, photo-review, video-review, yotpo, okendo, loox, trustpilot, amazon-reviews, anti-incentive]
+    tags:
+      [
+        ecommerce,
+        ugc,
+        review-prompt,
+        photo-review,
+        video-review,
+        yotpo,
+        okendo,
+        loox,
+        trustpilot,
+        amazon-reviews,
+        anti-incentive,
+      ]
     related_skills: [commerce, commerce-postpurchase-thankyou, commerce-review-response, commerce-tiktok-shop]
 prerequisites:
   python_packages: []
@@ -28,10 +41,12 @@ Do NOT use for: full post-purchase sequence (use `commerce-postpurchase-thankyou
 ## Inputs
 
 **Required:**
+
 - `product_type` - consumable / durable / cosmetic / apparel / service / digital
 - `platform` - Shopify | Amazon | Etsy | Trustpilot | Google | TikTok Shop | Walmart | other. **Determines incentive constraints.**
 
 **Optional:**
+
 - `review_platform` - Yotpo | Okendo | Loox | Stamped | Judge.me | Trustpilot | Amazon native | Etsy native | Google Business | TikTok Shop native
 - `incentive_capacity` - none / fixed dollar / percent off next order / loyalty points / charity donation
 - `brand_voice`
@@ -44,17 +59,18 @@ If `product_type` or `platform` is missing, ask before generating.
 
 Different platforms have different rules about what you can offer in exchange for a review. Get this wrong and you risk account suspension or review removal.
 
-| Platform | Incentive policy |
-|---|---|
-| **Amazon** | **No incentives whatsoever** for reviews. Even free product → review is a "Vine Voices" exclusive program; outside Vine, any free / discounted product offered conditional on a review is a TOS violation. Asking for "honest reviews" without conditional offer is fine. |
-| **Etsy** | No conditional incentives. May ask for review; may not offer compensation in exchange. |
-| **Trustpilot** | **Strictest in this category.** Inviting all customers equally is fine. **Any compensation, discount, gift, or store credit "in exchange for an updated, removed, or revised review" is prohibited.** Even framing it as "thank you for the review" is risky if it follows the review and looks like a quid-pro-quo. |
-| **Google Business reviews** | Google's policy prohibits offering incentives in exchange for reviews. Asking is fine. |
-| **Walmart Marketplace** | Similar to Amazon - no incentives in exchange for reviews. |
+| Platform                                               | Incentive policy                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Amazon**                                             | **No incentives whatsoever** for reviews. Even free product → review is a "Vine Voices" exclusive program; outside Vine, any free / discounted product offered conditional on a review is a TOS violation. Asking for "honest reviews" without conditional offer is fine.                                                       |
+| **Etsy**                                               | No conditional incentives. May ask for review; may not offer compensation in exchange.                                                                                                                                                                                                                                          |
+| **Trustpilot**                                         | **Strictest in this category.** Inviting all customers equally is fine. **Any compensation, discount, gift, or store credit "in exchange for an updated, removed, or revised review" is prohibited.** Even framing it as "thank you for the review" is risky if it follows the review and looks like a quid-pro-quo.            |
+| **Google Business reviews**                            | Google's policy prohibits offering incentives in exchange for reviews. Asking is fine.                                                                                                                                                                                                                                          |
+| **Walmart Marketplace**                                | Similar to Amazon - no incentives in exchange for reviews.                                                                                                                                                                                                                                                                      |
 | **Shopify storefront (Yotpo, Okendo, Loox, Judge.me)** | Generally permitted: discount on next order, loyalty points, photo-review bonus. **The discount must be offered to all buyers, not conditional on review content (positive or negative).** Yotpo, Okendo, Loox have built-in "discount-after-review" logic that is compliant when the discount fires regardless of star rating. |
-| **TikTok Shop native reviews** | Conditional incentives for content (UGC video tagged on the listing) are permitted via the creator-affiliate program. Direct review incentives - same as Amazon (avoid). |
+| **TikTok Shop native reviews**                         | Conditional incentives for content (UGC video tagged on the listing) are permitted via the creator-affiliate program. Direct review incentives - same as Amazon (avoid).                                                                                                                                                        |
 
 **Bottom line:**
+
 - For Amazon, Walmart, Etsy, Trustpilot, Google: **never offer compensation conditional on a review**. Send the prompt; thank the customer regardless.
 - For Shopify storefront review platforms: discount-after-review is fine when the discount is unconditional on rating.
 - For TikTok Shop UGC: route through creator-affiliate program (`commerce-tiktok-shop`), not this skill.
@@ -65,15 +81,15 @@ Different platforms have different rules about what you can offer in exchange fo
 
 Default delivery-to-prompt windows:
 
-| Product type | Best window | Why |
-|---|---|---|
-| **Consumable** (food, supplements, beauty replenishables) | **D+14** | Used long enough to evaluate effect / taste |
-| **Cosmetic / skincare** | **D+21** | Skin results visible after ~3 weeks |
-| **Apparel** | **D+7** | Worn, washed once, fit confirmed |
-| **Durable** (home goods, electronics, furniture) | **D+30** | Used long enough to evaluate quality and durability |
-| **Service** | **D+3** | Recall is fresh |
-| **Digital / SaaS** | **D+14 + D+30** | Two prompts - first impressions + sustained value |
-| **Gift purchases (any category)** | Adjust to D+gift_date+N rather than D+order+N | Buyer may not have used the product yet |
+| Product type                                              | Best window                                   | Why                                                 |
+| --------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------- |
+| **Consumable** (food, supplements, beauty replenishables) | **D+14**                                      | Used long enough to evaluate effect / taste         |
+| **Cosmetic / skincare**                                   | **D+21**                                      | Skin results visible after ~3 weeks                 |
+| **Apparel**                                               | **D+7**                                       | Worn, washed once, fit confirmed                    |
+| **Durable** (home goods, electronics, furniture)          | **D+30**                                      | Used long enough to evaluate quality and durability |
+| **Service**                                               | **D+3**                                       | Recall is fresh                                     |
+| **Digital / SaaS**                                        | **D+14 + D+30**                               | Two prompts - first impressions + sustained value   |
+| **Gift purchases (any category)**                         | Adjust to D+gift_date+N rather than D+order+N | Buyer may not have used the product yet             |
 
 For Amazon, the platform itself sends a review request at variable intervals; piling another email on top is permitted but should be timed to NOT overlap.
 
@@ -96,11 +112,13 @@ Each prompt is a single email (or SMS) with:
 Photo and video reviews are **3-5x more useful** than text-only for converting future buyers. Specific asks beat generic.
 
 **Photo prompt:**
+
 - Short, generous: "A photo of the <product> in your kitchen / bedroom / bag" - name the context.
 - Mention the technical floor: "Phone-camera quality is more than enough - no studio shot needed."
 - If your review platform supports auto-import (Loox, Okendo from Instagram), say so: "Or tag us @<brand> on Instagram and we'll pull it in for you."
 
 **Video prompt (only if appropriate to product type):**
+
 - 15-30 seconds.
 - One specific moment: "Show the <product> in use - first 5 seconds, on-screen text if you want."
 - For TikTok-Shop-eligible products: route to creator-affiliate program; this skill is for owned-channel video prompts.
@@ -110,6 +128,7 @@ Photo and video reviews are **3-5x more useful** than text-only for converting f
 For short text-review platforms (Trustpilot, Google Business), an SMS variant is fine. For photo / video prompts, email is better - phones can compose photos but the email has the link.
 
 SMS template (≤ 160 chars, TCPA-quiet-hours aware):
+
 ```
 Hi {{ first_name|default:'there' }} - quick favor: would you leave a 1-line review of your <product>? <short link>
 Reply STOP to opt out.
@@ -118,12 +137,14 @@ Reply STOP to opt out.
 ### Phase 5: Incentive structure (platform-aware)
 
 **Permitted (Shopify storefront / owned channel):**
+
 - "10% off your next order after you submit a review (any rating)"
 - "100 loyalty points for any review; 200 for a photo review (any rating)"
 - "We donate $1 to <charity> per review submitted (any rating)"
 - "Featured customer of the week - submit a photo and we'll pick one to feature on our IG"
 
 **Prohibited (Amazon, Etsy, Trustpilot, Google, Walmart):**
+
 - Anything conditional on rating
 - Anything tied to "5-star reviews only"
 - Anything offered after a review with the implicit expectation of an update
@@ -143,14 +164,17 @@ Write to resolved `out_path`:
 
 ```markdown
 # UGC Prompt Sequence: <product_type>
-**Platform:** <platform>   **Review platform:** <review_platform>
+
+**Platform:** <platform> **Review platform:** <review_platform>
 **Date drafted:** <YYYY-MM-DD>
 
 ## Timing
+
 - Best window: D+<N> from delivery
 - Reasoning: <one line>
 
 ## Email Prompt
+
 **Subject A / B / C:** ...
 **Preview:** ...
 **Body:** [≤ 150 words]
@@ -159,20 +183,24 @@ Write to resolved `out_path`:
 **Video CTA (if applicable):** ...
 
 ## SMS Variant (if SMS opt-in)
+
 [≤ 160 chars + STOP/HELP]
 
 ## Incentive Structure
+
 - Type: <none / discount / loyalty points / charity / feature>
 - Platform compliance: ✅ / 🚫
 - Conditional on rating: NO (verified)
 - Disclosed in copy: yes / no
 
 ## Anti-pattern Audit
+
 - Copy works for 2★ as well as 5★: yes / no
 - No fishing for positive only: yes / no
 - No off-platform contact in Amazon/Etsy/Walmart copy: yes / no
 
 ## Recommended next steps
+
 - Wire flow trigger in Klaviyo / ESP: "Order delivered N days ago AND order contains <product_type tag>"
 - Connect review platform's auto-publish webhook so reviews surface on PDP
 - Run `/commerce review-response` to align reply scripts with this prompt cadence
@@ -190,6 +218,7 @@ Subject B: D+21 - the question we actually want to hear
 Subject C: Photo bonus - share your week-3 with the serum
 
 Body:
+
 ```
 {{ first_name|default:'Hey' }} -
 
@@ -215,6 +244,7 @@ Subject B: 7 days in - quick check-in
 Subject C: Photo prompt - your sneakers in the wild
 
 Body:
+
 ```
 You've had the Field Sneakers for a week.
 
@@ -240,6 +270,7 @@ Subject: Your <coffee> - two-week check-in
 Preview: A note from the roastery - and an honest ask.
 
 Body:
+
 ```
 Hi -
 
@@ -265,6 +296,7 @@ Subject B: Your honest take on onboarding
 Subject C: 1-sentence review - Trustpilot
 
 Body:
+
 ```
 Hi {{ first_name|default:'there' }} -
 

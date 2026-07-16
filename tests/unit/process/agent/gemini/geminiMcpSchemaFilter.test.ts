@@ -140,10 +140,11 @@ describe('sanitizeGeminiSchema', () => {
       },
     }) as {
       properties: {
-        pages: { items: { properties: Record<string, Record<string, unknown>> } & Record<string, unknown> } };
+        pages: { items: { properties: Record<string, Record<string, unknown>> } & Record<string, unknown> };
+      };
     };
     const itemProps = out.properties.pages.items.properties;
-    expect(Object.keys(itemProps).sort()).toEqual(['content', 'icon', 'properties']);
+    expect(Object.keys(itemProps).toSorted()).toEqual(['content', 'icon', 'properties']);
     expect(itemProps).not.toHaveProperty('type');
     // additionalProperties stripped; the real subschemas survive intact.
     expect(out.properties.pages.items).not.toHaveProperty('additionalProperties');

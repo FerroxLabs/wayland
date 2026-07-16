@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning presentation sales"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning presentation sales'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Fundraising Narrative
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to write, structure, or refine a fundraising narrative, investor pitch story, or investment memo
 - The user is preparing a pitch deck and needs help crafting the narrative arc across slides -- problem, solution, market, traction, team, ask
 - The user needs to articulate their story for a specific funding stage (pre-seed, seed, Series A, Series B) and does not know how to frame their current traction or market opportunity appropriately
@@ -29,6 +31,7 @@ metadata:
 - The user has a complex company story -- pivot, hardware, deep tech, regulated industry -- and needs help framing it without losing investor confidence
 
 **Do NOT use this skill when:**
+
 - The user needs a customer-facing sales deck or product pitch -- use `sales-pitch-deck` instead
 - The user is applying for a government or foundation grant -- use `grant-proposal-writing` instead; grant narrative logic emphasizes impact metrics, budget justification, and reporting requirements, not investor returns
 - The user wants to build or stress-test the financial model behind the pitch (three-statement model, cap table, valuation calculations) -- use `financial-model-structure` instead
@@ -60,6 +63,7 @@ Before drafting a single word of narrative, extract the following information. I
 Each funding stage has specific narrative conventions. Mismatching the narrative to the stage signals inexperience to investors.
 
 **Pre-seed ($250K--$2M):**
+
 - Investors are betting on the founders and the insight, not the product
 - Traction = validation: customer discovery interviews (50+), waitlist signups, LOIs, design partner agreements with named companies, pre-orders with deposits
 - Market size matters but can be top-down; the hypothesis is being validated, not proven
@@ -67,6 +71,7 @@ Each funding stage has specific narrative conventions. Mismatching the narrative
 - Expected runway: 12--18 months to reach seed-worthy metrics
 
 **Seed ($1M--$5M):**
+
 - Investors want early evidence of product-market fit -- "something is working"
 - Traction = early product signals: first revenue ($10K--$150K MRR typical), user growth with engagement depth, retention data (do users come back?), initial unit economics signals even if not yet positive
 - Growth rate matters more than absolute numbers: 15--25% MoM is compelling at seed
@@ -74,6 +79,7 @@ Each funding stage has specific narrative conventions. Mismatching the narrative
 - Expected outcome: reach Series A threshold in 18--24 months
 
 **Series A ($5M--$20M):**
+
 - Investors want to see a repeatable, scalable engine -- not just "something works" but "we know how to scale it"
 - Traction = revenue consistency: $1M--$3M ARR minimum (though varies by category), 2--3x YoY growth, net revenue retention 110%+, clear CAC/LTV dynamic, a defined acquisition channel that scales with capital
 - Team depth: VP of Sales or Head of Growth hired or in process, not just two founders
@@ -81,6 +87,7 @@ Each funding stage has specific narrative conventions. Mismatching the narrative
 - Expected outcome: demonstrate path to $10M+ ARR for Series B
 
 **Series B+ ($20M+):**
+
 - Investors evaluating efficiency and market leadership, not just growth
 - $5M--$20M ARR typical entry point, 2x+ YoY, Rule of 40 (growth rate + EBITDA margin ≥ 40) increasingly relevant
 - Narrative must show category ownership, competitive moat, and a credible path to $100M+ ARR
@@ -98,6 +105,7 @@ Good hook: "Sales organizations spend $70 billion annually on training that reps
 
 **Problem (the case for urgency):**
 The problem must be specific, quantified, and validated. Three elements are required:
+
 1. The specific pain (not "communication is slow" but "enterprise procurement teams take 47 days average to approve a vendor -- 60% of deals stall here")
 2. The cost of the problem (dollars lost, time wasted, outcomes missed)
 3. Why existing solutions fail (not "the market is underserved" but "incumbent tools like X require 6-month implementations and don't integrate with modern data stacks")
@@ -112,6 +120,7 @@ Keep this tight. Two to three sentences on what the product does, one sentence o
 
 **Market size (the size of the prize):**
 Build bottom-up first, cross-check top-down. Investors are deeply skeptical of "the market is $500 billion" claims based on a single Gartner citation. Show the math:
+
 - How many potential customers fit the ICP (Ideal Customer Profile)?
 - What is the average contract value or average transaction value?
 - Multiply: that is your SAM
@@ -121,6 +130,7 @@ For venture-scale businesses, investors need to believe the TAM is >$1B and idea
 
 **Business model (the economics):**
 Present the core revenue mechanism and the unit economics in a table. Even if the numbers are early-stage estimates, showing the logic of how the business makes money per customer (and improves over time as the company scales) is critical. The most important metrics vary by model type:
+
 - SaaS: Gross margin (target 70--80%+), net revenue retention (target 100--120%+), CAC payback period (target <18 months for Series A)
 - Marketplace: Take rate, GMV growth, buyer/seller concentration risk
 - Transactional: Transaction frequency, average order value, gross profit per transaction
@@ -128,6 +138,7 @@ Present the core revenue mechanism and the unit economics in a table. Even if th
 
 **Traction (the proof):**
 Show a time-series table of the most important metrics over the last 6--12 months. Never show a single point in time without context -- investors want to see the direction and rate of change. Select 3--5 metrics that together tell the story of the business working:
+
 - A growth metric (MRR, ARR, user count, GMV)
 - A retention metric (monthly churn, NRR, DAU/MAU)
 - An efficiency metric (CAC trend, payback period trend, gross margin improvement)
@@ -149,6 +160,7 @@ Define 4--6 specific, measurable milestones that will be achieved with this capi
 ### Step 4: Write Each Section with Investor-Appropriate Density
 
 Investors read pitch decks in 3 minutes and investment memos in 10. Every sentence must earn its place. Apply these density rules:
+
 - Each narrative section: 3--5 sentences maximum, then let tables and bullets carry the data
 - Problem section: 1 bold statement + 3 supporting evidence bullets
 - Traction: lead with the single most impressive number in a bold callout, then the table
@@ -642,3 +654,4 @@ to the Series A.
 ### Anticipated Investor Objections
 
 | Objection | Response |
+```

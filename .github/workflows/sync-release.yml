@@ -1,0 +1,93 @@
+name: Release after upstream sync
+
+# Option B: gated merge, auto-everything-after.
+#
+# `upstream-sync.yml` opens a daily PR (automated/upstream-sync -> main). You
+# review it and click Merge (a human gate, so an unwanted upstream change never
+# rebuilds your daily driver unattended). The MOMENT that sync PR merges into
+# main, this workflow bumps the patch version and pushes a `vX.Y.Z` tag. The
+# existing `build-and-release.yml` (which triggers on tag push) then builds all
+# platforms, publishes to THIS fork's Releases with electron-updater metadata,
+# and the desktop app auto-updates. Your own commits on main are carried along
+# by the merge, so every release = upstream + your work.
+#
+# Scope: fires ONLY for the automated/upstream-sync branch. Merging your own
+# feature PRs into main does NOT auto-release (tag or push to `dev` for those).
+# Change the `head.ref` guard below if you want every main merge to release.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  # Manual escape hatch: cut a release from the current main on demand.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Never let two releases race (a second sync merging while the first still tags).
+concurrency:
+  group: sync-release
+  cancel-in-progress: false
+
+jobs:
+  tag-release:
+    # Only when the SYNC pr actually merged (closed != merged), or a manual run.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       github.event.pull_request.head.ref == 'automated/upstream-sync')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          # A version-bump commit + tag must be pushable; the default GITHUB_TOKEN
+          # can push but tags it pushes do NOT trigger other workflows. Use GH_TOKEN
+          # (a PAT) so the tag push actually fires build-and-release.yml.
+          token: ${{ secrets.GH_TOKEN || secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Bump patch, commit, tag, push
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          CUR="$(node -p "require('./package.json').version")"
+          if [[ ! "$CUR" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::package.json version '$CUR' is not plain X.Y.Z; bump it manually first."
+            exit 1
+          fi
+          MA="${BASH_REMATCH[1]}"; MI="${BASH_REMATCH[2]}"; PA="${BASH_REMATCH[3]}"
+
+          # Find the next FREE vX.Y.Z tag (skip any that already exist remotely).
+          git fetch --tags --quiet origin
+          NEW=""
+          while :; do
+            PA=$((PA + 1))
+            CAND="${MA}.${MI}.${PA}"
+            if ! git rev-parse -q --verify "refs/tags/v${CAND}" >/dev/null && \
+               ! git ls-remote --exit-code --tags origin "refs/tags/v${CAND}" >/dev/null 2>&1; then
+              NEW="$CAND"; break
+            fi
+          done
+          echo "Releasing v${NEW} (was ${CUR})"
+
+          bun pm version "$NEW" --no-git-tag-version
+          git add package.json bun.lock 2>/dev/null || git add package.json
+          git commit -m "chore: release v${NEW} (post upstream-sync) [skip ci]"
+
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin HEAD:main
+          git tag "v${NEW}"
+          git push origin "v${NEW}"
+          echo "Pushed tag v${NEW} -> build-and-release.yml will build + publish the update."

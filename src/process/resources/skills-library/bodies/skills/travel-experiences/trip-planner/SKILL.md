@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary planning"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel itinerary planning'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Trip Planner
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about trip planner
 - User needs guidance on trip planner topics
 - User wants a structured approach to trip planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **Have you been to this destination before?**
 9. **Any physical limitations or accessibility needs?**
 10. **What are your must-dos?** (specific attractions, restaurants, experiences)
+
 ---
+
 ## Step 1: Destination Research Framework
 
 ### The Research Sprint (1-2 Hours)
+
 ```
 DESTINATION RESEARCH CHECKLIST:
 
@@ -84,6 +90,7 @@ COSTS:
 ```
 
 ### Seasonal Planning
+
 ```
 SEASONAL ASSESSMENT:
 
@@ -109,10 +116,13 @@ IMPACT ON PLANNING:
 - Buy attraction tickets: {{IN_ADVANCE / AT_DOOR}}
 - Expected daily budget adjustment: +/- {{%}}
 ```
+
 ---
+
 ## Step 2: Budget Allocation
 
 ### Trip Budget Worksheet
+
 ```
 TRIP BUDGET PLANNER:
 
@@ -154,10 +164,13 @@ LUXURY TRAVELER ($250+/day):
 - Activities: 20% (premium experiences, private tours)
 - Buffer: 10%
 ```
+
 ---
+
 ## Step 3: Booking Timing Optimization
 
 ### When to Book What
+
 ```
 BOOKING TIMELINE:
 
@@ -195,10 +208,13 @@ BOOKING TIMELINE:
 [ ] Share itinerary with emergency contact
 [ ] Charge all electronics and battery packs
 ```
+
 ---
+
 ## Step 4: Accommodation Selection
 
 ### Accommodation Comparison
+
 ```
 ACCOMMODATION DECISION MATRIX:
 
@@ -227,10 +243,13 @@ SELECTION CRITERIA:
 [ ] Accessibility (if needed)
 [ ] Check-in/check-out flexibility
 ```
+
 ---
+
 ## Step 5: Day-by-Day Planning
 
 ### Daily Itinerary Framework
+
 ```
 DAILY PLANNING PRINCIPLES:
 
@@ -256,6 +275,7 @@ DAILY PLANNING PRINCIPLES:
 ```
 
 ### Daily Itinerary Template
+
 ```
 DAY {{NUMBER}}: {{THEME/NEIGHBORHOOD}}
 Date: {{DATE}} ({{DAY_OF_WEEK}})
@@ -301,10 +321,13 @@ TRANSPORT FOR THE DAY:
 
 DAY BUDGET: ${{TOTAL}}
 ```
+
 ---
+
 ## Step 6: Must-See vs. Hidden Gems
 
 ### Balancing Tourist Highlights and Local Experiences
+
 ```
 ATTRACTION CATEGORIZATION:
 
@@ -342,10 +365,13 @@ For every 2 "must-see" tourist attractions, plan 1 hidden gem
 or local experience. This keeps the trip from feeling like a
 checklist.
 ```
+
 ---
+
 ## Step 7: Itinerary Templates
 
 ### Weekend Getaway (2-3 Days)
+
 ```
 WEEKEND ITINERARY TEMPLATE:
 
@@ -375,6 +401,7 @@ PACKING: Carry-on only for weekend trips
 ```
 
 ### One Week (7 Days)
+
 ```
 ONE-WEEK ITINERARY TEMPLATE:
 
@@ -419,6 +446,7 @@ DAY 7: DEPARTURE
 ```
 
 ### Two Weeks (14 Days)
+
 ```
 TWO-WEEK ITINERARY FRAMEWORK:
 
@@ -453,10 +481,13 @@ KEY PRINCIPLES FOR LONG TRIPS:
 - Do laundry on rest days
 - Reconfirm bookings for the second week
 ```
+
 ---
+
 ## Step 8: Transportation Logistics
 
 ### Getting Around Decision Matrix
+
 ```
 TRANSPORTATION PLANNING:
 
@@ -477,8 +508,11 @@ WITHIN CITIES:
 [ ] Taxi (agree on price or use meter)
 [ ] Hop-on hop-off bus (for orientation on Day 1)
 ```
+
 ---
+
 ## Trip Planning Master Checklist
+
 ```
 COMPLETE TRIP CHECKLIST:
 
@@ -509,9 +543,10 @@ ON TRIP:
 [ ] Take photos of tickets and important items
 [ ] Enjoy and be present
 ```
----
-*This skill provides trip planning guidance. Actual conditions, prices, and availability change frequently. Always verify current information before booking and travel.*
 
+---
+
+_This skill provides trip planning guidance. Actual conditions, prices, and availability change frequently. Always verify current information before booking and travel._
 
 ## Output Format
 

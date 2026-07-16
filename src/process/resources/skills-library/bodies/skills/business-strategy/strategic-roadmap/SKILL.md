@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning project-management"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'strategy planning project-management'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Strategic Roadmap
 
 ## When to Use
@@ -422,23 +423,23 @@ By the end of Year 3, $50M ARR comes from three sources: $30M from an optimized 
 
 ### Investment Allocation
 
-| Horizon | Strategic Focus | % of Resources | Time Frame | Investment Rationale |
-|---------|----------------|---------------|------------|---------------------|
-| H1: Core Optimization | Optimize sales efficiency, NRR, and build PLG foundation | 65% | Months 0-12 (Q1-Q4) | Current engine must become capital-efficient before we can fund two major bets simultaneously |
-| H2: Dual Growth Bets | Launch PLG self-serve + UK/Australia international | 25% | Months 9-24 (Q3-Q8) | PLG reduces CAC concentration risk; international diversifies geographic risk |
-| H3: AI Premium Capability | Build and validate AI-powered predictive analytics | 10% | Months 18-36 (Q7-Q12) | Creates technical moat and ACV expansion path; requires data infrastructure from H1/H2 |
-| **Total** | | **100%** | | |
+| Horizon                   | Strategic Focus                                          | % of Resources | Time Frame            | Investment Rationale                                                                          |
+| ------------------------- | -------------------------------------------------------- | -------------- | --------------------- | --------------------------------------------------------------------------------------------- |
+| H1: Core Optimization     | Optimize sales efficiency, NRR, and build PLG foundation | 65%            | Months 0-12 (Q1-Q4)   | Current engine must become capital-efficient before we can fund two major bets simultaneously |
+| H2: Dual Growth Bets      | Launch PLG self-serve + UK/Australia international       | 25%            | Months 9-24 (Q3-Q8)   | PLG reduces CAC concentration risk; international diversifies geographic risk                 |
+| H3: AI Premium Capability | Build and validate AI-powered predictive analytics       | 10%            | Months 18-36 (Q7-Q12) | Creates technical moat and ACV expansion path; requires data infrastructure from H1/H2        |
+| **Total**                 |                                                          | **100%**       |                       |                                                                                               |
 
 ---
 
 ### Strategic Themes Overview
 
-| Theme | Horizon(s) | Strategic Objective | Primary Metric |
-|-------|-----------|---------------------|---------------|
-| Sales Engine Efficiency | H1 | Reduce CAC payback from 22 to under 16 months; improve NRR from 107% to 115% | NRR, CAC Payback Period |
-| PLG Self-Serve Motion | H1 (foundation), H2 (launch) | Build and launch self-serve trial targeting <$20K ACV segment | PLG-sourced ARR as % of total |
-| International Expansion | H2 | Generate $12M ARR from UK and Australia by Year 3 | International ARR |
-| AI Predictive Analytics | H3 | Validate and launch premium predictive analytics tier with >$120K ACV | Premium tier ARR, ACV uplift |
+| Theme                   | Horizon(s)                   | Strategic Objective                                                          | Primary Metric                |
+| ----------------------- | ---------------------------- | ---------------------------------------------------------------------------- | ----------------------------- |
+| Sales Engine Efficiency | H1                           | Reduce CAC payback from 22 to under 16 months; improve NRR from 107% to 115% | NRR, CAC Payback Period       |
+| PLG Self-Serve Motion   | H1 (foundation), H2 (launch) | Build and launch self-serve trial targeting <$20K ACV segment                | PLG-sourced ARR as % of total |
+| International Expansion | H2                           | Generate $12M ARR from UK and Australia by Year 3                            | International ARR             |
+| AI Predictive Analytics | H3                           | Validate and launch premium predictive analytics tier with >$120K ACV        | Premium tier ARR, ACV uplift  |
 
 ---
 
@@ -449,25 +450,25 @@ By the end of Year 3, $50M ARR comes from three sources: $30M from an optimized 
 
 #### Initiatives
 
-| Theme | Initiative | Owner (Role) | Timeline | Milestone | Resource |
-|-------|-----------|-------------|----------|-----------|----------|
-| Sales Engine Efficiency | Redesign ICP scoring and outbound playbook with top-performer analysis | VP Sales | Q1-Q2 | New ICP scoring model live; outbound pipeline coverage at 3x quota | 2 FTE (RevOps + Sales Enablement) |
-| Sales Engine Efficiency | Hire and ramp 5 mid-market AEs with $900K individual quotas | VP Sales | Q1-Q3 | 5 AEs hired, onboarded, and carrying full pipelines by Q3 | 5 FTE |
-| Sales Engine Efficiency | Implement revenue operations tooling (CRM hygiene + forecasting model) | VP RevOps | Q1-Q2 | Forecast accuracy within 10% variance for two consecutive months | 1 FTE + $80K tooling |
-| NRR Improvement | Build customer health scoring model with 6-week leading indicator signal | VP Customer Success | Q1-Q2 | Health scores live for 100% of accounts; at-risk accounts identified | 2 FTE (CS Ops + Data) |
-| NRR Improvement | Launch structured QBR program for top 60 accounts by ARR | VP Customer Success | Q2-Q4 | 90% of top-60 accounts in active QBR cycle by Q4 | 3 FTE (CSMs) |
-| PLG Foundation | Instrument product with usage analytics (event tracking, activation funnel) | VP Product | Q1-Q3 | 100% of core product flows tracked; activation funnel baseline established | 3 FTE (Engineering + Product) |
-| PLG Foundation | Design and build self-serve trial environment (sandboxed, no sales required) | VP Product + VP Engineering | Q2-Q4 | Trial environment live; internal dogfooding complete; first external beta cohort of 20 | 6 FTE (Engineering) |
+| Theme                   | Initiative                                                                   | Owner (Role)                | Timeline | Milestone                                                                              | Resource                          |
+| ----------------------- | ---------------------------------------------------------------------------- | --------------------------- | -------- | -------------------------------------------------------------------------------------- | --------------------------------- |
+| Sales Engine Efficiency | Redesign ICP scoring and outbound playbook with top-performer analysis       | VP Sales                    | Q1-Q2    | New ICP scoring model live; outbound pipeline coverage at 3x quota                     | 2 FTE (RevOps + Sales Enablement) |
+| Sales Engine Efficiency | Hire and ramp 5 mid-market AEs with $900K individual quotas                  | VP Sales                    | Q1-Q3    | 5 AEs hired, onboarded, and carrying full pipelines by Q3                              | 5 FTE                             |
+| Sales Engine Efficiency | Implement revenue operations tooling (CRM hygiene + forecasting model)       | VP RevOps                   | Q1-Q2    | Forecast accuracy within 10% variance for two consecutive months                       | 1 FTE + $80K tooling              |
+| NRR Improvement         | Build customer health scoring model with 6-week leading indicator signal     | VP Customer Success         | Q1-Q2    | Health scores live for 100% of accounts; at-risk accounts identified                   | 2 FTE (CS Ops + Data)             |
+| NRR Improvement         | Launch structured QBR program for top 60 accounts by ARR                     | VP Customer Success         | Q2-Q4    | 90% of top-60 accounts in active QBR cycle by Q4                                       | 3 FTE (CSMs)                      |
+| PLG Foundation          | Instrument product with usage analytics (event tracking, activation funnel)  | VP Product                  | Q1-Q3    | 100% of core product flows tracked; activation funnel baseline established             | 3 FTE (Engineering + Product)     |
+| PLG Foundation          | Design and build self-serve trial environment (sandboxed, no sales required) | VP Product + VP Engineering | Q2-Q4    | Trial environment live; internal dogfooding complete; first external beta cohort of 20 | 6 FTE (Engineering)               |
 
 #### Success Metrics
 
-| Metric | Metric Type | Baseline | Target (Month 12) | Leading Indicator | Frequency |
-|--------|------------|---------|-------------------|-------------------|-----------| 
-| ARR | Lagging | $10M | $16M | Monthly new ARR bookings vs. plan | Monthly |
-| Net Revenue Retention | Lagging | 107% | 113% | Customer health score trend (% accounts at green) | Monthly |
-| CAC Payback Period | Lagging | 22 months | 18 months | New logo ACV vs. fully loaded acquisition cost | Quarterly |
-| Sales-qualified pipeline coverage | Leading | 2.1x quota | 3.0x quota | Outbound activity rates by AE | Weekly |
-| Product activation rate (existing users) | Leading | Baseline TBD (Q1) | 60% activate within 14 days of provisioning | Feature adoption by cohort | Monthly |
+| Metric                                   | Metric Type | Baseline          | Target (Month 12)                           | Leading Indicator                                 | Frequency |
+| ---------------------------------------- | ----------- | ----------------- | ------------------------------------------- | ------------------------------------------------- | --------- |
+| ARR                                      | Lagging     | $10M              | $16M                                        | Monthly new ARR bookings vs. plan                 | Monthly   |
+| Net Revenue Retention                    | Lagging     | 107%              | 113%                                        | Customer health score trend (% accounts at green) | Monthly   |
+| CAC Payback Period                       | Lagging     | 22 months         | 18 months                                   | New logo ACV vs. fully loaded acquisition cost    | Quarterly |
+| Sales-qualified pipeline coverage        | Leading     | 2.1x quota        | 3.0x quota                                  | Outbound activity rates by AE                     | Weekly    |
+| Product activation rate (existing users) | Leading     | Baseline TBD (Q1) | 60% activate within 14 days of provisioning | Feature adoption by cohort                        | Monthly   |
 
 ---
 
@@ -479,20 +480,21 @@ By the end of Year 3, $50M ARR comes from three sources: $30M from an optimized 
 
 #### Initiatives
 
-| Theme | Initiative | Owner (Role) | Timeline | Milestone | Dependency |
-|-------|-----------|-------------|----------|-----------|-----------|
-| PLG Self-Serve Motion | Launch PLG self-serve with freemium-to-paid conversion targeting $0-$20K ACV segment | VP Growth | Q5-Q6 | 500 trial signups in first 30 days; trial-to-paid conversion >8% by day 90 | PLG trial environment (Q4 H1 milestone) |
-| PLG Self-Serve Motion | Build in-product upgrade and expansion flows (usage-triggered upsells) | VP Product | Q5-Q7 | In-product upgrade flows drive 15% of new PLG revenue without sales assist | PLG usage instrumentation live (Q3 H1 milestone) |
-| PLG Self-Serve Motion | Hire PLG-specific growth team (Growth PM, Growth Engineer, Content) | VP Growth | Q4-Q5 | Team hired and onboarded; 90-day growth experiment backlog defined | None (can begin Q4) |
-| International Expansion | UK entity formation and GDPR compliance certification | CFO + Legal | Q2-Q5 | UK legal entity operational; data processing agreements compliant | None (begin immediately in H1) |
-| International Expansion | UK product localization (GBP pricing, GDPR data residency, UK-specific integrations) | VP Engineering | Q3-Q5 | UK instance live with data residency in London region; 3 UK-native integrations available | Legal entity (Q5 dependency) |
-| International Expansion | UK GTM launch: hire 2 UK-based AEs and 1 UK CSM | VP Sales (International) | Q5-Q6 | 2 AEs and 1 CSM hired; first 10 UK logos signed by Q7 | UK product localization (Q5) |
-| International Expansion | Australia GTM launch (follow-on to UK learnings) | VP Sales (International) | Q7-Q8 | First 5 Australia logos signed by Q8 | UK GTM results inform playbook; Q6 review |
+| Theme                   | Initiative                                                                           | Owner (Role)             | Timeline | Milestone                                                                                 | Dependency                                       |
+| ----------------------- | ------------------------------------------------------------------------------------ | ------------------------ | -------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| PLG Self-Serve Motion   | Launch PLG self-serve with freemium-to-paid conversion targeting $0-$20K ACV segment | VP Growth                | Q5-Q6    | 500 trial signups in first 30 days; trial-to-paid conversion >8% by day 90                | PLG trial environment (Q4 H1 milestone)          |
+| PLG Self-Serve Motion   | Build in-product upgrade and expansion flows (usage-triggered upsells)               | VP Product               | Q5-Q7    | In-product upgrade flows drive 15% of new PLG revenue without sales assist                | PLG usage instrumentation live (Q3 H1 milestone) |
+| PLG Self-Serve Motion   | Hire PLG-specific growth team (Growth PM, Growth Engineer, Content)                  | VP Growth                | Q4-Q5    | Team hired and onboarded; 90-day growth experiment backlog defined                        | None (can begin Q4)                              |
+| International Expansion | UK entity formation and GDPR compliance certification                                | CFO + Legal              | Q2-Q5    | UK legal entity operational; data processing agreements compliant                         | None (begin immediately in H1)                   |
+| International Expansion | UK product localization (GBP pricing, GDPR data residency, UK-specific integrations) | VP Engineering           | Q3-Q5    | UK instance live with data residency in London region; 3 UK-native integrations available | Legal entity (Q5 dependency)                     |
+| International Expansion | UK GTM launch: hire 2 UK-based AEs and 1 UK CSM                                      | VP Sales (International) | Q5-Q6    | 2 AEs and 1 CSM hired; first 10 UK logos signed by Q7                                     | UK product localization (Q5)                     |
+| International Expansion | Australia GTM launch (follow-on to UK learnings)                                     | VP Sales (International) | Q7-Q8    | First 5 Australia logos signed by Q8                                                      | UK GTM results inform playbook; Q6 review        |
 
 #### Go/No-Go Gate
 
 **Gate Date:** End of Q4 (Month 12)
 **Required Conditions to Release Full H2 Investment:**
+
 - NRR is at or above 110% (not yet at 113% target, but trending correctly)
 - CAC payback is at or below 20 months (trending toward 18-month target)
 - PLG trial environment is live and internal dogfooding has produced an activation rate signal
@@ -502,12 +504,12 @@ By the end of Year 3, $50M ARR comes from three sources: $30M from an optimized 
 
 #### Success Metrics
 
-| Metric | Metric Type | Target (Month 24) | Leading Indicator | Frequency |
-|--------|------------|-------------------|-------------------|-----------| 
-| PLG-sourced ARR | Growth | $8M | Trial signup volume + trial-to-paid conversion rate | Weekly (signups), Monthly (ARR) |
-| International ARR (UK + AU) | Growth | $5M | Logo count + average ACV in new markets | Monthly |
-| PLG trial-to-paid conversion | Growth | >10% at 90 days | Day-14 activation rate within trial | Weekly |
-| International NRR (UK) | Growth | >105% (early signal) | UK customer health score trend | Monthly |
+| Metric                       | Metric Type | Target (Month 24)    | Leading Indicator                                   | Frequency                       |
+| ---------------------------- | ----------- | -------------------- | --------------------------------------------------- | ------------------------------- |
+| PLG-sourced ARR              | Growth      | $8M                  | Trial signup volume + trial-to-paid conversion rate | Weekly (signups), Monthly (ARR) |
+| International ARR (UK + AU)  | Growth      | $5M                  | Logo count + average ACV in new markets             | Monthly                         |
+| PLG trial-to-paid conversion | Growth      | >10% at 90 days      | Day-14 activation rate within trial                 | Weekly                          |
+| International NRR (UK)       | Growth      | >105% (early signal) | UK customer health score trend                      | Monthly                         |
 
 ---
 
@@ -519,12 +521,12 @@ By the end of Year 3, $50M ARR comes from three sources: $30M from an optimized 
 
 #### Experiments and Investments
 
-| Theme | Initiative / Experiment | Owner (Role) | Timeline | Learning Goal | Success Condition |
-|-------|------------------------|-------------|----------|---------------|-------------------|
-| AI Predictive Analytics | Recruit 6 design partners from existing enterprise accounts for demand forecasting pilot | VP Product + VP CS | Q7-Q8 | Does AI-powered demand forecasting reduce stockout rate by >20% for pilot accounts? | 6 design partners active; >4 of 6 show measurable stockout reduction |
-| AI Predictive Analytics | Build demand forecasting MVP using account transaction data (internal ML team) | VP Engineering (ML lead) | Q7-Q9 | Can we build a model that achieves >80% forecast accuracy at 30-day horizon with standard e-commerce data? | Model accuracy validated against held-out data; design partners confirm utility |
-| AI Predictive Analytics | Pilot customer churn prediction module with top 20 CS-managed accounts | VP CS + VP Product | Q8-Q9 | Does a churn prediction model surfaced to CSMs improve 60-day save rate vs. current health scoring? | Save rate improves by >15% in pilot group vs. control |
-| AI Predictive Analytics | Define and validate premium tier pricing (ACV uplift + packaging) | VP Revenue + VP Product | Q9-Q10 | What premium price point maximizes revenue while maintaining >60% attach rate among qualifying accounts? | Pricing model validated with >3 design partner commitments at target price |
-| AI Predictive Analytics | GA launch of AI Premium tier with in-product upgrade flow | VP Product + VP Growth | Q11 | Launch | $1M ARR committed at launch; >20 accounts upgraded in first 60 days |
+| Theme                   | Initiative / Experiment                                                                  | Owner (Role)             | Timeline | Learning Goal                                                                                              | Success Condition                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------- | ------------------------ | -------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| AI Predictive Analytics | Recruit 6 design partners from existing enterprise accounts for demand forecasting pilot | VP Product + VP CS       | Q7-Q8    | Does AI-powered demand forecasting reduce stockout rate by >20% for pilot accounts?                        | 6 design partners active; >4 of 6 show measurable stockout reduction            |
+| AI Predictive Analytics | Build demand forecasting MVP using account transaction data (internal ML team)           | VP Engineering (ML lead) | Q7-Q9    | Can we build a model that achieves >80% forecast accuracy at 30-day horizon with standard e-commerce data? | Model accuracy validated against held-out data; design partners confirm utility |
+| AI Predictive Analytics | Pilot customer churn prediction module with top 20 CS-managed accounts                   | VP CS + VP Product       | Q8-Q9    | Does a churn prediction model surfaced to CSMs improve 60-day save rate vs. current health scoring?        | Save rate improves by >15% in pilot group vs. control                           |
+| AI Predictive Analytics | Define and validate premium tier pricing (ACV uplift + packaging)                        | VP Revenue + VP Product  | Q9-Q10   | What premium price point maximizes revenue while maintaining >60% attach rate among qualifying accounts?   | Pricing model validated with >3 design partner commitments at target price      |
+| AI Predictive Analytics | GA launch of AI Premium tier with in-product upgrade flow                                | VP Product + VP Growth   | Q11      | Launch                                                                                                     | $1M ARR committed at launch; >20 accounts upgraded in first 60 days             |
 
 #### Learning

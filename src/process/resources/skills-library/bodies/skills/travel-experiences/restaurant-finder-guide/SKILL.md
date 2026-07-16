@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research guide step-by-step"
-  category: "travel-experiences"
-  subcategory: "experiences-activities"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel research guide step-by-step'
+  category: 'travel-experiences'
+  subcategory: 'experiences-activities'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Restaurant Finder Guide
@@ -28,6 +28,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to find restaurants while traveling
 - User wants to evaluate dining options in an unfamiliar city
 - User asks how to avoid tourist trap restaurants
@@ -36,6 +37,7 @@ metadata:
 - User asks about dining reservations and logistics in another country
 
 **Do NOT use when:**
+
 - User wants a food-focused trip itinerary (use trip-planning or food tourism skills)
 - User wants meal planning or recipes for home cooking (use home-household skills)
 - User wants a full trip itinerary with restaurant slots already filled (use `trip-itinerary-builder`)
@@ -234,18 +236,19 @@ For dietary restrictions at [Destination]:
 
 Use this checklist for every restaurant you consider in Rome. Score each 1-5.
 
-| # | Criterion              | Score (1-5) | What to look for                                          |
-|---|------------------------|-------------|-----------------------------------------------------------|
-| 1 | Location fit           | ___         | Within 15 min walk of your day's area. Avoid eating only near your hotel -- eat near your activities. |
-| 2 | Local authenticity     | ___         | Italian-speaking patrons during meal hours. Menu in Italian first, translations secondary. Staff are not standing outside recruiting passersby. |
-| 3 | Menu quality           | ___         | Short menu (8-12 primi, 6-8 secondi). Handwritten daily specials. No photos of every dish. Traditional Roman dishes present (cacio e pepe, carbonara, amatriciana, gricia). |
-| 4 | Price transparency     | ___         | Menu posted outside or visible before sitting. No surprise "coperto" (cover charge) above 2-3 EUR. No "market price" seafood without asking the price. |
-| 5 | Freshness signals      | ___         | Daily specials change. Pasta cooked to order (visible kitchen activity). Seasonal ingredients on the menu. Bread is not stale. |
-| **Total**               | ___/25      |                                                            |
+| #         | Criterion          | Score (1-5) | What to look for                                                                                                                                                            |
+| --------- | ------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1         | Location fit       | \_\_\_      | Within 15 min walk of your day's area. Avoid eating only near your hotel -- eat near your activities.                                                                       |
+| 2         | Local authenticity | \_\_\_      | Italian-speaking patrons during meal hours. Menu in Italian first, translations secondary. Staff are not standing outside recruiting passersby.                             |
+| 3         | Menu quality       | \_\_\_      | Short menu (8-12 primi, 6-8 secondi). Handwritten daily specials. No photos of every dish. Traditional Roman dishes present (cacio e pepe, carbonara, amatriciana, gricia). |
+| 4         | Price transparency | \_\_\_      | Menu posted outside or visible before sitting. No surprise "coperto" (cover charge) above 2-3 EUR. No "market price" seafood without asking the price.                      |
+| 5         | Freshness signals  | \_\_\_      | Daily specials change. Pasta cooked to order (visible kitchen activity). Seasonal ingredients on the menu. Bread is not stale.                                              |
+| **Total** | \_\_\_/25          |             |
 
 ### Shortlisting Process
 
 **Step 1: Identify 5-10 candidates per neighborhood**
+
 - Ask your accommodation host: "Where do YOU eat for a weeknight dinner?" (personal, not tourist answer)
 - Walk through Trastevere, Testaccio, Monti, or Pigneto neighborhoods at 20:00 and note which places are full of Italians
 - Check review platforms: filter for reviews written in Italian, not English
@@ -253,12 +256,14 @@ Use this checklist for every restaurant you consider in Rome. Score each 1-5.
 
 **Step 2: Quick filter (narrow to 3-5)**
 Eliminate if:
+
 - [ ] Located directly on Piazza Navona, the Pantheon square, or facing the Colosseum (tourist premium pricing)
 - [ ] Staff member standing outside calling "ciao, sit down, best pasta!" (tourist trap behavior)
 - [ ] Laminated photo menu in 6 languages with 80+ dishes including sushi and burgers alongside pasta
 - [ ] Empty at 20:30 on a weeknight (Romans eat late -- empty at peak is a bad sign)
 
 **Step 3: Evaluate (narrow to 1-2)**
+
 - [ ] Recent reviews mention specific dishes and fresh preparation
 - [ ] Menu is focused on Roman cuisine (not "Italian and international")
 - [ ] Location fits tomorrow's activity plan
@@ -266,29 +271,29 @@ Eliminate if:
 
 ### Restaurant Shortlist Template
 
-| Criterion           | Restaurant A | Restaurant B | Restaurant C |
-|---------------------|-------------|-------------|-------------|
-| Name                | ___         | ___         | ___         |
-| Neighborhood        | ___         | ___         | ___         |
-| Price range/person  | ___         | ___         | ___         |
-| Location score (1-5)| ___         | ___         | ___         |
-| Authenticity (1-5)  | ___         | ___         | ___         |
-| Menu quality (1-5)  | ___         | ___         | ___         |
-| Review score (1-5)  | ___         | ___         | ___         |
-| Freshness (1-5)     | ___         | ___         | ___         |
-| **Total**           | ___/25      | ___/25      | ___/25      |
-| Reservation needed  | ___         | ___         | ___         |
-| Hours               | ___         | ___         | ___         |
+| Criterion            | Restaurant A | Restaurant B | Restaurant C |
+| -------------------- | ------------ | ------------ | ------------ |
+| Name                 | \_\_\_       | \_\_\_       | \_\_\_       |
+| Neighborhood         | \_\_\_       | \_\_\_       | \_\_\_       |
+| Price range/person   | \_\_\_       | \_\_\_       | \_\_\_       |
+| Location score (1-5) | \_\_\_       | \_\_\_       | \_\_\_       |
+| Authenticity (1-5)   | \_\_\_       | \_\_\_       | \_\_\_       |
+| Menu quality (1-5)   | \_\_\_       | \_\_\_       | \_\_\_       |
+| Review score (1-5)   | \_\_\_       | \_\_\_       | \_\_\_       |
+| Freshness (1-5)      | \_\_\_       | \_\_\_       | \_\_\_       |
+| **Total**            | \_\_\_/25    | \_\_\_/25    | \_\_\_/25    |
+| Reservation needed   | \_\_\_       | \_\_\_       | \_\_\_       |
+| Hours                | \_\_\_       | \_\_\_       | \_\_\_       |
 
 ### Tourist Trap Red Flags in Rome
 
-| Red flag                                        | Why it matters                                     | What to do instead                         |
-|-------------------------------------------------|----------------------------------------------------|--------------------------------------------|
-| Staff standing outside recruiting diners         | Real Roman restaurants do not need to drag people in. This is a sign of overpriced, mediocre food targeting tourists. | Walk past. Look for restaurants where you need to find the door yourself. |
-| Menu with photos of every dish in 6 languages   | Photo menus signal pre-made food reheated to order. Real trattorias have a handwritten or short printed menu, often only in Italian. | Choose places with concise menus, daily specials boards, or Italian-first menus. |
-| Located directly facing a major monument        | Prime location = prime rent = cutting costs on food quality. The view subsidizes the meal, not the kitchen. | Walk 2-3 blocks away from any major monument. Quality improves as tourist foot traffic decreases. |
-| "Menu turistico" or "fixed tourist menu"        | These set-price menus offer quantity over quality at inflated prices. They rarely include the restaurant's best dishes. | Order from the regular menu. Ask the server what they recommend. |
-| Empty at 20:30-21:00 on a weeknight             | Romans eat dinner at 20:00-21:30. An empty restaurant at peak time means locals have already voted with their feet. | Check back during peak hours. A full restaurant at 20:30 is a stronger signal than any review. |
+| Red flag                                      | Why it matters                                                                                                                       | What to do instead                                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Staff standing outside recruiting diners      | Real Roman restaurants do not need to drag people in. This is a sign of overpriced, mediocre food targeting tourists.                | Walk past. Look for restaurants where you need to find the door yourself.                         |
+| Menu with photos of every dish in 6 languages | Photo menus signal pre-made food reheated to order. Real trattorias have a handwritten or short printed menu, often only in Italian. | Choose places with concise menus, daily specials boards, or Italian-first menus.                  |
+| Located directly facing a major monument      | Prime location = prime rent = cutting costs on food quality. The view subsidizes the meal, not the kitchen.                          | Walk 2-3 blocks away from any major monument. Quality improves as tourist foot traffic decreases. |
+| "Menu turistico" or "fixed tourist menu"      | These set-price menus offer quantity over quality at inflated prices. They rarely include the restaurant's best dishes.              | Order from the regular menu. Ask the server what they recommend.                                  |
+| Empty at 20:30-21:00 on a weeknight           | Romans eat dinner at 20:00-21:30. An empty restaurant at peak time means locals have already voted with their feet.                  | Check back during peak hours. A full restaurant at 20:30 is a stronger signal than any review.    |
 
 ### Reservation and Logistics
 
@@ -301,7 +306,8 @@ Eliminate if:
 ### Allergy Communication
 
 For food allergies in Rome (Italian):
-- "Sono allergico/a a ___" (SOH-no ah-LAIR-jee-ko/kah ah ___) = I am allergic to ___
-- "Contiene ___?" (kon-TYEH-neh ___?) = Does this contain ___?
+
+- "Sono allergico/a a **_" (SOH-no ah-LAIR-jee-ko/kah ah _**) = I am allergic to \_\_\_
+- "Contiene **_?" (kon-TYEH-neh _**?) = Does this contain \_\_\_?
 - Common allergens: glutine (gluten), latticini (dairy), noci (nuts), frutti di mare (shellfish)
 - Italian restaurants take allergies seriously when communicated clearly. Mention allergies when ordering, not after the food arrives.

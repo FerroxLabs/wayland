@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing architecture best-practices"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing architecture best-practices'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Test Strategy Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is starting a new project and needs to decide which test types to invest in, at what proportions, and using which tools
 - A user has an existing test suite that is slow, flaky, or providing low confidence and needs a structural overhaul
 - A user asks how to balance unit, integration, end-to-end, contract, performance, or security tests for a specific architecture (microservices, monolith, event-driven, etc.)
@@ -30,6 +32,7 @@ metadata:
 - A user wants to implement risk-based testing -- prioritizing test effort proportional to business risk, change frequency, and failure impact
 
 **Do NOT use this skill when:**
+
 - The user needs help writing a specific unit test or debugging a failing test -- use the test-writing or test-debugging skills instead
 - The user needs guidance on a specific testing framework configuration (Jest, pytest, Cypress setup) -- use the framework-specific skill
 - The user is asking about load testing tool selection or performance benchmarking design -- use the performance-testing skill
@@ -131,6 +134,7 @@ The test strategy must be written down, versioned, and accessible:
 ## Test Strategy Design: [Project/Service Name]
 
 ### System Context
+
 - **Architecture:** [monolith | microservices | event-driven | serverless | SPA | data pipeline]
 - **Team Size:** [N engineers]
 - **Deployment Target:** [cloud/on-prem/edge]
@@ -141,22 +145,24 @@ The test strategy must be written down, versioned, and accessible:
 ---
 
 ### Test Distribution Model
+
 **Recommended Model:** [Pyramid | Trophy | Honeycomb | Contract-First | Risk-Based]
 **Rationale:** [2--3 sentences explaining why this model fits the architecture and risk profile]
 
-| Test Layer         | Target % of Test Suite | Execution Target | Coverage Target        |
-|--------------------|------------------------|------------------|------------------------|
-| Unit               | [X]%                   | < [N] seconds    | [N]% lines, [N]% branch|
-| Integration        | [X]%                   | < [N] minutes    | [N]% API paths         |
-| Contract           | [X]%                   | < 2 minutes      | All service boundaries |
-| End-to-End         | [X]%                   | < 15 minutes     | [N] critical journeys  |
-| Component/Service  | [X]%                   | < [N] minutes    | [as applicable]        |
+| Test Layer        | Target % of Test Suite | Execution Target | Coverage Target         |
+| ----------------- | ---------------------- | ---------------- | ----------------------- |
+| Unit              | [X]%                   | < [N] seconds    | [N]% lines, [N]% branch |
+| Integration       | [X]%                   | < [N] minutes    | [N]% API paths          |
+| Contract          | [X]%                   | < 2 minutes      | All service boundaries  |
+| End-to-End        | [X]%                   | < 15 minutes     | [N] critical journeys   |
+| Component/Service | [X]%                   | < [N] minutes    | [as applicable]         |
 
 ---
 
 ### Test Layer Definitions
 
 **Unit Tests**
+
 - Scope: [what is tested in isolation]
 - Tooling: [framework, assertion library, mock library]
 - Mocking boundary: [what is always faked vs. always real]
@@ -164,6 +170,7 @@ The test strategy must be written down, versioned, and accessible:
 - Location: `[path pattern]`
 
 **Integration Tests**
+
 - Scope: [what real components are wired together]
 - Tooling: [framework + container approach]
 - Database: [real engine, ephemeral via Testcontainers / Docker Compose]
@@ -172,6 +179,7 @@ The test strategy must be written down, versioned, and accessible:
 - Location: `[path pattern]`
 
 **Contract Tests**
+
 - Scope: [which service pairs have contracts]
 - Tooling: [Pact / OpenAPI schema validation / other]
 - Broker: [Pact Broker URL / CI artifact]
@@ -179,6 +187,7 @@ The test strategy must be written down, versioned, and accessible:
 - Provider teams: [list]
 
 **End-to-End Tests**
+
 - Scope: [critical user journeys covered]
 - Tooling: [Playwright / Cypress / Selenium + framework]
 - Environment: [preview / staging / production-like]
@@ -189,26 +198,27 @@ The test strategy must be written down, versioned, and accessible:
 
 ### Quality Gates
 
-| Gate                        | Threshold                          | Action on Failure       |
-|-----------------------------|------------------------------------|-------------------------|
-| Line coverage (domain)      | >= [N]%                            | Block PR merge          |
-| Line coverage (overall)     | No drop > 2% from baseline         | Block PR merge          |
-| Mutation score              | >= [N]%                            | Warning / Block         |
-| Unit test suite time        | < [N] seconds                      | Alert team              |
-| Integration test suite time | < [N] minutes                      | Alert team              |
-| E2E suite time              | < 15 minutes                       | Alert team              |
-| Flakiness rate              | < 2% of CI runs per test           | Quarantine test         |
+| Gate                        | Threshold                  | Action on Failure |
+| --------------------------- | -------------------------- | ----------------- |
+| Line coverage (domain)      | >= [N]%                    | Block PR merge    |
+| Line coverage (overall)     | No drop > 2% from baseline | Block PR merge    |
+| Mutation score              | >= [N]%                    | Warning / Block   |
+| Unit test suite time        | < [N] seconds              | Alert team        |
+| Integration test suite time | < [N] minutes              | Alert team        |
+| E2E suite time              | < 15 minutes               | Alert team        |
+| Flakiness rate              | < 2% of CI runs per test   | Quarantine test   |
 
 ---
 
 ### CI Pipeline Structure
-
 ```
-Stage 1 (parallel): lint | type-check | format-check        [target: < 3 min]
-Stage 2:            unit tests                               [target: < 5 min]
-Stage 3:            integration tests (with containers)      [target: < 10 min]
-Stage 4:            contract tests                           [target: < 2 min]
-Stage 5:            E2E tests (on deployed preview env)      [target: < 15 min]
+
+Stage 1 (parallel): lint | type-check | format-check [target: < 3 min]
+Stage 2: unit tests [target: < 5 min]
+Stage 3: integration tests (with containers) [target: < 10 min]
+Stage 4: contract tests [target: < 2 min]
+Stage 5: E2E tests (on deployed preview env) [target: < 15 min]
+
 ```
 
 ---
@@ -285,24 +295,31 @@ Stage 5:            E2E tests (on deployed preview env)      [target: < 15 min]
 ## Edge Cases
 
 ### Legacy Codebase With No Tests (or Less Than 20% Coverage)
+
 Do not attempt to retroactively achieve the target coverage through a "testing sprint." This approach produces low-quality tests written without context and rarely provides value. Instead: (1) freeze coverage at current baseline and add the CI gate preventing further drops, (2) require tests for all new code from day one, (3) add characterization tests (Golden Master tests) to critical untested paths before touching them for refactoring, (4) use mutation testing on the existing test suite to identify which tests provide zero protection -- delete them and rewrite with intent, (5) expect 6--12 months to reach a healthy coverage level through organic growth.
 
 ### Microservices With Many Teams (10+ Services)
+
 Contract testing becomes mandatory, not optional. Without it, integration failures discovered only in E2E or production tests generate expensive debugging cycles across team boundaries. Establish a Pact Broker (self-hosted or cloud) as shared infrastructure. Define a contract versioning policy: consumers must not break provider contracts without a coordinated release. Add contract verification to every provider's CI pipeline -- a failed contract check blocks the provider's deployment. Assign a platform team to own the broker and the contract testing standards.
 
 ### Greenfield Project Under Extreme Time Pressure
+
 The instinct is to skip tests entirely. The correct decision is to invest 20% of the timeline in testing with a strict prioritization: (1) integration tests for external API boundaries (these catch the most expensive runtime failures), (2) unit tests for domain logic with business rules (these catch the most logic regressions during rapid feature iteration), (3) a single smoke E2E test covering the critical user journey. Defer: unit tests for CRUD adapters, full E2E coverage, mutation testing. Set a calendar reminder to revisit in 6 weeks -- greenfield pressure becomes technical debt faster than any other project type.
 
 ### Highly Asynchronous / Event-Driven Systems
+
 Standard synchronous test patterns do not apply. Events published to a queue cannot be asserted with a simple return value check. Strategies: (1) use in-process event buses for unit tests (publish an event, assert the handler ran synchronously), (2) use Testcontainers with a real Kafka or RabbitMQ instance for integration tests with polling assertions and timeouts (assert that within 5 seconds, the consumer processed the event), (3) never use `Thread.sleep()` or arbitrary waits -- use polling with exponential backoff up to a timeout, (4) test idempotency explicitly -- publish the same event twice and assert the system produces the same outcome, (5) test out-of-order delivery if the system is expected to handle it.
 
 ### Machine Learning / Data Pipeline Systems
+
 Traditional coverage metrics are largely irrelevant for data transformation pipelines and ML inference code. Instead: (1) define property-based tests (using Hypothesis for Python or fast-check for JavaScript) that verify output invariants hold across thousands of generated inputs (e.g., "the output score is always between 0 and 1," "no null values appear in the output dataset"), (2) implement data quality assertions using Great Expectations or dbt tests on pipeline outputs, (3) use snapshot tests for model output on a fixed validation dataset -- assert that the output does not change unexpectedly after a code change, (4) define a regression threshold: if model accuracy on the held-out test set drops more than 0.5%, block the deployment.
 
 ### Frontend Single-Page Applications With Complex State
+
 Avoid shallow rendering tests that test the React/Vue/Angular framework itself rather than your application. Use integration-level component tests (React Testing Library, Vue Test Utils in composition mode) that render full component trees with real state management (Redux, Zustand, Pinia) wired in, interact via user events (click, type, submit), and assert DOM outcomes. Reserve unit tests for pure utility functions and reducers. Use Storybook as a visual regression test mechanism combined with Chromatic or Percy for automated visual diffing. Cover routing, authentication guards, and data fetching error states explicitly -- these are the most commonly regressed paths in SPAs.
 
 ### Regulated Industry (Finance, Healthcare, Government)
+
 Test strategy decisions must be documented with audit trails. Required additions: (1) each test must have a traceable ID linking to the requirement or user story it validates (often enforced via test tagging: `@requirement:REQ-1042`), (2) test execution reports must be immutable and stored for the required retention period (often 7 years in finance, HIPAA in healthcare), (3) test environment configuration must be version-controlled and reproducible -- auditors may require demonstrating that the same tests ran in the same environment, (4) all test data generation must be documented to contain no real PII, (5) coverage and passing rates must be formally signed off by a QA lead before production deployment, not just a green CI badge.
 
 ---
@@ -316,6 +333,7 @@ Test strategy decisions must be documented with audit trails. Required additions
 ## Test Strategy Design: E-Commerce Node.js API
 
 ### System Context
+
 - **Architecture:** Microservice (API gateway + business logic service + internal inventory service)
 - **Team Size:** 8 engineers
 - **Deployment Target:** AWS (ECS or Lambda, RDS PostgreSQL, ElastiCache Redis)
@@ -326,22 +344,24 @@ Test strategy decisions must be documented with audit trails. Required additions
 ---
 
 ### Test Distribution Model
+
 **Recommended Model:** Testing Trophy (with Contract layer)
 
 **Rationale:** The system's value is concentrated in the interaction between HTTP handlers, domain logic, PostgreSQL transactions, and the Stripe integration -- not in isolated functions. Integration tests at the HTTP handler level with a real database provide the highest confidence-to-cost ratio. A contract layer is mandatory because the inventory service is internally owned and evolves independently.
 
-| Test Layer         | Target % of Test Suite | Execution Target | Coverage Target                     |
-|--------------------|------------------------|------------------|-------------------------------------|
-| Unit               | 20%                    | < 45 seconds     | 90% lines on domain/business logic  |
-| Integration        | 55%                    | < 8 minutes      | All HTTP routes, all DB operations  |
-| Contract           | 10%                    | < 2 minutes      | Inventory service boundary          |
-| End-to-End         | 15%                    | < 12 minutes     | 8 critical user journeys            |
+| Test Layer  | Target % of Test Suite | Execution Target | Coverage Target                    |
+| ----------- | ---------------------- | ---------------- | ---------------------------------- |
+| Unit        | 20%                    | < 45 seconds     | 90% lines on domain/business logic |
+| Integration | 55%                    | < 8 minutes      | All HTTP routes, all DB operations |
+| Contract    | 10%                    | < 2 minutes      | Inventory service boundary         |
+| End-to-End  | 15%                    | < 12 minutes     | 8 critical user journeys           |
 
 ---
 
 ### Test Layer Definitions
 
 **Unit Tests**
+
 - **Scope:** Order total calculation logic, discount/promo engine, tax calculation rules, input validation schemas (Zod), business rule functions (e.g., `canFulfillOrder`, `applyRefundPolicy`)
 - **Tooling:** Vitest (faster than Jest for TypeScript), `@vitest/coverage-v8` for coverage
 - **Mocking boundary:** All I/O is mocked (no database, no Redis, no HTTP calls in unit tests). Use `vi.fn()` for collaborators.
@@ -349,6 +369,7 @@ Test strategy decisions must be documented with audit trails. Required additions
 - **Location:** `src/**/*.unit.test.ts`
 
 **Integration Tests**
+
 - **Scope:** HTTP route handlers tested end-to-end through Express routing middleware, request validation, business logic, database writes, and response serialization. Redis cache behavior. Email triggered after order creation. All error paths (404, 422, 500).
 - **Tooling:** Vitest + Supertest for HTTP layer; Testcontainers (`@testcontainers/postgresql`, `@testcontainers/redis`) for ephemeral real infrastructure
 - **Database:** PostgreSQL 15 via Testcontainers -- same version as production. Each test wraps in a transaction that rolls back in `afterEach`.
@@ -357,6 +378,7 @@ Test strategy decisions must be documented with audit trails. Required additions
 - **Location:** `src/**/*.integration.test.ts` or `tests/integration/`
 
 **Contract Tests**
+
 - **Scope:** This API (consumer) and the Inventory Service (provider)
 - **Tooling:** Pact (PactJS v12)
 - **Broker:** Self-hosted Pact Broker on AWS ECS, or PactFlow SaaS
@@ -365,6 +387,7 @@ Test strategy decisions must be documented with audit trails. Required additions
 - **Contract:** `GET /inventory/{sku}` response shape, `POST /inventory/reserve` request/response shape and error codes
 
 **End-to-End Tests**
+
 - **Scope (8 critical journeys):**
   1. Guest user adds product to cart, checks out with Stripe test card, receives confirmation email
   2. Registered user login, cart persistence, checkout
@@ -382,16 +405,16 @@ Test strategy decisions must be documented with audit trails. Required additions
 
 ### Quality Gates
 
-| Gate                         | Threshold                         | Action on Failure             |
-|------------------------------|-----------------------------------|-------------------------------|
-| Line coverage (domain logic) | >= 88%                            | Block PR merge                |
-| Line coverage (overall)      | No drop > 2% from baseline        | Block PR merge                |
-| Mutation score (domain)      | >= 65%                            | Warning -- must address in sprint|
-| Unit test suite time         | < 45 seconds                      | Alert in Slack #eng-quality   |
-| Integration test suite time  | < 8 minutes                       | Alert in Slack #eng-quality   |
-| E2E suite time               | < 12 minutes                      | Alert in Slack #eng-quality   |
-| Flakiness rate per test      | < 2% of CI runs                   | Quarantine and P1 bug filed   |
-| Contract verification        | 100% pass                         | Block provider deployment     |
+| Gate                         | Threshold                  | Action on Failure                 |
+| ---------------------------- | -------------------------- | --------------------------------- |
+| Line coverage (domain logic) | >= 88%                     | Block PR merge                    |
+| Line coverage (overall)      | No drop > 2% from baseline | Block PR merge                    |
+| Mutation score (domain)      | >= 65%                     | Warning -- must address in sprint |
+| Unit test suite time         | < 45 seconds               | Alert in Slack #eng-quality       |
+| Integration test suite time  | < 8 minutes                | Alert in Slack #eng-quality       |
+| E2E suite time               | < 12 minutes               | Alert in Slack #eng-quality       |
+| Flakiness rate per test      | < 2% of CI runs            | Quarantine and P1 bug filed       |
+| Contract verification        | 100% pass                  | Block provider deployment         |
 
 ---
 
@@ -412,27 +435,27 @@ Stages 1--4 run on every PR. Stage 5--6 run on PRs to `main` and on the `main` b
 
 ### Test Data Strategy
 
-| Layer       | Data Source                       | Isolation Approach                  | Sensitive Data  |
-|-------------|-----------------------------------|-------------------------------------|-----------------|
-| Unit        | Inline literals + factory helpers | N/A                                 | N/A             |
-| Integration | `createTestOrder()` factory + DB transaction rollback | `afterEach` rolls back transaction | Faker.js only   |
-| Contract    | Pact-defined fixed payloads       | N/A (no DB)                         | N/A             |
-| E2E         | `POST /test/seed` API endpoint    | Dedicated test Stripe customer; isolated DB schema per run | Faker.js + Stripe test tokens |
+| Layer       | Data Source                                           | Isolation Approach                                         | Sensitive Data                |
+| ----------- | ----------------------------------------------------- | ---------------------------------------------------------- | ----------------------------- |
+| Unit        | Inline literals + factory helpers                     | N/A                                                        | N/A                           |
+| Integration | `createTestOrder()` factory + DB transaction rollback | `afterEach` rolls back transaction                         | Faker.js only                 |
+| Contract    | Pact-defined fixed payloads                           | N/A (no DB)                                                | N/A                           |
+| E2E         | `POST /test/seed` API endpoint                        | Dedicated test Stripe customer; isolated DB schema per run | Faker.js + Stripe test tokens |
 
 ---
 
 ### Tooling Decisions
 
-| Tool Category       | Selected Tool                       | Rationale                                              |
-|---------------------|-------------------------------------|--------------------------------------------------------|
-| Unit + Integration runner | Vitest                        | Native TypeScript, 3x faster than Jest, compatible API |
-| HTTP testing        | Supertest                           | Industry standard for Express/Fastify HTTP layer tests |
-| Mocking/stubbing    | Vitest `vi.fn()` + nock             | nock intercepts HTTP at node level -- no code changes  |
-| Contract testing    | PactJS v12                          | Mature, widely adopted, supports async messaging       |
-| E2E framework       | Playwright                          | Faster and more reliable than Cypress for CI; multi-browser|
-| Container runner    | Testcontainers for Node.js          | Programmatic, no Docker Compose file management needed |
-| Coverage            | `@vitest/coverage-v8`               | V8 native, accurate branch coverage for TypeScript     |
-| Mutation testing    | Stryker Mutator (JS/TS)             | Best mutation testing toolchain for the TypeScript ecosystem|
+| Tool Category             | Selected Tool              | Rationale                                                    |
+| ------------------------- | -------------------------- | ------------------------------------------------------------ |
+| Unit + Integration runner | Vitest                     | Native TypeScript, 3x faster than Jest, compatible API       |
+| HTTP testing              | Supertest                  | Industry standard for Express/Fastify HTTP layer tests       |
+| Mocking/stubbing          | Vitest `vi.fn()` + nock    | nock intercepts HTTP at node level -- no code changes        |
+| Contract testing          | PactJS v12                 | Mature, widely adopted, supports async messaging             |
+| E2E framework             | Playwright                 | Faster and more reliable than Cypress for CI; multi-browser  |
+| Container runner          | Testcontainers for Node.js | Programmatic, no Docker Compose file management needed       |
+| Coverage                  | `@vitest/coverage-v8`      | V8 native, accurate branch coverage for TypeScript           |
+| Mutation testing          | Stryker Mutator (JS/TS)    | Best mutation testing toolchain for the TypeScript ecosystem |
 
 ---
 
@@ -448,9 +471,9 @@ Stages 1--4 run on every PR. Stage 5--6 run on PRs to `main` and on the `main` b
 
 ### Open Risks and Gaps
 
-| Risk / Gap                                          | Severity | Mitigation Plan                                              | Owner          |
-|-----------------------------------------------------|----------|--------------------------------------------------------------|----------------|
-| No mutation testing yet -- coverage may be overstated | High   | Introduce Stryker in sprint 4, set 65% target in sprint 5   | Tech Lead      |
-| E2E email verification relies on Mailhog -- not production-like | Medium | Acceptable for now; revisit if email rendering bugs increase | QA Lead   |
-| Inventory service contract not yet formalized       | High     | Schedule contract design session with Inventory team this sprint | API Team Lead |
-| Stripe webhook handling not covered by integration tests | High  | Add integration tests for webhook handler in sprint 3        | Payments Team  |
+| Risk / Gap                                                      | Severity | Mitigation Plan                                                  | Owner         |
+| --------------------------------------------------------------- | -------- | ---------------------------------------------------------------- | ------------- |
+| No mutation testing yet -- coverage may be overstated           | High     | Introduce Stryker in sprint 4, set 65% target in sprint 5        | Tech Lead     |
+| E2E email verification relies on Mailhog -- not production-like | Medium   | Acceptable for now; revisit if email rendering bugs increase     | QA Lead       |
+| Inventory service contract not yet formalized                   | High     | Schedule contract design session with Inventory team this sprint | API Team Lead |
+| Stripe webhook handling not covered by integration tests        | High     | Add integration tests for webhook handler in sprint 3            | Payments Team |

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy guide"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management strategy guide'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Stakeholder Manager
@@ -44,12 +44,12 @@ Ask these questions to identify stakeholders:
 ### Stakeholder Register Template
 
 ```markdown
-| Name | Role | Organization | Interest | Influence | Attitude | Engagement Level |
-|------|------|-------------|----------|-----------|----------|-----------------|
-| Sarah Chen | VP Engineering | Platform | High | High | Champion | Manage Closely |
-| Mike Torres | Security Lead | InfoSec | Medium | High | Neutral | Keep Satisfied |
-| Lisa Park | End User Rep | Sales | High | Low | Supporter | Keep Informed |
-| James Wu | CFO | Finance | Low | High | Resistant | Monitor |
+| Name        | Role           | Organization | Interest | Influence | Attitude  | Engagement Level |
+| ----------- | -------------- | ------------ | -------- | --------- | --------- | ---------------- |
+| Sarah Chen  | VP Engineering | Platform     | High     | High      | Champion  | Manage Closely   |
+| Mike Torres | Security Lead  | InfoSec      | Medium   | High      | Neutral   | Keep Satisfied   |
+| Lisa Park   | End User Rep   | Sales        | High     | Low       | Supporter | Keep Informed    |
+| James Wu    | CFO            | Finance      | Low      | High      | Resistant | Monitor          |
 ```
 
 ## Stakeholder Mapping
@@ -112,16 +112,16 @@ Map relationships between stakeholders, not just between you and them.
 ## Influence Network
 
 Sarah (VP Eng) --trusts--> Mike (Security)
-  If Sarah endorses, Mike is more likely to support.
-  Strategy: Get Sarah's buy-in first, then approach Mike together.
+If Sarah endorses, Mike is more likely to support.
+Strategy: Get Sarah's buy-in first, then approach Mike together.
 
 James (CFO) --reports to--> Board
-  James will block if he cannot explain ROI to the board.
-  Strategy: Provide James with board-ready financial summary.
+James will block if he cannot explain ROI to the board.
+Strategy: Provide James with board-ready financial summary.
 
 Lisa (Sales) --influences--> 50 sales reps
-  Lisa is a force multiplier for adoption.
-  Strategy: Make Lisa a co-designer so she becomes an evangelist.
+Lisa is a force multiplier for adoption.
+Strategy: Make Lisa a co-designer so she becomes an evangelist.
 ```
 
 ## RACI Matrix
@@ -138,19 +138,20 @@ I = Informed     (Notified after the decision)
 ### RACI Template
 
 ```markdown
-| Decision/Deliverable | PM | Eng Lead | Design | Security | Legal | Exec Sponsor |
-|---------------------|-----|----------|--------|----------|-------|-------------|
-| Architecture design | I | R/A | C | C | I | I |
-| UI/UX design | C | C | R/A | I | I | I |
-| Data model changes | I | R/A | I | C | C | I |
-| Go/No-go launch | R | C | C | C | C | A |
-| Budget approval | R | I | I | I | I | A |
-| Vendor selection | R | C | I | C | A | I |
-| Incident response | C | R/A | I | C | I | I |
-| Roadmap priorities | R/A | C | C | I | I | C |
+| Decision/Deliverable | PM  | Eng Lead | Design | Security | Legal | Exec Sponsor |
+| -------------------- | --- | -------- | ------ | -------- | ----- | ------------ |
+| Architecture design  | I   | R/A      | C      | C        | I     | I            |
+| UI/UX design         | C   | C        | R/A    | I        | I     | I            |
+| Data model changes   | I   | R/A      | I      | C        | C     | I            |
+| Go/No-go launch      | R   | C        | C      | C        | C     | A            |
+| Budget approval      | R   | I        | I      | I        | I     | A            |
+| Vendor selection     | R   | C        | I      | C        | A     | I            |
+| Incident response    | C   | R/A      | I      | C        | I     | I            |
+| Roadmap priorities   | R/A | C        | C      | I        | I     | C            |
 ```
 
 ### RACI Rules
+
 1. **Every row has exactly one A** -- if nobody is Accountable, nobody owns it
 2. **Minimize Rs** -- too many Responsible people means diffusion of ownership
 3. **C means you MUST consult them** -- not optional, happens BEFORE the decision
@@ -183,6 +184,7 @@ PROBLEM: RACI exists but nobody follows it
 ## Stakeholder Communication Plan
 
 ### Executive Sponsors (Manage Closely)
+
 - **Format**: 1:1 meetings + email summary
 - **Frequency**: Biweekly 30-min check-in
 - **Content**: Progress vs milestones, risks, decisions needed
@@ -190,6 +192,7 @@ PROBLEM: RACI exists but nobody follows it
 - **Channel**: Calendar invite + follow-up email
 
 ### Engineering Teams (Keep Informed)
+
 - **Format**: Slack updates + sprint demos
 - **Frequency**: Weekly Slack post, biweekly demo
 - **Content**: What shipped, what is coming, how to give feedback
@@ -197,6 +200,7 @@ PROBLEM: RACI exists but nobody follows it
 - **Channel**: #project-updates Slack channel
 
 ### End Users (Keep Informed)
+
 - **Format**: Monthly newsletter + beta access
 - **Frequency**: Monthly
 - **Content**: New features, how to provide feedback, known issues
@@ -204,6 +208,7 @@ PROBLEM: RACI exists but nobody follows it
 - **Channel**: Email list + in-app announcements
 
 ### Security/Compliance (Keep Satisfied)
+
 - **Format**: Review meetings at key milestones
 - **Frequency**: At design review, pre-launch, post-launch
 - **Content**: Architecture decisions, data flows, compliance checklist
@@ -247,24 +252,29 @@ RESISTANT STAKEHOLDERS:
 ## Project Expectations Document
 
 ### What This Project WILL Deliver
+
 - [Specific, measurable deliverables]
 - [By when, with what quality bar]
 
 ### What This Project Will NOT Deliver
+
 - [Explicitly list out-of-scope items]
 - [Future phases vs current phase]
 
 ### Known Risks and Constraints
+
 - [Timeline risks]
 - [Resource constraints]
 - [Technical unknowns]
 
 ### How Decisions Will Be Made
+
 - [Link to RACI matrix]
 - [Escalation path]
 - [Change request process]
 
 ### How Progress Will Be Communicated
+
 - [Link to communication plan]
 - [Where to find status updates]
 - [How to raise concerns]
@@ -374,18 +384,18 @@ STEP 5: ESCALATE ONLY WHEN NECESSARY
 ## Escalation Path
 
 Level 1: Direct conversation between disagreeing parties
-  Timeframe: 2 business days to resolve
+Timeframe: 2 business days to resolve
 
 Level 2: Mediated discussion with Project Manager
-  Timeframe: 3 business days to resolve
+Timeframe: 3 business days to resolve
 
 Level 3: Decision by shared manager/run-cmd sponsor
-  Timeframe: 5 business days to resolve
-  Input: Written summary of positions, trade-offs, and recommendation
+Timeframe: 5 business days to resolve
+Input: Written summary of positions, trade-offs, and recommendation
 
 Level 4: Steering committee decision
-  Timeframe: Next scheduled meeting
-  Input: Formal decision paper with impact analysis
+Timeframe: Next scheduled meeting
+Input: Formal decision paper with impact analysis
 ```
 
 ## Stakeholder Review Cadence
@@ -395,18 +405,20 @@ Level 4: Steering committee decision
 ```markdown
 ## Stakeholder Health Check - [Month]
 
-| Stakeholder | Expected Attitude | Current Attitude | Trend | Action Needed |
-|------------|-------------------|-----------------|-------|---------------|
-| Sarah (VP) | Champion | Champion | Stable | Continue engagement |
-| Mike (Sec) | Neutral | Resistant | Down | Schedule 1:1 to understand concerns |
-| Lisa (Sales) | Supporter | Champion | Up | Leverage for user advocacy |
-| James (CFO) | Neutral | Neutral | Stable | Send ROI update before board meeting |
+| Stakeholder  | Expected Attitude | Current Attitude | Trend  | Action Needed                        |
+| ------------ | ----------------- | ---------------- | ------ | ------------------------------------ |
+| Sarah (VP)   | Champion          | Champion         | Stable | Continue engagement                  |
+| Mike (Sec)   | Neutral           | Resistant        | Down   | Schedule 1:1 to understand concerns  |
+| Lisa (Sales) | Supporter         | Champion         | Up     | Leverage for user advocacy           |
+| James (CFO)  | Neutral           | Neutral          | Stable | Send ROI update before board meeting |
 
 ### Changes This Month
+
 - Mike shifted to resistant after learning about the data migration timeline
 - ACTION: Schedule joint session with Mike and Sarah to address security concerns
 
 ### Upcoming Risks
+
 - Board meeting in 3 weeks -- James needs updated financial projections
 - Sales kickoff -- opportunity to demo to Lisa's team
 ```
@@ -427,6 +439,7 @@ REVIEW: Monthly health check, track attitude trends
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing stakeholder manager solutions
 - Reviewing or improving existing stakeholder manager approaches
 - Making architectural or implementation decisions about stakeholder manager
@@ -434,6 +447,7 @@ REVIEW: Monthly health check, track attitude trends
 - Troubleshooting stakeholder manager-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -444,21 +458,26 @@ REVIEW: Monthly health check, track attitude trends
 # Stakeholder Manager Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -90,12 +90,7 @@ export class SkillRetriever {
     let totalLength = 0;
 
     for (const e of eligible) {
-      const text = [
-        e.name,
-        e.description,
-        ...(e.metadata.tags ?? []),
-        e.metadata.category ?? '',
-      ].join(' ');
+      const text = [e.name, e.description, ...(e.metadata.tags ?? []), e.metadata.category ?? ''].join(' ');
 
       const tokens = tokenize(text);
       const termFreqs = new Map<string, number>();

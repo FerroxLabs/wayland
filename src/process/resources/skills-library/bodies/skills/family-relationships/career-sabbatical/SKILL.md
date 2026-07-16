@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events planning career"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events planning career'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Career Sabbatical
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on career sabbatical
 - User asks about career sabbatical best practices or techniques
 - User wants a structured approach to career sabbatical
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of career sabbatical
 
@@ -58,6 +59,7 @@ You are a strategic advisor who helps professionals plan and execute meaningful 
 ## Financial Runway Calculation
 
 ### Determining Your Number
+
 ```
 STEP 1: CALCULATE MONTHLY BURN RATE
 
@@ -110,6 +112,7 @@ STEP 3: ASSESS CURRENT POSITION
 ```
 
 ### Financial Strategies to Build Runway
+
 ```
 AGGRESSIVE SAVING (12-24 months before):
   - Reduce housing costs (downsize, roommate)
@@ -132,6 +135,7 @@ DURING SABBATICAL:
 ## Employer Negotiation
 
 ### If Your Company Has a Sabbatical Program
+
 ```
 FORMAL PROGRAMS TYPICALLY OFFER:
   - Defined duration (4-12 weeks, sometimes longer)
@@ -149,6 +153,7 @@ ACTION STEPS:
 ```
 
 ### If Your Company Does NOT Have a Formal Program
+
 ```
 NEGOTIATION FRAMEWORK:
 
@@ -183,6 +188,7 @@ NEGOTIATION FRAMEWORK:
 ```
 
 ### If You Are Resigning
+
 ```
 STRATEGIC RESIGNATION:
 
@@ -213,6 +219,7 @@ STRATEGIC RESIGNATION:
 ## Health Insurance Bridge
 
 ### Options for Covering the Gap
+
 ```
 OPTION 1: COBRA
   Continue employer plan for up to 18 months
@@ -242,6 +249,7 @@ wipe out your sabbatical fund.
 ## Sabbatical Project Planning
 
 ### Types of Sabbaticals
+
 ```
 THE RESTORATIVE SABBATICAL:
   Purpose: Recovery from burnout, rest, reconnection
@@ -284,6 +292,7 @@ THE HYBRID SABBATICAL (most common):
 ```
 
 ### Sabbatical Structure Template
+
 ```
 MY SABBATICAL PLAN:
 
@@ -336,6 +345,7 @@ WHAT TO EXPECT WHEN THE BREAK BEGINS:
 ## Re-Entry Strategy
 
 ### Preparing to Return
+
 ```
 4-6 WEEKS BEFORE RE-ENTRY:
   [ ] Reflect on what you learned about yourself
@@ -361,6 +371,7 @@ FIRST WEEK BACK:
 ```
 
 ### Framing Your Sabbatical Story
+
 ```
 FOR EMPLOYERS AND INTERVIEWERS:
 
@@ -379,6 +390,7 @@ FOR EMPLOYERS AND INTERVIEWERS:
 ## Sabbatical Portfolio
 
 ### Documenting Your Break
+
 ```
 THROUGHOUT YOUR SABBATICAL, CAPTURE:
 
@@ -397,6 +409,7 @@ THROUGHOUT YOUR SABBATICAL, CAPTURE:
 ```
 
 ### The Anti-Regret Framework
+
 ```
 COMMON REGRETS AND HOW TO AVOID THEM:
 
@@ -414,6 +427,7 @@ COMMON REGRETS AND HOW TO AVOID THEM:
 ## Quick Reference
 
 When advising on career sabbaticals:
+
 - **"I cannot afford it"** -> Run the calculation. Many can afford more than they think with planning.
 - **"My career will suffer"** -> Research shows career breaks are increasingly accepted. Intentionality is key.
 - **"What will people think?"** -> People whose opinions matter will support you. The rest do not matter.
@@ -422,7 +436,6 @@ When advising on career sabbaticals:
 - **"I am burned out NOW"** -> Start planning immediately. Having an exit date helps.
 
 A sabbatical is not a luxury. For many people, it is a necessity disguised as a choice. If you are considering it, you probably need it.
-
 
 ## Output Format
 
@@ -436,13 +449,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with career sabbatical for a mid-size project."
 
 **Output:** A complete career sabbatical framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

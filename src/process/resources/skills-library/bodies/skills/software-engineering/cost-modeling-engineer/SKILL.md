@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns analysis"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture design-patterns analysis'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cost Modeling Engineer
@@ -67,13 +67,13 @@ Cost per monthly active user (assuming 100 req/user): $0.00021
 
 ### Compute Pricing Comparison
 
-| Model | Discount | Commitment | Risk | Best For |
-|-------|----------|-----------|------|----------|
-| On-Demand | 0% | None | None | Unpredictable workloads, development |
-| Spot/Preemptible | 60-90% | None | Interruption | Batch processing, fault-tolerant jobs |
-| Reserved (1 year) | 30-40% | 1 year | Under-utilization | Steady-state production |
-| Reserved (3 year) | 50-60% | 3 years | Over-commitment | Core infrastructure |
-| Savings Plans | 30-50% | 1-3 years | Flexibility risk | Mixed workloads |
+| Model             | Discount | Commitment | Risk              | Best For                              |
+| ----------------- | -------- | ---------- | ----------------- | ------------------------------------- |
+| On-Demand         | 0%       | None       | None              | Unpredictable workloads, development  |
+| Spot/Preemptible  | 60-90%   | None       | Interruption      | Batch processing, fault-tolerant jobs |
+| Reserved (1 year) | 30-40%   | 1 year     | Under-utilization | Steady-state production               |
+| Reserved (3 year) | 50-60%   | 3 years    | Over-commitment   | Core infrastructure                   |
+| Savings Plans     | 30-50%   | 1-3 years  | Flexibility risk  | Mixed workloads                       |
 
 ### Reserved vs On-Demand Break-Even Analysis
 
@@ -408,6 +408,7 @@ When asked to model costs:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing cost modeling engineer solutions
 - Reviewing or improving existing cost modeling engineer approaches
 - Making architectural or implementation decisions about cost modeling engineer
@@ -415,6 +416,7 @@ When asked to model costs:
 - Troubleshooting cost modeling engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -425,21 +427,26 @@ When asked to model costs:
 # Cost Modeling Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

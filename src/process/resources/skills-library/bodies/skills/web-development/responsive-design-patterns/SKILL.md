@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "html-css responsive-design web-development"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'html-css responsive-design web-development'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Responsive Design Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is building or refactoring a UI that must work across a range of viewport widths -- typically from 320px (small mobile) through 1440px+ (wide desktop) -- and needs a concrete layout strategy
 - The user asks about specific CSS techniques such as fluid grids, flexbox vs. CSS Grid, container queries, clamp-based typography, or intrinsic sizing
 - The user wants to choose between mobile-first and desktop-first breakpoint strategies for a production project
@@ -30,6 +32,7 @@ metadata:
 - The user needs to decide whether to use CSS media queries, container queries, or a combination for component-level responsiveness
 
 **Do NOT use this skill when:**
+
 - The user needs help with a CSS preprocessor (Sass, Less) architecture that is not specifically about responsiveness -- check the CSS architecture skill instead
 - The user is asking about responsive email design, which follows entirely different constraints (table-based layout, inlined styles, limited CSS support)
 - The user needs performance optimization for images or video (lazy loading, srcset, WebP conversion) beyond the layout-level responsive image technique -- check the web performance skill
@@ -62,6 +65,7 @@ Select from the four primary responsive strategies based on content type and con
 - **Clamp-based fluid scaling (typography and spacing):** Use `clamp(min, preferred, max)` for font sizes and spacing that should scale continuously without breakpoint jumps. The preferred value uses `vw`-based or `cqi`-based interpolation.
 
 Decision framework:
+
 - Page-level shell layouts → fluid + fixed hybrid
 - Repeating item grids (cards, tiles, thumbnails) → intrinsic auto-fit grid
 - Shared components used in multiple layout contexts → container queries
@@ -88,15 +92,18 @@ Design a breakpoint scale that is semantic, minimal, and tied to content rather 
 Apply the selected strategy with production-ready CSS idioms:
 
 **Fluid container pattern:**
+
 ```css
 .container {
   width: min(100% - 2rem, 1200px);
   margin-inline: auto;
 }
 ```
+
 The `min()` function eliminates the need for a separate `max-width` + `padding` combination and prevents overflow at any viewport.
 
 **Intrinsic auto-fit grid:**
+
 ```css
 .card-grid {
   display: grid;
@@ -106,6 +113,7 @@ The `min()` function eliminates the need for a separate `max-width` + `padding` 
 ```
 
 **Container query component:**
+
 ```css
 .card-wrapper {
   container-type: inline-size;
@@ -125,17 +133,20 @@ The `min()` function eliminates the need for a separate `max-width` + `padding` 
 ```
 
 **Clamp typography scale:**
+
 ```css
 :root {
   --text-base: clamp(1rem, 0.875rem + 0.625vw, 1.25rem);
-  --text-lg:   clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
-  --text-xl:   clamp(1.375rem, 1.125rem + 1.25vw, 2rem);
-  --text-2xl:  clamp(1.75rem, 1.25rem + 2.5vw, 3rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --text-xl: clamp(1.375rem, 1.125rem + 1.25vw, 2rem);
+  --text-2xl: clamp(1.75rem, 1.25rem + 2.5vw, 3rem);
 }
 ```
+
 The clamp formula: `clamp(min, min + (max - min) * ((100vw - min-vw) / (max-vw - min-vw)), max)` -- simplified to linear interpolation between two viewport anchors.
 
 **Responsive navigation (no-JS mobile-first):**
+
 ```css
 .nav-list {
   display: flex;
@@ -149,11 +160,14 @@ The clamp formula: `clamp(min, min + (max - min) * ((100vw - min-vw) / (max-vw -
     gap: 1.5rem;
   }
 
-  .nav-toggle { display: none; }
+  .nav-toggle {
+    display: none;
+  }
 }
 ```
 
 **Responsive table (horizontal scroll + pinned first column):**
+
 ```css
 .table-wrapper {
   overflow-x: auto;
@@ -304,12 +318,14 @@ If container queries are unavailable due to support requirements, simulate compo
 ### Full-Bleed Sections Inside a Max-Width Container
 
 A common pattern is a content container with `max-width: 1200px` that contains sections needing full-viewport-width backgrounds. Do not break the container model by moving these elements outside it. Instead, use the "full bleed" trick:
+
 ```css
 .full-bleed {
   width: 100vw;
   margin-left: calc(50% - 50vw);
 }
 ```
+
 This uses the mathematical relationship between the centered container and the viewport to expand to full width without DOM restructuring. Note: this requires `overflow-x: hidden` on the body to prevent the scrollbar-width issue on Windows.
 
 ### Tables With Many Columns on Mobile
@@ -343,6 +359,7 @@ CSS media queries inside a Shadow DOM work correctly -- they query the document 
 ## Responsive Design Analysis
 
 ### Context Summary
+
 - Viewport range targeted: 320px -- 1440px
 - Component/layout type: meso layout (card grid) + micro layout (individual card internals)
 - Responsive strategy selected: Intrinsic auto-fit grid for the full directory + container queries for the card component (required because the card appears in both the wide grid context and a narrow sidebar widget)
@@ -352,12 +369,12 @@ CSS media queries inside a Shadow DOM work correctly -- they query the document 
 
 ### Breakpoint Scale
 
-| Token    | Value  | Rationale                                      |
-|----------|--------|------------------------------------------------|
-| --bp-sm  | 480px  | Mobile layout gains horizontal padding         |
-| --bp-md  | 768px  | Grid begins reflowing to multi-column          |
-| --bp-lg  | 1024px | Cards can show horizontal photo+text layout    |
-| --bp-xl  | 1280px | Directory container reaches comfortable max-width |
+| Token   | Value  | Rationale                                         |
+| ------- | ------ | ------------------------------------------------- |
+| --bp-sm | 480px  | Mobile layout gains horizontal padding            |
+| --bp-md | 768px  | Grid begins reflowing to multi-column             |
+| --bp-lg | 1024px | Cards can show horizontal photo+text layout       |
+| --bp-xl | 1280px | Directory container reaches comfortable max-width |
 
 ---
 
@@ -374,21 +391,21 @@ CSS media queries inside a Shadow DOM work correctly -- they query the document 
   --bp-xl: 1280px;
 
   /* Spacing scale */
-  --space-xs:  0.25rem;
-  --space-sm:  0.5rem;
-  --space-md:  1rem;
-  --space-lg:  1.5rem;
-  --space-xl:  2rem;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
 
   /* Typography scale (clamp-based) */
-  --text-sm:   clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
   --text-base: clamp(1rem, 0.875rem + 0.625vw, 1.125rem);
-  --text-lg:   clamp(1.125rem, 1rem + 0.75vw, 1.375rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.375rem);
 
   /* Card sizing */
   --card-min-width: 260px;
-  --card-photo-size-narrow: 64px;   /* sidebar card context */
-  --card-photo-size-wide: 100%;     /* card top image in grid context */
+  --card-photo-size-narrow: 64px; /* sidebar card context */
+  --card-photo-size-wide: 100%; /* card top image in grid context */
 }
 ```
 
@@ -405,10 +422,7 @@ CSS media queries inside a Shadow DOM work correctly -- they query the document 
 /* Intrinsic auto-fit grid -- no breakpoints needed for the grid reflow */
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(min(var(--card-min-width), 100%), 1fr)
-  );
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--card-min-width), 100%), 1fr));
   gap: clamp(var(--space-md), 3vw, var(--space-xl));
 }
 
@@ -442,7 +456,10 @@ CSS media queries inside a Shadow DOM work correctly -- they query the document 
     <div class="card-body">
       <h3 class="card-name">Jordan Lee</h3>
       <p class="card-title">Senior Engineer</p>
-      <p class="card-bio">Jordan specializes in distributed systems and has led infrastructure migrations for three enterprise clients. Prior to joining, Jordan worked at a cloud provider building internal tooling.</p>
+      <p class="card-bio">
+        Jordan specializes in distributed systems and has led infrastructure migrations for three enterprise clients.
+        Prior to joining, Jordan worked at a cloud provider building internal tooling.
+      </p>
       <div class="card-links">
         <a class="card-link" href="mailto:jordan@example.com">Email</a>
         <a class="card-link" href="https://linkedin.com/in/jordanlee">LinkedIn</a>
@@ -585,15 +602,15 @@ CSS media queries inside a Shadow DOM work correctly -- they query the document 
 
 ### Layout Decision Rationale
 
-| Decision point                    | Choice made                        | Alternative considered               | Reason                                                                                      |
-|-----------------------------------|------------------------------------|--------------------------------------|---------------------------------------------------------------------------------------------|
-| Grid layout strategy              | Intrinsic auto-fit with minmax     | Fixed breakpoint column counts       | Content should drive reflow; auto-fit eliminates 2 media queries with no trade-off here     |
-| Card responsiveness mechanism     | CSS container queries              | Viewport media queries               | Card appears in both grid (wide) and sidebar (narrow) -- viewport queries cannot handle both |
-| Card layout at mid-width (320px+) | Horizontal photo+content           | Stacked with smaller photo           | Matches standard team directory conventions; better use of horizontal space                 |
-| Card layout at 400px+             | Stacked with full-width photo      | Keeping horizontal layout            | At this width, vertical card with proportioned photo looks better and matches design intent |
-| Typography sizing                 | clamp()-based custom properties    | Fixed px values with media queries   | Continuous scaling eliminates jarring text-size jumps at breakpoints                        |
-| Image approach                    | srcset + sizes                     | Single image file                    | Prevents serving 800px images in 100px sidebar slots; reduces data transfer by 60-80%       |
-| Container element                 | `.card-wrapper` div, not `article` | Container on `article` directly      | Avoids nesting a container query context inside the article's semantic element              |
+| Decision point                    | Choice made                        | Alternative considered             | Reason                                                                                       |
+| --------------------------------- | ---------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| Grid layout strategy              | Intrinsic auto-fit with minmax     | Fixed breakpoint column counts     | Content should drive reflow; auto-fit eliminates 2 media queries with no trade-off here      |
+| Card responsiveness mechanism     | CSS container queries              | Viewport media queries             | Card appears in both grid (wide) and sidebar (narrow) -- viewport queries cannot handle both |
+| Card layout at mid-width (320px+) | Horizontal photo+content           | Stacked with smaller photo         | Matches standard team directory conventions; better use of horizontal space                  |
+| Card layout at 400px+             | Stacked with full-width photo      | Keeping horizontal layout          | At this width, vertical card with proportioned photo looks better and matches design intent  |
+| Typography sizing                 | clamp()-based custom properties    | Fixed px values with media queries | Continuous scaling eliminates jarring text-size jumps at breakpoints                         |
+| Image approach                    | srcset + sizes                     | Single image file                  | Prevents serving 800px images in 100px sidebar slots; reduces data transfer by 60-80%        |
+| Container element                 | `.card-wrapper` div, not `article` | Container on `article` directly    | Avoids nesting a container query context inside the article's semantic element               |
 
 ---
 

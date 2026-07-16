@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management optimization planning"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management optimization planning'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Context Switching Reduction
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user describes a fragmented workday -- bouncing between coding, Slack, email, meetings, and admin tasks dozens of times without completing anything fully
 - The user reports ending the day exhausted but feeling like they accomplished little, which is the hallmark symptom of high switching costs rather than insufficient effort
 - The user explicitly wants to batch similar work together -- consolidating all code reviews, all meetings, or all communication into dedicated windows
@@ -30,6 +32,7 @@ metadata:
 - The user is returning from a productivity audit or time-tracking exercise and sees high task-switching frequency in their data
 
 **Do NOT use when:**
+
 - The user needs a general time-blocked schedule without the specific context-grouping and switching-cost analysis this skill provides -- use `time-blocking` instead
 - The user's primary problem is email volume and processing, not context switching -- use `inbox-zero` for that specific workflow
 - The user needs to decide which tasks to do, not how to batch the ones they already have -- use `task-prioritization` first, then return here
@@ -261,24 +264,31 @@ Format: [Timestamp] [Item] [Who it's from / what it's about] -- Review during ne
 ## Edge Cases
 
 ### The Always-On Role (Support Engineers, Managers, On-Call Rotations)
+
 Users whose job explicitly requires real-time responsiveness cannot eliminate reactive interruptions -- but they can contain them. Design an alternating architecture: 90 minutes of deep work (protected) followed by 30 minutes of reactive window, repeated 2-3 times per day. During deep work blocks, configure a "slow triage" channel -- a single Slack channel or shared inbox where urgent items from colleagues land while the user is in a deep work block -- and train colleagues that items in this channel will be acknowledged within 90 minutes, not immediately. Accept that this role will achieve 4-6 switches per day rather than the ideal 3-4, but contain the switches to predictable intervals rather than random intrusions. For users on active on-call rotations (pager duty), designate on-call days as "communication mode" days with no deep work blocks scheduled, and designate off-call days for all Tier 1 context work. Never mix pager duty with scheduled deep work -- the anticipatory attention of waiting for an alert destroys the value of the deep work block entirely.
 
 ### Meetings Scattered Throughout the Day
+
 This is the single most common schedule pathology in knowledge work organizations. A day with meetings at 9:00, 11:30, 2:00, and 4:00 has no viable deep work block -- every gap is either too short to reach flow or poisoned by anticipatory attention. The prescription is aggressive calendar surgery before context design. Guide the user to: (1) identify which recurring meetings they could move or eliminate, (2) propose a "meeting half-day" to their team (typically Tuesday and Thursday afternoons) and defend Monday, Wednesday, and Friday mornings as deep work time, (3) for immovable meetings, use the clustering technique -- accept that Wednesday is a meeting-heavy day and front-load all deep work on Monday and Friday. For a meeting scheduled in isolation (e.g., one meeting at 11:00 on a Monday), teach the user to treat the surrounding 30-minute windows as part of the meeting context, not as deep work opportunities -- pre-meeting prep (10 min) and post-meeting action capture (15 min) belong in the meeting context, not jammed between a deep work block and the meeting itself.
 
 ### Same Project, Multiple Cognitive Modes (Common for Developers, Researchers, Consultants)
+
 Users who work primarily on one project throughout the day often resist context-switching reduction framing because they feel they are "always working on the same thing." But within a single project, cognitive modes still switch: designing the architecture (Tier 1 creation), implementing the code (Tier 1 creation, same mode), reviewing a colleague's PR (Tier 2 evaluation, different mode), answering questions about the system in Slack (Tier 3 communication, different mode), writing the design doc (Tier 1 creation, same mode as implementation but different artifact and tool set). Define contexts by cognitive mode within the project, not by project identity. The four intra-project contexts for a developer are: Build (writing new code), Review (evaluating existing code), Design (documents, architecture, planning), and Communicate (status, questions, unblocking others). The same batching principles apply -- all Build sessions in the morning, all Review sessions together, all Design sessions in a discrete window.
 
 ### ADHD, Hyperfocus, and Non-Standard Attention Profiles
+
 Standard 90-minute deep work blocks are often incompatible with ADHD-pattern attention systems, which may have a natural attention cycle of 20-40 minutes. The key insight is that the goal of context switching reduction is not "work for 90 minutes without stopping" -- it is "spend 90 minutes inside the same cognitive context without switching to a different context." For ADHD users, implement the Pomodoro technique within context blocks: 25 minutes of work, 5-minute break, repeat -- but critically, the break is a within-context rest (stepping away from the screen, stretching, getting water) rather than a cross-context switch (opening Twitter, checking email). Three consecutive Pomodoros within the same context is functionally equivalent to a 90-minute block. The context does not change between Pomodoros. Also note that ADHD users often have hyperfocus capabilities that allow them to sustain Tier 1 work for far longer than 90 minutes under the right conditions -- the context system for these users should include provisions for extended hyperfocus periods with permission to skip scheduled transitions when a natural flow state is active.
 
 ### Remote Workers With Cross-Timezone Team Communication Demands
+
 A user on the US West Coast working with a team in Europe faces structural communication demands that conflict with morning deep work protection: the 8:00-11:00 AM window, which would be the user's peak cognitive period, is the last working window for European colleagues (4:00-7:00 PM CET). This creates genuine pressure on the most valuable deep work time. The prescription is a compressed communication window from 8:00-9:30 AM to handle all cross-timezone items, followed by a protected deep work block from 9:30 AM onwards. An alternative for roles with more flexibility is to shift the schedule earlier (6:30-9:30 AM deep work before European colleagues expect responses) or to define the Europe communication window as a formal asynchronous batch rather than a real-time reactive window. The key constraint is to never allow cross-timezone communication pressure to bleed indefinitely into the morning -- define a hard end time for the timezone-overlap communication window even if it feels socially uncomfortable.
 
 ### Users Who Have Never Tracked Their Actual Switch Count
+
 Many users can describe their fragmented work experience qualitatively but have no data on actual switch frequency. For these users, recommend a two-day measurement sprint before designing the system: for two full workdays, the user places a tally mark on a piece of paper every time they switch from one task type to another. The act of tallying creates awareness by itself (a minor intervention) and produces the data needed for the switching cost calculation. Alternatively, a time-tracking tool like Toggl with manual task-type tags can generate the data automatically if the user is willing to log context changes in real time. Do not skip the measurement step -- a context system designed against a fabricated switching count will be mis-sized (too many or too few context blocks) and will feel wrong to the user from day one.
 
 ### The User Who Wants to Fix Everything at Once
+
 A user who describes a severely fragmented workday (30+ switches per day, no protected deep work time, constant notifications, back-to-back meetings from 9 AM to 5 PM) may present with the expectation that the output of this skill will immediately transform their schedule into a perfectly optimized system. This expectation will produce failure. For severely fragmented baselines, prescribe a **staged implementation**: Week 1 -- implement notification tiers and establish the context bookmark habit only; Week 2 -- add one protected 90-minute deep work block per day (even if imperfect); Week 3 -- establish the communication window architecture; Week 4 -- implement the full system. Trying to change all behaviors simultaneously violates habit formation research (one keystone habit at a time produces more durable change than wholesale behavioral overhaul) and will cause the user to abandon the system entirely after the first calendar conflict destroys their perfectly optimized schedule.
 
 ---
@@ -399,12 +409,15 @@ For meetings that cannot move immediately, implement the schedule below as a tra
 Format -- written as inline comment in Notion or on a physical index card at the keyboard:
 
 ```
+
 RESUME [Date/Time]:
+
 - Document: [Spec name, section title]
 - Current task: [e.g., "Writing acceptance criteria for checkout flow redesign"]
 - Next action: [e.g., "Define edge case: what happens if payment fails after order confirmed"]
 - Open questions in working memory: [e.g., "Confirm with engineering whether webhook retry logic is in scope for v1"]
 - Context note: [Any mental thread that needs to be recaptured -- e.g., "Was comparing Option A (modal) vs. Option B (redirect) -- leaning Option A because of mobile experience"]
+
 ```
 
 **Where to store it:** Inline at the top of the active Notion spec document as a callout block, or as a sticky note physically placed on the keyboard -- the physical placement ensures it is seen before reopening the laptop.
@@ -412,8 +425,10 @@ RESUME [Date/Time]:
 **Tier 2 Bookmark (for Review & Feedback context):**
 
 ```
+
 RESUME: Figma -- [Component name] review, done through [screen/frame number], next is [frame X].
 Pending feedback comment: [One-line note of unwritten thought].
+
 ```
 
 **Parking Lot (for items arriving during any context block):**

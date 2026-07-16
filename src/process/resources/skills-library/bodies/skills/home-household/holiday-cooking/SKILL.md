@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking home-maintenance meal-planning budgeting stress-management performing-arts"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking home-maintenance meal-planning budgeting stress-management performing-arts'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Holiday Cooking
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to plan, organize, or execute a Thanksgiving, Christmas, Easter, July 4th, or other major holiday meal
 - A user needs help selecting cooking methods for a centerpiece protein (turkey, prime rib, glazed ham, roast lamb, whole fish)
 - A user is managing dietary restrictions (gluten-free, dairy-free, vegan, kosher, halal) within a large holiday meal and needs substitution strategies or menu redesign
@@ -30,6 +32,7 @@ metadata:
 - A user wants to coordinate a potluck and needs sign-up categories, portion guidance, and allergen communication templates
 
 **Do NOT use when:**
+
 - The user needs a specific single recipe developed from scratch -- use a dedicated recipe generation skill instead
 - The user is asking about food safety protocols for commercial kitchen settings -- refer to a food safety compliance skill
 - The user needs professional catering pricing or event management logistics -- use an event planning or catering business skill
@@ -151,16 +154,16 @@ When responding to a user's holiday cooking request, present your guidance in th
 
 ### Menu Overview
 
-| Course | Dish | Make-Ahead? | Oven? | Serves |
-|---|---|---|---|---|
-| Appetizer | [Dish name] | [Yes -- up to X days] | [No / 375F 20 min] | [X] |
-| Centerpiece | [Protein] | [No -- day-of only] | [450F 90 min] | [X] |
-| Starch 1 | [Dish name] | [Yes -- 1 day ahead] | [Reheat 350F 30 min] | [X] |
-| Starch 2 | [Dish name] | [Yes -- assemble ahead] | [375F 45 min] | [X] |
-| Vegetable | [Dish name] | [Yes -- 2 days ahead] | [No -- room temp] | [X] |
-| Sauce | [Gravy / sauce name] | [Yes -- base only] | [Stovetop] | [X] |
-| Bread | [Rolls / bread] | [Freeze ahead, thaw] | [375F 15 min] | [X] |
-| Dessert | [Dessert name] | [Yes -- 1--2 days] | [No / 325F 45 min] | [X] |
+| Course      | Dish                 | Make-Ahead?             | Oven?                | Serves |
+| ----------- | -------------------- | ----------------------- | -------------------- | ------ |
+| Appetizer   | [Dish name]          | [Yes -- up to X days]   | [No / 375F 20 min]   | [X]    |
+| Centerpiece | [Protein]            | [No -- day-of only]     | [450F 90 min]        | [X]    |
+| Starch 1    | [Dish name]          | [Yes -- 1 day ahead]    | [Reheat 350F 30 min] | [X]    |
+| Starch 2    | [Dish name]          | [Yes -- assemble ahead] | [375F 45 min]        | [X]    |
+| Vegetable   | [Dish name]          | [Yes -- 2 days ahead]   | [No -- room temp]    | [X]    |
+| Sauce       | [Gravy / sauce name] | [Yes -- base only]      | [Stovetop]           | [X]    |
+| Bread       | [Rolls / bread]      | [Freeze ahead, thaw]    | [375F 15 min]        | [X]    |
+| Dessert     | [Dessert name]       | [Yes -- 1--2 days]      | [No / 325F 45 min]   | [X]    |
 
 ---
 
@@ -173,6 +176,7 @@ When responding to a user's holiday cooking request, present your guidance in th
 **Rest Time:** [20--30 min for poultry / 30 min for large roasts]
 
 **Critical steps:**
+
 1. [Brine type and duration]
 2. [Temperature setup]
 3. [Rack position and pan setup]
@@ -183,23 +187,25 @@ When responding to a user's holiday cooking request, present your guidance in th
 
 ### Oven Schedule (Working Backward from Serve Time)
 
-| Time | Oven Temp | Dish | Rack | Duration | Notes |
-|---|---|---|---|---|---|
-| [Time] | [Temp] | [Dish] | [Upper/Middle/Lower] | [Duration] | [Notes] |
-| [Time] | [Temp] | [Dish] | [Middle] | [Duration] | [Notes] |
-| [Time] | [Temp] | [Dish] | [Lower] | [Duration] | [Notes] |
+| Time   | Oven Temp | Dish   | Rack                 | Duration   | Notes   |
+| ------ | --------- | ------ | -------------------- | ---------- | ------- |
+| [Time] | [Temp]    | [Dish] | [Upper/Middle/Lower] | [Duration] | [Notes] |
+| [Time] | [Temp]    | [Dish] | [Middle]             | [Duration] | [Notes] |
+| [Time] | [Temp]    | [Dish] | [Lower]              | [Duration] | [Notes] |
 
 ---
 
 ### Master Prep Timeline
 
 **[3--4 Weeks Before]**
+
 - [ ] Order specialty protein if needed (heritage turkey, standing rib roast, whole leg of lamb)
 - [ ] Make and freeze pie dough disks (2 per pie, wrapped in plastic, labeled)
 - [ ] Make and freeze cookie dough logs or disks
 - [ ] Stock pantry with shelf-stable items: canned goods, sugars, spices, wine for cooking
 
 **[1 Week Before]**
+
 - [ ] Make cranberry sauce and refrigerate (lasts 2 weeks)
 - [ ] Make compound butters for turkey or roast (freeze)
 - [ ] Make and freeze pies (double-crust fruit pies freeze exceptionally well)
@@ -207,6 +213,7 @@ When responding to a user's holiday cooking request, present your guidance in th
 - [ ] Begin dry brine on turkey if using 72-hour method
 
 **[2--3 Days Before]**
+
 - [ ] Shop all perishables
 - [ ] Wash, peel, and cut all vegetables; store in airtight containers or water
 - [ ] Make stock from scratch or open store-bought and taste
@@ -215,6 +222,7 @@ When responding to a user's holiday cooking request, present your guidance in th
 - [ ] Prepare strata, gratins, or casseroles; refrigerate unbaked
 
 **[1 Day Before]**
+
 - [ ] Assemble stuffing in baking dish without adding liquid; cover and refrigerate
 - [ ] Make mashed potato base; refrigerate in buttered 9x13 dish
 - [ ] Bake fresh pies and cool completely
@@ -223,12 +231,14 @@ When responding to a user's holiday cooking request, present your guidance in th
 - [ ] Confirm potluck contributor arrival times and dish assignments
 
 **[Morning Of -- 4+ Hours Before Serving]**
+
 - [ ] Remove protein from refrigerator 1--2 hours before cooking
 - [ ] Preheat oven 30 minutes before first use
 - [ ] Set up drinks station and appetizers
 - [ ] Add stock to stuffing dish; let soak 30 minutes before baking
 
 **[Final 2 Hours Before Serving]**
+
 - [ ] [Specific oven tasks by time from schedule above]
 - [ ] Reheat mashed potatoes covered at 350F; stir and add butter before serving
 - [ ] Finish gravy with drippings; whisk in fond from roasting pan; taste for seasoning
@@ -239,11 +249,12 @@ When responding to a user's holiday cooking request, present your guidance in th
 
 ### Dietary Accommodations Summary
 
-| Guest | Restriction | Safe Dishes | Modified Version Needed |
-|---|---|---|---|
+| Guest                 | Restriction           | Safe Dishes                  | Modified Version Needed       |
+| --------------------- | --------------------- | ---------------------------- | ----------------------------- |
 | [Name or description] | [GF, DF, vegan, etc.] | [List naturally safe dishes] | [Dish requiring modification] |
 
 **Dishes requiring modification:**
+
 - [Dish name]: [Original ingredient] replaced with [substitution] -- [notes on technique impact]
 
 **Buffet labeling:** All dishes will be labeled with a card listing dish name and allergens present.
@@ -252,24 +263,26 @@ When responding to a user's holiday cooking request, present your guidance in th
 
 ### Potluck Coordination (if applicable)
 
-| Category | Assigned To | Specific Dish | Serves | Arrival Time |
-|---|---|---|---|---|
-| Appetizer | [Name] | [Specific dish] | 10 | [30 min before] |
-| Starch side | [Name] | [Specific dish] | 10 | [15 min before] |
-| Vegetable side | [Name] | [Specific dish] | 10 | [15 min before] |
-| Dessert | [Name] | [Specific dish] | 12 | [Any time] |
-| Beverages | [Name] | [Wine / sparkling cider] | 12 | [1 hr before] |
+| Category       | Assigned To | Specific Dish            | Serves | Arrival Time    |
+| -------------- | ----------- | ------------------------ | ------ | --------------- |
+| Appetizer      | [Name]      | [Specific dish]          | 10     | [30 min before] |
+| Starch side    | [Name]      | [Specific dish]          | 10     | [15 min before] |
+| Vegetable side | [Name]      | [Specific dish]          | 10     | [15 min before] |
+| Dessert        | [Name]      | [Specific dish]          | 12     | [Any time]      |
+| Beverages      | [Name]      | [Wine / sparkling cider] | 12     | [1 hr before]   |
 
 ---
 
 ### Key Recipes and Techniques
 
 **[Specific dish 1]:**
+
 - Ingredients with quantities for guest count
 - Critical technique notes
 - Make-ahead and reheating instructions
 
 **[Specific dish 2]:**
+
 - Ingredients with quantities
 - Critical technique notes
 - Make-ahead and reheating instructions
@@ -278,12 +291,12 @@ When responding to a user's holiday cooking request, present your guidance in th
 
 ### Risk Register
 
-| Risk | Likelihood | Mitigation |
-|---|---|---|
-| Turkey undercooked | Medium | Probe thermometer; add 30-min buffer in schedule |
-| Oven conflict | High for 1-oven homes | Oven schedule built above; slow cooker backup assigned |
-| Guest cancels potluck dish | Medium | 30-minute backup dish identified per category |
-| [Dietary need] dish contaminated | Low but critical | Dedicated utensils; cooked before shared items |
+| Risk                             | Likelihood            | Mitigation                                             |
+| -------------------------------- | --------------------- | ------------------------------------------------------ |
+| Turkey undercooked               | Medium                | Probe thermometer; add 30-min buffer in schedule       |
+| Oven conflict                    | High for 1-oven homes | Oven schedule built above; slow cooker backup assigned |
+| Guest cancels potluck dish       | Medium                | 30-minute backup dish identified per category          |
+| [Dietary need] dish contaminated | Low but critical      | Dedicated utensils; cooked before shared items         |
 
 ---
 
@@ -316,6 +329,7 @@ When responding to a user's holiday cooking request, present your guidance in th
 ### User Has Only One Oven and Is Serving 15+ People
 
 Single-oven Thanksgiving for a large group is the most common high-stress scenario. Solve it systematically:
+
 - The turkey owns the oven exclusively during its cook time. All casseroles must be either fully cooked before the turkey goes in (and held in a chafing dish or cooler) or baked during the 25--30-minute turkey rest window.
 - A 6-quart slow cooker becomes a second oven for mashed potatoes (2--3 hours on low, finish with butter before serving), creamed corn, glazed carrots, or sausage stuffing (3--4 hours on high with lid ajar in the last 30 minutes to dry the top).
 - An electric roaster oven (18-quart, $50--$80 retail) can roast a turkey just as effectively as a conventional oven and frees the main oven entirely for sides. This is a worth recommending as a purchase for any repeat holiday host.
@@ -324,6 +338,7 @@ Single-oven Thanksgiving for a large group is the most common high-stress scenar
 ### Guest Has a Severe Tree Nut Allergy at a Holiday Cookie Exchange
 
 Tree nut allergies in a holiday baking context are extremely high-risk because: pecan and walnut oils transfer readily to surfaces and shared utensils, many extracts (almond extract) are derived from stone fruit pits and cause cross-reactions, and holiday baking relies heavily on nuts in frangipane, pralines, rugelach, and countless traditional recipes.
+
 - Advise the host to prepare the nut-allergic guest's safe items first on clean surfaces before any nut-containing baking begins, then clean all surfaces before continuing.
 - At a cookie exchange, label all items with ingredients and clearly flag nut-containing items. Provide a dedicated nut-free zone on the table. Advise the allergic guest to bring their own items as the only safe approach if the level of severity is anaphylactic.
 - Substitute almond extract with pure vanilla extract or a small amount of rosewater -- flavor profile shifts but the recipe still works.
@@ -331,6 +346,7 @@ Tree nut allergies in a holiday baking context are extremely high-risk because: 
 ### User Must Transport a Full Holiday Meal to Another Location
 
 Cooking a complete meal in one kitchen and transporting it 30--60 minutes to a host location requires specific strategies:
+
 - Under-cook all reheatable items by 10--15 minutes. They will continue cooking in insulated bags and then be finished in the destination oven.
 - Pack proteins off the bone only if absolutely necessary for space -- carved meat dries out far faster than whole roasts held intact. Transport the whole bird if possible, carve on arrival.
 - Use wide-mouth insulated bags (grocery-store bag-style or catering hot bags) and line with layers of newspaper or towels for secondary insulation. A chafing dish fuel can maintain temperature for 2--3 hours in transit.
@@ -340,6 +356,7 @@ Cooking a complete meal in one kitchen and transporting it 30--60 minutes to a h
 ### First-Time Holiday Host with No Experience
 
 A first-time host often takes on far more than is manageable by trying to recreate a comprehensive holiday meal they have only experienced as a guest:
+
 - Constrain the menu ruthlessly: 1 centerpiece protein, 2 sides, 1 sauce, 1 bread, 1 dessert. That is a full, complete, impressive holiday meal. More dishes add exponential complexity with diminishing returns on guest experience.
 - Recommend a spatchcocked turkey or a glazed bone-in ham over a traditional roasted turkey. Ham requires almost no active cooking (it is pre-cooked) and is nearly impossible to ruin. Spatchcock turkey cuts oven time by 40% and produces better results than traditional roasting.
 - Pre-buy exactly one item without shame: store-bought pie, pre-made dinner rolls, rotisserie chicken as a backup protein. This safety net prevents catastrophic failure.
@@ -348,6 +365,7 @@ A first-time host often takes on far more than is manageable by trying to recrea
 ### Guest Count Doubles at the Last Minute (Added 6 People 2 Days Before)
 
 Late additions stress protein quantity (hard to scale) and oven/buffet logistics:
+
 - Assess protein: a 14-lb turkey feeds 12--14 people with modest leftovers. Adding 6 people to a 12-person table requires either a second protein (a bone-in glazed ham, a roasted pork shoulder, or a pre-purchased rotisserie chicken platter) or accepting that leftovers will be minimal.
 - Scale up sides: casseroles, mashed potatoes, and stuffing are all easy to scale -- make an additional 9x13 dish of each.
 - Add one zero-effort dish to fill the gap: a cheese and charcuterie board, a store-bought soup, or an additional vegetable side that takes 20 minutes to prepare.
@@ -356,6 +374,7 @@ Late additions stress protein quantity (hard to scale) and oven/buffet logistics
 ### User Wants to Honor Two Different Cultural Traditions in One Meal
 
 Blended family or intercultural holiday meals (e.g., an Italian-American family merging traditions with a Caribbean-American family at Thanksgiving) are increasingly common and deeply meaningful to get right:
+
 - Frame the menu as an additive celebration rather than a compromise. Add 2--3 signature dishes from each tradition rather than trying to fuse or replace dishes from either.
 - Identify the food categories that can absorb both traditions easily: appetizers and side dishes are highly adaptable, centerpiece proteins are more culturally loaded.
 - Give each tradition's dishes equal prominence on the buffet and in conversation. Introduce dishes to guests who may be unfamiliar with them.
@@ -364,6 +383,7 @@ Blended family or intercultural holiday meals (e.g., an Italian-American family 
 ### Holiday Baking for Very Large Batches (Cookie Exchange, Bake Sale, 200+ Cookies)
 
 Scaling holiday baking beyond 3--4 dozen cookies introduces flour protein degradation from over-mixing, oven temperature inconsistency across multiple sheet pans, and quality control issues:
+
 - Bake in batches of no more than 6 dozen per dough type per session to maintain quality.
 - Rest cookie dough for 24--72 hours in the refrigerator between mixing and baking. Rested dough develops more complex flavor via enzyme activity on starches and produces less spreading because fat solidifies fully.
 - Rotate sheet pans front-to-back and top-to-bottom between every batch -- most home ovens have 25--50F hotspots in the back upper corners.
@@ -396,18 +416,18 @@ The celiac constraint is the most critical food safety issue. Gluten cross-conta
 
 ### Menu Overview
 
-| Course | Dish | Make-Ahead? | Equipment | Serves | GF? | DF? |
-|---|---|---|---|---|---|---|
-| Appetizer | Baked brie with fig jam and rice crackers | Partial (1 day) | Oven 375F, 15 min | 16 | Yes (rice crackers) | No (brie); dairy-free guest can have jam and crackers |
-| Appetizer 2 | Crudité platter with hummus | 2 days ahead | No oven needed | 16 | Yes | Yes |
-| Centerpiece | Spatchcocked turkey, 16--18 lb | Day-of | Oven 450F, 95--110 min | 16 | Yes | Yes |
-| Sauce | Turkey gravy (cornstarch-thickened) | Base 1 day ahead | Stovetop | 16 | Yes | Yes |
-| Starch 1 | Mashed Yukon Golds | 1 day ahead | Reheat slow cooker | 16 | Yes | Modified (see below) |
-| Starch 2 | Herb and cornbread stuffing (GF) | Assemble 1 day ahead | Oven 375F, 45 min | 16 | Yes | Yes |
-| Vegetable | Roasted Brussels sprouts with bacon and balsamic | 1 day ahead (partial) | Oven 400F, 25 min | 16 | Yes | Yes |
-| Sauce/Condiment | Homemade cranberry sauce | 1 week ahead | Stovetop | 16 | Yes | Yes |
-| Bread | Parker House dinner rolls (neighbor bringing) | Neighbor's responsibility | Neighbor's oven | 16 | No (flag for celiac guest) | No |
-| Dessert | Classic pumpkin pie with GF almond flour crust | 2 days ahead | Oven 375F → 325F | 16 | Yes | Modified (see below) |
+| Course          | Dish                                             | Make-Ahead?               | Equipment              | Serves | GF?                        | DF?                                                   |
+| --------------- | ------------------------------------------------ | ------------------------- | ---------------------- | ------ | -------------------------- | ----------------------------------------------------- |
+| Appetizer       | Baked brie with fig jam and rice crackers        | Partial (1 day)           | Oven 375F, 15 min      | 16     | Yes (rice crackers)        | No (brie); dairy-free guest can have jam and crackers |
+| Appetizer 2     | Crudité platter with hummus                      | 2 days ahead              | No oven needed         | 16     | Yes                        | Yes                                                   |
+| Centerpiece     | Spatchcocked turkey, 16--18 lb                   | Day-of                    | Oven 450F, 95--110 min | 16     | Yes                        | Yes                                                   |
+| Sauce           | Turkey gravy (cornstarch-thickened)              | Base 1 day ahead          | Stovetop               | 16     | Yes                        | Yes                                                   |
+| Starch 1        | Mashed Yukon Golds                               | 1 day ahead               | Reheat slow cooker     | 16     | Yes                        | Modified (see below)                                  |
+| Starch 2        | Herb and cornbread stuffing (GF)                 | Assemble 1 day ahead      | Oven 375F, 45 min      | 16     | Yes                        | Yes                                                   |
+| Vegetable       | Roasted Brussels sprouts with bacon and balsamic | 1 day ahead (partial)     | Oven 400F, 25 min      | 16     | Yes                        | Yes                                                   |
+| Sauce/Condiment | Homemade cranberry sauce                         | 1 week ahead              | Stovetop               | 16     | Yes                        | Yes                                                   |
+| Bread           | Parker House dinner rolls (neighbor bringing)    | Neighbor's responsibility | Neighbor's oven        | 16     | No (flag for celiac guest) | No                                                    |
+| Dessert         | Classic pumpkin pie with GF almond flour crust   | 2 days ahead              | Oven 375F → 325F       | 16     | Yes                        | Modified (see below)                                  |
 
 **Note to host:** The rolls contributed by your neighbor contain gluten. Alert your celiac guest to avoid them and set them at the far end of the buffet table, away from the GF stuffing.
 
@@ -420,18 +440,21 @@ The celiac constraint is the most critical food safety issue. Gluten cross-conta
 **Bird size:** 16--18 lbs (feeds 16 with modest leftovers; sourced from grocery store, budget approximately $65--$80 at $4--$5/lb)
 
 **Dry brine (start Tuesday):**
+
 - 1 tablespoon Diamond Crystal kosher salt per 5 lbs = approximately 3.5 tablespoons total (use Diamond Crystal specifically -- Morton kosher or table salt will over-salt; reduce by half if using Morton)
 - Apply under skin over breast meat, over the skin everywhere, inside cavity
 - Place uncovered on a wire rack set over a sheet pan in the refrigerator for 48 hours
 - Result: intensely seasoned meat, dramatically dry skin that will crisp at 450F
 
 **Spatchcock technique (Wednesday evening):**
+
 1. Remove backbone: stand turkey breast-down on a stable cutting board, use sturdy kitchen shears to cut along both sides of the spine. Remove the spine (save it for stock).
 2. Flatten: flip the bird breast-side up, place both hands on the breastbone and press firmly until you hear/feel it crack and the bird lies flat.
 3. Tuck wings: fold wing tips under the breast.
 4. Return to wire rack over sheet pan, back in refrigerator uncovered.
 
 **Thursday cooking schedule:**
+
 - 11:30 AM: Remove turkey from refrigerator. Rub lightly with 2 tablespoons neutral oil (not butter -- butter at 450F can scorch; compound herb butter goes on after carving or under skin only).
 - 12:00 PM: Oven to 450F (30 minutes to fully preheat with roasting rack inside).
 - 12:30 PM: Turkey into oven, middle rack, breast-side up on wire rack over rimmed sheet pan.
@@ -444,15 +467,15 @@ The celiac constraint is the most critical food safety issue. Gluten cross-conta
 
 ### Oven Schedule (Single Oven -- Conflicts Resolved)
 
-| Time | Oven Temp | Dish | Rack | Duration | Notes |
-|---|---|---|---|---|---|
-| 10:00 AM | 375F | Pumpkin pie (if not already baked Tuesday) | Lower-middle | 45--55 min | Bake Tuesday instead if possible |
-| 11:00 AM | 450F | Preheating with empty roasting rack inside | -- | 30 min | Critical for skin crispness |
-| 11:30 AM | 450F | Baked brie appetizer | Upper | 15 min | In and out quickly before turkey |
-| 12:30 PM | 450F | Spatchcocked turkey | Middle | 90--100 min | Oven is now dedicated |
-| 1:30 PM | 375F | GF cornbread stuffing (pre-assembled, stock added) | Middle | 40--45 min | Goes in the moment turkey comes out |
-| 1:30 PM | 400F | CONFLICT -- drop to 375F for stuffing; Brussels roast while oven holds heat | Lower | 20--25 min | One rack stuffing, one rack Brussels |
-| 2:00 PM | -- | Oven off; dishes plated and going to buffet | -- | -- | Gravy finishes on stovetop |
+| Time     | Oven Temp | Dish                                                                        | Rack         | Duration    | Notes                                |
+| -------- | --------- | --------------------------------------------------------------------------- | ------------ | ----------- | ------------------------------------ |
+| 10:00 AM | 375F      | Pumpkin pie (if not already baked Tuesday)                                  | Lower-middle | 45--55 min  | Bake Tuesday instead if possible     |
+| 11:00 AM | 450F      | Preheating with empty roasting rack inside                                  | --           | 30 min      | Critical for skin crispness          |
+| 11:30 AM | 450F      | Baked brie appetizer                                                        | Upper        | 15 min      | In and out quickly before turkey     |
+| 12:30 PM | 450F      | Spatchcocked turkey                                                         | Middle       | 90--100 min | Oven is now dedicated                |
+| 1:30 PM  | 375F      | GF cornbread stuffing (pre-assembled, stock added)                          | Middle       | 40--45 min  | Goes in the moment turkey comes out  |
+| 1:30 PM  | 400F      | CONFLICT -- drop to 375F for stuffing; Brussels roast while oven holds heat | Lower        | 20--25 min  | One rack stuffing, one rack Brussels |
+| 2:00 PM  | --        | Oven off; dishes plated and going to buffet                                 | --           | --          | Gravy finishes on stovetop           |
 
 **Slow cooker:** Mashed potatoes go into the slow cooker on "warm" setting at 1:30 PM, covered. Stir and finish with butter immediately before serving.
 
@@ -461,6 +484,7 @@ The celiac constraint is the most critical food safety issue. Gluten cross-conta
 ### Master Prep Timeline
 
 **Tuesday (2 Days Before)**
+
 - [ ] Order turkey if not already done -- call grocery store; confirm 16--18 lb bird available
 - [ ] Make cranberry sauce: 12 oz cranberries, 1 cup sugar, 3/4 cup orange juice, zest of 1 orange. Simmer 10--12 minutes until berries burst and sauce coats a spoon. Cool, refrigerate. Will last 2 weeks.
 - [ ] Apply dry brine to turkey (see above). Refrigerate uncovered on wire rack.
@@ -470,6 +494,7 @@ The celiac constraint is the most critical food safety issue. Gluten cross-conta
 - [ ] Make turkey stock base for gravy: simmer turkey backbone (from spatchcock step on Wednesday) -- or use 1 quart store-bought chicken stock as base. Reduce by 20% for concentration.
 
 **Wednesday (1 Day Before)**
+
 - [ ] Spatchcock turkey (see technique above). Return to refrigerator uncovered.
 - [ ] Make mashed potato base: boil cubed Yukon Golds until completely tender (they should practically fall apart when pierced). Drain completely and let steam off for 2 minutes -- wet potatoes = gluey potatoes. Rice or hand-mash with 1.5 sticks salted butter (set aside 3 tablespoons dairy-free plant butter to stir into a reserved portion for lactose-intolerant guest), 1.5 cups warmed heavy cream (reserve 1/2 cup, replace with warmed oat milk for dairy-free portion). Season generously with salt and white pepper. Taste. Refrigerate in 9x13 buttered dish, covered.
 - [ ] Make gravy base: melt 6 tablespoons unsalted butter in saucepan, whisk in 6 tablespoons cornstarch (NOT flour -- this is the GF-safe thickener). Cook 1 minute. Slowly whisk in 6 cups warm turkey/chicken stock. Simmer 10 minutes until glossy and thickened. Season with salt, pepper, fresh thyme, 1 teaspoon Worcestershire sauce. Cool, refrigerate. Thursday: reheat and add defatted drippings, taste, adjust.
@@ -479,6 +504,7 @@ The celiac constraint is the most critical food safety issue. Gluten cross-conta
 - [ ] Confirm celiac guest: text or call to confirm the menu is safe and what to avoid (the dinner rolls).
 
 **Thursday Morning (4+ Hours Before Serving)**
+
 - [ ] 9:00 AM: Remove turkey from refrigerator.
 - [ ] 9:30 AM: Add 1.5 cups warm turkey stock to stuffing dish. Press bread down. Let soak.
 - [ ] 10:00 AM: Baked brie if needed (375F, 15 min). Set out crudité platter and hummus for early arrivals.
@@ -492,14 +518,15 @@ The celiac constraint is the most critical food safety issue. Gluten cross-conta
 
 ### Dietary Accommodations
 
-| Guest | Restriction | Safe Dishes | Must Avoid |
-|---|---|---|---|
-| Celiac guest | Celiac disease -- zero gluten tolerance | Turkey, gravy (cornstarch), mashed potatoes (dedicated portion), GF cornbread stuffing, Brussels sprouts, cranberry sauce, pumpkin pie (GF crust) | Neighbor's dinner rolls -- place at far end of buffet and alert guest verbally |
-| Lactose-intolerant guest | Dairy intolerance | Turkey, gravy, GF cornbread stuffing, Brussels sprouts, cranberry sauce, crudités, pumpkin pie (use coconut cream in filling; GF almond flour crust is naturally dairy-free) | Standard mashed potatoes (reserve 1/4 batch with plant butter and oat milk) |
+| Guest                    | Restriction                             | Safe Dishes                                                                                                                                                                  | Must Avoid                                                                     |
+| ------------------------ | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Celiac guest             | Celiac disease -- zero gluten tolerance | Turkey, gravy (cornstarch), mashed potatoes (dedicated portion), GF cornbread stuffing, Brussels sprouts, cranberry sauce, pumpkin pie (GF crust)                            | Neighbor's dinner rolls -- place at far end of buffet and alert guest verbally |
+| Lactose-intolerant guest | Dairy intolerance                       | Turkey, gravy, GF cornbread stuffing, Brussels sprouts, cranberry sauce, crudités, pumpkin pie (use coconut cream in filling; GF almond flour crust is naturally dairy-free) | Standard mashed potatoes (reserve 1/4 batch with plant butter and oat milk)    |
 
 **Mashed potato bifurcation:** When making mashed potatoes on Wednesday, split the batch before adding cream and butter. Standard batch: heavy cream + butter. Reserved batch (1/4 total, about 2.5 lbs of potato): plant-based butter + warmed oat milk (1:1 ratio with cream). Label both at the buffet.
 
 **Cross-contamination protocol for celiac guest:**
+
 - GF stuffing is baked in a clean pan, stirred with a dedicated serving spoon. Never let a spoon from the dinner rolls touch it.
 - All cooking surfaces and utensils used for GF dishes are washed with soap and hot water before use.
 - Gravy is cornstarch-based; no flour. Cornstarch is certified gluten-free; the box must say so.
@@ -510,8 +537,9 @@ The celiac constraint is the most critical food safety issue. Gluten cross-conta
 ### Key Recipes
 
 **GF Pumpkin Pie (serves 10--12):**
+
 - Crust: 2 cups almond flour, 3 tablespoons cold butter (or coconut oil for dairy-free), 1 tablespoon sugar, pinch of salt. Combine, press into 9-inch pie dish. Bake at 350F for 10 minutes. Cool.
 - Filling: 15 oz canned pumpkin puree (not pie filling), 3 eggs, 3/4 cup granulated sugar, 1 teaspoon cinnamon, 1/2 teaspoon ground ginger, 1/4 teaspoon ground cloves, 1/4 teaspoon nutmeg, 1.5 cups heavy cream (or 1 can full-fat coconut cream for dairy-free). Whisk to combine, pour into crust.
 - Bake at 375F for 15 minutes, reduce to 325F for 40--50 minutes until edges are set but center has a slight jiggle (it sets fully as it cools). Cool completely before refrigerating. Serve cold or room temperature.
 
-**Cornstarch Gravy (serves 16,
+\*\*Cornstarch Gravy (serves 16,

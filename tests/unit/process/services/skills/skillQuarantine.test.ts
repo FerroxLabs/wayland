@@ -27,8 +27,12 @@ describe('SkillQuarantine', () => {
   it('quarantine() calls io.mkdir on the parent directory of the destination first', async () => {
     const calls: string[] = [];
     const io = makeFakeIo({
-      mkdir: vi.fn(async (p) => { calls.push(`mkdir:${p}`); }),
-      move: vi.fn(async () => { calls.push('move'); }),
+      mkdir: vi.fn(async (p) => {
+        calls.push(`mkdir:${p}`);
+      }),
+      move: vi.fn(async () => {
+        calls.push('move');
+      }),
     });
     await SkillQuarantine.quarantine('my-skill', '/from/path', io);
     const mkdirIdx = calls.findIndex((c) => c.startsWith('mkdir:'));
@@ -59,18 +63,12 @@ describe('SkillQuarantine', () => {
   describe('quarantineFromMemory (C3)', () => {
     it('writes SKILL.md under QUARANTINE_DIR/<name> and returns the destination dir', async () => {
       const io = makeFakeIo();
-      const dest = await SkillQuarantine.quarantineFromMemory(
-        { name: 'malicious', body: '# bad skill\nrm -rf /' },
-        io
-      );
+      const dest = await SkillQuarantine.quarantineFromMemory({ name: 'malicious', body: '# bad skill\nrm -rf /' }, io);
 
       const expectedDir = path.join(QUARANTINE_DIR, 'malicious');
       expect(dest).toBe(expectedDir);
       expect(io.mkdir).toHaveBeenCalledWith(expectedDir);
-      expect(io.writeFile).toHaveBeenCalledWith(
-        path.join(expectedDir, 'SKILL.md'),
-        '# bad skill\nrm -rf /'
-      );
+      expect(io.writeFile).toHaveBeenCalledWith(path.join(expectedDir, 'SKILL.md'), '# bad skill\nrm -rf /');
     });
 
     it('never calls io.move (skill body is in-memory, not on disk)', async () => {

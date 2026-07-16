@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-image-generation design checklist"
-  category: "design-creative"
-  subcategory: "ai-image-generation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-image-generation design checklist'
+  category: 'design-creative'
+  subcategory: 'ai-image-generation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # AI Image Upscaling
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has an existing AI-generated image (from Midjourney, DALL-E, Stable Diffusion, Flux, or similar models) and wants to increase its pixel dimensions
 - The user needs to prepare an AI image for print at a specific DPI target (300 DPI for commercial print, 150 DPI for large format, 72-96 DPI for web)
 - The user wants to enhance fine detail -- sharpening textures, recovering edge definition, or adding micro-detail -- without regenerating from scratch
@@ -30,6 +32,7 @@ metadata:
 - The user is targeting a specific deliverable resolution: social media crop, print file for a commercial printer, large-format banner, or product mockup
 
 **Do NOT use when:**
+
 - The user wants to generate a new image from a text prompt -- use the appropriate model-specific prompting skill instead
 - The user wants to change the visual style of an image (adding painterly look, switching to anime aesthetic, applying color grading) -- use `ai-image-style-transfer`
 - The user's image is not AI-generated but is a photograph or scanned artwork -- photographic upscaling has different tools and considerations outside this skill's scope
@@ -70,17 +73,17 @@ Never let the user proceed without a confirmed pixel target. Vague targets like 
 
 - **Pixel dimension reference table:**
 
-| Print Size | 300 DPI | 150 DPI | 100 DPI |
-|---|---|---|---|
-| 4x6 in | 1200 x 1800 | 600 x 900 | 400 x 600 |
-| 5x7 in | 1500 x 2100 | 750 x 1050 | 500 x 700 |
-| 8x10 in | 2400 x 3000 | 1200 x 1500 | 800 x 1000 |
-| 11x14 in | 3300 x 4200 | 1650 x 2100 | 1100 x 1400 |
-| 16x20 in | 4800 x 6000 | 2400 x 3000 | 1600 x 2000 |
-| 18x24 in | 5400 x 7200 | 2700 x 3600 | 1800 x 2400 |
-| 24x36 in | 7200 x 10800 | 3600 x 5400 | 2400 x 3600 |
-| A4 (8.27x11.69 in) | 2480 x 3508 | 1240 x 1754 | 827 x 1169 |
-| A3 (11.69x16.54 in) | 3508 x 4961 | 1754 x 2480 | 1169 x 1654 |
+| Print Size          | 300 DPI      | 150 DPI     | 100 DPI     |
+| ------------------- | ------------ | ----------- | ----------- |
+| 4x6 in              | 1200 x 1800  | 600 x 900   | 400 x 600   |
+| 5x7 in              | 1500 x 2100  | 750 x 1050  | 500 x 700   |
+| 8x10 in             | 2400 x 3000  | 1200 x 1500 | 800 x 1000  |
+| 11x14 in            | 3300 x 4200  | 1650 x 2100 | 1100 x 1400 |
+| 16x20 in            | 4800 x 6000  | 2400 x 3000 | 1600 x 2000 |
+| 18x24 in            | 5400 x 7200  | 2700 x 3600 | 1800 x 2400 |
+| 24x36 in            | 7200 x 10800 | 3600 x 5400 | 2400 x 3600 |
+| A4 (8.27x11.69 in)  | 2480 x 3508  | 1240 x 1754 | 827 x 1169  |
+| A3 (11.69x16.54 in) | 3508 x 4961  | 1754 x 2480 | 1169 x 1654 |
 
 - **Determine scale factor:** Divide the target dimension by the source dimension. A 1024x1024 source targeting 4800x6000 requires 4.69x horizontal and 5.86x vertical -- this is an uneven scale that requires a crop decision. Always flag when source and target aspect ratios differ significantly.
 - **Identify the practical ceiling:** Beyond 8x upscale from the original, any AI upscaler is largely synthesizing new content rather than recovering existing detail. At 2x-4x, the upscaler is interpolating and enhancing real content. At 4x-8x, it is guided hallucination. At 8x+, it is essentially generation. Set expectations accordingly.
@@ -115,6 +118,7 @@ The source model determines which native tools are available. Always use the nat
 SD has the richest upscaling toolkit. Choose the method based on available VRAM, desired control, and style of image.
 
 **Method 1: SD img2img with resolution scaling**
+
 - Load the original image into img2img
 - Set the target resolution (e.g., 2x the original: 1024 to 2048, or 1024 to 2048x1365 for non-square)
 - Denoising strength controls the balance between preservation and regeneration:
@@ -130,6 +134,7 @@ SD has the richest upscaling toolkit. Choose the method based on available VRAM,
 - Sampler: DPM++ 2M Karras or DPM++ SDE Karras work well for upscaling at 20-30 steps. DDIM at 50 steps is effective for lower denoising (<0.3). Do not use Euler a above 0.4 denoising -- it is too stochastic.
 
 **Method 2: SD Upscale (Tiled) / Ultimate SD Upscale (Automatic1111 script)**
+
 - Breaks the image into tiles (512x512 or 768x768 default), runs img2img on each tile with overlap, then stitches
 - Allows upscaling to 4x-8x without VRAM constraints -- a 6 GB GPU can process individual tiles regardless of final image size
 - Key parameters:
@@ -140,26 +145,28 @@ SD has the richest upscaling toolkit. Choose the method based on available VRAM,
 - Ultimate SD Upscale (community script) is significantly better than the stock SD Upscale: it adds seam-fixing passes, better tile overlap handling, and target resolution input by pixel count rather than multiplier.
 
 **Method 3: Built-in AI upscalers (Extras tab in Automatic1111)**
+
 - These are pure upscaler networks -- no diffusion, no prompt, just learned upscaling
 - Run directly without VRAM constraints (they use much less memory than diffusion)
 - Comparison table:
 
-| Upscaler | Scale | Best For | Notes |
-|---|---|---|---|
-| Real-ESRGAN 4x+ | 2x-4x | Photorealistic general | Fastest, highest quality for photos |
-| Real-ESRGAN 4x+ Anime6B | 2x-4x | Anime, flat illustration, vector-like | Reduces halftone, preserves clean lines |
-| ESRGAN 4x | 2x-4x | Older photorealistic images | Legacy, generally worse than Real-ESRGAN |
-| SwinIR 4x | 2x-4x | General, sharper edges than ESRGAN | Slightly slower, good for text and graphics |
-| BSRGAN 4x | 2x-4x | Compressed or noisy sources | Strong denoising, smooths some fine detail |
-| LDSR | 2x-4x | Maximum quality, slow | 100-200x slower, marginally better for faces |
-| R-ESRGAN General WDN 4x | 2x-4x | Compressed web images | Handles JPEG block artifacts well |
-| 4x-UltraSharp | 2x-4x | Photorealistic ultra detail | Community model, excellent for faces/detail |
-| 4x-Remacri | 2x-4x | Mixed media, moderate detail | Good all-rounder community model |
+| Upscaler                | Scale | Best For                              | Notes                                        |
+| ----------------------- | ----- | ------------------------------------- | -------------------------------------------- |
+| Real-ESRGAN 4x+         | 2x-4x | Photorealistic general                | Fastest, highest quality for photos          |
+| Real-ESRGAN 4x+ Anime6B | 2x-4x | Anime, flat illustration, vector-like | Reduces halftone, preserves clean lines      |
+| ESRGAN 4x               | 2x-4x | Older photorealistic images           | Legacy, generally worse than Real-ESRGAN     |
+| SwinIR 4x               | 2x-4x | General, sharper edges than ESRGAN    | Slightly slower, good for text and graphics  |
+| BSRGAN 4x               | 2x-4x | Compressed or noisy sources           | Strong denoising, smooths some fine detail   |
+| LDSR                    | 2x-4x | Maximum quality, slow                 | 100-200x slower, marginally better for faces |
+| R-ESRGAN General WDN 4x | 2x-4x | Compressed web images                 | Handles JPEG block artifacts well            |
+| 4x-UltraSharp           | 2x-4x | Photorealistic ultra detail           | Community model, excellent for faces/detail  |
+| 4x-Remacri              | 2x-4x | Mixed media, moderate detail          | Good all-rounder community model             |
 
 - For maximum quality, apply 2x Real-ESRGAN twice rather than one 4x pass. The two-pass approach produces slightly better edge quality at the cost of processing time.
 - Chain upscalers: Real-ESRGAN 2x, then SwinIR 2x for hybrid quality (sharpness from SwinIR, smoothness from ESRGAN).
 
 **Method 4: HiRes Fix (Automatic1111 / ComfyUI)**
+
 - Built into the txt2img pipeline -- not a post-processing step but a two-stage generation
 - First pass generates at a low resolution (512x512 or 768x768), then HiRes Fix runs an upscale + img2img pass to the final resolution
 - Best when you control the original generation: set HiRes fix from the start to avoid running a separate upscale step
@@ -168,6 +175,7 @@ SD has the richest upscaling toolkit. Choose the method based on available VRAM,
 - Steps for HiRes pass: 15-25 is sufficient. It does not need to match the first pass step count.
 
 **Method 5: ControlNet Tile for Upscaling**
+
 - Uses the ControlNet Tile preprocessor, which treats the image as a tiled control signal for a new generation
 - Works at full diffusion strength (0.7-1.0 denoising) while still preserving overall composition because the tile map locks spatial structure
 - Better than pure img2img at high denoising because tile conditioning reduces drift
@@ -359,6 +367,7 @@ Communicate limitations clearly alongside the technical plan.
 ### Very Small or Heavily Degraded Source (under 256x256, or JPEG quality under 70)
 
 A 256x256 source contains only 65,536 pixels of information. A 4x upscale to 1024x1024 produces 1,048,576 pixels -- 94% of which must be synthesized. The result cannot be reliable regardless of the upscaler used. Handling:
+
 - First, attempt to regenerate the image at the source model's maximum resolution using the same prompt. This is always better than upscaling a small source.
 - If the source must be used as-is (the exact composition is irreproducible), apply Real-ESRGAN at 2x maximum per pass, with multiple conservative passes rather than one aggressive pass.
 - For JPEG quality below 70: apply BSRGAN or Real-ESRGAN WDN first. This removes blocking artifacts before the detail upscaling pass. Without this step, the upscaler will faithfully reproduce and enlarge the JPEG block grid.
@@ -367,6 +376,7 @@ A 256x256 source contains only 65,536 pixels of information. A 4x upscale to 102
 ### Image Contains Critical Typography or Logos
 
 Text is processed character-by-character by diffusion models -- the model has no understanding that a pixel cluster represents a letter. Upscaling at any denoising above 0.20 in SD img2img risks introducing character mutations (serifs that change, letter spacing that shifts, numerals that invert). Handling:
+
 - For Midjourney: always use Upscale Subtle. Never use Creative on images where text accuracy is required.
 - For SD img2img: set denoising to 0.10-0.15 maximum. Use a pure upscaler (Real-ESRGAN via Extras tab) rather than diffusion img2img.
 - For logos: use the pure upscaler path only (Real-ESRGAN SwinIR). Zero diffusion. Add "sharp text, crisp typography" to the prompt if any diffusion pass is unavoidable but mask the text region with inpainting masked areas set to "original" (invert mask) to protect it.
@@ -375,6 +385,7 @@ Text is processed character-by-character by diffusion models -- the model has no
 ### Tiled Upscaling Producing Inconsistent Lighting Across Tiles
 
 When Ultimate SD Upscale processes at denoising 0.35+, each tile undergoes an independent diffusion pass. Areas near a window might receive different lighting interpretation in adjacent tiles, producing a patchwork appearance. Handling:
+
 - Reduce denoising to 0.20-0.25. This is the primary fix. Below 0.25, tiles are sufficiently constrained by the source to remain consistent.
 - Increase tile overlap to 192 or 256 pixels. Larger overlap means the seam-fix pass has more context to blend between tiles.
 - Enable "Half tile offset pass" in Ultimate SD Upscale -- this runs a second offset tiling pass and averages the results, dramatically reducing tile inconsistency.
@@ -384,6 +395,7 @@ When Ultimate SD Upscale processes at denoising 0.35+, each tile undergoes an in
 ### Aspect Ratio Mismatch Between Source and Target
 
 A 1:1 square AI image being prepared for a 16:9 landscape print (or 2:3 portrait print) requires a crop decision that significantly affects composition. Handling:
+
 - Calculate the pixel crop required: for a 1024x1024 source targeting a 16:9 format at 1920x1080, you must crop the source to 1024x576 (removing 224 pixels from top/bottom), losing 27.7% of the image height.
 - Present the user with the crop preview before upscaling. There is no point upscaling to maximum quality if the user will reject the composition crop.
 - If the crop removes a critical element: suggest Midjourney's outpainting (pan tool) to extend the canvas before upscaling, or SD inpainting/outpainting to synthesize new content at the edges.
@@ -393,6 +405,7 @@ A 1:1 square AI image being prepared for a 16:9 landscape print (or 2:3 portrait
 ### Batch Upscaling 20+ Images for Consistent Series
 
 Batch processing introduces the risk of inconsistent settings producing visible variation across a series. Handling:
+
 - Define and lock all settings before processing: same checkpoint, same VAE, same denoising, same upscaler model, same tile size, same overlap. Document these in a processing log.
 - Test on exactly 3 representative images before committing to the full batch: one with faces, one with complex background, one with text if applicable. Verify all checklist criteria on these three before batching.
 - Use SD batch img2img with a fixed seed offset of 0 or a consistent increment. Random seeds across a batch will produce variable enhancement -- some images will gain more detail, some will change slightly. For consistency, use seed = -1 (random) only if visual style variation is acceptable.
@@ -403,6 +416,7 @@ Batch processing introduces the risk of inconsistent settings producing visible 
 ### Extreme Resolution Target (24x36 inches at 300 DPI = 7200x10800 px)
 
 This target represents 77.8 megapixels. A typical SD VRAM-constrained environment cannot generate or img2img at this resolution in a single pass. The pipeline must be tiled. Handling:
+
 - Start from the highest quality intermediate available (Midjourney 2048x2048 Creative upscale, or SD at maximum native resolution)
 - Apply Real-ESRGAN 4x to reach 8192x8192 (67 MP -- still under target at 100 DPI)
 - Apply a second Real-ESRGAN 2x pass to reach 16384x16384 (268 MP -- well above target)
@@ -414,6 +428,7 @@ This target represents 77.8 megapixels. A typical SD VRAM-constrained environmen
 ### ControlNet Tile Producing Style Drift at High Denoising
 
 When ControlNet Tile is used at denoising 0.5+ to aggressively enhance detail, the diffusion model's prior can override the tile conditioning and introduce style drift -- particularly visible as the image taking on the stylistic characteristics of the checkpoint's dominant training data (often anime faces on photorealistic portraits, or photorealistic texture on illustration-style images). Handling:
+
 - Reduce ControlNet Tile weight to 0.8-1.0 (counterintuitively, higher weight locks the tile conditioning more tightly, preventing drift)
 - Reduce denoising to 0.35-0.45 maximum when using ControlNet Tile
 - Verify the checkpoint is appropriate for the image style. If the source is photorealistic, use a photorealistic checkpoint (not DreamShaper or similar mixed-style models that will blend styles unpredictably)
@@ -431,6 +446,7 @@ When ControlNet Tile is used at denoising 0.5+ to aggressively enhance detail, t
 ## AI Image Upscaling Specification
 
 ### Source Analysis
+
 - **Source model and version:** Midjourney v6.1
 - **Current dimensions:** 1024 x 1024 px
 - **Current estimated DPI at 18x24 inches:** 56.9 DPI (1024 ÷ 18 inches) -- far below 300 DPI requirement
@@ -439,6 +455,7 @@ When ControlNet Tile is used at denoising 0.5+ to aggressively enhance detail, t
 - **Original prompt:** Not provided -- will assume unknown for SD pass; reconstruct detail cues from style
 
 ### Target Requirements
+
 - **Intended use:** Gallery print (commercial art print, fine art context)
 - **Physical output size:** 18 x 24 inches
 - **Required DPI:** 300 (art director requirement; note: 200 DPI would be perceptually equivalent at arm's length, but client specification is 300 DPI)
@@ -447,6 +464,7 @@ When ControlNet Tile is used at denoising 0.5+ to aggressively enhance detail, t
 - **Aspect ratio note:** Source is 1:1 square. Target is 3:4 portrait. Cropping required -- source will need to be cropped or extended vertically by approximately 333 pixels (33%) to match 3:4 at the same width. Discuss crop vs. outpaint with user before proceeding.
 
 > **Action required before upscaling:** The source is 1:1 (square) and the print target is 3:4 portrait (18x24). Upscaling the square image to 5400x5400 yields an 18x18 inch print at 300 DPI -- 6 inches short of the 24-inch height. Confirm one of the following with the user:
+>
 > 1. Crop the final print to 18x18 (center crop, square format) -- no outpainting needed
 > 2. Extend the canvas vertically using Midjourney's pan/outpaint tool before upscaling, adding approximately 341 px of forest scene at top or bottom (or split 170 above, 171 below) to reach 1024x1365 (3:4 ratio)
 > 3. Accept moderate upscaling distortion by stretching the square to 3:4 -- this is not recommended as it will visually distort the proportions of trees and foliage
@@ -455,13 +473,13 @@ When ControlNet Tile is used at denoising 0.5+ to aggressively enhance detail, t
 
 ### Recommended Pipeline
 
-| Step | Method | Tool | Key Settings | Input Resolution | Output Resolution |
-|------|--------|------|-------------|-----------------|-------------------|
-| 1 | Midjourney Native Upscale | Midjourney | Upscale (Subtle) | 1024 x 1024 | 2048 x 2048 |
-| 2 | Pre-upscale outpaint (if 3:4 target) | Midjourney Pan | Extend bottom by ~680 px to reach 2048 x 2730 | 2048 x 2048 | 2048 x 2730 |
-| 3 | AI Upscaler Pass 1 | Real-ESRGAN | Anime6B x4, PNG output | 2048 x 2730 | 8192 x 10920 |
-| 4 | Downscale to target | Image Editor | Lanczos / Bicubic Sharper | 8192 x 10920 | 5400 x 7200 |
-| 5 | Output sharpening | Image Editor | Unsharp Mask: 0.7 px radius, 65% amount, threshold 3 | 5400 x 7200 | 5400 x 7200 |
+| Step | Method                               | Tool           | Key Settings                                         | Input Resolution | Output Resolution |
+| ---- | ------------------------------------ | -------------- | ---------------------------------------------------- | ---------------- | ----------------- |
+| 1    | Midjourney Native Upscale            | Midjourney     | Upscale (Subtle)                                     | 1024 x 1024      | 2048 x 2048       |
+| 2    | Pre-upscale outpaint (if 3:4 target) | Midjourney Pan | Extend bottom by ~680 px to reach 2048 x 2730        | 2048 x 2048      | 2048 x 2730       |
+| 3    | AI Upscaler Pass 1                   | Real-ESRGAN    | Anime6B x4, PNG output                               | 2048 x 2730      | 8192 x 10920      |
+| 4    | Downscale to target                  | Image Editor   | Lanczos / Bicubic Sharper                            | 8192 x 10920     | 5400 x 7200       |
+| 5    | Output sharpening                    | Image Editor   | Unsharp Mask: 0.7 px radius, 65% amount, threshold 3 | 5400 x 7200      | 5400 x 7200       |
 
 **Total scale factor from original 1024x1024 to final 5400x5400 area: 5.27x -- well within the reliable 2x-6x quality range for a multi-step pipeline.**
 
@@ -470,6 +488,7 @@ When ControlNet Tile is used at denoising 0.5+ to aggressively enhance detail, t
 ### Step-by-Step Settings
 
 **Step 1: Midjourney Upscale (Subtle)**
+
 - In the Midjourney Discord or web interface, locate the original generation job
 - Click the U button corresponding to the grid cell you selected (U1-U4)
 - After the initial upscale completes (reaching ~1024x1024), click **Upscale (Subtle)**
@@ -481,6 +500,7 @@ When ControlNet Tile is used at denoising 0.5+ to aggressively enhance detail, t
 - Save as PNG (Midjourney exports PNG by default -- do not convert to JPEG at this step)
 
 **Step 2: Outpaint to 3:4 aspect ratio (skip if accepting square crop)**
+
 - Use Midjourney's Pan tool (directional arrows below the upscaled image) to extend the bottom edge downward
 - Amount needed: to go from 2048x2048 to 2048x2730, extend downward by approximately 682 pixels (~33% of original height)
 - In Midjourney, pan generates one full panel extension -- the result will be approximately 2048 x 2730 after the downward pan
@@ -489,5 +509,6 @@ When ControlNet Tile is used at denoising 0.5+ to aggressively enhance detail, t
 - Save the selected pan result as PNG
 
 **Step 3: Real-ESRGAN AI Upscale x4**
+
 - Tool options:
   - **Automatic1111 (Extras tab):** Load

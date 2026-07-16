@@ -11,12 +11,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "podcast step-by-step guide planning"
-  category: "creative-project"
-  depends: "podcast-episode-planning podcast-interview-guide voiceover-script audio-editing-guide content-brief seo-content-strategy"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'podcast step-by-step guide planning'
+  category: 'creative-project'
+  depends: 'podcast-episode-planning podcast-interview-guide voiceover-script audio-editing-guide content-brief seo-content-strategy'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Produce a Podcast Episode

@@ -4,19 +4,20 @@
 
 ## When to use
 
-Use when the deliverable will be judged by a *practical* reader who is asking "what does this do for my money, my time, or my business?" Newsletter posts to operators, case studies, "how I built this" threads, B2B social content, podcast pitches to business audiences. Trigger this lens when the brief is "people enjoy the post but don't share it" or "the content is fluffy."
+Use when the deliverable will be judged by a _practical_ reader who is asking "what does this do for my money, my time, or my business?" Newsletter posts to operators, case studies, "how I built this" threads, B2B social content, podcast pitches to business audiences. Trigger this lens when the brief is "people enjoy the post but don't share it" or "the content is fluffy."
 
 ## Procedure
 
 1. **Identify the time/money impact.** What does the asset's idea or insight change for the reader, measured in hours or dollars? Be specific. "Saves a recurring 4-hour Friday task" or "shifts the customer-acquisition cost from $180 to $90." If the impact is unmeasurable, surface a proxy — frequency, headcount, or recurring decision.
-2. **Surface the system potential.** Can the reader turn this insight into a repeatable process — a hire, a SOP, a checklist, a workflow? Operator audiences care more about *systematizability* than about cleverness. Name the system shape: "this becomes a hiring filter," "this becomes a Monday-morning ritual," "this becomes a one-page template."
-3. **Estimate shareability.** Why would the reader forward this to a peer? Operators share assets that make them look smart, save someone an obvious mistake, or hand them a number they can quote. State the shareability angle in one line: *"a [role] would forward this to [other role] because [reason]."* If no answer fits, the angle is weak.
+2. **Surface the system potential.** Can the reader turn this insight into a repeatable process — a hire, a SOP, a checklist, a workflow? Operator audiences care more about _systematizability_ than about cleverness. Name the system shape: "this becomes a hiring filter," "this becomes a Monday-morning ritual," "this becomes a one-page template."
+3. **Estimate shareability.** Why would the reader forward this to a peer? Operators share assets that make them look smart, save someone an obvious mistake, or hand them a number they can quote. State the shareability angle in one line: _"a [role] would forward this to [other role] because [reason]."_ If no answer fits, the angle is weak.
 4. **Hint at monetization.** What is the path from insight to revenue? Not a pitch — a sketch. A consulting hour saved, a SKU added, a margin point gained, a service productized. Even editorial assets benefit from the monetization line because it forces the writer to take the idea seriously.
 5. **Cut anything not operator-relevant.** Operators skim. If a paragraph does not change a number, a decision, or a process, it is decoration. Decoration goes.
 
 End every output with this exact contract:
 
 **BUSINESS-ANGLE:**
+
 - Time/money impact: ...
 - System potential: ...
 - Shareability: ...
@@ -43,11 +44,13 @@ End every output with this exact contract:
 **Brief:** A LinkedIn post for agency owners on why they should track utilization weekly.
 
 **Before:**
-> *Tracking team utilization is one of the most important things you can do as an agency owner. It gives you visibility, helps your forecasting, and lets you make better staffing decisions.*
+
+> _Tracking team utilization is one of the most important things you can do as an agency owner. It gives you visibility, helps your forecasting, and lets you make better staffing decisions._
 
 Operator-irrelevant. No number, no system, no share-trigger.
 
 **After:**
-> *We tracked utilization weekly for 6 weeks. Found one designer at 38%, billable. Reassigned her to a client we were about to hire for. Saved a $9k subcontractor invoice and shipped the project early. Weekly utilization review now takes 12 minutes; pays for itself in one reallocation.*
+
+> _We tracked utilization weekly for 6 weeks. Found one designer at 38%, billable. Reassigned her to a client we were about to hire for. Saved a $9k subcontractor invoice and shipped the project early. Weekly utilization review now takes 12 minutes; pays for itself in one reallocation._
 
 Time/money impact named ($9k saved, 12 min recurring). System shape named (weekly review). Shareable to fellow agency owners. Monetization hint implicit: stop subbing out work you already have capacity for.

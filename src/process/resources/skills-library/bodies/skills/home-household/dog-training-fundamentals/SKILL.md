@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care step-by-step planning"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'pet-care step-by-step planning'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Dog Training Fundamentals
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has a new puppy (8 weeks to 6 months) and wants to start foundational obedience training and house training from scratch
 - A user has an untrained adult dog and wants to teach core commands using reward-based methods
 - A user asks specifically about marker training, clicker training, luring, shaping, or treat-based positive reinforcement techniques
@@ -30,6 +32,7 @@ metadata:
 - A user wants to understand how dogs learn -- operant conditioning, classical conditioning, reinforcement schedules -- well enough to train effectively
 
 **Do NOT use when:**
+
 - The user describes aggression: biting humans or other animals, growling at food bowls, snapping when touched, or threatening body language -- redirect to a certified professional dog trainer (CPDT-KA), a certified applied animal behaviorist (CAAB), or a veterinary behaviorist (DACVB)
 - The user is training a dog for a professional working role: service dog tasks, therapy dog certification, search and rescue, detection, or protection sports -- these require specialized methodology beyond the scope of this skill
 - The user wants competition-level obedience (AKC Obedience, IPO/IGP, rally obedience) or dog sport training (agility, flyball, nose work competition) -- use a sport-specific training skill
@@ -77,12 +80,14 @@ Sit is always the first command to teach for three reasons: (1) the luring techn
 Each command builds on the previous one. The three dimensions of stay (duration, distance, and distraction) must be trained independently before combining. Recall must be trained as a safety-priority behavior with the highest reward value in the dog's hierarchy.
 
 **Stay -- Three Independent Dimensions:**
+
 - **Duration first:** Ask for sit. Say "stay" once, using a flat-palm hand signal toward the dog's face. Mark and treat after 1 second of stillness. Build in increments of 1-2 seconds: 1 second, 2 seconds, 3 seconds, 5 seconds, 8 seconds, 12 seconds, 20 seconds, 30 seconds, 60 seconds. Never increase the time by more than 50% in a single step. If the dog breaks the stay, say nothing (no correction), simply reset: ask for sit, ask for stay, and go back to the last duration the dog held successfully.
 - **Distance second (only after 30 seconds of duration is solid):** With the dog in a stay, take one small step back. Return to the dog. Mark and treat. Never mark from a distance -- always return to the dog to deliver the reward so the dog does not come to you (which would reinforce breaking the stay). Add distance one step at a time. At 6 feet, hold for 10 seconds. At 10 feet, hold for 5 seconds -- increasing distance resets the duration.
 - **Distraction third (only after duration and distance are solid individually):** Introduce distractions at low level: a person walking by, a toy on the floor nearby, the trainer clapping. Mark and treat heavily for maintaining the stay through the distraction. This phase is where many home-trained dogs get "stuck" because trainers skip to outdoor environments too quickly.
 - **Release cue:** The release word ("okay" or "free") is as important as the "stay" cue. The dog must learn that position is maintained until the release word is given. Practice releasing the dog to a reward (tossed treat or play) rather than just allowing it to break on its own.
 
 **Come (Recall) -- Treat as a Safety Command:**
+
 - Begin indoors in a hallway with no distractions. Say the dog's name in a bright, happy tone, then "come." The moment the dog turns toward you, mark. As the dog moves toward you, keep encouraging verbally ("yes, yes, yes"). When the dog reaches you, deliver 3-5 treats in succession or a short play session with a toy -- recall must be the most rewarding thing in the dog's day.
 - The cardinal rule: never call "come" for anything the dog perceives as unpleasant (bath, nail trim, going inside from play, going into the crate). If you need the dog for an unpleasant activity, go get the dog -- do not call it and then do something unpleasant. Every instance of calling the dog for something it dislikes adds negative association to the recall cue. Even 3-4 poisoned recalls can significantly degrade a reliable recall.
 - **Long-line training:** Once recall is solid indoors, move to a 15-20 foot long line in a fenced area or open outdoor space. A long line is a light nylon or cotton cord, not a retractable leash. Retractable leashes teach dogs to pull against constant tension; a long line provides freedom with control. Use the long line for 4-6 outdoor recall sessions before working off-leash in a fenced area.
@@ -90,12 +95,14 @@ Each command builds on the previous one. The three dimensions of stay (duration,
 - Do not practice recall more than 5-6 times per session -- keep it novel and always pay well. A recall practiced 50 times in a row becomes tedious; a recall that happens 3-4 times and always results in extraordinary rewards remains exciting.
 
 **Leave It -- Two-Phase Teaching:**
+
 - **Phase 1 (closed fist):** Place a treat in your closed fist. Present the fist to the dog at nose level. Do nothing -- simply wait. The dog will sniff, lick, paw, and bump the fist. The moment the dog pulls its nose away from the fist or glances at your face, fire the marker and deliver a treat from the OTHER hand (not the one containing the leave-it item). This is critical: rewarding from the leave-it hand teaches the dog that persistence gets the reward eventually. Rewarding from the opposite hand teaches that disengagement from the target earns reward.
 - **Phase 2 (open hand/floor):** Place a treat on the floor and cover it with your foot or hand. Remove the cover. The moment the dog looks away from the treat, mark and reward from your treat pouch -- not by giving the dog the treat on the floor. Progress to placing the treat at distance. Then try with the treat at eye level on a table.
 - **Add the verbal cue "leave it"** only after the dog understands the game: present the temptation, say "leave it" once, and mark disengagement. Practice with progressively more desirable items: kibble, then chicken, then the dog's favorite toy.
 - **Criterion for leave it:** The dog disengages from a visible, uncovered treat on the floor within 2 seconds of the "leave it" cue and maintains that disengagement for 5 seconds. Do not move to practical applications (cuing "leave it" on walks for dead animals, dropped food, etc.) until this indoor criterion is met.
 
 **Heel (Loose-Leash Walking) -- The Most Complex Foundation Skill:**
+
 - Loose-leash walking is the hardest of the five foundation skills because the reinforcement history of pulling is massive in most dogs: pulling forward has worked every time the dog has walked on a leash. The dog has thousands of repetitions of "pull = go forward." This must be overwritten.
 - **Position the dog on the left side:** This is the traditional and functional convention. Hold a treat at your left hip at the dog's nose height.
 - **The mechanics of the stop:** The moment the leash becomes taut, stop walking completely. Plant your feet. Wait silently. Do not pull back on the leash, call the dog, or move toward the dog. Wait for the dog to create slack in the leash by backing up, looking at you, or turning toward you. Mark the moment slack appears, and resume walking. The dog learns the rule: tight leash = walking stops.
@@ -310,31 +317,33 @@ For recall specifically in high-distraction environments: the long line (20-30 f
 ## Dog Training Plan: Finn (8-Month-Old Lab Mix, Rescue)
 
 ### Training Profile
-| Parameter              | Value                                                        |
-|------------------------|--------------------------------------------------------------|
-| Dog age                | 8 months (adolescent)                                        |
-| Breed or mix           | Labrador mix                                                 |
-| Prior training history | None -- rescue dog, outdoor life, no foundation training     |
-| Primary training goals | 1. House training (urgent) 2. Sit 3. Loose-leash walking 4. Come 5. Stay |
-| Session length         | 7-8 minutes maximum (adolescent; below the 10-minute adult ceiling) |
-| Sessions per day       | 3-4 spaced throughout the day                               |
+
+| Parameter              | Value                                                                                                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dog age                | 8 months (adolescent)                                                                                                                                      |
+| Breed or mix           | Labrador mix                                                                                                                                               |
+| Prior training history | None -- rescue dog, outdoor life, no foundation training                                                                                                   |
+| Primary training goals | 1. House training (urgent) 2. Sit 3. Loose-leash walking 4. Come 5. Stay                                                                                   |
+| Session length         | 7-8 minutes maximum (adolescent; below the 10-minute adult ceiling)                                                                                        |
+| Sessions per day       | 3-4 spaced throughout the day                                                                                                                              |
 | Treat type recommended | High-value: small pieces of cooked chicken, Natural Balance food roll, freeze-dried chicken liver; standard: commercial soft treats (Zuke's Mini Naturals) |
-| Marker type            | Clicker recommended for precision; verbal "yes" as backup    |
+| Marker type            | Clicker recommended for precision; verbal "yes" as backup                                                                                                  |
 
 **Important note about Finn's age:** At 8 months, Finn is in the middle of adolescence. He may learn commands quickly in one session and seem to "forget" them the next, particularly outdoors. This is normal neurological development -- not defiance. Expect variability and respond by increasing treat value and reducing distraction difficulty when he seems unresponsive, not by repeating the cue multiple times or adding physical pressure.
 
 ### Week-by-Week Training Plan
 
-| Week | Primary Skill(s)                       | Session Structure                                                                                          | Success Criteria                                                            |
-|------|----------------------------------------|------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| 1    | Marker loading + Sit (lure)            | 25 marker-loading reps (1 session), then 5-8 sit-lure reps per session. 3 sessions/day.                   | Dog orients toward food within 1 second of marker. Sits with lure 8/10.    |
-| 2    | Sit (hand signal + verbal cue)         | 3 reps sit on lure, then 5 reps on empty-hand signal. Pair verbal "sit" with signal by end of week.       | Sits on hand signal 8/10. Beginning to respond to verbal "sit" before signal. |
-| 3    | Stay (duration, indoors) + Leave it Phase 1 | 3 reps sit, then 6 reps stay (building from 2 to 15 seconds). 4 reps leave it (closed fist). | Holds sit-stay for 15 seconds in kitchen 8/10. Disengages closed fist 8/10. |
-| 4    | Come (indoors, hallway) + Stay (to 30 sec) | Hallway recall game (both directions, 10 feet), 5-6 reps per session. Stay duration to 30 seconds. | Comes on name + "come" within 3 seconds, 8/10. Holds 30 seconds, 8/10.     |
-| 5    | Loose-leash heel (backyard) + Leave it Phase 2 | Heel in backyard starting at 1-3 step intervals. Leave it with treat on floor. | Loose leash for 15 consecutive steps, backyard, 3 sessions in a row.       |
-| 6    | Generalization: all commands, 3+ locations | Practice sit, stay, come, leave it in: living room, backyard, front yard, neighbor's sidewalk. | Sit 8/10 in 3 locations including 1 outdoor. Come reliably in fenced yard.  |
+| Week | Primary Skill(s)                               | Session Structure                                                                                   | Success Criteria                                                              |
+| ---- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 1    | Marker loading + Sit (lure)                    | 25 marker-loading reps (1 session), then 5-8 sit-lure reps per session. 3 sessions/day.             | Dog orients toward food within 1 second of marker. Sits with lure 8/10.       |
+| 2    | Sit (hand signal + verbal cue)                 | 3 reps sit on lure, then 5 reps on empty-hand signal. Pair verbal "sit" with signal by end of week. | Sits on hand signal 8/10. Beginning to respond to verbal "sit" before signal. |
+| 3    | Stay (duration, indoors) + Leave it Phase 1    | 3 reps sit, then 6 reps stay (building from 2 to 15 seconds). 4 reps leave it (closed fist).        | Holds sit-stay for 15 seconds in kitchen 8/10. Disengages closed fist 8/10.   |
+| 4    | Come (indoors, hallway) + Stay (to 30 sec)     | Hallway recall game (both directions, 10 feet), 5-6 reps per session. Stay duration to 30 seconds.  | Comes on name + "come" within 3 seconds, 8/10. Holds 30 seconds, 8/10.        |
+| 5    | Loose-leash heel (backyard) + Leave it Phase 2 | Heel in backyard starting at 1-3 step intervals. Leave it with treat on floor.                      | Loose leash for 15 consecutive steps, backyard, 3 sessions in a row.          |
+| 6    | Generalization: all commands, 3+ locations     | Practice sit, stay, come, leave it in: living room, backyard, front yard, neighbor's sidewalk.      | Sit 8/10 in 3 locations including 1 outdoor. Come reliably in fenced yard.    |
 
 ### Daily Session Template (7-8 Minutes)
+
 1. **Warm-up (45 seconds):** 3 repetitions of sit -- Finn's strongest command. Mark and reward every one. This primes him to engage with the session.
 2. **New or difficult skill (90 seconds):** 6-8 repetitions of the week's primary focus. Use highest-value treats (chicken, liver). Reward every correct response -- continuous reinforcement during acquisition.
 3. **Known skills review (60 seconds):** 2 reps each of all commands Finn knows so far, in varied order. Prevents him from anticipating sequences and ensures each command is individually reliable.
@@ -345,20 +354,20 @@ For recall specifically in high-distraction environments: the long line (20-30 f
 
 At 8 months, Finn's bladder capacity is approximately 6-7 hours maximum. However, given that he has been living outdoors and has no house training history, treat him as a puppy for the first 4-6 weeks -- assume 2-3 hour maximum hold time while awake and schedule accordingly.
 
-| Time         | Action                                                                              |
-|--------------|-------------------------------------------------------------------------------------|
-| 6:30 AM      | Wake up -- leash on immediately, straight to the designated potty spot outside       |
-| 7:00 AM      | Breakfast (scheduled meal, not free-feeding -- this is essential for Finn's motivation) |
-| 7:10 AM      | Potty trip, 5-10 minutes after eating                                               |
-| 8:00 AM      | Training session (7 min) + potty trip after                                         |
-| 9:30 AM      | Potty trip; supervised indoor time or crate if unsupervised                          |
-| 11:00 AM     | Potty trip; play or training session                                                 |
-| 12:30 PM     | Potty trip                                                                           |
-| 1:00 PM      | Training session (7 min) + potty trip after; crate for rest period if needed        |
-| 3:00 PM      | Potty trip; supervised indoor time                                                   |
-| 5:00 PM      | Dinner; potty trip 5-10 minutes after eating                                         |
-| 6:00 PM      | Training session or enrichment (frozen Kong, sniff walk); potty trip after          |
-| 8:00 PM      | Potty trip                                                                           |
-| 10:30 PM     | Final potty trip before bed; crate for the night                                    |
+| Time     | Action                                                                                  |
+| -------- | --------------------------------------------------------------------------------------- |
+| 6:30 AM  | Wake up -- leash on immediately, straight to the designated potty spot outside          |
+| 7:00 AM  | Breakfast (scheduled meal, not free-feeding -- this is essential for Finn's motivation) |
+| 7:10 AM  | Potty trip, 5-10 minutes after eating                                                   |
+| 8:00 AM  | Training session (7 min) + potty trip after                                             |
+| 9:30 AM  | Potty trip; supervised indoor time or crate if unsupervised                             |
+| 11:00 AM | Potty trip; play or training session                                                    |
+| 12:30 PM | Potty trip                                                                              |
+| 1:00 PM  | Training session (7 min) + potty trip after; crate for rest period if needed            |
+| 3:00 PM  | Potty trip; supervised indoor time                                                      |
+| 5:00 PM  | Dinner; potty trip 5-10 minutes after eating                                            |
+| 6:00 PM  | Training session or enrichment (frozen Kong, sniff walk); potty trip after              |
+| 8:00 PM  | Potty trip                                                                              |
+| 10:30 PM | Final potty trip before bed; crate for the night                                        |
 
 **Nighttime:**

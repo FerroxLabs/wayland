@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "presentation template planning"
-  category: "design-creative"
-  subcategory: "presentation-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'presentation template planning'
+  category: 'design-creative'
+  subcategory: 'presentation-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Speaker Notes Writing
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user explicitly needs content that lives in the presenter's notes pane -- the verbal layer that complements slides but is never displayed to the audience.
 
 **Trigger scenarios:**
+
 - User has a completed or near-completed slide deck and needs the talking-track written for each slide
 - User has slide titles and bullet content and needs elaboration, transitions, and timing layered on top
 - User needs to prepare a second presenter or subject-matter expert to deliver someone else's deck convincingly
@@ -36,6 +38,7 @@ Use this skill when the user explicitly needs content that lives in the presente
 - User is presenting in a second language or coaching a non-native speaker and needs simplified, phonetically accessible notes
 
 **Do NOT use when:**
+
 - The user has no slides yet and needs to plan the deck structure first -- use `slide-deck-structure` to build the slide architecture, then return to this skill
 - The user needs a word-for-word narration script for a recorded video with no live presenter -- use `voiceover-script`, which handles pacing for recorded delivery, breath marks, and dubbing requirements
 - The user is preparing interview-style dialogue or podcast talking points -- use `podcast-interview-guide`
@@ -340,16 +343,16 @@ Do not pretend the external context does not exist. Audiences who have just rece
 
 ### TIME BUDGET
 
-| Slide | Title | Type | Time |
-|-------|-------|------|------|
-| 1 | Our 2024 Product Vision | Narrative | 1:30 |
-| 2 | What We Shipped in H1 2024 | Data (timeline) | 2:30 |
-| 3 | H2 2024 Roadmap | Data (table) | 2:30 |
-| 4 | Early Access Program | Action | 1:30 |
-| 5 | Next Steps | Action | 0:45 |
-| -- | Q&A | -- | 3:00 |
-| -- | Closing buffer | -- | 0:15 |
-| **TOTAL** | | | **12:00** |
+| Slide     | Title                      | Type            | Time      |
+| --------- | -------------------------- | --------------- | --------- |
+| 1         | Our 2024 Product Vision    | Narrative       | 1:30      |
+| 2         | What We Shipped in H1 2024 | Data (timeline) | 2:30      |
+| 3         | H2 2024 Roadmap            | Data (table)    | 2:30      |
+| 4         | Early Access Program       | Action          | 1:30      |
+| 5         | Next Steps                 | Action          | 0:45      |
+| --        | Q&A                        | --              | 3:00      |
+| --        | Closing buffer             | --              | 0:15      |
+| **TOTAL** |                            |                 | **12:00** |
 
 ---
 
@@ -358,12 +361,14 @@ Do not pretend the external context does not exist. Audiences who have just rece
 ---
 
 #### Slide 1: Our 2024 Product Vision
+
 **Time:** 1:30
 **Transition in:** "I want to start with a direct statement, not a slide: we know that every vendor in this space has shown you a roadmap. We know you have heard promises before. So I am going to do something different today -- I am going to show you what we already shipped before I ask you to believe anything we are promising."
 
 [This opening credits the audience's skepticism before the first slide content appears. It positions the speaker as credible and self-aware.]
 
 **Elaboration bullets:**
+
 - The three pillars (name them from the slide) are not aspirational themes -- each connects to a shipped feature or a scheduled ship date we will cover in the next two slides
 - Pillar framing: do not explain each pillar abstractly. Say: "Pillar one maps to [Feature X], which shipped in May. Pillar two maps to [Feature Y], which is on the H2 table. Pillar three maps to [Feature Z], which is in our Early Access Program."
 - This pre-maps the deck's logic for a skeptical audience: vision is not floating above evidence -- it is grounded in it
@@ -376,12 +381,14 @@ Do not pretend the external context does not exist. Audiences who have just rece
 ---
 
 #### Slide 2: What We Shipped in H1 2024
+
 **Time:** 2:30
 **Transition in:** "This is the H1 timeline. Six milestones. All of them shipped."
 
 [STAGE DIRECTION: PAUSE 3 seconds after the first sentence. Let the timeline land. Skeptical audiences need a moment to absorb delivered evidence before the speaker talks over it.]
 
 **Elaboration bullets:**
+
 - Walk the timeline left to right. Name each milestone and the date it shipped. Do not read the graphic -- add the "so what" for each: "This milestone matters to enterprise clients specifically because [reason]."
 - Highlight the two milestones most relevant to this specific client's industry or use case. [CUSTOMIZE: check pre-call notes and prioritize their pain points here]
 - Shipping cadence context: "Six milestones in six months is not our fastest cadence -- but it reflects a deliberate decision to prioritize stability over speed, which enterprise deployment environments require."
@@ -398,12 +405,14 @@ Do not pretend the external context does not exist. Audiences who have just rece
 ---
 
 #### Slide 3: H2 2024 Roadmap
+
 **Time:** 2:30
 **Transition in:** "This is the H2 roadmap. Three columns: feature name, current status, and a specific ship date -- not a quarter, a month."
 
 [STAGE DIRECTION: Let the audience read the table for 4-5 seconds before speaking. For skeptical audiences, reading the ship dates themselves is more credible than hearing them read aloud. Let the specificity land.]
 
 **Elaboration bullets:**
+
 - Read the status column language carefully: distinguish between "In Development" (code exists, in testing), "In Design" (architecture set, engineering not started), and "Planned" (committed to roadmap, not yet scoped). Do not let these distinctions blur -- a skeptical audience will catch it.
 - For each feature with a ship date in the next 60 days, add: "This one is in [current status]. We have [X engineers] assigned. I can give you the milestone breakdown if you want it after the meeting." Specificity of resource assignment is a credibility signal.
 - For features further out, connect them to the H1 evidence: "We have said features like this before. The H1 timeline you just saw is our track record. Judge this date by that record."
@@ -420,10 +429,12 @@ Do not pretend the external context does not exist. Audiences who have just rece
 ---
 
 #### Slide 4: Early Access Program
+
 **Time:** 1:30
 **Transition in:** "The Early Access Program gives your team access to H2 features in pre-release -- 6-8 weeks before general availability."
 
 **Elaboration bullets:**
+
 - Bullet 1 (what it is): "Access to production-ready pre-release builds. Not beta in the traditional sense -- we do not put enterprise clients in unstable builds. You get the same build our internal teams have been running for 30 days."
 - Bullet 2 (what we ask for): "Two things: feedback sessions every two weeks with our product team, and permission to cite your participation publicly -- with your approval on any language we use."
 - Bullet 3 (what you get): "Dedicated implementation support, priority response on any issues that surface during your early access period, and direct input on the feature configuration before it goes to the full market."
@@ -436,10 +447,12 @@ Do not pretend the external context does not exist. Audiences who have just rece
 ---
 
 #### Slide 5: Next Steps
+
 **Time:** 0:45
 **Transition in:** "Two specific steps."
 
 **Elaboration bullets:**
+
 - Read the two bullets verbatim and then add one sentence of context each. Do not over-elaborate. This slide is the close -- not another content section.
 - Next step 1: "[Whatever the first bullet says -- likely a technical deep-dive, POC, or follow-up meeting]. That meeting takes [X] hours and gives your technical team direct access to our engineering lead."
 - Next step 2: "[Whatever the second bullet says -- likely a commercial conversation or contract review]. We can have that conversation as soon as your technical team is satisfied."
@@ -460,41 +473,46 @@ Do not pretend the external context does not exist. Audiences who have just rece
 ### CONTINGENCY NOTES
 
 #### If Running Long -- Compress These Slides
-| Slide | Title | Compression sentence |
-|-------|-------|----------------------|
-| 1 | Our 2024 Product Vision | "Our three strategic pillars are reliability, integrations, and enterprise-grade reporting -- and each maps to features on the roadmap we are about to review." |
-| 4 | Early Access Program | "We have an Early Access Program for clients who want pre-release access with implementation support -- ask me about it after the meeting." |
-| 5 | Next Steps | "Two next steps: a technical deep-dive with our engineering lead, followed by a commercial conversation. I will follow up with calendar invites." |
+
+| Slide | Title                   | Compression sentence                                                                                                                                            |
+| ----- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Our 2024 Product Vision | "Our three strategic pillars are reliability, integrations, and enterprise-grade reporting -- and each maps to features on the roadmap we are about to review." |
+| 4     | Early Access Program    | "We have an Early Access Program for clients who want pre-release access with implementation support -- ask me about it after the meeting."                     |
+| 5     | Next Steps              | "Two next steps: a technical deep-dive with our engineering lead, followed by a commercial conversation. I will follow up with calendar invites."               |
 
 #### If Running Short -- Expand These Slides
+
 - **Slide 2 -- What We Shipped in H1 2024:** Ask the audience to pick one H1 milestone they want to understand more deeply, then do a 60-second verbal walkthrough of how that feature works in an enterprise deployment context. "Tell me which of these six matters most to your team, and I will walk you through exactly how [customer X] is using it."
 - **Slide 3 -- H2 Roadmap:** Expand with a competitive context note: "One thing worth flagging: two of the features in this table are responses to gaps that clients who evaluated [competitor space, not specific brand name] brought to us. If your team ran that evaluation recently, you may recognize the specific requests." This is only appropriate if the speaker has confirmed the client evaluated competitors -- check pre-meeting notes.
 
 #### Interruption Return Phrases (by section)
+
 - **During Vision section (Slide 1):** "That is an important question about our direction. Let me put a pin in it and come back to it -- it connects directly to the roadmap table, which I want to make sure we get to. [Continue to Slide 2]."
 - **During Delivery Evidence section (Slide 2):** "Good point about [topic]. Let me answer that directly: [brief answer]. Now -- I want to make sure we get to the H2 commitments before we run out of time, because that is where the question you just raised gets answered in the data."
 - **During Roadmap section (Slide 3):** "I want to make sure we have time for next steps, so let me park that question and come back to it in Q&A -- it deserves more time than I can give it mid-slide."
 
 #### Early Termination -- Anchor Slide
+
 **[ANCHOR SLIDE: Slide 3 -- H2 2024 Roadmap]**
 If the organizer cuts time short and you must end in two minutes, go directly to Slide 3. Say: "I want to make sure you leave with the most important document from today. This is our H2 roadmap with specific ship dates. Everything else I was going to say is in here. I will follow up with the full deck." Hand out or email printed or digital copies immediately.
 
 #### Technology Failure Backup (no slides, no projector)
+
 "Here is what I came here to tell you: we shipped six features in the first half of this year, all on schedule. Our H2 roadmap has three additional features with specific month-level ship dates -- not quarterly estimates. And we have an early access option for clients who want in before general availability. The evidence for everything I just said is in the document I am going to send you this afternoon."
 
 ---
 
 ### Q&A PREPARATION
 
-| # | Anticipated Question | Category | Answer Framework |
-|---|----------------------|----------|-----------------|
-| 1 | How do we know the H2 dates are realistic given the past? | Methodology/Credibility | Data First: "H1 shipped on time -- six out of six milestones. The one that slipped by two weeks we acknowledged on this slide. The H2 dates are built from the same planning model with one adjustment: [specific methodology change]. Judge the dates by the track record." |
-| 2 | What happens if an H2 feature slips? | Risk | Bridge: "Slips happen. Here is our policy: we notify clients 30 days before a committed ship date if we anticipate a miss, with a revised date and explanation. You will never be surprised by a slip without advance notice. We can put that in writing." |
-| 3 | Are you adding features we did not ask for while delaying things we need? | Risk/Adversarial | PREP: "Our H2 roadmap is weighted toward requests from our current enterprise segment -- I can share the request source data behind each feature. If there is something on your must-have list that is not in the table, tell me now. I would rather know today than have you discover a gap after you sign." |
-| 4 | Who else is in the Early Access Program currently? | Methodology | "I can share client names with your NDA in place. The current cohort is [X] enterprise clients. I can also share one of their contacts for a direct reference call if that would help your evaluation." |
-| 5 | How do you handle enterprise-specific customization requests? | Strategic | Bridge: "Customization requests go through our product advisory process -- that is a formal channel, not a one-off conversation. Early Access participants get priority access to that process. The roadmap table we looked at includes two features that originated as customization requests from the current advisory group." |
-| 6 | What is the pricing model for the features on the H2 roadmap? | Strategic | "H2 features are included in the enterprise tier pricing that applies to your contract. There are no a-la-carte charges for roadmap features. I will confirm that in writing as part of our follow-up." |
-| 7 | Can you guarantee any of these ship dates contractually? | Risk/Adversarial | PREP: "Contractual ship-date guarantees are non-standard in our industry because they create perverse incentives -- vendors ship incomplete features to hit a date rather than delaying for quality. What we offer instead is: advance notification of any date change, credit toward services if a feature misses by more than 60 days, and a history of hitting our targets -- which you just saw in the H1 timeline." |
+| #   | Anticipated Question                                                      | Category                | Answer Framework                                                                                                                                                                                                                                                                                                                                                                                                         |
+| --- | ------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | How do we know the H2 dates are realistic given the past?                 | Methodology/Credibility | Data First: "H1 shipped on time -- six out of six milestones. The one that slipped by two weeks we acknowledged on this slide. The H2 dates are built from the same planning model with one adjustment: [specific methodology change]. Judge the dates by the track record."                                                                                                                                             |
+| 2   | What happens if an H2 feature slips?                                      | Risk                    | Bridge: "Slips happen. Here is our policy: we notify clients 30 days before a committed ship date if we anticipate a miss, with a revised date and explanation. You will never be surprised by a slip without advance notice. We can put that in writing."                                                                                                                                                               |
+| 3   | Are you adding features we did not ask for while delaying things we need? | Risk/Adversarial        | PREP: "Our H2 roadmap is weighted toward requests from our current enterprise segment -- I can share the request source data behind each feature. If there is something on your must-have list that is not in the table, tell me now. I would rather know today than have you discover a gap after you sign."                                                                                                            |
+| 4   | Who else is in the Early Access Program currently?                        | Methodology             | "I can share client names with your NDA in place. The current cohort is [X] enterprise clients. I can also share one of their contacts for a direct reference call if that would help your evaluation."                                                                                                                                                                                                                  |
+| 5   | How do you handle enterprise-specific customization requests?             | Strategic               | Bridge: "Customization requests go through our product advisory process -- that is a formal channel, not a one-off conversation. Early Access participants get priority access to that process. The roadmap table we looked at includes two features that originated as customization requests from the current advisory group."                                                                                         |
+| 6   | What is the pricing model for the features on the H2 roadmap?             | Strategic               | "H2 features are included in the enterprise tier pricing that applies to your contract. There are no a-la-carte charges for roadmap features. I will confirm that in writing as part of our follow-up."                                                                                                                                                                                                                  |
+| 7   | Can you guarantee any of these ship dates contractually?                  | Risk/Adversarial        | PREP: "Contractual ship-date guarantees are non-standard in our industry because they create perverse incentives -- vendors ship incomplete features to hit a date rather than delaying for quality. What we offer instead is: advance notification of any date change, credit toward services if a feature misses by more than 60 days, and a history of hitting our targets -- which you just saw in the H1 timeline." |
 
 **Hostile question bridge:** "I appreciate the directness -- that is exactly the kind of question we should surface here rather than after you make a decision. Let me give you the most direct answer I can: [answer]. If that is not sufficient, let us schedule a technical deep-dive and let your team interrogate the data directly."
 **Out-of-scope redirect:** "That question involves [topic] that is outside what we can cover in this meeting -- but it is a legitimate question that deserves a complete answer. Let me set up a dedicated 30-minute call with our [relevant expert] who can go deeper than I can right now."

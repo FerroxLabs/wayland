@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "photography guide checklist"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'photography guide checklist'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Portrait Technique
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user's request is specifically about capturing portraits of people with a camera -- whether discussing gear selection, in-session technique, subject direction, or technical settings.
 
 **Trigger scenarios:**
+
 - User asks how to photograph a professional headshot, LinkedIn profile photo, actor's comp card, or corporate portrait
 - User wants lens recommendations for portrait work -- focal length, aperture, or specific gear decisions
 - User asks how to pose a subject or group and wants specific direction language or body positioning guidance
@@ -38,6 +40,7 @@ Use this skill when the user's request is specifically about capturing portraits
 - User is shooting an environmental portrait where the subject's context (office, workshop, outdoor location) matters to the composition
 
 **Do NOT use when:**
+
 - User is asking about studio light placement, modifier choices, or strobe power ratios -- use `lighting-setup`
 - User needs post-processing guidance: skin retouching, frequency separation, dodge-and-burn, or Lightroom adjustments -- use `photo-editing-workflow`
 - User asks about general framing, rule of thirds, or compositional theory not specific to portraiture -- use `composition-guide`
@@ -68,17 +71,17 @@ Focal length is the single biggest determinant of facial perspective. Wrong foca
 
 **Focal length selection by portrait type:**
 
-| Portrait Type | Recommended Range | Ideal Focal Length | Why |
-|---|---|---|---|
-| Tight headshot | 85mm -- 135mm | 105mm | Compresses facial features, eliminates nose projection, flattering for all face shapes |
-| Head and shoulders | 70mm -- 105mm | 85mm | Classic portrait focal length. Pleasant compression, enough working distance for subject direction |
-| Half-body | 50mm -- 85mm | 70mm | Covers torso without distorting proportions when shooting at appropriate distance |
-| Three-quarter body | 50mm -- 70mm | 55-60mm | Wider field needed for framing mid-thigh, still above the distortion threshold |
-| Full-body | 35mm -- 70mm | 50mm | Full body requires wider angle; stay at or above 50mm to keep proportions natural |
-| Environmental portrait | 24mm -- 50mm | 35mm | Wide field of view shows the subject's environment; subject is a smaller element in the frame |
-| Couple (tight) | 85mm -- 105mm | 85mm | Long enough for compression, wide enough to frame both faces |
-| Small group (3-5) | 50mm -- 70mm | 50mm | Wider for group framing while staying flattering |
-| Large group (6+) | 35mm -- 50mm | 35mm | Needs wide enough to fit all subjects, arrange subjects to minimize depth differences |
+| Portrait Type          | Recommended Range | Ideal Focal Length | Why                                                                                                |
+| ---------------------- | ----------------- | ------------------ | -------------------------------------------------------------------------------------------------- |
+| Tight headshot         | 85mm -- 135mm     | 105mm              | Compresses facial features, eliminates nose projection, flattering for all face shapes             |
+| Head and shoulders     | 70mm -- 105mm     | 85mm               | Classic portrait focal length. Pleasant compression, enough working distance for subject direction |
+| Half-body              | 50mm -- 85mm      | 70mm               | Covers torso without distorting proportions when shooting at appropriate distance                  |
+| Three-quarter body     | 50mm -- 70mm      | 55-60mm            | Wider field needed for framing mid-thigh, still above the distortion threshold                     |
+| Full-body              | 35mm -- 70mm      | 50mm               | Full body requires wider angle; stay at or above 50mm to keep proportions natural                  |
+| Environmental portrait | 24mm -- 50mm      | 35mm               | Wide field of view shows the subject's environment; subject is a smaller element in the frame      |
+| Couple (tight)         | 85mm -- 105mm     | 85mm               | Long enough for compression, wide enough to frame both faces                                       |
+| Small group (3-5)      | 50mm -- 70mm      | 50mm               | Wider for group framing while staying flattering                                                   |
+| Large group (6+)       | 35mm -- 50mm      | 35mm               | Needs wide enough to fit all subjects, arrange subjects to minimize depth differences              |
 
 **Key perspective principles to explain to users:**
 
@@ -97,16 +100,16 @@ Aperture controls both background blur (bokeh) and how much of the subject stays
 
 **Aperture selection table:**
 
-| Subject | Recommended Aperture | Depth of Field at 85mm, 8 feet | Notes |
-|---|---|---|---|
-| Single subject, maximum background blur | f/1.4 -- f/2.0 | ~3-5 inches | Dangerous at f/1.4 -- one eye often soft. Only use if eye-detect AF is confirmed working. |
-| Single subject, reliable sharpness | f/2.0 -- f/2.8 | ~6-9 inches | Both eyes sharp, ears begin to soften. Most professional headshots shot here. |
-| Single subject, background recognizable | f/4 -- f/5.6 | ~18-30 inches | Background blurred but identifiable. Good for environmental portraits. |
-| Couple (faces at same depth) | f/2.8 -- f/4 | ~9-18 inches | Works if both faces at the same distance from lens. Widen if faces at different depths. |
-| Couple (faces at different depths) | f/4 -- f/5.6 | ~18-30 inches | Necessary when one person is behind the other (even by 6 inches at f/1.8). |
-| Small group (3-5, single row) | f/5.6 -- f/8 | ~30-60 inches | Ensures all faces in a single tight row are sharp. |
-| Small group (3-5, two rows) | f/8 | ~60 inches | Two rows of faces need significant depth. Don't go wider. |
-| Large group (6+, multiple rows) | f/8 -- f/11 | 60+ inches | Deep depth required. Use aperture AND ensure shutter is fast enough to freeze motion. |
+| Subject                                 | Recommended Aperture | Depth of Field at 85mm, 8 feet | Notes                                                                                     |
+| --------------------------------------- | -------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
+| Single subject, maximum background blur | f/1.4 -- f/2.0       | ~3-5 inches                    | Dangerous at f/1.4 -- one eye often soft. Only use if eye-detect AF is confirmed working. |
+| Single subject, reliable sharpness      | f/2.0 -- f/2.8       | ~6-9 inches                    | Both eyes sharp, ears begin to soften. Most professional headshots shot here.             |
+| Single subject, background recognizable | f/4 -- f/5.6         | ~18-30 inches                  | Background blurred but identifiable. Good for environmental portraits.                    |
+| Couple (faces at same depth)            | f/2.8 -- f/4         | ~9-18 inches                   | Works if both faces at the same distance from lens. Widen if faces at different depths.   |
+| Couple (faces at different depths)      | f/4 -- f/5.6         | ~18-30 inches                  | Necessary when one person is behind the other (even by 6 inches at f/1.8).                |
+| Small group (3-5, single row)           | f/5.6 -- f/8         | ~30-60 inches                  | Ensures all faces in a single tight row are sharp.                                        |
+| Small group (3-5, two rows)             | f/8                  | ~60 inches                     | Two rows of faces need significant depth. Don't go wider.                                 |
+| Large group (6+, multiple rows)         | f/8 -- f/11          | 60+ inches                     | Deep depth required. Use aperture AND ensure shutter is fast enough to freeze motion.     |
 
 **Critical depth-of-field understanding to communicate:**
 
@@ -150,14 +153,14 @@ Distance and camera height are often overlooked but fundamentally change the por
 
 **Shooting distance by portrait type and focal length:**
 
-| Portrait Type | Focal Length | Recommended Distance | Frame Fill |
-|---|---|---|---|
-| Tight headshot | 105mm | 8-12 feet | Eyes to collarbone fills the frame |
-| Tight headshot | 85mm | 6-10 feet | Same result at slightly shorter distance |
-| Head and shoulders | 85mm | 8-12 feet | Top of head to mid-chest |
-| Half-body | 70mm | 7-10 feet | Waist to top of head |
-| Full-body | 50mm | 12-18 feet | Full person with slight space above and below |
-| Environmental | 35mm | 10-20 feet | Subject occupies roughly one-third of the frame, environment fills the rest |
+| Portrait Type      | Focal Length | Recommended Distance | Frame Fill                                                                  |
+| ------------------ | ------------ | -------------------- | --------------------------------------------------------------------------- |
+| Tight headshot     | 105mm        | 8-12 feet            | Eyes to collarbone fills the frame                                          |
+| Tight headshot     | 85mm         | 6-10 feet            | Same result at slightly shorter distance                                    |
+| Head and shoulders | 85mm         | 8-12 feet            | Top of head to mid-chest                                                    |
+| Half-body          | 70mm         | 7-10 feet            | Waist to top of head                                                        |
+| Full-body          | 50mm         | 12-18 feet           | Full person with slight space above and below                               |
+| Environmental      | 35mm         | 10-20 feet           | Subject occupies roughly one-third of the frame, environment fills the rest |
 
 **Camera height rules:**
 
@@ -176,23 +179,27 @@ Natural-looking expressions come from conversational prompts and psychological t
 **Expression direction framework:**
 
 **For warmth and genuine smiles:**
+
 - "Think of the last time someone made you genuinely laugh -- and I don't mean politely laugh, I mean that uncontrollable laugh where you couldn't breathe." Wait for the memory to register, then shoot. The anticipation of the memory produces more natural expressions than recalling it.
 - "Tell me about your favorite person." A short, genuine statement produces genuine warmth.
 - "What was the most ridiculous thing that happened to you recently?" The slight embarrassment and amusement of telling the story produces layered expression.
 - The pre-laugh moment: ask a genuinely funny question, shoot as the subject begins to react before the full smile appears. This captures the most natural version of a happy expression.
 
 **For relaxed, serious, or professional expressions:**
+
 - "Take a slow breath in through your nose. Now let it out through your mouth, even slower." The exhale relaxes jaw muscles, softens eye tension, and settles the shoulders. Shoot immediately after the exhale.
 - "Look down at your feet. Close your eyes. When I say 'now,' look up at me." Count silently to 3, say "now." This produces a fresh, open-eyed, alert expression without the tension of holding a pose.
 - Peter Hurley's squinch technique: "Slightly tighten the lower eyelid -- like you're squinting from the sun but only the lower half." This technique narrows the eye openness from wide-open (anxious) to slightly narrowed (confident). Wide-open eyes read as surprised or frightened; slightly squinched eyes read as engaged and confident.
 - "Push your forehead slightly toward me." This micro-movement engages the neck muscles, creates jaw definition, and prevents the slack expression caused by a relaxed face.
 
 **Between shots -- expression reset:**
+
 - After 3-5 frames, the subject's expression becomes frozen or performative. Reset with: "Shake your shoulders out. Drop everything. Now -- look at me."
 - The look-away reset: "Look over my shoulder at the tree for a second. Now back to me." This resets eye muscle tension and produces fresher eye contact.
 - Use humor not for the expression itself but for the recovery. Say something surprising immediately after a bad shot. The genuine surprise reaction is often better than the posed smile.
 
 **For professional subjects who over-perform:**
+
 - Corporate subjects often have a "professional face" they put on for cameras -- slightly forced, overly composed. Say: "I need you to stop acting professional for one second and just look at me like I'm a colleague telling you something interesting." The shift from performance to conversation produces authentic expression.
 
 ---
@@ -413,16 +420,16 @@ Without flash, this is purely an exposure issue: at f/2.0 in full sun at ISO 100
 
 ### Recommended Camera Settings
 
-| Setting | Recommended Value | Rationale |
-|---|---|---|
-| Focal length | 50mm | The only lens available. 50mm is at the lower edge of the flattering range for a headshot -- compensate by shooting from slightly further away (8-10 feet) to improve facial perspective. At 10 feet on a full-frame camera, 50mm produces head-and-shoulders framing with less distortion than at 6 feet. |
-| Aperture | f/2.0 -- f/2.5 | Single subject, stationary -- use wide aperture for background separation. At 50mm f/2.0 at 8 feet, DOF is approximately 12-15 inches -- enough for both eyes to be sharp. Opening to f/1.8 at 50mm narrows DOF to roughly 8-10 inches, still workable but less forgiving. |
-| Shutter speed | 1/100s minimum (1/160s preferred) | Freeze micro-movements at this distance. Subject motion (breathing, head sway) is the primary motion risk, not camera shake with a mirrorless at 50mm. |
-| ISO | 400 -- 1600 | Depends on office light level. Expose to the right of the histogram without clipping highlights. Indoor offices commonly need ISO 800 -- 1600 at f/2.0 with typical fluorescent or LED overhead lighting. |
-| AF mode | Eye-detection AF (continuous) | Subject is nervous and may move. Continuous eye detection handles micro-movements and ensures the nearest eye is tracked even with slight head turns. At f/2.0, manual AF point recomposition risks missing the eye. |
-| Focus point | Nearest eye, tracked by eye-detect AF | Enable eye-detection on the camera. If eye-detect struggles with the glasses (some cameras briefly lose tracking at glasses reflections), switch to single-point AF placed directly on the near eye iris. |
-| Camera height | 1-2 inches above eye level | Creates a subtle downward angle that elongates the neck and creates a composed, confident impression. Do not go higher than 3 inches above eye level -- excessive height makes the subject appear small. |
-| Shooting distance | 8-10 feet from subject | At 50mm on full-frame at 10 feet, head-and-shoulders fills the frame with natural-looking facial perspective. Closer than 6 feet at 50mm begins to introduce visible wide-angle distortion in facial features. |
+| Setting           | Recommended Value                     | Rationale                                                                                                                                                                                                                                                                                                  |
+| ----------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Focal length      | 50mm                                  | The only lens available. 50mm is at the lower edge of the flattering range for a headshot -- compensate by shooting from slightly further away (8-10 feet) to improve facial perspective. At 10 feet on a full-frame camera, 50mm produces head-and-shoulders framing with less distortion than at 6 feet. |
+| Aperture          | f/2.0 -- f/2.5                        | Single subject, stationary -- use wide aperture for background separation. At 50mm f/2.0 at 8 feet, DOF is approximately 12-15 inches -- enough for both eyes to be sharp. Opening to f/1.8 at 50mm narrows DOF to roughly 8-10 inches, still workable but less forgiving.                                 |
+| Shutter speed     | 1/100s minimum (1/160s preferred)     | Freeze micro-movements at this distance. Subject motion (breathing, head sway) is the primary motion risk, not camera shake with a mirrorless at 50mm.                                                                                                                                                     |
+| ISO               | 400 -- 1600                           | Depends on office light level. Expose to the right of the histogram without clipping highlights. Indoor offices commonly need ISO 800 -- 1600 at f/2.0 with typical fluorescent or LED overhead lighting.                                                                                                  |
+| AF mode           | Eye-detection AF (continuous)         | Subject is nervous and may move. Continuous eye detection handles micro-movements and ensures the nearest eye is tracked even with slight head turns. At f/2.0, manual AF point recomposition risks missing the eye.                                                                                       |
+| Focus point       | Nearest eye, tracked by eye-detect AF | Enable eye-detection on the camera. If eye-detect struggles with the glasses (some cameras briefly lose tracking at glasses reflections), switch to single-point AF placed directly on the near eye iris.                                                                                                  |
+| Camera height     | 1-2 inches above eye level            | Creates a subtle downward angle that elongates the neck and creates a composed, confident impression. Do not go higher than 3 inches above eye level -- excessive height makes the subject appear small.                                                                                                   |
+| Shooting distance | 8-10 feet from subject                | At 50mm on full-frame at 10 feet, head-and-shoulders fills the frame with natural-looking facial perspective. Closer than 6 feet at 50mm begins to introduce visible wide-angle distortion in facial features.                                                                                             |
 
 ---
 
@@ -460,6 +467,7 @@ Without flash, this is purely an exposure issue: at f/2.0 in full sun at ISO 100
 6. **Hands:** Since this is a head-and-shoulders crop, hands will not appear in frame. To prevent arm tension showing in the shoulders: "Hold your phone in your left hand at your side." The act of holding something relaxes the arms naturally and prevents the "what do I do with my hands" anxiety from reaching the shoulders.
 
 **Pre-shoot checklist:**
+
 - [ ] Left shoulder slightly lower than right (or one visibly lower than the other)
 - [ ] Chin pushed forward and angled down -- jawline visible
 - [ ] Weight clearly on back foot -- natural lean
@@ -475,17 +483,21 @@ Without flash, this is purely an exposure issue: at f/2.0 in full sun at ISO 100
 **Reset protocol:** "Take a breath in through your nose -- slow. Now let it out through your mouth even slower. Good. Now look at me."
 
 **For warmth and approachability (LinkedIn wants friendly and professional):**
+
 - "Tell me the best part of working here. What's something you actually like about the job?" Wait for her to begin answering -- shoot during the answer, not after. The engaged, thoughtful look while forming an answer is more natural than any posed smile.
 - "Think about landing this role -- the moment you knew you got the job. Not the polished version, the actual moment." The mix of pride and relief produces layered, genuine warmth.
 
 **For the professional/confident expression:**
+
 - "Take a breath and let it out. Now -- push your forehead slightly toward me. Good. Keep looking at me." (Breathing resets tension; the chin-forward engagement creates a confident, direct expression.)
 - "Squint your lower eyelids up just slightly -- like you're in slight sun. Just the bottom, not the top." (Peter Hurley squinch technique. Creates confident narrowing of the eye that reads as engagement rather than openness or surprise.)
 
 **Expression reset between every 5 frames:**
+
 - "Look down at the floor for a second. Now -- look right at me." (This look-up produces a fresh open expression and resets held-smile tension.)
 
 **Handling the nervous subject specifically:**
+
 - Do not point out that she looks nervous -- this compounds anxiety. Instead, talk about the subject matter of the prompts and let the conversation do the work.
 - After the first 5 minutes, show her 2-3 frames on the camera screen. Choose the most flattering frame to show her. Seeing a good image of herself early in the session dramatically reduces camera anxiety and improves subsequent frames.
 - If she stiffens up or expression goes flat: step back from the camera and have a 30-second completely off-topic conversation. Return to the camera after she's re-relaxed.
@@ -494,13 +506,13 @@ Without flash, this is purely an exposure issue: at f/2.0 in full sun at ISO 100
 
 ### Session Flow
 
-| Phase | Duration | Activity | Notes |
-|---|---|---|---|
-| Setup and test | 3-5 min | Position subject and camera, check exposure, test frame for glasses reflections and background separation | Adjust glasses tilt, confirm wall distance, solve any reflection issues before session starts |
-| Warm-up | 5-7 min | Slightly wider framing (waist-to-head). Work through posing sequence. Keep conversation going. | She is nervous -- this phase is about relaxing her, not getting the shot. No pressure on expression yet. |
-| Primary delivery | 10-15 min | Tighten to head-and-shoulders framing. Work expression prompts systematically. Shoot 15-20 frames per prompt series. Show her a flattering frame after the first few minutes. | This is where the best frames will come. Take time with each prompt -- don't rush through them. |
-| Variation | 5 min | Move camera 2-3 feet to her left for a second look. Slightly change her body direction to angle the other way. | Two different looks from the same session location. |
-| Strong finish | 3-5 min | Return to the first angle (the one that produced the best frames). Run through the look-down-look-up reset 4-5 times with minimal other direction. | By this point she is warm. These final frames often deliver the best expressions of the session. |
+| Phase            | Duration  | Activity                                                                                                                                                                      | Notes                                                                                                    |
+| ---------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Setup and test   | 3-5 min   | Position subject and camera, check exposure, test frame for glasses reflections and background separation                                                                     | Adjust glasses tilt, confirm wall distance, solve any reflection issues before session starts            |
+| Warm-up          | 5-7 min   | Slightly wider framing (waist-to-head). Work through posing sequence. Keep conversation going.                                                                                | She is nervous -- this phase is about relaxing her, not getting the shot. No pressure on expression yet. |
+| Primary delivery | 10-15 min | Tighten to head-and-shoulders framing. Work expression prompts systematically. Shoot 15-20 frames per prompt series. Show her a flattering frame after the first few minutes. | This is where the best frames will come. Take time with each prompt -- don't rush through them.          |
+| Variation        | 5 min     | Move camera 2-3 feet to her left for a second look. Slightly change her body direction to angle the other way.                                                                | Two different looks from the same session location.                                                      |
+| Strong finish    | 3-5 min   | Return to the first angle (the one that produced the best frames). Run through the look-down-look-up reset 4-5 times with minimal other direction.                            | By this point she is warm. These final frames often deliver the best expressions of the session.         |
 
 ---
 

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design guide board-games"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design guide board-games'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Board Game Creator
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to design a board game from concept through prototype
 - The user needs help selecting game mechanics (worker placement, deck building, area control, tile placement, drafting)
 - The user is preparing a board game for playtesting or Kickstarter launch
@@ -26,6 +27,7 @@ metadata:
 - The user wants to submit a board game to publishers or plan a self-publishing campaign
 
 **Do NOT use this skill when:**
+
 - The user is designing a video game (use video-game-designer instead)
 - The user needs help with tabletop RPG campaigns or rule systems (use tabletop-rpg-designer instead)
 - The user wants to design puzzles for escape rooms or puzzle games (use game-puzzle-designer instead)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on board game creator
 - User asks about board game creator best practices or techniques
 - User wants a structured approach to board game creator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of board game creator
 
@@ -499,23 +503,28 @@ SUBMISSION ETIQUETTE:
 ## Practice Exercises
 
 ### Exercise 1: Mechanic Mashup
+
 Pick two random mechanics from the list above. Design a game that combines them meaningfully. Can you create something where both mechanics are essential?
 
 ### Exercise 2: The 10-Minute Prototype
+
 Set a timer for 10 minutes. Using only paper, markers, and coins, create a playable 2-player game prototype. Play it once. Identify the one change that would improve it most.
 
 ### Exercise 3: Rulebook Rewrite
+
 Take the rules from a game you know well. Rewrite them from scratch without looking at the original. Compare your version to the original. What did each version do better?
 
 ### Exercise 4: Theme Swap
+
 Take a game you like. Completely re-theme it. Does the new theme fit the mechanics better or worse? What does this teach you about theme-mechanic integration?
 
 ### Exercise 5: Balance Breaker
+
 Take a game in development and deliberately try to break it. Find the most overpowered strategy. Then design a fix that addresses the imbalance without reducing the strategy's appeal.
 
 ### Exercise 6: Blind Playtest
-Give your prototype and rules to someone who has never seen the game. Leave the room entirely. Observe (or ask about) the experience afterward. Every moment of confusion is a design opportunity.
 
+Give your prototype and rules to someone who has never seen the game. Leave the room entirely. Observe (or ask about) the experience afterward. Every moment of confusion is a design opportunity.
 
 ## Output Format
 
@@ -529,13 +538,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with board game creator for a mid-size project."
 
 **Output:** A complete board game creator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

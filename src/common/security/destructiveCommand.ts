@@ -47,7 +47,10 @@ const CATASTROPHIC_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
   [/\brm\s+(?:-\S+\s+)*(?:\/(?:\s|$|\*)|~\/?(?:\s|$)|\$home\/?(?:\s|$))/, 'recursive delete of root or home'],
   // rm of a whole system top-level directory (rm -rf /etc, /usr, ...). A deeper
   // targeted path under them (/var/log/app) is NOT flagged.
-  [/\brm\s+(?:-\S+\s+)*\/(?:usr|etc|bin|sbin|lib|lib64|boot|sys|proc|dev|var|home|root|opt)(?:\/\s|\/$|\s|$)/, 'delete of a system directory'],
+  [
+    /\brm\s+(?:-\S+\s+)*\/(?:usr|etc|bin|sbin|lib|lib64|boot|sys|proc|dev|var|home|root|opt)(?:\/\s|\/$|\s|$)/,
+    'delete of a system directory',
+  ],
   // rm with --no-preserve-root is never legitimate from an agent
   [/\brm\s+.*--no-preserve-root/, 'rm with --no-preserve-root'],
   // Disk/device writes and filesystem creation
@@ -57,7 +60,10 @@ const CATASTROPHIC_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
   // Fork bomb
   [/:\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:/, 'fork bomb'],
   // chmod/chown -R on root or home
-  [/\bch(mod|own)\s+(-[a-z]*\s+)*-?[a-z]*r[a-z]*\s+[^|&;]*(\s\/(\s|$)|\s~(\/|\s|$)|\$home)/, 'recursive permission/owner change on root or home'],
+  [
+    /\bch(mod|own)\s+(-[a-z]*\s+)*-?[a-z]*r[a-z]*\s+[^|&;]*(\s\/(\s|$)|\s~(\/|\s|$)|\$home)/,
+    'recursive permission/owner change on root or home',
+  ],
   // Network pull piped straight into a shell (curl|sh, wget|bash, ...)
   [/\b(curl|wget|fetch)\b[^|]*\|\s*(sudo\s+)?(sh|bash|zsh|dash|ksh)\b/, 'pipe of downloaded content into a shell'],
   // Overwriting core system files
@@ -73,11 +79,7 @@ const CATASTROPHIC_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
  * and the human title often mirrors it. We coalesce the candidates so the
  * classifier sees whatever the agent actually intends to run.
  */
-export function extractCommandText(toolCall: {
-  kind?: string;
-  title?: string;
-  rawInput?: unknown;
-}): string {
+export function extractCommandText(toolCall: { kind?: string; title?: string; rawInput?: unknown }): string {
   const parts: string[] = [];
   if (typeof toolCall.title === 'string') parts.push(toolCall.title);
   const raw = toolCall.rawInput;

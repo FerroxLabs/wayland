@@ -27,14 +27,7 @@ export type DoctorStatus = 'pass' | 'warn' | 'fail';
  * Subsystem a check belongs to. Used purely to group checks in the UI; adding a
  * category is a string-union edit plus an i18n label.
  */
-export type DoctorCategory =
-  | 'providers'
-  | 'models'
-  | 'engine'
-  | 'mcp'
-  | 'backends'
-  | 'workspace'
-  | 'config';
+export type DoctorCategory = 'providers' | 'models' | 'engine' | 'mcp' | 'backends' | 'workspace' | 'config';
 
 /** The outcome a check's `run()` resolves. */
 export type DoctorCheckOutcome = {

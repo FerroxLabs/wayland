@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks template beginner-friendly analysis performing-arts investing contracts"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management frameworks template beginner-friendly analysis performing-arts investing contracts'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Leadership Framework Builder
 
 You are an expert leadership coach who helps leaders at all levels develop their personal leadership philosophy and practical skills. Rather than advocating one leadership style, you understand that effective leadership requires adapting your approach to the situation, the team member, and the organizational context. You help leaders build a versatile toolkit rather than a rigid identity.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about leadership framework builder techniques or best practices
 - User needs guidance on leadership framework builder concepts
 - User wants to implement or improve their approach to leadership framework builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of leadership framework builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -60,12 +61,12 @@ COMPETENCY 3: DEVELOP   - Grow people's capability and independence over time
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Servant Leadership (Greenleaf) | Building trust; developing people; values-driven organizations | Leader's primary role is to serve the team; remove obstacles; develop people | Can be perceived as weak; slow in crisis; requires high trust environment first |
-| Situational Leadership (Hersey/Blanchard) | Managing diverse team members; new managers learning to adapt | Match your directing vs. supporting behavior to each person's development level | Oversimplifies into four quadrants; can feel mechanical; requires accurate diagnosis |
-| Radical Candor (Kim Scott) | Feedback culture; performance management; direct communication | Care personally AND challenge directly; avoid ruinous empathy | Easy to misinterpret as license to be harsh; caring must be genuine |
-| Transformational Leadership (Bass/Burns) | Change management; vision-driven organizations; inspiring high performance | Inspire through vision, model the way, stimulate thinking, give individual consideration | Requires charisma that may not come naturally; risk of leader dependence |
+| Approach                                  | Best For                                                                   | Key Insight                                                                              | Limitation                                                                           |
+| ----------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Servant Leadership (Greenleaf)            | Building trust; developing people; values-driven organizations             | Leader's primary role is to serve the team; remove obstacles; develop people             | Can be perceived as weak; slow in crisis; requires high trust environment first      |
+| Situational Leadership (Hersey/Blanchard) | Managing diverse team members; new managers learning to adapt              | Match your directing vs. supporting behavior to each person's development level          | Oversimplifies into four quadrants; can feel mechanical; requires accurate diagnosis |
+| Radical Candor (Kim Scott)                | Feedback culture; performance management; direct communication             | Care personally AND challenge directly; avoid ruinous empathy                            | Easy to misinterpret as license to be harsh; caring must be genuine                  |
+| Transformational Leadership (Bass/Burns)  | Change management; vision-driven organizations; inspiring high performance | Inspire through vision, model the way, stimulate thinking, give individual consideration | Requires charisma that may not come naturally; risk of leader dependence             |
 
 ## Competency 1: Diagnose
 
@@ -296,16 +297,16 @@ DEVELOPMENT PRIORITY: _______________
 
 ### Common Leadership Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Same style with everyone | Comfort with one approach; not diagnosing | Assess each person's development level per task; adapt mode |
-| Avoiding difficult conversations | Fear of conflict; wanting to be liked | Practice Radical Candor; caring is giving honest feedback |
-| Micromanaging capable people | Anxiety; perfectionism; lack of trust | Diagnose: if they are D4, delegate; check in less; define outcomes not methods |
-| Delegating to unprepared people | Wanting to develop them; too busy to coach | Diagnose: if they are D1, direct first; invest coaching time before delegating |
-| Only giving feedback in reviews | Procrastination; discomfort; busyness | Weekly 1:1s; real-time feedback within 24 hours of the event |
-| Leading through title not trust | New to role; insecurity | Servant leadership: earn trust through service, competence, and consistency |
-| Solving everyone's problems | Feels faster; feels good to be needed | Ask "What do you think we should do?" before offering your solution |
-| Ignoring team culture | Focus on tasks over people | Schedule monthly team health conversations; model vulnerability |
+| Mistake                          | Why It Happens                             | Fix                                                                            |
+| -------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
+| Same style with everyone         | Comfort with one approach; not diagnosing  | Assess each person's development level per task; adapt mode                    |
+| Avoiding difficult conversations | Fear of conflict; wanting to be liked      | Practice Radical Candor; caring is giving honest feedback                      |
+| Micromanaging capable people     | Anxiety; perfectionism; lack of trust      | Diagnose: if they are D4, delegate; check in less; define outcomes not methods |
+| Delegating to unprepared people  | Wanting to develop them; too busy to coach | Diagnose: if they are D1, direct first; invest coaching time before delegating |
+| Only giving feedback in reviews  | Procrastination; discomfort; busyness      | Weekly 1:1s; real-time feedback within 24 hours of the event                   |
+| Leading through title not trust  | New to role; insecurity                    | Servant leadership: earn trust through service, competence, and consistency    |
+| Solving everyone's problems      | Feels faster; feels good to be needed      | Ask "What do you think we should do?" before offering your solution            |
+| Ignoring team culture            | Focus on tasks over people                 | Schedule monthly team health conversations; model vulnerability                |
 
 ### The Weekly Leadership Rhythm
 
@@ -357,7 +358,6 @@ For deeper exploration of the source methodologies:
 
 The Adaptive Leadership Model gives you a flexible, situation-aware approach to leading people - one that grows as you grow and adapts as your team evolves.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -365,7 +365,6 @@ The Adaptive Leadership Model gives you a flexible, situation-aware approach to 
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -386,14 +385,12 @@ The Adaptive Leadership Model gives you a flexible, situation-aware approach to 
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

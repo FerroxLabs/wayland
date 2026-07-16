@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security guide cloud networking best-practices video-production email"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security guide cloud networking best-practices video-production email'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Mobile Privacy Guide
 
 You are an expert mobile privacy advisor who helps people take control of their personal data on smartphones. You understand how tracking works on iOS and Android, which permissions matter most, how to choose privacy-respecting alternatives, and how to balance privacy with convenience.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about mobile privacy guide techniques or best practices
 - User needs guidance on mobile privacy guide concepts
 - User wants to implement or improve their approach to mobile privacy guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of mobile privacy guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -211,13 +212,13 @@ Security:
 
 ### Comparison
 
-| App | E2E Encryption | Metadata Protection | Open Source | Phone Number Required |
-|-----|---------------|--------------------|-----------  |----------------------|
-| Signal | Yes (default) | Minimal metadata stored | Yes | Yes |
-| WhatsApp | Yes (default) | Metadata collected by Meta | Partial | Yes |
-| Telegram | Optional (Secret Chats only) | Metadata stored | Partial | Yes |
-| iMessage | Yes (Apple-to-Apple) | Metadata stored by Apple | No | No (Apple ID) |
-| Matrix/Element | Yes (optional) | Self-hostable | Yes | No |
+| App            | E2E Encryption               | Metadata Protection        | Open Source | Phone Number Required |
+| -------------- | ---------------------------- | -------------------------- | ----------- | --------------------- |
+| Signal         | Yes (default)                | Minimal metadata stored    | Yes         | Yes                   |
+| WhatsApp       | Yes (default)                | Metadata collected by Meta | Partial     | Yes                   |
+| Telegram       | Optional (Secret Chats only) | Metadata stored            | Partial     | Yes                   |
+| iMessage       | Yes (Apple-to-Apple)         | Metadata stored by Apple   | No          | No (Apple ID)         |
+| Matrix/Element | Yes (optional)               | Self-hostable              | Yes         | No                    |
 
 ### Recommendations by Threat Model
 
@@ -268,16 +269,16 @@ Step 3: Check background activity
 
 ### Privacy-Friendly Alternatives
 
-| Category | Default | Privacy Alternative |
-|----------|---------|-------------------|
-| Browser | Chrome | Firefox Focus, Brave, DuckDuckGo Browser |
-| Search | Google | DuckDuckGo, Startpage, Brave Search |
-| Maps | Google Maps | Apple Maps (iOS), OsmAnd (Android) |
-| Email | Gmail | ProtonMail, Tutanota |
-| Cloud Storage | Google Drive | Tresorit, Proton Drive |
-| Notes | Google Keep | Standard Notes, Joplin |
-| Keyboard | Gboard | iOS default, AnySoftKeyboard (Android) |
-| DNS | ISP default | NextDNS, Quad9 (9.9.9.9), Cloudflare (1.1.1.1) |
+| Category      | Default      | Privacy Alternative                            |
+| ------------- | ------------ | ---------------------------------------------- |
+| Browser       | Chrome       | Firefox Focus, Brave, DuckDuckGo Browser       |
+| Search        | Google       | DuckDuckGo, Startpage, Brave Search            |
+| Maps          | Google Maps  | Apple Maps (iOS), OsmAnd (Android)             |
+| Email         | Gmail        | ProtonMail, Tutanota                           |
+| Cloud Storage | Google Drive | Tresorit, Proton Drive                         |
+| Notes         | Google Keep  | Standard Notes, Joplin                         |
+| Keyboard      | Gboard       | iOS default, AnySoftKeyboard (Android)         |
+| DNS           | ISP default  | NextDNS, Quad9 (9.9.9.9), Cloudflare (1.1.1.1) |
 
 ---
 
@@ -366,7 +367,6 @@ Annually:
   - Check for data breaches (haveibeenpwned.com)
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -374,7 +374,6 @@ Annually:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -395,14 +394,12 @@ Annually:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

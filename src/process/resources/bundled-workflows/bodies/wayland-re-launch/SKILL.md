@@ -12,14 +12,15 @@ description: >-
   workflow) or a single quick question.
 license: Apache-2.0
 type: workflow
-skills: "launch"
+skills: 'launch'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing launch relaunch debrief step-by-step planning
   category: marketing
-  depends: "launch"
+  depends: 'launch'
 ---
+
 # Re-launch
 
 **Estimated time:** 30-45 minutes

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing marketing planning"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing marketing planning'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Content Calendar
 
 ## When to Use
-
 
 ## Process
 
@@ -32,13 +31,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on content calendar
 - User asks about content calendar best practices or techniques
 - User wants a structured approach to content calendar
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of content calendar
+
 ## Questions to Ask the User First
 
 1. **What is your business and what do you sell?**
@@ -51,12 +53,15 @@ metadata:
 8. **What is your content budget?** (Monthly: writing, design, tools, promotion)
 9. **What is your planning horizon?** (Monthly, quarterly, annually)
 10. **What tools do you currently use?** (CMS, scheduling, project management)
+
 ---
+
 ## Step 1: Content Pillar Strategy
 
 ### Defining Content Pillars
 
 Content pillars are the 3-5 core topics that everything you publish relates to.
+
 ```
 CONTENT PILLAR FRAMEWORK
 
@@ -96,6 +101,7 @@ PILLAR 5: Company/Brand
 ```
 
 ### Content Type Mix
+
 ```
 CONTENT MIX FORMULA
 
@@ -128,10 +134,13 @@ YOUR CONTENT MIX:
   Promotional: {{pct}}%
   Community: {{pct}}%
 ```
+
 ---
+
 ## Step 2: Editorial Calendar Template
 
 ### Monthly Calendar View
+
 ```
 EDITORIAL CALENDAR: {{MONTH YEAR}}
 
@@ -162,6 +171,7 @@ MONTHLY TARGETS:
 ```
 
 ### Quarterly Planning View
+
 ```
 QUARTERLY CONTENT PLAN: {{Q# YEAR}}
 
@@ -192,10 +202,13 @@ CAMPAIGNS:
     Channels: {{list}}
     Goal: {{metric}}
 ```
+
 ---
+
 ## Step 3: Publishing Cadence
 
 ### Recommended Cadence by Channel
+
 ```
 PUBLISHING CADENCE GUIDE
 
@@ -252,10 +265,13 @@ YOUR CADENCE:
 | Instagram   | {{frequency}}  | {{days}}       | {{time}}  | {{}}  |
 | {{other}}   | {{frequency}}  | {{days}}       | {{time}}  | {{}}  |
 ```
+
 ---
+
 ## Step 4: Content Repurposing Workflow
 
 ### The 1-to-10 Content Multiplication Method
+
 ```
 CONTENT REPURPOSING WORKFLOW
 
@@ -303,8 +319,11 @@ REPURPOSING TIMELINE:
   Day 7-14: Infographic (if applicable)
   Week 2-4: Answer related questions on Quora/Reddit
 ```
+
 ---
+
 ## Step 5: Seasonal & Event Content Planning
+
 ```
 SEASONAL CONTENT CALENDAR
 
@@ -347,8 +366,11 @@ LEAD TIME FOR SEASONAL CONTENT:
   Video content: 4-6 weeks before event
   Major campaigns: 6-8 weeks before event
 ```
+
 ---
+
 ## Step 6: Content Brief Template
+
 ```
 CONTENT BRIEF
 
@@ -405,8 +427,11 @@ REFERENCE MATERIALS:
   - {{source_2}}
   - {{source_3}}
 ```
+
 ---
+
 ## Step 7: Team Coordination & Workflow
+
 ```
 CONTENT WORKFLOW
 ROLES:
@@ -467,8 +492,11 @@ TOOL RECOMMENDATIONS:
   CMS: WordPress, Ghost, Webflow
   Analytics: Google Analytics, social platform analytics
 ```
+
 ---
+
 ## Step 8: Performance Tracking
+
 ```
 CONTENT PERFORMANCE DASHBOARD
 
@@ -516,7 +544,9 @@ QUARTERLY CONTENT REVIEW QUESTIONS:
   6. Are we hitting our publishing cadence targets?
   7. How does content performance trend over time?
 ```
+
 ---
+
 ## Content Calendar Checklist
 
 - [ ] Content pillars defined and aligned to business goals
@@ -530,7 +560,6 @@ QUARTERLY CONTENT REVIEW QUESTIONS:
 - [ ] Performance tracking is set up with clear KPIs
 - [ ] Calendar is reviewed and updated weekly
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -543,13 +572,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with content calendar for a mid-size project."
 
 **Output:** A complete content calendar framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

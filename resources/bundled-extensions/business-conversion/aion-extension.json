@@ -16,9 +16,7 @@
         "category": "sell",
         "kind": "specialist",
         "contextFile": "agents/dr-strategist.md",
-        "models": [
-          "inherit"
-        ],
+        "models": ["inherit"],
         "enabledSkills": [
           "convert-above-fold",
           "convert-bridge-page",

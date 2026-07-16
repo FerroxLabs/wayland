@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "statistics analysis research"
-  category: "data-analysis"
-  subcategory: "exploratory-data-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'statistics analysis research'
+  category: 'data-analysis'
+  subcategory: 'exploratory-data-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # A/B Test Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to measure the causal effect of a single change -- new button copy, revised pricing page, redesigned onboarding flow, different email subject line, modified recommendation algorithm -- before shipping it to all users
 - A user asks how many users, sessions, or impressions they need to run a valid experiment ("how long should I run this test?", "is my sample size big enough?")
 - A user needs a pre-registered experiment plan with a formal hypothesis, power calculation, and decision rules -- especially in regulated environments (clinical, fintech) where post-hoc analysis is unacceptable
@@ -29,6 +31,7 @@ metadata:
 - A user is computing sample sizes for a test involving continuous metrics like revenue per user, session duration, or engagement score -- not just binary conversion rates
 
 **Do NOT use when:**
+
 - The user already has test results and wants to compute a p-value or confidence interval -- use `hypothesis-testing` instead
 - The user wants to find patterns, correlations, or trends in existing data without running a controlled experiment -- use `correlation-analysis`
 - The user wants to design a survey or questionnaire to collect self-reported opinions -- use `survey-design`
@@ -61,7 +64,7 @@ One primary metric. Exactly one. Pre-specify it before any data collection begin
 - **Binary (proportion) metrics:** Conversion rate (converted / exposed), click-through rate (clicks / impressions), activation rate (activated / registered). These follow binomial distributions and use proportion-based sample size formulas.
 - **Continuous metrics:** Average order value (AOV), revenue per user (RPU), session duration, pages per session, engagement score. These follow approximately normal distributions (by CLT for large n) and use mean-comparison formulas requiring the population standard deviation.
 - **Count metrics:** Number of purchases per user, messages sent, items added to cart. These follow Poisson or negative binomial distributions. For count outcomes, use the delta method or bootstrap for variance estimation rather than naive t-test formulas.
-- **Ratio metrics:** Revenue per session (total revenue / total sessions across all users in a group). These are NOT the same as per-user averages. Ratio metrics require the delta method for variance: Var(R) ≈ (1/n) * [Var(Y) + R² * Var(X) - 2R * Cov(X,Y)] / mean(X)². Use this when the denominator varies by user.
+- **Ratio metrics:** Revenue per session (total revenue / total sessions across all users in a group). These are NOT the same as per-user averages. Ratio metrics require the delta method for variance: Var(R) ≈ (1/n) _ [Var(Y) + R² _ Var(X) - 2R \* Cov(X,Y)] / mean(X)². Use this when the denominator varies by user.
 - **Specify the metric precisely:** "Conversion rate" is ambiguous. "Proportion of unique users who completed a purchase within 24 hours of landing on the product page, among users who viewed the product page at least once" is a metric. Ambiguity in metric definition leads to disputes after results are in.
 - **Identify secondary metrics** (3-5 maximum) that will be observed but NOT used to make the go/no-go decision. Label them exploratory. Analyzing them without correction is hypothesis generation, not confirmation.
 
@@ -94,6 +97,7 @@ n_per_group = (Z_α/2 + Z_β)² × [p₁(1-p₁) + p₂(1-p₂)] / (p₂ - p₁)
 ```
 
 Where:
+
 - p₁ = baseline conversion rate (control)
 - p₂ = p₁ + MDE (treatment, under H₁)
 - Z_α/2 = 1.960 for α = 0.05 (two-tailed)
@@ -103,18 +107,18 @@ Where:
 **Quick reference: sample size per group (α=0.05 two-tailed, 80% power)**
 
 | Baseline Rate | MDE (absolute) | Relative Lift | n per group |
-|--------------|----------------|---------------|-------------|
-| 1% | 0.3 pp | 30% | ~5,400 |
-| 2% | 0.5 pp | 25% | ~6,200 |
-| 3% | 0.5 pp | 17% | ~9,900 |
-| 3% | 1.0 pp | 33% | ~2,700 |
-| 5% | 0.5 pp | 10% | ~18,500 |
-| 5% | 1.0 pp | 20% | ~4,700 |
-| 10% | 1.0 pp | 10% | ~14,700 |
-| 10% | 2.0 pp | 20% | ~3,700 |
-| 20% | 2.0 pp | 10% | ~15,600 |
-| 20% | 4.0 pp | 20% | ~3,900 |
-| 50% | 5.0 pp | 10% | ~6,100 |
+| ------------- | -------------- | ------------- | ----------- |
+| 1%            | 0.3 pp         | 30%           | ~5,400      |
+| 2%            | 0.5 pp         | 25%           | ~6,200      |
+| 3%            | 0.5 pp         | 17%           | ~9,900      |
+| 3%            | 1.0 pp         | 33%           | ~2,700      |
+| 5%            | 0.5 pp         | 10%           | ~18,500     |
+| 5%            | 1.0 pp         | 20%           | ~4,700      |
+| 10%           | 1.0 pp         | 10%           | ~14,700     |
+| 10%           | 2.0 pp         | 20%           | ~3,700      |
+| 20%           | 2.0 pp         | 10%           | ~15,600     |
+| 20%           | 4.0 pp         | 20%           | ~3,900      |
+| 50%           | 5.0 pp         | 10%           | ~6,100      |
 
 Note: these values are precisely computed from the formula above, not approximations. The 16 × p(1-p)/MDE² shortcut underestimates sample size when p₁ and p₂ differ meaningfully.
 
@@ -125,6 +129,7 @@ n_per_group = 2 × (Z_α/2 + Z_β)² × σ² / δ²
 ```
 
 Where:
+
 - σ = population standard deviation (estimate from historical data)
 - δ = minimum meaningful difference in raw units (the MDE for continuous metrics)
 - The factor of 2 accounts for both groups having variance σ²
@@ -134,17 +139,20 @@ At 80% power, α = 0.05: n = 2 × 7.849 × σ² / δ² = 15.7 × (σ/δ)²
 The ratio σ/δ is the inverse of the standardized effect size (Cohen's d). Cohen's conventions: small = 0.2, medium = 0.5, large = 0.8. At d = 0.2 (small effect), n ≈ 394 per group. At d = 0.5 (medium), n ≈ 64 per group.
 
 **Practical variance estimation for continuous metrics:**
+
 - Pull 4+ weeks of historical data for the metric
 - Compute the per-user mean and standard deviation
 - Warn if the metric has high right-skew (as revenue metrics often do) -- consider using log-transformed revenue or capping outliers at the 99th percentile before analysis
 - For highly skewed metrics, the t-test is still valid for large n (CLT), but very large samples (n > 1,000 per group) are often needed before the normal approximation is reliable
 
 **Power settings:**
+
 - 80% power: industry default for product experiments. 20% chance of missing a real effect.
 - 90% power: recommended when missing an effect is costly (major platform changes, pricing tests). Increases sample size by ~35% compared to 80%.
 - 70% power: acceptable only for exploratory tests or when traffic is severely constrained. 30% miss rate is high.
 
 **Significance level (α) settings:**
+
 - α = 0.05: standard for product experiments
 - α = 0.01: use when false positives are costly (medical devices, financial products, security changes)
 - α = 0.10: use only for very early-stage exploratory tests where speed matters more than rigor
@@ -217,6 +225,7 @@ Duration is determined by traffic, not by impatience.
 Pre-commit to the decision rules. Changing them after seeing results is p-hacking.
 
 **Guardrail metrics:**
+
 - Guardrails are metrics that must not degrade, regardless of what happens to the primary metric. Their purpose is to catch hidden negative side effects.
 - Select 3-5 guardrails from this taxonomy:
   - **Revenue guardrails:** Revenue per user, average order value, subscription cancellation rate, refund rate. Even a test designed to improve UX should not silently hurt revenue.
@@ -227,6 +236,7 @@ Pre-commit to the decision rules. Changing them after seeing results is p-hackin
 - Distinguish guardrails from secondary metrics: guardrails trigger automatic test stops; secondary metrics are observed and reported but do not trigger stops.
 
 **Pre-specified decision rules:**
+
 - Define the decision logic before the experiment starts. Write it down. Get stakeholder sign-off.
 - Standard two-sided decision framework:
   - p < α AND direction is positive → ship treatment
@@ -423,10 +433,12 @@ Testing k variants simultaneously requires adjustments:
 ### Continuous High-Skew Metrics (Revenue, Session Duration)
 
 Revenue per user is almost universally right-skewed. The top 1% of users may drive 20-40% of revenue. This creates two problems:
+
 - The mean is heavily influenced by outliers, increasing variance and thus required sample size
 - The t-test, while asymptotically valid, converges slowly with high skew -- n may need to be 2,000+ per group before CLT applies well
 
 Recommended approaches:
+
 - **Winsorize at 99th percentile** before computing means. Cap revenue at the 99th percentile of the historical distribution. This reduces variance with minimal bias and dramatically shrinks the required sample size. Document the capping threshold.
 - **Log-transform revenue:** Analyze log(revenue + 1) if the hypothesis is about multiplicative effects. Back-transform the confidence interval: the ratio of geometric means is exp(difference of log means).
 - **Bootstrap:** For small samples or non-standard metrics, use bootstrap resampling (1,000-10,000 iterations) to estimate the confidence interval for the mean difference without distributional assumptions.
@@ -475,7 +487,9 @@ In mature product organizations, dozens of experiments may run simultaneously on
 **Output:**
 
 ## A/B Test Design Plan
+
 ### Experiment: Checkout Progress Bar
+
 Prepared: [Date]
 
 ---
@@ -494,15 +508,15 @@ Prepared: [Date]
 
 ### 2. Experiment Design
 
-| Element | Specification |
-|---------|--------------|
-| Control (A) | Current 4-step checkout flow with no progress indicator |
-| Treatment (B) | Identical 4-step checkout flow with a step-count progress bar displayed at the top of each step ("Step 2 of 4") |
-| Unit of randomization | User ID (logged-in users) -- for guest checkout users, cookie-based with a 30-day TTL |
-| Eligible population | All users who initiate checkout (arrive at step 1 of the checkout flow) |
-| Exclusion criteria | Internal team accounts (identified by email domain), users currently in the cart redesign experiment (mutual exclusion -- overlapping checkout surface), bot traffic (filtered by user-agent and behavioral velocity) |
-| Traffic split | 50/50 |
-| Assignment method | Hash-based: variant = MD5(user_id + "checkout_progress_bar_v1") mod 100; buckets 0-49 → control, 50-99 → treatment. Guest users use cookie ID as the hash input. |
+| Element               | Specification                                                                                                                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Control (A)           | Current 4-step checkout flow with no progress indicator                                                                                                                                                               |
+| Treatment (B)         | Identical 4-step checkout flow with a step-count progress bar displayed at the top of each step ("Step 2 of 4")                                                                                                       |
+| Unit of randomization | User ID (logged-in users) -- for guest checkout users, cookie-based with a 30-day TTL                                                                                                                                 |
+| Eligible population   | All users who initiate checkout (arrive at step 1 of the checkout flow)                                                                                                                                               |
+| Exclusion criteria    | Internal team accounts (identified by email domain), users currently in the cart redesign experiment (mutual exclusion -- overlapping checkout surface), bot traffic (filtered by user-agent and behavioral velocity) |
+| Traffic split         | 50/50                                                                                                                                                                                                                 |
+| Assignment method     | Hash-based: variant = MD5(user_id + "checkout_progress_bar_v1") mod 100; buckets 0-49 → control, 50-99 → treatment. Guest users use cookie ID as the hash input.                                                      |
 
 ---
 
@@ -510,24 +524,25 @@ Prepared: [Date]
 
 **Primary metric:**
 
-| Field | Value |
-|-------|-------|
-| Metric name | Checkout completion rate |
-| Metric type | Binary proportion |
-| Precise definition | Proportion of users who reach step 1 of checkout who also complete step 4 (order confirmation page load), measured per unique user per session day, attributed to the variant they were assigned at step 1. A user who abandons and returns counts as one experiment unit from their first assignment. |
-| Baseline value | 28.0% (measured over the trailing 28 days, 95% CI: 27.4% -- 28.6% based on historical daily variance) |
-| Minimum detectable effect | 2.0 percentage points absolute (28.0% → 30.0%), which is a 7.1% relative lift |
+| Field                     | Value                                                                                                                                                                                                                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Metric name               | Checkout completion rate                                                                                                                                                                                                                                                                               |
+| Metric type               | Binary proportion                                                                                                                                                                                                                                                                                      |
+| Precise definition        | Proportion of users who reach step 1 of checkout who also complete step 4 (order confirmation page load), measured per unique user per session day, attributed to the variant they were assigned at step 1. A user who abandons and returns counts as one experiment unit from their first assignment. |
+| Baseline value            | 28.0% (measured over the trailing 28 days, 95% CI: 27.4% -- 28.6% based on historical daily variance)                                                                                                                                                                                                  |
+| Minimum detectable effect | 2.0 percentage points absolute (28.0% → 30.0%), which is a 7.1% relative lift                                                                                                                                                                                                                          |
 
 **Guardrail metrics:**
 
-| Metric | Baseline | Stop-test threshold | Owner |
-|--------|----------|---------------------|-------|
-| Revenue per checkout initiator | $12.40 | ≥ 5% relative decline vs. control triggers immediate stop | Revenue team |
-| Checkout step 1 → step 2 progression rate | 72.1% | ≥ 3% relative decline (concern that progress bar discourages early steps) | Product |
-| Checkout page load time P95 | 2.1 seconds | Any increase > 300ms triggers engineering review | Engineering |
-| Customer support contacts re: checkout | 0.8% of initiators | ≥ 25% relative increase triggers stop | CX team |
+| Metric                                    | Baseline           | Stop-test threshold                                                       | Owner        |
+| ----------------------------------------- | ------------------ | ------------------------------------------------------------------------- | ------------ |
+| Revenue per checkout initiator            | $12.40             | ≥ 5% relative decline vs. control triggers immediate stop                 | Revenue team |
+| Checkout step 1 → step 2 progression rate | 72.1%              | ≥ 3% relative decline (concern that progress bar discourages early steps) | Product      |
+| Checkout page load time P95               | 2.1 seconds        | Any increase > 300ms triggers engineering review                          | Engineering  |
+| Customer support contacts re: checkout    | 0.8% of initiators | ≥ 25% relative increase triggers stop                                     | CX team      |
 
 **Secondary / exploratory metrics (observed only, no decision authority):**
+
 - Per-step dropout rate at each individual step (to identify which steps benefit most from progress visibility)
 - Time-to-complete checkout (in seconds) -- may decrease if uncertainty reduction speeds decisions
 - Mobile vs. desktop segmented completion rates (progress bar may have differential value on mobile)
@@ -536,19 +551,19 @@ Prepared: [Date]
 
 ### 4. Sample Size and Power
 
-| Parameter | Value |
-|-----------|-------|
-| Statistical test | Two-proportion z-test (two-sided) |
-| Significance level (α) | 0.05 |
-| Statistical power (1-β) | 80% |
-| Baseline rate (p₁) | 0.280 |
-| Expected rate under H₁ (p₂) | 0.300 |
-| MDE (absolute) | 0.020 |
-| Z_α/2 | 1.960 |
-| Z_β | 0.842 |
-| Formula | n = (1.960 + 0.842)² × [p₁(1-p₁) + p₂(1-p₂)] / (p₂ - p₁)² |
-| Sample size per group | 3,831 |
-| Total sample required | 7,662 |
+| Parameter                   | Value                                                     |
+| --------------------------- | --------------------------------------------------------- |
+| Statistical test            | Two-proportion z-test (two-sided)                         |
+| Significance level (α)      | 0.05                                                      |
+| Statistical power (1-β)     | 80%                                                       |
+| Baseline rate (p₁)          | 0.280                                                     |
+| Expected rate under H₁ (p₂) | 0.300                                                     |
+| MDE (absolute)              | 0.020                                                     |
+| Z_α/2                       | 1.960                                                     |
+| Z_β                         | 0.842                                                     |
+| Formula                     | n = (1.960 + 0.842)² × [p₁(1-p₁) + p₂(1-p₂)] / (p₂ - p₁)² |
+| Sample size per group       | 3,831                                                     |
+| Total sample required       | 7,662                                                     |
 
 **Calculation (full work shown):**
 
@@ -566,7 +581,7 @@ Denominator:
 
 n_per_group = 7.851 × 0.4116 / 0.000400
             = 3.231 / 0.000400
-            = 8,078... 
+            = 8,078...
 
 Wait -- let me recompute precisely:
 7.851 × 0.4116 = 3.2311
@@ -578,6 +593,7 @@ Rounding to 8,078 per group × 2 = 16,156 total.
 After precise computation: **n = 8,078 per group, 16,156 total.**
 
 Note: The simplified approximation (16 × p_avg × (1-p_avg) / MDE²) gives:
+
 - p_avg = (0.28 + 0.30) / 2 = 0.29
 - n = 16 × 0.29 × 0.71 / (0.02)² = 16 × 0.2059 / 0.0004 = 8,236
 
@@ -587,19 +603,19 @@ The approximation (8,236) is close to the exact value (8,078) -- both round to t
 
 ### 5. Timeline
 
-| Parameter | Value |
-|-----------|-------|
-| Daily total eligible traffic | 4,500 users initiate checkout |
-| Traffic fraction allocated to experiment | 100% of checkout initiators (after exclusions, estimated 4,350/day net) |
-| Daily traffic per group (50/50) | ~2,175 per group |
-| Minimum days to reach sample | 16,200 / 4,350 = 3.7 days (rounds to 4 days) |
-| Weekly cycles required | 1 full week (7 days) -- required minimum regardless of sample size |
-| Recommended test duration | 14 days (2 full weeks -- captures both weekday and weekend purchase behavior cycles; checkout rates vary significantly Fri-Sun vs. Mon-Wed in e-commerce) |
-| Maximum test duration | 28 days |
-| Planned start date | TBD -- avoid launching within 5 days of any promotional email campaign or flash sale that would spike checkout volume atypically |
-| Planned analysis date | Start date + 14 days |
-| Calendar risks | Black Friday, Cyber Monday, Mother's Day, or similar events should not fall within the test window. If they do, extend the test to include the same event in both halves of the test period, or delay until traffic normalizes. |
-| Sample adequacy note | At 14 days and 4,350 eligible users/day: expected sample = 60,900 total (30,450 per group) -- this is 3.75× the required sample, providing ample power. The test is limited by the minimum calendar duration (2 weeks), not by traffic. |
+| Parameter                                | Value                                                                                                                                                                                                                                   |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Daily total eligible traffic             | 4,500 users initiate checkout                                                                                                                                                                                                           |
+| Traffic fraction allocated to experiment | 100% of checkout initiators (after exclusions, estimated 4,350/day net)                                                                                                                                                                 |
+| Daily traffic per group (50/50)          | ~2,175 per group                                                                                                                                                                                                                        |
+| Minimum days to reach sample             | 16,200 / 4,350 = 3.7 days (rounds to 4 days)                                                                                                                                                                                            |
+| Weekly cycles required                   | 1 full week (7 days) -- required minimum regardless of sample size                                                                                                                                                                      |
+| Recommended test duration                | 14 days (2 full weeks -- captures both weekday and weekend purchase behavior cycles; checkout rates vary significantly Fri-Sun vs. Mon-Wed in e-commerce)                                                                               |
+| Maximum test duration                    | 28 days                                                                                                                                                                                                                                 |
+| Planned start date                       | TBD -- avoid launching within 5 days of any promotional email campaign or flash sale that would spike checkout volume atypically                                                                                                        |
+| Planned analysis date                    | Start date + 14 days                                                                                                                                                                                                                    |
+| Calendar risks                           | Black Friday, Cyber Monday, Mother's Day, or similar events should not fall within the test window. If they do, extend the test to include the same event in both halves of the test period, or delay until traffic normalizes.         |
+| Sample adequacy note                     | At 14 days and 4,350 eligible users/day: expected sample = 60,900 total (30,450 per group) -- this is 3.75× the required sample, providing ample power. The test is limited by the minimum calendar duration (2 weeks), not by traffic. |
 
 ---
 
@@ -615,11 +631,13 @@ p-value < 0.05 AND observed treatment completion rate < observed control complet
 p-value ≥ 0.05 after 14 days of data collection with ≥ 16,200 total users enrolled. Conclusion: the progress bar does not meaningfully change checkout completion at the 2 pp MDE level. Do not extend the test further. If a smaller effect is hypothesized to be meaningful, a new test should be designed with the revised MDE.
 
 **Emergency stop criteria (check daily by monitoring team):**
+
 - Revenue per checkout initiator falls ≥ 5% below control in the treatment group for 2 consecutive days
 - Checkout P95 page load time increases ≥ 300ms above baseline
 - Checkout completion in the treatment group is more than 5 pp below the control group at any point with n > 1,000 per group
 
 **Peeking policy:**
+
 - Engineers may view enrollment counts daily to confirm logging health
 - Primary metric results must NOT be reviewed until day 14 or until 16,200 users are enrolled (whichever comes later)
 - Guardrail metrics may be monitored daily against their pre-specified thresholds only
@@ -627,14 +645,15 @@ p-value ≥ 0.05 after 14 days of data collection with ≥ 16,200 total users en
 ---
 
 ### 7. Results Interpretation Template
-*(Pre-fill after test completes on day 14)*
 
-| Metric | Control | Treatment | Absolute Difference | Relative Difference | p-value | 95% CI |
-|--------|---------|-----------|---------------------|---------------------|---------|--------|
-| Checkout completion rate | 28.0% | [observed]% | [Δ pp] | [Δ/0.28 %] | [p] | [lower pp, upper pp] |
-| Revenue per initiator | $12.40 | [observed] | [$Δ] | [Δ %] | [p] | [$lower, $upper] |
-| Step 1→2 progression | 72.1% | [observed]% | [Δ pp] | [Δ %] | [p] | [lower pp, upper pp] |
-| Page load P95 | 2.1s | [observed] | [Δ ms] | -- | -- | [lower, upper] |
+_(Pre-fill after test completes on day 14)_
+
+| Metric                   | Control | Treatment   | Absolute Difference | Relative Difference | p-value | 95% CI               |
+| ------------------------ | ------- | ----------- | ------------------- | ------------------- | ------- | -------------------- |
+| Checkout completion rate | 28.0%   | [observed]% | [Δ pp]              | [Δ/0.28 %]          | [p]     | [lower pp, upper pp] |
+| Revenue per initiator    | $12.40  | [observed]  | [$Δ]                | [Δ %]               | [p]     | [$lower, $upper]     |
+| Step 1→2 progression     | 72.1%   | [observed]% | [Δ pp]              | [Δ %]               | [p]     | [lower pp, upper pp] |
+| Page load P95            | 2.1s    | [observed]  | [Δ ms]              | --                  | --      | [lower, upper]       |
 
 **Decision:**
 ☐ Ship -- treatment showed significant improvement (p = [value], 95% CI [lower, upper pp])

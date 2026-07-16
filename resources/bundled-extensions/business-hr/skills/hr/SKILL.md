@@ -1,9 +1,9 @@
 ---
 name: hr
 description: HR orchestrator for SMBs. Routes job descriptions, interview questions, onboarding, performance reviews, 1-on-1s, handbook sections, offer letters, offboarding, comp banding, PIPs, terminations, accommodations, leave, RIF, and pipeline reports to the right sub-skill. Templates only - not employment-law advice; outputs must be reviewed by HR counsel.
-argument-hint: "<verb> [context]"
+argument-hint: '<verb> [context]'
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [orchestrator, hr, people-ops, smb]
@@ -14,6 +14,7 @@ metadata:
 > Outputs are templates and HR frameworks designed to help structure people-ops work - they are **NOT employment-law advice**, are **NOT a substitute for HR counsel**, and may not be appropriate for your jurisdiction (US states, EU/UK/AU each have different rules). Employment law is jurisdiction-specific and rapidly changing.
 >
 > **Before using ANY output:**
+>
 > - Have employment counsel review for jurisdiction-specific compliance
 > - Verify wage notices, mandatory training, and posting requirements
 > - Confirm the document fits your specific facts (headcount, classification, jurisdiction)
@@ -45,28 +46,29 @@ See `_jurisdiction.md` (in this skills folder) for the full router checklist and
 
 ## Verb Routing Table
 
-| Verb | Sub-skill dispatched | Example |
-|------|---------------------|---------|
-| `job-description` | hr-job-description | `/hr job-description Senior Engineer` |
-| `interview-questions` | hr-interview-questions | `/hr interview-questions Head of Marketing` |
-| `onboard` | hr-onboard | `/hr onboard Jane Smith, Product Manager` |
-| `review` | hr-review | `/hr review Alex Chen - Q4 cycle` |
-| `1on1` | hr-1on1 | `/hr 1on1 Sam, eng lead, struggling with prioritization` |
-| `handbook` | hr-handbook | `/hr handbook remote-work-policy` |
-| `offer-letter` | hr-offer-letter | `/hr offer-letter Senior Designer, $140k, SF` |
-| `offboard` | hr-offboard | `/hr offboard Jordan Lee, voluntary, 2 weeks notice` |
-| `comp-band` | hr-comp-band | `/hr comp-band Staff Engineer, Series B, SF` |
-| `report` | hr-report | `/hr report hiring pipeline Q2` |
-| `pip` | hr-pip | `/hr pip Sam Lee, missed Q3 goals` |
-| `termination-letter` | hr-termination-letter | `/hr termination-letter Alex Chen, performance, CA` |
-| `accommodation-request` | hr-accommodation-request | `/hr accommodation-request medical, ergonomic chair` |
-| `leave-of-absence` | hr-leave-of-absence | `/hr leave-of-absence FMLA, 12 weeks, NY` |
-| `rif` | hr-rif | `/hr rif 8 roles, Series A reset` |
-| `full-hire` | hr-job-description + hr-interview-questions + hr-comp-band (parallel) | `/hr full-hire Senior Backend Engineer` |
+| Verb                    | Sub-skill dispatched                                                  | Example                                                  |
+| ----------------------- | --------------------------------------------------------------------- | -------------------------------------------------------- |
+| `job-description`       | hr-job-description                                                    | `/hr job-description Senior Engineer`                    |
+| `interview-questions`   | hr-interview-questions                                                | `/hr interview-questions Head of Marketing`              |
+| `onboard`               | hr-onboard                                                            | `/hr onboard Jane Smith, Product Manager`                |
+| `review`                | hr-review                                                             | `/hr review Alex Chen - Q4 cycle`                        |
+| `1on1`                  | hr-1on1                                                               | `/hr 1on1 Sam, eng lead, struggling with prioritization` |
+| `handbook`              | hr-handbook                                                           | `/hr handbook remote-work-policy`                        |
+| `offer-letter`          | hr-offer-letter                                                       | `/hr offer-letter Senior Designer, $140k, SF`            |
+| `offboard`              | hr-offboard                                                           | `/hr offboard Jordan Lee, voluntary, 2 weeks notice`     |
+| `comp-band`             | hr-comp-band                                                          | `/hr comp-band Staff Engineer, Series B, SF`             |
+| `report`                | hr-report                                                             | `/hr report hiring pipeline Q2`                          |
+| `pip`                   | hr-pip                                                                | `/hr pip Sam Lee, missed Q3 goals`                       |
+| `termination-letter`    | hr-termination-letter                                                 | `/hr termination-letter Alex Chen, performance, CA`      |
+| `accommodation-request` | hr-accommodation-request                                              | `/hr accommodation-request medical, ergonomic chair`     |
+| `leave-of-absence`      | hr-leave-of-absence                                                   | `/hr leave-of-absence FMLA, 12 weeks, NY`                |
+| `rif`                   | hr-rif                                                                | `/hr rif 8 roles, Series A reset`                        |
+| `full-hire`             | hr-job-description + hr-interview-questions + hr-comp-band (parallel) | `/hr full-hire Senior Backend Engineer`                  |
 
 ## Composite Flow: full-hire
 
 `/hr full-hire <role>` fans out three sub-skills in parallel:
+
 1. **hr-job-description** - complete JD with requirements and seniority calibration
 2. **hr-interview-questions** - structured question bank and scorecard
 3. **hr-comp-band** - market comp research for the role

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making analysis strategy frameworks"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'decision-making analysis strategy frameworks'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Critical Thinker
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on critical thinker
 - User asks about critical thinker best practices or techniques
 - User wants a structured approach to critical thinker
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of critical thinker
 
@@ -468,23 +469,28 @@ SURVIVORSHIP BIAS:
 ## Practice Exercises
 
 ### Exercise 1: Fallacy of the Day
+
 Each day for a month, identify one logical fallacy in news, social media, or conversation. Write it down with the specific fallacy type and why it fails.
 
 ### Exercise 2: Steel Man Challenge
+
 Take a position you strongly disagree with. Construct the strongest possible argument FOR that position. This builds intellectual empathy and sharpens your ability to see weaknesses in your own arguments.
 
 ### Exercise 3: Source Evaluation
+
 Take a viral social media claim. Apply the CRAAP test. Trace it to its original source. Document what you find. How does the original compare to how it was shared?
 
 ### Exercise 4: Argument Map
+
 Take an editorial or opinion piece. Map its argument structure completely (claims, reasons, evidence, objections, rebuttals). Identify where the argument is strong and where it's weak.
 
 ### Exercise 5: Pre-Mortem
+
 Before making your next important decision, assume it failed. Work backwards to identify all the ways your reasoning could have been flawed. Which biases might have affected your analysis?
 
 ### Exercise 6: Belief Audit
-List 5 strong beliefs you hold. For each, write: What evidence would change my mind? When did I last update this belief? What is the strongest argument against it?
 
+List 5 strong beliefs you hold. For each, write: What evidence would change my mind? When did I last update this belief? What is the strongest argument against it?
 
 ## Output Format
 
@@ -498,13 +504,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with critical thinker for a mid-size project."
 
 **Output:** A complete critical thinker framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

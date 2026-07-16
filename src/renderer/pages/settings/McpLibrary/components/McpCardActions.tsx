@@ -21,13 +21,7 @@ export interface McpCardActions {
 
 const McpCardActionsContext = createContext<McpCardActions | null>(null);
 
-export function McpCardActionsProvider({
-  value,
-  children,
-}: {
-  value: McpCardActions;
-  children: React.ReactNode;
-}) {
+export function McpCardActionsProvider({ value, children }: { value: McpCardActions; children: React.ReactNode }) {
   return <McpCardActionsContext.Provider value={value}>{children}</McpCardActionsContext.Provider>;
 }
 

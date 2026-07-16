@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "expense-analyzer budget-builder savings-planner habit-tracker"
+skills: 'expense-analyzer budget-builder savings-planner habit-tracker'
 trigger_phrases: >-
   I need to build an emergency fund help me save for emergencies how to start an
   emergency fund financial safety net saving for unexpected expenses I have no
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: savings personal-finance budgeting step-by-step planning
   category: life-event
-  depends: "expense-analyzer budget-builder savings-planner habit-tracker"
+  depends: 'expense-analyzer budget-builder savings-planner habit-tracker'
 ---
+
 # Build Emergency Fund
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -175,6 +176,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

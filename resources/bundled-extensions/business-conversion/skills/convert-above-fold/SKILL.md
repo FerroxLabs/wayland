@@ -28,28 +28,31 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [convert, convert-open, convert-sales-page, convert-scroll-rhythm, convert-mobile, convert-proof-stack]
+    related_skills:
+      [convert, convert-open, convert-sales-page, convert-scroll-rhythm, convert-mobile, convert-proof-stack]
 attribution:
   lineage: "The Donahoe Method (Wayland-owned operating system); Steve Krug's 5-second comprehension test (2000) and Nielsen Norman Group's Jakob's Law as supporting visual canon"
 ---
 
 # Convert Above-Fold - Hero Hierarchy Engineered for the Four-Layer Open
 
-> *"Your opening has one job: make them keep reading."* - The Donahoe Method, Framework 1
+> _"Your opening has one job: make them keep reading."_ - The Donahoe Method, Framework 1
 
-The first viewport is where the Method either lands or dies. This skill engineers the above-fold zone so the visual hierarchy *carries* Layer 1 (Nerve Strike) of the Four-Layer Open and points the reader straight into Layer 2 (Side Door). Every pixel above the fold is in service of "make them keep reading."
+The first viewport is where the Method either lands or dies. This skill engineers the above-fold zone so the visual hierarchy _carries_ Layer 1 (Nerve Strike) of the Four-Layer Open and points the reader straight into Layer 2 (Side Door). Every pixel above the fold is in service of "make them keep reading."
 
 ## When to Use
 
 Trigger phrases: "above the fold", "above-fold hero", "hero section design", "first viewport", "5 second test", "donahoe above fold", "what who next", `/convert above-fold <product>`.
 
 Use when:
+
 - Designing or rebuilding the hero zone of a sales page, VSL page, squeeze page, or lead-magnet page
 - The reader currently fails the 5-second test ("what is this / who is it for / what do I do")
 - The headline is right but the visual hierarchy is suffocating it
 - Mobile and desktop hero need to be specced together (this skill handles both)
 
 Do NOT use for:
+
 - Full sales-page assembly - use `/convert sales-page`
 - Auditing an existing live page - use `/market landing <url>`
 - Generating only the headline copy - use `/convert open` (Layer 1 lives there)
@@ -65,17 +68,19 @@ A first-time visitor must, within five seconds, be able to answer three question
 
 If any answer is missing or fuzzy, the hero fails. Test by showing the page to someone for five seconds, hiding it, and asking the three questions. Repeat with three different people. Cold answers only.
 
-*The 5-second comprehension test (popularized by Steve Krug, 2000) and Jakob's Law (Nielsen Norman Group) - users prefer pages that work the way other pages they know already work. Don't reinvent the hero.*
+_The 5-second comprehension test (popularized by Steve Krug, 2000) and Jakob's Law (Nielsen Norman Group) - users prefer pages that work the way other pages they know already work. Don't reinvent the hero._
 
 ## Inputs
 
 Required:
+
 1. **Product / offer name** - what we're selling
 2. **The Nerve** - the specific raw pain (same input as `convert-open`); pulled from the Four-Layer Open if `convert-open` ran upstream
 3. **Target reader** - the one person (Donahoe Voice Rule #1)
 4. **Primary CTA** - what action we're asking for ("Start my 14-day trial", "Get my free teardown", "Watch the 18-minute training")
 
 Optional:
+
 - **Asset type** - sales page / VSL page / squeeze / lead-magnet / OTO (changes the hero pattern)
 - **Brand context** - colors, typeface, voice (informs the styling without overriding the Method)
 - **Existing hero copy** - if porting from an existing page; otherwise generated fresh
@@ -131,6 +136,7 @@ The anchor is small. It's a wink, not a wall. Full proof comes below the fold.
 ### Slot 5 - Trust Strip (just below CTA, low-emphasis)
 
 3-5 elements, single row, ~24-32px height each:
+
 - Customer logos (if recognizable to the target reader)
 - "As seen in" media bar (only if real)
 - Star rating + review count ("4.9 / 312 reviews")
@@ -180,11 +186,12 @@ Left column carries the Open layers; right column carries the video or hero imag
 
 If `convert-open` already ran on this product, lift Layers 1-3 from its output. The headline is Layer 1; the subhead is a compressed Layer 2; the founder anchor is a compressed Layer 3.
 
-If `convert-open` has not run, ask: *"Has the Four-Layer Open been generated for this product yet? If yes, paste it. If no, I'll run it first - the hero only works if the Open is locked."* Don't proceed without the Open inputs.
+If `convert-open` has not run, ask: _"Has the Four-Layer Open been generated for this product yet? If yes, paste it. If no, I'll run it first - the hero only works if the Open is locked."_ Don't proceed without the Open inputs.
 
 ### Step 2 - Pick the layout pattern
 
 Default rules:
+
 - Lead-magnet / squeeze / cold-traffic → Pattern A (Center Stack)
 - Long-form sales page (warm/hot traffic) → Pattern B (Z-Pattern)
 - VSL page or considered offer with hero video → Pattern C (Asymmetric)
@@ -194,6 +201,7 @@ User override allowed; warn if the override creates known friction (e.g., Patter
 ### Step 3 - Spec the headline
 
 Headline = Layer 1 of the Open compressed to one line. Test:
+
 - Reads in <2 seconds at 48px type
 - Names the pain the reader already feels
 - No hedging, no marketing-speak ("leverage", "optimize", "revolutionary", "unlock potential" - banned by Voice Rules)
@@ -221,6 +229,7 @@ CTA copy formula: `[Verb] my [outcome]` or `[Get/Start/Watch] [the specific deli
 ### Step 7 - Run the 5-second test (mentally)
 
 Cover the rest of the page. Look at only the hero for 5 seconds. Answer:
+
 - What is this?
 - Who is it for?
 - What do I do next?
@@ -231,7 +240,7 @@ If any answer is fuzzy, return to Step 3-5 and tighten.
 
 The hero compresses on mobile. Single column. Headline shrinks to 32-44px. CTA goes full-width. Founder photo moves below the CTA or disappears. Trust strip wraps.
 
-Test: at 375px viewport (iPhone SE baseline), can the user see headline + subhead + CTA *without scrolling*? If not, compress.
+Test: at 375px viewport (iPhone SE baseline), can the user see headline + subhead + CTA _without scrolling_? If not, compress.
 
 ### Step 9 - Emit the spec + HTML
 
@@ -250,38 +259,41 @@ Output the wireframe, the slot-by-slot spec, paste-ready HTML/CSS, and the 5-sec
 ---
 
 ## Wireframe (desktop, 1280px)
-
 ```
+
 +---------------------------------------------------+
-| [Logo]                                  [Login]   |
+| [Logo] [Login] |
 +---------------------------------------------------+
-|                                                   |
-|     <HEADLINE - Nerve Strike>                     |
-|                                                   |
-|     <Subhead - Side Door, 1-2 sentences>          |
-|                                                   |
-|     [  PRIMARY CTA  ]   ← microcopy               |
-|                                                   |
-|     ⭐⭐⭐⭐⭐  4.9 / 312    [logo] [logo] [logo]   |
+| |
+| <HEADLINE - Nerve Strike> |
+| |
+| <Subhead - Side Door, 1-2 sentences> |
+| |
+| [ PRIMARY CTA ] ← microcopy |
+| |
+| ⭐⭐⭐⭐⭐ 4.9 / 312 [logo] [logo] [logo] |
 +---------------------------------------------------+
+
 ```
 
 ## Wireframe (mobile, 375px)
 
 ```
+
 +--------------------+
-| [Logo]      [Menu] |
+| [Logo] [Menu] |
 +--------------------+
-| <HEADLINE>         |
-| <Subhead>          |
-|                    |
-| [   FULL-W CTA  ]  |
-| microcopy          |
-|                    |
-| ⭐ 4.9 / 312        |
+| <HEADLINE> |
+| <Subhead> |
+| |
+| [ FULL-W CTA ] |
+| microcopy |
+| |
+| ⭐ 4.9 / 312 |
 | [logo][logo][logo] |
 +--------------------+
-```
+
+````
 
 ## Slot specs
 
@@ -330,15 +342,15 @@ Output the wireframe, the slot-by-slot spec, paste-ready HTML/CSS, and the 5-sec
     .hero__cta { display: block; width: 100%; }
   }
 </style>
-```
+````
 
 ## 5-Second Test result
 
-| Question | Answer |
-|----------|--------|
-| What is this? | <one sentence the reader could give cold> |
-| Who is it for? | <one sentence - does it match the One Person?> |
-| What do I do next? | <the CTA, repeated back> |
+| Question           | Answer                                         |
+| ------------------ | ---------------------------------------------- |
+| What is this?      | <one sentence the reader could give cold>      |
+| Who is it for?     | <one sentence - does it match the One Person?> |
+| What do I do next? | <the CTA, repeated back>                       |
 
 PASS / FAIL.
 
@@ -364,6 +376,7 @@ The Open's text continues immediately below the fold. The hero hands off to the 
 3. Pair with `convert-proof-stack` to design the proof zone that opens after the hero.
 4. Pair with `convert-mobile` to compress the entire page (not just the hero) for mobile.
 5. Run `convert-audit` on the full draft before shipping.
+
 ```
 
 ## Pitfalls
@@ -390,3 +403,4 @@ The Open's text continues immediately below the fold. The hero hands off to the 
 - Hero design is downstream of the Open. If the Open is wrong, no hero design fixes it. Run `convert-open` first.
 - The 5-second test is a hard gate. A page that fails it on three different testers is not ready to ship. Iterate Steps 3-5 until it passes cold.
 - This skill emits HTML/CSS as a reference implementation, not a framework-coupled component. Paste into Webflow / Framer / Wix / Carrd / static HTML.
+```

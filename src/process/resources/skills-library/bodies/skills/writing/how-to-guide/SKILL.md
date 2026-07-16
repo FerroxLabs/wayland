@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "blog-post writing step-by-step"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'blog-post writing step-by-step'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # How To Guide
 
 ## When to Use
@@ -25,6 +26,7 @@ metadata:
 Use this skill when the user's primary need is enabling a reader to successfully complete a specific task by following a documented sequence of actions.
 
 **Trigger scenarios where this skill applies:**
+
 - The user wants to teach a process with a clear start state and end state ("How do I write a guide for setting up SSL certificates on Nginx?")
 - The user needs instructional content where the reader must perform actions in sequence -- skipping or reordering steps causes failure
 - The user wants a tutorial-style article for a blog, documentation site, or knowledge base where the reader follows along and produces a tangible result
@@ -34,6 +36,7 @@ Use this skill when the user's primary need is enabling a reader to successfully
 - The user wants a guide that teaches a skill, not just describes it: the reader should be able to do the thing after reading, not just understand that it exists
 
 **Do NOT use this skill in these situations:**
+
 - The user wants to argue a position or explore an idea without teaching a procedure -- use `blog-post-writing` instead. The tell is that no concrete steps exist.
 - The user wants a "Top 10 tips for X" or "5 ways to improve Y" format -- use `listicle-writing` instead. Lists of recommendations without sequential dependencies are not how-to guides.
 - The user wants to document an API, SDK, or codebase for developers who need reference material -- use `api-documentation` instead. Reference docs are looked up, not followed.
@@ -62,9 +65,9 @@ Before writing a single sentence, establish precise boundaries for both the task
 A guide written at the wrong technical level fails regardless of structural quality.
 
 - **Register choices:**
-  - *Casual tutorial*: Conversational but precise. Uses "you'll" contractions. Explains why alongside what. Suited for consumer products, hobbies, lifestyle topics, and onboarding new users. Example: a guide to using Notion for personal task management.
-  - *Professional reference*: Formal and efficient. Omits "why" commentary unless critical. Uses full terms on first reference. Suited for professional software, technical workflows, and intermediate users. Example: a guide to configuring AWS IAM policies.
-  - *Technical walkthrough*: Assumes domain fluency. Uses exact technical terminology without apology. Includes configuration values, file paths, and command syntax. Suited for developers, engineers, and advanced practitioners. Example: a guide to deploying a Kubernetes cluster with Helm charts.
+  - _Casual tutorial_: Conversational but precise. Uses "you'll" contractions. Explains why alongside what. Suited for consumer products, hobbies, lifestyle topics, and onboarding new users. Example: a guide to using Notion for personal task management.
+  - _Professional reference_: Formal and efficient. Omits "why" commentary unless critical. Uses full terms on first reference. Suited for professional software, technical workflows, and intermediate users. Example: a guide to configuring AWS IAM policies.
+  - _Technical walkthrough_: Assumes domain fluency. Uses exact technical terminology without apology. Includes configuration values, file paths, and command syntax. Suited for developers, engineers, and advanced practitioners. Example: a guide to deploying a Kubernetes cluster with Helm charts.
 - **Vocabulary calibration**: If the guide targets beginners, define every acronym on first use (e.g., "DNS -- the system that maps domain names to IP addresses"). If targeting intermediates, use standard terminology but define domain-specific exceptions. If targeting advanced readers, never define standard terminology -- it signals mismatched audience level and damages credibility.
 - **Active vs. passive voice**: Always imperative second-person active ("Click the Settings tab," "Run the following command"). Never passive construction ("The tab should be clicked," "The command should be run"). Never third-person description ("Users can click the Settings tab").
 - **Match the user's style sample if provided.** If the user shares an existing guide or brand voice example, extract three stylistic signatures (sentence length, formality level, use of humor or personality) and apply them consistently.
@@ -142,6 +145,7 @@ confirm -- not "learned how to" but "a working X configured to do Y"].
 **Difficulty:** [Beginner / Intermediate / Advanced] ([one-line clarification
 of what that means for this specific audience])
 **What you will need:**
+
 - [Tool or account] -- [one-line note if non-obvious to obtain]
 - [Tool or account]
 - [Prior knowledge required]
@@ -153,7 +157,8 @@ boundary and where to find the out-of-scope information.]
 ---
 
 ## Phase 1: [Phase Name] (Steps 1-N)
-*(Omit phase headers if total steps are 8 or fewer)*
+
+_(Omit phase headers if total steps are 8 or fewer)_
 
 ## Step 1: [Imperative Verb Phrase Describing the Action]
 
@@ -166,8 +171,8 @@ consequential, warn the reader before the action line, not after. Keep to
 exact output, state, or confirmation the reader should see.]
 
 > **If this happens:** [Specific symptom of the most likely failure for
-> this step] -- [1-2 sentence fix. Longer troubleshooting in the
-> Troubleshooting section.]
+> > this step] -- [1-2 sentence fix. Longer troubleshooting in the
+> > Troubleshooting section.]
 
 ---
 
@@ -314,6 +319,7 @@ By the end of this guide, you will have a shell script that performs a compresse
 **Difficulty:** Intermediate (comfortable running commands in a Linux terminal and editing files with a text editor like nano or vim)
 
 **What you will need:**
+
 - Ubuntu 22.04 server with PostgreSQL 15 installed and running
 - A PostgreSQL user with at least `pg_dump` privileges on the database you want to back up
 - `sudo` access on the server

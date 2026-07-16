@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing social-media strategy"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing social-media strategy'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Influencer Collaborator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,13 +31,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on influencer collaborator
 - User asks about influencer collaborator best practices or techniques
 - User wants a structured approach to influencer collaborator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of influencer collaborator
+
 ## Questions to Ask First
 
 Before pursuing or responding to brand collaboration opportunities:
@@ -60,6 +62,7 @@ Before pursuing or responding to brand collaboration opportunities:
 
 **Step 1: Understand the Brief**
 Before discussing money, fully understand what the brand wants:
+
 - What platforms and content types?
 - What is the campaign timeline?
 - What are the key messages or talking points?
@@ -69,12 +72,14 @@ Before discussing money, fully understand what the brand wants:
 
 **Step 2: Assess the Value**
 Calculate based on your reach, engagement, and the scope of work:
+
 - How much time will creation take?
 - What is your content's performance history?
 - How does this brand align with your audience?
 - What is the opportunity cost? (Other deals you'd pass on)
 
 **Step 3: Present Your Rate**
+
 ```
 "Based on the scope of this campaign, my rate for
 [specific deliverables] is $[amount]. This includes
@@ -86,6 +91,7 @@ I'm happy to discuss the package to find the right fit."
 
 **Step 4: Negotiate with Value, Not Apology**
 If they push back on price:
+
 - Don't immediately lower your rate
 - Add value instead: "I can't lower the rate, but I can add an extra Story"
 - Offer tiered options: "For that budget, I can do [reduced scope]"
@@ -93,14 +99,14 @@ If they push back on price:
 
 ### Negotiation Tactics
 
-| Situation | Tactic |
-|-----------|--------|
-| Brand lowballs | "My standard rate for this scope is $X. What's your budget range?" |
-| Brand wants more deliverables | "I can add that for an additional $X, or we can swap it for [other deliverable]" |
-| Brand offers product only | "I appreciate the offer. My minimum for sponsored content is $X. Would product + compensation work?" |
-| Brand wants exclusivity | "Exclusivity for [period] would be an additional $X on top of the content fee" |
-| Brand wants perpetual usage | "Perpetual usage rights are $X. I can offer 90-day usage for $Y instead" |
-| Multiple revision requests | "The package includes 2 revision rounds. Additional revisions are $X each" |
+| Situation                     | Tactic                                                                                               |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Brand lowballs                | "My standard rate for this scope is $X. What's your budget range?"                                   |
+| Brand wants more deliverables | "I can add that for an additional $X, or we can swap it for [other deliverable]"                     |
+| Brand offers product only     | "I appreciate the offer. My minimum for sponsored content is $X. Would product + compensation work?" |
+| Brand wants exclusivity       | "Exclusivity for [period] would be an additional $X on top of the content fee"                       |
+| Brand wants perpetual usage   | "Perpetual usage rights are $X. I can offer 90-day usage for $Y instead"                             |
+| Multiple revision requests    | "The package includes 2 revision rounds. Additional revisions are $X each"                           |
 
 ### Red Flags in Brand Deals
 
@@ -118,6 +124,7 @@ If they push back on price:
 ### Essential Media Kit Components
 
 **Page 1: Introduction**
+
 ```
 YOUR NAME / BRAND NAME
 [Professional headshot or brand photo]
@@ -129,6 +136,7 @@ Contact: [Email for business inquiries]
 ```
 
 **Page 2: Audience Overview**
+
 ```
 TOTAL REACH: [Combined followers/subscribers]
 Platform Breakdown:
@@ -146,6 +154,7 @@ Audience Demographics:
 ```
 
 **Page 3: Performance Metrics**
+
 ```
 CONTENT PERFORMANCE (Last 90 Days)
 Instagram:
@@ -166,6 +175,7 @@ YouTube:
 ```
 
 **Page 4: Past Partnerships**
+
 ```
 BRAND EXPERIENCE
 [Logos of 4-8 brands you've worked with]
@@ -180,6 +190,7 @@ CASE STUDY: [Brand Name]
 ```
 
 **Page 5: Partnership Options**
+
 ```
 COLLABORATION OPTIONS
 Package A: Social Feature
@@ -220,6 +231,7 @@ Contact: [email]
 ### Rate Calculation Framework
 
 **Method 1: Follower-Based (Starting Point)**
+
 ```
 Instagram:  $0.01-0.05 per follower per post
 TikTok:     $0.01-0.04 per follower per post
@@ -230,16 +242,19 @@ Newsletter: $25-75 CPM (per 1,000 subscribers)
 ```
 
 **Method 2: Engagement-Based (More Accurate)**
+
 ```
 Average engagement per post x $0.10-0.50 = base rate
 ```
 
 **Method 3: Time-Based (Freelancer Approach)**
+
 ```
 Your hourly rate x hours to create = base rate
 ```
 
 ### Rate Card Template
+
 ```
 [YOUR NAME] - Rate Card [Year]
 INSTAGRAM
@@ -283,6 +298,7 @@ Notes:
 ### Deliverable Specification Checklist
 
 For every brand deal, define these in writing:
+
 ```
 Content Deliverables:
   [ ] Platform(s)
@@ -316,17 +332,18 @@ Approval Process:
 
 ### Understanding Usage Rights
 
-| Right | What It Means | Typical Premium |
-|-------|--------------|----------------|
-| Organic posting | You post on your channels (standard) | Included in base rate |
-| Brand reposting | Brand shares your content on their organic channels | +20-30% |
-| Paid amplification | Brand puts ad spend behind your content | +50-100% |
-| Whitelisting | Brand runs ads from your account | +100-200% (monthly) |
-| Website usage | Brand features your content on their site | +30-50% |
-| Print/OOH usage | Content used in physical advertising | +100-300% |
-| Perpetual usage | No time limit on brand's use | +200-500% (one-time) |
+| Right              | What It Means                                       | Typical Premium       |
+| ------------------ | --------------------------------------------------- | --------------------- |
+| Organic posting    | You post on your channels (standard)                | Included in base rate |
+| Brand reposting    | Brand shares your content on their organic channels | +20-30%               |
+| Paid amplification | Brand puts ad spend behind your content             | +50-100%              |
+| Whitelisting       | Brand runs ads from your account                    | +100-200% (monthly)   |
+| Website usage      | Brand features your content on their site           | +30-50%               |
+| Print/OOH usage    | Content used in physical advertising                | +100-300%             |
+| Perpetual usage    | No time limit on brand's use                        | +200-500% (one-time)  |
 
 ### Usage Rights Contract Language
+
 ```
 Standard clause (creator-friendly):
 
@@ -352,6 +369,7 @@ compensation."
 ### FTC Requirements
 
 The Federal Trade Commission requires clear disclosure of material connections between creators and brands. This applies to:
+
 - Paid partnerships
 - Free products received
 - Affiliate relationships
@@ -360,21 +378,25 @@ The Federal Trade Commission requires clear disclosure of material connections b
 ### Disclosure Best Practices
 
 **On Instagram:**
+
 - Use the "Paid partnership" tag (platform feature)
 - Include #ad or #sponsored in the first line of the caption (not buried at the end)
 - Verbal disclosure in Reels and Stories
 
 **On TikTok:**
+
 - Enable the branded content toggle
 - Include #ad in the caption
 - Verbal disclosure in the video
 
 **On YouTube:**
+
 - Check the "contains paid promotion" box (adds disclaimer)
 - Verbal disclosure within the first 30 seconds
 - Include disclosure in the video description
 
 **In newsletters and blogs:**
+
 - Clear statement at the top: "This post is sponsored by [Brand]"
 - Affiliate link disclosure: "This post contains affiliate links"
 
@@ -391,6 +413,7 @@ The Federal Trade Commission requires clear disclosure of material connections b
 ### Building Long-Term Brand Partnerships
 
 **The Partnership Ladder:**
+
 ```
 Level 1: One-off campaign
   You create content, get paid, done.
@@ -403,6 +426,7 @@ Level 4: Equity/co-creation
 ```
 
 **Moving up the ladder:**
+
 1. Overdeliver on every campaign (exceed expectations)
 2. Share performance data proactively
 3. Suggest future campaign ideas
@@ -419,6 +443,7 @@ Level 4: Equity/co-creation
 - Send holiday cards or congratulations on brand milestones
 
 ### Managing Multiple Brand Relationships
+
 ```
 Brand Partnership Tracker:
 | Brand | Contact | Status | Deliverables | Deadline | Payment Status |
@@ -433,12 +458,14 @@ Brand Partnership Tracker:
 ### Brand Outreach Strategy
 
 **Step 1: Build a target list**
+
 - List 20-30 brands your audience already uses and loves
 - Check if they work with influencers (look for #ad on their tagged posts)
 - Find the right contact (marketing manager, influencer coordinator, PR)
 - LinkedIn is the best tool for finding the right person
 
 **Step 2: Research before pitching**
+
 - Study their current campaigns and messaging
 - Understand their target customer
 - Identify how your audience overlaps with their customer
@@ -447,6 +474,7 @@ Brand Partnership Tracker:
 **Step 3: Craft a personalized pitch**
 
 ### Pitch Email Template
+
 ```
 Subject: Partnership Idea: [Your Name] x [Brand Name]
 Hi [Contact Name],
@@ -471,6 +499,7 @@ Best,
 ```
 
 ### Follow-Up Sequence
+
 ```
 Day 0:   Send initial pitch
 Day 5:   Follow-up email ("Wanted to make sure this didn't get lost")
@@ -500,6 +529,7 @@ Day 30+: Move to "nurture" list - engage with their content, try again in 3 mont
 - Keep records of all contracts and correspondence
 
 ### Invoice Template
+
 ```
 INVOICE
 From: [Your Legal Name / Business Name]
@@ -530,7 +560,6 @@ Payment Terms: NET [30/45/60]
 Late payment fee: [1.5% per month, if applicable]
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -543,13 +572,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with influencer collaborator for a mid-size project."
 
 **Output:** A complete influencer collaborator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

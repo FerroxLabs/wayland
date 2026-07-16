@@ -15,8 +15,8 @@ steps:
   - id: authorize
     title: Connect your Zapier account
     estSeconds: 90
-    primaryAction: { label: "Connect Zapier", action: "oauth-flow" }
-    externalAction: { label: "Open Zapier MCP dashboard", url: "https://mcp.zapier.com" }
+    primaryAction: { label: 'Connect Zapier', action: 'oauth-flow' }
+    externalAction: { label: 'Open Zapier MCP dashboard', url: 'https://mcp.zapier.com' }
     body: |
       Configure the actions Zapier should expose first, then come back to
       authorize.

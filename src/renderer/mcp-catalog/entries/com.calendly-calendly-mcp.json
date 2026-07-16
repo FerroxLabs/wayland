@@ -7,9 +7,7 @@
   "websiteUrl": "https://developer.calendly.com/docs/mcp",
   "repository": { "url": "https://github.com/calendly/calendly-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.calendly.com" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.calendly.com" }],
   "x-wayland": {
     "tier": "worker",
     "categories": ["calendar", "productivity"],
@@ -25,9 +23,7 @@
       "method": "oauth2-byo",
       "providerName": "Calendly",
       "providerSignupUrl": "https://calendly.com",
-      "scopes": [
-        { "name": "default", "plainLanguage": "Read event types, scheduled events, and invitees." }
-      ]
+      "scopes": [{ "name": "default", "plainLanguage": "Read event types, scheduled events, and invitees." }]
     },
     "toolGroups": [
       { "label": "Event Types", "count": 3 },

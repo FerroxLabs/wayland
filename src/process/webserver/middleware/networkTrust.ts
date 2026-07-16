@@ -26,11 +26,39 @@
  * cover the VPC/Docker-bridge/metadata net, so a private-range neighbour would
  * auto-escalate to operator. Operators who genuinely front Wayland on a trusted
  * LAN can opt those ranges back in via the `WAYLAND_OPERATOR_CIDRS` env allowlist.
+ *
+ * SECURITY FIX (#529): 100.64.0.0/10 is the RFC6598 shared CGNAT range, not
+ * Tailscale-exclusive - real ISPs carrier-grade-NAT public customers through it.
+ * A peer in that range is only trusted as `operator` when this host also has an
+ * active `tailscale*` interface (see `hasTailscaleInterface`); otherwise it falls
+ * through to `restricted` unless separately allowlisted via WAYLAND_OPERATOR_CIDRS.
  */
 
-import { networkInterfaces } from 'node:os';
+import os from 'os';
 
 export type NetworkTrust = 'operator' | 'restricted';
+
+/**
+ * Whether any local network interface is a Tailscale interface. Memoised per
+ * process: interface names do not change at runtime. Best-effort - failures fall
+ * back to false, which is fail-safe here (it only narrows the CGNAT operator rule).
+ */
+let hasTailscaleIfaceCache: boolean | undefined;
+export function hasTailscaleInterface(): boolean {
+  if (hasTailscaleIfaceCache !== undefined) return hasTailscaleIfaceCache;
+  try {
+    const ifaces = os.networkInterfaces();
+    hasTailscaleIfaceCache = Object.keys(ifaces).some((name) => name.toLowerCase().startsWith('tailscale'));
+  } catch {
+    hasTailscaleIfaceCache = false;
+  }
+  return hasTailscaleIfaceCache;
+}
+
+/** Exposed for tests to reset the memoised interface probe. */
+export function __resetTailscaleIfaceCacheForTests(): void {
+  hasTailscaleIfaceCache = undefined;
+}
 
 /**
  * Strip an IPv4-mapped IPv6 prefix (`::ffff:192.168.1.5` -> `192.168.1.5`) and
@@ -74,39 +102,11 @@ function isLoopback(ip: string): boolean {
 }
 
 /**
- * Whether the operator has DECLARED that this instance sits behind a same-host reverse
- * proxy (`WAYLAND_TRUSTED_PROXY`). When they have, loopback can no longer be read as
- * "the local human": the documented Caddy/nginx/cloudflared deployment forwards public
- * internet traffic to the app on `127.0.0.1`, so an unconditional loopback ⇒ operator
- * grant would hand the destructive gate to the entire internet (#808).
- *
- * Opt-in on purpose: the default (unset) keeps loopback ⇒ operator for the local-desktop
- * case (a browser on the same machine), so there is no regression. Operators who set it
- * prove operator another way - WAYLAND_OPERATOR_CIDRS or tailnet arrival. Note the
- * tradeoff: most destructive routes (restore, keys-included export) are reached over
- * HTTP loopback (StorageService.*Http), so with the proxy declared and no CIDR/tailnet
- * operator path they are unavailable over the WebUI by design (fail closed). Only the
- * password reset has a direct IPC path (webui-direct-reset-password) that bypasses this
- * classifier entirely.
- */
-export function trustedProxyDeclared(): boolean {
-  const raw = process.env.WAYLAND_TRUSTED_PROXY?.trim().toLowerCase();
-  return raw === '1' || raw === 'true' || raw === 'yes';
-}
-
-/** Public helper: whether a raw peer address is loopback (after normalization). (#830) */
-export function isLoopbackAddress(rawIp: string | undefined | null): boolean {
-  if (!rawIp) return false;
-  return isLoopback(normalizeIp(rawIp));
-}
-
-/**
- * Whether an IP is in 100.64.0.0/10.
- *
- * This is NOT a Tailscale-exclusive range - it is RFC 6598 shared address space,
- * used by real ISPs for carrier-grade NAT. The name is kept for continuity with
- * the range's usual role here, but membership alone proves NOTHING about the peer
- * (see `cgnatPeersAreOperator`). (#529)
+ * Whether an IP is in the CGNAT range (100.64.0.0/10, RFC6598). NOT Tailscale-
+ * exclusive - real ISPs carrier-grade-NAT customers through this same block, so
+ * this alone must never imply operator trust. Callers must additionally check
+ * `hasTailscaleInterface()` before treating a match as cryptographically
+ * authenticated Tailscale traffic (see `classifyClientTrust`).
  */
 function isCgnatRange(ip: string): boolean {
   const octets = parseIpv4(ip);
@@ -321,10 +321,12 @@ function matchesOperatorCidr(ip: string): boolean {
 /**
  * Classify a request's DIRECT-PEER IP as `operator` or `restricted`.
  *
- * Operator = loopback OR Tailscale-CGNAT OR an explicitly-allowlisted
- * `WAYLAND_OPERATOR_CIDRS` range. Everything else - including a bare 10.x /
- * 172.16.x / 192.168.x with no allowlist entry, and every public address - is
- * `restricted`. Unparseable/empty addresses fail safe to `restricted`.
+ * Operator = loopback OR (CGNAT-range peer AND this host has an active Tailscale
+ * interface) OR an explicitly-allowlisted `WAYLAND_OPERATOR_CIDRS` range.
+ * Everything else - including a bare 10.x / 172.16.x / 192.168.x with no
+ * allowlist entry, a CGNAT peer with no local Tailscale interface (e.g. a real
+ * ISP's carrier-grade NAT, #529), and every public address - is `restricted`.
+ * Unparseable/empty addresses fail safe to `restricted`.
  *
  * EXCEPTION (#808): when `WAYLAND_TRUSTED_PROXY` is declared, loopback is NOT operator
  * - a same-host reverse proxy forwards public traffic as a `127.0.0.1` peer, so a
@@ -339,16 +341,8 @@ export function classifyClientTrust(
 ): NetworkTrust {
   if (!rawIp) return 'restricted';
   const ip = normalizeIp(rawIp);
-  // Loopback is the local human ONLY when the app is not knowingly proxied. If the
-  // operator declared a same-host reverse proxy, a loopback peer may be that proxy
-  // forwarding a stranger, so it is not an operator on its own - it must still clear
-  // the CIDR/tailnet checks below (which a bare 127.0.0.1 never will). (#808)
-  if (isLoopback(ip) && !trustedProxyDeclared()) return 'operator';
-  // 100.64.0.0/10 is RFC 6598 CGNAT, not a Tailscale identity. Honour it as operator
-  // ONLY when this connection actually ARRIVED over the tailnet - i.e. it landed on
-  // one of our own tailnet addresses. Callers MUST pass `socket.localAddress`; a
-  // missing one fails closed. (#529)
-  if (isCgnatRange(ip) && cgnatPeerArrivedOverTailnet(localIp, Date.now())) return 'operator';
+  if (isLoopback(ip)) return 'operator';
+  if (isTailscaleCgnat(ip) && hasTailscaleInterface()) return 'operator';
   if (matchesOperatorCidr(ip)) return 'operator';
   return 'restricted';
 }

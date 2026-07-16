@@ -19,18 +19,18 @@ If Copy has voice constraints in `TEAM_MEMORY.md`, read them before specifying s
 
 **1. Assign the sequence a stage.** Each sequence has one job; do not mix.
 
-- *Think-stage welcome sequence:* the new subscriber knows the problem and is evaluating you. Goal: build authority and trust over 4-7 emails, no hard sell.
-- *Do-stage sales sequence:* the subscriber is warm and offer-aware. Goal: drive a single conversion event over 3-5 emails with rising urgency.
-- *Care-stage lifecycle:* the subscriber is a customer. Goal: onboarding, retention, expansion. Triggered by behavior (purchase, milestone, inactivity).
-- *Cross-stage newsletter:* recurring broadcast that holds the relationship. Goal: maintain mental availability between purchase decisions.
+- _Think-stage welcome sequence:_ the new subscriber knows the problem and is evaluating you. Goal: build authority and trust over 4-7 emails, no hard sell.
+- _Do-stage sales sequence:_ the subscriber is warm and offer-aware. Goal: drive a single conversion event over 3-5 emails with rising urgency.
+- _Care-stage lifecycle:_ the subscriber is a customer. Goal: onboarding, retention, expansion. Triggered by behavior (purchase, milestone, inactivity).
+- _Cross-stage newsletter:_ recurring broadcast that holds the relationship. Goal: maintain mental availability between purchase decisions.
 
 **2. Design the sequence structure.** For each email, specify: (a) stage role inside the sequence (introduce, deepen, prove, ask, close), (b) trigger (signup, time delay, behavior event), (c) primary CTA, (d) one objection it neutralizes. Hand the structural brief to Copy; do not draft email bodies yourself.
 
 **3. Trigger architecture.**
 
-- *Time-based:* send-after-signup intervals (day 0, day 1, day 3, day 7) for welcome flows.
-- *Behavior-based:* triggered by site events, click history, purchase, inactivity. Stronger than time-based but requires event-tracking infrastructure (route to Lens).
-- *Segmented broadcasts:* newsletter sends filtered by interest tags or engagement recency.
+- _Time-based:_ send-after-signup intervals (day 0, day 1, day 3, day 7) for welcome flows.
+- _Behavior-based:_ triggered by site events, click history, purchase, inactivity. Stronger than time-based but requires event-tracking infrastructure (route to Lens).
+- _Segmented broadcasts:_ newsletter sends filtered by interest tags or engagement recency.
 
 **4. Cadence and list hygiene.** Default sustainable cadence: 1 newsletter per week + behavior-triggered sequences. Prune unengaged subscribers (no opens in 90 days) on a rolling basis — inbox-provider deliverability falls with low engagement rates.
 
@@ -57,7 +57,9 @@ If Copy has voice constraints in `TEAM_MEMORY.md`, read them before specifying s
 **Brief:** "Build me an email funnel."
 
 **Before** (no stage map, mixed jobs):
-> *7-email sequence: welcome, story, pitch, social proof, urgency, last call, follow-up.*
+
+> _7-email sequence: welcome, story, pitch, social proof, urgency, last call, follow-up._
 
 **After** (stage-separated, sequence-architected):
-> *Two sequences, not one. (1) Think-stage welcome flow — 4 emails over 7 days: introduce the problem framing, share one customer story (no offer), deliver one useful framework, invite to a low-commitment next step. Exits to newsletter. (2) Do-stage sales sequence — triggered by [behavior event], 4 emails over 5 days: offer reveal + objection 1, proof + objection 2, scarcity setup, last-call. One CTA per email. Route subject lines and bodies to Copy with stage tags. Lens spec the event tracking.*
+
+> _Two sequences, not one. (1) Think-stage welcome flow — 4 emails over 7 days: introduce the problem framing, share one customer story (no offer), deliver one useful framework, invite to a low-commitment next step. Exits to newsletter. (2) Do-stage sales sequence — triggered by [behavior event], 4 emails over 5 days: offer reveal + objection 1, proof + objection 2, scarcity setup, last-call. One CTA per email. Route subject lines and bodies to Copy with stage tags. Lens spec the event tracking._

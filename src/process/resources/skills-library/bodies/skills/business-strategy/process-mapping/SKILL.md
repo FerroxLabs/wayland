@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning analysis template strategy"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning analysis template strategy'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Process Mapping
@@ -239,20 +239,21 @@ metadata:
 
 ### SIPOC Overview
 
-| Suppliers | Inputs | Process | Outputs | Customers |
-|-----------|--------|---------|---------|-----------|
-| Customer | Order (items, address, payment) | 1. Receive order | Picking list | Warehouse Team |
-| Inventory system | Stock availability | 2. Verify inventory | Confirmation email | Customer |
-| Warehouse | Picked items | 3. Pick items | Packed shipment | Shipping Carrier |
-| Packaging supplies | Boxes, labels, packing material | 4. Pack order | Tracking number | Customer |
-| Shipping carrier | Pickup schedule, tracking | 5. Ship order | Delivery confirmation | Customer |
-| | | 6. Confirm delivery | Fulfilled order record | Finance, CS |
+| Suppliers          | Inputs                          | Process             | Outputs                | Customers        |
+| ------------------ | ------------------------------- | ------------------- | ---------------------- | ---------------- |
+| Customer           | Order (items, address, payment) | 1. Receive order    | Picking list           | Warehouse Team   |
+| Inventory system   | Stock availability              | 2. Verify inventory | Confirmation email     | Customer         |
+| Warehouse          | Picked items                    | 3. Pick items       | Packed shipment        | Shipping Carrier |
+| Packaging supplies | Boxes, labels, packing material | 4. Pack order       | Tracking number        | Customer         |
+| Shipping carrier   | Pickup schedule, tracking       | 5. Ship order       | Delivery confirmation  | Customer         |
+|                    |                                 | 6. Confirm delivery | Fulfilled order record | Finance, CS      |
 
 ---
 
 ### Detailed Process Flow
 
 **Step 1: Receive and Validate Order**
+
 - **Performed by:** Order Management System (automated)
 - **Input:** Customer order from website (items, quantity, shipping address, payment)
 - **Action:** System validates payment, checks for fraud flags, confirms shipping address format
@@ -264,6 +265,7 @@ metadata:
 ---
 
 **Step 2: Check Inventory and Generate Picking List**
+
 - **Performed by:** Order Management System (automated)
 - **Input:** Validated order
 - **Action:** Check stock levels for each item. If all items in stock, generate picking list with warehouse locations. If partial stock, determine backorder vs. split shipment.
@@ -275,6 +277,7 @@ metadata:
 ---
 
 **Step 3: Pick Items from Warehouse**
+
 - **Performed by:** Warehouse Associate
 - **Input:** Picking list
 - **Action:** Retrieve items from designated locations. Scan each item barcode to confirm correct pick. Place items in staging area for packing.
@@ -287,12 +290,12 @@ metadata:
 
 ### Process Metrics
 
-| Metric | Current | Target | Notes |
-|--------|---------|--------|-------|
-| Total cycle time (order to delivery) | 48 hours | 36 hours | Including carrier transit |
-| Active processing time | 45 minutes | 30 minutes | Steps 1-5 internal processing |
-| Number of handoffs | 4 | 3 | System → Warehouse → Packing → Carrier |
-| Pick error rate | 2% | Under 0.5% | Wrong item or quantity picked |
+| Metric                               | Current    | Target     | Notes                                  |
+| ------------------------------------ | ---------- | ---------- | -------------------------------------- |
+| Total cycle time (order to delivery) | 48 hours   | 36 hours   | Including carrier transit              |
+| Active processing time               | 45 minutes | 30 minutes | Steps 1-5 internal processing          |
+| Number of handoffs                   | 4          | 3          | System → Warehouse → Packing → Carrier |
+| Pick error rate                      | 2%         | Under 0.5% | Wrong item or quantity picked          |
 
 ---
 
@@ -302,7 +305,7 @@ metadata:
 
 **Improvement Recommendations:**
 
-| Priority | Recommendation | Current State | Proposed State | Expected Impact |
-|----------|---------------|---------------|----------------|-----------------|
-| 1 | Optimize warehouse layout by order frequency | Items stored by category | High-frequency items near packing station | Reduce pick time by 30% |
-| 2 | Implement batch picking for concurrent orders | One order picked at a time | Pick 5-10 orders simultaneously on a route | Reduce total pick time per order by 40% |
+| Priority | Recommendation                                | Current State              | Proposed State                             | Expected Impact                         |
+| -------- | --------------------------------------------- | -------------------------- | ------------------------------------------ | --------------------------------------- |
+| 1        | Optimize warehouse layout by order frequency  | Items stored by category   | High-frequency items near packing station  | Reduce pick time by 30%                 |
+| 2        | Implement batch picking for concurrent orders | One order picked at a time | Pick 5-10 orders simultaneously on a route | Reduce total pick time per order by 40% |

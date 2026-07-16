@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis strategy planning entrepreneurship spreadsheets"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis strategy planning entrepreneurship spreadsheets'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Unit Economics
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to calculate, audit, or pressure-test unit economics for an existing or planned business
 - User wants to compute CAC, LTV, LTV/CAC ratio, CAC payback period, or gross margin per unit from raw inputs
 - User needs to present unit economics to investors, a board, or an acquirer and wants the numbers framed correctly
@@ -29,6 +31,7 @@ metadata:
 - User is modeling what unit economics need to look like for a business to be sustainable (target-state modeling for pre-revenue businesses)
 
 **Do NOT use this skill when:**
+
 - User needs a full three-statement financial model with P&L, balance sheet, and cash flow projections -- use `financial-model-structure` instead
 - User is asking about personal budgeting, personal loan calculations, or household finance -- use `budget-planning` instead
 - User needs a full pricing strategy analysis (price elasticity, competitive pricing, price anchoring) -- use `pricing-strategy` instead
@@ -63,23 +66,27 @@ Before any number is calculated, establish what the "unit" is. This is the most 
 Prompt the user for the following data, grouped by what is needed for each calculation. Accept whatever subset they can provide and calculate what is possible with available data.
 
 **For CAC:**
+
 - Total sales and marketing spend (all-in: ad spend, agency fees, sales salaries, commissions, tools, events, content production)
 - Number of new customers acquired in the same period
 - Whether they have spend broken out by channel (organic search, paid search, paid social, referral, outbound/SDR, partnerships, events)
 - Whether the sales team cost is fully loaded (salary + benefits + equity dilution equivalent + tools + allocated management)
 
 **For LTV:**
+
 - Average Revenue Per User/Account (ARPU) or Average Revenue Per Customer per period
 - Monthly (or annual) churn rate, or average customer lifespan if they track it directly
 - Direct cost per customer per period (hosting, payment processing, direct customer support labor, COGS for physical goods)
 - Whether there is significant expansion revenue (upsells, seat additions, usage overages) -- this materially changes LTV
 
 **For Gross Margin:**
+
 - Revenue per unit (one order, one customer-month, one transaction)
 - Direct variable costs per unit (infrastructure, payment fees, fulfillment, returns/refunds, direct labor)
 - Distinguish clearly: gross margin excludes sales, marketing, G&A, and R&D. Those belong below gross margin in the income statement.
 
 **For Payback Period:**
+
 - CAC (calculated above)
 - Monthly gross profit per customer (ARPU x Gross Margin %)
 
@@ -96,6 +103,7 @@ CAC = Total Sales & Marketing Spend (period) / New Customers Acquired (same peri
 ```
 
 Critical inclusions in the numerator:
+
 - All paid advertising (search, social, display, retargeting, podcast, TV/radio if applicable)
 - Sales team fully loaded cost: base salary + variable compensation + payroll taxes + benefits + equity (use Black-Scholes value or FMV if available, otherwise exclude with a note) + sales tools (CRM, sequencing tools, data enrichment) + travel and entertainment
 - Marketing team fully loaded cost (same fully loaded methodology)
@@ -106,6 +114,7 @@ Critical inclusions in the numerator:
 - PR and communications costs (if the primary objective is awareness/acquisition)
 
 Critical exclusions from the numerator:
+
 - Customer success, onboarding, and account management costs (these are retention costs, not acquisition costs -- some analysts allocate a portion to CAC, which is defensible but must be disclosed)
 - Product development and engineering (never CAC)
 - G&A and finance overhead (never CAC)
@@ -113,21 +122,22 @@ Critical exclusions from the numerator:
 
 **New-to-paid CAC vs. new-to-free CAC:**
 For freemium or free-trial models, calculate both:
+
 - New-to-free CAC = Total S&M Spend / All new signups (including free users)
 - New-to-paid CAC (effective CAC) = Total S&M Spend / Paid conversions only
 
 **Channel-level CAC:**
 If channel data is available, calculate CAC for each channel separately. This is the most actionable version of CAC for operators because it reveals where to reallocate budget. Common channels:
 
-| Channel | Typical CAC characteristic |
-|---|---|
-| Organic/SEO | Low direct cost, high content/time investment; low marginal CAC |
-| Paid search (SEM) | Medium CAC, highly measurable, scales but CPCs rise with competition |
-| Paid social (Meta, TikTok, LinkedIn) | CAC highly variable by audience; LinkedIn CAC often 5-10x Meta for B2B |
-| Referral/word-of-mouth | Often the lowest CAC channel but hard to scale intentionally |
-| Outbound SDR/BDR | High fully loaded cost per lead; best for high-ACV B2B deals |
-| Partner/channel sales | CAC lower on paper but partner margin and co-marketing costs must be included |
-| Product-led growth (PLG) | Lowest CAC when working; measure carefully to avoid under-attributing S&M costs |
+| Channel                              | Typical CAC characteristic                                                      |
+| ------------------------------------ | ------------------------------------------------------------------------------- |
+| Organic/SEO                          | Low direct cost, high content/time investment; low marginal CAC                 |
+| Paid search (SEM)                    | Medium CAC, highly measurable, scales but CPCs rise with competition            |
+| Paid social (Meta, TikTok, LinkedIn) | CAC highly variable by audience; LinkedIn CAC often 5-10x Meta for B2B          |
+| Referral/word-of-mouth               | Often the lowest CAC channel but hard to scale intentionally                    |
+| Outbound SDR/BDR                     | High fully loaded cost per lead; best for high-ACV B2B deals                    |
+| Partner/channel sales                | CAC lower on paper but partner margin and co-marketing costs must be included   |
+| Product-led growth (PLG)             | Lowest CAC when working; measure carefully to avoid under-attributing S&M costs |
 
 **Attribution caveat:** Multi-touch attribution means some customers were influenced by multiple channels. Be explicit about whether the user is using first-touch, last-touch, or multi-touch attribution, as this changes channel-level CAC significantly.
 
@@ -138,30 +148,39 @@ If channel data is available, calculate CAC for each channel separately. This is
 Choose the LTV formula that best matches the available data and business model. Always state which formula is being used and why.
 
 **Formula 1 -- Simple LTV (subscription with steady-state churn):**
+
 ```
 LTV = (ARPU × Gross Margin %) / Monthly Churn Rate
 ```
+
 Use when: Monthly churn rate is relatively stable, no significant expansion revenue, business has been operating long enough to have representative churn data (at least 6 months).
 
 **Formula 2 -- LTV with expansion revenue (SaaS with net revenue retention above 100%):**
+
 ```
 LTV = (ARPU × Gross Margin %) / (Gross Churn Rate - Net Expansion Rate)
 ```
+
 If Net Revenue Retention (NRR) > 100%, the denominator becomes negative, implying theoretically infinite LTV. In this case, cap at a 5-year horizon and note that expanding cohorts make this a lower-bound estimate, not an upper bound.
 
 **Formula 3 -- Cohort-based LTV (e-commerce, marketplace, non-subscription):**
+
 ```
 LTV = Sum of (Gross Profit per order × Orders per customer) over observed cohort lifetime
 ```
+
 This requires actual cohort data. Track a group of customers acquired in the same month and sum all gross profit generated by that cohort over their observed lifetime. Normalize by cohort size. This is the most accurate method but requires at least 12-24 months of transaction history.
 
 **Formula 4 -- Average Order Value (AOV) based LTV (e-commerce without subscription):**
+
 ```
 LTV = AOV × Purchase Frequency × Gross Margin % × Average Customer Lifespan (years)
 ```
+
 Use when cohort data is not available. Requires estimates or historical averages for purchase frequency and lifespan. Less precise but directionally useful.
 
 **Churn rate guidance:**
+
 - Monthly churn rate = Customers lost in month / Customers at start of month
 - Annual churn rate ≠ 12 × Monthly churn rate. The correct conversion: Annual Churn = 1 - (1 - Monthly Churn)^12
 - Average customer lifespan = 1 / Monthly Churn Rate (in months)
@@ -170,6 +189,7 @@ Use when cohort data is not available. Requires estimates or historical averages
 
 **Expansion revenue treatment:**
 If the business has meaningful upsell, cross-sell, or usage-based expansion:
+
 - Calculate expansion revenue rate as % of ARR per month
 - Subtract expansion rate from gross churn rate in the denominator (Formula 2 above)
 - Examples: Snowflake (usage-based, NRR ~130%), Salesforce (seat expansion, NRR ~110%), HubSpot (tier upsell, NRR ~110%)
@@ -179,21 +199,23 @@ If the business has meaningful upsell, cross-sell, or usage-based expansion:
 ### Step 5: Calculate CAC Payback Period
 
 **Formula:**
+
 ```
 CAC Payback Period (months) = CAC / (ARPU × Gross Margin %)
 ```
+
 This is the number of months of gross profit needed to recover the acquisition investment.
 
 **Benchmarks by business type:**
 
-| Business Type | Excellent | Good | Acceptable | Concerning |
-|---|---|---|---|---|
-| B2C SaaS / subscription | < 3 months | 3-6 months | 6-9 months | > 12 months |
-| B2B SaaS (SMB) | < 6 months | 6-12 months | 12-18 months | > 18 months |
-| B2B SaaS (Enterprise) | < 12 months | 12-18 months | 18-24 months | > 30 months |
-| E-commerce (repeat purchase) | < 2 months | 2-4 months | 4-8 months | > 12 months |
-| Marketplace | < 6 months | 6-12 months | 12-18 months | > 24 months |
-| Consumer app (ad-supported) | < 3 months | 3-9 months | 9-12 months | > 18 months |
+| Business Type                | Excellent   | Good         | Acceptable   | Concerning  |
+| ---------------------------- | ----------- | ------------ | ------------ | ----------- |
+| B2C SaaS / subscription      | < 3 months  | 3-6 months   | 6-9 months   | > 12 months |
+| B2B SaaS (SMB)               | < 6 months  | 6-12 months  | 12-18 months | > 18 months |
+| B2B SaaS (Enterprise)        | < 12 months | 12-18 months | 18-24 months | > 30 months |
+| E-commerce (repeat purchase) | < 2 months  | 2-4 months   | 4-8 months   | > 12 months |
+| Marketplace                  | < 6 months  | 6-12 months  | 12-18 months | > 24 months |
+| Consumer app (ad-supported)  | < 3 months  | 3-9 months   | 9-12 months  | > 18 months |
 
 **Why payback period matters more than LTV/CAC in some contexts:**
 LTV/CAC is a long-run efficiency ratio. CAC payback period is a cash flow and working capital metric. A business with LTV/CAC of 5 but a 30-month payback period needs to fund 30 months of operating losses per customer before breaking even on that customer. High-growth businesses that rely on debt or equity to fund growth must keep payback period short. For capital-efficient or bootstrapped businesses, payback period is often the binding constraint.
@@ -206,6 +228,7 @@ For businesses with long payback periods, present a discounted LTV using a cost 
 ### Step 6: Calculate Gross Margin per Unit
 
 **Formula:**
+
 ```
 Gross Margin per Unit = Revenue per Unit - Direct Costs per Unit
 Gross Margin % = (Gross Margin per Unit / Revenue per Unit) × 100
@@ -213,27 +236,27 @@ Gross Margin % = (Gross Margin per Unit / Revenue per Unit) × 100
 
 **Direct cost inclusions by business type:**
 
-| Business Type | Typical Direct Cost Components |
-|---|---|
-| SaaS | Cloud/hosting (AWS, GCP, Azure), payment processing (2.5-3.5% of revenue), CDN costs, third-party API costs embedded in product, direct customer support labor for onboarding |
-| E-commerce | Product COGS, fulfillment and warehouse labor, shipping, packaging, payment processing, returns handling and restocking |
-| Marketplace | Payment processing, fraud and trust & safety costs, direct customer support labor, escrow and payout costs |
-| Consumer app | Hosting and infrastructure, content licensing costs (if any), payment processing for in-app purchases |
-| Services | Direct labor (billable hours × fully loaded rate), direct materials, subcontractor costs |
-| Hardware | Component costs, manufacturing labor, warranty reserve, import duties, shipping to customer |
+| Business Type | Typical Direct Cost Components                                                                                                                                                |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SaaS          | Cloud/hosting (AWS, GCP, Azure), payment processing (2.5-3.5% of revenue), CDN costs, third-party API costs embedded in product, direct customer support labor for onboarding |
+| E-commerce    | Product COGS, fulfillment and warehouse labor, shipping, packaging, payment processing, returns handling and restocking                                                       |
+| Marketplace   | Payment processing, fraud and trust & safety costs, direct customer support labor, escrow and payout costs                                                                    |
+| Consumer app  | Hosting and infrastructure, content licensing costs (if any), payment processing for in-app purchases                                                                         |
+| Services      | Direct labor (billable hours × fully loaded rate), direct materials, subcontractor costs                                                                                      |
+| Hardware      | Component costs, manufacturing labor, warranty reserve, import duties, shipping to customer                                                                                   |
 
 **Gross margin benchmarks by sector:**
 
-| Sector | Typical Range | Best-in-class |
-|---|---|---|
-| Pure SaaS | 70-80% | 85%+ (e.g., Veeva, Zoom) |
-| B2B SaaS (with professional services) | 60-72% | 78%+ |
-| E-commerce (branded DTC) | 40-60% | 65%+ |
-| E-commerce (reseller/marketplace) | 20-40% | 50%+ |
-| Marketplace (take-rate model) | 60-80% | 85%+ |
-| Consumer subscription | 50-70% | 80%+ |
-| Physical goods + SaaS bundle | 45-65% | 70%+ |
-| Services / consulting | 30-55% | 60%+ |
+| Sector                                | Typical Range | Best-in-class            |
+| ------------------------------------- | ------------- | ------------------------ |
+| Pure SaaS                             | 70-80%        | 85%+ (e.g., Veeva, Zoom) |
+| B2B SaaS (with professional services) | 60-72%        | 78%+                     |
+| E-commerce (branded DTC)              | 40-60%        | 65%+                     |
+| E-commerce (reseller/marketplace)     | 20-40%        | 50%+                     |
+| Marketplace (take-rate model)         | 60-80%        | 85%+                     |
+| Consumer subscription                 | 50-70%        | 80%+                     |
+| Physical goods + SaaS bundle          | 45-65%        | 70%+                     |
+| Services / consulting                 | 30-55%        | 60%+                     |
 
 Never calculate LTV from revenue alone without applying gross margin. LTV calculated from revenue is technically "revenue LTV" -- it overstates the true economics and is misleading in investor presentations. Always use gross profit in the LTV numerator.
 
@@ -244,6 +267,7 @@ Never calculate LTV from revenue alone without applying gross margin. LTV calcul
 Sensitivity analysis converts unit economics from a snapshot into a decision tool. Run the following scenarios:
 
 **Standard sensitivity grid (run all three):**
+
 1. Churn reduction: Show LTV and LTV/CAC at current churn, current churn - 1 percentage point, and current churn - 2 percentage points
 2. ARPU expansion: Show LTV and LTV/CAC at current ARPU, +10%, and +20%
 3. CAC reduction: Show payback period and LTV/CAC at current CAC, -10%, and -20%
@@ -253,6 +277,7 @@ Calculate the percentage improvement in each input required to move LTV/CAC from
 
 **Maximum viable CAC:**
 Given current LTV, calculate the maximum CAC the business can sustain at different LTV/CAC targets:
+
 - Max CAC at LTV/CAC = 3.0: LTV / 3
 - Max CAC at LTV/CAC = 5.0: LTV / 5
 
@@ -265,6 +290,7 @@ This gives the go-to-market team a clear spending ceiling per customer acquired.
 Do not end the analysis with just numbers. Provide a prioritized set of recommendations based on the analysis.
 
 **Recommendation prioritization framework:**
+
 - Identify which single metric (churn, ARPU, CAC) is furthest from benchmark and has the most LTV/CAC impact per unit of change
 - Distinguish short-term levers (tactical, weeks to months to implement) from structural levers (strategic, months to quarters)
 - If LTV/CAC < 1.0, the business cannot grow its way to health -- it needs to fix unit economics before scaling spend
@@ -440,6 +466,7 @@ Do not end the analysis with just numbers. Provide a prioritized set of recommen
 ## Edge Cases
 
 ### Pre-Revenue or Pre-Launch Business: Target Unit Economics Modeling
+
 No actual data exists. Do not attempt to calculate unit economics from assumptions as if they were real -- label everything as a projection and build a target-state model.
 
 - Ask the user for their target customer segment and intended pricing
@@ -450,6 +477,7 @@ No actual data exists. Do not attempt to calculate unit economics from assumptio
 - Clearly label: "Projection based on industry benchmarks. No actual customer data available."
 
 ### Marketplace with Two-Sided Economics
+
 Calculate unit economics for each side separately, then present a combined view.
 
 - **Demand side (buyers):** CAC includes all demand-generation spend. LTV is based on gross profit per buyer × purchase frequency × average lifespan.
@@ -458,6 +486,7 @@ Calculate unit economics for each side separately, then present a combined view.
 - Note that network effects create non-linear LTV: as the marketplace grows, individual buyer LTV increases because supply quality and availability improve. This is real but very difficult to quantify in early-stage analysis -- flag it as a qualitative upside factor rather than embedding it in the model.
 
 ### Freemium Model with Free-to-Paid Conversion
+
 Freemium unit economics require careful cost allocation or CAC is severely understated.
 
 - Calculate free user cost: (Total S&M spend + Product cost attributable to serving free users) / Total free signups = Cost per free signup
@@ -466,6 +495,7 @@ Freemium unit economics require careful cost allocation or CAC is severely under
 - Present both metrics: effective CAC (S&M only) and fully-loaded CAC (including free tier costs). Investors typically accept effective CAC but appreciate visibility into the free-tier cost.
 
 ### SaaS Business with Negative Net Revenue Churn (NRR > 100%)
+
 This is the most economically powerful scenario in SaaS and must not be handled with the simple LTV formula.
 
 - Use the expansion-adjusted LTV formula: LTV = Gross Profit / (Gross Churn Rate - Monthly Expansion Rate)
@@ -474,6 +504,7 @@ This is the most economically powerful scenario in SaaS and must not be handled 
 - Report NRR as a headline metric alongside LTV/CAC: "NRR of 120% means the revenue base from existing customers grows 20% annually without any new customer acquisition." This context is critical for investors.
 
 ### Very High-ACV Enterprise Deals with Low Volume
+
 Enterprise SaaS often has 3-10 new customers per quarter, not 20 per month. Standard CAC and payback formulas break down at this volume.
 
 - Calculate CAC at the deal level, not the monthly-aggregate level: Total S&M spend in the quarter / Deals closed in the quarter. Note that the sales cycle for enterprise may span 2-4 quarters -- attribute S&M costs to the quarter deals are closed, not the quarter spend occurred, or use a rolling 4-quarter average spend in the numerator.
@@ -482,6 +513,7 @@ Enterprise SaaS often has 3-10 new customers per quarter, not 20 per month. Stan
 - LTV for enterprise is often better estimated using contract duration and renewal probability rather than churn rate, because enterprise customers often have 3-year contracts. LTV = ACV × Gross Margin % × Average Contract Duration × Renewal Rate.
 
 ### Deteriorating Unit Economics Across Cohorts
+
 If the user has cohort data and unit economics are getting worse over time (newer cohorts churning faster or having lower LTV than older cohorts), this signals a structural problem that must be called out explicitly.
 
 - Calculate LTV separately for cohorts from 6 months ago, 12 months ago, and 18+ months ago
@@ -490,6 +522,7 @@ If the user has cohort data and unit economics are getting worse over time (newe
 - Recommend the user track LTV-at-6-months as a leading indicator (rather than waiting 24 months to see full LTV) by benchmarking how much gross profit each cohort generates in its first 6 months and tracking whether that number is stable, improving, or deteriorating
 
 ### Negative Gross Margin per Unit
+
 If direct costs exceed revenue on a per-unit basis (a common finding in early-stage hardware, delivery, and marketplace businesses), LTV becomes negative and the entire LTV/CAC framework breaks down.
 
 - Do not attempt to calculate LTV/CAC. The business is subsidizing each customer -- acquiring more customers makes the problem worse, not better.
@@ -508,6 +541,7 @@ If direct costs exceed revenue on a per-unit basis (a common finding in early-st
 ## Unit Economics Analysis: B2B SaaS -- Mid-Market Professional Services
 
 ### Unit Definition
+
 - **Unit:** One customer account (company-level)
 - **Business model:** B2B SaaS, subscription, mid-market (50-500 employee firms)
 - **Analysis period:** Current monthly run rate (18 months operating history)
@@ -518,112 +552,117 @@ If direct costs exceed revenue on a per-unit basis (a common finding in early-st
 
 ### Customer Acquisition Cost (CAC)
 
-| Component | Monthly Spend | Notes |
-|-----------|--------------|-------|
-| Google Ads | $12,000 | Paid search |
-| LinkedIn Ads | $8,000 | Paid social -- B2B targeting |
-| SDR team (2 reps, fully loaded) | $13,000 | $6,500/rep × 2 (salary + benefits + tools) |
-| Marketing tools (HubSpot, Clearbit, Gong) | $3,000 | CRM, enrichment, conversation intelligence |
-| **Total S&M Spend** | **$36,000** | |
-| New accounts closed | 15 | |
-| **Blended CAC** | **$2,400** | $36,000 / 15 |
+| Component                                 | Monthly Spend | Notes                                      |
+| ----------------------------------------- | ------------- | ------------------------------------------ |
+| Google Ads                                | $12,000       | Paid search                                |
+| LinkedIn Ads                              | $8,000        | Paid social -- B2B targeting               |
+| SDR team (2 reps, fully loaded)           | $13,000       | $6,500/rep × 2 (salary + benefits + tools) |
+| Marketing tools (HubSpot, Clearbit, Gong) | $3,000        | CRM, enrichment, conversation intelligence |
+| **Total S&M Spend**                       | **$36,000**   |                                            |
+| New accounts closed                       | 15            |                                            |
+| **Blended CAC**                           | **$2,400**    | $36,000 / 15                               |
 
 #### Channel-Level CAC (Estimated Attribution)
-| Channel | Spend | New Customers | CAC | % of Total Spend |
-|---------|-------|---------------|-----|-----------------|
-| Google Ads | $12,000 | ~6 | ~$2,000 | 33% |
-| LinkedIn Ads | $8,000 | ~3 | ~$2,667 | 22% |
-| Outbound SDR | $13,000 | ~5 | ~$2,600 | 36% |
-| Inbound (HubSpot/tools-driven) | $3,000 | ~1 | ~$3,000 | 8% |
-| **Total / Blended** | **$36,000** | **15** | **$2,400** | 100% |
 
-*Note: Channel attribution is estimated based on your spend breakdown. First-touch or last-touch attribution would change these numbers. Google Ads currently has the best cost efficiency at ~$2,000 CAC vs. LinkedIn at ~$2,667.*
+| Channel                        | Spend       | New Customers | CAC        | % of Total Spend |
+| ------------------------------ | ----------- | ------------- | ---------- | ---------------- |
+| Google Ads                     | $12,000     | ~6            | ~$2,000    | 33%              |
+| LinkedIn Ads                   | $8,000      | ~3            | ~$2,667    | 22%              |
+| Outbound SDR                   | $13,000     | ~5            | ~$2,600    | 36%              |
+| Inbound (HubSpot/tools-driven) | $3,000      | ~1            | ~$3,000    | 8%               |
+| **Total / Blended**            | **$36,000** | **15**        | **$2,400** | 100%             |
+
+_Note: Channel attribution is estimated based on your spend breakdown. First-touch or last-touch attribution would change these numbers. Google Ads currently has the best cost efficiency at ~$2,000 CAC vs. LinkedIn at ~$2,667._
 
 ---
 
 ### Gross Margin per Unit
 
-| Component | Per Account / Month | Notes |
-|-----------|---------------------|-------|
-| Average Revenue Per Account (ARPA) | $450/mo | |
-| Infrastructure / hosting | ($40/mo) | Direct infrastructure cost |
-| Payment processing (Stripe 2.7%) | ($12/mo) | $450 × 2.7% = $12.15, rounded |
-| **Gross Profit per Account** | **$398/mo** | $450 - $40 - $12 |
-| **Gross Margin %** | **88.4%** | $398 / $450 |
+| Component                          | Per Account / Month | Notes                         |
+| ---------------------------------- | ------------------- | ----------------------------- |
+| Average Revenue Per Account (ARPA) | $450/mo             |                               |
+| Infrastructure / hosting           | ($40/mo)            | Direct infrastructure cost    |
+| Payment processing (Stripe 2.7%)   | ($12/mo)            | $450 × 2.7% = $12.15, rounded |
+| **Gross Profit per Account**       | **$398/mo**         | $450 - $40 - $12              |
+| **Gross Margin %**                 | **88.4%**           | $398 / $450                   |
 
-*Benchmark: B2B SaaS gross margins typically run 70-80%. At 88.4%, this business is above benchmark -- consistent with a software-only product without significant direct support labor costs per account. This is a strong foundation for unit economics.*
+_Benchmark: B2B SaaS gross margins typically run 70-80%. At 88.4%, this business is above benchmark -- consistent with a software-only product without significant direct support labor costs per account. This is a strong foundation for unit economics._
 
 ---
 
 ### Lifetime Value (LTV)
 
-| Component | Value | Calculation |
-|-----------|-------|-------------|
-| ARPA | $450/mo | |
-| Gross Margin % | 88.4% | |
-| Gross Profit per Account/month | $398/mo | $450 × 88.4% |
-| Gross Churn Rate | 2.5%/mo | |
-| Monthly Expansion Revenue Rate | 0.8%/mo | Seat additions |
-| Net Churn Rate (denominator) | 1.7%/mo | 2.5% - 0.8% |
-| Average "Effective" Customer Lifespan | 58.8 months | 1 / 1.7% |
-| **LTV (Expansion-Adjusted)** | **$23,412** | $398 / 0.017 |
-| *LTV cap applied?* | *No* | Effective lifespan of 58.8 months is just under the 60-month cap; no cap needed |
+| Component                             | Value       | Calculation                                                                     |
+| ------------------------------------- | ----------- | ------------------------------------------------------------------------------- |
+| ARPA                                  | $450/mo     |                                                                                 |
+| Gross Margin %                        | 88.4%       |                                                                                 |
+| Gross Profit per Account/month        | $398/mo     | $450 × 88.4%                                                                    |
+| Gross Churn Rate                      | 2.5%/mo     |                                                                                 |
+| Monthly Expansion Revenue Rate        | 0.8%/mo     | Seat additions                                                                  |
+| Net Churn Rate (denominator)          | 1.7%/mo     | 2.5% - 0.8%                                                                     |
+| Average "Effective" Customer Lifespan | 58.8 months | 1 / 1.7%                                                                        |
+| **LTV (Expansion-Adjusted)**          | **$23,412** | $398 / 0.017                                                                    |
+| _LTV cap applied?_                    | _No_        | Effective lifespan of 58.8 months is just under the 60-month cap; no cap needed |
 
-*Comparison: If we had used the simple LTV formula ignoring expansion (LTV = $398 / 0.025), LTV would have been $15,920. The expansion revenue adds $7,492 (47%) to LTV. This is why asking about expansion revenue is critical -- it is not a small adjustment.*
+_Comparison: If we had used the simple LTV formula ignoring expansion (LTV = $398 / 0.025), LTV would have been $15,920. The expansion revenue adds $7,492 (47%) to LTV. This is why asking about expansion revenue is critical -- it is not a small adjustment._
 
 ---
 
 ### Key Metrics Summary
 
-| Metric | Calculated Value | Benchmark for Mid-Market B2B SaaS | Assessment |
-|--------|-----------------|-----------------------------------|------------|
-| **LTV** | $23,412 | -- | |
-| **CAC (Blended)** | $2,400 | -- | |
-| **LTV/CAC Ratio** | **9.8x** | 3.0x-5.0x | Above target range -- possible under-investment in growth |
-| **CAC Payback Period** | **6.0 months** | 12-18 months (mid-market SaaS) | Excellent -- well ahead of benchmark |
-| **Gross Margin %** | **88.4%** | 70-80% (B2B SaaS) | Above benchmark -- strong cost structure |
-| **Max Viable CAC (at 3x LTV/CAC)** | $7,804 | -- | **$5,404 headroom above current $2,400 CAC** |
-| **Max Viable CAC (at 5x LTV/CAC)** | $4,682 | -- | **$2,282 headroom above current $2,400 CAC** |
+| Metric                             | Calculated Value | Benchmark for Mid-Market B2B SaaS | Assessment                                                |
+| ---------------------------------- | ---------------- | --------------------------------- | --------------------------------------------------------- |
+| **LTV**                            | $23,412          | --                                |                                                           |
+| **CAC (Blended)**                  | $2,400           | --                                |                                                           |
+| **LTV/CAC Ratio**                  | **9.8x**         | 3.0x-5.0x                         | Above target range -- possible under-investment in growth |
+| **CAC Payback Period**             | **6.0 months**   | 12-18 months (mid-market SaaS)    | Excellent -- well ahead of benchmark                      |
+| **Gross Margin %**                 | **88.4%**        | 70-80% (B2B SaaS)                 | Above benchmark -- strong cost structure                  |
+| **Max Viable CAC (at 3x LTV/CAC)** | $7,804           | --                                | **$5,404 headroom above current $2,400 CAC**              |
+| **Max Viable CAC (at 5x LTV/CAC)** | $4,682           | --                                | **$2,282 headroom above current $2,400 CAC**              |
 
 ---
 
 ### Sensitivity Analysis
 
 #### Churn Impact on LTV and LTV/CAC
-| Monthly Churn Rate | Effective Net Churn | LTV | LTV/CAC | Payback (months) |
-|--------------------|--------------------|----|---------|-----------------|
-| 1.5% (improved) | 0.7% | $56,857 | 23.7x | 6.0 |
-| 2.0% | 1.2% | $33,167 | 13.8x | 6.0 |
-| **2.5% (current)** | **1.7%** | **$23,412** | **9.8x** | **6.0** |
-| 3.0% | 2.2% | $18,091 | 7.5x | 6.0 |
-| 4.0% | 3.2% | $12,438 | 5.2x | 6.0 |
 
-*Note: Payback period does not change with churn -- it only depends on ARPA, gross margin, and CAC. LTV is highly sensitive to small churn changes at these levels.*
+| Monthly Churn Rate | Effective Net Churn | LTV         | LTV/CAC  | Payback (months) |
+| ------------------ | ------------------- | ----------- | -------- | ---------------- |
+| 1.5% (improved)    | 0.7%                | $56,857     | 23.7x    | 6.0              |
+| 2.0%               | 1.2%                | $33,167     | 13.8x    | 6.0              |
+| **2.5% (current)** | **1.7%**            | **$23,412** | **9.8x** | **6.0**          |
+| 3.0%               | 2.2%                | $18,091     | 7.5x     | 6.0              |
+| 4.0%               | 3.2%                | $12,438     | 5.2x     | 6.0              |
+
+_Note: Payback period does not change with churn -- it only depends on ARPA, gross margin, and CAC. LTV is highly sensitive to small churn changes at these levels._
 
 #### ARPA Expansion Impact
-| ARPA Scenario | Gross Profit/mo | LTV | LTV/CAC | Payback (months) |
-|---------------|----------------|-----|---------|-----------------|
-| Current ($450) | $398 | $23,412 | 9.8x | 6.0 |
-| +10% ($495) | $438 | $25,765 | 10.7x | 5.5 |
-| +20% ($540) | $477 | $28,059 | 11.7x | 5.0 |
+
+| ARPA Scenario  | Gross Profit/mo | LTV     | LTV/CAC | Payback (months) |
+| -------------- | --------------- | ------- | ------- | ---------------- |
+| Current ($450) | $398            | $23,412 | 9.8x    | 6.0              |
+| +10% ($495)    | $438            | $25,765 | 10.7x   | 5.5              |
+| +20% ($540)    | $477            | $28,059 | 11.7x   | 5.0              |
 
 #### CAC Reduction / Increase Impact (LTV = $23,412)
-| CAC Scenario | LTV/CAC | Payback (months) |
-|--------------|---------|-----------------|
-| +100% ($4,800 -- doubled) | 4.9x | 12.1 |
-| +50% ($3,600) | 6.5x | 9.0 |
-| **Current ($2,400)** | **9.8x** | **6.0** |
-| -10% ($2,160) | 10.8x | 5.4 |
-| -20% ($1,920) | 12.2x | 4.8 |
+
+| CAC Scenario              | LTV/CAC  | Payback (months) |
+| ------------------------- | -------- | ---------------- |
+| +100% ($4,800 -- doubled) | 4.9x     | 12.1             |
+| +50% ($3,600)             | 6.5x     | 9.0              |
+| **Current ($2,400)**      | **9.8x** | **6.0**          |
+| -10% ($2,160)             | 10.8x    | 5.4              |
+| -20% ($1,920)             | 12.2x    | 4.8              |
 
 ---
 
 ### Lever Efficiency Summary
-| Lever | Change Required to Reach LTV/CAC = 3.0x | Change Required to Reach LTV/CAC = 5.0x | Assessment |
-|-------|----------------------------------------|----------------------------------------|------------|
-| Reduce churn | Already at 9.8x -- no reduction needed | Already exceeds 5x | Irrelevant at current ratios |
-| Increase ARPA | Already at 9.8x -- no increase needed | Already exceeds 5x | Irrelevant at current ratios |
-| **Increase CAC (invest more in growth)** | CAC can increase to **$7,804** | CAC can increase to **$4,682** | **The real question is growth investment** |
+
+| Lever                                    | Change Required to Reach LTV/CAC = 3.0x | Change Required to Reach LTV/CAC = 5.0x | Assessment                                 |
+| ---------------------------------------- | --------------------------------------- | --------------------------------------- | ------------------------------------------ |
+| Reduce churn                             | Already at 9.8x -- no reduction needed  | Already exceeds 5x                      | Irrelevant at current ratios               |
+| Increase ARPA                            | Already at 9.8x -- no increase needed   | Already exceeds 5x                      | Irrelevant at current ratios               |
+| **Increase CAC (invest more in growth)** | CAC can increase to **$7,804**          | CAC can increase to **$4,682**          | **The real question is growth investment** |
 
 ---
 

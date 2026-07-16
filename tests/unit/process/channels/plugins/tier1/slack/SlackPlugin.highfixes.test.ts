@@ -98,7 +98,7 @@ describe('verifier: F1 - non-v0 scheme is rejected before HMAC compare', () => {
         query: {},
         url: 'https://example.com/webhook',
       },
-      SLACK_SECRET,
+      SLACK_SECRET
     );
     expect(result.ok).toBe(false);
     if (result.ok === false) {
@@ -118,7 +118,7 @@ describe('verifier: F1 - non-v0 scheme is rejected before HMAC compare', () => {
         query: {},
         url: 'https://example.com/webhook',
       },
-      SLACK_SECRET,
+      SLACK_SECRET
     );
     expect(result.ok).toBe(true);
   });

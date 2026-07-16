@@ -50,14 +50,12 @@ vi.mock('nostr-tools', () => ({
     npubEncode: vi.fn((hex: string) => `npub1${hex.slice(0, 8)}`),
     decode: vi.fn(),
   },
-  finalizeEvent: vi.fn(
-    (partial: { kind: number; content: string; tags: string[][]; created_at: number }) => ({
-      ...partial,
-      id: FIXED_EVENT_ID,
-      pubkey: MOCK_PK,
-      sig: 'sig',
-    }),
-  ),
+  finalizeEvent: vi.fn((partial: { kind: number; content: string; tags: string[][]; created_at: number }) => ({
+    ...partial,
+    id: FIXED_EVENT_ID,
+    pubkey: MOCK_PK,
+    sig: 'sig',
+  })),
   // Always-true Schnorr verify stub. Real-signature tests live in
   // NostrPlugin.security.test.ts which toggles this per-test.
   verifyEvent: vi.fn(() => true),
@@ -119,10 +117,7 @@ describe('NostrPlugin.sendMessage', () => {
     mockWsInstance.send.mockImplementation((_data: string) => {
       // Only reply to EVENT messages, not REQ.
       setTimeout(() => {
-        mockWsInstance.emit(
-          'message',
-          Buffer.from(JSON.stringify(['OK', FIXED_EVENT_ID, true, ''])),
-        );
+        mockWsInstance.emit('message', Buffer.from(JSON.stringify(['OK', FIXED_EVENT_ID, true, ''])));
       }, 5);
     });
 
@@ -155,9 +150,7 @@ describe('NostrPlugin.sendMessage', () => {
     const plugin = new NostrPlugin();
     await plugin.initialize(makeConfig());
     // Don't start - sk/pk not set → 'not running' guard fires first.
-    await expect(plugin.sendMessage(RECIPIENT_PK, { text: 'hi' })).rejects.toThrow(
-      /not running|no nostr relays/i,
-    );
+    await expect(plugin.sendMessage(RECIPIENT_PK, { text: 'hi' })).rejects.toThrow(/not running|no nostr relays/i);
   });
 });
 
@@ -182,10 +175,7 @@ describe('NostrPlugin inbound event routing', () => {
     };
 
     // Simulate relay pushing an EVENT.
-    mockWsInstance.emit(
-      'message',
-      Buffer.from(JSON.stringify(['EVENT', 'sub-id', inboundEvent])),
-    );
+    mockWsInstance.emit('message', Buffer.from(JSON.stringify(['EVENT', 'sub-id', inboundEvent])));
 
     // Allow microtasks to settle.
     await new Promise((r) => setTimeout(r, 20));
@@ -210,10 +200,7 @@ describe('NostrPlugin inbound event routing', () => {
       content: 'enc:bot talking to itself',
     };
 
-    mockWsInstance.emit(
-      'message',
-      Buffer.from(JSON.stringify(['EVENT', 'sub-id', selfEvent])),
-    );
+    mockWsInstance.emit('message', Buffer.from(JSON.stringify(['EVENT', 'sub-id', selfEvent])));
 
     await new Promise((r) => setTimeout(r, 20));
     expect(received).toHaveLength(0);

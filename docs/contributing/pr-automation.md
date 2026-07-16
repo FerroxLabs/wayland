@@ -6,15 +6,15 @@ This repository runs a PR automation agent that continuously processes open PRs 
 
 ## Label System
 
-| Label                    | Meaning                                                                                       | Terminal? |
-| ------------------------ | --------------------------------------------------------------------------------------------- | --------- |
-| `bot:reviewing`          | Review in progress (re-entry lock placeholder)                                                | No        |
+| Label                    | Meaning                                                                                      | Terminal? |
+| ------------------------ | -------------------------------------------------------------------------------------------- | --------- |
+| `bot:reviewing`          | Review in progress (re-entry lock placeholder)                                               | No        |
 | `bot:ready-to-fix`       | CONDITIONAL review complete, waiting for bot to run fix on next cycle                        | No        |
-| `bot:fixing`             | Fix in progress (re-entry lock placeholder)                                                   | No        |
+| `bot:fixing`             | Fix in progress (re-entry lock placeholder)                                                  | No        |
 | `bot:ci-waiting`         | CI failure notified, waiting for author to push a new commit - bot pauses processing this PR | No        |
-| `bot:needs-rebase`       | Merge conflict and bot cannot auto-rebase - waiting for author to push a new commit           | No        |
-| `bot:needs-human-review` | Human intervention required (blocking issue)                                                  | ✅        |
-| `bot:ready-to-merge`     | Bot has finished processing, code looks good, waiting for human confirmation to merge         | ✅        |
+| `bot:needs-rebase`       | Merge conflict and bot cannot auto-rebase - waiting for author to push a new commit          | No        |
+| `bot:needs-human-review` | Human intervention required (blocking issue)                                                 | ✅        |
+| `bot:ready-to-merge`     | Bot has finished processing, code looks good, waiting for human confirmation to merge        | ✅        |
 
 ---
 

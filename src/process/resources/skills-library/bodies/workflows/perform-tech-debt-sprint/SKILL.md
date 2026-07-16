@@ -15,7 +15,7 @@ skills: tech-debt-assessment code-smell-detection refactoring-patterns test-refa
 trigger_phrases: tech debt sprint reduce technical debt cleanup sprint code quality improvement refactoring sprint
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: refactoring testing architecture planning step-by-step
   category: software-project
   depends: tech-debt-assessment code-smell-detection refactoring-patterns test-refactoring release-management
@@ -165,6 +165,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Scale the sprint duration based on team size and debt severity
 - For small teams (1-2 developers), focus on a single area per sprint
 - Capture before/after metrics to build the case for future debt sprints

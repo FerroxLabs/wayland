@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "spaced-repetition study-skills active-recall note-taking"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'spaced-repetition study-skills active-recall note-taking'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Flashcard Generation
 
 ## When to Use
@@ -80,34 +81,40 @@ This is the most important step. Every card must encode exactly one atomic memor
 Match card type to the nature of the knowledge being encoded. Use the following decision logic:
 
 **Basic (Front/Back) cards** -- use for:
+
 - Definitions of terms ("What is osmosis?")
 - Factual single-answer questions ("What year was the Treaty of Versailles signed?")
 - Named relationships ("What enzyme catalyzes the first step of glycolysis?")
 
 **Cloze deletion cards** -- use for:
+
 - Filling in a key term in a statement the learner should memorize verbatim or near-verbatim
 - Sequential processes where context matters ("During the action potential, the membrane depolarizes when {{c1::sodium}} ions rush into the cell")
 - Formulas where variable names must be memorized ("Ohm's Law: V = {{c1::I}} × {{c2::R}}")
 - Best for Anki users; for paper/Quizlet users, rewrite as "fill in the blank" with the blank indicated by an underline or brackets
 
 **Reverse cards** -- use for:
+
 - Vocabulary where bidirectional retrieval is required (term → definition AND definition → term)
 - Named phenomena where both directions appear on exams
 - Language learning (always bidirectional for vocabulary)
 - In Anki, these are created by enabling the "Basic (and reversed card)" note type, which generates two cards from one note
 
 **Application cards** -- use for:
+
 - Concepts that appear in scenario-based exam questions (MCAT, bar exam, USMLE, case studies)
 - Rules that must be applied to novel situations
 - Formulas that must be selected and used correctly given contextual cues
 - Template: "Given [specific scenario], [action or prediction the learner must make]?"
 
 **Discrimination cards** -- use for:
+
 - Easily confused pairs or groups (mitosis vs. meiosis, affect vs. effect, arteries vs. veins)
 - False friends in language learning
 - Template: "How does X differ from Y in terms of [dimension]?"
 
 **Production cards (language learning only)** -- use for:
+
 - Generating a target-language sentence from a first-language prompt
 - Conjugating a verb in a specific tense and person given the infinitive
 - Writing a word from a phonetic or audio cue
@@ -146,7 +153,7 @@ The card set is only useful if the learner can immediately act on it.
 
 ## Output Format
 
-```
+````
 ## Flashcard Set: [Topic Name]
 
 **Subject:** [Course name and level, e.g., "AP Biology", "USMLE Step 1", "Mandarin Chinese -- Beginner"]
@@ -200,7 +207,7 @@ The card set is only useful if the learner can immediately act on it.
 ```text
 [Front text][TAB][Back text][TAB][tag1 tag2 tag3]
 [Cloze text with {{c1::term}} syntax][TAB][Extra context or hint][TAB][tag1 tag2]
-```
+````
 
 ---
 
@@ -209,7 +216,8 @@ The card set is only useful if the learner can immediately act on it.
 - [Any cards flagged as needing user verification]
 - [Any content from the source that was intentionally excluded and why]
 - [Any prerequisite knowledge the user should confirm before studying these cards]
-```
+
+````
 
 ---
 
@@ -546,4 +554,4 @@ Name three cardioselective (beta-1 selective) beta-blockers.	Metoprolol, atenolo
 What is the half-life of esmolol, and what does this make it suitable for?	Half-life ~9 minutes. IV only, used acutely for SVT and intraoperative hypertension.	pharm::beta-blockers::drugs::esmolol
 Why are non-selective beta-blockers contraindicated in asthma and COPD?	Blocking beta-2 in airways causes bronchoconstriction/bronchospasm.	pharm::beta-blockers::contraindications
 Why do beta-blockers mask hypoglycemia, and what symptom is NOT masked?	They block adrenergic symptoms (tachycardia, tremor). Diaphoresis (sweating) is NOT masked -- it is cholinergically mediated.	pharm::beta-blockers::side-effects
-```
+````

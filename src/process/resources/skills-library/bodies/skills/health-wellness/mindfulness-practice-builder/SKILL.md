@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness self-care meditation breathing"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'mental-wellness self-care meditation breathing'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Mindfulness Practice Builder
 
 > **Disclaimer:** This skill provides general wellness information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before starting any new wellness program. If you are experiencing a mental health crisis, contact emergency services or a crisis helpline immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to build a first-ever mindfulness or meditation practice and needs a concrete, structured starting point with specific techniques and durations
 - A user has tried meditation apps (Headspace, Calm, Insight Timer) and wants to transition to a fully self-directed, app-independent practice they understand and can maintain independently
 - A user asks specifically about breath awareness, body scan meditation, mindful observation, or mindful walking and wants guided step-by-step sequences for any of these techniques
@@ -33,6 +35,7 @@ metadata:
 - A user has an inconsistent practice (meditates occasionally, keeps stopping and restarting) and wants a structured reset with better anchoring strategies and obstacle-response protocols
 
 **Do NOT use this skill when:**
+
 - The user describes mindfulness as part of treatment for a diagnosed anxiety disorder, PTSD, OCD, depression, or any other clinical condition -- refer them to a licensed mental health professional who is trained in Mindfulness-Based Cognitive Therapy (MBCT) or Mindfulness-Based Stress Reduction (MBSR) as a clinical intervention
 - The user has a history of trauma or dissociation and is asking specifically whether mindfulness is safe for them -- this requires a trauma-informed clinician's assessment, not a wellness skill
 - The user is in acute emotional distress, crisis, or is expressing hopelessness -- this is not the moment to build a habit; address their immediate need first and consider redirecting to crisis resources
@@ -60,6 +63,7 @@ Ask the user for five specific inputs before designing anything. Do not guess or
 Select 1-2 primary techniques for Weeks 1-2, and 1 secondary technique for introduction in Week 3, using this decision framework:
 
 **Primary technique selection logic:**
+
 - Goal is stress reduction AND experience is Tier 1 or 2: Start with Mindful Observation (external focus, concrete, no abstraction required) for the first 5-7 days, then layer in Breath Awareness.
 - Goal is stress reduction AND experience is Tier 3 or 4: Start directly with Breath Awareness or Body Scan.
 - Goal is focus/productivity: Start with Breath Awareness with counting (counted exhales build sustained attention faster than non-counted breath awareness -- the count gives the wandering mind a recovery anchor).
@@ -104,24 +108,28 @@ Mirror the opening: 3 slow breaths, then a brief sensory grounding -- notice 1 t
 Progression follows a specific protocol for each time tier:
 
 **5-minute available time:**
+
 - Week 1: Opening (1 min) + Core technique (3 min) + Closing (1 min) = 5 min total. Core starts at 3 minutes.
 - Week 2: Same structure. Focus shifts from "surviving the duration" to "quality of attention returns."
 - Week 3: Introduce 1-minute Mindful Observation during the opening ritual as a warm-up. Core remains 3 min.
 - Week 4: User chooses to either extend core by 1-2 minutes (slightly over stated time, now that the habit is formed) or maintain 5 minutes as their sustainable ceiling.
 
 **10-minute available time:**
+
 - Week 1: Opening (1 min) + Core technique (4 min) + Closing (1 min) = 6 min. End 4 minutes early intentionally. Under-promise on duration to build the feel of success.
 - Week 2: Opening (1 min) + Core technique (6 min) + Closing (1 min) = 8 min.
 - Week 3: Opening (1 min) + Core technique (4 min) + Brief secondary technique (3 min) + Closing (1 min) = 9 min. Alternating days: Days 1/3/5 = primary only extended. Days 2/4/6 = primary + secondary.
 - Week 4: Full 10 minutes. Structure freely chosen from the techniques the user now knows.
 
 **15-20 minute available time:**
+
 - Week 1: Opening (1 min) + Core technique (8 min) + Closing (1 min) = 10 min. Reserve 5-10 minutes of stated time.
 - Week 2: Opening (1 min) + Core technique (10 min) + Closing (1 min) = 12 min.
 - Week 3: Opening (1 min) + Primary technique (7 min) + Secondary technique (5 min) + Closing (1 min) = 14 min.
 - Week 4: Full stated duration, technique mix chosen by user.
 
 **25+ minute available time:**
+
 - Add a 3-5 minute free-writing reflection at the end (write one observation from the practice -- not a judgment, just a noticing) beginning in Week 2. This builds meta-awareness of the practice's progress.
 
 ### Step 5: Create Habit Anchoring
@@ -129,6 +137,7 @@ Progression follows a specific protocol for each time tier:
 Habit science distinguishes between time-based cues ("I'll meditate at 7 AM") and activity-based cues ("I'll meditate immediately after I pour my morning coffee"). Activity-based anchoring produces higher consistency because existing habits are deeply encoded behavioral routines that are more reliable than clock-watching.
 
 Provide a specific anchor for the user's stated schedule:
+
 - **Morning practice anchor options (choose one):** After the coffee or tea is poured but before the first sip, after putting on shoes before leaving for work (morning walk option), immediately after making the bed (physical completion creates readiness).
 - **Midday practice anchor options:** After closing the laptop for a lunch break, after returning from getting food or coffee, after using the restroom mid-day (the most reliable anchor for office workers -- one they cannot skip).
 - **Evening practice anchor options:** After changing out of work clothes, after dinner and before turning on any screen, after brushing teeth at night (strongest evening anchor, combines physical routine with time-of-day predictability).
@@ -149,6 +158,7 @@ Every practice plan must include at least 4 obstacle-response pairs, drawn from 
 ### Step 7: Deliver the Practice Plan
 
 Format the output using the template in the Output Format section below. Ensure:
+
 - Every technique sequence specifies exact timing for every phase in minutes and seconds
 - The 4-week plan is presented as a table with all five columns populated with real content
 - The habit anchor is specific to the user's stated schedule (no generic "pick a time")
@@ -287,24 +297,31 @@ Format the output using the template in the Output Format section below. Ensure:
 ## Edge Cases
 
 ### User Reports Prior Negative Experience with Meditation ("It made my anxiety worse")
+
 This is a clinically documented phenomenon called meditation-induced anxiety, reported in approximately 5-8% of new practitioners attempting closed-eye breath awareness. Do not dismiss the experience or insist they try again the same way. Recommend a complete switch to Mindful Observation with eyes open, focused on a concrete external object. The external focus prevents the self-referential thought loops that can amplify anxiety during internal-focus techniques. Shorten the starting duration to 2-3 minutes. If open-eye techniques also produce anxiety, recommend consulting a mental health professional before building a practice. Do not push through persistent practice-induced distress with wellness-level guidance.
 
 ### User Has ADHD or Reports Extreme Restlessness During Stillness
+
 Design the entire practice around Mindful Walking as the primary technique. Seated meditation is culturally prevalent but not required for effective mindfulness practice. Mindful Walking engages proprioceptive and kinesthetic attention channels that are more accessible for people with high attentional variability. For sitting-adjacent practice, use very short Mindful Observation bursts (90 seconds maximum) with physical object manipulation -- holding the object and exploring it tactilely rather than only visually. The body scan is generally not recommended for this user profile until a stable walking practice is established.
 
 ### User Is Designing a Sleep-Specific Practice
+
 The entire session structure changes. The Body Scan is the only appropriate technique. It is performed lying in bed, under the covers or on top of them, with lights off or dimmed. The opening ritual is reduced to a single slow deliberate exhale. There is no closing ritual. The timer is not set -- the goal is sleep onset, not practice completion. The scanning direction is reversed from the standard (crown to toes, rather than toes to crown) because the downward direction is associated with the physical sensation of heaviness and settling, which aids sleep onset. If the practitioner reaches the toes without sleeping, they silently return to the crown and begin again. Note explicitly: this is sleep preparation, not a treatment for insomnia. Persistent sleep difficulties require medical evaluation.
 
 ### User Has Very Limited Time (5 Minutes or Less)
+
 Resist the impulse to apologize for the brevity or to suggest the user "find more time." Five minutes of consistent daily practice produces measurable changes in perceived stress after 4-6 weeks and is superior to occasional 30-minute sessions. Design the entire plan within 5 minutes: 1-minute opening ritual, 3-minute core technique (Breath Awareness or Mindful Observation), 1-minute closing ritual. Do not attempt to fit secondary techniques into 5 minutes -- depth with one technique is more effective than shallow contact with two. State clearly that 5 minutes is a complete, sufficient practice, not a placeholder until the user has more time.
 
 ### User Is Restarting After a Previously Abandoned Practice
+
 Do not start from Week 1 of the full sequence as if they are a complete beginner. They have embodied knowledge of the techniques even if they have not practiced recently. Conduct a brief assessment: which technique felt most natural, what caused the practice to lapse (time pressure, loss of motivation, moved house, life event), what was the longest successful streak. Use this information to design a restart plan that: begins at 50-75% of their previous duration, re-establishes the habit anchor (often the previous anchor broke when life changed), and addresses the specific obstacle that caused the lapse. Week 1 of the restart plan is anchor re-establishment, not technique re-learning.
 
 ### User Has Physical Limitations Affecting All Standard Postures
+
 If the user cannot sit upright, stand, or walk due to illness, disability, or recovery from surgery, the Body Scan lying down is the primary option. Mindful Observation can be practiced in any position from a lying or reclined posture by choosing an object within the visual field (ceiling texture, the pattern of light through a window, an object on a bedside table). Explicitly validate that lying-down practice is complete, legitimate mindfulness practice -- it is not a compromise. Mindful Listening (choosing a sound in the environment -- ambient noise, a fan, birds outside -- and attending to it with full sensory curiosity) is an additional option that requires no physical movement whatsoever and is fully equivalent in attention-training value to visual Mindful Observation.
 
 ### User Asks About Measuring Progress
+
 Provide specific, realistic indicators of progress that do not rely on subjective "feeling calmer" reports. Observable signs of developing mindfulness skill include: (1) Noticing mind-wandering sooner -- the gap between when the mind leaves the breath and when the practitioner notices shrinks from minutes to seconds over weeks of practice. (2) Brief moments of noticing stress, irritation, or reactivity in daily life slightly before acting on them -- the pause between stimulus and response beginning to lengthen. (3) Occasionally noticing sensory details in daily life (the sound of the shower, the temperature of a door handle) that previously went unregistered. Frame progress as skill development measured in awareness granularity, not as emotional state or feeling. The feeling of peace during practice often follows skill development rather than preceding or accompanying it.
 
 ---
@@ -330,6 +347,7 @@ Provide specific, realistic indicators of progress that do not rely on subjectiv
 **Why this technique for your goal:** Breath Awareness is the most direct way to activate the parasympathetic nervous system -- the branch of the autonomic nervous system responsible for the calming response -- and it builds the quality of deliberate, non-reactive attention that reduces stress reactivity over time. For mornings specifically, it creates a clear boundary between rest and work that trains the nervous system to begin the work day from a settled state rather than an anxious one.
 
 **Setup:**
+
 - Sit in your kitchen chair with both feet flat on the floor, hip-width apart. Do not cross your legs.
 - Rest your hands on your thighs, palms down or palms up -- whichever feels more comfortable.
 - Sit upright without rigidity: imagine a string pulling gently upward from the crown of your head, allowing the spine to find its natural tall alignment without forcing it.
@@ -337,6 +355,7 @@ Provide specific, realistic indicators of progress that do not rely on subjectiv
 - If the room is loud, that is fine -- you do not need silence.
 
 **Opening Ritual (1 minute):**
+
 1. Settle into the chair. Close your eyes fully, or, if closing eyes feels uncomfortable, lower your gaze to a point on the floor about 3 feet in front of you and let your vision go soft and unfocused.
 2. Inhale slowly through your nose for a count of 4 seconds.
 3. Pause gently at the top for 1 second -- no straining, just a brief rest.
@@ -355,6 +374,7 @@ Provide specific, realistic indicators of progress that do not rely on subjectiv
 Your mind will leave the breath -- repeatedly, and quickly. This will happen within the first 30 seconds of practice on most days. This is not a failure. The capacity for mind-wandering is universal and is not a sign that you are doing it wrong or that meditation is not working for you. When you notice that your attention has drifted (you are thinking about your to-do list, replaying yesterday, anticipating the workday), do three things: first, briefly and neutrally label what happened ("thinking," "planning," "remembering") -- use one word, silently, without judgment. Second, release the thought without following it further. Third, gently guide your attention back to the physical sensation of the breath at the nostrils or belly. That's it. That noticing-labeling-returning sequence is one repetition of the core skill. A 4-minute session might involve 15-30 of these redirections. That is a productive session, not a struggling one.
 
 **Closing Ritual (1 minute):**
+
 1. Without opening your eyes yet, take 3 breaths that are slightly deeper than your natural rhythm -- not forced, just a deliberate deepening.
 2. Gently wiggle your fingers, then your toes. Roll your shoulders back once.
 3. Open your eyes slowly.
@@ -364,11 +384,13 @@ Your mind will leave the breath -- repeatedly, and quickly. This will happen wit
 ---
 
 ### Secondary Technique: Mindful Observation
-*(Introduced in Week 3, on alternating days)*
+
+_(Introduced in Week 3, on alternating days)_
 
 **Why this technique as secondary:** After 2 weeks of Breath Awareness, your attention muscle will benefit from a different kind of workout -- one that uses an external anchor rather than the internal anchor of the breath. This variety also teaches you that mindfulness is a portable skill you can apply to anything, not just breathing.
 
 **Setup:**
+
 - Choose one object from your kitchen: a coffee mug, a piece of fruit, a small plant, a salt shaker -- anything with some texture or color variation.
 - Hold it or place it on the table at a comfortable distance where you can see it clearly without straining.
 - You do not need to close your eyes at any point during this practice.
@@ -388,12 +410,12 @@ During Mindful Observation, the mind typically wanders by starting to think abou
 
 ### 4-Week Progressive Plan
 
-| Week | Days/Week | Technique(s) | Session Structure | Total Duration | Focus |
-|------|-----------|--------------|-------------------|----------------|-------|
-| 1 | 5-7 | Breath Awareness | Open (1 min) + Breath Awareness (4 min) + Close (1 min) | 6 min | Building the habit and the posture; finishing early is intentional -- success should feel easy |
-| 2 | 5-7 | Breath Awareness | Open (1 min) + Breath Awareness (6 min) + Close (1 min) | 8 min | Extending attention duration; noticing that mind-wandering frequency may begin to shift |
-| 3 | 5-7 | Breath Awareness (Mon/Wed/Fri/Sun) + Mindful Observation (Tue/Thu/Sat) | Open (1 min) + Primary (4 min) + Secondary (3 min) + Close (1 min) | 9 min | Adding variety; discovering which technique feels most natural for morning practice |
-| 4 | 5-7 | User's chosen technique or both | Open (1 min) + Preferred technique(s) (8 min) + Close (1 min) | 10 min | Full target duration reached; self-directed practice established |
+| Week | Days/Week | Technique(s)                                                           | Session Structure                                                  | Total Duration | Focus                                                                                          |
+| ---- | --------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------- | ---------------------------------------------------------------------------------------------- |
+| 1    | 5-7       | Breath Awareness                                                       | Open (1 min) + Breath Awareness (4 min) + Close (1 min)            | 6 min          | Building the habit and the posture; finishing early is intentional -- success should feel easy |
+| 2    | 5-7       | Breath Awareness                                                       | Open (1 min) + Breath Awareness (6 min) + Close (1 min)            | 8 min          | Extending attention duration; noticing that mind-wandering frequency may begin to shift        |
+| 3    | 5-7       | Breath Awareness (Mon/Wed/Fri/Sun) + Mindful Observation (Tue/Thu/Sat) | Open (1 min) + Primary (4 min) + Secondary (3 min) + Close (1 min) | 9 min          | Adding variety; discovering which technique feels most natural for morning practice            |
+| 4    | 5-7       | User's chosen technique or both                                        | Open (1 min) + Preferred technique(s) (8 min) + Close (1 min)      | 10 min         | Full target duration reached; self-directed practice established                               |
 
 ---
 
@@ -409,10 +431,10 @@ During Mindful Observation, the mind typically wanders by starting to think abou
 
 ### Common Obstacles and Responses
 
-| Obstacle | Response |
-|----------|----------|
-| "My mind won't stop thinking -- I can't focus at all" | The goal is not a quiet mind. Your brain is designed to generate thoughts continuously; no amount of practice changes that. What practice changes is how quickly you notice the mind has wandered and how smoothly you return. If you redirected your attention 25 times in a 4-minute session, you did 25 repetitions of the skill. That is not a bad session -- that is training at high volume. |
-| "I fell asleep in the chair" | First, this means the opening ritual is working (you are relaxing). To stay awake: sit slightly more upright, keep your eyes open with a soft downward gaze instead of closing them, or try practicing standing for one week. If you consistently fall asleep before work, your body may have a sleep debt that mindfulness cannot fix -- consider whether your sleep duration is sufficient. |
-| "I missed 4 days because work got overwhelming" | Resume tomorrow. One session, at the Week 1 duration (6 minutes), no pressure. Do not try to "catch up" with a longer session -- that is not how this skill works. The practice is not a savings account where you deposit extra time to make up for absences. Each session stands alone. The goal is returning, not compensating. |
-| "After 2 weeks I don't feel any different" | The changes in this practice appear in a specific order: first, you begin to notice your stress reactions slightly sooner than before -- there is a brief moment of awareness before you are fully swept into the reaction. This is the first shift, and it is subtle. Ask yourself: 'Have I noticed, even once, that I was getting irritated and had a brief window before fully reacting?' If yes, the practice is working. The feeling of being calmer comes later, after the awareness speed has increased. |
-| "Some mornings I sit down and feel more stressed, not less" | This is common in early practice. Sitting still and reducing external stimulation can make existing stress more visible, not because practice is making it worse but because the noise that usually covers it is now reduced. This heightened visibility is temporary and tends to resolve by Week 3. If the stress during practice feels escalating rather than simply visible, use the Mindful Observation practice (eyes open, external focus) on those days instead of Breath Awareness. |
+| Obstacle                                                    | Response                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "My mind won't stop thinking -- I can't focus at all"       | The goal is not a quiet mind. Your brain is designed to generate thoughts continuously; no amount of practice changes that. What practice changes is how quickly you notice the mind has wandered and how smoothly you return. If you redirected your attention 25 times in a 4-minute session, you did 25 repetitions of the skill. That is not a bad session -- that is training at high volume.                                                                                                              |
+| "I fell asleep in the chair"                                | First, this means the opening ritual is working (you are relaxing). To stay awake: sit slightly more upright, keep your eyes open with a soft downward gaze instead of closing them, or try practicing standing for one week. If you consistently fall asleep before work, your body may have a sleep debt that mindfulness cannot fix -- consider whether your sleep duration is sufficient.                                                                                                                   |
+| "I missed 4 days because work got overwhelming"             | Resume tomorrow. One session, at the Week 1 duration (6 minutes), no pressure. Do not try to "catch up" with a longer session -- that is not how this skill works. The practice is not a savings account where you deposit extra time to make up for absences. Each session stands alone. The goal is returning, not compensating.                                                                                                                                                                              |
+| "After 2 weeks I don't feel any different"                  | The changes in this practice appear in a specific order: first, you begin to notice your stress reactions slightly sooner than before -- there is a brief moment of awareness before you are fully swept into the reaction. This is the first shift, and it is subtle. Ask yourself: 'Have I noticed, even once, that I was getting irritated and had a brief window before fully reacting?' If yes, the practice is working. The feeling of being calmer comes later, after the awareness speed has increased. |
+| "Some mornings I sit down and feel more stressed, not less" | This is common in early practice. Sitting still and reducing external stimulation can make existing stress more visible, not because practice is making it worse but because the noise that usually covers it is now reduced. This heightened visibility is temporary and tends to resolve by Week 3. If the stress during practice feels escalating rather than simply visible, use the Mindful Observation practice (eyes open, external focus) on those days instead of Breath Awareness.                    |

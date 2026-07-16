@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture refactoring backend"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture refactoring backend'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Monolith To Microservices
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has a monolithic application experiencing deployment bottlenecks where a single team's changes block all releases, and they want to decompose into independently deployable units
 - A user's monolith has clear bounded domains (e.g., billing, user management, inventory) that have different scaling requirements -- the payment service needs 10x the compute of the admin panel
 - A user is planning a strangler fig migration and needs concrete patterns for routing, data decoupling, and incremental cutover without a big-bang rewrite
@@ -29,6 +31,7 @@ metadata:
 - A user asks about domain-driven design (DDD) as applied to service boundary identification, aggregates, bounded contexts, or context maps
 
 **Do NOT use this skill when:**
+
 - The user is asking about container orchestration configuration (Kubernetes YAML, Helm charts) without an architectural migration question -- use a Kubernetes/infrastructure skill
 - The user wants general REST API design without a migration context -- use an API design skill
 - The user is asking about event-driven architecture in general, not specifically in the context of decomposing a monolith -- use an event-driven architecture skill
@@ -248,24 +251,31 @@ For each service split:
 ## Edge Cases
 
 ### The Distributed Monolith Anti-Pattern
+
 If a user describes a "microservices" architecture where services cannot be deployed independently (e.g., Service A always needs to be deployed at the same time as Service B), or where services call each other synchronously in deep chains, they have created a distributed monolith. This is worse than the original monolith because it has all the operational complexity of microservices with none of the independence benefits. The fix requires: (1) identifying which services have circular or deep synchronous dependencies, (2) introducing asynchronous event-driven communication to break the coupling, and (3) accepting that some services may need to be merged back together if the domain boundary was wrong. Advise the user directly that their current state is a distributed monolith and that redrawn boundaries are required before they see benefits.
 
 ### The Shared Authentication / Session Problem
+
 When extracting services from a monolith that uses server-side sessions (e.g., PHP sessions, Rails sessions stored in cookies/Redis), early service extractions will hit the problem that the new service cannot verify authentication. The correct solution is to migrate to stateless JWT-based authentication or to implement an API gateway that validates tokens before forwarding requests. Stateless JWTs allow each service to independently verify the token with the public key of the identity service -- no inter-service call required at runtime. Warn the user that implementing a centralized identity service as an early step (before other extractions) is often the right sequencing choice.
 
 ### The Legacy Database with Implicit Coupling
+
 Many monoliths use a single relational database with implicit coupling -- stored procedures that join across 15 tables, triggers that cascade updates, and views that span domains. Before any service extraction, map all stored procedures and triggers. Stored procedures that span multiple bounded contexts must be migrated to application-layer logic (in the service) before the database can be split. This is often a 4-8 week effort on its own. Use a tool like SchemaSpy to generate the dependency map of the database's foreign keys and views.
 
 ### High-Traffic Systems During Migration
+
 For systems handling more than 50K requests per second, traffic shifting during migration must be performed with extreme care. Canary deployments should start at 0.1% (not 5%), and each increment should be held for a minimum of 30 minutes with p99 latency and error rate monitored at 1-minute resolution. Feature flags must be implemented with kill-switch capability -- the ability to shift 100% of traffic back to the monolith within 30 seconds in case of a problem. Never perform cutover steps during peak traffic hours. Schedule them for the lowest-traffic window of the week.
 
 ### The Greenfield Service with Legacy Data
+
 When extracting a service, the new service needs to own its data going forward, but historical data lives in the monolith's database. The migration sequence is: (1) write a one-time migration script to copy historical records to the new service's database, (2) deploy the new service in "shadow mode" reading from both stores and comparing results, (3) once verified, update the new service to write to its own database, (4) run the dual-write period for at least 48 hours, (5) stop the monolith from writing to those tables, (6) decommission the monolith's table access. This sequence prevents data loss and allows rollback at any step.
 
 ### The Organization That Is Not Conway's Law Aligned
+
 If the team structure doesn't match the desired service boundaries -- for example, a single "backend team" owns all proposed services -- microservices won't deliver independence benefits. Two options: (1) restructure teams to align with service boundaries before migrating (recommended but slow -- 3-6 months of organizational change), or (2) accept a slower migration pace where one team manages multiple services sequentially. Never split a service boundary that no team can own. An unowned service will accumulate incidents and technical debt faster than any monolith.
 
 ### Regulatory and Audit Requirements
+
 In regulated industries (PCI-DSS for payments, HIPAA for healthcare, SOC2 for SaaS), service extraction must consider data residency, encryption in transit, access logging, and audit trail requirements. Specifically: (1) All inter-service communication must use mTLS, not just TLS -- each service must have a certificate proving its identity. (2) Any service handling regulated data must log every data access with the identity of the requesting service and the user. (3) Service-to-service communication must be authorized, not just authenticated -- implement a service account model where Service A must be explicitly granted permission to call Service B's sensitive endpoints. Advise the user to engage their compliance team before designing service boundaries for regulated data.
 
 ---
@@ -282,14 +292,14 @@ In regulated industries (PCI-DSS for payments, HIPAA for healthcare, SOC2 for Sa
 
 ### Readiness Summary
 
-| Factor                     | Status        | Notes                                                                 |
-|----------------------------|---------------|-----------------------------------------------------------------------|
-| CI/CD pipelines            | ✅ Ready        | Assumed present given weekly deploy cadence -- confirm automated tests exist |
-| Centralized logging        | ✅ Ready        | Datadog APM in place -- extend to JSON structured logging with trace IDs |
-| Distributed tracing        | ❌ Gap          | No distributed tracing -- must be added before first service extraction |
-| Container runtime          | ⚠️ Unknown     | Confirm Rails app is containerized (Docker) and runs on Kubernetes or ECS |
-| Team size & ownership      | ✅ Ready        | 4 squads map naturally to 4 service domains -- excellent Conway's Law alignment |
-| Test coverage              | ⚠️ Unknown     | 350K lines Rails codebase -- confirm >60% unit test coverage before extraction begins |
+| Factor                | Status     | Notes                                                                                 |
+| --------------------- | ---------- | ------------------------------------------------------------------------------------- |
+| CI/CD pipelines       | ✅ Ready   | Assumed present given weekly deploy cadence -- confirm automated tests exist          |
+| Centralized logging   | ✅ Ready   | Datadog APM in place -- extend to JSON structured logging with trace IDs              |
+| Distributed tracing   | ❌ Gap     | No distributed tracing -- must be added before first service extraction               |
+| Container runtime     | ⚠️ Unknown | Confirm Rails app is containerized (Docker) and runs on Kubernetes or ECS             |
+| Team size & ownership | ✅ Ready   | 4 squads map naturally to 4 service domains -- excellent Conway's Law alignment       |
+| Test coverage         | ⚠️ Unknown | 350K lines Rails codebase -- confirm >60% unit test coverage before extraction begins |
 
 **Readiness Verdict:** 2-4 weeks of foundational work required before first extraction. Specifically: (1) add OpenTelemetry distributed tracing to the Rails monolith, (2) confirm container runtime, (3) audit test coverage on checkout and catalog modules.
 
@@ -299,12 +309,12 @@ In regulated industries (PCI-DSS for payments, HIPAA for healthcare, SOC2 for Sa
 
 The four squad boundaries map directly to four initial service domains. These should be treated as bounded contexts.
 
-| Service Name         | Owning Team     | Core Entities                        | Produces Events                                      | Consumes Events                               | DB Strategy               |
-|----------------------|-----------------|--------------------------------------|------------------------------------------------------|-----------------------------------------------|---------------------------|
-| catalog-service      | Catalog squad   | Product, Category, Inventory, Price  | ProductCreated, ProductUpdated, InventoryChanged     | OrderPlaced (to reserve inventory)            | PostgreSQL schema: catalog |
-| checkout-service     | Checkout squad  | Cart, Order, OrderLineItem, Coupon   | OrderPlaced, OrderCancelled, PaymentInitiated        | ProductUpdated, InventoryChanged              | PostgreSQL schema: checkout |
-| customer-service     | Customer squad  | User, Address, PaymentMethod, Review | CustomerCreated, AddressUpdated                      | OrderPlaced (to update order history)         | PostgreSQL schema: customer |
-| notification-service | Platform squad  | Notification, Template, DeliveryLog  | (none)                                               | OrderPlaced, OrderCancelled, CustomerCreated  | PostgreSQL schema: notifications |
+| Service Name         | Owning Team    | Core Entities                        | Produces Events                                  | Consumes Events                              | DB Strategy                      |
+| -------------------- | -------------- | ------------------------------------ | ------------------------------------------------ | -------------------------------------------- | -------------------------------- |
+| catalog-service      | Catalog squad  | Product, Category, Inventory, Price  | ProductCreated, ProductUpdated, InventoryChanged | OrderPlaced (to reserve inventory)           | PostgreSQL schema: catalog       |
+| checkout-service     | Checkout squad | Cart, Order, OrderLineItem, Coupon   | OrderPlaced, OrderCancelled, PaymentInitiated    | ProductUpdated, InventoryChanged             | PostgreSQL schema: checkout      |
+| customer-service     | Customer squad | User, Address, PaymentMethod, Review | CustomerCreated, AddressUpdated                  | OrderPlaced (to update order history)        | PostgreSQL schema: customer      |
+| notification-service | Platform squad | Notification, Template, DeliveryLog  | (none)                                           | OrderPlaced, OrderCancelled, CustomerCreated | PostgreSQL schema: notifications |
 
 **Note:** Payment processing is conspicuously absent from the first-pass boundary list. Payment is a high-risk, high-complexity domain. It should remain in the monolith or be delegated to a third-party service (Stripe, Braintree) through the checkout service -- it should NOT be an early extraction target.
 
@@ -324,24 +334,26 @@ The four squad boundaries map directly to four initial service domains. These sh
 
 ### Phase Plan
 
-| Phase | Duration  | Deliverable                                                                        | Success Criteria                                                          |
-|-------|-----------|------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| 1     | 3 weeks   | OpenTelemetry tracing in Rails monolith; API gateway (Nginx or AWS API Gateway) in front of monolith; all traffic still routed to monolith | 100% of requests have trace IDs in Datadog; zero production incidents from gateway introduction |
-| 2     | 5 weeks   | Notification service extracted and in production; event bus (Kafka) receiving OrderPlaced and CustomerCreated events | Notification service handles 100% of notification traffic; monolith notification code paths dormant for 30 days |
-| 3     | 6 weeks   | Catalog service extracted; checkout reads catalog data via catalog-service API with event-driven cache | Checkout team can deploy without a catalog release; catalog deploys independently 3+ times per sprint |
-| 4     | 6 weeks   | Customer service extracted; checkout calls customer-service for address/payment method data | Deploy frequency for all three services: daily or better |
-| 5     | 8 weeks   | Checkout service extracted (highest complexity -- last); Saga pattern for order placement across catalog + checkout + customer | Weekly deploy cadence replaced by on-demand per-service deployment; checkout team fully independent |
+| Phase | Duration | Deliverable                                                                                                                                | Success Criteria                                                                                                |
+| ----- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 1     | 3 weeks  | OpenTelemetry tracing in Rails monolith; API gateway (Nginx or AWS API Gateway) in front of monolith; all traffic still routed to monolith | 100% of requests have trace IDs in Datadog; zero production incidents from gateway introduction                 |
+| 2     | 5 weeks  | Notification service extracted and in production; event bus (Kafka) receiving OrderPlaced and CustomerCreated events                       | Notification service handles 100% of notification traffic; monolith notification code paths dormant for 30 days |
+| 3     | 6 weeks  | Catalog service extracted; checkout reads catalog data via catalog-service API with event-driven cache                                     | Checkout team can deploy without a catalog release; catalog deploys independently 3+ times per sprint           |
+| 4     | 6 weeks  | Customer service extracted; checkout calls customer-service for address/payment method data                                                | Deploy frequency for all three services: daily or better                                                        |
+| 5     | 8 weeks  | Checkout service extracted (highest complexity -- last); Saga pattern for order placement across catalog + checkout + customer             | Weekly deploy cadence replaced by on-demand per-service deployment; checkout team fully independent             |
 
 ---
 
 ### Data Architecture Decisions
 
 **Catalog <-> Checkout data relationship:**
+
 - Synchronization strategy: Event-driven data replication -- checkout-service maintains a local read-only projection of product names, SKUs, and prices, populated from `ProductUpdated` and `InventoryChanged` Kafka events.
 - Consistency model: Eventual -- rationale: a 100-500ms lag in price updates is acceptable for a cart; the final price is always confirmed at order submission time via a synchronous call to catalog-service.
 - Shared data risk: The `products` table is currently shared. Checkout stores `product_id` as a foreign key. Post-extraction, checkout stores a denormalized snapshot of product name + price at the time of cart creation. The canonical price lives only in catalog-service.
 
 **Checkout <-> Customer data relationship:**
+
 - Synchronization strategy: API composition -- checkout calls customer-service synchronously to retrieve shipping address and payment method at checkout initiation. This is a low-frequency, low-latency-tolerant call.
 - Consistency model: Strong -- rationale: the user's current address must be accurate at the moment they place an order.
 - Shared data risk: The `users` table has ~40 columns. Checkout only needs 5 (id, email, name, default_address_id, default_payment_method_id). customer-service will expose a `/customers/{id}/checkout-profile` endpoint returning only these fields, avoiding over-fetching.
@@ -352,12 +364,12 @@ The four squad boundaries map directly to four initial service domains. These sh
 
 ### Communication Protocols
 
-| Service Pair                            | Protocol | Pattern             | Timeout | Circuit Breaker Threshold         |
-|-----------------------------------------|----------|---------------------|---------|-----------------------------------|
-| checkout-service -> catalog-service      | gRPC     | Request-response    | 3s      | 50% failures / 30s window         |
-| checkout-service -> customer-service     | gRPC     | Request-response    | 3s      | 50% failures / 30s window         |
-| catalog-service -> checkout (inventory)  | Kafka    | Event (async)       | N/A     | Consumer lag alert > 10K messages |
-| Any service -> notification-service      | Kafka    | Event (async)       | N/A     | Consumer lag alert > 5K messages  |
+| Service Pair                            | Protocol | Pattern          | Timeout | Circuit Breaker Threshold         |
+| --------------------------------------- | -------- | ---------------- | ------- | --------------------------------- |
+| checkout-service -> catalog-service     | gRPC     | Request-response | 3s      | 50% failures / 30s window         |
+| checkout-service -> customer-service    | gRPC     | Request-response | 3s      | 50% failures / 30s window         |
+| catalog-service -> checkout (inventory) | Kafka    | Event (async)    | N/A     | Consumer lag alert > 10K messages |
+| Any service -> notification-service     | Kafka    | Event (async)    | N/A     | Consumer lag alert > 5K messages  |
 
 **Fallback behavior for checkout -> catalog circuit open:** Serve product data from checkout's local event-driven cache. Log a warning that stale data may be shown. Do not block the cart flow.
 
@@ -367,14 +379,14 @@ The four squad boundaries map directly to four initial service domains. These sh
 
 ### Risk Register
 
-| Risk                                              | Likelihood | Impact | Mitigation                                                                                     |
-|---------------------------------------------------|------------|--------|------------------------------------------------------------------------------------------------|
-| Stored procedures in PostgreSQL span domains      | High       | High   | Audit all stored procedures in weeks 1-2; migrate cross-domain logic to application code before any DB split |
-| Test coverage on catalog module is insufficient   | Medium     | High   | Require 70% unit test coverage on catalog module before Phase 3 begins; Platform squad owns this gate |
-| Checkout-catalog coupling deeper than expected    | Medium     | High   | Run ArchUnit or dependency analysis on Rails codebase; map all `has_many through:` and `belongs_to` across the boundary |
-| Kafka consumer lag spikes during peak traffic     | Medium     | Medium | Set consumer lag alerting at 10K messages; provision consumers to handle 3x average throughput |
-| Engineers unfamiliar with Saga pattern            | High       | High   | Run a 2-day internal workshop on Saga pattern and compensating transactions before Phase 5 begins |
-| Monolith database has undocumented triggers       | Medium     | High   | Run `SELECT * FROM information_schema.triggers` audit in week 1; document all triggers before any schema split |
+| Risk                                            | Likelihood | Impact | Mitigation                                                                                                              |
+| ----------------------------------------------- | ---------- | ------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Stored procedures in PostgreSQL span domains    | High       | High   | Audit all stored procedures in weeks 1-2; migrate cross-domain logic to application code before any DB split            |
+| Test coverage on catalog module is insufficient | Medium     | High   | Require 70% unit test coverage on catalog module before Phase 3 begins; Platform squad owns this gate                   |
+| Checkout-catalog coupling deeper than expected  | Medium     | High   | Run ArchUnit or dependency analysis on Rails codebase; map all `has_many through:` and `belongs_to` across the boundary |
+| Kafka consumer lag spikes during peak traffic   | Medium     | Medium | Set consumer lag alerting at 10K messages; provision consumers to handle 3x average throughput                          |
+| Engineers unfamiliar with Saga pattern          | High       | High   | Run a 2-day internal workshop on Saga pattern and compensating transactions before Phase 5 begins                       |
+| Monolith database has undocumented triggers     | Medium     | High   | Run `SELECT * FROM information_schema.triggers` audit in week 1; document all triggers before any schema split          |
 
 ---
 

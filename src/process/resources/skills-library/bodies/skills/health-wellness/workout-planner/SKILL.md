@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness workout-planning"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness workout-planning'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Workout Planner
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about workout planner
 - User needs guidance on workout planner topics
 - User wants a structured approach to workout planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -50,21 +52,21 @@ Before generating any workout plan, gather the following information:
 
 ### Training History Classification
 
-| Level | Criteria |
-|-------|----------|
-| Complete Beginner | Never trained consistently; no gym experience |
-| Beginner | 0-6 months consistent training; learning movement patterns |
-| Intermediate | 6-24 months consistent training; comfortable with compound lifts |
-| Advanced | 2+ years consistent training; plateau management needed |
+| Level             | Criteria                                                         |
+| ----------------- | ---------------------------------------------------------------- |
+| Complete Beginner | Never trained consistently; no gym experience                    |
+| Beginner          | 0-6 months consistent training; learning movement patterns       |
+| Intermediate      | 6-24 months consistent training; comfortable with compound lifts |
+| Advanced          | 2+ years consistent training; plateau management needed          |
 
 ### Baseline Strength Standards (Approximate 1RM relative to bodyweight)
 
-| Lift | Beginner (M/F) | Intermediate (M/F) | Advanced (M/F) |
-|------|-----------------|---------------------|-----------------|
-| Squat | 0.75x / 0.5x | 1.25x / 0.85x | 1.75x / 1.25x |
-| Bench Press | 0.5x / 0.35x | 1.0x / 0.6x | 1.5x / 0.9x |
-| Deadlift | 1.0x / 0.65x | 1.5x / 1.0x | 2.0x / 1.5x |
-| Overhead Press | 0.35x / 0.25x | 0.65x / 0.45x | 1.0x / 0.65x |
+| Lift           | Beginner (M/F) | Intermediate (M/F) | Advanced (M/F) |
+| -------------- | -------------- | ------------------ | -------------- |
+| Squat          | 0.75x / 0.5x   | 1.25x / 0.85x      | 1.75x / 1.25x  |
+| Bench Press    | 0.5x / 0.35x   | 1.0x / 0.6x        | 1.5x / 0.9x    |
+| Deadlift       | 1.0x / 0.65x   | 1.5x / 1.0x        | 2.0x / 1.5x    |
+| Overhead Press | 0.35x / 0.25x  | 0.65x / 0.45x      | 1.0x / 0.65x   |
 
 ### Body Composition Assessment
 
@@ -82,6 +84,7 @@ Waist Circumference: _____ inches / cm
 ### Goal: Hypertrophy (Muscle Growth)
 
 **Parameters:**
+
 - Rep range: 8-12 reps primary, 6-8 and 12-15 secondary
 - Sets per muscle group per week: 10-20
 - Rest periods: 60-90 seconds
@@ -134,6 +137,7 @@ DAY 4 - LOWER BODY B (Posterior Chain Focus)
 ### Goal: Strength
 
 **Parameters:**
+
 - Rep range: 1-5 reps primary, 5-8 accessory
 - Sets per exercise: 3-5
 - Rest periods: 3-5 minutes for main lifts
@@ -159,6 +163,7 @@ Main Lift: 3x5 @ 40%, 50%, 60%
 ### Goal: Endurance
 
 **Parameters:**
+
 - Rep range: 15-25 reps
 - Sets: 2-4
 - Rest periods: 30-45 seconds
@@ -169,6 +174,7 @@ Main Lift: 3x5 @ 40%, 50%, 60%
 ### Goal: General Fitness
 
 **Parameters:**
+
 - Rep range: 8-15 mixed
 - Sets: 3-4
 - Rest periods: 60-90 seconds
@@ -262,15 +268,15 @@ Week | Weight | Sets x Reps Achieved | RPE | Notes
 ### Volume Landmarks (Sets per Muscle Group per Week)
 
 | Muscle Group | MV (Minimum) | MEV (Effective) | MAV (Maximum Adaptive) | MRV (Recovery Limit) |
-|--------------|-------------|------------------|------------------------|---------------------|
-| Chest | 4 | 8 | 12-16 | 20 |
-| Back | 6 | 10 | 14-18 | 22 |
-| Quads | 4 | 8 | 12-16 | 20 |
-| Hamstrings | 4 | 6 | 10-14 | 16 |
-| Shoulders | 4 | 8 | 12-16 | 20 |
-| Biceps | 2 | 6 | 10-14 | 18 |
-| Triceps | 2 | 6 | 8-12 | 16 |
-| Calves | 4 | 8 | 10-14 | 16 |
+| ------------ | ------------ | --------------- | ---------------------- | -------------------- |
+| Chest        | 4            | 8               | 12-16                  | 20                   |
+| Back         | 6            | 10              | 14-18                  | 22                   |
+| Quads        | 4            | 8               | 12-16                  | 20                   |
+| Hamstrings   | 4            | 6               | 10-14                  | 16                   |
+| Shoulders    | 4            | 8               | 12-16                  | 20                   |
+| Biceps       | 2            | 6               | 10-14                  | 18                   |
+| Triceps      | 2            | 6               | 8-12                   | 16                   |
+| Calves       | 4            | 8               | 10-14                  | 16                   |
 
 ---
 
@@ -285,12 +291,12 @@ Week | Weight | Sets x Reps Achieved | RPE | Notes
 
 ### Deload Protocol Options
 
-| Method | Volume Reduction | Intensity Reduction |
-|--------|-----------------|---------------------|
-| Volume Deload | Reduce sets by 50% | Maintain weight |
-| Intensity Deload | Maintain sets | Reduce weight by 40-50% |
-| Full Deload | Reduce sets by 50% | Reduce weight by 40% |
-| Active Recovery | Light activity only | No resistance training |
+| Method           | Volume Reduction    | Intensity Reduction     |
+| ---------------- | ------------------- | ----------------------- |
+| Volume Deload    | Reduce sets by 50%  | Maintain weight         |
+| Intensity Deload | Maintain sets       | Reduce weight by 40-50% |
+| Full Deload      | Reduce sets by 50%  | Reduce weight by 40%    |
+| Active Recovery  | Light activity only | No resistance training  |
 
 ### Deload Week Template
 
@@ -353,87 +359,94 @@ Begin working sets
 ## Phase 7: Exercise Database by Muscle Group
 
 ### Chest
-| Exercise | Equipment | Primary Target | Difficulty |
-|----------|-----------|----------------|------------|
-| Barbell Bench Press | Barbell, Bench | Mid Chest | Intermediate |
-| Incline Dumbbell Press | Dumbbells, Bench | Upper Chest | Beginner |
-| Cable Fly | Cable Machine | Inner Chest | Beginner |
-| Dips (Chest Focus) | Dip Station | Lower Chest | Intermediate |
-| Push-ups | Bodyweight | Full Chest | Beginner |
-| Decline Bench Press | Barbell, Bench | Lower Chest | Intermediate |
+
+| Exercise               | Equipment        | Primary Target | Difficulty   |
+| ---------------------- | ---------------- | -------------- | ------------ |
+| Barbell Bench Press    | Barbell, Bench   | Mid Chest      | Intermediate |
+| Incline Dumbbell Press | Dumbbells, Bench | Upper Chest    | Beginner     |
+| Cable Fly              | Cable Machine    | Inner Chest    | Beginner     |
+| Dips (Chest Focus)     | Dip Station      | Lower Chest    | Intermediate |
+| Push-ups               | Bodyweight       | Full Chest     | Beginner     |
+| Decline Bench Press    | Barbell, Bench   | Lower Chest    | Intermediate |
 
 ### Back
-| Exercise | Equipment | Primary Target | Difficulty |
-|----------|-----------|----------------|------------|
-| Barbell Row | Barbell | Mid Back | Intermediate |
-| Pull-ups | Pull-up Bar | Lats | Intermediate |
-| Lat Pulldown | Cable Machine | Lats | Beginner |
-| Cable Row | Cable Machine | Mid Back | Beginner |
-| T-Bar Row | T-Bar or Barbell | Mid Back | Intermediate |
-| Face Pull | Cable Machine | Rear Delts/Upper Back | Beginner |
+
+| Exercise     | Equipment        | Primary Target        | Difficulty   |
+| ------------ | ---------------- | --------------------- | ------------ |
+| Barbell Row  | Barbell          | Mid Back              | Intermediate |
+| Pull-ups     | Pull-up Bar      | Lats                  | Intermediate |
+| Lat Pulldown | Cable Machine    | Lats                  | Beginner     |
+| Cable Row    | Cable Machine    | Mid Back              | Beginner     |
+| T-Bar Row    | T-Bar or Barbell | Mid Back              | Intermediate |
+| Face Pull    | Cable Machine    | Rear Delts/Upper Back | Beginner     |
 
 ### Legs (Quadriceps)
-| Exercise | Equipment | Primary Target | Difficulty |
-|----------|-----------|----------------|------------|
-| Barbell Back Squat | Barbell, Rack | Quads/Glutes | Intermediate |
-| Front Squat | Barbell, Rack | Quads | Advanced |
-| Leg Press | Machine | Quads | Beginner |
-| Bulgarian Split Squat | Dumbbells, Bench | Quads/Glutes | Intermediate |
-| Leg Extension | Machine | Quads (isolation) | Beginner |
-| Goblet Squat | Dumbbell/Kettlebell | Quads/Glutes | Beginner |
+
+| Exercise              | Equipment           | Primary Target    | Difficulty   |
+| --------------------- | ------------------- | ----------------- | ------------ |
+| Barbell Back Squat    | Barbell, Rack       | Quads/Glutes      | Intermediate |
+| Front Squat           | Barbell, Rack       | Quads             | Advanced     |
+| Leg Press             | Machine             | Quads             | Beginner     |
+| Bulgarian Split Squat | Dumbbells, Bench    | Quads/Glutes      | Intermediate |
+| Leg Extension         | Machine             | Quads (isolation) | Beginner     |
+| Goblet Squat          | Dumbbell/Kettlebell | Quads/Glutes      | Beginner     |
 
 ### Legs (Hamstrings/Glutes)
-| Exercise | Equipment | Primary Target | Difficulty |
-|----------|-----------|----------------|------------|
-| Romanian Deadlift | Barbell/Dumbbells | Hamstrings | Intermediate |
-| Conventional Deadlift | Barbell | Posterior Chain | Intermediate |
-| Hip Thrust | Barbell, Bench | Glutes | Intermediate |
-| Leg Curl | Machine | Hamstrings | Beginner |
-| Good Morning | Barbell | Hamstrings/Lower Back | Advanced |
-| Glute Bridge | Bodyweight/Barbell | Glutes | Beginner |
+
+| Exercise              | Equipment          | Primary Target        | Difficulty   |
+| --------------------- | ------------------ | --------------------- | ------------ |
+| Romanian Deadlift     | Barbell/Dumbbells  | Hamstrings            | Intermediate |
+| Conventional Deadlift | Barbell            | Posterior Chain       | Intermediate |
+| Hip Thrust            | Barbell, Bench     | Glutes                | Intermediate |
+| Leg Curl              | Machine            | Hamstrings            | Beginner     |
+| Good Morning          | Barbell            | Hamstrings/Lower Back | Advanced     |
+| Glute Bridge          | Bodyweight/Barbell | Glutes                | Beginner     |
 
 ### Shoulders
-| Exercise | Equipment | Primary Target | Difficulty |
-|----------|-----------|----------------|------------|
-| Overhead Press | Barbell | Front/Mid Delts | Intermediate |
-| Dumbbell Lateral Raise | Dumbbells | Side Delts | Beginner |
-| Arnold Press | Dumbbells | Full Delts | Intermediate |
-| Rear Delt Fly | Dumbbells/Cable | Rear Delts | Beginner |
-| Upright Row | Barbell/Cable | Side Delts/Traps | Intermediate |
-| Cable Lateral Raise | Cable Machine | Side Delts | Beginner |
+
+| Exercise               | Equipment       | Primary Target   | Difficulty   |
+| ---------------------- | --------------- | ---------------- | ------------ |
+| Overhead Press         | Barbell         | Front/Mid Delts  | Intermediate |
+| Dumbbell Lateral Raise | Dumbbells       | Side Delts       | Beginner     |
+| Arnold Press           | Dumbbells       | Full Delts       | Intermediate |
+| Rear Delt Fly          | Dumbbells/Cable | Rear Delts       | Beginner     |
+| Upright Row            | Barbell/Cable   | Side Delts/Traps | Intermediate |
+| Cable Lateral Raise    | Cable Machine   | Side Delts       | Beginner     |
 
 ### Arms
-| Exercise | Equipment | Primary Target | Difficulty |
-|----------|-----------|----------------|------------|
-| Barbell Curl | Barbell | Biceps | Beginner |
-| Hammer Curl | Dumbbells | Brachialis/Biceps | Beginner |
-| Tricep Pushdown | Cable Machine | Triceps | Beginner |
-| Skull Crushers | Barbell/EZ Bar | Triceps | Intermediate |
-| Preacher Curl | EZ Bar, Bench | Biceps (short head) | Beginner |
-| Overhead Tricep Extension | Dumbbell/Cable | Triceps (long head) | Beginner |
+
+| Exercise                  | Equipment      | Primary Target      | Difficulty   |
+| ------------------------- | -------------- | ------------------- | ------------ |
+| Barbell Curl              | Barbell        | Biceps              | Beginner     |
+| Hammer Curl               | Dumbbells      | Brachialis/Biceps   | Beginner     |
+| Tricep Pushdown           | Cable Machine  | Triceps             | Beginner     |
+| Skull Crushers            | Barbell/EZ Bar | Triceps             | Intermediate |
+| Preacher Curl             | EZ Bar, Bench  | Biceps (short head) | Beginner     |
+| Overhead Tricep Extension | Dumbbell/Cable | Triceps (long head) | Beginner     |
 
 ### Core
-| Exercise | Equipment | Primary Target | Difficulty |
-|----------|-----------|----------------|------------|
-| Hanging Leg Raise | Pull-up Bar | Lower Abs | Intermediate |
-| Ab Wheel Rollout | Ab Wheel | Full Core | Intermediate |
-| Plank | Bodyweight | Core Stability | Beginner |
-| Cable Woodchop | Cable Machine | Obliques | Intermediate |
-| Pallof Press | Cable/Band | Anti-Rotation | Beginner |
-| Dead Bug | Bodyweight | Deep Core | Beginner |
+
+| Exercise          | Equipment     | Primary Target | Difficulty   |
+| ----------------- | ------------- | -------------- | ------------ |
+| Hanging Leg Raise | Pull-up Bar   | Lower Abs      | Intermediate |
+| Ab Wheel Rollout  | Ab Wheel      | Full Core      | Intermediate |
+| Plank             | Bodyweight    | Core Stability | Beginner     |
+| Cable Woodchop    | Cable Machine | Obliques       | Intermediate |
+| Pallof Press      | Cable/Band    | Anti-Rotation  | Beginner     |
+| Dead Bug          | Bodyweight    | Deep Core      | Beginner     |
 
 ---
 
 ## RPE (Rate of Perceived Exertion) Guide
 
-| RPE | Description | Reps in Reserve |
-|-----|-------------|-----------------|
-| 10 | Maximum effort, could not do another rep | 0 |
-| 9 | Could maybe do 1 more rep | 1 |
-| 8 | Could do 2 more reps | 2 |
-| 7 | Could do 3 more reps, moderate difficulty | 3 |
-| 6 | Could do 4+ more reps, light-moderate | 4+ |
-| 5 | Warm-up weight | 5+ |
+| RPE | Description                               | Reps in Reserve |
+| --- | ----------------------------------------- | --------------- |
+| 10  | Maximum effort, could not do another rep  | 0               |
+| 9   | Could maybe do 1 more rep                 | 1               |
+| 8   | Could do 2 more reps                      | 2               |
+| 7   | Could do 3 more reps, moderate difficulty | 3               |
+| 6   | Could do 4+ more reps, light-moderate     | 4+              |
+| 5   | Warm-up weight                            | 5+              |
 
 ---
 

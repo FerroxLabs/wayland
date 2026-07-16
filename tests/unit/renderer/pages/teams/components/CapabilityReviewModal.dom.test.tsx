@@ -49,9 +49,7 @@ vi.mock('@arco-design/web-react', async (importOriginal) => {
   };
 });
 
-import CapabilityReviewModal, {
-  type TeamCapabilities,
-} from '@/renderer/pages/teams/components/CapabilityReviewModal';
+import CapabilityReviewModal, { type TeamCapabilities } from '@/renderer/pages/teams/components/CapabilityReviewModal';
 
 const ALL_TRUE: TeamCapabilities = {
   canReadFiles: true,

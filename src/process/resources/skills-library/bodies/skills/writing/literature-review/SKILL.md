@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing writing research"
-  category: "writing"
-  subcategory: "academic-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'academic-writing writing research'
+  category: 'writing'
+  subcategory: 'academic-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Literature Review
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write a literature review for a thesis, dissertation, journal article, grant proposal, or standalone review paper -- and needs the sources synthesized into a thematic argument rather than listed sequentially
 - The user has gathered a body of sources (or describes the literature they want covered) and wants to understand how those sources relate to each other -- where they agree, contradict, build on one another, or leave gaps
 - The user needs to map the scholarly landscape of a topic: identifying dominant paradigms, methodological trends, theoretical frameworks, and contested questions
@@ -29,6 +31,7 @@ metadata:
 - The user needs a grant background section that establishes the problem's significance and positions the proposed study as a necessary next step
 
 **Do NOT use this skill when:**
+
 - The user wants a summary of a single paper -- use a paper summary or critical reading skill instead
 - The user wants an annotated bibliography, which requires individual source annotations with evaluation, not cross-source synthesis
 - The user wants to structure a full research paper with methods, results, and discussion -- use research-paper-structure instead
@@ -77,10 +80,10 @@ The architecture -- the organization of themes -- is the intellectual contributi
 - **Identify 3--6 themes** that collectively account for all included sources. Fewer than 3 suggests underdifferentiation; more than 6 suggests the review lacks a clear argument and is drifting toward an annotated list.
 - **Name themes as conceptual claims, not topic labels.** A weak theme name: "Motivation." A strong theme name: "The Distinction Between Behavioral Engagement and Cognitive Engagement." The name signals what the synthesis will argue.
 - **Order themes to build an argument.** Common architectures:
-  - *Funnel:* Broad context → narrowing toward the specific gap the study fills (standard for thesis chapters)
-  - *Contested terrain:* Dominant view → counterevidence → synthesis of what both sides miss (powerful for fields with genuine controversy)
-  - *Chronological-conceptual hybrid:* Use time only when the field genuinely transformed -- early work established X, then a methodological shift revealed X was wrong -- not as a default organization
-  - *Framework-then-application:* Theoretical frameworks in the field → empirical applications of those frameworks → gaps between theory and practice
+  - _Funnel:_ Broad context → narrowing toward the specific gap the study fills (standard for thesis chapters)
+  - _Contested terrain:_ Dominant view → counterevidence → synthesis of what both sides miss (powerful for fields with genuine controversy)
+  - _Chronological-conceptual hybrid:_ Use time only when the field genuinely transformed -- early work established X, then a methodological shift revealed X was wrong -- not as a default organization
+  - _Framework-then-application:_ Theoretical frameworks in the field → empirical applications of those frameworks → gaps between theory and practice
 - **Every theme must connect to the next.** The transition between themes is the argument's spine. "Theme 1 established that X is real; Theme 2 showed that Y moderates X; Theme 3 will show that neither X nor Y has been studied in context Z" is a connected argument. Jumping between unconnected topics is not.
 
 ### Step 4: Write Each Theme Section as Synthesis, Not Summary
@@ -109,6 +112,7 @@ The gap is not a formality -- it is the entire intellectual purpose of the revie
 Write these sections last, after the thematic body is complete, because they depend on knowing what the body actually established.
 
 **Introduction requirements:**
+
 - Hook the reader with the stakes of the topic -- why it matters scientifically, practically, or socially -- in no more than 2--3 sentences
 - Define key constructs as the review will use them, noting where definitional variation in the literature creates problems
 - State the scope clearly: time boundaries, disciplinary boundaries, types of studies included
@@ -116,6 +120,7 @@ Write these sections last, after the thematic body is complete, because they dep
 - State the review's purpose explicitly: to identify what is known, what is contested, and what remains unresolved
 
 **Conclusion requirements:**
+
 - Synthesize the synthesis -- what does the body of literature collectively establish?
 - State contradictions that remain unresolved even after the review's analysis
 - State the gap with precision (drawing on Step 5)
@@ -138,11 +143,13 @@ How citations are integrated signals scholarly sophistication. Follow these stan
 After drafting, construct the Key Sources Table and run the quality checklist:
 
 **Key Sources Table** -- include every source discussed substantively in the review:
+
 - Verify that every source in the table appears in the body text
 - Verify that no source discussed in the body is missing from the table
 - For systematic reviews, include a PRISMA-compliant flow diagram description
 
 **Quality checklist before finalizing:**
+
 - Is every paragraph organized around a synthetic claim, not a single source? (Annotated-bibliography test)
 - Does every source appear in conversation with at least one other source? (Isolation test)
 - Are contradictions in the literature explained, not merely noted? (Explanation test)
@@ -438,17 +445,17 @@ The present study addresses this gap directly. A pre-registered quasi-experiment
 
 ### Key Sources Table
 
-| Author(s) | Year | Core Finding / Argument | Theme(s) | Study Type | Sample/Context | Notable Limitation |
-|-----------|------|------------------------|----------|------------|----------------|-------------------|
-| Roediger & Karpicke | 2006 | Retrieval practice outperforms restudy at one-week delay despite lower immediate performance | 1 | Experiment (2 studies) | Undergraduates, N=60 and N=80; prose passages | Undergraduate sample; short delay maximum |
-| Adesope et al. | 2017 | Meta-analysis: d=0.62 for retrieval practice vs. restudy on delayed tests | 1 | Meta-analysis (272 samples) | Across study types and populations | High heterogeneity across included studies |
-| Yang et al. | 2021 | Pooled g=0.55 (24h+ delay tests); larger for identical vs. different test formats | 1, 2 | Meta-analysis (118 experiments) | Primarily student samples | Dominated by student populations |
-| Rowland | 2014 | Effect larger when practice format matches criterion format (d=0.75 vs. 0.35) | 2 | Meta-analysis | Student samples | Cannot disentangle format from content effects |
-| Bjork | 2011 | Desirable difficulties framework: effortful retrieval enhances long-term retention | 1, 2 | Theoretical review | N/A -- conceptual | Specifies conditions incompletely; moderate vs. high difficulty distinction unclear |
-| Carpenter | 2009 | Elaborative retrieval hypothesis: retrieval activates semantic associates, strengthening encoding | 1 | Experimental + theoretical | Undergraduates, N=42 | Indirect evidence for mechanism; not directly tested |
-| Cepeda et al. | 2008 | Optimal interstudy gap ≈ 10--20% of retention interval in large-scale study | 2 | Experiment | Adults, N=1,354; factual trivia | Lab context; simple facts only |
-| Kornell & Bjork | 2008 | Spaced retrieval practice produces superior long-term retention vs. massed | 2 | Experiment | Undergraduates | Student sample; vocabulary materials |
-| Karpicke & Blunt | 2011 | Short-answer retrieval produces stronger open-ended retention than multiple-choice retrieval | 2 | Experiment | Undergraduates, N=80 | Single study; needs replication |
-| Butler et al. | 2008 | Elaborative feedback amplifies retrieval practice effects more than corrective feedback alone | 2 | Experiment | Undergraduates | Does not examine feedback in low-knowledge learners |
-| Van Gog & Sweller | 2015 | For low-knowledge learners, incorrect retrieval without correction strengthens error traces | 2, 3 | Conceptual + review | N/A -- theoretical with cited evidence | Mechanism proposed; direct test limited |
-| McDaniel et al. | 2011 | Low-knowledge learners harmed by failed retrieval; high-knowledge learners benefit | 
+| Author(s)           | Year | Core Finding / Argument                                                                           | Theme(s) | Study Type                      | Sample/Context                                | Notable Limitation                                                                  |
+| ------------------- | ---- | ------------------------------------------------------------------------------------------------- | -------- | ------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Roediger & Karpicke | 2006 | Retrieval practice outperforms restudy at one-week delay despite lower immediate performance      | 1        | Experiment (2 studies)          | Undergraduates, N=60 and N=80; prose passages | Undergraduate sample; short delay maximum                                           |
+| Adesope et al.      | 2017 | Meta-analysis: d=0.62 for retrieval practice vs. restudy on delayed tests                         | 1        | Meta-analysis (272 samples)     | Across study types and populations            | High heterogeneity across included studies                                          |
+| Yang et al.         | 2021 | Pooled g=0.55 (24h+ delay tests); larger for identical vs. different test formats                 | 1, 2     | Meta-analysis (118 experiments) | Primarily student samples                     | Dominated by student populations                                                    |
+| Rowland             | 2014 | Effect larger when practice format matches criterion format (d=0.75 vs. 0.35)                     | 2        | Meta-analysis                   | Student samples                               | Cannot disentangle format from content effects                                      |
+| Bjork               | 2011 | Desirable difficulties framework: effortful retrieval enhances long-term retention                | 1, 2     | Theoretical review              | N/A -- conceptual                             | Specifies conditions incompletely; moderate vs. high difficulty distinction unclear |
+| Carpenter           | 2009 | Elaborative retrieval hypothesis: retrieval activates semantic associates, strengthening encoding | 1        | Experimental + theoretical      | Undergraduates, N=42                          | Indirect evidence for mechanism; not directly tested                                |
+| Cepeda et al.       | 2008 | Optimal interstudy gap ≈ 10--20% of retention interval in large-scale study                       | 2        | Experiment                      | Adults, N=1,354; factual trivia               | Lab context; simple facts only                                                      |
+| Kornell & Bjork     | 2008 | Spaced retrieval practice produces superior long-term retention vs. massed                        | 2        | Experiment                      | Undergraduates                                | Student sample; vocabulary materials                                                |
+| Karpicke & Blunt    | 2011 | Short-answer retrieval produces stronger open-ended retention than multiple-choice retrieval      | 2        | Experiment                      | Undergraduates, N=80                          | Single study; needs replication                                                     |
+| Butler et al.       | 2008 | Elaborative feedback amplifies retrieval practice effects more than corrective feedback alone     | 2        | Experiment                      | Undergraduates                                | Does not examine feedback in low-knowledge learners                                 |
+| Van Gog & Sweller   | 2015 | For low-knowledge learners, incorrect retrieval without correction strengthens error traces       | 2, 3     | Conceptual + review             | N/A -- theoretical with cited evidence        | Mechanism proposed; direct test limited                                             |
+| McDaniel et al.     | 2011 | Low-knowledge learners harmed by failed retrieval; high-knowledge learners benefit                |

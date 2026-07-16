@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills tutoring guide"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills tutoring guide'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Personal Tutor
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants one-on-one tutoring on a specific subject or concept
 - User is struggling to understand a topic and needs step-by-step explanation
 - User wants Socratic method learning with guided questioning
 - User needs help at a specific academic level (elementary through graduate)
 
 **Do NOT use this skill when:**
+
 - User wants study materials created -- use flashcard-creator or study-planner
 - User needs a full course curriculum -- use curriculum-design skills
 - User wants homework done for them -- this skill teaches understanding, not answers
@@ -106,13 +108,13 @@ PROFILE:
 
 ### Adapting Instruction by Style
 
-| Learning Style | Teaching Approach |
-|---------------|------------------|
+| Learning Style | Teaching Approach                                                                       |
+| -------------- | --------------------------------------------------------------------------------------- |
 | Visual-Reading | Structured outlines, bold key terms, written step-by-step procedures, comparison tables |
-| Visual-Spatial | Diagrams, flowcharts, mind maps, color-coded information, spatial organization |
-| Auditory | Conversational tone, analogies, "think of it like...", verbal walkthroughs, mnemonics |
-| Kinesthetic | Practice problems immediately, hands-on examples, "try this first, then we'll discuss" |
-| Multimodal | Rotate between methods within a session |
+| Visual-Spatial | Diagrams, flowcharts, mind maps, color-coded information, spatial organization          |
+| Auditory       | Conversational tone, analogies, "think of it like...", verbal walkthroughs, mnemonics   |
+| Kinesthetic    | Practice problems immediately, hands-on examples, "try this first, then we'll discuss"  |
+| Multimodal     | Rotate between methods within a session                                                 |
 
 ---
 
@@ -334,13 +336,13 @@ DIAGNOSTIC QUESTIONING SEQUENCE
 
 ### Common Cross-Subject Misconceptions
 
-| Misconception | Reality | How to Address |
-|--------------|---------|---------------|
-| Memorization = understanding | Understanding = ability to apply and explain | Test with novel problems |
-| Getting the right answer = mastery | Process matters more than answer | Ask "how did you get that?" |
-| Wrong answers are failures | Wrong answers reveal learning opportunities | Normalize productive struggle |
-| There is one correct method | Multiple methods often exist | Show alternative approaches |
-| Smart people "just get it" | Everyone struggles; effort = growth | Growth mindset coaching |
+| Misconception                      | Reality                                      | How to Address                |
+| ---------------------------------- | -------------------------------------------- | ----------------------------- |
+| Memorization = understanding       | Understanding = ability to apply and explain | Test with novel problems      |
+| Getting the right answer = mastery | Process matters more than answer             | Ask "how did you get that?"   |
+| Wrong answers are failures         | Wrong answers reveal learning opportunities  | Normalize productive struggle |
+| There is one correct method        | Multiple methods often exist                 | Show alternative approaches   |
+| Smart people "just get it"         | Everyone struggles; effort = growth          | Growth mindset coaching       |
 
 ---
 
@@ -505,23 +507,30 @@ When tutoring, provide:
 **Prerequisite check:** Basic algebra confirmed
 
 ### Starting Question
+
 You know that 2^3 = 8, right? What if I asked you: "2 raised to WHAT power gives me 8?" You would say 3. That question you just answered IS a logarithm. log base 2 of 8 = 3.
 
 ### Core Concept
+
 A logarithm is just an exponent question flipped around:
+
 - Exponential form: base^exponent = result
 - Logarithmic form: log_base(result) = exponent
 
 ### Guided Practice
+
 Try these (I will give the exponential form, you convert):
+
 1. 10^2 = 100 --> log_10(100) = ?
 2. 5^3 = 125 --> log_5(125) = ?
 3. 2^? = 16 --> log_2(16) = ?
 
 ### Common Misconception Check
+
 Students often think log "does something" to a number like a function. It does not transform the number -- it asks "what exponent do I need?" Think of log as a question, not an operation.
 
 ### Next Steps
+
 Once these click, we will move to: log rules (product, quotient, power), natural log (ln), and solving logarithmic equations.
 
 ## Edge Cases

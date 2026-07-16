@@ -13,19 +13,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "freelancing career template legal-literacy"
-  category: "career-development"
-  subcategory: "freelancing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'freelancing career template legal-literacy'
+  category: 'career-development'
+  subcategory: 'freelancing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Freelance Contract Template
 
 ## When to Use
 
 **Use this skill when:**
+
 - A freelancer needs to generate a complete services agreement from scratch for a new client engagement (design, development, writing, consulting, photography, video, audio, marketing, or any other independent contractor service)
 - A freelancer asks "what should my contract include?" or "how do I protect myself legally with clients?"
 - A user wants to create a reusable master contract template they can adjust per-client rather than starting from scratch each time
@@ -34,6 +36,7 @@ metadata:
 - A user needs to draft specific clauses (just the IP clause, just the revision clause) to add to an existing skeleton agreement
 
 **Do NOT use this skill when:**
+
 - The user needs an employment contract, offer letter, or contractor-to-employee transition document -- use business HR skills instead
 - The user has a contract from a client and wants you to review, interpret, or flag concerning clauses in it -- use legal-civic document review skills instead
 - The user needs a business partnership agreement, LLC operating agreement, or co-founder agreement -- use business legal skills instead
@@ -66,22 +69,26 @@ Before writing a single clause, collect the following. Ask the user directly for
 Different engagement types need different clause emphasis:
 
 **Project-based (fixed scope, fixed fee):**
+
 - Lead with a detailed Scope of Work -- this is the most-litigated clause in project contracts
 - Use milestone-triggered payments tied to specific deliverables, not calendar dates
 - Include a clear project completion definition (what does "done" look like, and what triggers final payment release)
 
 **Hourly/time-and-materials:**
+
 - Replace fixed fee structure with rate, billing cycle (weekly or biweekly is standard), and any cap on hours per week or month
 - Add a "not to exceed" clause if the client wants budget certainty: "Total hours under this agreement will not exceed [X] without written approval from Client"
 - Include timesheet/reporting requirements (do you submit a timesheet? Weekly report? Estimate before beginning each task?)
 
 **Retainer (ongoing relationship):**
+
 - Define the retainer as a monthly service commitment, not a bank of hours (hours-based retainers create hourly-rate framing which invites micromanagement)
 - Specify what the retainer covers: types of work, monthly deliverable minimums, response time expectations
 - Add a rollover policy: industry standard is no rollover of unused capacity, but some freelancers offer partial rollover (up to one month) for long-term clients
 - Include a renewal/cancellation period (30 days written notice is standard for retainers; less than 30 days typically results in the retainer fee being owed regardless)
 
 **Multi-phase (large projects with distinct phases):**
+
 - Break the contract into phases with separate scope, timeline, and payment for each
 - Include a "phase gate" clause: client must formally approve Phase 1 output before Phase 2 begins, and approval triggers the Phase 2 payment
 - Add language about what happens if the project is paused between phases (typically a restart fee or re-scoping requirement)
@@ -115,6 +122,7 @@ IP is the most complex clause and the one most frequently misunderstood by both 
 Ownership of final deliverables transfers to the client upon receipt of full payment. This is standard and protects the freelancer's leverage until the last invoice clears. Before full payment, all work product is the property of the freelancer. If the client uses work before paying in full (a common occurrence), they are technically infringing.
 
 **Part 2 -- Freelancer's retained rights:**
+
 - Portfolio and self-promotion rights (display work publicly, list client in case studies) -- this is a right the freelancer should always retain unless there is a specific confidential project, and even then, confidentiality should have an end date
 - Pre-existing IP: any tools, frameworks, templates, code libraries, design systems, or methodologies the freelancer developed before or outside this project are licensed to the client for use with the deliverables, not assigned. This is the "tools of the trade" carve-out and it is critical for developers and designers who reuse foundational elements across projects.
 - Kill fee IP retention: if the project is terminated early, the freelancer retains all IP for work not yet paid for
@@ -123,6 +131,7 @@ Ownership of final deliverables transfers to the client upon receipt of full pay
 If the deliverables incorporate licensed third-party elements (stock images, fonts, open-source code, etc.), note that those elements are governed by their respective licenses, not by this agreement. The client's ability to use those elements depends on the licenses the freelancer has obtained.
 
 **Special situations:**
+
 - If the client insists on a traditional work-for-hire clause (full assignment including pre-existing tools), the freelancer should charge a premium for that -- typically 20-40% above standard rates -- because it eliminates the freelancer's ability to leverage or reuse those assets
 - If the deliverable is software and the client wants the source code, address this explicitly. "Source code delivery" and "ownership of source code" are different things -- both should be addressed
 
@@ -527,7 +536,9 @@ reviewed by qualified legal counsel before signing.
 ## Edge Cases
 
 ### The Enterprise Client With Their Own Contract
+
 Many large companies, agencies, and corporate clients will not sign the freelancer's contract -- they will present their own master services agreement (MSA) or supplier agreement. In this scenario, shift from contract generation to contract review guidance:
+
 - Flag work-for-hire language: if the contract says deliverables are "works made for hire" under applicable law, the client owns the IP without any payment condition, which eliminates the freelancer's leverage on final payment
 - Flag net-60 and net-90 payment terms: enterprise contracts often default to 60-90 day payment cycles -- negotiate for net-15 or net-30, or price in the carrying cost of extended terms
 - Flag non-compete and exclusivity clauses that prohibit working for competitors: "competitor" can be defined so broadly that it affects the freelancer's entire client base
@@ -535,7 +546,9 @@ Many large companies, agencies, and corporate clients will not sign the freelanc
 - Flag automatic renewal and perpetual license clauses that give the client rights to use the freelancer's work forever in any medium even after the engagement ends
 
 ### Retainer Contracts With Unclear Scope
+
 Retainers frequently fail because the scope per month is vague ("ongoing marketing support") and both parties have different mental models of what is covered. Handle this by:
+
 - Defining a minimum monthly deliverable (at least X pieces of content, X hours of strategy, X campaign builds per month)
 - Defining the maximum capacity covered by the retainer and the hourly overage rate
 - Building in a quarterly retainer review clause: either party may request a scope renegotiation at any quarter boundary with 15 days notice, without terminating the agreement
@@ -543,33 +556,43 @@ Retainers frequently fail because the scope per month is vague ("ongoing marketi
 - Defining the retainer renewal as automatic month-to-month unless either party gives 30 days written notice of cancellation -- this prevents the client from quietly letting the retainer "expire" without formally terminating and owing the kill fee
 
 ### International Clients and Cross-Border Payments
+
 When the client is in a different country:
+
 - Specify all amounts in a single currency with the currency code (USD, EUR, GBP, CAD) -- do not say "$5,000" if the client might interpret that as their local dollar
 - Name the payment mechanism explicitly: international wire transfer (note: the freelancer's bank may charge a receiving fee of $15-$50 per wire -- specify whether this is absorbed by the freelancer or added to the invoice), Wise (formerly TransferWise), PayPal, or Stripe
 - Address the VAT/GST question: in many jurisdictions, a freelancer serving a foreign business client may not need to charge the client's local tax (B2B reverse charge mechanisms), but this requires clarification with a local accountant -- note this in the contract as "taxes are the responsibility of each party under the laws of their respective jurisdiction"
 - Governing law becomes critical: if the freelancer is in the U.S. and the client is in the EU, the freelancer should insist on U.S. governing law, or at minimum an arbitration clause under international commercial arbitration rules (ICC or UNCITRAL) rather than a court clause that requires the freelancer to litigate in a foreign jurisdiction
 
 ### Confidential Projects Where Portfolio Use Is Restricted
+
 Some clients -- particularly those building unreleased products, in regulated industries (finance, healthcare), or working on competitive initiatives -- will request that the freelancer not disclose the project in their portfolio. Handle this by:
+
 - Accepting the restriction but making it time-limited: "Portfolio restrictions apply for [18 months] from the date of this agreement. After [18 months], [Service Provider] may display the work without identifying [Client] by name."
 - Offering a reference alternative: even if the work cannot be shown publicly, the client can provide a confidential reference to future clients upon request
 - Pricing the restriction appropriately: portfolio use has real economic value to the freelancer (it generates future business). If a client wants to restrict it permanently with no sunset, this should be priced as an add-on or negotiated with a higher fee
 
 ### Subcontractors and Collaborating Freelancers
+
 If the primary freelancer uses subcontractors to fulfill portions of the work:
+
 - Add a subcontracting clause: "[Service Provider] may engage qualified subcontractors to fulfill portions of the work under this agreement. [Service Provider] remains solely responsible to [Client] for the quality and delivery of all deliverables, regardless of whether subcontractors are used."
 - Specify that subcontractors are bound by equivalent confidentiality obligations
 - Do not name specific subcontractors in the contract -- personnel changes should not require a contract amendment
 - Ensure that the IP assignment flows through: the primary freelancer must obtain an IP assignment from subcontractors for any work that will be assigned to the client. If a subcontractor does not assign their IP, the primary freelancer cannot legally pass it to the client.
 
 ### Rush Projects and Premium Pricing
+
 If the client needs work completed faster than the freelancer's standard timeline:
+
 - Add an explicit rush fee clause in the payment section: "Work requested to be completed in less than [5] business days will be subject to a rush premium of [25-50]% of the applicable fee"
 - Adjust the timeline section to reflect the compressed schedule and note that the compressed timeline is conditioned on client feedback being provided within [24-48] hours instead of the standard 5 business days
 - Include a mutual acknowledgment that rush timelines may affect the freelancer's ability to fully implement revisions within the same compressed window
 
 ### The Client Who Wants to Pay Only on "Satisfaction"
+
 Some clients propose payment terms like "payment when I'm happy with the result" or "full payment upon final approval, no deposit." These terms are professionally and financially dangerous:
+
 - Refuse purely satisfaction-based payment -- it is unenforceable in most jurisdictions (contracts require objective performance standards) and gives the client infinite leverage to withhold payment
 - Replace it with the acceptance clause framework: client has [5] business days to provide written feedback; silence constitutes acceptance
 - If the client insists on approval-based final payment, define "approval" objectively: "Final payment is triggered when the deliverables materially conform to the specifications in Section 1 of this agreement. Conformance is not contingent on [Client]'s subjective aesthetic preferences where those preferences were not specified in the brief."
@@ -605,13 +628,14 @@ Some clients propose payment terms like "payment when I'm happy with the result"
 
 **Deliverables:**
 
-| # | Deliverable | Description | Format |
-|---|-------------|-------------|--------|
-| 1 | Discovery & User Flow Documentation | Documented user personas (up to 3), primary user flows, and information architecture diagram | PDF delivered via Google Drive |
-| 2 | Wireframes | Low-to-mid-fidelity wireframes for all primary app screens (up to 20 screens) covering onboarding, core dashboard, key transaction flows, and settings | Figma file, shared link |
-| 3 | Final UI Design Files | High-fidelity visual designs for all screens defined in Deliverable 2, including typography, color, iconography, and component specifications; includes a design handoff spec document for developers | Figma file with published components, shared link; PDF export of key screens |
+| #   | Deliverable                         | Description                                                                                                                                                                                           | Format                                                                       |
+| --- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 1   | Discovery & User Flow Documentation | Documented user personas (up to 3), primary user flows, and information architecture diagram                                                                                                          | PDF delivered via Google Drive                                               |
+| 2   | Wireframes                          | Low-to-mid-fidelity wireframes for all primary app screens (up to 20 screens) covering onboarding, core dashboard, key transaction flows, and settings                                                | Figma file, shared link                                                      |
+| 3   | Final UI Design Files               | High-fidelity visual designs for all screens defined in Deliverable 2, including typography, color, iconography, and component specifications; includes a design handoff spec document for developers | Figma file with published components, shared link; PDF export of key screens |
 
 **Explicitly excluded from this scope:**
+
 - Motion design, micro-animations, or prototype interactions beyond basic Figma prototype linking
 - Copywriting, UX writing, or in-app content strategy
 - Brand identity design (logo, brand guidelines) -- assumes existing brand assets will be provided by [Client]
@@ -628,13 +652,13 @@ If [Client] has provided a product brief, technical specification, or feature li
 
 ### 2. Timeline
 
-| Milestone | Description | Target Date |
-|-----------|-------------|-------------|
-| Start | Agreement signed and deposit received | [Start Date] |
-| Week 2 | Discovery & User Flow Documentation delivered | [Date] |
-| Week 4 | Wireframes delivered for review | [Date] |
-| Week 6 | Revised wireframes delivered; final UI design work begins | [Date] |
-| Week 8 | Final Figma design files delivered | [Date] |
+| Milestone | Description                                               | Target Date  |
+| --------- | --------------------------------------------------------- | ------------ |
+| Start     | Agreement signed and deposit received                     | [Start Date] |
+| Week 2    | Discovery & User Flow Documentation delivered             | [Date]       |
+| Week 4    | Wireframes delivered for review                           | [Date]       |
+| Week 6    | Revised wireframes delivered; final UI design work begins | [Date]       |
+| Week 8    | Final Figma design files delivered                        | [Date]       |
 
 **Client obligations affecting timeline:** [Client] agrees to provide feedback, approvals, asset files (logos, brand guidelines, content), and access to relevant stakeholders within 3 business days of each request. Delays caused by late client responses will extend the project timeline by an equivalent number of business days with no penalty to [Service Provider].
 
@@ -648,11 +672,11 @@ If [Client] has provided a product brief, technical specification, or feature li
 
 **Payment Schedule:**
 
-| Payment | Amount | % of Total | Trigger / Due Date |
-|---------|--------|------------|--------------------|
-| Deposit | $6,000 | 50% | Due upon signing this agreement -- work begins upon receipt |
-| Wireframe Milestone | $3,000 | 25% | Due within 5 business days of [Client]'s written acceptance of Deliverable 2 (Wireframes) |
-| Final Payment | $3,000 | 25% | Due within 5 business days of delivery of Deliverable 3 (Final Figma Files) |
+| Payment             | Amount | % of Total | Trigger / Due Date                                                                        |
+| ------------------- | ------ | ---------- | ----------------------------------------------------------------------------------------- |
+| Deposit             | $6,000 | 50%        | Due upon signing this agreement -- work begins upon receipt                               |
+| Wireframe Milestone | $3,000 | 25%        | Due within 5 business days of [Client]'s written acceptance of Deliverable 2 (Wireframes) |
+| Final Payment       | $3,000 | 25%        | Due within 5 business days of delivery of Deliverable 3 (Final Figma Files)               |
 
 **Payment Method:** ACH bank transfer or check made payable to [Your Legal Name / Business Name]. Wire transfer and international payment details available upon request.
 
@@ -671,6 +695,7 @@ If [Client] has provided a product brief, technical specification, or feature li
 **Definition of a Revision Round:** A revision round is one set of consolidated written feedback on a single deliverable submitted in a single message, document, or thread. Feedback submitted in multiple separate messages after [Service Provider] has begun implementing revisions constitutes a new revision round. Feedback requesting features or screens outside the scope defined in Section 1 is a Change Order, not a revision.
 
 **Revision Turnaround:**
+
 - [Client] provides consolidated feedback within 5 business days of receiving each deliverable
 - [Service Provider] delivers revisions within 5 business days of receiving feedback
 
@@ -718,6 +743,7 @@ If [Client] has provided a product brief, technical specification, or feature li
 **Termination for Cause:** Either party may terminate immediately if the other party fails to make a required payment within 10 business days of its due date, materially breaches any other term and fails to cure within 5 business days of written notice, or becomes insolvent or ceases operations.
 
 **Obligations Upon Termination:**
+
 - [Client] pays for all work completed up to the effective termination date, calculated based on the milestone schedule (or prorated if termination occurs mid-milestone)
 - If [Client] terminates this agreement for any reason other than [Service Provider]'s material breach, [Client] also owes a kill fee equal to 25% of the remaining unpaid project fee
 - The $6,000 deposit is non-refundable regardless of when or why the project is terminated

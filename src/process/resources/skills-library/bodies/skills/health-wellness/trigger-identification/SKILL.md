@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness goal-setting habits emotional-health"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mental-wellness goal-setting habits emotional-health'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Trigger Identification
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks why they keep doing an unwanted habit and wants a structured explanation -- specifically when they describe a behavior that feels automatic, hard to resist, or context-dependent ("I always do X when Y happens")
 - The user wants to identify the specific triggers behind a repeating behavior: nail-biting, stress eating, doom-scrolling, procrastinating, venting to the wrong person, impulse buying, cigarette breaks beyond their stated goal, or late-night snacking
 - The user explicitly asks for a cue-routine-reward analysis, habit loop breakdown, ABC (Antecedent-Behavior-Consequence) mapping, or wants to understand "what function this behavior serves"
@@ -31,6 +33,7 @@ metadata:
 - The user wants to prepare for a high-risk situation -- a social event, stressful work period, or emotional season -- and wants to anticipate and pre-plan for likely triggers
 
 **Do NOT use when:**
+
 - The user describes a substance they feel physically dependent on, uses the words "withdrawal," "can't function without," or describes physical symptoms when they stop -- refer to a licensed addiction specialist or healthcare provider; use no other skill from this library as a substitute
 - The user's language suggests a clinical compulsion that has persisted despite professional attempts at change -- phrases like "I've been in therapy for years for this," "my psychiatrist said," or "I've been hospitalized for this behavior" signal a clinical context beyond this skill's scope
 - The user wants to BUILD a new positive habit from scratch with no pre-existing behavior to analyze -- use `habit-stacking-framework` instead, which addresses habit formation rather than habit loop deconstruction
@@ -67,6 +70,7 @@ Walk the user through each category explicitly, using the "last time" technique:
 - **Preceding Action:** What was the last thing you did immediately before the habit started? This is often the most precise predictor -- the habit cue may not be an emotion but a specific action: closing a document, finishing a meeting, stopping physical exercise.
 
 Rate each category from 0-3 for that occurrence:
+
 - 0 = not a factor
 - 1 = possibly relevant
 - 2 = likely a trigger
@@ -82,6 +86,7 @@ Use three diagnostic techniques:
 
 **Technique 1 -- The Deprivation Question:**
 "If you could NOT do the habit when the trigger hits -- the snack is unavailable, the phone is in another room, the person isn't there -- what would you feel?" The emotional answer to this question almost always reveals the reward category:
+
 - Restless/can't focus = stimulation/novelty reward
 - Anxious/wound up = stress relief/decompression reward
 - Lonely/disconnected = social connection reward
@@ -100,6 +105,7 @@ Ask: "Have you ever had the trigger occur and gotten the reward through a differ
 Five episodes is the minimum threshold for pattern detection. Fewer than five produces coincidence, not pattern. More than ten becomes burdensome and reduces compliance.
 
 For each logged episode, collect:
+
 - Date and exact time
 - Location (room, setting, context)
 - Emotional state at the moment (use the emotion menu from Step 2)
@@ -116,14 +122,14 @@ After five entries, calculate the primary trigger category score using the 0-3 r
 
 This is the most technically demanding step and where most habit-change attempts fail. The substitution must satisfy the same psychological need as the original behavior. Use the following reward taxonomy to match substitutes correctly:
 
-| Reward Category | Physiological Basis | Valid Substitutes | Invalid Substitutes |
-|----------------|--------------------|--------------------|---------------------|
-| Stress relief / decompression | Cortisol reduction, parasympathetic activation | Diaphragmatic breathing (5 minutes, 4-7-8 pattern), progressive muscle relaxation, cold water on wrists, 5-minute walk | Journaling (cognitively engaging, not decompressing), watching news, checking messages |
-| Stimulation / novelty | Dopaminergic activation via novelty-seeking | Quick puzzle, interesting article (3-minute cap), physical movement burst (10 jumping jacks), novel music | Meditation, deep breathing (calming, not stimulating), sitting quietly |
-| Social connection | Oxytocin, belonging signal | Sending a quick genuine message to a friend, 3-minute check-in call, brief in-person interaction | Passive social media scrolling (simulates connection without delivering it), solo activities |
-| Physical/sensory | Oral or tactile stimulation | Chewing gum (replicates jaw movement), strong flavored tea, fidget tool, cold or hot beverage | Screen activities, sedentary quiet activities |
-| Escape / avoidance | Avoidance of an aversive state | Structured micro-break with a hard time limit (5 minutes), changing physical location briefly, task-switching | Anything that extends the avoidance indefinitely -- this can reinforce procrastination loops |
-| Energy / alertness | Blood glucose, adenosine clearing | Brief physical movement (increases alertness more effectively than sugar), cold water, 10-minute nap if environment allows | Caffeine if already consumed 4+ cups (diminishing returns after threshold) |
+| Reward Category               | Physiological Basis                            | Valid Substitutes                                                                                                          | Invalid Substitutes                                                                          |
+| ----------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Stress relief / decompression | Cortisol reduction, parasympathetic activation | Diaphragmatic breathing (5 minutes, 4-7-8 pattern), progressive muscle relaxation, cold water on wrists, 5-minute walk     | Journaling (cognitively engaging, not decompressing), watching news, checking messages       |
+| Stimulation / novelty         | Dopaminergic activation via novelty-seeking    | Quick puzzle, interesting article (3-minute cap), physical movement burst (10 jumping jacks), novel music                  | Meditation, deep breathing (calming, not stimulating), sitting quietly                       |
+| Social connection             | Oxytocin, belonging signal                     | Sending a quick genuine message to a friend, 3-minute check-in call, brief in-person interaction                           | Passive social media scrolling (simulates connection without delivering it), solo activities |
+| Physical/sensory              | Oral or tactile stimulation                    | Chewing gum (replicates jaw movement), strong flavored tea, fidget tool, cold or hot beverage                              | Screen activities, sedentary quiet activities                                                |
+| Escape / avoidance            | Avoidance of an aversive state                 | Structured micro-break with a hard time limit (5 minutes), changing physical location briefly, task-switching              | Anything that extends the avoidance indefinitely -- this can reinforce procrastination loops |
+| Energy / alertness            | Blood glucose, adenosine clearing              | Brief physical movement (increases alertness more effectively than sugar), cold water, 10-minute nap if environment allows | Caffeine if already consumed 4+ cups (diminishing returns after threshold)                   |
 
 A substitution fails the reward-match test if it requires the user to tolerate a negative emotional state rather than replace it with a positive one. "Sit with the discomfort" is not a valid substitute -- it is a suppression strategy, which has a documented rebound effect (Daniel Wegner's ironic process theory: suppressed thoughts and urges resurface with greater intensity).
 
@@ -133,10 +139,12 @@ A single substitute is fragile. Real environments are variable: time, energy, so
 
 **Tier 1 -- Instant Response (under 60 seconds):**
 Requires zero preparation, zero equipment, available in any location. This is the "floor" substitute -- the absolute minimum viable response when the trigger fires and conditions are limiting.
+
 - Example: Three slow exhales (4 seconds in, 6 seconds out) -- available anywhere, no one notices, directly activates the parasympathetic system
 
 **Tier 2 -- Full Substitute (3-10 minutes):**
 The preferred response when conditions allow. Delivers the reward more completely than the Tier 1 option.
+
 - Example: 5-minute walk outside, specific task-break activity, 3-minute mindful tea ritual
 
 Having only a Tier 2 option creates a false choice: "I can't do my substitute right now, so I'll do the old habit." The Tier 1 option closes this loophole.
@@ -146,6 +154,7 @@ Having only a Tier 2 option creates a false choice: "I can't do my substitute ri
 Seven days (not five) provides enough variance to account for weekly patterns. If a trigger is primarily a Monday stress response after weekend disconnection, a 5-day test starting Tuesday misses it entirely.
 
 Each day, the user rates reward satisfaction on a 1-5 scale:
+
 - 1 = Cravings for old habit were overwhelming; substitute provided nothing
 - 2 = Substitute was tolerable but cravings persisted
 - 3 = Substitute reduced cravings to manageable level; felt neutral about it
@@ -153,6 +162,7 @@ Each day, the user rates reward satisfaction on a 1-5 scale:
 - 5 = Substitute was preferred or the craving didn't feel strong after doing it
 
 **Interpretation thresholds:**
+
 - Average 4.0-5.0: Substitution is working. Reinforce with environmental design (put the substitute in the trigger location, remove barriers to Tier 2).
 - Average 3.0-3.9: Partial match. The substitute is addressing part of the reward but not all of it. Likely a compound reward -- the behavior was delivering two separate rewards. Identify the unmet second reward and add a secondary substitute.
 - Average 2.0-2.9: Wrong reward category. Return to Step 3 and re-run the deprivation question. The reward hypothesis was incorrect.
@@ -339,6 +349,7 @@ Return to Step 4 and log 5 new episodes if:
 Some users can describe the habit and the trigger accurately but cannot identify what the habit is giving them -- especially for habits with immediate action (automatic phone-checking, absent-minded eating, hair-pulling).
 
 Use the **Three-Substitute Elimination Protocol:** On three separate trigger occurrences, before doing the old habit, try one of three test substitutes in sequence:
+
 1. Physical movement for 2 minutes (reward tested: physical stimulation / energy)
 2. A 3-minute conversation or text exchange with someone (reward tested: social connection / distraction through connection)
 3. Sitting with eyes closed and focusing on breath for 2 minutes (reward tested: stress relief / decompression / quiet)
@@ -350,6 +361,7 @@ After each test, rate how much the original craving remained (1 = completely gon
 When the trigger cannot be removed -- a high-stress job, a period of social isolation, a structurally boring task -- the substitution carries the full burden of behavior change. In this context:
 
 Design a **three-level response ladder** for the same reward category:
+
 - **30-second option:** For triggers that fire in constrained environments (meetings, public spaces) -- three slow exhales, brief grounding technique (name 5 things you can see), or a hand-tension-and-release cycle
 - **5-minute option:** For triggers with minimal time margin -- short walk, tea ritual, brief journaling prompt, one text to a close friend
 - **15-minute option:** For triggers when a real break is available -- full walk outside, genuine social interaction, a meaningful creative or physical activity
@@ -363,6 +375,7 @@ Additionally, if the trigger emotion is chronic and severe (persistent lonelines
 Do not run parallel analyses. The cognitive load of logging multiple habits simultaneously reduces data quality across all of them and often produces habit abandonment within 3-4 days.
 
 Use the **Habit Priority Filter:**
+
 1. Frequency: which habit occurs most often?
 2. Distress: which habit causes the most negative consequences?
 3. Tractability: which habit has the clearest, most specific trigger?
@@ -374,6 +387,7 @@ Analyze the habit that scores highest on two or more of these three dimensions f
 When other people are the consistent trigger, the "people present" column in the worksheet becomes the primary analysis variable. Map which specific individuals or relationship types most reliably trigger the behavior.
 
 Key distinctions:
+
 - If the behavior occurs only with one specific person or group: the trigger is relational, and the substitution must address the interpersonal context (a different response to that specific person, a different activity during that time, or a graduated reduction in exposure to that trigger context)
 - If the behavior occurs with multiple different people: the trigger is likely an emotional state these interactions produce (evaluation anxiety, need for approval, avoidance of conflict), and the substitution addresses the underlying emotional state rather than the people themselves
 - If the behavior is primarily maintained by social reinforcement (others laugh, engage, or reward the behavior): acknowledge that substitution alone may be insufficient -- social reinforcement is one of the most powerful behavior maintainers. The substitution plan should include a way to get the social reward through a different behavior in that same group context.
@@ -414,14 +428,14 @@ Then apply extra rigor to the reward-match requirement. The substitute must be t
 
 ### Habit Profile
 
-| Field | Detail |
-|-------|--------|
-| **Target Behavior** | Opening Instagram immediately upon sitting down to begin a difficult or effortful work task -- before consciously deciding to check it |
-| **Frequency** | Estimated 3-6 times per work day (each time a new hard task begins) |
-| **Duration per Episode** | Unknown -- likely 5-20 minutes per episode based on typical platform engagement patterns |
-| **Habit Age** | Requires logging to confirm, but automaticity suggests at least 6-12 months of consistent pairing |
+| Field                        | Detail                                                                                                                                                           |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Target Behavior**          | Opening Instagram immediately upon sitting down to begin a difficult or effortful work task -- before consciously deciding to check it                           |
+| **Frequency**                | Estimated 3-6 times per work day (each time a new hard task begins)                                                                                              |
+| **Duration per Episode**     | Unknown -- likely 5-20 minutes per episode based on typical platform engagement patterns                                                                         |
+| **Habit Age**                | Requires logging to confirm, but automaticity suggests at least 6-12 months of consistent pairing                                                                |
 | **Previous Change Attempts** | Phone in another room -- failed to stick. This failure mode is informative: the habit is strong enough to overcome environmental friction when the trigger fires |
-| **Baseline Distress Level** | High (user proactively seeking change, describes it as happening "before I've even thought about it" -- indicates high automaticity) |
+| **Baseline Distress Level**  | High (user proactively seeking change, describes it as happening "before I've even thought about it" -- indicates high automaticity)                             |
 
 ---
 
@@ -442,6 +456,7 @@ Then apply extra rigor to the reward-match requirement. The substitute must be t
 #### ROUTINE
 
 **Behavioral Sequence:**
+
 1. Open work task (document, project, assignment)
 2. Brain registers task as difficult or effortful (activation energy required)
 3. Reach for phone -- automatic, pre-conscious
@@ -472,15 +487,16 @@ If the user could not check Instagram when the trigger fired, they would likely 
 
 Log the next 5 times the Instagram habit fires during work:
 
-| # | Date | Time | Location | Emotional State | Who Present | Preceding Action | Routine | Duration | Feeling After (10 min) |
-|---|------|------|----------|----------------|-------------|-----------------|---------|----------|----------------------|
-| 1 | | | Desk | | Alone/with others? | What task were you about to start? | Opened Instagram, scrolled | | |
-| 2 | | | Desk | | | | | | |
-| 3 | | | Desk | | | | | | |
-| 4 | | | Desk | | | | | | |
-| 5 | | | Desk | | | | | | |
+| #   | Date | Time | Location | Emotional State | Who Present        | Preceding Action                   | Routine                    | Duration | Feeling After (10 min) |
+| --- | ---- | ---- | -------- | --------------- | ------------------ | ---------------------------------- | -------------------------- | -------- | ---------------------- |
+| 1   |      |      | Desk     |                 | Alone/with others? | What task were you about to start? | Opened Instagram, scrolled |          |                        |
+| 2   |      |      | Desk     |                 |                    |                                    |                            |          |                        |
+| 3   |      |      | Desk     |                 |                    |                                    |                            |          |                        |
+| 4   |      |      | Desk     |                 |                    |                                    |                            |          |                        |
+| 5   |      |      | Desk     |                 |                    |                                    |                            |          |                        |
 
 **After each entry, answer:**
+
 - What specifically was the task you were about to start? (Write 3 words describing it)
 - On a scale of 1-5, how much were you dreading beginning that task? (1 = neutral; 5 = significant resistance)
 - Did you notice picking up the phone before or after you did it?
@@ -494,13 +510,13 @@ The "task dread score" per entry is key data. If high dread scores (3-5) consist
 
 After 5 logged entries:
 
-| Cue Category | Episode Count | Rating (0-3 per episode, estimated) | Total Score | Primary? |
-|-------------|--------------|--------------------------------------|-------------|---------|
-| Location | 5 | 1 each (desk is consistent but not sufficient trigger alone) | 5 | No |
-| Time | 3-4 | 1-2 each | 5-7 | Contributing |
-| Emotional State | 5 | 2 each (mild dread, resistance) | 10 | Yes (tied) |
-| People Present | 1-2 | 0-1 each | 1-2 | No |
-| Preceding Action | 5 | 3 each (hard task initiation every time) | 15 | **Primary** |
+| Cue Category     | Episode Count | Rating (0-3 per episode, estimated)                          | Total Score | Primary?     |
+| ---------------- | ------------- | ------------------------------------------------------------ | ----------- | ------------ |
+| Location         | 5             | 1 each (desk is consistent but not sufficient trigger alone) | 5           | No           |
+| Time             | 3-4           | 1-2 each                                                     | 5-7         | Contributing |
+| Emotional State  | 5             | 2 each (mild dread, resistance)                              | 10          | Yes (tied)   |
+| People Present   | 1-2           | 0-1 each                                                     | 1-2         | No           |
+| Preceding Action | 5             | 3 each (hard task initiation every time)                     | 15          | **Primary**  |
 
 **Primary Trigger:** Preceding Action -- beginning a cognitively demanding or effortful task
 **Secondary Trigger:** Emotional State -- low-level resistance, activation discomfort, or task dread
@@ -516,17 +532,19 @@ After 5 logged entries:
 **Physiological Basis:** Task-onset resistance involves elevated activation energy requirement (prefrontal cortex effort initiation). Instagram provides avoidance of this demand AND delivers dopaminergic novelty stimulation as a secondary relief.
 
 The substitution must do one of two things:
+
 1. Reduce the activation energy cost of beginning the task (making the task feel less effortful to start), OR
 2. Deliver a brief, bounded version of the escape/stimulation that resets without triggering a scroll loop
 
 Option 1 is often more effective for task-onset triggers because it addresses the cause (task difficulty perception) rather than just the escape route.
 
-| Tier | Trigger | Old Routine | New Substitute | Reward Match | Availability |
-|------|---------|-------------|----------------|-------------|-------------|
-| Tier 1 (≤60 sec) | Sitting down to a hard task | Grab phone, open Instagram | Write the first sentence of the task in a blank document -- just one sentence, no pressure to continue. Then decide to continue or take a proper break. | Reduces activation energy by shrinking the perceived task size; also interrupts the automatic hand-to-phone motion with a competing motor action (hands on keyboard) | Available at any desk, no preparation |
+| Tier             | Trigger                                                               | Old Routine                | New Substitute                                                                                                                                                                                                                  | Reward Match                                                                                                                                                                                                            | Availability                                |
+| ---------------- | --------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Tier 1 (≤60 sec) | Sitting down to a hard task                                           | Grab phone, open Instagram | Write the first sentence of the task in a blank document -- just one sentence, no pressure to continue. Then decide to continue or take a proper break.                                                                         | Reduces activation energy by shrinking the perceived task size; also interrupts the automatic hand-to-phone motion with a competing motor action (hands on keyboard)                                                    | Available at any desk, no preparation       |
 | Tier 2 (3-5 min) | Sitting down to a hard task after a transition (lunch break, meeting) | Grab phone, open Instagram | 2-minute preparation ritual before the task: write the task name at the top of a blank document, list 3 bullet points of what you know about it, set a 25-minute timer (Pomodoro), then begin. This is the task-entry protocol. | Converts abstract task into concrete steps, reducing activation energy. The timer creates a bounded commitment (25 minutes, then a break) which reduces the psychological demand of "I have to work on this for hours." | Available at any desk; requires 2-3 minutes |
 
 **Barrier Analysis:**
+
 - What could prevent Tier 2? Tight deadline creating additional pressure, interruption mid-setup, low cognitive energy (late afternoon)
 - Tier 1 fallback: Write one sentence only -- even if it is "I don't know where to start with this" as a literal first sentence. The act of typing something interrupts the phone-grab reflex and provides a minimal task entry point.
 
@@ -540,18 +558,19 @@ Option 1 is often more effective for task-onset triggers because it addresses th
 **Reward being tested for:** Reduction in task-onset discomfort
 
 | Day | Trigger Fired? | Used Substitute? | If No, Why | Reward Satisfied (1-5) | Craving for Instagram After? | Notes |
-|-----|---------------|-----------------|------------|----------------------|----------------------------|-------|
-| 1 | | | | | | |
-| 2 | | | | | | |
-| 3 | | | | | | |
-| 4 | | | | | | |
-| 5 | | | | | | |
-| 6 | | | | | | |
-| 7 | | | | | | |
+| --- | -------------- | ---------------- | ---------- | ---------------------- | ---------------------------- | ----- |
+| 1   |                |                  |            |                        |                              |       |
+| 2   |                |                  |            |                        |                              |       |
+| 3   |                |                  |            |                        |                              |       |
+| 4   |                |                  |            |                        |                              |       |
+| 5   |                |                  |            |                        |                              |       |
+| 6   |                |                  |            |                        |                              |       |
+| 7   |                |                  |            |                        |                              |       |
 
 **Weekly Average Satisfaction Score Target:** ≥ 3.5
 
 **What to watch for:**
+
 - If scores are higher at the start of the day and lower mid-afternoon: energy depletion is amplifying the trigger in the afternoon. Add a Tier 2 option specifically for the post-2 PM period: a 5-minute physical movement break (not Instagram) BEFORE sitting down to the hard afternoon task, rather than after the trigger fires.
 - If the Pomodoro timer approach feels constraining: the resistance to the timer may be a secondary trigger (commitment anxiety). Shorten the timer to 10 minutes for the first week.
 - If the one-sentence technique works but the user immediately checks Instagram after writing the sentence: the one sentence is sufficient to initiate work. Follow the one sentence immediately with a second sentence. The task-entry barrier has been crossed -- the habit at that point is no longer about avoidance; it is a new choice.
@@ -560,14 +579,15 @@ Option 1 is often more effective for task-onset triggers because it addresses th
 
 ### Test Interpretation and Next Steps
 
-| Average Score | Interpretation | Action |
-|--------------|----------------|--------|
-| 4.0 - 5.0 | Task-onset entry technique confirmed as reward match | Continue for 21 days; add calendar reminder "one sentence" as phone home screen note |
-| 3.0 - 3.9 | Partial match -- novelty/stimulation reward not fully addressed | Add a 2-minute "interesting read" (a saved article, a newsletter, anything with a hard close) as a bounded Tier 2 option for the stimulation component |
-| 2.0 - 2.9 | Task-onset avoidance hypothesis partially wrong | Log 5 more episodes specifically noting: how hard was the task? Was it unclear what to do first (ambiguity), or clear but effortful (effort aversion)? These require different substitutes |
-| 1.0 - 1.9 | Trigger misidentified | Re-log, focusing on time of day and emotional state columns -- may be a time-triggered habit, not a task-triggered one |
+| Average Score | Interpretation                                                  | Action                                                                                                                                                                                     |
+| ------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 4.0 - 5.0     | Task-onset entry technique confirmed as reward match            | Continue for 21 days; add calendar reminder "one sentence" as phone home screen note                                                                                                       |
+| 3.0 - 3.9     | Partial match -- novelty/stimulation reward not fully addressed | Add a 2-minute "interesting read" (a saved article, a newsletter, anything with a hard close) as a bounded Tier 2 option for the stimulation component                                     |
+| 2.0 - 2.9     | Task-onset avoidance hypothesis partially wrong                 | Log 5 more episodes specifically noting: how hard was the task? Was it unclear what to do first (ambiguity), or clear but effortful (effort aversion)? These require different substitutes |
+| 1.0 - 1.9     | Trigger misidentified                                           | Re-log, focusing on time of day and emotional state columns -- may be a time-triggered habit, not a task-triggered one                                                                     |
 
 **Recommended Environment Design Changes:**
+
 1. Move phone from desk surface to desk drawer. Drawer friction (one additional action) reduces automatic grabbing by 60-70% in behavioral research on friction-based environment design -- enough to allow conscious override.
 2. Place a physical notepad at the center of the desk with "FIRST SENTENCE" written at the top of the first page. Physical prompt in the trigger location creates a competing behavioral cue.
 3. Set a recurring calendar block called "First 25 minutes: [Project Name]" for each known hard-task period. Scheduling the task as a named block reduces the ambiguity that amplifies task-onset resistance.
@@ -577,6 +597,7 @@ Option 1 is often more effective for task-onset triggers because it addresses th
 ### Re-Analysis Trigger
 
 Return to Step 4 and log 5 new episodes if:
+
 - The weekly average falls below 3.0
 - Work context changes (new project type, new job, working from a different location)
 - Instagram checking resumes after a period of success -- especially if it appears at a different time of day or in a different context than task onset, which would suggest a new trigger has formed

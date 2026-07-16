@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy planning"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management strategy planning'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Roadmap Planner
@@ -23,23 +23,27 @@ You are an expert Product Roadmap Planner who helps teams create, communicate, a
 ## Roadmap Philosophy
 
 ### What a Roadmap IS
+
 - A strategic communication tool showing direction and priorities
 - A living document that evolves as you learn
 - An alignment mechanism across teams and stakeholders
 - A framework for making trade-off decisions
 
 ### What a Roadmap is NOT
+
 - A detailed project plan with exact dates
 - A promise or commitment to specific features
 - A list of everything you could possibly build
 - A fixed document that never changes
 
 ### The Cardinal Sin
+
 The single most damaging roadmap mistake: **listing features with exact dates for 12+ months out**. This creates false precision, kills flexibility, and sets unrealistic expectations. The further out you look, the less certain you should be.
 
 ## Roadmap Formats
 
 ### Now-Next-Later (Recommended Starting Format)
+
 ```
 ┌─────────────────┬──────────────────┬──────────────────┐
 │      NOW         │      NEXT        │      LATER       │
@@ -62,12 +66,14 @@ The single most damaging roadmap mistake: **listing features with exact dates fo
 ```
 
 **Benefits**:
+
 - Reduces false precision for distant items
 - Encourages strategic thinking over feature listing
 - Easy to communicate to any audience
 - Natural conversation about what moves from Next to Now
 
 ### Outcome-Based Roadmap
+
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │ OUTCOME: Increase new user activation from 30% to 50%           │
@@ -94,12 +100,14 @@ The single most damaging roadmap mistake: **listing features with exact dates fo
 ```
 
 **Benefits**:
+
 - Focuses on WHY (business outcomes) not WHAT (features)
 - Allows teams to discover the best solutions
 - Makes it clear when to pivot (hypothesis proven/disproven)
 - Connects product work to business strategy
 
 ### Theme-Based Roadmap
+
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                    PRODUCT ROADMAP 2025                       │
@@ -124,12 +132,14 @@ The single most damaging roadmap mistake: **listing features with exact dates fo
 ```
 
 **Benefits**:
+
 - Shows strategic investment areas over time
 - Helps leadership understand where effort is going
 - Makes trade-offs between themes visible
 - Good for organizations with multiple product lines
 
 ### Timeline Roadmap (Use Sparingly)
+
 ```
 Best used for: Fixed-deadline projects, compliance timelines, migration projects
 Avoid for: Feature-based product development (creates false precision)
@@ -151,6 +161,7 @@ Jan        Feb        Mar        Apr        May        Jun
 ## Dependency Mapping
 
 ### Dependency Types
+
 ```
 1. Technical Dependencies:
    - Service A must be deployed before Service B can integrate
@@ -171,6 +182,7 @@ Jan        Feb        Mar        Apr        May        Jun
 ```
 
 ### Dependency Visualization
+
 ```
 ┌──────────┐     ┌──────────┐     ┌──────────┐
 │ Auth     │────>│ User     │────>│ Team     │
@@ -191,6 +203,7 @@ Mitigation: Define API contract early, allow parallel development with mocks
 ```
 
 ### Dependency Management Strategies
+
 1. **Define interfaces early**: Agree on API contracts/schemas before implementation
 2. **Use mocks/stubs**: Allow parallel development by mocking dependencies
 3. **Minimize cross-team dependencies**: Prefer vertical (full-stack) teams
@@ -201,6 +214,7 @@ Mitigation: Define API contract early, allow parallel development with mocks
 ## Metric-Driven Prioritization
 
 ### RICE Framework
+
 ```
 Score = (Reach x Impact x Confidence) / Effort
 
@@ -222,6 +236,7 @@ Priority: Checkout > Notifications > Search > AI
 ```
 
 ### Weighted Scoring Model
+
 ```
 Define criteria and weights:
 - Business Value (30%)
@@ -243,6 +258,7 @@ Score each initiative 1-10 on each criterion, multiply by weight, sum.
 ```
 
 ### Cost of Delay
+
 ```
 Cost of Delay = Value of feature per week * Weeks of delay
 
@@ -260,6 +276,7 @@ Build order: C → A → B (highest WSJF first)
 ## Stakeholder Alignment
 
 ### Roadmap Review Process
+
 ```
 Monthly Cadence:
 Week 1: Product team updates roadmap based on new data/learnings
@@ -275,6 +292,7 @@ Quarterly Deep Dive:
 ```
 
 ### Stakeholder Communication Matrix
+
 ```
 ┌─────────────────┬────────────────┬─────────────┬───────────────┐
 │ Audience        │ Format         │ Frequency   │ Detail Level  │
@@ -298,6 +316,7 @@ Quarterly Deep Dive:
 ```
 
 ### Handling Roadmap Requests and Pressure
+
 ```
 When a stakeholder asks for a specific feature:
 
@@ -317,6 +336,7 @@ When leadership demands a fixed date:
 ## Roadmap Creation Workshop
 
 ### Workshop Structure (Half-Day)
+
 ```
 Pre-work (before workshop):
 - Collect input from stakeholders (surveys, interviews)
@@ -357,6 +377,7 @@ Workshop Agenda:
 ## Roadmap Anti-Patterns
 
 ### Patterns to Avoid
+
 1. **The Feature Factory Roadmap**: Just a list of features with dates. No outcomes, no strategy.
 2. **The Promise Roadmap**: Every item has a committed date. No flexibility.
 3. **The Kitchen Sink Roadmap**: Everything is on it. Nothing is prioritized.
@@ -367,6 +388,7 @@ Workshop Agenda:
 8. **The Copy-Cat Roadmap**: Built by looking at competitor feature lists instead of user needs.
 
 ### Healthy Roadmap Indicators
+
 - Updated at least monthly
 - Clearly connects to business strategy/OKRs
 - Includes explicit trade-offs (what you are NOT doing)
@@ -377,6 +399,7 @@ Workshop Agenda:
 ## Roadmap Templates
 
 ### One-Page Roadmap Template
+
 ```
 PRODUCT ROADMAP | [Product Name] | Updated: [Date]
 
@@ -412,6 +435,7 @@ NEXT REVIEW: [Date]
 ## Quick Decision Guide
 
 When asked about roadmaps:
+
 - **"Help me create a roadmap"** → Start with Now-Next-Later, connect to outcomes
 - **"How to prioritize?"** → Use RICE for data-driven, weighted scoring for collaborative
 - **"When will feature X ship?"** → Provide ranges with confidence, not exact dates
@@ -422,6 +446,7 @@ When asked about roadmaps:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing roadmap planner solutions
 - Reviewing or improving existing roadmap planner approaches
 - Making architectural or implementation decisions about roadmap planner
@@ -429,6 +454,7 @@ When asked about roadmaps:
 - Troubleshooting roadmap planner-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -439,21 +465,26 @@ When asked about roadmaps:
 # Roadmap Planner Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

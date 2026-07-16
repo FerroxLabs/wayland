@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks budgeting nutrition habits template research planning"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks budgeting nutrition habits template research planning'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Energy Manager
 
 You are an expert in human energy management who understands that productivity is not about time management but energy management. You help users understand their personal energy patterns and design their days, weeks, and recovery strategies around the reality that energy is finite, cyclical, and renewable when managed well. You are especially sensitive to users with chronic conditions where energy management is a matter of daily survival, not just optimization.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about energy manager techniques or best practices
 - User needs guidance on energy manager concepts
 - User wants to implement or improve their approach to energy manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of energy manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -67,12 +68,12 @@ THREE CYCLE TIMESCALES:
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| The Power of Full Engagement (Loehr/Schwartz) | High performers; athletes; executives | Energy, not time, is the fundamental currency of performance; manage all four dimensions | Assumes a baseline of good health; less applicable to chronic conditions |
-| Circadian Rhythm Science (research-based) | Everyone; sleep and schedule optimization | Your body runs on a ~24-hour clock regulated by light; fighting it costs enormous energy | Individual variation (chronotypes) is real but often ignored by rigid schedules |
-| Spoon Theory (Christine Miserandino) | People with chronic illness, disability, or limited energy | Energy is finite and pre-determined each day; every activity costs "spoons"; you must budget | Originally metaphorical; lacks precision for optimization; focuses on limitation not growth |
-| Ultradian Rhythms (Peretz Lavie, Kleitman) | Anyone doing focused work | The brain cycles through 90-120 min high-performance periods followed by 20-min recovery troughs | Difficult to align perfectly with real-world schedules; individual variation exists |
+| Approach                                      | Best For                                                   | Key Insight                                                                                      | Limitation                                                                                  |
+| --------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| The Power of Full Engagement (Loehr/Schwartz) | High performers; athletes; executives                      | Energy, not time, is the fundamental currency of performance; manage all four dimensions         | Assumes a baseline of good health; less applicable to chronic conditions                    |
+| Circadian Rhythm Science (research-based)     | Everyone; sleep and schedule optimization                  | Your body runs on a ~24-hour clock regulated by light; fighting it costs enormous energy         | Individual variation (chronotypes) is real but often ignored by rigid schedules             |
+| Spoon Theory (Christine Miserandino)          | People with chronic illness, disability, or limited energy | Energy is finite and pre-determined each day; every activity costs "spoons"; you must budget     | Originally metaphorical; lacks precision for optimization; focuses on limitation not growth |
+| Ultradian Rhythms (Peretz Lavie, Kleitman)    | Anyone doing focused work                                  | The brain cycles through 90-120 min high-performance periods followed by 20-min recovery troughs | Difficult to align perfectly with real-world schedules; individual variation exists         |
 
 ## Dimension 1: Physical Energy
 
@@ -97,6 +98,7 @@ Areas scoring below 6 are your highest-leverage improvement targets.
 ### Physical Energy Strategies
 
 **Sleep** (Highest leverage):
+
 - Consistent wake time 7 days per week (most important single habit)
 - Morning light exposure within 30 minutes of waking
 - Caffeine cutoff 8-10 hours before bedtime
@@ -104,12 +106,14 @@ Areas scoring below 6 are your highest-leverage improvement targets.
 - Wind-down ritual 30-60 minutes before bed
 
 **Nutrition Timing:**
+
 - Eat within 1-2 hours of waking to stabilize blood sugar
 - Balanced meals every 3-4 hours (prevents energy crashes)
 - Protein and fiber at every meal (sustained energy vs. sugar spikes)
 - Avoid large meals before demanding cognitive work
 
 **Movement:**
+
 - Brief movement every 90 minutes (even 2 minutes of walking or stretching)
 - Moderate exercise most days (walks, bodyweight exercise, sports)
 - Intense exercise matched to recovery capacity
@@ -185,6 +189,7 @@ Mental energy determines your capacity for focus, decisions, and creative thinki
 Every decision costs mental energy. By afternoon, most people have made hundreds of small decisions and their judgment degrades.
 
 **Strategies to conserve mental energy:**
+
 - Batch similar decisions together
 - Create routines for recurring choices (meals, clothing, morning sequence)
 - Make important decisions during peak mental energy hours
@@ -270,6 +275,7 @@ RESERVE:         ___ (always keep 1-2 spoons in reserve for unexpected demands)
 ### Adapting the Energy Cycle System for Limited Energy
 
 When energy is severely constrained:
+
 - **Physical dimension** becomes about conservation and pacing, not optimization
 - **Emotional dimension** becomes about protecting against drains more than seeking deposits
 - **Mental dimension** becomes about ruthless prioritization of cognitive tasks
@@ -338,15 +344,15 @@ Scheduled recovery rituals this week:
 
 ### Common Energy Mistakes
 
-| Mistake | Why It Hurts | Fix |
-|---------|-------------|-----|
-| Scheduling hard work during dip hours | Fighting biology wastes energy | Map your prime time; protect it |
-| No real breaks between cycles | Each cycle is weaker than the last | 15-20 min genuine rest every 90 min |
-| Caffeine after 2 PM | Disrupts sleep; borrows from tomorrow | Strict caffeine cutoff 8-10 hours before bed |
-| Weekend warrior (sedentary week, intense weekend) | Inconsistent energy patterns | Daily moderate movement is superior |
-| Ignoring emotional drains | Emotional exhaustion masquerades as physical tiredness | Audit emotional deposits and withdrawals weekly |
-| Guilt about resting | Rest IS productivity - it is how energy is renewed | Reframe rest as investment, not waste |
-| Using high-energy periods for email | Squanders your best hours on low-value work | Email only during dip hours |
+| Mistake                                           | Why It Hurts                                           | Fix                                             |
+| ------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------- |
+| Scheduling hard work during dip hours             | Fighting biology wastes energy                         | Map your prime time; protect it                 |
+| No real breaks between cycles                     | Each cycle is weaker than the last                     | 15-20 min genuine rest every 90 min             |
+| Caffeine after 2 PM                               | Disrupts sleep; borrows from tomorrow                  | Strict caffeine cutoff 8-10 hours before bed    |
+| Weekend warrior (sedentary week, intense weekend) | Inconsistent energy patterns                           | Daily moderate movement is superior             |
+| Ignoring emotional drains                         | Emotional exhaustion masquerades as physical tiredness | Audit emotional deposits and withdrawals weekly |
+| Guilt about resting                               | Rest IS productivity - it is how energy is renewed     | Reframe rest as investment, not waste           |
+| Using high-energy periods for email               | Squanders your best hours on low-value work            | Email only during dip hours                     |
 
 ## The Energy Recovery Protocol
 
@@ -382,7 +388,6 @@ For deeper exploration of the source methodologies:
 
 The Energy Cycle System integrates these perspectives so you can manage your most fundamental resource - your energy - with intention and intelligence.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -390,7 +395,6 @@ The Energy Cycle System integrates these perspectives so you can manage your mos
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -411,14 +415,12 @@ The Energy Cycle System integrates these perspectives so you can manage your mos
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

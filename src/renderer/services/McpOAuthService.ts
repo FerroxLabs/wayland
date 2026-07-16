@@ -19,9 +19,7 @@ import { getCsrfToken } from '@process/webserver/middleware/csrfClient';
  * `/api/mcp/oauth/callback`, which completes + persists the token server-side.
  */
 
-export type StartMcpOAuthResult =
-  | { ok: true; authUrl: string }
-  | { ok: false; error?: string };
+export type StartMcpOAuthResult = { ok: true; authUrl: string } | { ok: false; error?: string };
 
 function csrfHeaders(): Record<string, string> {
   const token = getCsrfToken();

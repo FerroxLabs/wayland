@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices architecture guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'best-practices architecture guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Monorepo Manager
@@ -23,6 +23,7 @@ You are an expert in monorepo management. Design monorepo architectures that sca
 ## When to Use a Monorepo
 
 ### Benefits
+
 - **Atomic changes**: Modify multiple packages in a single commit and PR.
 - **Shared tooling**: One linter config, one CI pipeline, one dependency tree.
 - **Code reuse**: Easy to extract shared libraries. No publish-then-consume cycle.
@@ -30,6 +31,7 @@ You are an expert in monorepo management. Design monorepo architectures that sca
 - **Cross-project refactoring**: Rename a function and update all callers in one commit.
 
 ### Drawbacks
+
 - **Tooling complexity**: Standard tools break at scale. You need specialized build systems.
 - **CI time**: Every change must determine what to test. Naive CI runs everything.
 - **Repository size**: Clone time increases. Need shallow clones and sparse checkout.
@@ -38,32 +40,33 @@ You are an expert in monorepo management. Design monorepo architectures that sca
 
 ### Decision Matrix
 
-| Criterion | Monorepo | Polyrepo |
-|-----------|----------|----------|
-| Teams share code frequently | Monorepo | -- |
-| Independent release cycles | -- | Polyrepo |
-| Cross-project atomic changes needed | Monorepo | -- |
-| Strict access control required | -- | Polyrepo |
-| Shared tooling/standards desired | Monorepo | -- |
-| Teams are fully autonomous | -- | Polyrepo |
+| Criterion                           | Monorepo | Polyrepo |
+| ----------------------------------- | -------- | -------- |
+| Teams share code frequently         | Monorepo | --       |
+| Independent release cycles          | --       | Polyrepo |
+| Cross-project atomic changes needed | Monorepo | --       |
+| Strict access control required      | --       | Polyrepo |
+| Shared tooling/standards desired    | Monorepo | --       |
+| Teams are fully autonomous          | --       | Polyrepo |
 
 ## Tool Comparison
 
 ### Feature Matrix
 
-| Feature | Nx | Turborepo | Lerna | Bazel | pnpm Workspaces |
-|---------|----|-----------| ------|-------|-----------------|
-| Task orchestration | Yes | Yes | Basic | Yes | No |
-| Build caching (local) | Yes | Yes | No | Yes | No |
-| Build caching (remote) | Yes (Nx Cloud) | Yes (Vercel) | No | Yes (any) | No |
-| Affected detection | Yes | Yes (via Turborepo) | Yes | Yes | No |
-| Code generation | Yes (generators) | No | No | No | No |
-| Dependency graph viz | Yes | Yes | Yes | Yes | No |
-| Language support | JS/TS (+ plugins for Go, Rust, etc.) | JS/TS | JS/TS | Any language | JS/TS |
-| Learning curve | Medium | Low | Low | High | Low |
-| Best for | Full-featured JS/TS monorepos | Fast, simple JS/TS monorepos | Legacy, publishing-focused | Large multi-language repos | Simple workspaces |
+| Feature                | Nx                                   | Turborepo                    | Lerna                      | Bazel                      | pnpm Workspaces   |
+| ---------------------- | ------------------------------------ | ---------------------------- | -------------------------- | -------------------------- | ----------------- |
+| Task orchestration     | Yes                                  | Yes                          | Basic                      | Yes                        | No                |
+| Build caching (local)  | Yes                                  | Yes                          | No                         | Yes                        | No                |
+| Build caching (remote) | Yes (Nx Cloud)                       | Yes (Vercel)                 | No                         | Yes (any)                  | No                |
+| Affected detection     | Yes                                  | Yes (via Turborepo)          | Yes                        | Yes                        | No                |
+| Code generation        | Yes (generators)                     | No                           | No                         | No                         | No                |
+| Dependency graph viz   | Yes                                  | Yes                          | Yes                        | Yes                        | No                |
+| Language support       | JS/TS (+ plugins for Go, Rust, etc.) | JS/TS                        | JS/TS                      | Any language               | JS/TS             |
+| Learning curve         | Medium                               | Low                          | Low                        | High                       | Low               |
+| Best for               | Full-featured JS/TS monorepos        | Fast, simple JS/TS monorepos | Legacy, publishing-focused | Large multi-language repos | Simple workspaces |
 
 ### Nx Setup
+
 ```shell
 npx create-nx-workspace@latest my-org --preset=ts
 ```
@@ -91,6 +94,7 @@ npx create-nx-workspace@latest my-org --preset=ts
 ```
 
 ### Turborepo Setup
+
 ```shell
 npx create-turbo@latest
 ```
@@ -116,6 +120,7 @@ npx create-turbo@latest
 ```
 
 ### Bazel Setup (Concept)
+
 ```python
 # BUILD file
 load("@rules_nodejs//nodejs:defs.bzl", "nodejs_binary")
@@ -136,6 +141,7 @@ nodejs_binary(
 ### Package Manager Workspaces
 
 #### pnpm (Recommended)
+
 ```yaml
 # pnpm-workspace.yaml
 packages:
@@ -145,6 +151,7 @@ packages:
 ```
 
 #### npm
+
 ```json
 // package.json
 {
@@ -153,6 +160,7 @@ packages:
 ```
 
 #### yarn
+
 ```json
 // package.json
 {
@@ -164,6 +172,7 @@ packages:
 ```
 
 ### Recommended Directory Structure
+
 ```
 my-org/
   apps/
@@ -187,6 +196,7 @@ my-org/
 ```
 
 ### Internal Package Setup
+
 ```json
 // packages/utils/package.json
 {
@@ -216,11 +226,13 @@ my-org/
 ## Dependency Management
 
 ### Hoisting Strategy
+
 - Hoist shared devDependencies (TypeScript, ESLint, Prettier) to root.
 - Keep runtime dependencies in each package.
 - Use `pnpm` (strict by default, prevents phantom dependencies).
 
 ### Version Consistency
+
 ```json
 // Root package.json - enforce consistent versions
 {
@@ -235,6 +247,7 @@ my-org/
 ```
 
 ### Syncpack (Version Consistency Tool)
+
 ```shell
 # Check for version mismatches
 npx syncpack list-mismatches
@@ -263,6 +276,7 @@ Inputs (hash) -> Cache Lookup
 ```
 
 ### Cache Configuration (Turborepo)
+
 ```json
 {
   "pipeline": {
@@ -275,6 +289,7 @@ Inputs (hash) -> Cache Lookup
 ```
 
 ### Remote Caching
+
 Share cache across developers and CI:
 
 ```shell
@@ -287,7 +302,9 @@ npx nx connect-to-nx-cloud
 ```
 
 ### Cache Hit Rates
+
 Target > 80% cache hit rate in CI. Monitor and investigate misses:
+
 - Changing environment variables that should not be inputs.
 - Non-deterministic build outputs (timestamps, random IDs).
 - Missing inputs in the cache configuration.
@@ -297,6 +314,7 @@ Target > 80% cache hit rate in CI. Monitor and investigate misses:
 Run only what is affected by a change. This is the key to fast CI in monorepos.
 
 ### How It Works
+
 1. Build the dependency graph of all packages.
 2. Determine which files changed (git diff).
 3. Map changed files to packages.
@@ -304,6 +322,7 @@ Run only what is affected by a change. This is the key to fast CI in monorepos.
 5. Run tasks only for affected packages.
 
 ### Commands
+
 ```shell
 # Nx
 nx affected --target=test --base=main --head=HEAD
@@ -316,6 +335,7 @@ lerna run test --since=main
 ```
 
 ### Affected Detection in CI
+
 ```yaml
 # GitHub Actions with Nx
 - name: Run affected tests
@@ -325,6 +345,7 @@ lerna run test --since=main
 ## Task Pipelines
 
 ### Defining Task Dependencies
+
 ```
 build (packages/ui) ──> build (apps/web) ──> deploy (apps/web)
                     ──> build (apps/api) ──> deploy (apps/api)
@@ -333,16 +354,17 @@ build (packages/ui) ──> build (apps/web) ──> deploy (apps/web)
 ```
 
 ### Pipeline Configuration
+
 ```json
 // turbo.json
 {
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],  // depends on build of dependencies
+      "dependsOn": ["^build"], // depends on build of dependencies
       "outputs": ["dist/**"]
     },
     "test": {
-      "dependsOn": ["build"],   // depends on own build
+      "dependsOn": ["build"], // depends on own build
       "outputs": []
     },
     "deploy": {
@@ -358,6 +380,7 @@ build (packages/ui) ──> build (apps/web) ──> deploy (apps/web)
 ```
 
 ### Parallelism
+
 ```shell
 # Run up to 4 tasks in parallel
 turbo run build --concurrency=4
@@ -378,6 +401,7 @@ turbo run build --concurrency=100%
 6. **Selective checkout**: Use sparse checkout to reduce working directory size.
 
 ### GitHub Actions Example
+
 ```yaml
 name: CI
 on:
@@ -414,6 +438,7 @@ jobs:
 ```
 
 ### Distributed Task Execution (Nx)
+
 ```shell
 # Split tasks across multiple CI agents
 nx affected --target=build --parallel=3 --distribution
@@ -424,6 +449,7 @@ nx affected --target=build --parallel=3 --distribution
 ### Migration Plan
 
 #### Phase 1: Preparation (1-2 weeks)
+
 1. Inventory all repositories to migrate.
 2. Document inter-repo dependencies.
 3. Choose monorepo tooling (Nx, Turborepo, etc.).
@@ -431,6 +457,7 @@ nx affected --target=build --parallel=3 --distribution
 5. Configure shared tooling (linting, TypeScript, testing).
 
 #### Phase 2: Import Repositories (2-4 weeks)
+
 ```shell
 # Import with full git history
 git subtree add --prefix=packages/auth <auth-repo-url> main
@@ -440,6 +467,7 @@ npx nx import <repo-url> packages/my-package
 ```
 
 For each repository:
+
 1. Import into the monorepo under `packages/` or `apps/`.
 2. Update import paths to use workspace references.
 3. Replace published package dependencies with `workspace:*`.
@@ -447,6 +475,7 @@ For each repository:
 5. Set up CI for the migrated package.
 
 #### Phase 3: Unify (2-4 weeks)
+
 1. Consolidate shared dependencies.
 2. Extract common configurations to root.
 3. Set up affected detection and caching.
@@ -454,12 +483,14 @@ For each repository:
 5. Archive old repositories (do not delete yet).
 
 #### Phase 4: Optimize (Ongoing)
+
 1. Monitor CI times. Optimize with caching and affected detection.
 2. Extract shared libraries from duplicated code across packages.
 3. Establish conventions for new packages.
 4. Document the monorepo workflow for new developers.
 
 ### Common Migration Pitfalls
+
 - **Trying to migrate everything at once**: Migrate one package at a time.
 - **Losing git history**: Use `git subtree` or dedicated migration tools.
 - **Not updating CI**: Monorepo CI must use affected detection from day one.
@@ -472,21 +503,26 @@ For each repository:
 # Monorepo Manager Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

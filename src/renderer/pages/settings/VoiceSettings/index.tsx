@@ -28,14 +28,13 @@ const VoiceSettings: React.FC = () => {
 
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([
-      ConfigStorage.get('tools.speechToText'),
-      ConfigStorage.get('tools.textToSpeech'),
-    ]).then(([storedStt, storedTts]) => {
-      if (cancelled) return;
-      setSttConfig(normalizeSpeechToTextConfig(storedStt));
-      setTtsConfig(normalizeTextToSpeechConfig(storedTts ?? undefined));
-    });
+    void Promise.all([ConfigStorage.get('tools.speechToText'), ConfigStorage.get('tools.textToSpeech')]).then(
+      ([storedStt, storedTts]) => {
+        if (cancelled) return;
+        setSttConfig(normalizeSpeechToTextConfig(storedStt));
+        setTtsConfig(normalizeTextToSpeechConfig(storedTts ?? undefined));
+      }
+    );
 
     const sttHandler = (event: Event) => {
       const next = (event as CustomEvent<SpeechToTextConfig>).detail;
@@ -54,33 +53,27 @@ const VoiceSettings: React.FC = () => {
     };
   }, []);
 
-  const handleSttChange = useCallback(
-    (updater: (current: SpeechToTextConfig) => SpeechToTextConfig) => {
-      setSttConfig((prev) => {
-        const next = updater(prev);
-        ConfigStorage.set('tools.speechToText', next).catch((err) => {
-          console.error('[VoiceSettings] stt persist failed:', err);
-        });
-        window.dispatchEvent(new CustomEvent(SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT, { detail: next }));
-        return next;
+  const handleSttChange = useCallback((updater: (current: SpeechToTextConfig) => SpeechToTextConfig) => {
+    setSttConfig((prev) => {
+      const next = updater(prev);
+      ConfigStorage.set('tools.speechToText', next).catch((err) => {
+        console.error('[VoiceSettings] stt persist failed:', err);
       });
-    },
-    []
-  );
+      window.dispatchEvent(new CustomEvent(SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT, { detail: next }));
+      return next;
+    });
+  }, []);
 
-  const handleTtsChange = useCallback(
-    (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => {
-      setTtsConfig((prev) => {
-        const next = updater(prev);
-        ConfigStorage.set('tools.textToSpeech', next).catch((err) => {
-          console.error('[VoiceSettings] tts persist failed:', err);
-        });
-        window.dispatchEvent(new CustomEvent(TTS_CONFIG_CHANGED_EVENT, { detail: next }));
-        return next;
+  const handleTtsChange = useCallback((updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => {
+    setTtsConfig((prev) => {
+      const next = updater(prev);
+      ConfigStorage.set('tools.textToSpeech', next).catch((err) => {
+        console.error('[VoiceSettings] tts persist failed:', err);
       });
-    },
-    []
-  );
+      window.dispatchEvent(new CustomEvent(TTS_CONFIG_CHANGED_EVENT, { detail: next }));
+      return next;
+    });
+  }, []);
 
   return (
     <SettingsPageShell

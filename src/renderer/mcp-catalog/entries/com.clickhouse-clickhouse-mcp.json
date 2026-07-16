@@ -31,15 +31,8 @@
   "remotes": [],
   "x-wayland": {
     "tier": "builder",
-    "categories": [
-      "database",
-      "data"
-    ],
-    "tags": [
-      "clickhouse",
-      "analytics",
-      "sql"
-    ],
+    "categories": ["database", "data"],
+    "tags": ["clickhouse", "analytics", "sql"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-06-13",
@@ -61,11 +54,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }

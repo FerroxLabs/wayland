@@ -42,9 +42,7 @@ vi.mock('@/common', () => ({
 // TeamPage is heavy + pulls a chunk of process-only types. Stub to a
 // marker div so this test stays scoped to the wrapper's branching logic.
 vi.mock('@/renderer/pages/team/TeamPage', () => ({
-  default: ({ team }: { team: { id: string; name: string } }) => (
-    <div data-testid='real-team-page'>{team.name}</div>
-  ),
+  default: ({ team }: { team: { id: string; name: string } }) => <div data-testid='real-team-page'>{team.name}</div>,
 }));
 
 import TeamIndex from '@/renderer/pages/team/index';
@@ -56,10 +54,7 @@ function renderAtTeamRoute(teamId = 'team-zombie') {
         <Route path='/team/:id' element={<TeamIndex />} />
         {/* Capture navigation target so we can assert NO redirect happened. */}
         <Route path='/teams' element={<div data-testid='teams-library-fallback' />} />
-        <Route
-          path='/teams/:id/launch'
-          element={<div data-testid='team-launcher-fallback' />}
-        />
+        <Route path='/teams/:id/launch' element={<div data-testid='team-launcher-fallback' />} />
       </Routes>
     </MemoryRouter>
   );

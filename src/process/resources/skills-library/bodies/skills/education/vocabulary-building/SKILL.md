@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "language-learning spaced-repetition study-skills step-by-step"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'language-learning spaced-repetition study-skills step-by-step'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Vocabulary Building
 
 ## When to Use
@@ -210,16 +211,18 @@ Assemble all decisions into a single, immediately actionable program document.
 ### Word Card Template
 
 ```
-FRONT: [Target word]  [Pronunciation / IPA]
-       [Part of speech]  [Gender / class if applicable]
+
+FRONT: [Target word] [Pronunciation / IPA]
+[Part of speech] [Gender / class if applicable]
 
 BACK:
- Core meaning:  [L1 translation]
- Example:       [Authentic sentence]
- Collocates:    [2-3 common word partnerships]
- Word family:   [Related forms]
- Mnemonic:      [Sound-alike / image / story]
- Register:      [Formal / informal / neutral]
+Core meaning: [L1 translation]
+Example: [Authentic sentence]
+Collocates: [2-3 common word partnerships]
+Word family: [Related forms]
+Mnemonic: [Sound-alike / image / story]
+Register: [Formal / informal / neutral]
+
 ```
 
 ---
@@ -380,7 +383,7 @@ Heritage learners have a different profile from adult foreign language learners.
 **Learner Profile**
 
 | Field            | Detail                                                        |
-|-----------------|---------------------------------------------------------------|
+| ---------------- | ------------------------------------------------------------- |
 | Native Language  | English                                                       |
 | Target Language  | Japanese                                                      |
 | Current Level    | Absolute beginner (~50 words, no script knowledge)            |
@@ -404,7 +407,7 @@ Japanese uses three scripts. You must be able to read hiragana and katakana befo
 **Week 1-2 daily schedule (25 minutes):**
 
 | Phase         | Activity                                             | Duration |
-|---------------|------------------------------------------------------|----------|
+| ------------- | ---------------------------------------------------- | -------- |
 | Script study  | Learn 5-6 new hiragana/katakana with mnemonics       | 12 min   |
 | Script review | Review all previously learned characters via writing | 8 min    |
 | Preview       | Learn 3 vocabulary words (audio + meaning only)      | 5 min    |
@@ -413,12 +416,12 @@ Japanese uses three scripts. You must be able to read hiragana and katakana befo
 
 ### Vocabulary Target
 
-| Phase     | Weeks  | Words to Acquire | Priority Tier                         | Cumulative |
-|-----------|--------|-----------------|---------------------------------------|------------|
-| Phase 1   | 1-4    | 140             | Top JLPT N5 nouns + verbs + adjectives| 140        |
-| Phase 2   | 5-9    | 175             | JLPT N5 completion + basic phrases    | 315        |
-| Phase 3   | 10-14  | 175             | JLPT N4 high-frequency words          | 490        |
-| Phase 4   | 15-16  | 60              | Domain: food, transport, shopping     | 550        |
+| Phase   | Weeks | Words to Acquire | Priority Tier                          | Cumulative |
+| ------- | ----- | ---------------- | -------------------------------------- | ---------- |
+| Phase 1 | 1-4   | 140              | Top JLPT N5 nouns + verbs + adjectives | 140        |
+| Phase 2 | 5-9   | 175              | JLPT N5 completion + basic phrases     | 315        |
+| Phase 3 | 10-14 | 175              | JLPT N4 high-frequency words           | 490        |
+| Phase 4 | 15-16 | 60               | Domain: food, transport, shopping      | 550        |
 
 **Sustainable pace from Week 3 onward:** 8 new words/day → 56 words/week
 (25 minutes ÷ 3 = ~8 words/day maximum; 8 × 16 weeks × 7 days = theoretical max ~896, but allowing review days reduces to ~550 net new words -- exactly sufficient for A1-A2 conversational ability and menu/sign reading.)
@@ -447,6 +450,7 @@ BACK:
 ---
 
 **Card 1**
+
 ```
 FRONT: 水 【みず】  mizu  (noun)
 
@@ -463,6 +467,7 @@ BACK:
 ---
 
 **Card 2**
+
 ```
 FRONT: 食べる 【たべる】  taberu  (verb -- dictionary form)
 
@@ -482,6 +487,7 @@ BACK:
 ---
 
 **Card 3**
+
 ```
 FRONT: 電車 【でんしゃ】  densha  (noun)
 
@@ -499,6 +505,7 @@ BACK:
 ---
 
 **Card 4**
+
 ```
 FRONT: いくら  ikura  (question word / noun)
 
@@ -516,6 +523,7 @@ BACK:
 ---
 
 **Card 5**
+
 ```
 FRONT: 右 【みぎ】  migi  (noun/direction)
 
@@ -534,14 +542,14 @@ BACK:
 
 ### Spaced Repetition Schedule
 
-| Review # | When              | Correct Response           | Wrong Response             |
-|----------|-------------------|---------------------------|---------------------------|
-| 1st      | Next day          | Move to 3-day queue       | Review again same session |
-| 2nd      | 3 days later      | Move to 7-day queue       | Return to Day 1            |
-| 3rd      | 7 days later      | Move to 14-day queue      | Return to Day 1            |
-| 4th      | 14 days later     | Move to 1-month queue     | Return to 3-day queue      |
-| 5th      | 1 month later     | Long-term memory; confirm | Return to 7-day queue      |
-| Maintain | Every 3-6 months  | Stable                    | Return to 14-day queue     |
+| Review # | When             | Correct Response          | Wrong Response            |
+| -------- | ---------------- | ------------------------- | ------------------------- |
+| 1st      | Next day         | Move to 3-day queue       | Review again same session |
+| 2nd      | 3 days later     | Move to 7-day queue       | Return to Day 1           |
+| 3rd      | 7 days later     | Move to 14-day queue      | Return to Day 1           |
+| 4th      | 14 days later    | Move to 1-month queue     | Return to 3-day queue     |
+| 5th      | 1 month later    | Long-term memory; confirm | Return to 7-day queue     |
+| Maintain | Every 3-6 months | Stable                    | Return to 14-day queue    |
 
 **Anki settings to configure:** New cards/day: 8. Maximum reviews/day: 150. Easy bonus: 1.3. Interval modifier: 1.0 (do not change until you have 8 weeks of data).
 
@@ -551,13 +559,14 @@ BACK:
 
 **Total daily time: 25 minutes**
 
-| Phase         | Activity                                                   | Duration |
-|---------------|-------------------------------------------------------------|----------|
-| Review        | Anki due cards / Leitner Box 1 + Box 2                     | 10 min   |
-| New words     | Learn 8 new words using the 5-step method (encounter, retrieve, connect, practice, schedule review) | 10 min |
-| Active output | Say each new word aloud in a sentence; write 2 sentences   | 5 min    |
+| Phase         | Activity                                                                                            | Duration |
+| ------------- | --------------------------------------------------------------------------------------------------- | -------- |
+| Review        | Anki due cards / Leitner Box 1 + Box 2                                                              | 10 min   |
+| New words     | Learn 8 new words using the 5-step method (encounter, retrieve, connect, practice, schedule review) | 10 min   |
+| Active output | Say each new word aloud in a sentence; write 2 sentences                                            | 5 min    |
 
 **Sunday (weekly input day -- no new cards):**
+
 - Watch 20 minutes of Japanese content with subtitles (NHK World Easy Japanese, or children's anime with Japanese subtitles)
 - Tally any studied words you recognize "in the wild" -- write them in a recognition log
 - No new Anki cards; run Anki review only
@@ -566,15 +575,15 @@ BACK:
 
 ### Weekly Structure
 
-| Day       | Activity                                                     |
-|-----------|--------------------------------------------------------------|
-| Monday    | 8 new words + due card review                                |
-| Tuesday   | Due card review only + write 1 sentence per word learned Mon |
-| Wednesday | 8 new words + due card review                                |
-| Thursday  | Due card review + try to use 3 words in a spoken sentence out loud |
-| Friday    | 8 new words + due card review                                |
+| Day       | Activity                                                            |
+| --------- | ------------------------------------------------------------------- |
+| Monday    | 8 new words + due card review                                       |
+| Tuesday   | Due card review only + write 1 sentence per word learned Mon        |
+| Wednesday | 8 new words + due card review                                       |
+| Thursday  | Due card review + try to use 3 words in a spoken sentence out loud  |
+| Friday    | 8 new words + due card review                                       |
 | Saturday  | Full review session -- catch up any missed days; fix weak mnemonics |
-| Sunday    | Input only -- watch/listen to Japanese; no new cards         |
+| Sunday    | Input only -- watch/listen to Japanese; no new cards                |
 
 ---
 
@@ -596,25 +605,25 @@ Japanese presents unique challenges for English speakers. These five strategies 
 
 ### Progress Milestones
 
-| Checkpoint   | Target Date      | Target Metric                                     | Self-Test                                          |
-|--------------|------------------|-------------------------------------------------|---------------------------------------------------|
-| Week 2 end   | [Date + 14 days] | Hiragana + katakana read fluently; 50 vocab words | Read a hiragana text without looking up characters |
-| Week 4 end   | [Date + 28 days] | 200 words; 85% Anki retention rate              | Take a random 20-word quiz from your deck -- no cards |
-| Week 8 end   | [Date + 56 days] | 350 words; use 10 in real spoken sentences      | Record a 30-second Japanese self-introduction      |
-| Week 12 end  | [Date + 84 days] | 480 words; read basic text                      | Read a Japanese restaurant menu -- less than 20% unknowns |
-| Week 16 end  | [Date + 112 days]| 550 words; basic conversational exchange        | Have a 2-minute scripted conversation on introduction/ordering topics |
+| Checkpoint  | Target Date       | Target Metric                                     | Self-Test                                                             |
+| ----------- | ----------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
+| Week 2 end  | [Date + 14 days]  | Hiragana + katakana read fluently; 50 vocab words | Read a hiragana text without looking up characters                    |
+| Week 4 end  | [Date + 28 days]  | 200 words; 85% Anki retention rate                | Take a random 20-word quiz from your deck -- no cards                 |
+| Week 8 end  | [Date + 56 days]  | 350 words; use 10 in real spoken sentences        | Record a 30-second Japanese self-introduction                         |
+| Week 12 end | [Date + 84 days]  | 480 words; read basic text                        | Read a Japanese restaurant menu -- less than 20% unknowns             |
+| Week 16 end | [Date + 112 days] | 550 words; basic conversational exchange          | Have a 2-minute scripted conversation on introduction/ordering topics |
 
 ---
 
 ### Troubleshooting Rules
 
-| Problem                              | Diagnosis                               | Fix                                                   |
-|--------------------------------------|-----------------------------------------|-------------------------------------------------------|
-| Same kanji words keep failing        | Shape-only encoding; no radical hook    | Rebuild card with radical decomposition mnemonic      |
-| Anki retention below 80%            | 8 new cards/day is too fast             | Drop to 5/day for 1 week; do not add new cards        |
-| Polite vs. casual forms confused     | Cards only show one form                | Add all major verb conjugations to back of each card  |
-| Know words in Anki, blank in real use| No real-context exposure                | Add 15 min/day NHK Easy Japanese reading to routine   |
-| Script recognition slow under time pressure | Not enough reading practice       | Add 5 min/day hiragana speed-reading drills           |
+| Problem                                     | Diagnosis                            | Fix                                                  |
+| ------------------------------------------- | ------------------------------------ | ---------------------------------------------------- |
+| Same kanji words keep failing               | Shape-only encoding; no radical hook | Rebuild card with radical decomposition mnemonic     |
+| Anki retention below 80%                    | 8 new cards/day is too fast          | Drop to 5/day for 1 week; do not add new cards       |
+| Polite vs. casual forms confused            | Cards only show one form             | Add all major verb conjugations to back of each card |
+| Know words in Anki, blank in real use       | No real-context exposure             | Add 15 min/day NHK Easy Japanese reading to routine  |
+| Script recognition slow under time pressure | Not enough reading practice          | Add 5 min/day hiragana speed-reading drills          |
 
 ---
 

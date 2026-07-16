@@ -13,14 +13,15 @@ description: >-
   the competitor deep research workflow for that.
 license: Apache-2.0
 type: workflow
-skills: "market-competitors market-report"
+skills: 'market-competitors market-report'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing competitors monitoring scan brief deterministic
   category: marketing
-  depends: "market-competitors market-report"
+  depends: 'market-competitors market-report'
 ---
+
 # Competitor Watch
 
 **Estimated time:** about 60 seconds

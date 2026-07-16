@@ -11,14 +11,15 @@ description: >-
   content skill can answer without the full publish-and-repurpose chain.
 license: Apache-2.0
 type: workflow
-skills: "sales-icp content-blog content-humanize content-repurpose"
+skills: 'sales-icp content-blog content-humanize content-repurpose'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing content blogging repurpose step-by-step publishing
   category: marketing
-  depends: "sales-icp content-blog content-humanize content-repurpose"
+  depends: 'sales-icp content-blog content-humanize content-repurpose'
 ---
+
 # Voice-Locked Blog Publishing
 
 **Estimated time:** 30-45 minutes

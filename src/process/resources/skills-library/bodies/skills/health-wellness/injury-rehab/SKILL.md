@@ -7,26 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness step-by-step guide"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness step-by-step guide'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Injury Prevention & Recovery Guide
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about injury rehab
 - User needs guidance on injury rehab topics
 - User wants a structured approach to injury rehab
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 6. **What activities do you participate in?** (Running / Weightlifting / Team sports / etc.)
 7. **Have you seen a medical professional for this issue?** (Yes / No / Planned)
 8. **What is your recovery goal?** (Return to sport / Pain-free daily living / Prevent recurrence)
+
 ---
+
 ## When to See a Doctor Immediately
 
 ### Red Flags - Seek Emergency/Urgent Care
+
 ```
 SEEK IMMEDIATE MEDICAL ATTENTION IF:
 - Visible bone deformity or bone protruding through skin
@@ -60,6 +66,7 @@ SEEK IMMEDIATE MEDICAL ATTENTION IF:
 ```
 
 ### When to Schedule a Medical Appointment
+
 ```
 SEE A DOCTOR WITHIN 1-3 DAYS IF:
 - Pain persists beyond 72 hours despite self-care
@@ -71,19 +78,22 @@ SEE A DOCTOR WITHIN 1-3 DAYS IF:
 - Limited range of motion that does not improve
 - Clicking, catching, or grinding sensations in a joint
 ```
+
 ---
+
 ## RICE Protocol (Acute Injury First Aid)
 
 ### Phase 1: Immediate Response (0-72 Hours)
 
-| Component | Protocol | Details |
-|-----------|----------|---------|
-| **R**est | Protect the injured area | Stop activity, avoid using the injured area, use crutches/sling if needed |
-| **I**ce | Apply cold therapy | 15-20 min on, 40-60 min off, repeat throughout the day. Use barrier (towel) between ice and skin |
-| **C**ompression | Apply gentle pressure | Use elastic bandage (ACE wrap), snug but not tight. Check circulation (skin color, sensation) |
-| **E**levation | Raise above heart level | Prop up on pillows, especially while sleeping and resting |
+| Component       | Protocol                 | Details                                                                                          |
+| --------------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
+| **R**est        | Protect the injured area | Stop activity, avoid using the injured area, use crutches/sling if needed                        |
+| **I**ce         | Apply cold therapy       | 15-20 min on, 40-60 min off, repeat throughout the day. Use barrier (towel) between ice and skin |
+| **C**ompression | Apply gentle pressure    | Use elastic bandage (ACE wrap), snug but not tight. Check circulation (skin color, sensation)    |
+| **E**levation   | Raise above heart level  | Prop up on pillows, especially while sleeping and resting                                        |
 
 ### RICE Protocol Details
+
 ```
 ICE APPLICATION GUIDE:
 - Ice bag or frozen peas wrapped in thin towel
@@ -110,6 +120,7 @@ ELEVATION:
 ### Updated PEACE & LOVE Framework
 
 The modern approach to acute injury management:
+
 ```
 PEACE (Immediately after injury):
 P - Protect: Avoid activities that increase pain
@@ -124,54 +135,59 @@ O - Optimism: Positive mindset aids recovery
 V - Vascularization: Pain-free cardiovascular activity
 E - Exercise: Active approach to restore mobility/strength
 ```
+
 ---
+
 ## Common Sports Injuries by Activity
 
 ### Running Injuries
 
-| Injury | Location | Cause | Recovery Time |
-|--------|----------|-------|---------------|
-| Runner's Knee (PFPS) | Front of knee | Overuse, weak quads/glutes | 4-8 weeks |
-| IT Band Syndrome | Outside of knee | Tight IT band, weak hips | 4-8 weeks |
-| Shin Splints (MTSS) | Front of shin | Too much too soon | 2-6 weeks |
-| Plantar Fasciitis | Bottom of foot/heel | Tight calves, overuse | 6-18 months |
-| Achilles Tendinitis | Back of ankle | Overuse, tight calves | 6-12 weeks |
-| Stress Fracture | Shin, foot, hip | Overtraining | 6-12 weeks |
+| Injury               | Location            | Cause                      | Recovery Time |
+| -------------------- | ------------------- | -------------------------- | ------------- |
+| Runner's Knee (PFPS) | Front of knee       | Overuse, weak quads/glutes | 4-8 weeks     |
+| IT Band Syndrome     | Outside of knee     | Tight IT band, weak hips   | 4-8 weeks     |
+| Shin Splints (MTSS)  | Front of shin       | Too much too soon          | 2-6 weeks     |
+| Plantar Fasciitis    | Bottom of foot/heel | Tight calves, overuse      | 6-18 months   |
+| Achilles Tendinitis  | Back of ankle       | Overuse, tight calves      | 6-12 weeks    |
+| Stress Fracture      | Shin, foot, hip     | Overtraining               | 6-12 weeks    |
 
 ### Weightlifting Injuries
 
-| Injury | Location | Cause | Recovery Time |
-|--------|----------|-------|---------------|
-| Rotator Cuff Strain | Shoulder | Poor form, overload | 4-12 weeks |
-| Low Back Strain | Lumbar spine | Rounding during lifts | 2-8 weeks |
-| Bicep Tendinitis | Front of shoulder/arm | Overuse, heavy arm exercises | 4-8 weeks |
-| Patellar Tendinitis | Below kneecap | Heavy squats, jumping | 6-12 weeks |
-| Wrist Strain | Wrist | Poor grip, heavy pressing | 2-6 weeks |
-| Elbow Tendinitis | Elbow (medial/lateral) | Gripping, pressing | 6-12 weeks |
+| Injury              | Location               | Cause                        | Recovery Time |
+| ------------------- | ---------------------- | ---------------------------- | ------------- |
+| Rotator Cuff Strain | Shoulder               | Poor form, overload          | 4-12 weeks    |
+| Low Back Strain     | Lumbar spine           | Rounding during lifts        | 2-8 weeks     |
+| Bicep Tendinitis    | Front of shoulder/arm  | Overuse, heavy arm exercises | 4-8 weeks     |
+| Patellar Tendinitis | Below kneecap          | Heavy squats, jumping        | 6-12 weeks    |
+| Wrist Strain        | Wrist                  | Poor grip, heavy pressing    | 2-6 weeks     |
+| Elbow Tendinitis    | Elbow (medial/lateral) | Gripping, pressing           | 6-12 weeks    |
 
 ### Team Sports Injuries
 
-| Injury | Location | Cause | Recovery Time |
-|--------|----------|-------|---------------|
-| Ankle Sprain | Ankle (lateral) | Rolling ankle | 2-8 weeks |
-| ACL Tear | Knee | Cutting, pivoting | 6-12 months (surgical) |
-| Hamstring Strain | Back of thigh | Sprinting, kicking | 2-8 weeks |
-| Groin Pull | Inner thigh | Lateral movement | 2-6 weeks |
-| Concussion | Head | Impact | 1-4 weeks (medical clearance required) |
-| Shoulder Separation | AC joint | Fall on shoulder | 4-12 weeks |
+| Injury              | Location        | Cause              | Recovery Time                          |
+| ------------------- | --------------- | ------------------ | -------------------------------------- |
+| Ankle Sprain        | Ankle (lateral) | Rolling ankle      | 2-8 weeks                              |
+| ACL Tear            | Knee            | Cutting, pivoting  | 6-12 months (surgical)                 |
+| Hamstring Strain    | Back of thigh   | Sprinting, kicking | 2-8 weeks                              |
+| Groin Pull          | Inner thigh     | Lateral movement   | 2-6 weeks                              |
+| Concussion          | Head            | Impact             | 1-4 weeks (medical clearance required) |
+| Shoulder Separation | AC joint        | Fall on shoulder   | 4-12 weeks                             |
 
 ### Racquet/Throwing Sports
 
-| Injury | Location | Cause | Recovery Time |
-|--------|----------|-------|---------------|
-| Tennis Elbow | Outer elbow | Repetitive extension | 6-12 months |
-| Golfer's Elbow | Inner elbow | Repetitive flexion | 6-12 months |
-| Rotator Cuff Tear | Shoulder | Overhead repetition | 3-6 months |
-| Wrist Tendinitis | Wrist | Repetitive motion | 4-8 weeks |
+| Injury            | Location    | Cause                | Recovery Time |
+| ----------------- | ----------- | -------------------- | ------------- |
+| Tennis Elbow      | Outer elbow | Repetitive extension | 6-12 months   |
+| Golfer's Elbow    | Inner elbow | Repetitive flexion   | 6-12 months   |
+| Rotator Cuff Tear | Shoulder    | Overhead repetition  | 3-6 months    |
+| Wrist Tendinitis  | Wrist       | Repetitive motion    | 4-8 weeks     |
+
 ---
+
 ## Basic Rehabilitation Exercises
 
 ### Ankle Rehabilitation Protocol
+
 ```
 PHASE 1 - ACUTE (Days 1-7): Pain and swelling management
 - RICE protocol
@@ -202,6 +218,7 @@ PHASE 4 - RETURN TO ACTIVITY (Weeks 6+): Sport-specific
 ```
 
 ### Knee Rehabilitation Protocol (Patellofemoral Pain)
+
 ```
 PHASE 1 - PAIN REDUCTION (Weeks 1-2)
 - Quad sets (isometric): 3x10 (hold 10 sec each)
@@ -227,6 +244,7 @@ PHASE 3 - FUNCTIONAL (Weeks 6-12)
 ```
 
 ### Shoulder Rehabilitation Protocol
+
 ```
 PHASE 1 - PAIN MANAGEMENT (Weeks 1-2)
 - Pendulum swings: 2 min each arm
@@ -255,6 +273,7 @@ PHASE 4 - RETURN TO ACTIVITY (Weeks 8-12)
 ```
 
 ### Low Back Pain Protocol
+
 ```
 PHASE 1 - ACUTE PAIN RELIEF (Days 1-7)
 - Gentle walking (10-15 min, several times daily)
@@ -282,10 +301,13 @@ PHASE 4 - RETURN TO LOADING (Weeks 8+)
 - Farmer's carry: 3x30 sec
 - Gradual return to loaded movements
 ```
+
 ---
+
 ## Stretching Programs
 
 ### Full-Body Flexibility Routine (15 minutes)
+
 ```
 Hold each stretch for 30 seconds, 2 rounds:
 
@@ -311,6 +333,7 @@ SPINE:
 ```
 
 ### Runner's Stretching Routine (10 minutes)
+
 ```
 1. Standing quad stretch: 30 sec each leg
 2. Standing calf stretch (wall): 30 sec each leg
@@ -321,10 +344,13 @@ SPINE:
 7. IT band stretch (standing cross-leg): 30 sec each side
 8. Seated ankle circles: 10 each direction each foot
 ```
+
 ---
+
 ## Foam Rolling Techniques
 
 ### Foam Rolling Guidelines
+
 ```
 GENERAL RULES:
 - Roll slowly (1 inch per second)
@@ -338,6 +364,7 @@ GENERAL RULES:
 ```
 
 ### Foam Rolling Protocol by Body Area
+
 ```
 CALVES (30-60 sec each)
 - Sit with roller under calf
@@ -370,10 +397,13 @@ LATS (30-60 sec each)
 - Extend arm overhead
 - Roll from armpit to mid-ribs
 ```
+
 ---
+
 ## Recovery Nutrition
 
 ### Post-Injury Nutrition Priorities
+
 ```
 PHASE 1 - ACUTE (First 1-2 weeks)
 Focus: Reduce inflammation, support tissue repair
@@ -396,19 +426,22 @@ Focus: Support muscle rebuilding, energy for rehab
 
 ### Anti-Inflammatory Food Guide
 
-| Food Category | Examples | Key Compounds |
-|---------------|----------|---------------|
-| Fatty Fish | Salmon, mackerel, sardines | Omega-3 (EPA/DHA) |
-| Berries | Blueberries, strawberries, cherries | Anthocyanins |
-| Leafy Greens | Spinach, kale, arugula | Vitamins K, A, C |
-| Nuts | Walnuts, almonds | Healthy fats, vitamin E |
-| Spices | Turmeric, ginger | Curcumin, gingerols |
-| Olive Oil | Extra virgin | Oleocanthal |
-| Green Tea | Matcha, brewed | EGCG |
+| Food Category | Examples                            | Key Compounds           |
+| ------------- | ----------------------------------- | ----------------------- |
+| Fatty Fish    | Salmon, mackerel, sardines          | Omega-3 (EPA/DHA)       |
+| Berries       | Blueberries, strawberries, cherries | Anthocyanins            |
+| Leafy Greens  | Spinach, kale, arugula              | Vitamins K, A, C        |
+| Nuts          | Walnuts, almonds                    | Healthy fats, vitamin E |
+| Spices        | Turmeric, ginger                    | Curcumin, gingerols     |
+| Olive Oil     | Extra virgin                        | Oleocanthal             |
+| Green Tea     | Matcha, brewed                      | EGCG                    |
+
 ---
+
 ## Return-to-Activity Criteria
 
 ### General Return-to-Sport Checklist
+
 ```
 Before returning to full activity, you should meet ALL of the following:
 
@@ -423,6 +456,7 @@ Before returning to full activity, you should meet ALL of the following:
 ```
 
 ### Progressive Return-to-Running Protocol
+
 ```
 Step 1: Walk 30 minutes pain-free (consecutive days)
 Step 2: Walk/jog intervals - 1 min jog / 4 min walk x 6 (3 sessions)
@@ -441,6 +475,7 @@ STOP AND GO BACK A STEP IF:
 ```
 
 ### Progressive Return-to-Lifting Protocol
+
 ```
 Step 1: Pain-free bodyweight movements through full ROM
 Step 2: Resistance bands at full ROM (2-3 sessions)
@@ -450,10 +485,13 @@ Step 5: 75% of pre-injury weight, standard reps (8-10) (1 week)
 Step 6: 85% of pre-injury weight (1 week)
 Step 7: Gradual return to previous weights over 2-4 weeks
 ```
+
 ---
+
 ## Injury Prevention Strategies
 
 ### Pre-Workout Injury Prevention Checklist
+
 ```
 [ ] Adequate sleep (7+ hours the night before)
 [ ] Properly hydrated
@@ -467,12 +505,14 @@ Step 7: Gradual return to previous weights over 2-4 weeks
 ```
 
 ### The 10% Rule
+
 ```
 Never increase training volume (mileage, weight, sets) by more than 10% per week.
 
 ```
 
 ### Prehabilitation (Prehab) Exercises
+
 ```
 SHOULDER PREHAB (Before upper body training):
 1. Band pull-aparts: 2x15
@@ -492,10 +532,13 @@ ANKLE PREHAB (Before running/sports):
 3. Calf raises: 2x15
 4. Toe walks and heel walks: 20 yards each
 ```
+
 ---
+
 ## Output Format
 
 When providing injury guidance, present it as:
+
 ```
 INJURY ASSESSMENT SUMMARY
 Concern: [Description]

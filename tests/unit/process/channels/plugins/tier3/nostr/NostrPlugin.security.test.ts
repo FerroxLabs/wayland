@@ -67,14 +67,12 @@ vi.mock('nostr-tools', () => ({
       return { type: 'npub', data: bytes };
     }),
   },
-  finalizeEvent: vi.fn(
-    (partial: { kind: number; content: string; tags: string[][]; created_at: number }) => ({
-      ...partial,
-      id: FIXED_EVENT_ID,
-      pubkey: MOCK_PK,
-      sig: 'sig',
-    }),
-  ),
+  finalizeEvent: vi.fn((partial: { kind: number; content: string; tags: string[][]; created_at: number }) => ({
+    ...partial,
+    id: FIXED_EVENT_ID,
+    pubkey: MOCK_PK,
+    sig: 'sig',
+  })),
   verifyEvent: vi.fn(() => verifyEventState.valid),
 }));
 
@@ -147,10 +145,7 @@ describe('NostrPlugin HIGH-1: signature verification', () => {
       sig: 'invalid-sig',
     };
 
-    mockWsInstance.emit(
-      'message',
-      Buffer.from(JSON.stringify(['EVENT', 'sub-id', forgedEvent])),
-    );
+    mockWsInstance.emit('message', Buffer.from(JSON.stringify(['EVENT', 'sub-id', forgedEvent])));
 
     await new Promise((r) => setTimeout(r, 20));
     expect(received).toHaveLength(0);
@@ -177,10 +172,7 @@ describe('NostrPlugin HIGH-1: signature verification', () => {
       sig: 'valid-sig',
     };
 
-    mockWsInstance.emit(
-      'message',
-      Buffer.from(JSON.stringify(['EVENT', 'sub-id', goodEvent])),
-    );
+    mockWsInstance.emit('message', Buffer.from(JSON.stringify(['EVENT', 'sub-id', goodEvent])));
 
     await new Promise((r) => setTimeout(r, 20));
     expect(received).toContain('authentic message');
@@ -214,8 +206,8 @@ describe('NostrPlugin HIGH-2: allowedSenders authz', () => {
             content: 'enc:open mode hello',
             sig: 'sig',
           },
-        ]),
-      ),
+        ])
+      )
     );
 
     await new Promise((r) => setTimeout(r, 20));
@@ -249,8 +241,8 @@ describe('NostrPlugin HIGH-2: allowedSenders authz', () => {
             content: 'enc:from allowed',
             sig: 'sig',
           },
-        ]),
-      ),
+        ])
+      )
     );
 
     // Blocked sender - must be dropped.
@@ -269,8 +261,8 @@ describe('NostrPlugin HIGH-2: allowedSenders authz', () => {
             content: 'enc:from blocked',
             sig: 'sig',
           },
-        ]),
-      ),
+        ])
+      )
     );
 
     await new Promise((r) => setTimeout(r, 20));
@@ -304,8 +296,8 @@ describe('NostrPlugin HIGH-2: allowedSenders authz', () => {
             content: 'enc:str blocked',
             sig: 'sig',
           },
-        ]),
-      ),
+        ])
+      )
     );
 
     await new Promise((r) => setTimeout(r, 20));
@@ -342,8 +334,8 @@ describe('NostrPlugin HIGH-3: payload size caps', () => {
             content: oversized,
             sig: 'sig',
           },
-        ]),
-      ),
+        ])
+      )
     );
 
     await new Promise((r) => setTimeout(r, 20));
@@ -379,8 +371,8 @@ describe('NostrPlugin HIGH-3: payload size caps', () => {
             content: ciphertext,
             sig: 'sig',
           },
-        ]),
-      ),
+        ])
+      )
     );
 
     await new Promise((r) => setTimeout(r, 20));
@@ -411,8 +403,8 @@ describe('NostrPlugin HIGH-3: payload size caps', () => {
             content: 'enc:small payload',
             sig: 'sig',
           },
-        ]),
-      ),
+        ])
+      )
     );
 
     await new Promise((r) => setTimeout(r, 20));

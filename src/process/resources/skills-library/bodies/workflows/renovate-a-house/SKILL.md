@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance planning checklist step-by-step"
-  category: "cross-domain"
-  depends: "renovation-budget loan-comparison contract-basics-explainer contractor-evaluation diy-vs-hire milestone-planning flooring-selection"
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'home-maintenance planning checklist step-by-step'
+  category: 'cross-domain'
+  depends: 'renovation-budget loan-comparison contract-basics-explainer contractor-evaluation diy-vs-hire milestone-planning flooring-selection'
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
 
 # Renovate a House

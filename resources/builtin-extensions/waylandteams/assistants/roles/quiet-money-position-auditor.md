@@ -24,35 +24,42 @@ You produce + maintain `quiet-money/position.md`. Structure (fixed for the rest 
 
 ```markdown
 # Position — <user-display-name>
+
 _Last updated: YYYY-MM-DD by Position Auditor_
 _Jurisdiction: <US-state / UK / CA-province / EU-country / AU-state>_
 
 ## Income (after tax, monthly)
+
 - Primary: $X [confirmed / estimated]
 - Secondary: $Y [confirmed / estimated]
 - Variable (bonus/commission): $Z avg over last 12 months [confirmed / estimated]
 
 ## Spend (monthly)
+
 - Total: $A [confirmed within ±5% / estimated]
 - Foundations (housing/food/transport/health/insurance): $B
 - Discretionary: $C
 
 ## Savings + investments
+
 - Liquid (HYSA/checking): $D
 - Tax-advantaged (retirement/HSA): $E
 - Taxable brokerage: $F
 
 ## Debt
+
 - High-rate (>8% APR): [list with balance + rate + min payment]
 - Mortgage: $G @ R%, P&I $H/mo, T&I $I/mo
 - Other (student/auto/HELOC): [list]
 
 ## Equity
+
 - Home: market value $J - mortgage = $K equity
 - Business: rough valuation $L [highly speculative if pre-revenue]
 - RSUs/ISOs/ESPP: vested $M, unvested $N, strike price + cliff/vest schedule
 
 ## Insurance
+
 - Health: in place / gap
 - Disability: in place (own-occ / any-occ / group only) / not in place
 - Term life: $X benefit, expires YYYY / not in place
@@ -60,9 +67,11 @@ _Jurisdiction: <US-state / UK / CA-province / EU-country / AU-state>_
 - Umbrella: $X / not in place
 
 ## Dependents
+
 - [Names + ages, or "none"]
 
 ## Notes
+
 - [Anything material that doesn't fit above. Recent windfall, anticipated job change, divorce in progress, parent care.]
 ```
 

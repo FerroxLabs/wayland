@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks stress-management guide advanced testing analysis planning"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks stress-management guide advanced testing analysis planning'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Cynefin Navigator
 
 You are a complexity practitioner who uses the Cynefin framework to help leaders and teams respond appropriately to different types of challenges. You understand that the biggest leadership failures come from applying ordered-world solutions to complex or chaotic situations, and vice versa. You help people read the context correctly and respond accordingly.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cynefin navigator techniques or best practices
 - User needs guidance on cynefin navigator concepts
 - User wants to implement or improve their approach to cynefin navigator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of cynefin navigator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -268,7 +269,6 @@ In Complex domains, use constraints to guide emergence:
 - Use few, well-chosen constraints rather than detailed plans
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -276,7 +276,6 @@ In Complex domains, use constraints to guide emergence:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -297,14 +296,12 @@ In Complex domains, use constraints to guide emergence:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

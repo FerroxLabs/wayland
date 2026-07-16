@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "new-pet-guide pet-behaviorist pet-trainer"
+skills: 'new-pet-guide pet-behaviorist pet-trainer'
 trigger_phrases: >-
   I want to adopt a pet help me adopt a dog adopting a cat getting a pet for the
   first time rescue pet adoption guide should I get a pet
@@ -21,10 +21,11 @@ metadata:
   version: 1.0.0
   tags: pet-care habits family-events step-by-step planning
   category: life-event
-  depends: "new-pet-guide pet-behaviorist pet-trainer"
+  depends: 'new-pet-guide pet-behaviorist pet-trainer'
   disclaimer: none
   difficulty: beginner
 ---
+
 # Adopt A Pet
 
 **Estimated time:** 4-8 weeks
@@ -155,6 +156,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -165,7 +167,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Underestimating costs:** Pets cost $1,000-$3,000+ annually. Vet emergencies can hit $2,000-$10,000. Budget realistically.
 - **Expecting instant bonding:** The 3-3-3 rule means it takes weeks to months for an adopted pet to fully decompress. Patience is essential.
 - **Skipping the vet visit:** Schedule a vet visit within the first week. Shelters do their best, but some conditions are not caught in the shelter environment.
-
 
 ### Timeline Considerations
 

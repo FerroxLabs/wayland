@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "elder-care mental-wellness checklist"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'elder-care mental-wellness checklist'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Caregiver Burnout Prevention
@@ -30,6 +30,7 @@ Caregiving is demanding work that affects physical, emotional, and social wellbe
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about managing caregiver stress or fatigue
 - User wants to assess whether they are experiencing caregiver burnout
 - User needs a self-care plan as a family caregiver
@@ -37,6 +38,7 @@ Caregiving is demanding work that affects physical, emotional, and social wellbe
 - User wants strategies for setting boundaries in a caregiving role
 
 **Do NOT use this skill when:**
+
 - User is experiencing a mental health crisis (contact crisis services or 988 Suicide and Crisis Lifeline)
 - User needs clinical diagnosis of depression, anxiety, or other conditions (licensed professional needed)
 - User asks about care recipient's medical needs (physician guidance required)
@@ -125,13 +127,13 @@ Caregiving is demanding work that affects physical, emotional, and social wellbe
 
    **Types of Respite Care:**
 
-   | Type | Duration | Best For | How to Find |
-   |------|----------|----------|------------|
-   | In-home respite | 4-8 hours | Short breaks during the day | Home health agencies, Area Agency on Aging |
-   | Adult day programs | Full weekday | Regular weekly schedule of breaks | Local senior centers, Area Agency on Aging |
-   | Short-term residential | 1-14 days | Vacation or extended break | Assisted living facilities (many offer short stays) |
-   | Family or friend relief | Variable | Flexible, no cost | Coordinate with willing family or friends |
-   | Volunteer programs | 2-4 hours | Companionship visits so caregiver can leave | Faith communities, volunteer organizations |
+   | Type                    | Duration     | Best For                                    | How to Find                                         |
+   | ----------------------- | ------------ | ------------------------------------------- | --------------------------------------------------- |
+   | In-home respite         | 4-8 hours    | Short breaks during the day                 | Home health agencies, Area Agency on Aging          |
+   | Adult day programs      | Full weekday | Regular weekly schedule of breaks           | Local senior centers, Area Agency on Aging          |
+   | Short-term residential  | 1-14 days    | Vacation or extended break                  | Assisted living facilities (many offer short stays) |
+   | Family or friend relief | Variable     | Flexible, no cost                           | Coordinate with willing family or friends           |
+   | Volunteer programs      | 2-4 hours    | Companionship visits so caregiver can leave | Faith communities, volunteer organizations          |
 
    **Planning for respite:**
    - [ ] Identify the minimum break frequency needed (for most caregivers: at least 4 hours per week)
@@ -145,14 +147,14 @@ Caregiving is demanding work that affects physical, emotional, and social wellbe
 
    **Common guilt triggers and reframes:**
 
-   | Guilt Trigger | Reframe |
-   |--------------|---------|
-   | "I should be doing more" | You are already doing a significant amount. Sustainable care requires breaks. |
-   | "Taking time for myself is selfish" | A depleted caregiver provides worse care. Self-care enables better caregiving. |
-   | "No one else can care for them like I do" | Others may do things differently but still provide safe, competent care. |
-   | "I feel angry at them and that makes me terrible" | Frustration with a difficult situation is a normal human response, not a character flaw. |
-   | "I should be able to handle this" | Professional caregivers work shifts with mandated breaks. Family caregivers deserve the same. |
-   | "Asking for help means I am failing" | Coordinating help is a caregiving skill, not a failure. |
+   | Guilt Trigger                                     | Reframe                                                                                       |
+   | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+   | "I should be doing more"                          | You are already doing a significant amount. Sustainable care requires breaks.                 |
+   | "Taking time for myself is selfish"               | A depleted caregiver provides worse care. Self-care enables better caregiving.                |
+   | "No one else can care for them like I do"         | Others may do things differently but still provide safe, competent care.                      |
+   | "I feel angry at them and that makes me terrible" | Frustration with a difficult situation is a normal human response, not a character flaw.      |
+   | "I should be able to handle this"                 | Professional caregivers work shifts with mandated breaks. Family caregivers deserve the same. |
+   | "Asking for help means I am failing"              | Coordinating help is a caregiving skill, not a failure.                                       |
 
 6. **Build the support network:**
    - [ ] Identify 2-3 people who can be called in an emergency for backup coverage
@@ -271,6 +273,7 @@ Caregiving is demanding work that affects physical, emotional, and social wellbe
 ## Caregiver Burnout Assessment and Response Plan
 
 ### Current Burnout Risk Assessment
+
 - **Risk level:** HIGH
 - **Warning signs present:**
   - Physical: Sleep disruption, weight change (appetite change), persistent fatigue (implied)
@@ -307,37 +310,41 @@ You yelled at your mom for repeating a question. That happened because you are d
 ### Self-Care Recovery Schedule (Start This Week)
 
 **Daily Non-Negotiables:**
+
 - [ ] 20-minute walk (outside if possible, even around the block while a neighbor checks in)
 - [ ] One meal eaten without standing up or multitasking
 - [ ] Bedtime by 10:30 PM (arrange night monitoring -- door alarm, baby monitor, or hired overnight aide)
 
 **Weekly:**
+
 - [ ] One phone or video call with a friend (schedule it like an appointment)
 - [ ] One full half-day of respite (begin arranging this immediately)
 - [ ] One caregiver support group session (online groups are available 7 days a week)
 
 **Monthly:**
+
 - [ ] Your own doctor appointment (bring up the sleep issues and weight change)
 - [ ] Re-assess this warning signs checklist honestly
 
 ### Respite Plan
 
-| Type | Goal | Action |
-|------|------|--------|
-| Adult day program (2-3 days/week) | Regular daytime breaks | Contact Area Agency on Aging for programs |
-| Family member coverage (1 day/week) | Full day off | Make specific request to [sibling/family] |
-| In-home aide (4 hrs/week minimum) | Flexible break time | Research local home health agencies |
+| Type                                | Goal                   | Action                                    |
+| ----------------------------------- | ---------------------- | ----------------------------------------- |
+| Adult day program (2-3 days/week)   | Regular daytime breaks | Contact Area Agency on Aging for programs |
+| Family member coverage (1 day/week) | Full day off           | Make specific request to [sibling/family] |
+| In-home aide (4 hrs/week minimum)   | Flexible break time    | Research local home health agencies       |
 
 ### Support Network to Build
 
-| Role | Action | Timeline |
-|------|--------|----------|
-| Therapist | Find caregiver-experienced therapist | This week |
-| Support group | Join online or local group | Within 2 weeks |
-| Emergency backup | Identify 2 people for crisis coverage | This week |
-| Check-in partner | Ask one friend to call weekly | This week |
-| Medical | Schedule your own doctor visit | Within 2 weeks |
+| Role             | Action                                | Timeline       |
+| ---------------- | ------------------------------------- | -------------- |
+| Therapist        | Find caregiver-experienced therapist  | This week      |
+| Support group    | Join online or local group            | Within 2 weeks |
+| Emergency backup | Identify 2 people for crisis coverage | This week      |
+| Check-in partner | Ask one friend to call weekly         | This week      |
+| Medical          | Schedule your own doctor visit        | Within 2 weeks |
 
 ### Review
+
 - Reassess warning signs in 1 month
 - If symptoms have not improved in 4 weeks despite implementing these measures, discuss with your therapist whether the current caregiving arrangement is sustainable or whether a transition to facility-based care should be explored

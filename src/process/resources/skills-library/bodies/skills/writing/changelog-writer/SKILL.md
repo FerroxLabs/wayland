@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation version-control"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation version-control'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Changelog Writer
@@ -37,50 +37,60 @@ and this project adheres to [Semantic Versioning]([reference URL]).
 ## [Unreleased]
 
 ### Added
+
 - Support for batch product imports via CSV upload
 
 ### Fixed
+
 - Cart total calculation rounding error for currencies with 3 decimal places
 
 ## [2.3.0] - 2025-01-15
 
 ### Added
+
 - Full-text search endpoint (`GET /products/search`) with relevance scoring
 - `metadata` field on Product resource for arbitrary key-value data
 - Idempotency key support on all write endpoints
 - Rate limit headers (`X-Rate-Limit-Remaining`, `X-Rate-Limit-Reset`)
 
 ### Changed
+
 - Default pagination limit increased from 10 to 20 items per page
 - Product image upload now accepts WebP format in addition to JPEG and PNG
 - Error responses now include `request_id` field for support reference
 
 ### Deprecated
+
 - `GET /products?q=` query parameter. Use `GET /products/search` instead.
   Will be removed in v3.0.0 (scheduled Q3 2025).
 
 ### Fixed
+
 - Order creation failing when shipping address contains Unicode characters
 - Memory leak in WebSocket connection handler during high traffic
 - Incorrect HTTP status code (200 instead of 201) on successful resource creation
 
 ### Security
+
 - Upgraded `jsonwebtoken` from 8.5.1 to 9.0.0 to address CVE-2022-23529
 - API keys are now hashed in database (previously stored in plaintext)
 
 ## [2.2.1] - 2024-12-20
 
 ### Fixed
+
 - Critical: Database connection pool exhaustion under sustained load
 - Webhook retry logic not respecting exponential backoff
 
 ## [2.2.0] - 2024-12-01
 
 ### Added
+
 - Webhook support for order status changes
 - Product category hierarchy (nested categories up to 5 levels)
 
 ### Changed
+
 - Minimum Node.js version raised from 16 to 18
 
 [Unreleased]: [reference URL]
@@ -91,14 +101,14 @@ and this project adheres to [Semantic Versioning]([reference URL]).
 
 ### Change Categories
 
-| Category | Meaning | Example |
-|----------|---------|---------|
-| Added | New features | New API endpoint, new CLI command |
-| Changed | Changes to existing functionality | Default value change, behavior modification |
-| Deprecated | Features marked for future removal | Old API version, legacy parameter |
-| Removed | Features removed in this release | Deleted endpoint, dropped platform support |
-| Fixed | Bug fixes | Corrected calculation, resolved crash |
-| Security | Security-related changes | Vulnerability patches, auth improvements |
+| Category   | Meaning                            | Example                                     |
+| ---------- | ---------------------------------- | ------------------------------------------- |
+| Added      | New features                       | New API endpoint, new CLI command           |
+| Changed    | Changes to existing functionality  | Default value change, behavior modification |
+| Deprecated | Features marked for future removal | Old API version, legacy parameter           |
+| Removed    | Features removed in this release   | Deleted endpoint, dropped platform support  |
+| Fixed      | Bug fixes                          | Corrected calculation, resolved crash       |
+| Security   | Security-related changes           | Vulnerability patches, auth improvements    |
 
 ### Rules for Good Changelog Entries
 
@@ -176,18 +186,18 @@ Pre-release versions:
 
 ### Commit Types and Changelog Mapping
 
-| Commit Type | Changelog Section | Version Bump |
-|-------------|------------------|-------------|
-| `feat:` | Added | MINOR |
-| `fix:` | Fixed | PATCH |
-| `perf:` | Changed (performance) | PATCH |
-| `docs:` | (not in changelog) | None |
-| `style:` | (not in changelog) | None |
-| `refactor:` | (not in changelog) | None |
-| `test:` | (not in changelog) | None |
-| `chore:` | (not in changelog) | None |
-| `ci:` | (not in changelog) | None |
-| Any type with `!` or `BREAKING CHANGE:` | Breaking Changes | MAJOR |
+| Commit Type                             | Changelog Section     | Version Bump |
+| --------------------------------------- | --------------------- | ------------ |
+| `feat:`                                 | Added                 | MINOR        |
+| `fix:`                                  | Fixed                 | PATCH        |
+| `perf:`                                 | Changed (performance) | PATCH        |
+| `docs:`                                 | (not in changelog)    | None         |
+| `style:`                                | (not in changelog)    | None         |
+| `refactor:`                             | (not in changelog)    | None         |
+| `test:`                                 | (not in changelog)    | None         |
+| `chore:`                                | (not in changelog)    | None         |
+| `ci:`                                   | (not in changelog)    | None         |
+| Any type with `!` or `BREAKING CHANGE:` | Breaking Changes      | MAJOR        |
 
 ### Examples
 
@@ -221,14 +231,14 @@ See migration guide: [reference URL]
 
 ### Tool Comparison
 
-| Tool | Language | Features |
-|------|----------|----------|
-| conventional-changelog | Node.js | Git log → CHANGELOG.md |
-| release-please | Node.js | GitHub Action, auto PR for releases |
-| semantic-release | Node.js | Full automation: version, changelog, publish |
-| changesets | Node.js | Monorepo support, manual changeset files |
-| git-cliff | Rust | Configurable, fast, template-based |
-| towncrier | Python | Fragment-based, manual review |
+| Tool                   | Language | Features                                     |
+| ---------------------- | -------- | -------------------------------------------- |
+| conventional-changelog | Node.js  | Git log → CHANGELOG.md                       |
+| release-please         | Node.js  | GitHub Action, auto PR for releases          |
+| semantic-release       | Node.js  | Full automation: version, changelog, publish |
+| changesets             | Node.js  | Monorepo support, manual changeset files     |
+| git-cliff              | Rust     | Configurable, fast, template-based           |
+| towncrier              | Python   | Fragment-based, manual review                |
 
 ### release-please Configuration
 
@@ -258,10 +268,11 @@ jobs:
 ### Changeset-Based Workflow (Monorepo)
 
 ```markdown
-<!-- .changeset/add-search-endpoint.md -->
----
+## <!-- .changeset/add-search-endpoint.md -->
+
 "@myorg/api": minor
 "@myorg/sdk-js": minor
+
 ---
 
 Added full-text search endpoint (`GET /products/search`) with relevance
@@ -284,7 +295,7 @@ npx changeset publish         # Publishes to npm and creates git tags
 
 ### Migration Guide Template
 
-```markdown
+````markdown
 # Migration Guide: v2 to v3
 
 ## Overview
@@ -305,16 +316,20 @@ each breaking change and provides step-by-step migration instructions.
 ### 1. Product IDs changed from integer to UUID
 
 **Before (v2):**
+
 ```json
 { "id": 12345, "name": "Widget" }
 ```
+````
 
 **After (v3):**
+
 ```json
 { "id": "550e8400-e29b-41d4-a716-446655440000", "name": "Widget" }
 ```
 
 **Migration steps:**
+
 1. Update your database schema: `ALTER TABLE products ALTER COLUMN external_id TYPE uuid;`
 2. Update API response parsing to handle string IDs
 3. A mapping endpoint is available during the transition period:
@@ -324,11 +339,13 @@ each breaking change and provides step-by-step migration instructions.
 ### 2. Authentication moved to OAuth 2.0
 
 **Before (v2):**
+
 ```shell
 HTTP client request -H "X-API-Key: sk_test_EXAMPLE_KEY_REPLACE_ME" [reference URL]
 ```
 
 **After (v3):**
+
 ```shell
 # Step 1: Get token
 TOKEN=$(HTTP client request -s -X POST [reference URL] \
@@ -340,6 +357,7 @@ HTTP client request -H "Authorization: Bearer $TOKEN" [reference URL]
 ```
 
 **Migration steps:**
+
 1. Generate OAuth2 credentials in the dashboard
 2. Implement token refresh logic (tokens expire after 1 hour)
 3. Legacy API keys will continue to work until 2025-06-30
@@ -348,18 +366,20 @@ HTTP client request -H "Authorization: Bearer $TOKEN" [reference URL]
 
 The following deprecated features have been removed in v3:
 
-| Feature | Deprecated In | Alternative |
-|---------|--------------|-------------|
-| `GET /v2/products?q=` | v2.3.0 | `GET /v3/products/search` |
-| `X-API-Key` auth | v2.5.0 | OAuth 2.0 Bearer token |
-| `product.category` (string) | v2.1.0 | `product.category_id` (UUID) |
+| Feature                     | Deprecated In | Alternative                  |
+| --------------------------- | ------------- | ---------------------------- |
+| `GET /v2/products?q=`       | v2.3.0        | `GET /v3/products/search`    |
+| `X-API-Key` auth            | v2.5.0        | OAuth 2.0 Bearer token       |
+| `product.category` (string) | v2.1.0        | `product.category_id` (UUID) |
 
 ## Rollback Plan
 
 If you encounter issues after migrating:
+
 1. The v2 API remains available at `[reference URL] until 2025-12-31
 2. Pin your SDK to v2: `install @example/sdk@^2.0.0 via npm`
 3. Contact support@example.com for migration assistance
+
 ```
 
 ## Deprecation Notices
@@ -367,37 +387,41 @@ If you encounter issues after migrating:
 ### Deprecation Communication Timeline
 
 ```
+
 Deprecation Lifecycle:
 ├── T-6 months: Announce deprecation
-│   ├── Changelog entry under "Deprecated"
-│   ├── API response header: Deprecation: true
-│   ├── Documentation banner on deprecated features
-│   ├── Email notification to API key owners
-│   └── Blog post for major deprecations
+│ ├── Changelog entry under "Deprecated"
+│ ├── API response header: Deprecation: true
+│ ├── Documentation banner on deprecated features
+│ ├── Email notification to API key owners
+│ └── Blog post for major deprecations
 ├── T-3 months: Warning intensification
-│   ├── API response header: Sunset: <date>
-│   ├── Console warnings in SDK
-│   └── Dashboard notification
+│ ├── API response header: Sunset: <date>
+│ ├── Console warnings in SDK
+│ └── Dashboard notification
 ├── T-1 month: Final notice
-│   ├── Email reminder to remaining users
-│   └── Dashboard alert
+│ ├── Email reminder to remaining users
+│ └── Dashboard alert
 ├── T-0: Removal
-│   ├── Feature removed
-│   ├── Requests return 410 Gone with migration link
-│   └── Changelog entry under "Removed"
+│ ├── Feature removed
+│ ├── Requests return 410 Gone with migration link
+│ └── Changelog entry under "Removed"
 └── T+3 months: Cleanup
-    └── Remove 410 handler, return 404
+└── Remove 410 handler, return 404
+
 ```
 
 ### Deprecation Header Standards
 
 ```
+
 HTTP Response Headers for Deprecated Endpoints:
 
 Deprecation: true
 Sunset: Sat, 01 Jul 2025 00:00:00 GMT
 Link: <[reference URL]>; rel="successor-version"
-```
+
+````
 
 ## Audience-Specific Release Notes
 
@@ -413,7 +437,7 @@ Link: <[reference URL]>; rel="successor-version"
 
 ### Fixed
 - Order creation returns 500 when shipping address contains emoji (#423)
-```
+````
 
 ### End-User-Facing (App Release Notes)
 
@@ -433,11 +457,13 @@ contained special characters. Various stability improvements.
 ## Release 2.3 Summary - January 2025
 
 **Key Improvements:**
+
 - New search functionality expected to improve product discovery by 15-20%
 - Security: API keys now encrypted at rest (SOC2 compliance requirement)
 - Performance: Average API response time reduced from 180ms to 120ms
 
 **Metrics Impact:**
+
 - Enables A/B testing of search results
 - Reduces support tickets related to order failures (~50 tickets/month)
 
@@ -463,6 +489,7 @@ contained special characters. Various stability improvements.
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing changelog writer solutions
 - Reviewing or improving existing changelog writer approaches
 - Making architectural or implementation decisions about changelog writer
@@ -470,6 +497,7 @@ contained special characters. Various stability improvements.
 - Troubleshooting changelog writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -480,21 +508,26 @@ contained special characters. Various stability improvements.
 # Changelog Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

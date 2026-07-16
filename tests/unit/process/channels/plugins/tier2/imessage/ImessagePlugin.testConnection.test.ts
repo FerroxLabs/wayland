@@ -86,7 +86,9 @@ describe('ImessagePlugin.testConnection', () => {
 
   it('fails with Full Disk Access message when chat.db is not readable', async () => {
     mockFsExistsSync.mockReturnValue(true);
-    mockFsAccessSync.mockImplementation(() => { throw new Error('EACCES: permission denied'); });
+    mockFsAccessSync.mockImplementation(() => {
+      throw new Error('EACCES: permission denied');
+    });
     const result = await ImessagePlugin.testConnection('{}');
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/Full Disk Access/i);

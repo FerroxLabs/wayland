@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing writing editing"
-  category: "writing"
-  subcategory: "academic-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'academic-writing writing editing'
+  category: 'writing'
+  subcategory: 'academic-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Peer Review Response
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has received peer review comments from a journal and needs to write a formal response letter for resubmission (minor revision, major revision, or revise-and-resubmit decisions)
 - The user wants to draft a point-by-point rebuttal to specific reviewer comments, including methodology critiques, interpretive challenges, or requests for additional analyses
 - The user needs to write a cover letter to the editor accompanying a revised manuscript, summarizing what changed and why
@@ -30,6 +32,7 @@ metadata:
 - The user needs help organizing 30+ reviewer comments across multiple reviewers into a manageable, strategic response plan
 
 **Do NOT use this skill when:**
+
 - The user wants to write a peer review of someone else's paper -- use `academic-paper-review` instead
 - The user wants to revise the actual manuscript content -- use the appropriate domain writing skill for the discipline (e.g., scientific-writing, humanities-paper-revision)
 - The user needs general copy-editing of an existing response letter -- use `copy-editing`
@@ -328,27 +331,35 @@ response below.
 ## Edge Cases
 
 ### Contradictory Instructions from Two Reviewers
+
 When Reviewer 1 wants the theory section expanded and Reviewer 2 wants it cut, do not pretend the conflict does not exist -- editors are well aware that reviewers sometimes contradict each other and they want to see how authors navigate it. Name the contradiction explicitly in both reviewer responses. Choose the recommendation that better serves the paper, justifying the choice with reference to the journal's scope or the paper's core argument. Make a partial accommodation to the other reviewer in a different part of the manuscript (e.g., if you expand theory, cut something else). Frame this as a deliberate editorial judgment, not a failure to comply.
 
 ### Hostile, Abusive, or Clearly Unfair Reviews
+
 Some reviewers are contemptuous in tone, set impossible standards, or demand changes that would turn the paper into a different study. Do not mention the tone in your response. Do not describe the review as unfair. Extract the substantive concern that exists within or beneath the hostile language, address it, and respond as if the comment had been written professionally. The editor knows when a review is unfair -- they read it too. Your job is to demonstrate restraint and judgment, which will strengthen the editor's inclination toward acceptance. If the review contains no substantive content and is purely abusive, address the letter to the editor directly, privately, outside the formal response letter.
 
 ### When the Reviewer Is Factually Wrong
+
 This is distinct from disagreement. A reviewer may misattribute a citation, cite a retracted paper, describe a statistical method incorrectly, or claim a finding that does not appear in the literature. Handle this with extreme care. Do not write "The reviewer is incorrect." Write: "We note that the reviewer may be referring to [specific thing], which [accurate description]. The relevant literature on this point [accurate summary with citations]. We have added [text] to p. X to clarify this for readers." This corrects the error while protecting the relationship. If the reviewer's factual error is load-bearing -- i.e., their entire objection rests on a misunderstanding of how a technique works -- this usually requires a longer methodological clarification paragraph, ideally cited from a textbook or methodological review paper.
 
 ### Very Large Review Packages (30+ Comments)
+
 Some major revision decisions from top journals arrive with 30-50 discrete reviewer comments across 3-4 reviewers. These response letters can run 15-20 pages and take weeks to complete. In these cases: (1) Begin with the summary revision table, placed before the point-by-point responses, so the editor can assess the scope of revision at a glance. (2) Group minor comments (typos, awkward phrasing, formatting) into a single numbered item: "Minor Revisions: We have addressed the following minor comments made by Reviewer 1 (R1.7, R1.8, R1.9, R1.12): [list changes with locations]." (3) For comments that required no manuscript change (positive feedback, questions already answered in the paper), use a one-sentence acknowledgment with a pointer to the relevant location. (4) Keep the cover letter to one page regardless of the response letter length.
 
 ### Re-Submission After Previous Rejection Elsewhere
+
 When a paper rejected at Journal A is submitted to Journal B, and Journal B's reviewers raise concerns that overlap with Journal A's reviewer comments, the author faces a dilemma: the revision may have addressed Journal A's concerns already. In the Journal B response letter, do not reveal the prior submission history unless directly asked (editorial confidentiality conventions vary). Respond to Journal B's reviewers on their own terms. If the author made changes during the Journal A-to-B revision, those changes are already in the submitted manuscript and need not be explained in the response letter -- only additional changes made during Journal B revision belong in the response letter.
 
 ### Requests for Substantial New Work During Revision
+
 A reviewer asks for a new experiment, additional data collection, or a full analysis that was not part of the original manuscript. Before committing to this work, the author should consider writing to the editor directly to confirm whether the additional analysis is required for acceptance or merely suggested. Response letter phrasing for this situation: "The reviewer requests [specific new analysis]. We have conducted this analysis and report the results in [location]." If the analysis is not feasible (data no longer available, the experiment would require IRB re-approval, etc.), the response must explain why, propose the closest feasible alternative, and explicitly acknowledge the limitation this creates. Editors will not always require infeasible analyses, but they must be told why the analysis cannot be done.
 
 ### When the Same Paper Has Been Through Multiple Rounds of Review
+
 By the third or fourth round of review, the response letter must reference previous rounds explicitly. Use notation like "R3: Previously R2.1" to show continuity. Reviewers in later rounds are often checking whether previous concerns were adequately addressed -- they will compare your current response to prior response letters if they are available. Make sure that your current responses are consistent with your previous responses. If you are revising a position you took in a prior round, acknowledge this explicitly: "In our previous response, we argued [X]. After further consideration and in light of Reviewer 1's continued concern, we have revised our position and now [Y]."
 
 ### Response Letters for Preregistered Studies
+
 For registered reports or preregistered studies, a reviewer cannot ask the authors to change the analysis plan after data collection. This creates a special case where disagreement is not just preferable but methodologically mandatory. The response should note: "Because this study followed a preregistered analysis plan (registration ID: [ID]), we are unable to modify [specific analysis] as suggested, as doing so after data collection would constitute HARKing (Hypothesizing After Results are Known). We have added an explanation of this constraint to the methods section (p. X, lines Y-Z) and we have included the requested analysis as an exploratory, non-preregistered supplement." This framing converts an apparent non-compliance into a demonstration of methodological integrity.
 
 ---
@@ -383,7 +394,7 @@ We thank Reviewer 2 for these substantive methodological concerns, which have le
 
 **R2.1**
 
-> *"The authors use a Lucid convenience sample and claim generalizability to the American public. Lucid samples are known to differ from nationally representative samples on several key dimensions, including political interest and digital media literacy. The authors should either collect a nationally representative sample or substantially qualify their generalizability claims."*
+> _"The authors use a Lucid convenience sample and claim generalizability to the American public. Lucid samples are known to differ from nationally representative samples on several key dimensions, including political interest and digital media literacy. The authors should either collect a nationally representative sample or substantially qualify their generalizability claims."_
 
 **Response: We partially agree, and have substantially revised the generalizability claims throughout the manuscript.**
 
@@ -393,7 +404,7 @@ First, we have revised all generalizability language throughout the manuscript. 
 
 Second, we have added a comparison of our sample demographics against the 2022 American National Election Study (ANES) pilot in a new Supplementary Table S1. Our sample overrepresents college-educated respondents (67% vs. 42% ANES) and skews slightly younger (median age 38 vs. 47 ANES), consistent with the reviewer's concern. We discuss these differences in the limitations section (p. 16, lines 4-12).
 
-Third, we note that Lucid samples, while not nationally representative, have demonstrated criterion validity in studies of political attitudes. Coppock and McClellan (2019, *Political Communication*) found that treatment effects from Lucid samples replicate in population-based samples in 16 of 19 experimental comparisons. While our study is observational rather than experimental, this evidence base suggests that Lucid samples are not uniquely unsuitable for attitude research. We have added this citation and context to the methods section (p. 7, lines 20-24).
+Third, we note that Lucid samples, while not nationally representative, have demonstrated criterion validity in studies of political attitudes. Coppock and McClellan (2019, _Political Communication_) found that treatment effects from Lucid samples replicate in population-based samples in 16 of 19 experimental comparisons. While our study is observational rather than experimental, this evidence base suggests that Lucid samples are not uniquely unsuitable for attitude research. We have added this citation and context to the methods section (p. 7, lines 20-24).
 
 We respectfully maintain that the sample is appropriate for testing the theoretical relationships of interest, provided generalizability claims are appropriately bounded -- as we have now done throughout the manuscript.
 
@@ -401,7 +412,7 @@ We respectfully maintain that the sample is appropriate for testing the theoreti
 
 **R2.2**
 
-> *"The authors treat their two-wave panel design as establishing causal evidence for their hypotheses. However, panel data without experimental manipulation cannot establish causation. The authors should reframe their claims as correlational."*
+> _"The authors treat their two-wave panel design as establishing causal evidence for their hypotheses. However, panel data without experimental manipulation cannot establish causation. The authors should reframe their claims as correlational."_
 
 **Response: We agree that our original causal language was too strong, and have revised it. We respectfully maintain, however, that panel data with lagged dependent variable controls provides stronger evidence than cross-sectional correlation, and have revised the manuscript to reflect this distinction accurately.**
 
@@ -411,7 +422,7 @@ We have also revised the framing in the abstract (p. 1, lines 8-12) and the disc
 
 At the same time, we ask the reviewer to consider that our two-wave panel design with a lagged dependent variable (LDV) control offers meaningful advantages over cross-sectional analysis. The LDV model (OLS regressing Wave 2 polarization on Wave 1 polarization and Wave 1 cross-cutting exposure) controls for pre-existing levels of the outcome, making reverse causality less plausible than in a single cross-section. We have added the following clarification to the methods section to explain this to readers (p. 8, lines 15-21):
 
-> *"We use a lagged dependent variable (LDV) model rather than a cross-sectional design, which partially addresses concerns about reverse causality by conditioning on the respondent's baseline level of affective polarization. We do not claim that this establishes strict causal identification; rather, we follow Finkel's (1995) recommendation that LDV models provide appropriate conservative tests of change hypotheses when experimental manipulation is not feasible. Readers should interpret our findings as consistent with a causal mechanism, pending experimental confirmation."*
+> _"We use a lagged dependent variable (LDV) model rather than a cross-sectional design, which partially addresses concerns about reverse causality by conditioning on the respondent's baseline level of affective polarization. We do not claim that this establishes strict causal identification; rather, we follow Finkel's (1995) recommendation that LDV models provide appropriate conservative tests of change hypotheses when experimental manipulation is not feasible. Readers should interpret our findings as consistent with a causal mechanism, pending experimental confirmation."_
 
 We believe this framing accurately characterizes both the strength and limitations of our design.
 
@@ -419,11 +430,11 @@ We believe this framing accurately characterizes both the strength and limitatio
 
 **R2.3**
 
-> *"The authors combine feeling thermometer scores and social distance items into a single affective polarization index. These two constructs have been shown to have different antecedents and to respond differently to interventions. Combining them obscures potentially important heterogeneity. The scale should be disaggregated."*
+> _"The authors combine feeling thermometer scores and social distance items into a single affective polarization index. These two constructs have been shown to have different antecedents and to respond differently to interventions. Combining them obscures potentially important heterogeneity. The scale should be disaggregated."_
 
 **Response: We agree. We have disaggregated the affective polarization index into its two components and report results for both throughout the manuscript.**
 
-This is a well-taken and important concern. The reviewer is correct that feeling thermometer-based measures and social distance measures of affective polarization are conceptually distinct, as established by Druckman and Levendusky (2019, *Public Opinion Quarterly*) and Iyengar et al. (2019, *Annual Review of Political Science*). Combining them into a single index, as we did originally, may have obscured differential effects on emotional vs. social dimensions of polarization.
+This is a well-taken and important concern. The reviewer is correct that feeling thermometer-based measures and social distance measures of affective polarization are conceptually distinct, as established by Druckman and Levendusky (2019, _Public Opinion Quarterly_) and Iyengar et al. (2019, _Annual Review of Political Science_). Combining them into a single index, as we did originally, may have obscured differential effects on emotional vs. social dimensions of polarization.
 
 We have made the following revisions:
 
@@ -439,11 +450,11 @@ We thank the reviewer for this suggestion. The disaggregated analysis produces a
 
 **Completeness Check for Reviewer 2**
 
-| Comment | Response Type | Revision Made | Location |
-|---------|--------------|---------------|----------|
-| R2.1 -- Sample generalizability | Partial agreement | Revised language (×3), added demographic comparison table, added Coppock & McClellan citation | p. 4 lines 10-14; p. 7 lines 20-24; p. 16 lines 4-12; Supp. Table S1 |
-| R2.2 -- Causal language | Partial agreement | Revised causal language (×5), added LDV model explanation | p. 1, 2, 8, 13, 15 (specific lines above) |
-| R2.3 -- Index disaggregation | Full agreement | Disaggregated analysis, restructured Tables 2-4, new results interpretation, revised measurement section | p. 7, 9-11, 13-14 |
+| Comment                         | Response Type     | Revision Made                                                                                            | Location                                                             |
+| ------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| R2.1 -- Sample generalizability | Partial agreement | Revised language (×3), added demographic comparison table, added Coppock & McClellan citation            | p. 4 lines 10-14; p. 7 lines 20-24; p. 16 lines 4-12; Supp. Table S1 |
+| R2.2 -- Causal language         | Partial agreement | Revised causal language (×5), added LDV model explanation                                                | p. 1, 2, 8, 13, 15 (specific lines above)                            |
+| R2.3 -- Index disaggregation    | Full agreement    | Disaggregated analysis, restructured Tables 2-4, new results interpretation, revised measurement section | p. 7, 9-11, 13-14                                                    |
 
 - [x] All 3 Reviewer 2 comments addressed
 - [x] All agreed revisions made in revised manuscript

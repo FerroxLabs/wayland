@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud guide"
-  category: "devops-cloud"
-  subcategory: "monitoring-observability"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud guide'
+  category: 'devops-cloud'
+  subcategory: 'monitoring-observability'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Incident Commander
@@ -36,12 +36,12 @@ Monitoring     Comms started  Fix deployed    Runbooks updated
 
 ### Severity Levels
 
-| Level | Name | Criteria | Response Time | Who |
-|-------|------|----------|---------------|-----|
-| **SEV1** | Critical | Total outage, data loss, security breach | < 15 min | All hands, run-cmd notification |
-| **SEV2** | Major | Significant feature broken, major degradation | < 30 min | On-call team + relevant engineers |
-| **SEV3** | Minor | Non-critical feature broken, workaround exists | < 2 hours | On-call engineer |
-| **SEV4** | Low | Cosmetic, no user impact | Next business day | Normal workflow |
+| Level    | Name     | Criteria                                       | Response Time     | Who                               |
+| -------- | -------- | ---------------------------------------------- | ----------------- | --------------------------------- |
+| **SEV1** | Critical | Total outage, data loss, security breach       | < 15 min          | All hands, run-cmd notification   |
+| **SEV2** | Major    | Significant feature broken, major degradation  | < 30 min          | On-call team + relevant engineers |
+| **SEV3** | Minor    | Non-critical feature broken, workaround exists | < 2 hours         | On-call engineer                  |
+| **SEV4** | Low      | Cosmetic, no user impact                       | Next business day | Normal workflow                   |
 
 ### Severity Decision Tree
 
@@ -69,12 +69,12 @@ Affecting revenue?
 
 ## Incident Roles
 
-| Role | Responsibility | Key Actions |
-|------|---------------|-------------|
-| **Incident Commander** | Owns the process | Declares severity, assigns roles, drives decisions |
-| **Technical Lead** | Owns investigation | Diagnoses root cause, proposes and implements fixes |
+| Role                    | Responsibility         | Key Actions                                            |
+| ----------------------- | ---------------------- | ------------------------------------------------------ |
+| **Incident Commander**  | Owns the process       | Declares severity, assigns roles, drives decisions     |
+| **Technical Lead**      | Owns investigation     | Diagnoses root cause, proposes and implements fixes    |
 | **Communications Lead** | Owns stakeholder comms | Updates status page, customer comms, leadership briefs |
-| **Scribe** | Documents everything | Timestamps actions, decisions, findings in channel |
+| **Scribe**              | Documents everything   | Timestamps actions, decisions, findings in channel     |
 
 ### IC Rules
 
@@ -93,21 +93,26 @@ Affecting revenue?
 
 ```markdown
 ## Incident: [TITLE]
+
 **Severity**: SEV2 | **Status**: Investigating
 **IC**: @jane | **Started**: 14:32 UTC
 
 ### Impact
+
 - All EU users cannot submit orders since 14:32 UTC
 
 ### Current Status
+
 Database connection pool exhausted. Increased pool size, restarting pods.
 
 ### Actions
+
 - [x] Root cause identified: connection pool exhaustion
 - [ ] In progress: Restart API pods with new pool config
 - [ ] Pending: Deploy permanent fix
 
 ### Next Update
+
 In 30 minutes or when status changes.
 ```
 
@@ -115,6 +120,7 @@ In 30 minutes or when status changes.
 
 ```markdown
 ## [Investigating] Order Processing Delays
+
 Posted: Jan 15, 2025 14:45 UTC
 
 We are investigating reports of delays in order processing.
@@ -122,7 +128,9 @@ Our team is actively working on resolving the issue.
 Update within 30 minutes.
 
 ---
+
 ## [Resolved] Order Processing Delays
+
 Updated: Jan 15, 2025 15:42 UTC
 
 The issue has been resolved. All systems operating normally.
@@ -131,11 +139,11 @@ Delayed orders have been processed. Duration: 1h 10m.
 
 ### Communication Cadence
 
-| Severity | Internal | External | Leadership |
-|----------|---------|----------|-----------|
-| SEV1 | Every 15 min | Every 30 min | Every 30 min |
-| SEV2 | Every 30 min | Every 60 min | On resolution |
-| SEV3 | On status change | If user-facing | Not needed |
+| Severity | Internal         | External       | Leadership    |
+| -------- | ---------------- | -------------- | ------------- |
+| SEV1     | Every 15 min     | Every 30 min   | Every 30 min  |
+| SEV2     | Every 30 min     | Every 60 min   | On resolution |
+| SEV3     | On status change | If user-facing | Not needed    |
 
 ## Incident Response Playbook
 
@@ -219,42 +227,49 @@ BLAMELESS DOES NOT MEAN:
 
 ```markdown
 # Post-Mortem: [Title]
+
 Date: 2025-01-15 | Duration: 1h 10m | Severity: SEV2 | IC: @jane
 
 ## Summary
+
 [2-3 sentences: what happened, who affected, how resolved]
 
 ## Impact
+
 - Users affected: ~15,000 (EU region)
 - Revenue impact: ~$12,000 (estimated lost orders)
 - SLA impact: 99.85% (SLO: 99.9%, 12 min budget remaining)
 
 ## Timeline
-| Time | Event |
-|------|-------|
-| 14:30 | Deploy v2.4.1 (contained connection pool regression) |
-| 14:32 | Error rate alert fires |
-| 14:35 | IC assigned, channel created |
+
+| Time  | Event                                                 |
+| ----- | ----------------------------------------------------- |
+| 14:30 | Deploy v2.4.1 (contained connection pool regression)  |
+| 14:32 | Error rate alert fires                                |
+| 14:35 | IC assigned, channel created                          |
 | 14:50 | Root cause: maxConnections changed from 20 to 200/pod |
-| 14:55 | Decision: rollback to v2.4.0 |
-| 15:10 | Error rates normalizing |
-| 15:42 | All-clear declared |
+| 14:55 | Decision: rollback to v2.4.0                          |
+| 15:10 | Error rates normalizing                               |
+| 15:42 | All-clear declared                                    |
 
 ## Root Cause
+
 Connection pool config changed from 20 to 200 per pod. With 10 pods,
 this meant 2,000 connections to a DB configured for max 500.
 
 ## Contributing Factors
+
 1. Connection pool settings not covered by integration tests
 2. Staging has 2 pods (vs 10 prod), masking the issue
 3. No alert on DB connection count approaching limit
 
 ## Action Items
-| Action | Owner | Priority | Due |
-|--------|-------|----------|-----|
-| Integration test for connection pool | @bob | High | Jan 22 |
-| Staging pod count parity | @alice | Medium | Jan 29 |
-| Alert: DB connections > 80% max | @carol | High | Jan 20 |
+
+| Action                               | Owner  | Priority | Due    |
+| ------------------------------------ | ------ | -------- | ------ |
+| Integration test for connection pool | @bob   | High     | Jan 22 |
+| Staging pod count parity             | @alice | Medium   | Jan 29 |
+| Alert: DB connections > 80% max      | @carol | High     | Jan 20 |
 ```
 
 ### Post-Mortem Meeting Protocol
@@ -278,11 +293,11 @@ RULE: Post-mortems without action items are stories.
 
 ## Building Incident Response Muscle
 
-| Drill Type | Frequency | Description |
-|-----------|-----------|-------------|
-| **Tabletop** | Monthly | Walk through scenarios verbally |
-| **Game day** | Quarterly | Inject real failure, test response |
-| **Chaos engineering** | Ongoing | Random failures via Chaos Monkey/Litmus |
+| Drill Type            | Frequency    | Description                              |
+| --------------------- | ------------ | ---------------------------------------- |
+| **Tabletop**          | Monthly      | Walk through scenarios verbally          |
+| **Game day**          | Quarterly    | Inject real failure, test response       |
+| **Chaos engineering** | Ongoing      | Random failures via Chaos Monkey/Litmus  |
 | **On-call shadowing** | Per rotation | New on-call shadows experienced engineer |
 
 ### On-Call Health Metrics
@@ -331,6 +346,7 @@ RED FLAGS:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing incident commander solutions
 - Reviewing or improving existing incident commander approaches
 - Making architectural or implementation decisions about incident commander
@@ -338,6 +354,7 @@ RED FLAGS:
 - Troubleshooting incident commander-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -348,21 +365,26 @@ RED FLAGS:
 # Incident Commander Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

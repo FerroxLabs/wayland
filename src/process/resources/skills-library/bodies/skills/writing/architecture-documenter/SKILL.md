@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation architecture"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'technical-writing documentation architecture'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Architecture Documenter
@@ -50,10 +50,12 @@ categories, orders contain line items, users have addresses). We expect:
 We evaluated: PostgreSQL, MySQL, MongoDB, and CockroachDB.
 
 # ... (condensed) ...
+
 - If we exceed 1TB of data, we may need to evaluate sharding strategies
   or move to a distributed database. We will re-evaluate at 500GB.
 
 ## Follow-Up Actions
+
 - [ ] Set up PostgreSQL 16 in staging environment
 - [ ] Create database migration pipeline with Flyway
 - [ ] Establish backup and point-in-time recovery procedures
@@ -191,18 +193,18 @@ Container Diagram Elements:
 
 ### Mermaid Sequence Diagram Template
 
-```markdown
+````markdown
 ## Order Placement Flow
 
 \```mermaid
 sequenceDiagram
-    actor Customer
-    participant Web as Web App
-    participant API as API Gateway
-    participant Order as Order Service
-    participant Product as Product Service
-    participant Payment as Payment Gateway
-    participant Email as Email Service
+actor Customer
+participant Web as Web App
+participant API as API Gateway
+participant Order as Order Service
+participant Product as Product Service
+participant Payment as Payment Gateway
+participant Email as Email Service
 
     Customer->>Web: Click "Place Order"
     Web->>API: POST /orders
@@ -220,8 +222,9 @@ sequenceDiagram
     Order-->>API: Order created (201)
     API-->>Web: Order response
     Web-->>Customer: Show confirmation page
+
 \```
-```
+````
 
 ### When to Use Sequence Diagrams
 
@@ -244,39 +247,41 @@ Keep diagrams focused:
 
 ### Infrastructure Documentation
 
-```markdown
+````markdown
 ## Deployment Architecture
 
 ### Production Environment
 
 \```
 ┌─────────────────── AWS us-east-1 ───────────────────────┐
-│                                                          │
-│  ┌─── VPC 10.0.0.0/16 ────────────────────────────┐    │
-│  │                                                  │    │
-│  │  ┌─── Public Subnet ──────┐                     │    │
-│  │  │  ALB (Application       │                     │    │
-│  │  │  Load Balancer)         │                     │    │
-│  │  │  ├── HTTPS:443          │                     │    │
-│  │  │  └── WAF attached       │                     │    │
-│  │  └─────────┬───────────────┘                     │    │
-│  │            │                                      │    │
-│  │  ┌─── Private Subnet ─────────────────────────┐  │    │
-│  │  │                                             │  │    │
-│  │  │  ECS Fargate Cluster                        │  │    │
-│  │  │  ├── Product Service (3 tasks, 512MB)       │  │    │
-│  │  │  ├── Order Service (3 tasks, 1GB)           │  │    │
-│  │  │  └── User Service (2 tasks, 512MB)          │  │    │
+│ │
+│ ┌─── VPC 10.0.0.0/16 ────────────────────────────┐ │
+│ │ │ │
+│ │ ┌─── Public Subnet ──────┐ │ │
+│ │ │ ALB (Application │ │ │
+│ │ │ Load Balancer) │ │ │
+│ │ │ ├── HTTPS:443 │ │ │
+│ │ │ └── WAF attached │ │ │
+│ │ └─────────┬───────────────┘ │ │
+│ │ │ │ │
+│ │ ┌─── Private Subnet ─────────────────────────┐ │ │
+│ │ │ │ │ │
+│ │ │ ECS Fargate Cluster │ │ │
+│ │ │ ├── Product Service (3 tasks, 512MB) │ │ │
+│ │ │ ├── Order Service (3 tasks, 1GB) │ │ │
+│ │ │ └── User Service (2 tasks, 512MB) │ │ │
+
 # ... (condensed) ...
-| Aspect | Development | Staging | Production |
-|--------|------------|---------|------------|
-| Compute | Docker Compose | ECS (1 task each) | ECS (2-5 tasks each) |
-| Database | PostgreSQL 16 (local) | RDS db.t3.medium | RDS db.r6g.xlarge (Multi-AZ) |
-| Cache | Redis (local) | ElastiCache (1 node) | ElastiCache (3 nodes) |
-| CDN | None | CloudFront | CloudFront |
-| Monitoring | Console logs | CloudWatch | CloudWatch + Datadog |
-| Cost | $0 | ~$500/mo | ~$3,500/mo |
-```
+
+| Aspect     | Development           | Staging              | Production                   |
+| ---------- | --------------------- | -------------------- | ---------------------------- |
+| Compute    | Docker Compose        | ECS (1 task each)    | ECS (2-5 tasks each)         |
+| Database   | PostgreSQL 16 (local) | RDS db.t3.medium     | RDS db.r6g.xlarge (Multi-AZ) |
+| Cache      | Redis (local)         | ElastiCache (1 node) | ElastiCache (3 nodes)        |
+| CDN        | None                  | CloudFront           | CloudFront                   |
+| Monitoring | Console logs          | CloudWatch           | CloudWatch + Datadog         |
+| Cost       | $0                    | ~$500/mo             | ~$3,500/mo                   |
+````
 
 ## Technology Radar
 
@@ -287,40 +292,42 @@ Keep diagrams focused:
 
 ## Adopt (Use in production with confidence)
 
-| Technology | Category | Notes |
-|-----------|----------|-------|
-| TypeScript 5.x | Language | Standard for all new services |
-| PostgreSQL 16 | Database | Primary relational store |
-| React 19 | Frontend | Web application framework |
-| GitHub Actions | CI/CD | All pipelines migrated |
-| Terraform | Infrastructure | IaC standard |
+| Technology     | Category       | Notes                         |
+| -------------- | -------------- | ----------------------------- |
+| TypeScript 5.x | Language       | Standard for all new services |
+| PostgreSQL 16  | Database       | Primary relational store      |
+| React 19       | Frontend       | Web application framework     |
+| GitHub Actions | CI/CD          | All pipelines migrated        |
+| Terraform      | Infrastructure | IaC standard                  |
 
 ## Trial (Use in non-critical projects to gain experience)
 
-| Technology | Category | Notes |
-|-----------|----------|-------|
-| Bun | Runtime | Evaluate for build tooling |
-| Drizzle ORM | Database | Evaluate vs. Prisma |
-| htmx | Frontend | Evaluate for admin tools |
-| OpenTelemetry | Observability | Pilot in one service |
+| Technology    | Category      | Notes                      |
+| ------------- | ------------- | -------------------------- |
+| Bun           | Runtime       | Evaluate for build tooling |
+| Drizzle ORM   | Database      | Evaluate vs. Prisma        |
+| htmx          | Frontend      | Evaluate for admin tools   |
+| OpenTelemetry | Observability | Pilot in one service       |
 
 ## Assess (Research and prototype, not production yet)
+
 # ... (condensed) ...
+
 ## Hold (Do not start new projects with these)
 
-| Technology | Category | Notes |
-|-----------|----------|-------|
-| MongoDB | Database | Migrating away; poor fit for relational data |
-| Express.js | Framework | Replaced by Fastify for new services |
-| Jenkins | CI/CD | Fully replaced by GitHub Actions |
-| Webpack | Bundler | Replaced by Vite |
+| Technology | Category  | Notes                                        |
+| ---------- | --------- | -------------------------------------------- |
+| MongoDB    | Database  | Migrating away; poor fit for relational data |
+| Express.js | Framework | Replaced by Fastify for new services         |
+| Jenkins    | CI/CD     | Fully replaced by GitHub Actions             |
+| Webpack    | Bundler   | Replaced by Vite                             |
 ```
 
 ## Architectural Fitness Functions
 
 ### Definition and Examples
 
-```markdown
+````markdown
 # Architectural Fitness Functions
 
 Automated checks that verify the system conforms to architectural decisions.
@@ -330,19 +337,23 @@ Automated checks that verify the system conforms to architectural decisions.
 **Rule**: Domain layer must not depend on infrastructure layer.
 
 \```python
+
 # ArchUnit-style test (Python with import-linter)
+
 # .importlinter config
+
 [importlinter:contract:domain-independence]
 name = Domain must not import from infrastructure
 type = forbidden
 source_modules =
-    app.domain
+app.domain
 forbidden_modules =
-    app.infrastructure
-    sqlalchemy
-    redis
-    httpx
+app.infrastructure
+sqlalchemy
+redis
+httpx
 \```
+
 # ... (condensed) ...
 
 **Rule**: Frontend bundle must be under 250KB gzipped.
@@ -350,22 +361,22 @@ forbidden_modules =
 \```javascript
 // webpack-bundle-analyzer or vite-plugin-inspect
 // CI check:
-// gzip -c dist/assets/*.js | wc -c must be < 256000
+// gzip -c dist/assets/\*.js | wc -c must be < 256000
 \```
-```
+````
 
 ## Documentation-as-Code
 
 ### Toolchain Recommendations
 
-| Tool | Purpose | Format |
-|------|---------|--------|
-| Structurizr | C4 model diagrams | DSL (text-based) |
-| Mermaid | Inline diagrams in Markdown | Markdown code blocks |
-| PlantUML | UML diagrams | Text-based DSL |
-| Docusaurus | Documentation site | Markdown + React |
-| MkDocs | Documentation site | Markdown + YAML |
-| AsciiDoc | Technical documents | Markup language |
+| Tool        | Purpose                     | Format               |
+| ----------- | --------------------------- | -------------------- |
+| Structurizr | C4 model diagrams           | DSL (text-based)     |
+| Mermaid     | Inline diagrams in Markdown | Markdown code blocks |
+| PlantUML    | UML diagrams                | Text-based DSL       |
+| Docusaurus  | Documentation site          | Markdown + React     |
+| MkDocs      | Documentation site          | Markdown + YAML      |
+| AsciiDoc    | Technical documents         | Markup language      |
 
 ### Documentation Repository Structure
 
@@ -441,6 +452,7 @@ jobs:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing architecture documenter solutions
 - Reviewing or improving existing architecture documenter approaches
 - Making architectural or implementation decisions about architecture documenter
@@ -448,6 +460,7 @@ jobs:
 - Troubleshooting architecture documenter-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -458,21 +471,26 @@ jobs:
 # Architecture Documenter Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

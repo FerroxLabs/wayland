@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing planning"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing planning'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Plot Outline
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to outline a novel, novella, screenplay, limited series, or serialized fiction from a premise, concept, or partial draft
 - The user has a story idea and needs to map it into a workable structural architecture before writing begins
 - The user is stuck mid-draft and needs to reverse-engineer their existing material into an outline to identify where the story broke down
@@ -30,6 +32,7 @@ metadata:
 - The user is writing a genre story and needs to identify which genre-specific obligatory scenes and conventions belong at which structural positions
 
 **Do NOT use this skill when:**
+
 - The user wants to write a complete short story under 7,500 words -- use `short-story-writing`, which handles compressed narrative differently
 - The user wants to draft or develop a specific scene -- use `scene-writing`, which focuses on moment-by-moment execution rather than architecture
 - The user wants to develop a character's psychology, backstory, or voice without reference to plot -- use `character-development`
@@ -63,6 +66,7 @@ If the user cannot answer the protagonist's internal wound, stop and help them f
 Present the recommended framework with explicit reasoning based on the user's genre, format, and premise. Do not apply frameworks mechanically -- understand what each one is optimized for:
 
 **Three-Act Structure (Aristotle / Field / McKee)**
+
 - Proportions: Act 1 = 25%, Act 2 = 50%, Act 3 = 25%
 - In a 90,000-word novel: Act 1 ends around word 22,500; Act 2 ends around word 67,500
 - In a 110-page screenplay: Act 1 ends around page 27; Act 2 ends around page 82
@@ -71,6 +75,7 @@ Present the recommended framework with explicit reasoning based on the user's ge
 - Weakness: "Act 2" is so long (45,000 words in a novel) that it almost always requires internal subdivision
 
 **Save the Cat Beat Sheet (Blake Snyder)**
+
 - 15 named beats with specific page/word targets for screenplays; adaptable to novels
 - Key beats: Opening Image (page 1), Theme Stated (page 5), Catalyst/Inciting Incident (page 12), Break into Act 2 (page 25), Fun and Games (pages 25--55), Midpoint (page 55), All Is Lost (page 75), Dark Night of the Soul (pages 75--80), Break into Act 3 (page 80), Finale (pages 85--110), Final Image (page 110)
 - For novels, multiply page numbers by roughly 800 to get approximate word counts
@@ -78,18 +83,21 @@ Present the recommended framework with explicit reasoning based on the user's ge
 - Weakness: Can produce formulaic results if followed too rigidly; literary fiction often benefits from looser application
 
 **The Hero's Journey (Campbell / Vogler)**
+
 - 12 stages: Ordinary World, Call to Adventure, Refusal of the Call, Meeting the Mentor, Crossing the Threshold, Tests/Allies/Enemies, Approach to the Inmost Cave, Ordeal, Reward, Road Back, Resurrection, Return with the Elixir
 - The Ordeal (stage 8) maps roughly to the midpoint -- this is where the hero "dies" symbolically and is reborn
 - Best for: Epic fantasy, adventure, mythology-driven stories, coming-of-age narratives where transformation is the explicit subject
 - Weakness: The 12 stages can be distorted into a checklist that produces inert, predictable genre fiction; the stages are archetypal patterns, not mandatory scenes
 
 **Seven-Point Story Structure (Dan Wells)**
+
 - 7 points: Hook (opposite of resolution), Plot Turn 1 (call to adventure), Pinch Point 1 (antagonist force shown at full strength), Midpoint (protagonist shifts from reactive to proactive), Pinch Point 2 (antagonist applies maximum pressure), Plot Turn 2 (protagonist gains final tool or knowledge), Resolution
 - Design principle: Start by defining the Hook and Resolution (opposite states), then build backward to identify what must be true at each turning point
 - Best for: Tight genre fiction, mysteries, thrillers, stories where the plot machinery must be airtight
 - Weakness: The "pinch points" can feel mechanical; literary nuance requires looser handling
 
 **Four-Act Structure (for television)**
+
 - Acts: Setup, Complication, Crisis, Resolution -- with a teaser and tag in some formats
 - Each act in an hour-long drama ends on a "button" -- a mini-cliffhanger or reversal that motivates continuing past the commercial break
 - In streaming formats without commercial breaks, act breaks still function as pacing anchors but are softer
@@ -97,12 +105,14 @@ Present the recommended framework with explicit reasoning based on the user's ge
 - Applies per episode AND across the season arc
 
 **Kishotenketsu (四起承転結)**
+
 - 4 sections: Ki (introduction), Sho (development), Ten (twist/complication that recontextualizes what came before), Ketsu (reconciliation/conclusion)
 - Crucially: The Ten is not a conflict in the Western sense -- it is a juxtaposition or unexpected element that forces a reframe
 - Best for: Literary fiction, short-form narrative, stories that resist binary conflict structures, manga/anime narrative traditions
 - Weakness: Western readers trained on conflict-drive narrative may find it unsatisfying if handled without skill; it requires mastery to execute effectively
 
 **The Fichtean Curve**
+
 - Structure: Multiple rising crises with no formal Act 1 setup -- the story begins in medias res with the first crisis, and exposition is woven into the action
 - The curve rises with each crisis, drops slightly between them, then rises to the climax
 - Best for: Short stories expanding into novella length, thrillers that must grab readers immediately, stories where backstory is a liability
@@ -117,12 +127,14 @@ Present the recommended framework with explicit reasoning based on the user's ge
 Every well-structured story runs two parallel stories simultaneously: the external plot (what happens) and the internal arc (who the protagonist becomes). The outline must track both explicitly.
 
 **The External Plot** is event-driven:
+
 - What does the protagonist want? (Visible goal)
 - What external obstacles block them? (Plot complications)
 - What does the protagonist do to overcome those obstacles? (Actions and choices)
 - What is the irreversible consequence if they fail? (Stakes)
 
 **The Internal Arc** is transformation-driven:
+
 - What false belief or wound does the protagonist carry into the story? (The Lie)
 - What experiences force the protagonist to question that belief? (Theme in action)
 - What is the moment of maximum resistance -- where they almost choose the Lie over the Truth? (All Is Lost / Dark Night of the Soul)
@@ -131,6 +143,7 @@ Every well-structured story runs two parallel stories simultaneously: the extern
 **The Mirror Test:** At the midpoint, the protagonist's external situation should be the inverse of where they started. If they started isolated, they should now have allies (even temporary ones). If they started with power, they should now be vulnerable. The midpoint reversal creates the story's second-act engine by shifting the protagonist from reactive (responding to events) to proactive (initiating events). Without this shift, the middle sags.
 
 **Mapping internal arc to act breaks:**
+
 - Act 1 end: Protagonist has been disrupted and chooses to engage with the conflict -- but their choice is still contaminated by the Lie
 - Act 2 midpoint: Something cracks the Lie open -- a new piece of information, a relationship that challenges it, or a failure that the Lie cannot explain
 - Act 2 end / All Is Lost: The Lie collapses and takes the protagonist's plan with it. Everything they built using the Lie is destroyed
@@ -161,6 +174,7 @@ Before filling in the full outline, place these anchor beats -- they are non-neg
 Every genre carries reader contracts -- scenes the audience expects to encounter. Subverting these expectations requires first knowing them. Missing them entirely is not subversion; it is a structural failure that produces reader disappointment.
 
 **Mystery / Crime:**
+
 - The Crime must occur in Act 1, either on-page or discovered on-page
 - The Detective (professional or amateur) must be introduced and connected to the case with personal stakes by the end of Act 1
 - Red herrings must be planted with enough credibility that the reader genuinely suspects them -- not just listed
@@ -170,23 +184,27 @@ Every genre carries reader contracts -- scenes the audience expects to encounter
 - In psychological thriller: The detective may be unreliable; the "crime" may be ambiguous until late in the story
 
 **Romance:**
+
 - Meet: The two leads must encounter each other in a way that establishes both attraction and obstacle simultaneously
 - The "black moment" (forced separation or apparent irreconcilability) must occur in Act 3, not Act 2 -- Act 2 complications are obstacles to the relationship, not the relationship's apparent death
 - Happily Ever After (HEA) is mandatory in romance; Happily For Now (HFN) is acceptable in some subgenres; tragedy is not romance -- it is a love story
 - The internal wound that prevents each character from accepting love must be specific, believable, and healed (not simply overcome by willpower) by the climax
 
 **Thriller / Suspense:**
+
 - The threat must be established and credible by the end of Act 1 -- the reader must understand what the antagonist is capable of
 - Escalating set pieces: Each major action sequence must raise the danger, the stakes, or reveal new information. A set piece that does not advance the plot or raise the stakes is a pacing error
 - The ticking clock: Thrillers almost universally use time pressure. The clock must be established early, its deadline must be real, and it must be ticking throughout Act 2
 - The protagonist must be competent but outmatched -- if they are always in control, there is no suspense
 
 **Fantasy / Science Fiction:**
+
 - The "Wonder Moment" in Act 1: The reader must experience the world's strangeness through the protagonist's eyes in a way that earns emotional buy-in before the plot demands are placed
 - The cost of magic or technology must be established before the climax -- if the protagonist solves the climax with a power or tool that was not previously established, it is a Deus Ex Machina
 - Secondary world-building should be revealed through conflict and character need, not through exposition dumps. Information should arrive exactly when the reader needs it to understand what is at stake
 
 **Literary Fiction:**
+
 - The central conflict may be internal, systemic, or philosophical rather than physical
 - The antagonistic force may be grief, time, memory, social structures, or the protagonist's own psychology
 - The resolution is often ambiguous -- not unresolved, but not closed with commercial neatness
@@ -509,31 +527,36 @@ Category romance has strict word count windows (Harlequin Presents: 50,000--60,0
 ---
 
 **Beat 1: The Professional** (Chapter 1, ~0--2,500 words)
-- *External:* Elena Vasquez, 44, receives her weekly case assignments. She is the most experienced nurse in the unit, known for taking the most difficult patients -- the ones who are afraid, or angry, or in unmanaged pain. She accepts a new patient: Thomas Crane, 71, terminal pancreatic cancer, estimated 4--8 weeks.
-- *Internal:* Elena's competence is her armor. She has no close relationships outside work; her colleagues respect her but find her remote. She has not visited her mother in two years. The Lie: if she is useful enough, she does not have to feel anything.
-- *New Information:* Elena's sister Maia was murdered twenty years ago at a bus stop. The case was never solved. This information is withheld from the reader until Beat 3 -- for now, we see only that Elena keeps a single photo face-down on her desk.
-- *Stakes Established:* Elena's professional identity; her ability to do her work without emotional contamination
+
+- _External:_ Elena Vasquez, 44, receives her weekly case assignments. She is the most experienced nurse in the unit, known for taking the most difficult patients -- the ones who are afraid, or angry, or in unmanaged pain. She accepts a new patient: Thomas Crane, 71, terminal pancreatic cancer, estimated 4--8 weeks.
+- _Internal:_ Elena's competence is her armor. She has no close relationships outside work; her colleagues respect her but find her remote. She has not visited her mother in two years. The Lie: if she is useful enough, she does not have to feel anything.
+- _New Information:_ Elena's sister Maia was murdered twenty years ago at a bus stop. The case was never solved. This information is withheld from the reader until Beat 3 -- for now, we see only that Elena keeps a single photo face-down on her desk.
+- _Stakes Established:_ Elena's professional identity; her ability to do her work without emotional contamination
 
 **Beat 2: The Intake** (Chapter 2, ~2,500--5,500 words)
-- *External:* Elena meets Thomas Crane for the first time. He is smaller than she expected -- frightened, not monstrous. His daughter, Patrice, 45, hovers anxiously and makes Elena promise her father will not suffer. Thomas is pleasant, articulate, grateful. He tells Elena he is a retired high school teacher. He asks her name and thanks her by name.
-- *Internal:* Elena performs compassion from muscle memory. She notes his fear without feeling it. She has cared for worse men -- she knows nothing about Thomas yet that makes him different.
-- *New Information:* Thomas has a tattoo on his left forearm -- an anchor -- that Elena's gaze lingers on for a half-second before she moves on. The reader does not yet know why.
-- *Stakes:* None yet elevated -- this is the world as it functions before disruption
+
+- _External:_ Elena meets Thomas Crane for the first time. He is smaller than she expected -- frightened, not monstrous. His daughter, Patrice, 45, hovers anxiously and makes Elena promise her father will not suffer. Thomas is pleasant, articulate, grateful. He tells Elena he is a retired high school teacher. He asks her name and thanks her by name.
+- _Internal:_ Elena performs compassion from muscle memory. She notes his fear without feeling it. She has cared for worse men -- she knows nothing about Thomas yet that makes him different.
+- _New Information:_ Thomas has a tattoo on his left forearm -- an anchor -- that Elena's gaze lingers on for a half-second before she moves on. The reader does not yet know why.
+- _Stakes:_ None yet elevated -- this is the world as it functions before disruption
 
 **[STRUCTURAL ANCHOR] Inciting Incident: The Detail No One Should Know** (Chapter 3, ~5,500--8,000 words, ~9%)
-- *External:* Thomas, on his second day, is given a higher morphine dose for breakthrough pain. In his haze, he begins talking. He describes a memory -- not a confession, not a declaration, just a fragment: "There was a girl. Yellow coat. She had earrings that looked like little moons. I always thought about those earrings." He falls asleep mid-sentence.
-- *Internal:* Elena freezes. The earrings are a detail never released to the press -- the police specifically withheld it. Only the murderer and the family knew about the moon earrings. Elena gave Maia those earrings for her sixteenth birthday, four months before she died.
-- *The Story's Central Question Activated:* Can Elena use her position at Thomas's bedside to force a reckoning -- and what does "reckoning" mean when the man is already dying?
-- *Stakes Locked At Story Level:* Everything Elena controls -- her professional ethics, her identity as a healer, her managed grief -- is now in direct conflict with what she knows
+
+- _External:_ Thomas, on his second day, is given a higher morphine dose for breakthrough pain. In his haze, he begins talking. He describes a memory -- not a confession, not a declaration, just a fragment: "There was a girl. Yellow coat. She had earrings that looked like little moons. I always thought about those earrings." He falls asleep mid-sentence.
+- _Internal:_ Elena freezes. The earrings are a detail never released to the press -- the police specifically withheld it. Only the murderer and the family knew about the moon earrings. Elena gave Maia those earrings for her sixteenth birthday, four months before she died.
+- _The Story's Central Question Activated:_ Can Elena use her position at Thomas's bedside to force a reckoning -- and what does "reckoning" mean when the man is already dying?
+- _Stakes Locked At Story Level:_ Everything Elena controls -- her professional ethics, her identity as a healer, her managed grief -- is now in direct conflict with what she knows
 
 **Beat 4: The Verification** (Chapter 4, ~8,000--11,500 words)
-- *External:* Elena does not act immediately. She pulls the twenty-year-old case file (she has a copy -- she has always had a copy). She compares Thomas Crane's background: he lived in the city in 2004, worked at the school four blocks from the bus stop, had an anchor tattoo in his booking photo from a 2001 DUI. She is certain.
-- *Internal:* The Lie she has used to survive -- grief-as-control -- encounters its first impossible test. She cannot control this. He is here. He is dying in her care. And she has power over his suffering.
-- *New Information:* Thomas has a daughter, Patrice. A son, Marco, who does not visit. A wife who died three years ago. He is not a monster to his family -- he is a father.
-- *Stakes:* Elena's professional license, her freedom (tampering with a patient's care is a criminal offense), and the reopening of everything she has spent twenty years closing
+
+- _External:_ Elena does not act immediately. She pulls the twenty-year-old case file (she has a copy -- she has always had a copy). She compares Thomas Crane's background: he lived in the city in 2004, worked at the school four blocks from the bus stop, had an anchor tattoo in his booking photo from a 2001 DUI. She is certain.
+- _Internal:_ The Lie she has used to survive -- grief-as-control -- encounters its first impossible test. She cannot control this. He is here. He is dying in her care. And she has power over his suffering.
+- _New Information:_ Thomas has a daughter, Patrice. A son, Marco, who does not visit. A wife who died three years ago. He is not a monster to his family -- he is a father.
+- _Stakes:_ Elena's professional license, her freedom (tampering with a patient's care is a criminal offense), and the reopening of everything she has spent twenty years closing
 
 **Beat 5: The First Temptation** (Chapter 5, ~11,500--14,500 words)
-- *External:* Elena adjusts Thomas's medication schedule -- technically within protocol, but positioned to keep him more lucid than necessary. She begins spending more time with him, steering conversations toward his past. He likes talking to her. He trusts her.
-- *Internal:* Elena tells herself she is gathering information. She is not yet admitting to herself that she has already decided to do something -- she does not know what, but the decision is forming beneath conscious thought.
-- *Subplot Introduced:* Elena's colleague, Dami Osei, notices she is spending unusual amounts of time with Thomas. He asks, gently, if she's okay. She deflects. This is the first of many deflections.
-- *Stakes:* Elena is now actively using her position for non-medical purposes
+
+- _External:_ Elena adjusts Thomas's medication schedule -- technically within protocol, but positioned to keep him more lucid than necessary. She begins spending more time with him, steering conversations toward his past. He likes talking to her. He trusts her.
+- _Internal:_ Elena tells herself she is gathering information. She is not yet admitting to herself that she has already decided to do something -- she does not know what, but the decision is forming beneath conscious thought.
+- _Subplot Introduced:_ Elena's colleague, Dami Osei, notices she is spending unusual amounts of time with Thomas. He asks, gently, if she's okay. She deflects. This is the first of many deflections.
+- _Stakes:_ Elena is now actively using her position for non-medical purposes

@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis planning strategy decision-making agile"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis planning strategy decision-making agile'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Prioritization Framework
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has a list of features, initiatives, or backlog items and needs a defensible, structured ranking with documented rationale
 - A user explicitly asks to apply RICE scoring, MoSCoW prioritization, or any comparable scoring methodology to their backlog
 - A user needs to present a prioritization decision to stakeholders (executives, investors, engineering leads) and needs transparent, reproducible reasoning
@@ -28,6 +30,7 @@ metadata:
 - A user wants to check whether their existing backlog ranking makes sense or is silently biased toward the loudest voice in the room
 
 **Do NOT use this skill when:**
+
 - The user needs to translate prioritized items into a visual roadmap with timelines, themes, and milestones -- use `product-roadmap` instead
 - The user wants to write acceptance criteria or user stories for features that have already been prioritized -- use `user-story-writing`
 - The user is working at the strategic level of choosing which markets or product lines to invest in -- use `strategic-roadmap`
@@ -57,6 +60,7 @@ Before scoring a single item, collect the inputs that govern every scoring decis
 RICE and MoSCoW are not interchangeable. Each has a specific context where it performs best. Choosing the wrong framework for the situation is a common mistake that undermines credibility.
 
 **Use RICE when:**
+
 - The team has access to quantitative data (even rough estimates) for reach and impact
 - The goal is relative ranking across a long list (5+ items)
 - The audience values data-driven justification over simplicity
@@ -64,6 +68,7 @@ RICE and MoSCoW are not interchangeable. Each has a specific context where it pe
 - The prioritization period is quarterly planning or longer
 
 **Use MoSCoW when:**
+
 - The scope of a specific release or sprint is being negotiated, not a relative ranking
 - Stakeholder alignment is the primary goal -- MoSCoW's categorical language is easier for non-technical stakeholders to debate
 - The team is working under a fixed deadline (release date, event, go-live) where the question is "what fits" rather than "what ranks highest"
@@ -71,6 +76,7 @@ RICE and MoSCoW are not interchangeable. Each has a specific context where it pe
 - The primary driver is scope negotiation rather than discovery of what is most valuable
 
 **Use RICE + MoSCoW together when:**
+
 - RICE is used to rank discretionary work within each MoSCoW category
 - The Must items are known (compliance, contractual) but the Should and Could items need relative ranking
 - A large team (multiple squads) uses MoSCoW for release-level alignment and RICE for squad-level backlog ranking
@@ -86,6 +92,7 @@ The RICE formula is: **(Reach × Impact × Confidence) ÷ Effort**
 Higher scores indicate higher priority. Scores are only meaningful relative to each other within the same scoring session -- never compare RICE scores across different teams or products.
 
 **Reach:**
+
 - Define the unit of Reach before scoring: it could be users/month, sessions/week, accounts affected, or support tickets resolved per quarter. Consistency matters more than precision.
 - Use a specific time window -- 30 days or one quarter is standard. Do not mix time windows across items.
 - Reach should reflect the users who will actually use the feature, not total users. A power-user feature might reach 200 of 10,000 users. Score it as 200.
@@ -93,18 +100,21 @@ Higher scores indicate higher priority. Scores are only meaningful relative to e
 - Acceptable data sources for Reach: product analytics (most reliable), survey data with sample size > 50 (medium reliability), sales or CS team anecdotal reports (low reliability, flag confidence accordingly).
 
 **Impact:**
+
 - The standard scale is: Massive = 3, High = 2, Medium = 1, Low = 0.5, Minimal = 0.25. Do not deviate from this scale unless you explain the deviation explicitly.
 - Impact measures the change in the target metric per user affected -- not total impact. Total impact is captured by multiplying Reach by Impact.
 - Impact inflation is the most common failure mode in RICE scoring. Most features are Medium (1) or Low (0.5). Reserve Massive (3) for features that fundamentally change user behavior, drive direct conversion or retention, or resolve a blocker causing active churn. If more than 20% of items on a list are scored Massive, the scoring is inflated.
 - Impact should be tied to the stated business goal. If the goal is churn reduction, Impact = the expected reduction in churn probability for the affected users. If the goal is activation, Impact = the expected improvement in activation rate.
 
 **Confidence:**
+
 - Standard scale: 100% = validated with data or research, 80% = analytics data or multiple corroborating signals, 50% = hypothesis or gut feel, 30% = speculation.
 - Confidence is a multiplier on both Reach AND Impact -- low confidence deflates the entire score, which is the correct behavior. A high-impact, high-reach item with 30% confidence scores lower than a medium-impact item with 100% confidence.
 - The Confidence score must reflect the weakest link. If Reach is validated but Impact is a guess, Confidence = 50%.
 - Never use 100% confidence on a feature that has not been validated through user research, A/B testing, or direct customer commitment (e.g., a signed contract that references the feature).
 
 **Effort:**
+
 - Effort is measured in person-months or person-sprints. Standardize before scoring.
 - Effort estimates should come from the engineering team whenever possible. In their absence, use reference class forecasting: compare to a similar feature that was previously built and scale accordingly.
 - Include all effort types: design, engineering, QA, data work, documentation, and deployment. Product managers routinely undercount by 30-40% by omitting design and QA.
@@ -117,22 +127,26 @@ Higher scores indicate higher priority. Scores are only meaningful relative to e
 MoSCoW categorization fails in practice because teams lack the discipline to apply the definitions strictly. Use these decision rules:
 
 **Must Have:**
+
 - The test: "If we remove this from the release, can we still ship something valuable to users?" If yes, it is not a Must.
 - Secondary test: "Are there legal, contractual, or safety consequences of shipping without this?" If yes, it is a Must.
 - Must items represent the Minimum Viable Release (MVR). Everything in this category should be buildable within 60% of team capacity. If Must items exceed 60% of capacity, the scope is over-committed and something must be reclassified -- this is a scope negotiation, not a prioritization failure.
 - Common Must inflation: teams classify items as Must because they are emotionally invested in them, not because they truly meet the test. Push back on every Must with the removal test.
 
 **Should Have:**
+
 - Should items add significant value and are expected by users, but the release functions without them.
 - A Should item that cannot be completed due to time constraints should be the first thing added to the next release, not dropped entirely.
 - The Should category typically represents 20-30% of capacity in a well-scoped release.
 
 **Could Have:**
+
 - These are desirable, often low-effort items that improve the experience. They are the first to be cut when estimates grow.
 - A Could item should be quick to build or quick to defer -- if it is high-effort, question whether it belongs in this release at all.
 - Could items can be powerful morale and momentum items for the team if capacity permits.
 
 **Won't Have (This Time):**
+
 - "Won't" is not "Never." It is explicitly deferred with a documented reason: out of scope for this release, insufficient data, dependency not ready, or strategic decision to defer.
 - Every stakeholder request that does not make it into Must/Should/Could must appear in Won't with a rationale. This is the transparency mechanism that prevents stakeholders from feeling ignored.
 - Won't items should be reviewed at the next planning cycle. Some will naturally move into Must or Should as context changes.
@@ -377,17 +391,17 @@ Some features have immediate impact (a bug fix, a checkout UX improvement) while
 
 ### RICE Scoring Table
 
-| Rank | Feature | Reach | Impact | Conf. | Effort (pm) | RICE Score | Status |
-|------|---------|-------|--------|-------|-------------|------------|--------|
-| 1 | Onboarding checklist | 800 | 2 | 100% | 1.5 | 1,067 | Build |
-| 2 | Email digest notifications | 600 | 1 | 80% | 1.0 | 480 | Build |
-| 3 | Bulk task import (CSV) | 400 | 2 | 80% | 1.0 | 640 | Build |
-| 4 | Two-factor authentication | 200 | 1 | 100% | 0.5 | 400 | Build |
-| 5 | Custom field types | 300 | 1 | 50% | 3.0 | 50 | Defer |
-| 6 | Gantt chart view | 500 | 2 | 50% | 4.0 | 125 | Defer → Discovery |
-| 7 | Integrations marketplace | 700 | 3 | 30% | 6.0 | 105 | Defer → Discovery |
+| Rank | Feature                    | Reach | Impact | Conf. | Effort (pm) | RICE Score | Status            |
+| ---- | -------------------------- | ----- | ------ | ----- | ----------- | ---------- | ----------------- |
+| 1    | Onboarding checklist       | 800   | 2      | 100%  | 1.5         | 1,067      | Build             |
+| 2    | Email digest notifications | 600   | 1      | 80%   | 1.0         | 480        | Build             |
+| 3    | Bulk task import (CSV)     | 400   | 2      | 80%   | 1.0         | 640        | Build             |
+| 4    | Two-factor authentication  | 200   | 1      | 100%  | 0.5         | 400        | Build             |
+| 5    | Custom field types         | 300   | 1      | 50%   | 3.0         | 50         | Defer             |
+| 6    | Gantt chart view           | 500   | 2      | 50%   | 4.0         | 125        | Defer → Discovery |
+| 7    | Integrations marketplace   | 700   | 3      | 30%   | 6.0         | 105        | Defer → Discovery |
 
-*RICE Score = (Reach × Impact × Confidence) ÷ Effort*
+_RICE Score = (Reach × Impact × Confidence) ÷ Effort_
 
 ---
 
@@ -406,7 +420,7 @@ Some features have immediate impact (a bug fix, a checkout UX improvement) while
 
 #### Bulk Task Import (CSV) -- RICE Score: 640 (Rank #2, listed #3 in original table)
 
-*Note: After sorting, CSV Import ranks #2 despite appearing third in the table above due to rounding. Confirm sort.*
+_Note: After sorting, CSV Import ranks #2 despite appearing third in the table above due to rounding. Confirm sort._
 
 - **Reach:** 400 trial users/month. Source: sales team reports that 50% of trials involve migrating from spreadsheets. Applied to 800 trial users/month = 400. Caveat: this is a sales estimate, not analytics-validated.
 - **Impact:** 2 (High). Rationale: Users who cannot import existing data abandon trials at higher rates (reported by CS team -- 15 recent churn conversations cited "too much manual setup"). CSV import eliminates the primary setup barrier for spreadsheet-migrating users.
@@ -463,15 +477,15 @@ Some features have immediate impact (a bug fix, a checkout UX improvement) while
 
 ### MoSCoW Classification (Stakeholder Presentation View)
 
-| Category | Feature | Rationale | Effort (pm) | Cumulative |
-|----------|---------|-----------|-------------|------------|
-| **Must** | Onboarding checklist | Directly addresses primary stated reason for trial churn (38% exit surveys). Central to Q3 conversion goal. | 1.5 | 1.5 |
-| **Must** | 2FA | Blocks conversion in 12 documented enterprise deals. Low effort, high confidence, contractual-adjacent. | 0.5 | 2.0 |
-| **Should** | Bulk task import (CSV) | Removes setup barrier for 50% of trials migrating from spreadsheets. High effort-efficiency. | 1.0 | 3.0 |
-| **Should** | Email digest notifications | Re-engages disengaged trial users; addresses silent churn within the trial window. | 1.0 | 4.0 |
-| **Could** | Custom field types | Nice to have for power users but no validated link to trial conversion. | 3.0 | 7.0 |
-| **Won't** | Gantt chart view | High effort (4 pm), low confidence, hidden dependency. Requires discovery sprint before Q4 consideration. | 4.0 | -- |
-| **Won't** | Integrations marketplace | Low confidence that this drives trial conversion. Premature before users reach integration-seeking behavior. | 6.0 | -- |
+| Category   | Feature                    | Rationale                                                                                                    | Effort (pm) | Cumulative |
+| ---------- | -------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------- | ---------- |
+| **Must**   | Onboarding checklist       | Directly addresses primary stated reason for trial churn (38% exit surveys). Central to Q3 conversion goal.  | 1.5         | 1.5        |
+| **Must**   | 2FA                        | Blocks conversion in 12 documented enterprise deals. Low effort, high confidence, contractual-adjacent.      | 0.5         | 2.0        |
+| **Should** | Bulk task import (CSV)     | Removes setup barrier for 50% of trials migrating from spreadsheets. High effort-efficiency.                 | 1.0         | 3.0        |
+| **Should** | Email digest notifications | Re-engages disengaged trial users; addresses silent churn within the trial window.                           | 1.0         | 4.0        |
+| **Could**  | Custom field types         | Nice to have for power users but no validated link to trial conversion.                                      | 3.0         | 7.0        |
+| **Won't**  | Gantt chart view           | High effort (4 pm), low confidence, hidden dependency. Requires discovery sprint before Q4 consideration.    | 4.0         | --         |
+| **Won't**  | Integrations marketplace   | Low confidence that this drives trial conversion. Premature before users reach integration-seeking behavior. | 6.0         | --         |
 
 **Must effort:** 2.0 pm = 15% of working capacity (13.5 pm). Well within 60% threshold. ✓
 **Must + Should effort:** 4.0 pm = 30% of working capacity. Healthy.
@@ -480,24 +494,25 @@ Some features have immediate impact (a bug fix, a checkout UX improvement) while
 
 ### Ranking Surprises and Judgment Calls
 
-| Feature | Expected Rank | Actual Rank | Gap | Explanation |
-|---------|---------------|-------------|-----|-------------|
-| Gantt chart | #2 (often requested) | #6 | -4 | High effort and low confidence deflate the score significantly. The survey data driving Reach is from a self-selected sample. Confidence should be raised before the rank improves. |
-| Integrations marketplace | #1 (exec favorite) | #7 | -6 | 30% confidence is the primary driver. The feature is desirable in the abstract but unvalidated as a conversion driver. Present this to stakeholders with the discovery recommendation. |
-| 2FA | #6 (rarely mentioned) | #4 | +2 | Low reach but 100% confidence and minimal effort. Removing a documented sales blocker at 0.5 pm cost is high-efficiency work. |
+| Feature                  | Expected Rank         | Actual Rank | Gap | Explanation                                                                                                                                                                            |
+| ------------------------ | --------------------- | ----------- | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gantt chart              | #2 (often requested)  | #6          | -4  | High effort and low confidence deflate the score significantly. The survey data driving Reach is from a self-selected sample. Confidence should be raised before the rank improves.    |
+| Integrations marketplace | #1 (exec favorite)    | #7          | -6  | 30% confidence is the primary driver. The feature is desirable in the abstract but unvalidated as a conversion driver. Present this to stakeholders with the discovery recommendation. |
+| 2FA                      | #6 (rarely mentioned) | #4          | +2  | Low reach but 100% confidence and minimal effort. Removing a documented sales blocker at 0.5 pm cost is high-efficiency work.                                                          |
 
 **Score clusters:**
+
 - Email notifications (480) and 2FA (400) are within 17% of each other. Both should be built this quarter. If a capacity cut is required, 2FA is lower effort and higher confidence -- it should be retained over notifications.
 
 ---
 
 ### Key Assumptions and Sensitivity
 
-| Feature | Key Assumption | If Assumption Holds | If Assumption Fails | Risk |
-|---------|----------------|---------------------|---------------------|------|
-| Onboarding checklist | 38% of churned users would convert with guidance | Score 1,067, Rank #1 | Score 533 (lift is 3pp not 6pp), still Rank #1 | Low |
-| CSV import | 50% of trials are spreadsheet migrators | Score 640, Rank #2 | Score 384 (30% = 240 reach), Rank #3 | Medium |
-| Gantt chart | Gantt demand correlates with conversion | Score 125, Rank #6 | Score remains low; discovery sprint confirms or denies | High |
+| Feature              | Key Assumption                                   | If Assumption Holds  | If Assumption Fails                                    | Risk   |
+| -------------------- | ------------------------------------------------ | -------------------- | ------------------------------------------------------ | ------ |
+| Onboarding checklist | 38% of churned users would convert with guidance | Score 1,067, Rank #1 | Score 533 (lift is 3pp not 6pp), still Rank #1         | Low    |
+| CSV import           | 50% of trials are spreadsheet migrators          | Score 640, Rank #2   | Score 384 (30% = 240 reach), Rank #3                   | Medium |
+| Gantt chart          | Gantt demand correlates with conversion          | Score 125, Rank #6   | Score remains low; discovery sprint confirms or denies | High   |
 
 ---
 
@@ -505,21 +520,24 @@ Some features have immediate impact (a bug fix, a checkout UX improvement) while
 
 **Build in Q3** (4.0 pm committed of 13.5 pm working capacity):
 
-| Priority | Feature | Rank | Effort | Justification |
-|----------|---------|------|--------|---------------|
-| 1 | Onboarding checklist | #1 | 1.5 pm | Directly addresses top stated churn driver; 100% confidence; central to Q3 conversion goal |
-| 2 | Bulk task import (CSV) | #2 | 1.0 pm | Removes primary setup barrier for ~50% of trial users; low effort relative to impact |
-| 3 | Email digest notifications | #3 | 1.0 pm | Re-engages disengaged users; proven SaaS lever with industry benchmarks |
-| 4 | Two-factor authentication | #4 | 0.5 pm | Unblocks 12 documented enterprise deals; minimal effort |
+| Priority | Feature                    | Rank | Effort | Justification                                                                              |
+| -------- | -------------------------- | ---- | ------ | ------------------------------------------------------------------------------------------ |
+| 1        | Onboarding checklist       | #1   | 1.5 pm | Directly addresses top stated churn driver; 100% confidence; central to Q3 conversion goal |
+| 2        | Bulk task import (CSV)     | #2   | 1.0 pm | Removes primary setup barrier for ~50% of trial users; low effort relative to impact       |
+| 3        | Email digest notifications | #3   | 1.0 pm | Re-engages disengaged users; proven SaaS lever with industry benchmarks                    |
+| 4        | Two-factor authentication  | #4   | 0.5 pm | Unblocks 12 documented enterprise deals; minimal effort                                    |
 
 **Defer to Q4:**
+
 - Custom field types -- No validated link to trial conversion. Re-evaluate if Q3 research reveals it as a churn driver.
 
 **Send to discovery (before Q4 scoring):**
+
 - Gantt chart view -- Recommended action: 2-week Figma prototype test with 8 trial users. Question to answer: "Does seeing a Gantt chart increase stated conversion intent?" Instrument analytics to track how many trial users reach workflow complexity that would require a Gantt view.
 - Integrations marketplace -- Recommended action: Instrument onboarding funnel events to establish where trial users disengage. If data shows users reaching integration-seeking behavior and then churning, the RICE score will increase substantially in Q4 planning.
 
 **Capacity check:**
+
 - Raw capacity: 18 person-months
 - Working capacity (75%): 13.5 person-months
 - Committed to features: 4.0 person-months

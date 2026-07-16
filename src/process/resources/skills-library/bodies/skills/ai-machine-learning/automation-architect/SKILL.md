@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml budgeting checklist template advanced python api-design cloud"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml budgeting checklist template advanced python api-design cloud'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Automation Architect
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to design, build, or improve a workflow automation using Zapier, Make (formerly Integromat), n8n, or similar no-code/low-code orchestration platforms
 - A user has a repetitive manual process -- data entry, notifications, file handling, CRM updates, report generation -- and wants to replace it with automated logic
 - A user needs to choose between automation platforms and evaluate trade-offs between cost, complexity, integration depth, and hosting model
@@ -31,6 +33,7 @@ metadata:
 - A user is hitting API rate limits, timeout errors, or data format mismatches in their existing automations and needs debugging guidance
 
 **Do NOT use when:**
+
 - The user needs full custom software development -- if the workflow requires complex state machines, persistent queues, or transactional database operations, redirect to the Software Architecture or Backend API Design skill
 - The user is asking about Robotic Process Automation (RPA) tools like UiPath or Automation Anywhere that interact with desktop UIs -- those follow screen-scraping and bot architecture patterns outside this skill's scope
 - The user needs to orchestrate machine learning pipelines (Airflow, Prefect, Kubeflow) -- redirect to the ML Pipeline Engineering skill
@@ -156,25 +159,27 @@ When delivering an automation design recommendation, use this complete template:
 ### Flow Architecture
 
 ```
+
 [TRIGGER: event description]
-  |
-  +--> [STEP 1: action description] -- Output: {field1, field2}
-  |
-  +--> [STEP 2: lookup/search] -- Input: {field1} -- Output: {record_id}
-  |
-  +--> [BRANCH: condition description]
-       |
-       +--> [YES PATH]
-       |      +--> [STEP 3a: action]
-       |      +--> [STEP 4a: action]
-       |
-       +--> [NO PATH]
-              +--> [STEP 3b: action]
-              +--> [STEP 4b: action]
-  |
-  +--> [FINAL STEP: logging/notification]
-  |
-  +--> [ERROR PATH: dead letter queue entry + alert]
+|
++--> [STEP 1: action description] -- Output: {field1, field2}
+|
++--> [STEP 2: lookup/search] -- Input: {field1} -- Output: {record_id}
+|
++--> [BRANCH: condition description]
+|
++--> [YES PATH]
+| +--> [STEP 3a: action]
+| +--> [STEP 4a: action]
+|
++--> [NO PATH]
++--> [STEP 3b: action]
++--> [STEP 4b: action]
+|
++--> [FINAL STEP: logging/notification]
+|
++--> [ERROR PATH: dead letter queue entry + alert]
+
 ```
 
 ---
@@ -267,34 +272,42 @@ When delivering an automation design recommendation, use this complete template:
 ## Edge Cases
 
 ### 1. The Trigger Fires Multiple Times for the Same Event
+
 **Scenario:** A webhook fires twice for the same Stripe payment, or a form submission triggers Zapier twice because the form app retried its webhook delivery after a timeout.
 **Handling:** Implement an idempotency check as the first step after the trigger. Extract the unique event ID (Stripe event ID, form submission ID, order number) and check it against a "Processed Events" log (a simple Google Sheet or Airtable table with the event_id column and a UNIQUE constraint). If the event_id already exists, terminate the automation with a "Already processed -- skipping" log entry. Only proceed if the event_id is new, then immediately write it to the log before taking any downstream actions.
 
 ### 2. A Downstream API is Temporarily Unavailable
+
 **Scenario:** The CRM API returns a 503 during a Stripe -> CRM automation that processes new customer signups. Retries exhaust and the item is dropped.
 **Handling:** Never let retries simply drop the item. After exhausting retries (3 attempts over 36 minutes total with 1/5/30-minute backoff), write the full trigger payload to a "Retry Queue" sheet with a timestamp and status "pending." Build a separate scheduled automation (runs every 4 hours) that reads the Retry Queue, attempts to reprocess each pending item, and marks it "resolved" or increments a "retry_count." After 3 daily retry attempts from the queue, escalate to "manual_required" and notify the operations team.
 
 ### 3. Required Data Field is Empty or Null
+
 **Scenario:** A lead form has an optional "Company" field. A downstream step tries to create a CRM account with that company name and fails because the field is null.
 **Handling:** Add a data validation step immediately after the trigger. For each field required by downstream actions, check if it is empty/null. Apply defaults where appropriate: missing company name -> "Individual"; missing phone -> "Not provided"; missing country -> "US" (if your data suggests a reasonable default). For fields where a default would cause downstream data integrity issues (like a primary email address), branch to a "data incomplete" path that sends a follow-up email to the lead asking for the missing information and queues the record for manual review.
 
 ### 4. High-Volume Burst Events Exceed Platform Operation Limits
+
 **Scenario:** A marketing campaign sends 5,000 leads through a Typeform in a single hour. Your Make scenario processes each submission, hitting the monthly 10,000-operation limit after 2 days.
 **Handling:** Re-architect for batch processing. Instead of trigger-per-row, use a schedule-based trigger (every 15 minutes) that reads new rows added since the last run, processes them as a batch, and records the last-processed row ID. In Make, use the Google Sheets "Watch Rows" with a limit of 100 rows per execution to control operation consumption. In n8n, the "Split In Batches" node with size 50 and a rate limit delay handles this natively. Calculate your expected monthly operation count (frequency × avg items per trigger × steps per item) and verify it fits within your plan tier before launching any campaign-driven automation.
 
 ### 5. Automation Must Handle Multiple Timezones
+
 **Scenario:** A meeting follow-up automation sends emails "2 hours after the meeting ends" but the calendar app stores event times in UTC and the user's team spans EST, CST, and PST.
 **Handling:** Never use the automation platform's system timezone or assume UTC equals local time. Store the attendee's timezone in the CRM or calendar record explicitly. Use the platform's date/time transformation functions to convert all datetimes to a single canonical timezone (UTC) for storage and comparison, then convert to the recipient's local timezone for display. In Make, use the `parseDate` and `formatDate` functions with explicit timezone parameters. In n8n, use the Moment.js expressions available in the Function node: `moment(dateString).tz('America/New_York').format('YYYY-MM-DD HH:mm')`. Test your scheduling automations by creating test events in at least three timezones and verifying the delay calculation is correct for each.
 
 ### 6. The Automation Must Pause for Human Approval
+
 **Scenario:** An expense approval automation should automatically approve expenses under $500 but route expenses over $500 to a manager for manual approval before processing payment.
 **Handling:** For the human-in-the-loop approval step, generate a unique approval token (a UUID or a hash of the record ID + timestamp) and store it in a lookup table. Send the manager an email containing an "Approve" link and a "Reject" link, each containing the token as a URL parameter (pointing to a simple webhook receiver). The automation then waits using a delay step (check every 4 hours for up to 72 hours). When the manager clicks a link, the webhook fires, the automation resumes, looks up the token to retrieve the record context, and routes to the approve or reject path. In n8n, use the "Wait" node with a webhook resume URL -- this is natively supported. In Make, use an HTTP module polling a status endpoint or a Google Sheet flag checked on a schedule.
 
 ### 7. Migrating an Existing Automation Between Platforms
+
 **Scenario:** A company built 30 Zaps on Zapier and wants to migrate to n8n for cost savings and self-hosting control.
 **Handling:** Do not attempt a bulk migration. Catalog all existing automations by business criticality: Tier 1 (revenue-critical, customer-facing), Tier 2 (operational, internal), Tier 3 (convenience, personal productivity). Migrate Tier 3 first -- lowest risk, builds team familiarity with n8n. For each migration, run the n8n version in parallel with the Zapier version for 2 weeks, comparing outputs. When the n8n version matches output quality, disable the Zapier version. Never migrate Tier 1 automations during high-traffic periods (end of quarter, product launches). Maintain a rollback plan: keep the Zapier automation disabled-but-intact for 30 days after each migration so you can re-enable immediately if the n8n version has an undiscovered failure mode.
 
 ### 8. Automation Breaks After a Third-Party App Updates Its API
+
 **Scenario:** A core automation stops working because a connected app changed its API response structure -- a field was renamed from `customer_email` to `email_address`, or a date field changed format from `MM/DD/YYYY` to ISO 8601.
 **Handling:** This is the most common silent failure mode for mature automations. Prevention: subscribe to the API changelog of every critical connected app. Detection: your monitoring automation (runs every 4 hours, checks execution log for recent successful runs) will catch this within hours. Recovery: review the most recent successful execution's data payload against the current failing payload to identify the changed fields. Update all references to the renamed/reformatted field. Going forward, add a data validation node early in the automation that asserts expected fields are present and logs a descriptive error if they are not -- "Expected field 'customer_email' not found in trigger payload" is far more debuggable than "Cannot read properties of undefined."
 
@@ -311,6 +324,7 @@ When delivering an automation design recommendation, use this complete template:
 ## Automation Architecture Document
 
 ### Metadata
+
 - **Automation ID:** AUTO-031
 - **Name:** Operations -- DocuSign Contract Signed -- Client Onboarding Suite
 - **Platform:** Make (Integromat) -- Recommended (see rationale below)
@@ -324,25 +338,26 @@ When delivering an automation design recommendation, use this complete template:
 
 ### Business Case
 
-| Metric | Value |
-|--------|-------|
-| Trigger frequency | 5 clients/month (midpoint of 4-6) |
-| Manual time per occurrence | 45 minutes |
-| Monthly manual time | 3.75 hours |
-| Fully-loaded hourly rate | $150/hour (consulting firm principal) |
-| Monthly manual cost | $562.50 |
-| Make Core plan | $16/month |
-| Estimated setup time | 6 hours × $150/hour = $900 |
-| Amortized setup cost (12 months) | $75/month |
-| **Net monthly savings (Year 1)** | **$562.50 - $16 - $75 = $471.50** |
-| **Net monthly savings (Year 2+)** | **$562.50 - $16 = $546.50** |
-| **Payback period** | ~2 months |
+| Metric                            | Value                                 |
+| --------------------------------- | ------------------------------------- |
+| Trigger frequency                 | 5 clients/month (midpoint of 4-6)     |
+| Manual time per occurrence        | 45 minutes                            |
+| Monthly manual time               | 3.75 hours                            |
+| Fully-loaded hourly rate          | $150/hour (consulting firm principal) |
+| Monthly manual cost               | $562.50                               |
+| Make Core plan                    | $16/month                             |
+| Estimated setup time              | 6 hours × $150/hour = $900            |
+| Amortized setup cost (12 months)  | $75/month                             |
+| **Net monthly savings (Year 1)**  | **$562.50 - $16 - $75 = $471.50**     |
+| **Net monthly savings (Year 2+)** | **$562.50 - $16 = $546.50**           |
+| **Payback period**                | ~2 months                             |
 
 **Hidden ROI:** Welcome email goes out in under 2 minutes vs. same-day-if-remembered. Every client gets the same onboarding quality. Zero missed Slack channel creations. Owner recovers 45 hours/year for billable or strategic work.
 
 ---
 
 ### Trigger Definition
+
 - **Trigger type:** Event-based (webhook)
 - **Source app:** DocuSign
 - **Trigger event:** Envelope status changes to "completed" (all parties have signed)
@@ -427,37 +442,38 @@ When delivering an automation design recommendation, use this complete template:
 
 ### Step-by-Step Specification
 
-| Step # | App | Action | Key Input Fields | Key Output Fields | Error Handling |
-|--------|-----|--------|-----------------|-------------------|----------------|
-| 1 | Google Sheets | Search Row | envelope_id | match (yes/no) | Retry 3x; terminate if sheet unreachable |
-| 2 | HubSpot | Search Contact | signer_email | contact_id (or null) | Retry 3x with backoff; alert on persistent fail |
-| 2a | HubSpot | Create Contact | name, email, company, contract_value | contact_id | Retry 3x; write to error queue |
-| 2b | HubSpot | Update Contact | contact_id, last_contract_date | updated_at | Retry 3x; write to error queue |
-| 3 | Asana | Create Project | name, portfolio_id, due_date, owner_id | project_id, project_url | Retry 3x; alert on fail (project can be created manually) |
-| 4 | Google Drive | Create Folder | parent_folder_id, folder_name | folder_id, folder_url | Retry 3x; alert on fail |
-| 4b | DocuSign | Get Document | envelope_id, document_type=combined | PDF binary | Retry 3x; log "PDF retrieval failed, upload manually" |
-| 5 | Slack | Create Channel | channel_name (slugified) | channel_id | Handle 409 "name taken" -- append -2, -3 suffix; retry |
-| 6 | Gmail | Send Email | to, subject, body (HTML), bcc | message_id | Retry 3x; fallback to Slack DM to owner with email content |
-| 7 | Google Sheets | Append Row | all output fields | row_number | Retry 5x; this is critical for audit trail |
+| Step # | App           | Action         | Key Input Fields                       | Key Output Fields       | Error Handling                                             |
+| ------ | ------------- | -------------- | -------------------------------------- | ----------------------- | ---------------------------------------------------------- |
+| 1      | Google Sheets | Search Row     | envelope_id                            | match (yes/no)          | Retry 3x; terminate if sheet unreachable                   |
+| 2      | HubSpot       | Search Contact | signer_email                           | contact_id (or null)    | Retry 3x with backoff; alert on persistent fail            |
+| 2a     | HubSpot       | Create Contact | name, email, company, contract_value   | contact_id              | Retry 3x; write to error queue                             |
+| 2b     | HubSpot       | Update Contact | contact_id, last_contract_date         | updated_at              | Retry 3x; write to error queue                             |
+| 3      | Asana         | Create Project | name, portfolio_id, due_date, owner_id | project_id, project_url | Retry 3x; alert on fail (project can be created manually)  |
+| 4      | Google Drive  | Create Folder  | parent_folder_id, folder_name          | folder_id, folder_url   | Retry 3x; alert on fail                                    |
+| 4b     | DocuSign      | Get Document   | envelope_id, document_type=combined    | PDF binary              | Retry 3x; log "PDF retrieval failed, upload manually"      |
+| 5      | Slack         | Create Channel | channel_name (slugified)               | channel_id              | Handle 409 "name taken" -- append -2, -3 suffix; retry     |
+| 6      | Gmail         | Send Email     | to, subject, body (HTML), bcc          | message_id              | Retry 3x; fallback to Slack DM to owner with email content |
+| 7      | Google Sheets | Append Row     | all output fields                      | row_number              | Retry 5x; this is critical for audit trail                 |
 
 ---
 
 ### Data Mapping
 
-| Source Field | Source Step | Transformation | Destination Field | Destination Step |
-|-------------|-------------|---------------|-------------------|-----------------|
-| `signer_name` | Trigger | Split on first space: first = first_name, remainder = last_name | `firstname`, `lastname` | HubSpot Create Contact |
-| `signer_email` | Trigger | `toLowerCase().trim()` | `email` | HubSpot Search + Create |
-| `client_company` | Trigger | `trim()` | `company`, `name` | HubSpot, Asana, Slack, Drive |
-| `client_company` | Trigger | `toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')` | `channel_name` prefix | Slack Create Channel |
-| `completed_date_time` | Trigger | Parse ISO 8601, add 90 days | `due_on` (YYYY-MM-DD) | Asana Project |
-| `contract_value` | Trigger | Parse to float, store as number | `contract_value__c` | HubSpot Contact property |
-| Asana `project_url` | Step 3 | Direct passthrough | In Slack pinned message + Drive folder | Steps 5, 7 |
-| Drive `folder_url` | Step 4 | Share with `signer_email` first, then pass URL | In welcome email + Slack | Steps 6, 5 |
+| Source Field          | Source Step | Transformation                                                  | Destination Field                      | Destination Step             |
+| --------------------- | ----------- | --------------------------------------------------------------- | -------------------------------------- | ---------------------------- |
+| `signer_name`         | Trigger     | Split on first space: first = first_name, remainder = last_name | `firstname`, `lastname`                | HubSpot Create Contact       |
+| `signer_email`        | Trigger     | `toLowerCase().trim()`                                          | `email`                                | HubSpot Search + Create      |
+| `client_company`      | Trigger     | `trim()`                                                        | `company`, `name`                      | HubSpot, Asana, Slack, Drive |
+| `client_company`      | Trigger     | `toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')`  | `channel_name` prefix                  | Slack Create Channel         |
+| `completed_date_time` | Trigger     | Parse ISO 8601, add 90 days                                     | `due_on` (YYYY-MM-DD)                  | Asana Project                |
+| `contract_value`      | Trigger     | Parse to float, store as number                                 | `contract_value__c`                    | HubSpot Contact property     |
+| Asana `project_url`   | Step 3      | Direct passthrough                                              | In Slack pinned message + Drive folder | Steps 5, 7                   |
+| Drive `folder_url`    | Step 4      | Share with `signer_email` first, then pass URL                  | In welcome email + Slack               | Steps 6, 5                   |
 
 ---
 
 ### Error Handling Plan
+
 - **Retry strategy:** Steps 1-7 each retry 3 times with 1-minute, 5-minute, and 30-minute backoff before failing to error path. Step 7 (logging) retries 5 times -- audit trail integrity is highest priority.
 - **Error notification:** Slack DM to owner within 35 minutes of first failure (after all retries exhaust). Message includes step number, error text, client name, and direct link to error queue sheet.
 - **Dead letter queue:** Google Sheet "AUTO-031 Error Queue" with columns: timestamp, envelope_id, client_company, step_failed, error_message, raw_payload, status, resolved_by, resolved_at.
@@ -467,6 +483,7 @@ When delivering an automation design recommendation, use this complete template:
 ---
 
 ### Slack Channel Naming Edge Cases
+
 The Slack channel name transformation deserves explicit attention because Slack has strict naming rules (lowercase, max 80 chars, only letters/numbers/hyphens/underscores, no spaces):
 
 - "Acme Corp" -> `client-acme-corp` ✓
@@ -479,6 +496,7 @@ If the generated channel name already exists (a second engagement with the same 
 ---
 
 ### Testing Checklist
+
 - [ ] Happy path: new client, all DocuSign custom fields populated, all 7 steps complete successfully
 - [ ] Returning client: signer_email already in HubSpot -- Step 2 routes to UPDATE, not CREATE
 - [ ] Duplicate webhook: same envelope_id fires twice -- second execution terminates at Step 1 with "already processed" log
@@ -493,6 +511,7 @@ If the generated channel name already exists (a second engagement with the same 
 ---
 
 ### Monitoring
+
 - **Expected frequency:** 5 executions/month (~1.25/week)
 - **Success metric:** 100% of DocuSign "completed" envelopes result in all 7 steps completing within 10 minutes
 - **Alert threshold:** If zero executions occur in any 10-day window during an active month, send owner a Slack reminder to check automation health (a separate 10-day cron automation in Make that checks the "Client Onboarding Log" sheet for recent entries)
@@ -502,6 +521,7 @@ If the generated channel name already exists (a second engagement with the same 
 ---
 
 ### Dependencies
+
 - DocuSign account with API access enabled (requires at least Business Pro plan)
 - Make Core plan ($16/month) -- verify 10,000 operations/month is sufficient: 5 clients × ~25 operations per execution = 125 operations/month. Well within limit.
 - HubSpot CRM (free tier sufficient for contact/company create and search)
@@ -513,6 +533,7 @@ If the generated channel name already exists (a second engagement with the same 
 ---
 
 ### Go-Live Plan
+
 1. Run in Make's "test mode" with a real but non-critical DocuSign test envelope (use a sandbox DocuSign account)
 2. Verify all 7 steps complete and all output fields are correct
 3. Enable live mode on a Tuesday morning

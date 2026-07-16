@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking nutrition guide"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking nutrition guide'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Ingredient Substitution
 
 ## When to Use
@@ -274,15 +275,15 @@ Yeast comes in three forms with different usage rates:
 
 Non-dairy milks differ significantly in fat, protein, and sugar content, all of which affect baking results:
 
-| Milk Type     | Fat (per cup) | Protein (per cup) | Notes                                                   |
-|---------------|---------------|-------------------|---------------------------------------------------------|
-| Whole dairy   | 8g            | 8g                | Baseline reference                                      |
-| Oat milk      | 3-5g          | 2-4g              | Mild sweetness; good browning; closest to 2% dairy milk |
-| Soy milk      | 4g            | 6-8g              | Highest protein of non-dairy; best for browning and structure |
-| Almond milk   | 2.5g          | 1g                | Low fat, very low protein; produces paler crusts        |
-| Coconut milk (carton) | 5g  | 0g                | Adds coconut flavor (use refined product to minimize)   |
-| Rice milk     | 2g            | 0.5g              | Thin consistency; very low protein; avoid in custards   |
-| Cashew milk   | 3g            | 1g                | Creamy texture; mild flavor                             |
+| Milk Type             | Fat (per cup) | Protein (per cup) | Notes                                                         |
+| --------------------- | ------------- | ----------------- | ------------------------------------------------------------- |
+| Whole dairy           | 8g            | 8g                | Baseline reference                                            |
+| Oat milk              | 3-5g          | 2-4g              | Mild sweetness; good browning; closest to 2% dairy milk       |
+| Soy milk              | 4g            | 6-8g              | Highest protein of non-dairy; best for browning and structure |
+| Almond milk           | 2.5g          | 1g                | Low fat, very low protein; produces paler crusts              |
+| Coconut milk (carton) | 5g            | 0g                | Adds coconut flavor (use refined product to minimize)         |
+| Rice milk             | 2g            | 0.5g              | Thin consistency; very low protein; avoid in custards         |
+| Cashew milk           | 3g            | 1g                | Creamy texture; mild flavor                                   |
 
 For baking, soy milk is the most functionally similar to dairy milk because of its high protein content. For savory cream sauces, full-fat canned coconut milk produces the richest, most stable result among non-dairy alternatives. For custards, no non-dairy milk replicates the protein and fat structure of whole dairy milk -- treat vegan custards as separate recipes requiring recipe-specific development.
 
@@ -354,27 +355,28 @@ For baking, soy milk is the most functionally similar to dairy milk because of i
 
 ### Compensating Adjustments Summary
 
-| Option                        | Adjustment Needed                                                                 |
-|-------------------------------|-----------------------------------------------------------------------------------|
-| Vegetable oil (3/4 cup)       | Check doneness 3-5 minutes early; oil brownies can overcook faster                |
-| Refined coconut oil (7/8 cup) | None required; use refined (not unrefined) to keep flavor neutral                 |
-| Applesauce + oil hybrid        | Reduce other liquid by 1-2 tbsp; reduce baking time by 5-8 minutes; do not use applesauce alone |
+| Option                        | Adjustment Needed                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- |
+| Vegetable oil (3/4 cup)       | Check doneness 3-5 minutes early; oil brownies can overcook faster                              |
+| Refined coconut oil (7/8 cup) | None required; use refined (not unrefined) to keep flavor neutral                               |
+| Applesauce + oil hybrid       | Reduce other liquid by 1-2 tbsp; reduce baking time by 5-8 minutes; do not use applesauce alone |
 
 ---
 
 ### What Will Change
 
-| Attribute           | Butter Brownies         | Vegetable Oil           | Refined Coconut Oil     | Applesauce + Oil Hybrid  |
-|---------------------|------------------------|-------------------------|-------------------------|--------------------------|
-| Fudginess/Texture   | Dense, fudgy            | Slightly more fudgy     | Very close to butter    | Denser, stickier         |
-| Flavor              | Rich, dairy-forward     | Neutral, chocolate-only | Neutral (refined)       | Faint fruity note        |
-| Moisture when cool  | Firms up slightly       | Stays moist longer      | Firms up (similar)      | Very moist, may be gummy |
-| Surface/Sheen       | Glossy top (classic)   | Glossy (slightly less)  | Glossy (very similar)   | Matte, less glossy       |
-| Fat Content         | High                    | High (similar)          | High (similar)          | Noticeably lower         |
+| Attribute          | Butter Brownies      | Vegetable Oil           | Refined Coconut Oil   | Applesauce + Oil Hybrid  |
+| ------------------ | -------------------- | ----------------------- | --------------------- | ------------------------ |
+| Fudginess/Texture  | Dense, fudgy         | Slightly more fudgy     | Very close to butter  | Denser, stickier         |
+| Flavor             | Rich, dairy-forward  | Neutral, chocolate-only | Neutral (refined)     | Faint fruity note        |
+| Moisture when cool | Firms up slightly    | Stays moist longer      | Firms up (similar)    | Very moist, may be gummy |
+| Surface/Sheen      | Glossy top (classic) | Glossy (slightly less)  | Glossy (very similar) | Matte, less glossy       |
+| Fat Content        | High                 | High (similar)          | High (similar)        | Noticeably lower         |
 
 ---
 
 ### High-Risk Warning
+
 Not applicable -- brownies are one of the most forgiving baking recipes for fat substitution. No chemistry-critical warnings apply here.
 
 ---

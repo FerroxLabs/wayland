@@ -12,13 +12,13 @@ description: >-
   wayland-bullshit-clean-batch).
 license: Apache-2.0
 type: workflow
-skills: "convert-bullshit-filter convert-voice"
+skills: 'convert-bullshit-filter convert-voice'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing conversion copywriting bullshit-filter voice cleanup
   category: marketing
-  depends: "convert-bullshit-filter convert-voice"
+  depends: 'convert-bullshit-filter convert-voice'
 ---
 
 Take a single copy draft, run it through the Bullshit Filter to find the lines

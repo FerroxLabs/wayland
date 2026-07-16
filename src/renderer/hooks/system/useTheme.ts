@@ -38,8 +38,7 @@ const detectSystemTheme = (): ResolvedTheme => {
   return window.matchMedia(PREFERS_DARK_QUERY).matches ? 'dark' : 'light';
 };
 
-const resolveTheme = (pref: ThemePreference): ResolvedTheme =>
-  pref === 'system' ? detectSystemTheme() : pref;
+const resolveTheme = (pref: ThemePreference): ResolvedTheme => (pref === 'system' ? detectSystemTheme() : pref);
 
 const applyTheme = (resolved: ResolvedTheme): void => {
   document.documentElement.setAttribute('data-theme', resolved);

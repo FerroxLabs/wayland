@@ -52,11 +52,7 @@ describe('normalizeTapbackName - unsupported emoji', () => {
 
 describe('buildTapbackPayload', () => {
   it('builds the correct REST payload for a love reaction', () => {
-    const payload = buildTapbackPayload(
-      'iMessage;-;+14155550100',
-      'msg-guid-abc',
-      '❤️',
-    );
+    const payload = buildTapbackPayload('iMessage;-;+14155550100', 'msg-guid-abc', '❤️');
 
     expect(payload).toEqual({
       chatGuid: 'iMessage;-;+14155550100',

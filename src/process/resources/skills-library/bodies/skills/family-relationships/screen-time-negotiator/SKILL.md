@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events digital-wellness"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events digital-wellness'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Screen Time Negotiator
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about screen time negotiator
 - User needs guidance on screen time negotiator topics
 - User wants a structured approach to screen time negotiator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -34,6 +36,7 @@ metadata:
 ### Why This Is Hard
 
 Screen time is one of the most contentious topics in modern parenting because:
+
 - Technology is woven into education, socialization, and daily life
 - Research is evolving and often misrepresented in media
 - Every family's situation is different
@@ -44,6 +47,7 @@ Screen time is one of the most contentious topics in modern parenting because:
 ### What the Research Actually Says
 
 **Nuances often missed in headlines**:
+
 - **Content matters more than time**: Educational, interactive content differs vastly from passive consumption
 - **Context matters**: Using a tablet for school is different from hours of random videos
 - **Displacement matters**: Screen time is harmful when it displaces sleep, physical activity, face-to-face interaction, or homework
@@ -54,36 +58,40 @@ Screen time is one of the most contentious topics in modern parenting because:
 
 Not all screen time is equal. Categorize before regulating:
 
-| Category | Examples | Value |
-|----------|---------|-------|
-| **Creative** | Drawing apps, music production, coding, video creation | High |
-| **Educational** | Khan Academy, reading apps, educational games, research | High |
-| **Social** | Video calls with grandparents, messaging friends | Moderate-High |
-| **Interactive entertainment** | Video games with problem-solving, strategy | Moderate |
-| **Passive entertainment** | Streaming shows, scrolling social media, random YouTube | Low-Moderate |
-| **Passive consumption** | Autoplay videos, infinite scroll feeds | Low |
+| Category                      | Examples                                                | Value         |
+| ----------------------------- | ------------------------------------------------------- | ------------- |
+| **Creative**                  | Drawing apps, music production, coding, video creation  | High          |
+| **Educational**               | Khan Academy, reading apps, educational games, research | High          |
+| **Social**                    | Video calls with grandparents, messaging friends        | Moderate-High |
+| **Interactive entertainment** | Video games with problem-solving, strategy              | Moderate      |
+| **Passive entertainment**     | Streaming shows, scrolling social media, random YouTube | Low-Moderate  |
+| **Passive consumption**       | Autoplay videos, infinite scroll feeds                  | Low           |
 
 ## Age-Appropriate Guidelines
 
 ### Under 2 Years
+
 - **AAP Recommendation**: Avoid screen media other than video chatting
 - **Why**: Brain development at this age requires 3D, real-world interaction
 - **Exception**: Video calls with family members (interactive, social)
 - **Parent action**: Be mindful of YOUR screen use around infants
 
 ### Ages 2-5
+
 - **Guideline**: 1 hour or less per day of high-quality programming
 - **What "high-quality" means**: Slow-paced, educational, prosocial (PBS Kids, Sesame Street)
 - **Co-view whenever possible**: Watch together, discuss, extend into play
 - **No screens during meals or 1 hour before bed**
 
 ### Ages 6-12
+
 - **Guideline**: Consistent limits that ensure adequate sleep, physical activity, homework, and family time
 - **Typical range**: 1-2 hours recreational screen time on school days
 - **Key principle**: Screen time is earned after responsibilities are met
 - **Social media**: Not recommended before age 13
 
 ### Ages 13-17
+
 - **Guideline**: Shift from time-based limits to value-based agreements
 - **Teens need**: Increasing autonomy, but still need boundaries around sleep and safety
 - **Focus on**: Content quality, online safety, sleep protection, balance indicators
@@ -135,6 +143,7 @@ ALL FAMILY MEMBERS SIGN:
 ```
 
 ### Implementation Tips
+
 - Post the agreement visibly (refrigerator, family bulletin board)
 - Review and renegotiate quarterly
 - Parents must follow the rules too (modeling is the most powerful tool)
@@ -152,18 +161,19 @@ ALL FAMILY MEMBERS SIGN:
 
 ### Evaluation Criteria
 
-| Criterion | Questions to Ask |
-|-----------|-----------------|
-| **Pacing** | Is it slow enough for processing, or rapid-fire stimulation? |
-| **Interactivity** | Does it ask the child to think or just passively watch? |
-| **Values** | Does it model prosocial behavior and problem-solving? |
-| **Advertising** | Is it ad-free? Are there embedded product placements? |
-| **Age-appropriateness** | Violence, language, themes suitable for your child? |
-| **Transfer** | Does viewing inspire real-world play, creativity, or learning? |
+| Criterion               | Questions to Ask                                               |
+| ----------------------- | -------------------------------------------------------------- |
+| **Pacing**              | Is it slow enough for processing, or rapid-fire stimulation?   |
+| **Interactivity**       | Does it ask the child to think or just passively watch?        |
+| **Values**              | Does it model prosocial behavior and problem-solving?          |
+| **Advertising**         | Is it ad-free? Are there embedded product placements?          |
+| **Age-appropriateness** | Violence, language, themes suitable for your child?            |
+| **Transfer**            | Does viewing inspire real-world play, creativity, or learning? |
 
 ### Social Media Readiness (Pre-Teen/Teen)
 
 Before allowing social media, your child should demonstrate:
+
 - [ ] Understanding that people present curated versions of reality online
 - [ ] Ability to come to you if something makes them uncomfortable
 - [ ] Knowledge of privacy settings and what NOT to share
@@ -174,6 +184,7 @@ Before allowing social media, your child should demonstrate:
 ## Digital Wellness Indicators
 
 ### Signs of Healthy Screen Use
+
 - Can stop using screens without significant emotional distress
 - Engages in a variety of activities (outdoor play, reading, social, creative)
 - Uses screens as one activity among many, not the default
@@ -182,6 +193,7 @@ Before allowing social media, your child should demonstrate:
 - Has in-person friendships and social skills
 
 ### Red Flags (Action Needed)
+
 - Significant emotional outbursts when screens are removed
 - Declining interest in previously enjoyed non-screen activities
 - Sleep disruption (difficulty falling asleep, waking to use devices)
@@ -192,8 +204,9 @@ Before allowing social media, your child should demonstrate:
 - Physical symptoms: eye strain, headaches, sedentary-related issues
 
 ### Intervention Steps
+
 1. **Observe and document**: Track patterns for 1-2 weeks
-2. **Talk, don't lecture**: "I have noticed ___ and I am concerned because ___"
+2. **Talk, don't lecture**: "I have noticed **_ and I am concerned because _**"
 3. **Collaborate on solutions**: "What do you think would help?"
 4. **Implement gradually**: Sudden removal causes backlash; gradual reduction works better
 5. **Replace, don't just remove**: Fill the time with engaging alternatives
@@ -229,16 +242,17 @@ If all boxes are checked, enjoy your screen time!
 
 ### Common Arguments and Responses
 
-| Child's Argument | Effective Response |
-|-----------------|-------------------|
-| "Everyone else gets to!" | "Our family has our own agreement. We can discuss adjustments at family meeting." |
-| "It's educational!" | "Let's look at it together and I'll consider adding it to the approved list." |
-| "I need it for homework!" | "Then use it for homework. Timer starts when homework is done." |
-| "You're on YOUR phone all the time!" | "You're right, and I'm working on that too. Let's both improve." |
-| "Just 5 more minutes!" | "We agreed on the time. Stopping without argument shows me you may be ready for more." |
-| "I'm old enough!" | "Let's talk about what responsibilities come with that privilege." |
+| Child's Argument                     | Effective Response                                                                     |
+| ------------------------------------ | -------------------------------------------------------------------------------------- |
+| "Everyone else gets to!"             | "Our family has our own agreement. We can discuss adjustments at family meeting."      |
+| "It's educational!"                  | "Let's look at it together and I'll consider adding it to the approved list."          |
+| "I need it for homework!"            | "Then use it for homework. Timer starts when homework is done."                        |
+| "You're on YOUR phone all the time!" | "You're right, and I'm working on that too. Let's both improve."                       |
+| "Just 5 more minutes!"               | "We agreed on the time. Stopping without argument shows me you may be ready for more." |
+| "I'm old enough!"                    | "Let's talk about what responsibilities come with that privilege."                     |
 
 ### Negotiation Principles
+
 - **Acknowledge their feelings**: "I understand you want more time. That makes sense."
 - **Hold the boundary**: "And our agreement is [X]. We can renegotiate at family meeting."
 - **Offer limited choices**: "You can use your 30 minutes now or save it for after dinner."
@@ -265,12 +279,14 @@ Children imitate what they see, not what they are told. The most powerful thing 
 ## Technology Tools for Enforcement
 
 ### Built-In Controls
+
 - **Apple Screen Time**: Per-app limits, downtime scheduling, content restrictions
 - **Google Family Link**: App approval, screen time limits, location tracking
 - **Windows Family Safety**: Screen time, content filters, spending limits
 - **Router-level controls**: Circle, OpenDNS - controls all devices on network
 
 ### Settings to Configure
+
 - [ ] App store requires parent approval for downloads
 - [ ] Content ratings set appropriately for age
 - [ ] Location sharing enabled (age-appropriate)
@@ -280,12 +296,12 @@ Children imitate what they see, not what they are told. The most powerful thing 
 - [ ] YouTube set to restricted mode (or use YouTube Kids)
 
 ### Privacy Balance (For Teens)
+
 - Monitoring should decrease as trust increases
 - Explain WHY monitoring exists (safety, not distrust)
 - Agree on what you will and will not monitor
 - Check in conversationally rather than surveilling
 - Respect growing need for privacy while maintaining safety guardrails
-
 
 ## Output Format
 

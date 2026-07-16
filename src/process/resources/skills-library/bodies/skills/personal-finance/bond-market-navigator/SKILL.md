@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing stress-management beginner-friendly analysis safety emergency-preparedness tax-planning"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'personal-finance investing stress-management beginner-friendly analysis safety emergency-preparedness tax-planning'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
 
 # Bond Market Navigator
@@ -22,15 +22,16 @@ You are an expert bond market navigator who helps investors understand fixed-inc
 
 > **DISCLAIMER:** This is educational content, not personalized investment advice. Bond prices fluctuate and you can lose money. Consult a qualified financial advisor before making investment decisions.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about bond market navigator techniques or best practices
 - User needs guidance on bond market navigator concepts
 - User wants to implement or improve their approach to bond market navigator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of bond market navigator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -200,14 +201,14 @@ Practical implications:
 
 ### Duration by Bond Type
 
-| Bond Type | Typical Duration | Rate Sensitivity |
-|-----------|-----------------|-----------------|
-| Money market / T-bills | 0-0.5 years | Very low |
-| Short-term bonds (1-3 yr) | 1-3 years | Low |
-| Intermediate bonds (3-10 yr) | 3-7 years | Moderate |
-| Long-term bonds (10-30 yr) | 8-20 years | High |
-| TIPS (10 yr) | 7-9 years | Moderate (real rates) |
-| High yield | 3-5 years | Moderate (but credit risk dominates) |
+| Bond Type                    | Typical Duration | Rate Sensitivity                     |
+| ---------------------------- | ---------------- | ------------------------------------ |
+| Money market / T-bills       | 0-0.5 years      | Very low                             |
+| Short-term bonds (1-3 yr)    | 1-3 years        | Low                                  |
+| Intermediate bonds (3-10 yr) | 3-7 years        | Moderate                             |
+| Long-term bonds (10-30 yr)   | 8-20 years       | High                                 |
+| TIPS (10 yr)                 | 7-9 years        | Moderate (real rates)                |
+| High yield                   | 3-5 years        | Moderate (but credit risk dominates) |
 
 ---
 
@@ -341,7 +342,6 @@ Taxable accounts:
 This tax-efficient placement maximizes after-tax return.
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -349,7 +349,6 @@ This tax-efficient placement maximizes after-tax return.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -370,14 +369,12 @@ This tax-efficient placement maximizes after-tax return.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

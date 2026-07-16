@@ -2,9 +2,9 @@
 name: hr-rif
 description: Reduction in Force planning - federal WARN Act analysis (100+ EE; 50+ in single site / 33% workforce / 500+), mini-WARN states (NY/CA/NJ/IL/TN/HI/etc.), disparate-impact (4/5ths rule) pre-check on selection list, notification timeline, and OWBPA/ADEA-compliant severance/release framework. Templates only - not employment-law advice.
 slash_command: false
-argument-hint: "<headcount affected, demographics of selected roles, business reason>"
+argument-hint: '<headcount affected, demographics of selected roles, business reason>'
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [rif, warn-act, hr, people-ops, smb]
@@ -44,32 +44,32 @@ Multi-state RIFs and any RIF affecting 50+ employees at a single site MUST go th
 
 ## Mini-WARN states
 
-| State | Threshold | Notice | Notes |
-|-------|-----------|--------|-------|
-| **CA** | 75+ EE; covered facility | **60 days** | Includes relocations 100+ miles; CalWARN broader than federal |
-| **NY** | 50+ EE; site-based | **90 days** (longer than federal) | "Reduction in workforce" of 25+ EE / 33% / 250+ |
-| **NJ** | 100+ EE | **90 days** + mandatory severance (1 wk per yr of service) | NJ Millville Dallas Airmotive Plant Job Loss Notification Act |
-| **IL** | 75+ EE | 60 days | |
-| **TN** | 50+ EE | 60 days | |
-| **HI** | 50+ EE | 60 days | + dislocated worker allowance |
-| **WI, IA, KS, MN, ND, OH, OR, PA, RI, SC, VT** | Various | Various | Verify state DOL |
+| State                                          | Threshold                | Notice                                                     | Notes                                                         |
+| ---------------------------------------------- | ------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------- |
+| **CA**                                         | 75+ EE; covered facility | **60 days**                                                | Includes relocations 100+ miles; CalWARN broader than federal |
+| **NY**                                         | 50+ EE; site-based       | **90 days** (longer than federal)                          | "Reduction in workforce" of 25+ EE / 33% / 250+               |
+| **NJ**                                         | 100+ EE                  | **90 days** + mandatory severance (1 wk per yr of service) | NJ Millville Dallas Airmotive Plant Job Loss Notification Act |
+| **IL**                                         | 75+ EE                   | 60 days                                                    |                                                               |
+| **TN**                                         | 50+ EE                   | 60 days                                                    |                                                               |
+| **HI**                                         | 50+ EE                   | 60 days                                                    | + dislocated worker allowance                                 |
+| **WI, IA, KS, MN, ND, OH, OR, PA, RI, SC, VT** | Various                  | Various                                                    | Verify state DOL                                              |
 
 ## Disparate-impact pre-check (4/5ths rule)
 
 Before announcing a RIF, run this analysis on the selected list:
 
-| Group | # in retained pool | # in selected list | Selection rate (selected / pool) | Ratio vs majority |
-|-------|---------------------|---------------------|----------------------------------|-------------------|
-| Sex: female | [X] | [X] | [%] | [ratio] |
-| Sex: male | [X] | [X] | [%] | 1.00 (baseline) |
-| Race: Black | [X] | [X] | [%] | [ratio] |
-| Race: Hispanic | [X] | [X] | [%] | [ratio] |
-| Race: White | [X] | [X] | [%] | 1.00 (baseline) |
-| Age: 40+ | [X] | [X] | [%] | [ratio] |
-| Age: <40 | [X] | [X] | [%] | 1.00 (baseline) |
-| Disability | [X] | [X] | [%] | [ratio] |
-| Pregnancy | [X] | [X] | [%] | [ratio] |
-| FMLA in last 12 mo | [X] | [X] | [%] | [ratio] |
+| Group              | # in retained pool | # in selected list | Selection rate (selected / pool) | Ratio vs majority |
+| ------------------ | ------------------ | ------------------ | -------------------------------- | ----------------- |
+| Sex: female        | [X]                | [X]                | [%]                              | [ratio]           |
+| Sex: male          | [X]                | [X]                | [%]                              | 1.00 (baseline)   |
+| Race: Black        | [X]                | [X]                | [%]                              | [ratio]           |
+| Race: Hispanic     | [X]                | [X]                | [%]                              | [ratio]           |
+| Race: White        | [X]                | [X]                | [%]                              | 1.00 (baseline)   |
+| Age: 40+           | [X]                | [X]                | [%]                              | [ratio]           |
+| Age: <40           | [X]                | [X]                | [%]                              | 1.00 (baseline)   |
+| Disability         | [X]                | [X]                | [%]                              | [ratio]           |
+| Pregnancy          | [X]                | [X]                | [%]                              | [ratio]           |
+| FMLA in last 12 mo | [X]                | [X]                | [%]                              | [ratio]           |
 
 **Adverse-impact flag**: any protected group with selection ratio < 0.80 (4/5ths) of the majority group, OR significant overrepresentation of FMLA/protected-event employees in selected list.
 
@@ -77,13 +77,13 @@ If flagged: **DO NOT proceed**. Either (a) document business necessity for the c
 
 ## Selection criteria - defensible vs not
 
-| Defensible | Risky |
-|------------|-------|
-| Job/position elimination (specific roles cut) | "Last in, first out" alone (age proxy) |
-| Skills / certifications required for retained roles | "Highest paid" (age + tenure proxy) |
-| Documented performance ratings (if rating process is rigorous + bias-checked) | "Manager discretion" with no criteria |
-| Cross-training / breadth of skills | "Cultural fit" |
-| Specific competency requirements | "Most likely to leave anyway" |
+| Defensible                                                                    | Risky                                  |
+| ----------------------------------------------------------------------------- | -------------------------------------- |
+| Job/position elimination (specific roles cut)                                 | "Last in, first out" alone (age proxy) |
+| Skills / certifications required for retained roles                           | "Highest paid" (age + tenure proxy)    |
+| Documented performance ratings (if rating process is rigorous + bias-checked) | "Manager discretion" with no criteria  |
+| Cross-training / breadth of skills                                            | "Cultural fit"                         |
+| Specific competency requirements                                              | "Most likely to leave anyway"          |
 
 ## OWBPA / ADEA group-RIF requirements (employees 40+)
 
@@ -125,13 +125,16 @@ EMPLOYEES IN SAME UNIT NOT SELECTED:
 
 ```markdown
 ## RIF Plan
+
 **Date plan finalized:** [Date] | **Effective notification:** [Date] | **Effective separation:** [Date]
 **Counsel sign-off:** [Date, name]
 
 ### 1. Business Reason (documented)
+
 [Specific, contemporaneous - not retroactive - economic / strategic / structural reason]
 
 ### 2. Scope
+
 - Total company headcount: [X]
 - Affected: [X] (= [%] of total)
 - Single-site analysis:
@@ -139,6 +142,7 @@ EMPLOYEES IN SAME UNIT NOT SELECTED:
 - States affected: [list]
 
 ### 3. WARN Act Analysis
+
 - **Federal WARN applicable?** [Y/N - based on 100+ EE threshold + plant closing or mass layoff trigger]
 - Mass layoff trigger: 500+ OR (50-499 AND ≥33% of single site)
 - Notice required: 60 days advance to (a) employees, (b) state dislocated worker unit, (c) local elected official
@@ -153,11 +157,13 @@ EMPLOYEES IN SAME UNIT NOT SELECTED:
   - Separation effective: [Date]
 
 ### 4. Disparate-Impact Pre-Check (4/5ths rule)
+
 [Insert table from above; analyze before announcing]
 
 If any flag: business-necessity defense documented OR list revised. Counsel reviewed: [Date].
 
 ### 5. Selection Criteria (defensible)
+
 1. [Criterion - e.g., "Position elimination: roles in Function X consolidated"]
 2. [Criterion - e.g., "Skill requirements for retained roles"]
 3. [Criterion - performance only if rating process is rigorous + bias-checked]
@@ -165,6 +171,7 @@ If any flag: business-necessity defense documented OR list revised. Counsel revi
 Excluded: subjective "fit," informal "discretion," tenure-only, cost-only without role rationale.
 
 ### 6. Severance and Release Framework
+
 - Severance formula: [X weeks of base + Y weeks per year of service, capped]
 - COBRA / mini-COBRA subsidy: [X months]
 - Equity acceleration: [If any]
@@ -174,6 +181,7 @@ Excluded: subjective "fit," informal "discretion," tenure-only, cost-only withou
   - Decisional unit + criteria + selected-vs-not titles and ages
 
 ### 7. Communications Plan
+
 - All-hands announcement: [Date - after individual notifications]
 - Manager talking points (with HR script + Q&A)
 - Customer / vendor / partner outreach
@@ -181,6 +189,7 @@ Excluded: subjective "fit," informal "discretion," tenure-only, cost-only withou
 - Internal Q&A document
 
 ### 8. Notification Day
+
 - One-on-one notification meetings (manager + HR + counsel-on-standby)
 - Severance package delivered: [WARN notice + termination letter + separation agreement + COBRA notice + state pamphlets]
 - Same-day final pay if state requires (CA, MA, etc.)
@@ -188,14 +197,15 @@ Excluded: subjective "fit," informal "discretion," tenure-only, cost-only withou
 - Data preservation BEFORE access revocation (litigation hold check)
 
 ### 9. Outplacement and Wellness
+
 - Outplacement provider: [Name]
 - EAP for retained employees (RIF survivors): [Resource]
 
 ### 10. Post-RIF Reviews
+
 - 30-day check on retained employees (workload, morale, regrettable resignation tracking)
 - WARN compliance audit
 - Disparate-impact post-mortem
-
 ```
 
 ## Common pitfalls

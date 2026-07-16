@@ -10,11 +10,7 @@
 // in WORKFLOW_STEP_CONTEXT, not here.
 import { describe, expect, it } from 'vitest';
 import { composeWorkflowSystemPrompt } from '@process/services/workflow/composeWorkflowSystemPrompt';
-import type {
-  ResolvedSkill,
-  StepState,
-  WorkflowSession,
-} from '@/common/types/workflowTypes';
+import type { ResolvedSkill, StepState, WorkflowSession } from '@/common/types/workflowTypes';
 
 function makeStep(n: number, title: string): StepState {
   return {
@@ -45,12 +41,10 @@ function makeSession(overrides: Partial<WorkflowSession> = {}): WorkflowSession 
     makeStep(2, 'Identify automation opportunities'),
     makeStep(3, 'Choose the right automation tool'),
   ];
-  const skills: ResolvedSkill[] =
-    overrides.skills ??
-    [
-      makeSkill('workflow-designer', 'Workflow Designer', 'Designs structured workflows.'),
-      makeSkill('automation-coach', 'Automation Coach', 'Guides automation choices.'),
-    ];
+  const skills: ResolvedSkill[] = overrides.skills ?? [
+    makeSkill('workflow-designer', 'Workflow Designer', 'Designs structured workflows.'),
+    makeSkill('automation-coach', 'Automation Coach', 'Guides automation choices.'),
+  ];
   return {
     id: 'sess-1',
     workflow_name: 'automation-launch',
@@ -74,9 +68,7 @@ function makeSession(overrides: Partial<WorkflowSession> = {}): WorkflowSession 
 describe('composeWorkflowSystemPrompt', () => {
   it('embeds the workflow title in the header', () => {
     const prompt = composeWorkflowSystemPrompt(makeSession());
-    expect(prompt).toContain(
-      'You are executing a structured workflow: "Launch Your First Automation".'
-    );
+    expect(prompt).toContain('You are executing a structured workflow: "Launch Your First Automation".');
   });
 
   it('renders the WORKFLOW STEPS block with all step titles (titles only)', () => {
@@ -111,9 +103,7 @@ describe('composeWorkflowSystemPrompt', () => {
       skills: [makeSkill('big', 'Big Skill', long)],
     });
     const prompt = composeWorkflowSystemPrompt(session);
-    const skillLine = prompt
-      .split('\n')
-      .find((line) => line.includes('Big Skill'));
+    const skillLine = prompt.split('\n').find((line) => line.includes('Big Skill'));
     expect(skillLine).toBeDefined();
     // The text after the em-dash should be at most ~80 chars (plus ellipsis).
     const afterDash = skillLine!.split('-')[1]?.trim() ?? '';

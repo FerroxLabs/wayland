@@ -26,11 +26,12 @@ The named-category competitor — the one your user is watching — often ranks 
 **3. Map unmet pains across alternatives.** For each, list the pains that alternative leaves on the table. If three alternatives fail at the same thing, that's your wedge.
 
 **4. Write a one-page competitor map.** Per alternative:
-   - Name (their words — "the spreadsheet my CFO built")
-   - What the customer hired it for
-   - Where it works | Where it falls down (verbatim quotes)
-   - Switching cost to leave it
-   - Customer's gut-feel about leaving ("relief," "guilt," "fear")
+
+- Name (their words — "the spreadsheet my CFO built")
+- What the customer hired it for
+- Where it works | Where it falls down (verbatim quotes)
+- Switching cost to leave it
+- Customer's gut-feel about leaving ("relief," "guilt," "fear")
 
 **5. Stamp it in `TEAM_MEMORY.md` under `## Research` → `### Competitive landscape`.** Sales uses it for objections; Copy uses the gap quotes; Offer prices against switching costs.
 
@@ -60,10 +61,10 @@ Team writes "AI-powered project management tool" copy, runs ads against Asana, g
 
 **After (customer's actual competitor set, from transcripts):**
 
-> **Top: non-consumption.** 7 of 12 — "we just used Slack and a shared Google Doc, fine until it wasn't." Switching cost: low. Pain it leaves: nothing searchable, decisions lost, new hires can't catch up. *Gut-feel: "I keep meaning to set something up but it never makes it to the top of the list."*
+> **Top: non-consumption.** 7 of 12 — "we just used Slack and a shared Google Doc, fine until it wasn't." Switching cost: low. Pain it leaves: nothing searchable, decisions lost, new hires can't catch up. _Gut-feel: "I keep meaning to set something up but it never makes it to the top of the list."_
 >
-> **Second: the homegrown Notion setup.** 5 of 12 — built by an early employee who left. Switching cost: high (sunk effort, "we built this"). Pain: nobody else can maintain it. *Gut-feel: "I'd feel bad ripping it out but honestly it's a problem."*
+> **Second: the homegrown Notion setup.** 5 of 12 — built by an early employee who left. Switching cost: high (sunk effort, "we built this"). Pain: nobody else can maintain it. _Gut-feel: "I'd feel bad ripping it out but honestly it's a problem."_
 >
-> **Third: Asana.** 3 of 12 — tried, churned within 90 days. Switching cost to return: low but scarred. Pain: "felt like homework." *Gut-feel: "Burned."*
+> **Third: Asana.** 3 of 12 — tried, churned within 90 days. Switching cost to return: low but scarred. Pain: "felt like homework." _Gut-feel: "Burned."_
 
 Now Copy writes for the "we just used Slack" buyer — deepest pain, lowest switching cost. Sales has a Notion-displacement playbook with the "honestly it's a problem" objection-flip. Offer knows "no setup required" is worth more than another integration, because setup is the wall non-consumption hides behind.

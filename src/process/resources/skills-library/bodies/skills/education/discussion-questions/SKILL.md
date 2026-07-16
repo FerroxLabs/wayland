@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching lesson-plan step-by-step guide"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching lesson-plan step-by-step guide'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Discussion Questions
 
 ## When to Use
@@ -30,6 +31,7 @@ Use this skill when any of the following triggers appear:
 - A teacher preparing to facilitate a difficult, controversial, or emotionally charged topic wants structured facilitation support, not just question prompts
 
 **Do NOT use when:**
+
 - The user wants test, quiz, or exam questions -- use `assessment-design` instead, which handles summative and formative assessment item writing
 - The user wants self-study review questions a student can use alone -- use `active-recall-practice` instead, which generates retrieval practice questions
 - The user wants a full lesson plan where discussion is one component among several activities -- use `lesson-plan-design` instead, which sequences discussion within a larger instructional arc
@@ -62,6 +64,7 @@ If the educator provides topic and grade level but omits format and duration, de
 The question arc is not simply "easy to hard." It follows a specific pedagogical structure:
 
 **Opening Phase -- Remember and Understand (15-20% of total time)**
+
 - 2-3 questions that establish a shared knowledge floor
 - Every student must be able to answer; no student should feel excluded
 - Purpose: identify comprehension gaps before analysis begins, activate prior knowledge, build psychological safety to speak
@@ -69,6 +72,7 @@ The question arc is not simply "easy to hard." It follows a specific pedagogical
 - Avoid: asking for interpretation this early -- a student who answers incorrectly at the opening can derail confidence for the rest of the discussion
 
 **Core Phase -- Apply, Analyze, and Evaluate (60-70% of total time)**
+
 - 4-8 questions depending on duration; never more than 8 even in a 90-minute block
 - Each question should require evidence-based reasoning, not just opinion
 - Sequence matters: move from "What does this mean?" (Apply) to "Why does this pattern exist?" (Analyze) to "How should we judge this?" (Evaluate)
@@ -77,12 +81,14 @@ The question arc is not simply "easy to hard." It follows a specific pedagogical
 - Avoid: clustering 3 analytical questions in a row without a facilitation move -- students fatigue without structured processing time
 
 **Closing Phase -- Evaluate and Create (15-20% of total time)**
+
 - 2-3 questions that require synthesis, position-taking, or transfer to a new context
 - At least one closing question should connect the discussion content to something beyond the immediate text -- a contemporary parallel, a personal ethical dilemma, a policy question
 - The final question should be generative: either what question students are left with, or what they would do differently knowing what they now know
 - Avoid: ending with a question that opens a new substantive debate -- the final question should close cognitive loops, not open them
 
 **Bloom's Distribution Target:**
+
 - 1-2 questions at Remember/Understand (opening)
 - 2-3 questions at Apply/Analyze (core)
 - 2-3 questions at Analyze/Evaluate (core)
@@ -96,12 +102,14 @@ The question arc is not simply "easy to hard." It follows a specific pedagogical
 Question construction quality determines discussion quality. Apply these technical standards to every question:
 
 **Syntactic rules:**
+
 - Questions must be open-ended -- never answerable with yes/no
 - Avoid embedded sub-questions ("How does X happen and why does Y occur and what does this mean?") -- one question per prompt, save sub-questions for follow-up probes
 - Use the content's specific terminology -- reference character names, specific events, specific terminology from the text
 - Keep the stem concise -- the question itself should be 1-2 sentences; complexity comes from the thinking required, not from sentence length
 
 **Cognitive demand rules:**
+
 - Apply-level questions begin with: "How does X work in this context?" / "What would happen if...?" / "How does this connect to...?"
 - Analyze-level questions begin with: "What pattern do you see in...?" / "How does [X] contribute to [Y]?" / "What is the relationship between...?" / "Why might the author/filmmaker/policymaker have chosen...?"
 - Evaluate-level questions begin with: "To what extent...?" / "Is [X] justified? What evidence supports your position?" / "Which interpretation is more convincing and why?"
@@ -109,6 +117,7 @@ Question construction quality determines discussion quality. Apply these technic
 
 **Follow-up probe construction:**
 Every core question needs exactly 2-3 follow-up probes prepared in advance. These are not backup questions -- they are precision instruments:
+
 - A **deepening probe** pulls abstraction toward evidence: "Where in the text do you see that?"
 - A **widening probe** opens other interpretations: "Does anyone read that differently?"
 - A **transfer probe** connects to prior knowledge or broader context: "Where have we seen this pattern before?"
@@ -140,6 +149,7 @@ The toolkit is a separate section from the questions -- it addresses mechanics, 
 
 **Talk Moves (provide 6-8 with purpose notes for each):**
 Talk moves are specific verbal moves a teacher makes to deepen, redirect, or redistribute discussion. They are not generic encouragements. Standard evidence-based talk moves from the academic literature include:
+
 - "Can you say more about that?" -- elicits elaboration from a surface-level answer
 - "What's your evidence?" -- redirects claim-making toward text
 - "Who can add to what [name] said?" -- builds on contributions without endorsing or correcting
@@ -150,11 +160,13 @@ Talk moves are specific verbal moves a teacher makes to deepen, redirect, or red
 - "What question does that raise for you?" -- shifts ownership from teacher to student
 
 **Participation Equity Strategies:**
+
 - Dominant speakers: Establish a "2-contribution wait" norm (students who have spoken twice wait for 3 others before speaking again). Use a quiet signal (hand signal or note) rather than public correction. In fishbowl format, rotate inner/outer circles on a timer.
 - Quiet students: Use think-pair-share before whole-group questions -- it gives every student something to say before the group hears it. Use "cold calling with support" (ask a question, give 30 seconds of think time, then call on someone who hasn't spoken -- do not cold call without think time). Use the outer circle observation role in fishbowl: observers report what they heard rather than contributing new ideas.
 - Mixed confidence levels: Post sentence starters on the board: "I notice that...", "I'm not sure, but...", "I want to build on what [name] said...", "I see it differently because..."
 
 **Managing Difficult Moments (at minimum address these 4):**
+
 1. A student makes a factually incorrect claim -- never directly contradict; redirect to evidence: "Let's check that against the text. Can anyone find the passage that speaks to this?"
 2. A student makes a harmful or biased statement -- separate claim from person; redirect to analysis: "Let's look at what the text shows us about how this community operates."
 3. Discussion stalls completely -- never fill silence with your own answer; wait 7 seconds, then use a structural move (quick write, turn and talk, or read aloud)
@@ -167,6 +179,7 @@ Talk moves are specific verbal moves a teacher makes to deepen, redirect, or red
 Discussion assessment requires a participation rubric, not a correctness rubric. The rubric must assess the quality of thinking demonstrated, not whether the student was right.
 
 **Key indicators to assess (use 4-5 maximum for a rubric -- beyond that it becomes unmanageable):**
+
 1. Use of textual evidence: Does the student ground claims in specific passages?
 2. Building on peers: Does the student explicitly respond to or extend what another student said?
 3. Analytical depth: Does the student offer interpretation beyond summary?
@@ -174,12 +187,14 @@ Discussion assessment requires a participation rubric, not a correctness rubric.
 5. Perspective-taking: Does the student acknowledge or engage with an opposing interpretation?
 
 **Assessment formats by context:**
+
 - 35-50 minute seminar: Teacher observation tally (3-5 indicators, checkmarks per student contribution)
 - Ongoing Socratic seminar program: Cumulative rubric scored across 3-4 seminars for a grade
 - Student self-assessment: Provide a 5-minute reflection protocol at the end of discussion (one moment they contributed well, one thing they want to add, one question still unanswered)
 - Fishbowl format: Outer circle students complete a structured observation protocol for a specific inner-circle student, assessing 2-3 indicators
 
 **Never assess discussion participation on:**
+
 - Number of times spoken (penalizes quality over quantity)
 - Whether the student agreed with the class consensus
 - Length of contributions
@@ -413,6 +428,7 @@ Provide this prompt on a slip of paper or verbally:
 ## Edge Cases
 
 ### Controversial or Politically Charged Topics
+
 When the discussion content involves topics where students hold strong personal, political, or identity-based views (immigration, gun policy, race, abortion, religion in public life), apply these modifications:
 
 - Add a **framing statement** at the top of the guide: a 2-3 sentence script the teacher reads aloud before discussion begins that names the controversy, establishes the intellectual purpose, and explicitly separates evidence-based discussion from personal advocacy
@@ -422,6 +438,7 @@ When the discussion content involves topics where students hold strong personal,
 - If the topic involves historical atrocity or ongoing trauma (Holocaust, slavery, genocide, police violence), add a specific content warning script and a debrief protocol at the end
 
 ### English Language Learners and Mixed-Proficiency Classes
+
 Do not reduce cognitive demand -- reduce linguistic barrier:
 
 - Provide sentence starters on a visible anchor chart organized by discussion move: to agree ("I agree with [name] because the text shows..."), to disagree ("I see it differently because..."), to clarify ("What I hear [name] saying is..."), to question ("I'm not sure I understand why...")
@@ -431,6 +448,7 @@ Do not reduce cognitive demand -- reduce linguistic barrier:
 - In the assessment rubric, note that "analytical depth" should be assessed on the quality of reasoning, not on grammatical complexity of delivery
 
 ### Fully Asynchronous Online Discussion
+
 Synchronous facilitation tools do not transfer directly. Apply these structural changes:
 
 - Replace single questions with a 3-part prompt structure per question: (1) a claim students must make, (2) a specific piece of evidence they must cite, (3) a connection they must make to a peer's post
@@ -440,6 +458,7 @@ Synchronous facilitation tools do not transfer directly. Apply these structural 
 - Assessment rubric adapts: "building on peers" becomes "directly quotes and responds to a peer's post with page numbers"
 
 ### Very Young Students (K-3)
+
 The Socratic seminar format does not work for early elementary. Adapt as follows:
 
 - Use **turn-and-talk** (partner discussion) as the primary structure -- no whole-class open discussion
@@ -450,6 +469,7 @@ The Socratic seminar format does not work for early elementary. Adapt as follows
 - Use visual anchors: display an image, object, or short video clip as the "text" for discussion -- primary sources with pictures work better than dense prose
 
 ### Text-Based Seminar When Students Are Underprepared
+
 When there is evidence at the start of discussion that many students have not read or do not remember the text:
 
 - Do not proceed with core questions as written -- a discussion based on a text most students don't know becomes a performance by 3-4 students
@@ -459,6 +479,7 @@ When there is evidence at the start of discussion that many students have not re
 - After class, note to the teacher: pre-reading accountability structures (entrance ticket, annotation check, brief reading quiz before discussion begins) should precede future seminars
 
 ### Fishbowl (Inner/Outer Circle) Format
+
 This format requires specific structural adjustments not needed in whole-class discussion:
 
 - Specify inner circle composition (4-6 students) and rotation schedule (every 10-12 minutes)
@@ -468,6 +489,7 @@ This format requires specific structural adjustments not needed in whole-class d
 - Assessment must cover both inner (verbal contribution) and outer (written observation) performance with equal weight
 
 ### Harkness Table Format
+
 Harkness discussion is student-led -- the teacher sits outside the circle and does not intervene. This requires:
 
 - Giving students the questions in advance as preparation prompts, not surprises -- the teacher is not present to manage transitions
@@ -491,15 +513,18 @@ Harkness discussion is student-led -- the teacher sits outside the circle and do
 **Duration:** 45 minutes -- 8 min opening / 27 min core / 10 min closing
 **Source Material:** Excerpt on the Alliance System, Nationalism, and the Assassination of Franz Ferdinand (3 pages, distributed prior to class)
 **Learning Objectives:** By the end of this discussion, students will be able to:
+
 1. Explain how the alliance system transformed a regional conflict into a global war
 2. Distinguish between proximate cause (the assassination) and underlying causes (nationalism, militarism, imperial rivalry)
 3. Evaluate the degree of responsibility different European powers bear for the outbreak of war
-**Prerequisites:** Students have read the 3-page excerpt and have the text in front of them. Students have prior knowledge of European empires and map of 1914 alliance blocs.
+   **Prerequisites:** Students have read the 3-page excerpt and have the text in front of them. Students have prior knowledge of European empires and map of 1914 alliance blocs.
 
 ---
 
 ### Discussion Norms
+
 Post these on the board before class begins.
+
 1. **Ground your claim:** When you make an argument, reference the reading. Say "The text says on paragraph 3..." or "According to the reading..."
 2. **Respond to ideas:** When you agree or disagree, name the idea, not the person. "That interpretation suggests... but I'd add..."
 3. **Build or challenge:** Connect your contribution to the previous speaker before introducing your own point.
@@ -508,7 +533,9 @@ Post these on the board before class begins.
 ---
 
 ### Pre-Discussion Check (2 min)
+
 Ask students to write one sentence on a card before discussion begins: "In one sentence: What is the single most important cause of World War I according to this reading?"
+
 - Collect cards. Skim quickly. If most students name only the assassination, you know the opening questions need to draw out deeper causes before you move to core analysis.
 - If 4+ students left the card blank or wrote "I don't know," use the stall strategy for Q1 immediately.
 
@@ -517,97 +544,105 @@ Ask students to write one sentence on a card before discussion begins: "In one s
 ### Opening Questions (8 min)
 
 **Q1 [Remember]:** According to the reading, what were the main alliances in Europe in 1914, and which countries were on each side?
-- *Purpose:* Establish a shared factual foundation for the entire discussion; identify students who did not complete the reading before analysis begins. This question also maps the geopolitical stakes students will need to reason about in Q4 and Q5.
-- *Expected responses:*
+
+- _Purpose:_ Establish a shared factual foundation for the entire discussion; identify students who did not complete the reading before analysis begins. This question also maps the geopolitical stakes students will need to reason about in Q4 and Q5.
+- _Expected responses:_
   - Basic: Triple Alliance (Germany, Austria-Hungary, Italy) and Triple Entente (France, Russia, Britain) -- most students will have this
   - More detailed: Some students will note Italy's late switch; some will name the Ottoman Empire's eventual alignment
   - Gap to watch: Students who say "Germany vs. France" without naming the full alliance structure -- they will need Q1's follow-up before they can analyze the cascade effect in Q4
-- *Follow-up probe:* "The reading describes these alliances as a kind of 'chain.' What does that metaphor mean? What does a chain do when you pull one link?"
-- *Connection to Q2:* The alliances explain how war spread; nationalism explains why conflict was possible in the first place. Q2 shifts from structure to motive.
+- _Follow-up probe:_ "The reading describes these alliances as a kind of 'chain.' What does that metaphor mean? What does a chain do when you pull one link?"
+- _Connection to Q2:_ The alliances explain how war spread; nationalism explains why conflict was possible in the first place. Q2 shifts from structure to motive.
 
 **Q2 [Understand]:** The reading uses the word "nationalism" several times. Based on the reading, what does nationalism mean in this context, and why does the author describe it as a destabilizing force?
-- *Purpose:* Distinguish nationalism as a concept from its effects; ensure students can use the term analytically before they encounter it in core questions. "Destabilizing" is the key word -- push students to explain what it destabilizes and why.
-- *Expected responses:*
+
+- _Purpose:_ Distinguish nationalism as a concept from its effects; ensure students can use the term analytically before they encounter it in core questions. "Destabilizing" is the key word -- push students to explain what it destabilizes and why.
+- _Expected responses:_
   - Surface: "It means being proud of your country"
   - Deeper: "It means some groups -- like Slavic peoples in Austria-Hungary -- wanted their own independent states, which threatened the empire's unity"
   - Gap to watch: Students who confuse nationalism with patriotism -- nationalism here carries a separatist, territorial dimension; patriotism does not
-- *Follow-up probe:* "The reading distinguishes between nationalism within existing empires and nationalism across national borders. Why does that distinction matter for understanding 1914?"
-- *Connection to Q3:* Now that students understand the two structural conditions (alliances and nationalism), Q3 asks them to apply both to a specific event.
+- _Follow-up probe:_ "The reading distinguishes between nationalism within existing empires and nationalism across national borders. Why does that distinction matter for understanding 1914?"
+- _Connection to Q3:_ Now that students understand the two structural conditions (alliances and nationalism), Q3 asks them to apply both to a specific event.
 
 ---
 
 ### Core Questions (27 min)
 
 **Q3 [Apply]:** On June 28, 1914, Archduke Franz Ferdinand was assassinated in Sarajevo. Using the reading, explain how this single event in Bosnia triggered a war involving countries as far apart as Britain and Serbia within six weeks.
-- *Bloom's level:* Apply
-- *Purpose:* Forces students to trace the causal chain from proximate trigger to global war -- this is the central historical reasoning task and requires applying both concepts from the opening phase
-- *Expected responses:*
+
+- _Bloom's level:_ Apply
+- _Purpose:_ Forces students to trace the causal chain from proximate trigger to global war -- this is the central historical reasoning task and requires applying both concepts from the opening phase
+- _Expected responses:_
   - Sophisticated: "Austria-Hungary used the assassination as a pretext to issue the July Ultimatum to Serbia, knowing Germany would back them. Russia mobilized to protect Serbia, which triggered Germany's war plan (the Schlieffen Plan), which brought France and Belgium into the conflict, which brought Britain in through the treaty obligation to protect Belgian neutrality."
   - Surface: "Austria-Hungary blamed Serbia and declared war, which pulled everyone in because of the alliances."
   - Plausible misconception: "The assassination directly started the war" -- students often collapse the 6-week July Crisis into one moment; push for the intermediate steps
-- *Follow-up probes:*
+- _Follow-up probes:_
   - **Deepening:** "Walk us through the sequence step by step. What happened first? What triggered each next step? Use the reading to check your sequence."
   - **Widening:** "The reading describes the assassination as the 'spark.' If alliances and nationalism were the 'fuel,' could a different spark have started the same fire? What does that suggest about who bears responsibility?"
   - **Transfer:** "We've seen domino effects in other historical events we've studied. Is the alliance system a diplomatic tool or a diplomatic trap? What's the difference?"
-- *If discussion stalls:* Draw the alliance chain on the board as a diagram while saying: "Let me map what the reading describes. Austria-Hungary declares war on Serbia. Paragraph 2 tells us what happens next -- [name], can you read that paragraph aloud?" Then re-ask: "What does the reading say happened after Russia mobilized?"
-- *Connection to Q4:* Students have traced the chain. Q4 asks them to examine whether any country could have broken the chain -- and chose not to.
+- _If discussion stalls:_ Draw the alliance chain on the board as a diagram while saying: "Let me map what the reading describes. Austria-Hungary declares war on Serbia. Paragraph 2 tells us what happens next -- [name], can you read that paragraph aloud?" Then re-ask: "What does the reading say happened after Russia mobilized?"
+- _Connection to Q4:_ Students have traced the chain. Q4 asks them to examine whether any country could have broken the chain -- and chose not to.
 
 **Q4 [Analyze]:** The reading argues that every major power had moments in the July Crisis when it could have stopped the escalation. Why didn't they? What does the reading suggest about the priorities each country was protecting?
-- *Bloom's level:* Analyze
-- *Purpose:* Moves students from "how did this happen" to "why did decision-makers choose this path" -- the key shift from event description to historical interpretation. Forces students to examine motive, not just sequence.
-- *Expected responses:*
+
+- _Bloom's level:_ Analyze
+- _Purpose:_ Moves students from "how did this happen" to "why did decision-makers choose this path" -- the key shift from event description to historical interpretation. Forces students to examine motive, not just sequence.
+- _Expected responses:_
   - Sophisticated: "Germany saw war as a short-term opportunity (the Schlieffen Plan assumed a 6-week victory); Austria-Hungary wanted to crush Serbian nationalism before it spread to their Slavic populations; Russia could not afford to let a Slavic ally fall without losing credibility as a great power -- each was protecting something they valued more than peace."
   - Surface: "They all wanted power."
   - Oversimplification to redirect: Students who say "the leaders were stupid or reckless" -- redirect from character judgment to structural analysis: "The reading suggests the leaders understood the risks. Given that, what does it tell us that they proceeded anyway?"
-- *Follow-up probes:*
+- _Follow-up probes:_
   - **Deepening:** "The reading mentions that Germany gave Austria-Hungary a 'blank check' of support. Why would Germany do that, and what did they expect the result to be?"
   - **Widening:** "Was any country in a position to stop the escalation without enormous cost? What would stopping have required each country to sacrifice?"
   - **Socratic:** "If each country was protecting a legitimate national interest, does that make the war inevitable? Or does 'inevitable' let decision-makers off the hook?"
-- *If discussion stalls:* "Let's focus on one country. The reading describes Germany's role in paragraphs 2 and 3. [Name], what does the reading say Germany did, and what do you think Germany was trying to protect?" Repeat for a second country before reopening the broad question.
-- *Connection to Q5:* Students have analyzed individual country motives. Q5 zooms out to examine the system itself.
+- _If discussion stalls:_ "Let's focus on one country. The reading describes Germany's role in paragraphs 2 and 3. [Name], what does the reading say Germany did, and what do you think Germany was trying to protect?" Repeat for a second country before reopening the broad question.
+- _Connection to Q5:_ Students have analyzed individual country motives. Q5 zooms out to examine the system itself.
 
 **Q5 [Analyze]:** The reading argues that the alliance system, designed to keep peace through a "balance of power," actually made the war more catastrophic once it started. How can a system designed for peace produce the opposite result?
-- *Bloom's level:* Analyze
-- *Purpose:* Introduces a structural paradox -- this is one of the most important conceptual insights in modern history and requires students to think beyond linear causation to systemic effects. This question has no single "right" answer.
-- *Expected responses:*
+
+- _Bloom's level:_ Analyze
+- _Purpose:_ Introduces a structural paradox -- this is one of the most important conceptual insights in modern history and requires students to think beyond linear causation to systemic effects. This question has no single "right" answer.
+- _Expected responses:_
   - Sophisticated: "Alliances were deterrents -- the logic was that no one would attack if it meant fighting everyone. But deterrence only works if the threat is credible. Once one country called the bluff, all the others had to respond or lose credibility as allies in the future. The system removed the option to stay neutral."
   - Alternative interpretation: "The alliances actually concentrated the conflict -- without them, Austria-Hungary and Serbia might have fought a regional war that stayed regional."
   - Misconception: Students who say "alliances are always bad" -- push back: "The NATO alliance has kept peace in Europe for 70 years. What's different about 1914 alliances?"
-- *Follow-up probes:*
+- _Follow-up probes:_
   - **Deepening:** "The reading uses the word 'credibility' when describing why Russia had to mobilize. What does credibility mean in international relations? Why would credibility be more important than caution in a crisis?"
   - **Devil's advocate:** "Some historians argue that without the alliance system, World War I would have been a small regional conflict and 10 million people would have lived. Others argue alliances prevented dozens of smaller wars before 1914. Which interpretation does the reading support? Which do you find more convincing?"
   - **Transfer:** "Can you think of any current international alliance or security arrangement that might have a similar structure -- where a commitment designed to prevent conflict could accelerate one?"
-- *If discussion stalls:* "Let's make it concrete. In paragraph 4, the reading describes what happened after Russia began mobilizing. [Read the passage aloud.] What was Germany's response, and what does it tell us about how the alliance system constrained choices?"
-- *Connection to Q6:* Students have analyzed the system. Q6 asks them to make a judgment: given what they know, who bears the most responsibility?
+- _If discussion stalls:_ "Let's make it concrete. In paragraph 4, the reading describes what happened after Russia began mobilizing. [Read the passage aloud.] What was Germany's response, and what does it tell us about how the alliance system constrained choices?"
+- _Connection to Q6:_ Students have analyzed the system. Q6 asks them to make a judgment: given what they know, who bears the most responsibility?
 
 **Q6 [Evaluate]:** Historians have debated for over a century which country bears the most responsibility for starting World War I. Germany? Austria-Hungary? Russia? All of them equally? Based on the reading, which argument do you find most compelling, and what evidence supports it?
-- *Bloom's level:* Evaluate
-- *Purpose:* Requires students to weigh competing historical interpretations against evidence -- the most demanding analytical move in historical thinking. Also prepares students for the essay question format they will encounter in AP and IB assessments.
-- *Expected responses:*
+
+- _Bloom's level:_ Evaluate
+- _Purpose:_ Requires students to weigh competing historical interpretations against evidence -- the most demanding analytical move in historical thinking. Also prepares students for the essay question format they will encounter in AP and IB assessments.
+- _Expected responses:_
   - Position 1 (Fritz Fischer thesis, implied in reading): Germany bears primary responsibility -- it encouraged Austria-Hungary's aggression and had prepared militarily for a continental war
   - Position 2: Austria-Hungary bears primary responsibility -- the July Ultimatum was designed to be rejected; the assassination was a pretext, not a genuine grievance
   - Position 3: Shared responsibility -- the alliance system made every power complicit; no single country "started" it, the system started it
   - Nuanced "both/and" response: "Germany is most responsible for how bad the war became, while Austria-Hungary is most responsible for the initial escalation."
-- *Follow-up probes:*
+- _Follow-up probes:_
   - **Deepening:** "The reading says Germany issued a 'blank check' to Austria-Hungary before the July Ultimatum. What does that action tell us about German intentions -- and how does it affect your assignment of responsibility?"
   - **Steelmanning:** "If you've argued for Germany, what's the strongest argument for Austria-Hungary? If you've argued for Austria-Hungary, what's the strongest argument for Germany? Who here can make the best case for the position they disagree with?"
   - **Evidence check:** "Your position depends on the reading characterizing [X] as deliberate rather than reactive. Can you point to the specific passage that supports that reading?"
-- *If discussion stalls:* Poll the room physically: "Raise your hand if you think Germany bears primary responsibility. Austria-Hungary. Shared. Now -- I want to hear one person from each group make the evidence-based case. [Name], you raised your hand for Germany. What does the reading say that leads you there?"
-- *Connection to closing:* Students have taken positions. Q7 asks them to step back from the specific assignment of blame and consider what this episode reveals about how wars start.
+- _If discussion stalls:_ Poll the room physically: "Raise your hand if you think Germany bears primary responsibility. Austria-Hungary. Shared. Now -- I want to hear one person from each group make the evidence-based case. [Name], you raised your hand for Germany. What does the reading say that leads you there?"
+- _Connection to closing:_ Students have taken positions. Q7 asks them to step back from the specific assignment of blame and consider what this episode reveals about how wars start.
 
 ---
 
 ### Closing Questions (10 min)
 
 **Q7 [Evaluate/Create]:** The reading describes a world where nationalism, militarism, and interlocking alliances made a single assassination in a Balkan city explode into a global war. What conditions made that possible -- and do any of those conditions exist in the world today?
-- *Purpose:* Transfers the historical analysis to a contemporary context -- the highest-level synthesis move. This is not an invitation to debate current events; it is an exercise in applying historical patterns to evaluate present conditions.
-- *Expected responses:*
+
+- _Purpose:_ Transfers the historical analysis to a contemporary context -- the highest-level synthesis move. This is not an invitation to debate current events; it is an exercise in applying historical patterns to evaluate present conditions.
+- _Expected responses:_
   - Historical synthesis: "Nationalism, military preparedness, and alliance commitments all amplified a small conflict into a global one. The conditions that made this possible were: empires under pressure from ethnic minorities, military plans that had no 'pause' button, and leaders who valued credibility over caution."
   - Contemporary connection: Students may reference NATO Article 5 as a modern alliance trigger; regional conflicts in the Middle East or Asia with great power involvement; nuclear deterrence as a modern "balance of power"
   - Unexpected but valid: Students who question whether the parallel holds -- "But today there are international institutions (UN, WTO) that didn't exist in 1914 -- does that change the calculus?"
-- *Follow-up probe:* "The reading ends by calling World War I 'the war no one wanted and everyone caused.' Does that description hold up based on our discussion? Or did at least one party want it?"
-- *Connection:* This discussion links to the upcoming unit on the interwar period and the question of whether the Treaty of Versailles' blame assignment onto Germany was historically justified -- a question students are now prepared to engage with.
+- _Follow-up probe:_ "The reading ends by calling World War I 'the war no one wanted and everyone caused.' Does that description hold up based on our discussion? Or did at least one party want it?"
+- _Connection:_ This discussion links to the upcoming unit on the interwar period and the question of whether the Treaty of Versailles' blame assignment onto Germany was historically justified -- a question students are now prepared to engage with.
 
 **Q8 [Create]:** We've been discussing the causes of World War I for 45 minutes. What is one question about this topic that our discussion raised but didn't answer -- a question you want to keep thinking about?
-- *Purpose:* Transfers intellectual ownership to students; assesses which interpretive threads remain live and what students are genuinely curious about. The teacher's responses to this question shape the next lesson's framing.
-- *Expected responses:* "Could anything
+
+- _Purpose:_ Transfers intellectual ownership to students; assesses which interpretive threads remain live and what students are genuinely curious about. The teacher's responses to this question shape the next lesson's framing.
+- _Expected responses:_ "Could anything

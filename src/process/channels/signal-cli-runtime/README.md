@@ -33,7 +33,7 @@ After installing, configure the signal-cli path in Wayland's Signal settings.
 ## Bundled distribution
 
 When building with electron-builder, `electron-builder.yml` copies this entire directory
-into `<resources>/signal-cli-runtime/` via the `extraResources` rule.  The binary inside
+into `<resources>/signal-cli-runtime/` via the `extraResources` rule. The binary inside
 `bin/` is therefore available at `process.resourcesPath/signal-cli-runtime/bin/signal-cli`
 in packaged builds.
 

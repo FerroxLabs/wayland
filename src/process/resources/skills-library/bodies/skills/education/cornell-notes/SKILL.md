@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "note-taking study-skills step-by-step guide"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'note-taking study-skills step-by-step guide'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Cornell Notes
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when the learner wants a completed Cornell notes artifact -- a fully filled-in, study-ready document -- from source material they provide.
 
 **Trigger scenarios:**
+
 - A student says "make Cornell notes for my lecture on [topic]" or "convert my notes into Cornell format"
 - A learner pastes raw lecture notes, a textbook excerpt, a transcript, or bullet-point outlines and asks for structured notes
 - Someone preparing for an exam asks to organize their review material using the Cornell method
@@ -31,6 +33,7 @@ Use this skill when the learner wants a completed Cornell notes artifact -- a fu
 - A learner wants to revisit old notes and reformat them into Cornell structure for active recall practice
 
 **Do NOT use when:**
+
 - The learner wants to connect ideas visually across a concept or topic web -- use `concept-mapping` instead
 - The learner wants to compare, merge, or synthesize multiple source documents into a single set of unified notes -- use `note-synthesis` instead
 - The learner wants flashcards or retrieval practice cards generated from their material -- use `flashcard-generation` instead
@@ -493,12 +496,12 @@ Answer these using only the cue column -- cover the notes section completely.
 
 Adjusted for midterm in approximately 14 days.
 
-| Review     | When              | Method                                                        |
-|------------|-------------------|---------------------------------------------------------------|
-| Review 1   | Tonight           | Cover notes; answer all cue questions aloud; verify answers  |
-| Review 2   | Day 3             | Cover notes; write both summaries from memory; compare       |
-| Review 3   | Day 7             | Cue-column quiz + explain the 5-phase sequence to someone    |
-| Review 4   | Day 12 (2 days before midterm) | Full cue quiz; flag any faded answers for final pass |
+| Review   | When                           | Method                                                      |
+| -------- | ------------------------------ | ----------------------------------------------------------- |
+| Review 1 | Tonight                        | Cover notes; answer all cue questions aloud; verify answers |
+| Review 2 | Day 3                          | Cover notes; write both summaries from memory; compare      |
+| Review 3 | Day 7                          | Cue-column quiz + explain the 5-phase sequence to someone   |
+| Review 4 | Day 12 (2 days before midterm) | Full cue quiz; flag any faded answers for final pass        |
 
 ---
 

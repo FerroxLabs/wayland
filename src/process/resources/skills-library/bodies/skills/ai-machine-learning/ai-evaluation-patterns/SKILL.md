@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml testing best-practices"
-  category: "ai-machine-learning"
-  subcategory: "ai-ml-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml testing best-practices'
+  category: 'ai-machine-learning'
+  subcategory: 'ai-ml-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # AI Evaluation Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to measure the quality of an LLM-powered feature -- classification accuracy, generation fluency, RAG answer faithfulness, agent task completion rate
 - User wants to build or improve an evaluation harness for a model before deploying to production
 - User needs to detect quality regressions after a prompt change, model upgrade, or retrieval config change
@@ -30,6 +32,7 @@ metadata:
 - User needs to set quality gates in CI/CD to prevent deploying a prompt regression
 
 **Do NOT use this skill when:**
+
 - User needs guidance on prompt engineering techniques themselves -- use the prompt engineering skill instead
 - User is asking about fine-tuning or RLHF training pipelines -- those involve training-loop evaluation, which differs from inference evaluation
 - User needs infrastructure for logging/observability only -- use the AI observability skill if one exists
@@ -66,17 +69,20 @@ The quality of your evaluation is bounded by the quality of your test dataset.
 Select metrics based on task type and what failure modes you identified in Step 1.
 
 **For RAG / Question Answering:**
+
 - **Faithfulness** (0--1): Does the answer contain only claims that are grounded in the retrieved context? Measure using LLM-as-judge with a decompose-then-verify approach. Score = (grounded claims) / (total claims). RAGAS framework provides a production-ready implementation.
 - **Answer Relevance** (0--1): Is the generated answer addressing the actual question? Use embedding cosine similarity between the question and the answer, or an LLM judge.
 - **Context Precision** (0--1): Of the retrieved chunks, what fraction are actually relevant to answering the question? Signals retrieval quality.
 - **Context Recall** (0--1): What fraction of the necessary information to answer the question was present in the retrieved chunks? Requires ground-truth reference answers.
 
 **For Classification / Extraction:**
+
 - **Precision, Recall, F1** per class -- always report per-class metrics, not macro averages only, because class imbalance hides real failures.
 - **Confusion matrix analysis** -- look for systematic confusions between specific label pairs, not just overall accuracy.
 - **Schema compliance rate** for structured extraction: what fraction of outputs parse successfully into the expected JSON schema? Target 99.5%+ in production.
 
 **For Open-Ended Generation:**
+
 - **Coherence** (1--5 Likert): Is the text logically structured and internally consistent?
 - **Groundedness** (0--1): Are factual claims traceable to source material?
 - **Tone compliance** (binary + categorical): Does output match the brand voice / style guide?
@@ -84,6 +90,7 @@ Select metrics based on task type and what failure modes you identified in Step 
 - Avoid BLEU and ROUGE for production evaluation of LLM outputs -- they correlate poorly with human judgment for modern generation quality. Use them only for comparing near-identical text variations.
 
 **For Agents / Tool-Calling:**
+
 - **Task success rate**: Did the agent complete the user goal? Requires an oracle or environment simulation.
 - **Tool call accuracy**: Precision/recall on which tools were invoked and with what arguments.
 - **Step efficiency**: How many tool calls did it take vs. the minimum required? Track average steps per task category.
@@ -378,6 +385,7 @@ The primary metric you need is **faithfulness**: the fraction of claims in the g
 Acceptance threshold: **faithfulness >= 0.92** for a legal application. Legal errors cause professional liability. This is stricter than a general-purpose application's 0.85 threshold.
 
 Secondary metrics to track alongside faithfulness:
+
 - **Answer completeness** (0--1): Did the summary cover all material holdings in the source? (A summary can be faithful but miss critical holdings.)
 - **Citation accuracy** (binary per claim): When the summary attributes a claim to a specific case, is the citation correct?
 - **Schema compliance** (binary): Does the output match the expected `{summary: string, holdings: list[string], citations: list[string]}` structure?
@@ -407,6 +415,7 @@ Collect 200 examples structured as:
 ```
 
 Distribution:
+
 - 50 examples where the retrieved context fully supports the answer (testing faithfulness on easy cases)
 - 80 examples where the retrieved context is incomplete and the model must acknowledge gaps (testing hallucination under uncertainty)
 - 40 examples with conflicting holdings across retrieved cases (testing whether model fabricates a false synthesis)
@@ -419,6 +428,7 @@ Distribution:
 The faithfulness evaluation uses a decompose-then-verify approach:
 
 **Judge Prompt -- Stage 1 (Decompose):**
+
 ```
 You are a legal text analysis assistant. Given the following case law summary,
 extract every factual claim as a separate statement. A claim is any assertion
@@ -432,6 +442,7 @@ Output a JSON array of claims:
 ```
 
 **Judge Prompt -- Stage 2 (Verify each claim):**
+
 ```
 You are a legal accuracy checker. Determine whether the following claim is
 directly supported by the provided source documents.
@@ -450,6 +461,7 @@ Output:
 ```
 
 **Faithfulness Score Computation:**
+
 ```python
 def compute_faithfulness(claims: list[dict]) -> float:
     supported = sum(1 for c in claims if c["verdict"] == "SUPPORTED")
@@ -569,6 +581,7 @@ Any PR that changes prompts, retrieval config, or model selection now automatica
 ### Expected Final State After Full Implementation
 
 Within 4--6 weeks of systematic evaluation-driven development:
+
 - Faithfulness target of 0.92 is achievable through combined prompt grounding instruction + retrieval precision improvements (targeting context precision >= 0.85)
 - Every prompt change ships with a delta report showing faithfulness impact before merge
 - Production monitoring catches regressions within 24 hours via online evaluation on 5% of live traffic

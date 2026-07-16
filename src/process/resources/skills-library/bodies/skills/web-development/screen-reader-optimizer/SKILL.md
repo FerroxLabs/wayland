@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility checklist guide javascript testing email presentation fashion"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'accessibility checklist guide javascript testing email presentation fashion'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Screen Reader Optimizer
 
 You are an expert in screen reader accessibility, specializing in making web interfaces fully usable through NVDA, VoiceOver, JAWS, and TalkBack. You understand how assistive technology parses the accessibility tree, when ARIA is necessary versus harmful, and how to test efficiently across the major screen reader and browser combinations.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about screen reader optimizer techniques or best practices
 - User needs guidance on screen reader optimizer concepts
 - User wants to implement or improve their approach to screen reader optimizer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of screen reader optimizer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,12 +60,12 @@ Visual DOM                    Accessibility Tree
 
 For every node: **Name**, **Role**, **State**, and **Value**.
 
-| Property | Source | Example |
-|----------|--------|---------|
-| Name | Text content, `aria-label`, `aria-labelledby`, `alt`, `<label>` | "Submit order" |
-| Role | HTML element or `role` attribute | button, link, heading, dialog |
-| State | HTML attributes or `aria-*` states | disabled, expanded, checked, selected |
-| Value | Input value, `aria-valuenow` | "42", "50%" |
+| Property | Source                                                          | Example                               |
+| -------- | --------------------------------------------------------------- | ------------------------------------- |
+| Name     | Text content, `aria-label`, `aria-labelledby`, `alt`, `<label>` | "Submit order"                        |
+| Role     | HTML element or `role` attribute                                | button, link, heading, dialog         |
+| State    | HTML attributes or `aria-*` states                              | disabled, expanded, checked, selected |
+| Value    | Input value, `aria-valuenow`                                    | "42", "50%"                           |
 
 ## First Rule: Use Semantic HTML
 
@@ -72,28 +73,25 @@ Native HTML elements have built-in roles, states, keyboard behavior, and screen 
 
 ```html
 <!-- WRONG: div with ARIA trying to be a button -->
-<div role="button" tabindex="0" aria-pressed="false"
-     onclick="toggle()" onkeydown="handleKey(event)">
+<div role="button" tabindex="0" aria-pressed="false" onclick="toggle()" onkeydown="handleKey(event)">
   Toggle Setting
 </div>
 
 <!-- RIGHT: native button with full behavior for free -->
-<button type="button" aria-pressed="false" onclick="toggle()">
-  Toggle Setting
-</button>
+<button type="button" aria-pressed="false" onclick="toggle()">Toggle Setting</button>
 ```
 
 ### Semantic Element Reference
 
-| Instead of... | Use... | Why |
-|---------------|--------|-----|
-| `<div onclick>` | `<button>` | Keyboard, role, focus for free |
-| `<span class="link">` | `<a href>` | Announced as link, Enter activates |
-| `<div class="header">` | `<h1>`-`<h6>` | Heading navigation (H key in screen readers) |
-| `<div class="nav">` | `<nav>` | Landmark navigation |
-| `<div class="list">` | `<ul>` / `<ol>` | "List, 5 items" announcement |
-| `<div class="table">` | `<table>` with `<th>` | Cell-to-header association |
-| `<div class="input">` | `<input>` / `<select>` | Form mode, label association |
+| Instead of...          | Use...                 | Why                                          |
+| ---------------------- | ---------------------- | -------------------------------------------- |
+| `<div onclick>`        | `<button>`             | Keyboard, role, focus for free               |
+| `<span class="link">`  | `<a href>`             | Announced as link, Enter activates           |
+| `<div class="header">` | `<h1>`-`<h6>`          | Heading navigation (H key in screen readers) |
+| `<div class="nav">`    | `<nav>`                | Landmark navigation                          |
+| `<div class="list">`   | `<ul>` / `<ol>`        | "List, 5 items" announcement                 |
+| `<div class="table">`  | `<table>` with `<th>`  | Cell-to-header association                   |
+| `<div class="input">`  | `<input>` / `<select>` | Form mode, label association                 |
 
 ## ARIA Patterns for Complex Widgets
 
@@ -103,18 +101,9 @@ When native HTML is insufficient, follow the ARIA Authoring Practices Guide (APG
 
 ```html
 <div role="tablist" aria-label="Account settings">
-  <button role="tab" id="tab-1" aria-selected="true"
-          aria-controls="panel-1" tabindex="0">
-    Profile
-  </button>
-  <button role="tab" id="tab-2" aria-selected="false"
-          aria-controls="panel-2" tabindex="-1">
-    Security
-  </button>
-  <button role="tab" id="tab-3" aria-selected="false"
-          aria-controls="panel-3" tabindex="-1">
-    Notifications
-  </button>
+  <button role="tab" id="tab-1" aria-selected="true" aria-controls="panel-1" tabindex="0">Profile</button>
+  <button role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">Security</button>
+  <button role="tab" id="tab-3" aria-selected="false" aria-controls="panel-3" tabindex="-1">Notifications</button>
 </div>
 
 <div role="tabpanel" id="panel-1" aria-labelledby="tab-1" tabindex="0">
@@ -129,6 +118,7 @@ When native HTML is insufficient, follow the ARIA Authoring Practices Guide (APG
 ```
 
 **Keyboard behavior:**
+
 - Arrow Left/Right moves between tabs
 - Home/End goes to first/last tab
 - Only the active tab is in the Tab order (`tabindex="0"`); others are `tabindex="-1"`
@@ -136,7 +126,7 @@ When native HTML is insufficient, follow the ARIA Authoring Practices Guide (APG
 ```javascript
 const tabs = document.querySelectorAll('[role="tab"]');
 
-tabs.forEach(tab => {
+tabs.forEach((tab) => {
   tab.addEventListener('keydown', (e) => {
     const index = Array.from(tabs).indexOf(e.target);
     let newIndex;
@@ -164,7 +154,7 @@ tabs.forEach(tab => {
 });
 
 function activateTab(tab) {
-  tabs.forEach(t => {
+  tabs.forEach((t) => {
     t.setAttribute('aria-selected', 'false');
     t.setAttribute('tabindex', '-1');
     document.getElementById(t.getAttribute('aria-controls')).hidden = true;
@@ -180,22 +170,18 @@ function activateTab(tab) {
 ### Modal Dialog
 
 ```html
-<div role="dialog" aria-modal="true" aria-labelledby="dialog-title"
-     aria-describedby="dialog-desc">
+<div role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
   <h2 id="dialog-title">Confirm Deletion</h2>
-  <p id="dialog-desc">
-    This will permanently delete 3 files. This action cannot be undone.
-  </p>
+  <p id="dialog-desc">This will permanently delete 3 files. This action cannot be undone.</p>
   <div class="dialog-actions">
     <button type="button" onclick="closeDialog()">Cancel</button>
-    <button type="button" onclick="confirmDelete()" class="danger">
-      Delete Files
-    </button>
+    <button type="button" onclick="confirmDelete()" class="danger">Delete Files</button>
   </div>
 </div>
 ```
 
 **Required behavior:**
+
 - Focus moves into dialog on open (to first focusable element or the dialog itself)
 - Tab/Shift+Tab cycles within dialog only (focus trap)
 - Escape closes the dialog
@@ -206,13 +192,9 @@ function activateTab(tab) {
 ```html
 <div class="accordion">
   <h3>
-    <button aria-expanded="false" aria-controls="sect1-content"
-            id="sect1-header">
-      Shipping Information
-    </button>
+    <button aria-expanded="false" aria-controls="sect1-content" id="sect1-header">Shipping Information</button>
   </h3>
-  <div id="sect1-content" role="region" aria-labelledby="sect1-header"
-       hidden>
+  <div id="sect1-content" role="region" aria-labelledby="sect1-header" hidden>
     <p>We ship to all 50 states...</p>
   </div>
 </div>
@@ -223,9 +205,15 @@ function activateTab(tab) {
 ```html
 <label for="city-input">City</label>
 <div class="combobox-wrapper">
-  <input type="text" id="city-input" role="combobox"
-         aria-expanded="false" aria-autocomplete="list"
-         aria-controls="city-listbox" aria-activedescendant="">
+  <input
+    type="text"
+    id="city-input"
+    role="combobox"
+    aria-expanded="false"
+    aria-autocomplete="list"
+    aria-controls="city-listbox"
+    aria-activedescendant=""
+  />
   <ul id="city-listbox" role="listbox" hidden>
     <li role="option" id="city-1">Chicago</li>
     <li role="option" id="city-2">Charlotte</li>
@@ -244,24 +232,16 @@ Live regions announce dynamic content changes without moving focus.
 
 ```html
 <!-- Polite: announced after current speech finishes -->
-<div aria-live="polite" aria-atomic="true">
-  3 results found
-</div>
+<div aria-live="polite" aria-atomic="true">3 results found</div>
 
 <!-- Assertive: interrupts current speech immediately -->
-<div aria-live="assertive" aria-atomic="true">
-  Error: Session expired. Please log in again.
-</div>
+<div aria-live="assertive" aria-atomic="true">Error: Session expired. Please log in again.</div>
 
 <!-- Status role: implicit aria-live="polite" -->
-<div role="status">
-  File uploaded successfully
-</div>
+<div role="status">File uploaded successfully</div>
 
 <!-- Alert role: implicit aria-live="assertive" -->
-<div role="alert">
-  Payment failed. Please check your card details.
-</div>
+<div role="alert">Payment failed. Please check your card details.</div>
 
 <!-- Log role: implicit aria-live="polite", aria-relevant="additions" -->
 <div role="log" aria-label="Chat messages">
@@ -269,9 +249,7 @@ Live regions announce dynamic content changes without moving focus.
 </div>
 
 <!-- Progress updates -->
-<div role="progressbar" aria-valuenow="65" aria-valuemin="0"
-     aria-valuemax="100" aria-label="Upload progress">
-</div>
+<div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress"></div>
 ```
 
 ### Live Region Rules
@@ -311,7 +289,7 @@ function updateResultCount(count) {
 <!-- Multiple labels composed together -->
 <h2 id="billing">Billing Address</h2>
 <label id="street-label" for="street">Street</label>
-<input id="street" type="text" aria-labelledby="billing street-label">
+<input id="street" type="text" aria-labelledby="billing street-label" />
 <!-- Screen reader announces: "Billing Address Street, edit text" -->
 
 <!-- Icon-only button -->
@@ -321,7 +299,7 @@ function updateResultCount(count) {
 
 <!-- Redundant link with image and text -->
 <a href="/profile">
-  <img src="avatar.jpg" alt="">
+  <img src="avatar.jpg" alt="" />
   My Profile
 </a>
 <!-- alt="" prevents "avatar.jpg My Profile" double announcement -->
@@ -329,22 +307,22 @@ function updateResultCount(count) {
 <!-- Group of radio buttons -->
 <fieldset>
   <legend>Preferred contact method</legend>
-  <label><input type="radio" name="contact" value="email"> Email</label>
-  <label><input type="radio" name="contact" value="phone"> Phone</label>
-  <label><input type="radio" name="contact" value="text"> Text message</label>
+  <label><input type="radio" name="contact" value="email" /> Email</label>
+  <label><input type="radio" name="contact" value="phone" /> Phone</label>
+  <label><input type="radio" name="contact" value="text" /> Text message</label>
 </fieldset>
 ```
 
 ## Hiding Content Correctly
 
-| Technique | Visible | In Accessibility Tree | Use For |
-|-----------|---------|----------------------|---------|
-| `display: none` | No | No | Fully hidden from everyone |
-| `visibility: hidden` | No | No | Same as display:none |
-| `hidden` attribute | No | No | Same, HTML native |
-| `aria-hidden="true"` | Yes | No | Decorative visuals, icons with labels |
-| `.sr-only` class | No | Yes | Screen-reader-only text |
-| `role="presentation"` | Yes | Stripped | Remove semantic meaning |
+| Technique             | Visible | In Accessibility Tree | Use For                               |
+| --------------------- | ------- | --------------------- | ------------------------------------- |
+| `display: none`       | No      | No                    | Fully hidden from everyone            |
+| `visibility: hidden`  | No      | No                    | Same as display:none                  |
+| `hidden` attribute    | No      | No                    | Same, HTML native                     |
+| `aria-hidden="true"`  | Yes     | No                    | Decorative visuals, icons with labels |
+| `.sr-only` class      | No      | Yes                   | Screen-reader-only text               |
+| `role="presentation"` | Yes     | Stripped              | Remove semantic meaning               |
 
 ```css
 /* Screen-reader only utility class */
@@ -370,18 +348,18 @@ function updateResultCount(count) {
 3. Navigate to the page in Firefox
 4. Use these commands:
 
-| Action | Keys |
-|--------|------|
-| Read next item | Down Arrow |
-| Read previous item | Up Arrow |
-| Next heading | H |
-| List all headings | NVDA+F7 |
-| Next landmark | D |
-| Next form field | F |
-| Activate link/button | Enter |
-| Toggle forms mode | NVDA+Space |
-| Read current line | NVDA+L |
-| Read entire page | NVDA+Down Arrow |
+| Action               | Keys            |
+| -------------------- | --------------- |
+| Read next item       | Down Arrow      |
+| Read previous item   | Up Arrow        |
+| Next heading         | H               |
+| List all headings    | NVDA+F7         |
+| Next landmark        | D               |
+| Next form field      | F               |
+| Activate link/button | Enter           |
+| Toggle forms mode    | NVDA+Space      |
+| Read current line    | NVDA+L          |
+| Read entire page     | NVDA+Down Arrow |
 
 ### VoiceOver + Safari (macOS)
 
@@ -389,13 +367,13 @@ function updateResultCount(count) {
 2. Use the rotor: VO+U (then arrow through headings, links, landmarks)
 3. Navigate:
 
-| Action | Keys |
-|--------|------|
-| Next item | VO+Right |
-| Previous item | VO+Left |
-| Activate | VO+Space |
-| Rotor | VO+U |
-| Read from cursor | VO+A |
+| Action               | Keys                                          |
+| -------------------- | --------------------------------------------- |
+| Next item            | VO+Right                                      |
+| Previous item        | VO+Left                                       |
+| Activate             | VO+Space                                      |
+| Rotor                | VO+U                                          |
+| Read from cursor     | VO+A                                          |
 | Web rotor navigation | VO+Cmd+H (headings), VO+Cmd+J (form controls) |
 
 VO = Control+Option
@@ -409,14 +387,14 @@ VO = Control+Option
 
 ### JAWS + Chrome (Windows)
 
-| Action | Keys |
-|--------|------|
-| Virtual cursor on/off | JAWS+Z |
-| Headings list | JAWS+F6 |
-| Next heading | H |
-| Next region/landmark | R |
-| Forms list | JAWS+F5 |
-| Read from cursor | JAWS+Down Arrow |
+| Action                | Keys            |
+| --------------------- | --------------- |
+| Virtual cursor on/off | JAWS+Z          |
+| Headings list         | JAWS+F6         |
+| Next heading          | H               |
+| Next region/landmark  | R               |
+| Forms list            | JAWS+F5         |
+| Read from cursor      | JAWS+Down Arrow |
 
 ### Testing Checklist
 
@@ -437,27 +415,35 @@ For each page or component, verify:
 ## Common Screen Reader Bugs and Workarounds
 
 ### Bug: `aria-label` on `<div>` or `<span>` is ignored
+
 **Fix:** Only use `aria-label` on interactive elements or landmark roles.
 
 ### Bug: VoiceOver ignores list semantics with `list-style: none`
+
 **Fix:** Add `role="list"` explicitly on the `<ul>`.
 
 ```css
 /* This causes VoiceOver to drop list semantics */
-ul { list-style: none; }
+ul {
+  list-style: none;
+}
 ```
+
 ```html
 <!-- Fix -->
-<ul role="list" style="list-style: none;">
+<ul role="list" style="list-style: none;"></ul>
 ```
 
 ### Bug: `aria-live` region does not announce on first insertion
+
 **Fix:** Ensure the container element is in the DOM on page load, then inject text content into it.
 
 ### Bug: `display:none` to `display:block` transition not announced
+
 **Fix:** Keep the element visible but empty, then change its text content.
 
 ### Bug: Screen reader reads SVG title when it should not
+
 **Fix:** Add `aria-hidden="true"` to decorative SVGs and `focusable="false"` for IE/Edge legacy.
 
 ```html
@@ -486,15 +472,7 @@ function RouteAnnouncer() {
     }
   }, [location]);
 
-  return (
-    <div
-      ref={announcerRef}
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-      className="sr-only"
-    />
-  );
+  return <div ref={announcerRef} role='status' aria-live='polite' aria-atomic='true' className='sr-only' />;
 }
 ```
 
@@ -506,7 +484,6 @@ Use `:aria-pressed="isActive.toString()"` on toggle buttons. Bind ARIA attribute
 
 Use Angular CDK's `LiveAnnouncer` service to announce dynamic content changes: `this.liveAnnouncer.announce('N results found', 'polite')`.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -514,7 +491,6 @@ Use Angular CDK's `LiveAnnouncer` service to announce dynamic content changes: `
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -535,14 +511,12 @@ Use Angular CDK's `LiveAnnouncer` service to announce dynamic content changes: `
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -191,24 +191,20 @@ describe('SmsTwilioPlugin.sendMessage', () => {
   it('retries on HTTP 503 then surfaces final failure (F6)', async () => {
     const plugin = new SmsTwilioPlugin();
     await plugin.initialize(baseConfig);
-    createMock.mockRejectedValue(
-      Object.assign(new Error('upstream down'), { status: 503, code: null })
+    createMock.mockRejectedValue(Object.assign(new Error('upstream down'), { status: 503, code: null }));
+    await expect(plugin.sendMessage('+15551234567', { type: 'text', text: 'never lands' })).rejects.toThrow(
+      /upstream down/
     );
-    await expect(
-      plugin.sendMessage('+15551234567', { type: 'text', text: 'never lands' })
-    ).rejects.toThrow(/upstream down/);
     expect(createMock).toHaveBeenCalledTimes(3);
   });
 
   it('throws typed non-retryable TwilioRestError on 21610 opted-out (F6)', async () => {
     const plugin = new SmsTwilioPlugin();
     await plugin.initialize(baseConfig);
-    createMock.mockRejectedValueOnce(
-      Object.assign(new Error('recipient opted out'), { status: 403, code: 21610 })
+    createMock.mockRejectedValueOnce(Object.assign(new Error('recipient opted out'), { status: 403, code: 21610 }));
+    await expect(plugin.sendMessage('+15551234567', { type: 'text', text: 'blocked' })).rejects.toBeInstanceOf(
+      TwilioRestError
     );
-    await expect(
-      plugin.sendMessage('+15551234567', { type: 'text', text: 'blocked' })
-    ).rejects.toBeInstanceOf(TwilioRestError);
     // Non-retryable: must have only fired once.
     expect(createMock).toHaveBeenCalledTimes(1);
   });
@@ -216,12 +212,8 @@ describe('SmsTwilioPlugin.sendMessage', () => {
   it('throws typed non-retryable TwilioRestError on 21408 permission denied (F6)', async () => {
     const plugin = new SmsTwilioPlugin();
     await plugin.initialize(baseConfig);
-    createMock.mockRejectedValueOnce(
-      Object.assign(new Error('region blocked'), { status: 403, code: 21408 })
-    );
-    const err = await plugin
-      .sendMessage('+15551234567', { type: 'text', text: 'blocked' })
-      .catch((e) => e);
+    createMock.mockRejectedValueOnce(Object.assign(new Error('region blocked'), { status: 403, code: 21408 }));
+    const err = await plugin.sendMessage('+15551234567', { type: 'text', text: 'blocked' }).catch((e) => e);
     expect(err).toBeInstanceOf(TwilioRestError);
     expect((err as TwilioRestError).code).toBe(21408);
     expect((err as TwilioRestError).retryable).toBe(false);
@@ -231,12 +223,10 @@ describe('SmsTwilioPlugin.sendMessage', () => {
   it('does not retry on a generic 400 (F6)', async () => {
     const plugin = new SmsTwilioPlugin();
     await plugin.initialize(baseConfig);
-    createMock.mockRejectedValueOnce(
-      Object.assign(new Error('bad request'), { status: 400, code: 21211 })
+    createMock.mockRejectedValueOnce(Object.assign(new Error('bad request'), { status: 400, code: 21211 }));
+    await expect(plugin.sendMessage('+15551234567', { type: 'text', text: 'malformed' })).rejects.toThrow(
+      /bad request/
     );
-    await expect(
-      plugin.sendMessage('+15551234567', { type: 'text', text: 'malformed' })
-    ).rejects.toThrow(/bad request/);
     expect(createMock).toHaveBeenCalledTimes(1);
   });
 });

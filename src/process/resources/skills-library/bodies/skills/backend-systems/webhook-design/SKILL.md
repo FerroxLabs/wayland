@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "api-design backend automation"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'api-design backend automation'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Webhook Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is designing a new webhook system for event-driven integrations (e.g., payment notifications, CI/CD triggers, CRM sync, IoT event streams)
 - User needs to implement webhook delivery with retry logic, signature verification, or delivery guarantees
 - User asks about webhook security patterns -- HMAC signing, payload validation, replay attack prevention
@@ -31,6 +33,7 @@ metadata:
 - User needs operational tooling design -- dead letter queues, webhook dashboards, delivery logs, alerting on failure rates
 
 **Do NOT use this skill when:**
+
 - User needs general REST API design guidance -- use the api-design skill in the same subcategory
 - User is asking about message queue design (RabbitMQ, Kafka, SQS) as the primary transport -- webhooks are HTTP push; if the primary concern is internal service-to-service messaging, use the event-driven-architecture skill
 - User needs WebSocket design for bidirectional real-time communication -- webhooks are one-way push over HTTP
@@ -194,12 +197,12 @@ When helping a user design or evaluate a webhook system, structure the output as
 function verifySignature(secret, rawBody, timestamp, receivedSignature):
   if abs(now() - timestamp) > 300:          // 5-minute replay window
     reject("timestamp too old")
-  
+
   expectedSig = HMAC-SHA256(secret, timestamp + "." + rawBody)
-  
+
   if not constantTimeEqual(expectedSig, receivedSignature):
     reject("signature mismatch")
-  
+
   return valid
 
 ### Operational Checklist
@@ -254,36 +257,43 @@ volume, latency, and team constraints}
 ## Edge Cases
 
 ### Consumer Endpoint Consistently Times Out at 25--30 Seconds
+
 Some consumers perform synchronous database writes or third-party API calls in the webhook handler path, causing them to consistently respond near the timeout boundary. This is dangerous because network variance can push them over the limit, causing your system to treat delivered events as failures and retry them -- creating duplicate processing at the consumer.
 
 **Handling:** Document the 5-second target response time prominently. For known slow consumers, implement an **acknowledgment-then-process** pattern: the consumer endpoint writes the raw payload to a local queue (Redis, SQS, database) and immediately returns 200. A separate worker processes from that local queue. Include this pattern with code samples in your integration documentation. If you observe a specific endpoint consistently responding in 20--30s, proactively alert the endpoint owner.
 
 ### Webhook Event Storm After Downstream Outage Recovery
+
 If a consumer endpoint is down for 2 hours, your retry queue accumulates hundreds or thousands of pending events. When the endpoint recovers, naive delivery immediately dispatches all queued events simultaneously, potentially overwhelming the freshly recovered consumer and causing a second failure.
 
 **Handling:** Implement **throttled recovery dispatch**: when a circuit breaker transitions from open to half-open, limit dispatch to 10% of normal concurrency for the first 5 minutes. If success rate exceeds 95% in that window, increase to 50%, then to 100% after another 5 minutes. Never dump the full accumulated queue immediately. Also implement **max burst rate per endpoint** (e.g., no more than 100 events/minute to a single endpoint) independent of circuit breaker state.
 
 ### Multi-Tenant Secret Rotation Without Breaking Active Consumers
+
 A customer requests a secret rotation -- or rotation is required after a suspected compromise. The consumer has the old secret embedded in their code and cannot rotate instantly (their deployment pipeline takes 30--60 minutes).
 
 **Handling:** Implement a **dual-secret grace period**: when a new secret is generated, mark the endpoint as having both `secret_v1` and `secret_v2`. For every delivery, compute both signatures and include both in the header: `X-Webhook-Signature: t=1699999999,v1=oldSigHex,v2=newSigHex`. The consumer can verify against either. After 24 hours (or an explicit "rotation complete" confirmation from the customer), invalidate the old secret. Never extend the grace period beyond 72 hours.
 
 ### Event Schema Breaking Change Required
+
 A business requirement forces a field rename, type change, or field removal in an event payload that existing consumers depend on.
 
 **Handling:** Never make breaking changes in-place. Instead: (1) introduce a new event type version with a date suffix (e.g., `payment.completed` becomes `payment.completed.2024-06`) -- serve both versions simultaneously, (2) add a `X-Webhook-Deprecation-Notice: payment.completed is deprecated, migrate to payment.completed.2024-06 by 2025-01-01` header on the old version, (3) provide a migration guide with a diff of the schema change, (4) maintain both versions for a minimum of 6 months, (5) suppress delivery of the deprecated version only after confirming the endpoint has successfully received the new version. If your volume is high enough, offer consumers a "schema migration dry run" endpoint that shows them what their events will look like under the new schema.
 
 ### Webhook Replay Attacks via Captured Requests
+
 An attacker intercepts a valid webhook delivery (e.g., via a compromised network segment or a confused consumer that logs raw requests to an accessible location) and replays the identical request to the consumer endpoint.
 
 **Handling:** The timestamp-in-signature approach (described in step 4) limits the replay window to 5 minutes. Enforce this rigorously at the consumer. Additionally, consumer-side idempotency (checking `event.id` against a processed-IDs store with a 48--72 hour TTL) provides a second layer: even a request replayed within the 5-minute window that somehow passes timestamp validation will be caught by the idempotency check. Document both layers as required in your consumer integration guide, not optional.
 
 ### Fan-Out to Large Numbers of Registered Endpoints for a Single Event Type
+
 A popular event type (e.g., `payment.completed`) has 5,000 registered endpoints across all tenants. A single high-volume event source generates 500 events/minute, resulting in 2.5 million delivery attempts/minute for that event type alone.
 
 **Handling:** Fan-out must be parallelized at the infrastructure level, not a sequential loop. Publish the event once to a topic queue, then use a fan-out worker pool that reads from the topic and enqueues a per-endpoint delivery task for each registered endpoint -- do not deliver directly from the fan-out worker. Use separate worker pools for fan-out and for actual delivery. This means a burst of 500 events does not block delivery of earlier events while fan-out is computed. For the very highest volumes (>1M deliveries/minute), consider a two-tier architecture: aggregate fan-out decisions in a batch job that runs every 1--5 seconds and writes bulk delivery tasks.
 
 ### Consumer Returns 200 But Logs Show It Did Not Process the Event
+
 This happens when consumers swallow exceptions and always return 200 to avoid retries, even when processing failed internally. This is a consumer implementation bug, but it is common enough to design for.
 
 **Handling:** You cannot detect this from the delivery side -- a 200 is a 200. Address it through: (1) documentation that explicitly warns against swallowing errors -- consumers should return 5xx if processing fails so delivery is retried, (2) providing a **manual resend API** (`POST /webhooks/events/{event_id}/resend`) that the consumer can trigger after they fix their processing bug, (3) suggesting consumers implement a **consumer-side dead letter queue** for events that fail local processing after acknowledgment. The resend API is essential here -- it is the recovery mechanism when the consumer acknowledges correctly but fails to process.
@@ -299,14 +309,15 @@ This happens when consumers swallow exceptions and always return 200 to avoid re
 ## Webhook Design Assessment
 
 ### Delivery Requirements Summary
-| Requirement | Value | Implication |
-|-------------|-------|-------------|
-| Delivery guarantee | at-least-once | Idempotency required at merchant consumer |
-| Expected volume | 5,000 events/day (~3.5/min average, ~50/min peak) | Single PostgreSQL-backed queue is sufficient |
-| Acceptable latency | Under 5 minutes p99 for normal delivery | Standard retry schedule, no real-time constraint |
-| Consumer timeout | 30 seconds (with 20s observed for slow consumers) | Publish consumer async-processing pattern prominently |
-| Ordering requirement | Per-payment best-effort, no global ordering | Standard queue, no partitioning needed |
-| Multi-tenant | Yes -- 200 merchant endpoints | Per-merchant secrets, isolation, circuit breakers |
+
+| Requirement          | Value                                             | Implication                                           |
+| -------------------- | ------------------------------------------------- | ----------------------------------------------------- |
+| Delivery guarantee   | at-least-once                                     | Idempotency required at merchant consumer             |
+| Expected volume      | 5,000 events/day (~3.5/min average, ~50/min peak) | Single PostgreSQL-backed queue is sufficient          |
+| Acceptable latency   | Under 5 minutes p99 for normal delivery           | Standard retry schedule, no real-time constraint      |
+| Consumer timeout     | 30 seconds (with 20s observed for slow consumers) | Publish consumer async-processing pattern prominently |
+| Ordering requirement | Per-payment best-effort, no global ordering       | Standard queue, no partitioning needed                |
+| Multi-tenant         | Yes -- 200 merchant endpoints                     | Per-merchant secrets, isolation, circuit breakers     |
 
 At 5,000 events/day and 200 merchants, this is well within what a PostgreSQL-backed outbox table and a small Node.js worker pool can handle without specialized queue infrastructure. You do not need Redis Streams or SQS at this scale -- PostgreSQL is the right choice given your existing stack.
 
@@ -341,6 +352,7 @@ Every payment event must use this envelope:
 ```
 
 Key decisions:
+
 - `amount` is in the smallest currency unit (cents) -- never floats for money
 - `data` contains the full payment snapshot -- merchants do not need to call back to your API
 - `previous_attributes` is null for terminal-state events like `payment.completed`; it would contain `{"status": "pending"}` for a `payment.status_changed` event
@@ -393,9 +405,9 @@ async function dispatchPendingEvents() {
     LIMIT 50
     FOR UPDATE SKIP LOCKED
   `);
-  
+
   // Process up to 10 events per endpoint concurrently, all endpoints in parallel
-  await Promise.all(events.map(event => deliverEvent(event)));
+  await Promise.all(events.map((event) => deliverEvent(event)));
 }
 ```
 
@@ -408,19 +420,19 @@ const RETRY_DELAYS_MS = [0, 5000, 30000, 120000, 600000, 1800000, 7200000, 28800
 
 async function deliverEvent(event) {
   const endpoint = await getEndpoint(event.endpoint_id);
-  
+
   if (endpoint.circuit_open && endpoint.circuit_open_until > new Date()) {
     // Skip -- circuit is open, reschedule for after circuit-open period
     await rescheduleAfterCircuit(event, endpoint.circuit_open_until);
     return;
   }
-  
+
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const rawBody = JSON.stringify(event.payload);
   const signature = computeHmacSha256(endpoint.secret, `${timestamp}.${rawBody}`);
-  
+
   let responseStatus, responseBody;
-  
+
   try {
     const response = await fetch(endpoint.url, {
       method: 'POST',
@@ -429,23 +441,23 @@ async function deliverEvent(event) {
         'X-Webhook-ID': event.id,
         'X-Webhook-Timestamp': timestamp,
         'X-Webhook-Signature': `t=${timestamp},v1=${signature}`,
-        'User-Agent': 'YourPlatform-Webhooks/1.0'
+        'User-Agent': 'YourPlatform-Webhooks/1.0',
       },
       body: rawBody,
-      signal: AbortSignal.timeout(30000)  // 30-second hard timeout
+      signal: AbortSignal.timeout(30000), // 30-second hard timeout
     });
-    
+
     responseStatus = response.status;
     responseBody = (await response.text()).substring(0, 500);
   } catch (networkError) {
-    responseStatus = 0;  // Network error
+    responseStatus = 0; // Network error
     responseBody = networkError.message;
   }
-  
+
   const succeeded = responseStatus >= 200 && responseStatus < 300;
   const permanentFailure = responseStatus >= 400 && responseStatus < 500 && responseStatus !== 429;
   const nextAttempt = event.attempt_count + 1;
-  
+
   if (succeeded) {
     await markDelivered(event.id, responseStatus, responseBody);
     await recordEndpointSuccess(endpoint.id);
@@ -453,7 +465,7 @@ async function deliverEvent(event) {
     await markDeadLettered(event.id, responseStatus, responseBody);
     await alertOpsTeam(event, endpoint, responseStatus);
   } else {
-    const delayMs = RETRY_DELAYS_MS[nextAttempt] * (0.8 + Math.random() * 0.4);  // ±20% jitter
+    const delayMs = RETRY_DELAYS_MS[nextAttempt] * (0.8 + Math.random() * 0.4); // ±20% jitter
     await scheduleRetry(event.id, nextAttempt, delayMs, responseStatus, responseBody);
     await recordEndpointFailure(endpoint.id, responseStatus);
   }
@@ -463,18 +475,19 @@ async function deliverEvent(event) {
 ---
 
 ### Retry Schedule
-| Attempt | Delay After Previous | Cumulative Time |
-|---------|---------------------|-----------------|
-| 1 | Immediate | 0s |
-| 2 | ~5 seconds | ~5s |
-| 3 | ~30 seconds | ~35s |
-| 4 | ~2 minutes | ~2.5m |
-| 5 | ~10 minutes | ~12.5m |
-| 6 | ~30 minutes | ~42.5m |
-| 7 | ~2 hours | ~2h 43m |
-| 8 | ~8 hours | ~10h 43m |
-| 9 | ~24 hours | ~34h 43m |
-| Dead letter | -- | After 9 failures or >48h |
+
+| Attempt     | Delay After Previous | Cumulative Time          |
+| ----------- | -------------------- | ------------------------ |
+| 1           | Immediate            | 0s                       |
+| 2           | ~5 seconds           | ~5s                      |
+| 3           | ~30 seconds          | ~35s                     |
+| 4           | ~2 minutes           | ~2.5m                    |
+| 5           | ~10 minutes          | ~12.5m                   |
+| 6           | ~30 minutes          | ~42.5m                   |
+| 7           | ~2 hours             | ~2h 43m                  |
+| 8           | ~8 hours             | ~10h 43m                 |
+| 9           | ~24 hours            | ~34h 43m                 |
+| Dead letter | --                   | After 9 failures or >48h |
 
 ---
 
@@ -485,21 +498,21 @@ function verifyWebhookSignature(string $secret, string $rawBody, string $signatu
     // Parse header: "t=1699999999,v1=abc123..."
     preg_match('/t=(\d+)/', $signatureHeader, $timestampMatch);
     preg_match('/v1=([a-f0-9]+)/', $signatureHeader, $sigMatch);
-    
+
     if (!$timestampMatch || !$sigMatch) {
         return false;
     }
-    
+
     $timestamp = (int) $timestampMatch[1];
     $receivedSig = $sigMatch[1];
-    
+
     // Reject events older than 5 minutes
     if (abs(time() - $timestamp) > 300) {
         return false;  // Replay attack or clock skew beyond tolerance
     }
-    
+
     $expectedSig = hash_hmac('sha256', $timestamp . '.' . $rawBody, $secret);
-    
+
     // Constant-time comparison -- never use === for signature comparison
     return hash_equals($expectedSig, $receivedSig);
 }
@@ -569,6 +582,7 @@ CREATE TABLE endpoint_health (
 ```
 
 Circuit breaker rules for your 200-merchant scale:
+
 - Trip to **open** after 5 consecutive failures or failure rate >50% in last 30 minutes
 - Hold open for **30 minutes**
 - Transition to **half-open**: attempt 1 delivery; if successful, close; if failed, re-open for another 30 minutes
@@ -577,6 +591,7 @@ Circuit breaker rules for your 200-merchant scale:
 ---
 
 ### Operational Checklist
+
 - [x] PostgreSQL outbox table with `FOR UPDATE SKIP LOCKED` worker pattern
 - [x] 9-attempt exponential backoff with ±20% jitter
 - [x] Dead letter queue rows with ops alerting on new entries
@@ -594,17 +609,20 @@ Circuit breaker rules for your 200-merchant scale:
 ### What to Build First vs. Later
 
 **Week 1 -- Minimum viable (ship this):**
+
 - Outbox table + worker + HMAC signing + basic retry (5 attempts)
 - Event types: `payment.completed` and `payment.failed` only
 - Delivery log
 
 **Week 2--3 -- Production hardening:**
+
 - Full retry schedule (9 attempts)
 - Circuit breakers
 - Dead letter queue with alerting
 - Merchant dashboard showing last 100 deliveries per endpoint
 
 **Month 2 -- Full feature set:**
+
 - Manual resend API
 - Additional event types
 - Dual-secret rotation support

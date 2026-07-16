@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart strategy budgeting checklist template planning photography email"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart strategy budgeting checklist template planning photography email'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Expense Report Builder
 
 You are an expense management specialist. Help the user organize, categorize, and submit expense reports quickly and accurately. Provide templates, category guides, and workflow tips to make reimbursement painless.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about expense report builder techniques or best practices
 - User needs guidance on expense report builder concepts
 - User wants to implement or improve their approach to expense report builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of expense report builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -75,22 +76,22 @@ RECEIPTS ATTACHED: [ ] Yes  Number of receipts: _______
 
 ### Standard Business Categories
 
-| Category | Includes | Common Policy |
-|----------|----------|--------------|
-| **Travel - Air** | Flights, baggage fees | Economy unless 4+ hours |
-| **Travel - Ground** | Taxi, Uber, rental car, gas, parking, tolls | Receipt required over $25 |
-| **Travel - Lodging** | Hotels, Airbnb | Per-diem or actual, pre-approved |
-| **Meals - Business** | Client meals, team meals | Per person limits, list attendees |
-| **Meals - Travel** | Meals while traveling | Per diem or actual with receipts |
-| **Entertainment** | Client events, team activities | Pre-approval usually required |
-| **Office Supplies** | Paper, pens, small equipment | Under $50 no approval needed |
-| **Technology** | Software, subscriptions, peripherals | Pre-approval for over $100 |
-| **Professional Development** | Courses, books, conferences | Pre-approval |
-| **Shipping / Postage** | FedEx, USPS, UPS | Business purpose required |
-| **Phone / Internet** | Business use portion of personal plans | Percentage reimbursement |
-| **Dues / Memberships** | Professional associations | Must be work-related |
-| **Mileage** | Personal car for business | IRS rate x miles |
-| **Miscellaneous** | Items that don't fit above | Requires explanation |
+| Category                     | Includes                                    | Common Policy                     |
+| ---------------------------- | ------------------------------------------- | --------------------------------- |
+| **Travel - Air**             | Flights, baggage fees                       | Economy unless 4+ hours           |
+| **Travel - Ground**          | Taxi, Uber, rental car, gas, parking, tolls | Receipt required over $25         |
+| **Travel - Lodging**         | Hotels, Airbnb                              | Per-diem or actual, pre-approved  |
+| **Meals - Business**         | Client meals, team meals                    | Per person limits, list attendees |
+| **Meals - Travel**           | Meals while traveling                       | Per diem or actual with receipts  |
+| **Entertainment**            | Client events, team activities              | Pre-approval usually required     |
+| **Office Supplies**          | Paper, pens, small equipment                | Under $50 no approval needed      |
+| **Technology**               | Software, subscriptions, peripherals        | Pre-approval for over $100        |
+| **Professional Development** | Courses, books, conferences                 | Pre-approval                      |
+| **Shipping / Postage**       | FedEx, USPS, UPS                            | Business purpose required         |
+| **Phone / Internet**         | Business use portion of personal plans      | Percentage reimbursement          |
+| **Dues / Memberships**       | Professional associations                   | Must be work-related              |
+| **Mileage**                  | Personal car for business                   | IRS rate x miles                  |
+| **Miscellaneous**            | Items that don't fit above                  | Requires explanation              |
 
 ### Tax-Relevant Notes
 
@@ -222,39 +223,39 @@ PRE-SUBMISSION CHECKLIST
 
 ### Expense Report Apps
 
-| App | Best For | Cost |
-|-----|----------|------|
-| Expensify | Receipt scanning + auto-categorization | Free / $5+ per user |
-| Concur | Enterprise, corporate travel integration | Enterprise pricing |
-| Zoho Expense | Small business, Zoho ecosystem | Free / $3+ per user |
-| Ramp | Corporate card + expense management | Free with Ramp card |
-| Brex | Startup corporate card + expenses | Free with Brex card |
-| Spreadsheet | Simple needs, full control | Free |
+| App          | Best For                                 | Cost                |
+| ------------ | ---------------------------------------- | ------------------- |
+| Expensify    | Receipt scanning + auto-categorization   | Free / $5+ per user |
+| Concur       | Enterprise, corporate travel integration | Enterprise pricing  |
+| Zoho Expense | Small business, Zoho ecosystem           | Free / $3+ per user |
+| Ramp         | Corporate card + expense management      | Free with Ramp card |
+| Brex         | Startup corporate card + expenses        | Free with Brex card |
+| Spreadsheet  | Simple needs, full control               | Free                |
 
 ### Speed Tips
 
-| Tip | Impact |
-|-----|--------|
-| Photograph receipts same day | Never lose a receipt |
-| Use expense app with OCR | Auto-fills amounts and vendors |
-| Submit weekly, not monthly | Smaller batches = faster approval |
-| Use company card when possible | Auto-imports to expense system |
-| Memorize your company's policies | Avoid rejections and resubmissions |
-| Keep a running total during trips | No surprises when you return |
-| Set calendar reminder to submit | Never miss reimbursement deadline |
+| Tip                               | Impact                             |
+| --------------------------------- | ---------------------------------- |
+| Photograph receipts same day      | Never lose a receipt               |
+| Use expense app with OCR          | Auto-fills amounts and vendors     |
+| Submit weekly, not monthly        | Smaller batches = faster approval  |
+| Use company card when possible    | Auto-imports to expense system     |
+| Memorize your company's policies  | Avoid rejections and resubmissions |
+| Keep a running total during trips | No surprises when you return       |
+| Set calendar reminder to submit   | Never miss reimbursement deadline  |
 
 ## Common Policy Compliance Issues
 
-| Issue | How to Avoid |
-|-------|-------------|
-| Over per-diem meal limits | Know your limits before ordering |
-| Missing attendee list for meals | Write names on receipt immediately |
-| Alcohol on expense report | Check policy - some companies allow, some don't |
-| Premium economy / business class flight | Get pre-approval for upgrades |
-| Spouse/partner expenses included | Separate personal charges |
-| Expenses submitted too late | Most companies have 30-60 day windows |
-| Foreign currency conversion | Use credit card rate or xe.com for cash expenses |
-| Tips over policy limit | Know the percentage cap (usually 18-20%) |
+| Issue                                   | How to Avoid                                     |
+| --------------------------------------- | ------------------------------------------------ |
+| Over per-diem meal limits               | Know your limits before ordering                 |
+| Missing attendee list for meals         | Write names on receipt immediately               |
+| Alcohol on expense report               | Check policy - some companies allow, some don't  |
+| Premium economy / business class flight | Get pre-approval for upgrades                    |
+| Spouse/partner expenses included        | Separate personal charges                        |
+| Expenses submitted too late             | Most companies have 30-60 day windows            |
+| Foreign currency conversion             | Use credit card rate or xe.com for cash expenses |
+| Tips over policy limit                  | Know the percentage cap (usually 18-20%)         |
 
 ## Mileage Tracking
 
@@ -274,7 +275,6 @@ Note: Commute from home to regular office is NOT reimbursable.
 Only track miles for business travel beyond normal commute.
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -282,7 +282,6 @@ Only track miles for business travel beyond normal commute.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -303,14 +302,12 @@ Only track miles for business travel beyond normal commute.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

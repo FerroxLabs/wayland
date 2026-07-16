@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics checklist template quick-reference python testing analysis"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science statistics checklist template quick-reference python testing analysis'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # A/B Testing Specialist
 
 You are an expert in online experimentation and A/B testing who designs rigorous experiments, avoids common statistical traps, and translates test results into confident product decisions.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about ab testing specialist techniques or best practices
 - User needs guidance on ab testing specialist concepts
 - User wants to implement or improve their approach to ab testing specialist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of ab testing specialist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -124,15 +125,15 @@ print(f"Sample size per group: {n:,}")
 
 ### Sample Size Quick Reference
 
-| Baseline Rate | MDE | Required n (per group) | Power |
-|---|---|---|---|
-| 5% | 0.5pp | 30,424 | 80% |
-| 5% | 1.0pp | 7,724 | 80% |
-| 10% | 1.0pp | 14,314 | 80% |
-| 10% | 2.0pp | 3,623 | 80% |
-| 20% | 2.0pp | 6,280 | 80% |
-| 20% | 5.0pp | 1,030 | 80% |
-| 50% | 5.0pp | 1,571 | 80% |
+| Baseline Rate | MDE   | Required n (per group) | Power |
+| ------------- | ----- | ---------------------- | ----- |
+| 5%            | 0.5pp | 30,424                 | 80%   |
+| 5%            | 1.0pp | 7,724                  | 80%   |
+| 10%           | 1.0pp | 14,314                 | 80%   |
+| 10%           | 2.0pp | 3,623                  | 80%   |
+| 20%           | 2.0pp | 6,280                  | 80%   |
+| 20%           | 5.0pp | 1,030                  | 80%   |
+| 50%           | 5.0pp | 1,571                  | 80%   |
 
 ## Running the Analysis
 
@@ -381,41 +382,44 @@ def thompson_sampling_step(arms_data):
 
 ### After the Test
 
-| Result | Powered? | Effect Meaningful? | Decision |
-|--------|----------|--------------------|----------|
-| Significant | Yes | Yes | Ship it |
-| Significant | Yes | No | Consider cost to implement |
-| Not significant | Yes | N/A | No meaningful effect exists |
-| Not significant | No | N/A | Run longer or accept larger MDE |
+| Result          | Powered? | Effect Meaningful? | Decision                        |
+| --------------- | -------- | ------------------ | ------------------------------- |
+| Significant     | Yes      | Yes                | Ship it                         |
+| Significant     | Yes      | No                 | Consider cost to implement      |
+| Not significant | Yes      | N/A                | No meaningful effect exists     |
+| Not significant | No       | N/A                | Run longer or accept larger MDE |
 
 ### Reporting Template
 
 ```markdown
 ## Experiment: [Name]
+
 **Hypothesis:** [What we expected]
 **Duration:** [Start] to [End] ([X] days)
 **Traffic:** [N control] / [N treatment]
 
 ### Primary Metric: [Metric Name]
-| Group | Value | 95% CI |
-|-------|-------|--------|
-| Control | X.XX% | [X.XX%, X.XX%] |
-| Treatment | X.XX% | [X.XX%, X.XX%] |
-| **Lift** | **+X.XX%** | **[X.XX%, X.XX%]** |
+
+| Group     | Value      | 95% CI             |
+| --------- | ---------- | ------------------ |
+| Control   | X.XX%      | [X.XX%, X.XX%]     |
+| Treatment | X.XX%      | [X.XX%, X.XX%]     |
+| **Lift**  | **+X.XX%** | **[X.XX%, X.XX%]** |
 
 **P-value:** X.XXXX | **Significant:** Yes/No
 **Power:** XX% | **Effect size:** X.XX
 
 ### Guard-rail Metrics
-| Metric | Control | Treatment | Change | Status |
-|--------|---------|-----------|--------|--------|
-| Revenue/user | $X.XX | $X.XX | +X.X% | OK |
-| Page load | X.Xs | X.Xs | -X.X% | OK |
+
+| Metric       | Control | Treatment | Change | Status |
+| ------------ | ------- | --------- | ------ | ------ |
+| Revenue/user | $X.XX   | $X.XX     | +X.X%  | OK     |
+| Page load    | X.Xs    | X.Xs      | -X.X%  | OK     |
 
 ### Recommendation
+
 [Ship / Iterate / Kill] - [Reasoning]
 ```
-
 
 ## Process
 
@@ -424,7 +428,6 @@ def thompson_sampling_step(arms_data):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -445,14 +448,12 @@ def thompson_sampling_step(arms_data):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

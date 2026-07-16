@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "scalability-architect distributed-systems system-designer interview-coach learning-accelerator"
+skills: 'scalability-architect distributed-systems system-designer interview-coach learning-accelerator'
 trigger_phrases: >-
   I want to ace system design interviews prepare for system design interview
   system design interview prep how to pass system design round practice system
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: architecture interview-prep career step-by-step planning
   category: career
-  depends: "scalability-architect distributed-systems system-designer interview-coach learning-accelerator"
+  depends: 'scalability-architect distributed-systems system-designer interview-coach learning-accelerator'
 ---
+
 # Ace System Design Interviews
 
 **Estimated time:** 6-12 weeks
@@ -170,6 +171,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching template api-design cloud testing automation analysis"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment teaching template api-design cloud testing automation analysis'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Developer Skill Map
 
 You are a senior technical career advisor and skills assessment specialist. You help developers honestly evaluate their technology proficiency across multiple domains, identify gaps relative to their career goals, and build actionable learning plans. You combine technical depth with career strategy to ensure skill development aligns with market demand and personal aspirations.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about developer skill map techniques or best practices
 - User needs guidance on developer skill map concepts
 - User wants to implement or improve their approach to developer skill map
 
 **Do NOT use when:**
+
 - The request falls outside the scope of developer skill map
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -145,12 +146,12 @@ Use this context to weight scoring and tailor recommendations.
 
 For each section, sum the ratings and calculate a percentage:
 
-| Section | Questions | Max Score | Weight |
-|---------|-----------|-----------|--------|
-| Core Programming | 1-8 | 40 | 35% |
-| Architecture and Design | 9-14 | 30 | 25% |
-| DevOps and Infrastructure | 15-19 | 25 | 20% |
-| Collaboration and Delivery | 20-24 | 25 | 20% |
+| Section                    | Questions | Max Score | Weight |
+| -------------------------- | --------- | --------- | ------ |
+| Core Programming           | 1-8       | 40        | 35%    |
+| Architecture and Design    | 9-14      | 30        | 25%    |
+| DevOps and Infrastructure  | 15-19     | 25        | 20%    |
+| Collaboration and Delivery | 20-24     | 25        | 20%    |
 
 **Section Percentage** = (Sum of Ratings / Max Score) x 100
 
@@ -158,13 +159,13 @@ For each section, sum the ratings and calculate a percentage:
 
 ### Proficiency Levels
 
-| Score Range | Level | Description |
-|-------------|-------|-------------|
-| 0-20% | Beginner | Foundational gaps need addressing |
-| 21-40% | Junior | Building competence, needs guided growth |
-| 41-60% | Mid-Level | Solid practitioner, ready to deepen expertise |
-| 61-80% | Senior | Strong capabilities, focus on leadership and specialization |
-| 81-100% | Expert | Teaching-level mastery, focus on influence and innovation |
+| Score Range | Level     | Description                                                 |
+| ----------- | --------- | ----------------------------------------------------------- |
+| 0-20%       | Beginner  | Foundational gaps need addressing                           |
+| 21-40%      | Junior    | Building competence, needs guided growth                    |
+| 41-60%      | Mid-Level | Solid practitioner, ready to deepen expertise               |
+| 61-80%      | Senior    | Strong capabilities, focus on leadership and specialization |
+| 81-100%     | Expert    | Teaching-level mastery, focus on influence and innovation   |
 
 ## Results Interpretation
 
@@ -191,12 +192,12 @@ For each section, sum the ratings and calculate a percentage:
 
 Based on the gap between current score and target role requirements:
 
-| Gap Size | Priority | Action |
-|----------|----------|--------|
-| 40%+ | Critical | Dedicated daily learning, project assignment, mentorship |
-| 20-39% | High | Weekly structured study, stretch assignments |
-| 10-19% | Medium | Monthly deep-dives, conference talks, side projects |
-| <10% | Maintenance | Stay current through reading and community participation |
+| Gap Size | Priority    | Action                                                   |
+| -------- | ----------- | -------------------------------------------------------- |
+| 40%+     | Critical    | Dedicated daily learning, project assignment, mentorship |
+| 20-39%   | High        | Weekly structured study, stretch assignments             |
+| 10-19%   | Medium      | Monthly deep-dives, conference talks, side projects      |
+| <10%     | Maintenance | Stay current through reading and community participation |
 
 ### Learning Path Construction
 
@@ -283,7 +284,6 @@ NEXT REASSESSMENT: [Date]
 - When participants score themselves at 5 on most items, probe with specific scenario questions to calibrate.
 - Adapt the technology-specific questions to match the participant's stack rather than using generic examples.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -291,7 +291,6 @@ NEXT REASSESSMENT: [Date]
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -312,14 +311,12 @@ NEXT REASSESSMENT: [Date]
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

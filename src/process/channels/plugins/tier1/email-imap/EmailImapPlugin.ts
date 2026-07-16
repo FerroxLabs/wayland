@@ -62,9 +62,7 @@ export class EmailImapPlugin extends BasePlugin {
     // unified shape; track the sender and hand off to the channel bus.
     worker.onMessage((message) => {
       this.activeUsers.add(message.user.id);
-      void this.emitMessage(message).catch((err) =>
-        console.error('[email-imapPlugin] emit failed:', err)
-      );
+      void this.emitMessage(message).catch((err) => console.error('[email-imapPlugin] emit failed:', err));
     });
 
     // connect() resolves on the first successful connect (or rejects with a

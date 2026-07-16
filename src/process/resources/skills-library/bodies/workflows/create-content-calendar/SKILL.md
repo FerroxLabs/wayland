@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing planning strategy step-by-step"
-  category: "content-creation"
-  depends: "content-audit audience-analysis editorial-calendar content-repurposing"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing planning strategy step-by-step'
+  category: 'content-creation'
+  depends: 'content-audit audience-analysis editorial-calendar content-repurposing'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Create a Content Calendar
@@ -169,6 +169,7 @@ When this workflow is complete, the user will have:
 ## Content Calendar: UX Design Thought Leadership -- Q2
 
 ### Content Audit Summary
+
 - **Total Existing Pieces:** 12 blog posts over 12 months
 - **Top Performers:** (1) UX case study: e-commerce redesign (2,400 views), (2) Career advice: breaking into UX (1,100 views), (3) Tool tutorial: Figma auto-layout (800 views)
 - **Underperformers:** 3 design trend opinion pieces (averaging 300 views each -- retire format)
@@ -179,7 +180,9 @@ When this workflow is complete, the user will have:
   4. Portfolio building -- career-adjacent to top performer
 
 ### Audience Personas
+
 **Persona 1: Mid-Career UX Designer ("Maya")**
+
 - Demographics: 3-7 years experience, works at startup or agency, IC or senior IC
 - Pain points: Wants to level up strategic skills, build portfolio for senior roles, demonstrate business impact
 - Preferred formats: Case studies with real metrics, actionable how-to guides
@@ -188,24 +191,25 @@ When this workflow is complete, the user will have:
 
 ### Editorial Calendar
 
-| Week | Date   | Topic                            | Format     | Channel | Persona | Keyword              | Status |
-|------|--------|----------------------------------|------------|---------|---------|----------------------|--------|
-| 1    | Apr 1  | UX case study: onboarding flow   | Case study | Blog    | Maya    | ux onboarding study  | Idea   |
-| 3    | Apr 15 | Accessibility audit checklist    | How-to     | Blog    | Maya    | ux accessibility     | Idea   |
-| 5    | Apr 29 | Case study: search redesign      | Case study | Blog    | Maya    | ux search design     | Idea   |
-| 7    | May 13 | Design system component guide    | How-to     | Blog    | Maya    | design system guide  | Idea   |
-| 9    | May 27 | Case study: mobile checkout      | Case study | Blog    | Maya    | mobile ux case study | Idea   |
-| 11   | Jun 10 | UX research methods comparison   | How-to     | Blog    | Maya    | ux research methods  | Idea   |
+| Week | Date   | Topic                          | Format     | Channel | Persona | Keyword              | Status |
+| ---- | ------ | ------------------------------ | ---------- | ------- | ------- | -------------------- | ------ |
+| 1    | Apr 1  | UX case study: onboarding flow | Case study | Blog    | Maya    | ux onboarding study  | Idea   |
+| 3    | Apr 15 | Accessibility audit checklist  | How-to     | Blog    | Maya    | ux accessibility     | Idea   |
+| 5    | Apr 29 | Case study: search redesign    | Case study | Blog    | Maya    | ux search design     | Idea   |
+| 7    | May 13 | Design system component guide  | How-to     | Blog    | Maya    | design system guide  | Idea   |
+| 9    | May 27 | Case study: mobile checkout    | Case study | Blog    | Maya    | mobile ux case study | Idea   |
+| 11   | Jun 10 | UX research methods comparison | How-to     | Blog    | Maya    | ux research methods  | Idea   |
 
 - **Publishing Frequency:** 2 posts per month (biweekly Tuesday)
 - **Content Pillars:** Case studies (data-driven), How-to guides (actionable), Career growth (portfolio/interviews)
 - **Reactive Slots:** 1 placeholder per month for timely UX industry commentary
 
 ### Repurposing Plan
-| Original Piece              | Derivative 1           | Derivative 2          | Derivative 3     | Extra Time |
-|----------------------------|------------------------|-----------------------|------------------|------------|
-| UX case study: onboarding  | LinkedIn article summary| Twitter/X 5-takeaway thread | Newsletter paragraph | 45 min |
-| Accessibility audit checklist | LinkedIn carousel (checklist format) | Twitter/X thread | Newsletter paragraph | 45 min |
+
+| Original Piece                | Derivative 1                         | Derivative 2                | Derivative 3         | Extra Time |
+| ----------------------------- | ------------------------------------ | --------------------------- | -------------------- | ---------- |
+| UX case study: onboarding     | LinkedIn article summary             | Twitter/X 5-takeaway thread | Newsletter paragraph | 45 min     |
+| Accessibility audit checklist | LinkedIn carousel (checklist format) | Twitter/X thread            | Newsletter paragraph | 45 min     |
 
 - **Total Weekly Time:** 3 hours (creation) + 1 hour (repurposing) = 4 hours total
 - **Capacity Check:** Within 5-hour weekly budget (1 hour buffer for research and planning)

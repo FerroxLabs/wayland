@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events guide"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events guide'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Child Development Milestone Tracker
 
 ## When to Use
 
 **Use this skill when:**
+
 - A parent, caregiver, grandparent, or early childhood educator asks about specific milestones a child should be reaching at a given age (e.g., "My 18-month-old isn't talking yet -- is that normal?")
 - A caregiver wants to understand whether observed behaviors fit typical developmental ranges according to CDC "Learn the Signs. Act Early." guidelines and AAP Bright Futures periodicity schedule
 - A user needs concrete enrichment activities tailored to a child's current developmental stage to support skill acquisition at home
@@ -30,6 +32,7 @@ metadata:
 - A caregiver suspects regression in a previously acquired skill and wants help framing their concern for a pediatric appointment
 
 **Do NOT use when:**
+
 - The child has an existing diagnosis (autism spectrum disorder, cerebral palsy, Down syndrome, sensory processing disorder) and the user needs diagnosis-specific therapy goals -- refer to a developmental pediatrician or the child's therapy team instead
 - The user describes an acute medical emergency (seizure, loss of consciousness, sudden inability to walk or speak) -- direct to emergency services immediately
 - The request involves mental health crisis for a parent or caregiver -- use a mental health support skill instead
@@ -118,37 +121,41 @@ Deliver responses using this structured template. Adapt section depth to the lev
 
 **DEVELOPMENTAL SNAPSHOT**
 
-| Field | Value |
-|---|---|
-| Child's Name/Identifier | [name or "your child"] |
-| Chronological Age | [X months / X years Y months] |
-| Adjusted Age (if applicable) | [X months -- used because born at [gestational age] weeks] |
-| Assessment Date | [today's date] |
-| Concern Level | Tier 1 -- Routine / Tier 2 -- Watch and Support / Tier 3 -- Discuss with Pediatrician Soon |
+| Field                        | Value                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Child's Name/Identifier      | [name or "your child"]                                                                     |
+| Chronological Age            | [X months / X years Y months]                                                              |
+| Adjusted Age (if applicable) | [X months -- used because born at [gestational age] weeks]                                 |
+| Assessment Date              | [today's date]                                                                             |
+| Concern Level                | Tier 1 -- Routine / Tier 2 -- Watch and Support / Tier 3 -- Discuss with Pediatrician Soon |
 
 ---
 
 **MILESTONE REVIEW**
 
 Domain: Gross Motor / Fine Motor (Physical)
+
 - On Track: [list specific observed skills with examples]
 - Emerging: [list skills appearing inconsistently]
 - Not Yet Observed: [list absent skills]
 - Assessment: [On Track / Monitor / Discuss with Pediatrician] -- [1--2 sentence rationale]
 
 Domain: Cognitive (Thinking and Learning)
+
 - On Track: [list specific observed skills]
 - Emerging: [list]
 - Not Yet Observed: [list]
 - Assessment: [level] -- [rationale]
 
 Domain: Language and Communication
+
 - Receptive (Understanding): [what child comprehends when others speak]
 - Expressive (Output): [words, gestures, sentences the child produces]
 - On Track / Emerging / Not Yet Observed: [organized list]
 - Assessment: [level] -- [rationale]
 
 Domain: Social-Emotional
+
 - On Track: [list]
 - Emerging: [list]
 - Not Yet Observed: [list]
@@ -164,11 +171,11 @@ Domain: Social-Emotional
 
 **ENRICHMENT ACTIVITIES (Next 4--6 Weeks)**
 
-| Priority | Activity | Domain Targeted | How to Do It | Frequency |
-|---|---|---|---|---|
-| 1 | [activity name] | [domain] | [specific instructions] | [daily / 3x/week / etc.] |
-| 2 | [activity name] | [domain] | [specific instructions] | [frequency] |
-| 3 | [activity name] | [domain] | [specific instructions] | [frequency] |
+| Priority | Activity        | Domain Targeted | How to Do It            | Frequency                |
+| -------- | --------------- | --------------- | ----------------------- | ------------------------ |
+| 1        | [activity name] | [domain]        | [specific instructions] | [daily / 3x/week / etc.] |
+| 2        | [activity name] | [domain]        | [specific instructions] | [frequency]              |
+| 3        | [activity name] | [domain]        | [specific instructions] | [frequency]              |
 
 ---
 
@@ -181,19 +188,19 @@ Domain: Social-Emotional
 
 ---
 
-**SCHOOL READINESS SUMMARY** *(include only for children ages 4.5--5.5)*
+**SCHOOL READINESS SUMMARY** _(include only for children ages 4.5--5.5)_
 
-| Domain | Status | Notes |
-|---|---|---|
-| Academic Readiness | On Track / Emerging / Not Yet | [detail] |
-| Language and Literacy | On Track / Emerging / Not Yet | [detail] |
-| Social-Emotional Readiness | On Track / Emerging / Not Yet | [detail] |
-| Self-Care Independence | On Track / Emerging / Not Yet | [detail] |
+| Domain                         | Status                        | Notes    |
+| ------------------------------ | ----------------------------- | -------- |
+| Academic Readiness             | On Track / Emerging / Not Yet | [detail] |
+| Language and Literacy          | On Track / Emerging / Not Yet | [detail] |
+| Social-Emotional Readiness     | On Track / Emerging / Not Yet | [detail] |
+| Self-Care Independence         | On Track / Emerging / Not Yet | [detail] |
 | Attention / Executive Function | On Track / Emerging / Not Yet | [detail] |
 
 ---
 
-**PROFESSIONAL GUIDANCE** *(include only for Tier 2 and Tier 3)*
+**PROFESSIONAL GUIDANCE** _(include only for Tier 2 and Tier 3)_
 
 - [Specific action step with who to contact and how]
 - [What to say to the pediatrician, with specific language]
@@ -235,27 +242,35 @@ Recommended reassessment timeframe: [specific -- e.g., "at 18-month well-child v
 ## Edge Cases
 
 ### The Premature Infant Whose Adjusted Age Straddles a Checkpoint
+
 A child born at 30 weeks (10 weeks early) has a chronological age of 15 months but an adjusted age of about 12.5 months. The formal CDC checkpoints are at 12 months and 15 months. Apply the **12-month milestone set** as the primary reference, note which 15-month milestones are just emerging, and communicate to the caregiver that this is expected. Do not combine elements of both checklists -- use the nearest checkpoint below adjusted age as the benchmark. Remind the caregiver that adjusted age correction is no longer applied after the child's second birthday regardless of prematurity level.
 
 ### The Bilingual Family Where Each Language Shows "Delays"
+
 When a caregiver reports a 24-month-old who says 20 words in English and 15 words in Spanish, they may be concerned because each individual count falls below 50. Explain the **total vocabulary** principle clearly: combine all words the child uses, regardless of language, and compare to the 50-word threshold. Also note that bilingual children often hit vocabulary milestones slightly later than monolingual peers (typically within 3--6 months) but converge by age 5 with no lasting disadvantage. Language mixing (code-switching) in young bilinguals is developmentally normal and does not indicate confusion. However, if the child's total vocabulary across ALL languages is below the threshold, the concern is real regardless of bilingual status -- do not use bilingualism to dismiss a genuine delay.
 
 ### The Caregiver Who Reports "The Pediatrician Said It's Fine" but Gut Instinct Persists
+
 This is one of the most clinically important edge cases. Validate the caregiver's instinct explicitly: parental concern is one of the most reliable early indicators of developmental difference, and research consistently supports its predictive validity. Give the caregiver specific language to use at the next visit: "I'd like to formally request a developmental screening using the ASQ-3 or M-CHAT-R/F today. I'd also like a referral to Early Intervention for an evaluation even if you think things look fine -- the evaluation is free and carries no downside." If the pediatrician declines, caregivers can self-refer directly to Early Intervention in all US states. A physician's endorsement is not required.
 
 ### The Child Whose Motor Delays Are Isolated and Significant
+
 A child at 18 months who is not walking and has no other developmental concerns presents differently than a globally delayed child. Isolated gross motor delay can indicate hypotonia (low muscle tone), structural orthopedic issues, or neurological differences that a pediatrician and physical therapist need to assess. Do not frame this as "some kids just walk late." Walking is expected by 15 months in 90% of children; absence of independent walking at 18 months is a Tier 3 concern with a specific referral pathway to pediatric physical therapy evaluation. Fine motor delay in isolation (poor scissors use at 4.5, absent tripod grasp at 5) warrants occupational therapy evaluation.
 
 ### The Child Approaching Kindergarten With Uneven Readiness
+
 A 5-year-old may be academically ready (knows all letters, counts to 20) but socially not ready (cannot sustain group play, significant separation anxiety, physical aggression when frustrated). Treat each readiness domain independently. Do not aggregate into a single "ready or not" judgment. The most predictive kindergarten readiness domain is **self-regulation**, not academic skills. A child with strong academics but poor self-regulation will struggle more in kindergarten than a child with weak academics and strong self-regulation. Frame the conversation around what the school team can support and what enrichment the caregiver can do at home in the months before entry. Never advise delaying kindergarten entry based on this tool alone -- that decision requires a multi-professional assessment.
 
 ### The Child Who Has Recently Lost Skills (Regression)
+
 Regression after a stressor (new sibling, move, illness, parental separation) is common and usually temporary for skills like toilet training, thumb-sucking return, or baby talk re-emergence. However, regression in **communication, social engagement, or mobility** is never dismissed as stress-related without medical evaluation. A child who had 20 words at 18 months and now has 5 at 22 months needs urgent evaluation regardless of what family stressors are present. Distinguish between regression in **self-care and behavioral skills** (often stress-related, resolves in 4--6 weeks) versus regression in **core developmental skills** (language, social referencing, motor skills) which require prompt professional attention.
 
 ### The Very Young Infant (0--3 Months) and the Worry About "Too Much Variation"
+
 Parents of newborns frequently over-interpret normal variation as delay. Provide clear framing: in the first 3 months, the most important milestones are the **sensory-social** ones -- does the baby alert to sound, track a face, calm with a familiar voice, show a social smile by 6--8 weeks? A 6-week-old who isn't lifting their head yet during tummy time is not delayed -- head control emerges between 2--4 months. Help parents focus on what IS present (feeding cues, responsiveness, sleep patterns) rather than what isn't yet. The exception: absent social smile by 3 months is a genuine red flag worth a pediatrician contact.
 
 ### The Caregiver Who Wants a "Pass/Fail" Score
+
 Some caregivers want a definitive "my child is developmentally on track" statement. This tool cannot and should not provide that. Explain that development is a continuous process observed over time, not a single-point assessment. Even formal screening tools like the ASQ-3 produce a probability-based classification ("above cutoff," "near cutoff," "below cutoff") -- not a diagnosis. The most honest and helpful framing is: "Based on what you've shared, here's what looks on track, here's what's worth monitoring, and here's what I'd recommend discussing with your child's medical team." This framing is both accurate and actionable.
 
 ---
@@ -269,31 +284,34 @@ Some caregivers want a definitive "my child is developmentally on track" stateme
 
 **DEVELOPMENTAL SNAPSHOT**
 
-| Field | Value |
-|---|---|
-| Child's Name | Marcus |
-| Chronological Age | 22 months |
-| Adjusted Age | Not applicable -- born full term |
-| Assessment Date | [current date] |
-| Concern Level | **Tier 3 -- Discuss with Pediatrician Soon** |
+| Field             | Value                                        |
+| ----------------- | -------------------------------------------- |
+| Child's Name      | Marcus                                       |
+| Chronological Age | 22 months                                    |
+| Adjusted Age      | Not applicable -- born full term             |
+| Assessment Date   | [current date]                               |
+| Concern Level     | **Tier 3 -- Discuss with Pediatrician Soon** |
 
 ---
 
 **MILESTONE REVIEW**
 
 **Domain: Gross Motor / Fine Motor (Physical)**
+
 - On Track: Walking independently, running, climbing -- all consistent with 18--24 month milestones. Cruising furniture and independent walking (expected by 12--15 months) are well established.
 - Emerging: Fine motor not described in detail -- no information on stacking blocks, scribbling, or cup use. Worth observing.
 - Not Yet Observed: No information on fine motor tasks -- ask caregiver about block stacking (4+ blocks expected by 18 months), scribbling with crayons, and using a spoon.
 - Assessment: **On Track for gross motor** -- Marcus's physical motor development is a clear strength. Fine motor information is incomplete; follow up at pediatrician visit.
 
 **Domain: Cognitive (Thinking and Learning)**
+
 - On Track: Points to show caregiver things (joint attention present), responds to name most of the time, demonstrates object knowledge through play (cars used functionally).
 - Emerging: No information on sorting shapes/colors, simple two-step pretend play (feeding a doll), or understanding "mine" vs. "yours." These are 18--24 month benchmarks worth exploring.
 - Not Yet Observed: No report of two-step pretend play sequences or shape/color sorting. Cannot confirm without more information.
 - Assessment: **Monitor** -- Joint attention is present, which is a positive cognitive-social indicator. Incomplete picture of problem-solving and symbolic play; follow up with targeted observation.
 
 **Domain: Language and Communication**
+
 - Receptive (Understanding): Responds to name (inconsistently -- "most of the time" is worth noting), no information on following simple one-step directions ("Get your shoes," "Give me the ball"). Understanding a 2-step instruction is expected by 18--24 months.
 - Expressive (Output): Approximately 12 words at 22 months. **No two-word combinations yet.** Two-word phrases (e.g., "more milk," "daddy go," "big dog") are expected by 24 months per CDC 2023 guidelines; absence is a red flag in the final 2 months of this window. Animal sounds count as communicative but do not count as true words for milestone purposes.
 - On Track: Pointing to show and request (protodeclarative and protoimperative pointing both present -- this is an important social-communicative strength)
@@ -301,6 +319,7 @@ Some caregivers want a definitive "my child is developmentally on track" stateme
 - Assessment: **Tier 3 -- Language warrants prompt attention.** Marcus had 8 words at 18 months (threshold is 10 words) and now has approximately 12 at 22 months (threshold is 50 words at 24 months per AAP). He is not on trajectory to meet the 50-word, two-word-phrase milestone in 2 months. The prior "keep reading to him" recommendation was appropriate but insufficient given the trajectory. A speech-language pathology evaluation is indicated now, not after the 24-month visit.
 
 **Domain: Social-Emotional**
+
 - On Track: Responds to name (usually), shows interest in other children (watching), engages in parallel observation, points to share interest with caregiver -- all positive social-referencing indicators. No report of unusual fearfulness or withdrawal from familiar adults.
 - Emerging: Parallel play with other children (watching but not joining) is developmentally on schedule for 22 months -- true associative play is not expected until 2.5--3 years. However, the combination of language gap plus some solitary preference is worth tracking.
 - Not Yet Observed: No information on emotional regulation (tantrums -- normal at this age? or unusual intensity?), separation from caregiver, or response to caregiver emotion.
@@ -316,13 +335,13 @@ Marcus's physical development is a clear strength, and his social referencing sk
 
 **ENRICHMENT ACTIVITIES (Next 4--6 Weeks)**
 
-| Priority | Activity | Domain Targeted | How to Do It | Frequency |
-|---|---|---|---|---|
-| 1 | Expansion conversation during car play | Language -- Expressive | When Marcus plays with cars, narrate and expand: "Car!" → "Red car going fast!" → pause and wait for him to respond. Add exactly one word beyond what he says. Wait 5 seconds after each expansion before speaking again -- silence invites him to try. | Every play session (daily) |
-| 2 | Daily picture book routine with pointing | Language -- Receptive and Joint Attention | Choose 3--4 board books with single-object-per-page images. Point to each image, name it, wait 3 seconds, point again. When he reaches for the page or points, respond immediately. Target: 10--15 minute daily session, same time each day (before nap or bed works well). | Daily, 10--15 min |
-| 3 | Two-choice requests embedded in routine | Language -- Expressive and Receptive | At mealtimes and transitions, offer forced choices: "Do you want the cup or the bowl?" "Shoes first or jacket first?" Hold up each item as you say it. Wait for any response -- a point, a look, a vocalization -- and honor it. This builds both receptive vocabulary and the foundation for two-word responses ("more cup"). | 3--5 times daily during natural transitions |
-| 4 | Parallel play facilitation with one familiar peer | Social-Emotional | Arrange a 30--45 minute play date with one child Marcus already knows, using duplicate toys (two sets of cars, two sets of blocks). Do not prompt sharing or direct interaction -- let Marcus play near the other child. Comment on what each child is doing ("Marcus's car is going up the ramp. Ella's car is going fast") without demanding joint play. Over weeks, proximity comfort increases naturally. | 1--2 times per week |
-| 5 | Cause-and-effect toy circuit | Cognitive | Rotate 3 cause-and-effect toys (pop-up box, simple puzzle with knob, drum with mallets). Demonstrate once, then give Marcus the toy and wait. Do not demonstrate twice in a row -- waiting creates the cognitive demand. Comment on what happens: "You pushed the button! The duck popped up!" | 2--3 times per week, 10 min sessions |
+| Priority | Activity                                          | Domain Targeted                           | How to Do It                                                                                                                                                                                                                                                                                                                                                                                                  | Frequency                                   |
+| -------- | ------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| 1        | Expansion conversation during car play            | Language -- Expressive                    | When Marcus plays with cars, narrate and expand: "Car!" → "Red car going fast!" → pause and wait for him to respond. Add exactly one word beyond what he says. Wait 5 seconds after each expansion before speaking again -- silence invites him to try.                                                                                                                                                       | Every play session (daily)                  |
+| 2        | Daily picture book routine with pointing          | Language -- Receptive and Joint Attention | Choose 3--4 board books with single-object-per-page images. Point to each image, name it, wait 3 seconds, point again. When he reaches for the page or points, respond immediately. Target: 10--15 minute daily session, same time each day (before nap or bed works well).                                                                                                                                   | Daily, 10--15 min                           |
+| 3        | Two-choice requests embedded in routine           | Language -- Expressive and Receptive      | At mealtimes and transitions, offer forced choices: "Do you want the cup or the bowl?" "Shoes first or jacket first?" Hold up each item as you say it. Wait for any response -- a point, a look, a vocalization -- and honor it. This builds both receptive vocabulary and the foundation for two-word responses ("more cup").                                                                                | 3--5 times daily during natural transitions |
+| 4        | Parallel play facilitation with one familiar peer | Social-Emotional                          | Arrange a 30--45 minute play date with one child Marcus already knows, using duplicate toys (two sets of cars, two sets of blocks). Do not prompt sharing or direct interaction -- let Marcus play near the other child. Comment on what each child is doing ("Marcus's car is going up the ramp. Ella's car is going fast") without demanding joint play. Over weeks, proximity comfort increases naturally. | 1--2 times per week                         |
+| 5        | Cause-and-effect toy circuit                      | Cognitive                                 | Rotate 3 cause-and-effect toys (pop-up box, simple puzzle with knob, drum with mallets). Demonstrate once, then give Marcus the toy and wait. Do not demonstrate twice in a row -- waiting creates the cognitive demand. Comment on what happens: "You pushed the button! The duck popped up!"                                                                                                                | 2--3 times per week, 10 min sessions        |
 
 ---
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing presentation"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing content-marketing presentation'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Presentation Builder
@@ -23,6 +23,7 @@ You are an expert Technical Presentation Builder who helps create compelling, cl
 ## Presentation Fundamentals
 
 ### The Three Pillars
+
 ```
 1. STORY: What is your message? What do you want the audience to think/feel/do?
 2. SLIDES: Visual support for your story (NOT the story itself)
@@ -32,6 +33,7 @@ Most people focus on slides. The best presenters focus on story.
 ```
 
 ### Presentation Types
+
 ```
 Technical Talk (30-60 min):
 - Conference or meetup format
@@ -58,6 +60,7 @@ Executive Briefing (15-20 min):
 ## Narrative Structure
 
 ### The Three-Act Structure for Tech Talks
+
 ```
 Act 1: THE PROBLEM (20% of time)
   - Why are we here? What pain point exists?
@@ -79,6 +82,7 @@ Act 3: THE TRANSFORMATION (20% of time)
 ### Narrative Patterns
 
 **Problem-Solution-Result**:
+
 ```
 1. Here's the problem we faced [relatable pain]
 2. Here's what we tried and what we learned [journey]
@@ -88,6 +92,7 @@ Act 3: THE TRANSFORMATION (20% of time)
 ```
 
 **Concept-Example-Application**:
+
 ```
 1. Here's a concept [explain the idea]
 2. Here's a concrete example [make it tangible]
@@ -96,6 +101,7 @@ Act 3: THE TRANSFORMATION (20% of time)
 ```
 
 **Journey/Story Arc**:
+
 ```
 1. We had a system that worked fine... [setup]
 2. Then traffic grew 10x... [rising tension]
@@ -108,6 +114,7 @@ Act 3: THE TRANSFORMATION (20% of time)
 ## Slide Design Principles
 
 ### The Cardinal Rules
+
 ```
 1. ONE idea per slide: If a slide makes two points, make two slides
 2. Slides support your words: They are not a teleprompter
@@ -117,6 +124,7 @@ Act 3: THE TRANSFORMATION (20% of time)
 ```
 
 ### Text on Slides
+
 ```
 BAD: A slide with 8 bullet points and 3 paragraphs of text
 GOOD: A slide with one sentence and a supporting image
@@ -136,6 +144,7 @@ Font Sizes:
 ### Slide Templates
 
 **Title Slide**:
+
 ```
 [Presentation Title]
 [Your Name] | [Company] | [Event]
@@ -143,12 +152,14 @@ Font Sizes:
 ```
 
 **Section Divider**:
+
 ```
 [Large text: Section name]
 [Optional: one-sentence preview of what's next]
 ```
 
 **Key Point Slide**:
+
 ```
 [One big statement or quote, centered]
 [Optional: supporting image or icon]
@@ -156,6 +167,7 @@ No bullets. Just one powerful statement.
 ```
 
 **Code Slide**:
+
 ```
 [Descriptive title: what this code does]
 [Code block with syntax highlighting]
@@ -164,6 +176,7 @@ No bullets. Just one powerful statement.
 ```
 
 **Comparison Slide**:
+
 ```
 [Title: X vs Y]
 ┌───────────────────┬───────────────────┐
@@ -177,6 +190,7 @@ No bullets. Just one powerful statement.
 ```
 
 **Diagram Slide**:
+
 ```
 [Descriptive title]
 [Clean diagram with clear labels]
@@ -187,6 +201,7 @@ No bullets. Just one powerful statement.
 ## Data Visualization
 
 ### Chart Selection
+
 ```
 Showing comparison: Bar chart (horizontal for many items)
 Showing trend over time: Line chart
@@ -204,6 +219,7 @@ Presentation-Specific Rules:
 ```
 
 ### Before/After Metrics
+
 ```
 Effective pattern for showing improvement:
 
@@ -221,6 +237,7 @@ Percentages of improvement are powerful: "93% faster"
 ## Live Demo Preparation
 
 ### The Demo Preparation Checklist
+
 ```
 Before the Talk:
 [ ] Demo script written and practiced (every click, every command)
@@ -247,6 +264,7 @@ After the Demo:
 ```
 
 ### Demo Script Example
+
 ```
 1. Open terminal (full screen)
 2. "Let me start the application" → npm start
@@ -263,6 +281,7 @@ After the Demo:
 ```
 
 ### Handling Demo Failures
+
 ```
 If the demo breaks:
 1. Don't panic. Take a breath.
@@ -282,6 +301,7 @@ Prevention:
 ## Speaker Notes
 
 ### Writing Effective Speaker Notes
+
 ```
 Speaker notes are for YOU, not for the audience.
 
@@ -308,6 +328,7 @@ Pause for questions. ~20 min mark."
 ## Audience Engagement Techniques
 
 ### Engagement Methods
+
 ```
 1. Ask Questions:
    "How many of you have dealt with database scaling issues?"
@@ -332,6 +353,7 @@ Pause for questions. ~20 min mark."
 ```
 
 ### Reading the Room
+
 ```
 Signs the audience is engaged:
 - Eye contact, nodding
@@ -356,6 +378,7 @@ If you're losing them:
 ## Presentation Tools
 
 ### Tool Selection
+
 ```
 Slide Creation:
 - Google Slides: Collaborative, simple, good enough for most talks
@@ -382,6 +405,7 @@ Engagement:
 ## Remote Presentation Tips
 
 ### Remote-Specific Adaptations
+
 ```
 Setup:
 - Camera on (builds connection)
@@ -408,6 +432,7 @@ Slides:
 ## Q&A Preparation
 
 ### Anticipating Questions
+
 ```
 For every presentation, prepare for these categories:
 
@@ -428,6 +453,7 @@ For every presentation, prepare for these categories:
 ```
 
 ### Handling Difficult Questions
+
 ```
 "I don't know":
 "That's a great question. I don't have the answer off the top of my head,
@@ -479,6 +505,7 @@ OUTLINE:
 ## Quick Decision Guide
 
 When asked about presentations:
+
 - **"Help me structure a talk"** → Three-act structure, define core message first
 - **"My slides are too text-heavy"** → One idea per slide, cut text by 70%, add visuals
 - **"How to do a live demo?"** → Demo preparation checklist + backup video + practice 3x
@@ -489,6 +516,7 @@ When asked about presentations:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing presentation builder solutions
 - Reviewing or improving existing presentation builder approaches
 - Making architectural or implementation decisions about presentation builder
@@ -496,6 +524,7 @@ When asked about presentations:
 - Troubleshooting presentation builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -506,21 +535,26 @@ When asked about presentations:
 # Presentation Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

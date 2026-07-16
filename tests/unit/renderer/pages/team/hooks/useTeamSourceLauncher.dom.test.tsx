@@ -38,17 +38,13 @@ describe('useTeamSourceLauncher', () => {
       { id: 'ext-other', name: 'My Team', _kind: 'team' },
       { id: 'ext-canonical', name: 'Different Name', _kind: 'team' },
     ]);
-    const { result } = renderHook(() =>
-      useTeamSourceLauncher({ name: 'My Team', sourceLauncherId: 'ext-canonical' })
-    );
+    const { result } = renderHook(() => useTeamSourceLauncher({ name: 'My Team', sourceLauncherId: 'ext-canonical' }));
     expect(result.current.launcher?.id).toBe('ext-canonical');
   });
 
   it('returns null when sourceLauncherId is stale (no fallback to name match)', () => {
     setAssistants([{ id: 'ext-existing', name: 'My Team', _kind: 'team' }]);
-    const { result } = renderHook(() =>
-      useTeamSourceLauncher({ name: 'My Team', sourceLauncherId: 'ext-deleted' })
-    );
+    const { result } = renderHook(() => useTeamSourceLauncher({ name: 'My Team', sourceLauncherId: 'ext-deleted' }));
     expect(result.current.launcher).toBeNull();
   });
 

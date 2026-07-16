@@ -42,9 +42,7 @@ describe('useStandingEligibility', () => {
   });
 
   it('is eligible when sessionCount >= 5', () => {
-    const { result } = renderHook(() =>
-      useStandingEligibility({ sessionCount: 5, firstActiveAt: NOW - ONE_DAY_MS })
-    );
+    const { result } = renderHook(() => useStandingEligibility({ sessionCount: 5, firstActiveAt: NOW - ONE_DAY_MS }));
     expect(result.current.eligible).toBe(true);
     expect(result.current.sessionsRemaining).toBe(0);
   });
@@ -68,9 +66,7 @@ describe('useStandingEligibility', () => {
   });
 
   it('computes sessionsRemaining correctly when partially through the count', () => {
-    const { result } = renderHook(() =>
-      useStandingEligibility({ sessionCount: 4, firstActiveAt: undefined })
-    );
+    const { result } = renderHook(() => useStandingEligibility({ sessionCount: 4, firstActiveAt: undefined }));
     expect(result.current.eligible).toBe(false);
     expect(result.current.sessionsRemaining).toBe(1);
     // firstActiveAt unknown → daysRemaining fall back to 14

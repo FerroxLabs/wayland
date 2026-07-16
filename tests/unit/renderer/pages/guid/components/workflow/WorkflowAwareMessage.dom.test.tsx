@@ -37,7 +37,7 @@ const collectChildOutput = (body: string, totalSteps = TOTAL_STEPS) => {
     <WorkflowAwareMessage body={body} totalSteps={totalSteps} onMarker={onMarker}>
       {(cleaned) => {
         seen.push(cleaned);
-        return <div data-testid="cleaned">{cleaned}</div>;
+        return <div data-testid='cleaned'>{cleaned}</div>;
       }}
     </WorkflowAwareMessage>
   );
@@ -67,8 +67,7 @@ describe('WorkflowAwareMessage', () => {
   });
 
   it('fires onMarker for an <ask> marker found in the body', () => {
-    const body =
-      'Quick question:<ask type="text" placeholder="e.g. $500">What is your budget?</ask> Thanks.';
+    const body = 'Quick question:<ask type="text" placeholder="e.g. $500">What is your budget?</ask> Thanks.';
     const { markers, seen } = collectChildOutput(body);
 
     expect(markers).toHaveLength(1);
@@ -87,13 +86,7 @@ describe('WorkflowAwareMessage', () => {
   });
 
   it('does NOT strip markers inside fenced code blocks AND does NOT emit them', () => {
-    const body = [
-      'Here is an example agents emit:',
-      '```',
-      '<step n="3" status="done"/>',
-      '```',
-      'End.',
-    ].join('\n');
+    const body = ['Here is an example agents emit:', '```', '<step n="3" status="done"/>', '```', 'End.'].join('\n');
 
     const { seen, markers } = collectChildOutput(body);
     const cleaned = seen[seen.length - 1];

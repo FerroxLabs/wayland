@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting planning template"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'goal-setting planning template'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Personal OKR Builder
@@ -215,15 +215,16 @@ metadata:
 **Baseline:** 0 exercises completed
 **Target:** 8 exercises completed
 
-| Score | Metric Value | Description |
-|-------|-------------|-------------|
-| 0.0 | 0 exercises | Did not engage with skill-building at all |
-| 0.3 | 2 exercises | Started but did not sustain the practice |
-| 0.5 | 4 exercises | Completed half -- meaningful engagement |
-| 0.7 | 6 exercises | Strong commitment, most exercises done |
-| 1.0 | 8 exercises | Full curriculum completed as planned |
+| Score | Metric Value | Description                               |
+| ----- | ------------ | ----------------------------------------- |
+| 0.0   | 0 exercises  | Did not engage with skill-building at all |
+| 0.3   | 2 exercises  | Started but did not sustain the practice  |
+| 0.5   | 4 exercises  | Completed half -- meaningful engagement   |
+| 0.7   | 6 exercises  | Strong commitment, most exercises done    |
+| 1.0   | 8 exercises  | Full curriculum completed as planned      |
 
 **On-track checkpoints:**
+
 - By week 4: 2 exercises completed or higher
 - By week 9: 5 exercises completed or higher
 
@@ -235,15 +236,16 @@ metadata:
 **Baseline:** Current documentation clarity is unrated; informal feedback suggests "hard to follow"
 **Target:** 5 documents rewritten with average clarity rating of 4.0/5.0 from reviewers
 
-| Score | Metric Value | Description |
-|-------|-------------|-------------|
-| 0.0 | 0 documents rewritten | Did not apply skills to real work |
-| 0.3 | 1-2 documents, rating below 3.5 | Some effort but quality not yet improved |
-| 0.5 | 3 documents, average rating 3.5/5 | Meaningful improvement, halfway to target |
-| 0.7 | 4 documents, average rating 3.8/5 | Strong output, nearing quality target |
-| 1.0 | 5 documents, average rating 4.0/5+ | Full target met -- clear, reference-quality docs |
+| Score | Metric Value                       | Description                                      |
+| ----- | ---------------------------------- | ------------------------------------------------ |
+| 0.0   | 0 documents rewritten              | Did not apply skills to real work                |
+| 0.3   | 1-2 documents, rating below 3.5    | Some effort but quality not yet improved         |
+| 0.5   | 3 documents, average rating 3.5/5  | Meaningful improvement, halfway to target        |
+| 0.7   | 4 documents, average rating 3.8/5  | Strong output, nearing quality target            |
+| 1.0   | 5 documents, average rating 4.0/5+ | Full target met -- clear, reference-quality docs |
 
 **On-track checkpoints:**
+
 - By week 4: 1 document rewritten and reviewed
 - By week 9: 3 documents rewritten, average rating 3.5+ from reviewers
 
@@ -255,15 +257,16 @@ metadata:
 **Baseline:** Average 4 hours to produce first draft of a new technical document
 **Target:** Average 2 hours per first draft (measured over last 3 documents of the quarter)
 
-| Score | Metric Value | Description |
-|-------|-------------|-------------|
-| 0.0 | 4+ hours average | No improvement in speed |
-| 0.3 | 3.5 hours average | Marginal speed improvement |
-| 0.5 | 3 hours average | 25% faster -- meaningful gain |
-| 0.7 | 2.5 hours average | 37% faster -- strong improvement |
-| 1.0 | 2 hours average | 50% faster -- target achieved |
+| Score | Metric Value      | Description                      |
+| ----- | ----------------- | -------------------------------- |
+| 0.0   | 4+ hours average  | No improvement in speed          |
+| 0.3   | 3.5 hours average | Marginal speed improvement       |
+| 0.5   | 3 hours average   | 25% faster -- meaningful gain    |
+| 0.7   | 2.5 hours average | 37% faster -- strong improvement |
+| 1.0   | 2 hours average   | 50% faster -- target achieved    |
 
 **On-track checkpoints:**
+
 - By week 4: Next document drafted in under 3.5 hours
 - By week 9: Average of last 2 documents under 3 hours
 
@@ -271,44 +274,46 @@ metadata:
 
 ### Weekly Tracking Sheet
 
-| Week | KR1: Exercises Done (cumulative) | KR2: Docs Rewritten (cumulative) | KR3: Last Draft Time (hours) | Notes |
-|------|----------------------------------|----------------------------------|------------------------------|-------|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | Checkpoint: week 4 review |
-| 5 | | | | |
-| 6 | | | | |
-| 7 | | | | |
-| 8 | | | | |
-| 9 | | | | Checkpoint: week 9 review |
-| 10 | | | | |
-| 11 | | | | |
-| 12 | | | | |
-| 13 | | | | Final grading |
+| Week | KR1: Exercises Done (cumulative) | KR2: Docs Rewritten (cumulative) | KR3: Last Draft Time (hours) | Notes                     |
+| ---- | -------------------------------- | -------------------------------- | ---------------------------- | ------------------------- |
+| 1    |                                  |                                  |                              |                           |
+| 2    |                                  |                                  |                              |                           |
+| 3    |                                  |                                  |                              |                           |
+| 4    |                                  |                                  |                              | Checkpoint: week 4 review |
+| 5    |                                  |                                  |                              |                           |
+| 6    |                                  |                                  |                              |                           |
+| 7    |                                  |                                  |                              |                           |
+| 8    |                                  |                                  |                              |                           |
+| 9    |                                  |                                  |                              | Checkpoint: week 9 review |
+| 10   |                                  |                                  |                              |                           |
+| 11   |                                  |                                  |                              |                           |
+| 12   |                                  |                                  |                              |                           |
+| 13   |                                  |                                  |                              | Final grading             |
 
 ---
 
 ### Grading Template (Complete June 30)
 
 **Period:** Q2 2026 (April 1 - June 30)
-**Grading date:** _______________
+**Grading date:** ******\_\_\_******
 
-| Key Result | Final Value | Score (0.0-1.0) | Notes |
-|------------|------------|-----------------|-------|
-| KR1: Writing exercises | ___/8 | ___ | |
-| KR2: Docs rewritten (avg rating) | ___/5 (___/5.0) | ___ | |
-| KR3: Avg draft time | ___ hours | ___ | |
+| Key Result                       | Final Value     | Score (0.0-1.0) | Notes |
+| -------------------------------- | --------------- | --------------- | ----- |
+| KR1: Writing exercises           | \_\_\_/8        | \_\_\_          |       |
+| KR2: Docs rewritten (avg rating) | **_/5 (_**/5.0) | \_\_\_          |       |
+| KR3: Avg draft time              | \_\_\_ hours    | \_\_\_          |       |
 
-**Overall Objective Score:** ___ (average of 3 KR scores)
+**Overall Objective Score:** \_\_\_ (average of 3 KR scores)
 
 **Score interpretation:**
+
 - 0.0-0.3: Technical writing skill did not materially improve. Major recalibration needed.
 - 0.4-0.6: Some improvement visible. Continue with adjusted key results next quarter.
 - 0.7-0.8: Strong skill development. Writing is noticeably clearer and faster. Level up next quarter.
 - 0.9-1.0: Exceptional quarter. Were the targets ambitious enough? Set harder KRs.
 
 **Reflection:**
+
 1. Which key result am I most proud of? Why?
 2. Which key result fell shortest? What blocked it?
 3. Would I set the same objective again? What would I change?

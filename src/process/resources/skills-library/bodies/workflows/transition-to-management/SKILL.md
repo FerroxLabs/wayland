@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "career-pivot-advisor leadership-framework-builder goal-setting-master stakeholder-communicator performance-review-writer"
+skills: 'career-pivot-advisor leadership-framework-builder goal-setting-master stakeholder-communicator performance-review-writer'
 trigger_phrases: >-
   I want to become a manager transition from IC to management first-time manager
   guide how to move into leadership preparing for a management role IC to
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: career strategy step-by-step planning
   category: career
-  depends: "career-pivot-advisor leadership-framework-builder goal-setting-master stakeholder-communicator performance-review-writer"
+  depends: 'career-pivot-advisor leadership-framework-builder goal-setting-master stakeholder-communicator performance-review-writer'
 ---
+
 # Transition To Management
 
 **Estimated time:** 3-6 months
@@ -166,6 +167,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "language-learning study-skills step-by-step guide"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'language-learning study-skills step-by-step guide'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Grammar Practice
 
 ## When to Use
@@ -68,23 +69,27 @@ Write the metalinguistic explanation -- the explicit statement of the rule -- wi
 Follow the **P-P-P progression** (Presentation -- Practice -- Production) extended into four exercise levels. Each level removes one scaffolding layer. Do not skip levels for a learner who says they are advanced -- confirm by asking them to attempt Level 1 first.
 
 **Level 1 -- Recognition (Minimal production demand):**
+
 - Supply 6--8 sentences. Some are grammatically correct uses of the target form; some contain errors or alternative forms.
 - Ask the learner to identify: (a) which sentences use the target form correctly, (b) which contain errors, and (c) what the error is.
 - Include distractor errors that reflect real L1-transfer mistakes, not random errors.
 
 **Level 2 -- Controlled Production (Fill-in-the-blank):**
+
 - Supply 6--8 sentence frames with the base form (infinitive or lemma) of the target verb/structure in parentheses.
 - The learner produces only the target form -- no other decisions required.
 - Include at least one irregular form to flag irregularity as a distinct learning challenge.
 - Include one sentence that tests understanding of use condition, not just form (e.g., a sentence where the context requires choosing between two forms).
 
 **Level 3 -- Guided Production (Sentence transformation or sentence building):**
+
 - Supply 4--6 prompts that require the learner to construct a full sentence using the target form.
 - Use structured prompts: "Write a sentence about something you had already done before you arrived at school yesterday."
 - This level tests both form production AND appropriate use-condition selection.
 - Learner must generate vocabulary choices, not just morphology.
 
 **Level 4 -- Free Production (Communicative writing):**
+
 - Supply a short communicative task (3--5 sentences minimum) that naturally elicits the target structure multiple times.
 - Make the task meaningful: a journal entry, a short email, a description, a narrative. Not "write 5 sentences using X."
 - Do not tell the learner how many times to use the target form -- this forces them to decide when the form is appropriate, not just insert it mechanically.
@@ -369,6 +374,7 @@ Sometimes a learner frames the request as "I want to practice [grammar point] in
 **Forms:**
 
 Preterite (completed event):
+
 ```
 -AR verbs: habl-é, habl-aste, habl-ó, habl-amos, habl-asteis, habl-aron
 -ER/-IR verbs: com-í, com-iste, com-ió; viv-í, viv-iste, viv-ió
@@ -376,6 +382,7 @@ Key irregulars: ser/ir → fui, fuiste, fue; tener → tuve; estar → estuve; h
 ```
 
 Imperfect (ongoing or habitual past):
+
 ```
 -AR verbs: habl-aba, habl-abas, habl-aba, habl-ábamos, habl-abais, habl-aban
 -ER/-IR verbs: com-ía, com-ías, com-ía; viv-ía, viv-ías, viv-ía
@@ -384,14 +391,15 @@ Key irregulars (only 3): ser → era; ir → iba; ver → veía
 
 **Use Conditions:**
 
-| Use the PRETERITE when: | Use the IMPERFECT when: |
-|------------------------|------------------------|
-| The action has a clear beginning or end | The action was ongoing with no fixed endpoint named |
-| The action happened once or a countable number of times | The action was habitual or repeated in the past |
+| Use the PRETERITE when:                                        | Use the IMPERFECT when:                                  |
+| -------------------------------------------------------------- | -------------------------------------------------------- |
+| The action has a clear beginning or end                        | The action was ongoing with no fixed endpoint named      |
+| The action happened once or a countable number of times        | The action was habitual or repeated in the past          |
 | The action is the main event of the narrative (the plot moved) | The action is background description (setting the scene) |
-| The emotion or mental state changed at a specific moment | The emotion or mental state was an ongoing condition |
+| The emotion or mental state changed at a specific moment       | The emotion or mental state was an ongoing condition     |
 
 **Quick Heuristic:**
+
 > Preterite = the event (what happened, plot movement); Imperfect = the atmosphere (what was going on, background, habit).
 
 **Annotated Examples:**
@@ -430,12 +438,12 @@ English does not grammatically distinguish these two past concepts with differen
 
 **Instructions:** Complete each sentence with the correct form of the verb in parentheses. Choose preterite or imperfect based on the context.
 
-1. Cuando era pequeño, mi abuela siempre ___ (hacer) tortilla los domingos.
-2. Ayer me ___ (llamar) mi amigo Carlos a las diez de la noche.
-3. Nosotros ___ (vivir) en ese apartamento durante tres años antes de mudarnos.
-4. El cielo ___ (estar) completamente despejado cuando ___ (salir / nosotros) de casa.
-5. De repente, el niño ___ (empezar) a llorar sin ninguna razón.
-6. En aquella época, todos los estudiantes ___ (llevar) uniforme al colegio.
+1. Cuando era pequeño, mi abuela siempre \_\_\_ (hacer) tortilla los domingos.
+2. Ayer me \_\_\_ (llamar) mi amigo Carlos a las diez de la noche.
+3. Nosotros \_\_\_ (vivir) en ese apartamento durante tres años antes de mudarnos.
+4. El cielo **_ (estar) completamente despejado cuando _** (salir / nosotros) de casa.
+5. De repente, el niño \_\_\_ (empezar) a llorar sin ninguna razón.
+6. En aquella época, todos los estudiantes \_\_\_ (llevar) uniforme al colegio.
 
 ---
 
@@ -460,25 +468,25 @@ English does not grammatically distinguish these two past concepts with differen
 
 **Exercise 1:**
 
-| # | Answer | Explanation |
-|---|--------|-------------|
-| 1 | E → tenía | Having a dog was an ongoing state during childhood -- no fixed endpoint. Use imperfect. |
-| 2 | C | Six months in Buenos Aires is a bounded completed period. Preterite correct. |
-| 3 | C | "Siempre llegaba" = habitual past action. Imperfect correct. |
-| 4 | E → cantaban | The singing was an ongoing action happening when she entered -- it is background. "cantaron" would imply they started AND finished singing as a completed event. Use imperfect: "estaban cantando" or "cantaban." |
-| 5 | C | "Era" = background time description (imperfect); "oímos" = the hearing event (preterite). Both correct. |
-| 6 | E → llovió | "De repente" (suddenly) marks this as an event with a clear onset -- it entered the scene as a plot event. Preterite: "llovió tanto que..." |
+| #   | Answer       | Explanation                                                                                                                                                                                                       |
+| --- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | E → tenía    | Having a dog was an ongoing state during childhood -- no fixed endpoint. Use imperfect.                                                                                                                           |
+| 2   | C            | Six months in Buenos Aires is a bounded completed period. Preterite correct.                                                                                                                                      |
+| 3   | C            | "Siempre llegaba" = habitual past action. Imperfect correct.                                                                                                                                                      |
+| 4   | E → cantaban | The singing was an ongoing action happening when she entered -- it is background. "cantaron" would imply they started AND finished singing as a completed event. Use imperfect: "estaban cantando" or "cantaban." |
+| 5   | C            | "Era" = background time description (imperfect); "oímos" = the hearing event (preterite). Both correct.                                                                                                           |
+| 6   | E → llovió   | "De repente" (suddenly) marks this as an event with a clear onset -- it entered the scene as a plot event. Preterite: "llovió tanto que..."                                                                       |
 
 **Exercise 2:**
 
-| # | Correct Form | Note |
-|---|-------------|------|
-| 1 | hacía | Habitual Sunday habit -- imperfect. Irregular: hacer → hacía. |
-| 2 | llamó | Single call at a specific named time (10pm). Preterite. |
-| 3 | vivimos | Bounded three-year period, completed. Preterite. Note: "vivimos" = preterite 1st person plural (same form as present -- context clarifies). |
-| 4 | estaba / salimos | Sky condition = ongoing background (imperfect); leaving = bounded event (preterite). |
-| 5 | empezó | "De repente" triggers preterite -- sudden onset event. |
-| 6 | llevaban | Habitual dress code of the era -- imperfect. |
+| #   | Correct Form     | Note                                                                                                                                        |
+| --- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | hacía            | Habitual Sunday habit -- imperfect. Irregular: hacer → hacía.                                                                               |
+| 2   | llamó            | Single call at a specific named time (10pm). Preterite.                                                                                     |
+| 3   | vivimos          | Bounded three-year period, completed. Preterite. Note: "vivimos" = preterite 1st person plural (same form as present -- context clarifies). |
+| 4   | estaba / salimos | Sky condition = ongoing background (imperfect); leaving = bounded event (preterite).                                                        |
+| 5   | empezó           | "De repente" triggers preterite -- sudden onset event.                                                                                      |
+| 6   | llevaban         | Habitual dress code of the era -- imperfect.                                                                                                |
 
 **Exercise 3 -- Model Answers and Acceptable Variations:**
 
@@ -504,14 +512,14 @@ Acceptable variation: The learner may describe any past day. Required: at least 
 
 ### Common Error Table
 
-| Learner Error | Correct Form | Rule Violated | Error Type |
-|---------------|--------------|---------------|-----------|
-| "De niña tuve un perro" (meant: I had a dog throughout my childhood) | "tenía un perro" | Imperfect required for ongoing possession with no fixed endpoint | Use-condition error (L1 transfer: English uses "had" for both) |
-| "Cuando entré, todos cantaron" (meant: they were in the middle of singing) | "estaban cantando" / "cantaban" | Background ongoing action requires imperfect | Use-condition error |
-| "De repente llovía" | "llovió" | "De repente" marks clear event onset -- preterite required | Use-condition error |
-| "Siempre llegué tarde" (meant: I was always late) | "llegaba" | Habitual past action requires imperfect; preterite implies a single event | Use-condition error (L1 transfer: English "arrived" covers both) |
-| "Hicía mucho calor" | "Hacía mucho calor" | Irregular imperfect: hacer → hacía (not hicía) | Form error -- overgeneralization of imperfect -ía pattern |
-| "Fuimos allí todos los veranos" (meant: as a child's habit) | "íbamos allí todos los veranos" | Habitual repetition across an open-ended period = imperfect; "fuimos" = one counted trip | Use-condition error -- "todos los veranos" does not by itself trigger imperfect; the habituality of the childhood period does |
+| Learner Error                                                              | Correct Form                    | Rule Violated                                                                            | Error Type                                                                                                                    |
+| -------------------------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| "De niña tuve un perro" (meant: I had a dog throughout my childhood)       | "tenía un perro"                | Imperfect required for ongoing possession with no fixed endpoint                         | Use-condition error (L1 transfer: English uses "had" for both)                                                                |
+| "Cuando entré, todos cantaron" (meant: they were in the middle of singing) | "estaban cantando" / "cantaban" | Background ongoing action requires imperfect                                             | Use-condition error                                                                                                           |
+| "De repente llovía"                                                        | "llovió"                        | "De repente" marks clear event onset -- preterite required                               | Use-condition error                                                                                                           |
+| "Siempre llegué tarde" (meant: I was always late)                          | "llegaba"                       | Habitual past action requires imperfect; preterite implies a single event                | Use-condition error (L1 transfer: English "arrived" covers both)                                                              |
+| "Hicía mucho calor"                                                        | "Hacía mucho calor"             | Irregular imperfect: hacer → hacía (not hicía)                                           | Form error -- overgeneralization of imperfect -ía pattern                                                                     |
+| "Fuimos allí todos los veranos" (meant: as a child's habit)                | "íbamos allí todos los veranos" | Habitual repetition across an open-ended period = imperfect; "fuimos" = one counted trip | Use-condition error -- "todos los veranos" does not by itself trigger imperfect; the habituality of the childhood period does |
 
 ---
 
@@ -533,11 +541,11 @@ After completing all four exercises:
 
 ### Grammar System Connections
 
-| Relationship | Grammar Point | Notes |
-|-------------|---------------|-------|
-| Prerequisite | Regular preterite paradigm (all three conjugation classes + top 10 irregulars) | Cannot make a use-condition decision if the forms are not automatic |
-| Commonly confused with | Present perfect (pretérito perfecto compuesto: he comido) | In Peninsular Spanish, recent past often uses present perfect where Latin American Spanish uses preterite -- same use-condition logic applies once the learner knows which regional standard they are targeting |
-| Next step | Preterite vs. imperfect with state verbs (saber, conocer, querer, poder) | These verbs change meaning between the two tenses ("supé" = I found out; "sabía" = I knew) -- a separate lesson is required |
+| Relationship           | Grammar Point                                                                  | Notes                                                                                                                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prerequisite           | Regular preterite paradigm (all three conjugation classes + top 10 irregulars) | Cannot make a use-condition decision if the forms are not automatic                                                                                                                                             |
+| Commonly confused with | Present perfect (pretérito perfecto compuesto: he comido)                      | In Peninsular Spanish, recent past often uses present perfect where Latin American Spanish uses preterite -- same use-condition logic applies once the learner knows which regional standard they are targeting |
+| Next step              | Preterite vs. imperfect with state verbs (saber, conocer, querer, poder)       | These verbs change meaning between the two tenses ("supé" = I found out; "sabía" = I knew) -- a separate lesson is required                                                                                     |
 
 **Where to find this structure in authentic input:**
 Short narrative journalism in Spanish (El País, La Nación, BBC Mundo) uses both tenses in every article -- the preterite drives the story forward, the imperfect provides context. Read one news article per day and highlight every past-tense verb, labeling it P (preterite) or I (imperfect). This habit builds pattern recognition faster than drills alone.
@@ -547,6 +555,7 @@ Short narrative journalism in Spanish (El País, La Nación, BBC Mundo) uses bot
 ### Diagnostic Sentence for Next Session
 
 **At the start of your next study session, produce this sentence in Spanish without looking at today's notes:**
+
 > "Describe the scene in a café you walked into recently -- what was happening in the background, and what specific thing did you do once you were there?"
 
 Your response should include at least one imperfect (the background scene) and at least one preterite (what you did). If you produce both correctly, you are ready to move to the state-verb lesson. If not, return to Exercise 2 of today's session before progressing.

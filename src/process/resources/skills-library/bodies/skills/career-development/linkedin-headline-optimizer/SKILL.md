@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "linkedin career analysis"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'linkedin career analysis'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # LinkedIn Headline Optimizer
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to improve their LinkedIn profile visibility and appear more frequently in recruiter search results
 - The user has a default headline (auto-populated by LinkedIn as their job title + company) and wants to replace it with something differentiated
 - The user is targeting a career pivot, promotion, or new role type and wants their headline to signal that direction before their experience catches up
@@ -34,6 +36,7 @@ metadata:
 - The user's industry is highly competitive (software engineering, product management, finance, marketing) and they need every searchability advantage available
 
 **Do NOT use this skill when:**
+
 - The user wants to write or rewrite their LinkedIn About section -- use `linkedin-summary-writer`, which handles narrative, storytelling, and the full 2,600-character summary format
 - The user wants to write a cold outreach message or reply to a recruiter -- use `recruiter-outreach` or `networking-message-writer`
 - The user needs a resume summary or professional summary for a job application -- use `resume-summary-writer`, which optimizes for ATS scanning rather than LinkedIn's search algorithm
@@ -83,6 +86,7 @@ Each variant must use a genuinely different structural pattern. No two variants 
 - **Structure 5 -- Mission/Audience + Expertise (Brand-First):** Best for personal brand builders, consultants, or senior leaders where thought leadership matters. Format: `[What you do and for whom] | [Domain expertise areas]`. Example: `Scaling engineering organizations from 10 to 100 | Engineering Leader | Distributed Systems, People Development, FinTech`. Strong for VP/C-level and independent consultants; weaker for individual contributors in active job searches.
 
 **Character counting rules:**
+
 - Absolute hard limit: 220 characters. Count every character including spaces and punctuation.
 - Practical mobile-display limit: approximately 100-120 characters before truncation in most LinkedIn mobile views (the exact truncation varies by device and context).
 - For users on active job search who will appear in recruiter search results (desktop Recruiter tool), the full 220 characters display -- maximize it.
@@ -93,6 +97,7 @@ Each variant must use a genuinely different structural pattern. No two variants 
 Evaluate each of the 5 variants against three independent 1-5 scores. Be rigorous -- two variants should not both score 5 on the same dimension unless both genuinely excel equally.
 
 **Search Match (1-5):** Does this headline contain the exact keywords a recruiter would type into LinkedIn Recruiter to find this candidate?
+
 - 5: Contains the anchor role title + at least 2 high-demand skill keywords in exact-match form
 - 4: Contains the anchor role title + 1 high-demand skill keyword
 - 3: Contains a close variant of the role title (e.g., "Engineering Lead" when target is "Engineering Manager") + some skills
@@ -100,6 +105,7 @@ Evaluate each of the 5 variants against three independent 1-5 scores. Be rigorou
 - 1: No searchable keywords -- reads like a personal mission statement
 
 **Click Appeal (1-5):** When a recruiter sees this headline next to 20-30 other results, does it stand out and motivate a click?
+
 - 5: Specific, differentiated, communicates unique value or achievement, instantly clear what this person offers
 - 4: Clear and specific, moderately differentiated
 - 3: Clear but generic, no differentiator beyond the role title
@@ -107,6 +113,7 @@ Evaluate each of the 5 variants against three independent 1-5 scores. Be rigorou
 - 1: Actively discouraging (vague buzzwords, "seeking opportunities," or confusing structure)
 
 **Clarity (1-5):** Within 2-3 seconds, can a stranger understand who this person is professionally and why they are valuable?
+
 - 5: Instantly clear -- anyone in the professional world understands what this person does and for whom
 - 4: Clear to someone in the same industry
 - 3: Requires some inference or domain knowledge
@@ -328,13 +335,13 @@ Someone who is simultaneously a UX designer, an adjunct professor, and a freelan
 
 ### Variant Comparison
 
-| # | Headline Text | Chars | Search (1-5) | Click (1-5) | Clarity (1-5) | Total /15 |
-|---|---------------|-------|--------------|-------------|----------------|-----------|
-| 1 | Machine Learning Engineer \| Python, PyTorch, TensorFlow \| NLP & MLOps \| Health Tech & Clinical AI | 97 | 5 | 3 | 5 | 13 |
-| 2 | Helping health tech teams ship ML models that reach patients \| Applied Scientist \| NLP, MLOps | 92 | 3 | 5 | 4 | 12 |
-| 3 | Senior Data Scientist → ML Engineer \| NLP, PyTorch, MLOps \| 6 Years Building Clinical AI Systems | 94 | 4 | 5 | 5 | 14 |
-| 4 | MS Computational Statistics \| Machine Learning Engineer \| Python, TensorFlow, NLP \| Health Tech | 94 | 5 | 4 | 5 | 14 |
-| 5 | Turning clinical data into production ML \| Applied Scientist \| NLP, PyTorch, MLOps \| Health AI | 95 | 3 | 5 | 4 | 12 |
+| #   | Headline Text                                                                                        | Chars | Search (1-5) | Click (1-5) | Clarity (1-5) | Total /15 |
+| --- | ---------------------------------------------------------------------------------------------------- | ----- | ------------ | ----------- | ------------- | --------- |
+| 1   | Machine Learning Engineer \| Python, PyTorch, TensorFlow \| NLP & MLOps \| Health Tech & Clinical AI | 97    | 5            | 3           | 5             | 13        |
+| 2   | Helping health tech teams ship ML models that reach patients \| Applied Scientist \| NLP, MLOps      | 92    | 3            | 5           | 4             | 12        |
+| 3   | Senior Data Scientist → ML Engineer \| NLP, PyTorch, MLOps \| 6 Years Building Clinical AI Systems   | 94    | 4            | 5           | 5             | 14        |
+| 4   | MS Computational Statistics \| Machine Learning Engineer \| Python, TensorFlow, NLP \| Health Tech   | 94    | 5            | 4           | 5             | 14        |
+| 5   | Turning clinical data into production ML \| Applied Scientist \| NLP, PyTorch, MLOps \| Health AI    | 95    | 3            | 5           | 4             | 12        |
 
 ---
 
@@ -354,20 +361,20 @@ Someone who is simultaneously a UX designer, an adjunct professor, and a freelan
 
 ### Keyword Analysis
 
-| Keyword | Type | Search Priority | Appears In |
-|---------|------|-----------------|------------|
-| Machine Learning Engineer | Role title (target) | High | Variants 1, 4 |
-| ML Engineer | Role title (abbreviated target) | High | Variants 3 |
-| Applied Scientist | Role title (alternate target) | High | Variants 2, 5 |
-| Data Scientist | Role title (current) | High | Variant 3 |
-| Python | Primary skill | High | Variants 1, 4 |
-| PyTorch | Primary skill | High | Variants 2, 3, 5 |
-| TensorFlow | Primary skill | Medium | Variants 1, 4 |
-| NLP | Primary skill | High | Variants 1, 2, 3, 4, 5 |
-| MLOps | Primary skill | High | Variants 1, 2, 3, 5 |
-| Health Tech | Industry | Medium | Variants 1, 4 |
-| Clinical AI | Industry/Domain | Medium | Variants 3, 5 |
-| MS / Computational Statistics | Credential | Low | Variant 4 |
+| Keyword                       | Type                            | Search Priority | Appears In             |
+| ----------------------------- | ------------------------------- | --------------- | ---------------------- |
+| Machine Learning Engineer     | Role title (target)             | High            | Variants 1, 4          |
+| ML Engineer                   | Role title (abbreviated target) | High            | Variants 3             |
+| Applied Scientist             | Role title (alternate target)   | High            | Variants 2, 5          |
+| Data Scientist                | Role title (current)            | High            | Variant 3              |
+| Python                        | Primary skill                   | High            | Variants 1, 4          |
+| PyTorch                       | Primary skill                   | High            | Variants 2, 3, 5       |
+| TensorFlow                    | Primary skill                   | Medium          | Variants 1, 4          |
+| NLP                           | Primary skill                   | High            | Variants 1, 2, 3, 4, 5 |
+| MLOps                         | Primary skill                   | High            | Variants 1, 2, 3, 5    |
+| Health Tech                   | Industry                        | Medium          | Variants 1, 4          |
+| Clinical AI                   | Industry/Domain                 | Medium          | Variants 3, 5          |
+| MS / Computational Statistics | Credential                      | Low             | Variant 4              |
 
 **Coverage gaps:**
 
@@ -390,6 +397,7 @@ Someone who is simultaneously a UX designer, an adjunct professor, and a freelan
 ### Customization Guide
 
 **If your target shifts:**
+
 - **To target senior/staff ML Engineer roles** (instead of generalist ML Engineer): Change "ML Engineer" in Variant 3 to "Staff ML Engineer" or "Senior ML Engineer" -- seniority modifiers do appear in recruiter filter searches at the Staff level and above.
 - **To target health tech specifically over broad tech**: Bring "Health Tech" or "Clinical AI" earlier in the headline -- move it from the end to the second segment: "Senior Data Scientist → ML Engineer | Clinical AI & NLP | PyTorch, MLOps."
 - **To target Big Tech (Google, Meta, Amazon) vs. health tech startups**: Replace "Clinical AI Systems" with "Large-Scale Production Systems" or "High-Throughput ML Pipelines" -- these are the scope signals that resonate with Big Tech engineering recruiters.
@@ -397,12 +405,12 @@ Someone who is simultaneously a UX designer, an adjunct professor, and a freelan
 
 **A/B Testing Plan:**
 
-| Week | Active Headline | What to Measure |
-|------|----------------|----------------|
-| Weeks 1-2 | Variant 3 (transition signal) | Baseline: record profile views from Profile Analytics |
-| Weeks 3-4 | Variant 4 (credential + exact title) | Compare profile views AND recruiter InMail/message count |
-| Weeks 5-6 | Variant 1 (pure keyword density) | Compare to prior two periods |
-| Decision | Select variant with highest recruiter message rate -- not just profile views | -- |
+| Week      | Active Headline                                                              | What to Measure                                          |
+| --------- | ---------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Weeks 1-2 | Variant 3 (transition signal)                                                | Baseline: record profile views from Profile Analytics    |
+| Weeks 3-4 | Variant 4 (credential + exact title)                                         | Compare profile views AND recruiter InMail/message count |
+| Weeks 5-6 | Variant 1 (pure keyword density)                                             | Compare to prior two periods                             |
+| Decision  | Select variant with highest recruiter message rate -- not just profile views | --                                                       |
 
 **Where to find your data:** Go to your LinkedIn profile → click "Analytics" below your profile banner → select "Profile views" → note the weekly trend. More important than total views: track the number of recruiter messages and connection requests that arrive from ML Engineering teams each week. That is the real conversion metric.
 

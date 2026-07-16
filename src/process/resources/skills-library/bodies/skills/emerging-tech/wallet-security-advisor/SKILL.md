@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain checklist cloud testing planning networking safety"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced blockchain checklist cloud testing planning networking safety'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Wallet Security Advisor
@@ -22,15 +22,16 @@ You are an expert in cryptocurrency wallet security, operational security (opsec
 
 > **IMPORTANT DISCLAIMER:** This skill provides security education only. It is NOT a guarantee against loss. No security measure is absolute. Cryptocurrency transactions are irreversible -- lost or stolen funds typically cannot be recovered. Always verify security advice against multiple trusted sources. The threat landscape evolves constantly; stay current with security best practices.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wallet security advisor techniques or best practices
 - User needs guidance on wallet security advisor concepts
 - User wants to implement or improve their approach to wallet security advisor
 
 **Do NOT use when:**
+
 - The request falls outside the scope of wallet security advisor
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,46 +54,46 @@ Choose your security level based on total asset value and usage pattern:
 
 ### Tier 1: Foundational ($0 - $5,000)
 
-| Component | Recommendation |
-|-----------|---------------|
-| Wallet type | Browser extension wallet (MetaMask, Rabby) |
+| Component   | Recommendation                                      |
+| ----------- | --------------------------------------------------- |
+| Wallet type | Browser extension wallet (MetaMask, Rabby)          |
 | Seed phrase | Written on paper, stored in secure location at home |
-| Password | Unique, strong password + password manager |
-| 2FA | TOTP app (not SMS) on exchange accounts |
-| Network | Avoid public WiFi for transactions |
+| Password    | Unique, strong password + password manager          |
+| 2FA         | TOTP app (not SMS) on exchange accounts             |
+| Network     | Avoid public WiFi for transactions                  |
 
 ### Tier 2: Intermediate ($5,000 - $50,000)
 
-| Component | Recommendation |
-|-----------|---------------|
-| Wallet type | Hardware wallet (Ledger, Trezor) for storage; hot wallet for small daily use |
-| Seed phrase | Metal backup (steel plate), stored in fireproof safe |
-| Separation | Different wallets for different purposes (DeFi, storage, burner) |
-| Approval hygiene | Regular approval revocation; check before signing |
-| Monitoring | Portfolio tracker with alerts for large transfers |
+| Component        | Recommendation                                                               |
+| ---------------- | ---------------------------------------------------------------------------- |
+| Wallet type      | Hardware wallet (Ledger, Trezor) for storage; hot wallet for small daily use |
+| Seed phrase      | Metal backup (steel plate), stored in fireproof safe                         |
+| Separation       | Different wallets for different purposes (DeFi, storage, burner)             |
+| Approval hygiene | Regular approval revocation; check before signing                            |
+| Monitoring       | Portfolio tracker with alerts for large transfers                            |
 
 ### Tier 3: Advanced ($50,000 - $500,000)
 
-| Component | Recommendation |
-|-----------|---------------|
-| Wallet type | Hardware wallet primary; multisig for large holdings |
-| Seed phrase | Metal backups in 2+ geographically separate locations |
-| Multisig | 2-of-3 minimum for primary treasury |
-| Device | Dedicated device for crypto transactions (not daily driver) |
-| OpSec | Separate email for crypto; no public disclosure of holdings |
-| Recovery | Documented recovery plan shared with trusted party |
+| Component   | Recommendation                                              |
+| ----------- | ----------------------------------------------------------- |
+| Wallet type | Hardware wallet primary; multisig for large holdings        |
+| Seed phrase | Metal backups in 2+ geographically separate locations       |
+| Multisig    | 2-of-3 minimum for primary treasury                         |
+| Device      | Dedicated device for crypto transactions (not daily driver) |
+| OpSec       | Separate email for crypto; no public disclosure of holdings |
+| Recovery    | Documented recovery plan shared with trusted party          |
 
 ### Tier 4: Institutional ($500,000+)
 
-| Component | Recommendation |
-|-----------|---------------|
-| Wallet type | Multisig (3-of-5 or higher) with geographically distributed signers |
-| Key ceremony | Formal key generation ceremony with witnesses |
-| Custody | Consider institutional custody solutions as complement |
-| Insurance | Explore crypto insurance options |
-| Succession | Legal documents for asset inheritance |
-| Monitoring | Real-time transaction monitoring with automated alerts |
-| Audit | Annual security audit of all practices and access |
+| Component    | Recommendation                                                      |
+| ------------ | ------------------------------------------------------------------- |
+| Wallet type  | Multisig (3-of-5 or higher) with geographically distributed signers |
+| Key ceremony | Formal key generation ceremony with witnesses                       |
+| Custody      | Consider institutional custody solutions as complement              |
+| Insurance    | Explore crypto insurance options                                    |
+| Succession   | Legal documents for asset inheritance                               |
+| Monitoring   | Real-time transaction monitoring with automated alerts              |
+| Audit        | Annual security audit of all practices and access                   |
 
 ---
 
@@ -112,15 +113,15 @@ Choose your security level based on total asset value and usage pattern:
 
 ### Hardware Wallet Comparison
 
-| Feature | Ledger Nano X/S+ | Trezor Model T/One | Keystone Pro | GridPlus Lattice1 |
-|---------|-----------------|--------------------|--------------|--------------------|
-| Secure element | Yes (CC EAL5+) | No (open source MCU) | Yes | Yes |
-| Bluetooth | Nano X only | No | No (air-gapped QR) | No |
-| Open source firmware | Partial | Fully open source | Partial | Partial |
-| Air-gapped option | No | No | Yes (QR codes) | No |
-| Multi-chain | Extensive | Extensive | Extensive | Extensive |
-| Screen | Small OLED | Touchscreen (Model T) | Large touchscreen | Large touchscreen |
-| Price range | $79-149 | $69-219 | $119-169 | $397 |
+| Feature              | Ledger Nano X/S+ | Trezor Model T/One    | Keystone Pro       | GridPlus Lattice1 |
+| -------------------- | ---------------- | --------------------- | ------------------ | ----------------- |
+| Secure element       | Yes (CC EAL5+)   | No (open source MCU)  | Yes                | Yes               |
+| Bluetooth            | Nano X only      | No                    | No (air-gapped QR) | No                |
+| Open source firmware | Partial          | Fully open source     | Partial            | Partial           |
+| Air-gapped option    | No               | No                    | Yes (QR codes)     | No                |
+| Multi-chain          | Extensive        | Extensive             | Extensive          | Extensive         |
+| Screen               | Small OLED       | Touchscreen (Model T) | Large touchscreen  | Large touchscreen |
+| Price range          | $79-149          | $69-219               | $119-169           | $397              |
 
 ### Air-Gapped Transaction Signing
 
@@ -188,17 +189,17 @@ Organization:     4-of-7 signers (or higher)
 
 ### Storage Methods Ranked
 
-| Method | Durability | Theft Resistance | Cost | Recommended? |
-|--------|-----------|-----------------|------|-------------|
-| Metal plate (stamped) | Excellent (fire, water, corrosion) | Moderate (physical theft) | $20-50 | Yes -- primary backup |
-| Paper (acid-free, laminated) | Low (fire, water damage) | Low | $1 | Acceptable for Tier 1 only |
-| Split across locations | Excellent | Excellent | Varies | Yes -- for Tier 3+ |
-| Safety deposit box | Excellent | High | $50-200/year | Yes -- as one of multiple locations |
-| Encrypted digital file | Moderate | High if strong encryption | Free | Supplemental only, not primary |
-| Memory only | N/A | High | Free | NO -- human memory is unreliable |
-| Photo on phone | N/A | Very low (cloud sync, theft) | Free | NEVER -- most common mistake |
-| Cloud storage (unencrypted) | N/A | Very low | Free | NEVER |
-| Email to yourself | N/A | Very low | Free | NEVER |
+| Method                       | Durability                         | Theft Resistance             | Cost         | Recommended?                        |
+| ---------------------------- | ---------------------------------- | ---------------------------- | ------------ | ----------------------------------- |
+| Metal plate (stamped)        | Excellent (fire, water, corrosion) | Moderate (physical theft)    | $20-50       | Yes -- primary backup               |
+| Paper (acid-free, laminated) | Low (fire, water damage)           | Low                          | $1           | Acceptable for Tier 1 only          |
+| Split across locations       | Excellent                          | Excellent                    | Varies       | Yes -- for Tier 3+                  |
+| Safety deposit box           | Excellent                          | High                         | $50-200/year | Yes -- as one of multiple locations |
+| Encrypted digital file       | Moderate                           | High if strong encryption    | Free         | Supplemental only, not primary      |
+| Memory only                  | N/A                                | High                         | Free         | NO -- human memory is unreliable    |
+| Photo on phone               | N/A                                | Very low (cloud sync, theft) | Free         | NEVER -- most common mistake        |
+| Cloud storage (unencrypted)  | N/A                                | Very low                     | Free         | NEVER                               |
+| Email to yourself            | N/A                                | Very low                     | Free         | NEVER                               |
 
 ### Seed Phrase Splitting (Shamir's Secret Sharing)
 
@@ -225,12 +226,12 @@ partial information to anyone who finds half your seed.
 
 ### Recovery Testing Schedule
 
-| Test | Frequency | Procedure |
-|------|-----------|-----------|
-| Seed phrase legibility | Every 6 months | Visually verify all words readable on backup medium |
-| Full device recovery | Annually | Reset a test device, recover from seed, verify addresses |
-| Multisig signer check | Monthly | Confirm all signers can access their keys and sign |
-| Emergency contact check | Annually | Verify your trusted contacts still have their materials |
+| Test                    | Frequency      | Procedure                                                |
+| ----------------------- | -------------- | -------------------------------------------------------- |
+| Seed phrase legibility  | Every 6 months | Visually verify all words readable on backup medium      |
+| Full device recovery    | Annually       | Reset a test device, recover from seed, verify addresses |
+| Multisig signer check   | Monthly        | Confirm all signers can access their keys and sign       |
+| Emergency contact check | Annually       | Verify your trusted contacts still have their materials  |
 
 ---
 
@@ -238,17 +239,17 @@ partial information to anyone who finds half your seed.
 
 ### Common Attack Vectors
 
-| Attack | How It Works | Prevention |
-|--------|-------------|------------|
-| Fake websites | Clone of real DeFi site with different URL | Bookmark official sites, verify URL character by character |
-| Malicious approvals | Approve contract that drains all tokens | Read approval details, use limited approvals |
-| Fake airdrops | "Claim" function calls drain wallet | Never interact with unexpected token airdrops |
-| Discord/Telegram DMs | Impersonation of team, fake support | Legitimate teams NEVER DM first |
-| Fake wallet apps | Cloned wallet app that steals seed phrase | Download ONLY from official sources |
-| Address poisoning | Attacker sends tiny amounts from similar address | Always verify FULL address, not just first/last characters |
-| SIM swap | Attacker ports your phone number to steal SMS 2FA | Use authenticator apps, not SMS; carrier PIN lock |
-| Clipboard hijack | Malware replaces copied addresses | Always verify pasted address matches intended recipient |
-| Fake browser extensions | Malicious clone of MetaMask/Rabby | Verify extension ID matches official listing |
+| Attack                  | How It Works                                      | Prevention                                                 |
+| ----------------------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| Fake websites           | Clone of real DeFi site with different URL        | Bookmark official sites, verify URL character by character |
+| Malicious approvals     | Approve contract that drains all tokens           | Read approval details, use limited approvals               |
+| Fake airdrops           | "Claim" function calls drain wallet               | Never interact with unexpected token airdrops              |
+| Discord/Telegram DMs    | Impersonation of team, fake support               | Legitimate teams NEVER DM first                            |
+| Fake wallet apps        | Cloned wallet app that steals seed phrase         | Download ONLY from official sources                        |
+| Address poisoning       | Attacker sends tiny amounts from similar address  | Always verify FULL address, not just first/last characters |
+| SIM swap                | Attacker ports your phone number to steal SMS 2FA | Use authenticator apps, not SMS; carrier PIN lock          |
+| Clipboard hijack        | Malware replaces copied addresses                 | Always verify pasted address matches intended recipient    |
+| Fake browser extensions | Malicious clone of MetaMask/Rabby                 | Verify extension ID matches official listing               |
 
 ### Transaction Verification Checklist
 
@@ -414,7 +415,6 @@ Update this package annually or after any significant changes.
 - [ ] No unknown transactions in wallet history
 - [ ] Wallet software (MetaMask, Rabby, etc.) updated to latest version
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -422,7 +422,6 @@ Update this package annually or after any significant changes.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -443,14 +442,12 @@ Update this package annually or after any significant changes.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

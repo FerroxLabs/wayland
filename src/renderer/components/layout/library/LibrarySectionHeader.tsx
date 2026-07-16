@@ -30,7 +30,7 @@ const LibrarySectionHeader: React.FC<LibrarySectionHeaderProps> = ({
       className={classNames(
         styles.title,
         variant === 'tier' && styles.titleTier,
-        variant === 'primary' && styles.titlePrimary,
+        variant === 'primary' && styles.titlePrimary
       )}
     >
       <span>{label}</span>

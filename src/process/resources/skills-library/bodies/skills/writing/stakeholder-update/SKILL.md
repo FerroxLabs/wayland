@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing business-writing report"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing business-writing report'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Stakeholder Update
 
 ## When to Use
@@ -25,6 +26,7 @@ metadata:
 Use this skill when the user needs to communicate project or initiative status to senior leadership audiences -- executives, steering committees, C-suite sponsors, cross-functional leadership councils, or investment review boards. The defining characteristic of this audience is that they allocate capital and make priority decisions; they do not manage daily work.
 
 **Use this skill when:**
+
 - A project manager, program lead, or business owner needs to update a steering committee, executive sponsor, or C-suite stakeholder (CEO, CFO, COO, CTO, CMO) on initiative status
 - A user needs to translate technical or operational progress into strategic business language for a senior audience that does not participate in day-to-day execution
 - A user needs to surface a decision, escalation, or resource request that requires executive authority to resolve -- and needs to frame it persuasively with clear options and recommendations
@@ -34,6 +36,7 @@ Use this skill when the user needs to communicate project or initiative status t
 - An initiative is at a critical inflection point (go/no-go decision, phase gate, funding renewal) that requires executive alignment before proceeding
 
 **Do NOT use this skill when:**
+
 - The audience is the delivery team itself -- use `status-update` for team-level weekly status with task-level detail, sprint summaries, and operational blockers
 - The user wants deep analytical content with supporting data, trend analysis, and appendices spanning multiple pages -- use `business-report` instead
 - The communication target is a board of directors, investor group, or fiduciary body with governance obligations -- use `board-update-narrative` which handles fiduciary framing, forward-looking statement conventions, and governance risk language
@@ -101,18 +104,21 @@ Decisions are the most important section of any stakeholder update. They are als
 Apply a consistent standard across these three sections:
 
 **Progress bullets:**
+
 - Maximum 3-5 bullets per update -- if there are more than 5 things worth reporting, the team is likely conflating tasks with milestones
 - Each bullet names the milestone, states what it means for the business, and optionally quantifies the impact
 - Sequence bullets from most strategically significant to least
 - If a milestone slipped, report it here with the new target date -- do not omit slipped items
 
 **Upcoming milestones table:**
+
 - List only the next 4-6 meaningful milestones, not every task
 - Include a confidence signal (On track / At risk / Dependent on decision) for each
 - Dependencies column is critical -- executives use this to understand their own role in unblocking progress
 - Do not list milestones more than 8 weeks out unless they are critical-path anchors (go-live, regulatory deadline, contract date)
 
 **Risks and issues:**
+
 - Distinguish between risks (have not materialized yet) and issues (actively impacting the project)
 - Every risk needs a business impact statement in terms of time, money, scope, or customer experience
 - Every risk needs a named mitigation action and a named owner -- not "the team is monitoring this"
@@ -309,9 +315,9 @@ This is a high-stakes communication requiring careful framing. Do not use the st
 
 ### Decisions Needed
 
-| # | Decision | Options | Recommendation | Deadline | Impact of Delay |
-|---|----------|---------|---------------|----------|----------------|
-| 1 | Address budget gap: the project is tracking $80K over the approved $600K budget at current burn rate | A: Approve $80K supplemental budget (keeps full scope, on-time delivery) / B: Reduce scope by deferring real-time predictive segmentation module to Phase 2 (saves ~$75K, no additional approval needed) / C: Pause project at end of month to rebaseline (incurs $30K in standby costs, delays go-live 6-8 weeks) | Option A -- the ad platform integration is already returning measurable ROAS improvement; abandoning predictive segmentation removes the highest-ROI module and undermines the business case for the full investment | March 21 | Without a decision by March 21, development on the audience segmentation module must pause to avoid exceeding the current budget authority, creating a minimum 2-week delay regardless of which option is chosen |
+| #   | Decision                                                                                             | Options                                                                                                                                                                                                                                                                                                            | Recommendation                                                                                                                                                                                                       | Deadline | Impact of Delay                                                                                                                                                                                                  |
+| --- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Address budget gap: the project is tracking $80K over the approved $600K budget at current burn rate | A: Approve $80K supplemental budget (keeps full scope, on-time delivery) / B: Reduce scope by deferring real-time predictive segmentation module to Phase 2 (saves ~$75K, no additional approval needed) / C: Pause project at end of month to rebaseline (incurs $30K in standby costs, delays go-live 6-8 weeks) | Option A -- the ad platform integration is already returning measurable ROAS improvement; abandoning predictive segmentation removes the highest-ROI module and undermines the business case for the full investment | March 21 | Without a decision by March 21, development on the audience segmentation module must pause to avoid exceeding the current budget authority, creating a minimum 2-week delay regardless of which option is chosen |
 
 ---
 
@@ -331,23 +337,23 @@ The CDP implementation is YELLOW this period due to a budget pacing issue that r
 
 ### Upcoming Milestones
 
-| Milestone | Target Date | Confidence | Key Dependency |
-|-----------|-------------|-----------|---------------|
-| Legal data governance sign-off | March 19 | At risk | Legal review (pending 3 weeks; escalation sent March 13) |
-| Audience segmentation module: build complete | April 4 | At risk | Legal sign-off by March 19; budget decision by March 21 |
-| Analytics team onboarding complete | March 28 | On track | None |
-| Predictive lookalike audience models: live | April 25 | On track (if budget approved) / Deferred to Phase 2 (if scope reduced) | Audience segmentation module completion |
-| Full platform go-live: all modules | May 9 | On track | All above milestones |
+| Milestone                                    | Target Date | Confidence                                                             | Key Dependency                                           |
+| -------------------------------------------- | ----------- | ---------------------------------------------------------------------- | -------------------------------------------------------- |
+| Legal data governance sign-off               | March 19    | At risk                                                                | Legal review (pending 3 weeks; escalation sent March 13) |
+| Audience segmentation module: build complete | April 4     | At risk                                                                | Legal sign-off by March 19; budget decision by March 21  |
+| Analytics team onboarding complete           | March 28    | On track                                                               | None                                                     |
+| Predictive lookalike audience models: live   | April 25    | On track (if budget approved) / Deferred to Phase 2 (if scope reduced) | Audience segmentation module completion                  |
+| Full platform go-live: all modules           | May 9       | On track                                                               | All above milestones                                     |
 
 ---
 
 ### Risks and Issues
 
-| # | Risk / Issue | Type | Business Impact | Mitigation Action | Owner | Target Resolution |
-|---|-------------|------|----------------|------------------|-------|------------------|
-| 1 | Budget overrun: burning at $140K/month vs. $100K/month planned | Issue | Project will exceed $600K approved budget by approximately $80K if scope is unchanged | Decision requested from CMO (see above); development leads have identified $12K in vendor fee reductions already implemented this month | Priya Mehta | March 21 (decision deadline) |
-| 2 | Legal data governance sign-off: 3 weeks pending | Issue | Audience segmentation module build cannot begin; each week of further delay compresses delivery buffer by 1 week | Formal escalation sent to General Counsel on March 13 requesting resolution by March 19; Legal cited resource constraints as the cause | James Okafor, Legal Liaison | March 19 |
-| 3 | Analytics team adoption risk | Risk | Low utilization post-launch would reduce ROI realization; analytics team has historically been slow adopters of new tooling | Department champion (Senior Analyst, Taryn Willis) identified and embedded in implementation team; custom analytics workflow documentation in progress | Priya Mehta | April 25 (go-live) |
+| #   | Risk / Issue                                                   | Type  | Business Impact                                                                                                             | Mitigation Action                                                                                                                                      | Owner                       | Target Resolution            |
+| --- | -------------------------------------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------- | ---------------------------- |
+| 1   | Budget overrun: burning at $140K/month vs. $100K/month planned | Issue | Project will exceed $600K approved budget by approximately $80K if scope is unchanged                                       | Decision requested from CMO (see above); development leads have identified $12K in vendor fee reductions already implemented this month                | Priya Mehta                 | March 21 (decision deadline) |
+| 2   | Legal data governance sign-off: 3 weeks pending                | Issue | Audience segmentation module build cannot begin; each week of further delay compresses delivery buffer by 1 week            | Formal escalation sent to General Counsel on March 13 requesting resolution by March 19; Legal cited resource constraints as the cause                 | James Okafor, Legal Liaison | March 19                     |
+| 3   | Analytics team adoption risk                                   | Risk  | Low utilization post-launch would reduce ROI realization; analytics team has historically been slow adopters of new tooling | Department champion (Senior Analyst, Taryn Willis) identified and embedded in implementation team; custom analytics workflow documentation in progress | Priya Mehta                 | April 25 (go-live)           |
 
 ---
 

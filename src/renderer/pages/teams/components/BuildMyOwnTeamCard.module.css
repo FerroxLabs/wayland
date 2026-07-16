@@ -11,7 +11,10 @@
   gap: 6px;
   color: var(--color-text-3);
   cursor: pointer;
-  transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    color 0.16s ease,
+    background 0.16s ease;
   user-select: none;
 }
 

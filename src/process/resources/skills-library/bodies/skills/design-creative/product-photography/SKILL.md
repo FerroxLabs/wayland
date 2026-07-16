@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "photography design template"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'photography design template'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Product Photography
 
 ## When to Use
@@ -28,6 +29,7 @@ metadata:
 Use this skill when the user's request centers on capturing a physical product for commercial or promotional purposes -- where the primary goal is to make an object look compelling, accurate, and market-ready.
 
 **Use this skill when:**
+
 - A user wants to photograph products for an e-commerce platform (Etsy, Shopify, Amazon, eBay, wholesale catalogs) and needs a complete shooting plan including background, lighting, angle, and retouching workflow
 - A user is photographing a specific product category (cosmetics, food, jewelry, packaged goods, clothing, beverages, electronics, home goods, or industrial components) and needs surface-specific lighting and styling guidance
 - A user wants to build a consistent visual system for a product line -- multiple SKUs photographed with the same lighting, angle, background, and color treatment so they look cohesive on a product grid
@@ -37,6 +39,7 @@ Use this skill when the user's request centers on capturing a physical product f
 - A user needs to produce hero shots, catalog images, detail shots, or lifestyle shots for a product launch and must plan a shot list that covers all required deliverables
 
 **Do NOT use this skill when:**
+
 - The user needs to photograph a person, even if that person is holding or wearing a product -- use `portrait-technique`, which addresses human subjects, skin tones, and expression direction
 - The user is asking about general lighting principles divorced from any specific product -- use `lighting-setup` for conceptual light theory, inverse square law, and modifier comparisons
 - The user's primary need is post-processing an existing photo rather than setting up a new shoot -- use `photo-editing-workflow` for standalone retouching, color grading, or file preparation pipelines
@@ -72,6 +75,7 @@ The background choice is not aesthetic -- it is functional. The wrong background
 - **Background for transparent products:** Two primary choices -- a bright white backlit panel (product appears as colored highlights against white, clean and technical) or a black background with two edge lights creating outline reflections (dramatic and high-contrast). Both approaches require the background and the product to be lit independently. The third option is a color gel backlight which creates a colored luminous background behind glass or liquid -- effective for beverage photography.
 
 **Background preparation checklist before shooting:**
+
 - Remove all wrinkles, creases, and curl from paper backgrounds (steam or weight flat)
 - Wipe down surfaces that will be in frame (marble, wood, metal) with a microfiber cloth to remove dust, fingerprints, and particles that will be visible at high resolution
 - Use a lint roller on any fabric surfaces
@@ -84,6 +88,7 @@ The background choice is not aesthetic -- it is functional. The wrong background
 This is the most technical step and the one where most product photography fails. Lighting design must match the product's optical behavior, not follow a generic three-point portrait formula.
 
 **DIFFUSE/MATTE SURFACES (fabric, cardboard, chalk paint, unfinished wood, matte ceramic, most food):**
+
 - Primary light: large softbox (minimum 24x36 inches / 60x90cm) positioned at the 10 o'clock position relative to the product, elevated to approximately 45 degrees above the product plane, with the near edge of the softbox at least 1.5x the softbox long dimension away from the product
 - The larger the light source relative to the product, the softer and more wrapping the light. A 24-inch softbox for a coffee mug is large relative to the subject; the same softbox for a pair of boots is merely adequate.
 - Fill light: white foam board reflector (minimum 20x30 inches) positioned opposite the key light at the 4 o'clock position, angled to reflect key light back into the shadow. Distance controls fill ratio -- closer reflector = brighter fill = lower contrast. Target a 2:1 to 3:1 key-to-fill ratio for most commercial product shots.
@@ -91,6 +96,7 @@ This is the most technical step and the one where most product photography fails
 - For textured matte surfaces specifically: move the key light to a 3 o'clock or 9 o'clock side position and lower it to 20-30 degrees above the product plane. Side grazing light creates micro-shadows in texture that make the surface look tactile and three-dimensional. The lower the light angle, the more pronounced the texture.
 
 **SPECULAR/GLOSSY SURFACES (lacquered wood, glossy plastic, polished stone, painted metal, glossy labels, patent leather):**
+
 - Never aim a light source directly at a glossy product. The product will display a visible, distracting reflection of the light source shape (softbox pattern, bare bulb, window frame). This is the single most common mistake in product photography.
 - The correct approach: create large, uniform luminous surfaces and position them so the product reflects those surfaces. A 4x6 foot white diffusion panel (a white bedsheet stretched on a frame, a white foam board, or a commercial diffusion panel) positioned adjacent to the product will be reflected as a smooth, gradated white or gray area.
 - Use black cards (flags) -- typically black foam board or black fabric -- placed at the opposite side to create dark edge reflections on the product. Glossy products look three-dimensional when they have a gradation from bright highlight to dark edge reflection. A product that is only bright with no dark areas looks flat.
@@ -98,18 +104,21 @@ This is the most technical step and the one where most product photography fails
 - For lacquered/piano black finishes: light almost entirely with controlled reflections of white shapes against black surroundings. The product itself may receive almost no direct light -- it is lit entirely by reflection of surrounding cards.
 
 **TRANSPARENT PRODUCTS (clear glass bottles, crystal, clear plastic packaging, liquid in glass):**
+
 - Primary technique -- backlight panel: position a large white diffusion panel behind the product, light that panel from behind with one or two softboxes or LED panels. The light passes through the product, revealing its color, clarity, and any internal details (liquid color, carbonation bubbles, label inside the glass). This is called transmitted light photography.
 - Side black cards: with the white panel behind, the edges of the glass go transparent (you cannot see the glass edge). Black foam board cards placed on the left and right sides of the product, just outside the frame, are reflected in the glass walls and create dark edge lines that define the product's shape. Without these, glass appears to "disappear" against the white background.
 - Front reflection control: avoid placing lights directly in front of transparent products. Any front light creates a bright reflection on the glass face that blocks the view of the liquid or contents inside. If front fill is needed, use a large diffusion panel far from the product.
 - Condensation for beverages: real condensation can be produced by refrigerating the product and shooting immediately (window of 10-15 minutes before it evaporates). Artificial condensation is produced by spraying glycerin mixed with water (approximately 2:1 glycerin to water ratio) on the glass surface -- this produces condensation-like beading that holds for hours.
 
 **MIXED SURFACES (most real products -- a bottle with a matte label and a glossy cap, a phone with a matte body and glass screen, a shoe with matte leather and glossy rubber sole):**
+
 - Identify the primary selling surface -- the surface the customer needs to evaluate to make a purchase decision.
 - Light for the primary surface first. Then use flags and cards to correct the secondary surfaces.
 - For a product with a matte label and glossy cap: light for the label (soft front-angled key). Then use a black card above and behind to add a dark reflection in the glossy cap that prevents it from washing out.
 - Accept that one lighting setup rarely solves all surfaces perfectly. A two-exposure composite is often the professional solution -- light the top/glossy portion in one exposure, light the bottom/matte portion in a second exposure, composite in post.
 
 **Lighting equipment alternatives for users without studio lights:**
+
 - Window light: north-facing window on a cloudy day produces large, soft, directional light suitable for matte products. Hang a white curtain or tape white tissue paper over the window to diffuse bright sunlight. Supplement with a white reflector opposite the window.
 - LED video panels: continuous light allows real-time preview of reflections before shooting, which is critical for glossy products. Position identically to strobes. Use daylight-balanced panels (5500-5600K) for consistent color.
 - Speedlights (hotshoe flashes): can be used off-camera with a radio trigger or optical slave. A bare speedlight is a tiny, harsh light source. Always add a diffusion panel, bounce card, or small softbox attachment. Never fire directly at a glossy product.
@@ -122,16 +131,17 @@ Camera angle is a communication decision: it determines what information the vie
 
 **Angle selection by product type:**
 
-| Angle | Degrees Above Product Plane | Visual Effect | Optimal Product Categories |
-|-------|----------------------------|---------------|---------------------------|
-| Eye level | 0 degrees | Intimate, peer-relationship, shows labels and branding clearly | Bottles, cans, boxes, anything with a front face and prominent branding |
-| Slightly elevated | 15-25 degrees | Standard commercial angle -- shows both front face and top surface, suggests the product's three-dimensional form | Most products; this is the default starting angle for any unfamiliar product |
-| Three-quarter | 40-50 degrees | Strong three-dimensional impression, shows front, top, and side simultaneously | Electronics, packaged goods, shoes, cosmetics, anything with distinct form language |
-| High three-quarter | 60-70 degrees | Shows the top surface predominantly, useful for products with important top details | Plates of food, open boxes, keyboards, flat items where the top is the primary surface |
-| Flat lay (overhead) | 90 degrees -- camera aimed straight down | Pattern, collection, arrangement, no perspective distortion | Clothing (laid flat), flat food preparation, collections of small products, social media arrangements |
-| Low angle | -10 to -20 degrees (camera below product eye level) | Makes product appear larger, more dominant, more powerful | Tall bottles, luxury goods, items that should feel aspirational or premium |
+| Angle               | Degrees Above Product Plane                         | Visual Effect                                                                                                     | Optimal Product Categories                                                                            |
+| ------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Eye level           | 0 degrees                                           | Intimate, peer-relationship, shows labels and branding clearly                                                    | Bottles, cans, boxes, anything with a front face and prominent branding                               |
+| Slightly elevated   | 15-25 degrees                                       | Standard commercial angle -- shows both front face and top surface, suggests the product's three-dimensional form | Most products; this is the default starting angle for any unfamiliar product                          |
+| Three-quarter       | 40-50 degrees                                       | Strong three-dimensional impression, shows front, top, and side simultaneously                                    | Electronics, packaged goods, shoes, cosmetics, anything with distinct form language                   |
+| High three-quarter  | 60-70 degrees                                       | Shows the top surface predominantly, useful for products with important top details                               | Plates of food, open boxes, keyboards, flat items where the top is the primary surface                |
+| Flat lay (overhead) | 90 degrees -- camera aimed straight down            | Pattern, collection, arrangement, no perspective distortion                                                       | Clothing (laid flat), flat food preparation, collections of small products, social media arrangements |
+| Low angle           | -10 to -20 degrees (camera below product eye level) | Makes product appear larger, more dominant, more powerful                                                         | Tall bottles, luxury goods, items that should feel aspirational or premium                            |
 
 **Focal length guidelines:**
+
 - Macro products (jewelry, coins, electronic components under 5cm): dedicated macro lens at 1:1 reproduction ratio, or a standard lens with extension tubes. Use at f/11-f/16 to maximize depth of field, which is measured in millimeters at macro distances.
 - Small tabletop products (cosmetics, small bottles, shoes): 50mm to 90mm equivalent. This focal length produces natural perspective that matches how the object looks held at arm's length.
 - Medium products (electronics, small appliances, stacked products): 85mm to 105mm equivalent. The mild telephoto compression makes products look more substantial and reduces the apparent size difference between foreground and background props.
@@ -172,6 +182,7 @@ Product photography on a tripod removes the tradeoffs required in handheld or ac
 A shot list is a production document that ensures all required deliverables are captured before the setup is dismantled. Retouching sequence order prevents working against previous corrections.
 
 **Shot list construction -- required shot categories for e-commerce product pages:**
+
 - Hero shot: the primary image that appears as the first listing image. Usually the most visually compelling single-product angle with optimal lighting.
 - Front face: straight-on or slightly elevated, showing the product's primary branding or design element. This is often the hero shot for packaged goods.
 - Three-quarter view: shows depth and form.
@@ -181,6 +192,7 @@ A shot list is a production document that ensures all required deliverables are 
 - Lifestyle shot: product in environment with props and contextual styling (may be photographed on a different background with different lighting in the same session).
 
 **Retouching sequence (always in this order):**
+
 1. Global corrections first: exposure adjustment, white balance correction, lens corrections (distortion, chromatic aberration, vignette removal). Apply these to all images in the session simultaneously in batch.
 2. Background work: if the background is white, use Curves to bring the background to pure white (#FFFFFF) while retaining shadow detail at the base of the product. For lifestyle shots, remove sensor dust spots and distracting elements from the background.
 3. Product corrections: remove physical blemishes that were not present on the actual product (dust particles, fingerprints, minor packaging damage from shipping). Do NOT remove intentional design features -- this is misrepresentation.
@@ -218,26 +230,31 @@ A shot list is a production document that ensures all required deliverables are 
 **Surface lighting strategy:** [Brief explanation of why this approach is correct for this surface type]
 
 **Key light:**
+
 - Type and size: [Softbox 24x36in / diffusion panel / window with diffusion]
 - Position: [Clock position, e.g., 10 o'clock] at [angle above product plane, e.g., 45 degrees]
 - Distance: [in feet or cm from product] -- rationale: [why this distance]
 - Power/intensity: [relative to fill, e.g., 1 stop brighter than fill]
 
 **Fill:**
+
 - Type: [White foam board reflector / second softbox / diffusion panel]
 - Position: [Clock position] at [angle]
 - Distance: [distance from product]
 - Effect: [Key-to-fill ratio, e.g., 3:1 -- moderate shadow depth]
 
 **Background light (if applicable):**
+
 - Type and position: [Small LED panel or strobe below and behind the sweep]
 - Intensity relative to key: [+1.5 stops -- ensures white background reads as #FFFFFF]
 
 **Accent/edge/backlight (if applicable):**
+
 - Type and position: [Narrow strip softbox at rear quarter, rim lighting for dark products]
 - Purpose: [Edge separation, rim definition on dark product against dark background]
 
 **Flags (black cards) used:**
+
 - [Position 1]: [Purpose -- blocks light from [surface], creates dark reflection in [surface]]
 - [Position 2]: [if applicable]
 
@@ -247,30 +264,33 @@ A shot list is a production document that ensures all required deliverables are 
 
 ### Camera Configuration
 
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| Focal length | [Xmm (equivalent)] | [Perspective and distortion reason for this product] |
-| Aperture | f/[X] | [Depth of field needed across [product dimension]] |
-| ISO | [100 / base native] | [Cleanest signal, tripod eliminates motion variable] |
-| Shutter speed | [X -- at/below sync speed for flash, or X for continuous] | [Sync speed compliance / exposure requirement] |
-| White balance | [Custom / Kelvin value] from [gray card / color checker] | [Consistency across all frames in session] |
-| File format | RAW | [Enables white balance correction and color accuracy in post] |
-| Focus method | [Manual / single-shot AF] on [specific point on product] | [Why this point -- primary feature, sharpest needed area] |
-| Tripod | Required | [Enables low ISO, consistent framing between angles] |
-| Remote shutter / self-timer | [2-second self-timer or remote] | [Eliminates camera shake from shutter button press] |
+| Setting                     | Value                                                     | Rationale                                                     |
+| --------------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
+| Focal length                | [Xmm (equivalent)]                                        | [Perspective and distortion reason for this product]          |
+| Aperture                    | f/[X]                                                     | [Depth of field needed across [product dimension]]            |
+| ISO                         | [100 / base native]                                       | [Cleanest signal, tripod eliminates motion variable]          |
+| Shutter speed               | [X -- at/below sync speed for flash, or X for continuous] | [Sync speed compliance / exposure requirement]                |
+| White balance               | [Custom / Kelvin value] from [gray card / color checker]  | [Consistency across all frames in session]                    |
+| File format                 | RAW                                                       | [Enables white balance correction and color accuracy in post] |
+| Focus method                | [Manual / single-shot AF] on [specific point on product]  | [Why this point -- primary feature, sharpest needed area]     |
+| Tripod                      | Required                                                  | [Enables low ISO, consistent framing between angles]          |
+| Remote shutter / self-timer | [2-second self-timer or remote]                           | [Eliminates camera shake from shutter button press]           |
 
 ---
 
 ### Camera Angle Plan
 
 **Primary (hero) angle:** [X degrees above product plane, X o'clock camera position]
+
 - Framing: [What fills the frame, how much negative space]
 - What this communicates: [Why this angle sells this specific product]
 
 **Secondary angle:** [Angle, degrees]
+
 - Purpose: [What additional product information this reveals]
 
 **Detail shot angle:** [Angle, lens distance to subject]
+
 - Focus point: [Specific product feature this captures]
 
 **Lifestyle angle (if applicable):** [Angle, relationship to props]
@@ -281,12 +301,13 @@ A shot list is a production document that ensures all required deliverables are 
 
 **Prop list:**
 
-| Prop | Material/Color | Purpose | Placement |
-|------|---------------|---------|-----------|
-| [Prop 1] | [Description] | [Narrative purpose] | [Position relative to product] |
-| [Prop 2] | [Description] | [Narrative purpose] | [Position relative to product] |
+| Prop     | Material/Color | Purpose             | Placement                      |
+| -------- | -------------- | ------------------- | ------------------------------ |
+| [Prop 1] | [Description]  | [Narrative purpose] | [Position relative to product] |
+| [Prop 2] | [Description]  | [Narrative purpose] | [Position relative to product] |
 
 **Color palette:**
+
 - Product primary color(s): [color values or descriptions]
 - Background/surface color: [color]
 - Prop colors: [colors and their relationship to product -- analogous / complementary / neutral]
@@ -309,23 +330,23 @@ A shot list is a production document that ensures all required deliverables are 
 
 ### Shot List
 
-| # | Shot Type | Angle | Focal Distance | Focus Point | Purpose / Platform Use |
-|---|-----------|-------|---------------|-------------|----------------------|
-| 1 | Hero | [degrees, position] | [Xft/cm] | [Primary feature] | Main listing image |
-| 2 | Front face | Eye level, 0 degrees | [distance] | [Branding/label] | Secondary listing image |
-| 3 | Three-quarter | 45 degrees | [distance] | [Product body] | Form/depth image |
-| 4 | Rear / alternate view | [angle] | [distance] | [Back surface] | Third listing image / required by platform |
-| 5 | Detail | [close-up angle] | [macro distance] | [Key feature] | Detail close-up |
-| 6 | Scale / context | [angle] | [wider] | [Product center] | Size reference image |
-| 7 | Lifestyle | [angle] | [wider] | [Product in scene] | Lifestyle/social media image |
+| #   | Shot Type             | Angle                | Focal Distance   | Focus Point        | Purpose / Platform Use                     |
+| --- | --------------------- | -------------------- | ---------------- | ------------------ | ------------------------------------------ |
+| 1   | Hero                  | [degrees, position]  | [Xft/cm]         | [Primary feature]  | Main listing image                         |
+| 2   | Front face            | Eye level, 0 degrees | [distance]       | [Branding/label]   | Secondary listing image                    |
+| 3   | Three-quarter         | 45 degrees           | [distance]       | [Product body]     | Form/depth image                           |
+| 4   | Rear / alternate view | [angle]              | [distance]       | [Back surface]     | Third listing image / required by platform |
+| 5   | Detail                | [close-up angle]     | [macro distance] | [Key feature]      | Detail close-up                            |
+| 6   | Scale / context       | [angle]              | [wider]          | [Product center]   | Size reference image                       |
+| 7   | Lifestyle             | [angle]              | [wider]          | [Product in scene] | Lifestyle/social media image               |
 
 ---
 
 ### Platform Compliance Notes
 
-| Platform | Background | Min Resolution | Aspect Ratio | Color Space | Notes |
-|----------|------------|---------------|--------------|-------------|-------|
-| [Platform name] | [Required background] | [pixels] | [ratio] | [sRGB / CMYK] | [Any specific requirements] |
+| Platform        | Background            | Min Resolution | Aspect Ratio | Color Space   | Notes                       |
+| --------------- | --------------------- | -------------- | ------------ | ------------- | --------------------------- |
+| [Platform name] | [Required background] | [pixels]       | [ratio]      | [sRGB / CMYK] | [Any specific requirements] |
 ```
 
 ---
@@ -373,6 +394,7 @@ At macro shooting distances, depth of field collapses to millimeters even at f/1
 Dark products on dark backgrounds lose definition and appear as undifferentiated dark masses. This is a contrast and edge separation problem.
 
 **Solutions:**
+
 - Rim light from behind at the rear quarter (4 o'clock or 8 o'clock position behind the product), aimed to create a thin bright edge on the product's silhouette that separates it from the background. Rim light should be 1-2 stops brighter than the key light.
 - Position the product on a surface slightly lighter than the product itself -- a dark charcoal gray instead of black, or a deep navy instead of pure black. The product's black reads darker than the background, providing inherent separation.
 - A very thin strip light from behind with a narrow modifier creates a "halo" effect -- a thin bright line outlining the product's form.
@@ -385,6 +407,7 @@ Dark products on dark backgrounds lose definition and appear as undifferentiated
 Many foods look their best in a narrow time window after preparation. Ice cream melts within 5-7 minutes. Steam from hot food dissipates in 2-3 minutes. Fresh herbs wilt. Salads oxidize and lose crispness. Sauce pools spread and absorb into surfaces.
 
 **Production approach:**
+
 - Complete all lighting, camera setup, framing, and hero prop arrangement before the food is prepared. Use a stand-in object (a similarly sized and colored prop or a previous print) to finalize all technical settings.
 - Shoot the hero image within the first 3-5 minutes of the food's optimal window.
 - Prepare duplicate portions of the same dish to allow multiple fresh attempts. Food photographers working with perishable subject matter always request backup portions.
@@ -399,6 +422,7 @@ Many foods look their best in a narrow time window after preparation. Ice cream 
 Electronic products with active screens create a fundamental exposure mismatch -- the screen is much brighter than the product body, or the screen is the only bright element in a dark product shot.
 
 **Technical approach:**
+
 - The screen's pixel refresh rate or LED scan frequency interacts with shutter speed. LCD screens typically require shutter speeds of 1/30 second or slower to avoid banding. OLED screens are less prone to banding. Test at 1/15, 1/30, and 1/60 to find the clean exposure.
 - At slow shutter speeds with a tripod, the product body can be correctly exposed. If the screen is still overexposed, a two-exposure composite is required: one exposure for the product body (correctly lit), one exposure for the screen (typically with overall exposure reduced and screen capture mode active on the device, displaying the actual UI or a clean representative screen state).
 - The screen content must accurately represent the product's actual interface -- showing a misleading or idealized screen state on an e-commerce listing is considered deceptive advertising.
@@ -411,6 +435,7 @@ Electronic products with active screens create a fundamental exposure mismatch -
 Clothing on a flat surface loses all the dimensional information that communicates how the garment fits and drapes. Clothing on a visible mannequin creates a competing visual element.
 
 **Ghost mannequin technique:**
+
 - Dress a mannequin with the garment styled to optimal appearance -- tuck collars, position sleeves, ensure any embroidery or print features are visible.
 - Photograph the exterior of the garment on the mannequin (front and back).
 - Turn the garment inside out and photograph the inside of the neck/waistband separately.
@@ -438,6 +463,7 @@ Large products cannot be photographed on a tabletop with a paper sweep. They req
 When photographing multiple color variants of the same product (10 lip shades, 8 sneaker colors, 5 bag colorways), color accuracy and exposure consistency across the series are non-negotiable -- the images will appear side-by-side in a product grid, and any inconsistency in exposure, white balance, or shadow character is immediately visible.
 
 **System consistency requirements:**
+
 - Photograph all variants in a single session without changing the lighting, camera position, or camera settings.
 - Use a color checker card in the first frame of each product color change. This provides a per-image color reference for batch correction in post.
 - Use a consistent product positioning template -- a small mark on the shooting surface indicating exact product placement, so framing is identical across all variants.
@@ -475,27 +501,32 @@ When photographing multiple color variants of the same product (10 lip shades, 8
 **Surface lighting strategy:** This product has three optically distinct surfaces requiring a layered lighting approach. The dominant challenge is the gold metal cap -- it is mirror-like and will reflect every light source and object in the room. The amber glass body responds to backlight beautifully, showing the product's warm color and liquid clarity. The matte paper label needs soft front diffusion light to read cleanly. The solution is: a large diffusion panel as the key (which the gold cap reflects as a smooth graduation), a backlight panel for the amber glass luminosity, and a white card fill for the label.
 
 **Key light:**
+
 - Type and size: Large white diffusion panel, 80 x 120cm (constructed from a foam board frame with white ripstop nylon or a shower curtain as the diffusion surface; alternatively, a 60x90cm softbox positioned at a distance sufficient to make it appear large relative to the product)
 - Position: 10 o'clock (slightly left of camera axis, relative to the front face of the product) at 50 degrees above the product plane
 - Distance: 45cm from the product -- the diffusion panel occupies a large apparent angle from the product's perspective, creating a wide, smooth reflection in the gold cap
 - Power: Serves as both key light and the primary reflection source for the gold cap. The panel should be bright enough to properly expose the label while providing a clean white/gray reflection that grades from bright at top to darker at bottom in the cap.
 
 **Fill:**
+
 - Type: White foam board reflector, 50 x 75cm
 - Position: 4 o'clock (opposite the key panel) at 30 degrees above product plane
 - Distance: 25cm from the product
 - Effect: Provides 3:1 key-to-fill ratio -- enough fill to open up shadow on the label while keeping a shadow gradient that shows the bottle's cylindrical form. Closer positioning (15cm) would reduce this to 2:1 if the shadow side appears too dark on the label.
 
 **Background light:**
+
 - Type: Small LED panel (or hotshoe flash with diffuser) positioned on the shooting surface behind the product, below the product's base level, aimed upward at the white sweep
 - Intensity relative to key: +1.5 stops brighter than the key light -- ensures background reaches near-#FFFFFF in camera
 
 **Backlight for amber glass:**
+
 - Type: Second LED panel or softbox positioned directly behind the product, aimed at a white card placed 20cm behind the bottle
 - Purpose: The light passes through the amber glass, illuminating the product's color from within. This creates the warm amber glow that shows the serum's quality and color. This light must be carefully powered -- too bright and it bleaches the amber to orange-white; too dim and it has no visible effect. Start at the same power as the key and adjust to taste.
 - The backlight will also create a bright rim glow on the front glass edges of the bottle -- visually striking and shows the product's form.
 
 **Flags (black cards) used:**
+
 - Right side of gold cap: A strip of black foam board (8cm wide) positioned at 2 o'clock at the gold cap's level, just outside the frame. This creates a dark reflection in the right side of the gold cap -- without it, the cap is uniformly bright and appears flat and dimensionless. The dark reflection defines the cap's cylindrical curvature.
 - Left side of gold cap: Another black strip at 10 o'clock close position creates a paired dark reflection. The cap now has: dark left edge, white graduation from panel reflection, dark right edge. This reads as a polished, three-dimensional metal form.
 
@@ -505,9 +536,9 @@ When photographing multiple color variants of the same product (10 lip shades, 8
 
 ### Camera Configuration
 
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| Focal length | 85mm to 100mm equivalent | Mild telephoto compresses the relationship between the bottle's foreground label and the background sweep; prevents the bottom of the bottle appearing disproportionately large from the perspective distortion of a shorter lens |
-| Aperture | f/8 | At 50-60cm working distance, f/8 provides sharp focus from the dropper tip to the bottle base -- approximately 4-5cm of depth, which covers the 3.5cm bottle diameter at slight angle. f/11 if the three-quarter shot requires more depth. |
-| ISO | 100 | Lowest native ISO, maximum dynamic range. Critical for the white background -- noise in white areas is immediately visible. |
-| Shutter speed | 1/160 second (at flash sync speed limit) or 1/4 second (LED continuous light) | Flash: must be at or below sync speed. LED continuous: determined by aperture and ISO -- typically 1/4 to 1 second on tripod.
+| Setting       | Value                                                                         | Rationale                                                                                                                                                                                                                                  |
+| ------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Focal length  | 85mm to 100mm equivalent                                                      | Mild telephoto compresses the relationship between the bottle's foreground label and the background sweep; prevents the bottom of the bottle appearing disproportionately large from the perspective distortion of a shorter lens          |
+| Aperture      | f/8                                                                           | At 50-60cm working distance, f/8 provides sharp focus from the dropper tip to the bottle base -- approximately 4-5cm of depth, which covers the 3.5cm bottle diameter at slight angle. f/11 if the three-quarter shot requires more depth. |
+| ISO           | 100                                                                           | Lowest native ISO, maximum dynamic range. Critical for the white background -- noise in white areas is immediately visible.                                                                                                                |
+| Shutter speed | 1/160 second (at flash sync speed limit) or 1/4 second (LED continuous light) | Flash: must be at or below sync speed. LED continuous: determined by aperture and ISO -- typically 1/4 to 1 second on tripod.                                                                                                              |

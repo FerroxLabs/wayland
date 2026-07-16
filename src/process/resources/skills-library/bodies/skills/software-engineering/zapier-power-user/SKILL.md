@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'automation shell-scripting guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Zapier Power User
@@ -45,14 +45,14 @@ Step Ordering Best Practice:
 
 ### Trigger Types
 
-| Trigger | Mechanism | Latency | Use Case |
-|---------|-----------|---------|----------|
-| Instant (webhook) | Push from app | Seconds | Real-time reactions |
-| Polling | Zapier checks every 1-15 min | Minutes | Apps without webhooks |
-| Schedule | Cron-like time trigger | Exact time | Periodic batch jobs |
-| Webhook (catch) | Raw HTTP POST to Zapier URL | Seconds | Custom integrations |
-| Email Parser | Incoming email to Zapier address | Minutes | Email-triggered workflows |
-| RSS | Feed poll | 5-15 min | Content monitoring |
+| Trigger           | Mechanism                        | Latency    | Use Case                  |
+| ----------------- | -------------------------------- | ---------- | ------------------------- |
+| Instant (webhook) | Push from app                    | Seconds    | Real-time reactions       |
+| Polling           | Zapier checks every 1-15 min     | Minutes    | Apps without webhooks     |
+| Schedule          | Cron-like time trigger           | Exact time | Periodic batch jobs       |
+| Webhook (catch)   | Raw HTTP POST to Zapier URL      | Seconds    | Custom integrations       |
+| Email Parser      | Incoming email to Zapier address | Minutes    | Email-triggered workflows |
+| RSS               | Feed poll                        | 5-15 min   | Content monitoring        |
 
 ## Filters
 
@@ -238,7 +238,7 @@ if (amount >= 500) {
   discount = 0.15;
 } else if (amount >= 100) {
   tier = 'professional';
-  discount = 0.10;
+  discount = 0.1;
 } else {
   tier = 'starter';
   discount = 0;
@@ -253,15 +253,17 @@ const rates = await response.json();
 const amountEUR = discountedAmount * (rates.rates?.EUR || 0.85);
 
 // Return object - each key becomes a field in subsequent steps
-output = [{
-  tier: tier,
-  original_amount: amount,
-  discount_percent: discount * 100,
-  discounted_amount: discountedAmount.toFixed(2),
-  savings: savings.toFixed(2),
-  amount_eur: amountEUR.toFixed(2),
-  customer_email: inputData.customerEmail.toLowerCase().trim()
-}];
+output = [
+  {
+    tier: tier,
+    original_amount: amount,
+    discount_percent: discount * 100,
+    discounted_amount: discountedAmount.toFixed(2),
+    savings: savings.toFixed(2),
+    amount_eur: amountEUR.toFixed(2),
+    customer_email: inputData.customerEmail.toLowerCase().trim(),
+  },
+];
 ```
 
 ### Python Code Step
@@ -495,6 +497,7 @@ Team Organization:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing zapier power user solutions
 - Reviewing or improving existing zapier power user approaches
 - Making architectural or implementation decisions about zapier power user
@@ -502,6 +505,7 @@ Team Organization:
 - Troubleshooting zapier power user-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -512,21 +516,26 @@ Team Organization:
 # Zapier Power User Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

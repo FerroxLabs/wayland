@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops debugging automation"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops debugging automation'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Incident Response
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to structure or improve their incident response process, runbooks, or on-call rotation
 - A user's production system is actively degraded and they need a structured triage and remediation framework
 - A user wants to build an incident command system (ICS) for an engineering organization from scratch
@@ -31,6 +33,7 @@ metadata:
 - A user is designing on-call schedules, escalation chains, or pager policies in tools like PagerDuty or OpsGenie
 
 **Do NOT use this skill when:**
+
 - The user needs infrastructure provisioning or IaC guidance -- use the infrastructure-as-code skill
 - The user wants to design observability pipelines or instrumentation from scratch -- use the observability skill
 - The user needs deployment pipeline (CI/CD) design -- use the deployment pipelines skill
@@ -54,12 +57,12 @@ Before generating any guidance, determine what phase of incident response the us
 
 Identify the severity tier immediately if an active incident is involved:
 
-| Severity | Label | Definition | Response SLA |
-|---|---|---|---|
-| SEV-1 | Critical | Complete service outage or data loss in progress | 5-minute acknowledge, 15-minute bridge |
-| SEV-2 | Major | Significant user-facing degradation, >20% error rate or >2x p99 latency | 15-minute acknowledge, 30-minute bridge |
-| SEV-3 | Minor | Partial degradation, no data loss, workaround exists | 30-minute acknowledge, 2-hour resolution target |
-| SEV-4 | Low | Non-user-facing, caught by monitoring before users notice | Next business day |
+| Severity | Label    | Definition                                                              | Response SLA                                    |
+| -------- | -------- | ----------------------------------------------------------------------- | ----------------------------------------------- |
+| SEV-1    | Critical | Complete service outage or data loss in progress                        | 5-minute acknowledge, 15-minute bridge          |
+| SEV-2    | Major    | Significant user-facing degradation, >20% error rate or >2x p99 latency | 15-minute acknowledge, 30-minute bridge         |
+| SEV-3    | Minor    | Partial degradation, no data loss, workaround exists                    | 30-minute acknowledge, 2-hour resolution target |
+| SEV-4    | Low      | Non-user-facing, caught by monitoring before users notice               | Next business day                               |
 
 ### 2. Establish Roles and Incident Command Structure
 
@@ -86,6 +89,7 @@ Poorly calibrated alerts are the single largest source of on-call engineer burno
 - **Alert on burn rate, not raw thresholds:** For SLO-based alerting, a 5% error budget burn in 1 hour (14.4x burn rate on a 30-day window) should page immediately. A 2% burn in 6 hours (1x burn rate) generates a ticket, not a page.
 
 Specific threshold guidance by signal type:
+
 - HTTP error rate: page at >1% for 5 minutes sustained for SEV-2; >5% for 1 minute for SEV-1
 - Latency p99: page at >2x baseline for 10 minutes; >5x baseline for 2 minutes
 - Database connection pool: page at >80% utilization for 5 minutes
@@ -115,6 +119,7 @@ During an active incident, cognitive load is high. Use structured triage checkli
 5. **Mitigate before root-cause** -- The priority is restoring service. An immediate mitigation (rollback, traffic reroute, cache flush, rate limit) takes precedence over understanding root cause. Root cause analysis belongs in the post-mortem.
 
 Common mitigation actions and their appropriate conditions:
+
 - **Rollback deployment:** When a recent deploy correlates with symptom onset. Use your CD system's rollback capability -- do not manually revert code.
 - **Traffic reroute/failover:** When a single AZ or region is degraded. Requires pre-built runbook and tested failover procedure.
 - **Feature flag disable:** When a specific feature is causing the incident. Requires feature flag infrastructure (LaunchDarkly, Unleash, etc.) to be in place.
@@ -217,31 +222,34 @@ COMMUNICATION LOG
 ---
 
 ## Executive Summary
+
 [2-3 sentences: what broke, what the user impact was, how it was resolved]
 
 ---
 
 ## Timeline
 
-| Time (UTC) | Event |
-|---|---|
-| HH:MM | First symptom observed (describe) |
-| HH:MM | Alert fired (alert name, channel) |
-| HH:MM | Incident declared, roles assigned |
-| HH:MM | [Each diagnostic action and result] |
-| HH:MM | Root cause identified |
-| HH:MM | Mitigation applied (describe) |
-| HH:MM | Service restored |
-| HH:MM | All-clear declared |
+| Time (UTC) | Event                               |
+| ---------- | ----------------------------------- |
+| HH:MM      | First symptom observed (describe)   |
+| HH:MM      | Alert fired (alert name, channel)   |
+| HH:MM      | Incident declared, roles assigned   |
+| HH:MM      | [Each diagnostic action and result] |
+| HH:MM      | Root cause identified               |
+| HH:MM      | Mitigation applied (describe)       |
+| HH:MM      | Service restored                    |
+| HH:MM      | All-clear declared                  |
 
 ---
 
 ## Root Cause Analysis
 
 ### Immediate Cause
+
 [The proximate technical trigger -- e.g., "Connection pool exhausted due to long-running queries"]
 
 ### Five-Why Chain
+
 1. Why did the service go down? [answer]
 2. Why did [answer 1] happen? [answer]
 3. Why did [answer 2] happen? [answer]
@@ -249,6 +257,7 @@ COMMUNICATION LOG
 5. Why did [answer 4] happen? [systemic root cause]
 
 ### Contributing Factors
+
 - [Factor 1: e.g., "No canary deployment policy meant 100% of traffic hit the bad code"]
 - [Factor 2: e.g., "Alert threshold was too conservative -- 10-minute window delayed detection by 8 minutes"]
 
@@ -256,21 +265,23 @@ COMMUNICATION LOG
 
 ## Impact Assessment
 
-| Metric | Value |
-|---|---|
-| Duration | X minutes |
-| Users affected | X% / X absolute |
-| Transactions lost/degraded | X |
-| Revenue impact (if known) | $X |
-| SLO burn | X% of monthly budget |
+| Metric                     | Value                |
+| -------------------------- | -------------------- |
+| Duration                   | X minutes            |
+| Users affected             | X% / X absolute      |
+| Transactions lost/degraded | X                    |
+| Revenue impact (if known)  | $X                   |
+| SLO burn                   | X% of monthly budget |
 
 ---
 
 ## What Went Well
+
 - [Detection was fast because synthetic monitoring caught it before users reported it]
 - [Rollback procedure was documented and executed in under 3 minutes]
 
 ## What Went Poorly
+
 - [Alert did not fire for 8 minutes after first symptom due to aggressive smoothing]
 - [No runbook existed for the specific failure mode]
 
@@ -278,14 +289,15 @@ COMMUNICATION LOG
 
 ## Action Items
 
-| # | Action | Owner | Due Date | Priority |
-|---|---|---|---|---|
-| 1 | [Specific action] | [Name] | [Date] | P1 |
-| 2 | [Specific action] | [Name] | [Date] | P2 |
+| #   | Action            | Owner  | Due Date | Priority |
+| --- | ----------------- | ------ | -------- | -------- |
+| 1   | [Specific action] | [Name] | [Date]   | P1       |
+| 2   | [Specific action] | [Name] | [Date]   | P2       |
 
 ---
 
 ## Lessons Learned
+
 [1-3 sentences summarizing what the organization should take away from this incident]
 ```
 
@@ -298,7 +310,6 @@ groups:
   - name: service-slo-alerts
     interval: 30s
     rules:
-
       # SEV-1: High error rate -- immediate page
       - alert: HighErrorRateCritical
         expr: |
@@ -310,9 +321,9 @@ groups:
           severity: critical
           team: platform
         annotations:
-          summary: "Error rate above 5% for 1 minute"
-          description: "Current error rate: {{ $value | humanizePercentage }}"
-          runbook_url: "https://runbooks.internal/high-error-rate"
+          summary: 'Error rate above 5% for 1 minute'
+          description: 'Current error rate: {{ $value | humanizePercentage }}'
+          runbook_url: 'https://runbooks.internal/high-error-rate'
 
       # SEV-2: Elevated error rate -- warn
       - alert: HighErrorRateMajor
@@ -325,8 +336,8 @@ groups:
           severity: warning
           team: platform
         annotations:
-          summary: "Error rate above 1% for 5 minutes"
-          runbook_url: "https://runbooks.internal/high-error-rate"
+          summary: 'Error rate above 1% for 5 minutes'
+          runbook_url: 'https://runbooks.internal/high-error-rate'
 
       # Latency p99 degradation
       - alert: LatencyP99Degraded
@@ -339,8 +350,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "p99 latency above 2s for service {{ $labels.service }}"
-          runbook_url: "https://runbooks.internal/latency-degraded"
+          summary: 'p99 latency above 2s for service {{ $labels.service }}'
+          runbook_url: 'https://runbooks.internal/latency-degraded'
 
       # SLO burn rate alert (fast burn)
       - alert: SLOBudgetFastBurn
@@ -353,9 +364,9 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "SLO error budget burning at 14.4x rate"
-          description: "At this rate, the monthly error budget will be exhausted in 2 hours"
-          runbook_url: "https://runbooks.internal/slo-burn-rate"
+          summary: 'SLO error budget burning at 14.4x rate'
+          description: 'At this rate, the monthly error budget will be exhausted in 2 hours'
+          runbook_url: 'https://runbooks.internal/slo-burn-rate'
 ```
 
 ---
@@ -446,12 +457,12 @@ This is a textbook scenario for implementing structured incident response. Based
 
 For a 12-person team, use four severity tiers with these specific thresholds for a payments service:
 
-| Severity | Trigger | Response |
-|---|---|---|
-| SEV-1 | Payment error rate >5% for 1 min OR complete checkout unavailability | Page on-call immediately, 15-min bridge |
-| SEV-2 | Payment error rate >1% for 5 min OR latency p99 >5s for 10 min | Page on-call, 30-min bridge |
-| SEV-3 | Payment error rate >0.1% for 15 min OR anomaly in reconciliation | Ticket, next business day |
-| SEV-4 | Monitoring anomaly, no user impact | Backlog |
+| Severity | Trigger                                                              | Response                                |
+| -------- | -------------------------------------------------------------------- | --------------------------------------- |
+| SEV-1    | Payment error rate >5% for 1 min OR complete checkout unavailability | Page on-call immediately, 15-min bridge |
+| SEV-2    | Payment error rate >1% for 5 min OR latency p99 >5s for 10 min       | Page on-call, 30-min bridge             |
+| SEV-3    | Payment error rate >0.1% for 15 min OR anomaly in reconciliation     | Ticket, next business day               |
+| SEV-4    | Monitoring anomaly, no user impact                                   | Backlog                                 |
 
 The incident you described was a SEV-2 by this classification. Had you had this framework, the bridge would have been called within 5 minutes instead of whatever ad-hoc process triggered last week.
 
@@ -481,10 +492,10 @@ groups:
         labels:
           severity: critical
           team: payments
-          runbook: "payments-high-error-rate"
+          runbook: 'payments-high-error-rate'
         annotations:
-          summary: "Payments error rate critical: {{ $value | humanizePercentage }}"
-          runbook_url: "https://runbooks.internal/payments-high-error-rate"
+          summary: 'Payments error rate critical: {{ $value | humanizePercentage }}'
+          runbook_url: 'https://runbooks.internal/payments-high-error-rate'
 
       - alert: PaymentsElevatedErrorRate
         expr: |
@@ -503,8 +514,8 @@ groups:
           severity: warning
           team: payments
         annotations:
-          summary: "Payments error rate elevated: {{ $value | humanizePercentage }}"
-          runbook_url: "https://runbooks.internal/payments-high-error-rate"
+          summary: 'Payments error rate elevated: {{ $value | humanizePercentage }}'
+          runbook_url: 'https://runbooks.internal/payments-high-error-rate'
 
       - alert: PaymentsLatencyDegraded
         expr: |
@@ -519,8 +530,8 @@ groups:
           severity: warning
           team: payments
         annotations:
-          summary: "Payments p99 latency above 5s"
-          runbook_url: "https://runbooks.internal/payments-latency"
+          summary: 'Payments p99 latency above 5s'
+          runbook_url: 'https://runbooks.internal/payments-latency'
 ```
 
 Add synthetic monitoring immediately: a heartbeat check that simulates a payment initiation request (not a real charge -- use a dedicated test payment method with Stripe/Adyen/your gateway's test mode) from at least two AWS regions every 60 seconds. This would have caught last week's incident 5-10 minutes earlier than your current alerting.
@@ -573,18 +584,22 @@ Create this runbook at `runbooks.internal/payments-high-error-rate`:
 ## Mitigation Options
 
 ### Option 1: Rollback deployment
+
 - ArgoCD: Select payments-api → History → Select previous version → Rollback
 - Expected recovery time: 3-5 minutes
 
 ### Option 2: Disable payment retry feature flag
+
 - LaunchDarkly: disable `enable-payment-retry` flag in production
 - Use when: retry logic appears to be causing cascade failures
 
 ### Option 3: Scale up payments-api pods
+
 - `kubectl scale deployment payments-api -n payments --replicas=10`
 - Use when: CPU/memory saturation is confirmed root cause
 
 ## Escalation
+
 - If not resolved in 30 minutes: page @payments-lead and @vp-engineering
 - If database is confirmed cause: page @database-oncall
 ```
@@ -602,6 +617,7 @@ Conduct the post-mortem for last week's incident this week -- it is not too late
 5. Why did recovery take 45 minutes? -- No structured triage process and no runbook
 
 Your action items from this post-mortem should be:
+
 - P1, Owner: Platform team lead, Due: this sprint -- Implement the alerting rules above
 - P1, Owner: Payments team lead, Due: this sprint -- Create the payments runbook above
 - P2, Owner: Engineering manager, Due: next sprint -- Set up Slack incident bot with role prompting
@@ -612,14 +628,14 @@ Your action items from this post-mortem should be:
 
 ### 30-Day Implementation Roadmap
 
-| Week | Action | Owner |
-|---|---|---|
-| Week 1 | Deploy alerting rules, create payments runbook, set severity definitions | Platform + Payments lead |
-| Week 1 | Conduct last week's post-mortem, file action items as Jira tickets | Engineering Manager |
-| Week 2 | Configure Slack incident bot, set up PagerDuty escalation policy | Platform team |
-| Week 2 | Implement synthetic checkout monitoring from 2 AWS regions | Payments team |
-| Week 3 | Create runbooks for the 5 most common alert types in your system | On-call rotation |
-| Week 4 | Run a 1-hour game-day exercise: inject a fake error rate spike, measure MTTD and MTTR | All engineers |
-| Week 4 | Set MTTR targets: SEV-1 <30 min, SEV-2 <90 min, measure against them monthly | Engineering Manager |
+| Week   | Action                                                                                | Owner                    |
+| ------ | ------------------------------------------------------------------------------------- | ------------------------ |
+| Week 1 | Deploy alerting rules, create payments runbook, set severity definitions              | Platform + Payments lead |
+| Week 1 | Conduct last week's post-mortem, file action items as Jira tickets                    | Engineering Manager      |
+| Week 2 | Configure Slack incident bot, set up PagerDuty escalation policy                      | Platform team            |
+| Week 2 | Implement synthetic checkout monitoring from 2 AWS regions                            | Payments team            |
+| Week 3 | Create runbooks for the 5 most common alert types in your system                      | On-call rotation         |
+| Week 4 | Run a 1-hour game-day exercise: inject a fake error rate spike, measure MTTD and MTTR | All engineers            |
+| Week 4 | Set MTTR targets: SEV-1 <30 min, SEV-2 <90 min, measure against them monthly          | Engineering Manager      |
 
 After 30 days, your target state: MTTD under 5 minutes (currently estimated 15+ minutes based on your description), MTTR under 30 minutes for SEV-2 (currently 45 minutes), and zero incidents where roles were unclear or communication was chaotic.

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend html-css"
-  category: "web-development"
-  subcategory: "html-css-web"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend html-css'
+  category: 'web-development'
+  subcategory: 'html-css-web'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Animation Designer
@@ -53,7 +53,9 @@ Micro-interactions (icons, toggles)     CSS or Lottie
 /* Transition shorthand: property duration timing-function delay */
 .button {
   background: var(--color-brand);
-  transition: background 200ms ease-out, transform 150ms ease-out;
+  transition:
+    background 200ms ease-out,
+    transform 150ms ease-out;
 }
 .button:hover {
   background: var(--color-brand-hover);
@@ -68,26 +70,38 @@ Micro-interactions (icons, toggles)     CSS or Lottie
 }
 
 /* Named timing functions */
---ease-in:        cubic-bezier(0.4, 0, 1, 1);     /* Accelerating */
---ease-out:       cubic-bezier(0, 0, 0.2, 1);     /* Decelerating */
---ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);   /* Standard */
---ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1); /* Overshoot */
+--ease-in: cubic-bezier(0.4, 0, 1, 1); /* Accelerating */
+--ease-out: cubic-bezier(0, 0, 0.2, 1); /* Decelerating */
+--ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* Standard */
+--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Overshoot */
 ```
 
 ### Common Transition Patterns
 
 ```css
 /* Fade in/out */
-.fade-enter { opacity: 0; }
-.fade-enter-active { opacity: 1; transition: opacity 300ms ease-out; }
-.fade-exit { opacity: 1; }
-.fade-exit-active { opacity: 0; transition: opacity 200ms ease-in; }
+.fade-enter {
+  opacity: 0;
+}
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-out;
+}
+.fade-exit {
+  opacity: 1;
+}
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 200ms ease-in;
+}
 
 /* Slide up from below */
 .slide-up {
   transform: translateY(20px);
   opacity: 0;
-  transition: transform 300ms ease-out, opacity 200ms ease-out;
+  transition:
+    transform 300ms ease-out,
+    opacity 200ms ease-out;
 }
 .slide-up.active {
   transform: translateY(0);
@@ -96,8 +110,12 @@ Micro-interactions (icons, toggles)     CSS or Lottie
 
 /* Skeleton loading shimmer */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 .skeleton {
   background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
@@ -437,6 +455,7 @@ OPTIMIZATION TECHNIQUES:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing animation designer solutions
 - Reviewing or improving existing animation designer approaches
 - Making architectural or implementation decisions about animation designer
@@ -444,6 +463,7 @@ OPTIMIZATION TECHNIQUES:
 - Troubleshooting animation designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -454,21 +474,26 @@ OPTIMIZATION TECHNIQUES:
 # Animation Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

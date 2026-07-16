@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly step-by-step guide checklist"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly step-by-step guide checklist'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Drawing Fundamentals Beginner
 
 ## When to Use
@@ -156,36 +157,36 @@ The schedule must be constructed around the user's stated session length. Three 
 
 **15-Minute Session Schedule:**
 
-| Day | Drills | Duration |
-|---|---|---|
-| Day 1 | Line Ladders + Gesture (10 poses) | 5 + 5 min |
-| Day 2 | Form Page (spheres and boxes only) | 15 min |
-| Day 3 | Contour (3 blind + 3 modified) | 15 min |
-| Day 4 | Value Strip | 15 min |
-| Day 5 | Free drawing (sketch anything) | 15 min |
-| Day 6-7 | Optional rest or casual sketching | 0-10 min |
+| Day     | Drills                             | Duration  |
+| ------- | ---------------------------------- | --------- |
+| Day 1   | Line Ladders + Gesture (10 poses)  | 5 + 5 min |
+| Day 2   | Form Page (spheres and boxes only) | 15 min    |
+| Day 3   | Contour (3 blind + 3 modified)     | 15 min    |
+| Day 4   | Value Strip                        | 15 min    |
+| Day 5   | Free drawing (sketch anything)     | 15 min    |
+| Day 6-7 | Optional rest or casual sketching  | 0-10 min  |
 
 **30-Minute Session Schedule:**
 
-| Day | Drills | Duration |
-|---|---|---|
-| Day 1 | Line Ladders + Gesture (10 poses) | 5 + 5 + Forms 8 + Values 7 min |
-| Day 2 | Contour + Gesture + Forms with shading | 6 + 5 + 10 min |
-| Day 3 | Line Ladders + Values + Gesture + Free draw | 5 + 6 + 5 + 10 min |
-| Day 4 | Forms with full shading + Contour + Gesture | 10 + 6 + 5 min |
-| Day 5 | Free drawing: sketch 2-3 objects in the room | 30 min |
-| Day 6-7 | Optional: casual sketching only, no drills | 0-15 min |
+| Day     | Drills                                       | Duration                       |
+| ------- | -------------------------------------------- | ------------------------------ |
+| Day 1   | Line Ladders + Gesture (10 poses)            | 5 + 5 + Forms 8 + Values 7 min |
+| Day 2   | Contour + Gesture + Forms with shading       | 6 + 5 + 10 min                 |
+| Day 3   | Line Ladders + Values + Gesture + Free draw  | 5 + 6 + 5 + 10 min             |
+| Day 4   | Forms with full shading + Contour + Gesture  | 10 + 6 + 5 min                 |
+| Day 5   | Free drawing: sketch 2-3 objects in the room | 30 min                         |
+| Day 6-7 | Optional: casual sketching only, no drills   | 0-15 min                       |
 
 **60-Minute Session Schedule:**
 
-| Day | Drills | Duration |
-|---|---|---|
-| Day 1 | Line Ladders + Gesture (20 poses) + Forms | 10 + 10 + 25 + Values 10 min |
-| Day 2 | Contour (6 blind + 6 modified) + Gesture + Subject study | 15 + 10 + 20 min |
-| Day 3 | Full form page with shading + Value strip + Free draw | 20 + 10 + 20 min |
-| Day 4 | Gesture (20 poses) + Object construction (2-3 combined forms) | 10 + 30 min |
-| Day 5 | Full still life session: set up 3 objects, light from one direction, draw | 60 min |
-| Day 6-7 | Rest recommended -- fatigue causes regression | Optional |
+| Day     | Drills                                                                    | Duration                     |
+| ------- | ------------------------------------------------------------------------- | ---------------------------- |
+| Day 1   | Line Ladders + Gesture (20 poses) + Forms                                 | 10 + 10 + 25 + Values 10 min |
+| Day 2   | Contour (6 blind + 6 modified) + Gesture + Subject study                  | 15 + 10 + 20 min             |
+| Day 3   | Full form page with shading + Value strip + Free draw                     | 20 + 10 + 20 min             |
+| Day 4   | Gesture (20 poses) + Object construction (2-3 combined forms)             | 10 + 30 min                  |
+| Day 5   | Full still life session: set up 3 objects, light from one direction, draw | 60 min                       |
+| Day 6-7 | Rest recommended -- fatigue causes regression                             | Optional                     |
 
 The structure principle: every session should begin with a warm-up (line ladders or gesture -- 5 minutes max), and every session should end with either a free drawing block or a subject-specific application of that day's drill. Pure drill practice without creative application produces technically capable but creatively blocked artists.
 
@@ -195,16 +196,16 @@ The structure principle: every session should begin with a warm-up (line ladders
 
 Milestones must be testable without an instructor. Every test method is self-administered.
 
-| Week | Target Skill | Measurable Test |
-|---|---|---|
-| 1 | Lines within 1/4" of dot-to-dot target; gesture poses identifiable by a third person | Hold ruler alongside line; show gesture sketch to someone and ask them to identify the pose |
-| 2 | Shaded sphere shows clear light/shadow division with visible core shadow | Squint test: light side and dark side distinct; compare to a lit real sphere |
-| 3 | 5-value strip with even spacing between all 5 tones | Squint test: all 5 values appear distinct, not clumped |
-| 4 | Combined form object recognizable without a label | Show to someone unfamiliar with the exercise and ask them to name it |
-| 5 | Lines within 1/8" of target; gesture poses show weight distribution | Lay ruler alongside line; viewer can identify which leg bears weight |
-| 6 | Modified contour of hand with finger-to-palm proportion within 80% of actual | Measure finger length in drawing and actual hand; calculate ratio |
-| 7 | Still life of 2 objects with consistent light source across both forms | Single light source arrow in corner; shadows face same direction on both objects |
-| 8 | Still life of 3 objects with all 5 value zones present and consistent lighting | Squint test; label light/halftone/core shadow/reflected light on the drawing itself |
+| Week | Target Skill                                                                         | Measurable Test                                                                             |
+| ---- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| 1    | Lines within 1/4" of dot-to-dot target; gesture poses identifiable by a third person | Hold ruler alongside line; show gesture sketch to someone and ask them to identify the pose |
+| 2    | Shaded sphere shows clear light/shadow division with visible core shadow             | Squint test: light side and dark side distinct; compare to a lit real sphere                |
+| 3    | 5-value strip with even spacing between all 5 tones                                  | Squint test: all 5 values appear distinct, not clumped                                      |
+| 4    | Combined form object recognizable without a label                                    | Show to someone unfamiliar with the exercise and ask them to name it                        |
+| 5    | Lines within 1/8" of target; gesture poses show weight distribution                  | Lay ruler alongside line; viewer can identify which leg bears weight                        |
+| 6    | Modified contour of hand with finger-to-palm proportion within 80% of actual         | Measure finger length in drawing and actual hand; calculate ratio                           |
+| 7    | Still life of 2 objects with consistent light source across both forms               | Single light source arrow in corner; shadows face same direction on both objects            |
+| 8    | Still life of 3 objects with all 5 value zones present and consistent lighting       | Squint test; label light/halftone/core shadow/reflected light on the drawing itself         |
 
 ---
 
@@ -384,6 +385,7 @@ Free digital options exist that replace every item in the materials checklist. A
 ## Drawing Practice Plan: Observational Sketching From Life
 
 ### Learner Profile
+
 - Experience level: None -- absolute beginner
 - Session length: 30 minutes per day
 - Goal subject: Observational sketching (landscapes, still life, figure)
@@ -398,15 +400,16 @@ Free digital options exist that replace every item in the materials checklist. A
 Your No. 2 pencil (HB grade) is a legitimate starting tool for weeks 1-2. It handles line control and gesture drills well. Its limitation is value range -- it cannot produce the very dark tones needed for the deep shadow zones on forms, which caps your shading practice. Your notebook is the bigger concern: lined paper is workable but the lines will interfere visually with your drawings, and most notebook paper is too thin (20-24 lb) to handle erasing without tearing. You can begin today on your current materials. Buy the following within the first week:
 
 ### Materials Checklist
-| Item              | Specification                                                 | Substitute Now  | Cost   |
-|-------------------|---------------------------------------------------------------|-----------------|--------|
-| Drawing pencils   | 2B (softer, darker lines) and 4B (deep darks, rich shadow)   | No. 2 pencil OK | $3-5   |
-| Sketchbook        | 9x12 inches, 70-80 lb paper, spiral or perfect bound          | Notebook OK for now | $6-10 |
-| Kneaded eraser    | Gray putty-type -- lifts graphite without tearing paper       | Any eraser      | $2-3   |
-| Vinyl eraser      | White plastic -- for complete removal of dark marks           | Skip until needed | $1-2  |
-| Sharpener         | Handheld metal sharpener with plastic casing                  | Any sharpener   | $2-3   |
-| Blending stump    | Tortillon -- for smooth gradients in week 3+                  | Use fingertip   | $1-3   |
-| **Total**         |                                                               |                 | **$15-26** |
+
+| Item            | Specification                                              | Substitute Now      | Cost       |
+| --------------- | ---------------------------------------------------------- | ------------------- | ---------- |
+| Drawing pencils | 2B (softer, darker lines) and 4B (deep darks, rich shadow) | No. 2 pencil OK     | $3-5       |
+| Sketchbook      | 9x12 inches, 70-80 lb paper, spiral or perfect bound       | Notebook OK for now | $6-10      |
+| Kneaded eraser  | Gray putty-type -- lifts graphite without tearing paper    | Any eraser          | $2-3       |
+| Vinyl eraser    | White plastic -- for complete removal of dark marks        | Skip until needed   | $1-2       |
+| Sharpener       | Handheld metal sharpener with plastic casing               | Any sharpener       | $2-3       |
+| Blending stump  | Tortillon -- for smooth gradients in week 3+               | Use fingertip       | $1-3       |
+| **Total**       |                                                            |                     | **$15-26** |
 
 ---
 
@@ -417,6 +420,7 @@ Your No. 2 pencil (HB grade) is a legitimate starting tool for weeks 1-2. It han
 The goal: place a line exactly where you intend it, every time, with a confident single stroke.
 
 How to do it:
+
 - Place two dots on your page about 6 inches apart
 - Before touching pencil to paper, hover 1/2 inch above the paper and rehearse the stroke 3-5 times in the air -- trace the path from dot to dot. This is the Ghosting Method. It pre-programs the movement.
 - Lower the pencil and draw the line in one smooth stroke. Do not sketch back and forth. Do not lift and re-place. One stroke, one line.
@@ -436,6 +440,7 @@ Week 2 target: Lines within 1/8 inch of the dot-to-dot path.
 The goal: capture the overall movement, weight, and energy of a subject in 30 seconds before detail exists.
 
 How to do it:
+
 - Set a phone timer for 30 seconds
 - Look at a subject: a person in a photo, your own reflection, a figure in a magazine, a pet. You will also find cafe sketching easier after this drill -- quick glances at people in the same way.
 - Before drawing, identify the Line of Action -- the single curved line that runs from the top of the head through the spine to the base.

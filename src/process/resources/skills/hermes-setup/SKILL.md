@@ -76,6 +76,7 @@ Only set up what the user needs. For a Wayland backend, a working provider/model
 `hermes acp` is the ACP stdio server Wayland spawns (also exposed as `hermes-acp` or `python -m acp_adapter`). Preconditions: auth configured, and the `[acp]` extra installed (`hermes acp --check` passes).
 
 Useful flags:
+
 - `--accept-hooks` (or `HERMES_ACCEPT_HOOKS=1`): auto-accept hook prompts for headless/embedded use, so a prompt does not hang the spawn.
 - `--setup`: run provider/model setup for ACP specifically.
 - `--setup-browser`: install the computer-use browser (~400MB), only if the user wants computer-use.

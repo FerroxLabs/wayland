@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability civic-engagement planning step-by-step"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability civic-engagement planning step-by-step'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Community Conservation Action
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about starting a community environmental project
 - User wants to organize a neighborhood cleanup, tree planting, or conservation event
 - User asks about planning a community garden or shared green space
@@ -29,6 +30,7 @@ metadata:
 - User mentions wanting to make a difference beyond personal sustainability
 
 **Do NOT use when:**
+
 - User asks about lobbying or political campaign strategy
 - User needs large-scale nonprofit management or 501(c)(3) formation
 - User wants environmental policy analysis (use `environmental-policy-researcher`)
@@ -228,15 +230,17 @@ metadata:
 ## Community Conservation Project Plan
 
 ### Project Overview
-| Parameter             | Value                                    |
-|-----------------------|------------------------------------------|
-| Project name          | [Creek Name] Neighborhood Cleanup        |
-| Environmental focus   | Waterway litter removal                  |
-| Geographic scope      | Neighborhood creek section               |
-| Project type          | First event (with potential to become quarterly) |
-| Timeline              | 4 weeks from today to event date         |
+
+| Parameter           | Value                                            |
+| ------------------- | ------------------------------------------------ |
+| Project name        | [Creek Name] Neighborhood Cleanup                |
+| Environmental focus | Waterway litter removal                          |
+| Geographic scope    | Neighborhood creek section                       |
+| Project type        | First event (with potential to become quarterly) |
+| Timeline            | 4 weeks from today to event date                 |
 
 ### SMART Goal
+
 - **Specific:** Remove litter and debris from a 0.5-mile section of [Creek Name] between [Landmark A] and [Landmark B]
 - **Measurable:** Count bags of trash collected and total volunteer hours. Take before and after photos from 3 fixed positions.
 - **Achievable:** 8-12 volunteers can clean 0.5 miles of creek bank in 3 hours based on similar community cleanup rates
@@ -244,84 +248,92 @@ metadata:
 - **Time-bound:** Saturday [Date], 9:00 AM - 12:00 PM
 
 ### Stakeholder Map
-| Stakeholder                  | Role     | Contribution                | Contact Status |
-|------------------------------|----------|-----------------------------|----------------|
-| You (organizer)              | Primary  | Planning, coordination      | Leading        |
-| 3 interested neighbors       | Primary  | Core team, day-of help      | Confirmed      |
-| Parks department / city      | Support  | Site permission, trash pickup post-event | Contact this week |
-| Neighborhood association     | Support  | Promotion to residents      | Contact this week |
-| Local hardware store         | Support  | Donated gloves and bags     | Contact week 2 |
-| Local coffee shop            | Support  | Donated coffee/water for volunteers | Contact week 2 |
+
+| Stakeholder              | Role    | Contribution                             | Contact Status    |
+| ------------------------ | ------- | ---------------------------------------- | ----------------- |
+| You (organizer)          | Primary | Planning, coordination                   | Leading           |
+| 3 interested neighbors   | Primary | Core team, day-of help                   | Confirmed         |
+| Parks department / city  | Support | Site permission, trash pickup post-event | Contact this week |
+| Neighborhood association | Support | Promotion to residents                   | Contact this week |
+| Local hardware store     | Support | Donated gloves and bags                  | Contact week 2    |
+| Local coffee shop        | Support | Donated coffee/water for volunteers      | Contact week 2    |
 
 ### Project Timeline
 
 #### Phase 1: Foundation (Weeks 1-2)
-| Task                                      | Owner | Deadline  |
-|-------------------------------------------|-------|-----------|
-| Call parks department for site permission  | You   | Day 3     |
-| Walk the creek section and identify access points, hazards, and parking | You + 1 neighbor | Day 5 |
-| Set the event date (Saturday, 4 weeks out) | Team  | Day 7     |
-| Create one-page event description          | You   | Day 10    |
-| Contact hardware store for glove/bag donation | Neighbor 1 | Day 14 |
+
+| Task                                                                    | Owner            | Deadline |
+| ----------------------------------------------------------------------- | ---------------- | -------- |
+| Call parks department for site permission                               | You              | Day 3    |
+| Walk the creek section and identify access points, hazards, and parking | You + 1 neighbor | Day 5    |
+| Set the event date (Saturday, 4 weeks out)                              | Team             | Day 7    |
+| Create one-page event description                                       | You              | Day 10   |
+| Contact hardware store for glove/bag donation                           | Neighbor 1       | Day 14   |
 
 #### Phase 2: Promotion (Weeks 2-3)
-| Task                                      | Owner      | Deadline  |
-|-------------------------------------------|------------|-----------|
-| Post on neighborhood online group         | You        | Day 14    |
-| Post flyers at 3-4 community boards       | Neighbor 2 | Day 16    |
-| Ask neighborhood association to share      | You        | Day 14    |
-| Post on community social media pages       | Neighbor 3 | Day 16    |
-| Send reminder message 3 days before event | You        | Day 25    |
+
+| Task                                      | Owner      | Deadline |
+| ----------------------------------------- | ---------- | -------- |
+| Post on neighborhood online group         | You        | Day 14   |
+| Post flyers at 3-4 community boards       | Neighbor 2 | Day 16   |
+| Ask neighborhood association to share     | You        | Day 14   |
+| Post on community social media pages      | Neighbor 3 | Day 16   |
+| Send reminder message 3 days before event | You        | Day 25   |
 
 #### Phase 3: Execution (Event Day -- Saturday)
-| Time       | Activity                                    |
-|------------|---------------------------------------------|
-| 8:00 AM    | Core team arrives: set up sign-in table, distribute supplies, take "before" photos from 3 positions |
-| 9:00 AM    | Volunteers arrive. Welcome and orientation (5 min): safety brief, what to collect, where to pile bags, stay in pairs, watch for glass/sharp objects |
-| 9:15 AM    | Split into 3-4 pairs/teams. Each team takes a 500-ft section. Provide bags and gloves |
-| 10:30 AM   | Break: water and snacks at the staging area. Check in on progress |
-| 10:45 AM   | Continue cleanup. Fill remaining bags |
-| 11:30 AM   | Stop collecting. Pile all bags at designated pickup point |
-| 11:45 AM   | Take "after" photos from the same 3 positions. Count bags. Record metrics |
-| 12:00 PM   | Thank volunteers. Share initial count. Group photo |
+
+| Time     | Activity                                                                                                                                            |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 8:00 AM  | Core team arrives: set up sign-in table, distribute supplies, take "before" photos from 3 positions                                                 |
+| 9:00 AM  | Volunteers arrive. Welcome and orientation (5 min): safety brief, what to collect, where to pile bags, stay in pairs, watch for glass/sharp objects |
+| 9:15 AM  | Split into 3-4 pairs/teams. Each team takes a 500-ft section. Provide bags and gloves                                                               |
+| 10:30 AM | Break: water and snacks at the staging area. Check in on progress                                                                                   |
+| 10:45 AM | Continue cleanup. Fill remaining bags                                                                                                               |
+| 11:30 AM | Stop collecting. Pile all bags at designated pickup point                                                                                           |
+| 11:45 AM | Take "after" photos from the same 3 positions. Count bags. Record metrics                                                                           |
+| 12:00 PM | Thank volunteers. Share initial count. Group photo                                                                                                  |
 
 #### Phase 4: Follow-Up (Week After)
-| Task                                      | Owner | Deadline  |
-|-------------------------------------------|-------|-----------|
-| Post results and photos to neighborhood group | You | Day 2 after |
-| Send thank-you messages to stakeholders and donors | You | Day 3 after |
-| Write a 1-page summary: what happened, what worked, what to improve | You | Day 7 after |
-| Ask volunteers: would you come again in 3 months? | You | Day 7 after |
+
+| Task                                                                | Owner | Deadline    |
+| ------------------------------------------------------------------- | ----- | ----------- |
+| Post results and photos to neighborhood group                       | You   | Day 2 after |
+| Send thank-you messages to stakeholders and donors                  | You   | Day 3 after |
+| Write a 1-page summary: what happened, what worked, what to improve | You   | Day 7 after |
+| Ask volunteers: would you come again in 3 months?                   | You   | Day 7 after |
 
 ### Budget: $0
 
-| Item              | Quantity | Cost    | Source                           |
-|-------------------|----------|---------|----------------------------------|
-| Trash bags (large)| 30       | $0      | Donated by hardware store        |
-| Work gloves       | 15 pairs | $0      | Donated by hardware store        |
-| Water and coffee  | For 15   | $0      | Donated by coffee shop           |
-| First aid kit     | 1        | $0      | Borrow from a neighbor           |
-| Sign-in sheet     | 1        | $0      | Print at home                    |
-| Flyers            | 10       | $0      | Print at home or library         |
-| Trash pickup      | 1 trip   | $0      | Parks department (coordinate in advance) |
-| **Total**         |          | **$0**  |                                  |
+| Item               | Quantity | Cost   | Source                                   |
+| ------------------ | -------- | ------ | ---------------------------------------- |
+| Trash bags (large) | 30       | $0     | Donated by hardware store                |
+| Work gloves        | 15 pairs | $0     | Donated by hardware store                |
+| Water and coffee   | For 15   | $0     | Donated by coffee shop                   |
+| First aid kit      | 1        | $0     | Borrow from a neighbor                   |
+| Sign-in sheet      | 1        | $0     | Print at home                            |
+| Flyers             | 10       | $0     | Print at home or library                 |
+| Trash pickup       | 1 trip   | $0     | Parks department (coordinate in advance) |
+| **Total**          |          | **$0** |                                          |
 
 ### Volunteer Plan
-| Role              | Number | Responsibilities                       |
-|-------------------|--------|----------------------------------------|
-| Organizer (you)   | 1      | Overall coordination, sign-in, photos  |
-| Team leaders       | 2-3    | Lead each creek section, track bags    |
-| Cleanup volunteers | 5-8    | Collect and bag litter                 |
-| Photographer       | 1      | Before/after photos, action shots      |
+
+| Role               | Number | Responsibilities                      |
+| ------------------ | ------ | ------------------------------------- |
+| Organizer (you)    | 1      | Overall coordination, sign-in, photos |
+| Team leaders       | 2-3    | Lead each creek section, track bags   |
+| Cleanup volunteers | 5-8    | Collect and bag litter                |
+| Photographer       | 1      | Before/after photos, action shots     |
 
 ### Impact Metrics
-| Metric                       | Method              | Target               |
-|------------------------------|---------------------|----------------------|
-| Bags of trash collected       | Count at wrap-up    | 15-25 bags           |
-| Volunteer count               | Sign-in sheet       | 8-12 people          |
-| Volunteer hours               | Count x hours       | 25-35 total hours    |
-| Creek section cleaned         | GPS or landmark     | 0.5 miles            |
-| Before/after visual change    | Fixed-point photos  | Visible improvement  |
+
+| Metric                     | Method             | Target              |
+| -------------------------- | ------------------ | ------------------- |
+| Bags of trash collected    | Count at wrap-up   | 15-25 bags          |
+| Volunteer count            | Sign-in sheet      | 8-12 people         |
+| Volunteer hours            | Count x hours      | 25-35 total hours   |
+| Creek section cleaned      | GPS or landmark    | 0.5 miles           |
+| Before/after visual change | Fixed-point photos | Visible improvement |
 
 ### Next Steps If You Want to Make This Recurring
+
 After a successful first event, you have credibility and a contact list. Schedule the next cleanup 3 months out while enthusiasm is high. Rotate leadership roles to prevent burnout. Build a simple repeating template from this plan. Over 4 events (1 year), you will have cleaned 2 miles of creek, engaged 30-50 unique volunteers, and built a recognized neighborhood conservation group.

@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "freelancing entrepreneurship career planning step-by-step"
-  category: "career"
-  depends: "freelance-rate-calculator freelance-proposal-writer freelance-contract-template portfolio-building-plan cold-outreach-email client-onboarding-checklist"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'freelancing entrepreneurship career planning step-by-step'
+  category: 'career'
+  depends: 'freelance-rate-calculator freelance-proposal-writer freelance-contract-template portfolio-building-plan cold-outreach-email client-onboarding-checklist'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Start Freelancing

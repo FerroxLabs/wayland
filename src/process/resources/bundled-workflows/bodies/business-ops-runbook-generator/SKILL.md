@@ -12,14 +12,15 @@ description: >-
   rollback concerns; use the SOP workflow for that.
 license: Apache-2.0
 type: workflow
-skills: "ops-process-doc"
+skills: 'ops-process-doc'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-ops runbook incident rollback step-by-step
   category: Business Operations
-  depends: "ops-process-doc"
+  depends: 'ops-process-doc'
 ---
+
 # Build a Runbook with Rollback Paths
 
 **Estimated time:** 20-30 minutes

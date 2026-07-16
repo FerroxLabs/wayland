@@ -164,9 +164,7 @@ describe('CommandPalette', () => {
 
   it('omits empty categories when no rows match the bucket', () => {
     setSources({
-      assistants: [
-        { id: 'a', name: 'Solo Assistant', presetAgentType: 'gemini', category: 'builtin' as const },
-      ],
+      assistants: [{ id: 'a', name: 'Solo Assistant', presetAgentType: 'gemini', category: 'builtin' as const }],
       recents: [],
       prompts: [],
     });

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design guide"
-  category: "backend-systems"
-  subcategory: "server-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend api-design guide'
+  category: 'backend-systems'
+  subcategory: 'server-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Background Job Designer
@@ -77,28 +77,40 @@ import { Queue, Worker } from 'bullmq';
 const emailQueue = new Queue('email', { connection });
 
 // Enqueue
-await emailQueue.add('send-welcome', {
-  to: 'user@example.com', templateId: 'welcome-v2',
-}, {
-  attempts: 5,
-  backoff: { type: 'exponential', delay: 1000 },
-  removeOnComplete: { age: 86400, count: 1000 },
-  removeOnFail: { age: 604800 },
-  jobId: `welcome-${userId}`,   // Idempotency
-});
+await emailQueue.add(
+  'send-welcome',
+  {
+    to: 'user@example.com',
+    templateId: 'welcome-v2',
+  },
+  {
+    attempts: 5,
+    backoff: { type: 'exponential', delay: 1000 },
+    removeOnComplete: { age: 86400, count: 1000 },
+    removeOnFail: { age: 604800 },
+    jobId: `welcome-${userId}`, // Idempotency
+  }
+);
 
 // Worker
-const worker = new Worker('email', async (job) => {
-  switch (job.name) {
-    case 'send-welcome': return sendEmail(job.data);
-    case 'send-receipt': return sendReceipt(job.data);
-    default: throw new Error(`Unknown job: ${job.name}`);
+const worker = new Worker(
+  'email',
+  async (job) => {
+    switch (job.name) {
+      case 'send-welcome':
+        return sendEmail(job.data);
+      case 'send-receipt':
+        return sendReceipt(job.data);
+      default:
+        throw new Error(`Unknown job: ${job.name}`);
+    }
+  },
+  {
+    connection,
+    concurrency: 10,
+    limiter: { max: 100, duration: 60_000 }, // Rate limit
   }
-}, {
-  connection,
-  concurrency: 10,
-  limiter: { max: 100, duration: 60_000 },   // Rate limit
-});
+);
 
 worker.on('failed', (job, err) => {
   logger.error('Job failed', { jobId: job?.id, attempt: job?.attemptsMade, error: err.message });
@@ -157,7 +169,7 @@ function classifyError(error: Error): 'retry' | 'fail' | 'discard' {
   if (/ECONNRESET|ETIMEDOUT|429|503/.test(error.message)) return 'retry';
   if (/400|404|Invalid/.test(error.message)) return 'fail';
   if (/duplicate/.test(error.message)) return 'discard';
-  return 'retry';  // Unknown errors: retry conservatively
+  return 'retry'; // Unknown errors: retry conservatively
 }
 ```
 
@@ -212,9 +224,7 @@ async function replayDeadLetters(filter: { queue?: string; type?: string }): Pro
 ## Idempotency
 
 ```typescript
-async function processIdempotently<T>(
-  key: string, ttl: number, processor: () => Promise<T>,
-): Promise<T | null> {
+async function processIdempotently<T>(key: string, ttl: number, processor: () => Promise<T>): Promise<T | null> {
   const acquired = await redis.set(`idem:${key}`, 'processing', 'NX', 'EX', ttl);
   if (!acquired) {
     const result = await redis.get(`idem:${key}:result`);
@@ -235,16 +245,24 @@ async function processIdempotently<T>(
 
 ```typescript
 // Cron-based repeatable jobs
-await reportQueue.add('daily-summary', { reportType: 'daily' }, {
-  repeat: { pattern: '0 6 * * *', tz: 'America/New_York' },
-  jobId: 'daily-summary',
-});
+await reportQueue.add(
+  'daily-summary',
+  { reportType: 'daily' },
+  {
+    repeat: { pattern: '0 6 * * *', tz: 'America/New_York' },
+    jobId: 'daily-summary',
+  }
+);
 
 // Delayed jobs (e.g., auto-cancel unpaid order after 30 min)
-await orderQueue.add('auto-cancel', { orderId: order.id }, {
-  delay: 30 * 60 * 1000,
-  jobId: `cancel-${order.id}`,
-});
+await orderQueue.add(
+  'auto-cancel',
+  { orderId: order.id },
+  {
+    delay: 30 * 60 * 1000,
+    jobId: `cancel-${order.id}`,
+  }
+);
 
 // Cancel delayed job if payment arrives
 const job = await orderQueue.getJob(`cancel-${order.id}`);
@@ -258,8 +276,8 @@ if (job) await job.remove();
 ```typescript
 async function shutdown(signal: string) {
   logger.info(`Received ${signal}, shutting down...`);
-  await worker.close();           // Stop accepting new jobs
-  await connection.quit();        // Close Redis
+  await worker.close(); // Stop accepting new jobs
+  await connection.quit(); // Close Redis
   process.exit(0);
 }
 process.on('SIGTERM', () => shutdown('SIGTERM'));
@@ -320,6 +338,7 @@ OPERATIONS:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing background job designer solutions
 - Reviewing or improving existing background job designer approaches
 - Making architectural or implementation decisions about background job designer
@@ -327,6 +346,7 @@ OPERATIONS:
 - Troubleshooting background job designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -337,21 +357,26 @@ OPERATIONS:
 # Background Job Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

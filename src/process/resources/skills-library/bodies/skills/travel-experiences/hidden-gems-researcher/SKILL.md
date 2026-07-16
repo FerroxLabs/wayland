@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research guide planning"
-  category: "travel-experiences"
-  subcategory: "experiences-activities"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel research guide planning'
+  category: 'travel-experiences'
+  subcategory: 'experiences-activities'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Hidden Gems Researcher
 
 ## When to Use
@@ -28,6 +29,7 @@ metadata:
 Use this skill when the user's request centers on discovering non-mainstream, authentic, or locally-oriented experiences at a destination -- not on building a complete itinerary or researching specific restaurants or hotels.
 
 **Trigger scenarios where this skill applies:**
+
 - The user is a returning visitor who has already completed standard sightseeing and wants a fundamentally different kind of trip to the same destination
 - The user explicitly expresses frustration with tourist traps, overcrowded sites, or the manufactured feel of mainstream travel experiences
 - The user asks about experiencing a destination "like a local" or discovering what residents actually do, eat, see, and value
@@ -37,6 +39,7 @@ Use this skill when the user's request centers on discovering non-mainstream, au
 - The user is an enthusiast of a specific niche (street art, industrial architecture, vernacular buildings, local sport, craft traditions, urban ecology) and wants to find where that niche lives in a given city
 
 **Do NOT use this skill when:**
+
 - The user needs a complete day-by-day travel itinerary -- use `trip-itinerary-builder` instead, which handles routing, pacing, accommodation proximity, and logistics holistically
 - The user's primary goal is finding the best food, specific dish, or local dining culture -- use `food-tourism-planner`, which applies culinary-specific discovery methods including market research and neighborhood dining guides
 - The user wants guidance on major cultural institutions, heritage sites, or UNESCO-listed attractions -- use `cultural-experience-guide`, which handles ticketing, context, and cultural interpretation for mainstream sites
@@ -83,6 +86,7 @@ Every major tourist zone has an adjacent neighborhood that shares its character 
 
 **Layer 2 -- Time-Shift Method**
 The same physical location creates a fundamentally different experience at different times. A busy market square at 2 PM is tourist infrastructure; the same square at 7 AM is a working community. Identify time windows that shift the experience for already-known locations:
+
 - Early morning (5:30-8:30 AM): Street cleaning, cafe ritual, local commute, morning light on facades, no tour groups
 - Late afternoon (4:00-6:30 PM): "Golden hour" light, locals returning from work, aperitivo culture emerging, children in parks
 - Weekday vs. weekend inversions: Some sites are busy weekends (tourist-oriented) but quiet weekdays; others are the reverse (local markets operate weekdays, closed weekends)
@@ -90,12 +94,14 @@ The same physical location creates a fundamentally different experience at diffe
 
 **Layer 3 -- Vertical Exploration Method**
 Most tourists experience destinations at ground level. Systematically look above and below street level for experiences invisible from the sidewalk:
+
 - Upward: Rooftop terraces not marketed to tourists, upper floors of public buildings, belvedere viewpoints reached by stairs locals use, church bell towers open by appointment, apartment building terraces visible from higher adjacent streets
 - Downward: Basement galleries, urban archaeology layers, wine cave systems, cisterns, drainage infrastructure tours (Paris catacombs are known; the equivalent in smaller cities often is not), subterranean passages connecting buildings
 - Inward: Courtyards behind unmarked doors, library reading rooms, arcade passages (gallerias, passages, arcades) in European cities, building lobbies of interwar apartment blocks
 
 **Layer 4 -- Purpose-Shift Method**
 Places built for local function, not tourist consumption, offer the most authentic access. Map these categories for the destination:
+
 - **Educational institutions:** University campuses, architecture faculty buildings, botanical gardens attached to universities, academic museums not listed in mainstream guides, lecture theaters with public events
 - **Civic infrastructure:** Public libraries (often architecturally significant and open to all), city archives, municipal markets, fire stations with open days, water tower viewing platforms, cemetery walks (European cemeteries especially are often extraordinary sculptural landscapes)
 - **Community organizing nodes:** Community centers, sports club grounds, neighborhood association halls, religious buildings used for community functions, cooperative shops
@@ -103,6 +109,7 @@ Places built for local function, not tourist consumption, offer the most authent
 
 **Layer 5 -- Event Calendar Method**
 Recurring and one-time events provide the most temporally specific hidden gem opportunities -- things that will only exist during the user's travel dates. Research:
+
 - Weekly recurring events: Market days (not tourist markets -- the municipal market that serves residents), neighborhood sports matches, outdoor cinema seasons, community allotment open days
 - Annual festivals: Local patron saint days, neighborhood festivals not listed in major tourism media, agricultural fair days, craft fair weekends, seasonal harvest events
 - Monthly events: First Sunday museum free days, full moon events, monthly flea markets (distinguishing local secondhand markets from tourist antique fairs)
@@ -110,6 +117,7 @@ Recurring and one-time events provide the most temporally specific hidden gem op
 
 **Layer 6 -- Specialist Community Method**
 Every city has enthusiast communities organized around specific interests -- and those communities know the city's hidden geography for their interest area better than any guidebook. Identify where these communities gather and what they recommend:
+
 - Photography communities: Know viewpoints, light windows, and architectural details invisible to general tourists
 - Urban exploration communities: Know industrial heritage, derelict spaces with open access, and infrastructure with public viewing options
 - Running clubs: Know park networks, canal paths, and neighborhood routes not on tourist maps
@@ -123,21 +131,25 @@ Every city has enthusiast communities organized around specific interests -- and
 Never include a candidate in the final guide without passing it through this verification filter. The quality of a hidden gems guide depends entirely on the integrity of this step.
 
 **Accessibility verification:**
+
 - Is the location still operating in the form described? Businesses close, museums relocate, markets move, buildings undergo renovation. Flag any candidate where you have uncertainty about current operating status and note that verification is advised.
 - Is access genuinely public? Distinguish between: (a) fully public with no restriction, (b) publicly accessible but with specific hours or conditions, (c) accessible with advance contact or booking, (d) technically accessible but socially requires permission.
 - Are there seasonal restrictions? Many locations are only accessible in specific months or have significantly different experiences by season.
 
 **Crowding verification -- the "Overexposure Test":**
 Apply this three-question test to determine if a candidate is still genuinely hidden:
+
 1. Does it appear in the first two pages of any major English-language guidebook series for the destination? If yes, it is mainstream regardless of how it is framed.
 2. Does it have more than 500 reviews on any major travel review platform? If yes, it has crossed the threshold from hidden to well-known -- it may still be worth recommending but must be framed as "lesser-known" not "hidden."
 3. Has it been prominently featured in a major travel publication or popular travel social media content in the past 2 years? Viral "hidden gems" become overcrowded within months.
 
 **Authenticity check:**
+
 - Is the experience genuinely connected to local life, or has it been manufactured for tourist consumption while retaining a "local" aesthetic? Many "local markets" in tourist cities are entirely stocked with imported goods targeting visitors.
 - Is the community welcoming of visitors, or would the arrival of tourists disrupt or commodify something that functions because it is undiscovered?
 
 **Worth-the-effort check:**
+
 - Does the experience justify the access difficulty? A 45-minute transit journey to see a mildly interesting building fails this test. A 45-minute journey to experience a neighborhood where nothing has changed in 60 years, including a morning coffee at a bar that has operated since 1952, passes it.
 - For physical effort: Can you describe specifically what makes the experience rewarding enough to warrant the effort required?
 
@@ -148,6 +160,7 @@ Apply this three-question test to determine if a candidate is still genuinely hi
 Rate every verified candidate on three dimensions using whole numbers 1-5. Use this scoring consistently so the guide communicates relative value clearly.
 
 **Uniqueness Score (1-5):**
+
 - 5: Virtually unknown to visitors; requires insider knowledge or this specific research to find; no mainstream coverage
 - 4: Known in specialist travel circles or mentioned in one minor guidebook; not in mainstream awareness
 - 3: Known to experienced travelers but not in typical tourist routes; may appear in "off the beaten path" sections of guidebooks
@@ -155,6 +168,7 @@ Rate every verified candidate on three dimensions using whole numbers 1-5. Use t
 - 1: Commonly known but uncrowded for structural reasons (distance, accessibility, hours); not truly hidden
 
 **Experience Quality Score (1-5):**
+
 - 5: Genuinely transformative; creates a lasting memory; offers something unavailable anywhere else
 - 4: Highly rewarding; significant emotional or aesthetic impact; strong sense of discovery
 - 3: Worthwhile; a good experience that enhances understanding of the destination
@@ -162,6 +176,7 @@ Rate every verified candidate on three dimensions using whole numbers 1-5. Use t
 - 1: Only marginally notable; include only if no better alternatives exist
 
 **Access Difficulty Score (1-5) -- note: lower is easier:**
+
 - 5: Requires significant local knowledge, language skill, or unconventional navigation; may need advance arrangements; may be in an area with safety considerations
 - 4: Off main transit routes; requires walking in unmarked areas or some language confidence; entrance not obvious
 - 3: Reachable by transit with some navigation effort; entrance identifiable with advance knowledge of what to look for
@@ -172,6 +187,7 @@ Rate every verified candidate on three dimensions using whole numbers 1-5. Use t
 Uniqueness + Experience Quality + (6 -- Access Difficulty) = Accessibility-Adjusted Score (maximum 15)
 
 **Threshold for inclusion:**
+
 - Score 12-15: Core recommendation -- include with full detail
 - Score 9-11: Secondary recommendation -- include with moderate detail or as a "pair with" addition
 - Score below 9: Exclude unless no stronger alternatives exist and the user has a specific relevant interest
@@ -201,6 +217,7 @@ Each access entry must contain:
 Every hidden gems guide must include a "commonly recommended but disappointing" list specific to the destination. This serves two functions: it validates the guide's credibility, and it helps the user avoid wasting limited time on experiences that have been co-opted by tourist infrastructure.
 
 The tourist trap identification criteria:
+
 - **Price premium without quality premium:** A "local" experience priced at tourist rates for tourist volume -- the sign may say "traditional" or "authentic" but the operation is structured around visitor throughput, not local service
 - **Manufactured authenticity:** A market, district, or "artisan" experience created entirely for visitor consumption, with no organic connection to local practice
 - **Overexposed hidden gem:** A former hidden gem that has been profiled so widely it has become the new mainstream -- the "secret" beach now has a car park, ticket booth, and branded merchandise
@@ -227,6 +244,7 @@ Sequence the recommended gems into a practical exploration schedule that account
 Empower the user to continue finding gems independently during their trip. This section should not be generic advice about "talking to locals" -- it must be specific, actionable methods the user can apply in the field.
 
 Include at minimum:
+
 - The specific question to ask accommodation staff that generates useful insider recommendations (not "what should I see" -- that produces mainstream answers)
 - How to read a neighborhood for authenticity signals (specific physical cues: the ratio of menus in local language vs. tourist languages outside restaurants; whether a bakery has a number ticket system indicating local use; whether a bar has a TV showing local sports)
 - How to use local-language social media or community platforms (neighborhood Facebook groups, local community apps, city subreddits in the local language) to find events during the trip
@@ -384,21 +402,27 @@ These are commonly marketed as "local" or "hidden" experiences in [Destination] 
 ## Edge Cases
 
 ### The Globally Overexposed Destination (Paris, Rome, Barcelona, Kyoto, New York)
+
 In cities that receive 10-20 million annual visitors, the concept of "hidden" requires honest recalibration. True secrecy is nearly impossible -- any genuinely unknown spot will be discovered and shared on social media within weeks of becoming known. The correct framing is "systematically overlooked due to structural reasons," not "unknown." Focus discovery efforts on:
+
 - **Temporal displacement:** The city changes dramatically at 6 AM. Early morning visits to famous squares, parks, and neighborhoods reveal a completely different urban reality -- street cleaners, cafe rituals, delivery trucks, cats. Recommend this honestly as a time-shift experience, not a secret location.
 - **Vertical layer access:** Ground-level tourism dominates. Upper floors, rooftops, courtyards, and basement levels are structurally overlooked even in cities with maximum visitor volume.
 - **Institutional density pockets:** Major cities have an extraordinary density of specialist museums, academic collections, and institutional archives that receive a fraction of major museum foot traffic. The ratio is often 50:1 or more. A medical museum, a typography museum, an architectural drawing archive -- these serve specialists and are nearly empty for structural reasons, not because they are unknown.
 - Acknowledge the limitation explicitly: "In [city], 'hidden' means 'systematically overlooked despite being publicly accessible' rather than 'secret.' The following experiences are overlooked for specific structural reasons."
 
 ### The Rural or Small-Town Destination
+
 In destinations with modest visitor volumes, the opposite problem arises: the entire destination may qualify as a hidden gem to most travelers. The user's challenge is understanding which local experiences are genuinely meaningful vs. generically rural. Reframe the guide around:
+
 - **Rhythmic discovery:** Identifying the community's weekly and annual rhythms (market day, the evening passeggiata, the festival week, the agricultural fair) is more valuable than identifying specific locations. The place is the hidden gem; the question is when to be there.
 - **Gatekeepers:** In small communities, a single person -- a shop owner, a cafe proprietor, the person at the municipal tourist office who actually lives there -- can unlock entire layers of community life. Identify how to find and approach this person.
 - **Not every town has hidden layers:** Be honest when a small destination is genuinely limited in experiential depth. A 2-hour visit may cover everything available. Resist inventing depth where none exists.
 - Provide context-specific guidance: "This destination's interest lies in its rhythm and community life, not in specific sites. The recommended approach is to arrive on [market day], spend [X] hours observing and engaging, and understand the destination as an experience of daily life rather than a list of locations."
 
 ### The Safety-Conscious Traveler or Family with Children Under 12
+
 This profile requires significant guide adjustment:
+
 - Exclude all gems requiring transit through areas with low pedestrian density, poor lighting, or limited transit frequency
 - Exclude subterranean experiences (narrow passages, low-light environments, uneven surfaces) unless they are fully commercialized with professional infrastructure
 - Exclude early morning recommendations (before 8 AM) unless the route is along busy, lit commercial streets
@@ -408,7 +432,9 @@ This profile requires significant guide adjustment:
 - Note explicitly in the guide preamble: "Recommendations calibrated for safety-first travel with children. Access difficulty scores above 3 have been excluded."
 
 ### The Returning Expert Traveler Who Has "Done Everything"
+
 This user has exhausted locations and needs an experiential shift, not a location list. Reframe the guide entirely around activities, perspectives, and roles rather than places:
+
 - **Craft participation:** Taking a half-day class in a traditional local craft (ceramic painting, bread making, bookbinding, leather tooling) at a non-tourist-facing workshop. The location is secondary; the participation in making is primary.
 - **Institutional access:** Many specialist institutions offer tours, archive visits, or behind-the-scenes access to non-specialist visitors by appointment. Frame the guide around making these arrangements.
 - **Resident simulation:** Walking a residential neighborhood with intention -- buying coffee at a neighborhood bar (not a tourist cafe), sitting in a local park, attending a free municipal event -- constitutes the "experience like a local" aspiration more authentically than any landmark.
@@ -416,7 +442,9 @@ This user has exhausted locations and needs an experiential shift, not a locatio
 - Frame this honestly: "For an experienced traveler, the hidden gem is often a mode of engagement rather than an undiscovered place. The following guide is structured around experiences and participation rather than locations."
 
 ### The Destination with an Extreme Language Barrier (Non-Latin Script or Low English Penetration)
+
 When the user lacks local language and the destination has minimal English presence in non-tourist zones:
+
 - Provide each location name in both English and the local script -- for showing to taxi drivers, transit workers, and locals who may help with directions. Example: "Shinjuku Gyoen National Garden / 新宿御苑"
 - Provide GPS coordinates for every gem, not just street addresses. Many locations in dense urban environments or unmarked areas are best navigated by coordinate.
 - Flag experiences that require verbal communication explicitly and rate their language requirement honestly. A subterranean tour conducted in the local language with no English option is inaccessible for a non-speaker -- do not recommend it without clearly noting this barrier.
@@ -425,7 +453,9 @@ When the user lacks local language and the destination has minimal English prese
 - Provide phonetic transcriptions for any essential interaction phrases, not just the local script version.
 
 ### The Ultra-Short Visit (Under 24 Hours, Transit Stop, Layover)
+
 Tight time windows require aggressive prioritization:
+
 - Apply a strict minimum composite score threshold of 12/15 for inclusion -- only gems with high uniqueness AND high experience quality AND low access difficulty qualify
 - Focus exclusively on gems within 30 minutes transit from the arrival point (airport, train station)
 - Sequence a single gem cluster rather than multiple dispersed recommendations
@@ -433,7 +463,9 @@ Tight time windows require aggressive prioritization:
 - Note which gems can be accessed between specific transit connections if the user is in transit
 
 ### The Seasonal Closure or Renovation Surprise
+
 When a recommended gem is subject to seasonal closure, renovation, or temporary unavailability:
+
 - Always note seasonality explicitly in the timing section rather than hoping it will not apply to the user's dates
 - Provide a contingency pairing for every core gem: "If [Gem X] is closed for renovation (as it periodically is for 3-6 months), the nearest comparable experience is [alternative description and location]"
 - For destinations with significant seasonal tourism (ski towns in summer, beach towns in winter, festivals that define a destination), note what remains accessible in the off-season and adjust the experience quality scores accordingly
@@ -459,16 +491,16 @@ When a recommended gem is subject to seasonal closure, renovation, or temporary 
 
 ### Discovery Summary
 
-| # | Name | Category | Uniqueness | Experience | Access | Score (/15) | Best Visit Window |
-|---|------|----------|------------|------------|--------|-------------|------------------|
-| 1 | Mouraria backstreet walk (above the tourist route) | Neighborhood life | 4 | 5 | 4 | 13 | Weekday 8-10 AM |
-| 2 | Prazeres Cemetery monumental sculpture walk | Built environment | 5 | 5 | 4 | 14 | Weekday morning |
-| 3 | Marvila neighborhood industrial conversion district | Built environment / street culture | 5 | 4 | 3 | 12 | Afternoon |
-| 4 | LxFactory on a weekday morning (not the Sunday market) | Neighborhood life / craft | 3 | 4 | 5 | 12 | Weekday 10 AM |
-| 5 | Ribeira das Naus waterfront at 7 AM | Time-shift | 3 | 4 | 5 | 12 | 6:30-8:30 AM |
-| 6 | Penha de França church terrace viewpoint | Built environment / viewpoint | 5 | 4 | 3 | 12 | Late afternoon |
-| 7 | Intendente neighborhood -- Largo do Intendente on a weekday | Neighborhood life | 4 | 4 | 4 | 12 | Weekday afternoon |
-| 8 | Aqueduto das Águas Livres footpath walk | Built environment / infrastructure | 5 | 5 | 3 | 13 | Weekend morning |
+| #   | Name                                                        | Category                           | Uniqueness | Experience | Access | Score (/15) | Best Visit Window |
+| --- | ----------------------------------------------------------- | ---------------------------------- | ---------- | ---------- | ------ | ----------- | ----------------- |
+| 1   | Mouraria backstreet walk (above the tourist route)          | Neighborhood life                  | 4          | 5          | 4      | 13          | Weekday 8-10 AM   |
+| 2   | Prazeres Cemetery monumental sculpture walk                 | Built environment                  | 5          | 5          | 4      | 14          | Weekday morning   |
+| 3   | Marvila neighborhood industrial conversion district         | Built environment / street culture | 5          | 4          | 3      | 12          | Afternoon         |
+| 4   | LxFactory on a weekday morning (not the Sunday market)      | Neighborhood life / craft          | 3          | 4          | 5      | 12          | Weekday 10 AM     |
+| 5   | Ribeira das Naus waterfront at 7 AM                         | Time-shift                         | 3          | 4          | 5      | 12          | 6:30-8:30 AM      |
+| 6   | Penha de França church terrace viewpoint                    | Built environment / viewpoint      | 5          | 4          | 3      | 12          | Late afternoon    |
+| 7   | Intendente neighborhood -- Largo do Intendente on a weekday | Neighborhood life                  | 4          | 4          | 4      | 12          | Weekday afternoon |
+| 8   | Aqueduto das Águas Livres footpath walk                     | Built environment / infrastructure | 5          | 5          | 3      | 13          | Weekend morning   |
 
 ---
 
@@ -476,14 +508,14 @@ When a recommended gem is subject to seasonal closure, renovation, or temporary 
 
 #### Gem 1: Mouraria Backstreet Walk (Above the Tourist Route)
 
-| Field | Detail |
-|-------|--------|
-| **Category** | Neighborhood life / vernacular architecture |
-| **Discovery Method** | Neighborhood Adjacency + Vertical Exploration |
-| **Score** | 13/15 -- Uniqueness 4 / Experience 5 / Access 4 |
-| **Best Visit Window** | Weekday between 8:00 and 10:30 AM |
-| **Time Needed** | 60 minutes minimum; 90 minutes if you linger |
-| **Access Cost** | Free |
+| Field                 | Detail                                                             |
+| --------------------- | ------------------------------------------------------------------ |
+| **Category**          | Neighborhood life / vernacular architecture                        |
+| **Discovery Method**  | Neighborhood Adjacency + Vertical Exploration                      |
+| **Score**             | 13/15 -- Uniqueness 4 / Experience 5 / Access 4                    |
+| **Best Visit Window** | Weekday between 8:00 and 10:30 AM                                  |
+| **Time Needed**       | 60 minutes minimum; 90 minutes if you linger                       |
+| **Access Cost**       | Free                                                               |
 | **Language Required** | None -- purely observational; say "bom dia" (BOM DEE-ah) and smile |
 
 **What It Is:**
@@ -494,17 +526,19 @@ The tourist infrastructure in Mouraria is concentrated along specific streets (p
 
 **Getting There:**
 Starting from Martim Moniz metro station (Green Line):
+
 - Exit the station heading south (toward the large square with the fountains)
 - Cross the Largo Martim Moniz square diagonally toward the uphill street on the far left corner (Rua dos Cavaleiros direction)
 - Begin climbing -- take any uphill street that diverges from the main tourist route; the wider, signposted streets are more visited; the narrower ones with no markings are what you are looking for
 - Navigate by inclination: if the street goes steeply uphill toward the castle, you are in the right zone
-Transit: Green Line to Martim Moniz station
-Walking from transit: 3 minutes to the start of the quarter
+  Transit: Green Line to Martim Moniz station
+  Walking from transit: 3 minutes to the start of the quarter
 
 **Visual Identification:**
 You have found the right streets when the street surface changes to worn cobblestone, laundry lines appear overhead, and the buildings show exposed azulejo tile facades in faded blue-and-white patterns with visible age cracks. The absence of restaurant signs or English-language menus is the confirmation signal.
 
 **Crowd Pattern:**
+
 - Quietest: Weekdays 7:30-10:00 AM
 - Starts filling (lower tourist routes): 11:00 AM onward
 - Avoid: Sunday afternoons (neighborhood feels staged for visitors)
@@ -516,6 +550,7 @@ Comfortable shoes with grip (the cobblestones are slippery when damp); a small a
 Residents in Mouraria are accustomed to some visitor presence but the upper streets are genuinely residential. Walk at a relaxed pace; do not use these streets as a fast transit corridor. If a resident is on their doorstep, a "bom dia" and eye contact is sufficient -- do not photograph people directly without a friendly exchange first. Do not stop and block narrow lanes to consult your phone.
 
 **Helpful Phrases:**
+
 - "Bom dia" (BOM DEE-ah) -- "Good morning"
 - "Com licença" (com lee-SEN-sah) -- "Excuse me / May I pass"
 
@@ -525,15 +560,15 @@ Residents in Mouraria are accustomed to some visitor presence but the upper stre
 
 #### Gem 2: Prazeres Cemetery -- Monumental Sculpture Walk
 
-| Field | Detail |
-|-------|--------|
-| **Category** | Built environment / monumental sculpture / civic infrastructure |
-| **Discovery Method** | Purpose-Shift Method -- civic infrastructure as architectural destination |
-| **Score** | 14/15 -- Uniqueness 5 / Experience 5 / Access 4 |
-| **Best Visit Window** | Weekday morning, 9:00 AM-12:00 PM |
-| **Time Needed** | 75-90 minutes |
-| **Access Cost** | Free; open to the public |
-| **Language Required** | None |
+| Field                 | Detail                                                                    |
+| --------------------- | ------------------------------------------------------------------------- |
+| **Category**          | Built environment / monumental sculpture / civic infrastructure           |
+| **Discovery Method**  | Purpose-Shift Method -- civic infrastructure as architectural destination |
+| **Score**             | 14/15 -- Uniqueness 5 / Experience 5 / Access 4                           |
+| **Best Visit Window** | Weekday morning, 9:00 AM-12:00 PM                                         |
+| **Time Needed**       | 75-90 minutes                                                             |
+| **Access Cost**       | Free; open to the public                                                  |
+| **Language Required** | None                                                                      |
 
 **What It Is:**
 The Cemitério dos Prazeres is one of the finest 19th-century Romantic-era cemetery landscapes in southern Europe -- a formal garden of extraordinary neogothic, Egyptian revival, Art Nouveau, and neoclassical mausoleums commissioned by Lisbon's aristocratic and merchant families in the 1800s. The mausoleums are effectively small buildings: scaled-down chapels, temples, and obelisks in polished granite and marble, decorated with stained glass, wrought iron, ceramic tiles, and carved stone portraits. The architectural density and quality here is comparable to Père Lachaise in Paris -- but Prazeres receives almost no international visitors.
@@ -543,16 +578,18 @@ Cemeteries as architectural destinations are systematically overlooked because t
 
 **Getting There:**
 Starting from Estrela tram or bus stop (Tram 28 passes here, but you have done Tram 28 -- take Bus 773 or Bus 720 instead):
+
 - Exit at Rua Saraiva de Carvalho / Estrela stop
 - Walk west along Rua Saraiva de Carvalho for 5 minutes
 - The main entrance to the cemetery is on Praça São João Bosco -- large stone gateposts, iron gates, clearly marked
-Transit: Bus 773 from Cais do Sodré toward Prazeres; exit at the Prazeres stop (terminus area)
-Walking from transit: 2 minutes
+  Transit: Bus 773 from Cais do Sodré toward Prazeres; exit at the Prazeres stop (terminus area)
+  Walking from transit: 2 minutes
 
 **Visual Identification:**
 The cemetery entrance is unmistakable -- large stone columns with a formal iron gate on Praça São João Bosco. The scale of the mausoleums is visible from outside the walls.
 
 **Crowd Pattern:**
+
 - Quietest: Weekday mornings -- often nearly empty; you may walk for 20 minutes without encountering another person
 - Busier: All Saints' Day (November 1) and surrounding days -- local visitors come to tend family graves (this is actually an interesting cultural experience in itself if the dates align)
 - Avoid: No particular avoidance day necessary; this gem is consistently quiet
@@ -569,14 +606,14 @@ This is an active cemetery with ongoing burials and families visiting graves. Wa
 
 #### Gem 3: Marvila Industrial Conversion District
 
-| Field | Detail |
-|-------|--------|
-| **Category** | Built environment / industrial heritage / street culture |
-| **Discovery Method** | Neighborhood Adjacency Method -- one zone east of Parque das Nações |
-| **Score** | 12/15 -- Uniqueness 5 / Experience 4 / Access 3 |
-| **Best Visit Window** | Thursday-Saturday afternoon, 2:00-6:00 PM |
-| **Time Needed** | 90-120 minutes |
-| **Access Cost** | Free to walk; individual spaces may have entry fees or drink minimums |
+| Field                 | Detail                                                                           |
+| --------------------- | -------------------------------------------------------------------------------- |
+| **Category**          | Built environment / industrial heritage / street culture                         |
+| **Discovery Method**  | Neighborhood Adjacency Method -- one zone east of Parque das Nações              |
+| **Score**             | 12/15 -- Uniqueness 5 / Experience 4 / Access 3                                  |
+| **Best Visit Window** | Thursday-Saturday afternoon, 2:00-6:00 PM                                        |
+| **Time Needed**       | 90-120 minutes                                                                   |
+| **Access Cost**       | Free to walk; individual spaces may have entry fees or drink minimums            |
 | **Language Required** | None for the neighborhood walk; some English spoken in gallery and studio spaces |
 
 **What It Is:**
@@ -587,17 +624,19 @@ Marvila does not appear in mainstream Lisbon guidebooks as of this guide's produ
 
 **Getting There:**
 Starting from Santa Apolónia train station:
+
 - Take Bus 728 east toward Braço de Prata
 - Exit at Rua do Açúcar stop (approximately 15 minutes)
 - Walk north from Rua do Açúcar into the factory district streets
 - The core area runs along Rua do Açúcar, Rua Capitão Leitão, and the parallel streets running toward the river
-Transit: Bus 728 from Santa Apolónia station
-Walking from transit: 0-5 minutes (the bus deposits you in the district)
+  Transit: Bus 728 from Santa Apolónia station
+  Walking from transit: 0-5 minutes (the bus deposits you in the district)
 
 **Visual Identification:**
 Large industrial buildings with painted or brick facades; streets wider than central Lisbon with loading dock architecture visible; occasional art installation in a courtyard or warehouse opening. If you see predominantly residential buildings, you have gone one block too far north.
 
 **Crowd Pattern:**
+
 - Quietest: Weekday mornings (most gallery spaces closed)
 - Best balance of open spaces and low crowds: Thursday-Friday afternoons
 - Avoid: Sunday morning (LxFactory crowds sometimes spill direction-confused tourists into Marv

@@ -14,19 +14,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research guide checklist"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel research guide checklist'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Local Customs Briefing
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks what to expect culturally at a specific travel destination -- greetings, table manners, dress norms, or social rules they are unfamiliar with
 - A user asks directly about tipping culture: amounts, who to tip, when tipping is offensive, or how to handle the bill in another country
 - A user asks "what NOT to do" or "what is rude" in a specific country, region, or cultural context
@@ -37,6 +39,7 @@ metadata:
 - A user is a first-time visitor to a destination with customs that differ significantly from their home culture and expresses concern about making mistakes
 
 **Do NOT use when:**
+
 - The user needs visa or entry requirements, passport validity rules, or border crossing logistics -- use `visa-requirements-checker`
 - The user wants a day-by-day itinerary, route planning, or attraction scheduling -- use `trip-itinerary-builder`
 - The user is preparing for business negotiations, formal presentations, or professional relationship building in another culture -- use a dedicated business-culture skill with deeper hierarchy, negotiation, and meeting protocol coverage
@@ -110,6 +113,7 @@ Tipping guidance must be actionable, not vague. Use the four-model framework fro
 - **Model D (not customary or offensive):** Be direct and clear. Explain WHY it is not customary -- server wages in Japan and Iceland reflect full compensation; in South Korea, tipping in a non-tourist restaurant can confuse and embarrass staff. Note exceptions: international airport hotels, high-end tourist-facing establishments in cities, and tour operators catering to Western tourists where tipping has been adopted as a norm.
 
 For each destination, provide specific figures for at least six categories:
+
 1. Sit-down restaurant -- lunch vs. dinner if different
 2. Taxi and rideshare
 3. Hotel bellhop (per bag, per service)
@@ -166,12 +170,12 @@ Produce the reference card in this structure. Every table must be populated with
 ```
 ## Local Customs Briefing: [Country / Region and Cities]
 
-**Quick summary:** [One to two sentences capturing the core cultural tone and the most important 
-things a first-time visitor needs to internalize immediately. Be specific to this destination -- 
+**Quick summary:** [One to two sentences capturing the core cultural tone and the most important
+things a first-time visitor needs to internalize immediately. Be specific to this destination --
 not a generic "be polite and respectful" statement.]
 
-**Trip type adjustments:** [If the user specified a trip type that shifts emphasis, note it here. 
-E.g., "Temple visits are the primary focus of this trip -- dress code and shoe-removal norms 
+**Trip type adjustments:** [If the user specified a trip type that shifts emphasis, note it here.
+E.g., "Temple visits are the primary focus of this trip -- dress code and shoe-removal norms
 are elevated in this card."]
 
 ---
@@ -276,8 +280,8 @@ are elevated in this card."]
 ---
 
 ### Regional Variations
-[Include this section when cultural norms differ significantly across regions within the destination -- 
-e.g., urban vs. rural, North vs. South, majority-religion areas vs. secular cities. Keep to 3-5 
+[Include this section when cultural norms differ significantly across regions within the destination --
+e.g., urban vs. rural, North vs. South, majority-religion areas vs. secular cities. Keep to 3-5
 bullet points focused on the regions the user is actually visiting.]
 ```
 
@@ -314,36 +318,43 @@ bullet points focused on the regions the user is actually visiting.]
 ## Edge Cases
 
 ### 1. Country with Extreme Internal Cultural Variation
+
 **Examples:** India (29 states, multiple religions, languages, and caste dynamics), Indonesia (17,000 islands, dozens of ethnic groups, Bali vs. Java vs. Aceh), China (Han vs. minority regions, Shanghai vs. rural Sichuan), Nigeria (Yoruba South vs. Hausa-Fulani North vs. Igbo Southeast).
 
 **Handling:** Produce the main card focused explicitly on the regions the user named. Add a "Regional Variations" section at the bottom of the card noting 3-5 specific ways norms shift in other major areas. Do not attempt to produce a single unified card for a country like India and call it "India customs" -- label it clearly as the region visited. In India's case, note whether the user is visiting predominantly Hindu, Muslim, Sikh, or mixed-religion areas, as this affects dress codes, alcohol availability, food offering norms, and greeting customs.
 
 ### 2. Destination Where Tipping is Genuinely Offensive
+
 **Examples:** Japan, South Korea, Iceland, Switzerland, Singapore.
 
 **Handling:** State at the top of the tipping section: "Tipping is not a customary part of service culture here and may cause confusion or mild offense. Service workers are compensated through wages and service fees." Then explain the structural reason: Japan's service philosophy (omotenashi) holds that providing excellent service is a professional duty, and suggesting a server needs extra money can imply their employer is not paying them adequately. Iceland includes full service in menu prices by law. Then note the nuanced exceptions: some high-end Kyoto ryokans accept a "kokorozuke" gratuity envelope handed to the manager at check-in; some Reykjavik restaurants have adopted tipping norms in tourist-heavy areas. Give travelers a clear decision rule: "Follow the local standard (no tip). If you feel compelled to express extraordinary appreciation, an envelope at a traditional establishment is more graceful than leaving coins on a table."
 
 ### 3. Destination with Strict Religious Law Governing Public Behavior
+
 **Examples:** Saudi Arabia (Islamic law governs dress, alcohol prohibition, gender mixing, prayer times), Iran (Islamic Republic law), Aceh province in Indonesia (Sharia-based regional law), Maldives (Islamic practices with tourist exceptions only in resort islands).
 
 **Handling:** Elevate all legally enforced norms to a prominent **⚠ Legal Requirements** block at the top of the card, before the standard sections. Specify the law or regulation where known. Distinguish between areas where tourists are given latitude (Riyadh's tourist zones since Vision 2030, Maldives resort islands) and areas where the law applies uniformly. Include the practical daily-life implications: prayer times (Azan) affect restaurant and shop openings (often 20-30 minutes during each of 5 daily prayers), alcohol is illegal everywhere in Saudi Arabia including international hotels, and gender-mixing in public is regulated with nuance that has relaxed somewhat but not disappeared. Do not editorialize. Present the legal landscape factually.
 
 ### 4. User is Visiting Family Rather than Tourism
+
 **Trigger signals:** "I am visiting my partner's family," "I am attending my friend's wedding," "My in-laws live there," "I am meeting my host family."
 
 **Handling:** Shift the entire card's weighting. Expand the "At a host's home" dining section significantly. Include specific home-visit customs: arrival time norms (in many cultures, arriving exactly on time to a home dinner is actually early -- in Morocco, 20-30 minutes late is standard; in Germany, being late is rude; in Brazil, arriving 30-60 minutes after the stated time is normal), what to bring as a gift and what the gift-giving ritual looks like, how to interact with elders and children, whether to offer to help in the kitchen (welcomed in some cultures, intrusive in others), how long to stay, and how to signal it is time to leave without causing offense. Reduce space given to restaurant tipping and tourist-site dress codes. Add a brief section on "Navigating family expectations as an outsider."
 
 ### 5. User Has an Identity That May Create Specific Risk or Experience
+
 **Trigger signals:** "I am gay," "My partner and I are a same-sex couple," "I wear a hijab," "I have a visible disability," "I am Black traveling to [destination]," "I have visible tattoos," "I am traveling solo as a woman."
 
 **Handling:** Address the identity-specific context directly and practically, without alarm or condescension. For LGBTQ+ travelers: state the legal status (decriminalized, ambiguous, or criminal, with penalty range), the practical reality on the ground (many cities have active underground or semi-visible LGBTQ+ communities; legal criminalization does not always mean active enforcement, but it does create vulnerability), and the practical guidance (public displays of affection risk -- relevant for both same-sex and opposite-sex couples in many conservative destinations). For solo women travelers: address whether solo women are commonly seen in public, whether they will be approached, whether certain transport options (women-only train cars in Tokyo, women-only taxis in some Middle Eastern cities) exist and should be used. For travelers with visible tattoos in Japan: address the onsen and some public bath restrictions clearly, identify tattoo-friendly establishments. Frame all of this as practical safety and comfort information, not a reason to avoid the destination.
 
 ### 6. Destinations Where Two Distinct Cultural Norms Coexist Due to Tourism Pressure
+
 **Examples:** Bali (deeply Hindu and traditional alongside heavily tourist-normalized Seminyak/Kuta), Morocco (ancient medina customs alongside tourist-facing Marrakech Djemaa el-Fna), Egypt (Islamic norms alongside very tourist-normalized Red Sea resorts), Thailand (devout Buddhist norms alongside tourist-zone nightlife districts).
 
 **Handling:** Produce the card in two registers: "In tourist areas / resort zones" and "In local neighborhoods, temples, and markets." Make it explicit that behavior that goes unremarked in a Kuta beach bar would be deeply offensive 10 km away in a traditional Balinese village during a temple ceremony. Travelers who assume the tourist zone is a representative sample of the whole culture will be unprepared when they leave it. Note which contexts are likely for this traveler and calibrate accordingly.
 
 ### 7. Destination Where the Traveler's Home Country Has Current Political Tension
+
 **Examples:** A U.S. traveler to Iran, an Israeli traveler to Malaysia, a Russian traveler to Poland or the Baltic states, a Chinese traveler to Taiwan during elevated tensions.
 
 **Handling:** Note briefly and factually that the traveler's passport or presumed nationality may affect interactions in some contexts. Do not predict hostility, but do prepare the traveler for possible questions, for navigation of politically charged conversations, and for practical realities (some Israeli passport holders cannot enter certain countries; some nationalities may face additional scrutiny). Frame as information, not alarm. Keep it to 2-3 sentences in the Legal/High-Stakes Notes section. This skill does not cover visa/entry bar requirements -- refer to `visa-requirements-checker` for that -- but does note cultural reception dynamics.
@@ -366,31 +377,31 @@ bullet points focused on the regions the user is actually visiting.]
 
 ### Greetings and Interaction
 
-| Situation                          | Custom                                                            | Notes and Nuances                                                              |
-|------------------------------------|-------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| Greeting a local man (as a man)    | Handshake, sometimes followed by placing the right hand on the heart | In more traditional and rural areas, men may greet with cheek-to-cheek twice (left, right) among those who know each other |
-| Greeting a local woman (as a man)  | Do not extend your hand first. Wait to see if she extends hers. If not, a nod and verbal greeting ("Salam") suffices. | Observant Muslim women may not shake hands with men outside their family. This is not a slight -- do not be offended or push. |
-| Greeting a local woman (as a woman) | Cheek kiss (left then right) is common between women. Handshake with right hand is also acceptable. | Warmth and physical greeting between women is common. Verbal exchange of "La Bas?" ("How are you?") and response "La Bas, Hamdullah" (Fine, praise God) is a normal rhythmic exchange. |
-| Greeting an elder or host          | Right hand on heart after shaking or after greeting, with a slight bow of the head | This gesture signals respect and sincerity. In Berber villages, elders are greeted first, before children or peers. |
-| Saying goodbye                     | "B'slama" (informal farewell) or "Ma'a salaama" (formal). Right hand to heart again. | Farewells in home settings can be extended -- the host walking you to the door (and sometimes beyond) is a sign of respect. |
-| Personal space                     | Closer conversational distance than Northern European norms -- roughly 40-50 cm is comfortable. | Moroccan men may stand very close when speaking with you; this is not aggressive. Stepping back repeatedly signals you are uncomfortable. |
-| Eye contact                        | Moderate direct eye contact between same genders is normal and friendly. Men should avoid sustained eye contact with women they do not know. | With religious figures or elders, looking slightly downward is a sign of respect. |
-| Gift-giving (if invited to a home) | Bring sweets (Moroccan pastries, dried fruit, high-quality dates), or honey. Fresh flowers are less common as a home gift than in Europe. Avoid alcohol. | Present the gift with your right hand or both hands. Your host may set it aside without opening it immediately -- this is polite, not indifferent. |
+| Situation                           | Custom                                                                                                                                                   | Notes and Nuances                                                                                                                                                                      |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Greeting a local man (as a man)     | Handshake, sometimes followed by placing the right hand on the heart                                                                                     | In more traditional and rural areas, men may greet with cheek-to-cheek twice (left, right) among those who know each other                                                             |
+| Greeting a local woman (as a man)   | Do not extend your hand first. Wait to see if she extends hers. If not, a nod and verbal greeting ("Salam") suffices.                                    | Observant Muslim women may not shake hands with men outside their family. This is not a slight -- do not be offended or push.                                                          |
+| Greeting a local woman (as a woman) | Cheek kiss (left then right) is common between women. Handshake with right hand is also acceptable.                                                      | Warmth and physical greeting between women is common. Verbal exchange of "La Bas?" ("How are you?") and response "La Bas, Hamdullah" (Fine, praise God) is a normal rhythmic exchange. |
+| Greeting an elder or host           | Right hand on heart after shaking or after greeting, with a slight bow of the head                                                                       | This gesture signals respect and sincerity. In Berber villages, elders are greeted first, before children or peers.                                                                    |
+| Saying goodbye                      | "B'slama" (informal farewell) or "Ma'a salaama" (formal). Right hand to heart again.                                                                     | Farewells in home settings can be extended -- the host walking you to the door (and sometimes beyond) is a sign of respect.                                                            |
+| Personal space                      | Closer conversational distance than Northern European norms -- roughly 40-50 cm is comfortable.                                                          | Moroccan men may stand very close when speaking with you; this is not aggressive. Stepping back repeatedly signals you are uncomfortable.                                              |
+| Eye contact                         | Moderate direct eye contact between same genders is normal and friendly. Men should avoid sustained eye contact with women they do not know.             | With religious figures or elders, looking slightly downward is a sign of respect.                                                                                                      |
+| Gift-giving (if invited to a home)  | Bring sweets (Moroccan pastries, dried fruit, high-quality dates), or honey. Fresh flowers are less common as a home gift than in Europe. Avoid alcohol. | Present the gift with your right hand or both hands. Your host may set it aside without opening it immediately -- this is polite, not indifferent.                                     |
 
 ---
 
 ### Dining Etiquette
 
-| Situation                          | Custom                                                            | Notes and Nuances                                                              |
-|------------------------------------|-------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| Typical meal times                 | Breakfast: 7:00-9:00. Lunch: 13:00-15:00 (the main meal of the day). Dinner: 20:00-22:00. | During Ramadan, all timing shifts entirely: fast until sunset, then Iftar (the breaking of fast) followed by Suhoor before dawn. |
-| Eating with hands                  | Traditional Moroccan home meals are often eaten with the right hand from a shared central dish (tagine, couscous). | Use only your right hand. The communal dish has an "in front of you" convention -- take from the portion in your section, not across the dish. |
-| Communal couscous                  | Friday couscous is a tradition -- a large shared dish, often with broth poured over by the host. Wait for the host to begin. | The lamb or chicken pieces in the center are typically served to guests by the host as a gesture of honor. Accept graciously. |
-| Bread (khobz)                      | Bread is present at every meal and treated with respect. It is used to scoop food from communal dishes. | Never throw bread away casually. If you drop bread, pick it up. Do not use bread as a plate on the floor. |
-| Mint tea                           | Served multiple times -- in welcome, during negotiation in souks, after meals. Poured from a height to create foam. Refusing tea is a mild social rebuff. | Accepting tea is the socially graceful response even if you do not finish it. Three refills may be offered -- it is acceptable to decline after the first cup. |
-| Alcohol norms                      | Morocco has a legal alcohol industry (wine is produced domestically). Alcohol is served in tourist riads, restaurants with licenses, and bars. | Alcohol is not offered or present in conservative homes and village settings. In Atlas mountain villages and Saharan camps, do not expect or request alcohol. |
-| Paying the bill at a restaurant    | The bill is brought when you ask: say "L-hsab, afak" (the bill, please). One person typically pays in traditional culture -- splitting is understood in tourist restaurants. | Many medina restaurants and local spots are cash only. Always carry Moroccan dirhams (MAD). Cards are more reliable in tourist-facing riads and modern restaurants. |
-| At a host's home                   | Arrive slightly after the stated time (10-15 minutes). Remove shoes at the entrance if you see shoes lined up or a mat. Compliment the food specifically. | You will be urged to eat more -- a gentle but firm "Baraka llah o feek" (God bless you, I am full) is an acceptable and respected response. |
+| Situation                       | Custom                                                                                                                                                                       | Notes and Nuances                                                                                                                                                   |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Typical meal times              | Breakfast: 7:00-9:00. Lunch: 13:00-15:00 (the main meal of the day). Dinner: 20:00-22:00.                                                                                    | During Ramadan, all timing shifts entirely: fast until sunset, then Iftar (the breaking of fast) followed by Suhoor before dawn.                                    |
+| Eating with hands               | Traditional Moroccan home meals are often eaten with the right hand from a shared central dish (tagine, couscous).                                                           | Use only your right hand. The communal dish has an "in front of you" convention -- take from the portion in your section, not across the dish.                      |
+| Communal couscous               | Friday couscous is a tradition -- a large shared dish, often with broth poured over by the host. Wait for the host to begin.                                                 | The lamb or chicken pieces in the center are typically served to guests by the host as a gesture of honor. Accept graciously.                                       |
+| Bread (khobz)                   | Bread is present at every meal and treated with respect. It is used to scoop food from communal dishes.                                                                      | Never throw bread away casually. If you drop bread, pick it up. Do not use bread as a plate on the floor.                                                           |
+| Mint tea                        | Served multiple times -- in welcome, during negotiation in souks, after meals. Poured from a height to create foam. Refusing tea is a mild social rebuff.                    | Accepting tea is the socially graceful response even if you do not finish it. Three refills may be offered -- it is acceptable to decline after the first cup.      |
+| Alcohol norms                   | Morocco has a legal alcohol industry (wine is produced domestically). Alcohol is served in tourist riads, restaurants with licenses, and bars.                               | Alcohol is not offered or present in conservative homes and village settings. In Atlas mountain villages and Saharan camps, do not expect or request alcohol.       |
+| Paying the bill at a restaurant | The bill is brought when you ask: say "L-hsab, afak" (the bill, please). One person typically pays in traditional culture -- splitting is understood in tourist restaurants. | Many medina restaurants and local spots are cash only. Always carry Moroccan dirhams (MAD). Cards are more reliable in tourist-facing riads and modern restaurants. |
+| At a host's home                | Arrive slightly after the stated time (10-15 minutes). Remove shoes at the entrance if you see shoes lined up or a mat. Compliment the food specifically.                    | You will be urged to eat more -- a gentle but firm "Baraka llah o feek" (God bless you, I am full) is an acceptable and respected response.                         |
 
 ---
 
@@ -398,40 +409,40 @@ bullet points focused on the regions the user is actually visiting.]
 
 **Tipping model: Model C -- Rounding-based and expected in service interactions, with specific service-sector conventions.**
 
-| Service                            | Standard tip                    | How to give it                      | Notes                                                       |
-|------------------------------------|---------------------------------|-------------------------------------|-------------------------------------------------------------|
-| Sit-down restaurant (lunch)        | 10% of the bill                 | Leave cash on the table or hand it directly | Roughly 20-40 MAD (~$2-4 USD) for a mid-range lunch. Not expected at hole-in-the-wall local spots but appreciated. |
-| Sit-down restaurant (dinner)       | 10-15% of the bill              | Leave cash on the table             | At tourist-facing riads and upscale Marrakech restaurants, 15% is standard. |
-| Taxi (petit taxi, city)            | Round up to the nearest 5 or 10 MAD | Tell the driver to keep the change | Always negotiate the fare before getting in, or insist on the meter. Tipping on top of a negotiated fare is optional. |
-| Hotel bellhop                      | 10-20 MAD per bag (~$1-2 USD)   | Hand directly at the time of service |                                                             |
-| Hotel housekeeping                 | 20-30 MAD per night (~$2-3 USD) | Leave on the bed or nightstand daily | Daily tipping ensures the person who serviced your room receives it. |
-| Guided tour / day guide            | 50-100 MAD per person per half-day (~$5-10 USD); 100-200 MAD per person for a full-day (~$10-20 USD) | Hand directly at end of tour | In Atlas villages, your guide is often a community member -- tipping is economically significant. |
-| Sahara desert camp guide / camel handler | 50-100 MAD per person (~$5-10 USD) | Hand at the end of the experience  | These are typically independent workers, not resort employees. |
-| Souk porter or unofficial guide    | Agree on a price BEFORE accepting their help. 20-50 MAD (~$2-5 USD) for a short escort. | Pay at the end                      | "Faux guides" may lead you to shops for commissions. It is acceptable to decline offers of guiding. If you accept help, agree on compensation first. |
-| Hammam (traditional bath) attendant | 20-50 MAD (~$2-5 USD) on top of the fee | Hand directly to your attendant    | High-end hammams may include service charges -- check the receipt. |
+| Service                                  | Standard tip                                                                                         | How to give it                              | Notes                                                                                                                                                |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sit-down restaurant (lunch)              | 10% of the bill                                                                                      | Leave cash on the table or hand it directly | Roughly 20-40 MAD (~$2-4 USD) for a mid-range lunch. Not expected at hole-in-the-wall local spots but appreciated.                                   |
+| Sit-down restaurant (dinner)             | 10-15% of the bill                                                                                   | Leave cash on the table                     | At tourist-facing riads and upscale Marrakech restaurants, 15% is standard.                                                                          |
+| Taxi (petit taxi, city)                  | Round up to the nearest 5 or 10 MAD                                                                  | Tell the driver to keep the change          | Always negotiate the fare before getting in, or insist on the meter. Tipping on top of a negotiated fare is optional.                                |
+| Hotel bellhop                            | 10-20 MAD per bag (~$1-2 USD)                                                                        | Hand directly at the time of service        |                                                                                                                                                      |
+| Hotel housekeeping                       | 20-30 MAD per night (~$2-3 USD)                                                                      | Leave on the bed or nightstand daily        | Daily tipping ensures the person who serviced your room receives it.                                                                                 |
+| Guided tour / day guide                  | 50-100 MAD per person per half-day (~$5-10 USD); 100-200 MAD per person for a full-day (~$10-20 USD) | Hand directly at end of tour                | In Atlas villages, your guide is often a community member -- tipping is economically significant.                                                    |
+| Sahara desert camp guide / camel handler | 50-100 MAD per person (~$5-10 USD)                                                                   | Hand at the end of the experience           | These are typically independent workers, not resort employees.                                                                                       |
+| Souk porter or unofficial guide          | Agree on a price BEFORE accepting their help. 20-50 MAD (~$2-5 USD) for a short escort.              | Pay at the end                              | "Faux guides" may lead you to shops for commissions. It is acceptable to decline offers of guiding. If you accept help, agree on compensation first. |
+| Hammam (traditional bath) attendant      | 20-50 MAD (~$2-5 USD) on top of the fee                                                              | Hand directly to your attendant             | High-end hammams may include service charges -- check the receipt.                                                                                   |
 
 ---
 
 ### Dress Code
 
-| Context                            | Requirement level            | Guideline                                                          | Specific items to bring or avoid                               |
-|------------------------------------|------------------------------|--------------------------------------------------------------------|----------------------------------------------------------------|
-| General public (Marrakech medina)  | Strong cultural expectation  | Cover shoulders and knees for both men and women. Loose, breathable fabrics. | Shorts and sleeveless tops attract staring and persistent vendor attention. Linen trousers and cotton shirts or loose dresses work well. |
-| General public (Marrakech Gueliz / modern quarter) | Cultural expectation | More relaxed -- mid-length shorts and short sleeves are common here. | Still conservative by resort-destination standards -- no beachwear off the beach. |
-| Atlas Mountain villages            | Strong cultural expectation  | Conservative dress is very important in Berber village contexts. Full-length trousers, covered shoulders, loose clothing. | This is where tourist-zone norms do NOT translate. A T-shirt and shorts that were fine in a Marrakech riad café will draw discomfort from villagers. |
-| Mosques                            | **[Legal/Religious requirement]** | Non-Muslims are not permitted inside most Moroccan mosques (exception: Casablanca's Hassan II Mosque, which has tourist hours). | If you are permitted entry: shoes off, women cover hair, everyone covers knees and shoulders. Carry a scarf. |
-| Shrines and religious sites (zaouias, mausoleums) | Religious expectation | Same dress as mosque entry. Behave silently and respectfully. | Photography inside is generally prohibited. Observe before acting. |
-| Sahara desert camp                 | Practical + cultural expectation | Loose layers for daytime heat; warm layers for night (desert nights drop significantly in temperature). Covered clothing is appreciated around camp staff and local Tuareg / Amazigh hosts. | A lightweight scarf (chèche) is practical for sand and appreciated as a gesture of cultural awareness. |
-| Evening dining at a riad           | Smart casual                 | Neat, clean clothing. No need for formal dress. Moroccan fashion is colorful -- feel free to wear a djellaba or kaftan if offered one. | |
-| Color notes                        | Awareness                    | White is commonly worn (clean, modest); green is associated with Islam and is treated with reverence. No specific prohibition on tourist color choices. | |
+| Context                                            | Requirement level                 | Guideline                                                                                                                                                                                   | Specific items to bring or avoid                                                                                                                     |
+| -------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| General public (Marrakech medina)                  | Strong cultural expectation       | Cover shoulders and knees for both men and women. Loose, breathable fabrics.                                                                                                                | Shorts and sleeveless tops attract staring and persistent vendor attention. Linen trousers and cotton shirts or loose dresses work well.             |
+| General public (Marrakech Gueliz / modern quarter) | Cultural expectation              | More relaxed -- mid-length shorts and short sleeves are common here.                                                                                                                        | Still conservative by resort-destination standards -- no beachwear off the beach.                                                                    |
+| Atlas Mountain villages                            | Strong cultural expectation       | Conservative dress is very important in Berber village contexts. Full-length trousers, covered shoulders, loose clothing.                                                                   | This is where tourist-zone norms do NOT translate. A T-shirt and shorts that were fine in a Marrakech riad café will draw discomfort from villagers. |
+| Mosques                                            | **[Legal/Religious requirement]** | Non-Muslims are not permitted inside most Moroccan mosques (exception: Casablanca's Hassan II Mosque, which has tourist hours).                                                             | If you are permitted entry: shoes off, women cover hair, everyone covers knees and shoulders. Carry a scarf.                                         |
+| Shrines and religious sites (zaouias, mausoleums)  | Religious expectation             | Same dress as mosque entry. Behave silently and respectfully.                                                                                                                               | Photography inside is generally prohibited. Observe before acting.                                                                                   |
+| Sahara desert camp                                 | Practical + cultural expectation  | Loose layers for daytime heat; warm layers for night (desert nights drop significantly in temperature). Covered clothing is appreciated around camp staff and local Tuareg / Amazigh hosts. | A lightweight scarf (chèche) is practical for sand and appreciated as a gesture of cultural awareness.                                               |
+| Evening dining at a riad                           | Smart casual                      | Neat, clean clothing. No need for formal dress. Moroccan fashion is colorful -- feel free to wear a djellaba or kaftan if offered one.                                                      |                                                                                                                                                      |
+| Color notes                                        | Awareness                         | White is commonly worn (clean, modest); green is associated with Islam and is treated with reverence. No specific prohibition on tourist color choices.                                     |                                                                                                                                                      |
 
 ---
 
 ### Taboos and Common Mistakes
 
-| Behavior to avoid                  | Why it matters in Morocco                                         | What to do instead                                                |
-|------------------------------------|-------------------------------------------------------------------|-------------------------------------------------------------------|
-| Public displays of affection       | Morocco has laws against public indecency, and unmarried couples displaying affection in conservative areas risk police attention. Even in tourist areas it is considered culturally inappropriate. | Hold hands if you are comfortable in very tourist-facing zones, but avoid kissing or embracing in public. Inside your riad is fully private. |
+| Behavior to avoid                                                   | Why it matters in Morocco                                                                                                                                                                                         | What to do instead                                                                                                                                |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public displays of affection                                        | Morocco has laws against public indecency, and unmarried couples displaying affection in conservative areas risk police attention. Even in tourist areas it is considered culturally inappropriate.               | Hold hands if you are comfortable in very tourist-facing zones, but avoid kissing or embracing in public. Inside your riad is fully private.      |
 | Photographing people without permission -- especially in the medina | Many medina residents, market vendors, and water sellers in traditional dress have had their photos taken without consent for years and find it dehumanizing. Some will demand payment after, which can escalate. | Ask first: "Imken nsuwr lik?" (May I take your photo?). Accept a no gracefully. If you agree on payment, confirm the amount before photographing. |
-| Photographing government buildings, military, or police | Photographing military installations, the Royal Palace, border facilities, and police in operational contexts can result in questioning and deletion of photos. | Keep cameras pointed at architecture, markets, landscapes. When uncertain about a building's status, ask your guide. |
-| Entering a negotiation then walking away aggressively | In souk culture, entering a price negotiation is considered a social contract. Walking away mid-
+| Photographing government buildings, military, or police             | Photographing military installations, the Royal Palace, border facilities, and police in operational contexts can result in questioning and deletion of photos.                                                   | Keep cameras pointed at architecture, markets, landscapes. When uncertain about a building's status, ask your guide.                              |
+| Entering a negotiation then walking away aggressively               | In souk culture, entering a price negotiation is considered a social contract. Walking away mid-                                                                                                                  |

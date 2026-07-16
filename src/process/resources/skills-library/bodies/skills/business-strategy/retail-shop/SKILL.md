@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Retail Shop
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to open or improve an independent retail store with merchandising and visual display strategy
 - The user needs help with POS setup, inventory management, or customer experience design for retail
 - The user wants guidance on seasonal planning, loyalty programs, or e-commerce integration for a physical store
 - The user needs retail-specific financial planning, vendor negotiations, or staffing models
 
 **Do NOT use this skill when:**
+
 - The user is running a purely online e-commerce store (use ecommerce-advisor instead)
 - The user is opening a restaurant, salon, or gym (use the relevant business-type skill)
 - The user wants general business planning not specific to retail (use business-planner instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on retail shop
 - User asks about retail shop best practices or techniques
 - User wants a structured approach to retail shop
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of retail shop
 
@@ -68,6 +72,7 @@ Before providing guidance, establish the retailer's situation:
 ## Merchandising Strategy
 
 ### Product Assortment Planning
+
 ```
 THE 80/20 RULE:
   80% of revenue typically comes from 20% of your products
@@ -90,6 +95,7 @@ CATEGORY MANAGEMENT:
 ```
 
 ### Vendor and Buying Strategy
+
 ```
 VENDOR EVALUATION CRITERIA:
   Product quality and consistency:     /10
@@ -117,6 +123,7 @@ BUYING FORMULAS:
 ```
 
 ### Pricing and Margins
+
 ```
 MARKUP CALCULATION:
   Retail Price = Wholesale Cost x Markup Multiplier
@@ -143,6 +150,7 @@ MARKDOWN STRATEGY:
 ## POS System Setup
 
 ### POS Selection Criteria
+
 ```
 ESSENTIAL FOR RETAIL:
 [ ] Barcode scanning
@@ -165,6 +173,7 @@ E-COMMERCE INTEGRATION:
 ```
 
 ### Popular Retail POS Systems
+
 ```
 SYSTEM       | MONTHLY     | BEST FOR
 -------------|-------------|----------------------------------
@@ -185,6 +194,7 @@ PAYMENT PROCESSING RATES:
 ## Inventory Management
 
 ### Inventory Metrics
+
 ```
 KEY FORMULAS:
   Inventory Turnover = Cost of Goods Sold / Average Inventory at Cost
@@ -203,6 +213,7 @@ BENCHMARKS:
 ```
 
 ### Inventory Counting
+
 ```
 CYCLE COUNTING (Recommended):
   Count a different section daily or weekly
@@ -225,6 +236,7 @@ SHRINKAGE PREVENTION:
 ## Visual Display and Store Layout
 
 ### Store Layout Types
+
 ```
 GRID LAYOUT:
   Parallel aisles, like a grocery store
@@ -252,6 +264,7 @@ BOUTIQUE LAYOUT:
 ```
 
 ### Visual Merchandising Rules
+
 ```
 THE DECOMPRESSION ZONE:
   First 5-10 feet inside the door
@@ -292,6 +305,7 @@ SIGNAGE:
 ## Customer Experience
 
 ### The Customer Journey
+
 ```
 STEP 1: AWARENESS
   - Storefront and window display draw them in
@@ -327,6 +341,7 @@ STEP 6: POST-PURCHASE
 ```
 
 ### Staff Training Focus Areas
+
 ```
 1. Product knowledge (features, materials, origin stories)
 2. Greeting protocol (welcoming but not aggressive)
@@ -341,6 +356,7 @@ STEP 6: POST-PURCHASE
 ## Seasonal Planning
 
 ### Seasonal Calendar Template
+
 ```
 JANUARY:
   - Post-holiday clearance (target: clear 80% of holiday inventory)
@@ -397,6 +413,7 @@ DECEMBER:
 ## Loyalty Programs
 
 ### Program Design Options
+
 ```
 POINTS-BASED:
   $1 spent = 1 point
@@ -438,6 +455,7 @@ PROGRAM ECONOMICS:
 ## E-Commerce Integration
 
 ### Online Channel Strategy
+
 ```
 OPTION 1: SHOPIFY + POS
   Best for: Serious e-commerce + retail integration
@@ -468,6 +486,7 @@ OMNICHANNEL FEATURES TO IMPLEMENT:
 ```
 
 ### E-Commerce Basics
+
 ```
 PRODUCT LISTING ESSENTIALS:
   - 3-5 photos per product (different angles, scale, in-use)
@@ -491,6 +510,7 @@ ONLINE REVENUE TARGET:
 ## Financial Management
 
 ### Monthly P&L Template
+
 ```
 REVENUE:
   In-store sales:                $________
@@ -535,7 +555,6 @@ NET OPERATING INCOME:            $________ (target: 8-15%)
 9. Competing on price with big-box and Amazon instead of on experience and curation
 10. skipping to plan 4-6 weeks ahead for seasonal events and holidays
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -548,13 +567,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with retail shop for a mid-size project."
 
 **Output:** A complete retail shop framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability meal-planning guide"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability meal-planning guide'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Food Sustainability Guide
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about food sustainability
 - User needs guidance on food sustainability topics
 - User wants a structured approach to food sustainability
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -52,20 +54,20 @@ Food production accounts for approximately 26% of global greenhouse gas emission
 
 ### Environmental Impact by Food Type
 
-| Food | kg CO2e per kg of food | Water Use (liters per kg) | Land Use (m2 per kg) |
-|------|----------------------|--------------------------|---------------------|
-| Beef | 60-100 | 15,000 | 165-325 |
-| Lamb | 25-40 | 10,000 | 185 |
-| Cheese | 20-25 | 5,000 | 88 |
-| Pork | 7-12 | 6,000 | 11 |
-| Chicken | 6-10 | 4,300 | 7 |
-| Farmed fish | 5-8 | Varies | 4-8 |
-| Eggs | 4-5 | 3,300 | 6 |
-| Rice | 4 | 2,500 | 3 |
-| Tofu | 2-3 | 2,500 | 2 |
-| Beans and lentils | 0.9-2 | 1,300-5,000 | 8-15 |
-| Vegetables | 0.5-2 | 300-1,000 | 0.3-1 |
-| Fruits | 0.5-1.5 | 500-1,500 | 0.5-1.5 |
+| Food              | kg CO2e per kg of food | Water Use (liters per kg) | Land Use (m2 per kg) |
+| ----------------- | ---------------------- | ------------------------- | -------------------- |
+| Beef              | 60-100                 | 15,000                    | 165-325              |
+| Lamb              | 25-40                  | 10,000                    | 185                  |
+| Cheese            | 20-25                  | 5,000                     | 88                   |
+| Pork              | 7-12                   | 6,000                     | 11                   |
+| Chicken           | 6-10                   | 4,300                     | 7                    |
+| Farmed fish       | 5-8                    | Varies                    | 4-8                  |
+| Eggs              | 4-5                    | 3,300                     | 6                    |
+| Rice              | 4                      | 2,500                     | 3                    |
+| Tofu              | 2-3                    | 2,500                     | 2                    |
+| Beans and lentils | 0.9-2                  | 1,300-5,000               | 8-15                 |
+| Vegetables        | 0.5-2                  | 300-1,000                 | 0.3-1                |
+| Fruits            | 0.5-1.5                | 500-1,500                 | 0.5-1.5              |
 
 What you eat matters more than where it comes from. Transportation typically accounts for less than 10% of food's total emissions, while production accounts for over 80%.
 
@@ -76,18 +78,21 @@ What you eat matters more than where it comes from. Transportation typically acc
 ### Community Supported Agriculture (CSA)
 
 **How CSAs work:**
+
 - You purchase a "share" from a local farm at the beginning of the season
 - Each week or bi-weekly, you receive a box of whatever is in season
 - Payment upfront supports the farm during planting season
 - You share in both the bounty and the risk
 
 **Finding a CSA:**
+
 - LocalHarvest.org has a comprehensive CSA directory
 - Your local farmers market often has farm sign-ups
 - Community bulletin boards and social media groups
 - Ask at farm-to-table restaurants for connections
 
 **CSA Evaluation Checklist:**
+
 - [ ] What is the season length and cost per share?
 - [ ] Is there a half-share option for smaller households?
 - [ ] What is the pickup location and time?
@@ -100,6 +105,7 @@ What you eat matters more than where it comes from. Transportation typically acc
 ### Farmers Markets
 
 **Getting the most from farmers markets:**
+
 - Arrive early for the best selection
 - Bring your own bags and containers
 - Talk to the farmers about what is at peak season and how to prepare unfamiliar items
@@ -108,6 +114,7 @@ What you eat matters more than where it comes from. Transportation typically acc
 - Many markets accept SNAP/EBT and some offer matching programs
 
 ### Local Food Beyond Markets
+
 - U-pick farms for berries, apples, and pumpkins
 - Farm stands and roadside stands
 - Food cooperatives
@@ -121,6 +128,7 @@ What you eat matters more than where it comes from. Transportation typically acc
 ## Phase 3: Seasonal Eating Guide
 
 ### Why Eat Seasonally?
+
 - Fresher, better-tasting produce
 - More nutritious (harvested ripe rather than transported unripe)
 - Lower transportation emissions
@@ -170,11 +178,13 @@ Preserved items from previous seasons: _____________
 ## Phase 4: Reducing Food Waste
 
 ### The Scale of the Problem
+
 Thirty to forty percent of the US food supply is wasted. The average American family wastes $1,500-$2,000 worth of food per year. Food waste in landfills produces methane, a potent greenhouse gas. Reducing food waste is the single highest-impact action for most households.
 
 ### Meal Planning to Reduce Waste
 
 **Weekly Meal Planning Process:**
+
 1. Check what you already have in the fridge, pantry, and freezer
 2. Plan meals using what needs to be consumed first
 3. Build a shopping list from your meal plan
@@ -184,28 +194,30 @@ Thirty to forty percent of the US food supply is wasted. The average American fa
 
 ### Food Storage Guide
 
-| Food | Best Storage Method | Shelf Life |
-|------|-------------------|-----------|
-| Leafy greens | Washed, paper towel in sealed container, fridge | 5-7 days |
-| Fresh herbs | Stems in water like flowers, covered, fridge | 7-14 days |
-| Berries | Unwashed, single layer, paper towel lined container | 3-7 days |
-| Tomatoes | Counter (stem side up) until ripe, then fridge | 3-5 days |
-| Avocados | Counter to ripen, fridge when ripe | 2-3 days ripe |
-| Bread | Room temperature 2-3 days, then freeze | Weeks in freezer |
-| Cheese | Wrap in wax paper, then loose container | 1-3 weeks |
-| Bananas | Counter, separate from other fruit, wrap stems | 5-7 days |
-| Apples | Fridge, away from other produce (they emit ethylene) | 4-8 weeks |
-| Carrots | Remove greens, sealed container with water in fridge | 2-4 weeks |
-| Onions and garlic | Cool, dry, dark place with air circulation | Weeks to months |
-| Potatoes | Cool, dark, dry place (not the fridge) | Weeks to months |
+| Food              | Best Storage Method                                  | Shelf Life       |
+| ----------------- | ---------------------------------------------------- | ---------------- |
+| Leafy greens      | Washed, paper towel in sealed container, fridge      | 5-7 days         |
+| Fresh herbs       | Stems in water like flowers, covered, fridge         | 7-14 days        |
+| Berries           | Unwashed, single layer, paper towel lined container  | 3-7 days         |
+| Tomatoes          | Counter (stem side up) until ripe, then fridge       | 3-5 days         |
+| Avocados          | Counter to ripen, fridge when ripe                   | 2-3 days ripe    |
+| Bread             | Room temperature 2-3 days, then freeze               | Weeks in freezer |
+| Cheese            | Wrap in wax paper, then loose container              | 1-3 weeks        |
+| Bananas           | Counter, separate from other fruit, wrap stems       | 5-7 days         |
+| Apples            | Fridge, away from other produce (they emit ethylene) | 4-8 weeks        |
+| Carrots           | Remove greens, sealed container with water in fridge | 2-4 weeks        |
+| Onions and garlic | Cool, dry, dark place with air circulation           | Weeks to months  |
+| Potatoes          | Cool, dark, dry place (not the fridge)               | Weeks to months  |
 
 ### Understanding Date Labels
+
 - "Best By" or "Best Before" is a quality indicator and food is often safe well past this date
 - "Use By" is closer to a safety date but still often conservative
 - "Sell By" is for the store, not the consumer, and food is good for days or weeks after
 - Exception: infant formula "Use By" dates should be followed strictly
 
 ### Using Scraps Creatively
+
 - Vegetable scraps: Save onion ends, carrot peels, celery leaves, and herb stems in a freezer bag. When full, simmer in water for homemade broth.
 - Stale bread: croutons, breadcrumbs, bread pudding, French toast
 - Overripe bananas: banana bread, smoothies, frozen treats
@@ -218,21 +230,22 @@ Thirty to forty percent of the US food supply is wasted. The average American fa
 
 ### Protein Environmental Impact Comparison
 
-| Protein Source | CO2e per serving | Water per serving | Notes |
-|---------------|-----------------|-------------------|-------|
-| Beans and lentils | Very low | Low | Complete protein when combined with grains |
-| Tofu and tempeh | Low | Low | Good source of all amino acids |
-| Nuts and seeds | Low | Moderate | Calorie-dense, healthy fats |
-| Eggs | Low-moderate | Moderate | Pasture-raised has welfare benefits |
-| Chicken | Moderate | Moderate | Lower impact than beef or lamb |
-| Fish (sustainable) | Moderate | Varies | Look for MSC certification |
-| Pork | Moderate | Moderate-high | Lower than beef |
-| Dairy | Moderate-high | High | Varies by product type |
-| Beef | Very high | Very high | Grass-finished may be slightly better |
+| Protein Source     | CO2e per serving | Water per serving | Notes                                      |
+| ------------------ | ---------------- | ----------------- | ------------------------------------------ |
+| Beans and lentils  | Very low         | Low               | Complete protein when combined with grains |
+| Tofu and tempeh    | Low              | Low               | Good source of all amino acids             |
+| Nuts and seeds     | Low              | Moderate          | Calorie-dense, healthy fats                |
+| Eggs               | Low-moderate     | Moderate          | Pasture-raised has welfare benefits        |
+| Chicken            | Moderate         | Moderate          | Lower impact than beef or lamb             |
+| Fish (sustainable) | Moderate         | Varies            | Look for MSC certification                 |
+| Pork               | Moderate         | Moderate-high     | Lower than beef                            |
+| Dairy              | Moderate-high    | High              | Varies by product type                     |
+| Beef               | Very high        | Very high         | Grass-finished may be slightly better      |
 
 ### Strategies for Reducing Meat Impact
 
 Gradual approaches work better than all-or-nothing:
+
 - Meatless Monday: one day per week without meat
 - Meat as a side rather than the star: smaller portions, more vegetables
 - Replace one beef meal per week with chicken, fish, or plant protein
@@ -241,6 +254,7 @@ Gradual approaches work better than all-or-nothing:
 - When buying meat, choose quality over quantity with better sourcing
 
 ### Choosing Sustainable Seafood
+
 - Look for MSC (Marine Stewardship Council) certification for wild-caught
 - Look for ASC (Aquaculture Stewardship Council) for farmed
 - Use the Seafood Watch app from Monterey Bay Aquarium for buying guides
@@ -254,6 +268,7 @@ Gradual approaches work better than all-or-nothing:
 ### Getting Started Growing Food
 
 **Easiest vegetables for beginners:**
+
 - Lettuce and salad greens (fast growing, cool season)
 - Herbs (basil, cilantro, parsley, mint, chives)
 - Tomatoes (need sun and warmth, very productive)
@@ -264,16 +279,17 @@ Gradual approaches work better than all-or-nothing:
 
 ### Growing Space Options
 
-| Space | Options | Suitability |
-|-------|---------|-------------|
-| Sunny yard | In-ground beds, raised beds | Best for most vegetables |
-| Small yard | Raised bed, container garden | Good for most vegetables |
-| Patio or deck | Container garden, vertical garden | Good for herbs, tomatoes, peppers, greens |
-| Balcony | Window boxes, hanging planters, small containers | Good for herbs and compact greens |
-| Indoor | Windowsill herbs, microgreens, sprouting | Limited but still valuable |
-| No space | Community garden or allotment | Full garden capabilities |
+| Space         | Options                                          | Suitability                               |
+| ------------- | ------------------------------------------------ | ----------------------------------------- |
+| Sunny yard    | In-ground beds, raised beds                      | Best for most vegetables                  |
+| Small yard    | Raised bed, container garden                     | Good for most vegetables                  |
+| Patio or deck | Container garden, vertical garden                | Good for herbs, tomatoes, peppers, greens |
+| Balcony       | Window boxes, hanging planters, small containers | Good for herbs and compact greens         |
+| Indoor        | Windowsill herbs, microgreens, sprouting         | Limited but still valuable                |
+| No space      | Community garden or allotment                    | Full garden capabilities                  |
 
 ### Garden Sustainability Practices
+
 - Compost for soil amendment (free and effective)
 - Collect rainwater for irrigation
 - Use mulch to retain moisture and suppress weeds
@@ -289,14 +305,14 @@ Gradual approaches work better than all-or-nothing:
 
 ### Preservation Methods Comparison
 
-| Method | Difficulty | Equipment Needed | Best For | Shelf Life |
-|--------|-----------|-----------------|----------|-----------|
-| Freezing | Easy | Freezer, containers or bags | Most fruits, vegetables, prepared meals | 6-12 months |
-| Refrigerator pickling | Easy | Glass jars, vinegar | Cucumbers, onions, peppers, carrots | 2-4 weeks |
-| Water bath canning | Moderate | Canning pot, jars, lids | High-acid foods (jams, tomatoes, pickles, fruit) | 1-2 years |
-| Pressure canning | Advanced | Pressure canner, jars | Low-acid foods (vegetables, meats, soups) | 1-5 years |
-| Dehydrating | Easy-moderate | Dehydrator or oven | Herbs, fruits, vegetables, jerky | 6-12 months |
-| Fermenting | Moderate | Glass jars, salt | Sauerkraut, kimchi, pickles, hot sauce | Months to years |
+| Method                | Difficulty    | Equipment Needed            | Best For                                         | Shelf Life      |
+| --------------------- | ------------- | --------------------------- | ------------------------------------------------ | --------------- |
+| Freezing              | Easy          | Freezer, containers or bags | Most fruits, vegetables, prepared meals          | 6-12 months     |
+| Refrigerator pickling | Easy          | Glass jars, vinegar         | Cucumbers, onions, peppers, carrots              | 2-4 weeks       |
+| Water bath canning    | Moderate      | Canning pot, jars, lids     | High-acid foods (jams, tomatoes, pickles, fruit) | 1-2 years       |
+| Pressure canning      | Advanced      | Pressure canner, jars       | Low-acid foods (vegetables, meats, soups)        | 1-5 years       |
+| Dehydrating           | Easy-moderate | Dehydrator or oven          | Herbs, fruits, vegetables, jerky                 | 6-12 months     |
+| Fermenting            | Moderate      | Glass jars, salt            | Sauerkraut, kimchi, pickles, hot sauce           | Months to years |
 
 ### Freezing Guide
 
@@ -319,6 +335,7 @@ Method: Massage salt into shredded cabbage for 5-10 minutes until liquid is rele
 ### Priority Actions by Impact
 
 The highest impact changes are:
+
 1. Reduce food waste (saves money and emissions)
 2. Eat less beef and dairy (shift toward plant-forward meals)
 3. Choose sustainably sourced seafood
@@ -341,7 +358,6 @@ Money saved from waste reduction: $_____
 ```
 
 Sustainable eating is not about perfection or deprivation. It is about making more conscious choices that are better for your health, your wallet, your community, and the planet. Small, consistent changes compound into meaningful impact over time.
-
 
 ## Output Format
 

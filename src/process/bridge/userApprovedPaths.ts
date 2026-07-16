@@ -144,7 +144,7 @@ function realpathOfNearestExisting(target: string): string {
   for (;;) {
     try {
       const real = realpathSync(current);
-      return tail.length === 0 ? real : path.join(real, ...tail.reverse());
+      return tail.length === 0 ? real : path.join(real, ...tail.toReversed());
     } catch {
       const parent = path.dirname(current);
       if (parent === current) return target;

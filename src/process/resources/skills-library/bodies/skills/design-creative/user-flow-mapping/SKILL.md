@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design planning analysis"
-  category: "design-creative"
-  subcategory: "ui-ux-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design planning analysis'
+  category: 'design-creative'
+  subcategory: 'ui-ux-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # User Flow Mapping
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to map a user flow, user journey, task flow, or "how users move through" a feature or product
 - The user wants to document all navigation paths between screens (happy path, error paths, edge paths, abandon paths)
 - The user needs to identify friction points, dead ends, or ambiguous branching in an existing product
@@ -30,6 +32,7 @@ metadata:
 - The user needs to document conditional access logic (authenticated vs. unauthenticated, free vs. paid tier, mobile vs. desktop)
 
 **Do NOT use when:**
+
 - The user wants to wireframe or spec the layout of a single screen (use `wireframe-specification` -- that skill handles component placement, spacing, and visual hierarchy)
 - The user wants to define micro-interactions, gesture behaviors, or animation timing (use `prototype-spec` -- that skill handles state transitions and motion)
 - The user wants to create a sitemap showing information architecture (a sitemap documents content hierarchy and URL structure, not user behavior sequences)
@@ -88,6 +91,7 @@ For each decision node, map every non-happy branch as a named alternate path. Us
 **Alternate happy path:** A valid route to the same success state that diverges from the primary happy path. Example: guest checkout vs. authenticated checkout. Both achieve "order confirmed." Map the guest checkout as a complete parallel sequence from its divergence point to the shared success exit. Do not shortcut with "similar to happy path but without login step" -- write every step explicitly.
 
 **Error path (recoverable):** A condition that blocks forward progress but can be resolved. Specify:
+
 - The trigger condition (what specifically went wrong)
 - The exact error message or state the user sees (write real error copy, not "[error message]")
 - The recovery action available to the user
@@ -95,12 +99,14 @@ For each decision node, map every non-happy branch as a named alternate path. Us
 - The maximum retry count if applicable (3 failed card attempts, 5 failed OTP attempts, etc.). After maximum retries, branch to an unrecoverable error exit.
 
 **Error path (unrecoverable):** A condition that permanently terminates the flow. Examples: token expired with no renewal path, account suspended, required third-party service down. Specify:
+
 - The trigger condition
 - The exact error state the user sees
 - Whether any partial data is preserved
 - Any off-ramp for the user (contact support link, retry tomorrow messaging)
 
 **Abandon path:** The user leaves the flow voluntarily. Classify abandon points:
+
 - **Explicit abandon:** User clicks cancel, taps back, or closes a modal with an explicit dismiss action
 - **Implicit abandon:** User navigates away, closes the browser, or lets a session time out
 - For each abandon point, document whether partial state is preserved (cart persisted in localStorage, form fields saved as draft, session cookie retained)
@@ -318,6 +324,7 @@ Consent and legal gates appear as mandatory decision nodes that the team may wan
 ## User Flow: Add Payment Method
 
 ### Overview
+
 - **Goal:** Add a verified payment method to an existing account for future billing
 - **Actor:** Authenticated user with an active account, no payment method on file (or adding an additional method)
 - **Entry point(s):** (1) Billing Settings page "Add Payment Method" button; (2) In-context prompt during upgrade flow when no payment method exists
@@ -328,153 +335,165 @@ Consent and legal gates appear as mandatory decision nodes that the team may wan
 ---
 
 ### Screen Inventory
-| Screen Name                  | Description                                                               | Auth Required? |
-|------------------------------|---------------------------------------------------------------------------|----------------|
-| Billing Settings             | Lists current payment methods, billing history, plan details              | Yes            |
-| Add Payment Method Modal     | Entry point modal with method-type selector (card vs. ACH)                | Yes            |
-| Card Entry Form              | Tokenized card input fields (number, expiry, CVV, billing ZIP)            | Yes            |
-| ACH Bank Entry Form          | Bank routing number and account number entry                              | Yes            |
-| ACH Verification Pending     | Confirmation screen showing micro-deposit pending status                  | Yes            |
-| ACH Verify Deposits          | Form for entering two micro-deposit amounts to verify account             | Yes            |
-| Payment Method Success       | Inline success confirmation within Billing Settings                       | Yes            |
-| Payment Method Error         | Inline error state within the active form                                 | Yes            |
+
+| Screen Name              | Description                                                    | Auth Required? |
+| ------------------------ | -------------------------------------------------------------- | -------------- |
+| Billing Settings         | Lists current payment methods, billing history, plan details   | Yes            |
+| Add Payment Method Modal | Entry point modal with method-type selector (card vs. ACH)     | Yes            |
+| Card Entry Form          | Tokenized card input fields (number, expiry, CVV, billing ZIP) | Yes            |
+| ACH Bank Entry Form      | Bank routing number and account number entry                   | Yes            |
+| ACH Verification Pending | Confirmation screen showing micro-deposit pending status       | Yes            |
+| ACH Verify Deposits      | Form for entering two micro-deposit amounts to verify account  | Yes            |
+| Payment Method Success   | Inline success confirmation within Billing Settings            | Yes            |
+| Payment Method Error     | Inline error state within the active form                      | Yes            |
 
 ---
 
 ### Happy Path (Credit Card)
-| Step | User Action                                      | System Response                                                         | Screen                    | Data / Notes                                                                 |
-|------|--------------------------------------------------|-------------------------------------------------------------------------|---------------------------|------------------------------------------------------------------------------|
-| 1    | Clicks "Add Payment Method" button               | Opens Add Payment Method Modal                                          | Billing Settings          | Modal overlays Billing Settings                                              |
-| 2    | Selects "Credit or Debit Card" option            | Highlights card option; activates "Continue" button                     | Add Payment Method Modal  | Default selection; ACH is the alternate path                                 |
-| 3    | Clicks "Continue"                                | Renders Card Entry Form with tokenized input fields                     | Card Entry Form           | Payment processor iframe loaded; no card data touches app server (PCI)       |
-| 4    | Enters card number, expiry, CVV, and billing ZIP | Inline format validation as user types; no submission yet               | Card Entry Form           | Luhn algorithm validates card number format client-side                      |
-| 5    | Clicks "Add Card"                                | Submits tokenized card data to payment processor; shows loading spinner | Card Entry Form           | Latency: 1--3 seconds; timeout threshold: 10 seconds                        |
-| 6    | (System step -- no user action)                  | Payment processor returns card token and card fingerprint               | Card Entry Form           | Token stored; raw card data discarded                                        |
-| 7    | (System step -- no user action)                  | App server creates payment method record; sets as default if first card | Payment Method Success    | `payment_method_added` event fires; **SUCCESS EXIT**                        |
-| 8    | Views success state                              | Billing Settings reloads with new card in payment methods list          | Billing Settings          | Success toast: "Visa ending in 4242 added successfully."                    |
+
+| Step | User Action                                      | System Response                                                         | Screen                   | Data / Notes                                                           |
+| ---- | ------------------------------------------------ | ----------------------------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------- |
+| 1    | Clicks "Add Payment Method" button               | Opens Add Payment Method Modal                                          | Billing Settings         | Modal overlays Billing Settings                                        |
+| 2    | Selects "Credit or Debit Card" option            | Highlights card option; activates "Continue" button                     | Add Payment Method Modal | Default selection; ACH is the alternate path                           |
+| 3    | Clicks "Continue"                                | Renders Card Entry Form with tokenized input fields                     | Card Entry Form          | Payment processor iframe loaded; no card data touches app server (PCI) |
+| 4    | Enters card number, expiry, CVV, and billing ZIP | Inline format validation as user types; no submission yet               | Card Entry Form          | Luhn algorithm validates card number format client-side                |
+| 5    | Clicks "Add Card"                                | Submits tokenized card data to payment processor; shows loading spinner | Card Entry Form          | Latency: 1--3 seconds; timeout threshold: 10 seconds                   |
+| 6    | (System step -- no user action)                  | Payment processor returns card token and card fingerprint               | Card Entry Form          | Token stored; raw card data discarded                                  |
+| 7    | (System step -- no user action)                  | App server creates payment method record; sets as default if first card | Payment Method Success   | `payment_method_added` event fires; **SUCCESS EXIT**                   |
+| 8    | Views success state                              | Billing Settings reloads with new card in payment methods list          | Billing Settings         | Success toast: "Visa ending in 4242 added successfully."               |
 
 ---
 
 ### Decision Nodes
-| After Step | Condition                                              | Evaluator | Branch A (happy)                        | Branch B                                        | Branch C                                    |
-|------------|--------------------------------------------------------|-----------|-----------------------------------------|-------------------------------------------------|---------------------------------------------|
-| 2          | Which payment method type does user select?            | User      | Credit/Debit Card -- continue to step 3 | ACH Bank Account -- go to ACH Path, step 2a     |                                             |
-| 4          | Are all required card fields populated and format-valid? | System  | Continue to step 5                      | Inline validation errors shown -- stay at step 4 |                                            |
-| 5--6       | Does payment processor return a valid card token?      | System    | Continue to step 7 (token received)     | Card tokenization error -- go to path "Card Tokenization Failure" | Timeout (10s) -- go to path "Processor Timeout" |
-| 6          | Does card pass basic verification (Luhn + BIN check)?  | System    | Continue to step 7                      | Card rejected at tokenization -- go to path "Card Rejected at Entry" |                             |
+
+| After Step | Condition                                                | Evaluator | Branch A (happy)                        | Branch B                                                             | Branch C                                        |
+| ---------- | -------------------------------------------------------- | --------- | --------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------- |
+| 2          | Which payment method type does user select?              | User      | Credit/Debit Card -- continue to step 3 | ACH Bank Account -- go to ACH Path, step 2a                          |                                                 |
+| 4          | Are all required card fields populated and format-valid? | System    | Continue to step 5                      | Inline validation errors shown -- stay at step 4                     |                                                 |
+| 5--6       | Does payment processor return a valid card token?        | System    | Continue to step 7 (token received)     | Card tokenization error -- go to path "Card Tokenization Failure"    | Timeout (10s) -- go to path "Processor Timeout" |
+| 6          | Does card pass basic verification (Luhn + BIN check)?    | System    | Continue to step 7                      | Card rejected at tokenization -- go to path "Card Rejected at Entry" |                                                 |
 
 ---
 
 ### Alternate Paths
 
 #### ACH Bank Account Path
-*Diverges from happy path at step 2. ACH verification requires micro-deposit confirmation in a second session (1--2 business days later). This path has two phases: initial submission and deposit verification.*
+
+_Diverges from happy path at step 2. ACH verification requires micro-deposit confirmation in a second session (1--2 business days later). This path has two phases: initial submission and deposit verification._
 
 **Phase 1 -- Bank Account Submission:**
 
-| Step  | User Action                                   | System Response                                                  | Screen                   | Notes                                             |
-|-------|-----------------------------------------------|------------------------------------------------------------------|--------------------------|---------------------------------------------------|
-| 2a    | Selects "Bank Account (ACH)" option           | Highlights ACH option; activates "Continue"                      | Add Payment Method Modal |                                                   |
-| 3a    | Clicks "Continue"                             | Renders ACH Bank Entry Form                                      | ACH Bank Entry Form      |                                                   |
-| 4a    | Enters routing number and account number      | Validates routing number format (9 digits, ABA checksum)         | ACH Bank Entry Form      | ABA checksum validates routing number format      |
-| 5a    | Clicks "Add Bank Account"                     | Submits to ACH processor; initiates micro-deposit request        | ACH Bank Entry Form      | Latency: 2--4 seconds; micro-deposits sent in 1--2 business days |
-| 6a    | (System step)                                 | App creates unverified payment method record; sends confirmation email | ACH Verification Pending | Email: "Bank account added -- verify deposits to activate" |
-| 7a    | Views pending confirmation screen             | Displays pending status with instructions                        | ACH Verification Pending | **PHASE 1 SUCCESS -- flow pauses for async verification** |
+| Step | User Action                              | System Response                                                        | Screen                   | Notes                                                            |
+| ---- | ---------------------------------------- | ---------------------------------------------------------------------- | ------------------------ | ---------------------------------------------------------------- |
+| 2a   | Selects "Bank Account (ACH)" option      | Highlights ACH option; activates "Continue"                            | Add Payment Method Modal |                                                                  |
+| 3a   | Clicks "Continue"                        | Renders ACH Bank Entry Form                                            | ACH Bank Entry Form      |                                                                  |
+| 4a   | Enters routing number and account number | Validates routing number format (9 digits, ABA checksum)               | ACH Bank Entry Form      | ABA checksum validates routing number format                     |
+| 5a   | Clicks "Add Bank Account"                | Submits to ACH processor; initiates micro-deposit request              | ACH Bank Entry Form      | Latency: 2--4 seconds; micro-deposits sent in 1--2 business days |
+| 6a   | (System step)                            | App creates unverified payment method record; sends confirmation email | ACH Verification Pending | Email: "Bank account added -- verify deposits to activate"       |
+| 7a   | Views pending confirmation screen        | Displays pending status with instructions                              | ACH Verification Pending | **PHASE 1 SUCCESS -- flow pauses for async verification**        |
 
 **Phase 2 -- Micro-Deposit Verification (separate session, 1--2 business days later):**
 
-| Step  | User Action                                       | System Response                                             | Screen                | Notes                                        |
-|-------|---------------------------------------------------|-------------------------------------------------------------|-----------------------|----------------------------------------------|
-| 8a    | Returns to Billing Settings; clicks "Verify" on pending bank account | Renders ACH Verify Deposits form | ACH Verify Deposits   | Entry point: Billing Settings or email link  |
-| 9a    | Enters two micro-deposit amounts (in cents)       | Validates amounts against stored expected values            | ACH Verify Deposits   | Max 3 attempts before account verification locked |
-| 10a   | Clicks "Verify"                                   | Amounts match -- updates payment method status to verified  | Billing Settings      | `payment_method_verified` fires; **SUCCESS EXIT** |
+| Step | User Action                                                          | System Response                                            | Screen              | Notes                                             |
+| ---- | -------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------- | ------------------------------------------------- |
+| 8a   | Returns to Billing Settings; clicks "Verify" on pending bank account | Renders ACH Verify Deposits form                           | ACH Verify Deposits | Entry point: Billing Settings or email link       |
+| 9a   | Enters two micro-deposit amounts (in cents)                          | Validates amounts against stored expected values           | ACH Verify Deposits | Max 3 attempts before account verification locked |
+| 10a  | Clicks "Verify"                                                      | Amounts match -- updates payment method status to verified | Billing Settings    | `payment_method_verified` fires; **SUCCESS EXIT** |
 
 ---
 
 #### Card Field Validation Errors (Recoverable)
-*Triggered at step 4. User remains on Card Entry Form until all fields are valid.*
 
-| Step  | Trigger Condition                                | Error State Shown to User                                                 | Screen          | Recovery Action                |
-|-------|--------------------------------------------------|---------------------------------------------------------------------------|-----------------|--------------------------------|
-| 4e    | Card number fails Luhn algorithm                 | "Please enter a valid card number."                                       | Card Entry Form | User corrects field; retry     |
-| 4e    | Expiry date is in the past                       | "This card has expired. Please use a different card."                     | Card Entry Form | User corrects field; retry     |
-| 4e    | CVV is wrong digit count for card type           | "Please enter a valid security code."                                     | Card Entry Form | User corrects field; retry     |
-| 4e    | Billing ZIP is not 5 digits (US) or valid postal format | "Please enter a valid billing ZIP code."                         | Card Entry Form | User corrects field; retry     |
+_Triggered at step 4. User remains on Card Entry Form until all fields are valid._
+
+| Step | Trigger Condition                                       | Error State Shown to User                             | Screen          | Recovery Action            |
+| ---- | ------------------------------------------------------- | ----------------------------------------------------- | --------------- | -------------------------- |
+| 4e   | Card number fails Luhn algorithm                        | "Please enter a valid card number."                   | Card Entry Form | User corrects field; retry |
+| 4e   | Expiry date is in the past                              | "This card has expired. Please use a different card." | Card Entry Form | User corrects field; retry |
+| 4e   | CVV is wrong digit count for card type                  | "Please enter a valid security code."                 | Card Entry Form | User corrects field; retry |
+| 4e   | Billing ZIP is not 5 digits (US) or valid postal format | "Please enter a valid billing ZIP code."              | Card Entry Form | User corrects field; retry |
 
 ---
 
 #### Card Rejected at Tokenization (Recoverable)
-*Triggered at step 6 when the payment processor rejects the card during token generation. Max 3 attempts per session.*
 
-| Step  | Trigger Condition                                      | Error State Shown to User                                                                       | Screen                | Recovery Action                    |
-|-------|--------------------------------------------------------|-------------------------------------------------------------------------------------------------|-----------------------|------------------------------------|
-| 6e    | Processor returns: card number invalid (BIN not found) | "We couldn't verify this card. Please check your card details and try again."                  | Card Entry Form       | Return to step 4; max 3 attempts   |
-| 6e    | Processor returns: card type not accepted              | "We don't accept this card type. Please use Visa, Mastercard, or American Express."             | Card Entry Form       | Return to step 4; switch card      |
-| 6e    | 3 consecutive tokenization rejections                  | "We're having trouble adding your card. Please contact support or try a different payment method." | Payment Method Error | **ERROR EXIT** -- link to support  |
+_Triggered at step 6 when the payment processor rejects the card during token generation. Max 3 attempts per session._
+
+| Step | Trigger Condition                                      | Error State Shown to User                                                                          | Screen               | Recovery Action                   |
+| ---- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------- |
+| 6e   | Processor returns: card number invalid (BIN not found) | "We couldn't verify this card. Please check your card details and try again."                      | Card Entry Form      | Return to step 4; max 3 attempts  |
+| 6e   | Processor returns: card type not accepted              | "We don't accept this card type. Please use Visa, Mastercard, or American Express."                | Card Entry Form      | Return to step 4; switch card     |
+| 6e   | 3 consecutive tokenization rejections                  | "We're having trouble adding your card. Please contact support or try a different payment method." | Payment Method Error | **ERROR EXIT** -- link to support |
 
 ---
 
 #### Processor Timeout (Unrecoverable in session -- retry available)
-*Triggered at step 5 when the payment processor does not respond within 10 seconds.*
 
-| Step  | Trigger Condition                              | Error State Shown to User                                                                              | Screen                | Off-Ramp               |
-|-------|------------------------------------------------|--------------------------------------------------------------------------------------------------------|-----------------------|------------------------|
-| 5e    | No response from processor after 10 seconds   | "Something went wrong connecting to our payment service. Please wait a moment and try again."         | Payment Method Error  | "Try again" button returns to step 3 |
-| 5e    | Timeout on retry attempt                       | "We're still having trouble. This may be a temporary issue. Please try again in a few minutes."       | Payment Method Error  | "Done" returns to Billing Settings   |
+_Triggered at step 5 when the payment processor does not respond within 10 seconds._
+
+| Step | Trigger Condition                           | Error State Shown to User                                                                       | Screen               | Off-Ramp                             |
+| ---- | ------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------ |
+| 5e   | No response from processor after 10 seconds | "Something went wrong connecting to our payment service. Please wait a moment and try again."   | Payment Method Error | "Try again" button returns to step 3 |
+| 5e   | Timeout on retry attempt                    | "We're still having trouble. This may be a temporary issue. Please try again in a few minutes." | Payment Method Error | "Done" returns to Billing Settings   |
 
 ---
 
 #### ACH Micro-Deposit Amount Mismatch (Recoverable -- max 3 attempts)
-*Triggered at step 9a when the entered amounts do not match the stored micro-deposit values.*
 
-| Step  | Trigger Condition                                  | Error State Shown to User                                                                          | Screen               | Recovery Action                        |
-|-------|----------------------------------------------------|----------------------------------------------------------------------------------------------------|-----------------------|----------------------------------------|
-| 9ae   | One or both amounts do not match                   | "Those amounts don't match our records. Please double-check and try again. You have [X] attempts remaining." | ACH Verify Deposits | Return to step 9a; max 3 total attempts |
-| 9ae   | 3 failed verification attempts                     | "This bank account could not be verified and has been removed. Please add it again or use a different payment method." | Billing Settings | **ERROR EXIT** -- bank account record deleted; `ach_verification_failed` event fires |
+_Triggered at step 9a when the entered amounts do not match the stored micro-deposit values._
+
+| Step | Trigger Condition                | Error State Shown to User                                                                                              | Screen              | Recovery Action                                                                      |
+| ---- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------ |
+| 9ae  | One or both amounts do not match | "Those amounts don't match our records. Please double-check and try again. You have [X] attempts remaining."           | ACH Verify Deposits | Return to step 9a; max 3 total attempts                                              |
+| 9ae  | 3 failed verification attempts   | "This bank account could not be verified and has been removed. Please add it again or use a different payment method." | Billing Settings    | **ERROR EXIT** -- bank account record deleted; `ach_verification_failed` event fires |
 
 ---
 
 ### External Dependencies
-| Step  | Dependency                          | Expected Latency       | Timeout Threshold | Timeout Behavior                                    | Ambiguous-Response Behavior                                                     |
-|-------|-------------------------------------|------------------------|-------------------|-----------------------------------------------------|---------------------------------------------------------------------------------|
-| 5--6  | Payment processor (card tokenization) | 1--3 seconds         | 10 seconds        | Show processor timeout error; offer retry to step 3 | Log ambiguous response; do not create payment method record; show generic retry error |
-| 5a--6a | ACH processor (micro-deposit initiation) | 2--4 seconds      | 15 seconds        | Show timeout error; do not create unverified record; offer retry | Log event; check ACH processor dashboard; do not create duplicate record         |
+
+| Step   | Dependency                               | Expected Latency | Timeout Threshold | Timeout Behavior                                                 | Ambiguous-Response Behavior                                                           |
+| ------ | ---------------------------------------- | ---------------- | ----------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 5--6   | Payment processor (card tokenization)    | 1--3 seconds     | 10 seconds        | Show processor timeout error; offer retry to step 3              | Log ambiguous response; do not create payment method record; show generic retry error |
+| 5a--6a | ACH processor (micro-deposit initiation) | 2--4 seconds     | 15 seconds        | Show timeout error; do not create unverified record; offer retry | Log event; check ACH processor dashboard; do not create duplicate record              |
 
 ---
 
 ### Exit Points
-| Type     | After Step | Condition                                           | User Sees                                                         | State Preserved?                     | Next Destination               |
-|----------|------------|-----------------------------------------------------|-------------------------------------------------------------------|--------------------------------------|--------------------------------|
-| Success  | 7--8       | Card token received; payment method record created  | Billing Settings with "Visa ending in 4242 added" success toast   | N/A                                  | Billing Settings               |
-| Success  | 10a        | ACH micro-deposits verified; method status updated  | Billing Settings with "Bank account verified and active" toast    | N/A                                  | Billing Settings               |
-| Pending  | 7a         | ACH submitted; awaiting micro-deposit completion    | ACH Verification Pending screen; confirmation email sent          | Unverified record held for 7 days    | Returns via Billing Settings   |
-| Error    | 6e (3rd)   | 3 consecutive card tokenization failures            | Payment Method Error screen with support link                     | No                                   | Support page or Billing Settings |
-| Error    | 5e (retry) | Processor timeout on retry                          | Payment Method Error with "try later" message                     | No                                   | Billing Settings               |
-| Error    | 9ae (3rd)  | 3 failed ACH verification attempts                  | Billing Settings with error message; unverified record deleted     | No                                   | Billing Settings               |
-| Abandon  | Any        | User closes modal or navigates away                 | Nothing (modal closes or navigation proceeds)                     | No partial state saved               | Previous page or Billing Settings |
+
+| Type    | After Step | Condition                                          | User Sees                                                       | State Preserved?                  | Next Destination                  |
+| ------- | ---------- | -------------------------------------------------- | --------------------------------------------------------------- | --------------------------------- | --------------------------------- |
+| Success | 7--8       | Card token received; payment method record created | Billing Settings with "Visa ending in 4242 added" success toast | N/A                               | Billing Settings                  |
+| Success | 10a        | ACH micro-deposits verified; method status updated | Billing Settings with "Bank account verified and active" toast  | N/A                               | Billing Settings                  |
+| Pending | 7a         | ACH submitted; awaiting micro-deposit completion   | ACH Verification Pending screen; confirmation email sent        | Unverified record held for 7 days | Returns via Billing Settings      |
+| Error   | 6e (3rd)   | 3 consecutive card tokenization failures           | Payment Method Error screen with support link                   | No                                | Support page or Billing Settings  |
+| Error   | 5e (retry) | Processor timeout on retry                         | Payment Method Error with "try later" message                   | No                                | Billing Settings                  |
+| Error   | 9ae (3rd)  | 3 failed ACH verification attempts                 | Billing Settings with error message; unverified record deleted  | No                                | Billing Settings                  |
+| Abandon | Any        | User closes modal or navigates away                | Nothing (modal closes or navigation proceeds)                   | No partial state saved            | Previous page or Billing Settings |
 
 ---
 
 ### Analytics Events
-| Step  | Event Name                         | Trigger              | Key Properties                                                         | Purpose                                               |
-|-------|------------------------------------|----------------------|------------------------------------------------------------------------|-------------------------------------------------------|
-| 1     | `payment_method_flow_started`      | Modal opens          | user_id, account_id, entry_point (settings / upgrade_prompt)          | Track flow initiation rate by entry point             |
-| 2     | `payment_method_type_selected`     | User selects type    | user_id, method_type (card / ach)                                     | Track card vs. ACH preference                         |
-| 5     | `card_submission_attempted`        | "Add Card" clicked   | user_id, card_brand (if detectable from BIN)                          | Track submission attempt rate                         |
-| 7     | `payment_method_added`             | Record created       | user_id, method_type, card_brand, is_first_method (bool)              | Primary success metric for this flow                  |
-| 5a    | `ach_submission_attempted`         | "Add Bank" clicked   | user_id                                                               | Track ACH initiation rate                             |
-| 6a    | `ach_pending_created`              | Unverified record created | user_id                                                          | Track ACH funnel entry                                |
-| 10a   | `payment_method_verified`          | ACH verification completes | user_id, days_to_verify                                        | Track ACH full-funnel completion and time-to-verify   |
-| 6e    | `card_tokenization_failed`         | Processor rejection  | user_id, error_code, attempt_number                                   | Track card rejection rate by error code               |
-| 9ae   | `ach_verification_failed`          | 3rd failed attempt   | user_id                                                               | Track ACH drop-off at verification step               |
-| 5e    | `payment_processor_timeout`        | 10s timeout fires    | user_id, method_type, attempt_number                                  | Monitor processor reliability and timeout frequency   |
+
+| Step | Event Name                     | Trigger                    | Key Properties                                               | Purpose                                             |
+| ---- | ------------------------------ | -------------------------- | ------------------------------------------------------------ | --------------------------------------------------- |
+| 1    | `payment_method_flow_started`  | Modal opens                | user_id, account_id, entry_point (settings / upgrade_prompt) | Track flow initiation rate by entry point           |
+| 2    | `payment_method_type_selected` | User selects type          | user_id, method_type (card / ach)                            | Track card vs. ACH preference                       |
+| 5    | `card_submission_attempted`    | "Add Card" clicked         | user_id, card_brand (if detectable from BIN)                 | Track submission attempt rate                       |
+| 7    | `payment_method_added`         | Record created             | user_id, method_type, card_brand, is_first_method (bool)     | Primary success metric for this flow                |
+| 5a   | `ach_submission_attempted`     | "Add Bank" clicked         | user_id                                                      | Track ACH initiation rate                           |
+| 6a   | `ach_pending_created`          | Unverified record created  | user_id                                                      | Track ACH funnel entry                              |
+| 10a  | `payment_method_verified`      | ACH verification completes | user_id, days_to_verify                                      | Track ACH full-funnel completion and time-to-verify |
+| 6e   | `card_tokenization_failed`     | Processor rejection        | user_id, error_code, attempt_number                          | Track card rejection rate by error code             |
+| 9ae  | `ach_verification_failed`      | 3rd failed attempt         | user_id                                                      | Track ACH drop-off at verification step             |
+| 5e   | `payment_processor_timeout`    | 10s timeout fires          | user_id, method_type, attempt_number                         | Monitor processor reliability and timeout frequency |
 
 ---
 
 ### Open Questions
-| # | Question                                                                                                    | Owner   | Blocks                          |
-|---|-------------------------------------------------------------------------------------------------------------|---------|---------------------------------|
-| 1 | Should the app attempt instant ACH verification via bank OAuth (e.g., Plaid Link) before falling back to micro-deposits? Instant verification eliminates the 1--2 day delay for supported banks. | Product | ACH Path design                 |
-| 2 | What is the business rule when a user has 3 failed tokenization attempts? Lock the user from adding cards for 24 hours, or just surface a support contact? | Product | Card error exit handling        |
-| 3 | For users entering from the upgrade flow, should a successful card add automatically complete the upgrade, or should the user confirm separately? This affects whether there is a redirect exit back to the upgrade flow. | Product | Exit points, redirect exit spec |
-| 4 | Is billing ZIP required for all geographies or only US cards? International users may not have a ZIP equivalent. | Engineering | Step 4 validation rules       |
+
+| #   | Question                                                                                                                                                                                                                  | Owner       | Blocks                          |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------- |
+| 1   | Should the app attempt instant ACH verification via bank OAuth (e.g., Plaid Link) before falling back to micro-deposits? Instant verification eliminates the 1--2 day delay for supported banks.                          | Product     | ACH Path design                 |
+| 2   | What is the business rule when a user has 3 failed tokenization attempts? Lock the user from adding cards for 24 hours, or just surface a support contact?                                                                | Product     | Card error exit handling        |
+| 3   | For users entering from the upgrade flow, should a successful card add automatically complete the upgrade, or should the user confirm separately? This affects whether there is a redirect exit back to the upgrade flow. | Product     | Exit points, redirect exit spec |
+| 4   | Is billing ZIP required for all geographies or only US cards? International users may not have a ZIP equivalent.                                                                                                          | Engineering | Step 4 validation rules         |

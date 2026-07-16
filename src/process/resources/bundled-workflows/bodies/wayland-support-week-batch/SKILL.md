@@ -12,14 +12,15 @@ description: >-
   question that one atomic skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "support-report support-sla-review support-faq"
+skills: 'support-report support-sla-review support-faq'
 metadata:
   author: wayland
   version: 1.0.0
   tags: support weekly metrics sla pattern-detection batch deterministic
   category: support
-  depends: "support-report support-sla-review support-faq"
+  depends: 'support-report support-sla-review support-faq'
 ---
+
 # Weekly Support Batch
 
 **Estimated time:** about 60 seconds

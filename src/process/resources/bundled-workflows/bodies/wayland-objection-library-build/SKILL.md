@@ -12,14 +12,15 @@ description: >-
   or building a cold outreach sequence (use wayland-outreach-build).
 license: Apache-2.0
 type: workflow
-skills: "sales-coach sales-objections convert-three-locks"
+skills: 'sales-coach sales-objections convert-three-locks'
 metadata:
   author: wayland
   version: 1.0.0
   tags: sales objections three-locks templates buyer-types step-by-step
   category: sales
-  depends: "sales-coach sales-objections convert-three-locks"
+  depends: 'sales-coach sales-objections convert-three-locks'
 ---
+
 # Objection Library Build
 
 **Estimated time:** 30-45 minutes

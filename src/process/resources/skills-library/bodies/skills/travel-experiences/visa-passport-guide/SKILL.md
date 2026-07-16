@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary checklist"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel itinerary checklist'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Visa and Passport Guide
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User needs guidance on passport application or renewal process
 - User wants to understand visa requirements for a specific destination
 - User needs help organizing travel documents for international travel
 - User wants to know processing times and expedited options for passports
 
 **Do NOT use this skill when:**
+
 - User needs immigration legal advice -- refer to immigration attorney
 - User wants to apply for residency or citizenship -- beyond travel document scope
 - User needs real-time visa policy updates -- check official embassy websites
@@ -63,6 +65,7 @@ This skill helps travelers navigate the complex world of travel documentation --
 ## Step 1: Passport Application and Renewal
 
 ### Passport Timeline (US Citizens)
+
 ```
 US PASSPORT TIMELINE:
 
@@ -98,6 +101,7 @@ APPLICATION CHECKLIST:
 ```
 
 ### Key Passport Rules
+
 ```
 PASSPORT VALIDITY RULES:
 
@@ -137,6 +141,7 @@ PASSPORT PHOTO REQUIREMENTS (US):
 ## Step 2: Visa Requirements
 
 ### Visa Requirement Lookup Process
+
 ```
 VISA RESEARCH WORKFLOW:
 
@@ -170,6 +175,7 @@ Step 5: Check additional entry requirements:
 ```
 
 ### Visa Types Explained
+
 ```
 VISA TYPE GUIDE:
 
@@ -207,6 +213,7 @@ TRANSIT VISA:
 ```
 
 ### Visa Application Tips
+
 ```
 VISA APPLICATION CHECKLIST:
 
@@ -252,6 +259,7 @@ APPLICATION TIPS:
 ## Step 3: Travel Insurance Selection
 
 ### Travel Insurance Decision Framework
+
 ```
 TRAVEL INSURANCE GUIDE:
 
@@ -318,6 +326,7 @@ BOOKING TIMING:
 ## Step 4: Vaccination Requirements
 
 ### Vaccination Research Process
+
 ```
 VACCINATION CHECKLIST:
 
@@ -369,6 +378,7 @@ Vaccine              | Date Given   | Booster Due  | Required By
 ## Step 5: Entry Restriction Awareness
 
 ### Common Entry Requirements Beyond Visa
+
 ```
 ENTRY REQUIREMENT CHECKLIST:
 
@@ -400,6 +410,7 @@ SPECIAL SITUATIONS:
 ## Step 6: Document Copies Strategy
 
 ### The 3-2-1 Document Strategy
+
 ```
 DOCUMENT BACKUP SYSTEM:
 
@@ -437,6 +448,7 @@ HOME COPIES:
 ## Step 7: Embassy and Consulate Information
 
 ### Embassy Contact Template
+
 ```
 EMBASSY/CONSULATE INFORMATION:
 
@@ -478,6 +490,7 @@ Australia: smartraveller.gov.au
 ---
 
 ## Pre-Departure Documentation Checklist
+
 ```
 FINAL DOCUMENTATION CHECK:
 
@@ -509,6 +522,7 @@ FINAL DOCUMENTATION CHECK:
 ---
 
 ## Quick Reference: Documentation by Destination Type
+
 ```
 DOCUMENTATION NEEDS BY COMPLEXITY:
 
@@ -531,8 +545,7 @@ Each country's requirements checked individually + transit visa requirements
 
 ---
 
-*This skill provides general travel documentation guidance. Requirements change frequently. Always verify current requirements through official government sources before booking travel. Apply for visas and renew passports well in advance of your travel dates.*
-
+_This skill provides general travel documentation guidance. Requirements change frequently. Always verify current requirements through official government sources before booking travel. Apply for visas and renew passports well in advance of your travel dates._
 
 ## Output Format
 
@@ -562,37 +575,42 @@ Section 3: Resources
 ## Travel Document Plan: US Citizen to Thailand
 
 ### Passport Status: RENEWAL REQUIRED
+
 Your passport expires in 5 months. Thailand requires at least 6 months validity beyond your entry date. You MUST renew before traveling.
 
 ### Passport Renewal Checklist
-| Step | Action | Timeline |
-|------|--------|----------|
-| 1 | Download Form DS-82 (renewal by mail) | Now |
-| 2 | Get new passport photo (2x2 inches, white background) | This week |
-| 3 | Mail: completed DS-82 + current passport + photo + $130 fee | ASAP |
-| 4 | Standard processing: 6-8 weeks | Plan accordingly |
-| 5 | Expedited processing: 2-3 weeks (+$60) | If travel is within 3 months |
+
+| Step | Action                                                      | Timeline                     |
+| ---- | ----------------------------------------------------------- | ---------------------------- |
+| 1    | Download Form DS-82 (renewal by mail)                       | Now                          |
+| 2    | Get new passport photo (2x2 inches, white background)       | This week                    |
+| 3    | Mail: completed DS-82 + current passport + photo + $130 fee | ASAP                         |
+| 4    | Standard processing: 6-8 weeks                              | Plan accordingly             |
+| 5    | Expedited processing: 2-3 weeks (+$60)                      | If travel is within 3 months |
 
 ### Thailand Visa Requirements (US Citizens)
-| Stay Duration | Visa Needed? | Details |
-|---------------|-------------|---------|
-| Up to 30 days | No visa (visa exemption) | Stamped on arrival |
-| Up to 60 days | Tourist visa (TR) | Apply at Thai embassy/consulate before travel |
-| Your trip (3 weeks) | **No visa needed** | Falls under 30-day exemption |
+
+| Stay Duration       | Visa Needed?             | Details                                       |
+| ------------------- | ------------------------ | --------------------------------------------- |
+| Up to 30 days       | No visa (visa exemption) | Stamped on arrival                            |
+| Up to 60 days       | Tourist visa (TR)        | Apply at Thai embassy/consulate before travel |
+| Your trip (3 weeks) | **No visa needed**       | Falls under 30-day exemption                  |
 
 ### Required at Thai Immigration
+
 - Passport with 6+ months validity
 - Return flight ticket (proof of departure within 30 days)
 - Proof of accommodation (hotel bookings)
 - Proof of funds (20,000 THB cash or equivalent, ~$570 -- rarely checked but required)
 
 ### Timeline
-| When | Action |
-|------|--------|
-| Now | Submit passport renewal (expedited if traveling within 3 months) |
-| 2 months before | Book flights and accommodation |
-| 1 month before | Verify passport received, make copies of all documents |
-| 1 week before | Download offline copies of all bookings, notify bank of travel |
+
+| When            | Action                                                           |
+| --------------- | ---------------------------------------------------------------- |
+| Now             | Submit passport renewal (expedited if traveling within 3 months) |
+| 2 months before | Book flights and accommodation                                   |
+| 1 month before  | Verify passport received, make copies of all documents           |
+| 1 week before   | Download offline copies of all bookings, notify bank of travel   |
 
 ## Edge Cases
 

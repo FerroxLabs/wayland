@@ -220,9 +220,7 @@ export class VerificationGate {
         failCount,
         checkedAt: now,
         ...(needsHuman ? { needsHuman: true } : {}),
-        note: needsHuman
-          ? 'cross-audit FAIL twice - needs human review'
-          : 'cross-audit FAIL - returned to in_progress',
+        note: needsHuman ? 'cross-audit FAIL twice - needs human review' : 'cross-audit FAIL - returned to in_progress',
       },
     };
   }
@@ -239,6 +237,10 @@ export class VerificationGate {
    * into a clean completion, nor defeat the needs_human escalation.
    */
   private failSoft(now: number, task: TeamTask, note: string): GateDecision {
-    return this.complete(now, { outcome: 'advisory', failCount: priorFailCount(task), note: `verification skipped: ${note}` });
+    return this.complete(now, {
+      outcome: 'advisory',
+      failCount: priorFailCount(task),
+      note: `verification skipped: ${note}`,
+    });
   }
 }

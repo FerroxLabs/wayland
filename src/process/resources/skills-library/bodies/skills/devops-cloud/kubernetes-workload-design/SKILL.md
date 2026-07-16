@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud architecture"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud architecture'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Kubernetes Workload Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is selecting the correct Kubernetes workload type (Deployment, StatefulSet, DaemonSet, Job, CronJob) for a new or existing application component
 - A user needs production-ready YAML for a service and is unsure how to configure resource requests/limits, liveness/readiness probes, pod disruption budgets, or affinity rules
 - A user is experiencing pod evictions, OOMKills, or scheduling failures and needs to redesign their workload spec to fix root causes
@@ -29,6 +31,7 @@ metadata:
 - A user needs to design horizontally scalable workloads with HorizontalPodAutoscaler (HPA) or vertically scalable workloads with VerticalPodAutoscaler (VPA), including custom metrics integration
 
 **Do NOT use this skill when:**
+
 - The user needs cluster infrastructure design (node pools, control plane HA, etcd tuning) -- that falls under cluster architecture skills
 - The user needs Kubernetes networking design (CNI selection, NetworkPolicy authoring, Service Mesh configuration) -- use the kubernetes-networking skill
 - The user needs CI/CD pipeline design for delivering to Kubernetes -- use the kubernetes-delivery or gitops skill
@@ -82,7 +85,7 @@ Probes are the mechanism Kubernetes uses to route traffic and restart failed con
 A pod disruption budget (PDB) is the primary mechanism to guarantee availability during voluntary disruptions (node drains, cluster upgrades). Without PDBs, a rolling node drain can take all pods of a Deployment offline simultaneously.
 
 - For any production Deployment with 2+ replicas, create a PDB with `minAvailable: 1` at minimum. For critical services, use `maxUnavailable: 0` (zero disruption) or `minAvailable: "80%"`.
-- PDBs only protect against *voluntary* disruptions (evictions via `kubectl drain`, Cluster Autoscaler scale-down). They do not protect against node hardware failures.
+- PDBs only protect against _voluntary_ disruptions (evictions via `kubectl drain`, Cluster Autoscaler scale-down). They do not protect against node hardware failures.
 - Set `spec.strategy.rollingUpdate.maxUnavailable: 0` and `maxSurge: 1` on Deployments for zero-downtime rolling updates. This means during an update, Kubernetes creates a new pod before terminating an old one -- requiring enough capacity headroom.
 - Set `terminationGracePeriodSeconds` to match your application's shutdown time. Default is 30 seconds. For services that process long-running requests (streaming, batch), set this to 60-120 seconds and implement graceful shutdown (catch SIGTERM, stop accepting new connections, drain in-flight work, exit).
 - For StatefulSets, `spec.podManagementPolicy: Parallel` enables faster scaling at the cost of ordered startup -- only use for stateless-like stateful sets (e.g., read replicas). Use the default `OrderedReady` for clustered databases.
@@ -296,15 +299,15 @@ spec:
 
 ### Decision Matrix
 
-| Factor | Deployment | StatefulSet | DaemonSet | Job/CronJob |
-|--------|-----------|-------------|-----------|-------------|
-| Pod identity matters | No | Yes | N/A | No |
-| Persistent per-pod storage | No | Yes | Optional | No |
-| Ordered startup required | No | Yes | No | No |
-| Runs on every node | No | No | Yes | No |
-| Runs to completion | No | No | No | Yes |
-| Supports HPA | Yes | Limited | No | No |
-| Rolling updates | Yes | Yes (ordered) | Yes | No |
+| Factor                     | Deployment | StatefulSet   | DaemonSet | Job/CronJob |
+| -------------------------- | ---------- | ------------- | --------- | ----------- |
+| Pod identity matters       | No         | Yes           | N/A       | No          |
+| Persistent per-pod storage | No         | Yes           | Optional  | No          |
+| Ordered startup required   | No         | Yes           | No        | No          |
+| Runs on every node         | No         | No            | Yes       | No          |
+| Runs to completion         | No         | No            | No        | Yes         |
+| Supports HPA               | Yes        | Limited       | No        | No          |
+| Rolling updates            | Yes        | Yes (ordered) | Yes       | No          |
 
 ### Operational Checklist
 
@@ -411,6 +414,7 @@ GPU scheduling in Kubernetes requires device plugin configuration and careful re
 **Output:**
 
 **Workload Classification Summary:**
+
 ```
 Workload Name:       recommendation-api
 API Kind:            Deployment
@@ -424,6 +428,7 @@ Storage Required:    No (model loaded from S3 at startup via init container)
 **Root Cause of the 503 Errors -- and Fix:**
 
 The 503s during rolling deployment were caused by one or both of:
+
 1. The new pod receiving traffic before the model finished loading (readiness probe was missing or checked only the port, not model-ready state)
 2. The old pod being terminated before it finished draining in-flight requests
 
@@ -441,7 +446,7 @@ metadata:
     app.kubernetes.io/name: recommendation-api
     app.kubernetes.io/component: api
     app.kubernetes.io/part-of: recommendation-platform
-    app.kubernetes.io/version: "2.4.1"
+    app.kubernetes.io/version: '2.4.1'
 spec:
   replicas: 4
   selector:
@@ -450,13 +455,13 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 0   # NEVER remove a pod until the replacement is fully ready
-      maxSurge: 1         # run 5 pods briefly during rollout -- ensure capacity headroom
+      maxUnavailable: 0 # NEVER remove a pod until the replacement is fully ready
+      maxSurge: 1 # run 5 pods briefly during rollout -- ensure capacity headroom
   template:
     metadata:
       labels:
         app.kubernetes.io/name: recommendation-api
-        app.kubernetes.io/version: "2.4.1"
+        app.kubernetes.io/version: '2.4.1'
     spec:
       serviceAccountName: recommendation-api
       # 75s grace: 60s for in-flight request drain + 15s buffer
@@ -479,13 +484,13 @@ spec:
         # Download model artifact from S3 before main container starts
         - name: model-downloader
           image: 123456789.dkr.ecr.us-east-1.amazonaws.com/model-downloader:v1.2
-          command: ["aws", "s3", "cp", "s3://ml-models/rec-model-v7.pkl", "/model/"]
+          command: ['aws', 's3', 'cp', 's3://ml-models/rec-model-v7.pkl', '/model/']
           resources:
             requests:
-              cpu: "100m"
-              memory: "256Mi"
+              cpu: '100m'
+              memory: '256Mi'
             limits:
-              memory: "512Mi"
+              memory: '512Mi'
           volumeMounts:
             - name: model-storage
               mountPath: /model
@@ -493,7 +498,7 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
-              drop: ["ALL"]
+              drop: ['ALL']
       containers:
         - name: recommendation-api
           image: 123456789.dkr.ecr.us-east-1.amazonaws.com/recommendation-api:sha-a3f8c1d
@@ -504,31 +509,31 @@ spec:
               protocol: TCP
           resources:
             requests:
-              cpu: "500m"     # Python w/ numpy: I/O bound, generous request for scheduling
-              memory: "1Gi"   # model in memory ~700Mi + Python overhead
+              cpu: '500m' # Python w/ numpy: I/O bound, generous request for scheduling
+              memory: '1Gi' # model in memory ~700Mi + Python overhead
             limits:
               # CPU limit omitted: Python GIL + numpy are bursty; throttling causes
               # p99 latency spikes that are worse than allowing occasional CPU burst
-              memory: "2Gi"   # 2x request; OOMKill before noisy neighbor eviction
+              memory: '2Gi' # 2x request; OOMKill before noisy neighbor eviction
           startupProbe:
             httpGet:
-              path: /healthz   # returns 200 immediately (pre-model-load, proves process up)
+              path: /healthz # returns 200 immediately (pre-model-load, proves process up)
               port: http
-            failureThreshold: 12  # 12 * 5s = 60s to start -- covers 45s model load + buffer
+            failureThreshold: 12 # 12 * 5s = 60s to start -- covers 45s model load + buffer
             periodSeconds: 5
           readinessProbe:
             httpGet:
-              path: /readyz    # returns 200 ONLY after model loaded AND pg/redis reachable
+              path: /readyz # returns 200 ONLY after model loaded AND pg/redis reachable
               port: http
             initialDelaySeconds: 5
             periodSeconds: 5
-            failureThreshold: 3   # 15s to detect unhealthy dependency
+            failureThreshold: 3 # 15s to detect unhealthy dependency
             successThreshold: 1
           livenessProbe:
             httpGet:
-              path: /healthz   # internal only: checks for Python deadlocks, not pg/redis
+              path: /healthz # internal only: checks for Python deadlocks, not pg/redis
               port: http
-            initialDelaySeconds: 60  # longer than startup to avoid restart during model load
+            initialDelaySeconds: 60 # longer than startup to avoid restart during model load
             periodSeconds: 15
             failureThreshold: 3
           env:
@@ -537,26 +542,26 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: WORKERS
-              value: "4"              # Uvicorn workers: match vCPU count on target node type
+              value: '4' # Uvicorn workers: match vCPU count on target node type
             - name: MODEL_PATH
-              value: "/model/rec-model-v7.pkl"
+              value: '/model/rec-model-v7.pkl'
             - name: LOG_LEVEL
-              value: "info"
+              value: 'info'
           envFrom:
             - configMapRef:
                 name: recommendation-api-config
             - secretRef:
-                name: recommendation-api-secrets  # DB_URL, REDIS_URL via External Secrets
+                name: recommendation-api-secrets # DB_URL, REDIS_URL via External Secrets
           lifecycle:
             preStop:
               exec:
                 # Signal Uvicorn to stop accepting new connections; wait for drain
-                command: ["/bin/sh", "-c", "sleep 5 && kill -SIGTERM 1"]
+                command: ['/bin/sh', '-c', 'sleep 5 && kill -SIGTERM 1']
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
-              drop: ["ALL"]
+              drop: ['ALL']
           volumeMounts:
             - name: model-storage
               mountPath: /model
@@ -565,12 +570,13 @@ spec:
               mountPath: /tmp
       volumes:
         - name: model-storage
-          emptyDir: {}          # populated by init container from S3
+          emptyDir: {} # populated by init container from S3
         - name: tmp
           emptyDir: {}
 ```
 
 **recommendation-api-pdb.yaml:**
+
 ```yaml
 apiVersion: policy/v1
 kind: PodDisruptionBudget
@@ -586,6 +592,7 @@ spec:
 ```
 
 **recommendation-api-hpa.yaml:**
+
 ```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -597,7 +604,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: recommendation-api
-  minReplicas: 3    # never below 3: PDB requires minAvailable 3
+  minReplicas: 3 # never below 3: PDB requires minAvailable 3
   maxReplicas: 12
   metrics:
     - type: Resource
@@ -605,24 +612,24 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 60   # lower target: Python is bursty; leave headroom
+          averageUtilization: 60 # lower target: Python is bursty; leave headroom
     # Custom metric: scale on request rate if CPU is not the bottleneck
     - type: Pods
       pods:
         metric:
-          name: http_requests_per_second   # from Prometheus Adapter
+          name: http_requests_per_second # from Prometheus Adapter
         target:
           type: AverageValue
-          averageValue: "150"              # 150 req/s per pod; 4 pods = 600 req/s capacity
+          averageValue: '150' # 150 req/s per pod; 4 pods = 600 req/s capacity
   behavior:
     scaleUp:
-      stabilizationWindowSeconds: 0    # scale up immediately on demand
+      stabilizationWindowSeconds: 0 # scale up immediately on demand
       policies:
         - type: Pods
           value: 3
-          periodSeconds: 60            # add max 3 pods per minute
+          periodSeconds: 60 # add max 3 pods per minute
     scaleDown:
-      stabilizationWindowSeconds: 300  # wait 5 minutes before scaling down
+      stabilizationWindowSeconds: 300 # wait 5 minutes before scaling down
       policies:
         - type: Percent
           value: 25

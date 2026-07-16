@@ -30,11 +30,7 @@ type BackupOptions = {
  * ENOENT: a missing `configPath` is a valid "nothing to back up" case. We SKIP
  * writing the backup entirely and resolve without throwing.
  */
-export async function backupRealTarget(
-  configPath: string,
-  backupPath: string,
-  opts?: BackupOptions,
-): Promise<void> {
+export async function backupRealTarget(configPath: string, backupPath: string, opts?: BackupOptions): Promise<void> {
   let realTarget: string;
   try {
     realTarget = await fs.realpath(configPath);
@@ -61,9 +57,7 @@ export async function backupRealTarget(
 
   const rel = path.relative(realRoot, realTarget);
   if (rel.startsWith('..') || path.isAbsolute(rel)) {
-    throw new Error(
-      `Refusing to back up ${configPath}: real target ${realTarget} escapes allowed root ${realRoot}`,
-    );
+    throw new Error(`Refusing to back up ${configPath}: real target ${realTarget} escapes allowed root ${realRoot}`);
   }
 
   const bytes = await fs.readFile(realTarget);
@@ -96,7 +90,7 @@ export async function withAgentLock<T>(agentId: string, fn: () => Promise<T>): P
   // rejection. The real result/rejection still propagates via `run`.
   const settled = run.then(
     () => {},
-    () => {},
+    () => {}
   );
   agentLocks.set(agentId, settled);
 

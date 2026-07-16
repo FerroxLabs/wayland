@@ -5,6 +5,7 @@ import {
   Brain,
   Cable,
   Cpu,
+  GitBranch,
   Globe,
   Image as ImageIcon,
   Info,
@@ -15,6 +16,7 @@ import {
   Pencil,
   Puzzle,
   Radio,
+  Rocket,
   ScrollText,
   Server,
   SlashSquare,
@@ -59,6 +61,8 @@ export const BUILTIN_TAB_IDS = [
   'general',
   'notifications',
   'storage',
+  'tank',
+  'devActions',
   'ijfw',
   'doctor',
   // ABOUT
@@ -262,6 +266,18 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
         label: t('memory.settings.panel_title', { defaultValue: 'IJFW Memory' }),
         icon: <Brain />,
         path: 'ijfw',
+      },
+      tank: {
+        id: 'tank',
+        label: t('settings.sider.tank', { defaultValue: 'Tank' }),
+        icon: <Rocket />,
+        path: 'tank',
+      },
+      devActions: {
+        id: 'devActions',
+        label: t('settings.sider.devActions', { defaultValue: 'Dev Actions' }),
+        icon: <GitBranch />,
+        path: 'devActions',
       },
       doctor: {
         id: 'doctor',

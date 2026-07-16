@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "version-control best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'version-control best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Git PR Workflow
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to structure pull requests, branch naming, or code review processes for a team project
 - A user wants to set up branch protection rules, required reviewers, or CI gates for a repository
 - A user is troubleshooting a messy merge history, long-lived branches, or frequent merge conflicts
@@ -30,6 +32,7 @@ metadata:
 - A user asks about stacking PRs, draft PRs, or managing dependencies between in-flight features
 
 **Do NOT use this skill when:**
+
 - The user needs help with a specific Git command's syntax -- use a Git command reference skill instead
 - The user is asking about CI/CD pipeline architecture beyond the PR gate stage -- use a CI/CD pipeline skill
 - The user wants to set up a monorepo structure or workspace tooling -- use a monorepo strategy skill
@@ -115,6 +118,7 @@ Branch protection turns conventions into enforced policy. Configure it at the re
   - Allow force pushes: disabled
   - Allow deletions: disabled
 - **CODEOWNERS file format (`.github/CODEOWNERS`):**
+
   ```
   # Default owners for everything
   *                   @org/platform-team
@@ -131,6 +135,7 @@ Branch protection turns conventions into enforced policy. Configure it at the re
   # Security-sensitive files always require security review
   /src/auth/          @org/security-team
   ```
+
 - Set CODEOWNERS so that no engineer can self-approve their own PRs into owned paths.
 - For regulated environments: require signed commits (`git config commit.gpgsign true`) and enable "Require signed commits" in branch protection.
 
@@ -165,6 +170,7 @@ When advising a user on their PR workflow, produce output in this structure:
 ## PR Workflow Recommendation for [Project/Team Name]
 
 ### Context Summary
+
 - Team size: [N engineers]
 - Deploy frequency: [continuous / weekly / per-sprint / quarterly]
 - Environments: [e.g., dev → staging → prod]
@@ -172,34 +178,39 @@ When advising a user on their PR workflow, produce output in this structure:
 - Key constraints: [e.g., regulated, monorepo, multiple live versions]
 
 ### Recommended Strategy
+
 **Branching model:** [GitHub Flow / TBD / Release Branches / GitFlow]
 **Rationale:** [2--3 sentences explaining why this model fits the context]
 
 ### Branch Naming Convention
+
 Pattern: `<type>/<ticket-id>-<short-description>`
 Example: `feat/PROJ-42-add-oauth-login`
 Protected branches: `main`, [others if applicable]
 
 ### Commit Message Standard
+
 Format: `<type>(<scope>): <subject>`
 Enforcement: commitlint + husky pre-commit hook + CI check
 Merge strategy: [squash / rebase / merge commit] with rationale
 
 ### Branch Protection Configuration
 
-| Setting | Value | Rationale |
-|---|---|---|
-| Required approvals | [N] | Team size |
-| Dismiss stale reviews | Yes | Force re-review after new commits |
-| Required status checks | [lint, test, type-check, security] | Quality gate |
-| Up-to-date before merge | Yes | Prevent integration surprises |
-| Force push disabled | Yes | Protect history |
-| CODEOWNERS required | [Yes/No] | Ownership routing |
+| Setting                 | Value                              | Rationale                         |
+| ----------------------- | ---------------------------------- | --------------------------------- |
+| Required approvals      | [N]                                | Team size                         |
+| Dismiss stale reviews   | Yes                                | Force re-review after new commits |
+| Required status checks  | [lint, test, type-check, security] | Quality gate                      |
+| Up-to-date before merge | Yes                                | Prevent integration surprises     |
+| Force push disabled     | Yes                                | Protect history                   |
+| CODEOWNERS required     | [Yes/No]                           | Ownership routing                 |
 
 ### PR Template Location
+
 `.github/pull_request_template.md`
 
 ### Automation Setup
+
 - [ ] commitlint + husky installed
 - [ ] PR title check GitHub Action configured
 - [ ] CODEOWNERS file created
@@ -208,10 +219,12 @@ Merge strategy: [squash / rebase / merge commit] with rationale
 - [ ] Branch name validation: [pre-push hook regex / CI check]
 
 ### PR Size Guideline
+
 Target: < 400 changed lines per PR (excluding lock files, generated files, migrations)
 Splitting strategy: [base PR + stacked feature PRs / separate chores from features]
 
 ### Rollout Plan
+
 1. [Week 1 action]
 2. [Week 2 action]
 3. [Week 3 action]
@@ -246,20 +259,26 @@ Splitting strategy: [base PR + stacked feature PRs / separate chores from featur
 ## Edge Cases
 
 ### Stacked PRs and Inter-Branch Dependencies
+
 When a feature is too large for one PR and must be split into dependent PRs (PR B depends on PR A), use stacking:
+
 - PR A targets `main`. PR B targets the branch of PR A, not `main`.
 - When PR A is merged, update PR B's base branch to `main` using `git rebase --onto main <old-base> <branch-b>`.
 - Use a tool like `graphite` or document the dependency chain explicitly in each PR's description: "Depends on #142. Review that first."
 - The risk: if PR A is significantly revised, PR B accumulates rebase conflicts. Keep stacks shallow -- no more than 3 PRs deep. If you need deeper stacking, break the work into independently deployable units behind a feature flag instead.
 
 ### Long-Running Feature Branches
+
 A branch that lives more than 5--7 days from `main` accumulates divergence and will produce painful merge conflicts:
+
 - Require the branch to sync with `main` at least every 2 days: `git fetch origin && git rebase origin/main`.
 - If the feature cannot ship in 7 days, it should use a feature flag so it can be merged to `main` in an incomplete state. The branch should then be closed.
 - Never resolve "sync with main" by creating a merge commit from `main` into the feature branch if squash-merge policy is in use -- the squashed commits from `main` will show up as changes in the PR diff. Use rebase-only sync.
 
 ### Hotfixes to a Release Branch While Main Has Diverged
+
 When `main` is 20+ commits ahead of `release/v2.3` and a critical bug must be fixed in both:
+
 - Fix on the release branch directly: `git checkout -b hotfix/v2.3.1-fix-payment release/v2.3`.
 - Open a PR targeting `release/v2.3`. Merge after approval.
 - Tag the release branch: `git tag v2.3.1`.
@@ -268,14 +287,18 @@ When `main` is 20+ commits ahead of `release/v2.3` and a critical bug must be fi
 - The critical mistake to avoid: merging `release/v2.3` back into `main` -- this pulls in all the commits that were intentionally not included in main yet.
 
 ### Monorepo PRs with Broad Impact
+
 In a monorepo, a single dependency upgrade or shared utility change can legitimately touch hundreds of files across dozens of packages:
+
 - Exclude auto-generated files, lock files (`package-lock.json`, `yarn.lock`, `go.sum`), and snapshot files from the 400-line PR size guideline. Only count hand-authored code changes.
 - Configure CODEOWNERS to auto-assign affected package owners even when the change was made by a platform team member. All impacted owners must approve.
 - Consider splitting the PR into: (1) the core change to the shared utility, and (2) a follow-up automated PR that propagates the change to all consumers.
 - Tag bulk-update PRs with a `bulk-update` label so reviewers know to focus on the pattern rather than reviewing every file individually.
 
 ### Regulated Environments Requiring Audit Trails
+
 In SOC 2, HIPAA, PCI-DSS, or FedRAMP environments, the PR merge record must prove four-eyes approval with identity verification:
+
 - Require signed commits with GPG or SSH signing. Configure `git config commit.gpgsign true` and set up organization-wide signing key verification.
 - Enable "Require signed commits" in branch protection. Unsigned commits are rejected at push time.
 - Enable GitHub's audit log export (GitHub Enterprise) or equivalent GitLab audit events and pipe them to your SIEM (Splunk, Datadog, etc.).
@@ -283,7 +306,9 @@ In SOC 2, HIPAA, PCI-DSS, or FedRAMP environments, the PR merge record must prov
 - Do not store secrets in the PR template or description fields. All secrets must be injected from a vault at CI runtime.
 
 ### Force-Pushed Main or History Rewrite After Merge
+
 If someone with admin rights force-pushes `main` and rewrites merged history (which should never happen but does):
+
 - Immediately freeze the repository: disable pushes to `main` until the issue is assessed.
 - Identify what commits were lost using `git reflog` on the server (GitHub exposes this via the API for 90 days).
 - Restore the lost commits by creating a recovery branch from the last known good SHA: `git checkout -b recovery/main-restore <sha>`.
@@ -291,7 +316,9 @@ If someone with admin rights force-pushes `main` and rewrites merged history (wh
 - Post-incident: enable "Do not allow bypassing above settings" in branch protection to prevent admins from force-pushing `main` in the future.
 
 ### Teams Migrating from No Workflow to an Enforced Workflow
+
 Introducing PR requirements, branch protection, and commit linting to a team that has been committing directly to `main` with no conventions requires a phased rollout to avoid rebellion:
+
 - **Week 1:** Introduce branch naming and PR conventions as guidelines only. No enforcement. Run commitlint in warn mode (exit 0 even on failure). Hold a 30-minute team session to explain the rationale.
 - **Week 2:** Enable branch protection with 1 required reviewer. Do not yet require CI to pass. Identify and fix any CI jobs that are too flaky to be required gates.
 - **Week 3:** Enable required CI status checks after flaky tests are stabilized. Switch commitlint to enforce mode (exit 1 on failure).
@@ -309,6 +336,7 @@ Introducing PR requirements, branch protection, and commit linting to a team tha
 ## PR Workflow Recommendation for 7-Person B2B SaaS Team
 
 ### Context Summary
+
 - Team size: 7 engineers
 - Deploy frequency: ~2x per week (Tuesday and Friday deploys)
 - Environments: development → staging → production
@@ -317,6 +345,7 @@ Introducing PR requirements, branch protection, and commit linting to a team tha
 - Current problem: Direct pushes to `main`, recurring production breakage
 
 ### Recommended Strategy
+
 **Branching model: GitHub Flow**
 **Rationale:** You deploy twice a week from a single production environment and do not maintain multiple live versions. GitHub Flow -- short-lived feature branches targeting `main`, with `main` always deployable -- is the exact right fit. GitFlow would add overhead you do not need. Trunk-based development would require feature flag infrastructure you likely do not have yet.
 
@@ -325,6 +354,7 @@ Introducing PR requirements, branch protection, and commit linting to a team tha
 Pattern: `<type>/PROJ-<ticket-number>-<short-description>`
 
 Examples:
+
 - `feat/PROJ-142-user-oauth-login`
 - `fix/PROJ-201-null-pointer-at-checkout`
 - `chore/PROJ-180-upgrade-nodejs-20`
@@ -333,6 +363,7 @@ Examples:
 Protected branches: `main` only. All feature branches are ephemeral and deleted on merge.
 
 CI enforcement (add to `.github/workflows/pr-checks.yml`):
+
 ```yaml
 - name: Validate branch name
   run: |
@@ -348,12 +379,14 @@ CI enforcement (add to `.github/workflows/pr-checks.yml`):
 Format: `<type>(<scope>): <subject>` (Conventional Commits)
 
 Examples:
+
 - `feat(auth): add Google OAuth login flow`
 - `fix(checkout): prevent null pointer when cart is empty`
 - `chore(deps): upgrade Node.js to 20.x`
 - `feat(api)!: remove deprecated /v1/users endpoint` (breaking change)
 
 **Enforcement setup:**
+
 ```bash
 npm install --save-dev @commitlint/cli @commitlint/config-conventional husky
 npx husky init
@@ -361,6 +394,7 @@ echo "npx commitlint --edit \$1" > .husky/commit-msg
 ```
 
 `.commitlintrc.json`:
+
 ```json
 {
   "extends": ["@commitlint/config-conventional"],
@@ -372,6 +406,7 @@ echo "npx commitlint --edit \$1" > .husky/commit-msg
 ```
 
 CI check (`.github/workflows/pr-checks.yml`):
+
 ```yaml
 - name: Lint commit messages
   uses: wagoid/commitlint-github-action@v5
@@ -383,18 +418,18 @@ CI check (`.github/workflows/pr-checks.yml`):
 
 ### Branch Protection Configuration for `main`
 
-| Setting | Value | Rationale |
-|---|---|---|
-| Require pull request before merging | Enabled | No more direct pushes |
-| Required approvals | 1 | Appropriate for 7-person team |
-| Dismiss stale reviews on new commits | Yes | Re-review required after changes |
-| Require review from Code Owners | Yes | Route to domain experts |
-| Required status checks | lint, test, type-check, build | Quality gate |
-| Require branches up to date | Yes | Prevent integration surprises |
-| Require conversation resolution | Yes | No unanswered review comments |
-| Allow force pushes | Disabled | Protect shared history |
-| Allow deletions | Disabled | Prevent accidental branch loss |
-| Bypass allowed for admins | Disabled | No exceptions in normal flow |
+| Setting                              | Value                         | Rationale                        |
+| ------------------------------------ | ----------------------------- | -------------------------------- |
+| Require pull request before merging  | Enabled                       | No more direct pushes            |
+| Required approvals                   | 1                             | Appropriate for 7-person team    |
+| Dismiss stale reviews on new commits | Yes                           | Re-review required after changes |
+| Require review from Code Owners      | Yes                           | Route to domain experts          |
+| Required status checks               | lint, test, type-check, build | Quality gate                     |
+| Require branches up to date          | Yes                           | Prevent integration surprises    |
+| Require conversation resolution      | Yes                           | No unanswered review comments    |
+| Allow force pushes                   | Disabled                      | Protect shared history           |
+| Allow deletions                      | Disabled                      | Prevent accidental branch loss   |
+| Bypass allowed for admins            | Disabled                      | No exceptions in normal flow     |
 
 ### CODEOWNERS File (`.github/CODEOWNERS`)
 
@@ -420,10 +455,13 @@ CI check (`.github/workflows/pr-checks.yml`):
 
 ```markdown
 ## Summary
+
 <!-- What changed and why? Link to the Jira ticket. -->
+
 Closes [PROJ-](https://yourorg.atlassian.net/browse/PROJ-)
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change that resolves an issue)
 - [ ] New feature (non-breaking change that adds functionality)
 - [ ] Breaking change (fix or feature that changes existing behavior)
@@ -432,15 +470,19 @@ Closes [PROJ-](https://yourorg.atlassian.net/browse/PROJ-)
 - [ ] Performance improvement
 
 ## How to Test
+
 <!-- Step-by-step instructions for the reviewer to verify this change. -->
-1. 
-2. 
-3. 
+
+1.
+2.
+3.
 
 ## Screenshots / Recordings
+
 <!-- Required for UI changes. Drag and drop images here. -->
 
 ## Checklist
+
 - [ ] I have tested this change locally
 - [ ] I have added or updated tests covering the new behavior
 - [ ] I have updated documentation if behavior changed
@@ -460,6 +502,7 @@ Closes [PROJ-](https://yourorg.atlassian.net/browse/PROJ-)
 - [ ] Slack/Teams notification on PR open (optional, reduces review lag)
 
 ### Stale Bot Configuration (`.github/stale.yml`)
+
 ```yaml
 daysUntilStale: 30
 daysUntilClose: 7
@@ -478,11 +521,13 @@ exemptLabels:
 ### PR Size Guideline
 
 Target: fewer than 400 changed lines per PR, excluding:
+
 - `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`
 - Auto-generated files (GraphQL types, protobuf stubs, migration SQL)
 - Snapshot test files (`*.snap`)
 
 If a PR exceeds 400 lines of hand-authored code, split it:
+
 1. Open a base PR with shared types, interfaces, or database schema changes
 2. Open a feature PR targeting the base branch with the implementation
 3. After base merges, rebase feature PR onto `main`
@@ -490,29 +535,34 @@ If a PR exceeds 400 lines of hand-authored code, split it:
 ### Rollout Plan (4-Week Migration)
 
 **Week 1 -- Branch + PR conventions, no enforcement**
+
 - Create the branch naming convention document
 - Add the PR template
 - Team meeting: explain rationale, answer questions
 - Start requiring PRs (no direct pushes) -- this is the highest-impact change
 
 **Week 2 -- Enable branch protection with soft CI**
+
 - Enable 1 required reviewer
 - Enable required status checks (only the tests that reliably pass -- identify flaky tests first and exclude them)
 - Run commitlint in warn-only mode
 
 **Week 3 -- Full CI enforcement**
+
 - Fix or quarantine flaky tests identified in week 2
 - Switch commitlint to enforce mode
 - Add PR title semantic check to CI
 - Enable "require branches to be up to date"
 
 **Week 4 -- Ownership and automation**
+
 - Finalize and activate CODEOWNERS file
 - Configure stale bot
 - Set up `release-please` for automated changelog and release PRs
 - First retrospective: review PR cycle time, number of CI failures caught, merge frequency
 
 **Expected outcomes after 4 weeks:**
+
 - Zero direct pushes to `main`
 - Production breakage frequency drops by 60--80% (CI catching regressions before merge)
 - PR review cycle time: under 1 business day with rotating assignments

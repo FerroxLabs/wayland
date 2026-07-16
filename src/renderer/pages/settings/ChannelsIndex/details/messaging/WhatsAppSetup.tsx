@@ -40,12 +40,12 @@ const WhatsAppSetup: React.FC = () => {
   }, []);
 
   return (
-    <ChannelDetailLayout
-      channelId='whatsapp'
-      displayName='WhatsApp'
-      pluginId={pluginStatus?.id ?? 'whatsapp_default'}
-    >
-      <WhatsAppConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+    <ChannelDetailLayout channelId='whatsapp' displayName='WhatsApp' pluginId={pluginStatus?.id ?? 'whatsapp_default'}>
+      <WhatsAppConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

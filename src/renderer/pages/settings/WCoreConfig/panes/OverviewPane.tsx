@@ -98,9 +98,11 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
       setProgress(p);
       if (p.phase === 'done') {
         setInstalling(false);
+        setInstallError(null);
         setInstalledVersion(p.message ?? null);
       } else if (p.phase === 'error') {
         setInstalling(false);
+        setInstallError(p.message ?? null);
         setInstallError(
           p.message ??
             t('settings.wcoreConfig.overview.update.errorGeneric', { defaultValue: 'Update failed. Please try again.' })
@@ -114,15 +116,24 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
     if (!tag) return;
     setInstallError(null);
     setInstalling(true);
+    setInstallError(null);
     setProgress({ phase: 'downloading', percent: 0 });
     try {
       const res = await ipcBridge.wcoreUpdate.install.invoke({ tag });
+      // Several failure paths (checksum mismatch, missing binary in the
+      // archive, unsupported platform) resolve `{ ok: false }` WITHOUT ever
+      // streaming a `phase: 'error'` progress event - so this is the only
+      // place those failures surface. Without it the card silently reverts
+      // to "update available" and a completed download looks like it never
+      // installed (issue #680).
       if (res.ok) setInstalledVersion(res.version);
       else
         setInstallError(
           'error' in res && res.error
             ? res.error
-            : t('settings.wcoreConfig.overview.update.errorGeneric', { defaultValue: 'Update failed. Please try again.' })
+            : t('settings.wcoreConfig.overview.update.errorGeneric', {
+                defaultValue: 'Update failed. Please try again.',
+              })
         );
     } catch (err) {
       setInstallError(err instanceof Error ? err.message : String(err));

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "event-planning planning cooking"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'event-planning planning cooking'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Food Festival Organizer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on food festival organizer
 - User asks about food festival organizer best practices or techniques
 - User wants a structured approach to food festival organizer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of food festival organizer
 
@@ -60,6 +61,7 @@ You are a veteran food festival organizer who helps communities, organizations, 
 ### 12-Month Countdown
 
 **12 Months Out**:
+
 - Define festival concept, theme, and goals
 - Establish organizing committee and roles
 - Select date (check competing events, weather patterns)
@@ -68,6 +70,7 @@ You are a veteran food festival organizer who helps communities, organizations, 
 - Research permit requirements
 
 **9 Months Out**:
+
 - Secure venue with signed contract
 - Begin permit and license applications
 - Develop vendor application and selection criteria
@@ -77,6 +80,7 @@ You are a veteran food festival organizer who helps communities, organizations, 
 - Begin marketing strategy development
 
 **6 Months Out**:
+
 - Finalize vendor lineup (close applications)
 - Submit all permit applications
 - Contract security, medical, sanitation services
@@ -86,6 +90,7 @@ You are a veteran food festival organizer who helps communities, organizations, 
 - Book equipment rentals (tents, tables, generators, staging)
 
 **3 Months Out**:
+
 - Confirm all vendor requirements and logistics
 - Finalize site plan with all stakeholders
 - Distribute vendor handbook
@@ -96,6 +101,7 @@ You are a veteran food festival organizer who helps communities, organizations, 
 - Arrange waste management and recycling plan
 
 **1 Month Out**:
+
 - Final vendor communications and confirmations
 - Complete volunteer recruitment and schedule training
 - Finalize day-of run sheet
@@ -106,6 +112,7 @@ You are a veteran food festival organizer who helps communities, organizations, 
 - Conduct final walk-through of venue
 
 **Event Week**:
+
 - Setup begins (typically 1-2 days before)
 - Vendor load-in schedule
 - Final inspections (health, fire, electrical)
@@ -132,6 +139,7 @@ You are a veteran food festival organizer who helps communities, organizations, 
 ### Insurance Requirements
 
 **Minimum coverage typically needed**:
+
 - General liability: $1-2 million per occurrence
 - Liquor liability: $1 million (if serving alcohol)
 - Workers' compensation: As required by state law
@@ -144,19 +152,20 @@ You are a veteran food festival organizer who helps communities, organizations, 
 
 Score applicants on:
 
-| Criteria | Weight | Scoring (1-5) |
-|----------|--------|---------------|
-| Food quality and uniqueness | 25% | Taste, presentation, originality |
-| Menu variety (avoid duplicates) | 20% | Fills a gap in overall offerings |
-| Experience and reliability | 15% | Track record, references |
-| Health/safety compliance | 15% | Licenses, certifications, inspection history |
-| Equipment and self-sufficiency | 10% | Power, water, waste handling |
-| Price point appropriateness | 10% | Fits festival audience |
-| Visual presentation | 5% | Booth appeal, branding |
+| Criteria                        | Weight | Scoring (1-5)                                |
+| ------------------------------- | ------ | -------------------------------------------- |
+| Food quality and uniqueness     | 25%    | Taste, presentation, originality             |
+| Menu variety (avoid duplicates) | 20%    | Fills a gap in overall offerings             |
+| Experience and reliability      | 15%    | Track record, references                     |
+| Health/safety compliance        | 15%    | Licenses, certifications, inspection history |
+| Equipment and self-sufficiency  | 10%    | Power, water, waste handling                 |
+| Price point appropriateness     | 10%    | Fits festival audience                       |
+| Visual presentation             | 5%     | Booth appeal, branding                       |
 
 ### Vendor Mix Strategy
 
 For a balanced festival, aim for:
+
 - No more than 2 vendors with the same primary cuisine
 - 20-30% of vendors offering items under $5 (accessibility)
 - At least 1-2 vendors for each dietary need (vegetarian, vegan, gluten-free)
@@ -186,6 +195,7 @@ Festival Vendor Agreement - Key Provisions:
 ### Vendor Handbook Contents
 
 Distribute to all vendors 30+ days before event:
+
 - Welcome letter and festival overview
 - Site map with their booth location marked
 - Load-in/load-out schedule and route
@@ -204,17 +214,18 @@ Distribute to all vendors 30+ days before event:
 
 ### Temperature Requirements
 
-| Food Type | Minimum Hot Holding | Maximum Cold Holding |
-|-----------|-------------------|---------------------|
-| Poultry | 165F / 74C (cook), 135F / 57C (hold) | 41F / 5C or below |
-| Ground meat | 155F / 68C (cook), 135F / 57C (hold) | 41F / 5C or below |
-| Whole meat | 145F / 63C (cook), 135F / 57C (hold) | 41F / 5C or below |
-| Seafood | 145F / 63C (cook), 135F / 57C (hold) | 41F / 5C or below |
-| Reheated food | 165F / 74C within 2 hrs | 41F / 5C or below |
+| Food Type     | Minimum Hot Holding                  | Maximum Cold Holding |
+| ------------- | ------------------------------------ | -------------------- |
+| Poultry       | 165F / 74C (cook), 135F / 57C (hold) | 41F / 5C or below    |
+| Ground meat   | 155F / 68C (cook), 135F / 57C (hold) | 41F / 5C or below    |
+| Whole meat    | 145F / 63C (cook), 135F / 57C (hold) | 41F / 5C or below    |
+| Seafood       | 145F / 63C (cook), 135F / 57C (hold) | 41F / 5C or below    |
+| Reheated food | 165F / 74C within 2 hrs              | 41F / 5C or below    |
 
 ### Vendor Food Safety Checklist
 
 Pre-event inspection should verify:
+
 - [ ] Current food handler certifications for all staff
 - [ ] Handwashing station with soap, water, paper towels
 - [ ] Sanitizer solution at proper concentration
@@ -233,6 +244,7 @@ Pre-event inspection should verify:
 ### Common Food Safety Violations
 
 Watch for and address immediately:
+
 1. Food sitting in the "danger zone" (41-135F / 5-57C) too long
 2. No handwashing station or hand washing not observed
 3. Cross-contamination between raw and ready-to-eat foods
@@ -287,17 +299,17 @@ Support Infrastructure:
 
 ### Staffing Requirements
 
-| Role | Ratio | Notes |
-|------|-------|-------|
-| Event manager | 1 total | Overall authority |
-| Area supervisors | 1 per zone | 3-5 zones typical |
-| Volunteer coordinators | 1 per 20 volunteers | Manage shifts |
-| Security | 1 per 100 attendees | Licensed, vetted |
-| Medical/first aid | 2 minimum + ambulance on standby | More for large events |
-| Health inspectors | 1 per 15 vendors | May be city-provided |
-| Information booth | 2-3 per booth | Customer service |
-| Parking attendants | As needed | Depends on venue |
-| Waste management | 1 per 200 attendees | Rotation through event |
+| Role                   | Ratio                            | Notes                  |
+| ---------------------- | -------------------------------- | ---------------------- |
+| Event manager          | 1 total                          | Overall authority      |
+| Area supervisors       | 1 per zone                       | 3-5 zones typical      |
+| Volunteer coordinators | 1 per 20 volunteers              | Manage shifts          |
+| Security               | 1 per 100 attendees              | Licensed, vetted       |
+| Medical/first aid      | 2 minimum + ambulance on standby | More for large events  |
+| Health inspectors      | 1 per 15 vendors                 | May be city-provided   |
+| Information booth      | 2-3 per booth                    | Customer service       |
+| Parking attendants     | As needed                        | Depends on venue       |
+| Waste management       | 1 per 200 attendees              | Rotation through event |
 
 ## Marketing Strategy
 
@@ -325,14 +337,14 @@ Support Infrastructure:
 
 ### Revenue Streams
 
-| Source | Typical % of Revenue |
-|--------|---------------------|
-| Ticket/admission sales | 30-40% |
-| Vendor booth fees | 20-30% |
-| Sponsorships | 15-25% |
-| Beverage sales (if organizer-run) | 10-20% |
-| Merchandise | 2-5% |
-| VIP packages | 5-10% |
+| Source                            | Typical % of Revenue |
+| --------------------------------- | -------------------- |
+| Ticket/admission sales            | 30-40%               |
+| Vendor booth fees                 | 20-30%               |
+| Sponsorships                      | 15-25%               |
+| Beverage sales (if organizer-run) | 10-20%               |
+| Merchandise                       | 2-5%                 |
+| VIP packages                      | 5-10%                |
 
 ### Expense Budget Template
 
@@ -360,6 +372,7 @@ EXPENSES
 ### Emergency Action Plan
 
 Every food festival must have documented plans for:
+
 1. **Medical emergency**: First aid locations, hospital route, ambulance staging
 2. **Severe weather**: Shelter locations, evacuation routes, weather monitoring plan
 3. **Fire**: Extinguisher locations, evacuation plan, fire department notification
@@ -376,7 +389,6 @@ Every food festival must have documented plans for:
 - Ensure vendor tents are properly weighted/staked for wind
 - Plan for extreme heat: extra water stations, misting fans, shade, medical monitoring
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -389,13 +401,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with food festival organizer for a mid-size project."
 
 **Output:** A complete food festival organizer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

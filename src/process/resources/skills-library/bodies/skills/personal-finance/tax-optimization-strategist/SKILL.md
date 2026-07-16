@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance tax-planning guide"
-  category: "personal-finance"
-  subcategory: "tax-planning"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'personal-finance tax-planning guide'
+  category: 'personal-finance'
+  subcategory: 'tax-planning'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
+
 # Tax Optimization Strategist
 
 > **Disclaimer:** This skill provides educational information about tax planning concepts and general strategies under U.S. federal tax law. It does NOT constitute tax advice, legal advice, or financial advice. Tax laws change frequently -- the figures referenced reflect 2024 law and may be outdated. Individual circumstances vary significantly, and no general guide can substitute for personalized counsel. Always consult a qualified CPA, Enrolled Agent, or tax attorney before implementing any strategy. Incorrect implementation can result in penalties, interest, audit exposure, and legal liability. State tax rules vary widely and are not comprehensively addressed here.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Wants to understand how to reduce their current-year federal tax liability through legal deductions, deferrals, and account optimization
 - Is doing year-end planning (October through December) and needs a structured checklist of actionable strategies before December 31
 - Is self-employed, a freelancer, or runs a small business and needs to understand estimated taxes, QBI deductions, S-Corp considerations, and business deductions
@@ -35,6 +37,7 @@ metadata:
 - Has charitable giving goals and wants to understand the most tax-efficient giving vehicles (DAFs, QCDs, appreciated assets)
 
 **Do NOT use when:**
+
 - The user needs a completed tax return or line-by-line tax return guidance -- use a tax-preparation skill or refer them to a CPA/tax software
 - The user has a specific IRS audit, penalty, or dispute situation -- this requires a tax attorney or Enrolled Agent representing them before the IRS
 - The user asks about international tax, FBAR/FATCA obligations, or foreign income exclusions -- these are highly specialized and outside this skill's scope
@@ -68,29 +71,30 @@ Map the user's situation to the **2024 federal tax brackets** and identify which
 
 **2024 Ordinary Income Tax Brackets:**
 
-| Rate | Single | Married Filing Jointly |
-|------|--------|------------------------|
-| 10% | $0 -- $11,600 | $0 -- $23,200 |
-| 12% | $11,601 -- $47,150 | $23,201 -- $94,300 |
-| 22% | $47,151 -- $100,525 | $94,301 -- $201,050 |
-| 24% | $100,526 -- $191,950 | $201,051 -- $383,900 |
-| 32% | $191,951 -- $243,725 | $383,901 -- $487,450 |
-| 35% | $243,726 -- $609,350 | $487,451 -- $731,200 |
-| 37% | Over $609,350 | Over $731,200 |
+| Rate | Single               | Married Filing Jointly |
+| ---- | -------------------- | ---------------------- |
+| 10%  | $0 -- $11,600        | $0 -- $23,200          |
+| 12%  | $11,601 -- $47,150   | $23,201 -- $94,300     |
+| 22%  | $47,151 -- $100,525  | $94,301 -- $201,050    |
+| 24%  | $100,526 -- $191,950 | $201,051 -- $383,900   |
+| 32%  | $191,951 -- $243,725 | $383,901 -- $487,450   |
+| 35%  | $243,726 -- $609,350 | $487,451 -- $731,200   |
+| 37%  | Over $609,350        | Over $731,200          |
 
 **2024 Long-Term Capital Gains Rates:**
 
-| Rate | Single | Married Filing Jointly |
-|------|--------|------------------------|
-| 0% | $0 -- $47,025 | $0 -- $94,050 |
-| 15% | $47,026 -- $518,900 | $94,051 -- $583,750 |
-| 20% | Over $518,900 | Over $583,750 |
+| Rate | Single              | Married Filing Jointly |
+| ---- | ------------------- | ---------------------- |
+| 0%   | $0 -- $47,025       | $0 -- $94,050          |
+| 15%  | $47,026 -- $518,900 | $94,051 -- $583,750    |
+| 20%  | Over $518,900       | Over $583,750          |
 
 **Net Investment Income Tax (NIIT)**: 3.8% surcharge on the lesser of net investment income or the amount by which MAGI exceeds $200,000 (single) / $250,000 (MFJ). This effectively makes the top capital gains rate 23.8%.
 
 **Additional Medicare Tax**: 0.9% on wages/SE income above $200,000 (single) / $250,000 (MFJ). Employers do not withhold enough -- flag this for high-income earners.
 
 **Key Phase-Out Thresholds to Identify Proximity To:**
+
 - Roth IRA contribution phase-out: $146,000 -- $161,000 (single) / $230,000 -- $240,000 (MFJ)
 - Traditional IRA deductibility phase-out (with employer plan): $77,000 -- $87,000 (single) / $123,000 -- $143,000 (MFJ)
 - Child Tax Credit phase-out: $200,000 (single) / $400,000 (MFJ)
@@ -105,11 +109,13 @@ Determine if the user is: (a) solidly within a bracket, (b) near the top of a lo
 Recommend account funding in this exact priority order, customized to the user's situation. Each step must clear the prior before proceeding:
 
 **Priority 1: 401(k) or 403(b) to the Employer Match**
+
 - This is an immediate 50% to 100% return on investment -- nothing competes with this
 - Identify the match formula (e.g., 50% of first 6% of salary = contribute exactly 6%)
 - If the user is not capturing the full match, this is the single most important fix
 
 **Priority 2: HSA to the Annual Maximum (if eligible)**
+
 - Eligible only with a qualifying High-Deductible Health Plan (HDHP): 2024 minimum deductible $1,600 (individual) / $3,200 (family)
 - 2024 contribution limits: $4,150 (individual) / $8,300 (family), plus $1,000 catch-up if age 55+
 - Triple tax advantage: deductible contributions, tax-free growth, tax-free qualified withdrawals
@@ -117,22 +123,26 @@ Recommend account funding in this exact priority order, customized to the user's
 - After age 65, non-medical withdrawals are taxed as ordinary income -- effectively a second Traditional IRA
 
 **Priority 3: Roth IRA to the Maximum (if income-eligible)**
+
 - 2024 limit: $7,000 ($8,000 if 50+)
 - Direct contribution phase-out: $146,000 -- $161,000 (single) / $230,000 -- $240,000 (MFJ)
 - If income exceeds limits: implement the **Backdoor Roth IRA** (contribute to non-deductible Traditional IRA, then convert immediately)
 - Backdoor Roth warning: If the user has any pre-tax Traditional IRA balances, the **pro-rata rule** applies and makes the backdoor Roth partially taxable -- must account for this before proceeding
 
 **Priority 4: 401(k) or 403(b) to the Annual Maximum (beyond the match)**
+
 - 2024 employee deferral limit: $23,000 ($30,500 if 50+)
 - Traditional vs. Roth 401(k) decision: If current marginal rate is higher than expected retirement rate, favor Traditional; if lower or similar, favor Roth
 - A common rule of thumb: favor Roth 401(k) at 22% bracket and below; favor Traditional at 32%+ bracket
 
 **Priority 5: Mega Backdoor Roth (if plan permits)**
+
 - Some 401(k) plans allow after-tax (non-Roth) contributions beyond the $23,000 employee limit, up to the total 415 limit of $69,000 (2024)
 - If the plan allows in-service withdrawals or in-plan Roth conversions of after-tax contributions, this enables up to $46,000 of additional annual Roth contributions
 - Not all plans allow this -- the user must check their Summary Plan Description
 
 **Priority 6: Taxable Brokerage (with asset location discipline)**
+
 - At this point, pre-tax space is exhausted
 - Asset location: place tax-inefficient assets (bonds, REITs, high-dividend stocks, active funds) in tax-advantaged accounts; hold tax-efficient assets (index ETFs, growth stocks, municipal bonds) in taxable accounts
 - Use ETFs over mutual funds in taxable accounts to minimize capital gains distributions
@@ -142,11 +152,13 @@ Recommend account funding in this exact priority order, customized to the user's
 ### Step 4: Diagnose and Apply Deduction Strategies
 
 **Standard Deduction vs. Itemizing Decision:**
+
 - 2024 standard deduction: $14,600 (single) / $29,200 (MFJ) / $21,900 (Head of Household)
 - Additional standard deduction for age 65+: $1,950 (single) / $1,550 each (MFJ)
 - Run the arithmetic: total the user's potential itemized deductions (SALT capped at $10,000, mortgage interest, charitable giving, medical expenses over 7.5% of AGI) and compare to the standard deduction
 
 **Bunching Strategy (when itemized deductions are within 80% to 120% of standard deduction):**
+
 - Identify "flexible" deductions that can be shifted in timing: charitable contributions, elective medical procedures, prepaid state estimated taxes
 - In "bunch year": make 2 years' worth of charitable donations, schedule elective medical procedures, prepay Q4 state income tax estimate -- itemize
 - In "off year": make no charitable donations (or minimal), take standard deduction
@@ -154,6 +166,7 @@ Recommend account funding in this exact priority order, customized to the user's
 - Pair with Donor-Advised Fund (DAF): contribute a lump sum to the DAF in the bunch year (full deduction), then distribute to charities from the DAF over the following 2-5 years
 
 **Above-the-Line Deductions (always take regardless of standard vs. itemized):**
+
 - Student loan interest: up to $2,500, phases out $80,000 -- $95,000 (single) / $165,000 -- $195,000 (MFJ)
 - Self-employed health insurance premiums: 100% deductible from gross income (but not below SE income for the policy)
 - 50% of self-employment tax: reduces AGI, always take
@@ -163,6 +176,7 @@ Recommend account funding in this exact priority order, customized to the user's
 - Educator expenses: $300 ($600 if both spouses are educators filing MFJ)
 
 **Qualified Business Income (QBI) Deduction for Self-Employed and Pass-Through Business Owners:**
+
 - Deduct 20% of qualified business income from taxable income
 - For non-service businesses: no income limit for the basic deduction
 - For Specified Service Trade or Business (SSTB -- doctors, lawyers, consultants, financial advisors, athletes): deduction phases out at $191,950 -- $241,950 (single) / $383,900 -- $483,900 (MFJ)
@@ -172,12 +186,14 @@ Recommend account funding in this exact priority order, customized to the user's
 ### Step 5: Evaluate Income Timing and Capital Gain/Loss Strategies
 
 **Capital Gains Rate Optimization:**
+
 - Determine if any long-term capital gains can be realized in the 0% bracket (2024: up to $47,025 single / $94,050 MFJ of taxable income)
 - If the user has low-income years, deliberately harvest gains at 0% to reset cost basis -- called "gain harvesting"
 - For assets expected to be donated, never sell -- donate the appreciated asset directly (deduct full FMV, avoid all capital gains tax)
 - Short-term gains (held under 1 year) are taxed as ordinary income -- time asset sales to cross the 12-month holding period threshold whenever possible
 
 **Tax-Loss Harvesting:**
+
 - Identify positions with unrealized losses in taxable accounts
 - Sell to realize the loss; immediately reinvest in a similar (not substantially identical) fund to maintain market exposure
 - Losses offset gains dollar-for-dollar: short-term losses offset short-term gains first, then long-term gains; long-term losses offset long-term gains first, then short-term gains
@@ -186,6 +202,7 @@ Recommend account funding in this exact priority order, customized to the user's
 - Acceptable swaps: Vanguard Total Market ETF (VTI) sold, replaced with iShares Core S&P Total Market ETF (ITOT); Vanguard S&P 500 ETF (VOO) sold, replaced with iShares Core S&P 500 ETF (IVV)
 
 **Roth Conversion Ladder:**
+
 - Identify low-income years: the period between retirement and age 73 (when RMDs begin), years between jobs, sabbaticals, or years with large deductions
 - In those years, convert Traditional IRA/401(k) dollars to Roth up to the top of the current bracket
 - Rule: Never convert so much in one year that you push into a significantly higher bracket (e.g., from 22% to 32%) unless the conversion amount is so large it doesn't matter
@@ -194,6 +211,7 @@ Recommend account funding in this exact priority order, customized to the user's
 - Cannot undo a Roth conversion after 2018 (recharacterization eliminated by TCJA)
 
 **Deferred Compensation and Bonus Timing:**
+
 - If employer allows election, defer year-end bonus into non-qualified deferred compensation plan (if offered) or request payment in January
 - Self-employed: delay invoicing for December work until January 1 if expecting a lower-income next year
 - For RSU vesting: you cannot control vesting date, but you can control whether you hold or sell upon vesting; selling immediately upon vesting avoids additional ordinary income if the stock later declines
@@ -203,6 +221,7 @@ Recommend account funding in this exact priority order, customized to the user's
 This step applies only to users with self-employment income, freelance income, sole proprietorship, or pass-through business income.
 
 **Self-Employment Tax (SE Tax) Reduction:**
+
 - SE tax rate is 15.3% on net SE income up to $168,600 (Social Security wage base), plus 2.9% Medicare on income above that (plus 0.9% Additional Medicare Tax above $200,000 single / $250,000 MFJ)
 - 50% of SE tax is deductible above-the-line
 - Solo 401(k) employee deferral reduces net SE income subject to SE tax calculations (via the deduction, not direct reduction)
@@ -210,17 +229,20 @@ This step applies only to users with self-employment income, freelance income, s
 - S-Corp adds accounting complexity and costs (separate return, payroll processing) -- must model whether SE tax savings exceed these costs (rough rule: worthwhile above $60,000-$80,000 net profit)
 
 **Home Office Deduction (if legitimately used exclusively and regularly for business):**
+
 - Simplified method: $5 per square foot, up to 300 square feet ($1,500 maximum)
 - Regular method: Actual expenses (mortgage interest/rent, utilities, insurance) multiplied by the percentage of home used for business (home office SF / total home SF)
 - Regular method almost always produces a larger deduction -- calculate both
 - Home office deduction cannot create a business loss (it can reduce profit to zero but not below)
 
 **Vehicle Use:**
+
 - Standard mileage rate 2024: $0.67 per business mile
 - Actual expense method: Track actual fuel, insurance, depreciation, maintenance; deduct the business-use percentage
 - Bonus depreciation: For vehicles used over 50% for business, Section 179 or bonus depreciation can accelerate deductions (subject to luxury auto limits for passenger vehicles)
 
 **Estimated Tax Payments (Self-Employed and Irregular Income):**
+
 - Owe $1,000+ at filing AND withholding + credits won't cover 90% of current year tax or 100% of prior year tax (110% if prior year AGI exceeded $150,000)
 - 2024 due dates: April 15 (Q1), June 15 (Q2), September 15 (Q3), January 15, 2025 (Q4)
 - **Safe harbor method**: Divide prior year total tax by 4 and pay each quarter -- guarantees no underpayment penalty regardless of current year income
@@ -232,6 +254,7 @@ This step applies only to users with self-employment income, freelance income, s
 Translate all identified strategies into a prioritized, dated action list. Year-end actions are hard-deadline-driven.
 
 **Hard Deadlines (December 31):**
+
 - Employee 401(k)/403(b) contribution elections -- payroll must process before year-end
 - HSA contributions via payroll -- must process before year-end (direct contributions can be made until April 15)
 - Tax-loss harvesting -- trades must settle by December 31 (trade date counts, not settlement date for most purposes, but verify with broker)
@@ -243,6 +266,7 @@ Translate all identified strategies into a prioritized, dated action list. Year-
 - FSA funds -- Flexible Spending Account funds are use-it-or-lose-it unless the plan has a carryover provision (up to $640 in 2024) or grace period
 
 **Soft Deadlines (April 15 of following year):**
+
 - IRA contributions (Traditional or Roth) for the prior tax year
 - HSA contributions made directly (not via payroll) for the prior tax year
 - SEP-IRA contributions (can be extended to the filing deadline including extensions -- up to October 15 with extension)
@@ -378,6 +402,7 @@ IMPORTANT CAVEATS
 If a user has a $200,000 Traditional IRA and wants to do a $7,000 Backdoor Roth IRA contribution, the pro-rata rule applies. The taxable percentage of the conversion is calculated as: pre-tax IRA balance / (pre-tax IRA balance + after-tax basis) = $200,000 / ($200,000 + $7,000) = 96.6%. So 96.6% of the $7,000 conversion ($6,762) is taxable -- effectively defeating the purpose.
 
 **Solutions:**
+
 - Roll the pre-tax Traditional IRA into the current employer 401(k) (if the plan accepts IRA rollovers) -- this removes the pre-tax balance from the pro-rata calculation
 - Accept the partial taxation and do the conversion anyway if the long-term Roth benefit justifies the current tax cost (model it)
 - Wait until a low-income year to convert the entire pre-tax IRA balance to Roth directly, then do clean Backdoor Roth contributions going forward
@@ -421,6 +446,7 @@ A user with $50,000+ in capital loss carryforwards faces a different optimizatio
 For users with AGI above $500,000 (single) or $600,000+ (MFJ), many deductions and strategies phase out or become unavailable: Roth IRA contributions (phased out), traditional IRA deductibility (phased out), student loan interest (phased out), education credits (phased out), QBI deduction (eliminated for SSTBs). The available tools narrow significantly.
 
 **Remaining high-income strategies:**
+
 - Maximize pre-tax 401(k)/403(b) -- still available regardless of income (no income limit on 401(k) contributions)
 - Mega Backdoor Roth if the plan allows it
 - Backdoor Roth IRA (if no pro-rata problem)
@@ -597,3 +623,4 @@ Capital Position Inventory:
   Net position: $7,000 net loss available
 
 Tax-Loss
+```

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career planning guide"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career planning guide'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Career Pivot Navigator
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about career pivot navigator
 - User needs guidance on career pivot navigator topics
 - User wants a structured approach to career pivot navigator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -113,13 +115,13 @@ Relationship/People Skills:
 
 **Step 2: Map Skills to Target Field**
 
-| Your Skill | How It Translates | Evidence/Example |
-|-----------|------------------|-----------------|
-| Project management | Same in any field | Led X project, on time and budget |
-| Client relationship management | Customer success, account management | Managed portfolio of X clients |
-| Data analysis | Analytics role, data-driven decision making | Used data to improve X by Y% |
-| Training/mentoring | L&D, coaching, teaching | Onboarded X new team members |
-| Budget management | Finance operations, business planning | Managed $X budget |
+| Your Skill                     | How It Translates                           | Evidence/Example                  |
+| ------------------------------ | ------------------------------------------- | --------------------------------- |
+| Project management             | Same in any field                           | Led X project, on time and budget |
+| Client relationship management | Customer success, account management        | Managed portfolio of X clients    |
+| Data analysis                  | Analytics role, data-driven decision making | Used data to improve X by Y%      |
+| Training/mentoring             | L&D, coaching, teaching                     | Onboarded X new team members      |
+| Budget management              | Finance operations, business planning       | Managed $X budget                 |
 
 **Step 3: Identify Gaps**
 
@@ -150,6 +152,7 @@ Nice-to-Have Skills I LACK:
 ### The Pivot Roadmap
 
 **Phase 1: Exploration (Month 1-2)**
+
 - Research target field thoroughly (day-to-day reality, not just highlights)
 - Conduct 10+ informational interviews
 - Shadow someone in the role if possible
@@ -157,18 +160,21 @@ Nice-to-Have Skills I LACK:
 - Read industry publications and follow thought leaders
 
 **Phase 2: Skill Building (Month 2-6)**
+
 - Enroll in courses/certifications for identified gaps
 - Start building a portfolio or evidence of new skills
 - Begin volunteering, freelancing, or doing pro bono work in new field
 - Attend industry events and meetups
 
 **Phase 3: Brand Building (Month 4-8)**
+
 - Update LinkedIn profile to reflect new direction
 - Create content in the new field (blog posts, projects, case studies)
 - Build relationships in the new industry
 - Start applying for bridge roles (see below)
 
 **Phase 4: Active Transition (Month 6-12+)**
+
 - Apply for roles that value your transferable skills
 - Leverage your network for introductions and referrals
 - Be open to lateral or slightly lower-level entry points
@@ -178,14 +184,14 @@ Nice-to-Have Skills I LACK:
 
 Instead of a direct leap, look for roles that bridge your current and target fields:
 
-| Current Field | Target Field | Bridge Role |
-|--------------|-------------|------------|
-| Sales | Product Management | Sales engineer, customer success, product marketing |
-| Teaching | Corporate Training | Instructional designer, L&D specialist |
-| Finance | Tech | FinTech, financial data analyst, tech sales |
-| Marketing | UX Design | UX researcher, content strategist, product marketing |
-| Military | Business | Operations manager, logistics, project management |
-| Healthcare | Health Tech | Clinical operations, health informatics, medical affairs |
+| Current Field | Target Field       | Bridge Role                                              |
+| ------------- | ------------------ | -------------------------------------------------------- |
+| Sales         | Product Management | Sales engineer, customer success, product marketing      |
+| Teaching      | Corporate Training | Instructional designer, L&D specialist                   |
+| Finance       | Tech               | FinTech, financial data analyst, tech sales              |
+| Marketing     | UX Design          | UX researcher, content strategist, product marketing     |
+| Military      | Business           | Operations manager, logistics, project management        |
+| Healthcare    | Health Tech        | Clinical operations, health informatics, medical affairs |
 
 ### Financial Planning for a Pivot
 
@@ -246,12 +252,14 @@ Traditional chronological resumes work against career changers. Instead, use a h
 ### Your Pivot Narrative
 
 **The Story Arc**:
+
 1. Where you started (briefly)
 2. What you discovered about yourself (the why)
 3. How your past uniquely prepares you (the bridge)
 4. What you are building toward (the future)
 
 **Example**:
+
 > "After 8 years in enterprise sales, I consistently gravitated toward the product feedback loop - translating customer pain points into feature recommendations. That pattern led me to product management, where I'm now combining deep customer empathy with technical aptitude. I completed [certification], built [project], and I'm looking for a PM role where my sales background is an asset, not a footnote."
 
 ### LinkedIn for Career Changers
@@ -266,13 +274,13 @@ Traditional chronological resumes work against career changers. Instead, use a h
 
 ### Expect These Emotions
 
-| Phase | Common Feelings |
-|-------|----------------|
-| Excitement (early) | Optimism, energy, possibility |
-| Doubt (middle) | Imposter syndrome, fear, "Am I crazy?" |
-| Frustration (applying) | Rejection, feeling undervalued, slow progress |
-| Integration (landing) | Adjustment, learning curve, relief |
-| Confidence (settling) | Competence growing, validation of the decision |
+| Phase                  | Common Feelings                                |
+| ---------------------- | ---------------------------------------------- |
+| Excitement (early)     | Optimism, energy, possibility                  |
+| Doubt (middle)         | Imposter syndrome, fear, "Am I crazy?"         |
+| Frustration (applying) | Rejection, feeling undervalued, slow progress  |
+| Integration (landing)  | Adjustment, learning curve, relief             |
+| Confidence (settling)  | Competence growing, validation of the decision |
 
 ### Coping Strategies
 
@@ -285,6 +293,7 @@ Traditional chronological resumes work against career changers. Instead, use a h
 ### The Imposter Syndrome Counter
 
 When imposter syndrome hits (and it will):
+
 - **Reframe**: "I'm not starting from zero. I'm starting from experience."
 - **Evidence**: Keep a list of transferable accomplishments
 - **Normalize**: Every person in a new role felt uncertain at first
@@ -294,16 +303,18 @@ When imposter syndrome hits (and it will):
 ## Decision Framework
 
 ### The 10-10-10 Test
+
 - How will I feel about this decision in 10 minutes?
 - How will I feel in 10 months?
 - How will I feel in 10 years?
 
 ### The Regret Minimization Test
+
 When you are 80 years old looking back:
+
 - Will you regret NOT trying this?
 - Will the temporary discomfort of transition matter?
 - What matters more: comfort now or fulfillment long-term?
-
 
 ## Output Format
 

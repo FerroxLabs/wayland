@@ -7,25 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fashion design planning"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'fashion design planning'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Style Advisor
+
 > **NOTE:** Fashion is personal expression. These guidelines are starting points, not rigid rules. Wear what makes you feel confident. The best-dressed person in any room is the one who feels comfortable in their own clothes.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about style advisor
 - User needs guidance on style advisor topics
 - User wants a structured approach to style advisor
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -41,10 +45,13 @@ metadata:
 8. **What colors do you typically wear?** (All black / Neutrals / Bright colors / Earth tones / No preference)
 9. **What are your style frustrations?** (Nothing fits / Don't know what looks good / Wardrobe feels boring / Too many clothes, nothing to wear)
 10. **What climate do you live in?** (Hot year-round / Cold year-round / Four seasons / Mild)
+
 ---
+
 ## Phase 1: Style Profile Assessment
 
 ### Discovering Your Personal Style
+
 ```
 STYLE ARCHETYPE QUIZ:
 
@@ -92,10 +99,13 @@ ROMANTIC: Soft, feminine, delicate details
 Icons: Florence Welch, Harry Styles
 Key pieces: Flowing fabrics, floral prints, delicate accessories
 ```
+
 ---
+
 ## Phase 2: Body Type Dressing Guidelines
 
 ### Women's Body Types
+
 ```
 HOURGLASS (Balanced shoulders and hips, defined waist):
 DO: Highlight your waist with belted styles, wrap dresses, fitted tops
@@ -134,6 +144,7 @@ Key items: V-neck tops, wide-leg pants, A-line skirts, raglan sleeves
 ```
 
 ### Men's Body Types
+
 ```
 ATHLETIC (Broad shoulders, narrow waist):
 DO: Fitted clothing that shows your proportions
@@ -177,10 +188,13 @@ AVOID: Baggy clothing (does NOT hide; it adds visual bulk)
 AVOID: Tight clothing (uncomfortable, unflattering)
 Key items: Well-tailored blazers, flat-front trousers, V-necks
 ```
+
 ---
+
 ## Phase 3: Color Coordination
 
 ### Building a Color Palette
+
 ```
 THE NEUTRAL FOUNDATION:
 Every wardrobe needs a neutral base that everything works with.
@@ -215,19 +229,22 @@ More than 3 colors = costume territory (unless you're going for that).
 
 ### Color Matching Guide
 
-| Neutral Base | Best Accent Colors | Season |
-|-------------|-------------------|--------|
-| Black | Red, white, blush, emerald, gold | All |
-| Navy | White, light pink, burgundy, camel, coral | All |
-| Gray | Blue, purple, pink, yellow, green | All |
-| White | Any color (universal canvas) | Spring/Summer |
-| Beige/Camel | Navy, burgundy, forest green, rust, cream | Fall/Spring |
-| Olive | Cream, rust, burgundy, mustard, brown | Fall |
-| Brown | Blue, cream, orange, green, gold | Fall/Winter |
+| Neutral Base | Best Accent Colors                        | Season        |
+| ------------ | ----------------------------------------- | ------------- |
+| Black        | Red, white, blush, emerald, gold          | All           |
+| Navy         | White, light pink, burgundy, camel, coral | All           |
+| Gray         | Blue, purple, pink, yellow, green         | All           |
+| White        | Any color (universal canvas)              | Spring/Summer |
+| Beige/Camel  | Navy, burgundy, forest green, rust, cream | Fall/Spring   |
+| Olive        | Cream, rust, burgundy, mustard, brown     | Fall          |
+| Brown        | Blue, cream, orange, green, gold          | Fall/Winter   |
+
 ---
+
 ## Phase 4: Dressing for Occasions
 
 ### Dress Code Decoder
+
 ```
 BLACK TIE / FORMAL:
 Men: Tuxedo (black or midnight blue), bow tie, patent leather shoes
@@ -268,10 +285,13 @@ Clean sneakers, joggers (fitted, not baggy), performance tops
 OK for: Errands, casual brunch, travel
 Not OK for: Work, dates (usually), formal settings
 ```
+
 ---
+
 ## Phase 5: Wardrobe Essentials
 
 ### Women's Core Wardrobe
+
 ```
 TOPS (8-12 pieces):
 [ ] White button-down shirt (crisp, well-fitted)
@@ -324,6 +344,7 @@ ACCESSORIES:
 ```
 
 ### Men's Core Wardrobe
+
 ```
 TOPS (8-12 pieces):
 [ ] White dress shirt (fitted)
@@ -371,10 +392,13 @@ ACCESSORIES:
 [ ] Tie collection (2-3 solid, 2-3 patterned)
 [ ] Pocket square (optional)
 ```
+
 ---
+
 ## Phase 6: Accessory Guide
 
 ### Accessory Rules of Thumb
+
 ```
 WATCHES:
 - Dress watch: Thin, leather strap, minimal dial
@@ -414,10 +438,13 @@ SUNGLASSES:
 - Heart face: Bottom-heavy frames (aviator)
 - Invest in UV-protective lenses
 ```
+
 ---
+
 ## Phase 7: Seasonal Style Transitions
 
 ### Seasonal Wardrobe Strategy
+
 ```
 SPRING:
 - Layer light pieces (chambray, cotton, light knits)
@@ -445,10 +472,13 @@ WINTER:
 - Fabrics: Wool, cashmere, down, fleece, heavy cotton
 - Accessories matter: scarves, gloves, hats can make an outfit
 ```
+
 ---
+
 ## Phase 8: Shopping Strategies
 
 ### Smart Shopping Framework
+
 ```
 BEFORE YOU SHOP:
 1. Audit your closet (what do you have, what's missing?)
@@ -485,10 +515,13 @@ TAILORING:
 - Common tailoring: Hem pants, take in waist, shorten sleeves, adjust shoulders
 - Budget: $15-75 per item for basic alterations
 ```
+
 ---
+
 ## Output Format
 
 When providing style advice, present it as:
+
 ```
 STYLE PROFILE
 Style Archetype: [Type]
@@ -515,3 +548,4 @@ WARDROBE GAPS:
 - **Incomplete information:** Ask clarifying questions before proceeding. Do not assume details the user has not provided.
 - **Out of scope requests:** Redirect to appropriate professional resources when the request exceeds educational guidance.
 - **Conflicting requirements:** Present trade-offs clearly and let the user decide priorities.
+```

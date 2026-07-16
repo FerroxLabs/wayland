@@ -6,13 +6,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning analysis marketing"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning analysis marketing'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Traction Channel Analysis
@@ -20,6 +20,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about how to get their first customers or grow their customer base
 - User wants to evaluate which marketing and distribution channels are best for their business
 - User asks about the Bullseye Framework or traction channels
@@ -27,6 +28,7 @@ metadata:
 - User wants a structured approach to testing growth channels rather than guessing
 
 **Do NOT use this skill when:**
+
 - User needs a comprehensive marketing strategy document (use `marketing-strategy`)
 - User wants to write ad copy for a specific platform (use `paid-ad-copy`)
 - User needs to design a specific growth experiment (use `growth-experiment`)
@@ -309,56 +311,63 @@ metadata:
 ## Traction Channel Analysis: Real Estate Follow-Up SaaS
 
 ### Business Context
-| Field | Value |
-|-------|-------|
-| **Product** | Automated follow-up email sequences for real estate agents |
-| **Target customer** | Independent real estate agents and small brokerages |
-| **Price point** | $49/month |
-| **Stage** | Early traction (12 customers) |
-| **Budget** | $2,000/month |
-| **B2B or B2C** | B2B (small business) |
-| **Channels tried** | Personal network only |
+
+| Field               | Value                                                      |
+| ------------------- | ---------------------------------------------------------- |
+| **Product**         | Automated follow-up email sequences for real estate agents |
+| **Target customer** | Independent real estate agents and small brokerages        |
+| **Price point**     | $49/month                                                  |
+| **Stage**           | Early traction (12 customers)                              |
+| **Budget**          | $2,000/month                                               |
+| **B2B or B2C**      | B2B (small business)                                       |
+| **Channels tried**  | Personal network only                                      |
 
 ### Middle Ring: Top 6 Channels to Test
 
 #### Test 1: Facebook/Instagram Ads
-| Field | Value |
-|-------|-------|
-| **Hypothesis** | Real estate agents are active on Facebook and respond to productivity-focused ads |
-| **Test** | $300 in Facebook ads targeting real estate agents, 3 ad variants, 2-week run |
-| **Success threshold** | 5+ free trial signups at < $60 CAC |
+
+| Field                 | Value                                                                             |
+| --------------------- | --------------------------------------------------------------------------------- |
+| **Hypothesis**        | Real estate agents are active on Facebook and respond to productivity-focused ads |
+| **Test**              | $300 in Facebook ads targeting real estate agents, 3 ad variants, 2-week run      |
+| **Success threshold** | 5+ free trial signups at < $60 CAC                                                |
 
 #### Test 2: Content Marketing (SEO)
-| Field | Value |
-|-------|-------|
-| **Hypothesis** | Agents search for "real estate follow up email templates" and similar queries |
-| **Test** | Publish 4 blog posts targeting high-intent keywords, promote in real estate forums |
-| **Success threshold** | 200+ organic visitors and 10+ email signups in 4 weeks |
+
+| Field                 | Value                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| **Hypothesis**        | Agents search for "real estate follow up email templates" and similar queries      |
+| **Test**              | Publish 4 blog posts targeting high-intent keywords, promote in real estate forums |
+| **Success threshold** | 200+ organic visitors and 10+ email signups in 4 weeks                             |
 
 #### Test 3: Existing Platforms (Real Estate Tech Marketplaces)
-| Field | Value |
-|-------|-------|
-| **Hypothesis** | Agents discover tools through platforms they already use |
-| **Test** | List on real estate tech directories and Zapier integrations marketplace |
-| **Success threshold** | 3+ signups from platform referrals in 4 weeks |
+
+| Field                 | Value                                                                    |
+| --------------------- | ------------------------------------------------------------------------ |
+| **Hypothesis**        | Agents discover tools through platforms they already use                 |
+| **Test**              | List on real estate tech directories and Zapier integrations marketplace |
+| **Success threshold** | 3+ signups from platform referrals in 4 weeks                            |
 
 #### Test 4: Affiliate/Referral Program
-| Field | Value |
-|-------|-------|
-| **Hypothesis** | Current customers will refer agents in their network for an incentive |
-| **Test** | Offer existing 12 customers one free month for each referral that converts |
-| **Success threshold** | 3+ referred customers in 4 weeks |
+
+| Field                 | Value                                                                      |
+| --------------------- | -------------------------------------------------------------------------- |
+| **Hypothesis**        | Current customers will refer agents in their network for an incentive      |
+| **Test**              | Offer existing 12 customers one free month for each referral that converts |
+| **Success threshold** | 3+ referred customers in 4 weeks                                           |
 
 #### Test 5: Targeting Real Estate Blogs
-| Field | Value |
-|-------|-------|
-| **Hypothesis** | Guest posts on popular real estate blogs reach the target audience |
-| **Test** | Pitch and publish 2 guest posts on real estate agent blogs |
-| **Success threshold** | 100+ referral visitors and 5+ signups |
+
+| Field                 | Value                                                              |
+| --------------------- | ------------------------------------------------------------------ |
+| **Hypothesis**        | Guest posts on popular real estate blogs reach the target audience |
+| **Test**              | Pitch and publish 2 guest posts on real estate agent blogs         |
+| **Success threshold** | 100+ referral visitors and 5+ signups                              |
 
 #### Test 6: Speaking at Real Estate Events
-| Field | Value |
-|-------|-------|
-| **Hypothesis** | Real estate agents attend local association meetings and would value a talk on lead follow-up |
-| **Test** | Offer a free 20-minute presentation at 2 local real estate association meetings |
-| **Success threshold** | 5+ demo requests from attendees |
+
+| Field                 | Value                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| **Hypothesis**        | Real estate agents attend local association meetings and would value a talk on lead follow-up |
+| **Test**              | Offer a free 20-minute presentation at 2 local real estate association meetings               |
+| **Success threshold** | 5+ demo requests from attendees                                                               |

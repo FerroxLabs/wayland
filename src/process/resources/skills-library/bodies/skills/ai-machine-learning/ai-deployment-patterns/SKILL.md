@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml devops cloud"
-  category: "ai-machine-learning"
-  subcategory: "ai-ml-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml devops cloud'
+  category: 'ai-machine-learning'
+  subcategory: 'ai-ml-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # AI Deployment Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is deploying an ML model or LLM-based system to production and needs to choose a serving architecture (batch inference, real-time API, streaming, edge)
 - User needs to decide between blue/green deployments, canary releases, shadow mode testing, or A/B model experiments for rolling out a new model version
 - User is designing a multi-model pipeline (ensemble, cascade, router, or fallback chain) and needs guidance on orchestration patterns
@@ -29,6 +31,7 @@ metadata:
 - User needs to design the observability stack for a live ML system including drift detection, prediction logging, and alerting thresholds
 
 **Do NOT use this skill when:**
+
 - User needs help with model training, hyperparameter tuning, or experiment tracking -- use the ML Training Workflows skill
 - User is designing the data pipeline feeding a model -- use the ML Data Engineering skill
 - User needs prompt engineering for an LLM application -- use the Prompt Engineering skill
@@ -140,7 +143,7 @@ Infrastructure:
   Container CPU:         0.5 / 2.0 cores
   Container Memory:      1Gi / 2Gi
   Autoscale Metric:      request queue depth > 50
-  
+
 Monitoring:
   Drift Detection:       PSI on 6 input features, 1-hour rolling window
   Alert P1:              error_rate > 1%, P99 > 200ms
@@ -174,7 +177,7 @@ Client Request
                 [Prediction Logger]
                       |
                 [Response to Client]
-                      
+
 Async path:
 [Prediction Logger] --> [Kafka topic: model-predictions]
                               |
@@ -361,7 +364,7 @@ features:
   - name: payment_method
     type: categorical
     drift_method: chi_square
-    alert_threshold: 0.05   # p-value threshold
+    alert_threshold: 0.05 # p-value threshold
 
   - name: customer_tier
     type: categorical
@@ -469,6 +472,7 @@ When the serving infrastructure scales to zero or starts a new replica from scra
 ### Step 1: Deployment Pattern Selection
 
 This is a **synchronous real-time REST API** deployment. The requirements are:
+
 - P99 SLA: 150ms -- well within synchronous REST feasibility (XGBoost inference on 45 features takes 1-5ms; the budget is ample)
 - Model size: 12MB -- trivially small, loads in < 1 second, can be baked into the container image
 - Volume estimate: financial transaction volume typically peaks at 200-500 RPS for mid-size merchants. Confirm the expected RPS during the requirements phase.
@@ -508,6 +512,7 @@ Transaction Service (Spring Boot)
 ### Step 3: Rollout Plan
 
 **Week 1 -- Shadow Mode:**
+
 - Deploy v2 (real-time model) as a shadow target alongside the existing batch scoring system
 - Mirror 100% of transaction events to the new model via Kafka -- the shadow predictions are logged but not used for fraud decisions
 - The nightly batch job continues as the authoritative fraud signal
@@ -515,12 +520,14 @@ Transaction Service (Spring Boot)
 - Target: shadow prediction should agree with batch model on > 85% of flagged transactions
 
 **Week 2 -- Canary 5%:**
+
 - Route 5% of transactions to the real-time model for the fraud decision
 - Route 95% to the batch model (or a rule-based interim if needed -- in practice, the fraud system needs an existing real-time component or this phase is the first real-time signal at all)
 - Monitor: error rate, P99 latency, fraud_catch_rate (requires a 24-48hr window for chargebacks to surface), false_positive_rate
 - Rollback triggers: P99 > 120ms (80% of 150ms budget), error rate > 0.3%, null prediction rate > 2%
 
 **Week 3 -- Canary 25% then 100%:**
+
 - If Week 2 metrics are clean, increase to 25% for 24 hours, then to 100%
 - Retain the batch job as a reconciliation run for 30 days post-launch to catch any systematic errors
 - Decommission the batch job only after 30 days of clean real-time operation
@@ -537,7 +544,7 @@ metadata:
     app: fraud-inference
     version: v2
 spec:
-  replicas: 3          # minimum 3 for HA + rolling updates without downtime
+  replicas: 3 # minimum 3 for HA + rolling updates without downtime
   selector:
     matchLabels:
       app: fraud-inference
@@ -549,18 +556,18 @@ spec:
           image: 123456789.dkr.ecr.us-east-1.amazonaws.com/fraud-inference:v2.3.1
           resources:
             requests:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: '500m'
+              memory: '512Mi'
             limits:
-              cpu: "2000m"
-              memory: "1Gi"
+              cpu: '2000m'
+              memory: '1Gi'
           env:
             - name: MODEL_PATH
-              value: "/app/models/xgb_fraud_v2.3.1.ubj"   # baked in image (12MB is fine)
+              value: '/app/models/xgb_fraud_v2.3.1.ubj' # baked in image (12MB is fine)
             - name: CONFIDENCE_THRESHOLD
-              value: "0.55"
+              value: '0.55'
             - name: INFERENCE_TIMEOUT_MS
-              value: "80"         # 80ms leaves 70ms for network + preprocessing within 150ms SLA
+              value: '80' # 80ms leaves 70ms for network + preprocessing within 150ms SLA
             - name: REDIS_URL
               valueFrom:
                 secretKeyRef:
@@ -568,15 +575,15 @@ spec:
                   key: redis-url
           livenessProbe:
             httpGet:
-              path: /healthz       # only checks process is alive
+              path: /healthz # only checks process is alive
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /readyz        # checks model loaded + warmup complete
+              path: /readyz # checks model loaded + warmup complete
               port: 8080
-            initialDelaySeconds: 15   # enough time for warmup (20 requests x 5ms = 100ms)
+            initialDelaySeconds: 15 # enough time for warmup (20 requests x 5ms = 100ms)
             periodSeconds: 5
 ---
 apiVersion: autoscaling/v2
@@ -594,10 +601,10 @@ spec:
     - type: Pods
       pods:
         metric:
-          name: http_requests_in_flight    # custom metric via KEDA or Prometheus adapter
+          name: http_requests_in_flight # custom metric via KEDA or Prometheus adapter
         target:
           type: AverageValue
-          averageValue: "50"              # scale when avg 50 concurrent requests per pod
+          averageValue: '50' # scale when avg 50 concurrent requests per pod
 ```
 
 ### Step 5: Prediction Logger (Async, Non-Blocking)
@@ -683,7 +690,7 @@ groups:
           severity: critical
           team: ml-platform
         annotations:
-          summary: "Fraud inference error rate > 1% for 2 minutes"
+          summary: 'Fraud inference error rate > 1% for 2 minutes'
 
       - alert: FraudInferenceP99LatencyBreach
         expr: |
@@ -703,7 +710,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Fallback activation rate > 5% -- model may be degrading"
+          summary: 'Fallback activation rate > 5% -- model may be degrading'
 
       - alert: FraudInferencePredictionDistributionShift
         expr: |
@@ -715,12 +722,13 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Fraud score distribution shifted > 2 std from 30-day baseline"
+          summary: 'Fraud score distribution shifted > 2 std from 30-day baseline'
 ```
 
 ### Expected Outcomes
 
 After full rollout to 100% of real-time traffic:
+
 - **Latency:** P50 ~8ms, P95 ~25ms, P99 ~60ms (well within 150ms SLA; XGBoost on 45 features is fast)
 - **Cache hit rate:** ~35% for repeat card/merchant combinations within 60-second TTL window
 - **Fraud catch improvement:** Real-time scoring catches fraud 18-23 hours earlier than next-day batch, enabling same-session card blocking

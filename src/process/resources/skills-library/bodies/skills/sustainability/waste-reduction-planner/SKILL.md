@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "waste-reduction sustainability checklist planning"
-  category: "sustainability"
-  subcategory: "home-sustainability"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'waste-reduction sustainability checklist planning'
+  category: 'sustainability'
+  subcategory: 'home-sustainability'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Waste Reduction Planner
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to reduce the amount of trash, garbage, or waste their household generates
 - A user wants to start a zero-waste or low-waste lifestyle and does not know where to begin
 - A user wants to improve their recycling habits, learn what is and is not recyclable in their home, or stop contaminating recycling bins
@@ -30,6 +32,7 @@ metadata:
 - A user asks how much money they could save by wasting less food or buying fewer disposable products
 
 **Do NOT use when:**
+
 - The user is asking about commercial, institutional, or industrial waste streams -- this skill covers household waste only (refer to a facilities management or commercial sustainability resource)
 - The user asks for detailed step-by-step composting setup, troubleshooting, or maintenance -- that level of composting guidance belongs in a `composting-starter-guide` skill
 - The user is asking specifically about safe disposal of hazardous household waste (paint, pesticides, motor oil, fluorescent bulbs) -- provide the framework here but direct them to a `hazardous-waste-disposal` skill or local household hazardous waste (HHW) collection programs
@@ -82,19 +85,19 @@ At the end of the week, instruct the user to estimate the volume or weight of ea
 
 Use national EPA MSW (Municipal Solid Waste) composition data adjusted for household size to build an estimated audit. For a typical U.S. household in a single-family home, the approximate composition of what actually ends up in the trash can (after existing recycling) is:
 
-| Material Category | % of Landfill-Bound Waste | Notes |
-|---|---|---|
-| Food waste | 21-24% | Largest single category; nearly all divertable |
-| Plastic film and flexible plastic | 10-12% | Largely non-recyclable curbside; reduce at source |
-| Paper and paperboard | 11-13% | High diversion potential through recycling and reduction |
-| Rigid plastic (non-recycled) | 6-8% | Often recyclable but contaminated or uncollected |
-| Yard waste (if not picked up separately) | 8-13% | Fully divertable |
-| Textiles and leather | 6-8% | Largely divertable via donation or textile recycling |
-| Wood | 4-6% | Partially divertable |
-| Metals (non-recycled) | 4-5% | Largely recyclable if properly sorted |
-| Glass (non-recycled) | 3-5% | Recyclable if sorted; often contaminated |
-| Rubber and other | 4-6% | Limited diversion options |
-| Truly non-divertable residuals | 10-15% | Sanitary items, composite materials, contaminated waste |
+| Material Category                        | % of Landfill-Bound Waste | Notes                                                    |
+| ---------------------------------------- | ------------------------- | -------------------------------------------------------- |
+| Food waste                               | 21-24%                    | Largest single category; nearly all divertable           |
+| Plastic film and flexible plastic        | 10-12%                    | Largely non-recyclable curbside; reduce at source        |
+| Paper and paperboard                     | 11-13%                    | High diversion potential through recycling and reduction |
+| Rigid plastic (non-recycled)             | 6-8%                      | Often recyclable but contaminated or uncollected         |
+| Yard waste (if not picked up separately) | 8-13%                     | Fully divertable                                         |
+| Textiles and leather                     | 6-8%                      | Largely divertable via donation or textile recycling     |
+| Wood                                     | 4-6%                      | Partially divertable                                     |
+| Metals (non-recycled)                    | 4-5%                      | Largely recyclable if properly sorted                    |
+| Glass (non-recycled)                     | 3-5%                      | Recyclable if sorted; often contaminated                 |
+| Rubber and other                         | 4-6%                      | Limited diversion options                                |
+| Truly non-divertable residuals           | 10-15%                    | Sanitary items, composite materials, contaminated waste  |
 
 Walk the user through which categories are likely high or low for their household based on what they have shared about their habits.
 
@@ -154,15 +157,15 @@ A waste reduction plan is only executable if it accounts for what infrastructure
 
 Build a quick infrastructure map for the user based on what they have shared:
 
-| Service | Available? | Action If Not Available |
-|---|---|---|
-| Curbside recycling | [Yes/No] | Locate nearest drop-off center; shift plan toward reduce/reuse |
-| Curbside compost/organics | [Yes/No] | Explore backyard, vermicompost, or community drop-off |
-| Yard waste pickup | [Yes/No] | Backyard compost or mulching mower |
-| Bulk item pickup | [Yes/No] | Schedule special pickup or locate donation/drop-off |
-| HHW collection events | [Yes/No] | Store safely until next event; check municipality website |
-| Plastic film drop-off | [Yes/No] | Most major grocery/retail chains offer this |
-| Textile recycling bins | [Yes/No] | Most donation centers accept damaged textiles |
+| Service                   | Available? | Action If Not Available                                        |
+| ------------------------- | ---------- | -------------------------------------------------------------- |
+| Curbside recycling        | [Yes/No]   | Locate nearest drop-off center; shift plan toward reduce/reuse |
+| Curbside compost/organics | [Yes/No]   | Explore backyard, vermicompost, or community drop-off          |
+| Yard waste pickup         | [Yes/No]   | Backyard compost or mulching mower                             |
+| Bulk item pickup          | [Yes/No]   | Schedule special pickup or locate donation/drop-off            |
+| HHW collection events     | [Yes/No]   | Store safely until next event; check municipality website      |
+| Plastic film drop-off     | [Yes/No]   | Most major grocery/retail chains offer this                    |
+| Textile recycling bins    | [Yes/No]   | Most donation centers accept damaged textiles                  |
 
 Note: The user must verify their specific municipality's recycling accepted materials list. Recycling rules vary enormously -- glass is curbside-accepted in some cities and completely excluded in others. Plastics #3-7 are not accepted in the majority of U.S. curbside programs despite the recycling symbol on the container.
 
@@ -173,6 +176,7 @@ Note: The user must verify their specific municipality's recycling accepted mate
 Rank all identified actions into four tiers based on two axes: impact (how much waste is diverted, in pounds per year or percentage) and effort (time, cost, and habit change required).
 
 **Tier 1 -- Free, Immediate, High Impact (Start This Week)**
+
 - Meal planning before grocery shopping
 - Refrigerator reorganization using FIFO (first in, first out) principle
 - Posting a recycling guide specific to the local municipality on the inside of a cabinet
@@ -184,6 +188,7 @@ Rank all identified actions into four tiers based on two axes: impact (how much 
 Estimated landfill diversion from Tier 1 alone: 20-35%
 
 **Tier 2 -- Low Cost ($10-50), Moderate Habit Change (Month 1)**
+
 - Switching to cloth napkins and rags (replaces paper napkins and paper towels)
 - Adding a second small recycling bin inside the home to improve sorting compliance
 - Switching to e-statements and digital billing
@@ -193,6 +198,7 @@ Estimated landfill diversion from Tier 1 alone: 20-35%
 Estimated additional diversion from Tier 2: 10-15%
 
 **Tier 3 -- Habit and Behavior Change, Low to No Cost (Month 2-3)**
+
 - Consistent once-weekly "use up the leftovers" dinner
 - Checking the refrigerator and freezer inventory before every grocery trip
 - Learning proper produce storage for the top 10 items the household buys
@@ -202,6 +208,7 @@ Estimated additional diversion from Tier 2: 10-15%
 Estimated additional diversion from Tier 3: 10-15%
 
 **Tier 4 -- Investment or Infrastructure (Month 3+, Homeowners or High-Motivation)**
+
 - Setting up a backyard compost bin or tumbler
 - Transitioning bathroom and cleaning products to low-waste alternatives (bar soap, shampoo bars, refillable cleaning concentrates)
 - Shopping at a bulk food store with reusable containers
@@ -219,17 +226,20 @@ Estimated additional diversion from Tier 4: 10-20%
 Translate the plan into concrete numbers the user can track and feel motivated by. Use the household profile data to personalize these estimates.
 
 **Baseline calculation:**
+
 - Average U.S. per-capita waste generation: approximately 4.4 lbs per person per day (EPA, 2018 data -- the most recent comprehensive national dataset)
 - Family of 4: approximately 6,424 lbs per year total waste generated
 - After existing recycling (assumed 25-30% diversion if they have curbside and use it), trash-to-landfill baseline: approximately 4,500-5,000 lbs per year
 
 **Financial savings to quantify and present:**
+
 - Food waste reduction: $400-800 per year for a household of 4 at Tier 1-2 actions
 - Paper towel elimination: $80-120 per year
 - Reduced bottled water (4 people using reusable bottles): $300-600 per year if household was buying cases of water
 - Reduced single-use item purchases (bags, napkins, plastic wrap): $50-100 per year
 
 **Environmental impact framing (use these benchmarks):**
+
 - Every ton of food diverted from landfill avoids approximately 0.52 metric tons of CO2-equivalent emissions (methane + avoided landfill decomposition)
 - Every ton of paper recycled rather than landfilled saves approximately 3.3 cubic yards of landfill space and 17 trees worth of fiber equivalent
 - These numbers are useful for users who are environmentally motivated, but for users who are budget-motivated, lead with the dollar figures
@@ -245,6 +255,7 @@ Give the user a concrete starting point, not a list of everything to do eventual
 **Month 1 checkpoint:** At the end of month 1, the user should be able to notice a reduction in the number of bags going to the curb. If they were filling 3 bags per week, a 20-30% reduction means 2-2.5 bags per week. This is the primary observable metric for tracking progress.
 
 **Tracking methods:**
+
 - Bag count per week (simplest and most motivating)
 - Grocery receipt total (food waste reduction shows up as grocery bill savings within 2-4 weeks)
 - Photo of the trash bin before it goes out (visual record over weeks shows volume reduction)
@@ -287,7 +298,7 @@ Produce the following structured plan. Fill in all bracketed fields with the use
 ---
 
 ### Step 1 -- Estimated Waste Audit (1-Week Snapshot)
-_Note: These are estimates based on [actual audit / national averages for household of X]. 
+_Note: These are estimates based on [actual audit / national averages for household of X].
 A 1-week physical audit will give more accurate numbers._
 
 | Waste Category           | Est. Weekly | Est. Annual | % of Total | Diversion Potential |
@@ -443,33 +454,35 @@ Home-based business waste often blurs the household/commercial line. The skill c
 ## Household Waste Reduction Plan
 
 ### Household Profile
-| Parameter              | Value                                                    |
-|------------------------|----------------------------------------------------------|
-| Household size         | 5 people (2 adults, children ages 2, 7, 10)             |
-| Housing type           | Townhouse rental with small backyard                     |
-| Current weekly waste   | 3-4 standard kitchen bags (~13-gallon), est. 40-60 lbs/week |
-| Recycling access       | Curbside (available, currently contaminated)             |
-| Composting status      | No curbside program; backyard available                  |
-| Yard waste pickup      | Unknown -- confirm with municipality                     |
-| Budget                 | Tight -- free and low-cost actions only                  |
-| Renter or owner        | Renter (limits permanent infrastructure changes)         |
+
+| Parameter            | Value                                                       |
+| -------------------- | ----------------------------------------------------------- |
+| Household size       | 5 people (2 adults, children ages 2, 7, 10)                 |
+| Housing type         | Townhouse rental with small backyard                        |
+| Current weekly waste | 3-4 standard kitchen bags (~13-gallon), est. 40-60 lbs/week |
+| Recycling access     | Curbside (available, currently contaminated)                |
+| Composting status    | No curbside program; backyard available                     |
+| Yard waste pickup    | Unknown -- confirm with municipality                        |
+| Budget               | Tight -- free and low-cost actions only                     |
+| Renter or owner      | Renter (limits permanent infrastructure changes)            |
 
 ---
 
 ### Step 1 -- Estimated Waste Audit (1-Week Snapshot)
+
 _Based on national averages for a household of 5 with a 2-year-old. A 1-week physical sort will give more accurate numbers._
 
-| Waste Category            | Est. Weekly | Est. Annual | % of Total | Diversion Potential |
-|---------------------------|-------------|-------------|------------|---------------------|
-| Food waste                | 12-14 lbs   | 624-728 lbs | 22-23%     | High (prevention + compost) |
-| Recyclables going in trash| 7-9 lbs     | 364-468 lbs | 13-15%     | High (fix sorting) |
-| Cardboard and paper       | 8-10 lbs    | 416-520 lbs | 14-16%     | High (recycle + reduce) |
-| Packaging/plastic film    | 6-8 lbs     | 312-416 lbs | 11-13%     | Moderate (reduce at source) |
-| Toddler-related waste     | 4-6 lbs     | 208-312 lbs | 7-9%       | Limited in short term |
-| Paper towels/napkins      | 2-3 lbs     | 104-156 lbs | 3-5%       | High (cloth switch) |
-| Textiles / household items| 2-3 lbs     | 104-156 lbs | 3-5%       | Moderate (donation) |
-| True non-divertable       | 8-10 lbs    | 416-520 lbs | 14-18%     | Minimize over time |
-| **Total**                 | **~50 lbs** | **~2,600 lbs** | **100%** |                  |
+| Waste Category             | Est. Weekly | Est. Annual    | % of Total | Diversion Potential         |
+| -------------------------- | ----------- | -------------- | ---------- | --------------------------- |
+| Food waste                 | 12-14 lbs   | 624-728 lbs    | 22-23%     | High (prevention + compost) |
+| Recyclables going in trash | 7-9 lbs     | 364-468 lbs    | 13-15%     | High (fix sorting)          |
+| Cardboard and paper        | 8-10 lbs    | 416-520 lbs    | 14-16%     | High (recycle + reduce)     |
+| Packaging/plastic film     | 6-8 lbs     | 312-416 lbs    | 11-13%     | Moderate (reduce at source) |
+| Toddler-related waste      | 4-6 lbs     | 208-312 lbs    | 7-9%       | Limited in short term       |
+| Paper towels/napkins       | 2-3 lbs     | 104-156 lbs    | 3-5%       | High (cloth switch)         |
+| Textiles / household items | 2-3 lbs     | 104-156 lbs    | 3-5%       | Moderate (donation)         |
+| True non-divertable        | 8-10 lbs    | 416-520 lbs    | 14-18%     | Minimize over time          |
+| **Total**                  | **~50 lbs** | **~2,600 lbs** | **100%**   |                             |
 
 **Primary targets by volume:** Food waste, incorrectly sorted recyclables, cardboard and paper, and plastic packaging. These four categories together represent approximately 65% of your landfill-bound waste and all have actionable diversion paths.
 
@@ -479,15 +492,16 @@ _Based on national averages for a household of 5 with a 2-year-old. A 1-week phy
 
 #### Food Waste -- approx. 22% of total waste, est. $1,500-2,000/year in wasted food for a family of 5
 
-| Action                                      | Why It Works                                          | Est. Annual Impact              | Cost    | Difficulty |
-|---------------------------------------------|-------------------------------------------------------|---------------------------------|---------|------------|
-| Meal plan on Sunday before writing the grocery list | Buying only what you will use eliminates the biggest cause of food waste | Save $400-700/yr; divert 200-300 lbs | Free | Easy |
-| FIFO fridge organization (older items in front) | Produce and leftovers get used before they go bad    | Divert 100-150 lbs/yr additional | Free   | Easy |
-| Designate one dinner per week as "leftover night" | Clears the fridge of accumulating partial meals      | Divert 50-100 lbs/yr            | Free    | Easy |
-| Learn proper storage for top 10 produce items | Correct storage can triple shelf life of many items  | Divert 75-125 lbs/yr            | Free    | Moderate |
-| Start a small backyard compost for unavoidable scraps | Diverts all fruit/veg scraps and coffee grounds; backyard makes this feasible as a renter | Divert 200-300 lbs/yr | $0-40 (DIY pile) or $30-80 (purchased bin) | Moderate |
+| Action                                                | Why It Works                                                                              | Est. Annual Impact                   | Cost                                       | Difficulty |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------ | ---------- |
+| Meal plan on Sunday before writing the grocery list   | Buying only what you will use eliminates the biggest cause of food waste                  | Save $400-700/yr; divert 200-300 lbs | Free                                       | Easy       |
+| FIFO fridge organization (older items in front)       | Produce and leftovers get used before they go bad                                         | Divert 100-150 lbs/yr additional     | Free                                       | Easy       |
+| Designate one dinner per week as "leftover night"     | Clears the fridge of accumulating partial meals                                           | Divert 50-100 lbs/yr                 | Free                                       | Easy       |
+| Learn proper storage for top 10 produce items         | Correct storage can triple shelf life of many items                                       | Divert 75-125 lbs/yr                 | Free                                       | Moderate   |
+| Start a small backyard compost for unavoidable scraps | Diverts all fruit/veg scraps and coffee grounds; backyard makes this feasible as a renter | Divert 200-300 lbs/yr                | $0-40 (DIY pile) or $30-80 (purchased bin) | Moderate   |
 
 **Storage quick reference for your most-wasted items:**
+
 - Berries: do not wash until eating; store dry in original container; or soak in 1:3 vinegar/water solution, dry completely, store loosely in container lined with paper towel -- lasts 5-7 days vs. 2-3 days unwashed
 - Leafy greens: wrap in a dry paper towel (or cloth towel), store in a bag in the crisper drawer -- lasts 5-7 days vs. 2-3 days loose
 - Herbs (cilantro, parsley): trim stems, stand in a glass of water in the refrigerator like flowers, cover loosely with a bag -- lasts 2 weeks vs. 4-5 days
@@ -496,31 +510,32 @@ _Based on national averages for a household of 5 with a 2-year-old. A 1-week phy
 
 #### Packaging, Plastic Film, and Amazon Boxes -- approx. 25-28% of total waste
 
-| Action                                       | Why It Works                                       | Est. Annual Impact              | Cost       | Difficulty |
-|----------------------------------------------|----------------------------------------------------|---------------------------------|------------|------------|
-| Flatten and recycle all cardboard (keep dry) | Every Amazon box is fully recyclable if clean and flat | Divert 100-200 lbs/yr       | Free       | Easy |
-| Request "no extras" or "no utensils" for all takeout | Eliminates a high-volume stream of truly unrecyclable waste | Divert 20-40 lbs/yr of non-recyclable items | Free | Easy |
-| Take plastic film to grocery store drop-off bin | Bread bags, produce bags, bubble wrap, Amazon air pillows -- all accepted; none belong in curbside recycling | Divert 50-80 lbs/yr from landfill | Free | Easy -- requires one errand habit |
-| Choose larger package sizes over multiple smaller ones | Fewer packages for the same product means less waste per unit | 15-25% packaging reduction on staples | Free | Moderate |
-| Switch produce shopping to loose items, not pre-bagged | Pre-bagged produce uses unrecyclable plastic film; loose has none | Divert 10-20 lbs of plastic/yr | Free | Easy |
+| Action                                                 | Why It Works                                                                                                 | Est. Annual Impact                          | Cost | Difficulty                        |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------- | ---- | --------------------------------- |
+| Flatten and recycle all cardboard (keep dry)           | Every Amazon box is fully recyclable if clean and flat                                                       | Divert 100-200 lbs/yr                       | Free | Easy                              |
+| Request "no extras" or "no utensils" for all takeout   | Eliminates a high-volume stream of truly unrecyclable waste                                                  | Divert 20-40 lbs/yr of non-recyclable items | Free | Easy                              |
+| Take plastic film to grocery store drop-off bin        | Bread bags, produce bags, bubble wrap, Amazon air pillows -- all accepted; none belong in curbside recycling | Divert 50-80 lbs/yr from landfill           | Free | Easy -- requires one errand habit |
+| Choose larger package sizes over multiple smaller ones | Fewer packages for the same product means less waste per unit                                                | 15-25% packaging reduction on staples       | Free | Moderate                          |
+| Switch produce shopping to loose items, not pre-bagged | Pre-bagged produce uses unrecyclable plastic film; loose has none                                            | Divert 10-20 lbs of plastic/yr              | Free | Easy                              |
 
 **Important:** Amazon padded mailers (gray plastic poly mailers) are NOT recyclable in curbside recycling. They belong in plastic film drop-off if the plastic has the film recycling symbol, or trash. Amazon paper mailers and cardboard boxes are fully curbside recyclable when broken down flat.
 
 #### Paper and Paper Towels -- approx. 17-20% of total waste
 
-| Action                                       | Why It Works                                       | Est. Annual Impact              | Cost       | Difficulty |
-|----------------------------------------------|----------------------------------------------------|---------------------------------|------------|------------|
-| Cut 15-20 cloth rags from old t-shirts or worn towels | Free cloth towels replace paper towels for 95% of uses -- spills, counter wiping, hand drying | Save $80-100/yr; divert 100+ lbs paper/yr | Free (use old fabric) | Easy |
-| Opt out of junk mail (use DMAchoice and catalog preference services) | Average household receives 41 lbs of junk mail/year; opt-out reduces this 40-60% over 3 months | Divert 15-25 lbs/yr             | Free       | Easy -- one-time 20-minute task |
-| Switch to digital statements for all bills and accounts | Paper statements add up to 5-10 lbs/year per account | Divert 10-25 lbs/yr            | Free       | Easy |
-| Recycle shredded paper in a sealed paper bag, not loose | Loose shreds jam recycling machinery and cause contamination -- bagged shreds can be recycled | Keeps 5-10 lbs/yr out of contamination stream | Free | Easy |
-| Compost wet or soiled cardboard instead of recycling | Wet cardboard has no recycling value; composting diverts it appropriately | Diverts 10-20 lbs/yr            | Free       | Easy |
+| Action                                                               | Why It Works                                                                                   | Est. Annual Impact                            | Cost                  | Difficulty                      |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------- | --------------------- | ------------------------------- |
+| Cut 15-20 cloth rags from old t-shirts or worn towels                | Free cloth towels replace paper towels for 95% of uses -- spills, counter wiping, hand drying  | Save $80-100/yr; divert 100+ lbs paper/yr     | Free (use old fabric) | Easy                            |
+| Opt out of junk mail (use DMAchoice and catalog preference services) | Average household receives 41 lbs of junk mail/year; opt-out reduces this 40-60% over 3 months | Divert 15-25 lbs/yr                           | Free                  | Easy -- one-time 20-minute task |
+| Switch to digital statements for all bills and accounts              | Paper statements add up to 5-10 lbs/year per account                                           | Divert 10-25 lbs/yr                           | Free                  | Easy                            |
+| Recycle shredded paper in a sealed paper bag, not loose              | Loose shreds jam recycling machinery and cause contamination -- bagged shreds can be recycled  | Keeps 5-10 lbs/yr out of contamination stream | Free                  | Easy                            |
+| Compost wet or soiled cardboard instead of recycling                 | Wet cardboard has no recycling value; composting diverts it appropriately                      | Diverts 10-20 lbs/yr                          | Free                  | Easy                            |
 
 #### Recycling Improvement -- est. 13-15% of your trash is recyclable material going to landfill
 
 Your "wish-cycling" (putting everything in hoping for the best) is common and understandable, but contaminated recycling loads can result in entire bins being rejected and sent to landfill. Fixing this has high impact.
 
-| Action                                       | Why It Works                                       | Est. Annual Impact              | Cost       | Difficulty |
-|----------------------------------------------|----------------------------------------------------|---------------------------------|------------|------------|
+| Action                                                                                                | Why It Works                                                                            | Est. Annual Impact                                                                          | Cost | Difficulty                      |
+| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---- | ------------------------------- |
 | Print your municipality's actual accepted materials list and post it inside the cabinet above the bin | Sorting compliance rises dramatically when the list is visible at the point of decision | Divert 200-300 lbs/yr properly; prevent 50-100 lbs from being rejected due to contamination | Free | Easy -- one-time 10-minute task |
+
 |

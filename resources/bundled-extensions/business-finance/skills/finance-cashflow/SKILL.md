@@ -154,13 +154,13 @@ Cash Conversion Cycle (CCC) = DSO + DIO − DPO
 
 ## Common cash flow traps for SMBs
 
-| Trap | What it looks like | Fix |
-|---|---|---|
+| Trap                     | What it looks like                                | Fix                                                            |
+| ------------------------ | ------------------------------------------------- | -------------------------------------------------------------- |
 | Profitable but cash-poor | Net income positive, operating cash flow negative | AR collections too slow or expenses paid faster than collected |
-| Inventory pile-up | Inventory increase draining cash | Review purchasing pace vs sales velocity |
-| Slow AR collection | AR increasing each period | Tighten payment terms; add early pay discount |
-| Owner over-drawing | Financing cash flow consistently negative | Review owner draw vs sustainable cash generation |
-| Debt service squeeze | Financing outflows consuming most operating cash | Refinance or restructure debt |
+| Inventory pile-up        | Inventory increase draining cash                  | Review purchasing pace vs sales velocity                       |
+| Slow AR collection       | AR increasing each period                         | Tighten payment terms; add early pay discount                  |
+| Owner over-drawing       | Financing cash flow consistently negative         | Review owner draw vs sustainable cash generation               |
+| Debt service squeeze     | Financing outflows consuming most operating cash  | Refinance or restructure debt                                  |
 
 ## Workflow
 

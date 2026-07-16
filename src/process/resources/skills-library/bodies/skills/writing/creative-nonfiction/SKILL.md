@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing design"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing design'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Creative Nonfiction
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write a personal essay, memoir excerpt, or lyric essay about a true experience from their own life
 - The user wants to tell a true story using literary craft -- scene, dialogue, sensory detail, structural experimentation, and the essayist's thinking voice
 - The user asks for narrative nonfiction or literary journalism where the story form matters as much as the facts (immersive reporting, profile essays, experiential journalism)
@@ -29,6 +31,7 @@ metadata:
 - The user wants to write an essay in which a public or historical subject is filtered through personal encounter and reflection
 
 **Do NOT use this skill when:**
+
 - The user wants a standard academic essay with a thesis, body paragraphs, and cited argument -- use `academic-argument`
 - The user wants a blog post, listicle, or conversational web content -- use `blog-post-writing`
 - The user wants straight journalism: a news report, feature article, or explainer without literary intent or personal presence
@@ -59,18 +62,21 @@ Before drafting a single sentence, identify the two-level subject that all succe
 Subgenre and structure are not interchangeable. Match the form to what the subject requires.
 
 **Personal Essay:**
+
 - Centers on the author's direct experience and perspective; the "I" is the primary instrument
 - Best structure: chronological narrative with reflection, or segmented essay with numbered/titled sections
 - Tone range: confessional, ironic, humorous, meditative, argumentative -- but always with the essayist's distinctive thinking voice present
 - Benchmark length: 1,200--4,000 words for literary publications; 600--1,200 for general audience venues
 
 **Memoir Excerpt:**
+
 - A slice of a longer life narrative, not the full arc; requires establishing context more efficiently than a full memoir
 - Best structure: a single throughline scene or compressed time period (a week, a month, a single day) with reflection
 - The excerpt must work as a standalone piece -- it cannot rely on the reader knowing what comes before or after
 - Key challenge: establishing a character (the narrator's past self) who is distinct from the reflecting narrator
 
 **Lyric Essay:**
+
 - Uses fragmentation, white space, associative logic, and poetic compression instead of linear argument
 - Best structure: titled or numbered fragments that accrue meaning through juxtaposition rather than causality
 - Ideal for subjects that resist direct narration -- trauma, grief, the uncanny, contradictory memory
@@ -78,6 +84,7 @@ Subgenre and structure are not interchangeable. Match the form to what the subje
 - Benchmark: each fragment should be self-contained enough to exist alone but gain new meaning in context
 
 **Braided Essay:**
+
 - Weaves two or three thematic threads, with each thread returning at intervals like the strands of a braid
 - The threads should not be obviously connected on the surface -- the connection is the essay's discovered meaning
 - Common thread types: personal experience + historical/cultural research + observed natural or physical world
@@ -85,18 +92,21 @@ Subgenre and structure are not interchangeable. Match the form to what the subje
 - Practical rule: threads should be roughly equal in length and return at roughly equal intervals (every 300--500 words in a 2,000-word essay)
 
 **Hermit Crab Essay:**
+
 - The true subject is told through a borrowed, recognizable form -- recipe, field guide, FAQ, real estate listing, instruction manual, warranty card, dictionary entry, annotated bibliography
 - The borrowed form must create ironic or thematic tension with the content -- the form's conventions should strain against or illuminate the emotional reality inside them
 - Best for subjects where the disjunction between official/functional language and raw human experience is itself the point
 - Risk: the formal conceit can become a gimmick if the emotional content is not strong enough to justify it
 
 **Segmented Essay:**
+
 - Numbered or titled sections explore different facets or angles of the same subject
 - Sections can vary in length, register, and mode (scene, lyric, research, list)
 - The white space between sections is active -- it creates meaning through juxtaposition and asks the reader to make connections
 - Unlike the braided essay, the segmented essay does not necessarily interweave recurring threads -- each section can be a standalone unit
 
 **Narrative Nonfiction / Literary Journalism:**
+
 - A reported, researched true story told with the full toolkit of fiction: scene, character, dialogue, pacing, point of view
 - Requires explicit sourcing conventions -- what is reconstructed from reporting, what is documented, what comes from memory
 - The author may or may not be present in the text; if present, must handle the role of "reporter as character" carefully
@@ -140,6 +150,7 @@ The ratio of scene to reflection is the primary technical challenge of creative 
 The opening and ending are the essay's most technically demanding passages.
 
 **Openings:**
+
 - Never open with a thesis, a topic sentence, or a declaration of what the essay is about ("This essay is about my relationship with my mother")
 - Never open with a weather report, an alarm clock, or waking up -- these are the clichés of essay opening
 - Strong opening strategies:
@@ -150,6 +161,7 @@ The opening and ending are the essay's most technically demanding passages.
 - The opening should establish the essay's register and voice in its first paragraph. A reader should be able to feel the essay's tone -- its relationship to humor, grief, anger, wonder -- within 100 words.
 
 **Endings:**
+
 - Avoid the **epiphany ending:** "And then I realized..." followed by a tidy statement of what everything meant. The epiphany ending forecloses the reader's interpretive freedom and signals that the essay was always moving toward a predetermined conclusion.
 - Avoid the **circular ending that only circles:** Returning to the opening image or scene is a legitimate technique, but returning to it and saying "I understand it now" is an epiphany ending in disguise.
 - Strong ending strategies:
@@ -255,24 +267,31 @@ or structural choices that the reader should know about. Omit if not needed.]*
 ## Edge Cases
 
 ### The Subject is Too Large or Too Abstract
+
 When a user says "I want to write about grief" or "I want to write about racism" or "I want to write about being an immigrant," the subject is a category, not an essay. The essay lives in the specific instance: the one afternoon, the one object, the one conversation, the one image that opens onto the larger subject. Ask: what is the smallest, most specific moment that contains this subject? What object or scene could carry it? A personal essay about racism that begins with a single, specific incident -- a waiting room, a phrase said at a dinner table, the way a particular cashier looked through the author -- is more powerful and more universal than one that attempts to address the full scope of the subject. The paradox of the personal essay is that the more specific and local the entry point, the more broadly the reader can enter the essay's experience.
 
 ### The User Has Raw, Unstructured Personal Writing
+
 When a user provides a raw draft or freewrite, do not attempt to line-edit it -- read it diagnostically. Identify: (1) the two or three strongest scenes -- the passages where the writing is most specific and alive; (2) the implicit deeper question that the writing circles without naming; (3) the structural logic the writing wants but does not yet have. Feed this diagnosis back to the user and propose a structural approach. Often the best essay is hiding inside the raw draft, but its scenes are buried in the wrong order, separated by lengthy explanation, or outnumbered by reflection that hasn't been earned yet. The revision task is archaeological: excavate the scenes, arrange them in the structure they need, add reflection only where it is earned.
 
 ### The User Wants to Write About a Living Person
+
 Writing about people who are alive -- particularly people in close relationship to the author (parents, partners, siblings, friends) -- raises real ethical and craft questions that must be addressed before drafting. The craft question: how do you write about a real person in a way that renders them as a full human being and not as a flat supporting character in your story? The technique is to give even the most complicated figures in your life full human particularity -- their specific gestures, specific speech, specific contradictions. A parent who was absent should appear in the essay with more than their absence. The ethical question: the author has a right to their own experience and perspective. They do not have the right to claim objective knowledge of another person's interior. The essay must be marked as the author's perspective, not as truth about the other person.
 
 ### The User Wants a Braided Essay
+
 A braided essay requires three preliminary decisions before any drafting can occur. First, identify the threads -- typically two or three, rarely four. Each thread must be genuinely interesting as prose on its own. One thread should be personal/experiential; at least one other should come from a different register (historical, cultural, scientific, natural world). Second, identify what meaning emerges from their juxtaposition -- the braid's meaning should not be obvious from the threads stated separately; it should arise from the encounter between them. Third, establish the braiding interval -- how often each thread returns. For a 2,000-word essay, threads should return every 300--500 words. For a 4,000-word essay, every 500--700 words. Common failure: one thread is stronger or more developed than the others, causing the braid to feel unbalanced. Every thread must receive equal narrative investment.
 
 ### The User Wants to Write About Trauma
+
 Trauma writing is the most technically and ethically demanding territory in creative nonfiction. The craft challenge is control: the most powerful trauma essays are often the most formally controlled, because the controlled form creates an implicit tension with the devastating content that is more affecting than direct emotional expression. Technique: use precise, concrete physical detail rather than emotional abstraction. The brain under trauma notices specific, strange details (the pattern on a ceiling, the song on a radio). These specific details are more emotionally true than statements like "I was terrified." Guide the user toward scene and away from summary in the most difficult passages. The ethical challenge: the essay must serve the reader, not only the author. An essay that demands the reader witness the author's pain without offering craft, structure, or the dignity of meaning-making is not a published essay -- it is a journal entry. The author's job is to do enough work with the material that the reader's experience of reading it is worth their engagement.
 
 ### The User Wants a Hermit Crab Essay
+
 The hermit crab essay requires the borrowed form to do real thematic work -- not just to be a clever container. The best hermit crab essays are ones where the disjunction between the form's official, functional language and the actual human content is the point. A breakup told as a warranty card works because warranty language is about coverage, exclusions, and void conditions -- terms that illuminate the essay's real subject through ironic tension. A field guide to surviving a parent's addiction works because field guide language imposes clinical distance on intimate material. Before drafting, ask: what does this particular form's conventions say implicitly about the subject? What terms does the form use that gain new meaning in this context? What does the form exclude or flatten, and is that exclusion part of the essay's argument? A hermit crab essay that uses a form purely for novelty without this thematic tension is a party trick.
 
 ### The User Cannot Find the Deeper Question
+
 Sometimes a user knows their surface subject and has strong scenes but cannot articulate what the essay is really about. This is not a failure -- it is a stage of the writing process. Many essays discover their deeper question during drafting, not before. In this case: draft the key scenes first, without worrying about what they mean. After drafting 2--3 scenes, read them back and ask: what question do these scenes keep circling? What have you avoided naming? What would you least like a specific person (a parent, a former partner, a reader you respect) to conclude about you from these scenes -- because often that thing is what the essay is actually about. The deeper question often lives in the author's resistance, not their comfort.
 
 ---
@@ -287,7 +306,7 @@ Sometimes a user knows their surface subject and has strong scenes but cannot ar
 
 ## What He Would Not Have Allowed
 
-*Personal essay | Chronological narrative with segmented reflection | ~2,000 words*
+_Personal essay | Chronological narrative with segmented reflection | ~2,000 words_
 
 The first time I cut my father's nails, I had to ask him twice to hold still. He was sitting in the blue recliner he'd had since before I was born, the one with the armrests worn pale as driftwood, and his hands were in my lap, and he was looking at the ceiling. Not at me. I understood. We had agreed, without discussing it, that we would not be looking at each other during this.
 
@@ -303,7 +322,7 @@ He had the stroke on a Tuesday in March, at the office, in front of three collea
 
 "I know," he said. Not in response to anything I'd said. Just: I know.
 
-The doctors talked to me about the right side of the brain, about the particular shape of the damage, about what he would recover and what he would not. I wrote things in a small notebook I'd bought from the gift shop. I wrote: *can walk with assistance. can speak. may have difficulty with emotional regulation. incontinence possible.* I didn't let myself think about the last item on the list. I went to the cafeteria and ate a sandwich I cannot remember and called my brother, who lives in Vancouver and would not be coming.
+The doctors talked to me about the right side of the brain, about the particular shape of the damage, about what he would recover and what he would not. I wrote things in a small notebook I'd bought from the gift shop. I wrote: _can walk with assistance. can speak. may have difficulty with emotional regulation. incontinence possible._ I didn't let myself think about the last item on the list. I went to the cafeteria and ate a sandwich I cannot remember and called my brother, who lives in Vancouver and would not be coming.
 
 ---
 
@@ -311,7 +330,7 @@ The first months were the hardest because they were also the most hopeful, which
 
 I drove to his house five days a week. I made his breakfast, which he had always made himself -- two eggs, the yolks broken, and toast with the crusts cut off, which I had not known about the crusts until now, had not known this was something he did for himself in the mornings alone. I made grocery lists and organized his medications and called the physical therapist and the insurance company and the insurance company again. I became, without having agreed to it, a person who knew where his insurance cards were.
 
-What I felt, driving those forty minutes each way, was not what I had been told I would feel. People said: *what a gift, this time with him.* People said: *you'll be grateful later.* What I felt was a species of low-grade fury that I could not locate a target for. Not at him -- he had not chosen this. Not at my brother -- he had his reasons, probably. Not at the situation itself, which was simply what it was. The fury was ambient. It was in the car with me, a passenger I hadn't invited and couldn't drop off.
+What I felt, driving those forty minutes each way, was not what I had been told I would feel. People said: _what a gift, this time with him._ People said: _you'll be grateful later._ What I felt was a species of low-grade fury that I could not locate a target for. Not at him -- he had not chosen this. Not at my brother -- he had his reasons, probably. Not at the situation itself, which was simply what it was. The fury was ambient. It was in the car with me, a passenger I hadn't invited and couldn't drop off.
 
 ---
 
@@ -327,7 +346,7 @@ I did not say anything right away. This was not a sentence my father would have 
 
 "I was afraid of this," he said. "Being like this." He gestured at the room -- the recliner, the medications on the side table, the bars I'd installed in the bathroom, all the equipment of dependency. "I didn't want anyone to have to."
 
-I thought about saying: *you could have told us.* I thought about saying: *you should have asked for things before this.* Instead I said: "I know, Dad."
+I thought about saying: _you could have told us._ I thought about saying: _you should have asked for things before this._ Instead I said: "I know, Dad."
 
 "I know," he said, which is what he had said in the hospital. We were back to the beginning.
 
@@ -337,7 +356,7 @@ There is something that happens when you care for a parent's body. It is not onl
 
 I had not known he was capable of telling me he was afraid.
 
-The rearrangement was not only in his direction -- it was in mine. I had to locate, within myself, a person who was capable of being present with his body without making him feel diminished by that presence. I had to find the posture of care that did not contain within it the words: *look how much I am doing for you.* This was harder than I expected. I caught myself, in the car on the way home, composing sentences that began: *After everything I --* and having to stop myself, to dissolve those sentences back into the ambient anger and leave them there.
+The rearrangement was not only in his direction -- it was in mine. I had to locate, within myself, a person who was capable of being present with his body without making him feel diminished by that presence. I had to find the posture of care that did not contain within it the words: _look how much I am doing for you._ This was harder than I expected. I caught myself, in the car on the way home, composing sentences that began: _After everything I --_ and having to stop myself, to dissolve those sentences back into the ambient anger and leave them there.
 
 ---
 
@@ -355,21 +374,21 @@ He had made enough for both of us.
 
 ---
 
-*Note: This essay depicts real events as recalled by the narrator. Some details of medical conversations have been condensed for narrative clarity.*
+_Note: This essay depicts real events as recalled by the narrator. Some details of medical conversations have been condensed for narrative clarity._
 
 ---
 
 ### Craft Notes
 
-| Element          | Detail                                                                                                                    |
-|------------------|---------------------------------------------------------------------------------------------------------------------------|
-| Surface subject  | A year of caring for a father after a stroke                                                                              |
-| Deeper question  | What does it mean to know someone for the first time through their vulnerability -- and what does it reveal about the cost of their privacy?  |
-| Subgenre         | Personal essay                                                                                                            |
-| Structure        | Chronological narrative (six months compressed into key scenes) with segmented reflection using white space between sections |
-| Scene count      | Four dramatized scenes: nail-cutting, hospital arrival, father's confession, cooking eggs; connected by summary and reflection |
-| Key scene        | Father cutting crusts off toast alone in September -- placed near the end so the reader has enough context to feel its full weight |
-| Opening strategy | In medias res: dropped into the nail-cutting scene with no prior context; reader orients through physical detail and implication |
-| Ending strategy  | Resonant image with earned, unresolved reflection -- the narrator cannot name the feeling, which is the point; ends on an act of care |
-| Tone             | Controlled, observational, with emotional restraint that mirrors the father's privacy; the suppression of sentiment is a deliberate craft choice matching the essay's subject |
+| Element          | Detail                                                                                                                                                                                                                  |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Surface subject  | A year of caring for a father after a stroke                                                                                                                                                                            |
+| Deeper question  | What does it mean to know someone for the first time through their vulnerability -- and what does it reveal about the cost of their privacy?                                                                            |
+| Subgenre         | Personal essay                                                                                                                                                                                                          |
+| Structure        | Chronological narrative (six months compressed into key scenes) with segmented reflection using white space between sections                                                                                            |
+| Scene count      | Four dramatized scenes: nail-cutting, hospital arrival, father's confession, cooking eggs; connected by summary and reflection                                                                                          |
+| Key scene        | Father cutting crusts off toast alone in September -- placed near the end so the reader has enough context to feel its full weight                                                                                      |
+| Opening strategy | In medias res: dropped into the nail-cutting scene with no prior context; reader orients through physical detail and implication                                                                                        |
+| Ending strategy  | Resonant image with earned, unresolved reflection -- the narrator cannot name the feeling, which is the point; ends on an act of care                                                                                   |
+| Tone             | Controlled, observational, with emotional restraint that mirrors the father's privacy; the suppression of sentiment is a deliberate craft choice matching the essay's subject                                           |
 | So what          | Opens onto questions about how privacy functions as a form of love and control; about what adult children inherit from parents who never showed them how to be vulnerable; about what care costs and what it gives back |

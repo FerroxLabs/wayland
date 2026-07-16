@@ -24,8 +24,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, localeKey, onLaunch }) => {
   const { t } = useTranslation();
   const isStanding = team._standing === true;
   const name = team.nameI18n?.[localeKey] || team.nameI18n?.['en-US'] || team.name || team.id;
-  const description =
-    team.descriptionI18n?.[localeKey] || team.descriptionI18n?.['en-US'] || team.description || '';
+  const description = team.descriptionI18n?.[localeKey] || team.descriptionI18n?.['en-US'] || team.description || '';
   const avatarValue = team.avatar?.trim();
   const mapped = avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
   const resolved = avatarValue ? mapped || resolveExtensionAssetUrl(avatarValue) || avatarValue : undefined;
@@ -73,10 +72,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, localeKey, onLaunch }) => {
           )}
         </div>
         <div className={styles.nameRow}>
-          <span
-            className={classNames(styles.typeDot, isStanding && styles.typeDotStanding)}
-            aria-hidden='true'
-          />
+          <span className={classNames(styles.typeDot, isStanding && styles.typeDotStanding)} aria-hidden='true' />
           <span className={styles.name} title={name}>
             {name}
           </span>

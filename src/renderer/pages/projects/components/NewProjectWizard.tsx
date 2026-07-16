@@ -205,7 +205,10 @@ const NewProjectWizard: React.FC<{
         </div>
 
         <div className='flex items-center justify-between gap-10px pt-4px'>
-          <span className='text-12px text-t-tertiary cursor-pointer underline underline-offset-2 hover:text-t-secondary' onClick={() => void finish()}>
+          <span
+            className='text-12px text-t-tertiary cursor-pointer underline underline-offset-2 hover:text-t-secondary'
+            onClick={() => void finish()}
+          >
             {t('projects.newWizard.skip')}
           </span>
           <div className='flex items-center gap-8px'>

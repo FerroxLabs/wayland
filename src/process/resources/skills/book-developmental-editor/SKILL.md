@@ -34,7 +34,7 @@ The shared workspace layout, the artifact contract, the chapter state machine, t
    - `severity`: `must` or `optional`.
    - `note`: the issue plus a concrete direction to fix it, tied to a chapter and ideally a location.
    - `status`: starts at `open`.
-   Do not omit `status`. It is what drives the revision loop.
+     Do not omit `status`. It is what drives the revision loop.
 5. **Write the prioritized revision plan.** At the top of the notes (or in a short plan section in STATUS), list the `must` items in the order they should be tackled. The reviser should never face a flat wall of equal-weight notes.
 6. **Hand to the architect.** The architect revises `book/manuscript/NN-chapter.md` IN PLACE and sets each addressed note to `status: resolved`. Never re-draft a chapter yourself to satisfy a note.
 7. **On return, verify and loop.** When notes come back marked `resolved`, re-read the chapter. If every note genuinely holds, advance the chapter's state in STATUS. If not, reopen the note with a sharper instruction and run another cycle. Release a chapter to copy edit only when all its notes are resolved. The gate to the next stage is: all notes on the chapter resolved.

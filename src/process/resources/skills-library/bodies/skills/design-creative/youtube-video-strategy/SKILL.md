@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production planning template"
-  category: "design-creative"
-  subcategory: "video-audio"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production planning template'
+  category: 'design-creative'
+  subcategory: 'video-audio'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # YouTube Video Strategy
 
 ## When to Use
@@ -81,6 +82,7 @@ Produce exactly five title variations, each using a different structural formula
 - **Comparison or versus formula:** "[Option A] vs [Option B]: The Honest Comparison." Works for reviews and decision-making content. Front-load the higher-searched term as Option A.
 
 Rules for all five titles:
+
 - Hard limit: 60 characters. YouTube truncates titles at approximately 60 characters on mobile search results and 70 characters on desktop. Front-load all critical information.
 - Place the primary keyword within the first three words whenever grammatically possible.
 - Never include the channel name in the title -- YouTube adds this separately.
@@ -444,11 +446,13 @@ This video walks through the full salary negotiation process when you have a com
 Covered in this video: how to frame the competing offer conversation, what to say (and what never to say), the counter-offer email template, how to evaluate equity and benefits alongside base salary, and how to decline the offer you don't accept without damaging the relationship.
 
 RESOURCES MENTIONED:
+
 - Total compensation calculator: [link placeholder]
 - Counter-offer email template (free download): [link placeholder]
 - Book: "Never Split the Difference" by Chris Voss: [link placeholder]
 
 RELATED VIDEOS ON THIS CHANNEL:
+
 - How to Negotiate Your Starting Salary (New Job Offer): [link placeholder]
 - What to Do When You Hate Your Job But Can't Afford to Leave: [link placeholder]
 
@@ -475,6 +479,7 @@ New videos every Tuesday and Friday.
 ### End Screen & Cards
 
 **End screen configuration (last 16 seconds):**
+
 - Element 1: Subscribe button -- bottom-left corner, standard YouTube subscribe button
 - Element 2: Recommended specific video -- "How to Negotiate Your Starting Salary" -- right-center (the logical next video for someone building negotiation skills)
 - Element 3: Playlist -- "Salary and Career Growth" playlist -- bottom-right
@@ -483,6 +488,7 @@ New videos every Tuesday and Friday.
 **Verbal CTA during end screen:** "If this helped, subscribe -- I post career and finance strategy every Tuesday and Friday. And if you're still navigating a new job offer, my video on starting salary negotiation is right here [gesture toward recommended video]. Watch that one next."
 
 **Cards:**
+
 - 6:30 -- Video card: "How to Negotiate Your Starting Salary" -- trigger: at the moment when viewer begins Step 2 and might realize they need the basics first; presented as "if you haven't seen this yet, I covered the fundamentals here"
 - 9:00 -- Video card: "Counter Offer Email Template (Full Walkthrough)" -- trigger: if this supporting video exists on the channel; placed at the moment the presenter introduces the email template concept
 - 12:00 -- Poll card: "Have you ever negotiated a salary using a competing offer?" with options Yes, it worked / Yes, it backfired / No, I've never tried -- trigger: natural pause after the evaluation section; builds engagement and gives the presenter comment-section data to reference in future content

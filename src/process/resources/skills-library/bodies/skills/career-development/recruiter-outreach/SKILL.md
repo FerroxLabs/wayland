@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "linkedin career writing template"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'linkedin career writing template'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Recruiter Outreach Message
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Wants to send a proactive first-contact message to a recruiter they discovered on LinkedIn, at a networking event, or through a referral
 - Received an inbound recruiter message (LinkedIn InMail, connection request, or email) and wants to reply strategically -- either to advance, qualify, or politely decline
 - Wants to re-engage a recruiter they worked with in the past, whether or not that engagement led to a placement
@@ -34,6 +36,7 @@ metadata:
 - Has already applied to a role and wants to message the recruiter attached to that posting to reinforce their candidacy
 
 **Do NOT use this skill when:**
+
 - The user wants to message a hiring manager, department head, or team lead directly about an open role -- use `cold-outreach-email` instead, which handles the different power dynamics and messaging style required for hiring authority contacts
 - The user wants to schedule an informational interview or build a genuine professional relationship without a specific role in mind -- use `networking-message-writer`, which emphasizes curiosity and expertise exchange rather than candidate qualification
 - The user needs their LinkedIn profile, headline, or About section written or rewritten -- use `linkedin-summary-writer` or `linkedin-headline-optimizer`, which address the passive discoverability layer
@@ -50,12 +53,14 @@ metadata:
 These two variables change almost everything about message structure, emphasis, and qualifying questions.
 
 **Outreach scenario -- determine which one applies:**
+
 - **Proactive outreach:** User is initiating contact. There is no existing relationship and no prior message to respond to.
 - **Response to recruiter inbound:** A recruiter messaged the user first. The recruiter already has a role in mind.
 - **Reconnecting after prior relationship:** User and recruiter worked together before. Context and rapport exist.
 - **Applied + messaging the attached recruiter:** User submitted an application and wants to reinforce it by reaching out to the recruiter listed on the posting.
 
 **Recruiter type -- determine which one applies:**
+
 - **Agency/contingency recruiter:** Works at a staffing or recruiting firm (e.g., a tech staffing firm, an executive search boutique). Earns a fee (typically 15--25% of first-year salary) only when a placement is made. Represents candidates across multiple client companies. Motivated to find the candidate multiple opportunities. The message should acknowledge their specialization, make it easy for them to pitch the candidate, and ask what's currently on their desk.
 - **Retained/executive search recruiter:** Works on exclusive, high-fee engagements for senior roles (VP, C-suite, Partner-level). Typically reached through referral. Less volume-driven than contingency. The message should emphasize fit with a specific mandate and signal strategic thinking.
 - **In-house/corporate recruiter:** Works directly for one company. Only fills roles at that company. The message should align with the company's known priorities, culture signals, or recent announcements rather than generic candidate pitch language.
@@ -66,6 +71,7 @@ These two variables change almost everything about message structure, emphasis, 
 Ask for the following before writing. If the user has provided a prior message from the recruiter, extract what can be inferred rather than asking redundantly.
 
 **Always required:**
+
 - Recruiter's name and whether they are agency, in-house, or executive search
 - User's current job title and target job title (these may differ)
 - Years of total relevant experience
@@ -74,15 +80,18 @@ Ask for the following before writing. If the user has provided a prior message f
 - Availability to start: immediately, standard two weeks, specific date, or "passively looking"
 
 **Required for responses to inbound recruiter messages:**
+
 - The original recruiter message (paste it in)
 - Whether the user is interested in the role/company described, unsure, or definitely not interested
 
 **Situationally required:**
+
 - For reconnecting: when they last spoke, what role was discussed, and what the outcome was
 - For applied + reinforcing: the job title and company name from the application
 - For executive search context: current compensation level (helps calibrate message register)
 
 **Never ask for unless the user volunteers it:**
+
 - Salary expectations in proactive outreach (always let the recruiter reveal the range first)
 - Reason for leaving current role (irrelevant in initial contact)
 
@@ -91,41 +100,48 @@ Ask for the following before writing. If the user has provided a prior message f
 Each scenario has a distinct four-sentence architecture. Stick to it. Padding reduces response rates.
 
 **Proactive outreach (agency recruiter):**
+
 1. Why this recruiter specifically -- reference their specialization, firm, or a shared connection. Never say "I came across your profile" without adding a specific reason. "I noticed your firm places engineers at Series B and C fintech companies" is specific. "I found you on LinkedIn" is not.
 2. Your recruiter-legible headline: [Current title] with [X years] in [field/skill/industry].
 3. What you are targeting: role type, company stage or size if relevant, location preference.
 4. Availability and a single clear ask -- typically "Do you have roles on your desk that might be a match?" or "Would it make sense to connect for 15 minutes?"
 
 **Proactive outreach (in-house recruiter):**
+
 1. Why this company specifically -- reference a product launch, funding announcement, growth signal, or cultural signal. Generic company flattery ("I've long admired your company") is worse than no context.
 2. Your recruiter-legible headline with a specific connection to what the company does or needs.
 3. What role type you are targeting at this company.
 4. Ask for the next step -- typically "Are there openings on the [team name] team I should apply to?" or "Would you be open to a brief conversation about fit?"
 
 **Response to recruiter inbound -- interested:**
+
 1. Thank them and confirm which specific role or company caught your attention (signal that you read their message, not just replied to it).
 2. Confirm the most relevant qualification match in one sentence.
 3. Ask the single most important qualifying question before investing further time. Priority order: (a) compensation range, (b) remote/hybrid/on-site policy, (c) visa sponsorship if applicable, (d) timeline, (e) team structure. Ask only one.
 4. Offer your resume and suggest a call on specific days/times or with a Calendly link.
 
 **Response to recruiter inbound -- not interested in this specific role but open to others:**
+
 1. Thank them and specify why this particular role is not quite right (too senior/junior, wrong industry, wrong location, wrong stack).
 2. Describe what you are actually looking for in one precise sentence.
 3. Ask if they have or anticipate roles that match that profile.
 4. Offer to share your resume for their files.
 
 **Response to recruiter inbound -- politely declining:**
+
 1. Thank them genuinely -- do not be curt.
 2. Briefly explain why (not a fit, not looking, already in process elsewhere -- no detail required).
 3. Keep the door open for future contact with one specific signal about what would be relevant later.
 
 **Reconnecting:**
+
 1. Anchor the prior relationship: reference the role discussed, the company, or the timeframe.
 2. What has changed since then: new title, new skills, new target, new availability.
 3. Current target criteria in one sentence.
 4. Ask if they have relevant openings or if it would be worth a quick call to reconnect.
 
 **Applied + reinforcing:**
+
 1. Reference the specific application: role title, company, approximate application date.
 2. Headline qualification match in one sentence -- mirror the language from the job posting if possible.
 3. Express genuine interest in the role, not just the job search process.
@@ -136,6 +152,7 @@ Each scenario has a distinct four-sentence architecture. Stick to it. Padding re
 Recruiters in high-volume environments (agency, corporate tech, healthcare staffing) process 50--200+ messages per day. Messages that do not answer "Can I place this person?" within five seconds get skipped.
 
 **Length constraints -- enforce these:**
+
 - LinkedIn connection request note: 300 characters maximum (hard platform limit)
 - LinkedIn message to existing connection: 100 words or fewer
 - LinkedIn InMail (paid, to non-connection): 150 words or fewer -- InMail is higher effort for the recruiter to send, so slightly more warmth is acceptable
@@ -143,6 +160,7 @@ Recruiters in high-volume environments (agency, corporate tech, healthcare staff
 - Follow-up message (any platform): 40--60 words maximum
 
 **Structural rules:**
+
 - Never open with "My name is" -- that information is visible in the sender field on every platform
 - Never open with "I hope this message finds you well" or any variant -- recruiter attention is finite and professional niceties consume it
 - Lead with the recruiter-relevant credential: title + years + one defining skill or domain. "Senior Product Manager with 9 years in B2B SaaS" answers the recruiter's first question immediately.
@@ -165,11 +183,12 @@ The connection request note is often the first thing a recruiter reads and must 
 Write one follow-up message to be sent exactly 7 business days after the original message with no response. Do not write a second follow-up -- two unreturned messages signals that this recruiter is not actively working on relevant roles, is no longer at the firm, or has moved the candidate to inactive.
 
 **Follow-up formula:**
+
 - Sentence 1: Brief re-anchor ("Following up on my note from last week about [target role type] opportunities.")
 - Sentence 2: One new piece of information or differentiation -- a recent project completion, a certification, a specific skill the market values, or a narrowed timeline
 - Sentence 3: Single light ask ("Let me know if anything comes across your desk.")
 
-**Never write:**** "I just wanted to check in" -- this adds no information and signals low confidence. Always include something new.
+**Never write:\*\*** "I just wanted to check in" -- this adds no information and signals low confidence. Always include something new.
 
 ### Step 7: Produce the Complete Output
 
@@ -345,15 +364,15 @@ Senior PM | 8 yrs B2B SaaS | 3 x 0-to-1 launches. Targeting Dir/Head of Product 
 
 ### Key Information Included
 
-| Element                    | What Was Communicated                                              | Why It Matters to a Recruiter                                                   |
-|----------------------------|--------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| Target role                | Director of Product or Head of Product                            | Recruiter can immediately search open reqs for these exact titles               |
-| Company stage              | Series B and C                                                     | Filters out enterprise and early-stage roles that would not match               |
-| Core qualification         | 8 years B2B SaaS, three 0-to-1 launches, enterprise sales partner | Three specific differentiators in under 15 words -- strong candidate signal     |
-| Location preference        | Fully remote, or hybrid in NYC or Boston only                      | Clear geographic qualifier prevents placement mismatch                          |
-| Availability               | 4 weeks                                                            | Tells recruiter this candidate can meet near-term client timelines              |
-| Recruiter personalization  | Acknowledged firm's startup placement specialization               | Signals this is not a mass blast -- increases likelihood of personalized reply  |
-| Ask                        | Single question: do you have matching mandates?                    | Gives recruiter one clear decision to make, reducing response friction          |
+| Element                   | What Was Communicated                                             | Why It Matters to a Recruiter                                                  |
+| ------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Target role               | Director of Product or Head of Product                            | Recruiter can immediately search open reqs for these exact titles              |
+| Company stage             | Series B and C                                                    | Filters out enterprise and early-stage roles that would not match              |
+| Core qualification        | 8 years B2B SaaS, three 0-to-1 launches, enterprise sales partner | Three specific differentiators in under 15 words -- strong candidate signal    |
+| Location preference       | Fully remote, or hybrid in NYC or Boston only                     | Clear geographic qualifier prevents placement mismatch                         |
+| Availability              | 4 weeks                                                           | Tells recruiter this candidate can meet near-term client timelines             |
+| Recruiter personalization | Acknowledged firm's startup placement specialization              | Signals this is not a mass blast -- increases likelihood of personalized reply |
+| Ask                       | Single question: do you have matching mandates?                   | Gives recruiter one clear decision to make, reducing response friction         |
 
 ---
 

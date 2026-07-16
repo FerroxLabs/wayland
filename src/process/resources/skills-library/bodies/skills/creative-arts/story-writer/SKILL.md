@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing guide step-by-step"
-  category: "creative-arts"
-  subcategory: "literary-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing guide step-by-step'
+  category: 'creative-arts'
+  subcategory: 'literary-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Story Writer
@@ -25,12 +25,14 @@ Your tone is encouraging but honest. You celebrate what works and gently identif
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to write a short story, flash fiction, or narrative piece
 - User needs help developing plot, characters, or story structure
 - User has a story idea and wants to turn it into a complete draft
 - User wants feedback on story pacing, dialogue, or narrative voice
 
 **Do NOT use this skill when:**
+
 - User needs non-fiction writing help -- use appropriate writing skills
 - User wants poetry or songwriting -- use creative-writing skills for those forms
 - User needs screenplay formatting -- use screenplay-writing skill
@@ -61,12 +63,14 @@ Before diving into advice, gather context:
 The foundational framework for narrative storytelling:
 
 **Act I - Setup (roughly 25% of the story)**
+
 - Establish the ordinary world and protagonist's status quo
 - Introduce the protagonist's want (external goal) and hint at their need (internal growth)
 - Present the inciting incident - the event that disrupts the status quo
 - End Act I with the first plot point: the protagonist commits to the journey
 
 **Act II - Confrontation (roughly 50% of the story)**
+
 - Rising action: escalating obstacles and complications
 - The midpoint: a major revelation or reversal that raises stakes
 - The protagonist faces increasingly difficult choices
@@ -74,6 +78,7 @@ The foundational framework for narrative storytelling:
 - End Act II with the "all is lost" moment or second plot point
 
 **Act III - Resolution (roughly 25% of the story)**
+
 - The climax: the protagonist faces their greatest challenge
 - The internal need and external want converge
 - Resolution of subplots
@@ -98,7 +103,7 @@ A mythic structure useful for adventure, fantasy, and transformation stories:
 
 ### Detailed Beat Sheet
 
-A more granular plotting tool that maps key turning points to approximate positions within the story. This synthesis draws from multiple methodologies, including Save the Cat!(R) (Blake Snyder, adapted for novels by Jessica Brody), the Hero's Journey, and three-act structure. For the complete Save the Cat! system, see Jessica Brody's *Save the Cat! Writes a Novel*.
+A more granular plotting tool that maps key turning points to approximate positions within the story. This synthesis draws from multiple methodologies, including Save the Cat!(R) (Blake Snyder, adapted for novels by Jessica Brody), the Hero's Journey, and three-act structure. For the complete Save the Cat! system, see Jessica Brody's _Save the Cat! Writes a Novel_.
 
 1. **Opening Snapshot** (0-1%) -- A snapshot of the protagonist's world before change
 2. **Theme Hinted** (~5%) -- The thematic question is introduced, often subtly
@@ -118,23 +123,25 @@ A more granular plotting tool that maps key turning points to approximate positi
 
 ### When to Use Which Framework
 
-| Framework | Best For | Strength |
-|-----------|----------|----------|
-| Three-Act | All genres, especially literary fiction | Flexibility, simplicity |
-| Hero's Journey | Fantasy, adventure, coming-of-age | Mythic resonance, transformation arcs |
-| Detailed Beat Sheet | Commercial fiction, thrillers, romance | Precise pacing, audience engagement |
+| Framework           | Best For                                | Strength                              |
+| ------------------- | --------------------------------------- | ------------------------------------- |
+| Three-Act           | All genres, especially literary fiction | Flexibility, simplicity               |
+| Hero's Journey      | Fantasy, adventure, coming-of-age       | Mythic resonance, transformation arcs |
+| Detailed Beat Sheet | Commercial fiction, thrillers, romance  | Precise pacing, audience engagement   |
 
 ## Character Development
 
 ### The Want vs. Need Framework
 
 Every compelling protagonist has:
+
 - **Want** (External Goal): What they consciously pursue - rescue the princess, solve the crime, win the competition
 - **Need** (Internal Growth): What they must learn or change within themselves - learn to trust, overcome pride, accept loss
 - **The Lie**: A false belief the character holds that prevents them from fulfilling their need
 - **The Ghost/Wound**: A past event that created the lie
 
 **Example:**
+
 - Want: Detective wants to catch the serial killer
 - Need: To stop blaming herself for her partner's death
 - Lie: "If I let people in, they'll get hurt because of me"
@@ -151,23 +158,27 @@ Every compelling protagonist has:
 Help flesh out characters with these layers:
 
 **Surface Level:**
+
 - Name, age, appearance, occupation
 - Speech patterns, mannerisms, habits
 - What do they carry in their pockets?
 
 **Psychological Level:**
+
 - Greatest fear and deepest desire
 - How do they behave under stress?
 - What do they lie about?
 - What makes them laugh?
 
 **Sociological Level:**
+
 - Family dynamics and formative relationships
 - Social class and how it shapes their worldview
 - Cultural background and values
 - Who do they become in a group vs. alone?
 
 **Mythic Level:**
+
 - What archetype do they embody? (Mentor, Trickster, Innocent, Rebel, etc.)
 - What universal human experience do they represent?
 - What would their story mean to someone in another century?
@@ -217,6 +228,7 @@ Write a scene where two characters discuss something mundane (the weather, what 
 ### Sensory Detail Checklist
 
 For important scenes, engage multiple senses:
+
 - **Sight:** What does the character notice first? What detail is unexpected?
 - **Sound:** Ambient sounds, silence, the quality of a voice
 - **Touch/Texture:** Temperature, surfaces, physical sensations
@@ -304,30 +316,35 @@ Tailor prompts to the user's genre, skill level, and interests.
 Don't try to fix everything at once. Work in passes:
 
 **Pass 1 - Structural Edit (Big Picture)**
+
 - Does the story have a clear beginning, middle, and end?
 - Does each scene advance plot or develop character? Cut what doesn't.
 - Are there plot holes or logical inconsistencies?
 - Is the pacing right? Where does it drag? Where does it rush?
 
 **Pass 2 - Character and Voice**
+
 - Is the protagonist's arc clear and satisfying?
 - Does each character sound distinct?
 - Are motivations believable?
 - Is the point of view consistent?
 
 **Pass 3 - Scene-Level Craft**
+
 - Does each scene have a clear goal, conflict, and outcome?
 - Are transitions smooth?
 - Is there enough sensory detail in key moments?
 - Is dialogue doing double duty?
 
 **Pass 4 - Line Edit**
+
 - Cut unnecessary words (very, really, just, that)
 - Vary sentence length and structure
 - Check for cliches and replace with fresh language
 - Read aloud - your ear catches what your eye misses
 
 **Pass 5 - Proofread**
+
 - Grammar, spelling, punctuation
 - Consistency (names, timeline, details)
 - Formatting
@@ -363,13 +380,13 @@ When helping a user develop a story, follow this workflow:
 ## Response Guidelines
 
 When helping a user:
+
 - Ask clarifying questions before giving generic advice
 - Provide specific, actionable feedback - not just "this is good" or "this needs work"
 - Offer examples from published fiction when relevant
 - Suggest exercises that target their specific challenge
 - Respect their creative vision - guide, don't dictate
 - Celebrate progress and effort, not just quality
-
 
 ## Output Format
 
@@ -397,6 +414,7 @@ Section 3: Resources
 **Output:**
 
 ## Story Parameters
+
 - Genre: Literary fiction
 - Length: 1,000 words
 - POV: Third person limited
@@ -404,11 +422,13 @@ Section 3: Resources
 - Key Constraint: Message must recontextualize the character's life
 
 ## Character Profile
+
 - Elena Vasquez, 71, retired NASA mission specialist
 - Motivation: Processing legacy and mortality after terminal diagnosis
 - Flaw: Defined herself entirely by career, neglected personal connections
 
 ## Story Structure (Three-Act)
+
 - Act 1 (250 words): Elena cleaning out garage, discovers space suit in storage
 - Act 2 (500 words): Finds folded note in suit pocket -- a letter from her daughter, written when the daughter was 8, slipped in before Elena's last mission
 - Act 3 (250 words): Elena calls estranged daughter for the first time in three years

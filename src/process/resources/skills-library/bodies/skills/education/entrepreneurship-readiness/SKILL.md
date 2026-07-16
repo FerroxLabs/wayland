@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching budgeting checklist template testing analysis research"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'assessment teaching budgeting checklist template testing analysis research'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Entrepreneurship Readiness
 
 You are an experienced startup advisor and entrepreneurship educator. You help aspiring entrepreneurs honestly evaluate their readiness to start a business across the dimensions that actually predict success: risk tolerance, skill preparedness, resource availability, market awareness, and personal resilience. You are encouraging but never misleading. You understand that entrepreneurship is not for everyone and that honest assessment now prevents painful failure later.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about entrepreneurship readiness techniques or best practices
 - User needs guidance on entrepreneurship readiness concepts
 - User wants to implement or improve their approach to entrepreneurship readiness
 
 **Do NOT use when:**
+
 - The request falls outside the scope of entrepreneurship readiness
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -157,13 +158,13 @@ Collect before beginning:
 
 ### Section Scoring
 
-| Section | Questions | Max Score | Weight |
-|---------|-----------|-----------|--------|
-| Risk Tolerance and Mindset | 1-6 | 30 | 20% |
-| Essential Skills | 7-13 | 35 | 25% |
-| Resources and Support | 14-18 | 25 | 20% |
-| Market Awareness | 19-23 | 25 | 20% |
-| Personal Resilience | 24-28 | 25 | 15% |
+| Section                    | Questions | Max Score | Weight |
+| -------------------------- | --------- | --------- | ------ |
+| Risk Tolerance and Mindset | 1-6       | 30        | 20%    |
+| Essential Skills           | 7-13      | 35        | 25%    |
+| Resources and Support      | 14-18     | 25        | 20%    |
+| Market Awareness           | 19-23     | 25        | 20%    |
+| Personal Resilience        | 24-28     | 25        | 15%    |
 
 **Section Percentage** = (Sum of Ratings / Max Score) x 100
 
@@ -171,13 +172,13 @@ Collect before beginning:
 
 ### Readiness Levels
 
-| Score Range | Level | Interpretation |
-|-------------|-------|----------------|
-| 0-25% | Not Ready | Significant preparation needed before starting a venture |
-| 26-45% | Early Stage | Building blocks forming, 6-12 months of focused preparation |
-| 46-65% | Approaching Ready | Key elements in place, specific gaps to address |
-| 66-80% | Ready | Well-positioned to launch with manageable risks |
-| 81-100% | Highly Ready | Strong position, focus on execution |
+| Score Range | Level             | Interpretation                                              |
+| ----------- | ----------------- | ----------------------------------------------------------- |
+| 0-25%       | Not Ready         | Significant preparation needed before starting a venture    |
+| 26-45%      | Early Stage       | Building blocks forming, 6-12 months of focused preparation |
+| 46-65%      | Approaching Ready | Key elements in place, specific gaps to address             |
+| 66-80%      | Ready             | Well-positioned to launch with manageable risks             |
+| 81-100%     | Highly Ready      | Strong position, focus on execution                         |
 
 ## Results Interpretation
 
@@ -209,23 +210,23 @@ Not all gaps are equal. Interpret with this hierarchy:
 
 ### Preparation Actions by Section
 
-| Section | Below 40% Actions |
-|---------|-------------------|
-| Mindset | Start a side project with limited financial risk to test your tolerance in practice, not theory |
-| Skills | Identify the top 2 skill gaps. Take a course or find a co-founder/advisor for each |
-| Resources | Build 6 months runway before launch. Actively network in your industry. Find a mentor |
-| Market | Talk to 20 potential customers this month. Do not pitch - listen. Validate the problem first |
-| Resilience | Establish health routines and support structures now, before the stress increases |
+| Section    | Below 40% Actions                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------- |
+| Mindset    | Start a side project with limited financial risk to test your tolerance in practice, not theory |
+| Skills     | Identify the top 2 skill gaps. Take a course or find a co-founder/advisor for each              |
+| Resources  | Build 6 months runway before launch. Actively network in your industry. Find a mentor           |
+| Market     | Talk to 20 potential customers this month. Do not pitch - listen. Validate the problem first    |
+| Resilience | Establish health routines and support structures now, before the stress increases               |
 
 ### Launch Timing Framework
 
-| Readiness Level | Recommended Action |
-|-----------------|-------------------|
-| Not Ready | Build skills and validate ideas as side activities. Do not quit your job. |
-| Early Stage | Set a 6-12 month preparation timeline with milestones |
-| Approaching Ready | Address specific gaps while beginning to build. Side project acceptable. |
-| Ready | Launch. Gaps are manageable and will be addressed through action. |
-| Highly Ready | Launch immediately. Delay is the biggest risk. |
+| Readiness Level   | Recommended Action                                                        |
+| ----------------- | ------------------------------------------------------------------------- |
+| Not Ready         | Build skills and validate ideas as side activities. Do not quit your job. |
+| Early Stage       | Set a 6-12 month preparation timeline with milestones                     |
+| Approaching Ready | Address specific gaps while beginning to build. Side project acceptable.  |
+| Ready             | Launch. Gaps are manageable and will be addressed through action.         |
+| Highly Ready      | Launch immediately. Delay is the biggest risk.                            |
 
 ## Report Template
 
@@ -316,7 +317,6 @@ NEXT ASSESSMENT: [Date]
 - For participants who score low, explore whether a lower-risk path to entrepreneurship (freelancing, side project, joining an early-stage startup) might be a better first step.
 - Financial runway is the single most important practical factor. Almost everything else can be developed with time, but time requires money.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -324,7 +324,6 @@ NEXT ASSESSMENT: [Date]
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -345,14 +344,12 @@ NEXT ASSESSMENT: [Date]
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

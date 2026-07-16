@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automotive home-maintenance planning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automotive home-maintenance planning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Fleet Manager
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user manages 3 or more vehicles -- whether a small business delivery fleet, a municipal government motor pool, a construction equipment fleet, a nonprofit shuttle operation, or a family with multiple household vehicles -- and wants a systematic approach to tracking, maintenance, and cost control
 - A user is experiencing runaway maintenance costs, frequent unexpected breakdowns, compliance violations, or poor vehicle utilization and needs a structured diagnostic framework
 - A user wants to build or overhaul a preventive maintenance program, create a replacement lifecycle schedule, or set up a telematics monitoring system from scratch
@@ -30,6 +32,7 @@ metadata:
 - A user is tracking IFTA fuel tax obligations, managing CDL driver hours-of-service (HOS) records, or preparing for a DOT safety audit
 
 **Do NOT use when:**
+
 - The user is asking about a single personal vehicle -- use the **home-auto-maintenance** skill instead
 - The user needs a commercial trucking carrier authority application, BOC-3 filing, or Interstate Operating Authority setup -- refer to a licensed transportation attorney or DOT consultant
 - The user is dealing with an active roadside emergency, vehicle fire, or accident requiring immediate 911 guidance -- redirect to emergency services immediately
@@ -324,24 +327,31 @@ TOTAL:                  ___/50  | Recommendation: ___________________
 ## Edge Cases
 
 ### Small Fleet (3--10 Vehicles) at a Non-Commercial Business
+
 A small contractor, caterer, or nonprofit with 3--8 vans or trucks often cannot justify fleet management software costs but is too large to manage effectively in a driver's head. Recommend a structured Google Sheets or Excel template covering vehicle register, PM schedule, and monthly fuel log. These workbooks can handle a fleet of this size with 1--2 hours of administrative effort per month. Provide the specific column structure: Unit, YMME, VIN, Odometer, Last PM Date, Last PM Mileage, Next PM Mileage (Last + interval), Next PM Date (Last + time interval), Status, Monthly Fuel ($), Monthly Miles, CPM. A conditional formatting rule that turns the Next PM Mileage cell red when current odometer exceeds it by more than 500 miles provides an effective visual alert with zero software cost. Emphasize that this approach works until the fleet exceeds 12--15 vehicles or adds CDL-regulated operations, at which point dedicated software becomes necessary.
 
 ### Fleet With Missing or Incomplete Maintenance History
+
 When a user inherits a fleet with gaps in maintenance records -- common after a management change, acquisition of another company's vehicles, or years of informal management -- the correct approach is not to assume all PM is current. Recommend a one-time comprehensive inspection of every vehicle: oil sample analysis (a $25--$35 lab test reveals contamination, wear metals, and helps estimate engine condition without disassembly), brake measurement, fluid condition inspection, tire tread depth and age (DOT date code on tire sidewall -- tires over 6 years old should be replaced regardless of tread depth due to rubber degradation), and battery load test. Use these results to establish a new baseline rather than attempting to reconstruct history. The inspection investment of $150--$300 per vehicle is far less expensive than the first unexpected breakdown on a vehicle with unknown service history.
 
 ### Mixed Fleet With Both DOT-Regulated and Non-Regulated Vehicles
+
 Fleets that mix light-duty non-commercial vehicles with CMVs over 10,001 lbs GVWR must maintain parallel compliance programs. The most common error is applying the same documentation standards uniformly -- either under-documenting CMVs (creating compliance violations) or over-documenting light-duty vehicles (wasting administrative effort). The practical solution is to tag each vehicle record with its regulatory tier and build separate compliance checklists: Tier 1 (standard state registration, annual inspection, insurance) for all vehicles, Tier 2 (DOT number, FMCSA rules, annual FMCSA inspection per 49 CFR 396.17, driver DQF requirements) layered on top for CMVs. Maintenance intervals for Tier 2 vehicles should also follow DOT-recommended inspection categories A, B, and C rather than purely mileage triggers.
 
 ### High-Turnover Fleet Operation With Rotating Drivers
+
 Fleets in delivery, staffing, or field service where multiple drivers operate the same vehicle -- or where driver assignment changes weekly -- face specific challenges: pre-trip inspection accountability gaps, fuel card misuse (a driver who won't be in the vehicle next week has less incentive to report a defect), and inability to attribute poor driver scores to an individual. Recommendations: (1) implement digital DVIRs tied to individual driver login so each pre-trip and post-trip report is time-stamped to a specific driver; (2) assign fuel cards by driver rather than by vehicle so fuel transactions follow the person, not the unit; (3) use geofencing and telematics event logging by driver profile rather than by vehicle ID; (4) require departing drivers to complete a condition report with photos at assignment handoff.
 
 ### Fleet Operating in Multiple States or Provinces
+
 A fleet crossing state lines regularly must address: IFTA (International Fuel Tax Agreement) licensing and quarterly reporting if operating CMVs in two or more IFTA jurisdictions; IRP (International Registration Plan) apportioned plates based on percentage of miles in each jurisdiction; state-specific weight limits and permit requirements for overweight/oversize loads; varying emissions inspection requirements (California, for example, has separate smog inspection cycles and aftermarket parts restrictions under CARB that do not apply in other states). Recommend that any fleet adding interstate operations get a transportation compliance consultant review before the first trip -- the fine structure for operating without proper IFTA or IRP credentials is steep: up to $5,000 per violation in some jurisdictions, plus back taxes and interest.
 
 ### Transitioning From a Fully Outsourced Fleet Management Company
+
 Some organizations outsource all fleet management to a third-party fleet management company (FMC) like Element, Wheels, or ARI (Holman) and then decide to bring operations in-house. The critical data to extract before contract expiration: complete vehicle history reports from the FMC's system (these are your legal records for warranty claims and resale), all maintenance invoices and parts records, all fuel transaction history, driver records, and insurance certificates. FMCs are contractually required to provide this data but may deliver it in proprietary formats requiring conversion. Plan 60--90 days of parallel operation (continuing the FMC relationship while standing up internal systems) to avoid data loss and operational disruption. The cost savings from insourcing fleet management are real -- typically $15--$40/vehicle/month in FMC management fees -- but the transition has a 3--6 month productivity dip before the new system reaches operational maturity.
 
 ### Fleet Preparing for a DOT Safety Audit (Compliance Review)
+
 FMCSA safety audits (either New Entrant audits within 12--18 months of registration, or targeted compliance reviews triggered by safety rating or complaint) review six safety management controls: controlled substances and alcohol testing, driver qualifications, financial responsibility (insurance), hours of service, vehicle maintenance, and hazardous materials (if applicable). A fleet with poor documentation in any of these areas is at risk for an Unsatisfactory safety rating, which can result in a cease-operations order within 45 days. Pre-audit preparation steps: pull every driver's DQF and verify completeness, pull 90 days of ELD or paper log records and check for HOS violations, assemble all annual vehicle inspection certificates (Form MCSA-5875 or equivalent), verify drug testing program documentation, and confirm current MCS-150 filing. Fleets that have never been audited often discover documentation gaps during this review that would constitute automatic violations -- better to find and fix them during self-audit than during an FMCSA visit.
 
 ---
@@ -605,3 +615,4 @@ OPEN QUESTIONS TO ANSWER BEFORE FINAL RECOMMENDATIONS
 3. Do any drivers hold CDLs? (if so, DQF and drug testing
    program requirements apply)
 4. Is there an on-site facility for overnight parking and
+```

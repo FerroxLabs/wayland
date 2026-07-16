@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy checklist guide"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy checklist guide'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Minor Beneficiary Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified estate planning attorney licensed in your jurisdiction for advice specific to your family and financial situation.
@@ -28,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks what happens to their minor children's inheritance if both parents die simultaneously or in quick succession
 - A user wants to understand the practical difference between naming a child directly as a beneficiary versus naming a trust for the child
 - A user asks why their insurance company told them they cannot name their 7-year-old directly as the life insurance beneficiary
@@ -40,6 +42,7 @@ metadata:
 - A user asks how to handle beneficiary designations on life insurance, a 401(k), or an IRA when the beneficiaries are minors
 
 **Do NOT use when:**
+
 - The user asks for help drafting specific trust language or will provisions -- refer to an estate planning attorney
 - The user asks about child custody, visitation rights, or guardianship determinations in a divorce or separation proceeding -- refer to a family law attorney (this is a fundamentally different legal domain from estate planning guardianship)
 - The user asks specifically about 529 college savings plan contributions for living children -- refer to a financial advisor (this is a savings vehicle, not an estate planning structure)
@@ -116,20 +119,21 @@ One of the most common sources of confusion for users is the overlap between the
 - **Trustee:** Named in the will (testamentary trust) or trust document (living trust). Manages the trust assets according to the trust's terms for the duration of the trust. Can be an individual or a corporate trustee (trust department of a bank or a trust company). Corporate trustees are suitable for large estates and provide professional management, continuity if an individual trustee dies or becomes incapacitated, and objective decision-making -- at a cost (typically 0.5% to 1.5% of assets annually).
 
 Present the key insight that these roles do not need to be combined:
+
 - Separating the personal guardian from the financial manager (trustee or custodian) protects against two types of risk: the risk that a loving, capable personal guardian is financially unsophisticated, and the risk that a financially capable trustee is too distant or formal to understand the children's daily needs.
 - When the roles are separated, the trustee reviews distribution requests from the guardian for the children's expenses. This creates a light accountability structure while keeping the parenting and money management in appropriate hands.
 - The personal guardian and trustee must be able to communicate and cooperate. A contentious relationship between the two can harm the children. Parents should think about relationship dynamics, not just individual qualifications, when choosing separate people for these roles.
 
 **Role Summary Table:**
 
-| Role | Primary Responsibility | Named In | Court Supervision? | Notes |
-|---|---|---|---|---|
-| Personal guardian | Raises the child day-to-day | Will | No (after appointment) | Most important nomination for young children |
-| Alternate guardian | Backup if primary cannot serve | Will | No | Essential -- primary designees sometimes predecease or become unable |
-| Trustee | Manages trust assets per trust terms | Will or trust document | No | Can be individual or corporate entity |
-| Alternate trustee | Backup if primary trustee cannot serve | Will or trust document | No | Prevents court appointment of successor |
-| Custodian (UTMA) | Manages custodial account assets | Will or beneficiary form | No | Role ends at statutory age |
-| Guardian of the estate | Manages minor's assets | Court appointment only | Yes -- annual accountings | Default only -- planning eliminates this role |
+| Role                   | Primary Responsibility                 | Named In                 | Court Supervision?        | Notes                                                                |
+| ---------------------- | -------------------------------------- | ------------------------ | ------------------------- | -------------------------------------------------------------------- |
+| Personal guardian      | Raises the child day-to-day            | Will                     | No (after appointment)    | Most important nomination for young children                         |
+| Alternate guardian     | Backup if primary cannot serve         | Will                     | No                        | Essential -- primary designees sometimes predecease or become unable |
+| Trustee                | Manages trust assets per trust terms   | Will or trust document   | No                        | Can be individual or corporate entity                                |
+| Alternate trustee      | Backup if primary trustee cannot serve | Will or trust document   | No                        | Prevents court appointment of successor                              |
+| Custodian (UTMA)       | Manages custodial account assets       | Will or beneficiary form | No                        | Role ends at statutory age                                           |
+| Guardian of the estate | Manages minor's assets                 | Court appointment only   | Yes -- annual accountings | Default only -- planning eliminates this role                        |
 
 ### Step 4: Address the Age and Conditions of Distribution Decision
 
@@ -139,13 +143,13 @@ This decision is among the most emotionally charged in estate planning for paren
 - For UTMA, the answer is set by state law. For trusts, the parent decides.
 - Common single-age distributions and their tradeoffs:
 
-| Age | Context | Common Concerns |
-|---|---|---|
-| 18 | Legal majority in most states | Typical age for UTMA in many states. Most estate planners consider this too young for significant inheritances. At 18, a child who just lost both parents is also emotionally vulnerable. |
-| 21 | Traditional UTMA age in many states | Post-high school but pre-career establishment. Still early for large sums. |
-| 25 | Post-college for most people | Career beginning. Better financial context. Still allows the child to use money for home purchase, business investment, graduate school. |
-| 30 | Career established for many | Higher likelihood of financial maturity. Some parents feel this is too long to delay access. |
-| 35 | Full career and family formation phase | Rarely used as sole distribution age. More common as the final stagger point. |
+| Age | Context                                | Common Concerns                                                                                                                                                                           |
+| --- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 18  | Legal majority in most states          | Typical age for UTMA in many states. Most estate planners consider this too young for significant inheritances. At 18, a child who just lost both parents is also emotionally vulnerable. |
+| 21  | Traditional UTMA age in many states    | Post-high school but pre-career establishment. Still early for large sums.                                                                                                                |
+| 25  | Post-college for most people           | Career beginning. Better financial context. Still allows the child to use money for home purchase, business investment, graduate school.                                                  |
+| 30  | Career established for many            | Higher likelihood of financial maturity. Some parents feel this is too long to delay access.                                                                                              |
+| 35  | Full career and family formation phase | Rarely used as sole distribution age. More common as the final stagger point.                                                                                                             |
 
 - Staggered distributions are widely used for substantial estates and offer a practical learning curve:
   - A common structure: one-third of principal at age 25, one-third at age 30, and the remaining balance at age 35. Interest and income are available throughout for health, education, and support.
@@ -161,6 +165,7 @@ This decision is among the most emotionally charged in estate planning for paren
 These designations are outside the will and operate by contract law. They are often the largest assets in a family's estate and require specific attention when children are minors.
 
 **Life Insurance:**
+
 - Naming a minor child directly as a life insurance beneficiary causes the proceeds to be held by the insurer until a court-appointed guardian is established. The insurer will not disburse to a minor directly. This effectively creates the court guardianship default the parents are trying to avoid.
 - Better options:
   - Name the trust for the child as beneficiary (e.g., "Trustee of the [Name] Family Trust dated [date], or any successor trustee"). This channels proceeds directly to the trustee, who manages them per the trust terms.
@@ -169,6 +174,7 @@ These designations are outside the will and operate by contract law. They are of
 - If the trust is a testamentary trust (inside the will), the trust does not exist until after death and probate completion. For life insurance, the better structure is a revocable living trust (which exists during the parent's lifetime and can be named as beneficiary) or a standalone Irrevocable Life Insurance Trust (ILIT) -- though an ILIT is an advanced planning tool with its own tax implications, appropriate for large policies.
 
 **Retirement Accounts (401(k), 403(b), Traditional IRA, Roth IRA):**
+
 - Naming a minor child directly as a retirement account beneficiary creates a situation where a court-appointed guardian must be established to manage the inherited account -- triggering the same court supervision problem.
 - The tax treatment of inherited retirement accounts for minor beneficiaries changed significantly under the SECURE Act (2019) and SECURE 2.0 Act (2022):
   - Minor children of the deceased account owner are "eligible designated beneficiaries" and can use the 10-year rule only after reaching the age of majority (18 in most states, but 21 under some interpretations based on education status). Before reaching majority, they can take Required Minimum Distributions (RMDs) based on their life expectancy. After reaching majority, they have 10 years to fully distribute the account.
@@ -180,6 +186,7 @@ These designations are outside the will and operate by contract law. They are of
 - Practical guidance: direct the user to bring their retirement account structure to both their estate attorney and their financial advisor or tax professional, as the coordination between beneficiary designations and trust provisions is too jurisdiction-specific and fact-specific to address in a general educational skill.
 
 **Beneficiary Designation Coordination:**
+
 - A will and trust only control assets that pass through the estate. Life insurance, retirement accounts, payable-on-death bank accounts, and transfer-on-death securities accounts pass by contract, bypassing the will entirely.
 - This means a carefully crafted testamentary trust for minor children is irrelevant to those accounts unless the beneficiary designations on the accounts are updated to direct funds to the trust or custodian.
 - Parents should conduct a beneficiary designation audit across all accounts as part of the estate planning engagement -- not as a separate project afterward.
@@ -189,6 +196,7 @@ These designations are outside the will and operate by contract law. They are of
 Before presenting the output document, identify any family structure complications the user has raised and flag them explicitly.
 
 **Blended families with children from different relationships:**
+
 - Children from a prior relationship (biological or adopted) do not automatically inherit from a stepparent. They inherit from the biological parent's estate only through explicit inclusion in that parent's estate plan.
 - Stepchildren do not inherit under intestacy laws in most states unless legally adopted. This means if a parent in a blended family dies without a will, their biological children from a prior relationship may inherit but their stepchildren may not.
 - When parents in a blended family want to provide for all children (biological and step), the estate plan must name each child explicitly. A trust can specify different shares or equal shares.
@@ -196,12 +204,14 @@ Before presenting the output document, identify any family structure complicatio
 - Flag any blended family situation as one requiring an attorney with family law awareness in addition to estate planning expertise.
 
 **Single parents:**
+
 - Designating a personal guardian is not a secondary concern for single parents -- it is arguably the single most important estate planning action they can take.
 - Without a will naming a guardian, the court will decide who raises the children. The court will consider the child's best interests, but it may not know the parent's values, relationship preferences, or concerns about specific family members.
 - The surviving other parent (if there is one and they are living) generally has a superior right to custody over any nominated guardian -- a nominated guardian does not override a living parent's rights. Parents who have concerns about the other parent's fitness should consult a family law attorney.
 - Single parents may also want to consider who serves as both personal guardian and trustee carefully -- the financial accountability structure matters more when there is only one adult's estate plan.
 
 **Children with significant age differences:**
+
 - If children range from very young to nearly adult, the same trust terms may not serve all of them equally. A 16-year-old sibling of a 3-year-old has fundamentally different needs, financial awareness, and proximity to adulthood.
 - Per-capita vs. per-stirpes distribution language in a trust affects what happens to a child's share if that child dies before receiving it.
 - A trust can be structured as a "pot trust" (one pool for all children until the youngest reaches a certain age) or as "separate share trusts" (an individual trust for each child). A pot trust allows the trustee flexibility to meet each child's needs (one child may need more for medical expenses or education), while separate share trusts provide cleaner accounting and avoid perceived unfairness.
@@ -219,17 +229,17 @@ Present the following structured output, customized to the user's situation wher
 ```
 ## Minor Beneficiary Planning Overview
 
-> **Educational overview only.** This document is a preparation tool for your estate 
+> **Educational overview only.** This document is a preparation tool for your estate
 > planning attorney consultation, not a legal recommendation.
 
 ---
 
 ### 1. Your Core Planning Challenge
 
-[2-3 sentences describing the specific situation: ages of children, nature of concern, 
+[2-3 sentences describing the specific situation: ages of children, nature of concern,
 key complication identified (e.g., blended family, no current plan, existing plan to review).]
 
-[Brief statement of the default outcome if no plan exists -- what the court would do 
+[Brief statement of the default outcome if no plan exists -- what the court would do
 in their state if possible, or generically.]
 
 ---
@@ -299,7 +309,7 @@ in their state if possible, or generically.]
 [This section is customized based on what the user described. Examples of what may appear here:]
 
 **[Blended family note, if applicable]:**
-[Specific language about biological children, stepchildren, and what "children" means in 
+[Specific language about biological children, stepchildren, and what "children" means in
 estate documents.]
 
 **[Single parent note, if applicable]:**
@@ -456,18 +466,18 @@ Your situation also has a specific structural advantage: you have already identi
 
 ### 2. Options Comparison
 
-| Feature | UTMA/UGMA Custodial | Testamentary Trust (in your will) | Living Trust Sub-Trust | Court Guardianship (avoid) |
-|---|---|---|---|---|
-| How created | Named in your will or beneficiary forms | Provisions within your will | Separate living trust document | Court-appointed upon petition |
-| Requires probate | No | Yes -- trust funded after probate | No | Yes |
-| Distribution age | Your state's statutory maximum (18-25) | You choose | You choose | 18 in most states |
-| Distribution structure | Lump sum at one age | Lump sum, staggered, or milestone-based | Lump sum, staggered, or milestone-based | Lump sum at 18 |
-| Trustee discretion for early distributions | Yes -- for health, education, support | Yes -- HEMS or broader | Yes -- HEMS or broader | Restricted by court oversight |
-| Court supervision | None | None | None | Yes -- annual filings |
-| Setup cost | Low | Moderate (attorney drafts trust provisions within will) | Higher upfront (full trust creation and funding) | None upfront; high ongoing |
-| Ongoing cost | Low | Moderate (trustee fees; no court costs) | Moderate (trustee fees; no court costs) | High (attorney fees, court filings) |
-| Privacy | No (probate public) | No (probate public) | Yes (trust private) | No |
-| Relevant for your family? | Only for smaller amounts; UTMA age may not allow enough control for 14-year-old's share | **Primary recommendation to discuss** | Worth discussing if attorney recommends it | Do not plan for this outcome |
+| Feature                                    | UTMA/UGMA Custodial                                                                     | Testamentary Trust (in your will)                       | Living Trust Sub-Trust                           | Court Guardianship (avoid)          |
+| ------------------------------------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------ | ----------------------------------- |
+| How created                                | Named in your will or beneficiary forms                                                 | Provisions within your will                             | Separate living trust document                   | Court-appointed upon petition       |
+| Requires probate                           | No                                                                                      | Yes -- trust funded after probate                       | No                                               | Yes                                 |
+| Distribution age                           | Your state's statutory maximum (18-25)                                                  | You choose                                              | You choose                                       | 18 in most states                   |
+| Distribution structure                     | Lump sum at one age                                                                     | Lump sum, staggered, or milestone-based                 | Lump sum, staggered, or milestone-based          | Lump sum at 18                      |
+| Trustee discretion for early distributions | Yes -- for health, education, support                                                   | Yes -- HEMS or broader                                  | Yes -- HEMS or broader                           | Restricted by court oversight       |
+| Court supervision                          | None                                                                                    | None                                                    | None                                             | Yes -- annual filings               |
+| Setup cost                                 | Low                                                                                     | Moderate (attorney drafts trust provisions within will) | Higher upfront (full trust creation and funding) | None upfront; high ongoing          |
+| Ongoing cost                               | Low                                                                                     | Moderate (trustee fees; no court costs)                 | Moderate (trustee fees; no court costs)          | High (attorney fees, court filings) |
+| Privacy                                    | No (probate public)                                                                     | No (probate public)                                     | Yes (trust private)                              | No                                  |
+| Relevant for your family?                  | Only for smaller amounts; UTMA age may not allow enough control for 14-year-old's share | **Primary recommendation to discuss**                   | Worth discussing if attorney recommends it       | Do not plan for this outcome        |
 
 **Bottom line for your family:** Because your total assets are approximately $650,000 spread across three children, and because your oldest child is only 4 years from turning 18, a testamentary trust in your will -- with carefully chosen distribution ages -- is the most commonly appropriate structure for families in your situation. Your attorney will evaluate whether a living trust provides enough added benefit to justify the higher cost. UTMA alone does not give you the control you described wanting over distribution timing.
 
@@ -477,14 +487,14 @@ Your situation also has a specific structural advantage: you have already identi
 
 The question of when your children receive their inheritance outright is one of the most important decisions you will make. For a 7-year-old today, the earliest a trust could distribute would be whatever age you specify -- and a trust can set that at 25, 30, or staggered.
 
-| Option | Works For | Considerations for Your Three Children |
-|---|---|---|
-| Age 18 (UTMA default many states) | UTMA only | Your 14-year-old would receive their share in 4 years. This is the outcome you described wanting to avoid. |
-| Age 21 | Trust or UTMA in qualifying states | Your 14-year-old receives at 21 (7 years away). Twins receive at 21 (14 years away). Still early for significant sums. |
-| Age 25 | Trust only | 11 years for your 14-year-old. 18 years for twins. Trustee manages and distributes for HEMS throughout. |
-| Age 30 | Trust only | More time for financial maturity. Trustee available for support needs throughout. |
-| Staggered: 1/3 at 25, 1/3 at 30, balance at 35 | Trust only | **Common choice for families with significant assets.** Allows children to learn from first distribution before receiving more. Protects the bulk of the estate to later ages. |
-| Small early tranche: 20% at 22, then 40% at 28, balance at 35 | Trust only | Useful if you want to give children something early for practical needs (housing, education completion) without releasing the full amount. |
+| Option                                                        | Works For                          | Considerations for Your Three Children                                                                                                                                         |
+| ------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Age 18 (UTMA default many states)                             | UTMA only                          | Your 14-year-old would receive their share in 4 years. This is the outcome you described wanting to avoid.                                                                     |
+| Age 21                                                        | Trust or UTMA in qualifying states | Your 14-year-old receives at 21 (7 years away). Twins receive at 21 (14 years away). Still early for significant sums.                                                         |
+| Age 25                                                        | Trust only                         | 11 years for your 14-year-old. 18 years for twins. Trustee manages and distributes for HEMS throughout.                                                                        |
+| Age 30                                                        | Trust only                         | More time for financial maturity. Trustee available for support needs throughout.                                                                                              |
+| Staggered: 1/3 at 25, 1/3 at 30, balance at 35                | Trust only                         | **Common choice for families with significant assets.** Allows children to learn from first distribution before receiving more. Protects the bulk of the estate to later ages. |
+| Small early tranche: 20% at 22, then 40% at 28, balance at 35 | Trust only                         | Useful if you want to give children something early for practical needs (housing, education completion) without releasing the full amount.                                     |
 
 **Note on your 14-year-old:** Because your eldest is close to 18, the distribution-age decision affects them differently than the twins. Your attorney may suggest whether the same schedule should apply to all three children, or whether the 14-year-old's trust should be slightly different. The trustee can still distribute for education and support throughout -- no child is denied access to money for legitimate needs before the distribution milestone.
 
@@ -492,12 +502,12 @@ The question of when your children receive their inheritance outright is one of 
 
 ### 4. Role Designations
 
-| Role | Description | Your Candidate | Notes |
-|---|---|---|---|
-| Personal guardian (primary) | Raises all three children -- housing, school, medical, parenting | Your sister | Confirm she is willing to take on all three children including a teenager. |
-| Personal guardian (alternate) | Serves if your sister cannot | [Not yet identified] | Essential. Name a backup so the court does not decide. |
-| Trustee (primary) | Manages $650,000+ in trust assets for potentially 28 years | Your brother-in-law (husband's brother, accountant) | Strong candidate given financial background. Ensure he is willing and that he and your sister can communicate well about the children's needs. |
-| Alternate trustee | Serves if brother-in-law cannot | [Not yet identified -- possibly a corporate trustee] | For a 28-year trust administration period, a corporate successor trustee is worth discussing. |
-| Guardian of the estate | Court-appointed -- default only | N/A | A properly drafted will with trust provisions eliminates this role. |
+| Role                          | Description                                                      | Your Candidate                                       | Notes                                                                                                                                          |
+| ----------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Personal guardian (primary)   | Raises all three children -- housing, school, medical, parenting | Your sister                                          | Confirm she is willing to take on all three children including a teenager.                                                                     |
+| Personal guardian (alternate) | Serves if your sister cannot                                     | [Not yet identified]                                 | Essential. Name a backup so the court does not decide.                                                                                         |
+| Trustee (primary)             | Manages $650,000+ in trust assets for potentially 28 years       | Your brother-in-law (husband's brother, accountant)  | Strong candidate given financial background. Ensure he is willing and that he and your sister can communicate well about the children's needs. |
+| Alternate trustee             | Serves if brother-in-law cannot                                  | [Not yet identified -- possibly a corporate trustee] | For a 28-year trust administration period, a corporate successor trustee is worth discussing.                                                  |
+| Guardian of the estate        | Court-appointed -- default only                                  | N/A                                                  | A properly drafted will with trust provisions eliminates this role.                                                                            |
 
 **Your instinct to separate the guardian and trustee roles is sound.** Your sister provides what is irreplaceable -- a loving relationship with your children, shared values, knowledge of your family. Your brother-in-law provides financial expertise, professional discipline, and accountability. These roles complement each other. The key practical question is whether they will be able to communicate effectively about the children's needs -- the trustee will regularly receive requests from the guardian for funds to cover the children's expenses, and a cooperative working relationship matters enormously over a

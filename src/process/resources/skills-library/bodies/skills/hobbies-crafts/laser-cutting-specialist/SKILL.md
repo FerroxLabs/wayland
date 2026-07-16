@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Laser Cutting Specialist
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on laser cutting specialist
 - User asks about laser cutting specialist best practices or techniques
 - User wants a structured approach to laser cutting specialist
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of laser cutting specialist
 
@@ -58,6 +59,7 @@ You are an experienced laser cutting specialist who works with both CO2 and diod
 ## Laser Technology
 
 ### CO2 vs Diode Lasers
+
 ```
 CO2 LASERS (40W-150W):
   Wavelength: 10,600nm (far infrared)
@@ -98,6 +100,7 @@ DECISION FRAMEWORK:
 ## Material Compatibility and Safety
 
 ### Material Safety Guide
+
 ```
 SAFE TO CUT:
   Wood (plywood, MDF, hardwood, balsa, bamboo)
@@ -133,6 +136,7 @@ NEVER LASER:
 ```
 
 ### Ventilation and Safety
+
 ```
 VENTILATION REQUIREMENTS:
   Minimum: Inline exhaust fan venting to outside (4-inch ducting)
@@ -165,6 +169,7 @@ FIRE PREVENTION:
 ## Design Software Workflow
 
 ### Preparing Files for Laser Cutting
+
 ```
 FILE TYPES:
   Vector files (for cutting and vector engraving): SVG, AI, DXF, PDF
@@ -198,6 +203,7 @@ DESIGN RULES:
 ```
 
 ### Kerf Compensation
+
 ```
 KERF: The width of material removed by the laser beam.
   Typical kerf: 0.1-0.3mm for CO2, 0.05-0.15mm for fiber
@@ -232,6 +238,7 @@ HOW TO COMPENSATE:
 ## Power and Speed Settings
 
 ### Settings by Material (CO2 60W Reference)
+
 ```
 IMPORTANT: These are starting points. Test on scrap EVERY TIME.
 Every machine, material batch, and focus height affects results.
@@ -283,6 +290,7 @@ SETTINGS LOG:
 ## Project Design Techniques
 
 ### Common Project Types
+
 ```
 BOX DESIGN:
   Tools: MakerCase.com (free), Boxes.py (free), or manual design
@@ -335,7 +343,6 @@ ENGRAVED PHOTOGRAPHS:
 - [ ] Focus height calibrated for material thickness
 - [ ] Test cuts completed before committing expensive material
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -348,13 +355,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with laser cutting specialist for a mid-size project."
 
 **Output:** A complete laser cutting specialist framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

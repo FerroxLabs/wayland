@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "rust testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'rust testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Rust Testing Patterns
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - Writing unit tests in Rust, including test organization within modules, test helper patterns, and assertion strategies
 - Setting up integration tests in the `tests/` directory and structuring them for a Cargo workspace
 - Property-based testing with `proptest` or `quickcheck`, including strategy composition and shrinking behavior
@@ -30,6 +32,7 @@ metadata:
 - Snapshot testing with `insta` for complex output types
 
 **Do NOT use this skill when:**
+
 - The user asks about setting up a new Rust project from scratch -- use `rust-project-setup` instead, which covers `Cargo.toml` workspace layout, toolchain pinning, and CI bootstrapping
 - The user asks about Rust error handling design, `Result`/`Option` combinators, or `thiserror`/`anyhow` usage -- use `rust-error-handling` instead
 - The user is asking about general testing philosophy, TDD cycles, or test pyramid theory without Rust-specific context -- use `unit-testing-patterns` instead
@@ -101,6 +104,7 @@ Property-based testing finds edge cases that example-based tests miss by generat
 `criterion` provides statistically rigorous benchmarks with warm-up phases, outlier detection, and regression tracking. It is the standard for Rust performance measurement.
 
 - Add to `Cargo.toml`:
+
   ```toml
   [dev-dependencies]
   criterion = { version = "0.5", features = ["html_reports"] }
@@ -109,6 +113,7 @@ Property-based testing finds edge cases that example-based tests miss by generat
   name = "my_benchmark"
   harness = false
   ```
+
 - The `harness = false` is mandatory. Without it, Cargo applies the test harness to `benches/` files, which conflicts with criterion's own `main`.
 - Structure each benchmark file with a `criterion_group!` and `criterion_main!` macro. Group related benchmarks to compare them in criterion's HTML output.
 - Use `b.iter(|| { ... })` for the hot loop. Wrap return values with `criterion::black_box()` to prevent the compiler from optimizing away the computation. Failing to use `black_box` produces meaningless benchmarks.
@@ -269,20 +274,20 @@ When testing functions that produce large structured outputs (serialized JSON, r
 
 #### Layer Classification
 
-| Layer | Files | Scope | Dependencies |
-|-------|-------|-------|--------------|
-| Unit | `src/billing_engine.rs` | `calculate_total`, `apply_discount` pure logic | None -- pure arithmetic |
-| Property | `src/billing_engine.rs` (cfg(test)) | Invoice total invariants | proptest strategies |
-| Integration | `tests/billing_engine.rs` | Full `BillingEngine::process_invoice` | testcontainers (Postgres), wiremock (SMTP) |
-| Snapshot | `src/billing_engine.rs` (cfg(test)) | Invoice JSON serialization format | insta |
+| Layer       | Files                               | Scope                                          | Dependencies                               |
+| ----------- | ----------------------------------- | ---------------------------------------------- | ------------------------------------------ |
+| Unit        | `src/billing_engine.rs`             | `calculate_total`, `apply_discount` pure logic | None -- pure arithmetic                    |
+| Property    | `src/billing_engine.rs` (cfg(test)) | Invoice total invariants                       | proptest strategies                        |
+| Integration | `tests/billing_engine.rs`           | Full `BillingEngine::process_invoice`          | testcontainers (Postgres), wiremock (SMTP) |
+| Snapshot    | `src/billing_engine.rs` (cfg(test)) | Invoice JSON serialization format              | insta                                      |
 
 #### Dependency Matrix
 
-| Dependency | Test Strategy | Crate | Notes |
-|------------|---------------|-------|-------|
-| `DiscountRepository` (database) | `FakeDiscountRepository` in unit tests; real Postgres in integration | testcontainers | Docker must be available in CI |
-| `EmailSender` (SMTP) | `FakeEmailSender` in unit tests; wiremock in integration | wiremock | Verify email body and recipients |
-| `Clock` | `FakeClock` returning fixed `DateTime<Utc>` | (hand-written) | Invoice timestamps must be deterministic |
+| Dependency                      | Test Strategy                                                        | Crate          | Notes                                    |
+| ------------------------------- | -------------------------------------------------------------------- | -------------- | ---------------------------------------- |
+| `DiscountRepository` (database) | `FakeDiscountRepository` in unit tests; real Postgres in integration | testcontainers | Docker must be available in CI           |
+| `EmailSender` (SMTP)            | `FakeEmailSender` in unit tests; wiremock in integration             | wiremock       | Verify email body and recipients         |
+| `Clock`                         | `FakeClock` returning fixed `DateTime<Utc>`                          | (hand-written) | Invoice timestamps must be deterministic |
 
 #### Implementation
 

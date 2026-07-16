@@ -13,7 +13,7 @@ steps:
   - id: admin-check
     title: Confirm your site admin has authorized Rovo MCP
     estSeconds: 90
-    externalAction: { label: "Open Atlassian Admin", url: "https://admin.atlassian.com" }
+    externalAction: { label: 'Open Atlassian Admin', url: 'https://admin.atlassian.com' }
     warning: |
       If you see *"Your site admin must authorize this app"* during
       sign-in, the org hasn't approved the connector yet. The very first
@@ -36,7 +36,7 @@ steps:
   - id: authorize
     title: Sign in with Atlassian
     estSeconds: 60
-    primaryAction: { label: "Sign in with Atlassian", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Atlassian', action: 'oauth-flow' }
     body: |
       Click **Sign in with Atlassian** below. A browser tab opens at
       `id.atlassian.com`.
@@ -71,5 +71,5 @@ connection serves Jira tools (issues, sprints, JQL search) and Confluence tools
 (pages, spaces, CQL search).
 
 If your org has SSO + admin-managed connectors, the **admin-check** step is
-load-bearing - without it, sign-in will fail with the *"site admin must
-authorize this app"* error.
+load-bearing - without it, sign-in will fail with the _"site admin must
+authorize this app"_ error.

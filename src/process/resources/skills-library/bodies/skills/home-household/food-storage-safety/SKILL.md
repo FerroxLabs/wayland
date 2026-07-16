@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking checklist planning"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking checklist planning'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Food Storage Safety
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user's question is primarily about whether food is safe, how long food lasts, how to store food correctly, or how to handle food before and after cooking.
 
 **Trigger scenarios -- use this skill when:**
+
 - User asks how long a specific food item is safe in the fridge or freezer ("Is my chicken from Monday still good? It's Wednesday.")
 - User wants to know the correct temperature settings for their refrigerator or freezer
 - User asks about safe thawing methods for frozen food
@@ -42,6 +44,7 @@ Use this skill when the user's question is primarily about whether food is safe,
 - User asks about home canning safety
 
 **Do NOT use this skill when:**
+
 - User needs meal prep planning, batch cooking workflows, or scheduling weekly meals -- use `meal-prep-workflow` instead
 - User needs cooking temperature guidance for preparing food (safe internal temperatures for doneness) -- use `cooking-techniques` instead
 - User has a specific food allergy, intolerance, or anaphylaxis concern -- refer to a healthcare provider and do not apply food safety storage rules to allergy management
@@ -273,6 +276,7 @@ Reasoning:
 ## Edge Cases
 
 ### Power Outage
+
 This is a high-stakes scenario with specific, counterintuitive rules. Apply the following guidance precisely.
 
 - The single most important action is to **keep the doors closed.** Every opening lets cold air escape and accelerates warming.
@@ -364,11 +368,13 @@ Cooked food containing meat (especially poultry) is safe in the refrigerator for
 2. **How quickly it was cooled after cooking.** A large pot of soup takes a long time to cool to safe temperatures, especially with the lid on. If the soup sat at room temperature for more than 1-2 hours before going into the fridge, it spent time in the danger zone (40-140F) during that cooling period. That cumulative danger zone time counts against the safe storage window.
 
 **Action options -- choose one now:**
+
 - **Eat it today:** Reheat the entire portion you plan to eat to a full rolling boil (all parts of the soup should reach 165F/74C minimum). Taste a small amount. If anything is off -- sour, strange, or different from when you made it -- discard the entire pot.
 - **Freeze it immediately:** Divide the soup into shallow containers (no more than 2 inches deep) or individual meal-sized portions. Leave 1 inch of headspace in each container for expansion. Label each container with "Chicken soup -- frozen [today's date]." Frozen soup is safe indefinitely and best quality within 2-3 months. Thaw in the fridge overnight before reheating.
 - **Discard it:** If the soup shows any of the spoilage signs below, discard without tasting. If you are not sure when or how it was cooled, err toward discard.
 
 **Spoilage signs to check before eating:**
+
 - Smell: any sour, sour-cream-like, or "off" odor that was not there when the soup was fresh
 - Surface: cloudy film or oily sheen on the surface that was not present when first stored
 - Texture: unusual viscosity or sliminess in the broth
@@ -390,10 +396,10 @@ Your "3" dial setting is not a reliable indicator. Here is how to get an actual 
 
 **Target temperature: 35-38F / 2-3C.** This is the performance target -- not just "below 40F." Operating at 38F instead of 40F meaningfully extends the safe life of raw meat, dairy, and leftovers.
 
-| Appliance | Target | How to Verify | If It Is Off |
-|-----------|--------|---------------|--------------|
-| Refrigerator | 35-38F / 2-3C | Thermometer on middle shelf, 24-hour reading | Adjust dial one increment warmer or cooler; wait 24 hours; check again |
-| Freezer | 0F / -18C or below | Thermometer on door shelf (warmest freezer spot) | If above 0F, adjust colder; if everything is frosted solid and items are difficult to remove, temperature may be too low (-10F is fine, just wastes energy) |
+| Appliance    | Target             | How to Verify                                    | If It Is Off                                                                                                                                                |
+| ------------ | ------------------ | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refrigerator | 35-38F / 2-3C      | Thermometer on middle shelf, 24-hour reading     | Adjust dial one increment warmer or cooler; wait 24 hours; check again                                                                                      |
+| Freezer      | 0F / -18C or below | Thermometer on door shelf (warmest freezer spot) | If above 0F, adjust colder; if everything is frosted solid and items are difficult to remove, temperature may be too low (-10F is fine, just wastes energy) |
 
 If your fridge cannot hold 35-38F on any dial setting, it may need servicing (dirty condenser coils or a failing door seal are the most common causes). A fridge running warm is a persistent food safety problem -- not just a one-time issue with this pot of soup.
 
@@ -401,30 +407,30 @@ If your fridge cannot hold 35-38F on any dial setting, it may need servicing (di
 
 ### Storage Duration Reference for Common Items in Your Kitchen
 
-| Food Item | Fridge (35-40F) | Freezer (0F) | High-Risk? |
-|-----------|----------------|-------------|------------|
-| Cooked chicken soup / stew | 3-4 days | 2-3 months | YES |
-| Raw chicken (pieces) | 1-2 days | 9 months | YES |
-| Raw ground beef | 1-2 days | 3-4 months | YES |
-| Cooked rice | 4-6 days | 6 months | YES (Bacillus cereus) |
-| Milk | 7 days after opening | 3 months | NO |
-| Eggs in shell | 3-5 weeks from purchase | Do not freeze in shell | NO |
-| Hard cheese (cheddar) | 3-4 weeks opened | 6 months | NO |
-| Deli meat (opened) | 3-5 days | 1-2 months | YES |
-| Leftovers (general, cooked) | 3-4 days | 2-3 months | YES |
+| Food Item                   | Fridge (35-40F)         | Freezer (0F)           | High-Risk?            |
+| --------------------------- | ----------------------- | ---------------------- | --------------------- |
+| Cooked chicken soup / stew  | 3-4 days                | 2-3 months             | YES                   |
+| Raw chicken (pieces)        | 1-2 days                | 9 months               | YES                   |
+| Raw ground beef             | 1-2 days                | 3-4 months             | YES                   |
+| Cooked rice                 | 4-6 days                | 6 months               | YES (Bacillus cereus) |
+| Milk                        | 7 days after opening    | 3 months               | NO                    |
+| Eggs in shell               | 3-5 weeks from purchase | Do not freeze in shell | NO                    |
+| Hard cheese (cheddar)       | 3-4 weeks opened        | 6 months               | NO                    |
+| Deli meat (opened)          | 3-5 days                | 1-2 months             | YES                   |
+| Leftovers (general, cooked) | 3-4 days                | 2-3 months             | YES                   |
 
 ---
 
 ### Fridge Organization to Maximize Safety and Storage Life
 
-| Zone | Store Here | Why |
-|------|-----------|-----|
-| Top shelf | Ready-to-eat leftovers, drinks, cooked food in sealed containers | Warmest shelf in the main compartment; suitable for items that need no further cooking |
-| Middle shelf(s) | Dairy (milk, yogurt, cheese), eggs, deli meat | Consistent cold temperature; eggs and milk belong here -- NOT on the door |
-| Bottom shelf | Raw meat, poultry, fish in sealed containers or on rimmed plates | Coldest shelf; any drips cannot contaminate food below because there is nothing below |
-| Crisper (high humidity) | Leafy greens, broccoli, asparagus, celery | High humidity prevents wilting |
-| Crisper (low humidity) | Fruits, peppers, mushrooms, cucumbers | Low humidity prevents mold; separates ethylene-producing fruits from sensitive vegetables |
-| Door shelves | Condiments, pickles, sauces, juice, butter | Warmest, most variable temperature zone -- only high-acid or high-salt items belong here |
+| Zone                    | Store Here                                                       | Why                                                                                       |
+| ----------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Top shelf               | Ready-to-eat leftovers, drinks, cooked food in sealed containers | Warmest shelf in the main compartment; suitable for items that need no further cooking    |
+| Middle shelf(s)         | Dairy (milk, yogurt, cheese), eggs, deli meat                    | Consistent cold temperature; eggs and milk belong here -- NOT on the door                 |
+| Bottom shelf            | Raw meat, poultry, fish in sealed containers or on rimmed plates | Coldest shelf; any drips cannot contaminate food below because there is nothing below     |
+| Crisper (high humidity) | Leafy greens, broccoli, asparagus, celery                        | High humidity prevents wilting                                                            |
+| Crisper (low humidity)  | Fruits, peppers, mushrooms, cucumbers                            | Low humidity prevents mold; separates ethylene-producing fruits from sensitive vegetables |
+| Door shelves            | Condiments, pickles, sauces, juice, butter                       | Warmest, most variable temperature zone -- only high-acid or high-salt items belong here  |
 
 **The most common organizational error:** Storing milk and eggs on the door shelf. Move both to the middle shelf today.
 
@@ -434,12 +440,12 @@ If your fridge cannot hold 35-38F on any dial setting, it may need servicing (di
 
 ### Safe Thawing for Future Reference
 
-| Method | Time Needed | Best For | Key Rules |
-|--------|------------|---------|-----------|
-| Refrigerator thaw | 12-48 hours | All foods; safest method | Plan ahead; poultry 24+ hours; once thawed, cook within 1-2 days |
-| Cold water bath | 1-3 hours | Chicken pieces, fish, ground meat | Sealed package, cold water changed every 30 min; cook immediately |
-| Microwave defrost | 5-20 min | Emergency only | Cook immediately; cannot return to fridge raw |
-| Cook from frozen | +50% cook time | Soups, burgers, fish fillets | Verify internal temperature throughout |
+| Method            | Time Needed    | Best For                          | Key Rules                                                         |
+| ----------------- | -------------- | --------------------------------- | ----------------------------------------------------------------- |
+| Refrigerator thaw | 12-48 hours    | All foods; safest method          | Plan ahead; poultry 24+ hours; once thawed, cook within 1-2 days  |
+| Cold water bath   | 1-3 hours      | Chicken pieces, fish, ground meat | Sealed package, cold water changed every 30 min; cook immediately |
+| Microwave defrost | 5-20 min       | Emergency only                    | Cook immediately; cannot return to fridge raw                     |
+| Cook from frozen  | +50% cook time | Soups, burgers, fish fillets      | Verify internal temperature throughout                            |
 
 **Never thaw on the counter.** The outer surface enters the danger zone (40-140F) while the center is still frozen.
 

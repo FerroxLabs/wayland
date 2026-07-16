@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Nonprofit Starter
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start a nonprofit organization from scratch, including mission development and 501(c)(3) application
 - The user needs help writing bylaws, forming a board, or establishing fiscal sponsorship
 - The user wants step-by-step guidance on nonprofit incorporation, compliance, or IRS filing
 - The user is evaluating whether to form a nonprofit vs. a for-profit social enterprise
 
 **Do NOT use this skill when:**
+
 - The user already has a nonprofit and needs governance improvements (use board-governance instead)
 - The user needs fundraising strategy for an existing organization (use fundraising-strategist instead)
 - The user wants to write grant proposals (use nonprofit-grant-writer instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on nonprofit starter
 - User asks about nonprofit starter best practices or techniques
 - User wants a structured approach to nonprofit starter
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of nonprofit starter
 
@@ -68,15 +72,18 @@ Before diving into the process, I need to understand your situation:
 ## Step 1: Mission and Vision Development
 
 ### Crafting Your Mission Statement
+
 Your mission statement is the foundation. It answers: Why does this organization exist?
 
 **Formula**: [Organization] [action verb] [target population] by [method/approach] to [outcome].
 
 **Examples**:
+
 - "Green Future educates urban youth about sustainable agriculture through school garden programs to build healthier communities."
 - "Paws Forward rescues abandoned dogs in rural Appalachia and connects them with loving adoptive families."
 
 **Mission Statement Checklist**:
+
 - Under 30 words
 - Clear and jargon-free (a 12-year-old should understand it)
 - Specific about who you serve
@@ -84,18 +91,24 @@ Your mission statement is the foundation. It answers: Why does this organization
 - Inspires action and support
 
 ### Vision Statement
+
 Your vision describes the future world you are working toward.
 
 **Examples**:
+
 - "A world where every child has access to nutritious food."
 - "Communities where all families have stable, affordable housing."
 
 ### Values Statement
+
 3-5 core values that guide organizational behavior:
+
 - Integrity, equity, collaboration, innovation, compassion, transparency, accountability
 
 ### Theory of Change
+
 Map how your activities lead to your desired impact:
+
 1. **Inputs**: Resources you invest (money, staff, volunteers, materials)
 2. **Activities**: What you do (programs, services, advocacy)
 3. **Outputs**: Measurable products of activities (meals served, classes taught)
@@ -105,7 +118,9 @@ Map how your activities lead to your desired impact:
 ## Step 2: Incorporation (State Level)
 
 ### Articles of Incorporation
+
 File with your state's Secretary of State office (or equivalent):
+
 1. Legal name of organization (search state database to ensure name is available)
 2. Purpose statement (must include language required for 501(c)(3) eligibility)
 3. Registered agent and address
@@ -119,6 +134,7 @@ File with your state's Secretary of State office (or equivalent):
 "Upon dissolution, assets shall be distributed for exempt purposes or to a 501(c)(3) organization, or federal/state/local government for public purposes."
 
 ### Filing Costs
+
 - Vary by state: $25 (some states) to $300+
 - Processing time: 1-4 weeks typically
 - Expedited filing available in most states for additional fee
@@ -128,9 +144,11 @@ File with your state's Secretary of State office (or equivalent):
 ### Essential Bylaw Components
 
 **Article I - Name and Purpose**
+
 - Legal name, state of incorporation, mission statement
 
 **Article II - Board of Directors**
+
 - Number of directors (minimum 3 recommended; some states require 3)
 - Term length (typically 2-3 years, staggered)
 - Term limits (recommended: 2-3 consecutive terms)
@@ -139,12 +157,14 @@ File with your state's Secretary of State office (or equivalent):
 - Vacancy filling procedure
 
 **Article III - Officers**
+
 - Required: President/Chair, Secretary, Treasurer
 - Optional: Vice President, additional officers
 - Duties of each officer
 - Election process and term
 
 **Article IV - Meetings**
+
 - Frequency of board meetings (minimum quarterly recommended)
 - Annual meeting requirement
 - Quorum definition (typically majority of board members)
@@ -153,37 +173,44 @@ File with your state's Secretary of State office (or equivalent):
 - Voting procedures
 
 **Article V - Committees**
+
 - Standing committees (Executive, Finance, Governance, Fundraising)
 - Committee authority and limitations
 - Ad hoc committee creation process
 
 **Article VI - Fiscal Matters**
+
 - Fiscal year (calendar year or July 1 - June 30 are most common)
 - Banking authority
 - Check signing requirements
 - Financial review/audit requirements
 
 **Article VII - Conflicts of Interest**
+
 - Conflict of interest policy (required by IRS)
 - Disclosure requirements
 - Recusal procedures
 - Annual disclosure statements
 
 **Article VIII - Amendments**
+
 - Process for amending bylaws
 - Required vote threshold (typically 2/3 majority)
 
 **Article IX - Dissolution**
+
 - Procedure for dissolving organization
 - Asset distribution plan
 
 ## Step 4: 501(c)(3) Application (Federal Tax Exemption)
 
 ### Which Form to File
+
 - **Form 1023-EZ** (online, simplified): For organizations expecting gross receipts under $50,000 and assets under $250,000. Filing fee: $275. Processing: 2-4 weeks.
 - **Form 1023** (full application): For larger organizations or those ineligible for 1023-EZ. Filing fee: $600. Processing: 3-6 months.
 
 ### Key Sections of Form 1023
+
 1. **Organizational structure**: Articles, bylaws, EIN
 2. **Activities description**: Detailed narrative of all planned programs
 3. **Financial data**: Projected budget for 3 years (revenue sources and expenses)
@@ -192,6 +219,7 @@ File with your state's Secretary of State office (or equivalent):
 6. **Public charity status**: Most organizations qualify as public charity under 509(a)(1) or 509(a)(2)
 
 ### Before Filing 501(c)(3)
+
 - Obtain EIN (Employer Identification Number) from IRS - free, online, instant
 - File state incorporation
 - Adopt bylaws at organizational board meeting
@@ -199,6 +227,7 @@ File with your state's Secretary of State office (or equivalent):
 - Open bank account with EIN
 
 ### Common Mistakes That Delay Approval
+
 - Purpose clause too vague or missing required IRS language
 - Missing dissolution clause in Articles of Incorporation
 - Incomplete activity descriptions
@@ -209,12 +238,14 @@ File with your state's Secretary of State office (or equivalent):
 ## Step 5: Fiscal Sponsorship Alternative
 
 ### When to Consider Fiscal Sponsorship
+
 - You want to start programs immediately before 501(c)(3) approval
 - Your project is small or time-limited and does not justify creating a new organization
 - You want to test your concept before committing to full incorporation
 - You lack the infrastructure for financial management
 
 ### How Fiscal Sponsorship Works
+
 1. An existing 501(c)(3) organization agrees to sponsor your project
 2. Donations are made to the sponsor (tax-deductible for donors)
 3. Sponsor handles financial administration, compliance, and reporting
@@ -222,6 +253,7 @@ File with your state's Secretary of State office (or equivalent):
 5. Sponsor typically retains 5-10% of funds for administrative costs
 
 ### Finding a Fiscal Sponsor
+
 - Community foundations in your area
 - Umbrella organizations in your issue area
 - Fiscal Sponsorship Directory (fiscalsponsordirectory.org)
@@ -230,6 +262,7 @@ File with your state's Secretary of State office (or equivalent):
 ## Step 6: Board Formation
 
 ### Ideal Founding Board Composition
+
 - **Minimum 3 members** (5-9 is optimal for a startup)
 - Diversity of skills: Finance, legal, marketing, subject matter expertise, community connections
 - Diversity of backgrounds: Reflect the community you serve
@@ -237,6 +270,7 @@ File with your state's Secretary of State office (or equivalent):
 - People willing to give/get financially (set minimum give/get expectation early)
 
 ### Board Member Responsibilities
+
 - **Duty of Care**: Act with reasonable care in decisions
 - **Duty of Loyalty**: Put organization interests above personal interests
 - **Duty of Obedience**: Ensure organization follows its mission and law
@@ -246,6 +280,7 @@ File with your state's Secretary of State office (or equivalent):
 - **Advocacy**: Serve as ambassador for the organization
 
 ### Board Recruitment Process
+
 1. Develop a board matrix (skills, demographics, connections needed)
 2. Identify gaps in current board composition
 3. Ask current board members and community contacts for referrals
@@ -257,6 +292,7 @@ File with your state's Secretary of State office (or equivalent):
 ## Step 7: Initial Fundraising
 
 ### Startup Revenue Sources
+
 - **Founder investment**: Personal contributions from founding team
 - **Friends and family**: First circle of donors
 - **Community foundations**: Startup grants for new nonprofits
@@ -266,20 +302,22 @@ File with your state's Secretary of State office (or equivalent):
 - **Government grants**: Rare for brand-new organizations, but some startup programs exist
 
 ### First Year Budget Template
-| Category | Amount |
-|----------|--------|
-| Incorporation and filing fees | $300-1,000 |
-| Insurance (general liability, D&O) | $500-2,000 |
-| Website and communications | $200-1,000 |
-| Bookkeeping/accounting | $500-2,000 |
-| Program expenses | Varies |
-| Office/meeting space | $0-3,000 |
-| Professional development | $200-500 |
-| **Total startup estimate** | **$2,000-10,000** |
+
+| Category                           | Amount            |
+| ---------------------------------- | ----------------- |
+| Incorporation and filing fees      | $300-1,000        |
+| Insurance (general liability, D&O) | $500-2,000        |
+| Website and communications         | $200-1,000        |
+| Bookkeeping/accounting             | $500-2,000        |
+| Program expenses                   | Varies            |
+| Office/meeting space               | $0-3,000          |
+| Professional development           | $200-500          |
+| **Total startup estimate**         | **$2,000-10,000** |
 
 ## Step 8: Compliance Requirements
 
 ### Federal Requirements (Ongoing)
+
 - **Form 990** (or 990-EZ or 990-N): Annual information return filed with IRS
   - 990-N (e-Postcard): Gross receipts under $50,000
   - 990-EZ: Gross receipts under $200,000 and assets under $500,000
@@ -288,6 +326,7 @@ File with your state's Secretary of State office (or equivalent):
 - **Failure to file for 3 consecutive years = automatic revocation of tax-exempt status**
 
 ### State Requirements (Vary by State)
+
 - Annual report with Secretary of State (filing fee varies)
 - State charitable solicitation registration (if fundraising from the public)
 - State tax exemption application (separate from federal)
@@ -295,6 +334,7 @@ File with your state's Secretary of State office (or equivalent):
 - Compliance with state nonprofit corporation law
 
 ### Governance Requirements
+
 - Hold annual meeting
 - Maintain meeting minutes
 - Keep financial records for minimum 7 years
@@ -302,6 +342,7 @@ File with your state's Secretary of State office (or equivalent):
 - Conduct financial review or audit as appropriate for size
 
 ### Employment Requirements (If You Hire Staff)
+
 - Register with state for employment taxes
 - Workers' compensation insurance
 - Employment practices liability insurance recommended
@@ -311,6 +352,7 @@ File with your state's Secretary of State office (or equivalent):
 ## Volunteer Recruitment (Early Stage)
 
 ### Finding Initial Volunteers
+
 - Board members' personal networks
 - Local volunteer matching platforms (VolunteerMatch, JustServe)
 - College and university service-learning programs
@@ -319,6 +361,7 @@ File with your state's Secretary of State office (or equivalent):
 - Corporate volunteer programs
 
 ### Volunteer Management Basics
+
 - Clear role descriptions
 - Background checks for roles involving vulnerable populations
 - Orientation and training
@@ -355,7 +398,6 @@ File with your state's Secretary of State office (or equivalent):
 - **BoardSource** (boardsource.org): Board governance best practices
 - **Books**: "Starting a Nonprofit" by Peri Pakroo, "Nonprofit Kit for Dummies"
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -367,7 +409,6 @@ Deliver the response as a structured document with clear headings and actionable
 3. Specific recommendations with rationale
 4. Action items with timeline
 ```
-
 
 ## Example
 

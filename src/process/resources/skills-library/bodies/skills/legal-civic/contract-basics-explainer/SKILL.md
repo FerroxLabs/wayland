@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts guide checklist"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts guide checklist'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Contract Basics Explainer
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user has received a contract -- service agreement, vendor agreement, software license, partnership agreement, purchase order, or similar document -- and wants to understand what each section means before deciding how to proceed
 - A user is preparing to sign a contract and wants a clause-by-clause walkthrough to identify what they are committing to, what risks they are accepting, and what protections may be absent
 - A user encounters unfamiliar legal terminology (indemnification, representations and warranties, force majeure, severability, liquidated damages) and wants plain-language definitions with context for why those terms exist
@@ -31,6 +33,7 @@ metadata:
 - A user is comparing two versions of a contract (original vs. redlined revision) and wants to understand what changed and which direction each change tilts the balance of power
 
 **Do NOT use when:**
+
 - User wants to draft new contract language or have specific clause language written for them -- that constitutes legal practice; refer to a licensed attorney
 - User wants a definitive answer on whether to sign -- that is legal advice; present the analysis and direct them to counsel
 - User needs negotiation strategy specific to their situation -- use `contract-negotiation-prep` skill if available
@@ -198,6 +201,7 @@ These sections define what happens when things go wrong. They are frequently the
 After reviewing all clauses, synthesize observations into actionable flags organized by risk severity.
 
 **High-severity red flags (require attorney review before signing):**
+
 - One-sided indemnification requiring the smaller party to indemnify the larger party for the larger party's own negligence
 - No limitation of liability cap, or an asymmetrical cap protecting only one party
 - Broad IP assignment with no carve-out for pre-existing materials or portfolio rights
@@ -206,6 +210,7 @@ After reviewing all clauses, synthesize observations into actionable flags organ
 - Liquidated damages provisions with amounts that appear disproportionate to actual likely harm (may be unenforceable as penalties, but invite litigation)
 
 **Medium-severity red flags (should be understood and ideally negotiated):**
+
 - Automatic renewal with a short opt-out window (less than 30 days notice required)
 - Net-60 or Net-90 payment terms for a service provider
 - "Best efforts" obligations without definition
@@ -213,6 +218,7 @@ After reviewing all clauses, synthesize observations into actionable flags organ
 - Broad confidentiality definitions with no carve-out for general skills and knowledge acquired during performance
 
 **Missing protections to flag by contract type:**
+
 - Service agreements: Missing acceptance criteria, missing change-order process, missing late payment interest, missing mutual indemnification
 - Technology/software agreements: Missing source code escrow for custom software, missing data security/breach notification obligations, missing service level agreements (SLAs) and remedies for downtime
 - Vendor/supply agreements: Missing warranty on conformity to specifications, missing remedy for defective goods (repair, replacement, or refund), missing allocation of risk of loss during shipping
@@ -354,27 +360,35 @@ Bring these specific questions to your attorney consultation:
 ## Edge Cases
 
 ### 1. Contract Is Written in Another Language or Governed by a Non-U.S. Legal System
+
 Civil law jurisdictions (France, Germany, Japan, Brazil, Mexico, most of continental Europe and Latin America) operate on codified statutory frameworks rather than common law precedent. Default rules in civil law jurisdictions often provide stronger implied protections -- meaning that clauses which are necessary in a U.S. common law contract (such as explicit damages exclusions) may not be necessary because statute provides the baseline. Conversely, some standard U.S. protections (implied warranties, consequential damages waivers) operate differently or may not apply. For contracts governed by foreign law: (1) explain the general framework of each clause as described; (2) explicitly note that civil law default rules differ from U.S. common law defaults in ways that may significantly affect the analysis; (3) recommend the user consult an attorney licensed in the relevant jurisdiction, not just any attorney; (4) if the contract is in a foreign language, note that machine translation of legal documents can introduce material errors -- a certified legal translator and bilingual attorney are the appropriate resources
 
 ### 2. User Has Already Signed the Contract
+
 Post-signature, the analytical focus shifts entirely. Do not focus on "what you should have negotiated" -- that is not actionable. Instead: (1) map the user's current legal obligations clearly -- what must they do, by when, and what are the consequences of non-performance; (2) identify termination rights and the exact mechanics for exercising them -- notice requirements, required form (written, certified mail, email), and any cure periods; (3) identify upcoming dates -- renewal windows, termination notice deadlines, payment due dates; (4) explain any survival clauses so the user understands which obligations persist after the contract ends; (5) note that if the user believes they have a claim or are in breach, they should contact an attorney immediately -- do not analyze litigation strategy
 
 ### 3. Contract Is Very Short (Under Two Pages) or Appears Informal
+
 Brevity creates risk through omission. A one-page contract that is silent on dispute resolution, limitation of liability, intellectual property ownership, and termination rights is not "simple" -- it has left all of those issues unaddressed, which means they default to the rules of the governing jurisdiction (which may be unclear or unfavorable). For short or informal contracts: (1) run through every standard section and explicitly note which are absent; (2) explain what the legal default is when each clause is absent; (3) flag that informal language does not make a contract unenforceable -- courts enforce informal agreements regularly if the elements of offer, acceptance, and consideration are present; (4) recommend the user ask an attorney to prepare a more complete agreement or addendum if the transaction has meaningful financial stakes
 
 ### 4. Contract Contains a Redline (Two Versions Being Compared)
+
 Work through changes section by section. For each change: (1) explain what the original language said and what the revised language says in plain terms; (2) identify which direction the change shifts risk -- toward Party A, toward Party B, or neutral; (3) note if the revised language introduces new red flags not present in the original; (4) note if the revised language addresses concerns that existed in the original; (5) produce a change summary table showing each material change and its effect; (6) do not express a view on which version is "better" -- explain what each version commits each party to
 
 ### 5. Contract Includes an Exhibit, Schedule, or Attachment That Is Missing or Referenced But Not Provided
+
 Many contracts incorporate key terms by reference into exhibits (e.g., "Services are described in Exhibit A," "Pricing is set forth in Schedule 1"). If those exhibits are missing: (1) flag explicitly that analysis is incomplete because the operative terms for [scope / pricing / specifications] are in an exhibit the user has not provided; (2) warn that the main body of the contract is sometimes designed to be favorable while unfavorable terms are buried in exhibits -- the exhibits are as legally binding as the main document; (3) instruct the user to obtain and review all referenced exhibits before signing
 
 ### 6. User Is a Consumer Signing a Contract of Adhesion
+
 A "contract of adhesion" is a standardized form offered on a take-it-or-leave-it basis -- common in consumer software EULAs, online terms of service, and cell phone carrier agreements. For contracts of adhesion: (1) note that courts in many U.S. jurisdictions apply heightened scrutiny to adhesion contracts, particularly for clauses that are "unconscionable" -- meaning oppressively one-sided and the product of unequal bargaining power; (2) arbitration clauses in consumer adhesion contracts have faced significant judicial and legislative pushback -- California, New Jersey, and other states have restricted their enforceability in consumer contexts; (3) the user likely cannot negotiate the terms, so the practical question shifts from "what should I negotiate?" to "what am I consenting to and what are my rights?" -- explain both clearly
 
 ### 7. Contract Is a Settlement Agreement
+
 Settlement agreements end disputes and typically include mutual releases of all claims. They are among the highest-stakes contracts a non-attorney can receive because: (1) signing releases potential legal claims that may have significant value; (2) they often include confidentiality obligations that restrict what the settling party can say about the underlying dispute; (3) they can affect tax treatment of any payment received (some settlement payments are taxable income, others are not, depending on the nature of the claim); (4) they may include non-disparagement clauses restricting future speech. For any settlement agreement: flag that this contract type carries uniquely high stakes, provide the general clause analysis, and make an explicit and emphatic recommendation that the user consult a licensed attorney before signing. Do not analyze litigation strategy or express any view on whether the settlement amount is fair
 
 ### 8. Contract Contains Unusual or Novel Clause Types (Crypto, AI, Data Governance)
+
 Emerging technology contracts increasingly include clauses covering: (1) **data ownership and portability** -- who owns data generated during the contract relationship and can the user export it; (2) **AI-generated work product** -- is output generated by AI tools owned by the provider, the client, or joint? This area has no settled law as of 2024; (3) **smart contract triggers** -- some crypto-related agreements include automated payment or performance mechanisms; (4) **data breach notification obligations** -- contractual breach notification windows (often 24-72 hours) that are more demanding than statutory requirements. For novel clauses: explain what the clause attempts to accomplish, note where the legal framework is unsettled, and recommend attorney review with specific attention to the novel provision
 
 ---
@@ -393,14 +407,16 @@ Emerging technology contracts increasingly include clauses covering: (1) **data 
 ---
 
 ### Parties
-| Role | Name / Description | Notes |
-|------|--------------------|-------|
-| Client | Mid-sized software company | Business entity -- verify full legal name and state of incorporation in the contract |
-| Contractor | User (freelance UX designer) | Individual -- confirm whether you are contracting in your own name or as an LLC |
+
+| Role       | Name / Description           | Notes                                                                                |
+| ---------- | ---------------------------- | ------------------------------------------------------------------------------------ |
+| Client     | Mid-sized software company   | Business entity -- verify full legal name and state of incorporation in the contract |
+| Contractor | User (freelance UX designer) | Individual -- confirm whether you are contracting in your own name or as an LLC      |
 
 ---
 
 ### Plain-Language Summary
+
 **What this contract does:** A software company is hiring you to perform UX design services for 90 days in exchange for a flat fee of $15,000. In exchange for the payment, you transfer ownership of everything you create under this contract to the company, keep their information confidential, and accept a $1,000 cap on the total damages you can recover if the company fails to perform.
 
 **Duration:** 90 days from effective date (project-based, but with early termination rights)
@@ -412,47 +428,49 @@ Emerging technology contracts increasingly include clauses covering: (1) **data 
 
 ### Clause-by-Clause Breakdown
 
-| Section | What It Actually Says (Plain Language) | Why It Matters to You | Risk Level |
-|---------|----------------------------------------|-----------------------|------------|
-| Scope of Work | Defines what UX design work you will perform | If vague -- e.g., "UX design services as requested" rather than specific deliverables with acceptance criteria -- the client can demand additional work without paying more | 🟡 Medium -- confirm whether deliverables, revision rounds, and acceptance criteria are specifically described |
-| Fees and Payment | $15,000 flat fee for 90 days of work | At approximately $167/day (assuming 5-day work weeks = ~65 working days), this is roughly $231/day. The bigger question is: when does the company pay you? If it's one lump sum at the end of 90 days, you bear 90 days of cash flow risk | 🟡 Medium -- no late payment penalty or milestone payment structure described |
-| Intellectual Property Assignment | "All inventions, works, and developments created in connection with this Agreement" are assigned to the company | This is the most significant clause for you. As written, this likely includes: (1) all custom design systems, wireframes, and prototypes you create; (2) any code or tools you build during the engagement; (3) potentially any pre-existing design components you use if they are "in connection with" this agreement | 🔴 High -- requires attorney review |
-| Confidentiality | Restricts disclosure of the company's information | Standard for commercial contracts -- the key questions are: (1) how long does it last after the contract ends; (2) whether you can list this company as a client in your portfolio; and (3) whether you can show samples of your work for portfolio purposes | 🟡 Medium -- duration and portfolio rights matter |
-| Term and Termination | Client can terminate for convenience with 14 days' notice | This means the company can end the contract any time after giving you 14 days' written notice -- with no stated obligation to pay you for work completed beyond what was already due. If they terminate at day 60, do you get paid for the 60 days of work? The contract as described does not address this | 🔴 High -- no kill fee or payment-for-work-completed provision described |
-| Limitation of Liability | Both parties' damages are capped at $1,000 | This is mutual and protects you from large damage claims -- but a $1,000 cap on your ability to recover damages means: if the company never pays you your $15,000, your contract-based damage claim may be capped at $1,000. This could make the clause effectively unenforceable for payment disputes in some jurisdictions, but that is jurisdiction-specific | 🔴 High -- $1,000 cap against a $15,000 contract may leave you without meaningful legal recourse for non-payment |
-| General Provisions | Standard boilerplate -- governing law, entire agreement, severability, assignment, amendments | Note whether arbitration or mediation is required for disputes, which jurisdiction governs, and whether the assignment clause prevents the company from being acquired and having a new owner take over your contract without your consent | 🟡 Medium -- verify governing law and dispute resolution mechanism |
+| Section                          | What It Actually Says (Plain Language)                                                                          | Why It Matters to You                                                                                                                                                                                                                                                                                                                                           | Risk Level                                                                                                       |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Scope of Work                    | Defines what UX design work you will perform                                                                    | If vague -- e.g., "UX design services as requested" rather than specific deliverables with acceptance criteria -- the client can demand additional work without paying more                                                                                                                                                                                     | 🟡 Medium -- confirm whether deliverables, revision rounds, and acceptance criteria are specifically described   |
+| Fees and Payment                 | $15,000 flat fee for 90 days of work                                                                            | At approximately $167/day (assuming 5-day work weeks = ~65 working days), this is roughly $231/day. The bigger question is: when does the company pay you? If it's one lump sum at the end of 90 days, you bear 90 days of cash flow risk                                                                                                                       | 🟡 Medium -- no late payment penalty or milestone payment structure described                                    |
+| Intellectual Property Assignment | "All inventions, works, and developments created in connection with this Agreement" are assigned to the company | This is the most significant clause for you. As written, this likely includes: (1) all custom design systems, wireframes, and prototypes you create; (2) any code or tools you build during the engagement; (3) potentially any pre-existing design components you use if they are "in connection with" this agreement                                          | 🔴 High -- requires attorney review                                                                              |
+| Confidentiality                  | Restricts disclosure of the company's information                                                               | Standard for commercial contracts -- the key questions are: (1) how long does it last after the contract ends; (2) whether you can list this company as a client in your portfolio; and (3) whether you can show samples of your work for portfolio purposes                                                                                                    | 🟡 Medium -- duration and portfolio rights matter                                                                |
+| Term and Termination             | Client can terminate for convenience with 14 days' notice                                                       | This means the company can end the contract any time after giving you 14 days' written notice -- with no stated obligation to pay you for work completed beyond what was already due. If they terminate at day 60, do you get paid for the 60 days of work? The contract as described does not address this                                                     | 🔴 High -- no kill fee or payment-for-work-completed provision described                                         |
+| Limitation of Liability          | Both parties' damages are capped at $1,000                                                                      | This is mutual and protects you from large damage claims -- but a $1,000 cap on your ability to recover damages means: if the company never pays you your $15,000, your contract-based damage claim may be capped at $1,000. This could make the clause effectively unenforceable for payment disputes in some jurisdictions, but that is jurisdiction-specific | 🔴 High -- $1,000 cap against a $15,000 contract may leave you without meaningful legal recourse for non-payment |
+| General Provisions               | Standard boilerplate -- governing law, entire agreement, severability, assignment, amendments                   | Note whether arbitration or mediation is required for disputes, which jurisdiction governs, and whether the assignment clause prevents the company from being acquired and having a new owner take over your contract without your consent                                                                                                                      | 🟡 Medium -- verify governing law and dispute resolution mechanism                                               |
 
 ---
 
 ### Red Flags Identified
 
-| Severity | Contract Section | What the Clause Says | Why It Is a Concern | Potential Impact |
-|----------|-----------------|----------------------|---------------------|-----------------|
-| 🔴 High | IP Assignment | "All inventions, works, and developments created in connection with this Agreement" | The phrase "in connection with" is extremely broad. Courts have interpreted similar language to capture pre-existing work that was adapted for the client, general design skills and methodologies developed during the engagement, and tools you created for your own efficiency. There is no carve-out for your pre-existing materials, your personal design library, or portfolio rights | You could be prevented from using work samples in your portfolio, from reusing design components you consider your own, and from showcasing this engagement to future clients |
-| 🔴 High | Term and Termination | Company may terminate for convenience on 14 days' notice | No kill fee or partial payment provision is described. If the company terminates at day 60, there is no stated obligation to pay you for 60 days of work unless the payment schedule addresses this | You could complete a majority of the project and collect little or none of the $15,000 if your payment was structured as a single end-of-project lump sum |
-| 🔴 High | Limitation of Liability | Both parties capped at $1,000 | A $1,000 cap on your claims against a $15,000 contract means that in the event of a payment dispute, a $1,000 damages cap could effectively eliminate your ability to recover the $14,000 balance in contract damages -- though your attorney should evaluate whether this cap applies to payment obligations or only to consequential damages | If the company refuses to pay, your contractual remedy could be limited to $1,000 in damages (though small claims court or other remedies may exist depending on jurisdiction) |
-| 🟡 Medium | Payment Terms | Flat $15,000 -- payment schedule not described | No milestone payments, no late payment interest clause, and no penalty for delayed payment are described | You carry the full cash flow risk for 90 days; the company has no financial incentive to pay on time |
-| 🟡 Medium | Confidentiality | Duration and portfolio exception not confirmed | If confidentiality lasts indefinitely with no portfolio exception, you cannot show this work to future clients | Loss of portfolio rights significantly reduces the non-monetary value of this engagement |
+| Severity  | Contract Section        | What the Clause Says                                                                | Why It Is a Concern                                                                                                                                                                                                                                                                                                                                                                         | Potential Impact                                                                                                                                                               |
+| --------- | ----------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 🔴 High   | IP Assignment           | "All inventions, works, and developments created in connection with this Agreement" | The phrase "in connection with" is extremely broad. Courts have interpreted similar language to capture pre-existing work that was adapted for the client, general design skills and methodologies developed during the engagement, and tools you created for your own efficiency. There is no carve-out for your pre-existing materials, your personal design library, or portfolio rights | You could be prevented from using work samples in your portfolio, from reusing design components you consider your own, and from showcasing this engagement to future clients  |
+| 🔴 High   | Term and Termination    | Company may terminate for convenience on 14 days' notice                            | No kill fee or partial payment provision is described. If the company terminates at day 60, there is no stated obligation to pay you for 60 days of work unless the payment schedule addresses this                                                                                                                                                                                         | You could complete a majority of the project and collect little or none of the $15,000 if your payment was structured as a single end-of-project lump sum                      |
+| 🔴 High   | Limitation of Liability | Both parties capped at $1,000                                                       | A $1,000 cap on your claims against a $15,000 contract means that in the event of a payment dispute, a $1,000 damages cap could effectively eliminate your ability to recover the $14,000 balance in contract damages -- though your attorney should evaluate whether this cap applies to payment obligations or only to consequential damages                                              | If the company refuses to pay, your contractual remedy could be limited to $1,000 in damages (though small claims court or other remedies may exist depending on jurisdiction) |
+| 🟡 Medium | Payment Terms           | Flat $15,000 -- payment schedule not described                                      | No milestone payments, no late payment interest clause, and no penalty for delayed payment are described                                                                                                                                                                                                                                                                                    | You carry the full cash flow risk for 90 days; the company has no financial incentive to pay on time                                                                           |
+| 🟡 Medium | Confidentiality         | Duration and portfolio exception not confirmed                                      | If confidentiality lasts indefinitely with no portfolio exception, you cannot show this work to future clients                                                                                                                                                                                                                                                                              | Loss of portfolio rights significantly reduces the non-monetary value of this engagement                                                                                       |
 
 ---
 
 ### Missing Protections
+
 The following clauses are standard in freelance service agreements and appear to be absent:
 
-| Protection | Why It Typically Exists | Risk of Its Absence |
-|------------|------------------------|---------------------|
-| Milestone payment schedule | Aligns payment with progress; reduces contractor cash flow risk | You may complete substantial work before receiving any payment |
-| Late payment interest clause | Incentivizes timely payment; compensates contractor for the cost of delayed payment | Company has no financial incentive to pay on time; 1.5% per month (18% APR) is the common commercial rate |
-| Kill fee / payment for work completed upon early termination | Protects contractor from non-payment when contract ends before completion | If terminated at day 60, you may have no claim to payment for the preceding 60 days of work |
-| Portfolio license carve-out from IP assignment | Preserves the contractor's ability to show work samples while assigning underlying IP to client | You may be contractually prohibited from referencing this project in your portfolio |
-| Pre-existing IP carve-out | Protects contractor's ownership of tools, templates, and design assets created before this engagement | Your personal design library and reusable components may be swept into the assignment |
-| Acceptance criteria and revision limits | Defines what constitutes satisfactory delivery; limits scope expansion | Client can reject deliverables subjectively or demand unlimited revisions within the scope |
-| Indemnification clause | Allocates risk for third-party claims (e.g., a claim that your designs infringe someone else's copyright) | Without explicit allocation, liability defaults to general negligence and contract principles -- unpredictable |
-| Dispute resolution mechanism | Provides a cost-efficient path to resolve disputes | Absence defaults to litigation -- expensive and slow for a solo contractor |
+| Protection                                                   | Why It Typically Exists                                                                                   | Risk of Its Absence                                                                                            |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Milestone payment schedule                                   | Aligns payment with progress; reduces contractor cash flow risk                                           | You may complete substantial work before receiving any payment                                                 |
+| Late payment interest clause                                 | Incentivizes timely payment; compensates contractor for the cost of delayed payment                       | Company has no financial incentive to pay on time; 1.5% per month (18% APR) is the common commercial rate      |
+| Kill fee / payment for work completed upon early termination | Protects contractor from non-payment when contract ends before completion                                 | If terminated at day 60, you may have no claim to payment for the preceding 60 days of work                    |
+| Portfolio license carve-out from IP assignment               | Preserves the contractor's ability to show work samples while assigning underlying IP to client           | You may be contractually prohibited from referencing this project in your portfolio                            |
+| Pre-existing IP carve-out                                    | Protects contractor's ownership of tools, templates, and design assets created before this engagement     | Your personal design library and reusable components may be swept into the assignment                          |
+| Acceptance criteria and revision limits                      | Defines what constitutes satisfactory delivery; limits scope expansion                                    | Client can reject deliverables subjectively or demand unlimited revisions within the scope                     |
+| Indemnification clause                                       | Allocates risk for third-party claims (e.g., a claim that your designs infringe someone else's copyright) | Without explicit allocation, liability defaults to general negligence and contract principles -- unpredictable |
+| Dispute resolution mechanism                                 | Provides a cost-efficient path to resolve disputes                                                        | Absence defaults to litigation -- expensive and slow for a solo contractor                                     |
 
 ---
 
 ### Questions for Your Attorney
+
 Bring these specific questions to your attorney consultation:
 
 1. **IP Assignment scope:** Does the "all inventions, works, and developments created in connection with this Agreement" language sweep in my pre-existing design components and personal asset library, and can I add a carve-out that specifically excludes those pre-existing materials from the assignment?
@@ -470,25 +488,28 @@ Bring these specific questions to your attorney consultation:
 ---
 
 ### Key Dates, Deadlines, and Financial Terms
-| Item | Value | Notes |
-|------|-------|-------|
-| Effective date | Not confirmed -- verify in contract | Often "upon execution by both parties" |
-| Contract end date | 90 days from effective date | |
-| Automatic renewal | Not described -- verify in General Provisions | |
-| Termination notice (for convenience) | 14 days written notice by client | No stated notice requirement for contractor to terminate -- verify |
-| Payment total | $15,000 flat | |
-| Payment schedule | Not confirmed -- CRITICAL to clarify | Milestone vs. lump sum significantly changes your risk profile |
-| Late payment interest | Not described | Recommend adding 1.5%/month |
-| Confidentiality duration | Not confirmed -- verify in contract | Typical range: 2-5 years after termination |
-| Portfolio rights | Not confirmed -- likely prohibited as drafted | Negotiate a portfolio license exception |
-| Pre-existing IP carve-out | Absent -- needs to be added | |
-| Insurance requirements | Not described in summary -- verify in contract | |
+
+| Item                                 | Value                                          | Notes                                                              |
+| ------------------------------------ | ---------------------------------------------- | ------------------------------------------------------------------ |
+| Effective date                       | Not confirmed -- verify in contract            | Often "upon execution by both parties"                             |
+| Contract end date                    | 90 days from effective date                    |                                                                    |
+| Automatic renewal                    | Not described -- verify in General Provisions  |                                                                    |
+| Termination notice (for convenience) | 14 days written notice by client               | No stated notice requirement for contractor to terminate -- verify |
+| Payment total                        | $15,000 flat                                   |                                                                    |
+| Payment schedule                     | Not confirmed -- CRITICAL to clarify           | Milestone vs. lump sum significantly changes your risk profile     |
+| Late payment interest                | Not described                                  | Recommend adding 1.5%/month                                        |
+| Confidentiality duration             | Not confirmed -- verify in contract            | Typical range: 2-5 years after termination                         |
+| Portfolio rights                     | Not confirmed -- likely prohibited as drafted  | Negotiate a portfolio license exception                            |
+| Pre-existing IP carve-out            | Absent -- needs to be added                    |                                                                    |
+| Insurance requirements               | Not described in summary -- verify in contract |                                                                    |
 
 ---
 
 ### Overall Risk Assessment
+
 **Contract balance:** Significantly favors the Client as currently described
 **Three highest-priority issues before signing:**
+
 1. The IP assignment clause needs a pre-existing IP carve-out and a portfolio license exception -- consult an attorney about adding these
 2. The $1,000 liability cap needs attorney review to confirm it does not impair your ability to collect the $15,000 payment if the company defaults
 3. A kill fee or payment-for-work-completed provision needs to be added before signing to protect you if the company exercises the 14-day termination for convenience clause

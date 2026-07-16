@@ -17,7 +17,7 @@ export function sha1Sign(token: string, timestamp: string, nonce: string, encryp
   // Array.prototype.toSorted (Node 20+) and (b) make the ordering
   // unambiguous for non-ASCII operator tokens. Per WeCom spec all four
   // inputs are sorted ascending then concatenated and SHA1-hashed.
-  const sorted = [token, String(timestamp), String(nonce), encrypted].slice().sort((a, b) => {
+  const sorted = [token, String(timestamp), String(nonce), encrypted].slice().toSorted((a, b) => {
     if (a < b) return -1;
     if (a > b) return 1;
     return 0;

@@ -55,9 +55,7 @@ describe('AskCard', () => {
       const onSubmit = vi.fn();
       render(<AskCard ask={baseAsk()} onSubmit={onSubmit} onSkip={vi.fn()} />);
 
-      const input = document.querySelector(
-        'input[placeholder="e.g. $500"]'
-      ) as HTMLInputElement;
+      const input = document.querySelector('input[placeholder="e.g. $500"]') as HTMLInputElement;
       expect(input).toBeTruthy();
       fireEvent.change(input, { target: { value: 'monthly recurring' } });
       fireEvent.click(getSend());
@@ -71,16 +69,10 @@ describe('AskCard', () => {
     it('types into InputNumber → Send fires onSubmit with stringified value', () => {
       const onSubmit = vi.fn();
       render(
-        <AskCard
-          ask={baseAsk({ type: 'number', placeholder: 'Budget in USD' })}
-          onSubmit={onSubmit}
-          onSkip={vi.fn()}
-        />
+        <AskCard ask={baseAsk({ type: 'number', placeholder: 'Budget in USD' })} onSubmit={onSubmit} onSkip={vi.fn()} />
       );
 
-      const numberInput = document.querySelector(
-        'input[placeholder="Budget in USD"]'
-      ) as HTMLInputElement;
+      const numberInput = document.querySelector('input[placeholder="Budget in USD"]') as HTMLInputElement;
       expect(numberInput).toBeTruthy();
       fireEvent.change(numberInput, { target: { value: '500' } });
       fireEvent.click(getSend());
@@ -111,11 +103,7 @@ describe('AskCard', () => {
     it('clicking a different chip changes selection', () => {
       const onSubmit = vi.fn();
       render(
-        <AskCard
-          ask={baseAsk({ type: 'choice', options: ['A', 'B', 'C'] })}
-          onSubmit={onSubmit}
-          onSkip={vi.fn()}
-        />
+        <AskCard ask={baseAsk({ type: 'choice', options: ['A', 'B', 'C'] })} onSubmit={onSubmit} onSkip={vi.fn()} />
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'A' }));
@@ -129,9 +117,7 @@ describe('AskCard', () => {
   describe('type=boolean', () => {
     it('clicks Yes → fires onSubmit("Yes") immediately', () => {
       const onSubmit = vi.fn();
-      render(
-        <AskCard ask={baseAsk({ type: 'boolean' })} onSubmit={onSubmit} onSkip={vi.fn()} />
-      );
+      render(<AskCard ask={baseAsk({ type: 'boolean' })} onSubmit={onSubmit} onSkip={vi.fn()} />);
 
       fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
       expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -140,9 +126,7 @@ describe('AskCard', () => {
 
     it('clicks No → fires onSubmit("No") immediately', () => {
       const onSubmit = vi.fn();
-      render(
-        <AskCard ask={baseAsk({ type: 'boolean' })} onSubmit={onSubmit} onSkip={vi.fn()} />
-      );
+      render(<AskCard ask={baseAsk({ type: 'boolean' })} onSubmit={onSubmit} onSkip={vi.fn()} />);
 
       fireEvent.click(screen.getByRole('button', { name: 'No' }));
       expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -153,13 +137,7 @@ describe('AskCard', () => {
   describe('type=rating', () => {
     it('clicks 3-star → Send fires onSubmit("3")', () => {
       const onSubmit = vi.fn();
-      render(
-        <AskCard
-          ask={baseAsk({ type: 'rating', max: 5 })}
-          onSubmit={onSubmit}
-          onSkip={vi.fn()}
-        />
-      );
+      render(<AskCard ask={baseAsk({ type: 'rating', max: 5 })} onSubmit={onSubmit} onSkip={vi.fn()} />);
 
       fireEvent.click(screen.getByTestId('askcard-star-3'));
       fireEvent.click(getSend());
@@ -169,13 +147,7 @@ describe('AskCard', () => {
     });
 
     it('stars 1..N fill up to the selected rating', () => {
-      render(
-        <AskCard
-          ask={baseAsk({ type: 'rating', max: 5 })}
-          onSubmit={vi.fn()}
-          onSkip={vi.fn()}
-        />
-      );
+      render(<AskCard ask={baseAsk({ type: 'rating', max: 5 })} onSubmit={vi.fn()} onSkip={vi.fn()} />);
 
       fireEvent.click(screen.getByTestId('askcard-star-3'));
 
@@ -198,11 +170,7 @@ describe('AskCard', () => {
 
   it('renders read-only state when already answered: shows answer + "(answered)" label, no input/send/skip', () => {
     render(
-      <AskCard
-        ask={baseAsk({ answer: '$500/month', answered_at: NOW + 1000 })}
-        onSubmit={vi.fn()}
-        onSkip={vi.fn()}
-      />
+      <AskCard ask={baseAsk({ answer: '$500/month', answered_at: NOW + 1000 })} onSubmit={vi.fn()} onSkip={vi.fn()} />
     );
 
     // Question + answer + (answered) marker visible.

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "python testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'python testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Python Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to write tests in Python using pytest, including test discovery, fixture wiring, or assertion patterns
 - User wants to design pytest fixtures for complex scenarios involving shared state, teardown, parameterization, or scoping
 - User asks about `@pytest.mark.parametrize` for table-driven testing, including matrix combinations and conditional skipping
@@ -31,6 +33,7 @@ metadata:
 - User needs guidance on testing patterns specific to Python frameworks such as FastAPI, SQLAlchemy, Celery, or Pydantic
 
 **Do NOT use this skill when:**
+
 - User wants to set up a new Python project from scratch -- use `python-project-setup` instead
 - User is asking about general testing philosophy or the testing pyramid as a concept -- use `unit-testing-patterns` instead
 - User wants structured TDD workflow coaching (red-green-refactor cycles) -- use `tdd-workflow` instead
@@ -395,6 +398,7 @@ The correct long-term fix is to move environment reads into a function or class 
 ### Flaky Tests from Non-Deterministic Ordering
 
 pytest does not guarantee test execution order within a file unless you use `pytest-ordering`. If tests appear to be order-dependent, it indicates shared mutable state. Common causes:
+
 - A class-level list or dictionary being mutated by one test and read by another
 - A module-level singleton being modified
 - A database not being rolled back between tests
@@ -428,6 +432,7 @@ Never access `model.__fields__` or `model.model_fields` in tests -- those are im
 ### Parallel Test Execution with pytest-xdist
 
 Running tests with `pytest -n auto` (requires `pytest-xdist`) distributes tests across CPU cores. This breaks any test that uses a shared resource without locking:
+
 - **Database:** Each worker needs its own database schema or isolated schema prefix. Use `worker_id` from the `xdist` fixture to generate unique schema names: `f"test_{worker_id}"`.
 - **Port binding:** Integration tests that start a server on a fixed port will conflict. Use `port=0` (OS-assigned) and read the assigned port after binding.
 - **File system:** Tests writing to overlapping file paths will race. Use `tmp_path` -- each test gets a unique path even under `xdist`.

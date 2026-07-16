@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness nutrition guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness nutrition guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Gut Health Optimizer
@@ -25,11 +25,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about gut health optimizer
 - User needs guidance on gut health optimizer topics
 - User wants a structured approach to gut health optimizer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -57,6 +59,7 @@ Higher microbial diversity consistently correlates with better health outcomes. 
 ### The Gut-Brain Axis
 
 The bidirectional communication pathway between gut and brain involves:
+
 - Vagus nerve signaling (the primary physical connection)
 - Neurotransmitter production: ~95% of serotonin is produced in the gut
 - Immune system modulation affecting neuroinflammation
@@ -71,6 +74,7 @@ Research from the American Gut Project found that people who consumed 30+ differ
 ### How to Count
 
 Each distinct plant counts as one. "Plant foods" include:
+
 - Fruits and vegetables
 - Whole grains (each grain type counts separately)
 - Legumes and pulses
@@ -95,6 +99,7 @@ Target: 30+
 ```
 
 ### Quick Diversity Boosters
+
 - Add mixed seeds to salads (pumpkin, sunflower, hemp, flax = 4 plants)
 - Use herb combinations in cooking (basil, oregano, thyme = 3 plants)
 - Choose mixed nut packs over single-nut bags
@@ -106,27 +111,31 @@ Target: 30+
 ### Types and Sources
 
 **Soluble Fiber** (fermented by gut bacteria, produces SCFAs)
+
 - Oats, barley, legumes, apples, citrus, psyllium
 - Benefits: Feeds beneficial bacteria, slows digestion, supports blood sugar
 
 **Insoluble Fiber** (adds bulk, promotes motility)
+
 - Whole wheat, vegetables, nuts, seeds, potato skins
 - Benefits: Prevents constipation, supports regular bowel movements
 
 **Resistant Starch** (resists digestion, acts as prebiotic)
+
 - Cooked and cooled potatoes/rice/pasta, green bananas, legumes
 - Benefits: Powerful SCFA producer, especially butyrate
 
 ### Fiber Targets
 
-| Population | Daily Target |
-|-----------|-------------|
-| Adult women | 25-28g minimum |
-| Adult men | 31-38g minimum |
-| Optimal for microbiome | 40-50g |
-| Current US average | ~15g (critically low) |
+| Population             | Daily Target          |
+| ---------------------- | --------------------- |
+| Adult women            | 25-28g minimum        |
+| Adult men              | 31-38g minimum        |
+| Optimal for microbiome | 40-50g                |
+| Current US average     | ~15g (critically low) |
 
 ### Increasing Fiber Safely
+
 **Critical rule**: Increase fiber gradually (5g per week) to avoid bloating, gas, and discomfort.
 
 **Week 1**: Add 1 serving of legumes per day
@@ -143,22 +152,24 @@ Prebiotics are specific fibers and compounds that selectively feed beneficial ba
 
 ### Top Prebiotic Sources
 
-| Food | Key Prebiotic | Effective Serving |
-|------|--------------|-------------------|
-| Garlic | Inulin, FOS | 1-2 cloves raw/cooked |
-| Onion | Inulin, FOS | 1/2 cup cooked |
-| Leeks | Inulin | 1/2 cup cooked |
-| Asparagus | Inulin | 6-8 spears |
-| Jerusalem artichoke | Inulin (very high) | 1/2 cup |
-| Chicory root | Inulin (highest food source) | In supplements/coffee substitutes |
-| Dandelion greens | Inulin | 1 cup raw |
-| Bananas (slightly green) | Resistant starch, FOS | 1 medium |
-| Oats | Beta-glucan | 1/2 cup dry |
-| Flaxseeds | Mucilage, lignans | 1-2 tablespoons ground |
-| Cocoa/dark chocolate | Polyphenols | 1-2 squares (70%+ cacao) |
+| Food                     | Key Prebiotic                | Effective Serving                 |
+| ------------------------ | ---------------------------- | --------------------------------- |
+| Garlic                   | Inulin, FOS                  | 1-2 cloves raw/cooked             |
+| Onion                    | Inulin, FOS                  | 1/2 cup cooked                    |
+| Leeks                    | Inulin                       | 1/2 cup cooked                    |
+| Asparagus                | Inulin                       | 6-8 spears                        |
+| Jerusalem artichoke      | Inulin (very high)           | 1/2 cup                           |
+| Chicory root             | Inulin (highest food source) | In supplements/coffee substitutes |
+| Dandelion greens         | Inulin                       | 1 cup raw                         |
+| Bananas (slightly green) | Resistant starch, FOS        | 1 medium                          |
+| Oats                     | Beta-glucan                  | 1/2 cup dry                       |
+| Flaxseeds                | Mucilage, lignans            | 1-2 tablespoons ground            |
+| Cocoa/dark chocolate     | Polyphenols                  | 1-2 squares (70%+ cacao)          |
 
 ### Polyphenol-Rich Foods (Prebiotic Effect)
+
 Polyphenols are selectively metabolized by beneficial bacteria:
+
 - Berries (especially blueberries, blackberries)
 - Red wine (moderate), green tea, coffee
 - Dark chocolate (70%+ cacao)
@@ -173,19 +184,20 @@ The Stanford SONC study (2021) found that a high-fermented-food diet increased m
 
 **Target**: 2-3 servings of fermented foods daily
 
-| Food | Key Organisms | Serving |
-|------|--------------|---------|
-| Plain yogurt (live cultures) | Lactobacillus, Streptococcus | 1 cup |
-| Kefir | 30+ strains | 1 cup |
-| Sauerkraut (raw, refrigerated) | Lactobacillus | 2-3 tablespoons |
-| Kimchi | Lactobacillus, Leuconostoc | 2-3 tablespoons |
-| Kombucha | SCOBY organisms | 8 oz |
-| Miso | Aspergillus oryzae | 1 tablespoon |
-| Tempeh | Rhizopus oligosporus | 3-4 oz |
-| Natto | Bacillus subtilis | 1-2 tablespoons |
-| Apple cider vinegar (with mother) | Acetobacter | 1 tablespoon diluted |
+| Food                              | Key Organisms                | Serving              |
+| --------------------------------- | ---------------------------- | -------------------- |
+| Plain yogurt (live cultures)      | Lactobacillus, Streptococcus | 1 cup                |
+| Kefir                             | 30+ strains                  | 1 cup                |
+| Sauerkraut (raw, refrigerated)    | Lactobacillus                | 2-3 tablespoons      |
+| Kimchi                            | Lactobacillus, Leuconostoc   | 2-3 tablespoons      |
+| Kombucha                          | SCOBY organisms              | 8 oz                 |
+| Miso                              | Aspergillus oryzae           | 1 tablespoon         |
+| Tempeh                            | Rhizopus oligosporus         | 3-4 oz               |
+| Natto                             | Bacillus subtilis            | 1-2 tablespoons      |
+| Apple cider vinegar (with mother) | Acetobacter                  | 1 tablespoon diluted |
 
 **Important**: "Fermented" on a label does not guarantee live cultures. Look for:
+
 - "Contains live and active cultures"
 - Refrigerated section (shelf-stable fermented foods are often pasteurized)
 - No vinegar added (vinegar-brined cucumbers are not truly probiotic)
@@ -193,6 +205,7 @@ The Stanford SONC study (2021) found that a high-fermented-food diet increased m
 ### Probiotic Supplements
 
 **When Supplements Make Sense**
+
 - After antibiotic courses (start during or immediately after)
 - Specific diagnosed conditions with strain-specific evidence
 - Travel to regions with unfamiliar pathogens
@@ -200,15 +213,16 @@ The Stanford SONC study (2021) found that a high-fermented-food diet increased m
 
 **Evidence-Based Strain Matching**
 
-| Condition | Strains with Evidence |
-|-----------|----------------------|
+| Condition                      | Strains with Evidence                               |
+| ------------------------------ | --------------------------------------------------- |
 | Antibiotic-associated diarrhea | Saccharomyces boulardii, Lactobacillus rhamnosus GG |
-| IBS (general) | Bifidobacterium infantis 35624, VSL#3 multi-strain |
-| Constipation | Bifidobacterium lactis BB-12 |
-| Immune support | Lactobacillus rhamnosus GG, L. paracasei |
-| Mood/anxiety | Lactobacillus helveticus R0052 + B. longum R0175 |
+| IBS (general)                  | Bifidobacterium infantis 35624, VSL#3 multi-strain  |
+| Constipation                   | Bifidobacterium lactis BB-12                        |
+| Immune support                 | Lactobacillus rhamnosus GG, L. paracasei            |
+| Mood/anxiety                   | Lactobacillus helveticus R0052 + B. longum R0175    |
 
 **Supplement Quality Checklist**
+
 - [ ] Third-party tested (USP, NSF, ConsumerLab)
 - [ ] CFU count guaranteed through expiration (not at manufacture)
 - [ ] Specific strains identified (not just species)
@@ -218,6 +232,7 @@ The Stanford SONC study (2021) found that a high-fermented-food diet increased m
 ## Elimination Diet Protocol
 
 ### When to Consider
+
 - Persistent bloating, gas, diarrhea, or constipation
 - Suspected food sensitivities
 - Skin conditions (eczema, acne) potentially linked to diet
@@ -227,6 +242,7 @@ The Stanford SONC study (2021) found that a high-fermented-food diet increased m
 
 **Phase 1: Elimination (2-4 weeks)**
 Remove the most common trigger foods simultaneously:
+
 - Gluten-containing grains
 - Dairy products
 - Eggs
@@ -238,6 +254,7 @@ Remove the most common trigger foods simultaneously:
 - Processed foods and additives
 
 **Allowed Foods**
+
 - All vegetables (except corn)
 - All fruits
 - Rice, quinoa, buckwheat, millet, oats (certified GF)
@@ -249,6 +266,7 @@ Remove the most common trigger foods simultaneously:
 
 **Phase 2: Reintroduction (6-8 weeks)**
 Reintroduce ONE food group every 3 days:
+
 1. Day 1: Eat the food 2-3 times throughout the day
 2. Day 2-3: Remove it and observe
 3. Record all symptoms in a food diary
@@ -256,6 +274,7 @@ Reintroduce ONE food group every 3 days:
 5. If reaction occurs, remove the food and wait until symptoms clear before testing next
 
 **Reintroduction Order** (least to most commonly reactive):
+
 1. Eggs
 2. Dairy (start with butter, then yogurt, then cheese, then milk)
 3. Gluten-containing grains
@@ -290,21 +309,25 @@ Notes: _________________________________
 ## Lifestyle Factors Affecting Gut Health
 
 ### Sleep
+
 - Disrupted sleep alters microbiome composition within 48 hours
 - Circadian rhythm disruption reduces beneficial Lactobacillus species
 - Target: 7-9 hours consistent sleep, regular sleep/wake times
 
 ### Stress Management
+
 - Chronic stress reduces microbiome diversity via cortisol and sympathetic nervous system activation
 - The gut-brain axis makes stress and gut health bidirectional
 - Effective interventions: meditation, breathwork, time in nature, social connection
 
 ### Exercise
+
 - Moderate exercise increases microbiome diversity
 - Excessive intense exercise without recovery can increase intestinal permeability
 - Optimal: 150-300 minutes moderate activity per week
 
 ### Medications to Be Aware Of
+
 - **Antibiotics**: Most significant disruptor; take probiotics during and 2 weeks after courses
 - **NSAIDs** (ibuprofen, naproxen): Can increase intestinal permeability
 - **PPIs** (omeprazole, etc.): Alter gut pH, reduce diversity
@@ -313,6 +336,7 @@ Notes: _________________________________
 ## Gut Health Red Flags (See a Doctor)
 
 Seek professional evaluation for:
+
 - Blood in stool
 - Unintentional weight loss
 - Persistent change in bowel habits lasting more than 2 weeks
@@ -325,12 +349,14 @@ Seek professional evaluation for:
 ## Weekly Gut Health Action Plan
 
 **Daily Non-Negotiables**
+
 - [ ] 2-3 servings of fermented foods
 - [ ] 5+ servings of vegetables/fruits (diverse colors)
 - [ ] Adequate hydration (half body weight in ounces)
 - [ ] Fiber-rich food at every meal
 
 **Weekly Goals**
+
 - [ ] 30+ different plant foods consumed
 - [ ] Cook with prebiotic-rich foods (garlic, onion, leeks) 4+ times
 - [ ] At least 1 legume-based meal
@@ -338,12 +364,12 @@ Seek professional evaluation for:
 - [ ] 150+ minutes of moderate physical activity
 
 **Monthly Review**
+
 - [ ] Assess digestive symptom trends
 - [ ] Review and expand plant food variety
 - [ ] Try one new fermented food or recipe
 - [ ] Evaluate stress management practices
 - [ ] Consider food diary review for pattern identification
-
 
 ## Output Format
 

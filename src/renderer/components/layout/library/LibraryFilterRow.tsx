@@ -52,11 +52,7 @@ const LibraryFilterRow: React.FC<LibraryFilterRowProps> = ({
     tabIndex={0}
     aria-pressed={active}
     data-testid={testId}
-    className={classNames(
-      styles.row,
-      active && styles.rowActive,
-      accent && active && styles.rowAccentActive,
-    )}
+    className={classNames(styles.row, active && styles.rowActive, accent && active && styles.rowAccentActive)}
     onClick={onClick}
     onKeyDown={handleKey(onClick)}
   >

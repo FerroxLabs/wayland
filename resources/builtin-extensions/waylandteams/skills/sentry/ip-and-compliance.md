@@ -51,8 +51,8 @@ First step: name where AI shows up, what decisions it influences, whose rules ap
 
 ## Before / after
 
-**Before:** *Solo founder launches a SaaS product, picks a name without searching, copies a competitor's privacy policy, uses AI images from an unclear license, ships a chatbot with no AI disclosure. Eighteen months in: a similarly named company sends a cease-and-desist (rebrand ~$40k). A user files a GDPR deletion request the policy promised but the founder never built a process for. An EU regulator opens an inquiry.*
+**Before:** _Solo founder launches a SaaS product, picks a name without searching, copies a competitor's privacy policy, uses AI images from an unclear license, ships a chatbot with no AI disclosure. Eighteen months in: a similarly named company sends a cease-and-desist (rebrand ~$40k). A user files a GDPR deletion request the policy promised but the founder never built a process for. An EU regulator opens an inquiry._
 
-**After:** *Same founder, four moves on day one. (1) USPTO + EUIPO clearance before naming. (2) Maps data, writes a policy that matches; sets up a deletion mailbox. (3) Licensed image sources, keeps licenses.txt. (4) One-line "this chatbot uses AI" disclosure. Cost: ~$1,500 and a few hours. None of those problems happen.*
+**After:** _Same founder, four moves on day one. (1) USPTO + EUIPO clearance before naming. (2) Maps data, writes a policy that matches; sets up a deletion mailbox. (3) Licensed image sources, keeps licenses.txt. (4) One-line "this chatbot uses AI" disclosure. Cost: ~$1,500 and a few hours. None of those problems happen._
 
 **Disclaimer:** I am not your lawyer. This is a framework, not legal advice. For trademark filing, drafting your privacy policy on real data flows, AI compliance in any regulated sector, and any active dispute, you need actual counsel.

@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career guide step-by-step"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career guide step-by-step'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Elevator Pitch Creator
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about elevator pitch
 - User needs guidance on elevator pitch topics
 - User wants a structured approach to elevator pitch
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -38,10 +41,13 @@ metadata:
 6. **What is the most impressive thing you have accomplished?**
 7. **What do you want the listener to do after hearing your pitch?** (exchange cards, schedule a call, visit your website, remember you)
 8. **How comfortable are you with public speaking?** (beginner, moderate, experienced)
+
 ---
+
 ## Step 1: Pitch Structure Framework
 
 ### The Core Framework
+
 ```
 ELEVATOR PITCH STRUCTURE:
 
@@ -66,10 +72,13 @@ ELEVATOR PITCH STRUCTURE:
    - A specific, low-friction next step
    - Make it easy for them to say yes
 ```
+
 ---
+
 ## Step 2: Pitch Formats by Length
 
 ### 30-Second Pitch (Elevator Classic)
+
 ```
 30-SECOND PITCH TEMPLATE:
 
@@ -100,6 +109,7 @@ RULES:
 ```
 
 ### 60-Second Pitch (Networking Standard)
+
 ```
 60-SECOND PITCH TEMPLATE:
 
@@ -142,6 +152,7 @@ RULES:
 ```
 
 ### 2-Minute Pitch (Panel, Interview, Detailed Introduction)
+
 ```
 2-MINUTE PITCH TEMPLATE:
 
@@ -181,10 +192,13 @@ RULES:
 - End with clear direction for conversation
 - Maintain energy throughout (do not trail off)
 ```
+
 ---
+
 ## Step 3: Industry-Specific Adaptations
 
 ### Technology
+
 ```
 TECH PITCH TEMPLATE:
 
@@ -203,6 +217,7 @@ interested in {{EMERGING_AREA}}.
 ```
 
 ### Sales / Business Development
+
 ```
 SALES PITCH TEMPLATE:
 
@@ -220,6 +235,7 @@ results for your team?"
 ```
 
 ### Creative / Design
+
 ```
 CREATIVE PITCH TEMPLATE:
 
@@ -236,6 +252,7 @@ portfolio link?"
 ```
 
 ### Startup / Entrepreneur
+
 ```
 STARTUP PITCH TEMPLATE:
 
@@ -257,6 +274,7 @@ this week?"
 ```
 
 ### Consultant / Freelancer
+
 ```
 CONSULTANT PITCH TEMPLATE:
 
@@ -272,10 +290,13 @@ My approach is {{BRIEF_METHODOLOGY_DIFFERENTIATOR}}.
 
 Are you currently dealing with {{PROBLEM}}?"
 ```
+
 ---
+
 ## Step 4: Networking Pitch vs. Investor Pitch
 
 ### Key Differences
+
 ```
 NETWORKING PITCH:
 - Goal: Build a relationship
@@ -311,10 +332,13 @@ We are raising ${{AMOUNT}} to {{WHAT_THE_MONEY_WILL_DO}}.
 
 I would love to share our deck. Can I follow up with you this week?"
 ```
+
 ---
+
 ## Step 5: Practice Techniques
 
 ### The 5-Stage Practice Method
+
 ```
 PRACTICE SYSTEM:
 
@@ -354,6 +378,7 @@ STAGE 5: LIVE PRACTICE
 ```
 
 ### Practice Drills
+
 ```
 DRILL 1: THE 10-SECOND VERSION
 Reduce your pitch to one sentence. If you only had 10 seconds,
@@ -385,10 +410,13 @@ Practice adjusting for:
 - A potential client at a conference
 - A recruiter at a job fair
 ```
+
 ---
+
 ## Step 6: Common Mistakes
 
 ### Mistakes to Avoid
+
 ```
 COMMON PITCH MISTAKES:
 1. TOO LONG
@@ -425,10 +453,13 @@ COMMON PITCH MISTAKES:
     Problem: Monotone delivery with no enthusiasm
     Fix: If you are not excited about what you do, why should they be?
 ```
+
 ---
+
 ## Step 7: Personal Brand Integration
 
 ### Aligning Your Pitch with Your Brand
+
 ```
 PERSONAL BRAND ALIGNMENT:
 
@@ -458,8 +489,11 @@ BRAND STATEMENT FORMULA:
 "I am a {{ROLE}} who believes {{CORE_BELIEF}}. I bring {{UNIQUE_
 COMBINATION}} to help {{WHO}} achieve {{OUTCOME}}."
 ```
+
 ---
+
 ## Pitch Refinement Checklist
+
 ```
 FINAL PITCH CHECK:
 
@@ -487,8 +521,11 @@ FOLLOW-UP:
 [ ] Follow-up email template ready
 [ ] Portfolio or website ready to share if asked
 ```
+
 ---
+
 ## Pitch Library: Have Multiple Versions Ready
+
 ```
 YOUR PITCH LIBRARY:
 
@@ -516,9 +553,10 @@ INVESTOR-FOCUSED: For funding (if applicable)
 Each version should hit the same core message but with
 different levels of detail and different emphases.
 ```
----
-*This skill provides elevator pitch creation guidance. The best pitch is one you have practiced enough to deliver naturally while still sounding fresh. Invest time in practice -- it pays dividends at every networking event, interview, and professional interaction.*
 
+---
+
+_This skill provides elevator pitch creation guidance. The best pitch is one you have practiced enough to deliver naturally while still sounding fresh. Invest time in practice -- it pays dividends at every networking event, interview, and professional interaction._
 
 ## Output Format
 

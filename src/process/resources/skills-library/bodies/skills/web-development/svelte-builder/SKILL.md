@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend javascript"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend javascript'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Svelte Builder
@@ -192,11 +192,11 @@ import { error, redirect } from '@sveltejs/kit';
 export const load: PageServerLoad = async ({ params, locals, get, depends }) => {
   if (!locals.user) throw redirect(303, '/login');
 
-  depends('app:posts');  // invalidation key
+  depends('app:posts'); // invalidation key
 
   const [posts, categories] = await Promise.all([
-    get(`/api/posts?author=${locals.user.id}`).then(r => r.json()),
-    get('/api/categories').then(r => r.json())
+    get(`/api/posts?author=${locals.user.id}`).then((r) => r.json()),
+    get('/api/categories').then((r) => r.json()),
   ]);
 
   if (!posts) throw error(404, 'No posts found');
@@ -239,7 +239,7 @@ export const actions: Actions = {
     const id = formData.get('id')?.toString();
     await locals.db.post.delete({ where: { id, authorId: locals.user.id } });
     return { success: true };
-  }
+  },
 };
 ```
 
@@ -271,11 +271,15 @@ export const actions: Actions = {
 class CartStore {
   items = $state<CartItem[]>([]);
 
-  get count() { return this.items.length; }
-  get total() { return this.items.reduce((sum, i) => sum + i.price * i.qty, 0); }
+  get count() {
+    return this.items.length;
+  }
+  get total() {
+    return this.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  }
 
   add(product: Product, qty = 1) {
-    const existing = this.items.find(i => i.id === product.id);
+    const existing = this.items.find((i) => i.id === product.id);
     if (existing) {
       existing.qty += qty;
     } else {
@@ -284,10 +288,12 @@ class CartStore {
   }
 
   remove(id: string) {
-    this.items = this.items.filter(i => i.id !== id);
+    this.items = this.items.filter((i) => i.id !== id);
   }
 
-  clear() { this.items = []; }
+  clear() {
+    this.items = [];
+  }
 }
 
 export const cart = new CartStore();
@@ -339,9 +345,9 @@ export const prerender = true;
 // +page.server.ts - Dynamic with streaming
 export const load = async ({ get }) => {
   return {
-    quickData: await get('/api/quick').then(r => r.json()),
+    quickData: await get('/api/quick').then((r) => r.json()),
     // Streamed (resolves after initial HTML)
-    slowData: get('/api/slow').then(r => r.json())
+    slowData: get('/api/slow').then((r) => r.json()),
   };
 };
 ```
@@ -350,7 +356,7 @@ export const load = async ({ get }) => {
 
 ```javascript
 // svelte.config.js
-import adapter from '@sveltejs/adapter-node';      // Node server
+import adapter from '@sveltejs/adapter-node'; // Node server
 // import adapter from '@sveltejs/adapter-static';  // Static site
 // import adapter from '@sveltejs/adapter-vercel';  // Vercel
 // import adapter from '@sveltejs/adapter-cloudflare'; // Cloudflare
@@ -361,13 +367,13 @@ export default {
     alias: {
       $components: 'src/lib/components',
       $stores: 'src/lib/stores',
-      $utils: 'src/lib/utils'
+      $utils: 'src/lib/utils',
     },
     prerender: {
       handleHttpError: 'warn',
-      entries: ['*', '/sitemap.xml']
-    }
-  }
+      entries: ['*', '/sitemap.xml'],
+    },
+  },
 };
 ```
 
@@ -388,20 +394,21 @@ export default {
 
 ## Migration from Svelte 4 to Svelte 5
 
-| Svelte 4 | Svelte 5 |
-|-----------|----------|
-| `export let prop` | `let { prop } = $props()` |
-| `$: derived = x * 2` | `let derived = $derived(x * 2)` |
-| `$: { sideEffect() }` | `$effect(() => { sideEffect() })` |
-| `<slot />` | `{@render children()}` |
-| `<slot name="header" />` | `{@render header()}` |
-| `$$restProps` | `let { ...rest } = $props()` |
-| `createEventDispatcher` | callback props |
-| Writable stores | Class with `$state` fields |
+| Svelte 4                 | Svelte 5                          |
+| ------------------------ | --------------------------------- |
+| `export let prop`        | `let { prop } = $props()`         |
+| `$: derived = x * 2`     | `let derived = $derived(x * 2)`   |
+| `$: { sideEffect() }`    | `$effect(() => { sideEffect() })` |
+| `<slot />`               | `{@render children()}`            |
+| `<slot name="header" />` | `{@render header()}`              |
+| `$$restProps`            | `let { ...rest } = $props()`      |
+| `createEventDispatcher`  | callback props                    |
+| Writable stores          | Class with `$state` fields        |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing svelte builder solutions
 - Reviewing or improving existing svelte builder approaches
 - Making architectural or implementation decisions about svelte builder
@@ -409,6 +416,7 @@ export default {
 - Troubleshooting svelte builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -419,21 +427,26 @@ export default {
 # Svelte Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

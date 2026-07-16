@@ -13,14 +13,15 @@ description: >-
   (use wayland-objection-library-build).
 license: Apache-2.0
 type: workflow
-skills: "sales-report sales-objections"
+skills: 'sales-report sales-objections'
 metadata:
   author: wayland
   version: 1.0.0
   tags: sales pipeline-review batch stuck-deals forensics reporting
   category: sales
-  depends: "sales-report sales-objections"
+  depends: 'sales-report sales-objections'
 ---
+
 # Pipeline Batch Review
 
 **Estimated time:** about 60 seconds

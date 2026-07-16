@@ -46,7 +46,9 @@
   height: 7px;
   border-radius: 50%;
   background: var(--color-fill-3);
-  transition: background 0.18s ease, width 0.18s ease;
+  transition:
+    background 0.18s ease,
+    width 0.18s ease;
 }
 .dotActive {
   width: 18px;
@@ -133,7 +135,10 @@
   background: var(--color-bg-2);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
 }
 .personaChip:hover {
   border-color: rgb(var(--primary-6));
@@ -205,7 +210,10 @@
   background: var(--color-bg-2);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
 }
 .door:hover {
   border-color: rgb(var(--primary-6));

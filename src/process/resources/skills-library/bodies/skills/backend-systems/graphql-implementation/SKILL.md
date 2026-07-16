@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "api-design frameworks optimization"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'api-design frameworks optimization'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # GraphQL Implementation
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is building a new API and wants to decide whether GraphQL is the right choice over REST or gRPC, and needs a structured decision framework
 - User already has a GraphQL schema and needs guidance on resolver design, N+1 problem prevention, DataLoader integration, or query complexity limiting
 - User needs to implement production-grade GraphQL including authentication, authorization at the field level, rate limiting, persisted queries, and error handling
@@ -31,6 +33,7 @@ metadata:
 - User needs to set up GraphQL tooling including schema linting with graphql-inspector, code generation with GraphQL Code Generator, or IDE integrations
 
 **Do NOT use this skill when:**
+
 - User needs REST API design guidance -- use the REST API design skill instead
 - User needs gRPC or Protocol Buffers guidance -- use the gRPC implementation skill
 - User is asking about database schema design without a GraphQL layer -- use the database schema design skill
@@ -154,17 +157,18 @@ At scale, a single monolithic schema becomes a bottleneck. Apollo Federation and
 
 When helping a user with GraphQL implementation, provide output in the following structure:
 
-```markdown
+````markdown
 ## GraphQL Implementation Plan
 
 ### Schema Design Summary
-| Decision Point       | Choice                          | Rationale                                      |
-|----------------------|---------------------------------|------------------------------------------------|
-| Schema style         | SDL-first / Code-first          | [reason based on team language and tooling]    |
-| Pagination           | Relay cursor / Offset           | [reason based on data size and mutation rate]  |
-| Error strategy       | Union types / extensions-only   | [reason based on client code-gen usage]        |
-| Federation           | Federated / Monolithic          | [reason based on team count and autonomy needs]|
-| Subscriptions        | graphql-ws + Redis / None       | [reason based on real-time requirements]       |
+
+| Decision Point | Choice                        | Rationale                                       |
+| -------------- | ----------------------------- | ----------------------------------------------- |
+| Schema style   | SDL-first / Code-first        | [reason based on team language and tooling]     |
+| Pagination     | Relay cursor / Offset         | [reason based on data size and mutation rate]   |
+| Error strategy | Union types / extensions-only | [reason based on client code-gen usage]         |
+| Federation     | Federated / Monolithic        | [reason based on team count and autonomy needs] |
+| Subscriptions  | graphql-ws + Redis / None     | [reason based on real-time requirements]        |
 
 ### Schema Definition (SDL)
 
@@ -248,6 +252,7 @@ input UserFilterInput {
   createdAfter: DateTime
 }
 ```
+````
 
 ### Resolver Implementation (Node.js / TypeScript)
 
@@ -263,19 +268,13 @@ export async function createContext({ req }: { req: Request }) {
     loaders: {
       // New DataLoader per request -- never reuse across requests
       userById: new DataLoader<string, User | null>(async (ids) => {
-        const users = await db.query(
-          'SELECT * FROM users WHERE id = ANY($1)',
-          [[...ids]]
-        );
+        const users = await db.query('SELECT * FROM users WHERE id = ANY($1)', [[...ids]]);
         const userMap = new Map(users.map((u) => [u.id, u]));
         // Return in same order as input keys -- DataLoader contract
         return ids.map((id) => userMap.get(id) ?? null);
       }),
       postsByUserId: new DataLoader<string, Post[]>(async (userIds) => {
-        const posts = await db.query(
-          'SELECT * FROM posts WHERE author_id = ANY($1)',
-          [[...userIds]]
-        );
+        const posts = await db.query('SELECT * FROM posts WHERE author_id = ANY($1)', [[...userIds]]);
         const grouped = new Map<string, Post[]>();
         for (const post of posts) {
           const list = grouped.get(post.authorId) ?? [];
@@ -293,9 +292,10 @@ export const resolvers = {
   Query: {
     user: async (_: unknown, { id }: { id: string }, ctx: Context) => {
       // Authorization check
-      if (!ctx.user) throw new GraphQLError('Unauthenticated', {
-        extensions: { code: 'UNAUTHENTICATED' }
-      });
+      if (!ctx.user)
+        throw new GraphQLError('Unauthenticated', {
+          extensions: { code: 'UNAUTHENTICATED' },
+        });
       return ctx.loaders.userById.load(id);
     },
     users: async (_: unknown, args: UsersArgs, ctx: Context) => {
@@ -320,7 +320,7 @@ export const resolvers = {
         // System error -- mask and log
         ctx.logger.error({ err, correlationId: ctx.correlationId }, 'createUser failed');
         throw new GraphQLError('Internal server error', {
-          extensions: { code: 'INTERNAL_ERROR', correlationId: ctx.correlationId }
+          extensions: { code: 'INTERNAL_ERROR', correlationId: ctx.correlationId },
         });
       }
     },
@@ -387,15 +387,17 @@ const server = new ApolloServer({
 ```
 
 ### DataLoader Performance Checklist
-| Issue                         | Symptom                              | Fix                                        |
-|-------------------------------|--------------------------------------|--------------------------------------------|
-| N+1 queries                   | 100+ DB queries per request          | Add DataLoader for every batched entity    |
-| Cross-request DataLoader leak | Stale data, wrong user sees data     | Instantiate DataLoader in context factory  |
-| Unordered batch results       | Wrong data returned                  | Sort batch results to match input key order|
-| Unbounded DataLoader cache    | Memory growth in long-lived contexts | Set `cache: false` or limit cache size     |
-| Missing batch key             | DataLoader throws on missing entry   | Return null for missing keys, not skip     |
+
+| Issue                         | Symptom                              | Fix                                         |
+| ----------------------------- | ------------------------------------ | ------------------------------------------- |
+| N+1 queries                   | 100+ DB queries per request          | Add DataLoader for every batched entity     |
+| Cross-request DataLoader leak | Stale data, wrong user sees data     | Instantiate DataLoader in context factory   |
+| Unordered batch results       | Wrong data returned                  | Sort batch results to match input key order |
+| Unbounded DataLoader cache    | Memory growth in long-lived contexts | Set `cache: false` or limit cache size      |
+| Missing batch key             | DataLoader throws on missing entry   | Return null for missing keys, not skip      |
 
 ### Operation Safety Checklist
+
 - [ ] Introspection disabled in production
 - [ ] Query depth limit <= 12
 - [ ] Query complexity limit configured (start at 1000)
@@ -406,7 +408,8 @@ const server = new ApolloServer({
 - [ ] Subscriptions use `graphql-ws` (not deprecated `subscriptions-transport-ws`)
 - [ ] Redis pub/sub configured if running multiple instances
 - [ ] Deprecated fields logged via field-level tracing before removal
-```
+
+````
 
 ---
 
@@ -668,7 +671,7 @@ input CreateProjectInput {
   description: String
   initialStatus: ProjectStatus! = PLANNING
 }
-```
+````
 
 ---
 
@@ -690,7 +693,7 @@ export async function createContext({ req }: { req: Request }) {
   const user = token ? await verifyJWT(token) : null;
 
   return {
-    user,                        // null if unauthenticated
+    user, // null if unauthenticated
     correlationId: req.headers['x-correlation-id'] ?? crypto.randomUUID(),
     pubsub,
     loaders: {
@@ -741,23 +744,18 @@ const isAuthenticated = rule({ cache: 'contextual' })(
   (_, __, ctx) => ctx.user !== null || new Error('Unauthenticated')
 );
 
-const isOrgMember = rule({ cache: 'strict' })(
-  async (parent, args, ctx) => {
-    const orgId = args.organizationId ?? parent?.organizationId;
-    if (!orgId) return new Error('Cannot determine organization');
-    const member = await ctx.loaders.orgMemberByUserId.load(`${ctx.user.id}:${orgId}`);
-    return member !== null || new Error('Not a member of this organization');
-  }
-);
+const isOrgMember = rule({ cache: 'strict' })(async (parent, args, ctx) => {
+  const orgId = args.organizationId ?? parent?.organizationId;
+  if (!orgId) return new Error('Cannot determine organization');
+  const member = await ctx.loaders.orgMemberByUserId.load(`${ctx.user.id}:${orgId}`);
+  return member !== null || new Error('Not a member of this organization');
+});
 
-const isProjectOwner = rule({ cache: 'strict' })(
-  async (parent, args, ctx) => {
-    const projectId = args.id ?? parent?.id;
-    const membership = await ctx.loaders.projectMemberByUserAndProject
-      .load(`${ctx.user.id}:${projectId}`);
-    return membership?.role === 'OWNER' || new Error('Project owner role required');
-  }
-);
+const isProjectOwner = rule({ cache: 'strict' })(async (parent, args, ctx) => {
+  const projectId = args.id ?? parent?.id;
+  const membership = await ctx.loaders.projectMemberByUserAndProject.load(`${ctx.user.id}:${projectId}`);
+  return membership?.role === 'OWNER' || new Error('Project owner role required');
+});
 
 export const permissions = shield({
   Query: {
@@ -790,10 +788,7 @@ import depthLimit from 'graphql-depth-limit';
 import { createComplexityLimitRule } from 'graphql-query-complexity';
 import { responseCachePlugin } from '@apollo/server-plugin-response-cache';
 
-const schema = applyMiddleware(
-  makeExecutableSchema({ typeDefs, resolvers }),
-  permissions
-);
+const schema = applyMiddleware(makeExecutableSchema({ typeDefs, resolvers }), permissions);
 
 const server = new ApolloServer({
   schema,
@@ -811,8 +806,7 @@ const server = new ApolloServer({
     ApolloServerPluginCacheControl({ defaultMaxAge: 0 }),
     responseCachePlugin({
       // Scope project data to organization -- different orgs get different caches
-      sessionId: (requestContext) =>
-        requestContext.contextValue.user?.organizationId ?? null,
+      sessionId: (requestContext) => requestContext.contextValue.user?.organizationId ?? null,
     }),
   ],
   formatError: (formattedError) => {
@@ -851,11 +845,7 @@ export const subscriptionResolvers = {
 };
 
 // In the updateProjectStatus mutation, after successful DB update:
-export async function publishProjectStatusChange(
-  pubsub: RedisPubSub,
-  project: Project,
-  previousStatus: ProjectStatus
-) {
+export async function publishProjectStatusChange(pubsub: RedisPubSub, project: Project, previousStatus: ProjectStatus) {
   await pubsub.publish(`${PROJECT_STATUS_CHANGED}:${project.organizationId}`, {
     projectStatusChanged: {
       project,
@@ -904,6 +894,7 @@ query ProjectDashboard {
 ```
 
 **Expected query count with DataLoaders working correctly:** 4 queries total
+
 - 1 query for projects list
 - 1 batched query for all project members (20 project IDs in one `ANY($1)`)
 - 1 batched query for all users referenced by members
@@ -915,6 +906,6 @@ query ProjectDashboard {
 
 ### Operation Safety Checklist
 
-| Check | Status | Notes |
-|---|---|---|
-| Introspection disabled in production | Required | Set `
+| Check                                | Status   | Notes |
+| ------------------------------------ | -------- | ----- |
+| Introspection disabled in production | Required | Set ` |

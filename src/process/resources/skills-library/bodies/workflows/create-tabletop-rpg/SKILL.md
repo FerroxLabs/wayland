@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "tabletop-rpg-designer worldbuilding-master digital-illustrator self-publishing-guide"
+skills: 'tabletop-rpg-designer worldbuilding-master digital-illustrator self-publishing-guide'
 trigger_phrases: >-
   I want to create a tabletop RPG design my own RPG system make a TTRPG publish
   a tabletop game create an RPG rulebook design a role-playing game TTRPG from
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: tabletop-rpg game-design content-marketing step-by-step planning
   category: creative-project
-  depends: "tabletop-rpg-designer worldbuilding-master digital-illustrator self-publishing-guide"
+  depends: 'tabletop-rpg-designer worldbuilding-master digital-illustrator self-publishing-guide'
 ---
+
 # Create Tabletop Rpg
 
 **Estimated time:** 4-8 months
@@ -170,6 +171,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

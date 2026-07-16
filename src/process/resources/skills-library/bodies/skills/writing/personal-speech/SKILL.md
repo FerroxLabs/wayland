@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing creative-writing personal-communication"
-  category: "writing"
-  subcategory: "personal-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing creative-writing personal-communication'
+  category: 'writing'
+  subcategory: 'personal-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Personal Speech
 
 ## When to Use
 
 **Use this skill when:**
+
 - User needs a wedding speech -- best man, maid of honor, father or mother of the bride/groom, or the couple themselves (vows written as a speech rather than exchanged privately)
 - User needs a eulogy, memorial tribute, or celebration-of-life address for someone who has died
 - User wants a toast for a birthday milestone (30th, 40th, 50th, 60th, 80th), anniversary, or retirement party
@@ -29,6 +31,7 @@ metadata:
 - User is writing a personal statement read aloud at a significant ceremony (naturalization, award acceptance, dedication of a memorial)
 
 **Do NOT use this skill when:**
+
 - User wants a formal business presentation or investor pitch -- use a business presentation skill; the structural conventions are incompatible
 - User wants an academic or debate-style persuasive argument with citations and logical proof -- use `academic-argument`; speeches and arguments serve different cognitive functions
 - User wants a political stump speech or campaign address -- political speechwriting uses distinct rhetorical frameworks (anaphora-heavy, policy-forward, audience segmentation) that differ fundamentally from personal occasion speeches
@@ -58,6 +61,7 @@ Do not begin drafting until you have the following information. If the user has 
 Different occasions have structurally distinct templates. Apply the correct one -- these are not interchangeable.
 
 **Wedding speech (party member):**
+
 - Hook (specific image or line from the relationship, 30 seconds)
 - Establish the speaker's credibility/relationship (30 seconds -- brief, not self-indulgent)
 - Story 1: Who the subject is as an individual, revealed through behavior (90 seconds)
@@ -67,6 +71,7 @@ Different occasions have structurally distinct templates. Apply the correct one 
 - Toast: Specific, visual, earned -- not generic
 
 **Eulogy:**
+
 - Opening that acknowledges the loss without drowning in it -- often a specific image of the person alive
 - Who this person was to the speaker, told through one scene (not a timeline)
 - What the person valued -- demonstrated through story, not stated as a list
@@ -75,6 +80,7 @@ Different occasions have structurally distinct templates. Apply the correct one 
 - A closing image: where the person lives now in memory, or the last thing the speaker wants the audience to picture
 
 **Retirement or farewell speech:**
+
 - A specific moment from early in the career that captures who this person was before experience refined them
 - The evolution story -- what changed, what sharpened, what they contributed that remains
 - One story that the assembled group remembers (a shared touchstone)
@@ -82,6 +88,7 @@ Different occasions have structurally distinct templates. Apply the correct one 
 - The wish forward -- what the speaker hopes retirement holds for them
 
 **Graduation or milestone tribute:**
+
 - Where they started (a specific scene, not a biographical fact)
 - The obstacle or the moment of doubt (every meaningful journey has one)
 - The turning point -- what they did, chose, or endured
@@ -89,6 +96,7 @@ Different occasions have structurally distinct templates. Apply the correct one 
 - The challenge or blessing for what comes next -- earned, specific, not generic inspiration-poster language
 
 **Roast (affectionate):**
+
 - Establish credibility to roast: "I've known him long enough to have real material"
 - Rule of three jokes, escalating in specificity and bite
 - The reversal: after the humor, a moment of genuine tribute that reframes everything preceding it
@@ -278,9 +286,9 @@ Speeches about groups fail when they try to give equal weight to every member --
 
 ## Eulogy for Robert Haines
 
-*Occasion: Memorial service | Role: Daughter | Duration: ~8 minutes (~700 words)*
-*Tone: Honest and warm | Audience: 150 people, including family, friends, and former students*
-*Speaker: Daughter of the deceased*
+_Occasion: Memorial service | Role: Daughter | Duration: ~8 minutes (~700 words)_
+_Tone: Honest and warm | Audience: 150 people, including family, friends, and former students_
+_Speaker: Daughter of the deceased_
 
 ---
 
@@ -343,17 +351,19 @@ To my father, Robert Haines.
 ---
 
 ### Structural Map
-| Section | Lines | Purpose |
-|---------|-------|---------|
-| Opening hook | 1–5 | Establishes honest emotional terrain; signals the speech will not be sanitized |
-| "He showed up" -- anecdote sequence | 6–18 | Three specific scenes that define his character through action, not statement |
-| Bridge to students | 19–22 | Acknowledges the former students in the room; expands the portrait beyond family |
-| Direct quote + reversal | 23–30 | His own words define his philosophy; the classroom detail grounds the loss |
-| The lesson | 31–38 | Pivot from story to meaning; reframes his emotional style as its own language of love |
-| Acknowledgment of grief | 39–42 | Brief, honest, not prolonged; gives mourners permission to feel the weight |
-| Close and toast | 43–52 | Callback to the opening; specific, earned, and held in silence |
+
+| Section                             | Lines | Purpose                                                                               |
+| ----------------------------------- | ----- | ------------------------------------------------------------------------------------- |
+| Opening hook                        | 1–5   | Establishes honest emotional terrain; signals the speech will not be sanitized        |
+| "He showed up" -- anecdote sequence | 6–18  | Three specific scenes that define his character through action, not statement         |
+| Bridge to students                  | 19–22 | Acknowledges the former students in the room; expands the portrait beyond family      |
+| Direct quote + reversal             | 23–30 | His own words define his philosophy; the classroom detail grounds the loss            |
+| The lesson                          | 31–38 | Pivot from story to meaning; reframes his emotional style as its own language of love |
+| Acknowledgment of grief             | 39–42 | Brief, honest, not prolonged; gives mourners permission to feel the weight            |
+| Close and toast                     | 43–52 | Callback to the opening; specific, earned, and held in silence                        |
 
 ### Delivery Notes
+
 - **Opening:** Memorize the first line and the pause that follows it. Look up from the page and say it directly to the audience. The pause after "I love you easily" should be long enough to be slightly uncomfortable -- that discomfort is the speech working.
 - **The "how are you both" moment:** Say it quietly. Then repeat it. Do not move past it quickly. The repetition is where the audience understands what the speech is about.
 - **Student acknowledgment:** Look toward the area of the room where students are seated when delivering that section. This is a deliberate act of inclusion for people who may feel they have less standing to grieve than family.
@@ -363,6 +373,7 @@ To my father, Robert Haines.
 - **Toast delivery:** Pour the glass or raise it before beginning the toast section so the physical gesture is ready. Deliver "To my father, Robert Haines" slowly, looking first at a photograph or a personal item if one is present, then at the audience. Hold the silence after the name is spoken -- do not immediately drink. Let the room come to you.
 
 ### Word Count and Timing
+
 - Total words: ~690
 - Estimated delivery time (with pauses): ~8 minutes and 15 seconds
 - Target limit: 8 minutes

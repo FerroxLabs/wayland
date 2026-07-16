@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance savings beginner-friendly"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance savings beginner-friendly'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # First Budget
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user explicitly says they have never budgeted before, or phrases like "I have no idea where to start" or "I just need the basics"
 - A user is a student, recent graduate, or new employee setting up their financial life for the first time
 - A user has just transitioned to financial independence -- moved out, started college, got their first job, or stopped relying on a parent or guardian
@@ -33,6 +35,7 @@ metadata:
 - A user asks "how much should I be saving?" or "am I spending too much?" with no budget context to work from
 
 **Do NOT use when:**
+
 - The user has budgeted before and wants a more structured method -- use `budget-planning`, `zero-based-budget`, or `fifty-thirty-twenty-budget`
 - The user has significant debt and wants a payoff strategy -- use debt management skills; a first budget is not a debt elimination tool
 - The user wants to track expenses retroactively or categorize past spending -- use `expense-tracking-setup`
@@ -102,11 +105,11 @@ Simplicity is the only feature that matters at this stage. Three buckets, three 
 
 - **Bucket 1 -- Spending Money:** Dining out, entertainment, clothing, personal care, hobbies, gifts, subscriptions, anything not on the essentials list. This is intentional discretionary spending, not guilt-spending. The user decides how much. If they have no idea, start with 55-65% of Flex Money as a default.
 - **Bucket 2 -- Savings:** Emergency fund contributions, specific goal savings (trip, car, move), or retirement contributions beyond what is already deducted from paycheck. Even $25-$50/month is the right starting amount if funds are tight -- the habit of moving money to savings on payday is the skill being built, not the dollar amount.
-   - Emergency fund priority note: a first-time budgeter's savings goal is almost always the emergency fund first. The standard target is 3-6 months of essential expenses. At the budgeting start, an initial mini-goal of $500-$1,000 is achievable and meaningful -- it covers most single unexpected expenses without needing a credit card.
-   - If the employer offers a 401(k) match and it is NOT already captured in the take-home calculation, flag it as worth contributing up to the match. This is the clearest available return on money and belongs in the savings conversation even at the first-budget stage.
+  - Emergency fund priority note: a first-time budgeter's savings goal is almost always the emergency fund first. The standard target is 3-6 months of essential expenses. At the budgeting start, an initial mini-goal of $500-$1,000 is achievable and meaningful -- it covers most single unexpected expenses without needing a credit card.
+  - If the employer offers a 401(k) match and it is NOT already captured in the take-home calculation, flag it as worth contributing up to the match. This is the clearest available return on money and belongs in the savings conversation even at the first-budget stage.
 - **Bucket 3 -- Buffer:** A small monthly deposit into a mentally separate pool for irregular but predictable expenses: car maintenance, medical copays, vet bills, registration fees, holiday gifts, clothing replacement. Without a buffer, first-time budgeters experience their first $300 car repair as a budget catastrophe and abandon the system. $50-$150/month is appropriate to start.
-   - If the user has a car, a $100/month buffer is a reasonable floor -- a single oil change and tire rotation costs $80-$120.
-   - If the user does not have a car and is healthy, $50/month buffer covers most unexpected minor expenses.
+  - If the user has a car, a $100/month buffer is a reasonable floor -- a single oil change and tire rotation costs $80-$120.
+  - If the user does not have a car and is healthy, $50/month buffer covers most unexpected minor expenses.
 - **If the user does not know how to split Flex Money**, offer a starting point: **60% Spending / 30% Savings / 10% Buffer**. Emphasize this is not a rule -- it is a default to start with and adjust after the first month when real data is available.
 - The three buckets must sum exactly to Flex Money. If there is a small remainder after rounding (e.g., $7), add it to the Buffer.
 
@@ -143,10 +146,10 @@ End every first budget output with two things: encouragement grounded in fact, a
 - State plainly that having a written budget puts this person ahead of the majority of people their age -- not as flattery, but as context. Most adults operate without an explicit budget.
 - Note that the budget will need adjustment after the first month. Estimates will be wrong. Some essential costs will have been forgotten. That is expected and part of the process.
 - Provide a specific 90-day sequence:
-   - **Month 1:** Use the budget as written. Do not try to optimize. Just track the Spending Money balance weekly.
-   - **Month 2:** Adjust any estimates that proved inaccurate. Note which spending categories consumed the most Spending Money.
-   - **Month 3:** If the budget feels stable, consider adding category-level tracking to Spending Money to see the breakdown (dining vs. clothing vs. entertainment).
-   - **After Month 3:** Explore `expense-tracking-setup`, `emergency-fund-planner`, or `fifty-thirty-twenty-budget` depending on goals.
+  - **Month 1:** Use the budget as written. Do not try to optimize. Just track the Spending Money balance weekly.
+  - **Month 2:** Adjust any estimates that proved inaccurate. Note which spending categories consumed the most Spending Money.
+  - **Month 3:** If the budget feels stable, consider adding category-level tracking to Spending Money to see the breakdown (dining vs. clothing vs. entertainment).
+  - **After Month 3:** Explore `expense-tracking-setup`, `emergency-fund-planner`, or `fifty-thirty-twenty-budget` depending on goals.
 
 ---
 
@@ -273,10 +276,13 @@ That is the entire system for now.
 ## Edge Cases
 
 ### Student or Non-Earner with No Traditional Income
+
 Replace "monthly income" with "monthly available funds." Sources might include: monthly family contribution, financial aid disbursements divided by months in the term, work-study earnings, or part-time job income. For a student receiving a $8,000 semester loan disbursement covering 5 months, monthly available funds = $8,000 / 5 = $1,600. Build the budget against that number. Emphasize that this is a finite pool -- the budget is about extending coverage through the entire term, not just the first six weeks. Savings in a student budget becomes "end-of-term emergency fund" or "moving fund" rather than a traditional emergency fund.
 
 ### Essentials Exceed Income (Deficit Budget)
+
 This is the most important edge case in this skill. Handle it carefully.
+
 - Show the deficit number plainly: "Your must-pay list is $2,100, but your take-home is $1,800. That is a $300/month shortfall on essentials alone."
 - Do NOT soften or obscure this. The user needs to see it.
 - Do NOT list solutions without the user's input. Instead, ask one question: "Which of these essential expenses has any flexibility at all?" This empowers the user to identify options rather than feeling lectured.
@@ -285,21 +291,27 @@ This is the most important edge case in this skill. Handle it carefully.
 - Do NOT build savings or buffer lines if essentials exceed income. The budget at this stage is about visualizing the deficit, not allocating non-existent flex money.
 
 ### Irregular or Variable Income (Gig Work, Tips, Hourly with Fluctuating Hours)
+
 Use the lowest recent month (past 3 months) as the budget base. Explain clearly: "We are budgeting to your floor income -- the least you have made in a typical month. If you make more, that extra money goes to Buffer first, then Savings. This way, the budget never breaks in a slow month." Do not attempt to average the income -- averages create budgets that work mathematically but fail practically in low-income months. Note that this is a simplified approach and point to `variable-income-budget` for a complete treatment once the user is comfortable with budget basics.
 
 ### Couple or Roommates Creating a First Shared Budget
+
 Build using combined after-tax income for all contributing parties. For essential expenses, use the total household bills divided by the number of contributors if costs are split. Include a "Personal Spending" line for each person -- individual discretionary money that does not require discussion or joint approval. This line is the single most important element of a functional shared budget: removing the need to consult each other for every small purchase reduces financial friction and prevents the budget from becoming a control mechanism. Typical starting amount: $75-$200 per person per month depending on total flex money. For joint savings goals (shared apartment fund, vacation), build a shared savings line in addition to any individual savings.
 
 ### User Has No Idea What They Spend
+
 This is the most common scenario for a true first budget, not an edge case -- but it requires a specific handling path. Gather the known, fixed items: rent, phone, car insurance, loan payments. These can be verified instantly. For variable essentials (groceries, gas, utilities), provide anchored estimates based on the user's situation and flag each one. Tell the user: "Your first month of this budget will tell you whether these estimates are right. The goal right now is to have a number on paper -- even an imperfect number -- because any number is better than no number." After 30 days of using the budget, the user will have actual data to replace the estimates. This is normal and expected.
 
 ### User Just Had a Life Change (New Job, Moved Out, Breakup, Graduated)
+
 These transitional moments are the highest-frequency triggers for a first budget. The financial picture is genuinely uncertain because new costs are being discovered in real time. Build the budget with a larger-than-normal Buffer (15-20% of Flex Money instead of the usual 10%) to absorb setup costs: new apartment deposits, furniture, job-related clothing, transportation changes. Explicitly tell the user: "Your first two months will have higher costs than normal -- these are one-time transition expenses. The budget will stabilize in month 3." This prevents the user from concluding that the budget "doesn't work" because month 1 shows higher spending.
 
 ### User Asks "Am I Spending Too Much on X?"
+
 When a user singles out a category for judgment before a budget exists, redirect before answering. Build the full budget first. Once the complete picture is visible, the question of whether any single line is "too much" has context -- it is only meaningful relative to total income and what else the person values. If the user insists on a benchmark, common reference ranges (not rules) for single adults: housing under 30% of gross income; transportation 10-15% of net income; groceries $200-$400/month. Always frame these as population averages, not personal prescriptions.
 
 ### User Mentions Overdrafting Regularly
+
 Overdrafting is the clearest signal that the budget is already needed and that the tracking habit is critical. Before building the budget, note that overdraft fees ($25-$35 per incident at most institutions) are themselves a line item consuming flex money that could be redirected. If the user is overdrafting 1-2 times per month, that is $25-$70/month in fees -- often enough to fund a small Buffer that prevents future overdrafts. Build the Buffer line with urgency. Note that many institutions offer overdraft protection transfers from savings accounts for free or at lower cost than standard overdraft fees -- this is general financial literacy, not a product recommendation.
 
 ---
@@ -323,21 +335,21 @@ Overdrafting is the clearest signal that the budget is already needed and that t
 
 ### The Must-Pay List (Essentials)
 
-| Expense                         | Monthly Amount | Notes                              |
-|--------------------------------|----------------|------------------------------------|
-| Rent                           | $950           |                                    |
-| Utilities (electric, internet) | $120           | (est.) -- confirm after first bill  |
-| Phone                          | $70            |                                    |
-| Car Insurance                  | $130           |                                    |
-| Gas                            | $80            | (est.) -- track fill-ups for 4 weeks |
-| Groceries & Household          | $280           | (est.) -- keep grocery receipts    |
-| Student Loan                   | $215           |                                    |
-| Credit Card Minimum -- Card A  | $35            |                                    |
-| Credit Card Minimum -- Card B  | $25            |                                    |
+| Expense                        | Monthly Amount | Notes                                                                     |
+| ------------------------------ | -------------- | ------------------------------------------------------------------------- |
+| Rent                           | $950           |                                                                           |
+| Utilities (electric, internet) | $120           | (est.) -- confirm after first bill                                        |
+| Phone                          | $70            |                                                                           |
+| Car Insurance                  | $130           |                                                                           |
+| Gas                            | $80            | (est.) -- track fill-ups for 4 weeks                                      |
+| Groceries & Household          | $280           | (est.) -- keep grocery receipts                                           |
+| Student Loan                   | $215           |                                                                           |
+| Credit Card Minimum -- Card A  | $35            |                                                                           |
+| Credit Card Minimum -- Card B  | $25            |                                                                           |
 | Renter's Insurance             | $15            | (est.) -- worth getting if you do not have it; typical cost $12-$20/month |
-| **Essentials Total**           | **$1,920**     |                                    |
+| **Essentials Total**           | **$1,920**     |                                                                           |
 
-*Essentials are 61.5% of your take-home income. That is a healthy ratio -- you have meaningful flex money to work with.*
+_Essentials are 61.5% of your take-home income. That is a healthy ratio -- you have meaningful flex money to work with._
 
 ---
 
@@ -347,12 +359,12 @@ Overdrafting is the clearest signal that the budget is already needed and that t
 
 This is the money you actively control. You decide where it goes. Here is a suggested starting split:
 
-| Bucket          | Monthly Amount | What It Covers                                                   |
-|----------------|----------------|------------------------------------------------------------------|
-| Spending Money  | $720           | Dining out, entertainment, clothing, personal care, subscriptions |
-| Savings         | $360           | Emergency fund -- goal is $1,000 first, then $5,000             |
-| Buffer          | $120           | Car maintenance, medical copays, gifts, anything unexpected     |
-| **Flex Total**  | **$1,200**     |                                                                  |
+| Bucket         | Monthly Amount | What It Covers                                                    |
+| -------------- | -------------- | ----------------------------------------------------------------- |
+| Spending Money | $720           | Dining out, entertainment, clothing, personal care, subscriptions |
+| Savings        | $360           | Emergency fund -- goal is $1,000 first, then $5,000               |
+| Buffer         | $120           | Car maintenance, medical copays, gifts, anything unexpected       |
+| **Flex Total** | **$1,200**     |                                                                   |
 
 **Why these amounts?** I used a 60/30/10 split as a starting point. After your first month, you will know whether $720 in Spending Money is tight or generous for how you actually live. Adjust the split then -- this is a starting point, not a rule.
 
@@ -360,14 +372,14 @@ This is the money you actively control. You decide where it goes. Here is a sugg
 
 ### Your Complete Budget at a Glance
 
-| Line                    | Amount      |
-|------------------------|-------------|
-| Monthly Income         | + $3,120    |
-| Essentials             | -- $1,920   |
-| Spending Money         | -- $720     |
-| Savings                | -- $360     |
-| Buffer                 | -- $120     |
-| **Every Dollar Named** | **$0**      |
+| Line                   | Amount    |
+| ---------------------- | --------- |
+| Monthly Income         | + $3,120  |
+| Essentials             | -- $1,920 |
+| Spending Money         | -- $720   |
+| Savings                | -- $360   |
+| Buffer                 | -- $120   |
+| **Every Dollar Named** | **$0**    |
 
 ---
 
@@ -387,12 +399,12 @@ That is the entire tracking system for now. No app required. No spreadsheet requ
 
 ### Estimates to Confirm After Month 1
 
-| Item           | Used in Budget | Action                                                    |
-|---------------|----------------|----------------------------------------------------------|
-| Take-Home     | $3,120         | Check pay stub -- adjust if off by more than $50         |
-| Utilities     | $120           | Check first electric and internet bills, update if needed |
-| Gas           | $80            | Keep a note of fill-up amounts for 4 weeks, use average  |
-| Groceries     | $280           | Keep receipts or check bank transactions for 2 weeks     |
+| Item      | Used in Budget | Action                                                    |
+| --------- | -------------- | --------------------------------------------------------- |
+| Take-Home | $3,120         | Check pay stub -- adjust if off by more than $50          |
+| Utilities | $120           | Check first electric and internet bills, update if needed |
+| Gas       | $80            | Keep a note of fill-up amounts for 4 weeks, use average   |
+| Groceries | $280           | Keep receipts or check bank transactions for 2 weeks      |
 
 ---
 
@@ -408,10 +420,10 @@ Your current card minimums ($35 and $25 = $60/month) are in your Essentials list
 - **Month 2:** Fix the estimates that were wrong (utilities, gas, groceries). Note where your Spending Money goes -- which 2-3 things consume most of it.
 - **Month 3:** If this feels routine, consider breaking Spending Money into sub-categories (dining, entertainment, shopping) to see the detail.
 - **After Month 3:** You are ready to level up.
-   - To track expenses with more detail: `expense-tracking-setup`
-   - To build your emergency fund deliberately: `emergency-fund-planner`
-   - To try a structured budget method: `fifty-thirty-twenty-budget`
-   - To address your credit card balances: `debt-management`
+  - To track expenses with more detail: `expense-tracking-setup`
+  - To build your emergency fund deliberately: `emergency-fund-planner`
+  - To try a structured budget method: `fifty-thirty-twenty-budget`
+  - To address your credit card balances: `debt-management`
 
 ---
 

@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-buying personal-finance planning checklist"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-buying personal-finance planning checklist'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Home Buying Checklist
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about the home buying process or what steps to take
 - User wants a checklist for buying their first (or next) home
 - User asks how to prepare financially for a home purchase
@@ -36,6 +37,7 @@ metadata:
 - User asks what happens between making an offer and closing
 
 **Do NOT use this skill when:**
+
 - User wants to compare specific mortgage options (use `mortgage-comparison`)
 - User wants to compare insurance policies (use `insurance-comparison`)
 - User wants general investment account guidance (use `investment-account-types`)
@@ -312,6 +314,7 @@ metadata:
 ## Home Buying Checklist
 
 ### Your Current Position
+
 - Stage: Pre-planning / Financial preparation
 - Savings: $30,000
 - Annual income: $75,000 ($6,250/month gross)
@@ -320,36 +323,40 @@ metadata:
 ### Phase 1: Financial Readiness Assessment
 
 #### Down Payment and Costs Estimate
+
 To estimate your purchasing power, consider this framework:
 
-| Component | Conservative Estimate |
-|-----------|---------------------:|
-| Down payment | $30,000 could cover [JURISDICTION: verify minimum down payment requirements] |
-| Closing costs | Typically a percentage of purchase price [JURISDICTION: verify typical range] |
-| Moving costs | $2,000-$5,000 (varies widely) |
-| Emergency reserve | 3-6 months of housing costs |
-| Immediate home needs | $2,000-$5,000 (furniture, repairs, tools) |
+| Component            |                                                         Conservative Estimate |
+| -------------------- | ----------------------------------------------------------------------------: |
+| Down payment         |  $30,000 could cover [JURISDICTION: verify minimum down payment requirements] |
+| Closing costs        | Typically a percentage of purchase price [JURISDICTION: verify typical range] |
+| Moving costs         |                                                 $2,000-$5,000 (varies widely) |
+| Emergency reserve    |                                                   3-6 months of housing costs |
+| Immediate home needs |                                     $2,000-$5,000 (furniture, repairs, tools) |
 
 Your $30,000 needs to cover ALL of these, not just the down payment. Calculate how much is available for the down payment after setting aside the other amounts.
 
 #### Monthly Budget Check
-| Expense | Estimated Monthly |
-|---------|------------------:|
-| Mortgage (P&I) at estimated price | $[depends on price and rate] |
-| Property tax | [JURISDICTION: verify typical rate] |
-| Homeowner's insurance | [Get quotes] |
-| HOA fees (if applicable) | [Varies by property] |
-| Maintenance reserve (1% of home value annually / 12) | $[calculate] |
-| **Total estimated housing** | **$[calculate]** |
-| Comfortable maximum (your choice) | $____ |
+
+| Expense                                              |                   Estimated Monthly |
+| ---------------------------------------------------- | ----------------------------------: |
+| Mortgage (P&I) at estimated price                    |        $[depends on price and rate] |
+| Property tax                                         | [JURISDICTION: verify typical rate] |
+| Homeowner's insurance                                |                        [Get quotes] |
+| HOA fees (if applicable)                             |                [Varies by property] |
+| Maintenance reserve (1% of home value annually / 12) |                        $[calculate] |
+| **Total estimated housing**                          |                    **$[calculate]** |
+| Comfortable maximum (your choice)                    |                           $\_\_\_\_ |
 
 #### Credit Checklist
+
 - [ ] Check all three credit reports [JURISDICTION: verify how to access free reports]
-- [ ] Note your current score: ____
+- [ ] Note your current score: \_\_\_\_
 - [ ] If below lender thresholds, plan for improvement time
 - [ ] Avoid new credit applications
 
 ### Immediate Next Steps
+
 1. [ ] Check your credit reports and score
 2. [ ] Calculate your total funds available after reserves (down payment budget)
 3. [ ] Estimate your comfortable monthly payment
@@ -358,6 +365,7 @@ Your $30,000 needs to cover ALL of these, not just the down payment. Calculate h
 6. [ ] Start the full Phase 1-6 checklist above
 
 ### Key Questions to Answer
+
 - What price range is realistic given your down payment and comfortable monthly payment?
 - Are there first-time buyer programs in your area that could help?
 - Is your credit score in the range lenders require?

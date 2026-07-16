@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "rust best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'rust best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Rust Ownership Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is designing a data structure and needs to choose between owned types, references, or smart pointers (e.g., "should I store a `String` or `&str` in this struct?")
 - The user is fighting the borrow checker -- getting E0502, E0505, E0506, E0515, or E0521 errors and needs to understand the root cause and fix
 - The user needs to decide between `Box<T>`, `Rc<T>`, `Arc<T>`, `Cell<T>`, `RefCell<T>`, or `Cow<'a, T>` for a specific use case
@@ -30,6 +32,7 @@ metadata:
 - The user is working with `unsafe` code that requires manual lifetime management (raw pointers, `transmute`, `ManuallyDrop`)
 
 **Do NOT use this skill when:**
+
 - The user asks about setting up a Rust project, workspace layout, Cargo.toml configuration, or feature flags -- use `rust-project-setup`
 - The user asks about `Result`, `Option`, `?` operator, custom error types, `thiserror`, or `anyhow` -- use `rust-error-handling`
 - The user asks about Rust performance profiling, SIMD, cache optimization, or zero-copy I/O tuning -- use `rust-performance`
@@ -133,7 +136,7 @@ Every non-obvious ownership choice must be documented at the point of declaratio
 
 When answering a Rust ownership question, structure the response as follows:
 
-```
+````
 ## Diagnosis
 [One paragraph identifying the core ownership problem: what the compiler is enforcing and why]
 
@@ -157,14 +160,17 @@ When answering a Rust ownership question, structure the response as follows:
 
 ```rust
 // [Full, compilable code example with doc comments explaining ownership decisions]
-```
+````
 
 ## Trade-offs
+
 [Table or bullet list: performance cost, ergonomics, thread safety, and failure mode of the chosen pattern]
 
 ## Alternatives Considered
+
 [Brief note on why other patterns were rejected for this specific case]
-```
+
+````
 
 ---
 
@@ -379,20 +385,20 @@ mod tests {
         assert_eq!(length, Some(2));
     }
 }
-```
+````
 
 ---
 
 ## Trade-offs
 
-| Dimension | This Approach (`Arc<RwLock<HashMap<String, Arc<Vec<u8>>>>>`) | Alternative: Return cloned `Vec<u8>` |
-|---|---|---|
-| `get()` cost | ~5ns (atomic increment) | ~50-500ns (memcpy proportional to value size) |
-| Caller holds stale data | Yes -- Arc clone is a snapshot | Yes -- same problem |
-| Lifetime complexity | None -- fully owned | None -- fully owned |
-| Memory usage | Slightly higher (two heap objects per entry) | Same per entry, more per read |
-| Thread safety | `Send + Sync` verified by compiler | Same |
-| Failure mode | `RwLock` poison on writer panic | Same |
+| Dimension               | This Approach (`Arc<RwLock<HashMap<String, Arc<Vec<u8>>>>>`) | Alternative: Return cloned `Vec<u8>`          |
+| ----------------------- | ------------------------------------------------------------ | --------------------------------------------- |
+| `get()` cost            | ~5ns (atomic increment)                                      | ~50-500ns (memcpy proportional to value size) |
+| Caller holds stale data | Yes -- Arc clone is a snapshot                               | Yes -- same problem                           |
+| Lifetime complexity     | None -- fully owned                                          | None -- fully owned                           |
+| Memory usage            | Slightly higher (two heap objects per entry)                 | Same per entry, more per read                 |
+| Thread safety           | `Send + Sync` verified by compiler                           | Same                                          |
+| Failure mode            | `RwLock` poison on writer panic                              | Same                                          |
 
 ---
 

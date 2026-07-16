@@ -82,7 +82,9 @@ const FileChangesPanel: React.FC<FileChangesPanelProps> = ({
           <span className='text-14px text-t-primary font-medium'>{title}</span>
         </div>
         {/* Expand/collapse arrow */}
-        <ChevronDown size={16} color={iconColors.secondary}
+        <ChevronDown
+          size={16}
+          color={iconColors.secondary}
           className={classNames('transition-transform duration-200', expanded && 'rotate-180')}
         />
       </div>

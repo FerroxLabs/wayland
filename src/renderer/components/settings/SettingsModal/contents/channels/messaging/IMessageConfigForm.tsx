@@ -68,8 +68,7 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
 
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
-          testResult.data?.error ??
-            t('settings.channels.imessage.connectionFailed', 'iMessage connection check failed'),
+          testResult.data?.error ?? t('settings.channels.imessage.connectionFailed', 'iMessage connection check failed')
         );
         return;
       }
@@ -95,8 +94,7 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
         }
       } else {
         Message.error(
-          enableResult.msg ??
-            t('settings.channels.imessage.enableFailed', 'Failed to enable iMessage plugin'),
+          enableResult.msg ?? t('settings.channels.imessage.enableFailed', 'Failed to enable iMessage plugin')
         );
       }
     } catch (error) {
@@ -114,7 +112,7 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
           <span className='text-12px'>
             {t(
               'settings.channels.imessage.replaceWarning',
-              'Saving will overwrite the existing iMessage configuration.',
+              'Saving will overwrite the existing iMessage configuration.'
             )}
           </span>
         </div>
@@ -123,7 +121,7 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
       <div className='text-12px text-t-tertiary p-12px rd-8px bg-fill-2'>
         {t(
           'settings.channels.imessage.permissionNote',
-          'iMessage requires Full Disk Access for this app. Grant it in System Settings → Privacy & Security → Full Disk Access.',
+          'iMessage requires Full Disk Access for this app. Grant it in System Settings → Privacy & Security → Full Disk Access.'
         )}
       </div>
 
@@ -132,7 +130,7 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
         <span className='text-12px'>
           {t(
             'settings.channels.imessage.fdaRelaunchHelp',
-            'IMPORTANT: After granting Full Disk Access for the first time, you MUST fully quit and relaunch the app - macOS only re-reads FDA on app launch, so without a relaunch you will loop on "chat.db not readable" errors.',
+            'IMPORTANT: After granting Full Disk Access for the first time, you MUST fully quit and relaunch the app - macOS only re-reads FDA on app launch, so without a relaunch you will loop on "chat.db not readable" errors.'
           )}
         </span>
       </div>
@@ -140,14 +138,14 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
       <div className='text-12px text-t-tertiary p-12px rd-8px bg-fill-2'>
         {t(
           'settings.channels.imessage.automationNote',
-          'iMessage also requires macOS Automation consent for Messages.app. Accept the OS prompt the first time outbound is used, or grant in System Settings → Privacy & Security → Automation → this app → Messages.',
+          'iMessage also requires macOS Automation consent for Messages.app. Accept the OS prompt the first time outbound is used, or grant in System Settings → Privacy & Security → Automation → this app → Messages.'
         )}
       </div>
 
       <div className='text-12px text-t-tertiary p-12px rd-8px bg-fill-2'>
         {t(
           'settings.channels.imessage.attachmentsNote',
-          'Text-only - image, video, and audio attachments are dropped silently on inbound and not supported on outbound.',
+          'Text-only - image, video, and audio attachments are dropped silently on inbound and not supported on outbound.'
         )}
       </div>
 
@@ -155,7 +153,7 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
         label={t('settings.channels.imessage.pollInterval.label', 'Poll interval (ms)')}
         description={t(
           'settings.channels.imessage.pollInterval.help',
-          'How often to check for new messages. Default: 2000 ms. Lower values increase responsiveness but use more CPU.',
+          'How often to check for new messages. Default: 2000 ms. Lower values increase responsiveness but use more CPU.'
         )}
       >
         <InputNumber
@@ -174,16 +172,13 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
         label={t('settings.channels.imessage.allowedHandles.label', 'Allowed handles (optional)')}
         description={t(
           'settings.channels.imessage.allowedHandles.help',
-          'Comma or newline-separated list of phone numbers or emails to accept messages from. Leave blank to allow all.',
+          'Comma or newline-separated list of phone numbers or emails to accept messages from. Leave blank to allow all.'
         )}
       >
         <Input.TextArea
           value={allowedHandles}
           onChange={setAllowedHandles}
-          placeholder={t(
-            'settings.channels.imessage.allowedHandles.placeholder',
-            '+15551234567, user@icloud.com',
-          )}
+          placeholder={t('settings.channels.imessage.allowedHandles.placeholder', '+15551234567, user@icloud.com')}
           style={{ width: 280 }}
           autoSize={{ minRows: 2, maxRows: 5 }}
         />
@@ -195,7 +190,6 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, m
         </Button>
       </div>
       <ChannelAgentModelSelector platform='imessage' modelSelection={modelSelection} />
-
     </div>
   );
 };

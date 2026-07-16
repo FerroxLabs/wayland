@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics budgeting guide step-by-step python testing analysis"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science statistics budgeting guide step-by-step python testing analysis'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Time Series Analyst
 
 You are an expert time series analyst who helps teams decompose temporal data, build accurate forecasting models, detect anomalies, and make data-driven decisions about trends and seasonality. You work fluently with statistical methods (ARIMA, exponential smoothing) and modern tools (Prophet, neural forecasting).
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about time series analyst techniques or best practices
 - User needs guidance on time series analyst concepts
 - User wants to implement or improve their approach to time series analyst
 
 **Do NOT use when:**
+
 - The request falls outside the scope of time series analyst
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -277,14 +278,14 @@ df_prophet['anomaly'] = (
 
 ### Choosing an Anomaly Detection Method
 
-| Method | Assumptions | Best For |
-|--------|------------|----------|
-| Z-score | Normal distribution | Simple, stationary data |
-| IQR | None (non-parametric) | Robust baseline detection |
-| STL residuals | Decomposable seasonality | Seasonal data with outliers |
-| Prophet bounds | Trend + seasonality | Business data with events |
-| Isolation Forest | None | Complex, multivariate data |
-| LSTM autoencoder | Temporal patterns | High-frequency, complex patterns |
+| Method           | Assumptions              | Best For                         |
+| ---------------- | ------------------------ | -------------------------------- |
+| Z-score          | Normal distribution      | Simple, stationary data          |
+| IQR              | None (non-parametric)    | Robust baseline detection        |
+| STL residuals    | Decomposable seasonality | Seasonal data with outliers      |
+| Prophet bounds   | Trend + seasonality      | Business data with events        |
+| Isolation Forest | None                     | Complex, multivariate data       |
+| LSTM autoencoder | Temporal patterns        | High-frequency, complex patterns |
 
 ---
 
@@ -292,13 +293,13 @@ df_prophet['anomaly'] = (
 
 ### Metrics
 
-| Metric | Formula | When to Use |
-|--------|---------|-------------|
-| MAE | mean(abs(actual - forecast)) | Easy to interpret, same unit as data |
-| RMSE | sqrt(mean((actual - forecast)^2)) | Penalizes large errors |
-| MAPE | mean(abs((actual - forecast)/actual)) * 100 | Percentage, scale-independent |
-| sMAPE | mean(2*abs(A-F)/(abs(A)+abs(F))) * 100 | Symmetric, handles near-zero values |
-| Coverage | % of actuals within prediction interval | Prediction interval reliability |
+| Metric   | Formula                                      | When to Use                          |
+| -------- | -------------------------------------------- | ------------------------------------ |
+| MAE      | mean(abs(actual - forecast))                 | Easy to interpret, same unit as data |
+| RMSE     | sqrt(mean((actual - forecast)^2))            | Penalizes large errors               |
+| MAPE     | mean(abs((actual - forecast)/actual)) \* 100 | Percentage, scale-independent        |
+| sMAPE    | mean(2*abs(A-F)/(abs(A)+abs(F))) * 100       | Symmetric, handles near-zero values  |
+| Coverage | % of actuals within prediction interval      | Prediction interval reliability      |
 
 ### Cross-Validation for Time Series
 
@@ -371,15 +372,14 @@ by March 15. Recommend adding 2 instances by March 1."
 
 ### Model Selection Guide
 
-| Scenario | Recommended Model | Reason |
-|----------|------------------|--------|
-| < 2 years daily data | Exponential smoothing | Simple, few parameters |
-| 2+ years daily data with holidays | Prophet | Handles holidays, interpretable |
-| High-frequency (minutely) | ARIMA/SARIMA | Good for short-term, captures autocorrelation |
-| Multiple related series | Vector AR (VAR) | Captures cross-series correlations |
-| Very long horizon (years) | Trend extrapolation + judgment | Statistical models unreliable long-term |
-| Intermittent demand (many zeros) | Croston's method | Designed for sporadic demand |
-
+| Scenario                          | Recommended Model              | Reason                                        |
+| --------------------------------- | ------------------------------ | --------------------------------------------- |
+| < 2 years daily data              | Exponential smoothing          | Simple, few parameters                        |
+| 2+ years daily data with holidays | Prophet                        | Handles holidays, interpretable               |
+| High-frequency (minutely)         | ARIMA/SARIMA                   | Good for short-term, captures autocorrelation |
+| Multiple related series           | Vector AR (VAR)                | Captures cross-series correlations            |
+| Very long horizon (years)         | Trend extrapolation + judgment | Statistical models unreliable long-term       |
+| Intermittent demand (many zeros)  | Croston's method               | Designed for sporadic demand                  |
 
 ## Process
 
@@ -388,7 +388,6 @@ by March 15. Recommend adding 2 instances by March 1."
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -409,14 +408,12 @@ by March 15. Recommend adding 2 instances by March 1."
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices guide"
-  category: "testing-quality"
-  subcategory: "quality-metrics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices guide'
+  category: 'testing-quality'
+  subcategory: 'quality-metrics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Mutation Tester
@@ -222,12 +222,12 @@ mvn pitest:mutationCoverage -DwithHistory
 
 ### PITest Mutator Groups
 
-| Group | Operators | Use Case |
-|-------|-----------|----------|
-| `OLD_DEFAULTS` | Basic arithmetic, conditionals | Quick check |
-| `DEFAULTS` | OLD_DEFAULTS + negation, return values | Standard |
-| `STRONGER` | DEFAULTS + more comparison mutations | Thorough |
-| `ALL` | Every mutator | Most thorough (slow) |
+| Group          | Operators                              | Use Case             |
+| -------------- | -------------------------------------- | -------------------- |
+| `OLD_DEFAULTS` | Basic arithmetic, conditionals         | Quick check          |
+| `DEFAULTS`     | OLD_DEFAULTS + negation, return values | Standard             |
+| `STRONGER`     | DEFAULTS + more comparison mutations   | Thorough             |
+| `ALL`          | Every mutator                          | Most thorough (slow) |
 
 ## Tool: mutmut (Python)
 
@@ -471,16 +471,17 @@ Full mutation run too slow? Use these strategies:
 
 ### Interpreting Mutation Scores
 
-| Score | Interpretation | Action |
-|-------|---------------|--------|
-| > 80% | Excellent test suite | Maintain, focus on new code |
-| 60-80% | Good but gaps exist | Target surviving mutants in critical paths |
-| 40-60% | Significant gaps | Major test improvement needed |
-| < 40% | Tests provide little bug detection | Fundamental test strategy overhaul |
+| Score  | Interpretation                     | Action                                     |
+| ------ | ---------------------------------- | ------------------------------------------ |
+| > 80%  | Excellent test suite               | Maintain, focus on new code                |
+| 60-80% | Good but gaps exist                | Target surviving mutants in critical paths |
+| 40-60% | Significant gaps                   | Major test improvement needed              |
+| < 40%  | Tests provide little bug detection | Fundamental test strategy overhaul         |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing mutation tester solutions
 - Reviewing or improving existing mutation tester approaches
 - Making architectural or implementation decisions about mutation tester
@@ -488,6 +489,7 @@ Full mutation run too slow? Use these strategies:
 - Troubleshooting mutation tester-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -498,21 +500,26 @@ Full mutation run too slow? Use these strategies:
 # Mutation Tester Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

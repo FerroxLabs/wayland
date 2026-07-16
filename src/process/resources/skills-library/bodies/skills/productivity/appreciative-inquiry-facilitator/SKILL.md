@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks journaling planning performing-arts energy-efficiency interview-prep"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks journaling planning performing-arts energy-efficiency interview-prep'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Appreciative Inquiry Facilitator
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to design or facilitate an Appreciative Inquiry (AI) summit, workshop, or team session and needs help structuring the 4-D cycle (Discover, Dream, Design, Destiny)
 - A user needs to write paired interview protocols, including question design calibrated to elicit genuine peak-experience stories rather than generic positive answers
 - A user is trying to craft Provocative Propositions (also called Design Statements or Possibility Propositions) that are grounded in the positive core and written in affirming present tense
@@ -30,6 +32,7 @@ metadata:
 - A team wants to embed appreciative practices into recurring rituals -- staff meetings, one-on-ones, onboarding, quarterly reviews
 
 **Do NOT use when:**
+
 - The user needs a root-cause analysis, failure mode investigation, or structured problem-solving process -- use a Systems Thinking or 5-Whys methodology skill instead
 - The organization is in an acute crisis requiring immediate triage (safety incidents, financial insolvency, legal emergencies) where problem diagnosis is genuinely unavoidable before forward movement
 - The user wants a traditional strategic planning process with SWOT analysis, gap assessment, and remediation roadmaps -- use a Strategic Planning skill instead

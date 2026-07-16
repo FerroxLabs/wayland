@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "competitive-analyst business-planner negotiation-master contract-reviewer"
+skills: 'competitive-analyst business-planner negotiation-master contract-reviewer'
 trigger_phrases: >-
   I want to sell my business help me exit my business how to value my company
   plan a business exit succession planning for my business prepare my business
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: strategy step-by-step planning
   category: business-operations
-  depends: "competitive-analyst business-planner negotiation-master contract-reviewer"
+  depends: 'competitive-analyst business-planner negotiation-master contract-reviewer'
 ---
+
 # Exit Your Business
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -162,6 +163,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -172,7 +174,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Selling unprepared:** Rushing to market without preparation leaves money on the table. Invest 6-12 months in preparation.
 - **Confidentiality breaches:** If employees, customers, or competitors learn about the sale prematurely, it can damage the business and the deal.
 - **Ignoring tax implications:** The difference between an asset sale and a stock sale can mean hundreds of thousands in taxes. Get tax advice early.
-
 
 ### Timeline Considerations
 

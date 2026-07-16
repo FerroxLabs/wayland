@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud template guide api-design automation analysis time-management"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud template guide api-design automation analysis time-management'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Developer Portal Builder
 
 You are a developer portal architect who helps organizations build internal developer portals that unify service catalogs, documentation, templates, and self-service workflows. You guide through portal design, service discovery, template systems, and adoption strategies.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about developer portal builder techniques or best practices
 - User needs guidance on developer portal builder concepts
 - User wants to implement or improve their approach to developer portal builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of developer portal builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -83,7 +84,7 @@ metadata:
   annotations:
     github.com/project-slug: org/user-service
     pagerduty.com/service-id: PXXXXXX
-    grafana/dashboard-selector: "service=user-service"
+    grafana/dashboard-selector: 'service=user-service'
     sonarqube.org/project-key: org_user-service
   tags:
     - java
@@ -111,17 +112,17 @@ spec:
 
 ### Entity Kinds Reference
 
-| Kind | Purpose | Examples |
-|------|---------|---------|
-| Component | Software (service, library, website) | user-service, auth-library |
-| API | Interface definition | user-api (OpenAPI, gRPC, GraphQL) |
-| Resource | Infrastructure dependency | user-database, redis-cache |
-| System | Collection of related components | user-management, payments |
-| Domain | Business area grouping | commerce, identity, platform |
-| Group | Team or organizational unit | team-identity, team-payments |
-| User | Individual person | jane.smith |
-| Template | Software scaffolding | spring-boot-service, react-app |
-| Location | Source of catalog data | catalog file URL or directory |
+| Kind      | Purpose                              | Examples                          |
+| --------- | ------------------------------------ | --------------------------------- |
+| Component | Software (service, library, website) | user-service, auth-library        |
+| API       | Interface definition                 | user-api (OpenAPI, gRPC, GraphQL) |
+| Resource  | Infrastructure dependency            | user-database, redis-cache        |
+| System    | Collection of related components     | user-management, payments         |
+| Domain    | Business area grouping               | commerce, identity, platform      |
+| Group     | Team or organizational unit          | team-identity, team-payments      |
+| User      | Individual person                    | jane.smith                        |
+| Template  | Software scaffolding                 | spring-boot-service, react-app    |
+| Location  | Source of catalog data               | catalog file URL or directory     |
 
 ## Software Templates
 
@@ -267,12 +268,12 @@ skeleton/
 
 ### Discovery Methods
 
-| Method | How It Works | Pros | Cons |
-|--------|-------------|------|------|
-| Manual Registration | Teams add catalog-info.yaml | Full control | Requires discipline |
-| GitHub Discovery | Scan org repos for catalog files | Automatic | Needs consistent file placement |
-| API Discovery | Scan API gateways and registries | Real-time | Complex setup |
-| Infrastructure Discovery | Scan cloud resources | Comprehensive | Noisy, needs filtering |
+| Method                   | How It Works                     | Pros          | Cons                            |
+| ------------------------ | -------------------------------- | ------------- | ------------------------------- |
+| Manual Registration      | Teams add catalog-info.yaml      | Full control  | Requires discipline             |
+| GitHub Discovery         | Scan org repos for catalog files | Automatic     | Needs consistent file placement |
+| API Discovery            | Scan API gateways and registries | Real-time     | Complex setup                   |
+| Infrastructure Discovery | Scan cloud resources             | Comprehensive | Noisy, needs filtering          |
 
 ### GitHub Auto-Discovery Configuration
 
@@ -300,14 +301,14 @@ catalog:
 # Explicit dependency declaration in catalog-info.yaml
 spec:
   dependsOn:
-    - component:auth-service       # Runtime dependency
-    - resource:postgres-primary    # Database dependency
-    - component:shared-library     # Build dependency
+    - component:auth-service # Runtime dependency
+    - resource:postgres-primary # Database dependency
+    - component:shared-library # Build dependency
   providesApis:
-    - user-rest-api                # APIs this exposes
+    - user-rest-api # APIs this exposes
     - user-grpc-api
   consumesApis:
-    - notification-api             # APIs this calls
+    - notification-api # APIs this calls
     - billing-api
 ```
 
@@ -348,8 +349,8 @@ nav:
   - API Reference: api.md
   - Runbook: runbook.md
   - ADRs:
-    - Overview: adrs/index.md
-    - ADR-001 Database Choice: adrs/001-database.md
+      - Overview: adrs/index.md
+      - ADR-001 Database Choice: adrs/001-database.md
 
 plugins:
   - techdocs-core
@@ -427,24 +428,24 @@ Phase 4: Platform Maturity (Months 9-12)
 
 ### Adoption Metrics
 
-| Metric | Target | How to Measure |
-|--------|--------|----------------|
-| Catalog coverage | > 90% of services registered | Registered vs known services |
-| Template usage | > 80% of new services use templates | Template runs vs new repos |
-| Documentation coverage | > 70% of services have TechDocs | Services with mkdocs.yml |
-| Weekly active users | > 50% of engineering | Portal login analytics |
-| Time to first commit (new service) | < 30 minutes | Template to first PR time |
-| "Who owns this?" resolution time | < 1 minute | Survey or time tracking |
+| Metric                             | Target                              | How to Measure               |
+| ---------------------------------- | ----------------------------------- | ---------------------------- |
+| Catalog coverage                   | > 90% of services registered        | Registered vs known services |
+| Template usage                     | > 80% of new services use templates | Template runs vs new repos   |
+| Documentation coverage             | > 70% of services have TechDocs     | Services with mkdocs.yml     |
+| Weekly active users                | > 50% of engineering                | Portal login analytics       |
+| Time to first commit (new service) | < 30 minutes                        | Template to first PR time    |
+| "Who owns this?" resolution time   | < 1 minute                          | Survey or time tracking      |
 
 ### Handling Resistance
 
-| Objection | Response |
-|-----------|----------|
-| "Another tool to maintain" | Catalog file is 20 lines; templates save hours |
-| "My team has its own wiki" | Portal aggregates all wikis in one searchable place |
-| "We already know who owns what" | New team members and on-call rotations need discovery |
-| "Too much overhead" | Auto-discovery minimizes manual work after initial setup |
-| "Our services are too custom" | Templates are starting points; customization is encouraged |
+| Objection                       | Response                                                   |
+| ------------------------------- | ---------------------------------------------------------- |
+| "Another tool to maintain"      | Catalog file is 20 lines; templates save hours             |
+| "My team has its own wiki"      | Portal aggregates all wikis in one searchable place        |
+| "We already know who owns what" | New team members and on-call rotations need discovery      |
+| "Too much overhead"             | Auto-discovery minimizes manual work after initial setup   |
+| "Our services are too custom"   | Templates are starting points; customization is encouraged |
 
 ## Plugin Development
 
@@ -519,7 +520,6 @@ scorecards:
         range: [0, 59]
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -527,7 +527,6 @@ scorecards:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -548,14 +547,12 @@ scorecards:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

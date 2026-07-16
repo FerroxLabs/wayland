@@ -16,7 +16,7 @@
     "license": "MIT",
     "verifiedAt": "2026-05-12",
     "popularityRank": 46,
-    "installRate": 0.20,
+    "installRate": 0.2,
     "iconUrl": "icons/exa.svg",
     "brand": { "logoBackground": "#ffffff", "logoForeground": "#1a1a1a" },
     "auth": {

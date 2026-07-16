@@ -75,11 +75,7 @@ for (const { key, bodyIdiomsAnyOf } of CASES) {
       key: 'guid.lastSelectedAgent',
       data: key,
     });
-    const verified = await invokeBridge<string | null>(
-      page,
-      'agent.config.storage.get',
-      'guid.lastSelectedAgent'
-    );
+    const verified = await invokeBridge<string | null>(page, 'agent.config.storage.get', 'guid.lastSelectedAgent');
     expect(verified).toBe(key);
 
     await navigateTo(page, ROUTES.guid);

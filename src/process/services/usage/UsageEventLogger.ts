@@ -29,9 +29,7 @@ export class UsageEventLogger {
     if (safeMetadata) {
       const serialized = JSON.stringify(safeMetadata);
       if (serialized.length > MAX_METADATA_BYTES) {
-        console.warn(
-          `[UsageEventLogger] metadata size ${serialized.length}B > ${MAX_METADATA_BYTES}B cap, truncating`
-        );
+        console.warn(`[UsageEventLogger] metadata size ${serialized.length}B > ${MAX_METADATA_BYTES}B cap, truncating`);
         safeMetadata = { _truncated: true, _originalSize: serialized.length };
       }
     }

@@ -1,9 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
-import {
-  sanitizeTeamTaskDescription,
-  sanitizeTeamTaskTitle,
-} from '@/renderer/utils/sanitize/sanitizeTeamTaskContent';
+import { sanitizeTeamTaskDescription, sanitizeTeamTaskTitle } from '@/renderer/utils/sanitize/sanitizeTeamTaskContent';
 
 describe('sanitizeTeamTaskTitle', () => {
   it('strips all HTML tags from title', () => {

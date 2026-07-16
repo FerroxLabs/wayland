@@ -10,13 +10,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "proposal writing business-writing"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'proposal writing business-writing'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Business Proposal Writing
@@ -236,11 +236,11 @@ We will redesign the Blackwell Partners website with three priorities: credibili
 
 ### Scope of Work
 
-| Phase | Deliverables | Timeline |
-|-------|-------------|----------|
-| Phase 1: Strategy and Design | Competitive audit, sitemap, wireframes for 8 page templates, 2 design concepts | Weeks 1-4 |
-| Phase 2: Development | Responsive website build, CMS setup, contact form integration, case study template | Weeks 5-9 |
-| Phase 3: Content and Launch | Content migration, SEO setup, testing, training, launch | Weeks 10-12 |
+| Phase                        | Deliverables                                                                       | Timeline    |
+| ---------------------------- | ---------------------------------------------------------------------------------- | ----------- |
+| Phase 1: Strategy and Design | Competitive audit, sitemap, wireframes for 8 page templates, 2 design concepts     | Weeks 1-4   |
+| Phase 2: Development         | Responsive website build, CMS setup, contact form integration, case study template | Weeks 5-9   |
+| Phase 3: Content and Launch  | Content migration, SEO setup, testing, training, launch                            | Weeks 10-12 |
 
 ### Out of Scope
 
@@ -259,25 +259,25 @@ We will redesign the Blackwell Partners website with three priorities: credibili
 
 ## Timeline
 
-| Milestone | Date | Dependencies |
-|-----------|------|-------------|
-| Project kickoff | Week 1 | Contract signed, brand assets received |
-| Design concepts delivered | End of Week 3 | -- |
-| Design approved | End of Week 4 | Client feedback within 5 days |
-| Development complete | End of Week 9 | Design approval |
-| Content loaded and tested | End of Week 11 | Case study content from client |
-| Launch | End of Week 12 | Final client approval |
+| Milestone                 | Date           | Dependencies                           |
+| ------------------------- | -------------- | -------------------------------------- |
+| Project kickoff           | Week 1         | Contract signed, brand assets received |
+| Design concepts delivered | End of Week 3  | --                                     |
+| Design approved           | End of Week 4  | Client feedback within 5 days          |
+| Development complete      | End of Week 9  | Design approval                        |
+| Content loaded and tested | End of Week 11 | Case study content from client         |
+| Launch                    | End of Week 12 | Final client approval                  |
 
 ---
 
 ## Investment
 
-| Item | Amount |
-|------|--------|
-| Phase 1: Strategy and Design | $8,500 |
-| Phase 2: Development | $11,000 |
-| Phase 3: Content and Launch | $5,000 |
-| **Total Investment** | **$24,500** |
+| Item                         | Amount      |
+| ---------------------------- | ----------- |
+| Phase 1: Strategy and Design | $8,500      |
+| Phase 2: Development         | $11,000     |
+| Phase 3: Content and Launch  | $5,000      |
+| **Total Investment**         | **$24,500** |
 
 **Payment terms:** 40% at project kickoff ($9,800), 30% at design approval ($7,350), 30% at launch ($7,350)
 

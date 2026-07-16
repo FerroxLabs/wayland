@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance tax-planning guide"
-  category: "personal-finance"
-  subcategory: "tax-planning"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance tax-planning guide'
+  category: 'personal-finance'
+  subcategory: 'tax-planning'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Tax Assistant
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User has questions about tax concepts, deductions, or filing basics
 - User wants to understand how a financial decision affects their taxes
 - User needs help organizing documents for tax preparation
 - User wants to understand tax brackets, credits, or withholding
 
 **Do NOT use this skill when:**
+
 - User needs specific tax filing or preparation -- refer to CPA or tax professional
 - User has a complex tax situation (business, international, estate) -- refer to tax specialist
 - User needs legal tax dispute resolution -- refer to tax attorney
@@ -110,15 +112,15 @@ Marginal tax rate: the bracket your last dollar falls in = ____%
 
 ## W-2 vs 1099 Differences
 
-| Factor | W-2 Employee | 1099 Independent Contractor |
-|--------|-------------|---------------------------|
-| Tax withholding | Employer withholds | You pay estimated taxes quarterly |
-| Social Security/Medicare | Split 50/50 with employer (7.65% each) | You pay both halves (15.3% self-employment tax) |
-| Deductions | Limited (standard deduction) | Business expenses deductible on Schedule C |
-| Benefits | Often provided (health, retirement) | You provide your own |
-| Tax forms | Receive W-2 by Jan 31 | Receive 1099-NEC by Jan 31 |
-| Estimated payments | Generally not needed | Required quarterly (Apr 15, Jun 15, Sep 15, Jan 15) |
-| QBI deduction | Not applicable | May qualify for 20% Qualified Business Income deduction |
+| Factor                   | W-2 Employee                           | 1099 Independent Contractor                             |
+| ------------------------ | -------------------------------------- | ------------------------------------------------------- |
+| Tax withholding          | Employer withholds                     | You pay estimated taxes quarterly                       |
+| Social Security/Medicare | Split 50/50 with employer (7.65% each) | You pay both halves (15.3% self-employment tax)         |
+| Deductions               | Limited (standard deduction)           | Business expenses deductible on Schedule C              |
+| Benefits                 | Often provided (health, retirement)    | You provide your own                                    |
+| Tax forms                | Receive W-2 by Jan 31                  | Receive 1099-NEC by Jan 31                              |
+| Estimated payments       | Generally not needed                   | Required quarterly (Apr 15, Jun 15, Sep 15, Jan 15)     |
+| QBI deduction            | Not applicable                         | May qualify for 20% Qualified Business Income deduction |
 
 ### Self-Employment Tax Calculation (1099)
 
@@ -140,7 +142,9 @@ Deductible portion: SE tax / 2 =            $__________
 ## Estimated Tax Payments
 
 ### Who Must Pay Estimated Taxes
+
 You generally must make estimated payments if:
+
 - You expect to owe $1,000 or more when you file
 - Your withholding is less than 90% of current year tax OR 100% of prior year tax (110% if AGI > $150,000)
 
@@ -185,6 +189,7 @@ USE THE LOWER of Method 1 or Method 2 to determine safe harbor.
 ## Common Deductions Checklist
 
 ### Standard Deduction (2024)
+
 - Single: $14,600
 - Married Filing Jointly: $29,200
 - Head of Household: $21,900
@@ -222,6 +227,7 @@ USE THE HIGHER AMOUNT
 ```
 
 ### Above-the-Line Deductions (Available Even with Standard Deduction)
+
 - Traditional IRA contributions (up to $7,000; $8,000 if 50+)
 - Student loan interest (up to $2,500)
 - HSA contributions
@@ -235,17 +241,20 @@ USE THE HIGHER AMOUNT
 ## Tax-Advantaged Accounts
 
 ### HSA (Health Savings Account)
+
 - **Requirements:** Must have a High Deductible Health Plan (HDHP)
 - **2024 limits:** $4,150 individual / $8,300 family (+$1,000 catch-up if 55+)
 - **Triple tax advantage:** Tax-deductible contribution, tax-free growth, tax-free withdrawals for qualified medical expenses
 - **Strategy:** Contribute the max, invest it, pay medical expenses out of pocket, let HSA grow for retirement
 
 ### FSA (Flexible Spending Account)
+
 - **2024 limit:** $3,200 (health); $5,000 (dependent care)
 - **Use-it-or-lose-it:** Must spend by plan deadline (some plans allow $640 rollover)
 - **Pre-tax:** Reduces taxable income
 
 ### 529 College Savings Plan
+
 - **State tax deduction:** Many states offer deductions for contributions (check your state)
 - **Tax-free growth:** No federal tax on earnings
 - **Tax-free withdrawals:** For qualified education expenses
@@ -257,12 +266,15 @@ USE THE HIGHER AMOUNT
 ## Filing Status Optimization
 
 ### Head of Household vs. Single
+
 If you are unmarried with a qualifying dependent, Head of Household gives you:
+
 - Higher standard deduction ($21,900 vs $14,600)
 - More favorable tax brackets
 - **Requirements:** Unmarried on Dec 31, paid >50% of household costs, qualifying person lived with you >6 months
 
 ### Married Filing Jointly vs. Separately
+
 - **Jointly** is almost always better (lower rates, more deductions, more credits)
 - **Separately** may help when: one spouse has high medical expenses, income-driven student loan payments, or one spouse has tax liability concerns
 - **Warning:** Filing separately disqualifies many credits (Child Tax Credit, EITC, education credits) and limits IRA deductions
@@ -273,15 +285,15 @@ If you are unmarried with a qualifying dependent, Head of Household gives you:
 
 ### What to Keep and How Long
 
-| Document | Retention Period |
-|----------|-----------------|
-| Tax returns | Permanently |
-| W-2s, 1099s | 7 years |
-| Receipts for deductions | 7 years |
-| Investment purchase records | Until sold + 7 years |
-| Home purchase/improvement records | Until sold + 7 years |
-| Business records | 7 years |
-| Property tax records | Until property sold + 7 years |
+| Document                          | Retention Period              |
+| --------------------------------- | ----------------------------- |
+| Tax returns                       | Permanently                   |
+| W-2s, 1099s                       | 7 years                       |
+| Receipts for deductions           | 7 years                       |
+| Investment purchase records       | Until sold + 7 years          |
+| Home purchase/improvement records | Until sold + 7 years          |
+| Business records                  | 7 years                       |
+| Property tax records              | Until property sold + 7 years |
 
 ### Organization System
 
@@ -333,15 +345,15 @@ October 15    Extended individual returns due
 
 ## Common Tax Credits
 
-| Credit | Amount | Who Qualifies |
-|--------|--------|--------------|
-| Child Tax Credit | Up to $2,000/child | Children under 17, income limits |
-| Earned Income Tax Credit | Up to $7,430 (2024) | Low-to-moderate income, varies by dependents |
-| Child and Dependent Care Credit | Up to $3,000 (1 child) / $6,000 (2+) | Childcare costs to enable work |
-| American Opportunity Credit | Up to $2,500/student | First 4 years of higher education |
-| Lifetime Learning Credit | Up to $2,000/return | Any post-secondary education |
-| Saver's Credit | Up to $1,000 ($2,000 MFJ) | Low-income retirement savers |
-| EV Tax Credit | Up to $7,500 | New qualifying electric vehicle purchase |
+| Credit                          | Amount                               | Who Qualifies                                |
+| ------------------------------- | ------------------------------------ | -------------------------------------------- |
+| Child Tax Credit                | Up to $2,000/child                   | Children under 17, income limits             |
+| Earned Income Tax Credit        | Up to $7,430 (2024)                  | Low-to-moderate income, varies by dependents |
+| Child and Dependent Care Credit | Up to $3,000 (1 child) / $6,000 (2+) | Childcare costs to enable work               |
+| American Opportunity Credit     | Up to $2,500/student                 | First 4 years of higher education            |
+| Lifetime Learning Credit        | Up to $2,000/return                  | Any post-secondary education                 |
+| Saver's Credit                  | Up to $1,000 ($2,000 MFJ)            | Low-income retirement savers                 |
+| EV Tax Credit                   | Up to $7,500                         | New qualifying electric vehicle purchase     |
 
 ---
 
@@ -370,14 +382,16 @@ When providing tax guidance, deliver:
 **Key change:** You now have self-employment income, which has different tax rules
 
 ### What You Owe (Framework)
-| Tax | Rate | On $12,000 |
-|-----|------|-----------|
-| Federal income tax | Your marginal rate (22-24% typical) | ~$2,640-$2,880 |
-| Self-employment tax | 15.3% (Social Security + Medicare) | ~$1,696 |
-| State income tax | [JURISDICTION: varies by state] | Varies |
-| **Estimated total** | **~37-40%** | **~$4,400-$4,800** |
+
+| Tax                 | Rate                                | On $12,000         |
+| ------------------- | ----------------------------------- | ------------------ |
+| Federal income tax  | Your marginal rate (22-24% typical) | ~$2,640-$2,880     |
+| Self-employment tax | 15.3% (Social Security + Medicare)  | ~$1,696            |
+| State income tax    | [JURISDICTION: varies by state]     | Varies             |
+| **Estimated total** | **~37-40%**                         | **~$4,400-$4,800** |
 
 ### Critical Action Items
+
 1. **Quarterly estimated taxes:** You likely owe quarterly payments (due Jan 15, Apr 15, Jun 15, Sep 15). Underpayment penalty applies if you owe more than $1,000 at filing. Use IRS Form 1040-ES.
 
 2. **Deductible expenses:** Track ALL business expenses to reduce taxable income:
@@ -390,6 +404,7 @@ When providing tax guidance, deliver:
 3. **Document everything:** Save all receipts. Use a separate bank account or credit card for freelance transactions.
 
 ### Tax Forms You Will Need
+
 - Schedule C (business profit/loss)
 - Schedule SE (self-employment tax)
 - Form 1040-ES (quarterly estimated payments)

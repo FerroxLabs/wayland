@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary budgeting"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel itinerary budgeting'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Budget Travel Optimizer
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about budget travel
 - User needs guidance on budget travel topics
 - User wants a structured approach to budget travel
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **Are you traveling solo, as a couple, or in a group?**
 9. **Have you traveled on a budget before?**
 10. **What are you willing to sacrifice for savings?** (direct flights, central location, luxury dining)
+
 ---
+
 ## Step 1: Flight Booking Strategies
 
 ### Timing Your Purchase
+
 ```
 WHEN TO BOOK FLIGHTS:
 
@@ -70,6 +76,7 @@ BOOKING TIPS:
 ```
 
 ### Flight Search Strategy
+
 ```
 FLIGHT SEARCH WORKFLOW:
 
@@ -102,6 +109,7 @@ frequent use may result in account penalties. Use only for one-way trips.
 ```
 
 ### Budget Airline Guide
+
 ```
 BUDGET AIRLINE COST WATCH:
 
@@ -127,10 +135,13 @@ vs. Full-service airline: ${{AMOUNT}} (bags + seat included)
 SOMETIMES BUDGET AIRLINES ARE NOT CHEAPER once you add fees.
 Always calculate the true total cost.
 ```
+
 ---
+
 ## Step 2: Accommodation Alternatives
 
 ### Options by Budget Level
+
 ```
 ACCOMMODATION OPTIONS (cheapest to most expensive):
 
@@ -177,10 +188,13 @@ MONEY-SAVING ACCOMMODATION TIPS:
 - Check for last-minute deals (HotelTonight, Booking.com Deals)
 - Consider overnight transportation (bus/train saves a night's hotel)
 ```
+
 ---
+
 ## Step 3: Finding Free Activities
 
 ### Free Activity Categories
+
 ```
 FREE THINGS TO DO IN ANY CITY:
 
@@ -223,10 +237,13 @@ HOW TO FIND FREE EVENTS:
 - Ask: Hotel/hostel staff, locals
 - Apps: Meetup.com, Facebook Events, Eventbrite (filter by "free")
 ```
+
 ---
+
 ## Step 4: Food Budget Tips
 
 ### Eating Well on a Budget
+
 ```
 FOOD BUDGET STRATEGIES:
 
@@ -266,6 +283,7 @@ Japan: Convenience store meals are excellent and cheap ($3-6)
 ```
 
 ### Grocery Shopping Abroad
+
 ```
 GROCERY SHOPPING TIPS:
 
@@ -278,10 +296,13 @@ GROCERY SHOPPING TIPS:
 [ ] Buy staples if cooking: pasta, rice, eggs, vegetables, sauce
 [ ] Bring a reusable bag (some countries charge for bags)
 ```
+
 ---
+
 ## Step 5: Travel Credit Card Optimization
 
 ### Building a Travel Rewards Strategy
+
 ```
 TRAVEL CREDIT CARD STRATEGY:
 
@@ -327,10 +348,13 @@ POINT VALUATION (approximate):
 - Capital One Miles: 1-1.5 cents/point
 - Airline miles: 1-3 cents/mile (varies widely by redemption)
 ```
+
 ---
+
 ## Step 6: Shoulder Season Travel
 
 ### What Is Shoulder Season?
+
 ```
 SHOULDER SEASON GUIDE:
 
@@ -375,10 +399,13 @@ AUSTRALIA:
 - Peak: December - February (summer)
 - Savings: 20-30%
 ```
+
 ---
+
 ## Step 7: Destination Cost Comparison
 
 ### Daily Budget by Region
+
 ```
 AVERAGE DAILY BUDGET BY REGION (per person):
 
@@ -423,6 +450,7 @@ by travel style.
 ```
 
 ### Cost Comparison Template
+
 ```
 DESTINATION COMPARISON:
 
@@ -439,10 +467,13 @@ Weather fit     | {{1-5}}     | {{1-5}}     | {{1-5}}
 Interest match  | {{1-5}}     | {{1-5}}     | {{1-5}}
 Value score     | {{1-10}}    | {{1-10}}    | {{1-10}}
 ```
+
 ---
+
 ## Step 8: Daily Budget Tracking
 
 ### On-Trip Budget Tracker
+
 ```
 DAILY BUDGET TRACKER:
 
@@ -474,8 +505,11 @@ ADJUSTED DAILY BUDGET: ${{}}
 MONEY-SAVING WINS TODAY:
 - {{WHAT_YOU_SAVED_ON}}
 ```
+
 ---
+
 ## Budget Travel Quick Wins
+
 ```
 TOP 20 BUDGET TRAVEL TIPS:
 
@@ -507,9 +541,10 @@ ACTIVITIES:
 19. Use city tourism passes (calculate if worthwhile first)
 20. Talk to locals for hidden free experiences
 ```
----
-*This skill provides budget travel guidance. Prices and availability change constantly. Always verify current costs and conditions before booking. The best budget travel strategy combines advance planning with on-the-ground flexibility.*
 
+---
+
+_This skill provides budget travel guidance. Prices and availability change constantly. Always verify current costs and conditions before booking. The best budget travel strategy combines advance planning with on-the-ground flexibility._
 
 ## Output Format
 

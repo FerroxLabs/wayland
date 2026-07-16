@@ -72,17 +72,14 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
       Message.warning(
         t(
           'settings.channels.synologyChat.credentials.incomingUrl.required',
-          'Please enter the Synology Chat incoming webhook URL',
-        ),
+          'Please enter the Synology Chat incoming webhook URL'
+        )
       );
       return;
     }
     if (!incomingToken.trim()) {
       Message.warning(
-        t(
-          'settings.channels.synologyChat.credentials.incomingToken.required',
-          'Please enter the webhook token',
-        ),
+        t('settings.channels.synologyChat.credentials.incomingToken.required', 'Please enter the webhook token')
       );
       return;
     }
@@ -103,17 +100,12 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
           testResult.data?.error ??
-            t(
-              'settings.channels.synologyChat.connectionFailed',
-              'Synology Chat connection failed',
-            ),
+            t('settings.channels.synologyChat.connectionFailed', 'Synology Chat connection failed')
         );
         return;
       }
 
-      Message.success(
-        t('settings.channels.synologyChat.connectionSuccess', 'Synology Chat connected'),
-      );
+      Message.success(t('settings.channels.synologyChat.connectionSuccess', 'Synology Chat connected'));
 
       const enableResult = await channel.enablePlugin.invoke({
         pluginId: 'synology-chat_default',
@@ -125,9 +117,7 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
       });
 
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.synologyChat.pluginEnabled', 'Synology Chat plugin enabled'),
-        );
+        Message.success(t('settings.channels.synologyChat.pluginEnabled', 'Synology Chat plugin enabled'));
         // Mint inbound webhook URL - secret for Synology Chat is the incomingToken
         const rotateResult = await channel.rotateWebhookToken.invoke({
           platform: 'synology-chat',
@@ -140,17 +130,11 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
         }
         const statusResult = await channel.getPluginStatus.invoke();
         if (statusResult.success && statusResult.data) {
-          onStatusChange(
-            statusResult.data.find((p) => p.type === 'synology-chat') ?? null,
-          );
+          onStatusChange(statusResult.data.find((p) => p.type === 'synology-chat') ?? null);
         }
       } else {
         Message.error(
-          enableResult.msg ??
-            t(
-              'settings.channels.synologyChat.enableFailed',
-              'Failed to enable Synology Chat plugin',
-            ),
+          enableResult.msg ?? t('settings.channels.synologyChat.enableFailed', 'Failed to enable Synology Chat plugin')
         );
       }
     } catch (error) {
@@ -168,20 +152,17 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
           <span className='text-12px'>
             {t(
               'settings.channels.synologyChat.replaceWarning',
-              'Connecting a new Synology Chat account will replace your existing one.',
+              'Connecting a new Synology Chat account will replace your existing one.'
             )}
           </span>
         </div>
       )}
 
       <PreferenceRow
-        label={t(
-          'settings.channels.synologyChat.credentials.incomingUrl.label',
-          'Incoming Webhook URL',
-        )}
+        label={t('settings.channels.synologyChat.credentials.incomingUrl.label', 'Incoming Webhook URL')}
         description={t(
           'settings.channels.synologyChat.credentials.incomingUrl.help',
-          'The webhook URL from Synology Chat: Chat app → user-profile menu → Integration → Incoming Webhooks. We POST replies here.',
+          'The webhook URL from Synology Chat: Chat app → user-profile menu → Integration → Incoming Webhooks. We POST replies here.'
         )}
       >
         <Input
@@ -189,20 +170,17 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
           onChange={setIncomingUrl}
           placeholder={t(
             'settings.channels.synologyChat.credentials.incomingUrl.placeholder',
-            'https://your-nas/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&...',
+            'https://your-nas/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&...'
           )}
           style={{ width: 320 }}
         />
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.synologyChat.credentials.incomingToken.label',
-          'Webhook Token',
-        )}
+        label={t('settings.channels.synologyChat.credentials.incomingToken.label', 'Webhook Token')}
         description={t(
           'settings.channels.synologyChat.credentials.incomingToken.help',
-          'The token Synology Chat sends with each outgoing webhook request (Outgoing Webhooks → Token). Used to verify inbound deliveries.',
+          'The token Synology Chat sends with each outgoing webhook request (Outgoing Webhooks → Token). Used to verify inbound deliveries.'
         )}
       >
         <Input.Password
@@ -211,10 +189,7 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
           placeholder={
             hasExisting
               ? '••••••••••••••••'
-              : t(
-                  'settings.channels.synologyChat.credentials.incomingToken.placeholder',
-                  'your-synology-webhook-token',
-                )
+              : t('settings.channels.synologyChat.credentials.incomingToken.placeholder', 'your-synology-webhook-token')
           }
           style={{ width: 320 }}
           visibilityToggle
@@ -224,11 +199,11 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
       <PreferenceRow
         label={t(
           'settings.channels.synologyChat.credentials.allowInsecureSsl.label',
-          'Allow self-signed certificate (LAN Synology NAS)',
+          'Allow self-signed certificate (LAN Synology NAS)'
         )}
         description={t(
           'settings.channels.synologyChat.credentials.allowInsecureSsl.help',
-          'Only enable for local-network Synology with a self-signed cert. Never enable for public Synology hosts.',
+          'Only enable for local-network Synology with a self-signed cert. Never enable for public Synology hosts.'
         )}
       >
         <Switch checked={allowInsecureSsl} onChange={setAllowInsecureSsl} />
@@ -237,7 +212,7 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
       <div className='text-12px text-t-tertiary'>
         {t(
           'settings.channels.synologyChat.howTo',
-          'Setup guide: Synology Chat → Administration → Integrations → Incoming/Outgoing Webhooks.',
+          'Setup guide: Synology Chat → Administration → Integrations → Incoming/Outgoing Webhooks.'
         )}
       </div>
 
@@ -250,17 +225,13 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
             <div className='text-12px text-t-tertiary mt-2px'>
               {t(
                 'settings.channels.synologyChat.webhookUrl.help',
-                'Paste this URL into Synology Chat → Outgoing Webhooks → Outgoing URL.',
+                'Paste this URL into Synology Chat → Outgoing Webhooks → Outgoing URL.'
               )}
             </div>
           </div>
           <div className='flex items-center gap-8px'>
             <Input value={inboundUrl} readOnly style={{ width: 360 }} />
-            <Button
-              type='outline'
-              icon={<Copy size={14} />}
-              onClick={handleCopyInboundUrl}
-            >
+            <Button type='outline' icon={<Copy size={14} />} onClick={handleCopyInboundUrl}>
               {t('settings.channels.synologyChat.webhookUrl.copyButton', 'Copy')}
             </Button>
           </div>
@@ -273,7 +244,6 @@ const SynologyChatConfigForm: React.FC<SynologyChatConfigFormProps> = ({
         </Button>
       </div>
       <ChannelAgentModelSelector platform='synology-chat' modelSelection={modelSelection} />
-
     </div>
   );
 };

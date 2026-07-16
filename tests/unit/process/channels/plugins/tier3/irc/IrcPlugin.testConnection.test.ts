@@ -95,9 +95,7 @@ describe('IrcPlugin.testConnection - credential errors', () => {
   });
 
   it('returns failure when nick field is missing', async () => {
-    const result = await IrcPlugin.testConnection(
-      JSON.stringify({ server: 'irc.libera.chat' }),
-    );
+    const result = await IrcPlugin.testConnection(JSON.stringify({ server: 'irc.libera.chat' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/nick/i);
   });
@@ -106,10 +104,7 @@ describe('IrcPlugin.testConnection - credential errors', () => {
 describe('IrcPlugin.testConnection - network failures', () => {
   it('returns failure when irc error fires before registered', async () => {
     mockClientInstance.connect.mockImplementation(() => {
-      setTimeout(
-        () => mockClientInstance.emit('irc error', { error: 'Bad password (464)' }),
-        0,
-      );
+      setTimeout(() => mockClientInstance.emit('irc error', { error: 'Bad password (464)' }), 0);
     });
 
     const result = await IrcPlugin.testConnection(VALID_TOKEN);
@@ -129,10 +124,7 @@ describe('IrcPlugin.testConnection - network failures', () => {
 
   it('returns failure on socket error', async () => {
     mockClientInstance.connect.mockImplementation(() => {
-      setTimeout(
-        () => mockClientInstance.emit('socket error', new Error('ECONNREFUSED')),
-        0,
-      );
+      setTimeout(() => mockClientInstance.emit('socket error', new Error('ECONNREFUSED')), 0);
     });
 
     const result = await IrcPlugin.testConnection(VALID_TOKEN);

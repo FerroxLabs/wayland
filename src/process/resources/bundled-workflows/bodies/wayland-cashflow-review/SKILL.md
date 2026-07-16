@@ -11,14 +11,15 @@ description: >-
   Do NOT use for a single cashflow lookup an atomic finance skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "finance-cashflow finance-forecast finance-report"
+skills: 'finance-cashflow finance-forecast finance-report'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-finance cashflow forecast step-by-step cfo
   category: business-finance
-  depends: "finance-cashflow finance-forecast finance-report"
+  depends: 'finance-cashflow finance-forecast finance-report'
 ---
+
 # Cashflow Review
 
 **Estimated time:** 20-30 minutes

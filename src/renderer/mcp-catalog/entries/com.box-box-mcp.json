@@ -18,17 +18,8 @@
   ],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "files-and-docs",
-      "productivity",
-      "collaboration"
-    ],
-    "tags": [
-      "box",
-      "files",
-      "storage",
-      "enterprise"
-    ],
+    "categories": ["files-and-docs", "productivity", "collaboration"],
+    "tags": ["box", "files", "storage", "enterprise"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-05-27",
@@ -86,11 +77,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

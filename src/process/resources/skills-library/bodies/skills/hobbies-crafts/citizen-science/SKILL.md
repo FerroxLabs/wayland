@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'research guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Citizen Science
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on citizen science
 - User asks about citizen science best practices or techniques
 - User wants a structured approach to citizen science
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of citizen science
 
@@ -58,6 +59,7 @@ Before recommending projects:
 Citizen science involves public participation in scientific research. Your contributions generate real data used by professional scientists. The scale of citizen science is enormous - millions of participants have contributed to discoveries that would be impossible for small research teams alone.
 
 ### Why It Matters
+
 - Scientists cannot be everywhere - your local observations fill critical data gaps
 - Pattern detection requires millions of data points across vast geographic areas
 - Long-term monitoring (decades) needs sustained community participation
@@ -67,6 +69,7 @@ Citizen science involves public participation in scientific research. Your contr
 ## Major Platforms
 
 ### iNaturalist (inaturalist.org)
+
 - **What**: Identify and record any living organism you encounter
 - **How**: Photograph plants, animals, fungi, insects with your phone
 - **AI identification**: App suggests species, community experts verify
@@ -81,6 +84,7 @@ Citizen science involves public participation in scientific research. Your contr
   5. Community verifies - "Research Grade" observations enter scientific databases
 
 ### eBird (ebird.org)
+
 - **What**: Record bird sightings with counts and effort data
 - **Run by**: Cornell Lab of Ornithology
 - **How**: Submit checklists of birds seen at a location with time spent
@@ -95,6 +99,7 @@ Citizen science involves public participation in scientific research. Your contr
   6. Merlin app can identify birds by photo or sound
 
 ### Zooniverse (zooniverse.org)
+
 - **What**: Online platform hosting dozens of research projects
 - **How**: Classify images, transcribe documents, analyze data from your computer
 - **Time commitment**: 5 minutes to hours, completely flexible
@@ -110,6 +115,7 @@ Citizen science involves public participation in scientific research. Your contr
 ### Bird Counting and Monitoring
 
 **Christmas Bird Count (CBC)**
+
 - **When**: December 14 - January 5, annually (since 1900)
 - **What**: Count every bird seen in a 15-mile diameter circle
 - **How**: Join an existing count circle near you, assigned a sector
@@ -117,12 +123,14 @@ Citizen science involves public participation in scientific research. Your contr
 - **Impact**: Longest-running wildlife census in the Americas
 
 **Great Backyard Bird Count (GBBC)**
+
 - **When**: Four days in February, annually
 - **What**: Count birds for at least 15 minutes at any location
 - **How**: Submit through eBird
 - **Impact**: Snapshot of global bird populations at one point in time
 
 **NestWatch**
+
 - **What**: Monitor active bird nests and report nesting outcomes
 - **How**: Find a nest, visit periodically, record eggs/chicks/fledging
 - **Training**: Online certification required (nest monitoring protocol)
@@ -130,6 +138,7 @@ Citizen science involves public participation in scientific research. Your contr
 - **Impact**: Tracks reproductive success across species and regions
 
 **Project FeederWatch**
+
 - **When**: November through April
 - **What**: Count birds at your feeders on 2 consecutive days, every 2 weeks
 - **Cost**: $18/year (supports Cornell Lab)
@@ -138,22 +147,26 @@ Citizen science involves public participation in scientific research. Your contr
 ### Water Quality Monitoring
 
 **Water Reporter (waterreporter.org)**
+
 - Monitor local waterways for pollution, algae blooms, litter
 - Photo-document conditions and submit reports
 - Data used by watershed organizations
 
 **CoCoRaHS (cocorahs.org)**
+
 - Community Collaborative Rain, Hail and Snow Network
 - Measure daily precipitation with standardized rain gauge
 - Data used by NWS, USDA, researchers
 - Requires: Official CoCoRaHS rain gauge ($35)
 
 **EarthEcho Water Challenge**
+
 - Test local water bodies for pH, dissolved oxygen, turbidity, temperature
 - Test kits provided or purchasable
 - Global participation, data mapped online
 
 **GLOBE Observer (observer.globe.gov)**
+
 - NASA-supported program
 - Observe: Clouds, land cover, trees, mosquito habitats
 - Data compared with satellite observations
@@ -162,22 +175,26 @@ Citizen science involves public participation in scientific research. Your contr
 ### Galaxy Classification and Astronomy
 
 **Galaxy Zoo (Zooniverse project)**
+
 - Classify galaxy shapes (spiral, elliptical, irregular)
 - Has led to discovery of new galaxy types (Hanny's Voorwerp, green pea galaxies)
 - No astronomy knowledge needed - tutorial provided
 
 **Planet Hunters TESS**
+
 - Examine light curves from NASA's TESS mission
 - Look for dips indicating exoplanet transits
 - Citizens have discovered confirmed exoplanets
 
 **Variable Star Observing (AAVSO)**
+
 - American Association of Variable Star Observers
 - Measure brightness of variable stars over time
 - Requires: Telescope or binoculars, patience
 - Data used by professional astronomers for research
 
 **Stardust@Home**
+
 - Search aerogel images for interstellar dust particles
 - Browser-based, image analysis
 - Looking for tiny impacts from particles outside our solar system
@@ -185,22 +202,26 @@ Citizen science involves public participation in scientific research. Your contr
 ### Butterfly and Insect Tracking
 
 **Monarch Watch (monarchwatch.org)**
+
 - Tag monarch butterflies during fall migration
 - Report sightings of tagged monarchs
 - Plant milkweed waystations for habitat
 - Tag kits available for purchase
 
 **North American Butterfly Association (NABA) Counts**
+
 - Annual 4th of July butterfly count
 - Join a local count circle, identify and count butterflies
 - Similar to Christmas Bird Count but for butterflies
 
 **Bumble Bee Watch (bumblebeewatch.org)**
+
 - Photograph bumble bees and submit for expert identification
 - Track species distribution and population trends
 - Identify declining species for conservation action
 
 **Caterpillars Count!**
+
 - Survey caterpillars and arthropods on tree branches
 - 15-minute weekly surveys during spring/summer
 - Data used to study timing mismatches between food availability and bird nesting
@@ -208,18 +229,21 @@ Citizen science involves public participation in scientific research. Your contr
 ### Environmental and Climate
 
 **GLOBE at Night (globeatnight.org)**
+
 - Measure light pollution from your location
 - Compare naked-eye view of constellation to reference charts
 - Takes 15 minutes, done several times per year
 - Tracks light pollution changes over time globally
 
 **Nature's Notebook (USA National Phenology Network)**
+
 - Track seasonal biological events: flowering, leaf-out, migration arrival
 - Choose a plant or animal species at your site
 - Record observations periodically
 - Data used for climate change impact studies
 
 **ISeeChange**
+
 - Document weather events and environmental changes with photos and descriptions
 - Community shares climate observations
 - Data used by journalists and researchers
@@ -227,35 +251,41 @@ Citizen science involves public participation in scientific research. Your contr
 ## Data Collection Methodology
 
 ### Why Methodology Matters
+
 Poor data is worse than no data - it can lead to wrong conclusions. Following standardized protocols ensures your observations are scientifically valuable.
 
 ### Core Principles
 
 **Accuracy**
+
 - Identify species to the level you are confident (it is okay to say "sparrow sp." instead of guessing)
 - Record exact counts when possible, estimate ranges when necessary
 - Note observation conditions (weather, visibility, time of day)
 - Distinguish between what you saw and what you think you saw
 
 **Consistency**
+
 - Use the same methods each time you observe
 - Visit the same locations at similar times for monitoring projects
 - Use standardized protocols provided by the project
 - Record effort (time spent, distance covered) every session
 
 **Completeness**
+
 - Record negative data (what you did NOT see is also valuable)
 - In eBird, submit "complete checklists" listing all species detected
 - Note habitat type and conditions
 - Include photos when possible for verification
 
 **Location Precision**
+
 - Use GPS coordinates (your phone provides these automatically)
 - Be specific about location within a site
 - Record habitat type
 - Note micro-habitat if relevant (edge of pond vs. center, treetop vs. understory)
 
 ### Equipment for Field Data Collection
+
 - **Smartphone**: GPS, camera, apps for data entry, sound recording
 - **Field notebook**: Backup when phone fails, sketch observations
 - **Binoculars**: 8x42 or 10x42 for birding and wildlife (see birdwatching guide)
@@ -265,6 +295,7 @@ Poor data is worse than no data - it can lead to wrong conclusions. Following st
 - **Thermometer**: Water temperature for aquatic surveys
 
 ### Data Quality Tips
+
 1. Learn before you contribute - complete training for your chosen project
 2. Photograph everything you can - photos allow expert verification
 3. When uncertain, mark observations as uncertain
@@ -275,6 +306,7 @@ Poor data is worse than no data - it can lead to wrong conclusions. Following st
 ## Measuring Your Contribution Impact
 
 ### Personal Metrics to Track
+
 - Number of observations submitted
 - Species or objects identified
 - Hours contributed
@@ -282,12 +314,14 @@ Poor data is worse than no data - it can lead to wrong conclusions. Following st
 - Research Grade percentage (iNaturalist)
 
 ### Project-Level Impact
+
 - Many platforms show how your data contributes to publications
 - eBird Status and Trends maps are built from your checklists
 - Zooniverse projects list resulting publications
 - iNaturalist observations cited in over 5,000 scientific publications
 
 ### Communicating Impact
+
 - "My observations are part of a dataset used by [specific researcher/agency]"
 - "I contributed to the discovery of [species/phenomenon] in my area"
 - "My data helped update the range map for [species]"
@@ -296,12 +330,14 @@ Poor data is worse than no data - it can lead to wrong conclusions. Following st
 ## Getting Children and Students Involved
 
 ### School Programs
+
 - **GLOBE Program**: K-12 international science education and citizen science
 - **SciStarter**: Searchable database of citizen science projects, many kid-friendly
 - **BioBlitz events**: Intensive species counting events, often organized locally
 - **Great Backyard Bird Count**: Simple enough for elementary students
 
 ### Tips for Youth Engagement
+
 - Start with visually exciting subjects (butterflies, birds, pond life)
 - Use apps with instant feedback (iNaturalist AI identification)
 - Make it social - group outings, family challenges
@@ -326,7 +362,6 @@ Poor data is worse than no data - it can lead to wrong conclusions. Following st
 - **University extension programs** - Training and project coordination
 - **Reddit**: r/citizenscience, r/birding, r/whatsthisplant, r/mycology
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -339,13 +374,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with citizen science for a mid-size project."
 
 **Output:** A complete citizen science framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

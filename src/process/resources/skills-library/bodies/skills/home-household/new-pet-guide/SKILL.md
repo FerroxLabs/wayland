@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care guide step-by-step"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'pet-care guide step-by-step'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # New Pet Guide
 
 > **IMPORTANT:** This guide covers educational best practices for new pet owners. Always consult a licensed veterinarian for health diagnoses, medication, and emergency situations. This guide is not a substitute for professional veterinary care.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user is actively preparing to adopt or purchase a pet and needs a structured, personalized preparation plan
 - A user has just brought home a new pet (within the last 7 days) and needs first-day or first-week guidance
 - A user is deciding between pet types, breeds, or life stages (puppy vs adult, cat vs dog) and needs a framework to match their lifestyle
@@ -36,6 +38,7 @@ metadata:
 - A user wants to establish training foundations, daily routines, and bonding strategies in the first 30 days
 
 **Do NOT use when:**
+
 - The user describes a pet that is visibly ill, injured, or in distress -- redirect immediately to emergency veterinary care (see the Veterinary Triage skill if available)
 - The user needs diagnosis of a specific medical condition, medication dosing, or treatment planning -- refer to a licensed veterinarian
 - The user asks about advanced training for competitive sports, protection training, or service animal certification -- these require specialized professional trainers
@@ -70,12 +73,14 @@ Use all answers to tailor every section. If the user refuses to answer or is und
 ### Step 1: Conduct Lifestyle Assessment and Pet Selection
 
 **1.1 -- Evaluate the four core compatibility factors before discussing breed or species:**
+
 - Time budget: Dogs require a minimum of 2 potty breaks every 4-6 hours (puppies every 1-2 hours); no dog should be crated longer than 4-5 hours on a regular basis. Cats are tolerant of solo time but still need 2 daily enrichment/play sessions of 10-15 minutes minimum.
 - Activity match: A Border Collie in a sedentary household will develop destructive, anxiety-driven behavior within weeks. A Greyhound -- despite its racing reputation -- needs only 30-45 minutes of daily exercise and is one of the best apartment dogs. Match energy realistically, not aspirationally.
 - Space and housing rules: Many leases and HOAs have breed and weight restrictions. Confirm before selecting. Dogs over 50 lbs need adequate indoor space; giant breeds (80+ lbs) need more floor space than a typical studio.
 - Financial capacity: Calculate the realistic annual cost BEFORE committing (see Step 8). A pet that the owner cannot afford veterinary care for is a welfare concern, not just a financial one.
 
 **1.2 -- Apply the breed research framework for dogs:**
+
 - Classify first by breed group (Herding, Sporting, Working, Terrier, Toy, Hound, Non-Sporting) because group instincts drive 60-70% of behavioral tendencies regardless of individual training.
 - Herding breeds (Border Collie, Australian Shepherd, Heeler) will herd children and small pets -- this is hardwired, not a training failure.
 - Terrier breeds have high prey drive and are often reactive toward other small animals; require firm, consistent handling.
@@ -83,12 +88,14 @@ Use all answers to tailor every section. If the user refuses to answer or is und
 - Brachycephalic breeds (French Bulldog, Pug, Boston Terrier) have significant health costs: respiratory issues, temperature regulation problems, frequently require surgical correction. Budget $1,500-5,000+ over their lifetime for breed-specific health issues.
 
 **1.3 -- Use the cat personality matrix:**
+
 - High-energy, social cats (Siamese, Bengal, Abyssinian) vocalize extensively and require interactive play daily; they are NOT low-maintenance despite common assumptions.
 - Persian and Exotic Shorthairs have flat faces (brachycephalic) with associated health costs similar to flat-faced dogs, plus daily facial fold cleaning.
 - For first-time cat owners or single-cat households: Domestic Short or Long Hair (DSH/DLH) mixed-breed cats from shelters are the most reliable choice -- individual temperament assessed by shelter staff is more predictive than breed alone.
 - Two kittens adopted together are significantly easier than one, as they meet each other's social and play needs, reducing behavior problems.
 
 **1.4 -- Life stage selection with honest trade-offs:**
+
 - Puppies (under 6 months): Require 3-5 potty trips per night for the first 4-8 weeks. Expect 6-8 months of consistent housetraining. Bite inhibition training is mandatory -- puppy teeth are needle-sharp and can break skin.
 - Adolescent dogs (6-18 months): The most surrendered age group to shelters because they regress in training during hormonal surges. If adopting this age, anticipate increased difficulty and plan for professional training classes.
 - Adult dogs (2-7 years): The ideal choice for most households. What you see is what you get. Housetraining is typically complete. Energy level is predictable.
@@ -99,11 +106,13 @@ Use all answers to tailor every section. If the user refuses to answer or is und
 ### Step 2: Evaluate Adoption vs Reputable Breeder
 
 **2.1 -- Shelter and rescue advantages and process:**
+
 - Municipal shelters: Typically lowest cost ($25-150), often include spay/neuter, vaccines, microchip in fee. Adult animals have assessments on file.
 - Breed-specific rescues: Ideal for someone wanting a specific breed with predictable traits but at lower cost than a breeder ($150-500). Rescue staff usually foster animals in homes, giving detailed behavioral profiles.
 - At intake, ask shelter staff these specific questions: Has this animal shown food guarding, resource guarding, or reactivity toward other dogs/people? What is the known history? Has it been behavior-assessed? What does its play style look like?
 
 **2.2 -- Reputable breeder verification checklist (all must be true):**
+
 - Health testing completed and documented for the specific breed's common genetic conditions (OFA hip/elbow certification for large breeds, CAER eye exams for Collies and related breeds, cardiac testing for Cavaliers, etc.)
 - Puppies raised in the home or home-like environment with age-appropriate socialization (exposure to normal household sounds, multiple people, varied surfaces, children if applicable) -- this is critical for temperament.
 - Breeder asks YOU detailed questions about your lifestyle, experience, and home -- a breeder who sells to anyone without screening is a red flag.
@@ -114,6 +123,7 @@ Use all answers to tailor every section. If the user refuses to answer or is und
 - Will provide references of prior puppy buyers and allow video calls or in-person visits to see where the puppies are raised.
 
 **2.3 -- Red flags that indicate a puppy mill or backyard breeder:**
+
 - Multiple breeds available simultaneously, "always have puppies available," puppies sold through pet stores or third-party websites without breeder involvement, meeting at a parking lot, inability to see the mother, no health testing paperwork, no contract, dramatically below-market pricing. Avoid these sources entirely regardless of how the puppy looks.
 
 ---
@@ -121,6 +131,7 @@ Use all answers to tailor every section. If the user refuses to answer or is und
 ### Step 3: Build the Pre-Arrival Supply List and Cost Estimate
 
 **3.1 -- Dog supplies with purpose notes:**
+
 - Crate (appropriately sized: dog should stand, turn around, lie down -- not room to use one end as bathroom): $40-150. Wire crates are preferable for visibility and airflow. Cover three sides with a blanket for den-like security.
 - Food: Purchase the same brand and formula the shelter or breeder was using. Abrupt food changes cause gastrointestinal upset. Transition over 7-10 days (25% new / 75% old for days 1-3, 50/50 for days 4-6, 75% new for days 7-9, 100% new on day 10).
 - Collar + breakaway ID tag engraved immediately (not a slide-on tag, which falls off): $15-30. Have ID tag made before the pet comes home, not after.
@@ -131,6 +142,7 @@ Use all answers to tailor every section. If the user refuses to answer or is und
 - Enzymatic toothbrush and pet-safe toothpaste: Start dental hygiene in the first week. Dental disease affects 80% of dogs by age 3 and costs $300-800+ per professional cleaning under anesthesia.
 
 **3.2 -- Cat supplies with purpose notes:**
+
 - Litter boxes: One per cat PLUS one extra is the standard rule (two cats = three boxes). Box size should be 1.5 times the length of the cat -- most commercial boxes are too small. Storage totes (66-quart) make excellent oversized boxes.
 - Unscented clumping litter: Scented litters are aversive to most cats. Avoid crystal litters for new cats -- they do not allow you to assess urine output, which is a critical health indicator in cats.
 - Scratching surfaces: Both vertical (minimum 32 inches tall -- must allow full body stretch) and horizontal. Cats are not destructive for spite -- they scratch to mark territory and maintain nail health. Provide acceptable surfaces before furniture is damaged.
@@ -139,18 +151,18 @@ Use all answers to tailor every section. If the user refuses to answer or is und
 
 **3.3 -- First-year cost estimate by category:**
 
-| Category | Dog (Annual) | Cat (Annual) |
-|---|---|---|
-| Quality food | $400-900 | $250-600 |
-| Preventive vet care | $250-500 | $200-400 |
-| Flea/tick/heartworm prevention | $150-300 | $100-200 |
-| Pet insurance | $300-700 | $200-500 |
-| Grooming | $200-600 | $0-300 |
-| Supplies/toys/replacements | $150-300 | $100-200 |
-| Training classes | $100-300 | $0 |
-| Litter (cats only) | -- | $150-300 |
-| **First-year one-time costs** | $600-1,200 | $300-700 |
-| **Total Year 1** | $2,150-4,800 | $1,300-3,200 |
+| Category                       | Dog (Annual) | Cat (Annual) |
+| ------------------------------ | ------------ | ------------ |
+| Quality food                   | $400-900     | $250-600     |
+| Preventive vet care            | $250-500     | $200-400     |
+| Flea/tick/heartworm prevention | $150-300     | $100-200     |
+| Pet insurance                  | $300-700     | $200-500     |
+| Grooming                       | $200-600     | $0-300       |
+| Supplies/toys/replacements     | $150-300     | $100-200     |
+| Training classes               | $100-300     | $0           |
+| Litter (cats only)             | --           | $150-300     |
+| **First-year one-time costs**  | $600-1,200   | $300-700     |
+| **Total Year 1**               | $2,150-4,800 | $1,300-3,200 |
 
 First-year one-time costs include: spay/neuter if not done ($150-500), initial supplies ($200-500), vaccine series ($200-400), microchip registration ($15-25), and for dogs, basic training classes.
 
@@ -159,21 +171,25 @@ First-year one-time costs include: spay/neuter if not done ($150-500), initial s
 ### Step 4: Execute Room-by-Room Pet-Proofing
 
 **4.1 -- Kitchen:**
+
 - Trash: Use a cabinet-mounted or locked trash can. Dogs learn to open standard pedal cans within days. Cooked bones, grapes, raisins, xylitol (sugar-free products), onions, garlic, macadamia nuts, chocolate, and coffee grounds are all toxic and frequently in kitchen trash.
 - Lower cabinet child locks for cleaning supplies -- even "pet-safe" cleaners can cause GI upset if ingested.
 - Never leave food unattended at counter height. A dog that counter-surfs once will do it for life -- management and training from day one is essential.
 
 **4.2 -- Living areas:**
+
 - Toxic plants requiring immediate removal: Sago palm (can cause fatal liver failure with ingestion of even a few seeds), all lily species (acute kidney failure in cats -- any part including pollen and vase water), pothos, philodendron, dieffenbachia, aloe vera, peace lily, snake plant. Replace with pet-safe alternatives: spider plants, Boston ferns, areca palms, orchids.
 - Electrical cords: Cable management channels or cord protectors prevent chewing. Puppy teeth on live cords can cause electrocution and severe oral burns.
 - Candles, essential oil diffusers, and potpourri: Active diffusers with essential oils (especially tea tree, eucalyptus, citrus, pine) are toxic to cats via inhalation and dermal exposure. Avoid in cat households.
 
 **4.3 -- Bathroom and laundry:**
+
 - Toilet lid always down -- drinking toilet water is unhealthy (cleaning chemicals) and small animals can drown.
 - All medications (human and pet) in closed cabinets. Ibuprofen and acetaminophen are among the most common pet poisoning cases -- single tablets can be fatal.
 - Laundry detergent pods: Extremely toxic if chewed; treat as a primary hazard and store in completely inaccessible locations.
 
 **4.4 -- Garage and outdoor areas:**
+
 - Antifreeze (ethylene glycol) is sweet-smelling and attracts animals. A tablespoon can kill a cat. Keep in sealed containers at height, clean up any spills immediately. Propylene glycol-based antifreeze is a safer alternative.
 - Check fencing for gaps at ground level (dogs dig out or squeeze through surprising gaps), height adequacy for the breed (a 6-foot privacy fence is required for Belgian Malinois, Huskies, Vizslas and other escape artists), and gate latch security.
 - Swimming pools: Install a dog ramp or beach entry in addition to a pool fence -- dogs can fall in and exhaust themselves trying to exit at a vertical wall.
@@ -183,6 +199,7 @@ First-year one-time costs include: spay/neuter if not done ($150-500), initial s
 ### Step 5: Manage the First Day with Precision
 
 **5.1 -- Dog first day protocol:**
+
 - Car ride home: Dog should be crated or in a seatbelt harness, not held by a passenger. An anxious dog in a car can create a dangerous distraction.
 - First outdoor introduction (before entering the house): Walk the yard perimeter on leash. Allow elimination -- praise calmly. The first step inside the new home should happen after the first outdoor potty success.
 - Indoor introduction: Start with one room only on a leash or trailing leash. Show water bowl location. Keep energy calm -- excited greetings elevate stress hormones. If children are present, have them sit on the floor and let the dog approach them, not vice versa.
@@ -190,6 +207,7 @@ First-year one-time costs include: spay/neuter if not done ($150-500), initial s
 - First night: Crate in the bedroom (within arm's reach if possible). A worn article of your clothing in the crate provides scent comfort. Ticking clock wrapped in a blanket can mimic littermate heartbeat for puppies. Do not crate in a separate room on night one -- the isolation amplifies anxiety.
 
 **5.2 -- Cat first day protocol:**
+
 - Set up a dedicated "base camp room" -- a single quiet room with: litter box, food and water bowls (at opposite ends from the litter box -- cats will not eat near their elimination area), a hiding option (open carrier, covered box), and a perch or elevated surface.
 - Place the carrier in the room, open the door, and leave. Do not pull the cat out. Exit the room and give 1-2 hours of undisturbed time.
 - First check: Open the door gently, sit quietly on the floor (non-threatening posture), speak in a low voice, do not reach into hiding spots. Place a treat just outside the hiding area and exit.
@@ -201,24 +219,26 @@ First-year one-time costs include: spay/neuter if not done ($150-500), initial s
 
 **6.1 -- Dog daily schedule framework:**
 
-| Time | Activity | Notes |
-|---|---|---|
-| Immediately upon waking | Outdoor potty | Before anything else, every single morning |
-| After potty | Breakfast (measured, not free-fed) | Consistent meal schedule regulates potty schedule |
-| 30 min after meals | Outdoor potty | Dogs typically eliminate 15-30 min post-meal |
-| Mid-morning | Structured walk or play | 20-60 min depending on breed/age |
-| Every 2-4 hours (puppies every 1-2 hours) | Outdoor potty | Use exact same spot -- scent marking cues elimination |
-| Late afternoon | Short training session | 5-10 minutes only; puppies' attention spans are short |
-| 6-8 PM | Dinner | Cut off water 2 hours before bedtime for puppies |
-| After dinner | Final evening walk | Enrichment walk (allow sniffing) |
-| Bedtime | Outdoor potty, then crate | Same bedtime every night regulates circadian rhythm |
+| Time                                      | Activity                           | Notes                                                 |
+| ----------------------------------------- | ---------------------------------- | ----------------------------------------------------- |
+| Immediately upon waking                   | Outdoor potty                      | Before anything else, every single morning            |
+| After potty                               | Breakfast (measured, not free-fed) | Consistent meal schedule regulates potty schedule     |
+| 30 min after meals                        | Outdoor potty                      | Dogs typically eliminate 15-30 min post-meal          |
+| Mid-morning                               | Structured walk or play            | 20-60 min depending on breed/age                      |
+| Every 2-4 hours (puppies every 1-2 hours) | Outdoor potty                      | Use exact same spot -- scent marking cues elimination |
+| Late afternoon                            | Short training session             | 5-10 minutes only; puppies' attention spans are short |
+| 6-8 PM                                    | Dinner                             | Cut off water 2 hours before bedtime for puppies      |
+| After dinner                              | Final evening walk                 | Enrichment walk (allow sniffing)                      |
+| Bedtime                                   | Outdoor potty, then crate          | Same bedtime every night regulates circadian rhythm   |
 
 **6.2 -- Cat daily schedule framework:**
+
 - Two structured feeding times (morning and evening) are preferable to free-feeding for weight management and to establish a predictable routine that reduces anxiety.
 - Litter box scooped minimum twice daily -- cats are fastidious and will begin eliminating outside the box if it is not kept clean. One missed scoop is often all it takes for a box avoidance habit to form.
 - Two interactive play sessions per day of 10-15 minutes using a wand toy (not hands -- never use hands as play objects; this creates biting behavior). End each session with a treat to complete the hunt-catch-kill-consume cycle.
 
 **6.3 -- First vet visit -- schedule within 72 hours of bringing the pet home:**
+
 - Bring: All paperwork from shelter or breeder, a fresh stool sample (collected within 12 hours of visit, stored in a sealed bag in the refrigerator), a list of all food and treats currently being fed, and a written list of your questions.
 - Expect the vet to perform: Full physical examination including weight, dental assessment, heart and lung auscultation; review of vaccine history and determination of what is needed; fecal flotation for parasites; heartworm test (dogs); FeLV/FIV test (cats from unknown status); discussion of spay/neuter timing if not already done.
 - Questions to ask the vet: What is the ideal weight range for this animal? Are there breed-specific health concerns to watch for? What parasite prevention protocol do you recommend for our region? What vaccines are due and when? What is the recommended food and feeding quantity? What are the signs of illness I should never wait on?
@@ -228,15 +248,18 @@ First-year one-time costs include: spay/neuter if not done ($150-500), initial s
 ### Step 7: Execute the First Month Bonding and Training Strategy
 
 **7.1 -- The 3-3-3 Rescue Adjustment Rule (applies to all new pets, not just rescues):**
+
 - First 3 days: The pet is in survival mode -- fight-or-flight hormones are elevated, they are mapping the new environment, assessing threats. Do not interpret shutdown behavior (hiding, not eating, not playing) as personality. Do not introduce to new people or take on outings.
 - First 3 weeks: The pet begins relaxing. True personality starts emerging. Routines become recognizable. Minor challenges appear as they test boundaries -- this is normal and expected.
 - First 3 months: Full adjustment. The pet understands the home's rhythms, trusts the household, and its true personality is fully visible. Behavioral issues that emerge at 3 months are the real baseline, not the first week's behavior.
 
 **7.2 -- Bonding techniques by species:**
+
 - Dogs: Hand-feed at least one meal per day for the first two weeks -- feeding from the hand builds trust more rapidly than any other single technique. Short (5-minute) training sessions using positive reinforcement (high-value treats) multiple times per day create a communication channel and build confidence. Structured walks where the dog is focused on you (training during the walk) bond more effectively than off-leash park time.
 - Cats: Practice the "slow blink" -- make eye contact with a relaxed face and slowly close your eyes halfway, then fully, then open. A cat that returns the slow blink is expressing trust. Sit or lie on the floor at the cat's level rather than reaching down from standing height. Use a wand toy to initiate interaction -- let the cat control the distance. Never pick up a cat that is clearly trying to move away -- forced restraint during the first month can set back trust by weeks.
 
 **7.3 -- Foundation training priorities for dogs in month one:**
+
 - Name recognition: Say name once, mark with "yes" or a clicker the instant the dog looks at you, deliver a treat. 20-30 repetitions in the first few days produces reliable name response.
 - Sit: Lure with a treat over the nose and back toward the tail; the natural mechanics of following the treat cause a sit. Mark and reward. Do not use physical pressure on the hindquarters.
 - Leash manners: Begin loose-leash walking in the house and yard before attempting the street. The instant the leash goes tight, stop moving. The moment it loosens, proceed. Consistency of this single rule, applied 100% of the time, produces reliable loose-leash walking within 2-3 weeks.
@@ -247,16 +270,19 @@ First-year one-time costs include: spay/neuter if not done ($150-500), initial s
 ### Step 8: Manage Common Early Challenges
 
 **8.1 -- Not eating:**
+
 - Dogs: Normal for up to 48 hours post-arrival. If refusing food beyond 48 hours, or showing other signs (lethargy, vomiting, diarrhea), call the vet. To encourage eating: warm food slightly with warm water (enhances aroma), hand-feed a few pieces, add a small amount of low-sodium chicken broth.
 - Cats: More sensitive -- 24-36 hours of not eating is the threshold for concern. Cats who go more than 48-72 hours without eating risk hepatic lipidosis (fatty liver disease), a potentially fatal condition. Do not attempt to "wait them out" on food preferences with cats.
 
 **8.2 -- House training accidents:**
+
 - Do not punish after the fact. Dogs cannot associate punishment with an act that occurred more than 2 seconds ago -- rubbing a nose in waste causes fear, not learning.
 - Clean with enzymatic cleaner only. Ammonia-based cleaners (many standard floor cleaners) smell similar to urine and chemically attract dogs to re-mark.
 - If you catch the dog mid-act: calmly interrupt with "outside" and immediately take them to the designated spot. If they finish outside, major praise and a treat.
 - Increase potty frequency by 20% after any accident -- accidents mean the schedule needs tightening, not the dog needs punishment.
 
 **8.3 -- Introducing new pet to existing pets:**
+
 - Dog-to-dog: Introduce on neutral territory (a park, a neighbor's yard) with both dogs on loose leashes held by different handlers. Parallel walking side-by-side for 15-20 minutes before direct interaction. Watch for relaxed body language (loose, wiggly movement) vs. stiffening, hard staring, raised hackles. Allow sniffing at the dog's own pace. Feed separately for the first 2-4 weeks and supervise all interactions until a clear positive relationship is established.
 - Cat-to-cat introduction: This process takes a minimum of 2-4 weeks. Phase 1 (Days 1-7): Completely separate with a closed door. Swap bedding so they learn each other's scent without visual contact. Phase 2 (Days 7-14): Feed both cats on opposite sides of the closed door so they associate each other's scent with positive experiences. Phase 3 (Week 3): Visual introduction using a baby gate or slightly cracked door for 5-10 minutes at a time. Phase 4 (Week 4+): Supervised access with multiple escape routes and vertical perches available. Expect hissing -- hissing is communication, not aggression. Rushing this process causes chronic conflict that can take months to repair.
 - Cat-to-dog: The cat must always have dog-free escape routes and elevated spaces. Dogs should be leashed and calm during initial introductions. Most cats will establish their authority with a dog within 1-3 weeks through normal communication. Do not comfort the dog during the cat's correction -- this reinforces the dog's focus on the cat.
@@ -577,3 +603,4 @@ Bathroom     | Toilet lid open                | Close lids; enforce     | [ ]
              |                                | household habit now     |
              | Medications on counter         | Move ALL to high cabinet| [ ]
              | Laundry pods accessible        | Store
+```

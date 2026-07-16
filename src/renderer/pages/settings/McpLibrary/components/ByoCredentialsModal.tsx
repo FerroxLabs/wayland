@@ -114,8 +114,8 @@ export function ByoCredentialsModal({
             <p>
               {t(
                 'mcpLibrary.byo.universalIntro',
-                '{{vendor}} does not allow Wayland to auto-register an OAuth client. Register an OAuth app on the vendor\'s developer console and paste the credentials below.',
-                { vendor: vendorName },
+                "{{vendor}} does not allow Wayland to auto-register an OAuth client. Register an OAuth app on the vendor's developer console and paste the credentials below.",
+                { vendor: vendorName }
               )}
             </p>
           </div>
@@ -123,7 +123,7 @@ export function ByoCredentialsModal({
 
         {vendorHint?.registrationUrl && (
           <button
-            type="button"
+            type='button'
             className={styles.openConsole}
             onClick={() => void openExternalUrl(vendorHint.registrationUrl)}
           >
@@ -140,13 +140,11 @@ export function ByoCredentialsModal({
         </div>
 
         <div className={styles.input}>
-          <label htmlFor="mcp-byo-client-id">
-            {t('mcpLibrary.byo.clientIdLabel', 'Client ID')}
-          </label>
+          <label htmlFor='mcp-byo-client-id'>{t('mcpLibrary.byo.clientIdLabel', 'Client ID')}</label>
           <input
-            id="mcp-byo-client-id"
-            type="text"
-            autoComplete="off"
+            id='mcp-byo-client-id'
+            type='text'
+            autoComplete='off'
             spellCheck={false}
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
@@ -156,13 +154,11 @@ export function ByoCredentialsModal({
 
         {requiresSecret && (
           <div className={styles.input}>
-            <label htmlFor="mcp-byo-client-secret">
-              {t('mcpLibrary.byo.clientSecretLabel', 'Client secret')}
-            </label>
+            <label htmlFor='mcp-byo-client-secret'>{t('mcpLibrary.byo.clientSecretLabel', 'Client secret')}</label>
             <input
-              id="mcp-byo-client-secret"
-              type="password"
-              autoComplete="off"
+              id='mcp-byo-client-secret'
+              type='password'
+              autoComplete='off'
               spellCheck={false}
               value={clientSecret}
               onChange={(e) => setClientSecret(e.target.value)}

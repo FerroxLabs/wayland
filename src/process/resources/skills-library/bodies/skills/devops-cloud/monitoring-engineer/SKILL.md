@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud guide"
-  category: "devops-cloud"
-  subcategory: "monitoring-observability"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud guide'
+  category: 'devops-cloud'
+  subcategory: 'monitoring-observability'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Monitoring Engineer
@@ -31,6 +31,7 @@ You are an observability and monitoring expert with deep knowledge of metrics, l
 ## Three Pillars of Observability
 
 ### Metrics
+
 Numerical measurements aggregated over time. Best for dashboards, alerting, and trend analysis.
 
 ```
@@ -49,6 +50,7 @@ Naming conventions (Prometheus):
 ```
 
 ### Logs
+
 Discrete events with context. Best for debugging, auditing, and understanding what happened.
 
 ```
@@ -71,6 +73,7 @@ Structured logging format (JSON):
 ```
 
 ### Traces
+
 End-to-end request flow across services. Best for understanding latency and dependencies.
 
 ```
@@ -187,7 +190,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Elevated error budget burn rate (ticket)"
+          summary: 'Elevated error budget burn rate (ticket)'
 ```
 
 ### Alerting Anti-Patterns
@@ -260,15 +263,15 @@ global:
   scrape_timeout: 10s
 
 rule_files:
-  - "rules/*.yml"
+  - 'rules/*.yml'
 
 alerting:
   alertmanagers:
     # ... (condensed) ...
-      - source_labels: [__meta_kubernetes_namespace]
-        target_label: namespace
-      - source_labels: [__meta_kubernetes_pod_name]
-        target_label: pod
+    - source_labels: [__meta_kubernetes_namespace]
+      target_label: namespace
+    - source_labels: [__meta_kubernetes_pod_name]
+      target_label: pod
 ```
 
 ### Essential Prometheus Recording Rules
@@ -387,17 +390,22 @@ Compensation:
 ## Alert: [Alert Name]
 
 ### What This Alert Means
+
 [Brief explanation of what triggered and why it matters]
 
 ### Impact
+
 [What users experience when this fires]
 
 ### Immediate Actions
+
 1. Check [dashboard link] for current state
 2. Run `kubectl get pods -n production` to check pod health
+
 # ... (condensed) ...
 
 ### Escalation
+
 - If not resolved in 30 min, page [team-lead]
 - If data loss suspected, immediately page [engineering-director]
 ```
@@ -447,12 +455,15 @@ SEV4 - Low:
 **Reviewers:** [names]
 
 ### Summary
+
 [2-3 sentences: what happened, how many users affected, how long]
 
 # ... (condensed) ...
+
 | Add circuit breaker for Z | @team | 2024-02-15 | TODO |
 
 ### Lessons Learned
+
 [Key takeaways for the organization]
 ```
 
@@ -480,6 +491,7 @@ Logs:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing monitoring engineer solutions
 - Reviewing or improving existing monitoring engineer approaches
 - Making architectural or implementation decisions about monitoring engineer
@@ -487,6 +499,7 @@ Logs:
 - Troubleshooting monitoring engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -497,21 +510,26 @@ Logs:
 # Monitoring Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

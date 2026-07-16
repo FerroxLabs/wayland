@@ -66,10 +66,7 @@ export async function getInstallUuid(): Promise<string> {
       // the same across launches on this host even though we can't
       // persist anything. The seeded shuffle's per-install determinism
       // guarantee survives the degraded host case.
-      console.warn(
-        '[kickoff.installUuid] persist failed; falling back to host-stable seed',
-        err
-      );
+      console.warn('[kickoff.installUuid] persist failed; falling back to host-stable seed', err);
       value = hostStableSeed();
     }
     cached = value;

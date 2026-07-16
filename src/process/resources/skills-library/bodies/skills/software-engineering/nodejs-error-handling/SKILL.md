@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript backend debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript backend debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Node.js Error Handling
 
 ## When to Use
 
 **Use this skill when the user is:**
+
 - Designing or refactoring error handling architecture for a Node.js application or service, including Express, Fastify, Koa, or raw `http` module servers
 - Debugging unhandled promise rejections, uncaught exceptions, or silent error swallowing in production or development
 - Building Express (or Fastify/Koa) error middleware and needs to understand the four-argument `(err, req, res, next)` signature, ordering rules, and async pitfalls
@@ -30,6 +32,7 @@ metadata:
 - Classifying errors by recoverability (operational vs. programmer errors) and choosing appropriate propagation strategies
 
 **Do NOT use this skill when the user is asking about:**
+
 - General JavaScript async/await patterns, Promise chaining, or EventEmitter usage -- use `nodejs-async-patterns` instead
 - JavaScript language idioms, destructuring, closures, or prototype chains -- use `javascript-idioms` instead
 - General software error handling theory not specific to Node.js -- use a language-agnostic design skill
@@ -119,13 +122,16 @@ function errorHandler(err, req, res, next) {
   const isOperational = err.isOperational ?? false;
 
   // Structured log -- logger is Pino/Winston instance on req.log or app.locals
-  req.log.error({
-    err,                        // Pino serializes err.message + err.stack automatically
-    errorCode: err.errorCode,
-    statusCode,
-    requestId: req.id,          // Set by express-request-id or similar
-    userId: req.user?.id,
-  }, 'Request error');
+  req.log.error(
+    {
+      err, // Pino serializes err.message + err.stack automatically
+      errorCode: err.errorCode,
+      statusCode,
+      requestId: req.id, // Set by express-request-id or similar
+      userId: req.user?.id,
+    },
+    'Request error'
+  );
 
   // For non-operational (programmer) errors, initiate graceful shutdown
   if (!isOperational) {
@@ -150,10 +156,13 @@ const asyncHandler = (fn) => (req, res, next) => {
 };
 
 // Usage:
-router.get('/users/:id', asyncHandler(async (req, res) => {
-  const user = await userService.findById(req.params.id);
-  res.json(user);
-}));
+router.get(
+  '/users/:id',
+  asyncHandler(async (req, res) => {
+    const user = await userService.findById(req.params.id);
+    res.json(user);
+  })
+);
 ```
 
 - Express 5.x (currently in release candidate as of Node.js LTS compatibility) natively handles async route errors -- `next` is called automatically on rejected promises. If using Express 5, the `asyncHandler` wrapper is unnecessary but harmless.
@@ -168,10 +177,13 @@ Process-level handlers are safety nets, not primary error handling. But they mus
 ```js
 process.on('unhandledRejection', (reason, promise) => {
   // reason is the rejection value -- may not be an Error instance
-  logger.fatal({
-    err: reason instanceof Error ? reason : new Error(String(reason)),
-    promise,
-  }, 'Unhandled promise rejection -- initiating shutdown');
+  logger.fatal(
+    {
+      err: reason instanceof Error ? reason : new Error(String(reason)),
+      promise,
+    },
+    'Unhandled promise rejection -- initiating shutdown'
+  );
   triggerGracefulShutdown(reason);
 });
 
@@ -200,8 +212,8 @@ async function triggerGracefulShutdown(err) {
   server.close(async () => {
     try {
       await Promise.all([
-        db.pool.end(),         // Close database pool
-        redisClient.quit(),    // Close Redis connection
+        db.pool.end(), // Close database pool
+        redisClient.quit(), // Close Redis connection
         // ... other resource cleanup
       ]);
       logger.info('Graceful shutdown complete');
@@ -267,9 +279,7 @@ The shape of error responses must be consistent and agreed upon with API consume
     "code": "USER_NOT_FOUND",
     "message": "No user exists with the specified identifier",
     "requestId": "a3f9c12b-8d4e-4f2a-b1c7-0e9d5a2f8b3c",
-    "details": [
-      { "field": "userId", "issue": "Resource does not exist" }
-    ]
+    "details": [{ "field": "userId", "issue": "Resource does not exist" }]
   }
 }
 ```
@@ -581,10 +591,13 @@ router.get('/accounts/:id', async (req, res) => {
 });
 
 // After (fixed -- errors reach error middleware):
-router.get('/accounts/:id', asyncHandler(async (req, res) => {
-  const account = await accountService.findById(req.params.id);
-  res.json(account);
-}));
+router.get(
+  '/accounts/:id',
+  asyncHandler(async (req, res) => {
+    const account = await accountService.findById(req.params.id);
+    res.json(account);
+  })
+);
 ```
 
 ---
@@ -629,12 +642,7 @@ interface ErrorResponseBody {
   };
 }
 
-export function errorHandler(
-  err: unknown,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function errorHandler(err: unknown, req: Request, res: Response, next: NextFunction): void {
   if (res.headersSent) {
     return next(err);
   }
@@ -691,7 +699,9 @@ export function errorHandler(
   } catch (handlerErr) {
     console.error('Critical: error in error handler', handlerErr);
     if (!res.headersSent) {
-      res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred', requestId: req.id } });
+      res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred', requestId: req.id } });
     }
   }
 }
@@ -713,7 +723,10 @@ import { NotFoundError } from './errors';
 export const app = express();
 
 // 1. Request ID -- must be first
-app.use((req, _res, next) => { (req as any).id = randomUUID(); next(); });
+app.use((req, _res, next) => {
+  (req as any).id = randomUUID();
+  next();
+});
 
 // 2. Structured request logger (Pino) -- before routes so req.log is available everywhere
 app.use(pino({ logger }));
@@ -790,16 +803,16 @@ process.on('SIGINT', () => triggerGracefulShutdown(null));
 
 ### Error Classification Summary
 
-| Error Type              | Class                   | statusCode | isOperational | Expose Message to Client |
-|-------------------------|-------------------------|------------|---------------|--------------------------|
-| Missing required field  | ValidationError         | 400        | true          | Yes                      |
-| JWT expired             | AuthenticationError     | 401        | true          | Yes                      |
-| Wrong account owner     | AuthorizationError      | 403        | true          | Yes (generic)            |
-| Account not found       | NotFoundError           | 404        | true          | Yes                      |
-| Duplicate account       | ConflictError           | 409        | true          | Yes                      |
-| pg driver crash         | DatabaseError           | 500        | true          | No (generic)             |
-| TypeError: undefined    | (native Error)          | 500        | false         | No -- triggers shutdown  |
-| Payment gateway down    | ServiceUnavailableError | 503        | true          | Yes + Retry-After header |
+| Error Type             | Class                   | statusCode | isOperational | Expose Message to Client |
+| ---------------------- | ----------------------- | ---------- | ------------- | ------------------------ |
+| Missing required field | ValidationError         | 400        | true          | Yes                      |
+| JWT expired            | AuthenticationError     | 401        | true          | Yes                      |
+| Wrong account owner    | AuthorizationError      | 403        | true          | Yes (generic)            |
+| Account not found      | NotFoundError           | 404        | true          | Yes                      |
+| Duplicate account      | ConflictError           | 409        | true          | Yes                      |
+| pg driver crash        | DatabaseError           | 500        | true          | No (generic)             |
+| TypeError: undefined   | (native Error)          | 500        | false         | No -- triggers shutdown  |
+| Payment gateway down   | ServiceUnavailableError | 503        | true          | Yes + Retry-After header |
 
 ---
 

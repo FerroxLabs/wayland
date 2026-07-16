@@ -10,19 +10,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "email writing business-writing"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'email writing business-writing'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Professional Email Writing
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Needs to draft a single professional email to a colleague, direct report, manager, skip-level, client, or vendor -- any one-to-one or one-to-many workplace communication
 - Asks for help writing a request, status update, decision notification, follow-up, meeting request, introduction, or escalation within an existing professional relationship
 - Has a draft they want reviewed, tightened, or rewritten before sending
@@ -31,6 +33,7 @@ metadata:
 - Is writing an internal announcement that will be sent as an email (not a newsletter or broadcast -- those are different)
 
 **Do NOT use this skill when the user wants:**
+
 - A cold outreach sequence to people they have no existing relationship with -- use `cold-email-outreach`
 - A newsletter, digest, or email broadcast to a subscriber list -- use `newsletter-writing`
 - A formal rejection letter (job applicant, vendor bid, proposal) -- use `rejection-letter`
@@ -60,14 +63,14 @@ Before writing a single word, collect -- or infer from context -- four pieces of
 
 Match the user's situation to one of six canonical structures. Each structure has a fixed sentence-level order that should not be violated -- the order exists because it mirrors how a busy professional reads email (first sentence for context, second for ask, skim to deadline).
 
-| Email Type | Structure Order |
-|---|---|
-| **Request** | Ask (sentence 1) -- context -- deadline -- sign-off |
-| **Update / Status** | Key update (sentence 1) -- supporting details -- next step -- sign-off |
-| **Follow-up** | Reference + current status (sentence 1) -- restated ask -- deadline -- sign-off |
-| **Decision notification** | Decision (sentence 1) -- rationale (brief) -- implications / next steps -- sign-off |
-| **Escalation** | Problem and impact (sentence 1-2) -- what has been tried -- specific ask from recipient -- deadline -- sign-off |
-| **Introduction** | Who you are and why it matters to them (sentence 1) -- the connection or opportunity -- specific next step -- sign-off |
+| Email Type                | Structure Order                                                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Request**               | Ask (sentence 1) -- context -- deadline -- sign-off                                                                    |
+| **Update / Status**       | Key update (sentence 1) -- supporting details -- next step -- sign-off                                                 |
+| **Follow-up**             | Reference + current status (sentence 1) -- restated ask -- deadline -- sign-off                                        |
+| **Decision notification** | Decision (sentence 1) -- rationale (brief) -- implications / next steps -- sign-off                                    |
+| **Escalation**            | Problem and impact (sentence 1-2) -- what has been tried -- specific ask from recipient -- deadline -- sign-off        |
+| **Introduction**          | Who you are and why it matters to them (sentence 1) -- the connection or opportunity -- specific next step -- sign-off |
 
 Hybrid emails (a follow-up that is also a request escalation) should be categorized by their PRIMARY purpose. Lead with the most important element. If it feels like two emails, it probably is -- see Rule 12.
 
@@ -92,6 +95,7 @@ The subject line is the most under-engineered part of most professional emails. 
 The first three sentences of a professional email carry 80% of its communicative load. A recipient who reads only the first three sentences should know: (1) what this email is about, (2) what they need to do, and (3) when they need to do it.
 
 **The greeting:**
+
 - Use "Hi [First Name]," for colleagues, peers, and most professional relationships
 - Use "Dear [Title Last Name]," for first contact with senior external parties, legal/formal contexts, or cultures where first-name usage is not assumed
 - Use "Hello [First Name]," as a slightly warmer alternative to "Hi" -- acceptable in all professional contexts
@@ -110,12 +114,14 @@ Provide only the minimum context the recipient needs to act. Ask yourself: "Woul
 Professional email bodies fail when they are paragraphs of undifferentiated prose. Structure for a reader who will spend 15 seconds, not 2 minutes.
 
 **Word count thresholds:**
+
 - Routine request or update: under 150 words total
 - Complex request requiring justification: 150-250 words -- if you need more, attach a document and summarize
 - Escalation or sensitive message: 150-200 words -- more length does not add gravity; it dilutes it
 - Emails over 300 words should almost always be restructured as a document with a short covering email
 
 **Formatting rules for the body:**
+
 - Use a bulleted list for any 3+ discrete items of information -- never embed them in a run-on sentence
 - Bold key data points: deadlines, dollar amounts, names of people assigned to tasks, decision dates
 - Use numbered lists only when sequence matters (step-by-step instructions, ranked priorities)
@@ -132,6 +138,7 @@ For every sentence in the body, ask: "Does the recipient need this to take the a
 The closing of a professional email does three things: restates the ask (if the email is over 100 words), specifies what happens next, and ends cleanly.
 
 **Closing sentence patterns by email type:**
+
 - Request: "Can you [specific action] by [specific date]?"
 - Update: "No action needed -- I will follow up with [next milestone] by [date]."
 - Follow-up: "Please let me know by [date] so I can [consequence of their response]."
@@ -139,18 +146,21 @@ The closing of a professional email does three things: restates the ask (if the 
 - Escalation: "I need [specific action] by [date] to avoid [specific consequence]."
 
 **What never belongs in a closing:**
+
 - "Please feel free to reach out if you have any questions" -- this is filler; if a response is needed, the closing already requests it
 - "Please do not hesitate to contact me" -- passive and redundant
 - "I look forward to hearing from you" -- implies you are waiting helplessly; state a specific follow-up instead
 - "Thanks in advance" -- presumptuous when used before a request has been agreed to; use after a favor has been done
 
 **Sign-offs by formality level:**
+
 - Informal / peer: "Thanks," / "Best," / "Cheers,"
 - Standard professional: "Best regards," / "Regards," / "Thanks,"
 - Formal / external: "Sincerely," / "Kind regards,"
 - Avoid: "Warmly," (too intimate for most professional contexts), "Yours truly," (anachronistic), "Respectfully," (reserved for legal or government correspondence)
 
 **Signature block:**
+
 - Internal emails to colleagues you communicate with regularly: name only
 - External emails or first contacts: name, title, company, phone number
 - Never include inspirational quotes, excessive graphics, or legal disclaimers beyond what your organization mandates
@@ -180,16 +190,17 @@ Tone is the most commonly misjudged element in professional email, especially in
 
 **Tone calibration by relationship type:**
 
-| Relationship | Tone Target | Markers |
-|---|---|---|
-| Peer / colleague (established) | Professional casual | Contractions OK, first names, direct requests |
-| Direct report | Clear and respectful | Direct, specific, not commanding or apologetic |
-| Manager (1-2 levels up) | Professional, confident | State asks directly, brief justification, no over-explaining |
-| C-suite / executive | Concise and decision-focused | Under 100 words, no background unless asked |
-| External client | Professional, client-centric | Lead with their interests, formal until mirrored otherwise |
-| Vendor / supplier | Professional, transactional | Specific requirements, timelines, accountability |
+| Relationship                   | Tone Target                  | Markers                                                      |
+| ------------------------------ | ---------------------------- | ------------------------------------------------------------ |
+| Peer / colleague (established) | Professional casual          | Contractions OK, first names, direct requests                |
+| Direct report                  | Clear and respectful         | Direct, specific, not commanding or apologetic               |
+| Manager (1-2 levels up)        | Professional, confident      | State asks directly, brief justification, no over-explaining |
+| C-suite / executive            | Concise and decision-focused | Under 100 words, no background unless asked                  |
+| External client                | Professional, client-centric | Lead with their interests, formal until mirrored otherwise   |
+| Vendor / supplier              | Professional, transactional  | Specific requirements, timelines, accountability             |
 
 **Common tone failure modes:**
+
 - **Over-apologizing:** "I'm so sorry to bother you, but I just had a quick question..." -- weakens the ask and wastes the recipient's time
 - **Over-explaining:** Providing justification for every decision signals insecurity; provide justification only when it materially affects the recipient's decision
 - **False urgency:** Marking routine requests as "URGENT" destroys credibility; reserve urgency signals for genuinely time-critical messages
@@ -224,6 +235,7 @@ Tone is the most commonly misjudged element in professional email, especially in
 ```
 
 **Annotation guide for the output:**
+
 - Subject line: flag if over 50 characters or missing an action word
 - Opening: flag if purpose is not in sentence 1
 - Body: flag if prose paragraphs contain 3+ items that should be bulleted
@@ -379,7 +391,6 @@ Can you confirm the extension by end of this week so I can update the Q4 roadmap
 Thanks,
 Jordan Reyes
 Engineering Lead, Platform Services
-
 
 ---
 

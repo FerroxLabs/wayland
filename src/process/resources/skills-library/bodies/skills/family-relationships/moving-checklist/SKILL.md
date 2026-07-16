@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "checklist planning strategy"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'checklist planning strategy'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Moving Checklist and Timeline
@@ -28,6 +28,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about planning a move or creating a moving checklist
 - User wants a timeline for relocating to a new home
 - User needs help organizing the logistics of a household move
@@ -35,6 +36,7 @@ metadata:
 - User wants a packing strategy or moving day plan
 
 **Do NOT use this skill when:**
+
 - User is moving with children and needs child-specific guidance (use `moving-with-children`)
 - User is planning an international move with visa and customs needs (outside scope)
 - User asks about a commercial office relocation (different logistics)
@@ -314,6 +316,7 @@ metadata:
 ## Moving Plan: 3BR Apartment to House (Local)
 
 ### Move Profile
+
 - **Move type:** Local (same metro area)
 - **Home size:** 3-bedroom apartment to house
 - **Method:** To determine (professional recommended for 3BR with two working adults)
@@ -323,75 +326,94 @@ metadata:
 ### Compressed 6-Week Timeline
 
 #### Week 6 (This Week): Research and Declutter
+
 **Weekday evenings (30 min/night):**
+
 - [ ] Walk through each room and sort items: keep, sell, donate, trash -- Person A takes bedrooms, Person B takes kitchen and living areas
 - [ ] List large items for sale online (furniture, electronics you will not bring)
 - [ ] Get 3 moving company quotes (request in-home or video estimates for accuracy)
 
 **Weekend:**
+
 - [ ] Deep declutter: closets, storage, garage
 - [ ] Schedule donation pickup for week 4
 - [ ] Book moving company (do not wait -- 6 weeks is tight for availability)
 
 #### Week 5: Start Packing Non-Essentials
+
 **Weekday evenings:**
+
 - [ ] Pack 2-3 boxes per night: books, seasonal items, decor, guest room, closet overflow
 - [ ] Label every box: contents, room, and fragile indicator
 
 **Weekend:**
+
 - [ ] Major packing session: pack all non-daily items
 - [ ] Take photos of electronics wiring before disconnecting
 - [ ] Buy packing supplies: boxes, tape, bubble wrap, markers
 
 #### Week 4: Utilities and Administrative
+
 **Weekday evenings:**
+
 - [ ] Schedule utility disconnect at apartment: day after move-out
 - [ ] Schedule utility connect at house: day before move-in (electric, gas, water, internet)
 - [ ] Begin address change list (bank, insurance, employer, subscriptions)
 - [ ] Complete donation drop-off or pickup
 
 **Weekend:**
+
 - [ ] Continue packing: kitchenware (keep daily dishes out), bathroom extras, linens
 - [ ] Measure large furniture and confirm it fits through new house doorways
 - [ ] Disassemble any furniture that needs it; bag and label hardware
 
 #### Week 3: Address Changes
+
 **Weekday evenings:**
+
 - [ ] Submit postal service change of address
 - [ ] Update bank, insurance, and employer addresses
 - [ ] Update voter registration
 - [ ] Transfer prescriptions to a pharmacy near the new house
 
 **Weekend:**
+
 - [ ] Pack remaining items except daily essentials
 - [ ] Request medical/dental records transfer
 - [ ] Confirm moving company: date, time, addresses, payment method
 
 #### Week 2: Final Preparations
+
 **Weekday evenings:**
+
 - [ ] Update online accounts with new address
 - [ ] Notify doctor, dentist, vet of address change
 - [ ] Prepare payment and tip for movers ($20-40 per person, local move)
 - [ ] Pack the moving day essentials box (see below)
 
 **Weekend:**
+
 - [ ] Final packing: daily kitchen items, last bathroom items
 - [ ] Clean out refrigerator
 - [ ] Document apartment condition with dated photos for security deposit
 
 #### Week 1: Final Week
+
 **Weekday evenings:**
+
 - [ ] Pack last remaining items
 - [ ] Final walkthrough: check every closet, cabinet, storage area
 - [ ] Charge all devices and portable batteries
 - [ ] Confirm elevator reservation at apartment if applicable
 
 **Night before move:**
+
 - [ ] Strip beds, pack bedding
 - [ ] Load essentials box in car
 - [ ] Confirm movers arrival time
 
 #### Moving Day: [Date]
+
 - [ ] 7:00 AM: Final sweep of apartment
 - [ ] 8:00 AM: Movers arrive (Person A supervises loading)
 - [ ] Person B goes to new house: direct furniture placement, tape room labels on doors
@@ -402,16 +424,17 @@ metadata:
 
 ### Budget Estimate
 
-| Item | Estimated Cost |
-|------|---------------|
-| Professional movers (3BR local, 2 crew, ~5 hours) | $800-1,500 |
-| Packing supplies (boxes, tape, wrap) | $75-150 |
-| Mover tips (2 crew x $30 each) | $60 |
-| Cleaning supplies (both locations) | $30-50 |
-| New locks/re-key at house | $100-250 |
-| **Total estimate** | $1,065-2,010 |
+| Item                                              | Estimated Cost |
+| ------------------------------------------------- | -------------- |
+| Professional movers (3BR local, 2 crew, ~5 hours) | $800-1,500     |
+| Packing supplies (boxes, tape, wrap)              | $75-150        |
+| Mover tips (2 crew x $30 each)                    | $60            |
+| Cleaning supplies (both locations)                | $30-50         |
+| New locks/re-key at house                         | $100-250       |
+| **Total estimate**                                | $1,065-2,010   |
 
 ### Moving Day Essentials Box (Goes in Your Car)
+
 - [ ] IDs, lease documents, closing papers
 - [ ] Medications
 - [ ] Phone chargers and laptop

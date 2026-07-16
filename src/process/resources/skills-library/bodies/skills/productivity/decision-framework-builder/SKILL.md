@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks budgeting template beginner-friendly analysis research performing-arts"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks budgeting template beginner-friendly analysis research performing-arts'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Decision Framework Builder
 
 ## When to Use
 
 **Use this skill when:**
+
 - A team or individual is stuck on a decision and cannot move forward -- they have information but no clear path to a conclusion
 - A recurring decision type (hiring, vendor selection, feature prioritization, budget allocation) keeps getting made inconsistently across different people or teams
 - A high-stakes, irreversible decision is approaching and the group needs structured analysis before committing
@@ -31,6 +33,7 @@ metadata:
 - A performing arts organization, nonprofit, or creative team needs to make resource allocation decisions with limited budget and high mission stakes
 
 **Do NOT use when:**
+
 - The user needs a project management plan for executing a decision already made -- use a project planning skill instead
 - The request is about resolving interpersonal conflict where the real issue is relational, not analytical
 - The user needs a financial model or quantitative analysis as the primary deliverable -- use a financial modeling skill
@@ -286,7 +289,7 @@ This is actually valuable information, not a failure of the framework. The gap b
 - **Missing criteria:** An important dimension was not included in the scoring model. Ask the group explicitly: "What is it about Option X winning that doesn't sit right?" Their answer typically reveals the missing criterion. Add it and re-run.
 - **Weight miscalibration:** The weights were assigned diplomatically rather than honestly. Have each person re-assign weights individually and privately, then compare. Significant divergence in private weights indicates the group was performing consensus rather than expressing genuine priorities.
 - **Legitimate intuition about unquantifiable factors:** Trust, relationships, cultural fit, and aesthetic quality are real decision inputs that resist scoring. Name them explicitly and allow the Decider to apply them as modifiers rather than pretending they do not exist.
-Never override the scored result without documenting why. The override and its reasoning belong in the decision record.
+  Never override the scored result without documenting why. The override and its reasoning belong in the decision record.
 
 ### The Decision Is Time-Boxed and Full Framework Rigor Is Impossible
 
@@ -345,6 +348,7 @@ Decision documentation is perceived as bureaucracy by teams that have never need
 **Output:**
 
 ## Decision Framework Analysis
+
 **Decision Statement:** Should the dance company build a custom ticketing and donor management system in-house, migrate to a performing arts-specific SaaS platform, or continue optimizing the current legacy system plus spreadsheet workflow -- and if so, which approach, by what milestone?
 **Decision Type:** Type 1 -- Irreversible within a 2-year window (migration is a significant organizational commitment), high stakes (donor relationships, revenue infrastructure, data security)
 **Trigger for This Decision:** Board mandate for resolution within 6 weeks; legacy system reliability declining; residual donor trust deficit from prior breach
@@ -353,22 +357,24 @@ Decision documentation is perceived as bureaucracy by teams that have never need
 ---
 
 ### Accountability Assignment
+
 **Framework Selected:** RAPID
 **Rationale:** This decision crosses multiple authority domains (artistic leadership, administration, board, IT security, major donors). A DACI structure would underweight the multi-stakeholder input requirements. RAPID's explicit Input and Agree roles prevent any single faction from dominating a decision that affects every department.
 
-| Role         | Person / Function                        | Responsibility                                                         |
-|--------------|------------------------------------------|------------------------------------------------------------------------|
-| Recommend (R)| Managing Director + IT Contractor        | Research options, gather peer org benchmarks, build comparison matrix  |
-| Agree (A)    | Board Treasurer (budget gate), IT Security Consultant (data security gate) | Approve budget compliance; certify data security adequacy of chosen option |
-| Perform (P)  | Operations Manager + IT Contractor       | Execute migration, manage vendor relationship, train staff              |
-| Input (I)    | Artistic Director, Development Director, Box Office Manager, 3 sample major donors | User perspective, fundraising workflow needs, donor relationship implications |
-| Decide (D)   | Executive Director                       | Final accountability; career stake in outcome                          |
+| Role          | Person / Function                                                                  | Responsibility                                                                |
+| ------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Recommend (R) | Managing Director + IT Contractor                                                  | Research options, gather peer org benchmarks, build comparison matrix         |
+| Agree (A)     | Board Treasurer (budget gate), IT Security Consultant (data security gate)         | Approve budget compliance; certify data security adequacy of chosen option    |
+| Perform (P)   | Operations Manager + IT Contractor                                                 | Execute migration, manage vendor relationship, train staff                    |
+| Input (I)     | Artistic Director, Development Director, Box Office Manager, 3 sample major donors | User perspective, fundraising workflow needs, donor relationship implications |
+| Decide (D)    | Executive Director                                                                 | Final accountability; career stake in outcome                                 |
 
 **Note:** The board does not occupy the D role. The board approved the budget envelope and the 6-week timeline. The Executive Director makes the operational decision within those constraints. If the board needs ratification, that is a governance step after the D role makes the recommendation -- document this distinction explicitly to prevent the board from becoming an inadvertent veto point.
 
 ---
 
 ### Options Under Consideration
+
 **Option 1: Build Custom In-House System** -- Commission a development team to build a bespoke ticketing and CRM system tailored to the company's exact workflows.
 **Option 2: Migrate to Performing Arts SaaS Platform** -- Select and implement a purpose-built platform designed for arts organizations (audience management, ticketing, donor tracking, grant reporting in one system).
 **Option 3: Continue and Optimize Current System** -- Retain the legacy ticketing system, enhance the donor spreadsheet workflow, and invest in point integrations between the two.
@@ -378,10 +384,10 @@ Decision documentation is perceived as bureaucracy by teams that have never need
 
 ### Constraint Screen (Pass/Fail Gates)
 
-| Constraint                                        | Option 1: Build Custom | Option 2: SaaS Platform | Option 3: Optimize Legacy |
-|---------------------------------------------------|------------------------|--------------------------|---------------------------|
-| Total cost under $120,000 (year 1)                | **FAIL** (est. $180-250K)| Pass (est. $35-85K Y1)  | Pass (est. $20-45K)       |
-| Implementable with minimal internal IT capacity   | **FAIL** (requires 2+ FTE dev) | Pass (vendor-managed) | Pass (contractor can handle) |
+| Constraint                                                  | Option 1: Build Custom           | Option 2: SaaS Platform          | Option 3: Optimize Legacy                |
+| ----------------------------------------------------------- | -------------------------------- | -------------------------------- | ---------------------------------------- |
+| Total cost under $120,000 (year 1)                          | **FAIL** (est. $180-250K)        | Pass (est. $35-85K Y1)           | Pass (est. $20-45K)                      |
+| Implementable with minimal internal IT capacity             | **FAIL** (requires 2+ FTE dev)   | Pass (vendor-managed)            | Pass (contractor can handle)             |
 | Meets current data security standards (SOC 2 or equivalent) | Uncertain / 12-18 month timeline | Pass (major platforms certified) | **FAIL** (legacy system not certifiable) |
 
 **Result of Constraint Screen:** Option 1 (Build Custom) is eliminated. It exceeds the budget constraint by 50-108% and requires IT capacity the organization does not have. Option 3 (Optimize Legacy) fails the data security constraint -- a non-negotiable given the prior breach and board sensitivity. **Only Option 2 (SaaS Platform) clears all three constraint gates.**
@@ -404,26 +410,28 @@ The scoring matrix below uses three representative finalists (anonymized as Plat
 
 ### Weighted Scoring Matrix
 
-| Criterion                                      | Weight | Platform A | Platform B | Platform C |
-|------------------------------------------------|--------|------------|------------|------------|
-| Data security certification (SOC 2 Type II)   | 25%    | 5          | 5          | 4          |
-| Donor management and cultivation features     | 22%    | 4          | 5          | 3          |
-| Ticketing and box office workflow              | 18%    | 5          | 3          | 5          |
-| Implementation complexity with minimal IT     | 15%    | 4          | 3          | 4          |
-| Total cost of ownership (Y1 and Y2)           | 12%    | 3          | 4          | 5          |
-| Peer organization references (arts sector)    | 8%     | 5          | 4          | 3          |
-| **Weighted Total**                             | 100%   | **4.27**   | **4.09**   | **3.94**   |
+| Criterion                                   | Weight | Platform A | Platform B | Platform C |
+| ------------------------------------------- | ------ | ---------- | ---------- | ---------- |
+| Data security certification (SOC 2 Type II) | 25%    | 5          | 5          | 4          |
+| Donor management and cultivation features   | 22%    | 4          | 5          | 3          |
+| Ticketing and box office workflow           | 18%    | 5          | 3          | 5          |
+| Implementation complexity with minimal IT   | 15%    | 4          | 3          | 4          |
+| Total cost of ownership (Y1 and Y2)         | 12%    | 3          | 4          | 5          |
+| Peer organization references (arts sector)  | 8%     | 5          | 4          | 3          |
+| **Weighted Total**                          | 100%   | **4.27**   | **4.09**   | **3.94**   |
 
 **Calculation:**
+
 - Platform A: (5×.25)+(4×.22)+(5×.18)+(4×.15)+(3×.12)+(5×.08) = 1.25+0.88+0.90+0.60+0.36+0.40 = **4.39**
 - Platform B: (5×.25)+(5×.22)+(3×.18)+(3×.15)+(4×.12)+(4×.08) = 1.25+1.10+0.54+0.45+0.48+0.32 = **4.14**
 - Platform C: (4×.25)+(3×.22)+(5×.18)+(4×.15)+(5×.12)+(3×.08) = 1.00+0.66+0.90+0.60+0.60+0.24 = **4.00**
 
-*(Note: minor rounding in illustrative display above -- use full decimal precision in live scoring)*
+_(Note: minor rounding in illustrative display above -- use full decimal precision in live scoring)_
 
 **Scoring Rubric:** 5=Fully meets criterion with no compromise, 4=Meets with minor gaps, 3=Partial fit or workarounds needed, 2=Significant limitations, 1=Does not meet
 
 **Sensitivity Analysis:**
+
 - Scenario A: Increase "Donor management" weight to 32%, decrease "Data security" to 15% -- Platform B moves to 4.19, Platform A to 4.14. Winner flips to Platform B.
 - Scenario B: Increase "Cost of ownership" weight to 22%, decrease "Ticketing" to 8% -- Platform C improves but remains third at 4.12. Platform A holds at 4.27.
 - **Conclusion:** The result is moderately robust but sensitive to the relative priority of donor management versus data security. The Executive Director should explicitly state which of these two criteria is truly higher priority before the Recommend role finalizes vendor scores. This is not a framework failure -- it is the framework correctly identifying that the decision hinges on a values question about mission priority.
@@ -437,24 +445,26 @@ The scoring matrix below uses three representative finalists (anonymized as Plat
 
 **Failure Modes Identified:**
 
-| Failure Mode                                                                          | Probability | Impact | Mitigation                                                                      | Mitigable? |
-|---------------------------------------------------------------------------------------|-------------|--------|----------------------------------------------------------------------------------|------------|
-| Migration of donor history was incomplete; major donors' giving history is lost        | High        | High   | Require data migration guarantee in contract; run parallel systems for 60 days  | Yes        |
-| Staff were not trained before go-live; box office staff revert to spreadsheets during first production run | High | High | Mandatory training 30 days before go-live; rehearsal run during non-peak period | Yes        |
-| Vendor does not understand performing arts workflows; box office bottleneck at will-call | Medium | High | Require performing arts client references; conduct live demo with box office staff | Yes        |
-| Major donors feel their data was mishandled (again); trust further eroded              | Medium      | High   | Proactive donor communication before and after migration; security audit report shared with major donors | Yes |
-| Platform is acquired or discontinues performing arts product line within 24 months    | Low         | High   | Require data export clause in contract; verify vendor financial health; prefer established platforms | Partial |
-| IT contractor leaves; no internal knowledge of system                                  | Medium      | Medium | Require vendor-managed implementation; document all configurations; cross-train one staff member | Yes |
-| Cost overruns during implementation exhaust contingency budget                         | Medium      | Medium | Require fixed-price implementation contract; retain 15% budget contingency       | Yes        |
+| Failure Mode                                                                                               | Probability | Impact | Mitigation                                                                                               | Mitigable? |
+| ---------------------------------------------------------------------------------------------------------- | ----------- | ------ | -------------------------------------------------------------------------------------------------------- | ---------- |
+| Migration of donor history was incomplete; major donors' giving history is lost                            | High        | High   | Require data migration guarantee in contract; run parallel systems for 60 days                           | Yes        |
+| Staff were not trained before go-live; box office staff revert to spreadsheets during first production run | High        | High   | Mandatory training 30 days before go-live; rehearsal run during non-peak period                          | Yes        |
+| Vendor does not understand performing arts workflows; box office bottleneck at will-call                   | Medium      | High   | Require performing arts client references; conduct live demo with box office staff                       | Yes        |
+| Major donors feel their data was mishandled (again); trust further eroded                                  | Medium      | High   | Proactive donor communication before and after migration; security audit report shared with major donors | Yes        |
+| Platform is acquired or discontinues performing arts product line within 24 months                         | Low         | High   | Require data export clause in contract; verify vendor financial health; prefer established platforms     | Partial    |
+| IT contractor leaves; no internal knowledge of system                                                      | Medium      | Medium | Require vendor-managed implementation; document all configurations; cross-train one staff member         | Yes        |
+| Cost overruns during implementation exhaust contingency budget                                             | Medium      | Medium | Require fixed-price implementation contract; retain 15% budget contingency                               | Yes        |
 
 **Unmitigable Risks:** The platform acquisition/discontinuation risk cannot be fully mitigated -- even with contractual data export rights, a platform exit would require another migration within 2-3 years. The Decider should acknowledge this as an accepted risk and note that all three original options carried some version of this risk.
 
 ---
 
 ### Recommendation
+
 **Recommended Option:** Platform A (performing arts-specific SaaS platform with highest weighted score)
 **Confidence Level:** Moderate -- elevated to High if the Executive Director confirms data security outweighs donor management depth as the primary criterion
 **Key Reasoning:**
+
 - Platform A is the only option clearing all constraint gates. Custom build and legacy optimization are eliminated before scoring begins.
 - Platform A leads on data security certification (critical given prior breach) and peer reference quality within the arts sector.
 - Sensitivity analysis shows Platform A holds its lead under most weight scenarios except a significant shift prioritizing donor management depth, in which case Platform B should be selected instead.
@@ -462,6 +472,7 @@ The scoring matrix below uses three representative finalists (anonymized as Plat
 - The $120,000 budget is sufficient for a mid-tier platform implementation with a 15% contingency retained.
 
 **Conditions on This Recommendation:**
+
 - Assumes the IT contractor will remain engaged for the 6-month implementation window
 - Assumes vendor provides a fixed-price or capped implementation contract
 - Assumes the board Treasurer confirms the budget envelope includes Y1 licensing fees, not just implementation costs
@@ -470,6 +481,7 @@ The scoring matrix below uses three representative finalists (anonymized as Plat
 ---
 
 ### Decision Record
+
 **Title:** Performing arts platform selection for ticketing and donor management infrastructure
 **Date:** [Date of Executive Director's decision]
 **Status:** Decided
@@ -484,10 +496,10 @@ The scoring matrix below uses three representative finalists (anonymized as Plat
 
 ### Decision Traps Flagged
 
-| Trap                        | Evidence in This Decision                                                    | Mitigation Applied                                                                  |
-|-----------------------------|------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| Status quo bias             | "Continue with current system" was a live option that felt safe despite known costs | Explicitly scored and pre-mortem tested; eliminated by constraint screen, not by assumption |
-| Anchoring on prior breach   | Risk of overweighting data security to the exclusion of mission-critical features | Security made a constraint gate (pass/fail) rather than artificially high scoring weight |
-| HiPPO effect                | Board interest in the decision could distort the Decider's analysis          | RAPID explicitly assigns D role to Executive Director; board role bounded to budget approval |
-| Confirmation bias           | IT contractor may favor the platform they have prior experience implementing  | Require contractor to score platforms against defined rubric, not from memory        |
-| Analysis paralysis          | 6-week deadline exists but the organization has been discussing this for 18 months | Decision deadline enforced; constraint screen rapidly eliminates two of three options |
+| Trap                      | Evidence in This Decision                                                           | Mitigation Applied                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Status quo bias           | "Continue with current system" was a live option that felt safe despite known costs | Explicitly scored and pre-mortem tested; eliminated by constraint screen, not by assumption  |
+| Anchoring on prior breach | Risk of overweighting data security to the exclusion of mission-critical features   | Security made a constraint gate (pass/fail) rather than artificially high scoring weight     |
+| HiPPO effect              | Board interest in the decision could distort the Decider's analysis                 | RAPID explicitly assigns D role to Executive Director; board role bounded to budget approval |
+| Confirmation bias         | IT contractor may favor the platform they have prior experience implementing        | Require contractor to score platforms against defined rubric, not from memory                |
+| Analysis paralysis        | 6-week deadline exists but the organization has been discussing this for 18 months  | Decision deadline enforced; constraint screen rapidly eliminates two of three options        |

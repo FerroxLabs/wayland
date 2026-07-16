@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research academic-writing study-skills step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research academic-writing study-skills step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Literature Search
 
 ## When to Use
@@ -71,7 +72,7 @@ Each database uses a combination of free-text keyword searching and a controlled
 
 - **Identify the controlled vocabulary for each target database**: MeSH (Medical Subject Headings) for PubMed and MEDLINE, Emtree for Embase, Thesaurus terms for PsycINFO, Subject Headings for CINAHL, Descriptors for ERIC (education). Ignoring controlled vocabulary is the single most common cause of missed relevant literature.
 - For each concept, generate **synonyms, abbreviations, brand names, spelling variants, and related terms**. Example for "adolescents": teenager, teen, youth, young person, young people, juvenile, "secondary school student," "high school student." In health databases, also include the MeSH term "Adolescent" as a subject heading search (tagged with the database's heading field code, e.g., [MH] in PubMed).
-- Apply **truncation symbols** to capture morphological variants: `adolescen*` captures adolescent, adolescents, adolescence. Most databases use an asterisk (*); some use a dollar sign ($) or pound sign (#) -- confirm the truncation symbol before running searches.
+- Apply **truncation symbols** to capture morphological variants: `adolescen*` captures adolescent, adolescents, adolescence. Most databases use an asterisk (\*); some use a dollar sign ($) or pound sign (#) -- confirm the truncation symbol before running searches.
 - Use **wildcard characters** for spelling variants: `behavio*r` or `behavio?r` captures behaviour and behavior simultaneously.
 - Use **phrase searching** (quotation marks) for multi-word concepts: "cognitive behavioral therapy," "social media," "eating disorder." Without quotes, databases may search words independently and return irrelevant results.
 - Decide whether to include **adjacent word operators** for databases that support them (e.g., NEAR/3 in Scopus or Web of Science, to find terms within 3 words of each other): useful when a phrase relationship matters but exact phrasing varies.
@@ -192,18 +193,24 @@ Produce the following complete search protocol. Fill every field with content sp
 
 **[Database 1 Name] -- [Platform]**
 ```
+
 [Complete, exact query string formatted for this database's syntax, including field tags]
+
 ```
 Example field tags: [MH] for MeSH heading (PubMed), [TIAB] for title/abstract (PubMed), TITLE-ABS-KEY() for Scopus, TS= for Web of Science topic search
 
 **[Database 2 Name] -- [Platform]**
 ```
+
 [Complete query string]
+
 ```
 
 **[Database 3 Name] -- [Platform]**
 ```
+
 [Complete query string]
+
 ```
 
 ---
@@ -305,6 +312,7 @@ If any are missing, review: [specific gap diagnosis]
 ### User Is Conducting a Systematic Review for Journal Submission
 
 This is the highest-stakes scenario. Apply full protocol rigor:
+
 - Recommend registering the protocol in PROSPERO (for health/clinical topics) or OSF before any searching begins. Reviewers will ask whether the protocol was pre-registered.
 - The search must cover a minimum of 5 databases for most health and social science topics. Justify any database not searched.
 - Recommend co-searching with a subject librarian -- systematic review searches are complex enough that librarian co-authorship is now standard practice at many institutions and expected by high-impact journals.
@@ -314,6 +322,7 @@ This is the highest-stakes scenario. Apply full protocol rigor:
 ### User Gets Fewer Than 50 Results Across All Databases
 
 This is a recall problem. Systematically diagnose before concluding the literature is thin:
+
 - Check whether controlled vocabulary terms were included -- many researchers miss this and rely only on title/abstract keywords.
 - Check for overly restrictive AND chaining -- if 4+ concepts are ANDed together, test removing one concept and reassessing.
 - Check for over-specific phrase searching -- "adolescent social media depression longitudinal" as a phrase finds only papers using all those words in sequence. Break into components.
@@ -324,6 +333,7 @@ This is a recall problem. Systematically diagnose before concluding the literatu
 ### User Gets More Than 5,000 Results in a Single Database
 
 This is a precision problem for manageable reviews (not full systematic reviews, where 5,000 is sometimes expected). Resolve by:
+
 - First, check whether inclusion of subject headings without proper "explode" or "restrict" settings is generating noise. In PubMed, "exploding" a MeSH term includes all narrower terms -- sometimes this is undesirable.
 - Add a third or fourth conceptual constraint if the research question genuinely requires it. Ensure it is theoretically justified.
 - Apply documented study design filters (e.g., [pt] = "Clinical Trial" in PubMed, or the Cochrane/Scottish Intercollegiate Guidelines Network study design search filters).
@@ -333,6 +343,7 @@ This is a precision problem for manageable reviews (not full systematic reviews,
 ### User Has No Access to Subscription Databases
 
 Many learners do not have university library access. A viable protocol is still possible:
+
 - PubMed (MEDLINE), PubMed Central (full text), ERIC (via IES website), DOAJ (Directory of Open Access Journals), and BASE (Bielefeld Academic Search Engine) are free and comprehensive.
 - Google Scholar is acceptable as a primary database for narrative reviews at undergraduate level with appropriate documentation of limitations.
 - Many university libraries offer community borrowing cards, alumni access, or inter-library loan services -- recommend the learner investigate these.
@@ -342,6 +353,7 @@ Many learners do not have university library access. A viable protocol is still 
 ### User's Topic Spans Multiple Disciplines
 
 Cross-disciplinary research (e.g., technology ethics in healthcare, environmental psychology, educational neuroscience) requires expanded database selection and awareness of disciplinary vocabulary differences:
+
 - Build parallel search concept maps for each disciplinary vocabulary. The term "cognitive load" is standard in education and cognitive psychology; the same phenomenon may be discussed as "mental workload" in human factors engineering and ergonomics.
 - Search each discipline's primary database separately with its own controlled vocabulary. Do not assume a single search string will work across disciplines.
 - Expect higher deduplication rates (30--50%) because multidisciplinary databases (Web of Science, Scopus) index many of the same sources as specialist databases.
@@ -350,6 +362,7 @@ Cross-disciplinary research (e.g., technology ethics in healthcare, environmenta
 ### User Is Updating a Previously Conducted Literature Search
 
 Updating a search is methodologically distinct from starting fresh:
+
 - Document the original search date and the update search date explicitly. The update search should cover only the gap period.
 - Rerun the original search strings with a date limiter restricted to the period since the last search (e.g., "from 2022-06-01 to present").
 - Check whether any MeSH terms or database thesaurus terms have changed since the original search -- vocabulary is periodically updated and new preferred terms may be introduced.
@@ -359,6 +372,7 @@ Updating a search is methodologically distinct from starting fresh:
 ### User Is a Complete Beginner With No Prior Database Searching Experience
 
 For a learner who has never used an academic database:
+
 - Begin with a brief conceptual orientation: academic databases index peer-reviewed literature, are organized by discipline, and use structured search syntax. This is categorically different from searching Google.
 - Start with PubMed or Google Scholar as the first practice environment before introducing more complex interfaces like Ovid or Scopus.
 - Walk through one concept block at a time: first search only for the population terms, examine a few results to assess relevance, then add the second concept block with AND.
@@ -392,22 +406,22 @@ For a learner who has never used an academic database:
 
 **Framework used:** PICO
 
-| Framework Element | Label | Content |
-|-------------------|-------|---------|
-| P | Population | Adults (18+) diagnosed with type 2 diabetes mellitus |
-| I | Intervention | Mobile health applications (smartphone apps, SMS reminders, app-based self-management tools) |
-| C | Comparison | Usual care, no intervention, non-digital interventions, or other digital health formats |
-| O | Outcome | Medication adherence (self-reported, pill count, electronic monitoring, prescription refill rates, HbA1c as proxy) |
+| Framework Element | Label        | Content                                                                                                            |
+| ----------------- | ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| P                 | Population   | Adults (18+) diagnosed with type 2 diabetes mellitus                                                               |
+| I                 | Intervention | Mobile health applications (smartphone apps, SMS reminders, app-based self-management tools)                       |
+| C                 | Comparison   | Usual care, no intervention, non-digital interventions, or other digital health formats                            |
+| O                 | Outcome      | Medication adherence (self-reported, pill count, electronic monitoring, prescription refill rates, HbA1c as proxy) |
 
 ---
 
 ### Search Concept Map
 
-| Concept # | Concept Label | Primary MeSH/Thesaurus Term | Free-Text Keywords | Truncated/Wildcard Forms | Phrases |
-|-----------|--------------|----------------------------|--------------------|--------------------------|---------|
-| 1 | Population: Type 2 Diabetes | "Diabetes Mellitus, Type 2" [MeSH] | type 2 diabetes, T2DM, T2D, non-insulin dependent diabetes | diabet* | "type 2 diabetes," "non-insulin dependent diabetes mellitus," "adult-onset diabetes" |
-| 2 | Intervention: mHealth Apps | "Mobile Applications" [MeSH]; "Telemedicine" [MeSH] | mHealth, mobile health, smartphone app, mobile app, mobile application, text message, SMS, digital health, eHealth | app*, mobil*, telephon* | "mobile health," "mobile application," "smartphone application," "text message reminder," "digital health intervention" |
-| 3 | Outcome: Medication Adherence | "Medication Adherence" [MeSH] | medication adherence, medicine adherence, drug adherence, treatment adherence, medication compliance, pill adherence, antidiabetic adherence | adher*, complian* | "medication adherence," "treatment compliance," "medication compliance," "drug adherence" |
+| Concept # | Concept Label                 | Primary MeSH/Thesaurus Term                         | Free-Text Keywords                                                                                                                           | Truncated/Wildcard Forms | Phrases                                                                                                                 |
+| --------- | ----------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| 1         | Population: Type 2 Diabetes   | "Diabetes Mellitus, Type 2" [MeSH]                  | type 2 diabetes, T2DM, T2D, non-insulin dependent diabetes                                                                                   | diabet\*                 | "type 2 diabetes," "non-insulin dependent diabetes mellitus," "adult-onset diabetes"                                    |
+| 2         | Intervention: mHealth Apps    | "Mobile Applications" [MeSH]; "Telemedicine" [MeSH] | mHealth, mobile health, smartphone app, mobile app, mobile application, text message, SMS, digital health, eHealth                           | app*, mobil*, telephon\* | "mobile health," "mobile application," "smartphone application," "text message reminder," "digital health intervention" |
+| 3         | Outcome: Medication Adherence | "Medication Adherence" [MeSH]                       | medication adherence, medicine adherence, drug adherence, treatment adherence, medication compliance, pill adherence, antidiabetic adherence | adher*, complian*        | "medication adherence," "treatment compliance," "medication compliance," "drug adherence"                               |
 
 **Boolean logic structure:** (Concept 1 terms) AND (Concept 2 terms) AND (Concept 3 terms)
 
@@ -417,13 +431,13 @@ For a learner who has never used an academic database:
 
 ### Database Selection and Rationale
 
-| Database | Platform | Rationale | Access | Controlled Vocabulary |
-|----------|---------|-----------|--------|----------------------|
-| PubMed/MEDLINE | NLM (free) | Core biomedical database; comprehensive coverage of diabetes, mHealth, adherence literature; MeSH indexing critical for this topic | Free | MeSH terms required |
-| Embase | Elsevier via library | Stronger European trial coverage; Emtree has specific terms for mobile apps and patient compliance; captures conference abstracts missed by PubMed | Library subscription | Emtree |
-| CINAHL | EBSCO via library | Essential for nursing and patient self-management literature; adherence interventions frequently published in nursing journals | Library subscription | CINAHL Headings |
-| Cochrane Library | Wiley (free) | Systematic reviews and RCTs specifically; the CENTRAL trials register will identify RCTs on mHealth and adherence not indexed elsewhere | Free | N/A (keyword search) |
-| Web of Science Core Collection | Clarivate via library | Citation analysis; good for identifying high-impact papers; useful for forward citation chasing from Mbuagbaw et al. 2015 | Library subscription | None (keyword + topic search) |
+| Database                       | Platform              | Rationale                                                                                                                                          | Access               | Controlled Vocabulary         |
+| ------------------------------ | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ----------------------------- |
+| PubMed/MEDLINE                 | NLM (free)            | Core biomedical database; comprehensive coverage of diabetes, mHealth, adherence literature; MeSH indexing critical for this topic                 | Free                 | MeSH terms required           |
+| Embase                         | Elsevier via library  | Stronger European trial coverage; Emtree has specific terms for mobile apps and patient compliance; captures conference abstracts missed by PubMed | Library subscription | Emtree                        |
+| CINAHL                         | EBSCO via library     | Essential for nursing and patient self-management literature; adherence interventions frequently published in nursing journals                     | Library subscription | CINAHL Headings               |
+| Cochrane Library               | Wiley (free)          | Systematic reviews and RCTs specifically; the CENTRAL trials register will identify RCTs on mHealth and adherence not indexed elsewhere            | Free                 | N/A (keyword search)          |
+| Web of Science Core Collection | Clarivate via library | Citation analysis; good for identifying high-impact papers; useful for forward citation chasing from Mbuagbaw et al. 2015                          | Library subscription | None (keyword + topic search) |
 
 **Gray literature sources:** Not included in this narrative review. If review were systematic, would add: ClinicalTrials.gov (registered but unpublished trials), WHO ICTRP, manufacturer app development reports.
 
@@ -432,6 +446,7 @@ For a learner who has never used an academic database:
 ### Full Search Strings by Database
 
 **PubMed -- NLM Interface**
+
 ```
 ("Diabetes Mellitus, Type 2"[MeSH] OR "type 2 diabetes"[TIAB] OR "T2DM"[TIAB] OR "non-insulin dependent diabetes"[TIAB] OR diabet*[TIAB])
 AND
@@ -443,6 +458,7 @@ Filters: Humans; English; 2010/01/01 to present (mHealth apps became viable only
 ```
 
 **Embase -- Elsevier**
+
 ```
 ('diabetes mellitus'/exp/mj OR 'type 2 diabetes mellitus'/exp OR 'non-insulin-dependent diabetes mellitus':ti,ab,kw)
 AND
@@ -454,6 +470,7 @@ Filters: human; English language; 2010 to present
 ```
 
 **CINAHL -- EBSCO**
+
 ```
 (MH "Diabetes Mellitus, Type 2+" OR TI "type 2 diabetes" OR AB "type 2 diabetes" OR TI "T2DM" OR AB "T2DM")
 AND
@@ -465,6 +482,7 @@ Filters: English; 2010--present; Peer Reviewed
 ```
 
 **Cochrane Library -- Wiley (CENTRAL + Cochrane Reviews)**
+
 ```
 ("type 2 diabetes" OR "T2DM" OR "diabetes mellitus type 2")
 AND
@@ -476,6 +494,7 @@ Date: 2010 to present
 ```
 
 **Web of Science Core Collection**
+
 ```
 TS=("type 2 diabetes" OR "T2DM" OR "non-insulin dependent diabetes")
 AND TS=("mHealth" OR "mobile health" OR "mobile application*" OR "smartphone app*" OR "text message*" OR "SMS" OR "digital health intervention*")
@@ -488,46 +507,46 @@ Timespan: 2010--present; Language: English
 
 ### Inclusion and Exclusion Criteria
 
-| Criterion Type | Category | Specification | Applied at Stage |
-|---------------|---------|---------------|-----------------|
-| Inclusion | Publication date | Published 2010 or later (mHealth infrastructure not viable before this) | Title/Abstract |
-| Inclusion | Publication type | Peer-reviewed empirical articles (quantitative, qualitative, or mixed methods with primary data) | Title/Abstract |
-| Inclusion | Language | English only (no translation resources available for this review) | Title/Abstract |
-| Inclusion | Population | Adult participants (18+ years) with a confirmed type 2 diabetes mellitus diagnosis | Full-text |
-| Inclusion | Intervention | Intervention must include a mobile device-based component (smartphone app, SMS/text messaging, tablet app) as the primary or co-primary element | Full-text |
-| Inclusion | Outcome | Study must report a measure of medication adherence (self-report scales, pharmacy refill, pill count, electronic monitoring) OR HbA1c as a proxy adherence/glycemic outcome | Full-text |
-| Exclusion | Publication type | Editorials, letters to the editor, opinion pieces, narrative review articles, protocol papers without results, conference abstracts without accompanying full text | Title/Abstract |
-| Exclusion | Population | Studies exclusively in type 1 diabetes; pediatric populations (under 18); studies in gestational diabetes only | Full-text |
-| Exclusion | Intervention | Interventions using only web-based desktop platforms, telephone calls without app component, or wearable devices only (without software app component) | Full-text |
-| Exclusion | Outcome | Studies reporting only patient satisfaction or usability without adherence or glycemic outcomes | Full-text |
+| Criterion Type | Category         | Specification                                                                                                                                                               | Applied at Stage |
+| -------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| Inclusion      | Publication date | Published 2010 or later (mHealth infrastructure not viable before this)                                                                                                     | Title/Abstract   |
+| Inclusion      | Publication type | Peer-reviewed empirical articles (quantitative, qualitative, or mixed methods with primary data)                                                                            | Title/Abstract   |
+| Inclusion      | Language         | English only (no translation resources available for this review)                                                                                                           | Title/Abstract   |
+| Inclusion      | Population       | Adult participants (18+ years) with a confirmed type 2 diabetes mellitus diagnosis                                                                                          | Full-text        |
+| Inclusion      | Intervention     | Intervention must include a mobile device-based component (smartphone app, SMS/text messaging, tablet app) as the primary or co-primary element                             | Full-text        |
+| Inclusion      | Outcome          | Study must report a measure of medication adherence (self-report scales, pharmacy refill, pill count, electronic monitoring) OR HbA1c as a proxy adherence/glycemic outcome | Full-text        |
+| Exclusion      | Publication type | Editorials, letters to the editor, opinion pieces, narrative review articles, protocol papers without results, conference abstracts without accompanying full text          | Title/Abstract   |
+| Exclusion      | Population       | Studies exclusively in type 1 diabetes; pediatric populations (under 18); studies in gestational diabetes only                                                              | Full-text        |
+| Exclusion      | Intervention     | Interventions using only web-based desktop platforms, telephone calls without app component, or wearable devices only (without software app component)                      | Full-text        |
+| Exclusion      | Outcome          | Studies reporting only patient satisfaction or usability without adherence or glycemic outcomes                                                                             | Full-text        |
 
 ---
 
 ### Search Log (To Complete During Execution)
 
-| Database | Platform | Date Searched | Search String Version | Results Retrieved | After Deduplication |
-|----------|---------|--------------|----------------------|-------------------|---------------------|
-| PubMed | NLM | | v1.0 | | |
-| Embase | Elsevier | | v1.0 | | |
-| CINAHL | EBSCO | | v1.0 | | |
-| Cochrane Library | Wiley | | v1.0 | | |
-| Web of Science | Clarivate | | v1.0 | | |
-| **TOTAL** | | | | | **Target: 400--900 pre-dedup** |
+| Database         | Platform  | Date Searched | Search String Version | Results Retrieved | After Deduplication            |
+| ---------------- | --------- | ------------- | --------------------- | ----------------- | ------------------------------ |
+| PubMed           | NLM       |               | v1.0                  |                   |                                |
+| Embase           | Elsevier  |               | v1.0                  |                   |                                |
+| CINAHL           | EBSCO     |               | v1.0                  |                   |                                |
+| Cochrane Library | Wiley     |               | v1.0                  |                   |                                |
+| Web of Science   | Clarivate |               | v1.0                  |                   |                                |
+| **TOTAL**        |           |               |                       |                   | **Target: 400--900 pre-dedup** |
 
-*Expected deduplication rate: 25--35% across these databases due to multidisciplinary overlap.*
+_Expected deduplication rate: 25--35% across these databases due to multidisciplinary overlap._
 
 ---
 
 ### PRISMA Flow Summary (Complete After Screening)
 
-- Records identified through database searching: ___
-- Additional records through citation chasing (Mbuagbaw et al. 2015 + 2 other anchor papers): ___
-- Records after duplicates removed: ___
-- Records screened (title/abstract): ___
-- Records excluded at title/abstract: ___ | Primary reasons: wrong population (T1D, pediatric), wrong intervention (web-only, wearable-only), wrong outcome (usability only)
-- Full-text articles assessed for eligibility: ___
-- Full-text articles excluded: ___ | Reasons: adherence not measured, study design (protocol paper, no results), population outside range
-- **Studies included in narrative review: ___ (target: 25--60 studies for a rigorous narrative review)**
+- Records identified through database searching: \_\_\_
+- Additional records through citation chasing (Mbuagbaw et al. 2015 + 2 other anchor papers): \_\_\_
+- Records after duplicates removed: \_\_\_
+- Records screened (title/abstract): \_\_\_
+- Records excluded at title/abstract: \_\_\_ | Primary reasons: wrong population (T1D, pediatric), wrong intervention (web-only, wearable-only), wrong outcome (usability only)
+- Full-text articles assessed for eligibility: \_\_\_
+- Full-text articles excluded: \_\_\_ | Reasons: adherence not measured, study design (protocol paper, no results), population outside range
+- **Studies included in narrative review: \_\_\_ (target: 25--60 studies for a rigorous narrative review)**
 
 ---
 
@@ -556,6 +575,7 @@ If any are missing: Check whether [TIAB] field restriction is excluding papers w
 ### Search Alert Setup
 
 After running the protocol, set up the following saved search alerts:
+
 - **PubMed MyNCBI**: Save the PubMed search and set to email alerts (monthly frequency). PubMed adds 1--2 million new citations per year; new mHealth trials are published continuously.
 - **Scopus or Web of Science**: Set citation alert for Mbuagbaw et al. 2015 -- any new paper citing this anchor will likely be relevant.
 - **Google Scholar Alert**: Set alert for `mHealth "type 2 diabetes" "medication adherence"` as a broad supplementary monitor.
@@ -564,16 +584,17 @@ After running the protocol, set up the following saved search alerts:
 
 ### Next Steps
 
-| Priority | Action | Tool/Method | Deadline |
-|----------|--------|-------------|----------|
-| 1 | Run all 5 database searches and export results in RIS/BibTeX format | PubMed, Embase, CINAHL, Cochrane, WoS | Within 3 days |
-| 2 | Import all records into Zotero and run deduplication | Zotero Duplicate Items finder or Better BibTeX plugin | Day 4 |
-| 3 | Title and abstract screening | Zotero tags (Include/Exclude/Maybe) or Rayyan (free web tool) | Days 5--10 |
-| 4 | Full-text retrieval and full-text screening | University library full-text links; inter-library loan for inaccessible items | Days 11--18 |
-| 5 | Citation chasing on included studies | Google Scholar "Cited by" + anchor paper reference lists | Days 19--21 |
-| 6 | Set up monthly search alerts | PubMed MyNCBI; Scopus alert | Before search completion date |
+| Priority | Action                                                              | Tool/Method                                                                   | Deadline                      |
+| -------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------- |
+| 1        | Run all 5 database searches and export results in RIS/BibTeX format | PubMed, Embase, CINAHL, Cochrane, WoS                                         | Within 3 days                 |
+| 2        | Import all records into Zotero and run deduplication                | Zotero Duplicate Items finder or Better BibTeX plugin                         | Day 4                         |
+| 3        | Title and abstract screening                                        | Zotero tags (Include/Exclude/Maybe) or Rayyan (free web tool)                 | Days 5--10                    |
+| 4        | Full-text retrieval and full-text screening                         | University library full-text links; inter-library loan for inaccessible items | Days 11--18                   |
+| 5        | Citation chasing on included studies                                | Google Scholar "Cited by" + anchor paper reference lists                      | Days 19--21                   |
+| 6        | Set up monthly search alerts                                        | PubMed MyNCBI; Scopus alert                                                   | Before search completion date |
 
 ### Complementary Skills for Next Phases
+
 - `source-evaluation` -- use to assess methodological quality of included mHealth RCTs and observational studies (risk of bias tools, GRADE framework)
 - `citation-management` -- use to organize your final included studies in APA 7th format for the thesis reference list
 - Writing skills -- use after synthesis to draft the narrative literature review chapter from your organized findings

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting habits journaling"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'goal-setting habits journaling'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Journaling Guide
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about journaling guide
 - User needs guidance on journaling guide topics
 - User wants a structured approach to journaling guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -56,6 +58,7 @@ There is no wrong way to journal. The best journaling practice is the one you ac
 **Best for**: Clearing mental clutter, accessing creativity, processing emotions
 
 **Rules**:
+
 - Write immediately upon waking (before phone, email, or conversation)
 - Do not re-read for at least 8 weeks
 - Do not censor yourself
@@ -68,6 +71,7 @@ There is no wrong way to journal. The best journaling practice is the one you ac
 **Best for**: Shifting mindset toward positivity, improving mood, building appreciation
 
 **Template**:
+
 ```
 Date: ___________
 
@@ -89,6 +93,7 @@ _____________________________________
 **Best for**: Self-improvement, learning from experience, tracking growth
 
 **Template**:
+
 ```
 Date: ___________
 
@@ -115,6 +120,7 @@ _____________________________________
 **From**: Ryder Carroll's Bullet Journal Method
 
 **Key Elements**:
+
 - Tasks: dot (.), completed (X), migrated (>), scheduled (<)
 - Events: circle (o)
 - Notes: dash (-)
@@ -137,6 +143,7 @@ _____________________________________
 **Best for**: Emotional processing, trauma work, pattern identification
 
 **Technique: The ABCDE Model**:
+
 ```
 A - Activating event: What happened?
 B - Beliefs: What did I tell myself about it?
@@ -156,6 +163,7 @@ E - Effect: How do I feel after examining the belief?
 ## Prompts Library
 
 ### Self-Discovery Prompts
+
 - What am I avoiding right now and why?
 - What would I do if I knew I could not fail?
 - What belief about myself do I most want to change?
@@ -165,6 +173,7 @@ E - Effect: How do I feel after examining the belief?
 - What am I pretending not to know?
 
 ### Emotional Processing Prompts
+
 - What emotion am I feeling right now? Where do I feel it in my body?
 - What triggered my strongest emotional reaction this week?
 - What am I worried about? What is the worst case? How would I handle it?
@@ -172,6 +181,7 @@ E - Effect: How do I feel after examining the belief?
 - What is the story I am telling myself about this situation? Is it true?
 
 ### Goal and Growth Prompts
+
 - What does my ideal ordinary day look like?
 - What is one habit that would change everything if I did it consistently?
 - What am I learning right now that excites me?
@@ -180,6 +190,7 @@ E - Effect: How do I feel after examining the belief?
 - What is the next small step toward my biggest goal?
 
 ### Relationship Prompts
+
 - Who have I been meaning to reach out to?
 - What relationship in my life needs the most attention right now?
 - What do I most appreciate about the people closest to me?
@@ -187,6 +198,7 @@ E - Effect: How do I feel after examining the belief?
 - What boundary do I need to set or reinforce?
 
 ### Creative Prompts
+
 - Describe a memory in full sensory detail (sight, sound, smell, touch, taste)
 - Write a letter to your past self at age 15
 - Write a letter to your future self 10 years from now
@@ -194,6 +206,7 @@ E - Effect: How do I feel after examining the belief?
 - If today were a chapter title, what would it be?
 
 ### Weekly Review Prompts
+
 - What were this week's biggest wins?
 - What did I struggle with?
 - What did I learn?
@@ -207,38 +220,42 @@ E - Effect: How do I feel after examining the belief?
 **Anchor it**: Attach journaling to an existing habit (after morning coffee, before bed, during lunch)
 
 **Make it easy**:
+
 - Keep journal and pen in the same visible spot
 - Open the journal app before you need it
 - Use the one-sentence minimum on hard days
 - Remove friction (dedicated pen, journal always accessible)
 
 **Protect the time**:
+
 - Same time every day (becomes automatic)
 - Start with 5 minutes (increase only when it feels natural)
 - Set a phone reminder if needed (remove after 30 days)
 
 **Forgive breaks**:
+
 - Missed a day? Write about missing it.
 - Missed a week? Just start again. No guilt recap needed.
 - The journal does not judge you.
 
 ### Common Obstacles and Solutions
 
-| Obstacle | Solution |
-|----------|----------|
-| "I don't know what to write" | Use a prompt. Or write "I don't know what to write" until something comes. |
-| "I don't have time" | One sentence counts. Everyone has 60 seconds. |
-| "It feels pointless" | Results appear over weeks and months, not days. Trust the process. |
-| "I'm not a writer" | Journaling is not writing for an audience. Grammar, spelling, and eloquence do not matter. |
-| "Someone might read it" | Write in a password-protected app, or use a locked physical journal. |
-| "I keep skipping" | Anchor to an existing habit, set a reminder, keep it visible. |
-| "I start but can't sustain" | Start smaller. One sentence. One prompt. Reduce until it is effortless. |
+| Obstacle                     | Solution                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------ |
+| "I don't know what to write" | Use a prompt. Or write "I don't know what to write" until something comes.                 |
+| "I don't have time"          | One sentence counts. Everyone has 60 seconds.                                              |
+| "It feels pointless"         | Results appear over weeks and months, not days. Trust the process.                         |
+| "I'm not a writer"           | Journaling is not writing for an audience. Grammar, spelling, and eloquence do not matter. |
+| "Someone might read it"      | Write in a password-protected app, or use a locked physical journal.                       |
+| "I keep skipping"            | Anchor to an existing habit, set a reminder, keep it visible.                              |
+| "I start but can't sustain"  | Start smaller. One sentence. One prompt. Reduce until it is effortless.                    |
 
 ## Digital vs. Analog
 
 ### Paper Journal
 
 **Advantages**:
+
 - No screen, no distractions
 - Tactile experience (proven to enhance memory encoding)
 - No battery required
@@ -247,6 +264,7 @@ E - Effect: How do I feel after examining the belief?
 - Slows you down (this is a feature)
 
 **Disadvantages**:
+
 - Not searchable
 - Can be lost or damaged
 - Harder to carry everywhere
@@ -255,6 +273,7 @@ E - Effect: How do I feel after examining the belief?
 ### Digital Journal
 
 **Advantages**:
+
 - Searchable (find past entries by keyword)
 - Synced across devices
 - Can include photos, links, and multimedia
@@ -263,12 +282,14 @@ E - Effect: How do I feel after examining the belief?
 - Always with you (phone)
 
 **Disadvantages**:
+
 - Screen exposure (especially at night)
 - Distractions (notifications, app switching)
 - Less tactile engagement
 - Privacy depends on the platform
 
 ### Digital Tools
+
 - **Day One**: Beautiful design, multimedia, multiple journals, encrypted
 - **Notion**: Customizable, templates, integrated with other systems
 - **750 Words**: Web-based, morning pages format, gamified
@@ -277,27 +298,32 @@ E - Effect: How do I feel after examining the belief?
 - **Plain text files**: Maximum simplicity and portability
 
 ### Recommendation
+
 Try both. Many people maintain a quick digital daily log AND a deeper paper journal for weekly reflection. Use whatever keeps you consistent.
 
 ## Integrating Journaling with Other Practices
 
 ### Journaling + Meditation
+
 - Journal after meditation (capture insights while mind is clear)
 - Use journaling as a form of meditation (mindful writing)
 - Track meditation consistency and quality in journal
 
 ### Journaling + Therapy
+
 - Write between sessions about topics to discuss
 - Process sessions afterward (capture insights before they fade)
 - Track mood and patterns to share with therapist
 - Use CBT journaling techniques (thought records, ABCDE model)
 
 ### Journaling + Goal Setting
+
 - Monthly: Review goals, track progress, adjust plans
 - Weekly: Connect daily actions to larger goals
 - Daily: Identify today's most important task aligned with goals
 
 ### Journaling + Learning
+
 - After reading/learning: Write a summary in your own words
 - Connect new ideas to existing knowledge
 - Note questions and areas for deeper exploration
@@ -306,6 +332,7 @@ Try both. Many people maintain a quick digital daily log AND a deeper paper jour
 ## Getting Started Today
 
 **Minimum viable journaling practice**:
+
 1. Choose one method (start with prompted or gratitude)
 2. Choose one time (morning or evening)
 3. Choose one medium (paper or digital)
@@ -313,7 +340,6 @@ Try both. Many people maintain a quick digital daily log AND a deeper paper jour
 5. Do this tomorrow. And the next day.
 
 That is it. Everything else is refinement.
-
 
 ## Output Format
 

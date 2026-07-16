@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship presentation strategy"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship presentation strategy'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pitch Deck Creator
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to design a pitch deck using the Sequoia format or Guy Kawasaki 10/20/30 rule
 - The user needs slide-by-slide content creation with storytelling structure for investor presentations
 - The user wants investor Q&A preparation or pitch rehearsal frameworks
 - The user is creating their first pitch deck and needs a proven template and process
 
 **Do NOT use this skill when:**
+
 - The user needs advanced pitch narrative architecture and deck versioning (use pitch-deck-builder instead)
 - The user wants a full business plan rather than a pitch deck (use business-planner instead)
 - The user is preparing for a non-investor presentation or keynote
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on pitch deck creator
 - User asks about pitch deck creator best practices or techniques
 - User wants a structured approach to pitch deck creator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of pitch deck creator
+
 ## Questions to Ask the User First
 
 1. **What is your company and what do you do?** (One sentence)
@@ -61,7 +66,9 @@ metadata:
 8. **What format do you need?** (Live presentation, email deck, one-pager supplement)
 9. **Do you have a demo to integrate?**
 10. **How much time do you have for the pitch?** (3 min, 5 min, 10 min, 20 min)
+
 ---
+
 ## Core Frameworks
 
 ### The Sequoia Capital Format (Gold Standard)
@@ -87,13 +94,14 @@ The Sequoia format consists of these slides in this order:
 - **20 minutes** maximum for the presentation
 - **30 point font** minimum (forces clarity and conciseness)
 
-Adapt the Sequoia format to 10 slides by combining related content.
----
+## Adapt the Sequoia format to 10 slides by combining related content.
+
 ## Step 1: Narrative Arc Design
 
 Every great pitch tells a story. Choose your narrative structure:
 
 ### Structure A: Problem-First (Most Common)
+
 ```
 The world has problem X.
 Current solutions fail because Y.
@@ -105,6 +113,7 @@ Here is what we need from you.
 ```
 
 ### Structure B: Vision-First (Big Market Plays)
+
 ```
 Imagine a world where X is possible.
 Today, that world does not exist because Y.
@@ -116,6 +125,7 @@ Here is our team and what we need.
 ```
 
 ### Structure C: Traction-First (Growth Stage)
+
 ```
 We are growing at X% month over month.
 Here is what we built and why customers love it.
@@ -124,10 +134,13 @@ Here is our business model and unit economics.
 Here is where we are going.
 Here is what we need to get there faster.
 ```
+
 ---
+
 ## Step 2: Slide-by-Slide Guide
 
 ### Slide 1: Title
+
 ```
 TITLE SLIDE
 
@@ -148,6 +161,7 @@ GOOD tagline: "Slack for construction teams"
 ```
 
 ### Slide 2: Problem
+
 ```
 PROBLEM SLIDE
 The Problem Statement:
@@ -169,6 +183,7 @@ Design notes:
 ```
 
 ### Slide 3: Solution
+
 ```
 SOLUTION SLIDE
 
@@ -188,6 +203,7 @@ Design notes:
 ```
 
 ### Slide 4: Why Now
+
 ```
 WHY NOW SLIDE
 This is the right time because:
@@ -207,6 +223,7 @@ Design notes:
 ```
 
 ### Slide 5: Market Size
+
 ```
 MARKET SIZE SLIDE
 
@@ -226,6 +243,7 @@ Design notes:
 ```
 
 ### Slide 6: Product / Demo
+
 ```
 PRODUCT SLIDE
 Option A: Screenshots with callouts
@@ -251,6 +269,7 @@ Design notes:
 ```
 
 ### Slide 7: Business Model
+
 ```
 BUSINESS MODEL SLIDE
 Revenue Model: {{model_type}}
@@ -272,6 +291,7 @@ Design notes:
 ```
 
 ### Slide 8: Traction
+
 ```
 TRACTION SLIDE
 Choose the strongest metrics to display:
@@ -299,6 +319,7 @@ Design notes:
 ```
 
 ### Slide 9: Team
+
 ```
 TEAM SLIDE
 {{Founder 1 Name}} -- {{Title}}
@@ -320,6 +341,7 @@ Design notes:
 ```
 
 ### Slide 10: Competition
+
 ```
 COMPETITION SLIDE
 Competitive Positioning Matrix:
@@ -339,6 +361,7 @@ Design notes:
 ```
 
 ### Slide 11: Financials
+
 ```
 FINANCIALS SLIDE
 Revenue Projections:
@@ -361,6 +384,7 @@ Design notes:
 ```
 
 ### Slide 12: The Ask
+
 ```
 THE ASK SLIDE
 Raising: ${{amount}} {{instrument_type}}
@@ -382,10 +406,13 @@ Design notes:
 - If you have committed investors, mention them
 - End with contact information
 ```
+
 ---
+
 ## Step 3: Design Principles
 
 ### Visual Consistency Rules
+
 ```
 DESIGN CHECKLIST:
 - [ ] Consistent color palette (2-3 brand colors max)
@@ -402,6 +429,7 @@ DESIGN CHECKLIST:
 ```
 
 ### Slide Layout Patterns
+
 ```
 LAYOUT 1: Big Statement
   [One powerful sentence centered]
@@ -420,46 +448,33 @@ LAYOUT 5: Chart + Annotation
   [Graph/chart with one callout annotation]
   Good for: Traction, market size, financials
 ```
+
 ---
+
 ## Step 4: Investor Q&A Preparation
 
 ### Most Common Investor Questions (Prepare Answers)
 
 **Market & Problem:**
+
 1. How do you know this is a real problem?
 2. How big is this market, really?
 3. What happens if a big player enters this space?
 
-**Product & Technology:**
-4. What is your technical moat?
-5. How hard is this to build? What is the defensibility?
-6. What is your IP strategy?
+**Product & Technology:** 4. What is your technical moat? 5. How hard is this to build? What is the defensibility? 6. What is your IP strategy?
 
-**Business Model:**
-7. How did you arrive at your pricing?
-8. What are your unit economics?
-9. How does this scale?
+**Business Model:** 7. How did you arrive at your pricing? 8. What are your unit economics? 9. How does this scale?
 
-**Traction & Growth:**
-10. What is your growth rate?
-11. What is your customer acquisition strategy?
-12. What does retention look like?
+**Traction & Growth:** 10. What is your growth rate? 11. What is your customer acquisition strategy? 12. What does retention look like?
 
-**Team:**
-13. Why are you the right team to build this?
-14. What key hires do you need?
-15. Have the founders worked together before?
+**Team:** 13. Why are you the right team to build this? 14. What key hires do you need? 15. Have the founders worked together before?
 
-**Financials & Fundraising:**
-16. What are your assumptions behind the projections?
-17. When do you expect to be profitable?
-18. What is your burn rate?
-19. Who else is investing in this round?
-20. What happens if you cannot raise the full amount?
+**Financials & Fundraising:** 16. What are your assumptions behind the projections? 17. When do you expect to be profitable? 18. What is your burn rate? 19. Who else is investing in this round? 20. What happens if you cannot raise the full amount?
 
 ### Answer Framework
 
 For each question, prepare a response using this structure:
+
 ```
 QUESTION: {{question}}
 
@@ -469,10 +484,13 @@ SUPPORTING EVIDENCE: {{Data point or example}}
 
 BRIDGE BACK: {{Connect to a strength of your business}}
 ```
+
 ---
+
 ## Step 5: Pitch Timing Guide
 
 ### 3-Minute Pitch (Elevator / Competition)
+
 - Problem: 30 sec
 - Solution: 30 sec
 - Market: 20 sec
@@ -482,6 +500,7 @@ BRIDGE BACK: {{Connect to a strength of your business}}
 - Buffer: 10 sec
 
 ### 5-Minute Pitch (Angel / Demo Day)
+
 - Problem: 45 sec
 - Solution: 45 sec
 - Demo: 60 sec
@@ -492,6 +511,7 @@ BRIDGE BACK: {{Connect to a strength of your business}}
 - Ask: 25 sec
 
 ### 10-Minute Pitch (VC Meeting Opener)
+
 - Problem: 90 sec
 - Solution: 60 sec
 - Why Now: 45 sec
@@ -503,22 +523,25 @@ BRIDGE BACK: {{Connect to a strength of your business}}
 - Team: 30 sec
 - Financials: 30 sec
 - Ask: 45 sec
+
 ---
+
 ## Email Deck vs. Presentation Deck
 
 ### Differences
 
-| Aspect | Email Deck | Presentation Deck |
-|--------|-----------|-------------------|
+| Aspect       | Email Deck                   | Presentation Deck          |
+| ------------ | ---------------------------- | -------------------------- |
 | Text density | More text (must stand alone) | Minimal text (you narrate) |
-| Slide count | 12-15 slides | 10-12 slides |
-| Design | Information-focused | Impact-focused |
-| Appendix | Include detailed appendix | Keep appendix separate |
-| Demo | Screenshots with captions | Live demo or video |
+| Slide count  | 12-15 slides                 | 10-12 slides               |
+| Design       | Information-focused          | Impact-focused             |
+| Appendix     | Include detailed appendix    | Keep appendix separate     |
+| Demo         | Screenshots with captions    | Live demo or video         |
 
 ### Email Deck Appendix Slides
 
 Include these additional slides in email/send-ahead decks:
+
 1. Detailed financial model summary
 2. Customer case studies or testimonials
 3. Product roadmap
@@ -526,7 +549,9 @@ Include these additional slides in email/send-ahead decks:
 5. Key assumptions and sensitivity analysis
 6. Cap table summary (if appropriate)
 7. Technical architecture (if deep-tech)
+
 ---
+
 ## Output Checklist
 
 - [ ] Narrative arc is coherent from slide 1 to final slide
@@ -540,7 +565,6 @@ Include these additional slides in email/send-ahead decks:
 - [ ] Investor Q&A answers are prepared for top 20 questions
 - [ ] Deck has been reviewed by at least one outside perspective
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -553,13 +577,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with pitch deck creator for a mid-size project."
 
 **Output:** A complete pitch deck creator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

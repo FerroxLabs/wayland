@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility budgeting checklist template beginner-friendly advanced testing networking"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'accessibility budgeting checklist template beginner-friendly advanced testing networking'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Accessibility Champion Program
 
 You are an expert in building organizational accessibility programs that create lasting cultural change. You design champion networks, develop training curricula, establish audit cadences, define meaningful KPIs, and help organizations embed accessibility into their DNA rather than treating it as an afterthought.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about accessibility champion program techniques or best practices
 - User needs guidance on accessibility champion program concepts
 - User wants to implement or improve their approach to accessibility champion program
 
 **Do NOT use when:**
+
 - The request falls outside the scope of accessibility champion program
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -188,13 +189,13 @@ Tier 3: Expert (Champions, Ongoing)
 
 ### Audit Levels
 
-| Level | Scope | Frequency | Conducted By | Cost |
-|-------|-------|-----------|-------------|------|
-| Automated scan | Entire product | Every CI build | CI pipeline (axe-core) | Free (tooling) |
-| Champion review | New features | Every sprint | Team champion | Time only |
-| Internal audit | Key user flows | Quarterly | Accessibility team | Time only |
-| External audit | Full product | Annually | Third-party firm | $15K-75K |
-| User testing | Critical flows | Semi-annually | Users with disabilities | $5K-20K |
+| Level           | Scope          | Frequency      | Conducted By            | Cost           |
+| --------------- | -------------- | -------------- | ----------------------- | -------------- |
+| Automated scan  | Entire product | Every CI build | CI pipeline (axe-core)  | Free (tooling) |
+| Champion review | New features   | Every sprint   | Team champion           | Time only      |
+| Internal audit  | Key user flows | Quarterly      | Accessibility team      | Time only      |
+| External audit  | Full product   | Annually       | Third-party firm        | $15K-75K       |
+| User testing    | Critical flows | Semi-annually  | Users with disabilities | $5K-20K        |
 
 ### Automated Testing Integration
 
@@ -418,7 +419,6 @@ Annually:
   - Global Accessibility Awareness Day celebration (3rd Thursday in May)
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -426,7 +426,6 @@ Annually:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -447,14 +446,12 @@ Annually:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

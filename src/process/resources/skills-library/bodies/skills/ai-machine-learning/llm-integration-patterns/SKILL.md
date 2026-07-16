@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml backend architecture"
-  category: "ai-machine-learning"
-  subcategory: "ai-ml-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml backend architecture'
+  category: 'ai-machine-learning'
+  subcategory: 'ai-ml-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # LLM Integration Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is architecting a new service that calls an LLM API (OpenAI, Anthropic, Google Gemini, Mistral, local Ollama, etc.) and needs to decide how to structure that integration
 - User is building a RAG (Retrieval-Augmented Generation) pipeline and needs guidance on chunking strategy, embedding selection, vector store design, or retrieval logic
 - User is implementing an LLM-based agent with tool use, multi-step reasoning, or autonomous task execution and needs to design the orchestration layer
@@ -30,6 +32,7 @@ metadata:
 - User wants to design a multi-model routing system that selects the cheapest capable model for each request type
 
 **Do NOT use this skill when:**
+
 - User needs guidance on training or fine-tuning a model from scratch -- that requires a dedicated model training skill covering dataset curation, training loops, and evaluation harnesses
 - User is asking how to evaluate LLM output quality systematically -- use the LLM evaluation and evals framework skill for benchmark design, human evaluation pipelines, and automated scoring
 - User needs prompt engineering advice purely about how to write better prompts without any system design -- use the prompt engineering skill
@@ -578,6 +581,7 @@ Cost per request: (5,500 input × $0.00000015) + (1,000 output × $0.00000060) =
 With semantic caching at an estimated 40% hit rate (support bots have high query repetition): **$772/month.** With provider-level prompt caching on the 800-token static system prompt + the 3,500-token context prefix (~50% prefix overlap): effective cached input rate on ~4,300 tokens per request gives ~30% additional savings: **approximately $540/month.**
 
 This is slightly over $500. Optimize by:
+
 1. Reducing retrieved context to top-3 chunks at 700 tokens each (2,100 tokens vs 3,500) -- this reduces recall slightly but cuts cost meaningfully
 2. Limiting output to 600 tokens max (most support answers are under 400 tokens) rather than 1,000
 
@@ -701,15 +705,15 @@ async def handle_support_turn(
 
 ### Monitoring Targets for This Deployment
 
-| Metric | Target | Alert Threshold |
-|---|---|---|
-| Cache hit rate | > 40% | < 25% (cache misconfiguration) |
-| p95 total latency | < 4s | > 7s |
-| Response parse success | > 99.5% | < 98% |
-| Escalation rate | 5--15% | > 25% (prompt drift or bad retrieval) |
-| Context overflow rate | < 0.5% | > 2% |
-| Daily cost | < $16 | > $20 |
-| Retrieval relevance (spot check) | > 80% @3 | < 70% |
+| Metric                           | Target   | Alert Threshold                       |
+| -------------------------------- | -------- | ------------------------------------- |
+| Cache hit rate                   | > 40%    | < 25% (cache misconfiguration)        |
+| p95 total latency                | < 4s     | > 7s                                  |
+| Response parse success           | > 99.5%  | < 98%                                 |
+| Escalation rate                  | 5--15%   | > 25% (prompt drift or bad retrieval) |
+| Context overflow rate            | < 0.5%   | > 2%                                  |
+| Daily cost                       | < $16    | > $20                                 |
+| Retrieval relevance (spot check) | > 80% @3 | < 70%                                 |
 
 ### Rollout Sequence
 

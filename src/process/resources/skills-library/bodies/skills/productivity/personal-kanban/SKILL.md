@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management planning automation"
-  category: "productivity"
-  subcategory: "project-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'project-management planning automation'
+  category: 'productivity'
+  subcategory: 'project-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Personal Kanban
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to design or rebuild a personal Kanban board for solo task and project tracking -- they have multiple active workstreams and nothing is getting finished
 - A user asks how to set WIP limits, explains they are constantly multitasking, or uses phrases like "I have too many things in flight" or "I start things but never finish them"
 - A user wants to visualize their personal workflow from idea capture through completion, including blocked states
@@ -29,6 +31,7 @@ metadata:
 - A user wants to measure their personal productivity -- how long work takes, how much they complete, where work gets stuck
 
 **Do NOT use when:**
+
 - The user is designing a board for a team, department, or squad -- column definitions, WIP limits, and maintenance protocols differ fundamentally (use team project-management or business Kanban skills)
 - The user wants to prioritize a flat list of tasks without any visual system or workflow stages (use `task-prioritization`)
 - The user needs to plan project milestones, deliverables, and dependencies across a timeline (use `milestone-planning`)
@@ -194,6 +197,7 @@ Deliver the full specification in one cohesive document that the user can use im
 ### Card Template
 
 ```
+
 [Label: Work / Side Project / Personal / Admin / Learning]
 
 TASK: [Action-verb title -- specific enough that anyone could pick it up and start]
@@ -203,6 +207,7 @@ Due: [YYYY-MM-DD or "None"]
 Next Action: [The single immediate physical step to take when picking up this card]
 Blocked Reason (Waiting only): [Why it is blocked and who/what is needed]
 Follow-up Date (Waiting only): [YYYY-MM-DD]
+
 ```
 
 ---
@@ -388,6 +393,7 @@ When the user has an existing board that has decayed or is being ignored, do not
 ## Personal Kanban System Specification
 
 ### System Summary
+
 - **Owner:** Personal (Freelance UX Designer)
 - **Tool:** Trello
 - **Board name:** "UX Work Hub -- Personal Kanban"
@@ -399,20 +405,20 @@ When the user has an existing board that has decayed or is being ignored, do not
 
 ### Column Definitions
 
-| Column | Purpose | WIP Limit | Entry Rule | Exit Rule | Notes |
-|--------|---------|-----------|-----------|----------|-------|
-| Someday/Maybe | Long-term ideas and deferred work | Unlimited | Any task not actionable in next 3 weeks | Pulled to Backlog during monthly review only | Reviewed monthly on the 1st; not in weekly flow |
-| Backlog (Ready) | Tasks actionable within the next 3 weeks | 25 max | Any new task; items graduated from Someday/Maybe | Pulled to This Week during Sunday review | Max 25 items enforced; prune at weekly review |
-| This Week | Committed work for the current week | 8 max | Pulled from Backlog every Sunday evening | Pulled to In Progress when slot opens | Balance across clients + blog + learning |
-| In Progress | Actively working on RIGHT NOW | 3 (hard limit) | Only when In Progress count < 3; pulled from This Week | Complete → Done; Blocked → Waiting | The binding constraint of the whole system |
-| Waiting | Blocked on client feedback, asset, or external input | 4 max | From In Progress when externally blocked | Back to In Progress when unblocked | Must have follow-up date; check Wednesdays |
-| Done | Completed this week | Unlimited | From In Progress when fully complete | Archived every Sunday | Count before archiving for throughput metric |
+| Column          | Purpose                                              | WIP Limit      | Entry Rule                                             | Exit Rule                                    | Notes                                           |
+| --------------- | ---------------------------------------------------- | -------------- | ------------------------------------------------------ | -------------------------------------------- | ----------------------------------------------- |
+| Someday/Maybe   | Long-term ideas and deferred work                    | Unlimited      | Any task not actionable in next 3 weeks                | Pulled to Backlog during monthly review only | Reviewed monthly on the 1st; not in weekly flow |
+| Backlog (Ready) | Tasks actionable within the next 3 weeks             | 25 max         | Any new task; items graduated from Someday/Maybe       | Pulled to This Week during Sunday review     | Max 25 items enforced; prune at weekly review   |
+| This Week       | Committed work for the current week                  | 8 max          | Pulled from Backlog every Sunday evening               | Pulled to In Progress when slot opens        | Balance across clients + blog + learning        |
+| In Progress     | Actively working on RIGHT NOW                        | 3 (hard limit) | Only when In Progress count < 3; pulled from This Week | Complete → Done; Blocked → Waiting           | The binding constraint of the whole system      |
+| Waiting         | Blocked on client feedback, asset, or external input | 4 max          | From In Progress when externally blocked               | Back to In Progress when unblocked           | Must have follow-up date; check Wednesdays      |
+| Done            | Completed this week                                  | Unlimited      | From In Progress when fully complete                   | Archived every Sunday                        | Count before archiving for throughput metric    |
 
 ---
 
 ### Your Immediate Setup Task: Triage the 80-Card Backlog
 
-Before setting up the board, run a 30-minute triage session on your existing 80 cards. For each card, answer one question: "Can I realistically start this in the next 3 weeks?" 
+Before setting up the board, run a 30-minute triage session on your existing 80 cards. For each card, answer one question: "Can I realistically start this in the next 3 weeks?"
 
 - **Yes:** Move to Backlog (Ready). Stop adding when you hit 25 -- the rest are Someday/Maybe.
 - **No / Not yet:** Move to Someday/Maybe.
@@ -439,6 +445,7 @@ Follow-up date: [YYYY-MM-DD]
 ```
 
 **Good card title examples for your context:**
+
 - "Write first draft of 'Typography in Mobile UX' blog post -- target 800 words" ✓
 - "Create 3 homepage wireframe variations for Client B -- based on brief received Oct 12" ✓
 - "Complete Figma advanced prototyping module 4 -- conditional logic" ✓
@@ -450,12 +457,12 @@ Follow-up date: [YYYY-MM-DD]
 
 ### WIP Limits Reference
 
-| Column | Limit | Reason | What to Do at Limit |
-|--------|-------|--------|-------------------|
-| In Progress | 3 | You are currently reactive across 4+ work streams. Three simultaneous tasks is the maximum before context-switching costs exceed the benefit of multitasking. | Stop. Complete one task or move one blocked task to Waiting before pulling anything new. No exceptions. |
-| This Week | 8 | Four clients plus blog plus learning = 6 workstreams. Eight committed tasks = ~1.5 per stream per week, which is realistic given freelance variability. | If you want to add a 9th, remove a lower-priority card first. |
-| Waiting | 4 | Freelance design frequently creates client-approval blockers. Four waiting items is the threshold before the issue becomes systemic -- if you hit 4, follow up on the oldest immediately. | Follow up on the oldest Waiting card before adding a new one. |
-| Backlog (Ready) | 25 | Above 25 active-backlog items, selection paralysis defeats the purpose of the ready queue. | Excess items go to Someday/Maybe during weekly review. |
+| Column          | Limit | Reason                                                                                                                                                                                    | What to Do at Limit                                                                                     |
+| --------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| In Progress     | 3     | You are currently reactive across 4+ work streams. Three simultaneous tasks is the maximum before context-switching costs exceed the benefit of multitasking.                             | Stop. Complete one task or move one blocked task to Waiting before pulling anything new. No exceptions. |
+| This Week       | 8     | Four clients plus blog plus learning = 6 workstreams. Eight committed tasks = ~1.5 per stream per week, which is realistic given freelance variability.                                   | If you want to add a 9th, remove a lower-priority card first.                                           |
+| Waiting         | 4     | Freelance design frequently creates client-approval blockers. Four waiting items is the threshold before the issue becomes systemic -- if you hit 4, follow up on the oldest immediately. | Follow up on the oldest Waiting card before adding a new one.                                           |
+| Backlog (Ready) | 25    | Above 25 active-backlog items, selection paralysis defeats the purpose of the ready queue.                                                                                                | Excess items go to Someday/Maybe during weekly review.                                                  |
 
 ---
 
@@ -475,6 +482,7 @@ Follow-up date: [YYYY-MM-DD]
 ### Trello-Specific Setup Notes
 
 **Lists to create (left to right):**
+
 1. Someday/Maybe
 2. Backlog (Ready) -- [max 25]
 3. This Week -- [max 8]
@@ -484,6 +492,7 @@ Follow-up date: [YYYY-MM-DD]
 7. Archived Done (create as a separate board or use the "Archive all cards" feature at end of each month)
 
 **Labels to create:**
+
 - 🔵 Blue: Client A [use your actual client names or codes for privacy]
 - 🟢 Green: Client B
 - 🟠 Orange: Client C
@@ -494,6 +503,7 @@ Follow-up date: [YYYY-MM-DD]
 
 **WIP limit enforcement in Trello:**
 Trello does not natively enforce WIP limits. Use two workarounds:
+
 - Option 1: Edit the list name to include the limit in brackets: "In Progress [max 3]" -- the visual reminder is enough for most users
 - Option 2: Install the "Kanban WIP for Trello" Power-Up (available in Trello's Power-Up directory) for automatic warnings when a list exceeds its limit
 
@@ -524,14 +534,14 @@ Execute in this sequence:
 
 ### Metrics Tracker
 
-| Metric | Definition | Target | Week 1 | Week 2 | Week 3 | Week 4 |
-|--------|-----------|--------|--------|--------|--------|--------|
-| Throughput | Cards moved to Done this week | Baseline weeks 1-2; target 6-8 from week 3 | | | | |
-| Avg cycle time | Days from "Added to In Progress" → Done | < 2.5 days | | | | |
-| WIP compliance | Days In Progress ≤ 3 out of 5 | 4/5 or 5/5 | /5 | /5 | /5 | /5 |
-| Blocked rate | Waiting cards / total Done cards | < 35% (freelance norm is higher than in-house) | | | | |
-| Backlog (Ready) size | Count of cards in Backlog list | < 25 | | | | |
-| Blog card completions | Blog cards completed per month | ≥ 3 per month | | | | |
+| Metric                | Definition                              | Target                                         | Week 1 | Week 2 | Week 3 | Week 4 |
+| --------------------- | --------------------------------------- | ---------------------------------------------- | ------ | ------ | ------ | ------ |
+| Throughput            | Cards moved to Done this week           | Baseline weeks 1-2; target 6-8 from week 3     |        |        |        |        |
+| Avg cycle time        | Days from "Added to In Progress" → Done | < 2.5 days                                     |        |        |        |        |
+| WIP compliance        | Days In Progress ≤ 3 out of 5           | 4/5 or 5/5                                     | /5     | /5     | /5     | /5     |
+| Blocked rate          | Waiting cards / total Done cards        | < 35% (freelance norm is higher than in-house) |        |        |        |        |
+| Backlog (Ready) size  | Count of cards in Backlog list          | < 25                                           |        |        |        |        |
+| Blog card completions | Blog cards completed per month          | ≥ 3 per month                                  |        |        |        |        |
 
 **Throughput note:** You currently complete 3-5 tasks per week. After the backlog triage and with a strict WIP limit of 3, expect throughput to drop slightly in week 1 (while you clear the backlog confusion) and rise to 6-8 in weeks 3-4 as cycle times shorten. The goal is not more tasks -- it is shorter, more reliable cycle times.
 

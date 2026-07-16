@@ -119,7 +119,7 @@ export function pickLocale(acceptLanguage: string | undefined): QrLoginLocale {
     candidates.push({ tag, q, order: i });
   }
 
-  candidates.sort((a, b) => (b.q - a.q) || (a.order - b.order));
+  candidates.sort((a, b) => b.q - a.q || a.order - b.order);
 
   const primaryMap = new Map<string, QrLoginLocale>();
   for (const locale of SUPPORTED_LOCALES) {

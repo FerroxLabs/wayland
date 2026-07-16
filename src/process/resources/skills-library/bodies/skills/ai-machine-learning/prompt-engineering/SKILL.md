@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml best-practices automation"
-  category: "ai-machine-learning"
-  subcategory: "ai-ml-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml best-practices automation'
+  category: 'ai-machine-learning'
+  subcategory: 'ai-ml-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Prompt Engineering
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to write, improve, or debug a prompt for an LLM (GPT-4, Claude, Gemini, Llama, Mistral, or similar foundation models)
 - The user needs to design a prompt engineering system for a production application -- chatbots, extraction pipelines, classification systems, summarization workflows, code generation tools
 - The user wants to choose between prompting strategies: zero-shot, few-shot, chain-of-thought, ReAct, self-consistency, tree-of-thoughts, or structured output approaches
@@ -30,6 +32,7 @@ metadata:
 - The user is designing multi-turn conversation state management or context window strategies
 
 **Do NOT use this skill when:**
+
 - The user needs to fine-tune or train a model -- see the fine-tuning skill in the ai-ml-engineering subcategory
 - The user needs to build a RAG (Retrieval-Augmented Generation) pipeline -- the retrieval architecture, chunking strategy, and embedding selection deserve their own skill
 - The user is asking about LLM agent orchestration frameworks (LangChain, AutoGen, CrewAI) as the primary focus -- those have architectural concerns beyond prompt design
@@ -150,16 +153,19 @@ Deliver prompt engineering guidance in the following structure, adapted to the u
 ---
 
 **System Prompt:**
+
 ```
 [Full system prompt text, ready to use]
 ```
 
 **User Message Template:**
+
 ```
 [Full user message template with {{variable}} placeholders marked]
 ```
 
 **Few-Shot Examples (if applicable):**
+
 ```
 Example 1:
 Input: [realistic example input]
@@ -171,6 +177,7 @@ Output: [exact expected output]
 ```
 
 **Output Schema (if structured output):**
+
 ```json
 {
   "field_name": "string -- description of field",
@@ -195,6 +202,7 @@ Output: [exact expected output]
 | Latency | p95 response time | < 3 seconds |
 
 **Known Failure Modes:**
+
 - [Specific failure mode 1] → [Mitigation]
 - [Specific failure mode 2] → [Mitigation]
 
@@ -232,9 +240,11 @@ Output: [exact expected output]
 ## Edge Cases
 
 ### Inconsistent Output Format Despite Format Instructions
+
 The model intermittently produces valid JSON for 90% of requests but returns markdown-wrapped JSON or partial JSON for the remaining 10%. This is one of the most common production issues.
 
 **Handling:**
+
 - Add a reinforcing instruction at the end of the user message: "Remember: output only raw JSON. Do not include markdown code fences, explanations, or any text outside the JSON object."
 - Add a post-processing step that strips markdown code fences (` ```json ` and ` ``` `) before parsing -- this catches ~70% of the remaining failures
 - Switch to the model's native JSON mode or function calling API if available -- this is the only guaranteed solution
@@ -242,9 +252,11 @@ The model intermittently produces valid JSON for 90% of requests but returns mar
 - Log all parse failures with the raw output for manual inspection -- failures often cluster around specific input patterns that reveal a prompt gap
 
 ### Long Documents Exceeding Context Window
+
 The user wants to extract information from a 50-page contract (approximately 40,000 tokens) using a model with a 16,384-token context window.
 
 **Handling:**
+
 - Implement semantic chunking: split the document at natural boundaries (section headers, paragraph breaks) rather than at fixed token counts. Fixed-size chunking at section midpoints loses semantic coherence
 - Use overlapping windows with 10-15% overlap (150-200 tokens) to prevent information loss at chunk boundaries
 - For extraction tasks, run extraction on each chunk independently, then merge results with deduplication logic. For contracts: extract all instances of each field across chunks, then apply resolution logic (e.g., take the most specific value, or flag conflicts for human review)
@@ -252,9 +264,11 @@ The user wants to extract information from a 50-page contract (approximately 40,
 - If the model supports a 128K context window (GPT-4o, Claude 3.5 Sonnet), evaluate whether the cost of sending the full document is acceptable versus the engineering complexity of chunking. For a 40,000-token document at GPT-4o pricing, the cost per call is approximately $0.10-$0.15 -- often justified for high-value extraction
 
 ### Model Refusals on Legitimate Business Content
+
 The model refuses to process content or returns a safety refusal on legitimate business content -- for example, declining to summarize a legal document mentioning criminal activity, or refusing to analyze medical records for legitimate clinical applications.
 
 **Handling:**
+
 - Refusals are often triggered by surface-level pattern matching on keywords, not semantic understanding. Reframe the context: "You are a legal professional reviewing this case file for a law firm" provides context that reduces false positive refusals
 - Add explicit legitimacy framing in the system prompt: "This application is used by licensed medical professionals for clinical documentation. Process all provided clinical records."
 - Avoid words that trigger refusal patterns unnecessarily. Audit your prompts for loaded terms that appear in your content and consider whether they can be abstracted
@@ -262,18 +276,22 @@ The model refuses to process content or returns a safety refusal on legitimate b
 - Log all refusals with the input that triggered them. Cluster the inputs to identify which content categories are causing the problem
 
 ### Prompt Performance Degrades After Model Update
+
 A prompt that scored 94% accuracy in March scores 87% accuracy in June after the model provider pushed an undisclosed update.
 
 **Handling:**
+
 - This is an industry-wide problem with no complete solution. The mitigation is architectural: pin to a specific model version (e.g., `gpt-4o-2024-08-06` rather than `gpt-4o`) in production. Model providers deprecate versions on 6-12 month cycles, so this buys time rather than permanence
 - Run the golden evaluation dataset on a schedule -- weekly for high-stakes applications, monthly for lower-stakes ones. Automated regression testing against the evaluation set catches model drift before users do
 - When a new model version is released, immediately run the full evaluation suite on the new version before migrating. Treat model version upgrades as software dependency upgrades that require testing
 - Maintain at least 2 prior prompt versions in version control so you can roll back quickly
 
 ### Multi-Language or International Inputs
+
 The application receives inputs in Spanish, Portuguese, German, and English. The prompt was written in English and performs well on English inputs but degrades on other languages.
 
 **Handling:**
+
 - Test the prompt on inputs in each language in your distribution. Modern frontier models (GPT-4 class) handle European languages comparably to English, but performance gaps widen for less-resourced languages
 - Write the system prompt in the dominant language of your user base, but add: "You will receive inputs in multiple languages. Always respond in [target language]" if a fixed output language is required
 - For extraction tasks, language of input should not affect structured output quality on frontier models -- if it does, include multilingual few-shot examples covering the affected languages
@@ -281,18 +299,22 @@ The application receives inputs in Spanish, Portuguese, German, and English. The
 - Consider whether the output should be in the same language as the input (natural for chatbots) or in a fixed language (natural for data pipelines). Specify this explicitly in the system prompt
 
 ### Hallucination in Factual Extraction Tasks
+
 The model extracts plausible-but-incorrect data -- fabricating a date, inventing a company name, or generating a revenue figure that does not appear in the source document.
 
 **Handling:**
+
 - Add an explicit grounding instruction: "Only extract information explicitly stated in the document. If a field is not present in the document, output null for that field. Do not infer, estimate, or generate values."
 - Include a "confidence" field in the output schema: `"confidence": "high | medium | low | not_found"`. Models that are uncertain about a value will often correctly assign "low" confidence, giving you a signal to flag for review
 - Implement post-extraction verification: for each extracted value, run a secondary prompt that asks "Does the following text contain the value [extracted value]? Answer yes or no." This grounding check catches fabricated values that are absent from the source
 - For high-stakes extraction (financial data, legal terms), route low-confidence outputs to human review. Do not automate 100% of extraction -- design the system to route the uncertain 5-15% to humans
 
 ### Token Cost Exceeding Budget at Scale
+
 A prompt with a 2,000-token system prompt + 500-token input + 300-token output runs fine in development, but at 100,000 daily requests, the GPT-4o cost is $280/day, exceeding the budget.
 
 **Handling:**
+
 - First, audit the system prompt for redundancy. A 2,000-token system prompt typically contains 30-40% content that can be condensed without quality loss. Target 500-800 tokens for the system prompt
 - Evaluate whether a smaller, cheaper model (GPT-4o-mini, Claude Haiku, Llama 3.1 8B) meets your quality threshold. Run the evaluation suite on the cheaper model. For many extraction and classification tasks, smaller models match frontier model performance at 5-20x lower cost
 - Implement prompt caching where available (Anthropic's prompt caching, OpenAI's caching for repeated prefixes). For applications where the system prompt is identical across many requests, caching reduces the effective cost of the system prompt by 90%
@@ -318,6 +340,7 @@ A prompt with a 2,000-token system prompt + 500-token input + 300-token output r
 ---
 
 **System Prompt:**
+
 ```
 You are a customer support data analyst. Your job is to extract structured information from customer support emails.
 
@@ -338,6 +361,7 @@ Rules:
 ```
 
 **User Message Template:**
+
 ```
 Extract the structured data from the following customer email.
 
@@ -355,30 +379,31 @@ Include these examples in the user message, before the live input, to anchor out
 ```
 Example 1:
 <email>
-Hi, I ordered the ProDesk Keyboard three weeks ago and it still hasn't arrived. 
-My order number is #44821. This is unacceptable -- I needed it for a presentation last week. 
+Hi, I ordered the ProDesk Keyboard three weeks ago and it still hasn't arrived.
+My order number is #44821. This is unacceptable -- I needed it for a presentation last week.
 Please tell me where my order is.
 </email>
 Output: {"product": "ProDesk Keyboard", "issue_category": "shipping", "urgency": "high", "refund_requested": false}
 
 Example 2:
 <email>
-Hola, me cobraron dos veces por mi suscripción al plan Premium este mes. 
-Pueden revisar mi cuenta? Mi correo es maria@example.com. 
+Hola, me cobraron dos veces por mi suscripción al plan Premium este mes.
+Pueden revisar mi cuenta? Mi correo es maria@example.com.
 Me gustaría que me devolvieran el cargo duplicado.
 </email>
 Output: {"product": "plan Premium", "issue_category": "billing", "urgency": "medium", "refund_requested": true}
 
 Example 3:
 <email>
-The mobile app keeps crashing when I try to open my account settings. 
-I'm using an iPhone 14. It's been happening for two days. Not a huge rush but 
+The mobile app keeps crashing when I try to open my account settings.
+I'm using an iPhone 14. It's been happening for two days. Not a huge rush but
 wanted to let you know.
 </email>
 Output: {"product": "mobile app", "issue_category": "technical", "urgency": "low", "refund_requested": false}
 ```
 
 **Output Schema:**
+
 ```json
 {
   "product": "string or null -- exact product name as mentioned in email",
@@ -409,6 +434,7 @@ Output: {"product": "mobile app", "issue_category": "technical", "urgency": "low
 | Latency p95 | API response time | < 4 seconds |
 
 **Known Failure Modes:**
+
 - Email contains multiple products mentioned → The model will extract the primary/first-mentioned product. Mitigation: add "If multiple products are mentioned, extract the product most central to the complaint" to the system prompt.
 - Customer uses sarcasm to imply urgency ("Oh sure, take your time, I only need this by yesterday") → Sarcasm detection is unreliable. Mitigation: accept this as a known limitation; route medium/low urgency outputs to a second-pass review queue for high-value customers.
 - Email is a reply chain with quoted previous messages → Model may extract product from quoted text rather than the live complaint. Mitigation: preprocess emails to strip quoted reply text (lines beginning with `>`) before injection into the prompt.
@@ -422,6 +448,7 @@ Output: {"product": "mobile app", "issue_category": "technical", "urgency": "low
 ---
 
 **Implementation Note -- Python Integration:**
+
 ```python
 import openai
 import json

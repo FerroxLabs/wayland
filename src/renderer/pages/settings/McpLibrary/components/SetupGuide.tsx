@@ -40,19 +40,13 @@ function StepCard({
   const showFallback = hasInputs && !step.primaryAction && !!fallbackAction;
   const done = !!step.autoCompletedByInstall || (completedStepIds?.has(step.id) ?? false);
   return (
-    <div
-      className={classNames(styles.step, { [styles.isDone]: done })}
-      data-step-id={step.id}
-    >
+    <div className={classNames(styles.step, { [styles.isDone]: done })} data-step-id={step.id}>
       <div className={styles.stepNum}>{done ? <Check size={14} /> : idx + 1}</div>
       <div className={styles.stepBody}>
         <div className={styles.stepTitle}>
           {step.title}
           {step.estSeconds ? (
-            <span className={styles.stepEst}>
-              {' '}
-              {Math.max(1, Math.round(step.estSeconds / 60))} min
-            </span>
+            <span className={styles.stepEst}> {Math.max(1, Math.round(step.estSeconds / 60))} min</span>
           ) : null}
         </div>
         {step.body && (
@@ -85,10 +79,7 @@ function StepCard({
           ))}
         {step.warning && <div className={styles.stepWarn}>{step.warning}</div>}
         {step.primaryAction && (
-          <button
-            className={styles.stepPrimary}
-            onClick={() => onPrimary(step.primaryAction!.action)}
-          >
+          <button className={styles.stepPrimary} onClick={() => onPrimary(step.primaryAction!.action)}>
             {step.primaryAction.label}
           </button>
         )}
@@ -98,9 +89,7 @@ function StepCard({
             onClick={() => onPrimary(fallbackAction!.action)}
             disabled={fallbackAction!.pending}
           >
-            {fallbackAction!.pending
-              ? (fallbackAction!.pendingLabel ?? fallbackAction!.label)
-              : fallbackAction!.label}
+            {fallbackAction!.pending ? (fallbackAction!.pendingLabel ?? fallbackAction!.label) : fallbackAction!.label}
           </button>
         )}
       </div>

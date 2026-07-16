@@ -31,14 +31,28 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [convert, convert-four-questions, convert-temperature, convert-open, convert-three-locks, convert-bullets, convert-proof, convert-close, convert-chute, convert-voice, convert-bullshit-filter, convert-audit]
+    related_skills:
+      [
+        convert,
+        convert-four-questions,
+        convert-temperature,
+        convert-open,
+        convert-three-locks,
+        convert-bullets,
+        convert-proof,
+        convert-close,
+        convert-chute,
+        convert-voice,
+        convert-bullshit-filter,
+        convert-audit,
+      ]
 attribution:
-  lineage: "The Donahoe Method (Wayland-owned operating system); references Halbert long-form direct mail canon, Schwartz awareness levels, Caples headline formulas, Sugarman slippery slide, Hormozi value-equation framing"
+  lineage: 'The Donahoe Method (Wayland-owned operating system); references Halbert long-form direct mail canon, Schwartz awareness levels, Caples headline formulas, Sugarman slippery slide, Hormozi value-equation framing'
 ---
 
 # Convert Sales Page - The Long-Form Direct-Response Sales Page
 
-> *"Know who you're talking to and where they are. Answer the Four Questions before you write a word. Open through the Side Door with Skin in the Game and your Fingerprint. Build desire, earn trust, give them the excuse to buy. Close from every angle. Then close again."* - The Donahoe Method, in one paragraph
+> _"Know who you're talking to and where they are. Answer the Four Questions before you write a word. Open through the Side Door with Skin in the Game and your Fingerprint. Build desire, earn trust, give them the excuse to buy. Close from every angle. Then close again."_ - The Donahoe Method, in one paragraph
 
 This is the flagship of the conversion pack. It applies all eight Donahoe Method frameworks top-to-bottom and emits three things: a structured editorial brief, a paste-ready HTML/CSS reference implementation, and a Method audit footer.
 
@@ -47,6 +61,7 @@ This is the flagship of the conversion pack. It applies all eight Donahoe Method
 Trigger phrases: `write me a sales page`, `build me a sales page`, `long-form sales page`, `donahoe sales page`, `direct response sales page`, `flagship sales page`, `/convert sales-page <product>`.
 
 Use this when:
+
 - The user has a product, course, service, or offer that needs a complete long-form page (1,500–8,000 words depending on temperature).
 - The reader needs to be taken from cold to sold inside a single page.
 - Both copy AND a deployable HTML scaffold are needed.
@@ -64,12 +79,14 @@ Use this when:
 ## Inputs
 
 Required:
+
 1. **Product description** - what is being sold? What does it actually do?
 2. **The one person** - name, city, situation, last failure. Donahoe Voice Rule #1: One Person Rule. If the user supplies a segment ("course creators"), ask once for one specific human.
 3. **The Nerve** - the specific raw pain that's bothering them this morning. Sensory, not abstract.
 4. **Offer** - price, what's included, deliverables, any bonuses, guarantee terms.
 
 Optional:
+
 - **Author voice notes** - signature phrases, profanity tolerance, tone. If absent, default to The Donahoe Voice Rules.
 - **Existing proof assets** - testimonials, case study numbers, screenshots, named customers.
 - **Temperature override** - if the user knows the traffic is cold/cool/warm/hot, accept; otherwise classify via `convert-temperature`.
@@ -82,7 +99,7 @@ The page-builder MUST walk Phase -1 (VoC mining) plus all eight Method phases. S
 
 ### Phase -1 - Voice-of-Customer Mining (HARD GATE - refuse to proceed without it)
 
-Halbert's "person who" letter style and Schwartz's awareness-level sequencing both require one thing the seller cannot fake: **the buyer's actual language**. Without it, every framework that follows generates from the seller's mental model, not the buyer's. The page reads *plausible* but never *resonant*.
+Halbert's "person who" letter style and Schwartz's awareness-level sequencing both require one thing the seller cannot fake: **the buyer's actual language**. Without it, every framework that follows generates from the seller's mental model, not the buyer's. The page reads _plausible_ but never _resonant_.
 
 This skill REFUSES to proceed to Phase 0 until the VoC bank exists. Ask once. If the user says they don't have one, hand them the 30-minute mining playbook below. Do not start writing without it.
 
@@ -129,7 +146,7 @@ The VoC bank is not a research artifact filed away. Each downstream phase MUST p
 - **Phase 3 (Three Locks - The Want)** MUST surface **desired-outcome quotes** verbatim where possible. Lock 1 sells the state in the buyer's own words.
 - **Phase 4 (Bullets)** MUST surface the **objection quotes** - every Flip and Scar bullet should map to an objection from the bank. If a bullet doesn't trace to a real objection, cut it.
 - **Phase 5 (Proof)** uses **desired-outcome quotes** from existing customers as Namecheck and Receipt material when the user has them.
-- **Phase 8 (Bullshit Filter)** - for every paragraph in the final draft, ask: *"Is the buyer's language anywhere in this paragraph? Or is this all my language?"* If the page is 100% seller-voice, it has failed regardless of what the Filter says about marketing-speak.
+- **Phase 8 (Bullshit Filter)** - for every paragraph in the final draft, ask: _"Is the buyer's language anywhere in this paragraph? Or is this all my language?"_ If the page is 100% seller-voice, it has failed regardless of what the Filter says about marketing-speak.
 
 #### If the user says "I don't have a VoC bank"
 
@@ -164,8 +181,8 @@ Do not start the page until the bank exists. The skill exits Phase -1 only when 
 Call `convert-four-questions` (or run inline) before writing a single section. Answer from the reader's perspective:
 
 - **Why You?** - Why should THIS person care, today, this Tuesday?
-- **Why Me?** - Why are *you* qualified to help them with *this*? (Skin in the Game, not credential dump.)
-- **Why This?** - What's the mechanism that makes this approach different (not "better" - *different*)?
+- **Why Me?** - Why are _you_ qualified to help them with _this_? (Skin in the Game, not credential dump.)
+- **Why This?** - What's the mechanism that makes this approach different (not "better" - _different_)?
 - **Why Now?** - Real reason to act today. If there isn't one, don't manufacture one.
 
 If any answer is weak or generic, stop and refine. The whole page rests on these four answers.
@@ -188,7 +205,7 @@ Call `convert-open`. Generate the hero/above-fold open using all four layers in 
 
 1. **Nerve Strike** - first sentence hits the raw pain they feel today.
 2. **Side Door** - casual entry, not a frontal pitch.
-3. **Skin in the Game** - within sentences 3–4, why *you* are telling them.
+3. **Skin in the Game** - within sentences 3–4, why _you_ are telling them.
 4. **Fingerprint** - the only-you moment (opinion, comparison, vivid image, contrarian take).
 
 This becomes the first content the reader sees. The headline lives inside Layer 1 or sits just above it.
@@ -197,7 +214,7 @@ This becomes the first content the reader sees. The headline lives inside Layer 
 
 Call `convert-three-locks` to architect the body:
 
-- **Lock 1 - The Want** → Sections 5–7 (sell the *state*, not the product).
+- **Lock 1 - The Want** → Sections 5–7 (sell the _state_, not the product).
 - **Lock 2 - The Trust** → Sections 8–10 (Conversational Proof, mechanism, big claim).
 - **Lock 3 - The Excuse** → Sections 11–12 (offer stack + math justification).
 
@@ -219,6 +236,7 @@ No bullet should sound like marketing. Each must be specific, sensory, curiosity
 Call `convert-proof`. Conversational Proof never lives in one "proof section" - it runs through every claim. The rhythm: Claim → Evidence (story or specific) → Reason → Move on.
 
 Five proof types, used as needed:
+
 - **Anecdote** - "Here's what happened when..."
 - **Receipt** - exact numbers, dates, dollar amounts.
 - **Drive-By** - credentials mentioned in passing, never announced.
@@ -256,6 +274,7 @@ Apply chute discipline to every section before moving on.
 Final pass. Call `convert-voice` then `convert-bullshit-filter`.
 
 Voice Rules:
+
 - First person ("I", "you" - never "we", "customers").
 - Contractions throughout.
 - Mixed sentence lengths.
@@ -263,30 +282,30 @@ Voice Rules:
 - Specificity over generality.
 - Visceral over abstract.
 
-Bullshit Filter - for every paragraph: *"Would I actually say this to someone I'm trying to help?"* If no, rewrite until yes.
+Bullshit Filter - for every paragraph: _"Would I actually say this to someone I'm trying to help?"_ If no, rewrite until yes.
 
 ## Section Architecture (16 Sections)
 
 The full long-form arc. For Hot/Boiling traffic, sections 6, 7, 9, 12 may be compressed; the others stay.
 
-| # | Section | Purpose | Method primitive |
-|---|---------|---------|------------------|
-| 1 | Hero / above-fold | Layer 1 Nerve Strike + headline + primary CTA | convert-open Layer 1 |
-| 2 | Side-Door entry | Conversational on-ramp; defenses down | convert-open Layer 2 |
-| 3 | Skin-in-the-Game origin | Why *you* | convert-open Layer 3 |
-| 4 | Fingerprint moment | Only-you POV | convert-open Layer 4 |
-| 5 | The Want section | Paint the state vividly | Lock 1 |
-| 6 | Pain agitation | Specific, sensory cost of staying stuck | Lock 1 reinforcement |
-| 7 | Bridge / mechanism reveal | The "this is how it works" pivot | Lock 2 setup |
-| 8 | The Trust section | Conversational Proof in rhythm | Lock 2 |
-| 9 | The big-claim section | The strongest, most specific promise | Lock 2 climax |
-| 10 | Bullet block | 8–15 mixed bullets | convert-bullets |
-| 11 | Offer / value stack | Everything they get, conversationally | Cascade Stack |
-| 12 | The Excuse section | Math justification | Lock 3 |
-| 13 | Cascade Close | Stack → Vision → Math → Safety Net → Door | convert-close |
-| 14 | Guarantee block | The Safety Net, expanded | Cascade Safety Net |
-| 15 | FAQ | Objection handling inline | Lock 3 reinforcement |
-| 16 | P.S. + P.P.S. | Recloses from new angles | Cascade reclose |
+| #   | Section                   | Purpose                                       | Method primitive     |
+| --- | ------------------------- | --------------------------------------------- | -------------------- |
+| 1   | Hero / above-fold         | Layer 1 Nerve Strike + headline + primary CTA | convert-open Layer 1 |
+| 2   | Side-Door entry           | Conversational on-ramp; defenses down         | convert-open Layer 2 |
+| 3   | Skin-in-the-Game origin   | Why _you_                                     | convert-open Layer 3 |
+| 4   | Fingerprint moment        | Only-you POV                                  | convert-open Layer 4 |
+| 5   | The Want section          | Paint the state vividly                       | Lock 1               |
+| 6   | Pain agitation            | Specific, sensory cost of staying stuck       | Lock 1 reinforcement |
+| 7   | Bridge / mechanism reveal | The "this is how it works" pivot              | Lock 2 setup         |
+| 8   | The Trust section         | Conversational Proof in rhythm                | Lock 2               |
+| 9   | The big-claim section     | The strongest, most specific promise          | Lock 2 climax        |
+| 10  | Bullet block              | 8–15 mixed bullets                            | convert-bullets      |
+| 11  | Offer / value stack       | Everything they get, conversationally         | Cascade Stack        |
+| 12  | The Excuse section        | Math justification                            | Lock 3               |
+| 13  | Cascade Close             | Stack → Vision → Math → Safety Net → Door     | convert-close        |
+| 14  | Guarantee block           | The Safety Net, expanded                      | Cascade Safety Net   |
+| 15  | FAQ                       | Objection handling inline                     | Lock 3 reinforcement |
+| 16  | P.S. + P.P.S.             | Recloses from new angles                      | Cascade reclose      |
 
 ## Section-by-Section HTML/CSS Template
 
@@ -295,158 +314,320 @@ Modern, semantic, mobile-first. CSS custom properties for theming. No CDN import
 ```html
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{HEADLINE}} - {{BRAND}}</title>
-  <meta name="description" content="{{META_DESCRIPTION}}">
-  <meta property="og:title" content="{{HEADLINE}}">
-  <meta property="og:description" content="{{META_DESCRIPTION}}">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="{{OG_IMAGE_URL}}">
-  <style>
-    :root {
-      --ink: #111418;
-      --ink-soft: #3a3f47;
-      --paper: #fdfcf9;
-      --accent: #c0392b;
-      --accent-ink: #fff;
-      --rule: #e6e2d8;
-      --max: 720px;
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; font: 18px/1.6 Georgia, "Times New Roman", serif; color: var(--ink); background: var(--paper); }
-    main { max-width: var(--max); margin: 0 auto; padding: 24px 20px 96px; }
-    h1, h2, h3 { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; line-height: 1.18; color: var(--ink); }
-    h1 { font-size: clamp(28px, 6vw, 44px); margin: 16px 0 24px; }
-    h2 { font-size: clamp(22px, 4.5vw, 30px); margin: 56px 0 16px; }
-    h3 { font-size: 20px; margin: 32px 0 12px; }
-    p { margin: 0 0 18px; }
-    ul.bullets { list-style: none; padding: 0; }
-    ul.bullets li { padding: 10px 0 10px 28px; position: relative; border-bottom: 1px solid var(--rule); }
-    ul.bullets li::before { content: ""; position: absolute; left: 6px; top: 18px; width: 10px; height: 10px; background: var(--accent); border-radius: 2px; }
-    .cta { display: inline-block; padding: 18px 28px; background: var(--accent); color: var(--accent-ink); text-decoration: none; font-weight: 700; font-size: 18px; border-radius: 6px; border: 0; cursor: pointer; }
-    .cta:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-    .stack { background: #fff; border: 1px solid var(--rule); padding: 24px; border-radius: 8px; margin: 24px 0; }
-    .ps { border-top: 2px solid var(--rule); padding-top: 24px; margin-top: 48px; font-style: italic; color: var(--ink-soft); }
-    /* Default: Conversational Proof - proof never announces itself (Method Framework 2) */
-    figure.proof { margin: 1.2em 0; padding-left: 1.5em; border-left: 2px solid currentColor; font-style: italic; opacity: 0.92; }
-    figure.proof p, figure.proof blockquote { margin: 0; border: 0; padding: 0; }
-    figure.proof figcaption { display: inline; font-size: 0.9em; font-style: normal; margin-left: 0.5em; opacity: 0.7; color: var(--ink-soft); }
-    /* Opt-in: Block-quote framing - Hot/Boiling audiences only (e-commerce, post-purchase) */
-    figure.proof.block { margin: 1.5em 0; padding: 1em 1.2em; background: rgba(0,0,0,0.04); border-left: 4px solid var(--accent); border-radius: 4px; font-style: normal; opacity: 1; }
-    figure.proof.block blockquote { margin: 0 0 0.5em 0; }
-    figure.proof.block figcaption { display: block; opacity: 0.75; font-size: 0.85em; margin-top: 0.4em; margin-left: 0; }
-    details { border-bottom: 1px solid var(--rule); padding: 12px 0; }
-    details summary { cursor: pointer; font-weight: 600; }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  </style>
-</head>
-<body>
-<main>
-  <!-- 1. Hero / above-fold -->
-  <header>
-    <p class="kicker">{{KICKER_NERVE_STRIKE}}</p>
-    <h1>{{HEADLINE}}</h1>
-    <p class="subhead">{{SUBHEAD_LAYER_1_2}}</p>
-    <a class="cta" href="#offer" aria-label="{{CTA_ARIA}}">{{CTA_PRIMARY}}</a>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{HEADLINE}} - {{BRAND}}</title>
+    <meta name="description" content="{{META_DESCRIPTION}}" />
+    <meta property="og:title" content="{{HEADLINE}}" />
+    <meta property="og:description" content="{{META_DESCRIPTION}}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="{{OG_IMAGE_URL}}" />
+    <style>
+      :root {
+        --ink: #111418;
+        --ink-soft: #3a3f47;
+        --paper: #fdfcf9;
+        --accent: #c0392b;
+        --accent-ink: #fff;
+        --rule: #e6e2d8;
+        --max: 720px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font:
+          18px/1.6 Georgia,
+          'Times New Roman',
+          serif;
+        color: var(--ink);
+        background: var(--paper);
+      }
+      main {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 24px 20px 96px;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.18;
+        color: var(--ink);
+      }
+      h1 {
+        font-size: clamp(28px, 6vw, 44px);
+        margin: 16px 0 24px;
+      }
+      h2 {
+        font-size: clamp(22px, 4.5vw, 30px);
+        margin: 56px 0 16px;
+      }
+      h3 {
+        font-size: 20px;
+        margin: 32px 0 12px;
+      }
+      p {
+        margin: 0 0 18px;
+      }
+      ul.bullets {
+        list-style: none;
+        padding: 0;
+      }
+      ul.bullets li {
+        padding: 10px 0 10px 28px;
+        position: relative;
+        border-bottom: 1px solid var(--rule);
+      }
+      ul.bullets li::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 18px;
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        border-radius: 2px;
+      }
+      .cta {
+        display: inline-block;
+        padding: 18px 28px;
+        background: var(--accent);
+        color: var(--accent-ink);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 18px;
+        border-radius: 6px;
+        border: 0;
+        cursor: pointer;
+      }
+      .cta:focus-visible {
+        outline: 3px solid var(--ink);
+        outline-offset: 3px;
+      }
+      .stack {
+        background: #fff;
+        border: 1px solid var(--rule);
+        padding: 24px;
+        border-radius: 8px;
+        margin: 24px 0;
+      }
+      .ps {
+        border-top: 2px solid var(--rule);
+        padding-top: 24px;
+        margin-top: 48px;
+        font-style: italic;
+        color: var(--ink-soft);
+      }
+      /* Default: Conversational Proof - proof never announces itself (Method Framework 2) */
+      figure.proof {
+        margin: 1.2em 0;
+        padding-left: 1.5em;
+        border-left: 2px solid currentColor;
+        font-style: italic;
+        opacity: 0.92;
+      }
+      figure.proof p,
+      figure.proof blockquote {
+        margin: 0;
+        border: 0;
+        padding: 0;
+      }
+      figure.proof figcaption {
+        display: inline;
+        font-size: 0.9em;
+        font-style: normal;
+        margin-left: 0.5em;
+        opacity: 0.7;
+        color: var(--ink-soft);
+      }
+      /* Opt-in: Block-quote framing - Hot/Boiling audiences only (e-commerce, post-purchase) */
+      figure.proof.block {
+        margin: 1.5em 0;
+        padding: 1em 1.2em;
+        background: rgba(0, 0, 0, 0.04);
+        border-left: 4px solid var(--accent);
+        border-radius: 4px;
+        font-style: normal;
+        opacity: 1;
+      }
+      figure.proof.block blockquote {
+        margin: 0 0 0.5em 0;
+      }
+      figure.proof.block figcaption {
+        display: block;
+        opacity: 0.75;
+        font-size: 0.85em;
+        margin-top: 0.4em;
+        margin-left: 0;
+      }
+      details {
+        border-bottom: 1px solid var(--rule);
+        padding: 12px 0;
+      }
+      details summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <!-- 1. Hero / above-fold -->
+      <header>
+        <p class="kicker">{{KICKER_NERVE_STRIKE}}</p>
+        <h1>{{HEADLINE}}</h1>
+        <p class="subhead">{{SUBHEAD_LAYER_1_2}}</p>
+        <a class="cta" href="#offer" aria-label="{{CTA_ARIA}}">{{CTA_PRIMARY}}</a>
+      </header>
 
-  <!-- 2. Side-Door entry -->
-  <section aria-label="Opening"><p>{{SIDE_DOOR_PARAGRAPH}}</p></section>
+      <!-- 2. Side-Door entry -->
+      <section aria-label="Opening"><p>{{SIDE_DOOR_PARAGRAPH}}</p></section>
 
-  <!-- 3. Skin-in-the-Game origin -->
-  <section><p>{{SKIN_IN_GAME_PARAGRAPH}}</p></section>
+      <!-- 3. Skin-in-the-Game origin -->
+      <section><p>{{SKIN_IN_GAME_PARAGRAPH}}</p></section>
 
-  <!-- 4. Fingerprint moment -->
-  <section><p>{{FINGERPRINT_PARAGRAPH}}</p></section>
+      <!-- 4. Fingerprint moment -->
+      <section><p>{{FINGERPRINT_PARAGRAPH}}</p></section>
 
-  <!-- 5. The Want section -->
-  <section><h2>{{WANT_HEADER}}</h2><p>{{WANT_BODY_VIVID_STATE}}</p></section>
+      <!-- 5. The Want section -->
+      <section>
+        <h2>{{WANT_HEADER}}</h2>
+        <p>{{WANT_BODY_VIVID_STATE}}</p>
+      </section>
 
-  <!-- 6. Pain agitation -->
-  <section><h2>{{PAIN_HEADER}}</h2><p>{{PAIN_AGITATION_BODY}}</p></section>
+      <!-- 6. Pain agitation -->
+      <section>
+        <h2>{{PAIN_HEADER}}</h2>
+        <p>{{PAIN_AGITATION_BODY}}</p>
+      </section>
 
-  <!-- 7. Bridge / mechanism reveal -->
-  <section><h2>{{MECHANISM_HEADER}}</h2><p>{{MECHANISM_BODY_BECAUSE}}</p></section>
+      <!-- 7. Bridge / mechanism reveal -->
+      <section>
+        <h2>{{MECHANISM_HEADER}}</h2>
+        <p>{{MECHANISM_BODY_BECAUSE}}</p>
+      </section>
 
-  <!-- 8. The Trust section (Conversational Proof) -->
-  <section><h2>{{TRUST_HEADER}}</h2>
-    <p>{{CLAIM_1}}</p>
-    <figure class="proof"><blockquote>{{ANECDOTE_OR_RECEIPT_1}}</blockquote><figcaption>{{NAMECHECK_1}}</figcaption></figure>
-    <p>{{BECAUSE_1}}</p>
-    <p>{{CLAIM_2}}</p>
-    <figure class="proof"><blockquote>{{ANECDOTE_OR_RECEIPT_2}}</blockquote><figcaption>{{NAMECHECK_2}}</figcaption></figure>
-    <p>{{BECAUSE_2}}</p>
-  </section>
+      <!-- 8. The Trust section (Conversational Proof) -->
+      <section>
+        <h2>{{TRUST_HEADER}}</h2>
+        <p>{{CLAIM_1}}</p>
+        <figure class="proof">
+          <blockquote>{{ANECDOTE_OR_RECEIPT_1}}</blockquote>
+          <figcaption>{{NAMECHECK_1}}</figcaption>
+        </figure>
+        <p>{{BECAUSE_1}}</p>
+        <p>{{CLAIM_2}}</p>
+        <figure class="proof">
+          <blockquote>{{ANECDOTE_OR_RECEIPT_2}}</blockquote>
+          <figcaption>{{NAMECHECK_2}}</figcaption>
+        </figure>
+        <p>{{BECAUSE_2}}</p>
+      </section>
 
-  <!-- 9. Big claim -->
-  <section><h2>{{BIG_CLAIM_HEADER}}</h2><p>{{BIG_CLAIM_BODY}}</p></section>
+      <!-- 9. Big claim -->
+      <section>
+        <h2>{{BIG_CLAIM_HEADER}}</h2>
+        <p>{{BIG_CLAIM_BODY}}</p>
+      </section>
 
-  <!-- 10. Bullet block -->
-  <section><h2>{{BULLET_HEADER}}</h2>
-    <ul class="bullets">
-      <li>{{BULLET_KEYHOLE_1}}</li>
-      <li>{{BULLET_FLIP_1}}</li>
-      <li>{{BULLET_SNAPSHOT_1}}</li>
-      <li>{{BULLET_SCAR_1}}</li>
-      <li>{{BULLET_KEYHOLE_2}}</li>
-      <li>{{BULLET_FLIP_2}}</li>
-      <li>{{BULLET_SNAPSHOT_2}}</li>
-      <li>{{BULLET_SCAR_2}}</li>
-      <!-- 8-15 total, mixed types -->
-    </ul>
-  </section>
+      <!-- 10. Bullet block -->
+      <section>
+        <h2>{{BULLET_HEADER}}</h2>
+        <ul class="bullets">
+          <li>{{BULLET_KEYHOLE_1}}</li>
+          <li>{{BULLET_FLIP_1}}</li>
+          <li>{{BULLET_SNAPSHOT_1}}</li>
+          <li>{{BULLET_SCAR_1}}</li>
+          <li>{{BULLET_KEYHOLE_2}}</li>
+          <li>{{BULLET_FLIP_2}}</li>
+          <li>{{BULLET_SNAPSHOT_2}}</li>
+          <li>{{BULLET_SCAR_2}}</li>
+          <!-- 8-15 total, mixed types -->
+        </ul>
+      </section>
 
-  <!-- 11. Offer / value stack -->
-  <section id="offer" class="stack">
-    <h2>{{OFFER_HEADER}}</h2>
-    <p>{{STACK_CONVERSATIONAL_PARAGRAPH}}</p>
-    <ul class="bullets">
-      <li>{{COMPONENT_1}}</li>
-      <li>{{COMPONENT_2}}</li>
-      <li>{{COMPONENT_3}}</li>
-      <li>{{BONUS_1}}</li>
-      <li>{{BONUS_2}}</li>
-    </ul>
-    <p><strong>{{PRICE_FRAMING}}</strong></p>
-  </section>
+      <!-- 11. Offer / value stack -->
+      <section id="offer" class="stack">
+        <h2>{{OFFER_HEADER}}</h2>
+        <p>{{STACK_CONVERSATIONAL_PARAGRAPH}}</p>
+        <ul class="bullets">
+          <li>{{COMPONENT_1}}</li>
+          <li>{{COMPONENT_2}}</li>
+          <li>{{COMPONENT_3}}</li>
+          <li>{{BONUS_1}}</li>
+          <li>{{BONUS_2}}</li>
+        </ul>
+        <p><strong>{{PRICE_FRAMING}}</strong></p>
+      </section>
 
-  <!-- 12. Excuse section (math) -->
-  <section><h2>{{EXCUSE_HEADER}}</h2><p>{{MATH_JUSTIFICATION_BODY}}</p></section>
+      <!-- 12. Excuse section (math) -->
+      <section>
+        <h2>{{EXCUSE_HEADER}}</h2>
+        <p>{{MATH_JUSTIFICATION_BODY}}</p>
+      </section>
 
-  <!-- 13. Cascade Close -->
-  <section><h2>{{CLOSE_HEADER}}</h2>
-    <p>{{VISION_CLOSE_PARAGRAPH}}</p>
-    <p>{{MATH_CLOSE_PARAGRAPH}}</p>
-    <p>{{SAFETY_NET_PARAGRAPH}}</p>
-    <p><a class="cta" href="{{CHECKOUT_URL}}" aria-label="{{CTA_ARIA}}">{{CTA_PRIMARY}}</a></p>
-    <p class="door">{{DOOR_INSTRUCTION}}</p>
-  </section>
+      <!-- 13. Cascade Close -->
+      <section>
+        <h2>{{CLOSE_HEADER}}</h2>
+        <p>{{VISION_CLOSE_PARAGRAPH}}</p>
+        <p>{{MATH_CLOSE_PARAGRAPH}}</p>
+        <p>{{SAFETY_NET_PARAGRAPH}}</p>
+        <p><a class="cta" href="{{CHECKOUT_URL}}" aria-label="{{CTA_ARIA}}">{{CTA_PRIMARY}}</a></p>
+        <p class="door">{{DOOR_INSTRUCTION}}</p>
+      </section>
 
-  <!-- 14. Guarantee block -->
-  <section><h2>{{GUARANTEE_HEADER}}</h2><p>{{GUARANTEE_BODY}}</p></section>
+      <!-- 14. Guarantee block -->
+      <section>
+        <h2>{{GUARANTEE_HEADER}}</h2>
+        <p>{{GUARANTEE_BODY}}</p>
+      </section>
 
-  <!-- 15. FAQ -->
-  <section><h2>Questions you're probably asking</h2>
-    <details><summary>{{FAQ_Q_1}}</summary><p>{{FAQ_A_1}}</p></details>
-    <details><summary>{{FAQ_Q_2}}</summary><p>{{FAQ_A_2}}</p></details>
-    <details><summary>{{FAQ_Q_3}}</summary><p>{{FAQ_A_3}}</p></details>
-    <details><summary>{{FAQ_Q_4}}</summary><p>{{FAQ_A_4}}</p></details>
-  </section>
+      <!-- 15. FAQ -->
+      <section>
+        <h2>Questions you're probably asking</h2>
+        <details>
+          <summary>{{FAQ_Q_1}}</summary>
+          <p>{{FAQ_A_1}}</p>
+        </details>
+        <details>
+          <summary>{{FAQ_Q_2}}</summary>
+          <p>{{FAQ_A_2}}</p>
+        </details>
+        <details>
+          <summary>{{FAQ_Q_3}}</summary>
+          <p>{{FAQ_A_3}}</p>
+        </details>
+        <details>
+          <summary>{{FAQ_Q_4}}</summary>
+          <p>{{FAQ_A_4}}</p>
+        </details>
+      </section>
 
-  <!-- 16. P.S. and P.P.S. -->
-  <aside class="ps">
-    <p><strong>P.S.</strong> {{PS_RECLOSE_NEW_ANGLE}}</p>
-    <p><strong>P.P.S.</strong> {{PPS_RESTATE_PROOF_OR_GUARANTEE}}</p>
-  </aside>
-</main>
-</body>
+      <!-- 16. P.S. and P.P.S. -->
+      <aside class="ps">
+        <p><strong>P.S.</strong> {{PS_RECLOSE_NEW_ANGLE}}</p>
+        <p><strong>P.P.S.</strong> {{PPS_RESTATE_PROOF_OR_GUARANTEE}}</p>
+      </aside>
+    </main>
+  </body>
 </html>
 ```
 
 CSS notes for the writer:
+
 - The serif body type signals editorial / direct-mail rather than SaaS. Replace with a sans-serif if the offer is technical and the audience is engineers.
 - `--accent` is the only loud color. Keep it singular. The CTA, the proof rule, and the bullet markers all share it so the eye keeps returning to the action.
 - The page is single-column, max 720px wide. Long-form copy reading at 60–75 characters per line. Do not introduce a sidebar.
@@ -467,21 +648,25 @@ CSS notes for the writer:
 ## Phase -1 - Voice-of-Customer Bank
 
 ### Pain quotes (3-5)
+
 - "{{PAIN_QUOTE_1}}" - [source: {{SOURCE_1}}]
 - "{{PAIN_QUOTE_2}}" - [source: {{SOURCE_2}}]
 - "{{PAIN_QUOTE_3}}" - [source: {{SOURCE_3}}]
 
 ### Desired-outcome quotes (3-5)
+
 - "{{OUTCOME_QUOTE_1}}" - [source: {{SOURCE}}]
 - "{{OUTCOME_QUOTE_2}}" - [source: {{SOURCE}}]
 - "{{OUTCOME_QUOTE_3}}" - [source: {{SOURCE}}]
 
 ### Objection quotes (3-5)
+
 - "{{OBJECTION_QUOTE_1}}" - [source: {{SOURCE}}]
 - "{{OBJECTION_QUOTE_2}}" - [source: {{SOURCE}}]
 - "{{OBJECTION_QUOTE_3}}" - [source: {{SOURCE}}]
 
 **VoC -> Page mapping:**
+
 - Layer 1 Nerve Strike sources from: {{PAIN_QUOTE_N}}
 - Lock 1 (Want) sources from: {{OUTCOME_QUOTE_N}}
 - Bullet block (Flip / Scar) sources from: {{OBJECTION_QUOTE_N}}
@@ -502,6 +687,7 @@ CSS notes for the writer:
 > {{FULL_OPEN_3_TO_5_SENTENCES}}
 
 Layer breakdown:
+
 - **Nerve Strike:** "{{QUOTE}}"
 - **Side Door:** "{{QUOTE}}"
 - **Skin in Game:** "{{QUOTE}}"
@@ -551,22 +737,23 @@ Layer breakdown:
 ---
 
 ## Method coverage report
-
 ```
+
 Method coverage report:
-  Open:           full - all 4 layers (Nerve Strike, Side Door, Skin in Game, Fingerprint); Layer 1 sourced from a VoC quote
-  Three Locks:    full - Want, Trust, Excuse architected across the 16 sections; mapped to VoC bank where applicable
-  Proof:          full - claim → evidence → reason → move-on rhythm woven across the body, not boxed
-  Bullets:        full - mixed types (K / F / Sn / Sc); each Flip and Scar traces to a VoC objection
-  Cascade Close:  full - Stack / Vision / Math / Safety Net / Door + P.S. + P.P.S. in spec order
-  Greased Chute:  full - paragraph rhythm + open loops at section breaks; read-aloud pass completed
-  Voice Rules:    full - first person, contractions, no marketing-speak; banned-phrase grep clean
-  Temperature:    {{ICE_COLD / COOL / WARM / HOT / BOILING}}
+Open: full - all 4 layers (Nerve Strike, Side Door, Skin in Game, Fingerprint); Layer 1 sourced from a VoC quote
+Three Locks: full - Want, Trust, Excuse architected across the 16 sections; mapped to VoC bank where applicable
+Proof: full - claim → evidence → reason → move-on rhythm woven across the body, not boxed
+Bullets: full - mixed types (K / F / Sn / Sc); each Flip and Scar traces to a VoC objection
+Cascade Close: full - Stack / Vision / Math / Safety Net / Door + P.S. + P.P.S. in spec order
+Greased Chute: full - paragraph rhythm + open loops at section breaks; read-aloud pass completed
+Voice Rules: full - first person, contractions, no marketing-speak; banned-phrase grep clean
+Temperature: {{ICE_COLD / COOL / WARM / HOT / BOILING}}
 
 VoC inputs: {{N}} pain / {{N}} outcome / {{N}} objection quotes - sources logged
 
 Required next step: Run /convert bullshit-filter on this draft before shipping.
 The Filter is a SEPARATE pass - this skill cannot grade its own output.
+
 ```
 
 ## Notes / Cross-Skill Composition
@@ -588,3 +775,4 @@ The Filter is a SEPARATE pass - this skill cannot grade its own output.
 - Slippery-slide momentum (Greased Chute) - Sugarman (The AdWeek Copywriting Handbook, 1998).
 - Value-stack framing in Section 11 - informed by Hormozi-style equation logic, expressed in conversational rather than calculator form.
 - The Method itself - Wayland-owned operating system. No external citation needed for the Method; cite lineage authors only where their canonical concept does specific work in a section.
+```

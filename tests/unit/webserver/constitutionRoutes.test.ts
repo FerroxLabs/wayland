@@ -3,16 +3,23 @@ import type { Express, Request, RequestHandler, Response } from 'express';
 
 // The route calls the shared in-process constitution helpers. Hoist stateful
 // stubs so we can assert against them.
-const { mockWrite, mockReset, mockWriteSpecialist, mockDeleteSpecialist, mockRead, mockAppendAudit, mockRequireDestructive } =
-  vi.hoisted(() => ({
-    mockWrite: vi.fn((content: string) => content.length <= 100),
-    mockReset: vi.fn(() => '# Default Constitution\n'),
-    mockWriteSpecialist: vi.fn((id: string, _content: string) => id !== 'bad-id'),
-    mockDeleteSpecialist: vi.fn((id: string) => id !== 'missing'),
-    mockRead: vi.fn(() => '# Current Constitution\n'),
-    mockAppendAudit: vi.fn(),
-    mockRequireDestructive: vi.fn(),
-  }));
+const {
+  mockWrite,
+  mockReset,
+  mockWriteSpecialist,
+  mockDeleteSpecialist,
+  mockRead,
+  mockAppendAudit,
+  mockRequireDestructive,
+} = vi.hoisted(() => ({
+  mockWrite: vi.fn((content: string) => content.length <= 100),
+  mockReset: vi.fn(() => '# Default Constitution\n'),
+  mockWriteSpecialist: vi.fn((id: string, _content: string) => id !== 'bad-id'),
+  mockDeleteSpecialist: vi.fn((id: string) => id !== 'missing'),
+  mockRead: vi.fn(() => '# Current Constitution\n'),
+  mockAppendAudit: vi.fn(),
+  mockRequireDestructive: vi.fn(),
+}));
 
 vi.mock('@process/bridge/constitutionBridge', () => ({
   writeConstitution: mockWrite,
@@ -141,7 +148,10 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     // destructive bar - a stolen public-internet session must not reach it.
     mockRequireDestructive.mockImplementation(async (_req: Request, res: Response) => {
       (res as unknown as { status: (c: number) => Response }).status(403);
-      (res as unknown as { json: (b: unknown) => Response }).json({ success: false, msg: 'trusted local network required' });
+      (res as unknown as { json: (b: unknown) => Response }).json({
+        success: false,
+        msg: 'trusted local network required',
+      });
       return false;
     });
     const res = makeRes();

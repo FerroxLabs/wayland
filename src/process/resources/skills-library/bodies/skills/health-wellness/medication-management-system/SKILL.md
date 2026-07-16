@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "checklist template guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'checklist template guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Medication Management System
 
 > **Disclaimer:** This skill provides general wellness and health organization information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. Nothing in this skill is a substitute for professional medical judgment from a licensed prescriber, pharmacist, or other qualified healthcare provider. Always consult your pharmacist or prescribing provider before making any changes to your medications. If you are experiencing a medical emergency, call emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Wants to build a complete medication tracking system for 2 or more prescriptions, over-the-counter (OTC) medications, vitamins, or supplements -- particularly when they are losing track of doses or refills
 - Needs to create a master medication list to bring to a new provider, hospital visit, emergency room, or specialist appointment
 - Wants to set up a refill cadence so they never run out of a critical medication unexpectedly
@@ -34,6 +36,7 @@ metadata:
 - Travels frequently and needs a portable, organized medication profile to carry with them
 
 **Do NOT use this skill when the user:**
+
 - Asks whether two or more specific medications interact -- redirect to their pharmacist (use a clinical drug interaction skill if available, but never substitute AI output for pharmacist review)
 - Reports experiencing a side effect, adverse reaction, or unexpected symptom after taking a medication -- advise them to contact their provider or pharmacist immediately; this is not an organization problem
 - Asks whether they should take a specific medication, whether a dosage is appropriate, or whether a prescription is correct -- these are clinical questions for their prescriber
@@ -450,14 +453,14 @@ Emergency Contact: [Name, Relationship, Phone -- fill in]
 
 ### SECTION 1: MEDICATION MASTER LIST
 
-| # | Generic Name (Brand) | Form & Dose | Route | Frequency | Timing | Prescriber | Pharmacy | Purpose (Your Words) | Special Notes |
-|---|---------------------|-------------|-------|-----------|--------|-----------|----------|----------------------|---------------|
-| 1 | Levothyroxine (Synthroid) | [X mcg tab] | Oral | Once daily | On waking -- before food | [Dr. Name -- fill in] | [Pharmacy] | [e.g., "for my thyroid"] | Must be taken on empty stomach; wait 30-60 min before breakfast; separate from calcium or iron supplements by 4 hours -- verify exact timing with pharmacist |
-| 2 | Omeprazole (Prilosec) | [X mg capsule] | Oral | Once daily | 30-60 min before breakfast | [Dr. Name -- fill in] | [Pharmacy] | [e.g., "for acid reflux / stomach"] | Works best taken before first meal of the day -- ask pharmacist whether this timing conflicts with your levothyroxine window |
-| 3 | Metformin (Glucophage) | [X mg tablet] | Oral | Twice daily | With breakfast + With dinner | [Dr. Name -- fill in] | [Pharmacy] | [e.g., "for blood sugar / diabetes"] | Must be taken WITH food to reduce stomach upset; do not take on empty stomach |
-| 4 | Lisinopril (Zestril/Prinivil) | [X mg tablet] | Oral | Once daily | Morning (with breakfast) | [Dr. Name -- fill in] | [Pharmacy] | [e.g., "for blood pressure"] | Ask your prescriber whether morning or evening timing is preferred for your situation |
-| 5 | Atorvastatin (Lipitor) | [X mg tablet] | Oral | Once daily | Bedtime | [Dr. Name -- fill in] | [Pharmacy] | [e.g., "for cholesterol"] | Avoid large amounts of grapefruit/grapefruit juice -- verify with pharmacist |
-| 6 | Vitamin D3 | [X IU softgel] | Oral | Once daily | With breakfast | [Self / Dr. Name -- fill in] | [Pharmacy/Store] | [e.g., "for bone health / Vitamin D deficiency"] | Fat-soluble -- absorbs better with a meal that contains fat |
+| #   | Generic Name (Brand)          | Form & Dose    | Route | Frequency   | Timing                       | Prescriber                   | Pharmacy         | Purpose (Your Words)                             | Special Notes                                                                                                                                                |
+| --- | ----------------------------- | -------------- | ----- | ----------- | ---------------------------- | ---------------------------- | ---------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Levothyroxine (Synthroid)     | [X mcg tab]    | Oral  | Once daily  | On waking -- before food     | [Dr. Name -- fill in]        | [Pharmacy]       | [e.g., "for my thyroid"]                         | Must be taken on empty stomach; wait 30-60 min before breakfast; separate from calcium or iron supplements by 4 hours -- verify exact timing with pharmacist |
+| 2   | Omeprazole (Prilosec)         | [X mg capsule] | Oral  | Once daily  | 30-60 min before breakfast   | [Dr. Name -- fill in]        | [Pharmacy]       | [e.g., "for acid reflux / stomach"]              | Works best taken before first meal of the day -- ask pharmacist whether this timing conflicts with your levothyroxine window                                 |
+| 3   | Metformin (Glucophage)        | [X mg tablet]  | Oral  | Twice daily | With breakfast + With dinner | [Dr. Name -- fill in]        | [Pharmacy]       | [e.g., "for blood sugar / diabetes"]             | Must be taken WITH food to reduce stomach upset; do not take on empty stomach                                                                                |
+| 4   | Lisinopril (Zestril/Prinivil) | [X mg tablet]  | Oral  | Once daily  | Morning (with breakfast)     | [Dr. Name -- fill in]        | [Pharmacy]       | [e.g., "for blood pressure"]                     | Ask your prescriber whether morning or evening timing is preferred for your situation                                                                        |
+| 5   | Atorvastatin (Lipitor)        | [X mg tablet]  | Oral  | Once daily  | Bedtime                      | [Dr. Name -- fill in]        | [Pharmacy]       | [e.g., "for cholesterol"]                        | Avoid large amounts of grapefruit/grapefruit juice -- verify with pharmacist                                                                                 |
+| 6   | Vitamin D3                    | [X IU softgel] | Oral  | Once daily  | With breakfast               | [Self / Dr. Name -- fill in] | [Pharmacy/Store] | [e.g., "for bone health / Vitamin D deficiency"] | Fat-soluble -- absorbs better with a meal that contains fat                                                                                                  |
 
 **⚠ Action item:** Confirm with each prescriber which doctor prescribed which medications. Bring this list to your next appointment with each provider and ask them to verify the list is complete and accurate.
 
@@ -466,28 +469,32 @@ Emergency Contact: [Name, Relationship, Phone -- fill in]
 ### SECTION 2: DAILY MEDICATION SCHEDULE
 
 **On Waking (Empty Stomach -- Before Breakfast):**
+
 - [ ] Levothyroxine -- [X mcg] -- immediately on waking, before food or coffee
   - Set a waking alarm for this medication specifically
 
-*Wait 30-60 minutes (check with your pharmacist for your specific product) before moving to breakfast*
+_Wait 30-60 minutes (check with your pharmacist for your specific product) before moving to breakfast_
 
 **Morning (At Breakfast -- With Food):**
+
 - [ ] Omeprazole -- [X mg] -- take 30-60 min before breakfast if possible, or at start of breakfast if same-time dosing is needed (ask your pharmacist about timing relative to levothyroxine)
 - [ ] Metformin -- [X mg] -- take WITH breakfast (not before)
 - [ ] Lisinopril -- [X mg] -- take with breakfast
 - [ ] Vitamin D3 -- [X IU] -- take with breakfast (fat-containing meal improves absorption)
 
-*Set a breakfast medication alarm: [e.g., 8:00 AM -- adjust to your actual breakfast time]*
+_Set a breakfast medication alarm: [e.g., 8:00 AM -- adjust to your actual breakfast time]_
 
 **Evening (At Dinner -- With Food):**
+
 - [ ] Metformin -- [X mg] -- take WITH dinner (second daily dose)
 
-*Set a dinner medication alarm: [e.g., 6:30 PM -- adjust to your actual dinner time]*
+_Set a dinner medication alarm: [e.g., 6:30 PM -- adjust to your actual dinner time]_
 
 **Bedtime:**
+
 - [ ] Atorvastatin -- [X mg] -- take at bedtime
 
-*Set a bedtime medication alarm: [e.g., 10:00 PM]*
+_Set a bedtime medication alarm: [e.g., 10:00 PM]_
 
 **As Needed (PRN):** [None listed -- add any if applicable]
 
@@ -495,14 +502,14 @@ Emergency Contact: [Name, Relationship, Phone -- fill in]
 
 ### SECTION 3: REFILL TRACKER
 
-| Medication | Last Filled | Days Supply | Tablets on Hand | Days Remaining | **Refill Reminder Date** | Pharmacy Phone |
-|------------|-------------|-------------|-----------------|----------------|--------------------------|----------------|
-| Levothyroxine | [Date] | 30 days | [Count tonight] | [Calculate] | [Fill date + 23 days] | [Number] |
-| Omeprazole | [Date] | 30 days | [Count tonight] | [Calculate] | [Fill date + 23 days] | [Number] |
-| **Metformin** | [Date] | 30 days | [Count tonight] | [Calculate] | [Fill date + 23 days] | [Number] |
-| Lisinopril | [Date] | 30 days | [Count tonight] | [Calculate] | [Fill date + 23 days] | [Number] |
-| Atorvastatin | [Date] | 30 days | [Count tonight] | [Calculate] | [Fill date + 23 days] | [Number] |
-| Vitamin D3 | [Date] | [Varies] | [Count] | [Calculate] | [7 days before out] | [Number/Store] |
+| Medication    | Last Filled | Days Supply | Tablets on Hand | Days Remaining | **Refill Reminder Date** | Pharmacy Phone |
+| ------------- | ----------- | ----------- | --------------- | -------------- | ------------------------ | -------------- |
+| Levothyroxine | [Date]      | 30 days     | [Count tonight] | [Calculate]    | [Fill date + 23 days]    | [Number]       |
+| Omeprazole    | [Date]      | 30 days     | [Count tonight] | [Calculate]    | [Fill date + 23 days]    | [Number]       |
+| **Metformin** | [Date]      | 30 days     | [Count tonight] | [Calculate]    | [Fill date + 23 days]    | [Number]       |
+| Lisinopril    | [Date]      | 30 days     | [Count tonight] | [Calculate]    | [Fill date + 23 days]    | [Number]       |
+| Atorvastatin  | [Date]      | 30 days     | [Count tonight] | [Calculate]    | [Fill date + 23 days]    | [Number]       |
+| Vitamin D3    | [Date]      | [Varies]    | [Count]         | [Calculate]    | [7 days before out]      | [Number/Store] |
 
 **Your Metformin Fix -- Why You Keep Running Out:**
 You are running out of metformin because you are likely refilling at the last minute. Here is how to fix it:
@@ -522,7 +529,8 @@ Metformin example: 15 tablets on hand ÷ 2 per day = 7.5 days remaining -- reque
 
 **Questions for Your Prescribing Providers (bring this list to appointments):**
 
-*For your primary care appointment:*
+_For your primary care appointment:_
+
 1. I have medications from two different doctors -- can you review my complete list and confirm you are aware of everything I am taking, including my Vitamin D?
 2. Are there any interactions or timing conflicts between all six of these medications that I should know about?
 3. Is there a monitoring lab I should be getting regularly given my current medications?
@@ -530,10 +538,12 @@ Metformin example: 15 tablets on hand ÷ 2 per day = 7.5 days remaining -- reque
 5. Is there a generic available for each of these, and am I already on the most cost-effective version?
 6. If I miss a dose of metformin -- one of the twice-daily doses specifically -- should I take it when I remember, or skip it and take the next scheduled dose? (Do not answer this -- note it as a provider question)
 
-*For your specialist (if applicable):*
+_For your specialist (if applicable):_
+
 1. I want to make sure my primary care doctor has a copy of everything you have prescribed -- can you confirm the medications and doses in my chart so I can provide an accurate list?
 
-*For your pharmacist:*
+_For your pharmacist:_
+
 1. Can you review my full medication list and let me know if there are any interaction concerns or timing adjustments I should make?
 2. I take levothyroxine first thing in the morning -- is there anything about the timing of my omeprazole or my other morning medications that conflicts with that?
 3. Can you set up medication synchronization for my prescriptions so they all refill on the same date?
@@ -543,6 +553,7 @@ Metformin example: 15 tablets on hand ÷ 2 per day = 7.5 days remaining -- reque
 ### SECTION 5: STORAGE AND SAFETY CHECKLIST
 
 **Storage Setup:**
+
 - [ ] Primary storage location selected: [e.g., Kitchen cabinet away from stove -- NOT bathroom]
 - [ ] Atorvastatin and metformin in cool, dry cabinet at room temperature: confirmed
 - [ ] Levothyroxine kept away from heat, moisture, and light: confirmed (original container)
@@ -550,12 +561,14 @@ Metformin example: 15 tablets on hand ÷ 2 per day = 7.5 days remaining -- reque
 - [ ] Child-resistant caps in use (if children or pets in the home)
 
 **Monthly Safety Check (Do on the 1st of each month):**
+
 - [ ] Check expiration dates on all 6 medications
 - [ ] Count tablets on hand for all prescriptions and update refill tracker
 - [ ] Confirm upcoming refill reminder dates are set on phone
 - [ ] Update medication list if any doses, medications, or providers have changed
 
 **Emergency Wallet Card (Copy and Carry):**
+
 ```
 Name: _______________  DOB: _______________
 Allergies: _______________
@@ -572,12 +585,14 @@ Emergency contact: _______________ Ph: _______________
 ```
 
 **Disposal:**
+
 - [ ] Take expired or unused medications to take-back program at pharmacy or police station
 - [ ] Do not flush unless pharmacist specifically instructs you to for a specific product
 
 ---
 
 **Next Steps for You:**
+
 1. Tonight: Count all medication tablets and fill in the refill tracker dates.
 2. This week: Confirm which doctor prescribed which medication by calling each office or asking your pharmacist for a printed medication history.
 3. Next pharmacy visit: Ask about medication synchronization and 90-day supply options for your stable long-term medications.

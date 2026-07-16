@@ -35,12 +35,7 @@ type CapabilityName = keyof TeamCapabilities;
 // still parses the field for forward-compat, and `acceptTeamImport`
 // forces it to `by_user: false` regardless of any incoming grant value.
 // A footer notice (teams.import.networkNotice) explains this to the user.
-const ALL_CAPABILITIES: CapabilityName[] = [
-  'canReadFiles',
-  'canWriteFiles',
-  'canSpawnAgents',
-  'canCrossTeamMessage',
-];
+const ALL_CAPABILITIES: CapabilityName[] = ['canReadFiles', 'canWriteFiles', 'canSpawnAgents', 'canCrossTeamMessage'];
 
 const COUNTDOWN_SECONDS = 5;
 
@@ -163,23 +158,16 @@ const CapabilityReviewModal: React.FC<Props> = ({
       <div className='flex flex-col gap-16px p-24px' data-testid='capability-review-modal'>
         <p className='text-13px text-t-secondary m-0'>
           {t('teams.import.intro', {
-            defaultValue:
-              'This team declares the following capabilities. Grant only what you trust.',
+            defaultValue: 'This team declares the following capabilities. Grant only what you trust.',
           })}
         </p>
         {teamName && (
-          <p
-            className='text-13px text-t-primary font-medium m-0'
-            data-testid='capability-review-team-name'
-          >
+          <p className='text-13px text-t-primary font-medium m-0' data-testid='capability-review-team-name'>
             {teamName}
           </p>
         )}
         {importSource && (
-          <p
-            className='text-12px text-t-tertiary m-0'
-            data-testid='capability-review-import-source'
-          >
+          <p className='text-12px text-t-tertiary m-0' data-testid='capability-review-import-source'>
             {importSource}
           </p>
         )}
@@ -189,16 +177,12 @@ const CapabilityReviewModal: React.FC<Props> = ({
             data-testid='capability-review-missing-specialists'
             content={t('teams.import.missingSpecialists', {
               names: missingSpecialists?.join(', ') ?? '',
-              defaultValue:
-                'Missing specialists: {{names}}. Install them first or use a different team.',
+              defaultValue: 'Missing specialists: {{names}}. Install them first or use a different team.',
             })}
           />
         )}
         {showNetworkNotice && (
-          <p
-            className='text-12px text-t-tertiary m-0'
-            data-testid='capability-review-network-notice'
-          >
+          <p className='text-12px text-t-tertiary m-0' data-testid='capability-review-network-notice'>
             {t('teams.import.networkNotice', {
               defaultValue:
                 'Network access for imported teams is currently disabled. This capability cannot be granted in v1.',
@@ -207,11 +191,7 @@ const CapabilityReviewModal: React.FC<Props> = ({
         )}
         <div className='flex flex-col gap-12px' data-testid='capability-review-rows'>
           {declaredCaps.map((cap) => (
-            <div
-              key={cap}
-              className='flex flex-col gap-4px'
-              data-testid={`capability-review-row-${cap}`}
-            >
+            <div key={cap} className='flex flex-col gap-4px' data-testid={`capability-review-row-${cap}`}>
               <Checkbox
                 checked={grants[cap]}
                 onChange={toggleCap(cap)}

@@ -43,6 +43,7 @@ import type {
   WCoreUpdateProgress,
 } from '../update/wcoreUpdateTypes';
 import type {
+  AnthropicOAuthResult,
   ChatGptOAuthResult,
   ConnectFluxResult,
   ConnectPastedKeyResult,
@@ -792,6 +793,37 @@ export const chatgptAuth = {
   refresh: buildProvider<ChatGptOAuthResult, void>('chatgpt.auth.refresh'),
 };
 
+export const anthropicAuth = {
+  /**
+   * Native "Sign in with Claude" via OAuth 2.0 Authorization Code + PKCE, using
+   * the same public client Claude Code uses (`claude.ai/oauth/authorize`,
+   * token at `console.anthropic.com/v1/oauth/token`) - no `claude` CLI or API key
+   * required. Opens the system browser; Anthropic shows a `code#state` to copy
+   * (there is no loopback for this client), which the renderer's paste box feeds
+   * back via `submitCode`. On success the encrypted bundle is persisted,
+   * `~/.claude/.credentials.json` is written so the Claude Code ACP agent runs on
+   * the subscription, and the `claude-subscription` provider is registered.
+   * Resolves `{ ok: true, planType }` or a stable error reason - it never
+   * rejects, so the renderer can branch on the result alone.
+   *
+   * NOTE: Anthropic blocks subscription-OAuth inside third-party tools, so a
+   * later inference turn may still be rejected even after a successful sign-in.
+   */
+  login: buildProvider<AnthropicOAuthResult, void>('anthropic.auth.login'),
+  /**
+   * Silent re-auth: exchange the persisted refresh token for a fresh access
+   * token and re-register it. Surfaced for the proactive + 401 re-auth paths.
+   */
+  refresh: buildProvider<AnthropicOAuthResult, void>('anthropic.auth.refresh'),
+  /**
+   * Complete an in-flight sign-in with the code the user copied from the
+   * Anthropic consent page (Anthropic shows a `code#state` to paste rather than
+   * redirecting to a loopback). Returns `{ accepted }` - false when no flow is
+   * awaiting a code.
+   */
+  submitCode: buildProvider<{ accepted: boolean }, { code: string }>('anthropic.auth.submit-code'),
+};
+
 export const onboarding = {
   /**
    * One-click Flux Router connect via OAuth 2.0 Authorization Code + PKCE.
@@ -1273,6 +1305,23 @@ export const notification = {
 export const task = {
   stopAll: buildProvider<{ success: boolean; count: number }, void>('task.stop-all'),
   getRunningCount: buildProvider<{ success: boolean; count: number }, void>('task.get-running-count'),
+};
+
+// Autopilot: hand a task off to a local Tank server to run autonomously, then
+// hand the result back for review. Dormant unless a tank token is configured.
+export const autopilot = {
+  available: buildProvider<{ available: boolean }, void>('autopilot.available'),
+  tankUi: buildProvider<import('@process/services/autopilot/tankUi').TankUiResult, void>('autopilot.tank-ui'),
+  /** Read the persisted Tank connection to populate the settings form. */
+  getTankConfig: buildProvider<{ url: string; token: string }, void>('autopilot.get-tank-config'),
+  /** Persist the Tank connection and apply it immediately (no restart needed). */
+  setTankConfig: buildProvider<IBridgeResponse<{}>, { url: string; token: string }>('autopilot.set-tank-config'),
+  run: buildProvider<
+    import('@process/services/autopilot/AutopilotService').AutopilotRunResult,
+    import('@process/services/autopilot/AutopilotService').AutopilotRunParams
+  >('autopilot.run'),
+  finished:
+    buildEmitter<import('@process/services/autopilot/AutopilotService').AutopilotFinished>('autopilot.finished'),
 };
 
 // WebUI service management API
@@ -2882,7 +2931,6 @@ export const cost = {
 
 import type {
   MemoryEntry,
-  MemoryStats,
   ListFilter,
   ProjectSummary,
   TagCount,
@@ -3023,6 +3071,32 @@ export const project = {
     'project.update'
   ),
   remove: buildProvider<void, { id: string }>('project.remove'),
+  /**
+   * Clone a git repo into a fresh workspace and create a project pointed at it.
+   * Supports public repos, HTTPS token auth, and SSH-key auth (see IGitCloneAuth).
+   * Local-renderer-only: execs git + handles credentials (remote-denied).
+   */
+  cloneFromGit: buildProvider<
+    import('@/common/types/project').IGitCloneResult,
+    import('@/common/types/project').IGitCloneParams
+  >('project.clone-from-git'),
+  /** Pull the latest into a project's workspace, re-applying its stored git auth. */
+  pull: buildProvider<import('@/common/types/project').IGitPullResult, { id: string }>('project.pull'),
+  /**
+   * Git status of a project's workspace for the UI: whether it's a git repo and
+   * its per-agent worktrees. Each running agent in a git-backed workspace gets
+   * its own `wayland/agent-*` worktree so concurrent agents don't collide.
+   */
+  gitStatus: buildProvider<
+    { isGitRepo: boolean; worktreePerAgent: boolean; worktrees: Array<{ path: string; branch: string }> },
+    { id: string }
+  >('project.git-status'),
+  /** Merge one agent worktree branch back into the project's main checkout, then retire it. */
+  mergeWorktree: buildProvider<import('@/common/types/project').IGitMergeResult, { id: string; branch: string }>(
+    'project.merge-worktree'
+  ),
+  /** Toggle per-agent worktree isolation for a project (default on). */
+  setWorktreePref: buildProvider<void, { id: string; enabled: boolean }>('project.set-worktree-pref'),
   /** Conversations owned by a project, newest-first. */
   getConversations: buildProvider<import('@/common/config/storage').TChatConversation[], { projectId: string }>(
     'project.get-conversations'
@@ -3104,6 +3178,60 @@ export const project = {
    * existing `changed.on(() => refresh())` listeners remain valid.
    */
   changed: buildEmitter<{ id?: string; count?: number } | undefined>('project.changed'),
+};
+
+/**
+ * Dev Actions - one-click git/GitHub developer chores for a fork maintainer.
+ * All handlers exec local `git` / `gh` (remote-denied): `commitAndPr` runs on a
+ * local checkout; `buildRelease` / `syncForks` only dispatch GitHub Actions
+ * workflows on named repos via the authenticated `gh` CLI. Each action streams
+ * progress through the shared `log` emitter (keyed by `action`).
+ */
+export const devActions = {
+  /**
+   * Stage tracked changes, commit, push a branch, and open a PR on the checkout
+   * at `cwd`. Stages `-u` (tracked only) so an untidy working tree's untracked
+   * junk is never swept into the commit. If already on a feature branch it
+   * commits there; on the default branch it first cuts `chore/<slug>`.
+   */
+  commitAndPr: buildProvider<
+    { ok: boolean; prUrl?: string; branch?: string; error?: string },
+    { cwd: string; message: string; base?: string }
+  >('dev-actions.commit-and-pr'),
+  /** Dispatch the "Manual Build" CI workflow (build-manual.yml) for a repo. */
+  buildRelease: buildProvider<
+    { ok: boolean; runUrl?: string; error?: string },
+    { repo: string; branch: string; platform: string }
+  >('dev-actions.build-release'),
+  /** Run an npm script (`<pm> run <script>`) locally inside a checkout. */
+  buildLocal: buildProvider<{ ok: boolean; error?: string }, { cwd: string; script: string }>(
+    'dev-actions.build-local'
+  ),
+  /** Dispatch the upstream-sync workflow for one or more fork repos. */
+  syncForks: buildProvider<{ results: Array<{ repo: string; ok: boolean; error?: string }> }, { repos: string[] }>(
+    'dev-actions.sync-forks'
+  ),
+  /**
+   * Read-only working-copy status for local checkouts: branch + change counts.
+   * `changed` is tracked changes (what Commit + Push stages); `untracked` is info.
+   */
+  repoStatus: buildProvider<
+    {
+      results: Array<{
+        path: string;
+        name: string;
+        branch?: string;
+        changed: number;
+        untracked: number;
+        error?: string;
+      }>;
+    },
+    { paths: string[] }
+  >('dev-actions.repo-status'),
+  /** Streamed progress lines for any in-flight dev action. */
+  log: buildEmitter<{ action: 'commitAndPr' | 'buildRelease' | 'buildLocal' | 'syncForks'; line: string }>(
+    'dev-actions.log'
+  ),
 };
 
 /**

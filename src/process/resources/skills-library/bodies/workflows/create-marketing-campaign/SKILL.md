@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing branding content-marketing strategy step-by-step"
-  category: "business-operations"
-  depends: "campaign-planning landing-page-copy email-campaign marketing-analytics-report ab-test-design"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing branding content-marketing strategy step-by-step'
+  category: 'business-operations'
+  depends: 'campaign-planning landing-page-copy email-campaign marketing-analytics-report ab-test-design'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Create a Marketing Campaign
@@ -187,6 +187,7 @@ When this workflow is complete, the user will have:
 ## Marketing Campaign: Spring Enrollment Drive
 
 ### Campaign Strategy
+
 - **Objective:** 100 new course enrollments ($19,900 revenue) in 3 weeks, at under $20 CPA
 - **Target Audience:** Freelance designers and developers, 1-5 years experience, currently struggling with project organization
 - **Budget:** $2,000 allocated as [Email: $0 (existing list)], [Social ads: $1,200], [Content promotion: $800]
@@ -194,40 +195,44 @@ When this workflow is complete, the user will have:
 - **Key Message:** "Stop losing freelance clients to missed deadlines" | "The PM system built for how freelancers actually work" | "Enroll now -- spring cohort starts April 1"
 
 ### Landing Page
+
 - **Headline:** "Stop Losing Freelance Clients to Missed Deadlines"
 - **Primary CTA:** "Enroll in Spring Cohort -- $199"
 - **Social Proof:** 3 student testimonials with revenue impact metrics, completion rate badge (87% completion), freelancer community logos
 - **Message Match Check:** Confirmed -- ad copy and email subject lines reference "missed deadlines" and "freelance PM"
 
 ### Email Campaign
+
 - **Primary Email:**
   - Subject: "The freelance project system I wish I had 3 years ago"
   - Send Date: March 3, 10:00 AM
   - Segment: Full email list (2,400 subscribers), freelancer tag
 - **Follow-up Sequence:**
-  | Email | Trigger              | Subject Line                         | Angle           | Send Date |
+  | Email | Trigger | Subject Line | Angle | Send Date |
   |-------|----------------------|--------------------------------------|-----------------|-----------|
-  | FU-1  | Non-opener (48hr)    | "Spring cohort: 23 spots left"       | Scarcity        | Mar 5     |
-  | FU-2  | Opener, no convert   | "How Sarah went from chaos to $8K months" | Case study   | Mar 10    |
-  | FU-3  | Final reminder       | "Last week: spring enrollment closes Friday" | Deadline   | Mar 19    |
+  | FU-1 | Non-opener (48hr) | "Spring cohort: 23 spots left" | Scarcity | Mar 5 |
+  | FU-2 | Opener, no convert | "How Sarah went from chaos to $8K months" | Case study | Mar 10 |
+  | FU-3 | Final reminder | "Last week: spring enrollment closes Friday" | Deadline | Mar 19 |
 
 ### Campaign Analytics (End of Week 2)
+
 - **Objective Status:** On track -- 67 enrollments (67% of target with 1 week remaining)
 - **Funnel Performance:**
-  | Stage           | Volume  | Rate    | Benchmark |
+  | Stage | Volume | Rate | Benchmark |
   |-----------------|---------|---------|-----------|
-  | Email sends     | 2,400   | --      | --        |
-  | Email opens     | 864     | 36%     | 25%       |
-  | Clicks to LP    | 312     | 36%     | 15%       |
-  | LP conversions  | 42      | 13.5%  | 8%        |
-  | Social ad clicks| 1,840   | 2.1%   | 1.5%      |
-  | Social LP conv  | 25      | 1.4%   | 1.0%      |
+  | Email sends | 2,400 | -- | -- |
+  | Email opens | 864 | 36% | 25% |
+  | Clicks to LP | 312 | 36% | 15% |
+  | LP conversions | 42 | 13.5% | 8% |
+  | Social ad clicks| 1,840 | 2.1% | 1.5% |
+  | Social LP conv | 25 | 1.4% | 1.0% |
 - **Best Segment:** Email list, freelance designers (18% conversion from open)
 - **Cost:** CPL $8.20, CPA $14.90, ROAS 9.9x
 - **Bottleneck:** Social ad to landing page conversion (1.4% vs 13.5% from email)
 
 ### A/B Tests
-| Test | Variable         | Control               | Variant                    | Hypothesis                   | Result    |
-|------|-----------------|------------------------|----------------------------|-------------------------------|-----------|
-| 1    | Social ad CTA   | "Learn More"           | "See the Curriculum"       | Specificity increases CTR 20% | +27% CTR |
-| 2    | LP headline     | "Stop Losing Clients"  | "The Freelancer PM System" | Benefit beats feature         | Control wins by 15% |
+
+| Test | Variable      | Control               | Variant                    | Hypothesis                    | Result              |
+| ---- | ------------- | --------------------- | -------------------------- | ----------------------------- | ------------------- |
+| 1    | Social ad CTA | "Learn More"          | "See the Curriculum"       | Specificity increases CTR 20% | +27% CTR            |
+| 2    | LP headline   | "Stop Losing Clients" | "The Freelancer PM System" | Benefit beats feature         | Control wins by 15% |

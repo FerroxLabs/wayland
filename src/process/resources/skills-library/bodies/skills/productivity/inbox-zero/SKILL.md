@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management automation template"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management automation template'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Inbox Zero
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user describes inbox overwhelm -- hundreds or thousands of unread messages, constant checking, or anxiety about email
 - The user asks explicitly for "inbox zero," a batch processing system, or a structured email workflow
 - The user says email is consuming disproportionate time (more than 90 minutes per day for a non-customer-facing role is a red flag)
@@ -29,6 +31,7 @@ metadata:
 - The user has returned from extended leave and faces a massive backlog they do not know how to process
 
 **Do NOT use when:**
+
 - The user wants to write or improve a single specific email -- use a writing skill instead
 - The user wants email marketing sequences, drip campaigns, or newsletter templates -- use a business marketing skill
 - The user needs a broader task capture and project management system beyond email -- use `task-capture-system`
@@ -62,6 +65,7 @@ The most common inbox zero failure is over-engineering the folder structure. Use
 - **Archive:** The destination for everything processed. One flat archive is better than dozens of sub-folders. In Gmail, Archive is built-in. In Outlook, create a single "Archive" folder. Rely on search -- it is faster than any folder hierarchy.
 
 **Platform-specific implementation notes:**
+
 - In Gmail: use Labels (not folders). Action Required, Waiting For, and Reference are labels applied with keyboard shortcuts (e, l, or the label menu). Gmail's built-in Archive button sends mail to All Mail. Enable keyboard shortcuts in settings.
 - In Outlook: use Folders. The Quick Steps feature allows one-click move-to-folder actions. Set up Quick Steps for each processing destination immediately.
 - In Apple Mail: use Mailboxes (equivalent to folders). Rules can auto-apply mailbox tagging for notifications and newsletters.
@@ -118,6 +122,7 @@ Users with existing backlogs cannot start the new system without clearing the ol
 Process all emails from yesterday and earlier using the decision tree, but set a hard rule: today's emails are not touched until the backlog is cleared. Work backwards from yesterday. Any email older than 30 days that has not already generated a crisis: Archive immediately without reading. The definition of "not urgent enough to follow up on" is the absence of a follow-up from the sender.
 
 **The nuclear archive method for backlogs over 200 emails:**
+
 - In Gmail: Select all emails in inbox, filter by date (older than 30 days), select all, Archive. This is recoverable. Nothing is deleted.
 - In Outlook: Sort by Date, select all older than 30 days, move to Archive folder.
 - For the remaining emails (< 30 days): Sort by sender and subject. Identify obvious newsletter/notification clusters and archive in bulk. Apply the decision tree to the remaining messages individually.
@@ -130,12 +135,14 @@ Process all emails from yesterday and earlier using the decision tree, but set a
 Template responses handle the 5-8 most frequent email patterns with 80-90% less composition time. The goal is not to send canned-sounding emails -- it is to pre-load the thinking so that a response takes 45 seconds instead of 4 minutes.
 
 For each template, identify:
+
 - The trigger: what type of email this responds to
 - The subject line pattern
 - The body with explicit fill-in variables marked in [brackets]
 - The tone calibration (formal, conversational, assertive)
 
 Common templates across most professional roles:
+
 - **Meeting acceptance/decline/counter**
 - **Status update response** (buying time or providing current status)
 - **Delegation/redirect** (passing to the right person)
@@ -217,27 +224,29 @@ Estimated emails reaching inbox for human processing: [Y]/day
 ### Processing Decision Tree
 
 ```
+
 New email in Inbox
-  |
-  ├─ Am I CC'd only (not direct recipient)?
-  |     YES ──> Archive immediately ──> DONE
-  |
-  ├─ Is this relevant to my responsibilities?
-  |     NO ──> Delete (spam) or Unsubscribe (marketing) ──> DONE
-  |
-  ├─ Does this require any action from me?
-  |     NO ──> Archive immediately ──> DONE
-  |
-  ├─ Can I complete the action in under 2 minutes?
-  |     YES ──> Do it now ──> Archive ──> DONE
-  |
-  ├─ Should someone else handle this?
-  |     YES ──> Forward with clear ask ──> Label Waiting For ──> DONE
-  |
-  └─ Requires my action, takes > 2 minutes?
-        YES ──> Label Action Required
-             ──> Create task in [task manager] with due date + context
-             ──> DONE (email stays in Action Required until task complete)
+|
+├─ Am I CC'd only (not direct recipient)?
+| YES ──> Archive immediately ──> DONE
+|
+├─ Is this relevant to my responsibilities?
+| NO ──> Delete (spam) or Unsubscribe (marketing) ──> DONE
+|
+├─ Does this require any action from me?
+| NO ──> Archive immediately ──> DONE
+|
+├─ Can I complete the action in under 2 minutes?
+| YES ──> Do it now ──> Archive ──> DONE
+|
+├─ Should someone else handle this?
+| YES ──> Forward with clear ask ──> Label Waiting For ──> DONE
+|
+└─ Requires my action, takes > 2 minutes?
+YES ──> Label Action Required
+──> Create task in [task manager] with due date + context
+──> DONE (email stays in Action Required until task complete)
+
 ```
 
 **Processing speed target:** 3-5 emails/minute for archive/delete decisions. Up to 2 minutes for 2-minute-rule responses. Do not exceed 2 minutes on any single email during processing.
@@ -399,6 +408,7 @@ The system architecture (four folders, decision tree, batch windows, filters) is
 ## Inbox Zero System -- Software Engineer / Gmail Workspace
 
 ### Email Profile
+
 - **Email Client:** Gmail (Google Workspace)
 - **Current Inbox Size:** 847 unread (total unknown, assumed large)
 - **Daily Incoming Volume:** ~60 emails/day
@@ -411,15 +421,16 @@ The system architecture (four folders, decision tree, batch windows, filters) is
 
 ### Folder / Label Structure
 
-| Label              | Purpose                                              | Max Size  | Review Frequency           |
-|--------------------|------------------------------------------------------|-----------|----------------------------|
-| Inbox              | Unprocessed queue -- target always zero               | 0         | 3x daily (processing only) |
-| @Action Required   | Needs my reply or active Todoist task                | < 20      | Every processing window    |
-| @Waiting For       | Delegated or replied, awaiting response from others  | < 15      | Fridays during window 3    |
-| Reference          | Specs, credentials, contracts, retrievable info      | Unlimited | Search as needed           |
-| Archive            | All processed email -- flat, searchable              | Unlimited | Never                      |
+| Label            | Purpose                                             | Max Size  | Review Frequency           |
+| ---------------- | --------------------------------------------------- | --------- | -------------------------- |
+| Inbox            | Unprocessed queue -- target always zero             | 0         | 3x daily (processing only) |
+| @Action Required | Needs my reply or active Todoist task               | < 20      | Every processing window    |
+| @Waiting For     | Delegated or replied, awaiting response from others | < 15      | Fridays during window 3    |
+| Reference        | Specs, credentials, contracts, retrievable info     | Unlimited | Search as needed           |
+| Archive          | All processed email -- flat, searchable             | Unlimited | Never                      |
 
 **Gmail setup:**
+
 1. Open Gmail > Settings > See all settings > Labels > Create new label for each of the above
 2. Settings > General > Keyboard shortcuts: ON (saves 30+ seconds per processing window)
 3. Key shortcuts: E = Archive, L = Label (opens label menu), R = Reply, F = Forward, # = Delete
@@ -432,11 +443,13 @@ The system architecture (four folders, decision tree, batch windows, filters) is
 **Layer 1 -- Auto-archive Jira and GitHub notifications (highest volume reduction)**
 
 Filter 1:
+
 - Criteria: FROM: (notifications@github.com OR noreply@github.com)
 - Action: Skip inbox, apply label "Notifications," mark as read
 - Estimated volume reduction: ~15 emails/day
 
 Filter 2:
+
 - Criteria: FROM: (jira@[company].atlassian.net) OR SUBJECT CONTAINS: ([JIRA])
 - Action: Skip inbox, apply label "Notifications," mark as read
 - Estimated volume reduction: ~10 emails/day
@@ -445,6 +458,7 @@ Filter 2:
 **Layer 2 -- Slack digest routing**
 
 Filter 3:
+
 - Criteria: FROM: (no-reply@slack.com OR feedback@slack.com)
 - Action: Skip inbox, Delete immediately (Slack is already the primary channel -- these digests are redundant)
 - Estimated volume reduction: ~5 emails/day
@@ -452,6 +466,7 @@ Filter 3:
 **Layer 3 -- Newsletter routing**
 
 Filter 4:
+
 - Criteria: BODY CONTAINS: "unsubscribe" AND NOT FROM: (@[company].com)
 - Action: Skip inbox, apply label "Newsletters," mark as read
 - Estimated volume reduction: ~8 emails/day
@@ -459,11 +474,13 @@ Filter 4:
 **Layer 4 -- VIP surfacing**
 
 Filter 5:
+
 - Criteria: FROM: ([manager's email], [skip-level email], [key client emails])
 - Action: Apply star (yellow star = VIP), never send to spam, always mark important
 - Result: VIP emails appear first in Priority Inbox view
 
 **Summary after filters:**
+
 - Estimated volume removed from inbox automatically: ~38 emails/day (63%)
 - Estimated emails reaching inbox for human processing: ~22 emails/day
 - This is fully manageable in three 20-minute windows
@@ -509,13 +526,14 @@ New email in Inbox
 
 ### Batch Processing Schedule
 
-| Window         | Time       | Duration | Focus                                                   |
-|----------------|------------|----------|---------------------------------------------------------|
-| Morning        | 9:00 AM    | 20 min   | Overnight and early-AM email; start day clear           |
-| Midday         | 12:30 PM   | 15 min   | Morning accumulation; often under 10 minutes            |
-| Late Afternoon | 4:30 PM    | 20 min   | Clear remaining; Fridays: review @Waiting For           |
+| Window         | Time     | Duration | Focus                                         |
+| -------------- | -------- | -------- | --------------------------------------------- |
+| Morning        | 9:00 AM  | 20 min   | Overnight and early-AM email; start day clear |
+| Midday         | 12:30 PM | 15 min   | Morning accumulation; often under 10 minutes  |
+| Late Afternoon | 4:30 PM  | 20 min   | Clear remaining; Fridays: review @Waiting For |
 
 **Between windows (the critical discipline):**
+
 - Gmail tab: CLOSED in browser (bookmark it; reopen only at processing times)
 - Gmail mobile app notifications: OFF -- Settings > [Account] > Notifications > None
 - Desktop notifications: Gmail Settings > General > Desktop Notifications > Mail notifications off
@@ -550,6 +568,7 @@ Trigger: Request to meet, schedule a call, or sync
 Subject: Re: [meeting topic]
 Body:
 "Happy to connect. My available slots this week:
+
 - [Day] at [time]
 - [Day] at [time]
 - [Day] at [time]
@@ -603,6 +622,7 @@ Body:
 ### Unsubscribe Protocol
 
 **Week 1 sprint (do this before starting backlog cleanup, ~15 minutes):**
+
 - [ ] Gmail search: `unsubscribe in:inbox` -- select all results -- Archive all
 - [ ] Identify top newsletter senders from the Newsletters label -- unsubscribe from each directly (not via filter; use the unsubscribe link in the email or List-Unsubscribe header)
 - [ ] Open Jira settings > Profile > Notifications -- audit and disable all email notifications; use Jira's in-app notification center instead
@@ -610,6 +630,7 @@ Body:
 - [ ] Open Slack > Preferences > Notifications > Email Notifications -- disable all Slack email digests entirely (Slack is already open; these emails are pure duplication)
 
 **Ongoing (5 minutes every Friday, during the 4:30 PM window):**
+
 - [ ] Any email this week read but provided zero value -- unsubscribe before marking done
 - [ ] Any new automated email appearing in inbox -- add sender to Layer 1 or Layer 2 filter immediately
 - [ ] Review Newsletters label -- anything not worth reading this week -- unsubscribe

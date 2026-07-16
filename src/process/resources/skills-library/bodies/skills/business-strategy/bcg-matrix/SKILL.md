@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy analysis planning decision-making"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'strategy analysis planning decision-making'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # BCG Matrix
 
 ## When to Use
@@ -36,12 +37,12 @@ Use this skill when the user's request matches one of the following scenarios:
 
 **Do NOT use this skill when:**
 
-- The user wants to determine which *new markets* to enter or which *growth directions* to pursue -- use `ansoff-matrix` instead, which maps existing vs. new products against existing vs. new markets
+- The user wants to determine which _new markets_ to enter or which _growth directions_ to pursue -- use `ansoff-matrix` instead, which maps existing vs. new products against existing vs. new markets
 - The user wants a complete competitive intelligence analysis for a single product including Porter's Five Forces dynamics -- use `competitive-analysis`
 - The user has only one product or service -- the BCG matrix requires relative comparison across a portfolio; use `swot-analysis` for single-product strategic assessment
-- The user is asking about their competitive *positioning* and messaging (premium vs. value, differentiated vs. cost leadership) -- use `competitive-positioning`
+- The user is asking about their competitive _positioning_ and messaging (premium vs. value, differentiated vs. cost leadership) -- use `competitive-positioning`
 - The user is performing a whole-company financial health check with no specific portfolio allocation question -- use `financial-analysis`
-- The user needs a roadmap for *how* to execute the growth of a specific product -- use `product-roadmap-planning`
+- The user needs a roadmap for _how_ to execute the growth of a specific product -- use `product-roadmap-planning`
 - The user is comparing two specific strategic options in a binary choice -- use `decision-matrix` which handles multi-criteria tradeoffs more precisely
 
 ---
@@ -55,7 +56,7 @@ Do not produce a matrix with estimated or inferred data without explicit user ac
 - **Company name and industry** -- needed to determine appropriate growth rate thresholds
 - **List of products, product lines, services, or business units** -- target 3 to 8 items; fewer than 3 makes the matrix trivial, more than 10 makes it unworkable without grouping
 - **Revenue for each unit** -- use the most recent full fiscal year; if quarterly, annualize it
-- **Year-over-year market growth rate for each unit's segment** -- this is the *market's* growth rate, not the company's revenue growth rate; these are frequently confused and must be clarified
+- **Year-over-year market growth rate for each unit's segment** -- this is the _market's_ growth rate, not the company's revenue growth rate; these are frequently confused and must be clarified
 - **The company's market share percentage** for each unit
 - **The largest competitor's market share percentage** for each unit -- this enables relative market share calculation; if unavailable, ask for the user's best estimate and flag it as approximate
 - **The strategic decision this analysis informs** -- annual budget allocation, board deck, M&A due diligence, restructuring -- this shapes the specificity and urgency of recommendations
@@ -64,15 +65,15 @@ If the user cannot provide all of these, proceed in this priority order: revenue
 
 ### Step 2: Calculate Relative Market Share
 
-Relative market share is the single most critical calculation in the BCG framework. It is *not* the company's absolute percentage of the market.
+Relative market share is the single most critical calculation in the BCG framework. It is _not_ the company's absolute percentage of the market.
 
 - **Formula:** Relative Market Share = Company's market share % / Largest competitor's market share %
 - A value of 1.0 means the company is tied with the market leader
-- A value above 1.0 means the company *is* the market leader for that segment
+- A value above 1.0 means the company _is_ the market leader for that segment
 - A value of 0.5 means the company has half the share of the market leader
 - A value of 2.0 means the company is twice the size of its nearest competitor -- a strong Star or Cash Cow position
 - The dividing line between high and low relative share is always 1.0 -- this is fixed by the BCG methodology and must not be changed
-- If the user's company *is* the market leader, calculate relative share vs. the second-largest competitor: Relative Market Share = company share / second-largest competitor's share
+- If the user's company _is_ the market leader, calculate relative share vs. the second-largest competitor: Relative Market Share = company share / second-largest competitor's share
 - Flag any relative share calculation that relies on user estimates rather than verified market data with "(est.)" in the output
 - Relative share values between 0.8 and 1.2 indicate a borderline competitive position -- the company is either barely leading or very close to catching the leader; these require additional strategic nuance
 
@@ -94,7 +95,7 @@ Apply both metrics simultaneously to assign each product to one of four quadrant
 - **Stars (High Growth >threshold, High Share >1.0):** Market leaders in growing markets. These products consume large amounts of cash to fund their growth but generate strong returns. They are the future Cash Cows. The priority is to defend and extend market leadership, not maximize short-term margin. Stars typically have negative to neutral free cash flow despite high revenue because of heavy reinvestment.
 - **Cash Cows (Low Growth <threshold, High Share >1.0):** Market leaders in mature or slow-growing markets. Growth has plateaued so capital requirements are low, but dominant share means strong pricing power and margins. These products generate surplus free cash flow that should fund Stars and selected Question Marks. Protecting a Cash Cow from share erosion is critical -- a Cash Cow that loses share becomes a Dog rapidly.
 - **Question Marks (High Growth >threshold, Low Share <1.0):** Followers in fast-growing markets. The market growth is attractive but the weak competitive position means the product requires heavy investment to gain share -- investment that may or may not pay off. Every Question Mark demands a binary choice: commit to a funded investment program to achieve share leadership (targeting 1.0+ relative share), or exit while the market is still growing and the asset has value to a buyer.
-- **Dogs (Low Growth <threshold, Low Share <1.0):** Weak competitive position in slow or declining markets. These products rarely justify significant investment. They may generate some cash if managed for harvest (reducing investment while extracting revenue), but the long-term trajectory is decline. The question is not whether to exit but *how* -- harvest and sunset, divest to a competitor who can achieve scale, or restructure into a niche.
+- **Dogs (Low Growth <threshold, Low Share <1.0):** Weak competitive position in slow or declining markets. These products rarely justify significant investment. They may generate some cash if managed for harvest (reducing investment while extracting revenue), but the long-term trajectory is decline. The question is not whether to exit but _how_ -- harvest and sunset, divest to a competitor who can achieve scale, or restructure into a niche.
 
 For products that fall within 10% of either threshold boundary (e.g., a market growing at 10.5% when the threshold is 10%, or a relative share of 0.93 when 1.0 is the line), mark them as **borderline** and provide analysis for both quadrant interpretations.
 
@@ -111,15 +112,15 @@ Generic advice ("invest in Stars, divest Dogs") is not a recommendation -- it is
 
 ### Step 6: Assess Portfolio Balance and Cash Flow Dynamics
 
-The BCG matrix is only fully useful when the *portfolio as a whole* is analyzed, not just individual products.
+The BCG matrix is only fully useful when the _portfolio as a whole_ is analyzed, not just individual products.
 
 - **Healthy portfolio archetype:** 1 to 2 Cash Cows generating surplus free cash flow that is sufficient to fund 1 to 2 Stars and 1 selected Question Mark simultaneously. This is a self-funding growth machine.
 - **Cash flow test:** Estimate whether the Cash Cows generate enough cash to fund the recommended investment increases for Stars and Question Marks. If not, the company faces a funding gap and must either reduce Question Mark investment or seek external financing.
 - **Common imbalance patterns and their diagnoses:**
-  - *All Question Marks, no Stars or Cash Cows:* Classic early-stage company that has spread resources too thin. None of its bets have achieved market leadership. Prescription: concentrate investment in the 1 or 2 Question Marks with the strongest growth trajectory and exit the others.
-  - *All Cash Cows, no Stars:* A company that stopped innovating. The portfolio will generate strong cash now but will face structural decline as markets mature. Prescription: use Cash Cow profits to fund organic R&D or acquire a Star from outside.
-  - *All Dogs:* Systemic competitive failure or chronic underinvestment. The portfolio is in managed decline. Prescription: consider full portfolio restructuring, sell individual units to strategic buyers who can achieve scale, or pivot the entire company.
-  - *Too many Stars, no Cash Cows:* Cash-consuming portfolio that requires external funding. Common in high-growth tech companies. Prescription: allow at least one Star to mature to Cash Cow before adding more investment bets.
+  - _All Question Marks, no Stars or Cash Cows:_ Classic early-stage company that has spread resources too thin. None of its bets have achieved market leadership. Prescription: concentrate investment in the 1 or 2 Question Marks with the strongest growth trajectory and exit the others.
+  - _All Cash Cows, no Stars:_ A company that stopped innovating. The portfolio will generate strong cash now but will face structural decline as markets mature. Prescription: use Cash Cow profits to fund organic R&D or acquire a Star from outside.
+  - _All Dogs:_ Systemic competitive failure or chronic underinvestment. The portfolio is in managed decline. Prescription: consider full portfolio restructuring, sell individual units to strategic buyers who can achieve scale, or pivot the entire company.
+  - _Too many Stars, no Cash Cows:_ Cash-consuming portfolio that requires external funding. Common in high-growth tech companies. Prescription: allow at least one Star to mature to Cash Cow before adding more investment bets.
 - **Revenue concentration risk:** Flag if any single product represents more than 50% of total portfolio revenue -- this is a concentration risk regardless of quadrant.
 - Provide an overall portfolio health verdict: **Healthy**, **Needs Rebalancing**, or **At Risk**, with a one-paragraph rationale.
 
@@ -164,23 +165,26 @@ BCG analysis is only as reliable as its inputs. Before finalizing:
 ### 2. Matrix Visualization
 
 ```
+
                         RELATIVE MARKET SHARE
                    High (>1.0)          Low (<1.0)
                +--------------------+--------------------+
                |     ★  STARS       |  ?  QUESTION MARKS |
-  High         |                    |                    |
-  (>[X]%)      |  [Product A]       |  [Product C]       |
-  MARKET       |  $[X]M | RMS [X.X] |  $[X]M | RMS [X.X] |
-  GROWTH       |                    |                    |
-               +--------------------+--------------------+
-               |   $  CASH COWS     |   ✕   DOGS         |
-  Low          |                    |                    |
-  (<[X]%)      |  [Product B]       |  [Product D]       |
-               |  $[X]M | RMS [X.X] |  $[X]M | RMS [X.X] |
-               |                    |                    |
-               +--------------------+--------------------+
+
+High | | |
+(>[X]%) | [Product A] | [Product C] |
+MARKET | $[X]M | RMS [X.X] | $[X]M | RMS [X.X] |
+GROWTH | | |
++--------------------+--------------------+
+| $ CASH COWS | ✕ DOGS |
+Low | | |
+(<[X]%) | [Product B] | [Product D] |
+| $[X]M | RMS [X.X] | $[X]M | RMS [X.X] |
+| | |
++--------------------+--------------------+
 Note: Circle size proportional to revenue. Bubble placement represents
 approximate position within quadrant -- not just quadrant label.
+
 ```
 
 ---
@@ -343,7 +347,7 @@ If the company has 70%+ market share in a segment, calculating relative share ag
 
 ### 6. A Startup or Early-Stage Company With No Market Share Data
 
-For startups that have not yet established meaningful market presence (less than 1% market share, pre-revenue or early revenue), the BCG matrix provides limited signal for internal portfolio management. However, it can be useful for evaluating the portfolio of *bets* or product lines:
+For startups that have not yet established meaningful market presence (less than 1% market share, pre-revenue or early revenue), the BCG matrix provides limited signal for internal portfolio management. However, it can be useful for evaluating the portfolio of _bets_ or product lines:
 
 - Use revenue run rate rather than annual revenue
 - Use addressable market capture rate as a proxy for share (total revenue / TAM × 100)
@@ -370,12 +374,14 @@ A company with units in, say, industrial chemicals, digital media, and financial
 ### Pre-Analysis Calculations
 
 **Relative Market Share:**
+
 - Document Management: 15% / 22% = **0.68**
 - AI Contract Review: 6% / 19% = **0.32**
 - E-Signature: 18% / 16% = **1.13** (Company is the market leader -- we are Competitor X in this segment)
 - Workflow Automation: 4% / 24% = **0.17**
 
 **Growth Threshold Calculation (Weighted Average by Revenue):**
+
 - Total ARR: $18M + $4M + $9M + $2M = $33M
 - Weighted growth: (18/33 × 6%) + (4/33 × 35%) + (9/33 × 9%) + (2/33 × 28%)
 - Weighted growth: (0.545 × 6%) + (0.121 × 35%) + (0.273 × 9%) + (0.061 × 28%)
@@ -398,14 +404,14 @@ Note: An alternative threshold of 10% (common B2B SaaS convention) is also appro
 
 ### 1. Product Data and Quadrant Placement
 
-| Product / Unit | ARR | Mkt Growth | Co. Share | Lead. Share | Rel. Share | Quadrant | Data Quality |
-|----------------|-----|------------|-----------|-------------|------------|----------|--------------|
-| Document Management | $18M | 6% | 15% | 22% | 0.68 | Dog | Est.* |
-| AI Contract Review | $4M | 35% | 6% | 19% | 0.32 | Question Mark | Est.* |
-| E-Signature | $9M | 9% | 18% | 16% (us) | 1.13 | Borderline Cash Cow | Est.* |
-| Workflow Automation | $2M | 28% | 4% | 24% | 0.17 | Question Mark | Est.* |
+| Product / Unit      | ARR  | Mkt Growth | Co. Share | Lead. Share | Rel. Share | Quadrant            | Data Quality |
+| ------------------- | ---- | ---------- | --------- | ----------- | ---------- | ------------------- | ------------ |
+| Document Management | $18M | 6%         | 15%       | 22%         | 0.68       | Dog                 | Est.\*       |
+| AI Contract Review  | $4M  | 35%        | 6%        | 19%         | 0.32       | Question Mark       | Est.\*       |
+| E-Signature         | $9M  | 9%         | 18%       | 16% (us)    | 1.13       | Borderline Cash Cow | Est.\*       |
+| Workflow Automation | $2M  | 28%        | 4%        | 24%         | 0.17       | Question Mark       | Est.\*       |
 
-*All figures are user-provided estimates. Third-party validation recommended for any board or investor use.
+\*All figures are user-provided estimates. Third-party validation recommended for any board or investor use.
 
 **Borderline note on E-Signature:** Market growth of 9% sits between the 10% alternative threshold (which would make it a Question Mark) and the 12% primary threshold (which makes it a Cash Cow). Given that this company is the market leader with 1.13 relative share and the market is still growing, it behaves more like a maturing Star transitioning to Cash Cow. It is analyzed as a Cash Cow for resource allocation purposes.
 
@@ -478,7 +484,7 @@ AI Contract = medium-small; Workflow Auto = smallest
 
 - **Recommended strategy: Conditional invest -- but not yet as a standalone bet**
 - **Budget direction from the $8M pool:** Allocate $1.0M (12% of incremental budget) -- not to pursue independent market share, but to integrate deeply with E-Signature and AI Contract Review
-- **Rationale:** At 0.17 relative share, Workflow Automation is in a very weak competitive position in a crowded market (Zapier, Make, ServiceNow, Salesforce Flow all compete here). Attempting to build this into a standalone Star would require $5M+ of investment and still likely fail against entrenched players. However, workflow automation as a *capability* within the company's document workflow suite is highly defensible -- customers who use E-Signature + AI Contract Review + Workflow Automation for a contract-to-close workflow are significantly more sticky than single-product customers.
+- **Rationale:** At 0.17 relative share, Workflow Automation is in a very weak competitive position in a crowded market (Zapier, Make, ServiceNow, Salesforce Flow all compete here). Attempting to build this into a standalone Star would require $5M+ of investment and still likely fail against entrenched players. However, workflow automation as a _capability_ within the company's document workflow suite is highly defensible -- customers who use E-Signature + AI Contract Review + Workflow Automation for a contract-to-close workflow are significantly more sticky than single-product customers.
 - **Investment focus:** Build tight native integrations between Workflow Automation and E-Signature (customers who use both are the primary retention play for E-Signature). Position as "Workflow for Document Teams" rather than a general automation tool. Do not compete with Zapier on breadth -- compete on document workflow depth.
 - **Revised positioning:** If this bundling strategy is successful, Workflow Automation ceases to be measured as an independent product and becomes a retention feature within the E-Signature and contract management suite. Remove it from independent BCG tracking after 12 months and reassess as part of an "E-Signature Platform" composite unit.
 - **Divest condition:** If the bundling strategy does not improve E-Signature retention rates by at least 8 percentage points at the 12-month mark, this product should be sunset. The cost of maintaining a separate engineering team for a $2M ARR product with 0.17 market share is not justified.
@@ -493,7 +499,7 @@ AI Contract = medium-small; Workflow Auto = smallest
 - **Recommended strategy: Harvest while restructuring toward platform bundling**
 - **Budget direction from the $8M pool:** Allocate $2.0M (25% of incremental budget) -- this is entirely restructuring and retention-focused, not growth investment
 - **The counterintuitive problem:** Document Management is the company's largest revenue product at $18M ARR -- 55% of total ARR -- yet it is a Dog by BCG criteria. This creates a dangerous dependency: the company cannot simply divest its way to portfolio health without replacing $18M in ARR. This must be the central context for all other recommendations.
-- **Restructuring path:** Reposition Document Management not as a standalone product but as the *foundation layer* of an integrated document workflow platform alongside E-Signature, AI Contract Review, and Workflow Automation. The go-to-market should stop competing for standalone document management customers against the market leader at 22% share. Instead, sell "Document Management + E-Signature + AI Contract Review" as a bundled platform to customers who want a single vendor for their document workflow stack. This improves retention economics across all products and reduces the competitive surface area.
+- **Restructuring path:** Reposition Document Management not as a standalone product but as the _foundation layer_ of an integrated document workflow platform alongside E-Signature, AI Contract Review, and Workflow Automation. The go-to-market should stop competing for standalone document management customers against the market leader at 22% share. Instead, sell "Document Management + E-Signature + AI Contract Review" as a bundled platform to customers who want a single vendor for their document workflow stack. This improves retention economics across all products and reduces the competitive surface area.
 - **Investment focus within the $2M:** Migration path tooling (make it easier for customers to bring existing document libraries into the platform), customer success headcount for the top 50 accounts by ARR (these are the accounts you cannot lose), and documentation of API integrations with core enterprise systems (SAP, Oracle, Salesforce) to increase switching costs
 - **Explicit harvesting actions:** Freeze any net-new product development that does not directly serve the bundled platform strategy. Reduce feature development spend by 35% vs. prior year. Redirect that engineering capacity to AI Contract Review and E-Signature integrations.
 - **Divestiture consideration:** If the bundled platform strategy does not show traction (measured by multi-product attach rate reaching 30% of Document Management ARR) within 18 months, evaluate a sale of the Document Management unit to a strategic acquirer -- a larger ECM (Enterprise Content Management) vendor who can achieve scale. At $18M ARR with a dominant customer base, this unit has real sale value in the current M&A market for vertical SaaS.
@@ -504,17 +510,17 @@ AI Contract = medium-small; Workflow Auto = smallest
 
 ### 4. Portfolio Cash Flow Analysis
 
-| Cash Source / Use | Annual Amount | Direction |
-|-------------------|---------------|-----------|
-| E-Signature -- estimated surplus free cash flow (75% gross margin on $9M ARR, less current opex) | ~$3.5M/yr | Source |
-| Document Management -- estimated contribution margin (lower margin given legacy architecture) | ~$2.5M/yr | Source |
-| **Total internal cash generation** | **~$6M/yr** | |
-| AI Contract Review -- incremental $3.5M investment program | ($3.5M/yr) | Use |
-| E-Signature -- defensive investment | ($1.5M/yr) | Use |
-| Workflow Automation -- bundling investment | ($1.0M/yr) | Use |
-| Document Management -- restructuring investment | ($2.0M/yr) | Use |
-| **Total incremental investment required** | **($8.0M)** | |
-| **Net gap (requires external funding or existing budget reallocation)** | **~($2.0M)** | **Funding gap** |
+| Cash Source / Use                                                                                | Annual Amount | Direction       |
+| ------------------------------------------------------------------------------------------------ | ------------- | --------------- |
+| E-Signature -- estimated surplus free cash flow (75% gross margin on $9M ARR, less current opex) | ~$3.5M/yr     | Source          |
+| Document Management -- estimated contribution margin (lower margin given legacy architecture)    | ~$2.5M/yr     | Source          |
+| **Total internal cash generation**                                                               | **~$6M/yr**   |                 |
+| AI Contract Review -- incremental $3.5M investment program                                       | ($3.5M/yr)    | Use             |
+| E-Signature -- defensive investment                                                              | ($1.5M/yr)    | Use             |
+| Workflow Automation -- bundling investment                                                       | ($1.0M/yr)    | Use             |
+| Document Management -- restructuring investment                                                  | ($2.0M/yr)    | Use             |
+| **Total incremental investment required**                                                        | **($8.0M)**   |                 |
+| **Net gap (requires external funding or existing budget reallocation)**                          | **~($2.0M)**  | **Funding gap** |
 
 **Cash Flow Verdict:** The portfolio's internal cash generation (~$6M/year) is insufficient to fund the full $8M incremental investment program. This gap of approximately $2M must be funded from the existing operating budget (by reducing spend on lower-priority activities), from the company's existing cash reserves, or from external financing. The most direct source is the 35% reduction in Document Management feature development spend, which should release $1.0-1.5M of engineering capacity for redeployment to AI Contract Review. The remaining $0.5-1.0M gap is manageable from operating cash.
 
@@ -522,13 +528,13 @@ AI Contract = medium-small; Workflow Auto = smallest
 
 ### 5. Portfolio Health Assessment
 
-| Quadrant | # Products | ARR | % of Portfolio |
-|----------|------------|-----|----------------|
-| Stars | 0 | $0 | 0% |
-| Cash Cows | 1 | $9M | 27% |
-| Question Marks | 2 | $6M | 18% |
-| Dogs | 1 | $18M | 55% |
-| **Total** | **4** | **$33M** | **100%** |
+| Quadrant       | # Products | ARR      | % of Portfolio |
+| -------------- | ---------- | -------- | -------------- |
+| Stars          | 0          | $0       | 0%             |
+| Cash Cows      | 1          | $9M      | 27%            |
+| Question Marks | 2          | $6M      | 18%            |
+| Dogs           | 1          | $18M     | 55%            |
+| **Total**      | **4**      | **$33M** | **100%**       |
 
 **Portfolio Health Verdict: At Risk -- Needs Urgent Restructuring**
 

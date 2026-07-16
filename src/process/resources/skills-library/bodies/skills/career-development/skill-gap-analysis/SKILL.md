@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career analysis goal-setting planning"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career analysis goal-setting planning'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Skill Gap Analysis
@@ -190,25 +190,25 @@ metadata:
 
 ### Skills You Already Have
 
-| Skill | Your Level | Required Level | Status |
-|-------|-----------|---------------|--------|
-| Stakeholder communication | Intermediate | Intermediate | Meets requirement |
-| Project coordination | Intermediate | Intermediate | Meets requirement |
-| Basic analytics (campaign metrics) | Intermediate | Intermediate | Meets requirement (different domain) |
-| Cross-functional collaboration | Intermediate | Intermediate | Meets requirement |
-| Market research | Intermediate | Intermediate | Meets requirement |
+| Skill                              | Your Level   | Required Level | Status                               |
+| ---------------------------------- | ------------ | -------------- | ------------------------------------ |
+| Stakeholder communication          | Intermediate | Intermediate   | Meets requirement                    |
+| Project coordination               | Intermediate | Intermediate   | Meets requirement                    |
+| Basic analytics (campaign metrics) | Intermediate | Intermediate   | Meets requirement (different domain) |
+| Cross-functional collaboration     | Intermediate | Intermediate   | Meets requirement                    |
+| Market research                    | Intermediate | Intermediate   | Meets requirement                    |
 
 ### Skill Gaps
 
-| Skill | Your Level | Required Level | Gap Size | Priority |
-|-------|-----------|---------------|----------|----------|
-| Product strategy and roadmapping | None | Intermediate | Large | Blocking |
-| User research and discovery | Beginner | Intermediate | Medium | Blocking |
-| Technical literacy (APIs, databases, dev process) | None | Intermediate | Large | Blocking |
-| Data analysis (SQL, product metrics) | Beginner | Intermediate | Medium | Important |
-| Agile/Scrum methodology | Beginner | Intermediate | Small | Important |
-| Wireframing and prototyping | None | Beginner | Medium | Helpful |
-| A/B testing and experimentation | Beginner | Intermediate | Small | Helpful |
+| Skill                                             | Your Level | Required Level | Gap Size | Priority  |
+| ------------------------------------------------- | ---------- | -------------- | -------- | --------- |
+| Product strategy and roadmapping                  | None       | Intermediate   | Large    | Blocking  |
+| User research and discovery                       | Beginner   | Intermediate   | Medium   | Blocking  |
+| Technical literacy (APIs, databases, dev process) | None       | Intermediate   | Large    | Blocking  |
+| Data analysis (SQL, product metrics)              | Beginner   | Intermediate   | Medium   | Important |
+| Agile/Scrum methodology                           | Beginner   | Intermediate   | Small    | Important |
+| Wireframing and prototyping                       | None       | Beginner       | Medium   | Helpful   |
+| A/B testing and experimentation                   | Beginner   | Intermediate   | Small    | Helpful   |
 
 ### Readiness Score
 
@@ -223,6 +223,7 @@ metadata:
 #### Priority 1: Blocking Gaps
 
 **Product Strategy and Roadmapping -- Large Gap**
+
 - **Current:** None | **Target:** Intermediate
 - **Learning approach:** Self-study of product management frameworks, then apply to a real or simulated product
 - **Time estimate:** 8 weeks
@@ -232,6 +233,7 @@ metadata:
 - **Demonstration:** Written product roadmap case study for portfolio
 
 **User Research and Discovery -- Medium Gap**
+
 - **Current:** Beginner | **Target:** Intermediate
 - **Learning approach:** Self-study followed by 5 practice user interviews with friends or colleagues
 - **Time estimate:** 4 weeks
@@ -241,6 +243,7 @@ metadata:
 - **Demonstration:** User research report with methodology, findings, and recommendations
 
 **Technical Literacy -- Large Gap**
+
 - **Current:** None | **Target:** Intermediate
 - **Learning approach:** Structured self-study covering APIs, databases, and the software development lifecycle
 - **Time estimate:** 6 weeks
@@ -252,6 +255,7 @@ metadata:
 #### Priority 2: Important Gaps
 
 **Data Analysis (SQL, Product Metrics) -- Medium Gap**
+
 - **Current:** Beginner | **Target:** Intermediate
 - **Learning approach:** SQL tutorial followed by hands-on practice with sample datasets
 - **Time estimate:** 4 weeks
@@ -261,6 +265,7 @@ metadata:
 - **Demonstration:** Analysis of a sample product dataset with written insights and recommendations
 
 **Agile/Scrum Methodology -- Small Gap**
+
 - **Current:** Beginner | **Target:** Intermediate
 - **Learning approach:** Self-study of Scrum framework, then observe or participate in a real sprint cycle
 - **Time estimate:** 2 weeks
@@ -272,6 +277,7 @@ metadata:
 #### Priority 3: Helpful Gaps (Differentiators)
 
 **Wireframing and Prototyping -- Medium Gap**
+
 - **Current:** None | **Target:** Beginner
 - **Learning approach:** Learn basic wireframing in a design tool through tutorial and practice
 - **Time estimate:** 3 weeks
@@ -284,14 +290,14 @@ metadata:
 
 ### Summary
 
-| Metric | Value |
-|--------|-------|
-| Total skills assessed | 12 |
-| Skills meeting requirements | 5 |
-| Blocking gaps to close | 3 |
-| Important gaps to close | 2 |
+| Metric                                | Value                      |
+| ------------------------------------- | -------------------------- |
+| Total skills assessed                 | 12                         |
+| Skills meeting requirements           | 5                          |
+| Blocking gaps to close                | 3                          |
+| Important gaps to close               | 2                          |
 | Estimated time to close blocking gaps | 4-5 months (at 8 hrs/week) |
-| Estimated time to close all gaps | 6-7 months (at 8 hrs/week) |
+| Estimated time to close all gaps      | 6-7 months (at 8 hrs/week) |
 
 ### Recommended Sequence
 

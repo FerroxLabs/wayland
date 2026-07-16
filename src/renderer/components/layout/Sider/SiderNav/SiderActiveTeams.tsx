@@ -82,9 +82,7 @@ const ActiveTeamRow: React.FC<{
       </AssistantIconTile>
       <div className='min-w-0 flex-1'>
         <div className='text-12.5px font-medium text-[color:var(--color-text-1)] truncate'>{team.name}</div>
-        {backendRollup && (
-          <div className='text-10.5px text-[color:var(--color-text-4)] truncate'>{backendRollup}</div>
-        )}
+        {backendRollup && <div className='text-10.5px text-[color:var(--color-text-4)] truncate'>{backendRollup}</div>}
         <div
           data-testid={`sider-active-team-rollup-${team.id}`}
           className='text-10.5px text-[color:var(--color-text-3)] truncate mt-2px'
@@ -122,9 +120,7 @@ const SiderActiveTeams: React.FC<SiderActiveTeamsProps> = ({ pathname, collapsed
         </span>
       </div>
       {activeTeams.map((team) => {
-        const launcher = team.sourceLauncherId
-          ? assistants.find((a) => a.id === team.sourceLauncherId)
-          : undefined;
+        const launcher = team.sourceLauncherId ? assistants.find((a) => a.id === team.sourceLauncherId) : undefined;
         return (
           <ActiveTeamRow
             key={team.id}

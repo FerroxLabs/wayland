@@ -51,7 +51,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
   const handleTestAndEnable = async () => {
     if (!privateKey.trim()) {
       Message.warning(
-        t('settings.channels.nostr.credentials.privateKey.required', 'Please enter your nsec or hex private key'),
+        t('settings.channels.nostr.credentials.privateKey.required', 'Please enter your nsec or hex private key')
       );
       return;
     }
@@ -63,7 +63,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
 
     if (relayList.length === 0) {
       Message.warning(
-        t('settings.channels.nostr.credentials.relays.required', 'Please enter at least one wss:// relay URL'),
+        t('settings.channels.nostr.credentials.relays.required', 'Please enter at least one wss:// relay URL')
       );
       return;
     }
@@ -82,8 +82,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
 
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
-          testResult.data?.error ??
-            t('settings.channels.nostr.connectionFailed', 'Nostr relay connection failed'),
+          testResult.data?.error ?? t('settings.channels.nostr.connectionFailed', 'Nostr relay connection failed')
         );
         return;
       }
@@ -111,9 +110,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
           onStatusChange(statusResult.data.find((p) => p.type === 'nostr') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ?? t('settings.channels.nostr.enableFailed', 'Failed to enable Nostr plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.nostr.enableFailed', 'Failed to enable Nostr plugin'));
       }
     } catch (error) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -130,7 +127,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
           <span className='text-12px'>
             {t(
               'settings.channels.nostr.replaceWarning',
-              'Connecting a new Nostr identity will replace your existing one.',
+              'Connecting a new Nostr identity will replace your existing one.'
             )}
           </span>
         </div>
@@ -140,7 +137,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
         label={t('settings.channels.nostr.credentials.privateKey.label', 'Private Key')}
         description={t(
           'settings.channels.nostr.credentials.privateKey.help',
-          'Your bot identity key in nsec bech32 or 64-char hex format. Never share this.',
+          'Your bot identity key in nsec bech32 or 64-char hex format. Never share this.'
         )}
       >
         <Input.Password
@@ -149,10 +146,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
           placeholder={
             hasExisting
               ? '••••••••••••••••'
-              : t(
-                  'settings.channels.nostr.credentials.privateKey.placeholder',
-                  'nsec1... or 64-char hex',
-                )
+              : t('settings.channels.nostr.credentials.privateKey.placeholder', 'nsec1... or 64-char hex')
           }
           style={{ width: 320 }}
           visibilityToggle
@@ -163,7 +157,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
         label={t('settings.channels.nostr.credentials.relays.label', 'Relays')}
         description={t(
           'settings.channels.nostr.credentials.relays.help',
-          'Comma-separated wss:// relay URLs. Defaults: relay.damus.io, nos.lol.',
+          'Comma-separated wss:// relay URLs. Defaults: relay.damus.io, nos.lol.'
         )}
       >
         <Input
@@ -178,7 +172,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
         label={t('settings.channels.nostr.credentials.allowedSenders.label', 'Allowed Senders')}
         description={t(
           'settings.channels.nostr.credentials.allowedSenders.help',
-          'Comma-separated list of npub or hex pubkeys allowed to message this bot. Leave empty for open mode (NOT recommended for public npubs).',
+          'Comma-separated list of npub or hex pubkeys allowed to message this bot. Leave empty for open mode (NOT recommended for public npubs).'
         )}
       >
         <Input.TextArea
@@ -193,7 +187,7 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
       <div className='text-12px text-t-tertiary'>
         {t(
           'settings.channels.nostr.keyHowTo',
-          'Generate a key pair with any Nostr client (Damus, Amethyst, Snort) or via nostr-tools keygen. Use a dedicated bot key, not your personal nsec.',
+          'Generate a key pair with any Nostr client (Damus, Amethyst, Snort) or via nostr-tools keygen. Use a dedicated bot key, not your personal nsec.'
         )}
       </div>
 
@@ -203,7 +197,6 @@ const NostrConfigForm: React.FC<NostrConfigFormProps> = ({ pluginStatus, modelSe
         </Button>
       </div>
       <ChannelAgentModelSelector platform='nostr' modelSelection={modelSelection} />
-
     </div>
   );
 };

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices accessibility"
-  category: "testing-quality"
-  subcategory: "test-automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices accessibility'
+  category: 'testing-quality'
+  subcategory: 'test-automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Accessibility Tester
@@ -75,13 +75,13 @@ test.describe('Accessibility', () => {
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
-      .exclude('#third-party-widget')  // Exclude content you don't control
+      .exclude('#third-party-widget') // Exclude content you don't control
       .analyze();
 
     // Report violations with details
     const violations = results.violations;
     if (violations.length > 0) {
-      const violationReport = violations.map(v => ({
+      const violationReport = violations.map((v) => ({
         id: v.id,
         impact: v.impact,
         description: v.description,
@@ -98,7 +98,7 @@ test.describe('Accessibility', () => {
     await page.goto('/login');
 
     const results = await new AxeBuilder({ page })
-      .include('#login-form')   // Scope to specific component
+      .include('#login-form') // Scope to specific component
       .withTags(['wcag2a', 'wcag2aa'])
       .analyze();
 
@@ -114,9 +114,7 @@ test.describe('Accessibility', () => {
       // Wait for dynamic content to load
       await page.waitForLoadState('networkidle');
 
-      const results = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa'])
-        .analyze();
+      const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
 
       expect(results.violations).toEqual([]);
     });
@@ -135,7 +133,7 @@ expect.extend(toHaveNoViolations);
 describe('Button component accessibility', () => {
   test('primary button has no violations', async () => {
     const { container } = render(
-      <Button variant="primary" onClick={() => {}}>
+      <Button variant='primary' onClick={() => {}}>
         Save Changes
       </Button>
     );
@@ -146,7 +144,7 @@ describe('Button component accessibility', () => {
 
   test('icon-only button requires aria-label', async () => {
     const { container } = render(
-      <Button variant="icon" aria-label="Close dialog" onClick={() => {}}>
+      <Button variant='icon' aria-label='Close dialog' onClick={() => {}}>
         <CloseIcon />
       </Button>
     );
@@ -279,9 +277,7 @@ test('modal traps focus correctly', async ({ page }) => {
   await expect(modal).toBeHidden();
 
   // Focus returns to trigger button
-  await expect(
-    page.getByRole('button', { name: 'Create Project' })
-  ).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Create Project' })).toBeFocused();
 });
 
 // Test tab order matches visual order
@@ -301,13 +297,14 @@ test('form tab order is logical', async ({ page }) => {
   for (const label of expectedOrder) {
     await page.keyboard.press('Tab');
     const focused = page.locator(':focus');
-    const name = await focused.getAttribute('aria-label')
-      || await focused.innerText()
-      || await page.evaluate(() => {
-          const el = document.activeElement;
-          const label = el?.labels?.[0];
-          return label?.textContent || el?.textContent;
-        });
+    const name =
+      (await focused.getAttribute('aria-label')) ||
+      (await focused.innerText()) ||
+      (await page.evaluate(() => {
+        const el = document.activeElement;
+        const label = el?.labels?.[0];
+        return label?.textContent || el?.textContent;
+      }));
     expect(name).toContain(label);
   }
 });
@@ -475,6 +472,7 @@ Visual Testing:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing accessibility tester solutions
 - Reviewing or improving existing accessibility tester approaches
 - Making architectural or implementation decisions about accessibility tester
@@ -482,6 +480,7 @@ Visual Testing:
 - Troubleshooting accessibility tester-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -492,21 +491,26 @@ Visual Testing:
 # Accessibility Tester Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

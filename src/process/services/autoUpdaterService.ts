@@ -493,10 +493,21 @@ class AutoUpdaterService extends EventEmitter {
     // behavior + close-to-tray). This leaves the process alive and Squirrel
     // cannot finish replacing the app bundle. Force-exit after a short delay
     // to let Squirrel receive the install signal.
-    autoUpdater.quitAndInstall(true, true);
+    autoUpdater.quitAndInstall(AutoUpdaterService.isSilentApplySupported(), true);
     setTimeout(() => {
       app.exit(0);
     }, 1000);
+  }
+
+  /**
+   * Whether a silent (no UAC prompt) apply can succeed on this platform.
+   * NSIS is built `perMachine: true` (installs to Program Files), so a
+   * standard Windows account cannot silently reinstall there — a silent
+   * apply just fails invisibly with EACCES (#492). Show the elevation
+   * prompt on win32 instead; macOS/Linux keep the existing silent apply.
+   */
+  private static isSilentApplySupported(): boolean {
+    return process.platform !== 'win32';
   }
 
   /**
@@ -535,6 +546,11 @@ class AutoUpdaterService extends EventEmitter {
     // Persist the pending-install marker so the next launch can verify the apply
     // actually advanced the version (#286), same as the manual path.
     this.writePendingInstallMarker();
+    // isForceRunAfter=false: install on quit without relaunching (apply-on-quit
+    // semantics, like VS Code/Slack) and without the force-exit timer — the
+    // caller is already quitting. isSilent follows the platform: win32 needs
+    // the UAC prompt (#492), macOS/Linux keep the existing silent apply.
+    autoUpdater.quitAndInstall(AutoUpdaterService.isSilentApplySupported(), false);
     // isSilent=true, isForceRunAfter=true: install on quit AND relaunch, matching
     // the "Install and restart" button's promise and the pre-#651 behavior. We
     // omit the force-exit timer (unlike the manual quitAndInstall) because the

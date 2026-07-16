@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "version-control architecture best-practices"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'version-control architecture best-practices'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Git Monorepo Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is evaluating whether to consolidate multiple repositories into a monorepo or split an existing monorepo into polyrepo packages
 - A user is setting up sparse checkout, worktrees, or partial clone strategies to manage a large monorepo that is slow to clone or check out
 - A user needs help configuring path-based CI filtering (only rebuild affected packages) in a git monorepo with tools like Turborepo, Nx, Bazel, or Pants
@@ -29,6 +31,7 @@ metadata:
 - A user needs to migrate a set of polyrepos into a monorepo while preserving full commit history using `git filter-repo` or `git subtree`
 
 **Do NOT use this skill when:**
+
 - The user needs guidance on branching strategies within a single-package repository -- that is covered by the git-branching-strategies skill
 - The user is asking about GitHub Actions, GitLab CI, or Bitbucket Pipelines configuration syntax in general -- check the CI/CD pipeline configuration skill
 - The user needs help with semantic versioning rules or changelog generation in isolation -- check the semantic-versioning skill
@@ -144,6 +147,7 @@ Apply these in order; each has prerequisites:
 Ownership enforcement prevents the monorepo from becoming an ownership vacuum where no one is responsible for any particular code:
 
 - **CODEOWNERS file:** Place `CODEOWNERS` (or `.github/CODEOWNERS`) at the repository root. Define ownership patterns from least specific to most specific -- git reads the last matching pattern.
+
   ```
   # Default owner for everything
   *                          @platform-team
@@ -154,6 +158,7 @@ Ownership enforcement prevents the monorepo from becoming an ownership vacuum wh
   /libs/design-system/       @frontend-platform-team
   /tools/                    @dx-team
   ```
+
   Require review from CODEOWNERS in branch protection rules. GitHub enforces this natively; GitLab uses `CODEOWNERS` with `require_code_owner_approval` on protected branches.
 
 - **Package-level ownership metadata:** For ecosystems without native CODEOWNERS (Bazel targets, Gradle subprojects), store ownership in a machine-readable sidecar. A `METADATA` or `owners.yaml` file per package can be consumed by custom tooling that posts review requests in CI.
@@ -169,22 +174,28 @@ Ownership enforcement prevents the monorepo from becoming an ownership vacuum wh
 When bringing existing polyrepos into a monorepo, history preservation is non-negotiable for most teams:
 
 - **`git filter-repo` method (preferred):** Install `git filter-repo` (requires Python 3.5+; do not use the deprecated `git filter-branch`). For each source repo, rewrite history to move all files into a subdirectory:
+
   ```bash
   git filter-repo --to-subdirectory-filter packages/my-service
   ```
+
   Then in the target monorepo, add the rewritten repo as a remote, fetch, and merge with `--allow-unrelated-histories`:
+
   ```bash
   git remote add my-service ../my-service-rewritten
   git fetch my-service
   git merge my-service/main --allow-unrelated-histories -m "chore: absorb my-service into monorepo"
   git remote remove my-service
   ```
+
   This preserves full commit history, blame, and bisect capability.
 
 - **`git subtree` method (simpler, no external tool):** For ongoing synchronization between a monorepo and an extracted subtree, `git subtree` is appropriate:
+
   ```bash
   git subtree add --prefix=packages/my-service https://github.com/org/my-service.git main --squash
   ```
+
   The `--squash` flag condenses the imported history into a single commit. Use without `--squash` to preserve full history at the cost of a more complex initial log.
 
 - **Cutover strategy:** After migration, place a `MOVED.md` in the source repository with a pointer to the monorepo location and the date. Archive the source repository (make it read-only). Redirect CI/CD pipelines from the old repository to monorepo paths. Allow a 2-week overlap period where both locations are technically valid before archiving.
@@ -211,14 +222,15 @@ When responding to a monorepo architecture question, structure the output as fol
 ## Monorepo Assessment
 
 ### Repository Profile
-| Dimension               | Current State              | Implication                          |
-|-------------------------|----------------------------|--------------------------------------|
-| Package count           | [number]                   | [layout tier: micro/mid/large]       |
-| Primary language(s)     | [languages]                | [recommended build orchestrator]     |
-| Team size               | [headcount]                | [ownership model recommendation]     |
-| Release model           | [lockstep / independent]   | [versioning strategy]                |
-| Largest package size    | [MB or LOC estimate]       | [partial clone / sparse checkout]    |
-| CI build time (current) | [minutes]                  | [affected-only build priority level] |
+
+| Dimension               | Current State            | Implication                          |
+| ----------------------- | ------------------------ | ------------------------------------ |
+| Package count           | [number]                 | [layout tier: micro/mid/large]       |
+| Primary language(s)     | [languages]              | [recommended build orchestrator]     |
+| Team size               | [headcount]              | [ownership model recommendation]     |
+| Release model           | [lockstep / independent] | [versioning strategy]                |
+| Largest package size    | [MB or LOC estimate]     | [partial clone / sparse checkout]    |
+| CI build time (current) | [minutes]                | [affected-only build priority level] |
 
 ---
 
@@ -228,22 +240,24 @@ When responding to a monorepo architecture question, structure the output as fol
 
 ### Directory Structure
 ```
+
 root/
 ├── [domain-a]/
-│   ├── [package-1]/
-│   │   ├── src/
-│   │   ├── tests/
-│   │   └── package.json
-│   └── [package-2]/
+│ ├── [package-1]/
+│ │ ├── src/
+│ │ ├── tests/
+│ │ └── package.json
+│ └── [package-2]/
 ├── [domain-b]/
 ├── shared/
 ├── tools/
 ├── .github/
-│   ├── CODEOWNERS
-│   └── workflows/
+│ ├── CODEOWNERS
+│ └── workflows/
 ├── turbo.json (or nx.json / BUILD)
 ├── pnpm-workspace.yaml (or equivalent)
 └── package.json
+
 ```
 
 ---
@@ -342,6 +356,7 @@ When using Turborepo remote cache in a corporate environment with network egress
 ### Migrating a Team from Polyrepo Culture to Monorepo
 
 Teams that have operated in a polyrepo model for years have deep muscle memory and cultural expectations around repository autonomy. Technical migration is the easy part. Address three specific friction points:
+
 - **"It's too loud in the monorepo":** Configure GitHub notification filtering so engineers only get PR notifications for packages they own (CODEOWNERS-based). Create saved search queries in GitHub: `is:pr repo:org/monorepo label:team-payments` for each team.
 - **"I can't tell what's mine":** Add a `teams.json` at root mapping each package path to a team identifier. Build a simple CLI tool (`./tools/bin/my-packages`) that reads this file and lists packages owned by the current user based on their git config email.
 - **"Release cadence is coupled now":** If teams are using independent versioning with Changesets, they retain full release independence. Make this explicit with a demo during onboarding. Teams that conflate "single repo" with "coupled releases" need to see an actual independent release before the concern dissolves.
@@ -349,6 +364,7 @@ Teams that have operated in a polyrepo model for years have deep muscle memory a
 ### Monorepo with Mixed Open-Source and Proprietary Code
 
 Some organizations keep a public monorepo for open-source packages and need to co-locate proprietary packages. This is architecturally incompatible -- you cannot have a single git repository that is simultaneously public and private. The correct solution is two repositories with a shared tooling layer:
+
 - Public monorepo: open-source packages only, Apache 2.0 or MIT licensed.
 - Private monorepo: proprietary packages that depend on the public packages as versioned published artifacts (not as local workspace paths).
 - Shared config packages (ESLint config, TypeScript config, jest config) are published from the public monorepo and consumed as npm dependencies in both.
@@ -357,6 +373,7 @@ Some organizations keep a public monorepo for open-source packages and need to c
 ### Bisecting Failures Across a Monorepo with Many Contributors
 
 `git bisect` remains the most effective tool for finding regressions, but it requires every intermediate commit to be buildable. In a high-traffic monorepo where multiple teams merge dozens of PRs per day, "good" commits are rare if the CI pipeline for all packages is not enforced on every merge. Enforce this by:
+
 - Enabling merge queue (which re-runs CI on the merge commit, not just the PR branch).
 - Running a nightly "full build" job that builds and tests all packages unconditionally and files a GitHub issue if it fails, tagging the last-passing commit.
 - Scripting a monorepo-aware bisect helper: `git bisect run ./tools/bisect-helper.sh packages/my-service` that only runs the test suite for the affected package, making bisect 10--20x faster than running the full suite.
@@ -368,6 +385,7 @@ In pnpm workspaces, internal dependencies can be declared as `"workspace:*"` (an
 ### Rebasing Long-Lived Feature Branches in a High-Traffic Monorepo
 
 When a feature branch touches shared libraries and main receives 50+ commits per week from other teams, rebasing becomes expensive because git must replay all feature branch commits against each new base. Three strategies address this:
+
 - **Short-lived branches (preferred):** Feature flag newly developed code at the application layer and merge small, frequent commits to main. No long-lived branch survives more than 3 days.
 - **Stacked PRs with Graphite or similar:** Use a stacking tool that manages rebase chains automatically, so each PR in a stack is rebased in dependency order.
 - **Merge-based integration:** Accept merge commits instead of rebase for long-lived branches. The history is less linear but the rebase cost is eliminated. Reserve this for branches that intentionally span multiple sprints (e.g., large architectural refactors).
@@ -383,14 +401,15 @@ When a feature branch touches shared libraries and main receives 50+ commits per
 ### Monorepo Assessment
 
 #### Repository Profile
-| Dimension               | Current State              | Implication                                         |
-|-------------------------|----------------------------|-----------------------------------------------------|
-| Package count           | 12 (8 services + 4 libs)   | Mid-scale -- domain-grouped layout recommended      |
-| Primary language(s)     | TypeScript                  | Turborepo + pnpm workspaces recommended             |
-| Team size               | 15 engineers, 4 teams      | Per-team CODEOWNERS ownership model                 |
-| Release model           | Services: independent; libs: independent | Independent versioning with Changesets |
-| Repository size         | Unknown (assume < 500 MB)  | Standard clone, no partial clone needed initially   |
-| CI build time (current) | 6--12 min × 12 repos       | Affected-only builds target: under 3 min per PR    |
+
+| Dimension               | Current State                            | Implication                                       |
+| ----------------------- | ---------------------------------------- | ------------------------------------------------- |
+| Package count           | 12 (8 services + 4 libs)                 | Mid-scale -- domain-grouped layout recommended    |
+| Primary language(s)     | TypeScript                               | Turborepo + pnpm workspaces recommended           |
+| Team size               | 15 engineers, 4 teams                    | Per-team CODEOWNERS ownership model               |
+| Release model           | Services: independent; libs: independent | Independent versioning with Changesets            |
+| Repository size         | Unknown (assume < 500 MB)                | Standard clone, no partial clone needed initially |
+| CI build time (current) | 6--12 min × 12 repos                     | Affected-only builds target: under 3 min per PR   |
 
 ---
 
@@ -438,6 +457,7 @@ monorepo/
 **Rationale:** TypeScript-only codebase, team of 15, under 20 packages -- Turborepo has minimal setup overhead vs Nx and provides the remote cache and affected-build features needed. Nx would be equally valid but has higher initial config complexity.
 
 **`pnpm-workspace.yaml`:**
+
 ```yaml
 packages:
   - 'services/*'
@@ -446,6 +466,7 @@ packages:
 ```
 
 **`turbo.json`:**
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -476,6 +497,7 @@ packages:
 ```
 
 **`package.json` (root, never published):**
+
 ```json
 {
   "name": "monorepo-root",
@@ -499,6 +521,7 @@ packages:
 ### CI Workflow (Affected-Only)
 
 **`.github/workflows/ci.yml`:**
+
 ```yaml
 name: CI
 
@@ -512,7 +535,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for turbo to diff against base
+          fetch-depth: 0 # Required for turbo to diff against base
 
       - uses: pnpm/action-setup@v3
         with:
@@ -543,11 +566,13 @@ The `--filter=...[origin/main]` flag tells Turborepo to run tasks only for packa
 **Tag format:** `@company/package-name@1.2.3` for libraries; services use Docker image tags from the git SHA.
 
 **Initialization:**
+
 ```bash
 pnpm changeset init
 ```
 
 **`.changeset/config.json`:**
+
 ```json
 {
   "changelog": "@changesets/cli/changelog",
@@ -576,6 +601,7 @@ Services are ignored by Changesets (they do not get published to npm). Libraries
 ### Git Performance Configuration
 
 **Applicable optimizations:**
+
 1. **Partial clone** -- Enable on initial repository creation: `git clone --filter=blob:none <url>`. Not strictly necessary at 12 packages but sets the repo up for growth past 1 GB.
 2. **`git maintenance`** -- Run `git maintenance start` on all developer machines after cloning. Generates commit-graph and prefetches in the background.
 3. **`.gitattributes` LFS** -- Even though current assets are TypeScript, configure LFS for common binary types proactively:
@@ -587,6 +613,7 @@ Services are ignored by Changesets (they do not get published to npm). Libraries
    ```
 
 **Not applicable at this scale:**
+
 - Sparse checkout -- 12 packages is small enough that full checkout is fast (< 5 seconds). Revisit at 50+ packages.
 - Worktrees -- Optional; introduce only if developers frequently need to work on coordinated changes across service + library simultaneously.
 
@@ -595,6 +622,7 @@ Services are ignored by Changesets (they do not get published to npm). Libraries
 ### Ownership Configuration
 
 **`.github/CODEOWNERS`:**
+
 ```
 # Default: platform team owns everything not otherwise specified
 *                                    @company/platform-team
@@ -626,6 +654,7 @@ Services are ignored by Changesets (they do not get published to npm). Libraries
 ```
 
 **Branch Protection Rules for `main`:**
+
 - Required reviews: 1 (from CODEOWNERS)
 - Required status checks: `build-test` (the single CI job above)
 - Dismiss stale reviews on new commits: enabled
@@ -637,9 +666,9 @@ Services are ignored by Changesets (they do not get published to npm). Libraries
 
 ### 30-Day Implementation Roadmap
 
-| Week | Action Items                                                                                                             | Success Metric                                                        |
-|------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| 1    | Create empty monorepo with pnpm workspaces, Turborepo, root config files, and CODEOWNERS. Migrate 2 libraries using `git filter-repo`. | Two libraries build in monorepo with full history preserved.         |
-| 2    | Migrate remaining 2 libraries and 3 services (one per team). Set up CI workflow with affected-only builds. Migrate team CI/CD pipelines for migrated services. | All migrated packages pass CI. Affected build time < 3 minutes.     |
-| 3    | Migrate remaining 5 services. Initialize Changesets. Run onboarding sessions for each team (30 min each). Archive migrated source repos. | All 12 packages in monorepo. Zero active PRs in source repos.        |
-| 4    | First full Changesets release cycle for libraries. Enable merge queue. Audit secrets in imported history. Measure CI time and cache hit rate. | Cache hit rate > 60%. Library `v1.x.x` tags present. No secrets found. |
+| Week | Action Items                                                                                                                                                   | Success Metric                                                         |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1    | Create empty monorepo with pnpm workspaces, Turborepo, root config files, and CODEOWNERS. Migrate 2 libraries using `git filter-repo`.                         | Two libraries build in monorepo with full history preserved.           |
+| 2    | Migrate remaining 2 libraries and 3 services (one per team). Set up CI workflow with affected-only builds. Migrate team CI/CD pipelines for migrated services. | All migrated packages pass CI. Affected build time < 3 minutes.        |
+| 3    | Migrate remaining 5 services. Initialize Changesets. Run onboarding sessions for each team (30 min each). Archive migrated source repos.                       | All 12 packages in monorepo. Zero active PRs in source repos.          |
+| 4    | First full Changesets release cycle for libraries. Enable merge queue. Audit secrets in imported history. Measure CI time and cache hit rate.                  | Cache hit rate > 60%. Library `v1.x.x` tags present. No secrets found. |

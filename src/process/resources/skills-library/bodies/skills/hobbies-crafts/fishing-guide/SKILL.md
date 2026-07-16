@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Fishing Guide
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on fishing guide
 - User asks about fishing guide best practices or techniques
 - User wants a structured approach to fishing guide
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of fishing guide
 
@@ -60,26 +61,31 @@ Before recommending gear or technique:
 ### North America Freshwater (Common Species)
 
 **Panfish (Great for Beginners)**
+
 - **Bluegill/Sunfish**: Small, colorful, plentiful, bites readily, found everywhere
 - **Crappie**: Slightly larger, excellent eating, found near structure
 - **Yellow Perch**: Schooling fish, good in cold water, delicious
 
 **Bass**
+
 - **Largemouth Bass**: Most popular game fish, found in warm lakes, ponds, rivers
 - **Smallmouth Bass**: Pound-for-pound strongest fighter, prefers cooler, clearer water
 - **Spotted Bass**: Between largemouth and smallmouth, common in southern rivers
 
 **Trout**
+
 - **Rainbow Trout**: Beautiful, stocked widely, takes flies and lures
 - **Brown Trout**: Wariest, prefer cold streams, excellent fly fishing target
 - **Brook Trout**: Native to eastern streams, requires cold, clean water
 
 **Other Popular Species**
+
 - **Walleye**: Excellent eating, low-light feeder, popular in northern lakes
 - **Channel Catfish**: Bottom feeder, strong fighter, great eating, beginner-friendly
 - **Northern Pike**: Aggressive predator, powerful fighter, toothy
 
 ### Saltwater (Common Species)
+
 - **Redfish (Red Drum)**: Popular inshore species, strong fighter
 - **Striped Bass**: Available surf fishing and boat, exciting fight
 - **Flounder**: Bottom-dwelling, excellent eating, sight-casting in shallows
@@ -91,34 +97,40 @@ Before recommending gear or technique:
 ### Spinning Rod and Reel (Best for Beginners)
 
 **Rod Selection**
+
 - **Length**: 6-7 feet for general use, longer for casting distance, shorter for tight spaces
 - **Power**: Light (panfish), Medium (bass, walleye), Medium-Heavy (large bass, catfish)
 - **Action**: Fast (tip bends) for sensitivity, Moderate (bends through middle) for versatility
 - **Material**: Graphite (sensitive, lightweight), fiberglass (durable, flexible), composite (blend)
 
 **Reel Selection**
+
 - Size 2000-2500 for panfish and trout (lighter line)
 - Size 3000-3500 for bass and walleye (medium line)
 - Size 4000+ for catfish, pike, saltwater (heavier line)
 - Look for: Smooth drag, ball bearings (5+ is good), anti-reverse
 
 **Recommended Starter Combo**: Pre-matched rod and reel combo ($30-80)
+
 - Ugly Stik GX2 combo or Shakespeare Ugly Stik Catfish combo
 - Daiwa BG combo (step up quality)
 
 ### Line Selection
+
 - **Monofilament**: Best for beginners, forgiving, stretches, cheap, weakens with UV exposure
 - **Fluorocarbon**: Nearly invisible underwater, no stretch, sinks, good as leader material
 - **Braided**: No stretch, very strong for diameter, excellent sensitivity, no memory
 - General freshwater: 6-10 lb monofilament or braid with fluorocarbon leader
 
 ### Baitcasting Equipment (Intermediate+)
+
 - More accurate casting, handles heavier lures
 - Steeper learning curve (backlash/"bird's nests" until technique is learned)
 - Preferred for: Bass fishing, heavy cover, larger lures, precision casting
 - Wait until comfortable with spinning gear before transitioning
 
 ### Essential Tackle Box
+
 - Hooks: Aberdeen #6-#2 (panfish), circle hooks 1/0-3/0 (bass, catfish)
 - Bobbers/floats: Fixed and slip style
 - Split shot sinkers: Assorted sizes
@@ -132,7 +144,9 @@ Before recommending gear or technique:
 ## Fishing Techniques
 
 ### Live Bait Fishing (Simplest, Most Effective for Beginners)
+
 **Bobber Fishing**
+
 1. Attach bobber 2-4 feet above hook
 2. Add split shot weight 6-12 inches above hook
 3. Bait hook (worm, minnow, cricket, corn)
@@ -140,6 +154,7 @@ Before recommending gear or technique:
 5. Watch bobber - when it goes under, set the hook
 
 **Bottom Fishing**
+
 1. Slide sinker (1/2 - 1 oz) on line, add swivel, then 12-18 inch leader to hook
 2. Bait with worm, cut bait, or prepared bait
 3. Cast to likely bottom areas (deep holes, channel edges)
@@ -149,30 +164,35 @@ Before recommending gear or technique:
 ### Artificial Lure Techniques
 
 **Texas Rig (Soft Plastic Worm)**
+
 - Thread bullet sinker on line, tie hook (offset worm hook)
 - Thread worm onto hook (bury hook point in body for weedless)
 - Cast to cover, let sink, slow retrieve with rod tip lifts
 - Best for: Bass in heavy cover
 
 **Crankbait Fishing**
+
 - Tie crankbait directly to line (or use snap, not snap-swivel)
 - Cast past target, steady retrieve at various speeds
 - Diving depth printed on package or varies by lip size
 - Deflect off cover to trigger reaction strikes
 
 **Jig Fishing**
+
 - Versatile: Tip with soft plastic trailer
 - Cast, let sink to bottom, hop along with rod tip
 - Feel for subtle "tick" bites
 - Year-round technique, especially effective in cold water
 
 **Topwater (Most Exciting)**
+
 - Best in low light (dawn, dusk) and warm water
 - Cast near cover, work with twitches and pauses
 - Wait until you feel the fish's weight before setting hook (not on the splash)
 - Types: Poppers, walk-the-dog (Zara Spook), buzzbaits, frogs
 
 ### Fly Fishing (Specialized Technique)
+
 - Uses weighted line to cast nearly weightless flies
 - Requires specific rod, reel, and line setup
 - Best for: Trout, panfish, bass, and many saltwater species
@@ -181,6 +201,7 @@ Before recommending gear or technique:
 - Consider a guided lesson for first outing
 
 ### Ice Fishing
+
 - Requires: Ice auger, shelter (optional but helpful), ice rod (short, 24-36 inches)
 - Safety: Minimum 4 inches of clear ice for walking
 - Jigging small spoons or jig heads tipped with live bait
@@ -190,6 +211,7 @@ Before recommending gear or technique:
 ## Seasonal Patterns
 
 ### Spring
+
 - Fish move shallow as water warms
 - Pre-spawn feeding frenzy (best fishing of the year for many species)
 - Look for sun-warmed shallows
@@ -197,6 +219,7 @@ Before recommending gear or technique:
 - Best baits: Slow presentations, natural colors, live bait
 
 ### Summer
+
 - Fish active but often deep during heat of day
 - Best fishing: Early morning and late evening
 - Night fishing productive for catfish, walleye, bass
@@ -204,6 +227,7 @@ Before recommending gear or technique:
 - Topwater excellent at dawn and dusk
 
 ### Fall
+
 - Fish feed heavily preparing for winter
 - Follow baitfish schools (shad, minnows)
 - Excellent fishing as fish are aggressive
@@ -211,6 +235,7 @@ Before recommending gear or technique:
 - Transition patterns: Fish move from deep to shallow as water cools
 
 ### Winter
+
 - Fish metabolism slows in cold water
 - Slow presentations essential
 - Fish deeper structure
@@ -220,6 +245,7 @@ Before recommending gear or technique:
 ## Regulations and Licenses
 
 ### Before You Fish
+
 1. Purchase state fishing license (online, sporting goods stores, or DNR office)
 2. Check for additional stamps or endorsements needed (trout stamp, saltwater endorsement)
 3. Review regulations for your specific water body:
@@ -232,6 +258,7 @@ Before recommending gear or technique:
 5. Free fishing days: Most states offer 1-2 days per year where no license is needed
 
 ### Where to Find Regulations
+
 - State DNR/Fish and Game website (most comprehensive)
 - Printed regulation booklets (available where licenses are sold)
 - Apps: FishAngler, FishBrain (include regulations and reports)
@@ -239,11 +266,13 @@ Before recommending gear or technique:
 ## Catch and Release Best Practices
 
 ### Why Catch and Release?
+
 - Preserves fish populations for future fishing
 - Many trophy fish are breeding females (releasing them sustains the fishery)
 - Required by regulation for many species and sizes
 
 ### Proper Catch and Release
+
 1. Use circle hooks (self-set in corner of mouth, reducing gut hooking)
 2. Wet your hands before handling fish (dry hands remove protective slime)
 3. Minimize time out of water (imagine holding your breath - that is what the fish is doing)
@@ -257,12 +286,14 @@ Before recommending gear or technique:
 ## Essential Knots
 
 ### Improved Clinch Knot (Most Important Knot)
+
 - Connects line to hook, lure, or swivel
 - Pass line through eye, 5-7 wraps around line, thread through loop by eye, then through big loop
 - Wet knot before tightening (friction heat weakens line)
 - Good for: Monofilament and fluorocarbon
 
 ### Palomar Knot (Strongest)
+
 - Double 6 inches of line, pass loop through eye
 - Tie overhand knot with doubled line
 - Pass hook through the loop
@@ -270,12 +301,14 @@ Before recommending gear or technique:
 - Works with all line types including braid
 
 ### Uni Knot (Versatile)
+
 - Pass line through eye, lay line alongside
 - Make 5-6 wraps through the loop
 - Pull tight
 - Can be used for: Line to hook, line to line (uni to uni), and loop knot
 
 ### Surgeon's Knot (Leader Connection)
+
 - Overlap main line and leader 6-8 inches
 - Tie overhand knot with both lines together (pass ends through twice)
 - Wet and tighten all four tag ends
@@ -283,6 +316,7 @@ Before recommending gear or technique:
 ## Reading Water
 
 ### River/Stream Features
+
 - **Riffles**: Shallow, fast, oxygenated water - insects live here, fish feed here
 - **Runs**: Moderate depth and flow below riffles - fish hold and feed
 - **Pools**: Deeper, slower water - fish rest here, especially in heat
@@ -291,6 +325,7 @@ Before recommending gear or technique:
 - **Seams**: Where fast water meets slow water - prime feeding lanes
 
 ### Lake Features
+
 - **Points**: Land extending into water - fish travel along points
 - **Drop-offs**: Where shallow water drops to deep - transition zones hold fish
 - **Weed edges**: Outside edge of weed beds - ambush points for predators
@@ -329,7 +364,6 @@ Before recommending gear or technique:
 - **Local fishing clubs**: Join for local knowledge, partners, and events
 - **Tackle shops**: Local shops provide the best advice for nearby waters
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -342,13 +376,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with fishing guide for a mid-size project."
 
 **Output:** A complete fishing guide framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

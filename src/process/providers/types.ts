@@ -14,6 +14,7 @@ export type NativeProviderId =
   | 'groq'
   | 'xai'
   | 'chatgpt-subscription'
+  | 'claude-subscription'
   | 'mistral'
   | 'cohere'
   | 'perplexity'

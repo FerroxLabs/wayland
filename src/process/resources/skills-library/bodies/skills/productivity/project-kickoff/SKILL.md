@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management planning template"
-  category: "productivity"
-  subcategory: "project-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'project-management planning template'
+  category: 'productivity'
+  subcategory: 'project-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Project Kickoff
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is starting a new personal or small-team project (1-5 people) and needs to crystallize thinking into a structured plan before writing a single line of code, spending money, or committing to a deadline
 - A user asks for a "project plan," "project charter," "kickoff doc," or any phrasing that signals they want to organize a project before beginning work -- including phrases like "I want to finally do X" or "I have this idea I want to make real"
 - A user wants to define scope, milestones, and success criteria so the project has a clear definition of done rather than drifting indefinitely
@@ -29,6 +31,7 @@ metadata:
 - A user explicitly says they "tend to lose momentum" or "never finish projects" -- this skill creates the structure that maintains accountability
 
 **Do NOT use when:**
+
 - The project involves multiple teams, departmental budgets, formal procurement, or executive sponsorship -- use business project-management skills instead, which handle RACI matrices, governance structures, and stage-gate reviews
 - The user wants a product roadmap with feature prioritization, market positioning, or quarterly OKRs -- use business strategy skills which handle Now/Next/Later frameworks and opportunity sizing
 - The user needs ongoing status tracking for an already-running project -- use `project-status-report` which produces progress-against-baseline reports rather than a kickoff document
@@ -133,49 +136,55 @@ The kickoff document should end with exactly 3 concrete next actions. Not 5, not
 ## Project Kickoff: [Project Name]
 
 ### Project Overview
-| Field | Value |
-|-------|-------|
-| Project Name | [name] |
-| Description | [one-sentence deliverable-focused description] |
-| Owner | [name or "User"] |
-| Start Date | [date] |
-| Target Completion | [specific date, calculated] |
-| Total Duration | [X weeks] |
-| Time Budget | [hours/week] × [weeks] = [total hours] |
-| Collaborators | [names and roles, or "Solo"] |
+
+| Field             | Value                                          |
+| ----------------- | ---------------------------------------------- |
+| Project Name      | [name]                                         |
+| Description       | [one-sentence deliverable-focused description] |
+| Owner             | [name or "User"]                               |
+| Start Date        | [date]                                         |
+| Target Completion | [specific date, calculated]                    |
+| Total Duration    | [X weeks]                                      |
+| Time Budget       | [hours/week] × [weeks] = [total hours]         |
+| Collaborators     | [names and roles, or "Solo"]                   |
 
 ---
 
 ### Scope Statement
 
 **In Scope:**
+
 - [Specific deliverable 1 -- tangible and checkable]
 - [Specific deliverable 2]
 - [Specific deliverable 3]
 - [Specific deliverable 4]
 
 **Out of Scope:**
+
 - [Excluded item 1] -- [why excluded / what to do instead]
 - [Excluded item 2] -- [why excluded]
 - [Excluded item 3] -- [why excluded]
 
 **Assumptions:**
+
 - [Assumption 1 -- what is being treated as given without verification]
 - [Assumption 2]
 
 **Constraints:**
+
 - [Hard constraint 1 -- budget, time, technology, external dependency]
 - [Hard constraint 2]
 
 ---
 
 ### Success Criteria
-| # | Criterion | How Measured | Minimum Threshold | Ideal Target | Type |
-|---|-----------|--------------|-------------------|--------------|------|
-| 1 | [criterion] | [measurement method] | [minimum acceptable] | [ideal] | Date |
-| 2 | [criterion] | [measurement method] | [minimum acceptable] | [ideal] | Quality |
-| 3 | [criterion] | [measurement method] | [minimum acceptable] | [ideal] | Quantity |
-| 4 | [criterion] | [measurement method] | [minimum acceptable] | [ideal] | Functional |
+
+| #   | Criterion   | How Measured         | Minimum Threshold    | Ideal Target | Type       |
+| --- | ----------- | -------------------- | -------------------- | ------------ | ---------- |
+| 1   | [criterion] | [measurement method] | [minimum acceptable] | [ideal]      | Date       |
+| 2   | [criterion] | [measurement method] | [minimum acceptable] | [ideal]      | Quality    |
+| 3   | [criterion] | [measurement method] | [minimum acceptable] | [ideal]      | Quantity   |
+| 4   | [criterion] | [measurement method] | [minimum acceptable] | [ideal]      | Functional |
 
 ---
 
@@ -183,23 +192,23 @@ The kickoff document should end with exactly 3 concrete next actions. Not 5, not
 
 **Total project duration:** [X weeks] | **Milestones:** [N] | **Average milestone spacing:** [X days]
 
-| # | Milestone | What Is True When Complete | Target Date | Completion Criteria | Dependencies | Critical Path? |
-|---|-----------|---------------------------|-------------|-------------------|-------------|----------------|
-| M1 | [name] | [observable state] | [specific date] | [binary check] | None | Yes/No |
-| M2 | [name] | [observable state] | [specific date] | [binary check] | M1 | Yes/No |
-| M3 | [name] | [observable state] | [specific date] | [binary check] | M2 | Yes/No |
-| M4 | [name] | [observable state] | [specific date] | [binary check] | M3 | Yes/No |
-| M5 | [name] *(Project Complete)* | [final deliverable exists] | [specific date] | [binary check] | M4 | Yes |
+| #   | Milestone                   | What Is True When Complete | Target Date     | Completion Criteria | Dependencies | Critical Path? |
+| --- | --------------------------- | -------------------------- | --------------- | ------------------- | ------------ | -------------- |
+| M1  | [name]                      | [observable state]         | [specific date] | [binary check]      | None         | Yes/No         |
+| M2  | [name]                      | [observable state]         | [specific date] | [binary check]      | M1           | Yes/No         |
+| M3  | [name]                      | [observable state]         | [specific date] | [binary check]      | M2           | Yes/No         |
+| M4  | [name]                      | [observable state]         | [specific date] | [binary check]      | M3           | Yes/No         |
+| M5  | [name] _(Project Complete)_ | [final deliverable exists] | [specific date] | [binary check]      | M4           | Yes            |
 
 ---
 
 ### Stakeholder Map
 
-| Name | RACI Role | Primary Interest | Needs from Project | Communication Method | Frequency |
-|------|-----------|-----------------|-------------------|---------------------|-----------|
-| [name] | Responsible + Accountable | [what they care about] | [deliverables/information] | [specific tool/method] | [cadence] |
-| [name] | Consulted | [what they care about] | [input needed] | [specific tool/method] | [cadence] |
-| [name] | Informed | [what they care about] | [status or final result] | [specific tool/method] | [milestone completion] |
+| Name   | RACI Role                 | Primary Interest       | Needs from Project         | Communication Method   | Frequency              |
+| ------ | ------------------------- | ---------------------- | -------------------------- | ---------------------- | ---------------------- |
+| [name] | Responsible + Accountable | [what they care about] | [deliverables/information] | [specific tool/method] | [cadence]              |
+| [name] | Consulted                 | [what they care about] | [input needed]             | [specific tool/method] | [cadence]              |
+| [name] | Informed                  | [what they care about] | [status or final result]   | [specific tool/method] | [milestone completion] |
 
 **Decision Authority:** [who has final say on scope changes and milestone extensions]
 
@@ -207,11 +216,11 @@ The kickoff document should end with exactly 3 concrete next actions. Not 5, not
 
 ### Risk Register
 
-| # | Risk | Category | Likelihood (1-3) | Impact (1-3) | Score | Priority | Mitigation | Contingency |
-|---|------|----------|------------------|--------------|-------|----------|------------|-------------|
-| R1 | [risk description] | Execution | [1-3] | [1-3] | [L×I] | High/Med/Low | [specific action] | [if it happens...] |
-| R2 | [risk description] | Scope | [1-3] | [1-3] | [L×I] | High/Med/Low | [specific action] | [if it happens...] |
-| R3 | [risk description] | Motivation | [1-3] | [1-3] | [L×I] | High/Med/Low | [specific action] | [if it happens...] |
+| #   | Risk               | Category   | Likelihood (1-3) | Impact (1-3) | Score | Priority     | Mitigation        | Contingency        |
+| --- | ------------------ | ---------- | ---------------- | ------------ | ----- | ------------ | ----------------- | ------------------ |
+| R1  | [risk description] | Execution  | [1-3]            | [1-3]        | [L×I] | High/Med/Low | [specific action] | [if it happens...] |
+| R2  | [risk description] | Scope      | [1-3]            | [1-3]        | [L×I] | High/Med/Low | [specific action] | [if it happens...] |
+| R3  | [risk description] | Motivation | [1-3]            | [1-3]        | [L×I] | High/Med/Low | [specific action] | [if it happens...] |
 
 **Highest priority risk:** R[N] -- [name]. Owner: [user/collaborator]. Review at: [milestone].
 
@@ -222,11 +231,13 @@ The kickoff document should end with exactly 3 concrete next actions. Not 5, not
 **Progress Tracking Tool:** [specific tool -- Notion board, GitHub Projects, physical Kanban, shared Google Sheet]
 
 **Review Cadence:**
+
 - Weekly self-review: [specific day + time] -- 10-minute format: milestone status, blockers, next week plan
 - Milestone review: at each milestone completion -- verify completion criteria met before advancing
 - Plan review: at midpoint ([specific date]) -- reassess timeline and scope against actuals
 
 **Stakeholder Updates:**
+
 - [Stakeholder name]: [method] at [frequency or trigger event]
 - [Stakeholder name]: [method] at [frequency or trigger event]
 
@@ -238,12 +249,12 @@ The kickoff document should end with exactly 3 concrete next actions. Not 5, not
 
 ### Feasibility Check
 
-| Check | Status | Note |
-|-------|--------|------|
-| Total hours available: [hours/week × weeks] = [total] | [Sufficient / Tight / Insufficient] | [note] |
-| Milestone spacing averages [X days] | [Appropriate / Too sparse / Too dense] | [note] |
-| All success criteria traceable to scope | [Yes / Gaps noted] | [note] |
-| Highest risk (score [N]) has mitigation plan | [Yes / Needs work] | [note] |
+| Check                                                 | Status                                 | Note   |
+| ----------------------------------------------------- | -------------------------------------- | ------ |
+| Total hours available: [hours/week × weeks] = [total] | [Sufficient / Tight / Insufficient]    | [note] |
+| Milestone spacing averages [X days]                   | [Appropriate / Too sparse / Too dense] | [note] |
+| All success criteria traceable to scope               | [Yes / Gaps noted]                     | [note] |
+| Highest risk (score [N]) has mitigation plan          | [Yes / Needs work]                     | [note] |
 
 ---
 
@@ -262,7 +273,8 @@ The kickoff document should end with exactly 3 concrete next actions. Not 5, not
    - Time: ~[X minutes]
 
 ---
-*Kickoff completed: [date]. Next plan review: [midpoint date]. Project completion target: [end date].*
+
+_Kickoff completed: [date]. Next plan review: [midpoint date]. Project completion target: [end date]._
 ```
 
 ## Rules
@@ -322,22 +334,24 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 ## Project Kickoff: Family Heirloom Cookbook
 
 ### Project Overview
-| Field | Value |
-|-------|-------|
-| Project Name | Family Heirloom Cookbook |
-| Description | Transform 40 handwritten family recipes into a professionally formatted, print-on-demand softcover cookbook and distribute 20-25 copies to family members at Christmas |
-| Owner | User |
-| Start Date | September 25 |
-| Target Completion | December 15 (11 weeks) |
-| Total Duration | 11 weeks |
-| Time Budget | 6 hours/week × 11 weeks = 66 hours total |
-| Collaborators | Solo (grandmother as recipe source -- Consulted) |
+
+| Field             | Value                                                                                                                                                                  |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project Name      | Family Heirloom Cookbook                                                                                                                                               |
+| Description       | Transform 40 handwritten family recipes into a professionally formatted, print-on-demand softcover cookbook and distribute 20-25 copies to family members at Christmas |
+| Owner             | User                                                                                                                                                                   |
+| Start Date        | September 25                                                                                                                                                           |
+| Target Completion | December 15 (11 weeks)                                                                                                                                                 |
+| Total Duration    | 11 weeks                                                                                                                                                               |
+| Time Budget       | 6 hours/week × 11 weeks = 66 hours total                                                                                                                               |
+| Collaborators     | Solo (grandmother as recipe source -- Consulted)                                                                                                                       |
 
 ---
 
 ### Scope Statement
 
 **In Scope:**
+
 - Transcribe and standardize all 40 grandmother's recipes into a consistent written format (ingredient list + instructions + yield)
 - Write brief introductory headnotes (2-4 sentences) for each recipe connecting it to family history or occasion
 - Design the cookbook layout using a self-publishing or word-processing tool -- one consistent template throughout
@@ -347,6 +361,7 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 - Write front matter: dedication page, brief family history introduction (1-2 pages), and table of contents organized by category (appetizers, mains, desserts, holiday)
 
 **Out of Scope:**
+
 - Publishing for commercial sale or distribution outside immediate family -- this is a gift item, not a product
 - Original recipe development or modification -- recipes are transcribed as-is, with only format standardization
 - Professional food photography -- phone photography with natural light is sufficient; stock photos are an acceptable alternative
@@ -355,12 +370,14 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 - Translation into other languages
 
 **Assumptions:**
+
 - [ASSUMPTION] Grandmother's 40 index card recipes are legible and complete (no missing ingredients or instructions)
 - [ASSUMPTION] A print-on-demand service (Lulu, Blurb, or Mixam) can deliver 22 softcover copies within 10-14 business days at acceptable quality and cost
 - User has a smartphone capable of taking food photos adequate for print quality (12MP or higher)
 - Recipes are all in English
 
 **Constraints:**
+
 - Hard deadline: copies must arrive by December 10 to allow for gift wrapping and any reprint if quality is unsatisfactory
 - Budget: not stated by user -- [FLAG: confirm budget range before ordering printing; typical 22-copy softcover cookbooks run $150-$350 depending on page count and service]
 - No prior book design experience assumed -- tool must be beginner-accessible
@@ -368,13 +385,14 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 ---
 
 ### Success Criteria
-| # | Criterion | How Measured | Minimum Threshold | Ideal Target | Type |
-|---|-----------|--------------|-------------------|--------------|------|
-| 1 | All recipes transcribed and formatted | Count of formatted recipes in final document | All 40 recipes present | All 40 with headnotes | Quantity |
-| 2 | Print order delivered by deadline | Delivery confirmation date | December 10 | December 7 (buffer for defects) | Date |
-| 3 | Print quality acceptable | Visual review of one proof copy before bulk order | Text legible, photos not pixelated, binding intact | Professional-looking enough to be a cherished gift | Quality |
-| 4 | Copies available for distribution | Count of copies in hand | 20 copies | 22 copies (20 + 2 buffer) | Quantity |
-| 5 | Family recipes preserved in organized format | Book includes table of contents with categories | Recipes findable by category | Recipes also indexed by key ingredient or occasion | Functional |
+
+| #   | Criterion                                    | How Measured                                      | Minimum Threshold                                  | Ideal Target                                       | Type       |
+| --- | -------------------------------------------- | ------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------- | ---------- |
+| 1   | All recipes transcribed and formatted        | Count of formatted recipes in final document      | All 40 recipes present                             | All 40 with headnotes                              | Quantity   |
+| 2   | Print order delivered by deadline            | Delivery confirmation date                        | December 10                                        | December 7 (buffer for defects)                    | Date       |
+| 3   | Print quality acceptable                     | Visual review of one proof copy before bulk order | Text legible, photos not pixelated, binding intact | Professional-looking enough to be a cherished gift | Quality    |
+| 4   | Copies available for distribution            | Count of copies in hand                           | 20 copies                                          | 22 copies (20 + 2 buffer)                          | Quantity   |
+| 5   | Family recipes preserved in organized format | Book includes table of contents with categories   | Recipes findable by category                       | Recipes also indexed by key ingredient or occasion | Functional |
 
 ---
 
@@ -382,14 +400,14 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 
 **Total project duration:** 11 weeks | **Milestones:** 6 | **Average milestone spacing:** 12 days
 
-| # | Milestone | What Is True When Complete | Target Date | Completion Criteria | Dependencies | Critical Path? |
-|---|-----------|---------------------------|-------------|-------------------|-------------|----------------|
-| M1 | Recipe Audit Complete | All 40 index cards reviewed, gaps identified, grandmother consulted on any unclear cards | October 5 | Spreadsheet lists all 40 recipes with status (clear / needs clarification) and assigned categories | None | Yes |
-| M2 | All Recipes Transcribed | All 40 recipes typed into working document in standard format | October 20 | 40 recipes in document, each with ingredient list, instructions, and yield; headnotes drafted for at least 20 | M1 | Yes |
-| M3 | Photos Sourced | At least 10 photos selected or taken for key recipes | November 3 | 10-12 photos at print resolution (min 300dpi or 2000px on short edge) in a project folder | M2 (partial) | No |
-| M4 | Layout Complete | Full cookbook designed in chosen tool, export-ready | November 17 | PDF exported, all 40 recipes formatted consistently, photos placed, front matter written | M2, M3 | Yes |
-| M5 | Proof Ordered and Approved | One proof copy ordered, received, reviewed, and approved | December 1 | Proof physically in hand; visual review passed; any corrections applied to master file | M4 | Yes |
-| M6 | Bulk Order Delivered *(Project Complete)* | 22 copies in hand, ready for gift distribution | December 10 | Delivery confirmation received; spot-check of 3 copies for quality | M5 | Yes |
+| #   | Milestone                                 | What Is True When Complete                                                               | Target Date | Completion Criteria                                                                                           | Dependencies | Critical Path? |
+| --- | ----------------------------------------- | ---------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------- | ------------ | -------------- |
+| M1  | Recipe Audit Complete                     | All 40 index cards reviewed, gaps identified, grandmother consulted on any unclear cards | October 5   | Spreadsheet lists all 40 recipes with status (clear / needs clarification) and assigned categories            | None         | Yes            |
+| M2  | All Recipes Transcribed                   | All 40 recipes typed into working document in standard format                            | October 20  | 40 recipes in document, each with ingredient list, instructions, and yield; headnotes drafted for at least 20 | M1           | Yes            |
+| M3  | Photos Sourced                            | At least 10 photos selected or taken for key recipes                                     | November 3  | 10-12 photos at print resolution (min 300dpi or 2000px on short edge) in a project folder                     | M2 (partial) | No             |
+| M4  | Layout Complete                           | Full cookbook designed in chosen tool, export-ready                                      | November 17 | PDF exported, all 40 recipes formatted consistently, photos placed, front matter written                      | M2, M3       | Yes            |
+| M5  | Proof Ordered and Approved                | One proof copy ordered, received, reviewed, and approved                                 | December 1  | Proof physically in hand; visual review passed; any corrections applied to master file                        | M4           | Yes            |
+| M6  | Bulk Order Delivered _(Project Complete)_ | 22 copies in hand, ready for gift distribution                                           | December 10 | Delivery confirmation received; spot-check of 3 copies for quality                                            | M5           | Yes            |
 
 **⚠ Critical path note:** M1 → M2 → M4 → M5 → M6 is the critical path. A delay at any of these milestones delays delivery. M3 (photography) has slack -- photos can be sourced in parallel with transcription. Begin photo collection at M1, not M3.
 
@@ -397,12 +415,12 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 
 ### Stakeholder Map
 
-| Name | RACI Role | Primary Interest | Needs from Project | Communication Method | Frequency |
-|------|-----------|-----------------|-------------------|---------------------|-----------|
-| User | Responsible + Accountable | Preserving grandmother's recipes; creating a meaningful Christmas gift | Completed book in hand by December 10 | Self-tracking via weekly review | Weekly |
-| Grandmother | Consulted | Recipes preserved accurately; family history honored | Be consulted on unclear recipes; see a copy of the finished book | Phone call or in-person visit | Once at M1, one at project completion |
-| Family members (recipients) | Informed | Receiving a meaningful gift | No pre-announcement needed; surprise gift | N/A -- notified at Christmas delivery | Once |
-| Print-on-demand service | External dependency | Order fulfillment | Print-ready PDF meeting their spec; payment | Order portal | At M4 (proof) and M5 (bulk order) |
+| Name                        | RACI Role                 | Primary Interest                                                       | Needs from Project                                               | Communication Method                  | Frequency                             |
+| --------------------------- | ------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------- | ------------------------------------- |
+| User                        | Responsible + Accountable | Preserving grandmother's recipes; creating a meaningful Christmas gift | Completed book in hand by December 10                            | Self-tracking via weekly review       | Weekly                                |
+| Grandmother                 | Consulted                 | Recipes preserved accurately; family history honored                   | Be consulted on unclear recipes; see a copy of the finished book | Phone call or in-person visit         | Once at M1, one at project completion |
+| Family members (recipients) | Informed                  | Receiving a meaningful gift                                            | No pre-announcement needed; surprise gift                        | N/A -- notified at Christmas delivery | Once                                  |
+| Print-on-demand service     | External dependency       | Order fulfillment                                                      | Print-ready PDF meeting their spec; payment                      | Order portal                          | At M4 (proof) and M5 (bulk order)     |
 
 **Decision Authority:** User has sole authority on all creative and scope decisions. Grandmother is consulted for recipe accuracy but is not a decision-maker on design or content selection.
 
@@ -410,13 +428,13 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 
 ### Risk Register
 
-| # | Risk | Category | Likelihood (1-3) | Impact (1-3) | Score | Priority | Mitigation | Contingency |
-|---|------|----------|------------------|--------------|-------|----------|------------|-------------|
-| R1 | Printing service lead time longer than expected during holiday season | Execution | 3 | 3 | 9 | **HIGH** | Order proof by November 17 (not December 1); select a service with guaranteed lead times; check current holiday lead time estimates before finalizing timeline | If proof delayed past November 25, skip proof and order bulk directly with careful self-review of PDF; order from a second service in parallel |
-| R2 | Recipe transcription takes longer than estimated (40 recipes × ~20 min each = ~13 hours) | Execution | 2 | 2 | 4 | Medium | Block 2 dedicated sessions per week for transcription starting week 1; do not wait until M2 deadline; batch by category | Reduce scope to the 25-30 most important/iconic recipes and note remaining 10-15 as "coming in next edition" |
-| R3 | Book design tool has steep learning curve, causing layout delays | Execution | 2 | 2 | 4 | Medium | Select tool by end of week 1; use a pre-built cookbook template if available; limit customization in first version | Switch to a simpler tool (Google Docs with a clean template exported as PDF) -- less polished but fully functional |
-| R4 | Photo quality insufficient for print | Scope | 2 | 1 | 2 | Low | Shoot photos with natural window light; use food staging basics (neutral plate, simple background); test-print one photo at a local print shop before bulk order | Replace with high-quality stock food photography from a free source; clearly selected for visual similarity to the dish |
-| R5 | Motivation dip in weeks 5-7 (middle of project -- highest dropout risk) | Motivation | 2 | 3 | 6 | **HIGH** | Schedule the most enjoyable task (writing headnotes / family stories) during weeks 5-7; set a mid-project "preview" moment -- show the partial book to one family member to reinvigorate motivation | If blocked: set a "minimum viable cookbook" target of 20 recipes, formatted and printed; the project succeeds at that threshold |
+| #   | Risk                                                                                     | Category   | Likelihood (1-3) | Impact (1-3) | Score | Priority | Mitigation                                                                                                                                                                                          | Contingency                                                                                                                                    |
+| --- | ---------------------------------------------------------------------------------------- | ---------- | ---------------- | ------------ | ----- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| R1  | Printing service lead time longer than expected during holiday season                    | Execution  | 3                | 3            | 9     | **HIGH** | Order proof by November 17 (not December 1); select a service with guaranteed lead times; check current holiday lead time estimates before finalizing timeline                                      | If proof delayed past November 25, skip proof and order bulk directly with careful self-review of PDF; order from a second service in parallel |
+| R2  | Recipe transcription takes longer than estimated (40 recipes × ~20 min each = ~13 hours) | Execution  | 2                | 2            | 4     | Medium   | Block 2 dedicated sessions per week for transcription starting week 1; do not wait until M2 deadline; batch by category                                                                             | Reduce scope to the 25-30 most important/iconic recipes and note remaining 10-15 as "coming in next edition"                                   |
+| R3  | Book design tool has steep learning curve, causing layout delays                         | Execution  | 2                | 2            | 4     | Medium   | Select tool by end of week 1; use a pre-built cookbook template if available; limit customization in first version                                                                                  | Switch to a simpler tool (Google Docs with a clean template exported as PDF) -- less polished but fully functional                             |
+| R4  | Photo quality insufficient for print                                                     | Scope      | 2                | 1            | 2     | Low      | Shoot photos with natural window light; use food staging basics (neutral plate, simple background); test-print one photo at a local print shop before bulk order                                    | Replace with high-quality stock food photography from a free source; clearly selected for visual similarity to the dish                        |
+| R5  | Motivation dip in weeks 5-7 (middle of project -- highest dropout risk)                  | Motivation | 2                | 3            | 6     | **HIGH** | Schedule the most enjoyable task (writing headnotes / family stories) during weeks 5-7; set a mid-project "preview" moment -- show the partial book to one family member to reinvigorate motivation | If blocked: set a "minimum viable cookbook" target of 20 recipes, formatted and printed; the project succeeds at that threshold                |
 
 **Highest priority risk:** R1 (score 9) -- holiday printing delays. Resolution: compress proof milestone to November 17, not December 1. Review current service lead times by October 10 (end of week 2).
 
@@ -427,11 +445,13 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 **Progress Tracking Tool:** A simple Google Sheet with one row per recipe (columns: Recipe Name, Category, Transcribed?, Headnote Written?, Photo Assigned?) serving as a visual progress tracker. Milestone status tracked in a second tab.
 
 **Review Cadence:**
+
 - Weekly self-review: Every Sunday evening, 10 minutes -- check recipe transcription count, update milestone completion percentage, note any blockers or questions for grandmother
 - Milestone review: At each milestone completion, verify all completion criteria against the table above before marking done and advancing
 - Plan review: November 1 (midpoint, week 5) -- compare actual progress to planned progress; assess whether December 10 deadline is still achievable; adjust scope if necessary
 
 **Stakeholder Updates:**
+
 - Grandmother: Phone call during week 1 to review unclear index cards; call or visit at project completion to present her copy before Christmas distribution
 - Family members: No updates until Christmas delivery -- this is a surprise gift
 
@@ -443,13 +463,13 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
 
 ### Feasibility Check
 
-| Check | Status | Note |
-|-------|--------|------|
-| Total hours available: 6/week × 11 weeks = 66 hours | **Sufficient** | Recipe transcription (~13 hrs) + layout (~15 hrs) + photos (~5 hrs) + front matter (~5 hrs) + admin/ordering (~5 hrs) ≈ 43 hrs; 23 hours of buffer for learning curves and revisions |
-| Milestone spacing averages 12 days | **Appropriate** | Weekly review will catch drift; spacing matches task complexity |
-| All success criteria traceable to scope | **Yes** | All 5 criteria map to in-scope deliverables |
-| Highest risk (R1, score 9) has mitigation plan | **Yes** | Proof milestone moved to November 17; service lead times to be verified by October 10 |
-| Budget not stated | **⚠ Flag** | Confirm budget range before M4; typical 22-copy softcover cookbooks cost $150-$350; this should be verified within the first 2 weeks |
+| Check                                               | Status          | Note                                                                                                                                                                                 |
+| --------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Total hours available: 6/week × 11 weeks = 66 hours | **Sufficient**  | Recipe transcription (~13 hrs) + layout (~15 hrs) + photos (~5 hrs) + front matter (~5 hrs) + admin/ordering (~5 hrs) ≈ 43 hrs; 23 hours of buffer for learning curves and revisions |
+| Milestone spacing averages 12 days                  | **Appropriate** | Weekly review will catch drift; spacing matches task complexity                                                                                                                      |
+| All success criteria traceable to scope             | **Yes**         | All 5 criteria map to in-scope deliverables                                                                                                                                          |
+| Highest risk (R1, score 9) has mitigation plan      | **Yes**         | Proof milestone moved to November 17; service lead times to be verified by October 10                                                                                                |
+| Budget not stated                                   | **⚠ Flag**      | Confirm budget range before M4; typical 22-copy softcover cookbooks cost $150-$350; this should be verified within the first 2 weeks                                                 |
 
 ---
 
@@ -470,4 +490,5 @@ If the user mentions any budget -- $50 for tooling, $200 for materials, $1,000 f
    - Time: ~60 minutes setup + 30-minute test with one recipe
 
 ---
-*Kickoff completed: September 25. Next plan review: November 1 (midpoint check). Print order deadline: November 17 (proof). Project completion target: December 10.*
+
+_Kickoff completed: September 25. Next plan review: November 1 (midpoint check). Print order deadline: November 17 (proof). Project completion target: December 10._

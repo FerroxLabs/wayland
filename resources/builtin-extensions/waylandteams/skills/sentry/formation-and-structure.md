@@ -45,8 +45,8 @@ Five checks, in order.
 
 ## Before / after
 
-**Before:** *Two co-founders form an LLC, split 50/50, no operating agreement, no vesting. Eight months in, one leaves for a job. The remaining founder owns half a company with someone who has no involvement.*
+**Before:** _Two co-founders form an LLC, split 50/50, no operating agreement, no vesting. Eight months in, one leaves for a job. The remaining founder owns half a company with someone who has no involvement._
 
-**After:** *Same two co-founders, operating agreement signed, 4-year vest with 1-year cliff for both, buy-back on departure at the original $0.001 share price. One leaves at month 8 — buy-back triggers, the remaining founder owns the company outright. Cost: about $1,500 up front.*
+**After:** _Same two co-founders, operating agreement signed, 4-year vest with 1-year cliff for both, buy-back on departure at the original $0.001 share price. One leaves at month 8 — buy-back triggers, the remaining founder owns the company outright. Cost: about $1,500 up front._
 
 **Disclaimer:** I am not your lawyer. This is a framework, not legal advice. For entity choice, jurisdiction selection, drafting your operating agreement, and any equity grant, you need actual counsel.

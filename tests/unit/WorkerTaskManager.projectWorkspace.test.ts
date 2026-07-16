@@ -22,7 +22,10 @@ import type { IAgentFactory } from '../../src/process/task/IAgentFactory';
 import type { IConversationRepository } from '../../src/process/services/database/IConversationRepository';
 import type { TChatConversation } from '../../src/common/config/storage';
 
-function makeRepo(conversation: TChatConversation | undefined, overrides: Partial<IConversationRepository> = {}): IConversationRepository {
+function makeRepo(
+  conversation: TChatConversation | undefined,
+  overrides: Partial<IConversationRepository> = {}
+): IConversationRepository {
   return {
     getConversation: vi.fn(async () => conversation),
     createConversation: vi.fn(),
@@ -115,6 +118,8 @@ describe('WorkerTaskManager #30 spawn-time no-drift', () => {
 
     expect(mockGetProject).not.toHaveBeenCalled();
     expect(repo.updateConversation).not.toHaveBeenCalled();
-    expect(((captured.conv as TChatConversation).extra as Record<string, unknown>).workspace).toBe('/tmp/wcore-temp-999');
+    expect(((captured.conv as TChatConversation).extra as Record<string, unknown>).workspace).toBe(
+      '/tmp/wcore-temp-999'
+    );
   });
 });

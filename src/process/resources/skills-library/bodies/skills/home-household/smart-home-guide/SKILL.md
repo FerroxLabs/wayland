@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance automation guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance automation guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Smart Home Guide
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about smart home guide
 - User needs guidance on smart home guide topics
 - User wants a structured approach to smart home guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -45,6 +48,7 @@ metadata:
 ## Ecosystem Selection
 
 ### The Big Three Comparison
+
 ```
 ECOSYSTEM COMPARISON MATRIX:
 
@@ -80,6 +84,7 @@ RECOMMENDATION BY USER TYPE:
 ```
 
 ### Matter Protocol
+
 ```
 MATTER: THE UNIVERSAL STANDARD
 
@@ -106,6 +111,7 @@ They future-proof your investment regardless of ecosystem changes.
 ## Device Categories
 
 ### Smart Lighting
+
 ```
 SMART LIGHTING OPTIONS:
 
@@ -134,6 +140,7 @@ STARTER RECOMMENDATION:
 ```
 
 ### Smart Security
+
 ```
 SMART SECURITY OPTIONS:
 VIDEO DOORBELL:
@@ -168,6 +175,7 @@ SECURITY SYSTEM:
 ```
 
 ### Smart Climate Control
+
 ```
 SMART CLIMATE OPTIONS:
 
@@ -194,6 +202,7 @@ SMART HUMIDIFIER/AIR PURIFIER:
 ```
 
 ### Smart Entertainment
+
 ```
 SMART ENTERTAINMENT:
 
@@ -224,6 +233,7 @@ UNIVERSAL REMOTE:
 ## Automation Routines
 
 ### Essential Automations
+
 ```
 TOP 10 AUTOMATIONS TO SET UP FIRST:
 1. GOOD MORNING ROUTINE
@@ -301,6 +311,7 @@ TOP 10 AUTOMATIONS TO SET UP FIRST:
 ```
 
 ### Advanced Automation Templates
+
 ```
 AUTOMATION TEMPLATE:
 
@@ -330,6 +341,7 @@ Delay between actions: ___ seconds
 ## Network Setup
 
 ### WiFi Requirements for Smart Home
+
 ```
 NETWORK CONSIDERATIONS:
 
@@ -367,6 +379,7 @@ NETWORK SEGMENTATION (advanced, recommended):
 ```
 
 ## Privacy Considerations
+
 ```
 SMART HOME PRIVACY GUIDE:
 
@@ -409,6 +422,7 @@ PRIVACY CHECKLIST:
 ```
 
 ## Budget Smart Home Plans
+
 ```
 BUDGET TIERS:
 
@@ -448,6 +462,7 @@ COMPREHENSIVE ($700-2000):
 ```
 
 ## Troubleshooting
+
 ```
 COMMON SMART HOME ISSUES:
 DEVICE OFFLINE:
@@ -488,6 +503,7 @@ DEVICE WON'T CONNECT DURING SETUP:
 ## Output Format
 
 When providing smart home advice:
+
 ```
 SMART HOME PLAN
 

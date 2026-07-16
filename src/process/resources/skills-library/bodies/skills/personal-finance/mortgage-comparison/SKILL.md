@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-buying personal-finance analysis planning"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-buying personal-finance analysis planning'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Mortgage Comparison Analysis
 
 > **Disclaimer:** This skill provides educational information about mortgage mathematics and general guidance for personal financial planning. It does NOT constitute financial advice, mortgage advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly. Always consult a qualified mortgage professional, financial advisor, and tax professional before making mortgage decisions.
@@ -28,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has two or more actual Loan Estimate documents and wants a side-by-side mathematical comparison
 - The user is deciding whether to pay discount points to buy down their interest rate
 - The user is evaluating a fixed-rate mortgage against an adjustable-rate mortgage (ARM) for the same loan amount
@@ -38,6 +40,7 @@ metadata:
 - The user needs to calculate remaining balance at a specific future date (for a planned sale or refinance)
 
 **Do NOT use this skill when:**
+
 - The user is asking whether to buy a home at all -- that is a broader financial planning question (use `home-buying-checklist` and `major-purchase-decision`)
 - The user needs help understanding what documents to gather, how escrow works, or what happens at closing -- those are process questions (use `home-buying-checklist`)
 - The user is asking about homeowner's insurance comparison -- that is a separate analysis (use `insurance-comparison`)
@@ -55,6 +58,7 @@ metadata:
 Request all terms needed before performing any calculations. If the user only has partial information, ask specifically for what is missing.
 
 **For every loan option, collect:**
+
 - Loan principal (purchase price minus down payment -- confirm the user has this right; a common error is using the purchase price instead of the financed amount)
 - Annual interest rate (the NOTE rate, not the APR -- these are different; APR is used for comparison per federal TILA but is not used in payment calculations)
 - Loan term in years (most common: 15, 20, 25, or 30; verify it is not a non-standard term like 40 years)
@@ -64,6 +68,7 @@ Request all terms needed before performing any calculations. If the user only ha
 - Whether PMI or MIP is required, and if so, the monthly premium and at what LTV it terminates
 
 **For ARM loans, additionally collect:**
+
 - Initial fixed period (e.g., 5/1 ARM means 5-year fixed period, then adjusts annually)
 - Index (commonly SOFR, formerly LIBOR; some older products still use LIBOR-derived indices -- flag this)
 - Margin (typically 2.00% to 3.00% above the index; this is fixed for the life of the loan)
@@ -73,6 +78,7 @@ Request all terms needed before performing any calculations. If the user only ha
 - Floor: the minimum rate the ARM can ever reach (typically equal to the start rate or the margin)
 
 **Validation checks before calculating:**
+
 - Confirm the loan amount is less than the county conforming loan limit if it is presented as a conventional loan (conforming limit changes annually -- do not state a specific number as current)
 - If the loan amount exceeds conforming limits, it is a jumbo loan and PMI rules differ
 - Confirm the down payment percentage implied by the loan amount and purchase price -- PMI is required on conventional loans with less than 20% down
@@ -85,6 +91,7 @@ Request all terms needed before performing any calculations. If the user only ha
 Use the standard mortgage amortization formula precisely. Show every step.
 
 **The amortization payment formula:**
+
 ```
 M = P * [r(1 + r)^n] / [(1 + r)^n - 1]
 
@@ -96,14 +103,16 @@ Where:
 ```
 
 **Working through the formula carefully:**
+
 - Convert the annual rate to a decimal first: 6.5% becomes 0.065
 - Divide by 12 for the monthly rate: 0.065 / 12 = 0.0054167
 - Calculate (1 + r)^n: this is the compound growth factor; for a 30-year loan this is (1.0054167)^360
-- The numerator is r * (1 + r)^n
+- The numerator is r \* (1 + r)^n
 - The denominator is (1 + r)^n - 1
 - Multiply by P
 
 **Common calculation errors to avoid:**
+
 - Using the APR instead of the note rate in the payment formula -- APR includes fees and will produce a wrong answer
 - Forgetting to convert percentage to decimal (using 6.5 instead of 0.065)
 - Using annual rate directly instead of monthly rate (dividing by 12)
@@ -118,6 +127,7 @@ Where:
 Total cost of borrowing is the single most important comparison metric -- not the monthly payment, not the rate, and not the APR alone. Calculate it precisely for each option.
 
 **Total cost components:**
+
 ```
 Total P&I payments  = M * n
 Total interest paid = (M * n) - P
@@ -128,15 +138,17 @@ Total cost          = Total interest + PMI total + Points cost + Closing costs
 ```
 
 **For PMI calculation, determine cancellation timing:**
+
 - On conventional loans, PMI cancels when the loan balance reaches 80% LTV based on original value (per the Homeowners Protection Act)
 - To find cancellation month: use amortization schedule to find when balance drops below 80% of original appraised value
-- Shortcut formula: balance after n payments = P * [(1+r)^n - (1+r)^k] / [(1+r)^n - 1] where k is the payment number
+- Shortcut formula: balance after n payments = P \* [(1+r)^n - (1+r)^k] / [(1+r)^n - 1] where k is the payment number
 - For FHA loans originated after June 2013 with less than 10% down, MIP remains for the FULL LOAN TERM -- this is a significant cost difference vs. conventional PMI that must be shown explicitly
 
 **Holding-period adjusted total cost:**
+
 - If the user mentions they plan to sell or refinance within a specific timeframe, calculate total cost for THAT holding period, not the full loan term
 - Balance at the end of the holding period is a "recovered cost" -- subtract it from total payments to get true holding-period cost
-- Holding period cost = (M * k) + upfront costs - balance remaining after k payments
+- Holding period cost = (M \* k) + upfront costs - balance remaining after k payments
   where k = planned holding period in months
 
 ---
@@ -146,6 +158,7 @@ Total cost          = Total interest + PMI total + Points cost + Closing costs
 Any time points appear (including lender credits, which are negative points), perform this analysis. It is one of the most practically useful calculations in mortgage comparison.
 
 **Standard break-even calculation:**
+
 ```
 Upfront cost of points  = points * loan amount / 100
 Monthly payment savings = payment without points - payment with points
@@ -173,6 +186,7 @@ Cumulative savings at k months = (monthly savings * k) - upfront cost
 If this number is negative, the user has not yet broken even. If positive, that is the realized savings.
 
 **For lender credits (negative points):**
+
 - A lender credit means the lender pays some closing costs in exchange for a higher interest rate
 - The analysis inverts: the user saves upfront but pays more each month
 - Frame as: "How many months until the higher monthly payment costs more than the credit received?"
@@ -185,21 +199,25 @@ If this number is negative, the user has not yet broken even. If positive, that 
 ARM analysis requires calculating three scenarios, not just the initial payment.
 
 **Scenario 1 -- Initial period (best case for ARM):**
+
 - Calculate the monthly payment during the fixed period using the start rate
-- Calculate total savings vs. the fixed-rate option during this period: (fixed payment - ARM payment) * initial period months
+- Calculate total savings vs. the fixed-rate option during this period: (fixed payment - ARM payment) \* initial period months
 
 **Scenario 2 -- Moderate adjustment (expected case):**
+
 - Assume the rate adjusts at the first adjustment by the full periodic cap (typically +2%)
 - Calculate the new monthly payment on the remaining balance at that point
 - To find remaining balance after the initial period: use the amortization balance formula
-- Recalculate payment: M_new = balance * [r_new(1 + r_new)^n_remaining] / [(1 + r_new)^n_remaining - 1]
+- Recalculate payment: M_new = balance \* [r_new(1 + r_new)^n_remaining] / [(1 + r_new)^n_remaining - 1]
 
 **Scenario 3 -- Worst case (rate hits lifetime cap):**
+
 - Add the lifetime cap to the start rate (e.g., 6.00% start rate + 5% lifetime cap = 11.00% maximum)
 - Calculate the worst-case monthly payment on the remaining balance at cap
 - This shows the maximum possible payment the borrower could ever face
 
 **ARM savings depletion analysis:**
+
 ```
 Initial ARM savings (during fixed period) = (fixed payment - ARM start payment) * fixed period months
 Months to deplete savings at cap rate    = initial savings / (ARM cap payment - fixed payment)
@@ -209,6 +227,7 @@ Total holding period at which ARM breaks even vs. fixed = initial period + deple
 If the borrower plans to stay longer than this breakeven, the fixed rate is safer and cheaper. If they plan to sell before the initial period ends, the ARM saves money.
 
 **ARM-specific risk flags to always include:**
+
 - Identify the index used and note that index rates are unpredictable
 - Note that the margin is permanent -- the ARM rate can only go as low as the margin
 - For 5/1, 7/1, or 10/1 ARMs: explicitly state when the first adjustment occurs
@@ -221,6 +240,7 @@ If the borrower plans to stay longer than this breakeven, the fixed rate is safe
 A snapshot of remaining loan balance at key future dates makes abstract numbers concrete and helps the user understand their equity position.
 
 **Calculate remaining balance after k payments:**
+
 ```
 Balance_k = P * [(1 + r)^n - (1 + r)^k] / [(1 + r)^n - 1]
 ```
@@ -228,6 +248,7 @@ Balance_k = P * [(1 + r)^n - (1 + r)^k] / [(1 + r)^n - 1]
 **Report balance at:** 5 years (60 payments), 7 years (84 payments), 10 years (120 payments), and at mid-term (e.g., year 15 for a 30-year loan).
 
 **Calculate equity at each snapshot:**
+
 ```
 Equity = Purchase price - Remaining balance
 (Note: this is equity from loan paydown only -- does not include appreciation)
@@ -242,18 +263,21 @@ Equity = Purchase price - Remaining balance
 If the user's loan requires PMI or if they are near the 20% down threshold, calculate the PMI economics explicitly.
 
 **Conventional PMI cost range:** PMI rates vary by LTV, credit score, and loan type. Common ranges:
+
 - 95% LTV (5% down): approximately 0.80% to 1.20% of loan amount annually
 - 90% LTV (10% down): approximately 0.40% to 0.80% annually
 - 85% LTV (15% down): approximately 0.20% to 0.50% annually
 - These are educational ranges; the actual rate is on the Loan Estimate
 
 **Calculating PMI cancellation month:**
+
 - Find when the scheduled amortization brings balance to 80% LTV
-- PMI cancellation LTV trigger = original purchase price * 0.80
-- Solve for k: P * [(1+r)^n - (1+r)^k] / [(1+r)^n - 1] = 0.80 * original purchase price
+- PMI cancellation LTV trigger = original purchase price \* 0.80
+- Solve for k: P _ [(1+r)^n - (1+r)^k] / [(1+r)^n - 1] = 0.80 _ original purchase price
 - This typically requires iterating through the amortization schedule month by month
 
 **For the "pay more down to eliminate PMI" analysis:**
+
 ```
 Additional down payment needed = (Loan amount) - (Purchase price * 0.80)
 Total PMI paid over life = monthly PMI * months until PMI cancels
@@ -269,6 +293,7 @@ If total PMI paid exceeds the investment earnings on the extra down payment, pay
 After all calculations, organize findings with a clear decision framework. Never recommend a specific option, but do organize the analysis to highlight meaningful trade-offs.
 
 **Decision framework dimensions:**
+
 1. **Monthly cash flow:** Which option is most manageable month to month? The lowest P&I option may still have PMI or other costs that change the ranking.
 2. **Total cost (full term):** Which option costs the least if the loan runs to maturity?
 3. **Total cost (holding period):** If the user has a realistic holding period in mind, recalculate for that specific timeframe.
@@ -508,6 +533,7 @@ After all calculations, organize findings with a clear decision framework. Never
 ### User Has Only One Loan Offer
 
 Do not tell the user to get more offers (that is out of scope). Instead, perform the following comparisons on the single offer:
+
 - The loan as offered vs. the same loan 0.5 points cheaper (to show what a rate reduction would cost in monthly savings and break-even)
 - The 30-year term vs. a 15-year term on the same loan amount (calculate the rate differential the user would need to ask about)
 - The offered rate with the current points vs. the same rate with one fewer or one additional point
@@ -516,6 +542,7 @@ Do not tell the user to get more offers (that is out of scope). Instead, perform
 ### User Has More Than Three Options
 
 The comparison table scales to any number of columns, but cognitive load increases sharply beyond three. Suggest the user eliminate obvious outliers first:
+
 - If two options have the same rate but different closing costs, the lower-closing-cost option dominates -- remove the higher-cost version
 - If one option has a higher rate AND higher closing costs than another, it is dominated and can be eliminated
 - Rank all options by total cost of borrowing (full term) first, then surface the top 2-3 for detailed analysis
@@ -525,16 +552,17 @@ The comparison table scales to any number of columns, but cognitive load increas
 
 Some ARMs (particularly 10/1 products) include an initial interest-only period before converting to fully amortizing payments. This creates a payment cliff at conversion.
 
-- During the interest-only period: payment = P * r (interest only, no principal reduction)
+- During the interest-only period: payment = P \* r (interest only, no principal reduction)
 - At conversion, the remaining balance is the FULL original principal (no paydown has occurred)
 - The fully amortizing payment must repay the full original balance over the REMAINING term
-- Recalculate: M_converted = P * [r_adj(1+r_adj)^n_remaining] / [(1+r_adj)^n_remaining - 1]
+- Recalculate: M_converted = P \* [r_adj(1+r_adj)^n_remaining] / [(1+r_adj)^n_remaining - 1]
 - Show the payment before conversion, at conversion (at start rate), and at cap rate -- the jump can be dramatic
 - Flag negative amortization features (where minimum payment is less than interest accruing) as carrying specific risk of growing loan balance
 
 ### User Plans to Refinance Before Term
 
 Reframe the entire analysis around the holding period:
+
 - Total cost to refinance date = payments made + closing costs + points - balance recovered
 - The lower-rate option (with higher points) often loses to the higher-rate option (with lower points) on a 3-year holding period even if it wins on a 30-year basis
 - ARM vs. Fixed: if the user will refinance before the ARM's initial fixed period ends, the ARM almost certainly wins on total cost -- quantify exactly how much
@@ -543,8 +571,9 @@ Reframe the entire analysis around the holding period:
 ### FHA Loan vs. Conventional Loan Comparison
 
 This requires special treatment because the loan structures differ fundamentally:
+
 - FHA has an upfront MIP of 1.75% of the loan amount, typically financed into the loan -- the effective loan balance is higher than the purchase price minus down payment
-- Recalculate: FHA loan balance = (purchase price - down payment) + (1.75% * loan amount)
+- Recalculate: FHA loan balance = (purchase price - down payment) + (1.75% \* loan amount)
 - FHA monthly MIP for loans with less than 10% down persists for the FULL LOAN TERM regardless of equity buildup -- there is no automatic cancellation
 - For a 30-year FHA loan at 90% LTV, the total MIP cost over 30 years often exceeds $30,000-$40,000 on a $300,000+ loan -- this must appear explicitly in the total cost comparison
 - Conventional loans with 10% down and PMI may have lower total cost even if the monthly payment is initially higher, once PMI cancellation is factored in
@@ -552,7 +581,8 @@ This requires special treatment because the loan structures differ fundamentally
 ### User Is Near the 20% Down Payment Threshold
 
 If the user could put down a slightly larger amount to cross the 80% LTV threshold and eliminate PMI entirely:
-- Calculate the exact additional cash needed: Additional down = Current loan amount - (Purchase price * 0.80)
+
+- Calculate the exact additional cash needed: Additional down = Current loan amount - (Purchase price \* 0.80)
 - Calculate total PMI that would be paid if NOT crossing the threshold (per the amortization schedule cancellation date)
 - Compare: Is the additional down payment less than or greater than the total PMI that would be paid?
 - Also calculate the opportunity cost of that additional down payment at a conservative return rate
@@ -562,6 +592,7 @@ If the user could put down a slightly larger amount to cross the 80% LTV thresho
 ### User Has a Jumbo Loan
 
 Jumbo loans (above the conforming loan limit) differ in important ways:
+
 - PMI is typically not available from standard PMI carriers -- lenders use alternative structures
 - Rate premium over conforming is typically 0.25% to 0.75%, though this varies significantly
 - Some jumbo lenders offer 80-10-10 splits to stay under the conforming limit on the first mortgage
@@ -583,24 +614,25 @@ Jumbo loans (above the conforming loan limit) differ in important ways:
 
 ### Loan Details
 
-| Feature                   | Option 1: Fixed (no pts) | Option 2: Fixed (1.5 pts) | Option 3: 7/1 ARM         |
-|---------------------------|--------------------------|---------------------------|---------------------------|
-| Loan amount               | $336,000                 | $336,000                  | $336,000                  |
-| Purchase price            | $420,000                 | $420,000                  | $420,000                  |
-| Down payment              | $84,000 (20.0%)          | $84,000 (20.0%)           | $84,000 (20.0%)           |
-| Interest rate (note rate) | 6.875%                   | 6.375%                    | 5.875% (initial)          |
-| Loan type                 | Fixed                    | Fixed                     | 7/1 ARM                   |
-| Loan term                 | 30 years                 | 30 years                  | 30 years                  |
-| Points                    | 0 ($0)                   | 1.5 ($5,040)              | 0 ($0)                    |
-| Closing costs             | $3,800                   | $4,200                    | $3,600                    |
-| Total upfront cash needed | $87,800                  | $93,440                   | $87,600                   |
-| PMI required?             | No (20% down)            | No (20% down)             | No (20% down)             |
+| Feature                   | Option 1: Fixed (no pts) | Option 2: Fixed (1.5 pts) | Option 3: 7/1 ARM |
+| ------------------------- | ------------------------ | ------------------------- | ----------------- |
+| Loan amount               | $336,000                 | $336,000                  | $336,000          |
+| Purchase price            | $420,000                 | $420,000                  | $420,000          |
+| Down payment              | $84,000 (20.0%)          | $84,000 (20.0%)           | $84,000 (20.0%)   |
+| Interest rate (note rate) | 6.875%                   | 6.375%                    | 5.875% (initial)  |
+| Loan type                 | Fixed                    | Fixed                     | 7/1 ARM           |
+| Loan term                 | 30 years                 | 30 years                  | 30 years          |
+| Points                    | 0 ($0)                   | 1.5 ($5,040)              | 0 ($0)            |
+| Closing costs             | $3,800                   | $4,200                    | $3,600            |
+| Total upfront cash needed | $87,800                  | $93,440                   | $87,600           |
+| PMI required?             | No (20% down)            | No (20% down)             | No (20% down)     |
 
 ---
 
 ### Monthly Payment Calculation (Showing Work)
 
 **Option 1: $336,000 at 6.875% fixed for 30 years**
+
 - Annual rate: 6.875% = 0.06875
 - Monthly rate r = 0.06875 / 12 = 0.0057292
 - Number of payments n = 30 × 12 = 360
@@ -611,6 +643,7 @@ Jumbo loans (above the conforming loan limit) differ in important ways:
 - **Monthly P&I payment: $2,210**
 
 **Option 2: $336,000 at 6.375% fixed for 30 years**
+
 - Annual rate: 6.375% = 0.06375
 - Monthly rate r = 0.06375 / 12 = 0.0053125
 - (1 + 0.0053125)^360 = 6.8684
@@ -620,6 +653,7 @@ Jumbo loans (above the conforming loan limit) differ in important ways:
 - **Monthly P&I payment: $2,090**
 
 **Option 3: $336,000 at 5.875% for initial 7-year period**
+
 - Annual rate: 5.875% = 0.05875
 - Monthly rate r = 0.05875 / 12 = 0.0048958
 - (1 + 0.0048958)^360 = 5.8935
@@ -632,62 +666,63 @@ Jumbo loans (above the conforming loan limit) differ in important ways:
 
 ### Monthly Payment Summary
 
-| Component              | Option 1 (Fixed) | Option 2 (Fixed+Pts) | Option 3 (ARM initial) |
-|------------------------|----------------:|--------------------:|----------------------:|
-| Principal & Interest   | $2,210           | $2,090               | $1,981                 |
-| PMI                    | $0               | $0                   | $0                     |
-| **Total monthly**      | **$2,210**       | **$2,090**           | **$1,981**             |
-| Monthly vs. Option 2   | +$120 more       | Lowest fixed         | $109 lower initially   |
+| Component            | Option 1 (Fixed) | Option 2 (Fixed+Pts) | Option 3 (ARM initial) |
+| -------------------- | ---------------: | -------------------: | ---------------------: |
+| Principal & Interest |           $2,210 |               $2,090 |                 $1,981 |
+| PMI                  |               $0 |                   $0 |                     $0 |
+| **Total monthly**    |       **$2,210** |           **$2,090** |             **$1,981** |
+| Monthly vs. Option 2 |       +$120 more |         Lowest fixed |   $109 lower initially |
 
 ---
 
 ### Total Cost of Borrowing (Full 30-Year Term)
 
-| Metric                      | Option 1       | Option 2       | Option 3 (ARM -- initial rate only, not meaningful at full term) |
-|-----------------------------|---------------:|---------------:|---:|
-| Total P&I payments (360 mo) | $795,600        | $752,400        | Note below |
-| Total interest paid         | $459,600        | $416,400        | N/A at full term |
-| Points paid                 | $0              | $5,040          | $0 |
-| Closing costs               | $3,800          | $4,200          | $3,600 |
-| **Total cost of borrowing** | **$463,400**    | **$425,640**    | *See ARM analysis below* |
-| Difference from Option 2    | +$37,760 more   | Lowest fixed    | -- |
+| Metric                      |      Option 1 |     Option 2 | Option 3 (ARM -- initial rate only, not meaningful at full term) |
+| --------------------------- | ------------: | -----------: | ---------------------------------------------------------------: |
+| Total P&I payments (360 mo) |      $795,600 |     $752,400 |                                                       Note below |
+| Total interest paid         |      $459,600 |     $416,400 |                                                 N/A at full term |
+| Points paid                 |            $0 |       $5,040 |                                                               $0 |
+| Closing costs               |        $3,800 |       $4,200 |                                                           $3,600 |
+| **Total cost of borrowing** |  **$463,400** | **$425,640** |                                         _See ARM analysis below_ |
+| Difference from Option 2    | +$37,760 more | Lowest fixed |                                                               -- |
 
-*Note: Option 3 (ARM) cannot be meaningfully compared over 30 years because the rate after year 7 is unknown. The ARM analysis below provides the correct framework.*
+_Note: Option 3 (ARM) cannot be meaningfully compared over 30 years because the rate after year 7 is unknown. The ARM analysis below provides the correct framework._
 
 ---
 
 ### Points Break-Even Analysis: Option 1 vs. Option 2
 
-| Metric                                            | Value              |
-|---------------------------------------------------|------------------:|
-| Cost of 1.5 points on Option 2                    | $5,040             |
-| Additional closing costs for Option 2 vs. Option 1| $400               |
-| Total extra upfront cost for Option 2             | $5,440             |
-| Monthly P&I savings (Option 1 - Option 2)         | $120/month         |
-| Simple break-even                                 | 45.3 months (3.8 years) |
-| Opportunity cost of $5,440 at 5% annual return    | ~$22.67/month      |
-| Effective monthly savings after opportunity cost  | $120 - $23 = $97/month |
-| Opportunity-cost-adjusted break-even              | 56.1 months (4.7 years) |
+| Metric                                             |                   Value |
+| -------------------------------------------------- | ----------------------: |
+| Cost of 1.5 points on Option 2                     |                  $5,040 |
+| Additional closing costs for Option 2 vs. Option 1 |                    $400 |
+| Total extra upfront cost for Option 2              |                  $5,440 |
+| Monthly P&I savings (Option 1 - Option 2)          |              $120/month |
+| Simple break-even                                  | 45.3 months (3.8 years) |
+| Opportunity cost of $5,440 at 5% annual return     |           ~$22.67/month |
+| Effective monthly savings after opportunity cost   |  $120 - $23 = $97/month |
+| Opportunity-cost-adjusted break-even               | 56.1 months (4.7 years) |
 
 **Cumulative savings of Option 2 over Option 1 (after recovering upfront cost):**
 
-| Holding Period      | Simple Savings  | Opp.-Cost Adjusted |
-|---------------------|----------------:|-------------------:|
-| 2 years (24 mo)     | -$2,560 (not recovered) | -$3,096      |
-| 3 years (36 mo)     | -$1,120         | -$1,932             |
-| 4 years (48 mo)     | +$320            | -$816              |
-| 5 years (60 mo)     | +$1,760          | +$300              |
-| 7 years (84 mo)     | +$4,640          | +$2,508             |
-| 10 years (120 mo)   | +$9,160          | +$6,100             |
-| Full 30 years       | +$37,760         | +$26,840            |
+| Holding Period    |          Simple Savings | Opp.-Cost Adjusted |
+| ----------------- | ----------------------: | -----------------: |
+| 2 years (24 mo)   | -$2,560 (not recovered) |            -$3,096 |
+| 3 years (36 mo)   |                 -$1,120 |            -$1,932 |
+| 4 years (48 mo)   |                   +$320 |              -$816 |
+| 5 years (60 mo)   |                 +$1,760 |              +$300 |
+| 7 years (84 mo)   |                 +$4,640 |            +$2,508 |
+| 10 years (120 mo) |                 +$9,160 |            +$6,100 |
+| Full 30 years     |                +$37,760 |           +$26,840 |
 
-*At your 8-10 year expected holding period: Option 2 saves approximately $4,600-$6,100 depending on whether you account for the opportunity cost of the points.*
+_At your 8-10 year expected holding period: Option 2 saves approximately $4,600-$6,100 depending on whether you account for the opportunity cost of the points._
 
 ---
 
 ### Fixed vs. ARM Analysis: Option 1 / Option 2 vs. Option 3
 
 **ARM Structure: 7/1 ARM**
+
 - Fixed period: 84 months (first adjustment in month 85 -- July of year 8)
 - After month 84: adjusts every 12 months
 - Margin: 2.75% (permanent for life of loan)
@@ -698,6 +733,7 @@ Jumbo loans (above the conforming loan limit) differ in important ways:
 - Fully-indexed rate today would be: current index value + 2.75% margin (ask the lender what the current index value is)
 
 **Remaining balance at end of year 7 (month 84):**
+
 ```
 Balance_84 = $336,000 × [(1.0048958)^360 - (1.0048958)^84] / [(1.0048958)^360 - 1]
            = $336,000 × [5.8935 - 1.5022] / [5.8935 - 1]
@@ -708,26 +744,29 @@ Balance_84 = $336,000 × [(1.0048958)^360 - (1.0048958)^84] / [(1.0048958)^360 -
 
 **Payment scenarios after first adjustment (on $301,528 remaining balance, 276 months left):**
 
-*Scenario A -- First adjustment at +2% periodic cap (rate becomes 7.875%):*
+_Scenario A -- First adjustment at +2% periodic cap (rate becomes 7.875%):_
+
 - r_new = 7.875% / 12 = 0.0065625
 - M = $301,528 × [0.0065625 × (1.0065625)^276] / [(1.0065625)^276 - 1]
 - (1.0065625)^276 = 6.1208
 - M = $301,528 × [0.0065625 × 6.1208] / [6.1208 - 1] = $301,528 × 0.040175 / 5.1208
 - **Payment at 7.875%: approximately $2,362/month**
 
-*Scenario B -- Rate hits full 5% initial cap immediately at first adjustment (rate becomes 10.875%):*
+_Scenario B -- Rate hits full 5% initial cap immediately at first adjustment (rate becomes 10.875%):_
+
 - r_cap = 10.875% / 12 = 0.0090625
 - (1.0090625)^276 = 12.0558
 - M = $301,528 × [0.0090625 × 12.0558] / [12.0558 - 1] = $301,528 × 0.10926 / 11.0558
 - **Payment at worst-case cap: approximately $2,977/month**
 
-| Scenario                             | ARM Payment   | Option 1 Payment | Monthly Difference |
-|--------------------------------------|-------------:|----------------:|-------------------:|
-| Months 1-84 (initial 7-year period)  | $1,981        | $2,210           | **$229 lower**     |
-| First adjustment at +2% (7.875%)     | $2,362        | $2,210           | $152 higher        |
-| Worst case: 5% cap (10.875%)         | $2,977        | $2,210           | $767 higher        |
+| Scenario                            | ARM Payment | Option 1 Payment | Monthly Difference |
+| ----------------------------------- | ----------: | ---------------: | -----------------: |
+| Months 1-84 (initial 7-year period) |      $1,981 |           $2,210 |     **$229 lower** |
+| First adjustment at +2% (7.875%)    |      $2,362 |           $2,210 |        $152 higher |
+| Worst case: 5% cap (10.875%)        |      $2,977 |           $2,210 |        $767 higher |
 
 **ARM savings and depletion analysis vs. Option 1:**
+
 - Total ARM savings during 84-month initial period: $229 × 84 = **$19,236**
 - If rate adjusts to 7.875% at month 85: ARM is now $152/month MORE expensive
 - Months to deplete $19,236 in savings at $152/month overage: $19,236 / $152 = 127 months = 10.6 years
@@ -735,4 +774,5 @@ Balance_84 = $336,000 × [(1.0048958)^360 - (1.0048958)^84] / [(1.0048958)^360 -
 - If rate hits full cap at 10.875%: depletion months = $19,236 / $767 = 25 months; overall break-even = month 109 **(year 9.1)**
 
 **ARM savings and depletion analysis vs. Option 2:**
+
 - ARM savings vs. Option 2 per month in initial period: $

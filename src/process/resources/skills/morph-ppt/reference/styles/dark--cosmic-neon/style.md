@@ -22,11 +22,11 @@ A futuristic sci-fi design featuring dual neon glow orbs (purple and cyan) on a 
 
 ## Typography
 
-| Element         | Font                       |
-| --------------- | -------------------------- |
-| Title (English) | Montserrat                 |
+| Element         | Font                           |
+| --------------- | ------------------------------ |
+| Title (English) | Montserrat                     |
 | Title (Chinese) | Source Han Sans (Siyuan Heiti) |
-| Body            | Source Han Sans            |
+| Body            | Source Han Sans                |
 
 ## Design Techniques
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability sustainable-shopping guide"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability sustainable-shopping guide'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Sustainable Fashion Guide
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to build a more sustainable wardrobe
 - User needs guidance on ethical fashion choices and brands
 - User wants to reduce clothing waste through capsule wardrobes or secondhand shopping
 - User needs to evaluate the sustainability claims of fashion brands
 
 **Do NOT use this skill when:**
+
 - User wants general style advice unrelated to sustainability -- use fashion/style skills
 - User needs textile recycling or upcycling crafts -- use crafting skills
 - User wants fast fashion recommendations -- this skill promotes sustainable alternatives
@@ -82,6 +84,7 @@ metadata:
 ### How to Evaluate a Brand's Sustainability Claims
 
 **Checklist for assessing brands:**
+
 - [ ] Transparency: Do they publish their supply chain and factory information?
 - [ ] Materials: Do they use organic, recycled, or sustainably sourced fabrics?
 - [ ] Labor practices: Do they ensure fair wages and safe working conditions?
@@ -92,18 +95,19 @@ metadata:
 
 ### Key Certifications to Look For
 
-| Certification | What It Covers |
-|--------------|---------------|
-| GOTS (Global Organic Textile Standard) | Organic fibers, environmental and social criteria |
-| Fair Trade Certified | Fair wages, safe conditions, environmental standards |
-| B Corp | Overall social and environmental performance |
-| OEKO-TEX Standard 100 | Tested for harmful substances |
-| Bluesign | Sustainable textile production |
-| GRS (Global Recycled Standard) | Recycled content verification |
-| Cradle to Cradle | Material health, circularity, clean air, water stewardship |
-| SA8000 | Social accountability in supply chains |
+| Certification                          | What It Covers                                             |
+| -------------------------------------- | ---------------------------------------------------------- |
+| GOTS (Global Organic Textile Standard) | Organic fibers, environmental and social criteria          |
+| Fair Trade Certified                   | Fair wages, safe conditions, environmental standards       |
+| B Corp                                 | Overall social and environmental performance               |
+| OEKO-TEX Standard 100                  | Tested for harmful substances                              |
+| Bluesign                               | Sustainable textile production                             |
+| GRS (Global Recycled Standard)         | Recycled content verification                              |
+| Cradle to Cradle                       | Material health, circularity, clean air, water stewardship |
+| SA8000                                 | Social accountability in supply chains                     |
 
 ### Greenwashing Red Flags
+
 - Vague claims without specifics ("eco-friendly," "green," "conscious" with no detail)
 - No third-party verification or certification
 - Sustainability marketed as a small collection while 95% of products are conventional
@@ -117,20 +121,21 @@ metadata:
 
 ### Platforms for Buying Secondhand
 
-| Platform | Best For | Price Range | Quality Control |
-|----------|---------|-------------|-----------------|
-| ThredUp | Basics, everyday brands | $-$$ | Platform inspects and lists |
-| Poshmark | Designer and trendy finds | $$-$$$ | Seller-listed, buyer reviews |
-| Depop | Vintage, streetwear, trendy | $-$$$ | Seller-listed |
-| The RealReal | Luxury and designer | $$$-$$$$ | Authenticated |
-| eBay | Everything, wide range | $-$$$$ | Varies widely |
-| Facebook Marketplace | Local finds, no shipping | $-$$ | Meet in person, inspect yourself |
-| Local consignment shops | Curated quality pieces | $$-$$$ | Shop inspects and curates |
-| Goodwill / Salvation Army | Budget-friendly basics | $ | Varies widely, treasure hunting |
-| Buffalo Exchange / Plato's Closet | Young adult trendy styles | $-$$ | Store-curated |
-| Swap events | Free or trade-based | Free | Varies |
+| Platform                          | Best For                    | Price Range | Quality Control                  |
+| --------------------------------- | --------------------------- | ----------- | -------------------------------- |
+| ThredUp                           | Basics, everyday brands     | $-$$        | Platform inspects and lists      |
+| Poshmark                          | Designer and trendy finds   | $$-$$$      | Seller-listed, buyer reviews     |
+| Depop                             | Vintage, streetwear, trendy | $-$$$       | Seller-listed                    |
+| The RealReal                      | Luxury and designer         | $$$-$$$$    | Authenticated                    |
+| eBay                              | Everything, wide range      | $-$$$$      | Varies widely                    |
+| Facebook Marketplace              | Local finds, no shipping    | $-$$        | Meet in person, inspect yourself |
+| Local consignment shops           | Curated quality pieces      | $$-$$$      | Shop inspects and curates        |
+| Goodwill / Salvation Army         | Budget-friendly basics      | $           | Varies widely, treasure hunting  |
+| Buffalo Exchange / Plato's Closet | Young adult trendy styles   | $-$$        | Store-curated                    |
+| Swap events                       | Free or trade-based         | Free        | Varies                           |
 
 ### Secondhand Shopping Tips
+
 - Know your measurements (not just size -- bust, waist, hip, inseam in inches/cm)
 - Check fabric content before purchasing
 - Inspect seams, zippers, buttons, and overall construction
@@ -144,12 +149,14 @@ metadata:
 ### Selling Your Clothes
 
 **Best platforms for selling:**
+
 - Poshmark: Good for branded items, easy listing with photos
 - ThredUp: Send a bag, they list and sell (lower payout per item)
 - Facebook Marketplace: Best for local, no-shipping sales
 - Consignment shops: Drop off and they handle everything
 
 **Selling tips:**
+
 - Clean, steam, or iron items before photographing
 - Take clear photos in good lighting (flat lay or on hanger)
 - Include measurements and fabric content
@@ -161,11 +168,13 @@ metadata:
 ## Phase 4: Capsule Wardrobe for Sustainability
 
 ### What is a Capsule Wardrobe?
+
 A curated collection of versatile, high-quality pieces that mix and match to create multiple outfits. Typical size: 25-40 pieces (excluding underwear, sleepwear, and workout clothes).
 
 ### Building Your Capsule: Step by Step
 
 **Step 1: Audit Your Current Wardrobe**
+
 - Take everything out
 - Sort into: Love/Wear Often, Sometimes Wear, Never Wear
 - For "Never Wear" items, ask why (does not fit, does not match anything, uncomfortable, wrong style)
@@ -185,19 +194,20 @@ Every piece should work with at least 3 others in your wardrobe.
 
 **Step 3: Build the Foundation**
 
-| Category | Essential Pieces | Quantity |
-|----------|-----------------|----------|
-| Tops | T-shirts, button-down, blouse, sweater, tank | 8-12 |
-| Bottoms | Jeans, trousers, skirt, shorts (seasonal) | 4-6 |
-| Outerwear | Jacket, coat, blazer, cardigan | 3-4 |
-| Dresses/Jumpsuits | Versatile styles that dress up or down | 2-3 |
-| Shoes | Everyday pair, dressy pair, casual pair, boots | 4-5 |
-| Accessories | Bag, belt, scarf, jewelry (minimal) | 4-6 |
+| Category          | Essential Pieces                               | Quantity |
+| ----------------- | ---------------------------------------------- | -------- |
+| Tops              | T-shirts, button-down, blouse, sweater, tank   | 8-12     |
+| Bottoms           | Jeans, trousers, skirt, shorts (seasonal)      | 4-6      |
+| Outerwear         | Jacket, coat, blazer, cardigan                 | 3-4      |
+| Dresses/Jumpsuits | Versatile styles that dress up or down         | 2-3      |
+| Shoes             | Everyday pair, dressy pair, casual pair, boots | 4-5      |
+| Accessories       | Bag, belt, scarf, jewelry (minimal)            | 4-6      |
 
 **Step 4: Apply the One-In-One-Out Rule**
 For every new piece that enters your wardrobe, one piece leaves (sell, donate, or swap).
 
 ### Capsule Wardrobe Benefits for Sustainability
+
 - Buy fewer, better quality items
 - Less decision fatigue (everything works together)
 - Less waste (fewer impulse purchases, fewer unused items)
@@ -210,32 +220,33 @@ For every new piece that enters your wardrobe, one piece leaves (sell, donate, o
 
 ### Sustainable Fabric Options
 
-| Fabric | Sustainability Rating | Pros | Cons |
-|--------|----------------------|------|------|
-| Organic cotton | Good | No pesticides, biodegradable, breathable | Still water-intensive to grow |
-| Linen (flax) | Excellent | Low water use, durable, biodegradable, gets softer | Wrinkles easily |
-| Hemp | Excellent | Low water, no pesticides, very durable | Can feel rough initially |
-| Tencel/Lyocell | Very Good | Closed-loop process, soft, breathable, biodegradable | Moderate energy use in production |
-| Recycled polyester | Good (vs virgin) | Diverts plastic waste, durable | Still sheds microplastics |
-| Recycled nylon | Good (vs virgin) | Diverts waste (fishing nets), durable | Still sheds microplastics |
-| Organic wool | Good | Renewable, warm, durable, biodegradable | Animal welfare considerations |
-| Peace silk | Good | No silkworms killed, natural fiber | Expensive, limited availability |
-| Pinatex (pineapple leather) | Promising | Waste-based, vegan | Still relatively new, mixed reviews on durability |
-| Deadstock fabric | Excellent | Uses existing material, no new production | Limited availability |
+| Fabric                      | Sustainability Rating | Pros                                                 | Cons                                              |
+| --------------------------- | --------------------- | ---------------------------------------------------- | ------------------------------------------------- |
+| Organic cotton              | Good                  | No pesticides, biodegradable, breathable             | Still water-intensive to grow                     |
+| Linen (flax)                | Excellent             | Low water use, durable, biodegradable, gets softer   | Wrinkles easily                                   |
+| Hemp                        | Excellent             | Low water, no pesticides, very durable               | Can feel rough initially                          |
+| Tencel/Lyocell              | Very Good             | Closed-loop process, soft, breathable, biodegradable | Moderate energy use in production                 |
+| Recycled polyester          | Good (vs virgin)      | Diverts plastic waste, durable                       | Still sheds microplastics                         |
+| Recycled nylon              | Good (vs virgin)      | Diverts waste (fishing nets), durable                | Still sheds microplastics                         |
+| Organic wool                | Good                  | Renewable, warm, durable, biodegradable              | Animal welfare considerations                     |
+| Peace silk                  | Good                  | No silkworms killed, natural fiber                   | Expensive, limited availability                   |
+| Pinatex (pineapple leather) | Promising             | Waste-based, vegan                                   | Still relatively new, mixed reviews on durability |
+| Deadstock fabric            | Excellent             | Uses existing material, no new production            | Limited availability                              |
 
 ### Problematic Fabrics
 
-| Fabric | Concerns | Notes |
-|--------|----------|-------|
-| Conventional cotton | Pesticide-intensive, heavy water use | 16% of global insecticides used on cotton |
-| Polyester (virgin) | Petroleum-based, sheds microplastics, slow to biodegrade | 60% of all garments contain polyester |
-| Nylon (virgin) | Petroleum-based, energy-intensive, sheds microplastics | Common in activewear and swimwear |
-| Rayon/Viscose (conventional) | Deforestation risk, chemical-intensive processing | From wood pulp, but processing is polluting |
-| Acrylic | Petroleum-based, worst microplastic shedder | Often used as cheap wool substitute |
-| Conventional leather | Tanning chemicals, deforestation (cattle), high water use | Complex -- longevity can offset impact |
-| PVC/Vinyl | Toxic production process, non-biodegradable | Avoid when possible |
+| Fabric                       | Concerns                                                  | Notes                                       |
+| ---------------------------- | --------------------------------------------------------- | ------------------------------------------- |
+| Conventional cotton          | Pesticide-intensive, heavy water use                      | 16% of global insecticides used on cotton   |
+| Polyester (virgin)           | Petroleum-based, sheds microplastics, slow to biodegrade  | 60% of all garments contain polyester       |
+| Nylon (virgin)               | Petroleum-based, energy-intensive, sheds microplastics    | Common in activewear and swimwear           |
+| Rayon/Viscose (conventional) | Deforestation risk, chemical-intensive processing         | From wood pulp, but processing is polluting |
+| Acrylic                      | Petroleum-based, worst microplastic shedder               | Often used as cheap wool substitute         |
+| Conventional leather         | Tanning chemicals, deforestation (cattle), high water use | Complex -- longevity can offset impact      |
+| PVC/Vinyl                    | Toxic production process, non-biodegradable               | Avoid when possible                         |
 
 ### Reducing Microplastic Shedding
+
 - Use a Guppyfriend washing bag or Cora Ball for synthetic garments
 - Wash synthetics less frequently
 - Wash on cold, gentle cycle (less friction = less fiber release)
@@ -248,33 +259,34 @@ For every new piece that enters your wardrobe, one piece leaves (sell, donate, o
 
 ### Washing Best Practices
 
-| Guideline | Why It Matters |
-|-----------|---------------|
-| Wash less frequently | Extends fabric life, saves water and energy |
-| Use cold water | Prevents shrinking, fading, and fiber damage; saves energy |
-| Turn garments inside out | Reduces pilling, fading, and surface wear |
-| Use gentle/delicate cycle | Less agitation = less fiber damage |
-| Use mesh laundry bags | Protects delicates and reduces tangling |
-| Use gentle detergent | Harsh chemicals degrade fibers faster |
-| Avoid overloading | Garments need room to circulate |
-| Zip up zippers, fasten hooks | Prevents snagging other garments |
+| Guideline                    | Why It Matters                                             |
+| ---------------------------- | ---------------------------------------------------------- |
+| Wash less frequently         | Extends fabric life, saves water and energy                |
+| Use cold water               | Prevents shrinking, fading, and fiber damage; saves energy |
+| Turn garments inside out     | Reduces pilling, fading, and surface wear                  |
+| Use gentle/delicate cycle    | Less agitation = less fiber damage                         |
+| Use mesh laundry bags        | Protects delicates and reduces tangling                    |
+| Use gentle detergent         | Harsh chemicals degrade fibers faster                      |
+| Avoid overloading            | Garments need room to circulate                            |
+| Zip up zippers, fasten hooks | Prevents snagging other garments                           |
 
 ### How Often to Actually Wash
 
-| Garment | Wash After |
-|---------|-----------|
-| Underwear and socks | Every wear |
-| Activewear | Every wear (or 2 if light use) |
-| T-shirts and tank tops | 1-3 wears |
-| Dress shirts/blouses | 2-3 wears |
-| Jeans | 5-10 wears (spot clean as needed) |
-| Sweaters and knits | 3-5 wears |
-| Blazers and jackets | 5-6 wears or as needed |
-| Outerwear | Seasonally or as needed |
-| Bras | 3-4 wears |
-| Pajamas | 3-4 wears |
+| Garment                | Wash After                        |
+| ---------------------- | --------------------------------- |
+| Underwear and socks    | Every wear                        |
+| Activewear             | Every wear (or 2 if light use)    |
+| T-shirts and tank tops | 1-3 wears                         |
+| Dress shirts/blouses   | 2-3 wears                         |
+| Jeans                  | 5-10 wears (spot clean as needed) |
+| Sweaters and knits     | 3-5 wears                         |
+| Blazers and jackets    | 5-6 wears or as needed            |
+| Outerwear              | Seasonally or as needed           |
+| Bras                   | 3-4 wears                         |
+| Pajamas                | 3-4 wears                         |
 
 ### Drying Best Practices
+
 - Air dry whenever possible (dryers are the biggest cause of garment wear)
 - Hang or lay flat to dry (knits should lay flat to prevent stretching)
 - If using a dryer, use low heat
@@ -282,6 +294,7 @@ For every new piece that enters your wardrobe, one piece leaves (sell, donate, o
 - Never put delicates or wool in the dryer
 
 ### Storage Tips
+
 - Store knits folded (hanging stretches them)
 - Use padded or wooden hangers for structured garments (blazers, dresses)
 - Keep clothes in a cool, dry, dark place
@@ -296,6 +309,7 @@ For every new piece that enters your wardrobe, one piece leaves (sell, donate, o
 ### Basic Repairs Anyone Can Learn
 
 **Sewing on a Button (Most Common Repair):**
+
 1. Thread a needle with matching thread, knot the end
 2. Position the button and push needle through from the back
 3. Pull through, then push through opposite hole
@@ -304,23 +318,27 @@ For every new piece that enters your wardrobe, one piece leaves (sell, donate, o
 6. Push needle to the back and knot securely
 
 **Patching a Hole:**
+
 - Iron-on patches: Quick and easy for larger holes
 - Visible mending (sashiko-style): Decorative stitching over the repair, embraces imperfection
 - Darning: Weaving new threads through holes in knits
 - Hand-sewing: Small holes can be closed with a simple whip stitch
 
 **Fixing a Hem:**
+
 1. Turn garment inside out
 2. Pin the hem at the desired length
 3. Use a blind hem stitch (barely visible from outside)
 4. Or use hemming tape (iron-on, no sewing) for a quick fix
 
 **Replacing a Zipper Pull:**
+
 - Clip on a key ring or paperclip as a temporary fix
 - Thread a ribbon or cord loop through the slider for easy grip
 - Full zipper replacement is more complex (consider a tailor)
 
 ### When to Use a Professional Tailor
+
 - Garment is valuable or sentimental
 - Alteration requires structural changes (taking in seams, adjusting shoulders)
 - Zipper replacement
@@ -328,6 +346,7 @@ For every new piece that enters your wardrobe, one piece leaves (sell, donate, o
 - Complex alterations (hemming dress pants with a crease, resizing)
 
 ### Mending Kit Essentials
+
 - [ ] Needles (assorted sizes)
 - [ ] Thread (black, white, navy, and colors matching your wardrobe)
 - [ ] Scissors (small, sharp)
@@ -371,15 +390,16 @@ If no, reconsider.
 
 ### End-of-Life Options for Clothing
 
-| Condition | Best Option |
-|-----------|-----------|
-| Good condition, just tired of it | Sell, donate, swap, consign |
-| Minor damage, still wearable | Repair and continue wearing, or donate |
-| Significant damage, not wearable | Textile recycling bin, cut into rags |
-| Stained but intact | Cut into cleaning rags, textile recycling |
-| Sentimental but unwearable | Repurpose (quilt, pillow, framed) |
+| Condition                        | Best Option                               |
+| -------------------------------- | ----------------------------------------- |
+| Good condition, just tired of it | Sell, donate, swap, consign               |
+| Minor damage, still wearable     | Repair and continue wearing, or donate    |
+| Significant damage, not wearable | Textile recycling bin, cut into rags      |
+| Stained but intact               | Cut into cleaning rags, textile recycling |
+| Sentimental but unwearable       | Repurpose (quilt, pillow, framed)         |
 
 ### Where to Recycle Textiles
+
 - Municipal textile recycling bins
 - Brand take-back programs (H&M, Patagonia, The North Face, Eileen Fisher)
 - TerraCycle textile recycling
@@ -387,7 +407,6 @@ If no, reconsider.
 - Thrift stores (they sort and recycle what cannot be sold)
 
 Sustainable fashion is not about having a perfect wardrobe. It is about making more thoughtful choices, wearing what you have, and reducing the cycle of constant consumption. Every garment kept in use longer is a garment that did not need to be produced.
-
 
 ## Output Format
 
@@ -417,11 +436,13 @@ Section 3: Resources
 ## Sustainable Fashion on a Budget
 
 ### Reality Check
+
 Sustainable fashion does not mean expensive fashion. The most sustainable garment is the one you already own.
 
 ### 5 Budget-Friendly Strategies (Ranked by Impact)
 
 **1. Buy Less, Choose Better (Cost: $0)**
+
 - Before any purchase, ask: "Will I wear this at least 30 times?"
 - Cost-per-wear formula: Price / Expected wears = true cost
 - A $60 jacket worn 200 times ($0.30/wear) beats a $15 jacket worn 5 times ($3.00/wear)
@@ -435,12 +456,14 @@ Sustainable fashion does not mean expensive fashion. The most sustainable garmen
 | Clothing swaps | Free refresh | $0 |
 
 **3. Care for What You Have (Cost: minimal)**
+
 - Wash cold, hang dry (extends garment life 50%)
 - Learn 3 basic repairs: button replacement, hem fix, seam repair
 - Store properly: fold knits, hang wovens, use cedar for wool
 
 **4. Build a Capsule Wardrobe (Cost: saves money long-term)**
 Core 30 pieces that mix and match into 100+ outfits:
+
 - 5 tops, 4 bottoms, 3 dresses/jumpsuits, 2 jackets, 3 shoes, 2 bags, accessories
 
 **5. When Buying New: Know the Best Budget-Ethical Brands**

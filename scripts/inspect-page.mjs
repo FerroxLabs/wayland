@@ -5,7 +5,9 @@ const ctx = browser.contexts()[0];
 const page = ctx.pages()[0];
 const errors = [];
 page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}\n${e.stack}`));
-page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
+page.on('console', (m) => {
+  if (m.type() === 'error') errors.push(`console: ${m.text()}`);
+});
 await page.goto(url, { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(1500);
 console.log(errors.join('\n---\n').slice(0, 4000));

@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation time-management optimization"
-  category: "productivity"
-  subcategory: "automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation time-management optimization'
+  category: 'productivity'
+  subcategory: 'automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Recurring Task Optimizer
 
 ## When to Use
@@ -121,6 +122,7 @@ Batching is the most underutilized efficiency lever in personal productivity. Bu
 Delegation fails when the handoff is vague. Automation fails when the trigger or scope is unclear. For each task classified as Delegate or Design-out:
 
 **For human delegation:**
+
 - Define the exact scope boundary: what does the delegatee own completely versus what requires the user's approval or input?
 - Write the handoff brief at a level of specificity where someone unfamiliar with the user's context could execute it. Include: what the output looks like, where inputs come from, what "done" means, what to do when something unexpected happens
 - Define the delegatee profile: is this a personal assistant, a virtual assistant service, a family member, a contractor, a concierge service? Match the task complexity to the appropriate delegatee capability
@@ -128,6 +130,7 @@ Delegation fails when the handoff is vague. Automation fails when the trigger or
 - Assign a transition period: 2-4 cycles of side-by-side execution before full handoff. A task delegated abruptly with no transition period frequently returns to the user's plate within 30 days
 
 **For automation (Design-out):**
+
 - Identify the trigger: what initiates the task? Can that trigger be detected programmatically?
 - Identify the action: what exactly happens? Is it file movement, a notification, a calculation, a report generation?
 - Identify the tool class: rule-based automation (if-then logic in apps like email filters or calendar automation), template-based automation (checklists, document templates that reduce setup time), scheduled automation (cloud backup, recurring calendar events, bill autopay), or integration-based automation (connecting two tools to eliminate manual transfer)
@@ -375,25 +378,26 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 
 ### Task Inventory & Classification
 
-| Task | Current Freq | Occ/Mo | Min/Occ | Hours/Mo | Classification | Action |
-|------|-------------|--------|---------|----------|----------------|--------|
-| Check email | ~15x/day | 300 | 4 | 20.0 | Defer | Reduce to 3x/day fixed windows |
-| Review to-do app | 2x/day (AM+PM) | 40 | 5 | 3.3 | Defer | Reduce to 1x/day morning only |
-| Update project status spreadsheet | Daily | 20 | 10 | 3.3 | Defer | Reduce to 3x/week; batch with morning review |
-| Weekly review | Weekly Friday | 4 | 60 | 4.0 | Do | Keep; restructure internal order |
-| Reconcile freelance income/expenses | Weekly | 4 | 20 | 1.3 | Defer | Reduce to biweekly; batch with budget review |
-| Manual laptop backup | Weekly | 4 | 15 | 1.0 | Design-out | Automate with scheduled cloud sync |
-| Clean home office | Daily | 20 | 10 | 3.3 | Defer | Reduce to 3x/week |
-| Check analytics dashboard | Daily | 20 | 8 | 2.7 | Defer | Reduce to weekly; batch with Friday review |
-| Pay bills manually | Monthly | 1 | 30 | 0.5 | Design-out | Set autopay for fixed bills; retain for variable |
-| Water plants | 3x/week | 13 | 5 | 1.1 | Do | Keep; move to physical batch |
-| Monthly budget review | Monthly | 1 | 45 | 0.75 | Do | Keep; batch with biweekly reconciliation month-end session |
-| Scan and file paper documents | Weekly | 4 | 25 | 1.7 | Defer | Reduce to biweekly; batch with finance block |
-| Review subscription services | Quarterly | 0.33 | 30 | 0.17 | Do | Keep at quarterly |
+| Task                                | Current Freq   | Occ/Mo | Min/Occ | Hours/Mo | Classification | Action                                                     |
+| ----------------------------------- | -------------- | ------ | ------- | -------- | -------------- | ---------------------------------------------------------- |
+| Check email                         | ~15x/day       | 300    | 4       | 20.0     | Defer          | Reduce to 3x/day fixed windows                             |
+| Review to-do app                    | 2x/day (AM+PM) | 40     | 5       | 3.3      | Defer          | Reduce to 1x/day morning only                              |
+| Update project status spreadsheet   | Daily          | 20     | 10      | 3.3      | Defer          | Reduce to 3x/week; batch with morning review               |
+| Weekly review                       | Weekly Friday  | 4      | 60      | 4.0      | Do             | Keep; restructure internal order                           |
+| Reconcile freelance income/expenses | Weekly         | 4      | 20      | 1.3      | Defer          | Reduce to biweekly; batch with budget review               |
+| Manual laptop backup                | Weekly         | 4      | 15      | 1.0      | Design-out     | Automate with scheduled cloud sync                         |
+| Clean home office                   | Daily          | 20     | 10      | 3.3      | Defer          | Reduce to 3x/week                                          |
+| Check analytics dashboard           | Daily          | 20     | 8       | 2.7      | Defer          | Reduce to weekly; batch with Friday review                 |
+| Pay bills manually                  | Monthly        | 1      | 30      | 0.5      | Design-out     | Set autopay for fixed bills; retain for variable           |
+| Water plants                        | 3x/week        | 13     | 5       | 1.1      | Do             | Keep; move to physical batch                               |
+| Monthly budget review               | Monthly        | 1      | 45      | 0.75     | Do             | Keep; batch with biweekly reconciliation month-end session |
+| Scan and file paper documents       | Weekly         | 4      | 25      | 1.7      | Defer          | Reduce to biweekly; batch with finance block               |
+| Review subscription services        | Quarterly      | 0.33   | 30      | 0.17     | Do             | Keep at quarterly                                          |
 
 **Current total: 43.1 hours/month** (note: email was being significantly underestimated at 4 min/check; realistic with context-switching cost is 4 min x 300 = 20 hours)
 
 **Classification breakdown:**
+
 - Do (keep as-is): 4 tasks -- weekly review, plants, budget review, subscription audit -- 6.0 hrs/mo
 - Defer (reduce frequency): 7 tasks -- email, to-do review, project status, reconciliation, office clean, analytics, document filing -- 35.6 hrs/mo currently, 14.5 hrs/mo optimized
 - Design-out (automate): 2 tasks -- laptop backup, most bill payments -- 1.5 hrs/mo currently, 0.15 hrs/mo after setup (variable bills only)
@@ -405,6 +409,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 ### Frequency Optimizations
 
 #### Email Checking
+
 - **Change:** ~15x/day -- > 3x/day (9:00 AM, 1:00 PM, 4:30 PM)
 - **Rationale:** At 15 checks/day, the average gap between checks is 32 minutes. No email requiring a 32-minute response window justifies the attention fragmentation cost. Each check creates a re-focus cost of 10-20 minutes for whatever work precedes it.
 - **Consequence of old frequency:** Perceived responsiveness with actual cost of sustained deep work. The 15x/day pattern is reactive, not strategic.
@@ -415,6 +420,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 - **Review date:** Set a calendar reminder 3 weeks from implementation date; check for any client complaints or missed urgencies
 
 #### To-Do App Review
+
 - **Change:** 2x/day (morning + evening) -- > 1x/day (morning only)
 - **Rationale:** The evening review is a low-value repetition of the morning review adjusted for one day's events. The morning review already captures yesterday's completions and today's priorities. The evening review often creates anxiety about tomorrow without producing actionable change, since no task can be executed immediately after the review.
 - **Risk:** May miss a task that arrives in the afternoon that needs next-day priority
@@ -424,6 +430,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 - **Review date:** 14 days from start; assess whether afternoon task-arrival causes next-day planning failures
 
 #### Project Status Spreadsheet Updates
+
 - **Change:** Daily -- > 3x/week (Monday, Wednesday, Friday)
 - **Rationale:** Project status changes meaningfully 2-3 times per week in a typical freelance engagement, not daily. Daily updates on static days create entries with minimal delta that no one (including the user) reads carefully. Meaningful data every 3 days is more useful than thin data every day.
 - **Risk:** May miss a significant status shift on a Tuesday or Thursday
@@ -433,6 +440,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 - **Review date:** End of first month; check whether any project communication suffered from the reduced update frequency
 
 #### Freelance Income/Expense Reconciliation
+
 - **Change:** Weekly -- > Biweekly (every other Friday, combined with finance batch)
 - **Rationale:** Weekly reconciliation processes 5-7 days of transactions at a time. Biweekly processes 10-14 days. The setup and teardown overhead is fixed per session -- opening accounts, cross-referencing invoices, closing the tool -- typically 5-8 minutes regardless of volume. Biweekly reduces that overhead by 50% while adding only ~10 minutes of actual processing time per session, yielding a net efficiency gain of ~15 minutes/month.
 - **Risk:** An invoice discrepancy identified 2 weeks later is harder to dispute than one identified immediately
@@ -442,6 +450,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 - **Review date:** After 4th biweekly session; assess whether any disputes or discrepancies were harder to resolve
 
 #### Home Office Cleaning
+
 - **Change:** Daily (10 min) -- > 3x/week (Monday, Wednesday, Friday)
 - **Rationale:** A single person using a home office for focused work does not generate enough disorder in one day to require 10 minutes of cleaning. The daily habit is being driven by routine, not by actual disorder accumulation. Physical evidence: if the desk looks nearly the same each morning before cleaning as it did at the end of the prior cleaning session, the daily frequency is not justified.
 - **Risk:** Office accumulates clutter on Tuesday and Thursday, creating a mildly disordered environment on those days
@@ -451,6 +460,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 - **Review date:** 3 weeks from start; assess whether office disorder on non-cleaning days affects work quality or mood
 
 #### Analytics Dashboard Checking
+
 - **Change:** Daily -- > Weekly (Friday, incorporated into weekly review)
 - **Rationale:** Daily analytics checking on most freelance or content metrics is a precision illusion. Daily data is dominated by noise -- day-of-week effects, single-event spikes, platform variance. Weekly aggregates are the minimum meaningful unit for trend analysis. Daily checking without daily action capability is anxiety-generating information consumption without utility.
 - **Risk:** Missing a sudden traffic spike or performance collapse that requires a fast response
@@ -460,6 +470,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 - **Review date:** 6 weeks from start; review whether any missed anomaly caused a meaningful missed opportunity
 
 #### Scan and File Paper Documents
+
 - **Change:** Weekly -- > Biweekly (combined with Finance Block)
 - **Rationale:** Paper document accumulation is predictable and low-urgency. Documents that require immediate action are handled immediately at receipt; the weekly filing session handles archiving only. Two weeks of archiving-only documents is a manageable stack (~10-20 pages) that processes more efficiently in one session than two smaller ones.
 - **Risk:** An archived document that needs to be retrieved while it is in the "unsorted pending" pile is temporarily harder to find
@@ -473,6 +484,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 ### Design-Out (Automation) Plan
 
 #### Manual Laptop Backup
+
 - **Current manual effort:** 60 min/month (4 sessions x 15 min)
 - **Trigger:** User remembers to initiate backup; currently no automatic trigger
 - **Automation type:** Scheduled cloud sync (continuous or nightly)
@@ -482,6 +494,7 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 - **Setup instructions:** Enable the operating system's built-in automatic backup feature (Time Machine on Mac, File History or Backup and Restore on Windows) or configure cloud storage desktop sync to include the Documents, Desktop, and project folders. Set schedule to nightly. Verify one completed automatic backup before considering the manual task eliminated. After verification, remove the manual backup task from the schedule entirely.
 
 #### Manual Bill Payment
+
 - **Current manual effort:** 30 min/month (1 session)
 - **Trigger:** User initiates payment manually each billing cycle
 - **Automation type:** Autopay enrollment (bank-level or vendor-level)
@@ -495,16 +508,17 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 ### Batch Groups
 
 #### Batch: Morning Command Block
+
 - **Cadence:** Daily (Monday -- Friday)
 - **Recommended time slot:** 8:45 -- 9:15 AM -- before client work begins, first thing after physical startup routine
 - **Total duration:** 25-30 minutes
 - **Mental mode:** Planning and administrative -- structured, sequential, no creative demands
 
-| Order | Task | Duration | Notes |
-|-------|------|----------|-------|
-| 1 | To-do app review | 5 min | Sets intention for the day; done first so all subsequent tasks have context |
-| 2 | Email check #1 | 10 min | Process inbox: archive, reply, or defer. No new work initiated from email during this window |
-| 3 | Project status update (MWF only) | 10 min | Flows from email context -- any client updates inform the status entry |
+| Order | Task                             | Duration | Notes                                                                                        |
+| ----- | -------------------------------- | -------- | -------------------------------------------------------------------------------------------- |
+| 1     | To-do app review                 | 5 min    | Sets intention for the day; done first so all subsequent tasks have context                  |
+| 2     | Email check #1                   | 10 min   | Process inbox: archive, reply, or defer. No new work initiated from email during this window |
+| 3     | Project status update (MWF only) | 10 min   | Flows from email context -- any client updates inform the status entry                       |
 
 **Compatibility rationale:** All three tasks share the same mental mode (structured review, no generative thinking required) and the same tool context (computer, productivity apps). The project status update depends on email context, so email must precede it. On Tuesday and Thursday, the batch runs 15 minutes (to-do review + email only).
 
@@ -513,17 +527,18 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 ---
 
 #### Batch: Finance Block
+
 - **Cadence:** Biweekly (alternating Fridays, after weekly review)
 - **Recommended time slot:** Fridays on weeks 2 and 4, 11:00 AM -- 12:00 PM
 - **Total duration:** 60 minutes (months without budget review) / 90 minutes (month-end)
 - **Mental mode:** Financial-analytical -- detail-oriented, linear, cross-referencing
 
-| Order | Task | Duration | Notes |
-|-------|------|----------|-------|
-| 1 | Scan and file paper documents | 20 min | Done first because filed receipts feed into reconciliation; do not reverse this order |
-| 2 | Freelance income/expense reconciliation | 25 min | Cross-reference against filed documents and running invoice log |
-| 3 | Variable bill payment review | 10 min | Done after reconciliation confirms available balance |
-| 4 | Monthly budget review (month-end session only) | 30 min | Requires reconciliation to be complete; add only on the last Finance Block of the month |
+| Order | Task                                           | Duration | Notes                                                                                   |
+| ----- | ---------------------------------------------- | -------- | --------------------------------------------------------------------------------------- |
+| 1     | Scan and file paper documents                  | 20 min   | Done first because filed receipts feed into reconciliation; do not reverse this order   |
+| 2     | Freelance income/expense reconciliation        | 25 min   | Cross-reference against filed documents and running invoice log                         |
+| 3     | Variable bill payment review                   | 10 min   | Done after reconciliation confirms available balance                                    |
+| 4     | Monthly budget review (month-end session only) | 30 min   | Requires reconciliation to be complete; add only on the last Finance Block of the month |
 
 **Compatibility rationale:** All tasks operate on the same financial data set. Each task's output is an input to the next task. Filing before reconciling, reconciling before paying, and reviewing after all transactions are settled is the correct dependency order. Doing these in a different order creates rework.
 
@@ -532,15 +547,16 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 ---
 
 #### Batch: Physical Maintenance Block
+
 - **Cadence:** 3x/week (Monday, Wednesday, Friday)
 - **Recommended time slot:** End of workday, 5:00 -- 5:15 PM
 - **Total duration:** 15 minutes on MWF (10 min office clean + 5 min plants)
 - **Mental mode:** Physical/mechanical -- no cognitive engagement required; serves as a decompression transition out of workday
 
-| Order | Task | Duration | Notes |
-|-------|------|----------|-------|
-| 1 | Water plants | 5 min | Start here: plants are near the door, natural first step on a loop through the space |
-| 2 | Home office clean | 10 min | Follows plant watering naturally as the physical loop continues through the workspace |
+| Order | Task              | Duration | Notes                                                                                 |
+| ----- | ----------------- | -------- | ------------------------------------------------------------------------------------- |
+| 1     | Water plants      | 5 min    | Start here: plants are near the door, natural first step on a loop through the space  |
+| 2     | Home office clean | 10 min   | Follows plant watering naturally as the physical loop continues through the workspace |
 
 **Compatibility rationale:** Both tasks are purely physical, require no screens or decisions, and benefit from being done during the transition period between work mode and personal time. Neither task can contaminate the other's mental mode because neither requires one.
 
@@ -549,17 +565,19 @@ When a user reflexively defends every task, apply the "ownership audit" rather t
 ---
 
 #### Batch: Friday Review Block
+
 - **Cadence:** Weekly (every Friday)
 - **Recommended time slot:** 9:30 -- 10:30 AM (after Morning Command Block, before afternoon)
 - **Total duration:** 70 minutes (60 min review + 10 min analytics)
 - **Mental mode:** Reflective-strategic -- evaluative, pattern-recognition, forward-looking
 
-| Order | Task | Duration | Notes |
-|-------|------|----------|-------|
-| 1 | Weekly review (restructured) | 60 min | See restructuring notes below |
-| 2 | Analytics dashboard review | 10 min | Folded into review's "performance" section; use data to inform next-week planning |
+| Order | Task                         | Duration | Notes                                                                             |
+| ----- | ---------------------------- | -------- | --------------------------------------------------------------------------------- |
+| 1     | Weekly review (restructured) | 60 min   | See restructuring notes below                                                     |
+| 2     | Analytics dashboard review   | 10 min   | Folded into review's "performance" section; use data to inform next-week planning |
 
 **Weekly review internal structure (to improve ROI on the existing 60 minutes):**
+
 - Minutes 0-10: Last-week completion audit (what was done, what slipped, why)
 - Minutes 10-20: Inbox and capture processing (clear the week's accumulated notes, emails needing action, and captured tasks)
 - Minutes 20-35: Next-week preview (schedule blocks for key deliverables, confirm appointments)

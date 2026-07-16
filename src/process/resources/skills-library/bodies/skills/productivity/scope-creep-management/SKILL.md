@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management template planning"
-  category: "productivity"
-  subcategory: "project-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management template planning'
+  category: 'productivity'
+  subcategory: 'project-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Scope Creep Management
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user describes a project that has grown beyond its original boundaries -- timeline has slipped, features have been added informally, or the original deliverables are no longer recognizable
 - A user explicitly asks how to manage scope creep, control change requests, or prevent feature bloat on an active project
 - A user wants a formal process for evaluating whether to accept, defer, or reject additions to a project currently in progress
@@ -29,6 +31,7 @@ metadata:
 - A user's project completion rate is suffering because new work keeps displacing planned work
 
 **Do NOT use when:**
+
 - The user has not yet started the project and is defining scope for the first time -- use `project-kickoff` to establish the baseline scope, then return to this skill when additions begin
 - The user needs enterprise-level change management governance with Change Advisory Boards, ITIL-compliant change tickets, and multi-tier approval workflows -- those contexts require formal organizational change management systems
 - The user wants to prioritize a pre-existing backlog of items none of which have been committed -- use `task-prioritization` to rank the full backlog first
@@ -286,6 +289,7 @@ The system is only effective if the user commits to using it consistently. The m
 ## Edge Cases
 
 ### Solo Project With No External Stakeholders
+
 Self-imposed scope creep is statistically the most common type and the hardest to control because the requester and approver are the same person. The user's enthusiasm is both the creative force and the threat.
 
 - Recommend a **mandatory 48-hour cooling-off period** between the idea occurring to the user and the change request form being completed. Many ideas that seem essential at 11 PM are clearly nice-to-haves by the following morning.
@@ -293,6 +297,7 @@ Self-imposed scope creep is statistically the most common type and the hardest t
 - If the user has a pattern of adding to solo projects before completing them, the root cause may be avoidance of the completion phase (finishing is psychologically harder than building). The scope creep is a symptom, not the cause. Name this gently and recommend setting a "ship date" as a hard deadline that supersedes any pending change requests.
 
 ### Project Scope Was Never Documented
+
 This is the most common precondition for scope creep -- the project was started informally and there is no baseline to protect.
 
 - Do not attempt to build a change control system on an undocumented baseline. First, reconstruct the scope using the **minimum viable completion technique**: ask the user "what is the smallest set of deliverables that would make this project done and valuable?" That set is the baseline scope.
@@ -301,6 +306,7 @@ This is the most common precondition for scope creep -- the project was started 
 - Note that the user's credibility with the process depends on honestly classifying these items. If they classify everything as "always intended," the retroactive log is fictitious and the system has no honest baseline.
 
 ### Multiple Simultaneous Change Requests (Request Flood)
+
 This typically occurs when a stakeholder or client has been storing up requests and delivers them all at once, or when a project review surfaces many additions simultaneously.
 
 - Process each request independently through the intake form and impact assessment before any decision is made. Never batch-approve requests because "they all seem reasonable."
@@ -309,6 +315,7 @@ This typically occurs when a stakeholder or client has been storing up requests 
 - On stakeholder projects, present the stack-ranked analysis to the stakeholder and ask them to confirm which items they prioritize. This shifts the trade-off decision back to the requester rather than leaving it entirely with the project lead.
 
 ### A Previously Rejected or Deferred Item Is Re-Requested
+
 Repeat requests for deferred or rejected items are a sign that the original decision was either not communicated clearly, not accepted by the requester, or that circumstances have genuinely changed.
 
 - Check the decision log for the original entry. If the original rationale was "insufficient capacity at this phase of the project" and the project has since reached a later phase, re-evaluate -- the condition may have changed.
@@ -316,6 +323,7 @@ Repeat requests for deferred or rejected items are a sign that the original deci
 - Track the number of repeat requests per item. An item requested three or more times is a signal of either a genuine unmet need (the original decision may have been wrong) or a stakeholder management problem (the requester is not accepting the decision). These are different problems requiring different responses.
 
 ### The Change Is Technically Necessary to Implement Existing Scope
+
 Sometimes what appears to be a scope addition is actually a discovered dependency -- a technical or structural requirement that was always implicit in the original scope but not made explicit.
 
 - Distinguish between **discovered dependencies** (the original scope was under-specified) and **scope additions** (new value is being added that was not implied by the original scope). This distinction matters for baseline revision.
@@ -324,6 +332,7 @@ Sometimes what appears to be a scope addition is actually a discovered dependenc
 - Ask the defining question: "Does the original scope deliver its stated goal without this item?" If yes, it is an addition. If no, it is a dependency.
 
 ### The User Is the Project Lead Receiving Requests From a Client
+
 Client-originated scope creep carries different dynamics than internally-originated creep because the client relationship creates pressure to accept and the cost of refusal feels higher.
 
 - Add a **stakeholder acknowledgment step** to the change request process: before any decision is made, the client must receive and sign off on the impact assessment. Many client requests evaporate when the client sees that their "quick addition" adds 2 weeks and $3,000.
@@ -332,6 +341,7 @@ Client-originated scope creep carries different dynamics than internally-origina
 - Document all client communications about scope in the decision log. If a client later claims a feature was always in scope, the log provides an audit trail.
 
 ### Project Has Hit a Hard External Deadline and Scope Creep Has Made Completion Impossible
+
 This is the most urgent scenario: the deadline cannot move, the scope has grown beyond what can be completed by that deadline, and the user needs triage.
 
 - Immediately perform a **scope triage analysis**: classify all remaining work as (1) Must complete for launch, (2) Can ship degraded version, (3) Can defer post-launch. This is the MoSCoW method applied to existing scope, not to additions.
@@ -372,12 +382,14 @@ A publicly deployed portfolio website that demonstrates design work to potential
 | 3 | Portfolio gallery with 10 project entries | Must Have | 10 hours | In Progress (blocked) |
 
 **Explicitly Out of Scope (original):**
+
 - Backend services of any kind -- static site with no server infrastructure
 - Blog / editorial content -- this is a portfolio, not a publication
 - Animated transitions -- presentation clarity is more important than motion design at launch
 - Contact form with backend -- a mailto link or embedded form tool (Typeform, Tally) was sufficient
 
 **Baseline Metrics:**
+
 - Original scope items: 3
 - Original effort estimate: 20 hours
 - Original timeline: 15 working days (3 weeks)
@@ -388,13 +400,14 @@ A publicly deployed portfolio website that demonstrates design work to potential
 
 ### 2. Retroactive Change Log (Changes Already Accepted Without Process)
 
-| CR # | Item | Classification | Effort Consumed | Criticality Honest Assessment | Schedule Impact |
-|------|------|---------------|----------------|-------------------------------|-----------------|
-| CR-001 | Contact form with backend | Self-imposed addition | ~8 hours | Desirable (a mailto link meets the goal) | +2 days |
-| CR-002 | Blog for design articles | Self-imposed addition | ~12 hours | Nice-to-have (portfolio goal does not require content publication) | +3 days |
-| CR-003 | Animated page transitions | Self-imposed addition | ~5 hours | Nice-to-have (aesthetic; may slow page performance) | +1.25 days |
+| CR #   | Item                      | Classification        | Effort Consumed | Criticality Honest Assessment                                      | Schedule Impact |
+| ------ | ------------------------- | --------------------- | --------------- | ------------------------------------------------------------------ | --------------- |
+| CR-001 | Contact form with backend | Self-imposed addition | ~8 hours        | Desirable (a mailto link meets the goal)                           | +2 days         |
+| CR-002 | Blog for design articles  | Self-imposed addition | ~12 hours       | Nice-to-have (portfolio goal does not require content publication) | +3 days         |
+| CR-003 | Animated page transitions | Self-imposed addition | ~5 hours        | Nice-to-have (aesthetic; may slow page performance)                | +1.25 days      |
 
 **Retroactive Totals:**
+
 - Additions accepted: 3
 - Effort consumed on additions: ~25 hours (125% of original project estimate)
 - Schedule impact from retroactive additions: ~6.25 days
@@ -414,13 +427,13 @@ A publicly deployed portfolio website that demonstrates design work to potential
 
 **CR-004: Case Study Template**
 
-| Dimension | Current State | If Accepted | Delta | Risk Multiplier |
-|-----------|-------------|-------------|-------|-----------------|
-| Schedule | 8 days remaining | 6.5 days remaining | -1.5 days consumed | No |
-| Effort (implementation) | 6 hrs on gallery | +6 hours for template | +6 hours | No |
-| Effort (integration) | -- | +2 hours restructuring gallery | +2 hours | No |
-| Quality / Complexity Debt | Low | Medium (two parallel display systems) | Increase | -- |
-| Reversibility | -- | Partially reversible | -- | -- |
+| Dimension                 | Current State    | If Accepted                           | Delta              | Risk Multiplier |
+| ------------------------- | ---------------- | ------------------------------------- | ------------------ | --------------- |
+| Schedule                  | 8 days remaining | 6.5 days remaining                    | -1.5 days consumed | No              |
+| Effort (implementation)   | 6 hrs on gallery | +6 hours for template                 | +6 hours           | No              |
+| Effort (integration)      | --               | +2 hours restructuring gallery        | +2 hours           | No              |
+| Quality / Complexity Debt | Low              | Medium (two parallel display systems) | Increase           | --              |
+| Reversibility             | --               | Partially reversible                  | --                 | --              |
 
 **Relative Schedule Impact:** 1.5 days / 8 days remaining = **19% of remaining timeline**
 **Opportunity Cost:** Gallery completion would slip by 1.5 days. With only 8 days before the meeting, this reduces buffer to near zero.
@@ -432,13 +445,13 @@ A publicly deployed portfolio website that demonstrates design work to potential
 
 **CR-005: Client Testimonials Slider**
 
-| Dimension | Current State | If Accepted | Delta | Risk Multiplier |
-|-----------|-------------|-------------|-------|-----------------|
-| Schedule | 8 days remaining | 6 days remaining | -2 days consumed | Yes (JavaScript carousel component = 1.5x) |
-| Effort (implementation) | 6 hrs on gallery | +5 hours (×1.5 = 7.5 hours) | +7.5 hours | Yes |
-| Effort (integration) | -- | +1.5 hours layout changes | +1.5 hours | No |
-| Quality / Complexity Debt | Low | Medium (JS dependency for a visual element) | Increase | -- |
-| Reversibility | -- | Reversible | -- | -- |
+| Dimension                 | Current State    | If Accepted                                 | Delta            | Risk Multiplier                            |
+| ------------------------- | ---------------- | ------------------------------------------- | ---------------- | ------------------------------------------ |
+| Schedule                  | 8 days remaining | 6 days remaining                            | -2 days consumed | Yes (JavaScript carousel component = 1.5x) |
+| Effort (implementation)   | 6 hrs on gallery | +5 hours (×1.5 = 7.5 hours)                 | +7.5 hours       | Yes                                        |
+| Effort (integration)      | --               | +1.5 hours layout changes                   | +1.5 hours       | No                                         |
+| Quality / Complexity Debt | Low              | Medium (JS dependency for a visual element) | Increase         | --                                         |
+| Reversibility             | --               | Reversible                                  | --               | --                                         |
 
 **Relative Schedule Impact:** 2 days / 8 days remaining = **25% of remaining timeline** (at the threshold for scope revision)
 **Opportunity Cost:** Gallery completion would slip 2 days, leaving 6 days to finish, test, and deploy -- a very tight buffer given current velocity.
@@ -450,13 +463,13 @@ A publicly deployed portfolio website that demonstrates design work to potential
 
 **CR-006: Dark Mode**
 
-| Dimension | Current State | If Accepted | Delta | Risk Multiplier |
-|-----------|-------------|-------------|-------|-----------------|
-| Schedule | 8 days remaining | 7 days remaining | -1 day consumed | No |
-| Effort (implementation) | 6 hrs on gallery | +4 hours (CSS custom properties, toggle) | +4 hours | No |
-| Effort (integration) | -- | +2 hours auditing all components | +2 hours | No |
-| Quality / Complexity Debt | Low | Low-Medium (OS preference detection) | Slight increase | -- |
-| Reversibility | -- | Reversible | -- | -- |
+| Dimension                 | Current State    | If Accepted                              | Delta           | Risk Multiplier |
+| ------------------------- | ---------------- | ---------------------------------------- | --------------- | --------------- |
+| Schedule                  | 8 days remaining | 7 days remaining                         | -1 day consumed | No              |
+| Effort (implementation)   | 6 hrs on gallery | +4 hours (CSS custom properties, toggle) | +4 hours        | No              |
+| Effort (integration)      | --               | +2 hours auditing all components         | +2 hours        | No              |
+| Quality / Complexity Debt | Low              | Low-Medium (OS preference detection)     | Slight increase | --              |
+| Reversibility             | --               | Reversible                               | --              | --              |
 
 **Relative Schedule Impact:** 1 day / 8 days remaining = **12.5% of remaining timeline** (medium impact, trade-off required)
 **Opportunity Cost:** 6 hours is the same effort as finishing the portfolio gallery. This is a direct trade -- dark mode vs. completing the stated goal.
@@ -471,12 +484,14 @@ A publicly deployed portfolio website that demonstrates design work to potential
 Given the retroactive audit and all three pending changes deferred, the project has one directive: complete the portfolio gallery.
 
 **Remaining original scope:**
+
 - Portfolio gallery: ~6 hours of work remaining
 - End-to-end testing across devices: 2 hours
 - Deployment and final checks: 2 hours
 - **Total remaining legitimate work: 10 hours across 8 days** -- entirely achievable.
 
 **What to do about the retroactive additions already built:**
+
 - Contact form: Keep it. It is built, it works, and it is genuinely useful. Do not refactor it out. Log it as accepted (retroactively) and move on.
 - Blog: Keep the structure but deprioritize content. Having 0 articles is acceptable at launch; the blog can be populated post-launch. Do not spend any remaining time on blog infrastructure or articles before the meeting.
 - Animated transitions: Keep them if they are stable. If they are still being refined, disable them before the meeting. A portfolio that loads cleanly without motion is better than one with buggy transitions.
@@ -485,16 +500,17 @@ Given the retroactive audit and all three pending changes deferred, the project 
 
 ### 5. Decision Log (Complete)
 
-| CR # | Date | Description | Criticality | Rel. Impact | Decision | Trade-off / Deferral | Rationale | Net Schedule Effect |
-|------|------|-------------|------------|-------------|----------|---------------------|-----------|---------------------|
-| CR-001 | Week 2 | Contact form with backend | Desirable | +2 days | Accepted (retroactive) | No trade-off made at time | Already built; functional; keep | +2 days |
-| CR-002 | Week 3 | Design blog | Nice-to-have | +3 days | Accepted (retroactive) | No trade-off made at time | Already built; content deprioritized until post-launch | +3 days |
-| CR-003 | Week 3 | Animated page transitions | Nice-to-have | +1.25 days | Accepted (retroactive) | No trade-off made at time | Already built; disable if unstable before meeting | +1.25 days |
-| CR-004 | Today | Case study template | Desirable | 19% | Deferred | Nothing to trade against remaining Must Have | Gallery completion is the constraint; no capacity for structural additions | 0 |
-| CR-005 | Today | Testimonials slider | Desirable | 25% | Deferred | JS complexity + no testimonials collected yet | High-risk component for marginal meeting-day value | 0 |
-| CR-006 | Today | Dark mode | Desirable | 12.5% | Deferred | Costs equivalent effort to completing the gallery | Zero trade-off possible; pursue CSS-only version post-launch | 0 |
+| CR #   | Date   | Description               | Criticality  | Rel. Impact | Decision               | Trade-off / Deferral                              | Rationale                                                                  | Net Schedule Effect |
+| ------ | ------ | ------------------------- | ------------ | ----------- | ---------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- | ------------------- |
+| CR-001 | Week 2 | Contact form with backend | Desirable    | +2 days     | Accepted (retroactive) | No trade-off made at time                         | Already built; functional; keep                                            | +2 days             |
+| CR-002 | Week 3 | Design blog               | Nice-to-have | +3 days     | Accepted (retroactive) | No trade-off made at time                         | Already built; content deprioritized until post-launch                     | +3 days             |
+| CR-003 | Week 3 | Animated page transitions | Nice-to-have | +1.25 days  | Accepted (retroactive) | No trade-off made at time                         | Already built; disable if unstable before meeting                          | +1.25 days          |
+| CR-004 | Today  | Case study template       | Desirable    | 19%         | Deferred               | Nothing to trade against remaining Must Have      | Gallery completion is the constraint; no capacity for structural additions | 0                   |
+| CR-005 | Today  | Testimonials slider       | Desirable    | 25%         | Deferred               | JS complexity + no testimonials collected yet     | High-risk component for marginal meeting-day value                         | 0                   |
+| CR-006 | Today  | Dark mode                 | Desirable    | 12.5%       | Deferred               | Costs equivalent effort to completing the gallery | Zero trade-off possible; pursue CSS-only version post-launch               | 0                   |
 
 **Running Totals:**
+
 - Changes accepted: 3 (all retroactive)
 - Changes deferred: 3 (all prospective -- good)
 - Changes rejected: 0
@@ -506,24 +522,24 @@ Given the retroactive audit and all three pending changes deferred, the project 
 
 ### 6. Parking Lot
 
-| # | Item | Source (CR #) | Value Proposition | Consider After | Effort Estimate |
-|---|------|--------------|-------------------|---------------|-----------------|
-| 1 | Case study template | CR-004 | Deeper project storytelling for clients who want process, not just output | After client meeting; build only if the client asks for more detail | 8 hours |
-| 2 | Testimonials slider | CR-005 | Social proof for visitors who don't know you | After collecting 3 written testimonials from past clients | 9 hours |
-| 3 | Dark mode (full) | CR-006 | Modern feel, user comfort preference | 2 weeks post-launch; start with CSS `prefers-color-scheme` version (1 hour) | 6 hours (full) / 1 hour (CSS-only) |
-| 4 | Blog articles | CR-002 (content) | Demonstrates expertise and improves search discovery | After launch; write 1 article per 2 weeks, no infrastructure changes needed | 2--3 hours per article |
+| #   | Item                | Source (CR #)    | Value Proposition                                                         | Consider After                                                              | Effort Estimate                    |
+| --- | ------------------- | ---------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------- |
+| 1   | Case study template | CR-004           | Deeper project storytelling for clients who want process, not just output | After client meeting; build only if the client asks for more detail         | 8 hours                            |
+| 2   | Testimonials slider | CR-005           | Social proof for visitors who don't know you                              | After collecting 3 written testimonials from past clients                   | 9 hours                            |
+| 3   | Dark mode (full)    | CR-006           | Modern feel, user comfort preference                                      | 2 weeks post-launch; start with CSS `prefers-color-scheme` version (1 hour) | 6 hours (full) / 1 hour (CSS-only) |
+| 4   | Blog articles       | CR-002 (content) | Demonstrates expertise and improves search discovery                      | After launch; write 1 article per 2 weeks, no infrastructure changes needed | 2--3 hours per article             |
 
 ---
 
 ### 7. Scope Health Dashboard
 
-| Metric | Baseline | Current | Status |
-|--------|---------|---------|--------|
-| Scope items | 3 | 6 (3 original + 3 additions) | 🔴 Moratorium Active |
-| Timeline (days) | 15 | 21+ | 🔴 6.25 days over baseline |
-| Effort (hours) | 20 | 45+ consumed | 🔴 125% over estimate |
-| Scope creep ratio | 0% | 100% | 🔴 Moratorium threshold exceeded |
-| Parking lot items | 0 | 4 | ✅ Capturing ideas without acting on them |
+| Metric            | Baseline | Current                      | Status                                    |
+| ----------------- | -------- | ---------------------------- | ----------------------------------------- |
+| Scope items       | 3        | 6 (3 original + 3 additions) | 🔴 Moratorium Active                      |
+| Timeline (days)   | 15       | 21+                          | 🔴 6.25 days over baseline                |
+| Effort (hours)    | 20       | 45+ consumed                 | 🔴 125% over estimate                     |
+| Scope creep ratio | 0%       | 100%                         | 🔴 Moratorium threshold exceeded          |
+| Parking lot items | 0        | 4                            | ✅ Capturing ideas without acting on them |
 
 **Health Status:** 🔴 Red -- moratorium active, no new changes, gallery completion is the only priority
 **Path to Green:** Deliver gallery, deploy, meet client. Scope creep ratio cannot improve until original items are complete; completing the gallery closes the Must Have gap and allows a fresh scope reset post-launch.

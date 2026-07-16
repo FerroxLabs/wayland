@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Stress Management Specialist
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about stress manager
 - User needs guidance on stress manager topics
 - User wants a structured approach to stress manager
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -262,34 +264,34 @@ Use when the stressor is **outside your control** or when emotional regulation i
 
 **Quick Relief (1-5 minutes):**
 
-| Technique | Time | How | Best For |
-|-----------|------|-----|----------|
-| Box Breathing | 2 min | Inhale 4s, Hold 4s, Exhale 4s, Hold 4s | Acute stress, anxiety |
-| 4-7-8 Breathing | 2 min | Inhale 4s, Hold 7s, Exhale 8s | Calming, sleep |
-| Grounding 5-4-3-2-1 | 3 min | 5 see, 4 touch, 3 hear, 2 smell, 1 taste | Overwhelm, panic |
-| Cold Water | 1 min | Splash cold water on face or hold ice cube | Intense emotions |
-| Progressive Tensing | 5 min | Tense each muscle group 5s, release 10s | Physical tension |
+| Technique           | Time  | How                                        | Best For              |
+| ------------------- | ----- | ------------------------------------------ | --------------------- |
+| Box Breathing       | 2 min | Inhale 4s, Hold 4s, Exhale 4s, Hold 4s     | Acute stress, anxiety |
+| 4-7-8 Breathing     | 2 min | Inhale 4s, Hold 7s, Exhale 8s              | Calming, sleep        |
+| Grounding 5-4-3-2-1 | 3 min | 5 see, 4 touch, 3 hear, 2 smell, 1 taste   | Overwhelm, panic      |
+| Cold Water          | 1 min | Splash cold water on face or hold ice cube | Intense emotions      |
+| Progressive Tensing | 5 min | Tense each muscle group 5s, release 10s    | Physical tension      |
 
 **Medium-Term Relief (10-30 minutes):**
 
-| Technique | Time | How | Best For |
-|-----------|------|-----|----------|
-| Progressive Muscle Relaxation | 15 min | Full body tense-release sequence | Full-body tension |
-| Guided Meditation | 10-20 min | App or script guided practice | General stress |
-| Journaling | 15 min | Free write or prompted writing | Rumination, worry |
-| Walking | 15-30 min | Mindful walking outdoors | Restlessness, energy |
-| Yoga/Stretching | 20 min | Gentle flow or yin sequence | Tension, flexibility |
+| Technique                     | Time      | How                              | Best For             |
+| ----------------------------- | --------- | -------------------------------- | -------------------- |
+| Progressive Muscle Relaxation | 15 min    | Full body tense-release sequence | Full-body tension    |
+| Guided Meditation             | 10-20 min | App or script guided practice    | General stress       |
+| Journaling                    | 15 min    | Free write or prompted writing   | Rumination, worry    |
+| Walking                       | 15-30 min | Mindful walking outdoors         | Restlessness, energy |
+| Yoga/Stretching               | 20 min    | Gentle flow or yin sequence      | Tension, flexibility |
 
 **Long-Term Practices (build stress resilience):**
 
-| Practice | Frequency | How | Benefits |
-|----------|-----------|-----|----------|
-| Regular exercise | 3-5x/week | 30+ min moderate intensity | Overall stress resilience |
-| Meditation | Daily | 10-20 min mindfulness or breath | Emotional regulation |
-| Sleep hygiene | Daily | Consistent schedule, good habits | Recovery, resilience |
-| Social connection | Weekly | Quality time with supportive people | Belonging, support |
-| Nature exposure | Weekly | 20+ min in green/natural spaces | Cortisol reduction |
-| Creative expression | Weekly | Art, music, writing, cooking | Emotional processing |
+| Practice            | Frequency | How                                 | Benefits                  |
+| ------------------- | --------- | ----------------------------------- | ------------------------- |
+| Regular exercise    | 3-5x/week | 30+ min moderate intensity          | Overall stress resilience |
+| Meditation          | Daily     | 10-20 min mindfulness or breath     | Emotional regulation      |
+| Sleep hygiene       | Daily     | Consistent schedule, good habits    | Recovery, resilience      |
+| Social connection   | Weekly    | Quality time with supportive people | Belonging, support        |
+| Nature exposure     | Weekly    | 20+ min in green/natural spaces     | Cortisol reduction        |
+| Creative expression | Weekly    | Art, music, writing, cooking        | Emotional processing      |
 
 #### 2. Cognitive Reframing
 
@@ -327,16 +329,16 @@ _______________________________________________
 
 ### Common Workplace Stressors and Solutions
 
-| Stressor | Strategy |
-|----------|----------|
-| Overwork / long hours | Set work-end time, use Pomodoro, discuss workload with manager |
-| Unclear expectations | Request written role clarity, regular check-ins with supervisor |
-| Difficult coworker | Focus on behavior not personality, document issues, set boundaries |
-| Lack of control | Identify areas of autonomy, focus on what you can influence |
-| Job insecurity | Update resume, build skills, grow emergency fund |
-| Work-life imbalance | Protect non-work time, establish transition rituals |
-| Micromanagement | Proactively communicate progress, request autonomy conversations |
-| Toxic culture | Document concerns, assess long-term fit, consider exit strategy |
+| Stressor              | Strategy                                                           |
+| --------------------- | ------------------------------------------------------------------ |
+| Overwork / long hours | Set work-end time, use Pomodoro, discuss workload with manager     |
+| Unclear expectations  | Request written role clarity, regular check-ins with supervisor    |
+| Difficult coworker    | Focus on behavior not personality, document issues, set boundaries |
+| Lack of control       | Identify areas of autonomy, focus on what you can influence        |
+| Job insecurity        | Update resume, build skills, grow emergency fund                   |
+| Work-life imbalance   | Protect non-work time, establish transition rituals                |
+| Micromanagement       | Proactively communicate progress, request autonomy conversations   |
+| Toxic culture         | Document concerns, assess long-term fit, consider exit strategy    |
 
 ### Work-Day Stress Management Schedule
 
@@ -413,6 +415,7 @@ This is a self-reflection tool, not a clinical assessment.
 ### Burnout Recovery Protocol
 
 **Phase 1: Immediate Relief (Week 1-2)**
+
 - Take time off if at all possible (even a long weekend)
 - Reduce commitments to absolute essentials
 - Prioritize sleep, nutrition, and movement
@@ -420,6 +423,7 @@ This is a self-reflection tool, not a clinical assessment.
 - Begin stress management practices
 
 **Phase 2: Reassessment (Week 3-4)**
+
 - Identify the primary drivers of burnout
 - Assess which factors are changeable vs unchangeable
 - Have honest conversations with supervisor/partner
@@ -427,6 +431,7 @@ This is a self-reflection tool, not a clinical assessment.
 - Begin rebuilding energy through pleasurable activities
 
 **Phase 3: Restructuring (Month 2-3)**
+
 - Implement sustainable boundaries
 - Adjust workload, responsibilities, or role
 - Build regular recovery into schedule
@@ -434,6 +439,7 @@ This is a self-reflection tool, not a clinical assessment.
 - Create an "early warning system" for future burnout
 
 **Phase 4: Maintenance (Ongoing)**
+
 - Regular burnout self-checks (monthly)
 - Protect recovery time
 - Continue stress management practices
@@ -494,7 +500,6 @@ SHIFT:    Step outside, change environment for 5 minutes
 COOL:     Splash cold water on face, hold ice cube
 SOOTHE:   Listen to calming music, drink warm tea mindfully
 ```
-
 
 ## Output Format
 

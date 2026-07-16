@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts tenant-rights"
-  category: "legal-civic"
-  subcategory: "tenant-rights"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts tenant-rights'
+  category: 'legal-civic'
+  subcategory: 'tenant-rights'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
 
 # Tenant Rights Guide
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User has a landlord-tenant dispute or question about rental rights
 - User needs to understand lease terms or rental law basics
 - User wants to know their rights regarding repairs, deposits, or eviction
 - User needs guidance on how to formally communicate with a landlord
 
 **Do NOT use this skill when:**
+
 - User needs legal representation in an eviction proceeding -- refer to tenant attorney or legal aid
 - User wants to draft a lease agreement -- refer to legal professional
 - User has a commercial lease dispute -- this skill covers residential tenancy
@@ -65,6 +67,7 @@ This skill helps tenants understand their rights, navigate common rental issues,
 Before signing any lease, review every item below:
 
 ### Essential Terms to Verify
+
 ```
 LEASE REVIEW CHECKLIST
 
@@ -117,6 +120,7 @@ TERMINATION:
 ```
 
 ### Red Flags in Leases
+
 - Tenant waives right to habitable premises
 - Landlord may enter without notice at any time
 - Tenant liable for all repairs regardless of cause
@@ -135,29 +139,30 @@ TERMINATION:
 
 Most states regulate security deposits in these areas:
 
-| Issue | Common Rules (Vary by State) |
-|---|---|
-| Maximum amount | 1-2 months' rent (some states have no limit) |
-| Separate account | Many states require deposits in separate, interest-bearing accounts |
-| Return deadline | Typically 14-45 days after move-out |
-| Itemized deductions | Required in most states |
-| Allowable deductions | Damage beyond normal wear and tear, unpaid rent, cleaning if lease requires |
-| Penalties for violations | Some states allow 2-3x deposit as damages |
-| Walk-through inspection | Some states require pre-move-out inspection |
+| Issue                    | Common Rules (Vary by State)                                                |
+| ------------------------ | --------------------------------------------------------------------------- |
+| Maximum amount           | 1-2 months' rent (some states have no limit)                                |
+| Separate account         | Many states require deposits in separate, interest-bearing accounts         |
+| Return deadline          | Typically 14-45 days after move-out                                         |
+| Itemized deductions      | Required in most states                                                     |
+| Allowable deductions     | Damage beyond normal wear and tear, unpaid rent, cleaning if lease requires |
+| Penalties for violations | Some states allow 2-3x deposit as damages                                   |
+| Walk-through inspection  | Some states require pre-move-out inspection                                 |
 
 ### Normal Wear and Tear vs. Damage
 
-| Normal Wear and Tear (NOT Deductible) | Damage (Deductible) |
-|---|---|
-| Minor scuffs on walls | Large holes in walls |
-| Carpet worn from foot traffic | Stains, burns, or pet damage to carpet |
-| Faded paint or wallpaper | Unauthorized paint colors |
-| Loose door handles from normal use | Broken doors or locks |
+| Normal Wear and Tear (NOT Deductible)  | Damage (Deductible)                    |
+| -------------------------------------- | -------------------------------------- |
+| Minor scuffs on walls                  | Large holes in walls                   |
+| Carpet worn from foot traffic          | Stains, burns, or pet damage to carpet |
+| Faded paint or wallpaper               | Unauthorized paint colors              |
+| Loose door handles from normal use     | Broken doors or locks                  |
 | Minor nail holes from hanging pictures | Large anchor holes or removed fixtures |
-| Worn grout in bathroom | Broken tiles |
-| Dusty window blinds | Broken or missing blinds |
+| Worn grout in bathroom                 | Broken tiles                           |
+| Dusty window blinds                    | Broken or missing blinds               |
 
 ### Security Deposit Protection Template
+
 ```
 MOVE-IN CONDITION DOCUMENTATION
 
@@ -199,6 +204,7 @@ Landlord Signature: ____________________ Date: __________
 ### Implied Warranty of Habitability
 
 In most states, landlords must provide and maintain rental units that are fit for human habitation. This typically includes:
+
 ```
 MINIMUM HABITABILITY REQUIREMENTS:
 
@@ -249,6 +255,7 @@ SANITATION:
 ### Step-by-Step Repair Request Process
 
 **Step 1: Notify the landlord in writing.**
+
 ```
 REPAIR REQUEST LETTER TEMPLATE
 
@@ -293,6 +300,7 @@ Sincerely,
 ```
 
 **Step 2: If landlord does not respond within a reasonable time (varies by state and urgency):**
+
 ```
 FOLLOW-UP REPAIR REQUEST
 
@@ -327,6 +335,7 @@ Sincerely,
 ```
 
 **Step 3: Know your remedies (vary by state):**
+
 - **Repair and Deduct:** Some states allow tenants to make repairs and deduct cost from rent (usually with limitations)
 - **Rent Withholding:** Some states allow withholding rent until repairs are made (strict procedural requirements)
 - **Code Enforcement:** File a complaint with your local building/housing inspector
@@ -339,6 +348,7 @@ Sincerely,
 ### Eviction Cannot Happen Without Due Process
 
 Landlords cannot legally:
+
 - Change your locks without a court order
 - Remove your belongings from the unit
 - Shut off utilities to force you out
@@ -348,6 +358,7 @@ Landlords cannot legally:
 These actions are called "self-help evictions" and are illegal in virtually every state.
 
 ### Typical Legal Eviction Process
+
 ```
 STEP 1: NOTICE
 Landlord serves written notice (3-day, 14-day, 30-day, etc.)
@@ -379,6 +390,7 @@ Landlord still cannot self-help evict
 ```
 
 ### Common Eviction Defenses
+
 1. **Improper notice** -- wrong form, wrong timeline, wrong delivery method
 2. **Retaliation** -- eviction filed after tenant complained about conditions or exercised legal rights
 3. **Discrimination** -- eviction motivated by protected class status
@@ -392,14 +404,15 @@ Landlord still cannot self-help evict
 
 ### General Framework
 
-| Lease Type | Rent Increase Rules |
-|---|---|
-| Fixed-term lease | Cannot increase during the term unless lease allows it |
-| Month-to-month | Can increase with proper notice (usually 30-60 days) |
-| Rent-controlled unit | Increases limited by local ordinance |
-| Section 8/subsidized | Governed by program rules |
+| Lease Type           | Rent Increase Rules                                    |
+| -------------------- | ------------------------------------------------------ |
+| Fixed-term lease     | Cannot increase during the term unless lease allows it |
+| Month-to-month       | Can increase with proper notice (usually 30-60 days)   |
+| Rent-controlled unit | Increases limited by local ordinance                   |
+| Section 8/subsidized | Governed by program rules                              |
 
 ### Rent Increase Notice Requirements (General)
+
 - Must be in writing
 - Must provide adequate advance notice (30-90 days depending on jurisdiction)
 - Cannot be retaliatory (e.g., right after you filed a complaint)
@@ -420,6 +433,7 @@ Landlord still cannot self-help evict
 6. **Job relocation** (may or may not reduce liability; check lease)
 
 ### Minimizing Liability When Breaking a Lease
+
 ```
 LEASE-BREAKING ACTION PLAN:
 
@@ -455,6 +469,7 @@ LEASE-BREAKING ACTION PLAN:
 ## Step 8: Documentation Best Practices
 
 ### What to Document and How
+
 ```
 TENANT DOCUMENTATION SYSTEM:
 
@@ -484,6 +499,7 @@ DATE        | ISSUE           | ACTION TAKEN        | RESPONSE
 ### Protected Classes Under Federal Fair Housing Act
 
 It is illegal for landlords to discriminate based on:
+
 - Race or color
 - National origin
 - Religion
@@ -494,6 +510,7 @@ It is illegal for landlords to discriminate based on:
 Many state and local laws add additional protected classes such as age, source of income, marital status, military/veteran status, and more.
 
 ### Signs of Housing Discrimination
+
 - Different terms offered to different applicants for no legitimate reason
 - Steering (directing you to certain neighborhoods or buildings)
 - Refusing reasonable accommodations for disability
@@ -502,6 +519,7 @@ Many state and local laws add additional protected classes such as age, source o
 - Different maintenance response times based on protected characteristics
 
 ### Filing a Discrimination Complaint
+
 1. **HUD:** File online at hud.gov or call 1-800-669-9777
 2. **State Fair Housing Agency:** Search for your state's equivalent
 3. **Local Fair Housing Organization:** Many cities have their own agencies
@@ -510,6 +528,7 @@ Many state and local laws add additional protected classes such as age, source o
 ---
 
 ## Resource Finder Template
+
 ```
 LOCAL TENANT RESOURCES:
 
@@ -528,8 +547,7 @@ Rent Board (if applicable): {{NAME}} -- {{PHONE}}
 
 ---
 
-*This skill provides general tenant rights information. Tenant protection laws vary significantly by jurisdiction. For specific legal situations, contact a local tenant rights organization or attorney.*
-
+_This skill provides general tenant rights information. Tenant protection laws vary significantly by jurisdiction. For specific legal situations, contact a local tenant rights organization or attorney._
 
 ## Output Format
 
@@ -559,24 +577,29 @@ Section 3: Resources
 ## Tenant Rights: Uninhabitable Conditions (No Heat)
 
 ### Your Situation
+
 Lack of heat in winter is generally classified as an uninhabitable condition -- landlords have a legal duty to maintain habitable premises. This is called the "implied warranty of habitability."
 
 ### Your Rights [JURISDICTION: verify -- laws vary by state]
+
 1. **Right to habitable conditions:** Heat is considered an essential service in virtually all jurisdictions
 2. **Repair and deduct:** Some states allow you to hire a repair person and deduct the cost from rent (typically limited to one month's rent)
 3. **Rent withholding:** Some states allow withholding rent until repairs are made -- BUT you must follow specific procedures
 4. **Lease termination:** If conditions are severe enough, you may be able to break your lease without penalty
 
 ### Required Steps Before Withholding Rent
+
 1. **Written notice:** Send landlord a written repair request via certified mail (not just text/verbal)
 2. **Reasonable time:** Allow a reasonable time for repair (varies by jurisdiction, typically 14-30 days, shorter for emergencies like no heat in winter)
 3. **Document everything:** Photos of broken heater, temperature readings in apartment, copies of all communications
 4. **Escrow option:** Some jurisdictions require you to deposit withheld rent in an escrow account, not just keep it
 
 ### Template Notice
+
 "Dear [Landlord], This letter serves as formal written notice that the heating system at [address] has been non-functional since [date]. I reported this issue on [date]. I am requesting repair within [7 days / your jurisdiction's emergency timeline]. Failure to repair may result in my exercising tenant remedies available under [state] law."
 
 ### What NOT to Do
+
 - Do NOT stop paying rent without following your jurisdiction's specific procedure
 - Do NOT make repairs costing more than your state's repair-and-deduct limit
 - Do NOT withhold rent for minor issues -- this remedy is for habitability

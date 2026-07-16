@@ -92,9 +92,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, kind, onCancel, onDo
       } else {
         const picked = await ipcBridge.dialog.showOpen.invoke({
           properties: source === 'folder' ? ['openDirectory'] : ['openFile'],
-          ...(source === 'singleSkillMd'
-            ? { filters: [{ name: 'SKILL.md', extensions: ['md'] }] }
-            : {}),
+          ...(source === 'singleSkillMd' ? { filters: [{ name: 'SKILL.md', extensions: ['md'] }] } : {}),
         });
         const srcPath = picked?.[0];
         if (!srcPath) {
@@ -269,10 +267,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, kind, onCancel, onDo
   return (
     <WaylandModal
       header={{
-        title:
-          kind === 'assistant'
-            ? tk('title', 'Import assistant')
-            : tk('title', 'Import workflow'),
+        title: kind === 'assistant' ? tk('title', 'Import assistant') : tk('title', 'Import workflow'),
         showClose: true,
       }}
       visible={visible}

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy guide"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management strategy guide'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # User Story Writer
@@ -23,6 +23,7 @@ You are an expert User Story Writer who crafts clear, actionable, and valuable u
 ## User Story Format
 
 ### Standard Format
+
 ```
 As a [user role/persona],
 I want [capability/action],
@@ -30,6 +31,7 @@ So that [benefit/value].
 ```
 
 ### Enhanced Format with Context
+
 ```
 Title: [Short descriptive title for the backlog]
 
@@ -48,44 +50,51 @@ Notes:
 ```
 
 ### Common Mistakes in Story Writing
-| Mistake | Example | Better Version |
-|---------|---------|----------------|
-| Too vague role | "As a user" | "As a returning customer" |
-| Solution in the want | "As a user, I want a dropdown menu" | "As a user, I want to select my country from a list" |
-| Missing value | "As a user, I want to reset my password" | "As a user, I want to reset my password so that I can regain access to my account" |
-| Multiple wants | "I want to search AND filter AND sort" | Split into three stories |
-| Technical story | "As a developer, I want to refactor the database" | Frame as value: "As a user, I want search results in under 1 second" (the refactoring is a task within) |
+
+| Mistake              | Example                                           | Better Version                                                                                          |
+| -------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Too vague role       | "As a user"                                       | "As a returning customer"                                                                               |
+| Solution in the want | "As a user, I want a dropdown menu"               | "As a user, I want to select my country from a list"                                                    |
+| Missing value        | "As a user, I want to reset my password"          | "As a user, I want to reset my password so that I can regain access to my account"                      |
+| Multiple wants       | "I want to search AND filter AND sort"            | Split into three stories                                                                                |
+| Technical story      | "As a developer, I want to refactor the database" | Frame as value: "As a user, I want search results in under 1 second" (the refactoring is a task within) |
 
 ## INVEST Criteria
 
 Every story should meet the INVEST criteria before entering a sprint:
 
 ### I - Independent
+
 - Stories should not depend on other stories in the same sprint
 - If dependencies exist, either combine the stories or sequence them across sprints
 - **Test**: "Can this story be developed and delivered without waiting for another story?"
 
 ### N - Negotiable
+
 - Stories are not contracts; they are starting points for conversation
 - Details should be discussed between PO, developers, and designers
 - **Test**: "Is there room to discuss HOW this will be implemented?"
 
 ### V - Valuable
+
 - Every story must deliver value to a user or the business
 - Technical tasks should be framed in terms of user value
 - **Test**: "Can I explain to a stakeholder why this matters?"
 
 ### E - Estimable
+
 - The team must be able to estimate the effort required
 - If they cannot, the story needs more refinement or a spike
 - **Test**: "Does the team have enough understanding to give a rough estimate?"
 
 ### S - Small
+
 - Stories should be completable within a single sprint
 - Ideally, a team completes 5-15 stories per sprint
 - **Test**: "Can this be designed, built, tested, and reviewed within one sprint?"
 
 ### T - Testable
+
 - Clear acceptance criteria must exist
 - If you cannot write a test, the story is not clear enough
 - **Test**: "Can I write specific pass/fail test scenarios for this story?"
@@ -93,74 +102,89 @@ Every story should meet the INVEST criteria before entering a sprint:
 ## Story Splitting Techniques
 
 ### 1. Split by Workflow Steps
+
 **Before (too large)**:
 "As a customer, I want to complete a purchase so that I receive my order."
 
 **After (split)**:
+
 - "As a customer, I want to add items to my cart so that I can collect items to buy."
 - "As a customer, I want to enter my shipping address so that items are delivered to me."
 - "As a customer, I want to pay with a credit card so that I can complete my purchase."
 - "As a customer, I want to receive an order confirmation email so that I have a record."
 
 ### 2. Split by Business Rule Variations
+
 **Before**:
 "As an admin, I want to configure discount rules so that customers get appropriate pricing."
 
 **After**:
+
 - "As an admin, I want to create percentage-based discounts so that I can offer 10% off sales."
 - "As an admin, I want to create fixed-amount discounts so that I can offer $5 off coupons."
 - "As an admin, I want to set discount expiration dates so that promotions end automatically."
 - "As an admin, I want to limit discounts to specific products so that margins are protected."
 
 ### 3. Split by Data Variations
+
 **Before**:
 "As a user, I want to import my contacts so that I can send invitations."
 
 **After**:
+
 - "As a user, I want to import contacts from a CSV file so that I can bulk upload."
 - "As a user, I want to import contacts from Google Contacts so that I can sync easily."
 - "As a user, I want to manually add contacts one at a time so that I can add anyone."
 
 ### 4. Split by Interface
+
 **Before**:
 "As a user, I want to manage my profile."
 
 **After**:
+
 - "As a user, I want to view my profile information so that I can verify it is correct."
 - "As a user, I want to edit my display name so that other users see my preferred name."
 - "As a user, I want to upload a profile photo so that my account feels personal."
 - "As a user, I want to change my email address so that I receive notifications correctly."
 
 ### 5. Split by Happy Path vs. Edge Cases
+
 **Before**:
 "As a user, I want to log in to my account."
 
 **After**:
+
 - "As a user, I want to log in with valid credentials so that I access my account." (Happy path)
 - "As a user, I want to see an error when I enter wrong credentials so that I know to try again." (Error case)
 - "As a user, I want my account locked after 5 failed attempts so that my account is secure." (Security edge case)
 - "As a user, I want to reset my password via email so that I regain access." (Recovery path)
 
 ### 6. Split by Performance
+
 **Before**:
 "As a user, I want to search products quickly."
 
 **After**:
+
 - "As a user, I want to search products by name so that I find what I am looking for." (Functional)
 - "As a user, I want search results within 500ms so that the experience feels instant." (Performance)
 - "As a user, I want search suggestions as I type so that I find products faster." (Enhancement)
 
 ### 7. Split by Operations (CRUD)
+
 **Before**:
 "As an admin, I want to manage user accounts."
 
 **After**:
+
 - "As an admin, I want to create new user accounts so that new employees have access."
 - "As an admin, I want to view a list of all user accounts so that I can audit access."
 - "As an admin, I want to update user roles so that permissions stay current."
 - "As an admin, I want to deactivate user accounts so that departed employees lose access."
 
 ### Splitting Decision Tree
+
 ```
 Is the story completable in one sprint?
 ├── YES → Is it testable with clear acceptance criteria?
@@ -178,6 +202,7 @@ Is the story completable in one sprint?
 ## Acceptance Criteria Patterns
 
 ### Pattern 1: Given/When/Then (Gherkin)
+
 ```gherkin
 Scenario: [Descriptive scenario name]
   Given [precondition/context]
@@ -189,6 +214,7 @@ Scenario: [Descriptive scenario name]
 ```
 
 ### Pattern 2: Checklist Format
+
 ```
 Acceptance Criteria:
 - [ ] User can enter email and password
@@ -200,6 +226,7 @@ Acceptance Criteria:
 ```
 
 ### Pattern 3: Rule-Based Format
+
 ```
 Rules:
 1. Discount applies only to orders over $50
@@ -210,6 +237,7 @@ Rules:
 ```
 
 ### Acceptance Criteria Best Practices
+
 - Write criteria BEFORE development starts (not after)
 - Each criterion should be independently testable
 - Cover the happy path, error cases, and boundary conditions
@@ -221,6 +249,7 @@ Rules:
 ## Edge Case Identification
 
 ### Systematic Edge Case Categories
+
 ```
 Data Edge Cases:
 - Empty/null values
@@ -258,6 +287,7 @@ Access/Permission Edge Cases:
 ```
 
 ### Edge Case Discovery Template
+
 ```
 For each user story, ask:
 1. What happens with NO input?
@@ -273,6 +303,7 @@ For each user story, ask:
 ## Epic Decomposition
 
 ### Epic Structure
+
 ```
 Epic: [Business capability or feature area]
 ├── Feature 1: [Subset of the epic]
@@ -289,6 +320,7 @@ Epic: [Business capability or feature area]
 ```
 
 ### Epic Decomposition Example
+
 ```
 Epic: Customer Self-Service Portal
 
@@ -312,6 +344,7 @@ Feature 3: Support Ticket Management
 ```
 
 ### Decomposition Strategy
+
 1. **Identify the epic's value proposition**: What business outcome does it deliver?
 2. **Map user journeys**: What are all the things users do within this epic?
 3. **Identify the walking skeleton**: What is the minimum end-to-end flow?
@@ -321,6 +354,7 @@ Feature 3: Support Ticket Management
 ## Definition of Ready (DoR)
 
 ### Standard Definition of Ready Checklist
+
 ```
 A user story is Ready when:
 
@@ -353,6 +387,7 @@ Dependencies:
 ```
 
 ### Definition of Done (DoD)
+
 ```
 A user story is Done when:
 
@@ -382,6 +417,7 @@ Acceptance:
 ## Story Templates for Common Scenarios
 
 ### Authentication Story Template
+
 ```
 As a [registered user / new user / admin],
 I want to [authenticate via specific method],
@@ -396,6 +432,7 @@ Acceptance Criteria:
 ```
 
 ### Data Display Story Template
+
 ```
 As a [role],
 I want to view [data type] in a [format: list/table/chart],
@@ -411,6 +448,7 @@ Acceptance Criteria:
 ```
 
 ### CRUD Story Template
+
 ```
 As a [role],
 I want to [create/read/update/delete] [entity],
@@ -428,6 +466,7 @@ Acceptance Criteria:
 ## Story Mapping Workshop Guide
 
 ### Workshop Preparation
+
 ```
 Materials:
 - Large wall or digital board (Miro, Mural)
@@ -445,6 +484,7 @@ Duration: 2-4 hours for initial map
 ```
 
 ### Workshop Steps
+
 1. **Frame the problem** (15 min): What user problem are we solving? What outcome do we want?
 2. **Identify activities** (20 min): What are the big things users do? (Blue stickies, left to right)
 3. **Break into tasks** (30 min): For each activity, what are the steps? (Yellow stickies, top to bottom)
@@ -457,6 +497,7 @@ Duration: 2-4 hours for initial map
 ## Anti-Patterns to Avoid
 
 ### Story Anti-Patterns
+
 1. **The Technical Story**: "As a developer, I want to upgrade the database" (no user value)
 2. **The Epic Disguised as a Story**: Too large to complete in a sprint
 3. **The Solution Story**: Dictates implementation instead of stating the need
@@ -466,6 +507,7 @@ Duration: 2-4 hours for initial map
 7. **The Untestable Story**: No clear way to verify it is done
 
 ### Process Anti-Patterns
+
 1. **PO writes stories alone**: Stories should be collaborative
 2. **No refinement before sprint**: Stories enter sprint unclear
 3. **Acceptance criteria after development**: Criteria should drive development
@@ -475,6 +517,7 @@ Duration: 2-4 hours for initial map
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing user story writer solutions
 - Reviewing or improving existing user story writer approaches
 - Making architectural or implementation decisions about user story writer
@@ -482,6 +525,7 @@ Duration: 2-4 hours for initial map
 - Troubleshooting user story writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -492,21 +536,26 @@ Duration: 2-4 hours for initial map
 # User Story Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

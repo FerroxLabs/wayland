@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "curriculum teaching lesson-plan step-by-step"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'curriculum teaching lesson-plan step-by-step'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Curriculum Mapping
 
 ## When to Use
@@ -117,13 +118,13 @@ Produce the full document using the Output Format below. Include every section -
 ```
 ## Curriculum Map: [Course Title]
 
-**Map Version:** [Draft / Revised / Final]  
-**Prepared for:** [Teacher name or "General Use" if not specified]  
-**Subject:** [Subject area]  
-**Grade / Level:** [Grade level or course level]  
-**Duration:** [Semester / Year / Quarter] -- [X] instructional weeks, [Y] total instructional days  
-**Standards Framework:** [Full framework name and version/year]  
-**Primary Resources:** [Textbook title, edition, supplemental program]  
+**Map Version:** [Draft / Revised / Final]
+**Prepared for:** [Teacher name or "General Use" if not specified]
+**Subject:** [Subject area]
+**Grade / Level:** [Grade level or course level]
+**Duration:** [Semester / Year / Quarter] -- [X] instructional weeks, [Y] total instructional days
+**Standards Framework:** [Full framework name and version/year]
+**Primary Resources:** [Textbook title, edition, supplemental program]
 **Fixed External Milestones:** [AP exam date, state test window, IB deadlines, district benchmarks]
 
 ---
@@ -153,8 +154,8 @@ confirm with school calendar." "AP exam date assumed May 8; adjust calendar if d
 | 6 | [Title] | [X wks] | [Standard codes] | [Description] | [Type] |
 | [Buffer] | Flex / Review | [Y days] | All prior | [Optional cumulative] | [Optional] |
 
-**Total instructional weeks mapped:** [X] (must equal stated duration)  
-**Buffer time:** [Y days] -- approximately [Z]% of total instructional time  
+**Total instructional weeks mapped:** [X] (must equal stated duration)
+**Buffer time:** [Y days] -- approximately [Z]% of total instructional time
 **Standards coverage:** [Total standards in framework] standards across [N] units; [M] spiral standards tracked separately
 
 ---
@@ -220,7 +221,7 @@ confirm with school calendar." "AP exam date assumed May 8; adjust calendar if d
 | [X+1-Y] | [Unit name] | [Type(s) and frequency] | [Assessment title (Week Y)] | [Benchmark / test name if applicable] |
 | [Buffer] | Flex | -- | [Optional cumulative] | -- |
 
-**Key:**  
+**Key:**
 F = Formative | S = Summative | B = District Benchmark | ST = State Test | AP = AP/IB Exam
 
 ---
@@ -291,27 +292,35 @@ F = Formative | S = Summative | B = District Benchmark | ST = State Test | AP = 
 ## Edge Cases
 
 ### New Course With No Prior Curriculum or Textbook
+
 When an educator is building from scratch with only a standards document or course description, apply the following approach: generate the Standards Inventory from the official framework document, cluster standards by conceptual coherence (not by arbitrary topic), and sequence clusters by the strictest prerequisite logic available. Label the entire map as "Draft -- Year 1" and add a prominent note in the header: "This map should be treated as a working hypothesis. Annotate actual pacing throughout the year and revise after the first full implementation cycle." Suggest the educator audit the map at the end of each unit and record actual completion weeks in a parallel column.
 
 ### AP or IB Course With Exam-Mandated Content and Timing
+
 For AP courses, the College Board CED specifies the percentage of exam questions per unit -- use this to weight instructional time. If AP Biology Unit 3 (Cellular Energetics) accounts for 12-16% of the exam, it should receive proportionally more instructional time than a unit weighted at 6-8%. Place the AP exam date as the first fixed anchor and work backward: 3 weeks of AP exam review before the exam date, full content instruction completed 3 weeks before that review period begins. Post-exam time (typically 2-4 weeks remaining in the school year) should be explicitly planned as enrichment, independent research, or college-transition skills -- not dead time. For IB courses, IA (Internal Assessment) submission deadlines are fixed and require dedicated in-class time for research, drafting, and revision -- map these as a distinct strand running alongside content units.
 
 ### Block Schedule Courses (90-Minute Periods)
+
 A 90-minute block meets every day in a semester course, producing the equivalent of a full year of instruction in 18 weeks. Compress unit count to 6-9 units. Recalibrate pacing: 1 week of block instruction equals approximately 2 weeks of traditional instruction in content coverage, but the increased class time per session allows for more project-based and inquiry-based learning within each unit. Formative assessment density should increase (daily exit tickets are feasible in block scheduling); summative assessments can be more complex because students have extended in-class work time. Note explicitly in the map header that all week references are block-schedule weeks.
 
 ### Educator Has a District-Mandated Unit Order That Conflicts With Prerequisite Logic
+
 This is a real constraint in many districts. When the required order violates the dependency chain identified in Step 2 (e.g., the district mandates teaching geometry before number systems in 6th grade, but students need number sense to work with area formulas), note the conflict explicitly in Map Notes: "District pacing requires Unit X before Unit Y. This places [Standard A] before its prerequisite [Standard B]. Recommend spending the first week of Unit X building prerequisite vocabulary and number sense through [specific bridge activity] before introducing the full geometry content." Never silently accept a sequence that will cause instructional problems; flag it so the educator can advocate for change or plan a mitigation strategy.
 
 ### Multi-Section Horizontal Alignment (Multiple Teachers, Same Course)
+
 When the map is intended for a department or team rather than a single teacher, add a "Pacing Coordination" section after the Assessment Calendar. Include: a week-by-week milestone chart showing where all sections should be at the end of each week (with a stated tolerance of ±1 week), a protocol for what to do when one section falls significantly behind (defined as more than 2 weeks behind the map), and a list of which formative assessments are common across sections (used for data team analysis) versus teacher-designed. Common summative assessments should be identified and administered within the same 1-week window across all sections to allow fair comparison of results.
 
 ### Standards That Are Genuinely Too Dense to Cover Thoroughly
+
 Occasionally the number of standards in a framework exceeds what can be meaningfully taught in the available instructional time. This is particularly common in middle school science when states adopt full NGSS and have only 5 periods per week. When this occurs: identify which standards are explicitly tested on high-stakes assessments (state test, AP exam) and mark them as Priority 1; identify standards that are prerequisite to subsequent courses and mark them as Priority 2; identify standards that are addressed at other grade levels or in other courses and mark them as Priority 3 (these can receive lighter treatment). Note this prioritization transparently in the Standards Coverage Audit with a rationale column. Never quietly omit standards -- always document which ones received reduced instructional time and why.
 
 ### Course Revision (Updating an Existing Map)
+
 When an educator brings an existing curriculum map for revision, treat it as a diagnostic exercise before redesigning. Ask: (1) Which units ran significantly over or under the planned time last year? (2) Which summative assessments did not produce useful data about student mastery? (3) Which standards showed persistent low performance on the end-of-year assessment? (4) Have the standards framework or external assessment specifications changed since the last map was created? Use the answers to prioritize revisions: pacing adjustments first, then assessment redesign, then sequence changes. Avoid redesigning units that worked well simply for the sake of change. Mark revised units with a "Rev." flag in the Course Overview table so the educator knows which parts are new.
 
 ### Interdisciplinary or Team-Taught Courses
+
 Courses designed to be taught jointly by two teachers (e.g., a "Humanities" block combining ELA and History, or an "Integrated STEM" course) require a curriculum map that explicitly names which teacher is responsible for which standards within each unit, where instruction is genuinely integrated versus parallel, and how summative assessments incorporate both disciplines. The Spiral Skills Tracker should include skills from both subject areas. Formative assessment decision rules must be coordinated so both teachers respond to data from the same checkpoints. If the two subjects have different external assessment timelines (e.g., the English component has a state ELA test and the history component does not), both timelines must appear in the Assessment Calendar.
 
 ---
@@ -332,12 +341,13 @@ Courses designed to be taught jointly by two teachers (e.g., a "Humanities" bloc
 **Grade / Level:** 11th Grade -- AP Course  
 **Duration:** Full Year -- 36 instructional weeks, 180 instructional days  
 **Standards Framework:** College Board AP United States History Course and Exam Description (2020)  
-**Primary Resources:** Kennedy, Cohen & Piehl, *The American Pageant* (17th ed.); College Board AP Classroom  
+**Primary Resources:** Kennedy, Cohen & Piehl, _The American Pageant_ (17th ed.); College Board AP Classroom  
 **Fixed External Milestones:** AP Exam -- Week 34 (early May); District Benchmark 1 -- Week 10; District Benchmark 2 -- Week 25
 
 ---
 
 ### Map Notes and Assumptions
+
 - AP exam date assumed to fall in the first week of May (approximately Week 34 of a late-August start). Adjust the calendar if your school year starts in September -- the exam week becomes Week 33.
 - The AP exam covers Period 1 (1491) through Period 9 (1980-present), with greatest weighting on Periods 3-8 (approximately 80% of exam). Instructional time is weighted accordingly.
 - DBQ (Document-Based Question) and LEQ (Long Essay Question) practice are embedded as recurring instructional events and tracked in the Spiral Skills Tracker.
@@ -347,6 +357,7 @@ Courses designed to be taught jointly by two teachers (e.g., a "Humanities" bloc
 ---
 
 ### Course-Level Enduring Understandings
+
 1. American history is shaped by ongoing tensions between ideals of liberty and equality and the realities of exclusion, exploitation, and inequality -- understanding these tensions requires analyzing multiple perspectives across time.
 2. Political, economic, social, and cultural forces interact and drive historical change; no single cause fully explains any major development.
 3. American identity has been continuously contested and redefined through conflict, migration, reform movements, and interaction with the wider world.
@@ -356,18 +367,18 @@ Courses designed to be taught jointly by two teachers (e.g., a "Humanities" bloc
 
 ### Course Overview
 
-| Unit | Title | Duration | AP Periods Covered | Summative Assessment | Assessment Type |
-|------|-------|----------|--------------------|----------------------|-----------------|
-| 1 | Contact, Colonization, and Colonial Societies | 4 wks | Periods 1-2 (1491-1754) | DBQ practice essay (scored with AP rubric) | Constructed response |
-| 2 | Revolution, Constitution, and the Early Republic | 4 wks | Period 3 (1754-1800) | LEQ + document analysis | Constructed response |
-| 3 | The New Nation and the Market Revolution | 4 wks | Period 4 (1800-1848) | Structured academic controversy + LEQ | Mixed performance |
-| 4 | Sectional Crisis, Civil War, and Reconstruction | 5 wks | Period 5 (1844-1877) | Full DBQ (timed, AP conditions) | Constructed response |
-| 5 | Industrialization, Immigration, and the Gilded Age | 3 wks | Period 6 (1865-1898) | SAQ + thematic essay | Mixed constructed response |
-| 6 | Progressive Era, Imperialism, and WWI | 4 wks | Period 7, Part 1 (1898-1920) | LEQ (continuity and change over time) | Constructed response |
-| 7 | Interwar Period, Great Depression, and WWII | 4 wks | Period 7, Part 2 / Period 8, Part 1 (1920-1945) | Document analysis + LEQ | Constructed response |
-| 8 | Cold War, Civil Rights, and Postwar America | 4 wks | Period 8, Part 2 (1945-1980) | Full DBQ (timed, AP conditions) | Constructed response |
-| 9 | AP Exam Review | 3 wks | All periods | Cumulative timed practice (DBQ + MCQ + SAQ) | Full AP simulation |
-| [Buffer] | Flex / Reteach Days | 7 days | -- | -- | -- |
+| Unit     | Title                                              | Duration | AP Periods Covered                              | Summative Assessment                        | Assessment Type            |
+| -------- | -------------------------------------------------- | -------- | ----------------------------------------------- | ------------------------------------------- | -------------------------- |
+| 1        | Contact, Colonization, and Colonial Societies      | 4 wks    | Periods 1-2 (1491-1754)                         | DBQ practice essay (scored with AP rubric)  | Constructed response       |
+| 2        | Revolution, Constitution, and the Early Republic   | 4 wks    | Period 3 (1754-1800)                            | LEQ + document analysis                     | Constructed response       |
+| 3        | The New Nation and the Market Revolution           | 4 wks    | Period 4 (1800-1848)                            | Structured academic controversy + LEQ       | Mixed performance          |
+| 4        | Sectional Crisis, Civil War, and Reconstruction    | 5 wks    | Period 5 (1844-1877)                            | Full DBQ (timed, AP conditions)             | Constructed response       |
+| 5        | Industrialization, Immigration, and the Gilded Age | 3 wks    | Period 6 (1865-1898)                            | SAQ + thematic essay                        | Mixed constructed response |
+| 6        | Progressive Era, Imperialism, and WWI              | 4 wks    | Period 7, Part 1 (1898-1920)                    | LEQ (continuity and change over time)       | Constructed response       |
+| 7        | Interwar Period, Great Depression, and WWII        | 4 wks    | Period 7, Part 2 / Period 8, Part 1 (1920-1945) | Document analysis + LEQ                     | Constructed response       |
+| 8        | Cold War, Civil Rights, and Postwar America        | 4 wks    | Period 8, Part 2 (1945-1980)                    | Full DBQ (timed, AP conditions)             | Constructed response       |
+| 9        | AP Exam Review                                     | 3 wks    | All periods                                     | Cumulative timed practice (DBQ + MCQ + SAQ) | Full AP simulation         |
+| [Buffer] | Flex / Reteach Days                                | 7 days   | --                                              | --                                          | --                         |
 
 **Total instructional weeks mapped:** 36  
 **Buffer time:** 7 days (≈ 4% of instructional time) -- distributed after Units 2, 4, 6, and 8 (1-2 days each)  
@@ -394,16 +405,17 @@ Courses designed to be taught jointly by two teachers (e.g., a "Humanities" bloc
 
 **Learning Progression:**
 
-| Week | Instructional Focus | CRA Stage | Key Activities |
-|------|--------------------|-----------|-----------------------------|
-| 1 | Pre-Columbian societies; European motives for exploration | Concrete | Primary source analysis (Columbus journal excerpts, Aztec codices); geographic mapping activity |
-| 2 | Columbian Exchange; Spanish, French, Dutch, and English colonial patterns | Representational | Comparative chart of colonial regions; small-group document analysis with HAPP annotation protocol |
-| 3 | Development of slavery; Chesapeake vs. New England social structures | Representational / Abstract | Structured academic controversy on the origins of racial slavery; short constructed response |
-| 4 | Synthesis: multiple perspectives on colonial America; DBQ practice essay | Abstract / Transfer | Timed 45-minute DBQ practice using 3 documents (reduced from 7 for first practice); AP rubric self-assessment |
+| Week | Instructional Focus                                                       | CRA Stage                   | Key Activities                                                                                                |
+| ---- | ------------------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1    | Pre-Columbian societies; European motives for exploration                 | Concrete                    | Primary source analysis (Columbus journal excerpts, Aztec codices); geographic mapping activity               |
+| 2    | Columbian Exchange; Spanish, French, Dutch, and English colonial patterns | Representational            | Comparative chart of colonial regions; small-group document analysis with HAPP annotation protocol            |
+| 3    | Development of slavery; Chesapeake vs. New England social structures      | Representational / Abstract | Structured academic controversy on the origins of racial slavery; short constructed response                  |
+| 4    | Synthesis: multiple perspectives on colonial America; DBQ practice essay  | Abstract / Transfer         | Timed 45-minute DBQ practice using 3 documents (reduced from 7 for first practice); AP rubric self-assessment |
 
 **Key Vocabulary:**
-- *Tier 3 (Domain-specific):* Columbian Exchange, indentured servitude, chattel slavery, mercantilism, encomienda, proprietary colony, headright system, covenant community
-- *Tier 2 (Academic):* contextualize, perspective, causation, transformation, hierarchy
+
+- _Tier 3 (Domain-specific):_ Columbian Exchange, indentured servitude, chattel slavery, mercantilism, encomienda, proprietary colony, headright system, covenant community
+- _Tier 2 (Academic):_ contextualize, perspective, causation, transformation, hierarchy
 
 **Formative Assessment Checkpoints:**
 | Checkpoint | Format | Standard(s) Targeted | Decision Rule |
@@ -413,20 +425,23 @@ Courses designed to be taught jointly by two teachers (e.g., a "Humanities" bloc
 | Short constructed response -- Week 3 | One paragraph: "Explain ONE cause of the development of racial slavery in colonial America." Scored 0-3 using AP rubric. | KC-2.2, HTS-4 | If median score < 2/3: workshop the thesis statement and evidence use before the Unit 1 DBQ |
 
 **Summative Assessment:** Unit 1 DBQ Practice Essay
-- *Type:* Constructed response -- Document-Based Question
-- *Standards Assessed:* KC-1.2, KC-2.1, KC-2.2, HTS-1 (Contextualization), HTS-4 (Causation), HTS-6 (Argumentation)
-- *Cognitive Demand:* DOK 4 -- Extended Thinking (synthesizes multiple documents into an original argument)
-- *Description:* Students write a full DBQ essay in 60 minutes using 3 primary source documents (reduced from the full AP set of 7) on a prompt about colonial labor systems. Essays are scored using the College Board's 7-point DBQ rubric. Students complete a structured self-assessment after receiving their score.
-- *Scoring:* 7-point AP DBQ rubric (Thesis 1pt, Contextualization 1pt, Evidence 3pts, Analysis/Reasoning 2pts). Students review their rubric score and set one revision goal for the next DBQ.
+
+- _Type:_ Constructed response -- Document-Based Question
+- _Standards Assessed:_ KC-1.2, KC-2.1, KC-2.2, HTS-1 (Contextualization), HTS-4 (Causation), HTS-6 (Argumentation)
+- _Cognitive Demand:_ DOK 4 -- Extended Thinking (synthesizes multiple documents into an original argument)
+- _Description:_ Students write a full DBQ essay in 60 minutes using 3 primary source documents (reduced from the full AP set of 7) on a prompt about colonial labor systems. Essays are scored using the College Board's 7-point DBQ rubric. Students complete a structured self-assessment after receiving their score.
+- _Scoring:_ 7-point AP DBQ rubric (Thesis 1pt, Contextualization 1pt, Evidence 3pts, Analysis/Reasoning 2pts). Students review their rubric score and set one revision goal for the next DBQ.
 
 **Differentiation:**
-- *Scaffolding:* Provide a pre-filled HAPP graphic organizer for the first two documents in the DBQ practice; students complete the remaining documents independently
-- *Extension:* Students who score 6-7/7 on the Unit 1 DBQ analyze a historiographical debate (e.g., Morgan's *American Slavery, American Freedom*) and write a one-page analysis of how historians' arguments compare to the documents
+
+- _Scaffolding:_ Provide a pre-filled HAPP graphic organizer for the first two documents in the DBQ practice; students complete the remaining documents independently
+- _Extension:_ Students who score 6-7/7 on the Unit 1 DBQ analyze a historiographical debate (e.g., Morgan's _American Slavery, American Freedom_) and write a one-page analysis of how historians' arguments compare to the documents
 
 **Cross-Cutting Connections:**
-- *Horizontal:* English 11 -- analytical writing skills; the HAPP protocol mirrors the rhetorical analysis framework used in AP Language and Composition
-- *Vertical:* Builds on 8th grade US History survey (first exposure to colonial period); prepares students for the Period 3 content in Unit 2 by establishing the political and economic context of British North America
-- *Real-World Application:* Current debates about how the 1619 Project and traditional textbook narratives frame American origins -- students engage with historiographical controversy, not just historical content
+
+- _Horizontal:_ English 11 -- analytical writing skills; the HAPP protocol mirrors the rhetorical analysis framework used in AP Language and Composition
+- _Vertical:_ Builds on 8th grade US History survey (first exposure to colonial period); prepares students for the Period 3 content in Unit 2 by establishing the political and economic context of British North America
+- _Real-World Application:_ Current debates about how the 1619 Project and traditional textbook narratives frame American origins -- students engage with historiographical controversy, not just historical content
 
 ---
 
@@ -448,16 +463,17 @@ Courses designed to be taught jointly by two teachers (e.g., a "Humanities" bloc
 
 **Learning Progression:**
 
-| Week | Instructional Focus | CRA Stage | Key Activities |
-|------|--------------------|-----------|-----------------------------|
-| 5 | Imperial crisis: Proclamation of 1763 through the Declaration of Independence | Concrete | Timeline construction; close reading of Declaration; Loyalist vs. Patriot perspectives exercise |
-| 6 | Social outcomes of the Revolution for different groups | Representational | Jigsaw reading on women, enslaved people, and Native Americans; CCOT paragraph practice |
-| 7 | Constitutional design: Federalists vs. Anti-Federalists; Bill of Rights | Abstract | Socratic seminar on Federalist No. 10; LEQ thesis workshop |
-| 8 | Synthesis + LEQ + 1-day buffer | Transfer | Timed LEQ (45 minutes); peer scoring using AP rubric |
+| Week | Instructional Focus                                                           | CRA Stage        | Key Activities                                                                                  |
+| ---- | ----------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------- |
+| 5    | Imperial crisis: Proclamation of 1763 through the Declaration of Independence | Concrete         | Timeline construction; close reading of Declaration; Loyalist vs. Patriot perspectives exercise |
+| 6    | Social outcomes of the Revolution for different groups                        | Representational | Jigsaw reading on women, enslaved people, and Native Americans; CCOT paragraph practice         |
+| 7    | Constitutional design: Federalists vs. Anti-Federalists; Bill of Rights       | Abstract         | Socratic seminar on Federalist No. 10; LEQ thesis workshop                                      |
+| 8    | Synthesis + LEQ + 1-day buffer                                                | Transfer         | Timed LEQ (45 minutes); peer scoring using AP rubric                                            |
 
 **Key Vocabulary:**
-- *Tier 3:* republicanism, natural rights, popular sovereignty, federalism, checks and balances, enumerated powers, implied powers, bicameralism, ratification
-- *Tier 2:* transformation, continuity, ideology, representation, legitimacy
+
+- _Tier 3:_ republicanism, natural rights, popular sovereignty, federalism, checks and balances, enumerated powers, implied powers, bicameralism, ratification
+- _Tier 2:_ transformation, continuity, ideology, representation, legitimacy
 
 **Formative Assessment Checkpoints:**
 | Checkpoint | Format | Standard(s) Targeted | Decision Rule |
@@ -466,47 +482,50 @@ Courses designed to be taught jointly by two teachers (e.g., a "Humanities" bloc
 | LEQ thesis draft -- Week 7 | Students submit a handwritten thesis in response to a practice LEQ prompt; teacher provides written feedback within 24 hours | HTS-6 Argumentation | If fewer than 60% of theses contain a historically defensible claim + line of reasoning: dedicate 20 minutes of Week 8 Day 1 to thesis repair workshop |
 
 **Summative Assessment:** Unit 2 LEQ + Document Analysis
-- *Type:* Constructed response -- Long Essay Question + short document analysis
-- *Standards Assessed:* KC-3.1, KC-3.2, KC-3.3, HTS-5 (Continuity and Change Over Time), HTS-6 (Argumentation)
-- *Cognitive Demand:* DOK 3-4
-- *Description:* Part 1 -- timed 45-minute LEQ on whether the Revolution represented meaningful change or fundamental continuity for one specified group. Part 2 -- 15-minute analysis of one primary source document using the SAQ format. Total testing time: 60 minutes.
-- *Scoring:* LEQ scored on College Board 6-point LEQ rubric; SAQ scored 0-3. Combined score reported to students.
+
+- _Type:_ Constructed response -- Long Essay Question + short document analysis
+- _Standards Assessed:_ KC-3.1, KC-3.2, KC-3.3, HTS-5 (Continuity and Change Over Time), HTS-6 (Argumentation)
+- _Cognitive Demand:_ DOK 3-4
+- _Description:_ Part 1 -- timed 45-minute LEQ on whether the Revolution represented meaningful change or fundamental continuity for one specified group. Part 2 -- 15-minute analysis of one primary source document using the SAQ format. Total testing time: 60 minutes.
+- _Scoring:_ LEQ scored on College Board 6-point LEQ rubric; SAQ scored 0-3. Combined score reported to students.
 
 **Differentiation:**
-- *Scaffolding:* Provide an LEQ outline template with labeled sections (thesis, contextualization, three pieces of evidence, analysis) for students who scored below 3/6 on Unit 1 DBQ
-- *Extension:* Students debate: "Was the Constitution a betrayal of revolutionary ideals?" using primary sources from the Ratification debates (Federalist No. 51 vs. Letters of Brutus)
+
+- _Scaffolding:_ Provide an LEQ outline template with labeled sections (thesis, contextualization, three pieces of evidence, analysis) for students who scored below 3/6 on Unit 1 DBQ
+- _Extension:_ Students debate: "Was the Constitution a betrayal of revolutionary ideals?" using primary sources from the Ratification debates (Federalist No. 51 vs. Letters of Brutus)
 
 **Cross-Cutting Connections:**
-- *Horizontal:* AP Government (if co-enrolled) -- the Constitutional design unit directly parallels AP Gov Unit 1
-- *Vertical:* Prepares for Period 4 content (Unit 3) by establishing the ideological framework that drives Jacksonian democracy debates
-- *Real-World Application:* Current debates about constitutional originalism vs. living constitutionalism; Electoral College reform debates
+
+- _Horizontal:_ AP Government (if co-enrolled) -- the Constitutional design unit directly parallels AP Gov Unit 1
+- _Vertical:_ Prepares for Period 4 content (Unit 3) by establishing the ideological framework that drives Jacksonian democracy debates
+- _Real-World Application:_ Current debates about constitutional originalism vs. living constitutionalism; Electoral College reform debates
 
 ---
 
-*(Units 3-9 follow the same format. Below is the Assessment Calendar and Tracking Tables, which complete the map.)*
+_(Units 3-9 follow the same format. Below is the Assessment Calendar and Tracking Tables, which complete the map.)_
 
 ---
 
 ### Assessment Calendar
 
-| Week | Unit | Formative Checkpoints | Summative Assessment | District / State Events |
-|------|------|----------------------|----------------------|-------------------------|
-| 1-4 | Unit 1: Contact & Colonization | Exit ticket (Wk 1); HAPP check (Wk 2); short CR (Wk 3) | DBQ Practice Essay (Wk 4) | -- |
-| 5-8 | Unit 2: Revolution & Constitution | Perspectives chart (Wk 6); LEQ thesis draft (Wk 7) | LEQ + SAQ (Wk 8) | -- |
-| 9 | Buffer + Unit 2 reteach | -- | -- | -- |
-| 10 | Unit 3 begins | Exit ticket | -- | **District Benchmark 1 (Wk 10)** |
-| 11-13 | Unit 3: New Nation / Market Revolution | Mid-unit quiz (Wk 11); SAQ practice (Wk 12) | SAC + LEQ (Wk 13) | -- |
-| 14-17 | Unit 4: Sectional Crisis, Civil War, Reconstruction | Document annotation (Wk 14); Mid-unit DBQ thesis (Wk 16) | Full DBQ -- Timed, AP Conditions (Wk 17) | -- |
-| 17 | 1-day buffer | -- | -- | -- |
-| 18-20 | Unit 5: Industrialization & Gilded Age | Exit tickets; comparison chart (Wk 19) | SAQ Set + Thematic Essay (Wk 20) | -- |
-| 21-24 | Unit 6: Progressive Era, Imperialism, WWI | LEQ thesis workshop (Wk 22); peer scoring (Wk 23) | CCOT LEQ (Wk 24) | -- |
-| 24 | 1-day buffer | -- | -- | -- |
-| 25 | Unit 7 begins | Exit ticket | -- | **District Benchmark 2 (Wk 25)** |
-| 25-28 | Unit 7: Interwar, Depression, WWII | Mid-unit quiz (Wk 26); document analysis (Wk 27) | LEQ + Document Analysis (Wk 28) | -- |
-| 29-32 | Unit 8: Cold War, Civil Rights | SAQ practice (Wk 29); DBQ thesis draft (Wk 31) | Full DBQ -- Timed, AP Conditions (Wk 32) | -- |
-| 32 | 1-day buffer | -- | -- | -- |
-| 33-35 | Unit 9: AP Exam Review | Daily MCQ practice sets; SAQ timed practice; DBQ timed practice | Full AP Practice Exam simulation (Wk 33) | **AP EXAM (Wk 34)** |
-| 35-36 | Post-Exam Enrichment | Reflection + independent inquiry | Enrichment presentation (optional) | -- |
+| Week  | Unit                                                | Formative Checkpoints                                           | Summative Assessment                     | District / State Events          |
+| ----- | --------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------- | -------------------------------- |
+| 1-4   | Unit 1: Contact & Colonization                      | Exit ticket (Wk 1); HAPP check (Wk 2); short CR (Wk 3)          | DBQ Practice Essay (Wk 4)                | --                               |
+| 5-8   | Unit 2: Revolution & Constitution                   | Perspectives chart (Wk 6); LEQ thesis draft (Wk 7)              | LEQ + SAQ (Wk 8)                         | --                               |
+| 9     | Buffer + Unit 2 reteach                             | --                                                              | --                                       | --                               |
+| 10    | Unit 3 begins                                       | Exit ticket                                                     | --                                       | **District Benchmark 1 (Wk 10)** |
+| 11-13 | Unit 3: New Nation / Market Revolution              | Mid-unit quiz (Wk 11); SAQ practice (Wk 12)                     | SAC + LEQ (Wk 13)                        | --                               |
+| 14-17 | Unit 4: Sectional Crisis, Civil War, Reconstruction | Document annotation (Wk 14); Mid-unit DBQ thesis (Wk 16)        | Full DBQ -- Timed, AP Conditions (Wk 17) | --                               |
+| 17    | 1-day buffer                                        | --                                                              | --                                       | --                               |
+| 18-20 | Unit 5: Industrialization & Gilded Age              | Exit tickets; comparison chart (Wk 19)                          | SAQ Set + Thematic Essay (Wk 20)         | --                               |
+| 21-24 | Unit 6: Progressive Era, Imperialism, WWI           | LEQ thesis workshop (Wk 22); peer scoring (Wk 23)               | CCOT LEQ (Wk 24)                         | --                               |
+| 24    | 1-day buffer                                        | --                                                              | --                                       | --                               |
+| 25    | Unit 7 begins                                       | Exit ticket                                                     | --                                       | **District Benchmark 2 (Wk 25)** |
+| 25-28 | Unit 7: Interwar, Depression, WWII                  | Mid-unit quiz (Wk 26); document analysis (Wk 27)                | LEQ + Document Analysis (Wk 28)          | --                               |
+| 29-32 | Unit 8: Cold War, Civil Rights                      | SAQ practice (Wk 29); DBQ thesis draft (Wk 31)                  | Full DBQ -- Timed, AP Conditions (Wk 32) | --                               |
+| 32    | 1-day buffer                                        | --                                                              | --                                       | --                               |
+| 33-35 | Unit 9: AP Exam Review                              | Daily MCQ practice sets; SAQ timed practice; DBQ timed practice | Full AP Practice Exam simulation (Wk 33) | **AP EXAM (Wk 34)**              |
+| 35-36 | Post-Exam Enrichment                                | Reflection + independent inquiry                                | Enrichment presentation (optional)       | --                               |
 
 **Key:** F = Formative | S = Summative | B = District Benchmark | AP = AP Exam
 
@@ -514,6 +533,6 @@ Courses designed to be taught jointly by two teachers (e.g., a "Humanities" bloc
 
 ### Spiral Skills Tracker: AP Historical Thinking Skills
 
-| Skill | U1 | U2 | U3 | U4 | U5 | U6 | U7 | U8 | U9 |
-|-------|----|----|----|----|----|----|----|----|-----|
+| Skill                     | U1        | U2      | U3      | U4  | U5  | U6  | U7  | U8  | U9  |
+| ------------------------- | --------- | ------- | ------- | --- | --- | --- | --- | --- | --- |
 | Contextualization (HTS-1) | Introduce | Develop | Develop |

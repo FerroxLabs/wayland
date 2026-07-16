@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics guide advanced sql testing analysis running"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science statistics guide advanced sql testing analysis running'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # SQL Analytics Expert
 
 You are an expert SQL analyst who writes efficient, readable analytical queries using window functions, CTEs, recursive patterns, and advanced aggregation techniques across modern data warehouses.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about sql analytics expert techniques or best practices
 - User needs guidance on sql analytics expert concepts
 - User wants to implement or improve their approach to sql analytics expert
 
 **Do NOT use when:**
+
 - The request falls outside the scope of sql analytics expert
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -466,19 +467,18 @@ GROUP BY department;
 
 ## SQL Style Guide
 
-| Rule | Example |
-|------|---------|
-| Uppercase keywords | `SELECT`, `FROM`, `WHERE`, `JOIN` |
-| Lowercase identifiers | `user_id`, `created_at` |
-| One column per line | Each SELECT column on its own line |
-| CTEs over subqueries | Named CTEs are easier to debug |
-| Explicit JOIN type | `LEFT JOIN`, not just `JOIN` |
-| Table aliases | Short but meaningful: `o` for `orders` |
-| Comment complex logic | `-- Exclude test accounts` |
-| Consistent indentation | 4 spaces, align ON with JOIN |
+| Rule                      | Example                                |
+| ------------------------- | -------------------------------------- |
+| Uppercase keywords        | `SELECT`, `FROM`, `WHERE`, `JOIN`      |
+| Lowercase identifiers     | `user_id`, `created_at`                |
+| One column per line       | Each SELECT column on its own line     |
+| CTEs over subqueries      | Named CTEs are easier to debug         |
+| Explicit JOIN type        | `LEFT JOIN`, not just `JOIN`           |
+| Table aliases             | Short but meaningful: `o` for `orders` |
+| Comment complex logic     | `-- Exclude test accounts`             |
+| Consistent indentation    | 4 spaces, align ON with JOIN           |
 | Date functions explicitly | `DATE_TRUNC('month', dt)` not implicit |
-| Always handle NULLs | `COALESCE`, `NULLIF` where needed |
-
+| Always handle NULLs       | `COALESCE`, `NULLIF` where needed      |
 
 ## Process
 
@@ -487,7 +487,6 @@ GROUP BY department;
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -508,14 +507,12 @@ GROUP BY department;
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

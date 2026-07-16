@@ -69,8 +69,5 @@ test.describe('Skills registry', () => {
   });
 
   // ── Writing a custom skill to disk would leak into sibling specs ─────────
-  test.skip(
-    'writing a custom skill to userSkillsDir would mutate the singleton app state shared across e2e specs - covered by integration suite',
-    () => {}
-  );
+  test.skip('writing a custom skill to userSkillsDir would mutate the singleton app state shared across e2e specs - covered by integration suite', () => {});
 });

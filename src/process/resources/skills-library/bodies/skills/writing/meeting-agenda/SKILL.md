@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing business-writing planning"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'writing business-writing planning'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Meeting Agenda
 
 ## When to Use
@@ -41,7 +42,6 @@ Use this skill when any of the following are true:
 - The user wants to write a communication to announce a meeting -- that is a calendar invite or meeting brief, not an agenda
 - The user wants to document a decision that was made -- use a decision log or `meeting-notes`
 - The user needs a training session outline -- that is a lesson plan, which has a different structure
-
 
 ## Process
 
@@ -130,7 +130,6 @@ The final agenda should be formatted for both readability and function:
 - **Include a parking lot section.** Every facilitated meeting generates off-topic items. The parking lot captures them without derailing the agenda, and signals to attendees that their input is valued even if it does not fit this meeting.
 - **Distribute at least 24 hours in advance for routine meetings; 48--72 hours for executive or cross-functional meetings.** Anything distributed less than 2 hours before the meeting is not a pre-read -- it is a surprise.
 - **For recurring meetings,** include a "changes from last meeting" note at the top if the agenda has been modified from the standing template.
-
 
 ## Output Format
 
@@ -248,7 +247,6 @@ By the end of this meeting, we will have:
 - **Decisions will be logged in:** [Location -- e.g., decision log, project wiki]
 ```
 
-
 ## Rules
 
 1. **Never write an agenda without a single-sentence meeting objective.** If you cannot write "By the end of this meeting, we will have [specific output]," the meeting purpose is not clear enough to run. Surface this to the user and help them define it before proceeding.
@@ -275,33 +273,39 @@ By the end of this meeting, we will have:
 
 12. **For recurring meetings, audit the standing agenda at least once per quarter.** Recurring agendas accumulate dead items -- topics that were once live but have been resolved. A quarterly audit removes standing items that no longer require group time and prevents the meeting from becoming a ritual without purpose.
 
-
 ## Edge Cases
 
 ### The meeting has no clear decision and no required collaboration
+
 The user says "we just need to sync" or "I want everyone to be on the same page." Before building an agenda, ask: "What will be different for each attendee after this meeting that is not true today?" If the answer is only informational, challenge whether the meeting needs to happen at all. A well-written email with a clear summary, sent 24 hours in advance with a 48-hour reply window, replaces most "sync" meetings. If the meeting must happen, classify it as an alignment or information-sharing meeting, time-box each presenter tightly (5 minutes per person for updates), and add an explicit Q&A segment so the synchronous time earns its place.
 
 ### The user provides more topics than the meeting can hold
+
 This is the most common scenario. When topics exceed time, do not silently trim the agenda. Instead: (1) present the user with the full list and its estimated time cost, showing that the total exceeds the available window, (2) ask which topics are mandatory for this specific meeting versus which can be deferred, (3) explicitly label deferred topics and suggest where they go -- a follow-up meeting, an async Slack thread, or a document for comment. The final agenda should include a "deferred topics" note so attendees understand why certain items did not appear. This prevents the "why wasn't X on the agenda?" complaint after the meeting.
 
 ### The meeting involves a contentious decision where attendees hold strong opposing positions
+
 Flag this in the Topic Details section. Contentious decisions need a structured deliberation format, not an open floor. Recommend one of two approaches in the agenda itself: (1) the **pre-mortem format** -- ask each side to argue the opposing position for 3 minutes before the discussion, which surfaces assumptions without personal stakes attached; or (2) the **written input format** -- ask each attendee to submit a 3-bullet position statement before the meeting so the facilitator can identify points of genuine agreement and genuine conflict in advance. Never rely on unstructured group discussion for contentious decisions -- the loudest voice wins.
 
 ### Key decision-maker is attending remotely or may have connectivity issues
+
 Note this in the attendee table and build a contingency into the agenda. Options: (1) move their required topic to the first substantive slot so connectivity issues later in the meeting do not block the decision; (2) designate a proxy decision-maker who can commit conditionally subject to async confirmation; (3) record the decision discussion so the remote attendee can ratify or object within 24 hours. Document whichever contingency applies directly in the agenda so the facilitator does not have to improvise.
 
 ### The meeting involves a large cross-functional group (10+ people)
+
 Large meetings have three structural problems: discussion expands geometrically with headcount, the cognitive load on the facilitator is high, and optional attendees are often passive. Address all three in the agenda: (1) for each topic, flag whether full-group discussion is needed or whether it is a presentation with Q&A -- keep full-group discussion to 2--3 critical items maximum; (2) use a "round-robin check" format for alignment items rather than open discussion -- each person states their position in 60 seconds, which surfaces disagreement efficiently; (3) note which attendees are required versus optional for each segment and explicitly give optional attendees permission to drop off when their topics are concluded. Consider breaking the large meeting into a plenary (full group, information sharing) followed by subgroup working sessions for decisions.
 
 ### The user is facilitating an executive or board-level meeting
+
 Executives have three tolerances that differ from working-level meetings: (1) they will not read long pre-reads -- limit pre-read materials to 2 pages maximum per topic and front-load the recommendation or decision question on page 1, not page 2; (2) they expect the facilitator to come with a recommended option, not just a menu of choices -- the agenda should state "Recommended decision: X, for ratification or modification," not "Options A/B/C for discussion"; (3) they frequently run short on time -- every topic must have a 50% version that can be compressed if needed, and the facilitator should know in advance which details to drop. Design the agenda so it works at both full length and at 70% of scheduled time.
 
 ### The user wants a recurring meeting template, not a one-time agenda
+
 Recurring meetings need two structural layers that one-time meetings do not: (1) **Standing items** -- topics that appear every meeting because they require regular group attention (e.g., blockers, metrics review, open decisions). These should be time-boxed tightly and have a standing owner; (2) **Rotating items** -- topics that vary by meeting and are selected in advance by the meeting organizer. Provide a template with both layers clearly labeled. Also add a "last meeting carryover" slot at the top for action items from the previous meeting whose owners report completion or revised timelines. Without this slot, recurring meetings generate action items that are never revisited.
 
 ### The user needs an agenda for a meeting they did not call and do not control
-Sometimes a user needs an agenda for a meeting organized by someone else -- they are preparing their section, or they have been asked to help structure the agenda on behalf of the organizer. In this case: (1) scope the output to only the section they own, with full Topic Detail for their item; (2) note any structural concerns they should raise with the actual organizer (e.g., their topic is scheduled last but is the most critical decision); (3) provide a "suggested full agenda" as an optional appendix they can share with the organizer if appropriate. Be explicit that the suggested full agenda is a recommendation, not the final structure.
 
+Sometimes a user needs an agenda for a meeting organized by someone else -- they are preparing their section, or they have been asked to help structure the agenda on behalf of the organizer. In this case: (1) scope the output to only the section they own, with full Topic Detail for their item; (2) note any structural concerns they should raise with the actual organizer (e.g., their topic is scheduled last but is the most critical decision); (3) provide a "suggested full agenda" as an optional appendix they can share with the organizer if appropriate. Be explicit that the suggested full agenda is a recommendation, not the final structure.
 
 ## Example
 
@@ -327,36 +331,36 @@ Sometimes a user needs an agenda for a meeting organized by someone else -- they
 
 ### Attendees
 
-| Name | Role | Attendance |
-|------|------|------------|
-| Priya Nair | CTO -- Final decision authority on build vs. buy | Required |
-| Marcus Webb | Head of Engineering -- Authored the build proposal; owns technical feasibility | Required |
-| Jess Okonkwo | Head of Product | Required -- Organizer and facilitator |
-| Diana Chu | CFO -- Budget approval authority; owns vendor contract sign-off | Required |
+| Name         | Role                                                                           | Attendance                            |
+| ------------ | ------------------------------------------------------------------------------ | ------------------------------------- |
+| Priya Nair   | CTO -- Final decision authority on build vs. buy                               | Required                              |
+| Marcus Webb  | Head of Engineering -- Authored the build proposal; owns technical feasibility | Required                              |
+| Jess Okonkwo | Head of Product                                                                | Required -- Organizer and facilitator |
+| Diana Chu    | CFO -- Budget approval authority; owns vendor contract sign-off                | Required                              |
 
 ---
 
 ### Pre-Read Materials
 
-| Document | Owner | Where to Find It | What to Focus On |
-|----------|-------|-----------------|------------------|
-| Build Proposal Summary | Marcus Webb | Shared drive: /pipeline/build-proposal-summary.pdf | Pages 1--3: resource requirements, timeline, and risk assumptions |
-| Vendor Comparison Matrix | Jess Okonkwo | Shared drive: /pipeline/vendor-comparison-v3.pdf | Final scoring on integration complexity, cost, and support SLA |
-| Security Audit Findings Brief | Head of Security (Alex Reyes) | Email attachment sent Oct 10 | Critical findings only (highlighted in yellow) -- 4 items |
+| Document                      | Owner                         | Where to Find It                                   | What to Focus On                                                  |
+| ----------------------------- | ----------------------------- | -------------------------------------------------- | ----------------------------------------------------------------- |
+| Build Proposal Summary        | Marcus Webb                   | Shared drive: /pipeline/build-proposal-summary.pdf | Pages 1--3: resource requirements, timeline, and risk assumptions |
+| Vendor Comparison Matrix      | Jess Okonkwo                  | Shared drive: /pipeline/vendor-comparison-v3.pdf   | Final scoring on integration complexity, cost, and support SLA    |
+| Security Audit Findings Brief | Head of Security (Alex Reyes) | Email attachment sent Oct 10                       | Critical findings only (highlighted in yellow) -- 4 items         |
 
-*Preparation time estimate: approximately 25 minutes*
+_Preparation time estimate: approximately 25 minutes_
 
 ---
 
 ### Agenda
 
-| Start Time | Topic | Owner | Type | Duration |
-|------------|-------|-------|------|----------|
-| 10:00 AM | Opening: objectives, constraints, and decision criteria | Jess | Align | 5 min |
-| 10:05 AM | Build vs. buy decision | Priya (facilitator: Jess) | Decide | 35 min |
-| 10:40 AM | Security audit findings: priority and ownership | Marcus | Decide | 20 min |
-| 11:00 AM | Implementation kickoff: owners, timelines, dependencies | Jess | Align | 10 min |
-| 11:10 AM | Action items, owners, and next steps | Jess | Align | 5 min |
+| Start Time | Topic                                                   | Owner                     | Type   | Duration |
+| ---------- | ------------------------------------------------------- | ------------------------- | ------ | -------- |
+| 10:00 AM   | Opening: objectives, constraints, and decision criteria | Jess                      | Align  | 5 min    |
+| 10:05 AM   | Build vs. buy decision                                  | Priya (facilitator: Jess) | Decide | 35 min   |
+| 10:40 AM   | Security audit findings: priority and ownership         | Marcus                    | Decide | 20 min   |
+| 11:00 AM   | Implementation kickoff: owners, timelines, dependencies | Jess                      | Align  | 10 min   |
+| 11:10 AM   | Action items, owners, and next steps                    | Jess                      | Align  | 5 min    |
 
 **Scheduled content:** 70 min | **Buffer:** 5 min | **Total:** 75 min
 
@@ -365,6 +369,7 @@ Sometimes a user needs an agenda for a meeting organized by someone else -- they
 ### Topic Details
 
 **Build vs. Buy Decision: Data Pipeline Tool**
+
 - **Objective type:** Decide
 - **Context:** Over the past 6 weeks, we evaluated two vendors (Fivetran and Airbyte) against an internal build proposal from the engineering team. The build proposal estimates 14 weeks of 2-engineer time. Both vendors were evaluated on integration complexity, total cost of ownership over 3 years, support SLA, and security posture. The vendor comparison matrix reflects final scoring from both teams.
 - **Decision question:** Will we build the data pipeline using internal engineering resources, adopt Fivetran, or adopt Airbyte -- and what is the start date for whichever path is chosen?
@@ -377,6 +382,7 @@ Sometimes a user needs an agenda for a meeting organized by someone else -- they
 - **If this runs over:** Cut the "implementation dependencies" detail from the subsequent topic -- those can be finalized async after the meeting
 
 **Security Audit Findings: Priority and Ownership**
+
 - **Objective type:** Decide
 - **Context:** The external security audit returned 11 findings last week. 4 are marked critical (highlighted in the brief). The remaining 7 are medium or low severity. This segment focuses exclusively on the 4 critical findings. Decisions on medium/low items will be handled async by the engineering team.
 - **Decision question:** For each of the 4 critical findings: is the remediation owner engineering or product, what is the target remediation date, and does any finding require blocking the pipeline implementation until resolved?
@@ -386,6 +392,7 @@ Sometimes a user needs an agenda for a meeting organized by someone else -- they
 - **If this runs over:** Skip the medium/low findings entirely and handle async
 
 **Implementation Kickoff: Owners, Timelines, and Dependencies**
+
 - **Objective type:** Align
 - **Context:** Once the build vs. buy decision is made, we need named owners for the implementation workstream so it can begin the week of October 20 without a lag. This segment confirms who owns what, not how they will do it.
 - **Decision question:** None -- alignment only. Output is a confirmed owner list.
@@ -396,17 +403,18 @@ Sometimes a user needs an agenda for a meeting organized by someone else -- they
 
 ### Decisions to Be Made
 
-| Decision | Options | Decision Owner | Deadline |
-|----------|---------|----------------|----------|
-| Build vs. buy for data pipeline | Build (internal) / Fivetran / Airbyte | Priya Nair (CTO) | End of meeting |
-| Security audit remediation sequencing | Pre-implementation / parallel / phased | Priya Nair + Diana Chu | End of meeting |
-| Implementation start date | Week of Oct 20 / delayed based on audit | Priya Nair | End of meeting |
+| Decision                              | Options                                 | Decision Owner         | Deadline       |
+| ------------------------------------- | --------------------------------------- | ---------------------- | -------------- |
+| Build vs. buy for data pipeline       | Build (internal) / Fivetran / Airbyte   | Priya Nair (CTO)       | End of meeting |
+| Security audit remediation sequencing | Pre-implementation / parallel / phased  | Priya Nair + Diana Chu | End of meeting |
+| Implementation start date             | Week of Oct 20 / delayed based on audit | Priya Nair             | End of meeting |
 
 ---
 
 ### Expected Outputs
 
 By the end of this meeting, we will have:
+
 1. A single selected approach for the data pipeline (build, Fivetran, or Airbyte) with a documented rationale
 2. A security audit remediation plan with a named owner and target dates for each of the 4 critical findings
 3. A named implementation owner and confirmed start date for whichever pipeline path is chosen
@@ -416,11 +424,11 @@ By the end of this meeting, we will have:
 
 ### Parking Lot
 
-*Topics raised during the meeting that are out of scope for today. These will be addressed via follow-up email or the engineering team's weekly sync.*
+_Topics raised during the meeting that are out of scope for today. These will be addressed via follow-up email or the engineering team's weekly sync._
 
 | Topic | Raised By | Follow-Up Action | Owner |
-|-------|-----------|-----------------|-------|
-| | | | |
+| ----- | --------- | ---------------- | ----- |
+|       |           |                  |       |
 
 ---
 

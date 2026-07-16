@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices refactoring guide"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'best-practices refactoring guide'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Tech Debt Analyzer
@@ -44,66 +44,70 @@ Inadvertent  | "What's          | "Now we know how |
 ```
 
 ### Deliberate-Prudent (Strategic Debt)
+
 - Knowingly taking a shortcut with a plan to fix it.
 - Example: Hardcoding a configuration value to ship a feature by the deadline, with a ticket to make it configurable.
 - Acceptable when: The business value of shipping sooner outweighs the cost of the shortcut.
 
 ### Deliberate-Reckless (Lazy Debt)
+
 - Knowingly ignoring best practices without a plan.
 - Example: "We don't have time for tests."
 - Never acceptable. This is not debt; it is negligence.
 
 ### Inadvertent-Prudent (Learning Debt)
+
 - The team built the best solution they could, then learned a better approach.
 - Example: After building the system, realizing a different architecture would be better.
 - Inevitable and normal. Plan time to apply learnings.
 
 ### Inadvertent-Reckless (Ignorance Debt)
+
 - Poor solutions due to lack of knowledge.
 - Example: Junior developer not knowing about SQL injection prevention.
 - Fix through code review, training, and mentoring.
 
 ### Debt Types by Category
 
-| Category | Examples |
-|----------|---------|
-| **Architecture debt** | Wrong architectural pattern, tight coupling, missing abstraction layers |
-| **Code debt** | Code smells, duplicated logic, complex functions, poor naming |
-| **Testing debt** | Missing tests, flaky tests, untestable code |
-| **Documentation debt** | Outdated docs, missing API documentation, no runbooks |
-| **Infrastructure debt** | Manual deployments, missing monitoring, outdated dependencies |
-| **Design debt** | Broken abstractions, god classes, circular dependencies |
-| **Process debt** | No code review, no CI/CD, missing coding standards |
-| **Data debt** | Missing migrations, inconsistent schemas, orphaned data |
-| **Dependency debt** | Outdated libraries, unpatched vulnerabilities, deprecated APIs |
+| Category                | Examples                                                                |
+| ----------------------- | ----------------------------------------------------------------------- |
+| **Architecture debt**   | Wrong architectural pattern, tight coupling, missing abstraction layers |
+| **Code debt**           | Code smells, duplicated logic, complex functions, poor naming           |
+| **Testing debt**        | Missing tests, flaky tests, untestable code                             |
+| **Documentation debt**  | Outdated docs, missing API documentation, no runbooks                   |
+| **Infrastructure debt** | Manual deployments, missing monitoring, outdated dependencies           |
+| **Design debt**         | Broken abstractions, god classes, circular dependencies                 |
+| **Process debt**        | No code review, no CI/CD, missing coding standards                      |
+| **Data debt**           | Missing migrations, inconsistent schemas, orphaned data                 |
+| **Dependency debt**     | Outdated libraries, unpatched vulnerabilities, deprecated APIs          |
 
 ## Measurement Metrics
 
 ### Code Quality Metrics
 
-| Metric | Tool | Threshold |
-|--------|------|-----------|
-| Cyclomatic complexity | SonarQube, ESLint | < 10 per method |
-| Cognitive complexity | SonarQube | < 15 per method |
-| Code duplication | SonarQube, jsinspect | < 3% of codebase |
-| Test coverage | Istanbul, JaCoCo | > 80% line coverage |
-| Dependency freshness | Dependabot, Renovate | < 1 major version behind |
-| Vulnerability count | Snyk, npm audit | 0 critical/high |
-| Build time | CI metrics | Trend should be flat or decreasing |
-| Deployment frequency | DORA metrics | Weekly or better |
+| Metric                | Tool                 | Threshold                          |
+| --------------------- | -------------------- | ---------------------------------- |
+| Cyclomatic complexity | SonarQube, ESLint    | < 10 per method                    |
+| Cognitive complexity  | SonarQube            | < 15 per method                    |
+| Code duplication      | SonarQube, jsinspect | < 3% of codebase                   |
+| Test coverage         | Istanbul, JaCoCo     | > 80% line coverage                |
+| Dependency freshness  | Dependabot, Renovate | < 1 major version behind           |
+| Vulnerability count   | Snyk, npm audit      | 0 critical/high                    |
+| Build time            | CI metrics           | Trend should be flat or decreasing |
+| Deployment frequency  | DORA metrics         | Weekly or better                   |
 
 ### Velocity Metrics
 
 These indirect metrics reveal debt impact:
 
-| Metric | What it reveals |
-|--------|----------------|
-| **Lead time for changes** | How long from commit to production. Increasing = debt friction. |
-| **Change failure rate** | Percentage of deployments causing failures. High = testing/quality debt. |
-| **Mean time to recovery** | Time to recover from failures. Increasing = observability/architecture debt. |
+| Metric                        | What it reveals                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------ |
+| **Lead time for changes**     | How long from commit to production. Increasing = debt friction.                      |
+| **Change failure rate**       | Percentage of deployments causing failures. High = testing/quality debt.             |
+| **Mean time to recovery**     | Time to recover from failures. Increasing = observability/architecture debt.         |
 | **Developer onboarding time** | Time for new developer to ship first PR. Increasing = documentation/complexity debt. |
-| **Effort per feature** | Story points per feature trending up = accumulating debt. |
-| **Bug escape rate** | Bugs reaching production trending up = testing debt. |
+| **Effort per feature**        | Story points per feature trending up = accumulating debt.                            |
+| **Bug escape rate**           | Bugs reaching production trending up = testing debt.                                 |
 
 ### Calculating the Cost of Debt
 
@@ -144,13 +148,13 @@ Low Impact  +---------------+------------------
 
 Score each debt item on a 1-5 scale:
 
-| Factor | Weight | Score (1-5) |
-|--------|--------|-------------|
-| Developer productivity impact | 3x | How much does this slow down daily work? |
-| Risk of incident | 3x | Could this cause production outage or data loss? |
-| Number of developers affected | 2x | How many people hit this regularly? |
-| Customer impact | 2x | Does this affect user experience or reliability? |
-| Effort to fix | -1x | How much work is the fix? (higher = worse) |
+| Factor                        | Weight | Score (1-5)                                      |
+| ----------------------------- | ------ | ------------------------------------------------ |
+| Developer productivity impact | 3x     | How much does this slow down daily work?         |
+| Risk of incident              | 3x     | Could this cause production outage or data loss? |
+| Number of developers affected | 2x     | How many people hit this regularly?              |
+| Customer impact               | 2x     | Does this affect user experience or reliability? |
+| Effort to fix                 | -1x    | How much work is the fix? (higher = worse)       |
 
 ```
 Priority Score = (productivity * 3) + (risk * 3) + (affected * 2) + (customer * 2) - (effort * 1)
@@ -166,50 +170,58 @@ Example: Flaky CI pipeline
 ```
 
 ### Priority Queue
+
 Maintain a ranked backlog of debt items. Review and re-rank monthly.
 
 ## Debt Repayment Strategies
 
 ### 1. The Boy Scout Rule
+
 "Leave the code better than you found it."
+
 - When touching code for a feature, fix small debt items in the same PR.
 - Rename a variable, extract a method, add a missing test.
 - Scope: Small. Budget: Zero (part of feature work).
 
 ### 2. Dedicated Debt Sprints
+
 - Allocate 1 sprint per quarter entirely to debt repayment.
 - Focus on high-impact items from the priority queue.
 - Scope: Large. Budget: ~10% of engineering capacity per quarter.
 
 ### 3. The 20% Rule
+
 - Allocate 20% of every sprint to debt repayment.
 - Each developer picks 1 day per week for debt work.
 - Scope: Medium. Budget: 20% of ongoing capacity.
 
 ### 4. Strangler Fig for Architecture Debt
+
 - Build the replacement alongside the legacy system.
 - Migrate traffic gradually.
 - Scope: Very large. Budget: Dedicated team or project.
 
 ### 5. Tech Debt Fridays
+
 - Every Friday afternoon is dedicated to debt repayment.
 - Developers choose from the priority queue.
 - Scope: Small-medium. Budget: ~10% of capacity.
 
 ### 6. Debt Firebreaks
+
 - Before starting a new major feature, pay down debt in the affected area.
 - Reduces risk of the new feature being built on a shaky foundation.
 - Scope: Medium. Budget: 1-2 weeks before major features.
 
 ### Choosing a Strategy
 
-| Situation | Strategy |
-|-----------|----------|
-| Small, distributed debt | Boy Scout Rule + 20% Rule |
+| Situation                | Strategy                       |
+| ------------------------ | ------------------------------ |
+| Small, distributed debt  | Boy Scout Rule + 20% Rule      |
 | Large architectural debt | Strangler Fig + dedicated team |
-| Sudden quality crisis | Dedicated debt sprint |
-| Steady accumulation | Tech Debt Fridays + 20% Rule |
-| Pre-major-feature | Debt Firebreak |
+| Sudden quality crisis    | Dedicated debt sprint          |
+| Steady accumulation      | Tech Debt Fridays + 20% Rule   |
+| Pre-major-feature        | Debt Firebreak                 |
 
 ## Communicating Debt to Stakeholders
 
@@ -225,19 +237,23 @@ Say: "The authentication code takes 3x longer to modify than other parts of the 
 ## Technical Debt Item: [Name]
 
 ### Business Impact
+
 - [Impact on delivery speed, quality, or risk]
 - [Quantified in developer-hours/week or incident frequency]
 
 ### Cost of Inaction
+
 - [What happens if we do nothing for 6 months?]
 - [Growing cost, increasing risk, or competitive disadvantage]
 
 ### Proposed Fix
+
 - [What we will do]
 - [How long it will take]
 - [Expected improvement]
 
 ### ROI
+
 - Investment: [X developer-weeks]
 - Return: [Y developer-weeks saved per quarter]
 - Break-even: [Z weeks/months]
@@ -246,6 +262,7 @@ Say: "The authentication code takes 3x longer to modify than other parts of the 
 ### Visualization for Non-Technical Stakeholders
 
 Use a debt dashboard showing:
+
 1. **Total debt count** by severity (critical, high, medium, low).
 2. **Trend line**: Is debt growing or shrinking?
 3. **Velocity impact**: Feature delivery speed trend.
@@ -267,23 +284,28 @@ Create a standardized template:
 **Affected Area**: [Module/service/feature]
 
 ### Description
+
 [What is the debt? How did it arise?]
 
 ### Impact
+
 [How does this affect development speed, reliability, or maintainability?]
 [Quantify: hours lost per week, incidents caused, etc.]
 
 ### Proposed Resolution
+
 [What changes are needed?]
 [Estimated effort in developer-days]
 
 ### Acceptance Criteria
+
 - [ ] [Specific measurable outcome]
 - [ ] [Tests added/passing]
 - [ ] [Documentation updated]
 ```
 
 ### Label System
+
 ```
 type:tech-debt
 severity:critical | severity:high | severity:medium | severity:low
@@ -292,6 +314,7 @@ status:identified | status:planned | status:in-progress | status:resolved
 ```
 
 ### Regular Review Cadence
+
 - **Weekly**: Team reviews new debt items, triages severity.
 - **Monthly**: Prioritize debt backlog, allocate capacity.
 - **Quarterly**: Report to stakeholders on debt trends and impact.
@@ -301,12 +324,12 @@ status:identified | status:planned | status:in-progress | status:resolved
 
 ### How Much to Invest
 
-| Team Maturity | Recommended Allocation | Rationale |
-|--------------|----------------------|-----------|
-| Startup / MVP | 5-10% | Debt is expected. Ship fast, track debt. |
-| Growing team | 15-20% | Debt from MVP phase needs paydown. |
-| Mature product | 20-25% | Maintain quality, prevent accumulation. |
-| Legacy rescue | 30-40% | Temporary. Intensive paydown period. |
+| Team Maturity  | Recommended Allocation | Rationale                                |
+| -------------- | ---------------------- | ---------------------------------------- |
+| Startup / MVP  | 5-10%                  | Debt is expected. Ship fast, track debt. |
+| Growing team   | 15-20%                 | Debt from MVP phase needs paydown.       |
+| Mature product | 20-25%                 | Maintain quality, prevent accumulation.  |
+| Legacy rescue  | 30-40%                 | Temporary. Intensive paydown period.     |
 
 ### Budget Enforcement
 
@@ -332,6 +355,7 @@ The cheapest debt is debt you never create:
 Run this assessment quarterly:
 
 ### Architecture
+
 - [ ] Are there circular dependencies between modules?
 - [ ] Is the dependency direction correct (domain does not depend on infrastructure)?
 - [ ] Are there single points of failure?
@@ -339,6 +363,7 @@ Run this assessment quarterly:
 - [ ] Are service boundaries well-defined?
 
 ### Code Quality
+
 - [ ] What is the average cyclomatic complexity? Trending up or down?
 - [ ] What percentage of code is duplicated?
 - [ ] Are there functions longer than 50 lines?
@@ -346,6 +371,7 @@ Run this assessment quarterly:
 - [ ] Is naming consistent across the codebase?
 
 ### Testing
+
 - [ ] What is the test coverage? Is it improving?
 - [ ] How many flaky tests exist?
 - [ ] Are critical paths covered by integration tests?
@@ -353,6 +379,7 @@ Run this assessment quarterly:
 - [ ] Are tests maintainable (not overly coupled to implementation)?
 
 ### Infrastructure
+
 - [ ] Are all dependencies up to date (within 1 major version)?
 - [ ] Are there known security vulnerabilities?
 - [ ] Is deployment fully automated?
@@ -360,6 +387,7 @@ Run this assessment quarterly:
 - [ ] Are runbooks up to date for incident response?
 
 ### Process
+
 - [ ] Is code review happening on every PR?
 - [ ] Is CI running on every commit?
 - [ ] Are coding standards documented and enforced?
@@ -369,6 +397,7 @@ Run this assessment quarterly:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing tech debt analyzer solutions
 - Reviewing or improving existing tech debt analyzer approaches
 - Making architectural or implementation decisions about tech debt analyzer
@@ -376,6 +405,7 @@ Run this assessment quarterly:
 - Troubleshooting tech debt analyzer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -386,21 +416,26 @@ Run this assessment quarterly:
 # Tech Debt Analyzer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

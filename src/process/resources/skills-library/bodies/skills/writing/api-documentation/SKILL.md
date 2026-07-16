@@ -10,13 +10,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation guide"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation guide'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # API Documentation
@@ -95,8 +95,10 @@ metadata:
 
 **Request header:**
 ```
+
 Authorization: Bearer [token]
-```
+
+````
 
 **Obtaining a token:**
 1. [Step to get credentials]
@@ -146,7 +148,7 @@ Rate limit headers returned on every response:
   "[field]": "[realistic value]",
   "[field]": [realistic value]
 }
-```
+````
 
 **Response: 200 OK**
 
@@ -185,14 +187,14 @@ Rate limit headers returned on every response:
 
 ## Error Reference
 
-| Status | Code | Description | Fix |
-|--------|------|-------------|-----|
-| 400 | VALIDATION_ERROR | Request body failed validation | Check required fields and types |
-| 401 | INVALID_TOKEN | Bearer token is expired or malformed | Refresh the token using [endpoint] |
-| 403 | INSUFFICIENT_SCOPE | Token lacks required permission | Request [scope] when generating token |
-| 404 | NOT_FOUND | Requested resource does not exist | Verify the resource ID |
-| 429 | RATE_LIMITED | Request rate exceeded | Wait until X-RateLimit-Reset timestamp |
-| 500 | INTERNAL_ERROR | Server-side failure | Retry with exponential backoff |
+| Status | Code               | Description                          | Fix                                    |
+| ------ | ------------------ | ------------------------------------ | -------------------------------------- |
+| 400    | VALIDATION_ERROR   | Request body failed validation       | Check required fields and types        |
+| 401    | INVALID_TOKEN      | Bearer token is expired or malformed | Refresh the token using [endpoint]     |
+| 403    | INSUFFICIENT_SCOPE | Token lacks required permission      | Request [scope] when generating token  |
+| 404    | NOT_FOUND          | Requested resource does not exist    | Verify the resource ID                 |
+| 429    | RATE_LIMITED       | Request rate exceeded                | Wait until X-RateLimit-Reset timestamp |
+| 500    | INTERNAL_ERROR     | Server-side failure                  | Retry with exponential backoff         |
 
 ## Pagination
 
@@ -202,6 +204,7 @@ Rate limit headers returned on every response:
 `GET /[resource]?cursor=[cursor_value]&limit=25`
 
 **Response includes:**
+
 ```json
 {
   "data": [...],
@@ -213,6 +216,7 @@ Rate limit headers returned on every response:
 ```
 
 To retrieve the next page, pass `next_cursor` as the `cursor` query parameter.
+
 ```
 
 ## Rules
@@ -255,8 +259,10 @@ All requests require a Bearer token in the Authorization header.
 
 **Request header:**
 ```
+
 Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-```
+
+````
 
 **Obtaining a token:**
 1. Generate an API key from the Settings > API Keys page
@@ -294,7 +300,7 @@ Creates a new user account.
   "name": "Maria Chen",
   "role": "editor"
 }
-```
+````
 
 **Response: 201 Created**
 
@@ -338,11 +344,11 @@ Returns a paginated list of all users.
 
 **Parameters:**
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| cursor | query | string | No | Pagination cursor from previous response |
-| limit | query | integer | No | Results per page. 1-100. Default: 25. |
-| role | query | string | No | Filter by role: `admin`, `editor`, `viewer` |
+| Name   | In    | Type    | Required | Description                                 |
+| ------ | ----- | ------- | -------- | ------------------------------------------- |
+| cursor | query | string  | No       | Pagination cursor from previous response    |
+| limit  | query | integer | No       | Results per page. 1-100. Default: 25.       |
+| role   | query | string  | No       | Filter by role: `admin`, `editor`, `viewer` |
 
 **Request example:**
 
@@ -376,9 +382,9 @@ Returns a single user by ID.
 
 **Parameters:**
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| id | path | string | Yes | User ID (format: `usr_` prefix + 12 alphanumeric characters) |
+| Name | In   | Type   | Required | Description                                                  |
+| ---- | ---- | ------ | -------- | ------------------------------------------------------------ |
+| id   | path | string | Yes      | User ID (format: `usr_` prefix + 12 alphanumeric characters) |
 
 **Response: 200 OK**
 
@@ -409,12 +415,12 @@ Updates an existing user. Sends the full user object -- omitted fields are set t
 
 **Parameters:**
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| id | path | string | Yes | User ID |
-| email | body | string | Yes | Updated email address |
-| name | body | string | Yes | Updated full name |
-| role | body | string | No | Updated role. Default: current value. |
+| Name  | In   | Type   | Required | Description                           |
+| ----- | ---- | ------ | -------- | ------------------------------------- |
+| id    | path | string | Yes      | User ID                               |
+| email | body | string | Yes      | Updated email address                 |
+| name  | body | string | Yes      | Updated full name                     |
+| role  | body | string | No       | Updated role. Default: current value. |
 
 **Request example:**
 
@@ -444,9 +450,9 @@ Permanently deletes a user account. This action cannot be undone.
 
 **Parameters:**
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| id | path | string | Yes | User ID |
+| Name | In   | Type   | Required | Description |
+| ---- | ---- | ------ | -------- | ----------- |
+| id   | path | string | Yes      | User ID     |
 
 **Response: 204 No Content**
 
@@ -467,12 +473,12 @@ No response body.
 
 ## Error Reference
 
-| Status | Code | Description | Fix |
-|--------|------|-------------|-----|
-| 400 | VALIDATION_ERROR | Request body failed schema validation | Check the `field` value in the error response and correct the input |
-| 401 | INVALID_TOKEN | Bearer token is expired or malformed | Generate a new token via POST /api/v1/auth/token |
-| 403 | INSUFFICIENT_SCOPE | Token lacks permission for this operation | Request admin scope when generating the token |
-| 404 | USER_NOT_FOUND | No user exists with the given ID | Verify the user ID with GET /api/v1/users |
-| 409 | DUPLICATE_EMAIL | Email address is already registered | Use a different email or update the existing user |
-| 429 | RATE_LIMITED | Too many requests in the current window | Wait until the X-RateLimit-Reset timestamp |
-| 500 | INTERNAL_ERROR | Unexpected server failure | Retry the request with exponential backoff |
+| Status | Code               | Description                               | Fix                                                                 |
+| ------ | ------------------ | ----------------------------------------- | ------------------------------------------------------------------- |
+| 400    | VALIDATION_ERROR   | Request body failed schema validation     | Check the `field` value in the error response and correct the input |
+| 401    | INVALID_TOKEN      | Bearer token is expired or malformed      | Generate a new token via POST /api/v1/auth/token                    |
+| 403    | INSUFFICIENT_SCOPE | Token lacks permission for this operation | Request admin scope when generating the token                       |
+| 404    | USER_NOT_FOUND     | No user exists with the given ID          | Verify the user ID with GET /api/v1/users                           |
+| 409    | DUPLICATE_EMAIL    | Email address is already registered       | Use a different email or update the existing user                   |
+| 429    | RATE_LIMITED       | Too many requests in the current window   | Wait until the X-RateLimit-Reset timestamp                          |
+| 500    | INTERNAL_ERROR     | Unexpected server failure                 | Retry the request with exponential backoff                          |

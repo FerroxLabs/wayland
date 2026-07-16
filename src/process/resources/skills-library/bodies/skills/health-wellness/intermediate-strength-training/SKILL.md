@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fitness workout-planning advanced"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'fitness workout-planning advanced'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'advanced'
 ---
+
 # Intermediate Strength Training
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before starting a new fitness program, modifying an existing one, or if you experience pain, injury, or unusual symptoms during training. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has 6--18 months of consistent, structured strength training experience and is stalling on or has exhausted simple linear progression (adding weight every session or every week)
 - The user explicitly asks for a 4-day split, an upper/lower split, a push-pull-legs (PPL) routine, or an intermediate-level program
 - The user has established a working baseline on the major compound lifts -- specifically, they can perform the squat, bench press, deadlift, and overhead press with acceptable technique under meaningful load
@@ -33,6 +35,7 @@ metadata:
 - The user wants guidance on deload timing, fatigue management, or how to structure a 4-week training block
 
 **Do NOT use when:**
+
 - The user has fewer than 6 months of consistent training OR cannot yet perform the major compounds with reasonable technique -- use `beginner-strength-training` instead, where linear progression is still productive
 - The user wants to train only 2--3 days per week -- a 3-day full-body with compound emphasis is more appropriate than a split; use `beginner-strength-training` for the framework
 - The user asks about annual macrocycle planning, block periodization (accumulation/intensification/realization phases), or peaking protocols -- use `training-program-periodization`
@@ -65,18 +68,19 @@ Before designing anything, gather the following. Do NOT skip this step -- progra
 Intermediate lifters are NOT a homogeneous group. Classify before prescribing.
 
 **Classification by training age and load indicators:**
+
 - **Early intermediate (6--12 months):** Still making semi-regular linear gains, possibly on a 3-day full-body. Working weights typically: Squat 135--185 lbs, Bench 95--135 lbs, Deadlift 185--245 lbs, OHP 65--95 lbs (rough ranges; highly individual). Needs structure and volume introduction.
 - **Mid intermediate (12--24 months):** Linear progression definitively stalled. Can tolerate higher weekly volume. Understands RPE (Rate of Perceived Exertion). Ready for weekly undulation and split training.
 
 **Split selection framework based on goal and schedule:**
 
-| Goal | Days Available | Best Split |
-|------|---------------|------------|
-| Balanced strength + hypertrophy | 4 | Upper/Lower (A/B variation) |
-| Strength-dominant | 4 | Heavy-Light Upper/Lower |
-| Hypertrophy-dominant | 4--5 | Upper/Lower or 4-day PPL hybrid |
-| Hypertrophy-dominant | 5--6 | Push-Pull-Legs x2 |
-| Constrained schedule | 3 | Full-body rotating emphasis |
+| Goal                            | Days Available | Best Split                      |
+| ------------------------------- | -------------- | ------------------------------- |
+| Balanced strength + hypertrophy | 4              | Upper/Lower (A/B variation)     |
+| Strength-dominant               | 4              | Heavy-Light Upper/Lower         |
+| Hypertrophy-dominant            | 4--5           | Upper/Lower or 4-day PPL hybrid |
+| Hypertrophy-dominant            | 5--6           | Push-Pull-Legs x2               |
+| Constrained schedule            | 3              | Full-body rotating emphasis     |
 
 **Upper/Lower split logic:** Each muscle group trained twice per week with 48--72 hours of recovery between sessions targeting the same pattern. Upper A emphasizes horizontal push/pull; Upper B emphasizes vertical push/pull. Lower A emphasizes knee-dominant (squat pattern); Lower B emphasizes hip-dominant (hinge pattern).
 
@@ -91,6 +95,7 @@ Intermediate lifters are NOT a homogeneous group. Classify before prescribing.
 The primary compound is the most important decision on each training day. Everything else supports it.
 
 **Compound assignment by day (Upper/Lower):**
+
 - Upper A primary: Barbell Bench Press (horizontal push)
 - Upper A secondary: Barbell Bent-Over Row or Pendlay Row (horizontal pull)
 - Upper B primary: Barbell Overhead Press (vertical push)
@@ -103,14 +108,17 @@ The primary compound is the most important decision on each training day. Everyt
 **Set and rep architecture by goal:**
 
 For **strength focus** (primary compounds):
+
 - Use wave loading across a 4-week block: Week 1: 4x8 at ~70% estimated 1RM, Week 2: 4x6 at ~75--77%, Week 3: 4x4--5 at ~80--83%, Week 4: deload (3x8 at 60% of Week 3 working weight)
 - Rest periods: 3--4 minutes between heavy sets of squat/deadlift; 2--3 minutes for upper body compounds
 
 For **hypertrophy focus** (primary compounds):
+
 - Use double-progression: Start at the bottom of the rep range (e.g., 4x8 with a given weight), progress reps session to session until hitting the top (e.g., 4x12), then add 5 lbs lower / 2.5 lbs upper and reset to bottom of range
 - Rest periods: 2--3 minutes for compound sets; maintains enough recovery without excessive duration
 
 For **balanced goal** (most common):
+
 - Wave the primary compound (4x8 → 4x6 → 4x5) for strength stimulus
 - Run accessories on double-progression for hypertrophy stimulus
 - This is the most proven structure for intermediate lifters not yet specialized
@@ -124,12 +132,14 @@ For **balanced goal** (most common):
 Secondary compounds are the second major movement of each session. They support the primary lift pattern.
 
 **Secondary compound guidelines:**
+
 - Load: 10--20% lighter relative intensity than primary
 - Rep scheme: 3x8--10 on strength-oriented days; 3x10--12 on hypertrophy days
 - Progression: Double-progression (add weight when all sets complete top of range for 2 consecutive sessions)
 - Rest: 90 seconds to 2 minutes
 
 **Accessory selection principles:**
+
 - 2--4 accessories per session (not 6--8 -- accessory bloat is a common intermediate mistake)
 - Address the primary compound's weakest link: e.g., if Bench is the primary, choose close-grip bench or tricep isolation; if Squat is primary, choose unilateral quad work and posterior chain
 - Include at least ONE unilateral (single-limb) movement per session to address side-to-side strength imbalances
@@ -137,6 +147,7 @@ Secondary compounds are the second major movement of each session. They support 
 - On lower days: include direct calf work and one core movement
 
 **Accessory rep/set ranges:**
+
 - 3 sets of 10--15 reps with 60--90 seconds rest for most accessories
 - 2 sets of 12--15 reps for small muscle group isolation (biceps, triceps, calves, rear delts)
 - Use drop sets or supersets only for isolation work, never for compound lifts within this program structure
@@ -150,12 +161,14 @@ Secondary compounds are the second major movement of each session. They support 
 This is where intermediate programming diverges most sharply from beginner programming. Linear "add weight every session" is replaced by structured undulation.
 
 **Wave loading specifics for primary compounds:**
+
 - Identify a starting load: Use approximately 70--72% of their estimated 1RM for Week 1's 4x8. This should feel like RPE 7 -- challenging but not grinding.
 - Estimated 1RM calculation from a recent working set: Use the Epley formula: 1RM = weight × (1 + reps/30). For example, 185 lbs × 8 reps → 1RM ≈ 185 × 1.267 = 234 lbs. Week 1 start: ~165 lbs.
 - After completing a full 4-week cycle, add the planned increment to Week 1 of the next cycle: 5 lbs on lower body primary compounds, 2.5--5 lbs on upper body primary compounds.
 - If the user fails to complete all prescribed reps in Week 3, do NOT add weight. Repeat the wave at the same loads before progressing.
 
 **Double-progression for accessories:**
+
 - Start with the lower end of the rep range (e.g., 3x10)
 - Each session, attempt to add 1--2 reps per set
 - When all sets hit the top of the range (e.g., 3x15) for two sessions in a row, add the minimum weight increment (2.5 lbs dumbbells, 5 lbs barbell) and reset to 3x10
@@ -164,6 +177,7 @@ This is where intermediate programming diverges most sharply from beginner progr
 **RPE-based autoregulation (advanced option):** For lifters who know their RPE accurately, replace fixed percentages with RPE targets: Week 1 @RPE7, Week 2 @RPE8, Week 3 @RPE9, Week 4 deload @RPE5--6. This self-corrects for day-to-day variation in readiness.
 
 **Stall protocol:** If a primary compound fails to progress after two full 4-week waves, apply one of these interventions:
+
 1. **Volume addition:** Add one backoff set at 80% of top set weight after the primary compound sets
 2. **Frequency increase:** If on Upper/Lower, add a third appearance of the stalled movement pattern at lower intensity (e.g., add Incline Press 3x10 to a day that currently doesn't have horizontal pressing)
 3. **Technical audit:** Stalls are frequently caused by form breakdown under load, not lack of strength
@@ -175,6 +189,7 @@ This is where intermediate programming diverges most sharply from beginner progr
 Deloads are not optional -- they are programmed recovery, not signs of weakness.
 
 **Standard deload structure (every 4th week):**
+
 - Reduce working weights by 40% from Week 3 loads
 - Reduce total sets by one per exercise (4 sets → 3 sets; 3 sets → 2 sets)
 - Maintain rep ranges -- do NOT do 1-rep maxes during a deload
@@ -182,11 +197,13 @@ Deloads are not optional -- they are programmed recovery, not signs of weakness.
 - Session duration should be 45--60 minutes maximum
 
 **Deload by feel (autoregulated deload):**
+
 - If the user reports 3 or more of the following after Week 2 or 3: persistent joint aches not related to injury, sleep quality degradation, motivation loss, performance decline across multiple lifts, increased resting heart rate -- move the deload forward
 - This is common in lifters who have high stress outside training (work, travel, poor sleep)
 - A deload week can be converted to an "active recovery week": walking, mobility work, one light full-body session at 50% intensity
 
 **Post-deload return:**
+
 - In Week 1 of the new cycle, use Week 1 loads of the PREVIOUS cycle PLUS the planned progression increment
 - Do NOT attempt to "make up" missed training -- the deload is the program
 
@@ -199,12 +216,14 @@ Deloads are not optional -- they are programmed recovery, not signs of weakness.
 Session structure prevents common mistakes like skipping warm-up sets or misordering exercises.
 
 **Warm-up protocol for primary compounds:**
+
 - Do NOT count warm-up sets toward working sets
 - Follow this sequence (example for a 225 lb working squat): Bar only × 8 reps, 95 lbs × 5 reps, 135 lbs × 3 reps, 185 lbs × 2 reps, 205 lbs × 1 rep, then 225 lbs × working sets
 - General rule: 4--5 warm-up sets escalating to within 10--15% of working weight
 - Never skip the bar-only set -- it establishes movement pattern and joint lubrication
 
 **Exercise ordering rules:**
+
 1. Primary compound first (when freshest)
 2. Secondary compound second
 3. Isolation accessories last
@@ -212,6 +231,7 @@ Session structure prevents common mistakes like skipping warm-up sets or misorde
 5. Never supersetting primary compounds -- rest fully between primary sets
 
 **Session duration management:**
+
 - 60--75 minutes is the target for most intermediate lifters on a 4-day split
 - If sessions consistently exceed 90 minutes, remove one accessory (not the compounds)
 - Rest timer apps are useful -- intermediate lifters frequently under-rest or over-rest without external cues
@@ -221,6 +241,7 @@ Session structure prevents common mistakes like skipping warm-up sets or misorde
 ### Step 8: Deliver the Complete Program and Explain the Rationale
 
 Present the full program in the output format below. Do not just hand over tables -- explain the WHY for:
+
 - Why this split was chosen for their goal
 - What wave loading accomplishes (progressively overloads the nervous system while managing fatigue)
 - How to identify when the program is working vs. when to make adjustments
@@ -394,6 +415,7 @@ Before starting each new 4-week block:
 A lifter stalling on one lift may have a technique or volume problem specific to that movement. A lifter stalling on all lifts simultaneously has a systemic problem: insufficient recovery, inadequate caloric intake, accumulated fatigue from excessive volume, or lifestyle stressors suppressing adaptation.
 
 **How to handle:**
+
 - Before redesigning the program, ask about sleep (target 7--9 hours), caloric intake (are they eating near maintenance or above?), and training consistency over the last 6--8 weeks
 - If fatigue is the likely cause, prescribe a full deload week (or even two back-to-back reduced-volume weeks) before introducing new programming
 - If the stall persists after a deload, reduce overall weekly volume by 20% (remove one accessory per session) before adding any volume -- many intermediate lifters are running too much volume, not too little
@@ -404,6 +426,7 @@ A lifter stalling on one lift may have a technique or volume problem specific to
 Cables and machines are useful but not essential. Every cable or machine accessory has a free-weight equivalent.
 
 **Substitution table:**
+
 - Cable row → Single-arm or bilateral dumbbell row, barbell bent-over row
 - Lat pulldown → Pull-up or chin-up (bodyweight modified with resistance band assist if needed)
 - Leg curl → Nordic hamstring curl (bodyweight, brutally effective), dumbbell leg curl lying prone
@@ -419,6 +442,7 @@ Cables and machines are useful but not essential. Every cable or machine accesso
 Upper/Lower on 4 days is the standard. For lifters with more time, a PPL structure run twice per week is optimal for hypertrophy frequency.
 
 **PPL structure for 6 days:**
+
 - Day 1 Push: Bench Press primary (wave), OHP secondary, lateral raises, incline dumbbell, tricep work
 - Day 2 Pull: Weighted Pull-Up primary (wave), Barbell Row secondary, face pulls, rear delt flies, curl variations
 - Day 3 Legs: Squat primary (wave), RDL secondary, Bulgarian split squat, leg curl, calf raises, core
@@ -433,6 +457,7 @@ Upper/Lower on 4 days is the standard. For lifters with more time, a PPL structu
 A 3-day split for an intermediate lifter should NOT be a traditional body-part split (chest/back/legs). It should be full-body with rotating emphasis to maintain compound frequency.
 
 **3-day rotating full-body structure:**
+
 - Day 1 (Squat emphasis): Squat (wave), Bench Press (3x8--10), RDL (3x8), row, accessories x2
 - Day 2 (Bench emphasis): Bench Press (wave), Squat or leg press (3x8--10), row (wave), OHP (3x8), accessories x2
 - Day 3 (Deadlift emphasis): Deadlift (wave), OHP (3x8--10), Squat variation (3x8), pull variation, accessories x2
@@ -443,6 +468,7 @@ A 3-day split for an intermediate lifter should NOT be a traditional body-part s
 Specialized emphasis programming is appropriate when one compound significantly lags the others.
 
 **Approach:**
+
 - Give the lagging lift a primary slot on BOTH upper days (Upper A and Upper B)
 - Upper A: Flat Barbell Bench (wave loaded, main focus)
 - Upper B: Incline Barbell Bench or Close-Grip Bench (3x8--10, secondary slot -- same pattern, different angle/emphasis)
@@ -454,12 +480,14 @@ Specialized emphasis programming is appropriate when one compound significantly 
 Mild discomfort from training is common. Structural program modifications can often reduce aggravation without halting progress entirely.
 
 **Shoulder discomfort during overhead pressing:**
+
 - Substitute barbell OHP with landmine press (more shoulder-friendly arc of motion, reduced impingement risk)
 - Widen grip slightly on bench press (stays within wrist-width of maximum -- overwide grip increases shoulder stress)
 - Eliminate upright rows if present -- they are high-risk for shoulder impingement
 - Increase face pull frequency to 3x per week minimum
 
 **Knee discomfort during squatting:**
+
 - Elevate heels slightly (weight plates or heel wedge) to reduce forward knee travel demand -- often resolves discomfort caused by ankle mobility restriction
 - Substitute high-bar back squat with safety bar squat or box squat (reduced forward lean)
 - Reduce squat depth temporarily to above-parallel while addressing mobility
@@ -472,6 +500,7 @@ Mild discomfort from training is common. Structural program modifications can of
 Lifters returning from a powerlifting or Olympic lifting training cycle often have well-developed strength but atrophied hypertrophy-oriented training capacity. They may be deconditioned for higher rep ranges and accessory volume.
 
 **Transition approach:**
+
 - Run a 2-week "primer block" at reduced weights: take Week 1 loads at 80% of what they'd calculate as appropriate, focus on re-learning controlled tempo under load
 - Start with 3 working sets per compound (not 4) in Week 1, add the 4th set in Week 2
 - Expect delayed onset muscle soreness (DOMS) to be significantly elevated in the first 2--3 weeks -- this is normal and does not indicate injury
@@ -503,12 +532,12 @@ Lifters returning from a powerlifting or Olympic lifting training cycle often ha
 
 These are estimates only -- use them to calibrate Week 1 starting loads. Always begin conservatively.
 
-| Lift              | Recent Working Set     | Estimated 1RM | Week 1 Target (70--72%) |
-|-------------------|------------------------|---------------|--------------------------|
-| Back Squat        | 195 lbs × 5 reps       | ~228 lbs      | ~160 lbs for 4×8         |
-| Bench Press       | 145 lbs × 5 reps       | ~170 lbs      | ~120 lbs for 4×8         |
-| Conventional DL   | 255 lbs × 5 reps       | ~298 lbs      | ~210 lbs for 4×8         |
-| Overhead Press    | 95 lbs × 5 reps        | ~111 lbs      | ~78--80 lbs for 4×8      |
+| Lift            | Recent Working Set | Estimated 1RM | Week 1 Target (70--72%) |
+| --------------- | ------------------ | ------------- | ----------------------- |
+| Back Squat      | 195 lbs × 5 reps   | ~228 lbs      | ~160 lbs for 4×8        |
+| Bench Press     | 145 lbs × 5 reps   | ~170 lbs      | ~120 lbs for 4×8        |
+| Conventional DL | 255 lbs × 5 reps   | ~298 lbs      | ~210 lbs for 4×8        |
+| Overhead Press  | 95 lbs × 5 reps    | ~111 lbs      | ~78--80 lbs for 4×8     |
 
 These starting loads will feel lighter than your recent training. That is intentional. Week 1 is RPE 7 by design -- the wave builds intensity over 3 weeks. Resist the urge to go heavier from day one.
 
@@ -516,17 +545,18 @@ These starting loads will feel lighter than your recent training. That is intent
 
 ### Day 1: Upper A -- Horizontal Push/Pull Focus (Monday)
 
-| Order | Exercise                  | Sets × Reps | Rest      | Progression Method                           |
-|-------|---------------------------|-------------|-----------|----------------------------------------------|
-| 1     | Barbell Bench Press       | 4 × 8/6/5   | 2--3 min  | Wave: W1 ~120 lbs @RPE7, W2 ~130 lbs @RPE8, W3 ~135--140 lbs @RPE9 |
-| 2     | Barbell Bent-Over Row     | 3 × 8--10   | 2 min     | Double-progression; start ~95--105 lbs       |
-| 3     | Dumbbell Incline Press    | 3 × 10--12  | 90s       | Double-progression; start with 55s or 60s    |
-| 4     | Single-Arm Dumbbell Row   | 3 × 10--12  | 60--90s   | Double-progression; start with 65--70 lbs    |
-| 5     | Face Pull (cable)         | 3 × 15--20  | 60s       | Technique priority -- light load, full ROM   |
-| 6     | Tricep Rope Pushdown      | 2 × 12--15  | 60s       | Double-progression                           |
-| 7     | EZ-Bar or Dumbbell Curl   | 2 × 12--15  | 60s       | Double-progression                           |
+| Order | Exercise                | Sets × Reps | Rest     | Progression Method                                                 |
+| ----- | ----------------------- | ----------- | -------- | ------------------------------------------------------------------ |
+| 1     | Barbell Bench Press     | 4 × 8/6/5   | 2--3 min | Wave: W1 ~120 lbs @RPE7, W2 ~130 lbs @RPE8, W3 ~135--140 lbs @RPE9 |
+| 2     | Barbell Bent-Over Row   | 3 × 8--10   | 2 min    | Double-progression; start ~95--105 lbs                             |
+| 3     | Dumbbell Incline Press  | 3 × 10--12  | 90s      | Double-progression; start with 55s or 60s                          |
+| 4     | Single-Arm Dumbbell Row | 3 × 10--12  | 60--90s  | Double-progression; start with 65--70 lbs                          |
+| 5     | Face Pull (cable)       | 3 × 15--20  | 60s      | Technique priority -- light load, full ROM                         |
+| 6     | Tricep Rope Pushdown    | 2 × 12--15  | 60s      | Double-progression                                                 |
+| 7     | EZ-Bar or Dumbbell Curl | 2 × 12--15  | 60s      | Double-progression                                                 |
 
 **Day 1 Notes:**
+
 - Bench press: think "proud chest, shoulder blades pinched and depressed, leg drive into the floor." Do not allow shoulder blades to wing up off the bench during the set.
 - Bent-over row: maintain a 45-degree torso angle minimum -- if you can't hold it, the weight is too heavy.
 - Face pull: use a split stance for stability, pull toward the bridge of the nose, end position should have external rotation visible (elbows flared back). This exercise is for shoulder health -- never load it heavily.
@@ -536,16 +566,17 @@ These starting loads will feel lighter than your recent training. That is intent
 
 ### Day 2: Lower A -- Knee-Dominant (Squat Focus) (Tuesday)
 
-| Order | Exercise                    | Sets × Reps | Rest      | Progression Method                           |
-|-------|-----------------------------|-------------|-----------|----------------------------------------------|
-| 1     | Barbell Back Squat          | 4 × 8/6/5   | 3--4 min  | Wave: W1 ~160 lbs @RPE7, W2 ~175 lbs @RPE8, W3 ~185 lbs @RPE9 |
-| 2     | Romanian Deadlift           | 3 × 8--10   | 2 min     | Double-progression; start ~135--145 lbs      |
-| 3     | Bulgarian Split Squat (DB)  | 3 × 10--12/leg | 90s    | Double-progression; start with 30--35 lb DBs |
-| 4     | Lying Leg Curl              | 3 × 10--12  | 60--90s   | Double-progression                           |
-| 5     | Standing Calf Raise (Smith or machine) | 4 × 12--15 | 60s | Double-progression                    |
-| 6     | Ab Wheel Rollout            | 3 × 6--10   | 60s       | Volume progression -- add reps before adding load |
+| Order | Exercise                               | Sets × Reps    | Rest     | Progression Method                                            |
+| ----- | -------------------------------------- | -------------- | -------- | ------------------------------------------------------------- |
+| 1     | Barbell Back Squat                     | 4 × 8/6/5      | 3--4 min | Wave: W1 ~160 lbs @RPE7, W2 ~175 lbs @RPE8, W3 ~185 lbs @RPE9 |
+| 2     | Romanian Deadlift                      | 3 × 8--10      | 2 min    | Double-progression; start ~135--145 lbs                       |
+| 3     | Bulgarian Split Squat (DB)             | 3 × 10--12/leg | 90s      | Double-progression; start with 30--35 lb DBs                  |
+| 4     | Lying Leg Curl                         | 3 × 10--12     | 60--90s  | Double-progression                                            |
+| 5     | Standing Calf Raise (Smith or machine) | 4 × 12--15     | 60s      | Double-progression                                            |
+| 6     | Ab Wheel Rollout                       | 3 × 6--10      | 60s      | Volume progression -- add reps before adding load             |
 
 **Day 2 Notes:**
+
 - Squat warm-up: bar × 8, 95 × 5, 135 × 3, then jump to ~90% of working weight × 1--2, then working sets. Do not skip warm-up sets -- the squat demands nervous system priming.
 - Romanian deadlift: hinge from the hip, soft knee bend, feel a stretch in the hamstring at the bottom. The bar should skim the legs throughout. This is a hip hinge, not a squat variation.
 - Bulgarian split squat: rear foot elevation 6--8 inches is sufficient; higher is not better. Most of your weight should be on the front foot. Expect soreness -- if you've never done these, the first week will be humbling.
@@ -555,16 +586,17 @@ These starting loads will feel lighter than your recent training. That is intent
 
 ### Day 3: Upper B -- Vertical Push/Pull Focus (Thursday)
 
-| Order | Exercise                        | Sets × Reps | Rest      | Progression Method                            |
-|-------|---------------------------------|-------------|-----------|-----------------------------------------------|
-| 1     | Barbell Overhead Press          | 4 × 8/6/5   | 2--3 min  | Wave: W1 ~78--80 lbs @RPE7, W2 ~87 lbs @RPE8, W3 ~90 lbs @RPE9 |
-| 2     | Weighted Pull-Up                | 3 × 6--8    | 2 min     | Double-progression; begin with bodyweight if 8 reps unweighted is RPE 8+ |
-| 3     | Dumbbell Lateral Raise          | 3 × 12--15  | 60s       | Double-progression; start with 15--20 lbs     |
-| 4     | Face Pull (cable)               | 3 × 15--20  | 60s       | Technique priority -- same as Day 1           |
-| 5     | Overhead Tricep Extension (DB or cable) | 2 × 12--15 | 60s | Double-progression                          |
-| 6     | Hammer Curl                     | 2 × 12--15  | 60s       | Double-progression                            |
+| Order | Exercise                                | Sets × Reps | Rest     | Progression Method                                                       |
+| ----- | --------------------------------------- | ----------- | -------- | ------------------------------------------------------------------------ |
+| 1     | Barbell Overhead Press                  | 4 × 8/6/5   | 2--3 min | Wave: W1 ~78--80 lbs @RPE7, W2 ~87 lbs @RPE8, W3 ~90 lbs @RPE9           |
+| 2     | Weighted Pull-Up                        | 3 × 6--8    | 2 min    | Double-progression; begin with bodyweight if 8 reps unweighted is RPE 8+ |
+| 3     | Dumbbell Lateral Raise                  | 3 × 12--15  | 60s      | Double-progression; start with 15--20 lbs                                |
+| 4     | Face Pull (cable)                       | 3 × 15--20  | 60s      | Technique priority -- same as Day 1                                      |
+| 5     | Overhead Tricep Extension (DB or cable) | 2 × 12--15  | 60s      | Double-progression                                                       |
+| 6     | Hammer Curl                             | 2 × 12--15  | 60s      | Double-progression                                                       |
 
 **Day 3 Notes:**
+
 - OHP is the hardest compound to progress -- your 95 lbs 3x5 translates to a ~111 lb estimated 1RM, so 78--80 lbs for 4x8 will feel conservative in Week 1. That is by design. The OHP responds poorly to grinding -- technique breakdown appears faster here than on any other compound.
 - OHP cues: glutes squeezed, ribs down (don't flare them), press the bar in a slight arc back over the head at the top, bar should end over the mid-foot when viewed from the side.
 - Weighted pull-up: use a dipping belt for loading. If you cannot complete 6 pull-ups with bodyweight cleanly, substitute Lat Pulldown (3 × 8--10) and add bodyweight pull-up attempts at the end of each session as a separate goal.
@@ -574,16 +606,17 @@ These starting loads will feel lighter than your recent training. That is intent
 
 ### Day 4: Lower B -- Hip-Dominant (Deadlift Focus) (Friday)
 
-| Order | Exercise                       | Sets × Reps | Rest      | Progression Method                            |
-|-------|--------------------------------|-------------|-----------|-----------------------------------------------|
-| 1     | Conventional Deadlift          | 4 × 8/6/5   | 3--4 min  | Wave: W1 ~210 lbs @RPE7, W2 ~230 lbs @RPE8, W3 ~245 lbs @RPE9 |
-| 2     | Front Squat                    | 3 × 6--8    | 2 min     | Double-progression; start ~85--95 lbs; use cross-arm grip if wrist mobility is limited |
-| 3     | Single-Leg Romanian Deadlift   | 3 × 10--12/leg | 90s   | Double-progression; start with 25--30 lb DBs  |
-| 4     | Leg Press                      | 3 × 10--12  | 90s       | Double-progression                            |
-| 5     | Seated Calf Raise              | 4 × 12--15  | 60s       | Double-progression                            |
-| 6     | Pallof Press (cable)           | 3 × 10--12/side | 60s  | Volume progression; anti-rotation core strength |
+| Order | Exercise                     | Sets × Reps     | Rest     | Progression Method                                                                     |
+| ----- | ---------------------------- | --------------- | -------- | -------------------------------------------------------------------------------------- |
+| 1     | Conventional Deadlift        | 4 × 8/6/5       | 3--4 min | Wave: W1 ~210 lbs @RPE7, W2 ~230 lbs @RPE8, W3 ~245 lbs @RPE9                          |
+| 2     | Front Squat                  | 3 × 6--8        | 2 min    | Double-progression; start ~85--95 lbs; use cross-arm grip if wrist mobility is limited |
+| 3     | Single-Leg Romanian Deadlift | 3 × 10--12/leg  | 90s      | Double-progression; start with 25--30 lb DBs                                           |
+| 4     | Leg Press                    | 3 × 10--12      | 90s      | Double-progression                                                                     |
+| 5     | Seated Calf Raise            | 4 × 12--15      | 60s      | Double-progression                                                                     |
+| 6     | Pallof Press (cable)         | 3 × 10--12/side | 60s      | Volume progression; anti-rotation core strength                                        |
 
 **Day 4 Notes:**
+
 - Deadlift: your current working set is 255 × 5. Week 1 target of 210 lbs for 4×8 will feel very light -- the volume (4 sets of 8) replaces intensity as the stimulus this week. By Week 3 at 245 × 4×5, you'll be working harder than your previous GZCLP sets but with better fatigue management.
 - Deadlift setup: bar over mid-foot, hip hinge to grip (don't squat down to the bar), slack out of the bar before pulling (create tension before the weight leaves the floor), push the floor away rather than thinking "pull up."
 - Front squat substitution: if front squat wrist mobility is a barrier even with cross-arm grip, substitute a safety bar squat or a heel-elevated goblet squat at 3×10--12 instead. Do not force the front rack position through pain.
@@ -593,5 +626,5 @@ These starting loads will feel lighter than your recent training. That is intent
 
 ### Wave Loading Schedule -- All Primary Compounds
 
-| Week | Sets × Reps | RPE Target | Load Guideline (% est. 1RM) | Session Feel                    |
-|------|
+| Week | Sets × Reps | RPE Target | Load Guideline (% est. 1RM) | Session Feel |
+| ---- | ----------- | ---------- | --------------------------- | ------------ |

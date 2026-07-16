@@ -14,11 +14,7 @@ function makeTmp(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-devscan-test-'));
 }
 
-function makeProjectWithMemory(
-  baseDir: string,
-  projectName: string,
-  files: Record<string, string>,
-): string {
+function makeProjectWithMemory(baseDir: string, projectName: string, files: Record<string, string>): string {
   const projectPath = path.join(baseDir, projectName);
   const memDir = path.join(projectPath, '.ijfw', 'memory');
   fs.mkdirSync(memDir, { recursive: true });

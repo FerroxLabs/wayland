@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "resume-writing career linkedin"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'resume-writing career linkedin'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # ATS Resume Optimizer
 
 ## When to Use
@@ -86,6 +87,7 @@ Map every extracted keyword against the user's current resume. Use three match s
 Calculate the weighted match rate: (exact matches + 0.5 × semantic matches) / total Tier 1+2+3 keywords × 100. A score below 50% indicates significant optimization opportunity. A score below 30% on Tier 1 keywords alone suggests the role may be a poor fit.
 
 Target thresholds to communicate to the user:
+
 - **Below 50% before optimization:** High rejection risk; substantial rewrite needed
 - **50%-70% before optimization:** Moderate risk; targeted keyword injection should bring this into safe range
 - **70%-85% before optimization:** Low risk; focused tweaks to summary and skills section are sufficient
@@ -108,6 +110,7 @@ For Tier 1 keywords, ensure they appear in at least two sections (e.g., both Ski
 Apply the following technique-specific rules for each section:
 
 **For the Summary/Profile:**
+
 - Open with the target job title or a close variant in the first sentence: "Results-oriented Product Manager with 6 years of experience driving product roadmap development..."
 - Integrate 5-8 Tier 1 and Tier 3 keywords in the first 3 sentences, because some ATS platforms truncate text during scoring
 - Do not use first person ("I") -- ATS and human reviewers both penalize it
@@ -115,6 +118,7 @@ Apply the following technique-specific rules for each section:
 - Include a quantified career highlight ("driving $4M in ARR growth," "managing teams of 12+") to make the section compelling to human reviewers who read past ATS
 
 **For Experience Bullets:**
+
 - Preserve the Action Verb + Context + Quantified Result structure from the original bullets. Never remove quantified metrics to make room for keywords -- add keywords around the metrics
 - When replacing a synonym with the exact keyword, restructure the sentence so the keyword falls within the first 8-10 words of the bullet. ATS parsing weights earlier text in a bullet more heavily than later text
 - Use the "and/or" technique for synonym bridging when both terms are genuinely applicable: "Led Agile/Scrum ceremonies including sprint planning, backlog grooming, and retrospectives" captures both "Agile" and "Scrum" in one natural bullet
@@ -123,6 +127,7 @@ Apply the following technique-specific rules for each section:
 - If a required keyword represents a skill the user genuinely has but never used formally (e.g., "stakeholder management" when the user managed client relationships but never used that term), reframe the existing bullet using the keyword: "Managed stakeholder relationships across 3 business units..." is accurate and keyword-matched
 
 **For the Skills Section:**
+
 - List every Tier 1 and Tier 2 keyword the user genuinely possesses that is not already well-represented in experience bullets
 - Spell out abbreviations on first use and include both forms: "SQL (Structured Query Language)," "Agile (Scrum, Kanban)," "CI/CD (Continuous Integration/Continuous Deployment)"
 - Organize into 4-6 subcategories with clear headers. ATS platforms parse categorized skills lists more accurately than undifferentiated comma-separated lists
@@ -133,6 +138,7 @@ Apply the following technique-specific rules for each section:
 Produce a structured report that shows the user exactly what changed and why. This serves two purposes: it builds trust by making the optimization transparent, and it gives the user a document to reference during interview preparation (knowing which keywords you added helps you prepare to speak to them).
 
 The report must include:
+
 - Raw keyword count from the job description
 - Weighted match rate before optimization (using the 1.0/0.5/0 scoring described in Step 3)
 - Weighted match rate after optimization
@@ -169,7 +175,7 @@ Content optimization is wasted if the ATS cannot parse the file. Run a formattin
 **Tier 2 (Preferred) keywords:** [count]
 **Tier 3 (Repeated-phrase) keywords:** [count]
 
-**Weighted match rate (before optimization):** [X]% 
+**Weighted match rate (before optimization):** [X]%
 (Exact: [n] keywords | Semantic/Synonym: [n] keywords | Missing: [n] keywords)
 
 **Weighted match rate (after optimization):** [Y]%
@@ -368,6 +374,7 @@ My current resume content:
 Summary: 'Experienced analyst with a background in financial data and reporting. Good at finding insights and presenting them to business teams.'
 
 Experience bullets (current role, Data Analyst at PaySmart Inc.):
+
 - Pulled data from the database to make reports for the business team
 - Built charts and graphs for the marketing department
 - Helped with testing different versions of the checkout page
@@ -400,47 +407,47 @@ Skills: Excel, SQL, PowerPoint, reporting"
 
 #### Tier 1 -- Required Keywords
 
-| Keyword | Before | After | Placement | Notes |
-|---------|--------|-------|-----------|-------|
-| SQL | Exact match | Exact match | Skills (already present) | Expand to experience bullet |
-| Python | Missing | Added | Skills section | User confirmed Python proficiency |
-| data analytics | Partial ("analyst") | Exact match | Summary, Skills | Restructured summary opening |
-| A/B testing | Partial ("testing different versions") | Exact match | Experience bullet 3, Skills | High-value conversion |
-| statistical analysis | Missing | Added | Summary, Skills | User confirmed |
-| Tableau or Looker | Missing | Added (Tableau) | Experience bullet 2, Skills | User confirmed Tableau |
-| dashboards | Missing | Added | Experience bullet 2 | Synonym "charts" replaced |
-| conversion funnel | Missing | Added | Experience bullet 3 | Context applied from A/B test bullet |
-| actionable insights | Partial ("finding insights") | Exact match | Summary | Phrase lifted from posting |
-| stakeholder | Missing | Added | Summary, Experience bullet 4 | Replaced "business teams"/"leadership" |
-| 4+ years experience | Missing | Added | Summary (years of experience stated) | User confirmed 5 years experience |
+| Keyword              | Before                                 | After           | Placement                            | Notes                                  |
+| -------------------- | -------------------------------------- | --------------- | ------------------------------------ | -------------------------------------- |
+| SQL                  | Exact match                            | Exact match     | Skills (already present)             | Expand to experience bullet            |
+| Python               | Missing                                | Added           | Skills section                       | User confirmed Python proficiency      |
+| data analytics       | Partial ("analyst")                    | Exact match     | Summary, Skills                      | Restructured summary opening           |
+| A/B testing          | Partial ("testing different versions") | Exact match     | Experience bullet 3, Skills          | High-value conversion                  |
+| statistical analysis | Missing                                | Added           | Summary, Skills                      | User confirmed                         |
+| Tableau or Looker    | Missing                                | Added (Tableau) | Experience bullet 2, Skills          | User confirmed Tableau                 |
+| dashboards           | Missing                                | Added           | Experience bullet 2                  | Synonym "charts" replaced              |
+| conversion funnel    | Missing                                | Added           | Experience bullet 3                  | Context applied from A/B test bullet   |
+| actionable insights  | Partial ("finding insights")           | Exact match     | Summary                              | Phrase lifted from posting             |
+| stakeholder          | Missing                                | Added           | Summary, Experience bullet 4         | Replaced "business teams"/"leadership" |
+| 4+ years experience  | Missing                                | Added           | Summary (years of experience stated) | User confirmed 5 years experience      |
 
 #### Tier 2 -- Preferred Keywords
 
-| Keyword | Before | After | Placement | Notes |
-|---------|--------|-------|-----------|-------|
-| dbt | Missing | Added | Skills section | User confirmed dbt usage |
-| Snowflake | Missing | Needs verification | -- | Ask user to confirm before adding |
-| BigQuery | Missing | Needs verification | -- | Ask user to confirm before adding |
-| machine learning | Missing | OMITTED | -- | User has not used ML models |
+| Keyword          | Before  | After              | Placement      | Notes                             |
+| ---------------- | ------- | ------------------ | -------------- | --------------------------------- |
+| dbt              | Missing | Added              | Skills section | User confirmed dbt usage          |
+| Snowflake        | Missing | Needs verification | --             | Ask user to confirm before adding |
+| BigQuery         | Missing | Needs verification | --             | Ask user to confirm before adding |
+| machine learning | Missing | OMITTED            | --             | User has not used ML models       |
 
 #### Tier 3 -- Repeated-Phrase Keywords (2+ occurrences)
 
-| Keyword | Occurrences in JD | Before | After | Placement |
-|---------|------------------|--------|-------|-----------|
-| data-driven | 2 | Missing | Added | Summary sentence 3 |
-| cross-functional | 2 | Missing | Added | Experience bullet 4 |
-| non-technical stakeholders | 2 | Missing | Added | Experience bullet 4, Summary |
-| growth analytics | 2 | Missing | Added | Summary sentence 1 |
+| Keyword                    | Occurrences in JD | Before  | After | Placement                    |
+| -------------------------- | ----------------- | ------- | ----- | ---------------------------- |
+| data-driven                | 2                 | Missing | Added | Summary sentence 3           |
+| cross-functional           | 2                 | Missing | Added | Experience bullet 4          |
+| non-technical stakeholders | 2                 | Missing | Added | Experience bullet 4, Summary |
+| growth analytics           | 2                 | Missing | Added | Summary sentence 1           |
 
 ---
 
 #### Intentionally Omitted Keywords
 
-| Keyword | Tier | Reason |
-|---------|------|--------|
-| machine learning models | 2 | User does not have ML modeling experience. Do not add. |
-| Snowflake | 2 | Awaiting user confirmation -- add to Skills once verified |
-| BigQuery | 2 | Awaiting user confirmation -- add to Skills once verified |
+| Keyword                 | Tier | Reason                                                    |
+| ----------------------- | ---- | --------------------------------------------------------- |
+| machine learning models | 2    | User does not have ML modeling experience. Do not add.    |
+| Snowflake               | 2    | Awaiting user confirmation -- add to Skills once verified |
+| BigQuery                | 2    | Awaiting user confirmation -- add to Skills once verified |
 
 **⚠ Note:** No Tier 1 keywords are fully omitted after optimization. All required qualifications are present in the user's actual experience. The weighted match rate of 86% is strong. The primary optimization was vocabulary alignment -- the user had most of these skills but named them with generic language that ATS systems could not match.
 
@@ -448,7 +455,7 @@ Skills: Excel, SQL, PowerPoint, reporting"
 
 ### Section 2: Optimized Resume Content
 
-*Added or changed keywords are bolded. Original metrics and details are preserved.*
+_Added or changed keywords are bolded. Original metrics and details are preserved._
 
 #### Professional Summary (Optimized)
 
@@ -471,7 +478,7 @@ Senior **Data Analyst** with 5 years of experience in **growth analytics** and f
 
 **Technical Skills:** **SQL** (Structured Query Language), **Python** (pandas, NumPy, matplotlib), **Tableau**, Excel, **dbt**
 **Data & Analytics:** **A/B testing**, **Statistical analysis**, **Conversion funnel analysis**, **Dashboard** development, **Growth analytics**
-**Tools & Platforms:** Snowflake *(verify)*, BigQuery *(verify)*, Looker *(verify)*
+**Tools & Platforms:** Snowflake _(verify)_, BigQuery _(verify)_, Looker _(verify)_
 **Domain Knowledge:** Financial data, Fintech, **Data-driven decision-making**
 **Communication:** Executive-level presentations, **Non-technical stakeholder** communication, **Actionable insights** delivery
 
@@ -479,16 +486,16 @@ Senior **Data Analyst** with 5 years of experience in **growth analytics** and f
 
 ### Section 3: ATS Formatting Audit
 
-| Check | Status | Action Required |
-|-------|--------|-----------------|
-| File format (.docx or parseable PDF) | Unknown | Confirm you are saving as .docx for submission or a text-based PDF -- not an image scan or Canva export |
-| Single-column layout (no tables or text boxes) | Unknown | If using a multi-column template, rebuild in a single-column Word document before submitting |
-| Standard section headers (Experience, Education, Skills) | Unknown | Ensure your headers read exactly: "Experience," "Education," "Skills" -- not "Where I've Worked" or "My Expertise" |
-| Contact info in main document body (not in header/footer) | Unknown | Move name, email, phone, and LinkedIn URL into the top of the document body, not a floating header |
-| No graphics, icons, or skill rating bars | Unknown | Remove any star ratings, progress bars, or graphic icons -- replace with plain text skills list |
-| Dates in consistent Month YYYY format | Unknown | Standardize all dates to "March 2020 -- Present" format throughout |
-| Abbreviations spelled out on first use | Pass (handled in optimized content) | "SQL (Structured Query Language)" and "CI/CD" variants now spelled out in Skills section |
-| Decorative fonts | Unknown | Switch to Calibri, Arial, or Garamond if using custom fonts |
+| Check                                                     | Status                              | Action Required                                                                                                    |
+| --------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| File format (.docx or parseable PDF)                      | Unknown                             | Confirm you are saving as .docx for submission or a text-based PDF -- not an image scan or Canva export            |
+| Single-column layout (no tables or text boxes)            | Unknown                             | If using a multi-column template, rebuild in a single-column Word document before submitting                       |
+| Standard section headers (Experience, Education, Skills)  | Unknown                             | Ensure your headers read exactly: "Experience," "Education," "Skills" -- not "Where I've Worked" or "My Expertise" |
+| Contact info in main document body (not in header/footer) | Unknown                             | Move name, email, phone, and LinkedIn URL into the top of the document body, not a floating header                 |
+| No graphics, icons, or skill rating bars                  | Unknown                             | Remove any star ratings, progress bars, or graphic icons -- replace with plain text skills list                    |
+| Dates in consistent Month YYYY format                     | Unknown                             | Standardize all dates to "March 2020 -- Present" format throughout                                                 |
+| Abbreviations spelled out on first use                    | Pass (handled in optimized content) | "SQL (Structured Query Language)" and "CI/CD" variants now spelled out in Skills section                           |
+| Decorative fonts                                          | Unknown                             | Switch to Calibri, Arial, or Garamond if using custom fonts                                                        |
 
 ---
 

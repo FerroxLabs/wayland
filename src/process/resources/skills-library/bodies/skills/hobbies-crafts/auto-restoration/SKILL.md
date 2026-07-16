@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automotive restoration guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automotive restoration guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Auto Restoration
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on auto restoration
 - User asks about auto restoration best practices or techniques
 - User wants a structured approach to auto restoration
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of auto restoration
 
@@ -58,6 +59,7 @@ Before providing guidance, establish the restorer's situation:
 ## Project Vehicle Selection
 
 ### Choosing the Right Project
+
 ```
 BEST FIRST RESTORATION PROJECTS:
   Characteristics of a good first project:
@@ -91,6 +93,7 @@ AVOID AS FIRST PROJECT:
 ```
 
 ### Buying Checklist
+
 ```
 INSPECTION PRIORITIES (In Order of Importance):
 
@@ -133,6 +136,7 @@ RULE: A car in Condition 4 is usually the best value.
 ## Condition Assessment
 
 ### Documentation Before Starting
+
 ```
 PHOTO DOCUMENTATION:
   Take 100+ photos before touching anything:
@@ -161,6 +165,7 @@ MEASUREMENT AND TAGGING:
 ```
 
 ### Condition Assessment Worksheet
+
 ```
 CATEGORY         | CONDITION (1-10) | REPAIR/REPLACE | EST. COST
 -----------------|-----------------|----------------|----------
@@ -193,6 +198,7 @@ RULE OF THUMB: Whatever you estimate, multiply by 1.5-2x
 ## Restoration Planning
 
 ### Frame-Off vs. Partial Restoration
+
 ```
 FRAME-OFF (Complete Disassembly):
   What: Remove body from frame, restore every component separately
@@ -224,6 +230,7 @@ RECOMMENDATION FOR FIRST RESTORATION:
 ```
 
 ### Restoration Order of Operations
+
 ```
 RECOMMENDED SEQUENCE (Frame-Off):
 
@@ -283,6 +290,7 @@ PHASE 6: COMMISSIONING
 ## Parts Sourcing
 
 ### Where to Find Parts
+
 ```
 NEW REPRODUCTION PARTS:
   Manufacturer websites:
@@ -320,6 +328,7 @@ PARTS CROSS-REFERENCE:
 ```
 
 ### Parts Budget Planning
+
 ```
 TYPICAL COST BREAKDOWN BY CATEGORY:
   Category          | % of Total Budget
@@ -339,6 +348,7 @@ TYPICAL COST BREAKDOWN BY CATEGORY:
 ## Bodywork Basics
 
 ### Rust Repair Decision Tree
+
 ```
 SURFACE RUST (Paint bubbling, surface oxidation):
   Fix: Sand to bare metal, treat with rust converter, prime, paint
@@ -360,6 +370,7 @@ Bondo over rust is NOT a repair - it's hiding a problem that will return.
 ```
 
 ### Body Filler (Bondo) Proper Use
+
 ```
 WHEN TO USE BODY FILLER:
   - Minor dents and dings (under 1/4" deep)
@@ -385,6 +396,7 @@ APPLICATION PROCESS:
 ```
 
 ## Paint Preparation
+
 ```
 PAINT PREP WORKFLOW:
   1. BARE METAL: Strip to bare metal (media blasting, chemical strip, or DA sander)
@@ -422,6 +434,7 @@ DIY PAINTING:
 ## Budget Tracking
 
 ### Budget Template
+
 ```
 RESTORATION BUDGET TRACKER
 
@@ -465,6 +478,7 @@ COST vs. VALUE REALITY CHECK:
 ## Documentation
 
 ### Building a Restoration Binder
+
 ```
 ORGANIZE IN SECTIONS:
   1. VEHICLE INFORMATION
@@ -521,7 +535,6 @@ ORGANIZE IN SECTIONS:
 9. Not keeping a parts and spending log (costs spiral without tracking)
 10. Skipping safety items to save money (brakes, steering, and tires are not optional)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -534,13 +547,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with auto restoration for a mid-size project."
 
 **Output:** A complete auto restoration framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

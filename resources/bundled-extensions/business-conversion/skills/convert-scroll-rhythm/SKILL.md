@@ -27,14 +27,23 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [convert, convert-above-fold, convert-three-locks, convert-chute, convert-proof-stack, convert-mobile, convert-sales-page]
+    related_skills:
+      [
+        convert,
+        convert-above-fold,
+        convert-three-locks,
+        convert-chute,
+        convert-proof-stack,
+        convert-mobile,
+        convert-sales-page,
+      ]
 attribution:
-  lineage: "The Donahoe Method - Three Locks (Want / Trust / Excuse) + Greased Chute (Wayland-owned operating system); Nielsen Norman Group eye-tracking research on F-pattern (2006) and Z-pattern (2020) reading flows"
+  lineage: 'The Donahoe Method - Three Locks (Want / Trust / Excuse) + Greased Chute (Wayland-owned operating system); Nielsen Norman Group eye-tracking research on F-pattern (2006) and Z-pattern (2020) reading flows'
 ---
 
 # Convert Scroll-Rhythm - Scroll-Depth Orchestration Aligned to The Three Locks
 
-> *"Three things must happen - roughly in this order - before someone buys. Think of them as three locks on a door. You need to open all three."* - The Donahoe Method, Framework 3
+> _"Three things must happen - roughly in this order - before someone buys. Think of them as three locks on a door. You need to open all three."_ - The Donahoe Method, Framework 3
 
 Scroll position is not a layout problem. It's a persuasion problem. Every screen the reader scrolls past is a chance to open one of the locks (Want → Trust → Excuse) or lose them. This skill maps scroll zones to Method locks and engineers the rhythm of momentum that connects them.
 
@@ -43,26 +52,28 @@ Scroll position is not a layout problem. It's a persuasion problem. Every screen
 Trigger phrases: "scroll rhythm", "scroll-depth design", "page flow design", "how should the page flow", "section order for sales page", "three locks layout", "want trust excuse flow", `/convert scroll-rhythm <product>`.
 
 Use when:
+
 - Designing the section order of a long-form sales page or VSL page
 - The page has the right copy but a wrong order - proof appears too early, the close lands too soon, the Excuse never gets opened
 - Mapping CTA anchor frequency across the page (where do CTAs go and why?)
 - Diagnosing why a long page loses readers at a specific scroll depth
 
 Do NOT use for:
+
 - Above-fold-only spec - use `/convert above-fold`
 - Single-purpose pages (squeeze, opt-in) - they don't have scroll rhythm; they have one screen
 - Auditing an existing live page - use `/market landing <url>` for CRO teardown
-- Generating the actual section copy - use `/convert sales-page` (this skill specs the *order*, sales-page writes the *content*)
+- Generating the actual section copy - use `/convert sales-page` (this skill specs the _order_, sales-page writes the _content_)
 
 ## The Three Locks (Donahoe Method, Framework 3)
 
 Every long-form page must open three locks in roughly this order:
 
-1. **Lock 1 - The Want.** Sell the *state*, not the product. Sensory, visceral, specific.
+1. **Lock 1 - The Want.** Sell the _state_, not the product. Sensory, visceral, specific.
 2. **Lock 2 - The Trust.** They want it; now they need to believe it's possible - and that you can deliver. Built through Conversational Proof + voice authority.
 3. **Lock 3 - The Excuse.** They want it, they believe it; now they need the rational argument they'll use to justify the buy. Math, comparisons, risk reversal.
 
-Miss any lock and the door stays closed. Get the *order* wrong and the locks fight each other (e.g., closing on math before they want it = tone-deaf).
+Miss any lock and the door stays closed. Get the _order_ wrong and the locks fight each other (e.g., closing on math before they want it = tone-deaf).
 
 ## Scroll Zones (the Method's three thirds)
 
@@ -92,12 +103,14 @@ For impulse offers (<~$100), price reveals near the top. For considered offers (
 ## Inputs
 
 Required:
+
 1. **Product / offer** - what we're selling (informs price-reveal placement)
 2. **Asset type** - long-form sales page / VSL page / bridge page / advertorial
 3. **Market temperature** - Ice Cold / Cool / Warm / Hot / Boiling (from `convert-temperature`); changes total length and zone proportions
 4. **Primitives that have already run** - outputs from `convert-open`, `convert-three-locks`, `convert-bullets`, `convert-proof`, `convert-close` are pulled in if available
 
 Optional:
+
 - **Existing section list** - if the user has copy in hand, this skill reorders it
 - **Brand visual constraints** - colors, image style, max page length
 - `out_path` - caller-controlled output. Defaults via `build_report_path("business-conversion", instruction)`
@@ -106,26 +119,26 @@ Optional:
 
 A canonical Donahoe-Method long-form sales page has 14-18 sections. This skill emits the full ordered list with which Lock each serves.
 
-| # | Section | Lock | Reading pattern | CTA? |
-|---|---------|------|------------------|------|
-| 1 | Hero - Headline / Subhead / CTA / Trust strip | Want | Z-pattern | CTA #1 |
-| 2 | Open continued (Layers 2-4 unspooled) | Want | F-pattern | - |
-| 3 | The pain expanded - agitate the nerve | Want | F-pattern | - |
-| 4 | The vision - paint the state they want | Want | F + image | - |
-| 5 | Bridge - "here's what changed" | Want → Trust | F-pattern | - |
-| 6 | The mechanism - why this works (unique) | Trust | F + diagram | CTA #2 |
-| 7 | Proof block 1 - Anecdote + Receipt | Trust | F-pattern | - |
-| 8 | What you get - bullets (Keyhole / Flip / Snapshot / Scar mix) | Trust | scannable | - |
-| 9 | Proof block 2 - Snapshot case study | Trust | F + image | CTA #3 |
-| 10 | Bonus stack - visible value addition | Excuse | scannable | - |
-| 11 | The Stack close - sum the value | Excuse | F-pattern | - |
-| 12 | The Vision close - paint the state again | Excuse | F + image | - |
-| 13 | The Math close - make the arithmetic obvious | Excuse | scannable | CTA #4 |
-| 14 | The Safety Net - guarantee | Excuse | F-pattern | - |
-| 15 | The Door - final CTA | Excuse | dominant CTA | CTA #5 |
-| 16 | P.S. - recloses from new angle | Excuse | F-pattern | CTA #6 |
-| 17 | P.P.S. - recaps strongest proof | Excuse | F-pattern | CTA #7 |
-| 18 | FAQ - kills last objections | Excuse | scannable | CTA #8 |
+| #   | Section                                                       | Lock         | Reading pattern | CTA?   |
+| --- | ------------------------------------------------------------- | ------------ | --------------- | ------ |
+| 1   | Hero - Headline / Subhead / CTA / Trust strip                 | Want         | Z-pattern       | CTA #1 |
+| 2   | Open continued (Layers 2-4 unspooled)                         | Want         | F-pattern       | -      |
+| 3   | The pain expanded - agitate the nerve                         | Want         | F-pattern       | -      |
+| 4   | The vision - paint the state they want                        | Want         | F + image       | -      |
+| 5   | Bridge - "here's what changed"                                | Want → Trust | F-pattern       | -      |
+| 6   | The mechanism - why this works (unique)                       | Trust        | F + diagram     | CTA #2 |
+| 7   | Proof block 1 - Anecdote + Receipt                            | Trust        | F-pattern       | -      |
+| 8   | What you get - bullets (Keyhole / Flip / Snapshot / Scar mix) | Trust        | scannable       | -      |
+| 9   | Proof block 2 - Snapshot case study                           | Trust        | F + image       | CTA #3 |
+| 10  | Bonus stack - visible value addition                          | Excuse       | scannable       | -      |
+| 11  | The Stack close - sum the value                               | Excuse       | F-pattern       | -      |
+| 12  | The Vision close - paint the state again                      | Excuse       | F + image       | -      |
+| 13  | The Math close - make the arithmetic obvious                  | Excuse       | scannable       | CTA #4 |
+| 14  | The Safety Net - guarantee                                    | Excuse       | F-pattern       | -      |
+| 15  | The Door - final CTA                                          | Excuse       | dominant CTA    | CTA #5 |
+| 16  | P.S. - recloses from new angle                                | Excuse       | F-pattern       | CTA #6 |
+| 17  | P.P.S. - recaps strongest proof                               | Excuse       | F-pattern       | CTA #7 |
+| 18  | FAQ - kills last objections                                   | Excuse       | scannable       | CTA #8 |
 
 Total CTA anchors: 5-8. The minimum on long-form is 3; the typical is 5-9.
 
@@ -148,20 +161,21 @@ Eyes scan top horizontally, then down the left side, then horizontal stripes tha
 Where: open body, pain agitation, mechanism reveal, proof blocks, FAQ.
 
 Implications:
+
 - Lead each paragraph with the strongest words on the left edge
 - Bold key phrases (the eye picks up bolded fragments while skipping body)
 - Use sub-headlines aggressively - the F's horizontal stripes track sub-heads, not body text
 - Short paragraphs (1-3 sentences) - Donahoe Voice Rule meets visual reality
 
-*Source: F-pattern (NN-g eye-tracking, Nielsen 2006, replicated 2020); Z-pattern (NN-g landing-page studies).*
+_Source: F-pattern (NN-g eye-tracking, Nielsen 2006, replicated 2020); Z-pattern (NN-g landing-page studies)._
 
 ## CTA Anchor Frequency
 
-| Page length | Min CTAs | Typical CTAs | Placement rule |
-|-------------|----------|--------------|----------------|
-| 1,500-3,000 words | 3 | 4-5 | Hero + after mechanism + final |
-| 3,000-6,000 words | 5 | 6-7 | Hero + after each Lock opens + close |
-| 6,000+ words | 7 | 8-12 | Hero + every 2-4 screens + multi-layer close + P.S. + P.P.S. + FAQ |
+| Page length       | Min CTAs | Typical CTAs | Placement rule                                                     |
+| ----------------- | -------- | ------------ | ------------------------------------------------------------------ |
+| 1,500-3,000 words | 3        | 4-5          | Hero + after mechanism + final                                     |
+| 3,000-6,000 words | 5        | 6-7          | Hero + after each Lock opens + close                               |
+| 6,000+ words      | 7        | 8-12         | Hero + every 2-4 screens + multi-layer close + P.S. + P.P.S. + FAQ |
 
 Anchors are CTAs in the visual flow. They are NOT identical buttons spammed - they are different "doors" pointing to the same action. CTA #1 might be "See how it works" (low-friction), CTA #4 "Start my trial" (commitment), CTA #7 "Click here to lock my spot" (urgency). Same destination; different entry copy matched to where the reader is in the locks.
 
@@ -172,12 +186,14 @@ Between sections, momentum dies unless engineered. Three moves:
 ### 1. Open loops at section endings
 
 Never end a section with a conclusion. End with a tease. Examples:
-- *"That's how the front end works. But what happens next is where most people get this wrong..."*
-- *"And that was just the first 30 days. What happened in month two changed how I priced everything..."*
+
+- _"That's how the front end works. But what happens next is where most people get this wrong..."_
+- _"And that was just the first 30 days. What happened in month two changed how I priced everything..."_
 
 ### 2. Curiosity-bridged sub-heads
 
 Sub-heads (the F-pattern's stripe markers) should pull, not summarize. Compare:
+
 - ✗ "Module 3 Overview" (summary; F-pattern eye skips)
 - ✓ "The 4-minute morning routine that printed leads while I slept" (curiosity; F-pattern eye stops)
 
@@ -190,6 +206,7 @@ If three sections in a row are the same length (~150 words each), the reader's e
 ### Step 1 - Pull the Method skill outputs
 
 Check what's already run for this product. Pull outputs from:
+
 - `convert-temperature` - informs total page length (Ice Cold = 4-6,000 words; Hot = 1-2,000 words)
 - `convert-open` - informs Sections 1-2
 - `convert-three-locks` - direct input for the Want / Trust / Excuse content
@@ -197,14 +214,14 @@ Check what's already run for this product. Pull outputs from:
 - `convert-proof` - informs Sections 7 + 9
 - `convert-close` - informs Sections 11-17
 
-If those haven't run, ask: *"Want me to spec the rhythm with placeholder section content, or run the writing skills first?"* Recommend the latter for fresh builds.
+If those haven't run, ask: _"Want me to spec the rhythm with placeholder section content, or run the writing skills first?"_ Recommend the latter for fresh builds.
 
 ### Step 2 - Set the zone proportions
 
 Default proportions by temperature:
 
 | Temperature | Want zone | Trust zone | Excuse zone |
-|-------------|-----------|------------|-------------|
+| ----------- | --------- | ---------- | ----------- |
 | Ice Cold    | 35%       | 45%        | 20%         |
 | Cool        | 30%       | 45%        | 25%         |
 | Warm        | 25%       | 40%        | 35%         |
@@ -220,6 +237,7 @@ Use the canonical 14-18 section skeleton. Mark each section's Lock. Trim section
 ### Step 4 - Place CTA anchors
 
 Apply the CTA frequency table. Each anchor gets specific copy matched to its position:
+
 - Anchor 1 (hero, Want): low-friction, value-loaded ("Watch the 18-min training")
 - Anchor 2 (mechanism, Trust): mechanism-tied ("See the system inside")
 - Anchor 3 (proof block, Trust): commitment-shifting ("Lock my spot")
@@ -256,43 +274,44 @@ Output the ordered section list, Lock mapping, CTA anchors, reading patterns, tr
 ---
 
 ## Vertical flow (top → bottom)
-
 ```
-[ Hero - Z-pattern ]                  ← Lock 1 / Want / CTA #1
-   ↓ (open loop transition)
-[ Open body - F-pattern ]             ← Lock 1 / Want
-   ↓ (Diagnostic transition)
-[ Pain agitate - F ]                  ← Lock 1 / Want
-   ↓ (Internal Moment transition)
-[ Vision paint - F + image ]          ← Lock 1 / Want
-   ↓ (Energy Drop transition)
-[ Bridge - F ]                        ← Lock 1 → 2 handoff
-   ↓ (Aside Bomb transition)
-[ Mechanism - F + diagram ]           ← Lock 2 / Trust / CTA #2
-   ↓ (Comparison Bomb transition)
-[ Proof Block 1 - F ]                 ← Lock 2 / Trust
-   ↓ (Escalation transition)
+
+[ Hero - Z-pattern ] ← Lock 1 / Want / CTA #1
+↓ (open loop transition)
+[ Open body - F-pattern ] ← Lock 1 / Want
+↓ (Diagnostic transition)
+[ Pain agitate - F ] ← Lock 1 / Want
+↓ (Internal Moment transition)
+[ Vision paint - F + image ] ← Lock 1 / Want
+↓ (Energy Drop transition)
+[ Bridge - F ] ← Lock 1 → 2 handoff
+↓ (Aside Bomb transition)
+[ Mechanism - F + diagram ] ← Lock 2 / Trust / CTA #2
+↓ (Comparison Bomb transition)
+[ Proof Block 1 - F ] ← Lock 2 / Trust
+↓ (Escalation transition)
 [ What you get bullets - scannable Z ]← Lock 2 / Trust
-   ↓ (Aside Bomb transition)
-[ Proof Block 2 - F + image ]         ← Lock 2 / Trust / CTA #3
-   ↓ (Diagnostic transition)
-[ Bonus stack - scannable ]           ← Lock 3 / Excuse opens
-   ↓ (Assumed Agreement transition)
-[ Stack close - F ]                   ← Lock 3 / Excuse
-   ↓ (Vision Close transition)
-[ Vision close - F + image ]          ← Lock 3 / Excuse
-   ↓ (Math transition)
-[ Math close - scannable ]            ← Lock 3 / Excuse / CTA #4
-   ↓ (Admission transition)
-[ Safety Net - F ]                    ← Lock 3 / Excuse
-   ↓ (Door transition)
-[ Door - dominant CTA ]               ← Lock 3 / Excuse / CTA #5
-   ↓
-[ P.S. - F ]                          ← Lock 3 / Excuse / CTA #6
-   ↓
-[ P.P.S. - F ]                        ← Lock 3 / Excuse / CTA #7
-   ↓
-[ FAQ - scannable ]                   ← Lock 3 / Excuse / CTA #8
+↓ (Aside Bomb transition)
+[ Proof Block 2 - F + image ] ← Lock 2 / Trust / CTA #3
+↓ (Diagnostic transition)
+[ Bonus stack - scannable ] ← Lock 3 / Excuse opens
+↓ (Assumed Agreement transition)
+[ Stack close - F ] ← Lock 3 / Excuse
+↓ (Vision Close transition)
+[ Vision close - F + image ] ← Lock 3 / Excuse
+↓ (Math transition)
+[ Math close - scannable ] ← Lock 3 / Excuse / CTA #4
+↓ (Admission transition)
+[ Safety Net - F ] ← Lock 3 / Excuse
+↓ (Door transition)
+[ Door - dominant CTA ] ← Lock 3 / Excuse / CTA #5
+↓
+[ P.S. - F ] ← Lock 3 / Excuse / CTA #6
+↓
+[ P.P.S. - F ] ← Lock 3 / Excuse / CTA #7
+↓
+[ FAQ - scannable ] ← Lock 3 / Excuse / CTA #8
+
 ```
 
 ## Section-by-section spec
@@ -348,7 +367,7 @@ Output the ordered section list, Lock mapping, CTA anchors, reading patterns, tr
 - **CTA spam.** Eight identical buttons feels like begging. Each CTA is a different door; vary copy and lean on the lock the reader is in at that scroll depth.
 - **Section-length monotony.** Three 200-word sections in a row = reader checks out. Vary deliberately.
 - **Mechanism too late.** The unique mechanism reveal (Section 6) can't wait until the close. Trust is built on mechanism; without it, the reader doesn't believe.
-- **Proof at the start.** Frontloading proof (Anecdote / Receipt) before the Want is built is the most common error. Want first; trust second; *because* trust requires want to be already in motion.
+- **Proof at the start.** Frontloading proof (Anecdote / Receipt) before the Want is built is the most common error. Want first; trust second; _because_ trust requires want to be already in motion.
 - **No P.S.** Skipping the P.S. and P.P.S. drops 5-15% of conversions on long-form pages (folklore-leaning, varies). The P.S. is a final close - never optional on long-form.
 
 ## Lineage
@@ -362,7 +381,7 @@ Output the ordered section list, Lock mapping, CTA anchors, reading patterns, tr
 
 ## Notes
 
-- Scroll-rhythm spec is *upstream* of the actual copy. This skill specs the order; `/convert sales-page` writes the content into the order.
+- Scroll-rhythm spec is _upstream_ of the actual copy. This skill specs the order; `/convert sales-page` writes the content into the order.
 - The temperature-based zone proportions are starting points, not laws. A Hot-traffic offer with a long, education-heavy mechanism may stretch the Trust zone past 35%. Use the proportions as defaults; override with reason.
 - The FAQ at the bottom is genuinely the last close. Treat each FAQ answer as a micro-Cascade-Close - never just informational.
 - Sticky bottom CTA on mobile is the single highest-leverage move on long-form mobile pages. Don't omit it.

@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Build Data Pipeline
 
 **Estimated time:** 4-8 weeks
@@ -121,7 +122,7 @@ build pipeline monitoring. Track job execution times, success/failure rates, dat
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Align with stakeholders on priorities
   - If **After Step 3**: Stabilize ingestion before building transforms
   - If **After Step 4**: Fix transformation logic and add more tests
@@ -172,6 +173,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

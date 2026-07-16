@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting habits self-care planning"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'goal-setting habits self-care planning'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Accountability System Design
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to build a structured partner or group accountability system for a specific habit, goal, or behavior change (exercise, writing, studying, sleep hygiene, nutrition changes, creative practice)
 - User asks how to stay accountable to goals they have repeatedly abandoned on their own -- the problem is external commitment structure, not willpower
 - User has a specific person or group in mind and wants to know how to formalize the relationship and prevent it from drifting into social chat
@@ -32,6 +34,7 @@ metadata:
 - User wants to understand what kind of accountability structure fits their personality, social context, or goal type
 
 **Do NOT use when:**
+
 - User needs clinical accountability structures for treatment compliance, medication adherence, or medically supervised programs -- refer to `clinical-care-planning` or recommend speaking with their treatment team
 - User is navigating addiction recovery and needs sponsor-style accountability with relapse protocols -- this requires licensed or trained support, not a habit-partnership framework
 - User wants to hold another person accountable (a direct report, a child, a partner) -- this is a management or relationship skill, not a personal accountability system
@@ -60,6 +63,7 @@ Understanding WHY previous accountability attempts failed is more important than
 Match the structure to the user's social context, goal type, and failure history. Four architectures exist -- choose one primary and optionally one secondary:
 
 **Architecture 1: Dyadic Accountability Partnership (one-on-one)**
+
 - The highest-reliability structure when the right partner is available
 - Requires: mutual goals (not identical, but both people are working toward something), compatible availability, and explicit role clarity
 - Optimal check-in frequency for habit goals: daily text + weekly 15-minute call
@@ -68,6 +72,7 @@ Match the structure to the user's social context, goal type, and failure history
 - Decay pattern: dyadic partnerships last an average of 6-8 weeks without a structured agenda, then collapse into social chats or polite silence. The agenda is the maintenance mechanism.
 
 **Architecture 2: Commitment Contract (self-directed with binding structure)**
+
 - Used when no partner is available, or as a supplement to any of the other architectures
 - Based on behavioral economics research on pre-commitment devices -- the act of writing specific commitments and consequences changes decision-making at the time of temptation, not just the time of signing
 - Requires: specific written commitments, a review mechanism, and at least one witness (even an informal one -- a friend who receives a copy, a posted document)
@@ -75,6 +80,7 @@ Match the structure to the user's social context, goal type, and failure history
 - Include a "revision clause" -- the contract must specify how and when it can be revised, or the user will simply abandon it rather than renegotiate
 
 **Architecture 3: Small Group Accountability (3-5 people)**
+
 - Optimal group size is 3-4 people. At 5, participation inequality begins to develop (1-2 people carry the check-ins). At 6+, groups fracture into sub-conversations.
 - Requires: a rotating facilitator role, a shared platform, and an explicit "no advice without permission" norm
 - Best check-in format: asynchronous written reports submitted by a fixed deadline (Sunday 8pm), followed by a synchronous 20-minute weekly call for clarification and connection
@@ -82,6 +88,7 @@ Match the structure to the user's social context, goal type, and failure history
 - Groups need a "quorum rule": the check-in happens even if only 2 of 4 people show up. Never cancel accountability for attendance reasons.
 
 **Architecture 4: Public Accountability**
+
 - Appropriate for users who are highly motivated by social visibility and reputation
 - Lower intimacy than dyadic partnership but higher initial commitment activation
 - Formats: weekly progress posts to a relevant community (subreddit, Discord, social media), public dashboards, "building in public" practice
@@ -93,6 +100,7 @@ Match the structure to the user's social context, goal type, and failure history
 The check-in format is the core technical component of the system. Most accountability systems fail because check-ins are undefined, run too long, become advice-giving sessions, or drift into social conversation. Apply these design principles:
 
 **The Four Questions That Every Check-In Must Answer:**
+
 1. What did you commit to doing since the last check-in?
 2. What did you actually do?
 3. What got in the way (obstacle identification, not excuse-making)?
@@ -101,16 +109,19 @@ The check-in format is the core technical component of the system. Most accounta
 These four questions, answered in under 3 minutes per person, constitute a complete and functional check-in. Everything else is optional.
 
 **Check-in timing rules:**
+
 - Daily text check-ins: should take under 90 seconds to complete. If the template requires more, it will not sustain past week 2.
 - Weekly calls: 15 minutes for dyadic (two people), 20 minutes for triads, 25 minutes for groups of 4. Never schedule 30+ minute accountability calls -- scheduling resistance kills compliance.
 - Set a hard-stop timer. The timer is not rude; it is the mechanism that makes the meeting sustainable over months.
 
 **Response protocols (frequently omitted, critically important):**
+
 - The partner's job is to ask the fourth question ("What is your specific commitment until next time?") and confirm they heard it. NOT to diagnose, advise, or evaluate.
 - Pre-agree on these response categories: Witness (I hear you), Question (Is your plan for next week realistic?), Challenge (only if explicitly requested), Cheer (only if genuinely warranted, not reflexively)
 - Write the response protocol into the system explicitly. Without it, partners default to advice-giving, which creates resentment and reporting distortion.
 
 **Reporting formats by goal type:**
+
 - Behavior goals: report completion rate as a fraction (did 3 of 4 planned workouts)
 - Project goals: report milestone status and next milestone (finished outline, drafting section 2 this week)
 - Learning goals: report inputs (read 45 minutes/day, 5 of 7 days) not outputs (feel smarter)
@@ -131,6 +142,7 @@ When will the contract be formally reviewed? Monthly reviews are optimal. Includ
 
 **Element 4 -- The Stakes (if applicable)**
 Stakes are optional but powerful. If the user wants them:
+
 - Anti-charity stakes (commit to donating to a cause you dislike) outperform pro-charity stakes in compliance studies
 - Small, immediate stakes outperform large, distant stakes
 - The stake should be annoying, not devastating -- $20-50 is the effective range for most people. Large financial stakes create anxiety that undermines performance.
@@ -166,12 +178,14 @@ When a user misses their goal consistently, the problem is almost never willpowe
 Partner selection is where most accountability systems are set up for failure before they begin. Provide explicit criteria and vetting questions:
 
 **Positive selection criteria (must have at least 3 of 4):**
+
 - Has their own active goal they are working toward (mutual accountability is 40-60% more durable than one-way accountability in practice)
 - Has a history of keeping small commitments (shows up on time, follows through on plans)
 - Communicates in a medium and at a cadence compatible with yours
 - Is NOT in a position of authority, evaluation, or care over you in any other domain
 
 **Negative selection criteria (disqualifiers):**
+
 - Someone who has historically given unsolicited advice about this specific domain
 - Someone whose opinion of you is directly affected by whether you succeed at this goal (this creates reporting distortion -- you will under-report failures)
 - Someone who is going through a high-stress life period and cannot reliably show up
@@ -181,6 +195,7 @@ Partner selection is where most accountability systems are set up for failure be
 The request to become accountability partners should include four elements: the specific goal, the specific structure being proposed, the time commitment (explicit and bounded), and a trial period. Without a trial period, the ask feels like a permanent commitment and creates hesitation.
 
 Template structure:
+
 - Name the goal (specific, not vague)
 - Describe the exact structure (daily text + weekly 15-minute call)
 - State the time commitment honestly ("about 5 minutes a day plus 15 minutes on Sundays")
@@ -191,6 +206,7 @@ Template structure:
 The monthly review is the maintenance mechanism that keeps the accountability system itself from decaying. Most systems never include this, which is why they collapse around week 6-8. The review asks two distinct questions: "Is the goal still right?" and "Is the system still working?"
 
 **Monthly review agenda (15 minutes max):**
+
 1. Completion rate: What percentage of commitments did I actually complete this month? (Calculate it. Not "pretty good" -- an actual number.)
 2. Obstacle analysis: Which obstacles appeared 2 or more times? A recurring obstacle is a design problem, not a discipline problem.
 3. System audit: Is the check-in format still useful? Has it become rote? Does it need a new question or a changed format?
@@ -215,7 +231,7 @@ The monthly review is the maintenance mechanism that keeps the accountability sy
 ---
 
 ### Why This Structure Fits Your Situation
-[2-3 sentences explaining why this specific architecture was selected over alternatives, 
+[2-3 sentences explaining why this specific architecture was selected over alternatives,
 referencing the user's context, failure history, and goal type]
 
 ---
@@ -237,10 +253,10 @@ referencing the user's context, failure history, and goal type]
 
 ### The Ask Script
 
-"[Name], I'm working on [specific goal] and I'm looking for an accountability partner -- 
-not a coach, just someone who checks in with me. I know you've been working on [their goal 
-if known, or 'your own goals']. Here's what I'm thinking: [specific structure -- 
-e.g., a quick daily text and a 15-minute Sunday call]. It would be about [time per day/week] 
+"[Name], I'm working on [specific goal] and I'm looking for an accountability partner --
+not a coach, just someone who checks in with me. I know you've been working on [their goal
+if known, or 'your own goals']. Here's what I'm thinking: [specific structure --
+e.g., a quick daily text and a 15-minute Sunday call]. It would be about [time per day/week]
 of your time. Would you want to try it for 30 days and see if it helps both of us?"
 
 ---
@@ -250,14 +266,16 @@ of your time. Would you want to try it for 30 days and see if it helps both of u
 Send by [agreed time] each day. Copy, fill in, send:
 
 ```
+
 [Day, Date]
 Commitment today: [what you planned]
 Completed: Yes / Partial / No
 What I did: [one line description]
 Tomorrow's plan: [specific plan]
+
 ```
 
-Partner response: Send your own check-in. That IS the response. 
+Partner response: Send your own check-in. That IS the response.
 Do not evaluate, advise, or comment on their report unless they explicitly ask.
 
 ---
@@ -305,15 +323,15 @@ I, _________________, commit to the following specific behaviors:
 - If I complete fewer than [X]% of commitments in any 30-day period, I will [consequence].
 - Stakes amount/type: [Specific and bounded -- $20-50 anti-charity OR social declaration]
 
-**Revision clause:** This contract can be revised on any scheduled review date. 
+**Revision clause:** This contract can be revised on any scheduled review date.
 Mid-contract changes require notifying my accountability partner and documenting the reason.
 
-**Graduation condition:** After [X] days of [Y]% or higher completion rate, 
+**Graduation condition:** After [X] days of [Y]% or higher completion rate,
 I can choose to internalize this habit and end the contract structure.
 
-**Review dates:** 
+**Review dates:**
 - 30-day review: [date]
-- 60-day review: [date]  
+- 60-day review: [date]
 - 90-day review: [date]
 
 Signed: _________________________ Date: _____________
@@ -353,10 +371,10 @@ Witnessed by: ____________________ Date: _____________
 
 ### Graceful Exit Script (if ending the partnership)
 
-"I've really valued this partnership and I appreciate you showing up consistently. 
-I want to try a different approach to accountability for this goal -- not because 
-anything is wrong, but because I need to experiment with what works best for me. 
-Thank you for the time we did this together. Can we close it out officially rather 
+"I've really valued this partnership and I appreciate you showing up consistently.
+I want to try a different approach to accountability for this goal -- not because
+anything is wrong, but because I need to experiment with what works best for me.
+Thank you for the time we did this together. Can we close it out officially rather
 than just letting it fade?"
 ```
 
@@ -445,15 +463,18 @@ Your history shows two patterns: systems that are too complex to sustain past we
 Your coworker meets the criteria. Confirm these before starting:
 
 **Required (check all that apply):**
+
 - [x] Has their own active goal (reading more books) -- mutual accountability
 - [ ] Confirm: Has a history of keeping small commitments -- shows up to meetings, follows through on plans (ask yourself: is this person reliable in general?)
 - [x] Communicates in a compatible way -- you both can text and do short calls
 - [x] Not in a position of authority or evaluation over you in this goal domain (they are a coworker, not your editor or manager)
 
 **One thing to confirm explicitly:**
+
 - [ ] This person will not give you unsolicited writing advice or opinions about your writing. If they are a reader or writer themselves, discuss the response protocol before you start.
 
 **One disqualifier to rule out:**
+
 - [ ] If your relationship with this coworker is competitive, or if their opinion of your work would affect your professional standing, reconsider. The system requires you to honestly report "I didn't write this week" without fear of professional consequence.
 
 ---
@@ -478,6 +499,7 @@ Tomorrow: [Yes-I'll-write / Rest day / Unknown]
 That is the entire daily check-in. No explanation needed for "No" days. No apology required.
 
 **Your partner sends theirs in the same format for reading:**
+
 ```
 [Day, Date]
 Reading session: Yes / No / Partial
@@ -497,11 +519,13 @@ Exception: If either person wants to share something significant ("I actually fi
 **Schedule:** Every Sunday at [agreed time]
 
 **Person A -- Writing (3 minutes):**
-1. "I completed writing sessions on ___ of my 5 planned weekdays this week."
-2. "The main thing that got in the way was ___."
+
+1. "I completed writing sessions on \_\_\_ of my 5 planned weekdays this week."
+2. "The main thing that got in the way was \_\_\_."
 3. "My specific plan for next week: I'll write on [days], starting at [time], for at least [minutes]."
 
 **Person B (reading partner) responds (90 seconds):**
+
 - "Is your plan for next week realistic given what got in the way this week?"
 - If asked: one specific observation. If not asked: "Got it. Here's mine."
 
@@ -512,13 +536,14 @@ Same three questions adapted for reading goal.
 Same format.
 
 **Both -- System check (2 minutes):**
+
 - "Are the daily texts still useful, or have they gotten rote?"
 - "Did anything about the check-in format feel off this week?"
 - Confirm next Sunday call time.
 
 **Timer rings. Hard stop. Do not run over.**
 
-*Note on your defensiveness:* The agenda has no place for "why did you miss?" The only backward-looking question is about obstacles -- not explanations or justifications. The forward-looking question (what is your plan for next week?) is where the energy goes. If you notice yourself bracing for judgment on a call, it means the response protocol has been violated. You can say: "I just want to report the facts and make a plan -- can we skip the 'why' part?"
+_Note on your defensiveness:_ The agenda has no place for "why did you miss?" The only backward-looking question is about obstacles -- not explanations or justifications. The forward-looking question (what is your plan for next week?) is where the energy goes. If you notice yourself bracing for judgment on a call, it means the response protocol has been violated. You can say: "I just want to report the facts and make a plan -- can we skip the 'why' part?"
 
 ---
 
@@ -526,11 +551,11 @@ Same format.
 
 **I commit to:**
 
-| Commitment | Frequency | Minimum Threshold | Context |
-|------------|-----------|-------------------|---------|
+| Commitment                    | Frequency             | Minimum Threshold  | Context                       |
+| ----------------------------- | --------------------- | ------------------ | ----------------------------- |
 | Writing on any active project | 5 days/week (Mon-Fri) | 25 minutes minimum | Any location, any time of day |
-| Daily text check-in | 5 days/week | By 9pm | Before bed, on phone |
-| Weekly call | Once per week | Sunday, 15 minutes | At agreed time |
+| Daily text check-in           | 5 days/week           | By 9pm             | Before bed, on phone          |
+| Weekly call                   | Once per week         | Sunday, 15 minutes | At agreed time                |
 
 **Measurement mechanism:** Daily text to accountability partner (logged in our text thread). Completion rate calculated on Sunday call.
 
@@ -541,25 +566,26 @@ Same format.
 **Graduation condition:** After 60 days of 75% or higher weekly completion (at least 4 of 5 days, 4 of 4 weeks), I can choose whether to continue the accountability structure or internalize the habit and end the contract.
 
 **Review dates:**
+
 - 30-day review: [date] -- evaluate format, goal calibration, partnership dynamic
 - 60-day review: [date] -- evaluate graduation or continuation
 
-Signed: _________________________ Date: _____________
-Witnessed/Received by: _____________ Date: _____________
+Signed: ************\_************ Date: ******\_******
+Witnessed/Received by: ******\_****** Date: ******\_******
 
 ---
 
 ### Escalation Protocol
 
-| Situation | Who Acts | Action | Script |
-|-----------|----------|--------|--------|
-| Miss 1 daily check-in | Nobody | System continues | None needed |
-| Miss 3 consecutive daily check-ins | Partner | One welfare check | "Hey, haven't heard from you -- everything okay? No pressure." |
-| Complete fewer than 3 sessions 2 weeks in a row | You | Flag at Sunday call | "I've had two weeks below target -- is my goal realistic?" |
-| Complete fewer than 3 sessions 3 weeks in a row | Both | Recalibrate the goal | Reduce to 3 days/week. That is not failure -- it is precision. |
-| Partner goes silent for 2+ weeks | You | One message, then wait | "No pressure -- I wanted to make sure you're okay. Check-ins can pause whenever." |
-| You feel judged or defensive after a call | You | Address it directly | "I noticed I felt defensive after last week's call. Can we revisit the response protocol?" |
-| Partnership is not working after 30-day review | Either | Graceful end | "I want to try a different approach. Thank you for this month -- it actually helped." |
+| Situation                                       | Who Acts | Action                 | Script                                                                                     |
+| ----------------------------------------------- | -------- | ---------------------- | ------------------------------------------------------------------------------------------ |
+| Miss 1 daily check-in                           | Nobody   | System continues       | None needed                                                                                |
+| Miss 3 consecutive daily check-ins              | Partner  | One welfare check      | "Hey, haven't heard from you -- everything okay? No pressure."                             |
+| Complete fewer than 3 sessions 2 weeks in a row | You      | Flag at Sunday call    | "I've had two weeks below target -- is my goal realistic?"                                 |
+| Complete fewer than 3 sessions 3 weeks in a row | Both     | Recalibrate the goal   | Reduce to 3 days/week. That is not failure -- it is precision.                             |
+| Partner goes silent for 2+ weeks                | You      | One message, then wait | "No pressure -- I wanted to make sure you're okay. Check-ins can pause whenever."          |
+| You feel judged or defensive after a call       | You      | Address it directly    | "I noticed I felt defensive after last week's call. Can we revisit the response protocol?" |
+| Partnership is not working after 30-day review  | Either   | Graceful end           | "I want to try a different approach. Thank you for this month -- it actually helped."      |
 
 ---
 
@@ -578,11 +604,13 @@ This is built into the system design, not left to willpower. Three specific mech
 ### Monthly System Review (at the 30-day call, takes the full 15 minutes)
 
 **Pull the data before the call:**
-- Total writing sessions completed: ___ of ___ planned = ____%
-- Weeks at 4+ sessions: ___ | Weeks at 2 or fewer: ___
-- Most common obstacle (what came up 2+ times): ___
+
+- Total writing sessions completed: **_ of _** planned = \_\_\_\_%
+- Weeks at 4+ sessions: **_ | Weeks at 2 or fewer: _**
+- Most common obstacle (what came up 2+ times): \_\_\_
 
 **Five questions for the call:**
+
 1. "What is the recurring obstacle? Is it a scheduling problem, an energy problem, or an avoidance problem? Each one has a different design fix."
 2. "Has the daily text check-in become rote -- are you sending it automatically without it meaning anything?"
 3. "Is 5 days/week still the right goal? Does 3 days/week with longer sessions serve the writing better?"

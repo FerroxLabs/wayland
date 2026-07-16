@@ -12,14 +12,15 @@ description: >-
   needs a one-line answer rather than a structured multi-step build.
 license: Apache-2.0
 type: workflow
-skills: "ops-process-doc ops-sop ops-checklist"
+skills: 'ops-process-doc ops-sop ops-checklist'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-ops sop process documentation step-by-step
   category: Business Operations
-  depends: "ops-process-doc ops-sop ops-checklist"
+  depends: 'ops-process-doc ops-sop ops-checklist'
 ---
+
 # Build an SOP
 
 **Estimated time:** 20-30 minutes

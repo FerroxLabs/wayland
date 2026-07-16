@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cleaning guide cooking"
-  category: "home-household"
-  subcategory: "cleaning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cleaning guide cooking'
+  category: 'home-household'
+  subcategory: 'cleaning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Cleaning Products Guide
 
 ## When to Use
@@ -233,6 +234,7 @@ This is the most common source of permanent, expensive cleaning damage in reside
 **Correct approach:** pH-neutral cleaner only (pH 6-8). In practice, this means plain warm water with 1-2 drops of dish soap per quart, wiped with a microfiber cloth and dried immediately. Stone-specific cleaners are pH-formulated and stone-safe but not required if dish soap dilution is used correctly.
 
 **What never to use and the exact damage mechanism:**
+
 - Vinegar (pH 2.4): etches polished calcite crystals, creating permanent dull spots visible in raking light within minutes of contact
 - Lemon juice (pH 2-3): same mechanism as vinegar, slightly slower
 - Bathroom sprays with citric or phosphoric acid: same mechanism, often used accidentally because grout needs acid cleaning and the acid gets sprayed on adjacent stone
@@ -249,12 +251,14 @@ This is the most common source of permanent, expensive cleaning damage in reside
 Product selection changes substantially in these households. The priority order is: safety first, efficacy second.
 
 **Products to eliminate entirely:**
+
 - Aerosol sprays of any kind near children under 2 (inhalation of fine droplets)
 - Any cleaner containing phenol (often found in pine-scented or "hospital-grade" disinfectants) if cats are present -- phenols are hepatotoxic to cats
 - Products containing benzalkonium chloride near pet food and water bowls or pet bedding -- toxic to reptiles and amphibians, irritating to birds
 - Bleach used at full concentration anywhere with floor access by toddlers or pets -- always dilute to the 1/4 cup per gallon disinfecting concentration and rinse surfaces that will have skin contact
 
 **Safe alternatives that maintain hygiene:**
+
 - 3% hydrogen peroxide from a pharmacy is an effective disinfectant for food-contact surfaces, toilet seats, and high-touch areas when allowed to sit for 10 minutes. It breaks down to water and oxygen, leaving no toxic residue.
 - A 70% isopropyl alcohol solution disinfects hard non-porous surfaces quickly and evaporates without residue. Not for use near open flames or on rubber, acrylic, or some plastics.
 - Steam cleaning (with appropriate surface restrictions noted in Rule 7) kills pathogens without any chemical residue on sealed tile, grout, and toilet surfaces.
@@ -268,6 +272,7 @@ Hard water is defined as water containing more than 120 mg/L of dissolved calciu
 **Diagnosis:** If you see white, chalky, or slightly yellowish crusty deposits on faucets, showerheads, or glass, the problem is mineral scale, not soap scum. Soap scum is a whitish film that smears; mineral scale is hard and crunchy.
 
 **Treatment protocol by severity:**
+
 - **Light scale (less than 3 months of accumulation):** Spray undiluted white vinegar on the surface, let sit 15-30 minutes, scrub with a non-scratch sponge, rinse thoroughly. For faucet aerators, soak the aerator in a small bowl of undiluted white vinegar for 30-60 minutes.
 - **Moderate scale (3-12 months):** Commercial lime, calcium, and rust remover containing citric acid, hydrochloric acid, or sulfamic acid. Apply per label directions -- typically a 10-30 minute dwell. Use rubber gloves and ventilate. Do NOT use on chrome-plated fixtures without verifying compatibility -- some formulations pit chrome.
 - **Severe scale (12+ months, showerhead completely blocked):** Remove the showerhead, fully submerge in a bag or bowl of undiluted white vinegar or commercial descaler for 6-8 hours or overnight. Scrub with a stiff nylon brush. For glass shower doors with severe scale, a pumice stone (wet) can remove scale from glass -- glass is harder than pumice (glass is ~5.5 Mohs, pumice is ~5-5.5 Mohs) -- but test in a corner first.
@@ -283,10 +288,12 @@ Surface-level mold (black, green, or pink/orange spots on tile, grout, caulk, or
 **Size threshold for self-treatment:** EPA guidance indicates that areas smaller than 10 square feet (approximately a 3x3 foot patch) on non-porous surfaces are appropriate for homeowner remediation. Larger areas, or any mold on drywall, insulation, or wood framing, require professional assessment.
 
 **Surface mold treatment on non-porous surfaces (tile, glass, metal, sealed grout):**
+
 - Disinfecting bleach solution: 1 cup bleach per gallon of room-temperature water (yields approximately 5,000 ppm, effective for mold kill). Apply with a spray bottle, soak the surface, let sit for 10-15 minutes with the area ventilated (window open, exhaust fan running). Scrub with a stiff nylon brush. Rinse thoroughly.
 - Personal protection required: rubber gloves, eye protection, and an N95 or P100 respirator rated for mold spores. Paper dust masks do not filter mold spores.
 
 **Porous surface mold (unsealed grout, caulk, silicone, drywall):**
+
 - If mold has visibly penetrated grout that no longer responds to surface bleach treatment, the grout must be removed and replaced.
 - Silicone caulk with mold growing inside the bead (visible even after bleach treatment) cannot be cleaned -- the mold is embedded in the silicone matrix. Remove the caulk entirely, dry the joint for 24-48 hours, and apply fresh silicone caulk.
 - Painted drywall with mold growth: surface cleaning with bleach solution kills surface mold but does not address mold behind the paint or inside the drywall itself. If the drywall feels soft, or if mold returns within 2 weeks of treatment, the drywall section requires professional removal.
@@ -299,14 +306,14 @@ Users who want completely fragrance-free, low-chemical, or "natural" cleaning ap
 
 **Complete natural cleaning kit:**
 
-| Ingredient | pH | Function | Limitation |
-|-----------|-----|----------|------------|
-| White distilled vinegar (5% acidity) | ~2.4 | Acid cleaner, hard water, deodorizer, mild disinfectant | Cannot be used on stone, dulls polyurethane over time |
-| Baking soda (sodium bicarbonate) | ~8.3 | Mild abrasive, deodorizer, alkaline booster | Scratches soft surfaces; not a true disinfectant |
-| Castile soap (pure vegetable-based) | ~9-11 | Surfactant-based cleaning, grease removal | Can leave a white film when used with hard water; do not mix with vinegar (they neutralize each other) |
-| Hydrogen peroxide (3% from pharmacy) | ~6 | Disinfectant, mold inhibitor, grout brightener | Bleaches colored fabrics and some grout; breaks down rapidly in light -- store in opaque container |
-| Lemon juice | ~2-3 | Acid cleaner, degreaser, deodorizer | Same acid restrictions as vinegar; cannot be used on stone |
-| Borax (sodium tetraborate) | ~9.5 | Mold and mildew inhibitor, cleaning booster | Classified as a reproductive toxin in EU; toxic if ingested by pets or children -- handle with the same care as synthetic cleaners |
+| Ingredient                           | pH    | Function                                                | Limitation                                                                                                                         |
+| ------------------------------------ | ----- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| White distilled vinegar (5% acidity) | ~2.4  | Acid cleaner, hard water, deodorizer, mild disinfectant | Cannot be used on stone, dulls polyurethane over time                                                                              |
+| Baking soda (sodium bicarbonate)     | ~8.3  | Mild abrasive, deodorizer, alkaline booster             | Scratches soft surfaces; not a true disinfectant                                                                                   |
+| Castile soap (pure vegetable-based)  | ~9-11 | Surfactant-based cleaning, grease removal               | Can leave a white film when used with hard water; do not mix with vinegar (they neutralize each other)                             |
+| Hydrogen peroxide (3% from pharmacy) | ~6    | Disinfectant, mold inhibitor, grout brightener          | Bleaches colored fabrics and some grout; breaks down rapidly in light -- store in opaque container                                 |
+| Lemon juice                          | ~2-3  | Acid cleaner, degreaser, deodorizer                     | Same acid restrictions as vinegar; cannot be used on stone                                                                         |
+| Borax (sodium tetraborate)           | ~9.5  | Mold and mildew inhibitor, cleaning booster             | Classified as a reproductive toxin in EU; toxic if ingested by pets or children -- handle with the same care as synthetic cleaners |
 
 **Important clarification for the user:** "Natural" does not mean safe for all surfaces or all people. These ingredients are safer in terms of volatile organic compound (VOC) emissions and residue than many commercial cleaners, but they carry their own risks if misused. The user should be informed that essential oils sometimes added to DIY cleaners (tea tree, eucalyptus, lavender) are toxic to cats, can be skin sensitizers, and do not meaningfully enhance cleaning efficacy beyond their fragrance.
 
@@ -315,11 +322,13 @@ Users who want completely fragrance-free, low-chemical, or "natural" cleaning ap
 Users sometimes ask what to use on a surface that has already been treated with an unknown product, or they ask how to safely switch from one product to another.
 
 **Protocol for surfaces with unknown product residue:**
+
 - Rinse the surface thoroughly with clean water before applying any new product -- two to three rinses with a damp cloth, allowing the surface to dry between rinses
 - Wait at least 30 minutes before applying any chemically incompatible product (e.g., before using bleach on a surface that may have had an ammonia-based cleaner)
 - For drains or enclosed pipe spaces, the waiting time extends to 30-60 minutes of flushing with water before introducing a different chemistry
 
 **When a user says "nothing seems to work" on their surface:**
+
 - Verify they are addressing the correct soil type with the correct chemistry. The most common mismatch: using a surfactant cleaner on mineral scale (the soap lifts the dirt but does not dissolve the calcium), or using an acid cleaner on grease (acid does not emulsify fats -- an alkaline degreaser is needed)
 - Verify dwell time. A cleaner that contacts the surface for 10-15 seconds before wiping provides almost no chemical action. Increase to the full recommended dwell time.
 - Verify water temperature. Many cleaners work significantly better with warm or hot water than cold water, because higher temperatures increase the rate of chemical reactions and reduce the viscosity of grease.
@@ -342,31 +351,32 @@ Before anything else: if you have a cat, **avoid all pine-scented or phenol-base
 
 ### Surface-Product Matrix
 
-| Surface | Soil Type | Recommended Product (pH) | Active Ingredient | NEVER Use (and Why) | DIY Alternative | Dwell Time |
-|---------|-----------|--------------------------|------------------|---------------------|-----------------|------------|
-| **Granite countertops** | General grime, food residue | pH-neutral cleaner (pH 6-8); plain dish soap diluted in warm water | Surfactant | Vinegar, lemon juice, citric acid (pH 2-3 etches calcium carbonate in granite, creating permanent dull spots); bleach at full concentration (strips sealer); abrasive scrubs (scratches polished surface) | 1 tsp dish soap per 1 quart warm water. Wipe with microfiber cloth, buff immediately dry. Do not let water pool on surface. | Immediate -- wipe and dry promptly |
-| **Hardwood floors** | Dust, light grime, food spills | pH-neutral hardwood floor cleaner (pH 6-8); or plain warm water on a barely damp mop | Neutral surfactant | Vinegar (pH 2.4 dulls polyurethane finish with repeated use); steam mops (heat + pressurized moisture warps planks and delaminates finish); oil soaps (leave sticky residue that attracts dirt on polyurethane-finished floors); excessive water (soaking causes cupping and warping) | Warm water + 1 tsp dish soap per 1 gallon. Wring mop until barely damp -- no dripping. Dry within 2 minutes of mopping. | Immediate -- never let water sit |
-| **Stainless steel appliances** | Fingerprints, smudges, light grease | Stainless steel cleaner or plain white vinegar | Surfactant or mild acid | Bleach (causes pitting and corrosion of the chromium oxide layer, permanently damaging stainless); abrasive scrubs or steel wool (scratch the grain); hard water (mineral spots -- dry immediately after any wet cleaning) | Spray undiluted white vinegar, wipe WITH the grain using a clean microfiber cloth. Follow with a fingertip-sized amount of mineral oil on a cloth, buffed into the grain. This provides a fingerprint-resistant barrier for 1-2 weeks. | Wipe immediately, no dwell needed |
-| **Ceramic tile (shower walls and floor)** | Soap scum, mildew | Mildly acidic bathroom spray (pH 4-6) containing citric or lactic acid | Citric acid, surfactant | Abrasive scrubs on glazed ceramic tile (scratch the glaze permanently); bleach on white grout is acceptable but avoid colored grout (may bleach unevenly) | 1:1 white vinegar and water in a spray bottle. Spray onto tile, let sit 5-10 minutes, scrub with non-scratch nylon-bristle brush, rinse. | 5-10 minutes |
-| **White ceramic tile grout (shower)** | Soap scum, mildew, discoloration | Hydrogen peroxide (3%) used directly or as a paste with baking soda | Sodium hypochlorite or hydrogen peroxide | Wire brushes (gouge and widen grout lines); acid cleaners on cement-based grout over time (gradually dissolves binder -- use acid cleaners no more than monthly) | Baking soda + hydrogen peroxide paste: mix 3 tablespoons baking soda with enough 3% hydrogen peroxide to form a thick paste. Apply to grout lines with an old toothbrush. Let sit 15 minutes. Scrub in circular motion, rinse thoroughly. | 15 minutes |
-| **Glass shower doors** | Hard water scale, soap scum | Slightly acidic glass cleaner or undiluted white vinegar | Acetic acid | Abrasive scrubs (scratch glass surface over time); paper towels (leave lint streaks) | 1 cup white vinegar + 1 cup water in a spray bottle. Spray, let sit 5 minutes. Wipe with a microfiber cloth or crumpled newspaper. For hard water scale: apply undiluted vinegar, let sit 20-30 minutes, scrub with a non-scratch nylon pad. | 5 minutes (light soil); 20-30 minutes (mineral scale) |
+| Surface                                   | Soil Type                           | Recommended Product (pH)                                                             | Active Ingredient                        | NEVER Use (and Why)                                                                                                                                                                                                                                                                   | DIY Alternative                                                                                                                                                                                                                              | Dwell Time                                            |
+| ----------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Granite countertops**                   | General grime, food residue         | pH-neutral cleaner (pH 6-8); plain dish soap diluted in warm water                   | Surfactant                               | Vinegar, lemon juice, citric acid (pH 2-3 etches calcium carbonate in granite, creating permanent dull spots); bleach at full concentration (strips sealer); abrasive scrubs (scratches polished surface)                                                                             | 1 tsp dish soap per 1 quart warm water. Wipe with microfiber cloth, buff immediately dry. Do not let water pool on surface.                                                                                                                  | Immediate -- wipe and dry promptly                    |
+| **Hardwood floors**                       | Dust, light grime, food spills      | pH-neutral hardwood floor cleaner (pH 6-8); or plain warm water on a barely damp mop | Neutral surfactant                       | Vinegar (pH 2.4 dulls polyurethane finish with repeated use); steam mops (heat + pressurized moisture warps planks and delaminates finish); oil soaps (leave sticky residue that attracts dirt on polyurethane-finished floors); excessive water (soaking causes cupping and warping) | Warm water + 1 tsp dish soap per 1 gallon. Wring mop until barely damp -- no dripping. Dry within 2 minutes of mopping.                                                                                                                      | Immediate -- never let water sit                      |
+| **Stainless steel appliances**            | Fingerprints, smudges, light grease | Stainless steel cleaner or plain white vinegar                                       | Surfactant or mild acid                  | Bleach (causes pitting and corrosion of the chromium oxide layer, permanently damaging stainless); abrasive scrubs or steel wool (scratch the grain); hard water (mineral spots -- dry immediately after any wet cleaning)                                                            | Spray undiluted white vinegar, wipe WITH the grain using a clean microfiber cloth. Follow with a fingertip-sized amount of mineral oil on a cloth, buffed into the grain. This provides a fingerprint-resistant barrier for 1-2 weeks.       | Wipe immediately, no dwell needed                     |
+| **Ceramic tile (shower walls and floor)** | Soap scum, mildew                   | Mildly acidic bathroom spray (pH 4-6) containing citric or lactic acid               | Citric acid, surfactant                  | Abrasive scrubs on glazed ceramic tile (scratch the glaze permanently); bleach on white grout is acceptable but avoid colored grout (may bleach unevenly)                                                                                                                             | 1:1 white vinegar and water in a spray bottle. Spray onto tile, let sit 5-10 minutes, scrub with non-scratch nylon-bristle brush, rinse.                                                                                                     | 5-10 minutes                                          |
+| **White ceramic tile grout (shower)**     | Soap scum, mildew, discoloration    | Hydrogen peroxide (3%) used directly or as a paste with baking soda                  | Sodium hypochlorite or hydrogen peroxide | Wire brushes (gouge and widen grout lines); acid cleaners on cement-based grout over time (gradually dissolves binder -- use acid cleaners no more than monthly)                                                                                                                      | Baking soda + hydrogen peroxide paste: mix 3 tablespoons baking soda with enough 3% hydrogen peroxide to form a thick paste. Apply to grout lines with an old toothbrush. Let sit 15 minutes. Scrub in circular motion, rinse thoroughly.    | 15 minutes                                            |
+| **Glass shower doors**                    | Hard water scale, soap scum         | Slightly acidic glass cleaner or undiluted white vinegar                             | Acetic acid                              | Abrasive scrubs (scratch glass surface over time); paper towels (leave lint streaks)                                                                                                                                                                                                  | 1 cup white vinegar + 1 cup water in a spray bottle. Spray, let sit 5 minutes. Wipe with a microfiber cloth or crumpled newspaper. For hard water scale: apply undiluted vinegar, let sit 20-30 minutes, scrub with a non-scratch nylon pad. | 5 minutes (light soil); 20-30 minutes (mineral scale) |
 
 ---
 
 ### Essential Product List: 6 Products for Your Home
 
-| # | Product Type | Active Ingredient | Used For | Est. Cost |
-|---|-------------|------------------|----------|-----------|
-| 1 | Dish soap (plain, unscented) | Surfactant (sodium lauryl sulfate or similar) | Granite countertop cleaning (1 tsp per quart water), general surface wipe-downs, handwashing | $2-4 |
-| 2 | White distilled vinegar (gallon jug) | Acetic acid (~5%) | Stainless steel, glass, shower tile, glass shower doors, hard water deposits, light disinfecting | $3-5 |
-| 3 | Baking soda | Sodium bicarbonate | Mild scrubbing (sinks, tubs), deodorizing, grout cleaning paste | $2-3 |
-| 4 | Hydrogen peroxide, 3% (pharmacy) | H₂O₂ | Grout brightening, disinfecting food-prep surfaces and toilet, mold inhibition | $1-3 |
-| 5 | Mildly acidic bathroom cleaner (citric-acid based, fragrance-free) | Citric acid or lactic acid | Shower tile, tub surround, bathroom sink, faucets, hard water on fixtures | $4-7 |
-| 6 | Mineral oil (food-grade, pharmacy or grocery) | Mineral oil | Stainless steel buffing and protection, butcher block conditioning | $3-6 |
+| #   | Product Type                                                       | Active Ingredient                             | Used For                                                                                         | Est. Cost |
+| --- | ------------------------------------------------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------- |
+| 1   | Dish soap (plain, unscented)                                       | Surfactant (sodium lauryl sulfate or similar) | Granite countertop cleaning (1 tsp per quart water), general surface wipe-downs, handwashing     | $2-4      |
+| 2   | White distilled vinegar (gallon jug)                               | Acetic acid (~5%)                             | Stainless steel, glass, shower tile, glass shower doors, hard water deposits, light disinfecting | $3-5      |
+| 3   | Baking soda                                                        | Sodium bicarbonate                            | Mild scrubbing (sinks, tubs), deodorizing, grout cleaning paste                                  | $2-3      |
+| 4   | Hydrogen peroxide, 3% (pharmacy)                                   | H₂O₂                                          | Grout brightening, disinfecting food-prep surfaces and toilet, mold inhibition                   | $1-3      |
+| 5   | Mildly acidic bathroom cleaner (citric-acid based, fragrance-free) | Citric acid or lactic acid                    | Shower tile, tub surround, bathroom sink, faucets, hard water on fixtures                        | $4-7      |
+| 6   | Mineral oil (food-grade, pharmacy or grocery)                      | Mineral oil                                   | Stainless steel buffing and protection, butcher block conditioning                               | $3-6      |
 
 **Total estimated kit cost: $15-28**
 
 **Strongly recommended tools (not chemicals):**
+
 - Microfiber cloths, 6-pack ($8-12): Replace paper towels for most tasks. Machine washable, lint-free, and more effective at lifting grime than cotton rags. Dedicate separate colors to different areas (bathroom, kitchen, floors) to prevent cross-contamination.
 - Shower squeegee ($10-15): Use for 30 seconds after every shower on the glass doors. This single habit prevents 90% of hard water scale and soap scum accumulation on your glass doors.
 - Stiff nylon grout brush ($4-6): A standard sponge cannot generate enough mechanical force to clean grout lines. A dedicated stiff-bristle nylon brush prevents the need for harsh chemicals.
@@ -376,6 +386,7 @@ Before anything else: if you have a cat, **avoid all pine-scented or phenol-base
 ### DIY Cleaning Recipes
 
 #### All-Purpose Surface Spray (for non-stone surfaces)
+
 - **Ingredients:** 2 cups warm water + 2 tablespoons white vinegar + 1 teaspoon dish soap
 - **Mix:** Combine in a labeled spray bottle, cap, and invert gently 3-4 times. Do not shake vigorously (creates foam from the soap).
 - **Use on:** Laminate surfaces, appliance exteriors, painted surfaces, bathroom vanity, ceramic tile
@@ -384,6 +395,7 @@ Before anything else: if you have a cat, **avoid all pine-scented or phenol-base
 - **Dwell time:** 30-60 seconds for light soil, no rinse required.
 
 #### Glass and Stainless Cleaner
+
 - **Ingredients:** 1 cup white vinegar + 1 cup distilled water (distilled water reduces water spotting compared to tap water)
 - **Mix:** Combine in a labeled spray bottle.
 - **Use on:** Mirrors, glass shower doors, windows, stainless steel appliances (wipe with grain)
@@ -392,6 +404,7 @@ Before anything else: if you have a cat, **avoid all pine-scented or phenol-base
 - **Dwell time:** 2-5 minutes on light water spots; 20-30 minutes on heavy mineral scale.
 
 #### Grout Brightener Paste
+
 - **Ingredients:** 3 tablespoons baking soda + 3% hydrogen peroxide added gradually until a thick paste forms (approximately 2-3 tablespoons)
 - **Mix:** Combine in a small bowl, stir until uniform. Consistency should be like toothpaste -- not runny.
 - **Use on:** White or light-colored ceramic and porcelain tile grout; sink basins
@@ -400,6 +413,7 @@ Before anything else: if you have a cat, **avoid all pine-scented or phenol-base
 - **Dwell time:** 15 minutes. Scrub with nylon grout brush in short back-and-forth strokes along grout lines, not across them. Rinse thoroughly.
 
 #### Granite Safe Daily Spray
+
 - **Ingredients:** 1 quart warm water + 1 teaspoon unscented dish soap
 - **Mix:** Combine in a labeled spray bottle. This is essentially the diluted dish soap cleaning method in spray form.
 - **Use on:** Granite, marble, and other natural stone surfaces
@@ -411,12 +425,12 @@ Before anything else: if you have a cat, **avoid all pine-scented or phenol-base
 
 ### Preventive Measures and Sealing Recommendations
 
-| Surface | Treatment | Frequency | Test or Indicator |
-|---------|-----------|-----------|------------------|
-| Granite countertops | Penetrating (impregnating) stone sealer -- applied thin, wiped off after 20 minutes per label directions | Every 12 months | Water bead test: drop 5 drops of water on surface. If water absorbs in under 2 minutes, reseal immediately. Properly sealed granite holds beads for 5+ minutes. |
-| Tile grout (shower) | Penetrating grout sealer (not a topical coating) applied with a small foam brush along grout lines only | Every 12-18 months after thorough cleaning and complete drying (24 hours minimum) | Water dropped onto grout line should bead. If it soaks in within 30 seconds, the grout is unsealed and absorbing mold-promoting moisture. |
-| Glass shower doors | Hydrophobic coating (formulated for shower glass -- applied with a microfiber applicator, buffed clear) | Every 3-6 months | Water should sheet off in large drops rather than forming a thin film. When water stops sheeting, reapply. |
-| Stainless steel | Mineral oil buffed into grain with a microfiber cloth | Every 2-4 weeks or when fingerprinting becomes noticeable | Surface should repel fingerprints and light water spots. When it smudges easily, reapply. |
+| Surface             | Treatment                                                                                                | Frequency                                                                         | Test or Indicator                                                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Granite countertops | Penetrating (impregnating) stone sealer -- applied thin, wiped off after 20 minutes per label directions | Every 12 months                                                                   | Water bead test: drop 5 drops of water on surface. If water absorbs in under 2 minutes, reseal immediately. Properly sealed granite holds beads for 5+ minutes. |
+| Tile grout (shower) | Penetrating grout sealer (not a topical coating) applied with a small foam brush along grout lines only  | Every 12-18 months after thorough cleaning and complete drying (24 hours minimum) | Water dropped onto grout line should bead. If it soaks in within 30 seconds, the grout is unsealed and absorbing mold-promoting moisture.                       |
+| Glass shower doors  | Hydrophobic coating (formulated for shower glass -- applied with a microfiber applicator, buffed clear)  | Every 3-6 months                                                                  | Water should sheet off in large drops rather than forming a thin film. When water stops sheeting, reapply.                                                      |
+| Stainless steel     | Mineral oil buffed into grain with a microfiber cloth                                                    | Every 2-4 weeks or when fingerprinting becomes noticeable                         | Surface should repel fingerprints and light water spots. When it smudges easily, reapply.                                                                       |
 
 ---
 
@@ -424,21 +438,23 @@ Before anything else: if you have a cat, **avoid all pine-scented or phenol-base
 
 **EMERGENCY INSTRUCTION:** If you accidentally mix any of the combinations below and experience dizziness, burning in your throat or eyes, difficulty breathing, or nausea -- leave the area immediately, go to fresh air, and call Poison Control at **1-800-222-1222** (US) or your local emergency number. Do not go back into the room.
 
-| Combination | Chemical Produced | Body Effects | Risk Level |
-|------------|------------------|--------------|------------|
-| **Bleach + Ammonia** | Chloramine gas (NH₂Cl) | Burning throat and eyes, coughing, chest pain, pulmonary edema, potentially fatal in enclosed spaces | ⚠️ EXTREME -- Many glass cleaners contain ammonia. Never use a glass cleaner and bleach in the same bathroom session without ventilating fully between applications. |
-| **Bleach + Vinegar** | Chlorine gas (Cl₂) | Burning in eyes, throat, and lungs; coughing; difficulty breathing; chemical burns to airways | ⚠️ EXTREME -- This combination is especially dangerous in a shower or enclosed bathroom. Both products are common bathroom items. Never use sequentially without rinsing the surface with water and ventilating for at least 15 minutes between uses. |
-| **Bleach + Rubbing Alcohol** | Chloroform (CHCl₃) and chloroacetone | Dizziness, nausea, central nervous system depression, potential loss of consciousness | ⚠️ EXTREME -- Do not combine or use in sequence in the same session. |
-| **Bleach + Any Acid** (toilet bowl cleaner, lime remover, rust remover, some bathroom sprays) | Chlorine gas | Same as bleach + vinegar | ⚠️ EXTREME -- Many commercial toilet bowl cleaners are strongly acidic. If you use a bleach-based cleaner after an acid toilet bowl cleaner, flush the bowl with at least 2 gallons of water before introduction. |
-| **Hydrogen Peroxide + Vinegar** (combined in one container) | Peracetic acid | Skin irritation, eye irritation, potential chemical burns at concentration | ⚠️ HIGH -- Using them sequentially on a surface (spray vinegar, wipe, then spray hydrogen peroxide) is generally acceptable in household concentrations. Mixing them into a single bottle concentrates the reaction and is not recommended. |
-| **Two Different Drain Cleaners (any combination)** | Varies -- chlorine gas, extreme heat, pressurized steam | Burns, fumes, violent reaction in enclosed pipe | ⚠️ EXTREME -- If one drain product fails, flush the drain with at least 5 gallons of water over 10 minutes, wait 30 minutes, and call a plumber. Do not add a second product. |
+| Combination                                                                                   | Chemical Produced                                       | Body Effects                                                                                         | Risk Level                                                                                                                                                                                                                                            |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Bleach + Ammonia**                                                                          | Chloramine gas (NH₂Cl)                                  | Burning throat and eyes, coughing, chest pain, pulmonary edema, potentially fatal in enclosed spaces | ⚠️ EXTREME -- Many glass cleaners contain ammonia. Never use a glass cleaner and bleach in the same bathroom session without ventilating fully between applications.                                                                                  |
+| **Bleach + Vinegar**                                                                          | Chlorine gas (Cl₂)                                      | Burning in eyes, throat, and lungs; coughing; difficulty breathing; chemical burns to airways        | ⚠️ EXTREME -- This combination is especially dangerous in a shower or enclosed bathroom. Both products are common bathroom items. Never use sequentially without rinsing the surface with water and ventilating for at least 15 minutes between uses. |
+| **Bleach + Rubbing Alcohol**                                                                  | Chloroform (CHCl₃) and chloroacetone                    | Dizziness, nausea, central nervous system depression, potential loss of consciousness                | ⚠️ EXTREME -- Do not combine or use in sequence in the same session.                                                                                                                                                                                  |
+| **Bleach + Any Acid** (toilet bowl cleaner, lime remover, rust remover, some bathroom sprays) | Chlorine gas                                            | Same as bleach + vinegar                                                                             | ⚠️ EXTREME -- Many commercial toilet bowl cleaners are strongly acidic. If you use a bleach-based cleaner after an acid toilet bowl cleaner, flush the bowl with at least 2 gallons of water before introduction.                                     |
+| **Hydrogen Peroxide + Vinegar** (combined in one container)                                   | Peracetic acid                                          | Skin irritation, eye irritation, potential chemical burns at concentration                           | ⚠️ HIGH -- Using them sequentially on a surface (spray vinegar, wipe, then spray hydrogen peroxide) is generally acceptable in household concentrations. Mixing them into a single bottle concentrates the reaction and is not recommended.           |
+| **Two Different Drain Cleaners (any combination)**                                            | Varies -- chlorine gas, extreme heat, pressurized steam | Burns, fumes, violent reaction in enclosed pipe                                                      | ⚠️ EXTREME -- If one drain product fails, flush the drain with at least 5 gallons of water over 10 minutes, wait 30 minutes, and call a plumber. Do not add a second product.                                                                         |
 
 **Ventilation requirements:**
+
 - Bleach solution at any concentration: open at least one window and run exhaust fan throughout use and for 15 minutes after
 - Concentrated vinegar used for long dwell times (20+ minutes): open window, especially in a small enclosed shower
 - Commercial bathroom cleaners and lime removers: follow label ventilation guidance -- typically window open and door open during use
 
 **Storage rules:**
+
 - Store all cleaning products in original, labeled containers -- never transfer to unmarked bottles or food containers
 - Store on a high shelf or in a locked cabinet below eye level for adults, completely inaccessible to children and cats
 - Keep cleaning products stored separately from food: never on the same shelf as pantry items, pet food, or anything ingested

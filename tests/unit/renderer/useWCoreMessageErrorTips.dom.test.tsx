@@ -176,7 +176,9 @@ describe('useWCoreMessage — transient error tip clearing on finish (#101)', ()
       // The fatal provider error remains visible to the user, remapped to the
       // clean actionable tool-unsupported message instead of the raw provider 400.
       expect(
-        list.some((m) => m.type === 'tips' && m.content?.type === 'error' && m.content?.content === TOOL_UNSUPPORTED_MSG)
+        list.some(
+          (m) => m.type === 'tips' && m.content?.type === 'error' && m.content?.content === TOOL_UNSUPPORTED_MSG
+        )
       ).toBe(true);
     });
   });

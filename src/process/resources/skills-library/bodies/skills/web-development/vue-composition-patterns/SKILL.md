@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript frameworks frontend web-development"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript frameworks frontend web-development'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Vue Composition Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to organize logic in a Vue 3 component using `setup()`, `ref`, `reactive`, `computed`, or `watch`
 - User wants to extract and share stateful logic across components using composables
 - User asks about replacing Options API mixins with Composition API equivalents
@@ -32,6 +34,7 @@ metadata:
 - User asks about performance patterns -- lazy composables, `computed` memoization, avoiding reactive overhead
 
 **Do NOT use this skill when:**
+
 - User is working in Vue 2 without the `@vue/composition-api` plugin -- defer to Options API patterns
 - User asks about Vue Router configuration or Pinia store architecture -- those are separate skills with their own patterns
 - User needs help with Vue template syntax (directives, slots, scoped styles) rather than script logic
@@ -84,34 +87,34 @@ A composable is a function -- named with the `use` prefix by convention -- that 
 Data fetching is the most common async use case. Inconsistent patterns cause bugs and poor UX. Use this standard structure for every async composable.
 
 ```typescript
-import { ref, watch, readonly } from 'vue'
+import { ref, watch, readonly } from 'vue';
 
 export function useFetchUser(userId: Ref<string>) {
-  const data = ref<User | null>(null)
-  const error = ref<Error | null>(null)
-  const isLoading = ref(false)
+  const data = ref<User | null>(null);
+  const error = ref<Error | null>(null);
+  const isLoading = ref(false);
 
   async function fetchUser() {
-    isLoading.value = true
-    error.value = null
+    isLoading.value = true;
+    error.value = null;
     try {
-      data.value = await userService.getById(userId.value)
+      data.value = await userService.getById(userId.value);
     } catch (e) {
-      error.value = e instanceof Error ? e : new Error(String(e))
-      data.value = null
+      error.value = e instanceof Error ? e : new Error(String(e));
+      data.value = null;
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   }
 
-  watch(userId, fetchUser, { immediate: true })
+  watch(userId, fetchUser, { immediate: true });
 
   return {
     data: readonly(data),
     error: readonly(error),
     isLoading: readonly(isLoading),
     refetch: fetchUser,
-  }
+  };
 }
 ```
 
@@ -133,11 +136,11 @@ Every composable that registers event listeners, intervals, subscriptions, or ob
 - Use the `tryOnUnmounted` pattern from VueUse when writing utility composables that may be called outside component context -- wrap cleanup registration in a try/catch with `getCurrentInstance()` check.
 
 ```typescript
-import { onUnmounted, getCurrentInstance } from 'vue'
+import { onUnmounted, getCurrentInstance } from 'vue';
 
 function safeOnUnmounted(fn: () => void) {
   if (getCurrentInstance()) {
-    onUnmounted(fn)
+    onUnmounted(fn);
   }
   // else: called outside setup, skip automatic cleanup
 }
@@ -154,21 +157,26 @@ Props drilling beyond 2--3 levels is a sign to use `provide`/`inject`. Structure
 
 ```typescript
 // injectionKeys.ts
-import type { InjectionKey, Ref } from 'vue'
-export const ThemeKey: InjectionKey<Ref<'light' | 'dark'>> = Symbol('theme')
+import type { InjectionKey, Ref } from 'vue';
+export const ThemeKey: InjectionKey<Ref<'light' | 'dark'>> = Symbol('theme');
 
 // useProvideTheme.ts
 export function useProvideTheme() {
-  const theme = ref<'light' | 'dark'>('light')
-  provide(ThemeKey, readonly(theme))
-  return { theme, toggleTheme: () => { theme.value = theme.value === 'light' ? 'dark' : 'light' } }
+  const theme = ref<'light' | 'dark'>('light');
+  provide(ThemeKey, readonly(theme));
+  return {
+    theme,
+    toggleTheme: () => {
+      theme.value = theme.value === 'light' ? 'dark' : 'light';
+    },
+  };
 }
 
 // useTheme.ts
 export function useTheme() {
-  const theme = inject(ThemeKey)
-  if (!theme) throw new Error('useTheme must be used within a ThemeProvider component')
-  return theme
+  const theme = inject(ThemeKey);
+  if (!theme) throw new Error('useTheme must be used within a ThemeProvider component');
+  return theme;
 }
 ```
 
@@ -279,10 +287,10 @@ A common mistake is passing `props.userId` (a raw string) into a composable that
 **Handling:** Accept `MaybeRefOrGetter<T>` (Vue 3.3+ utility type) in composable signatures and use `toValue()` inside the composable to unwrap either format. This makes composables work with both `ref(id)` and `() => props.userId` getter forms, which is the VueUse convention.
 
 ```typescript
-import { toValue, type MaybeRefOrGetter } from 'vue'
+import { toValue, type MaybeRefOrGetter } from 'vue';
 
 export function useUser(id: MaybeRefOrGetter<string>) {
-  watch(() => toValue(id), fetchUser, { immediate: true })
+  watch(() => toValue(id), fetchUser, { immediate: true });
 }
 // Consumer can pass: useUser(props.userId) OR useUser(userIdRef) OR useUser(() => props.userId)
 ```
@@ -294,15 +302,15 @@ When a `watch` triggers multiple async fetches in rapid succession (e.g., user t
 **Handling:** Use an incrementing request ID. At the start of each fetch, capture the current ID. After `await`, check if the stored ID still matches. If not, discard the result. Alternatively, use `AbortController` to cancel in-flight requests when a new one starts.
 
 ```typescript
-let requestId = 0
+let requestId = 0;
 
 async function fetch() {
-  const thisId = ++requestId
-  isLoading.value = true
-  const result = await apiCall()
-  if (thisId !== requestId) return // stale response, discard
-  data.value = result
-  isLoading.value = false
+  const thisId = ++requestId;
+  isLoading.value = true;
+  const result = await apiCall();
+  if (thisId !== requestId) return; // stale response, discard
+  data.value = result;
+  isLoading.value = false;
 }
 ```
 
@@ -313,13 +321,18 @@ Composables that use `onMounted` or `onUnmounted` cannot be tested by calling th
 **Handling:** Wrap the composable in a test component using `@vue/test-utils` `mount()` with a minimal component:
 
 ```typescript
-import { mount } from '@vue/test-utils'
-import { useMyComposable } from './useMyComposable'
+import { mount } from '@vue/test-utils';
+import { useMyComposable } from './useMyComposable';
 
 function mountComposable() {
-  let result: ReturnType<typeof useMyComposable>
-  const wrapper = mount({ setup() { result = useMyComposable(); return () => null } })
-  return { result: result!, wrapper }
+  let result: ReturnType<typeof useMyComposable>;
+  const wrapper = mount({
+    setup() {
+      result = useMyComposable();
+      return () => null;
+    },
+  });
+  return { result: result!, wrapper };
 }
 ```
 
@@ -344,14 +357,17 @@ Assigning a class instance (e.g., a `Map`, a custom `EventEmitter`, or a chartin
 **Handling:** Use `markRaw()` to wrap third-party class instances before storing them in reactive state. Store configuration or derived values reactively; store the instance as raw.
 
 ```typescript
-import { ref, markRaw } from 'vue'
-import Chart from 'chart.js'
+import { ref, markRaw } from 'vue';
+import Chart from 'chart.js';
 
-const chartInstance = ref(markRaw(new Chart(canvas, config)))
+const chartInstance = ref(markRaw(new Chart(canvas, config)));
 // chartInstance.value is the Chart object, not proxied
 // Update reactive config separately:
-const chartData = ref(initialData)
-watch(chartData, (data) => { chartInstance.value.data = data; chartInstance.value.update() })
+const chartData = ref(initialData);
+watch(chartData, (data) => {
+  chartInstance.value.data = data;
+  chartInstance.value.update();
+});
 ```
 
 ---
@@ -377,11 +393,11 @@ This is a shared singleton state problem with an async data layer -- two compone
 ```typescript
 // src/types/user.ts
 export interface User {
-  id: string
-  name: string
-  email: string
-  role: 'admin' | 'editor' | 'viewer'
-  createdAt: string
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'editor' | 'viewer';
+  createdAt: string;
 }
 ```
 
@@ -391,26 +407,26 @@ export interface User {
 
 ```typescript
 // src/composables/useUserSelection.ts
-import { ref, readonly } from 'vue'
-import type { User } from '@/types/user'
+import { ref, readonly } from 'vue';
+import type { User } from '@/types/user';
 
 // Module-level state: shared across ALL components that call this composable
-const selectedUser = ref<User | null>(null)
+const selectedUser = ref<User | null>(null);
 
 export function useUserSelection() {
   function selectUser(user: User) {
-    selectedUser.value = user
+    selectedUser.value = user;
   }
 
   function clearSelection() {
-    selectedUser.value = null
+    selectedUser.value = null;
   }
 
   return {
     selectedUser: readonly(selectedUser), // consumers cannot mutate directly
     selectUser,
     clearSelection,
-  }
+  };
 }
 ```
 
@@ -422,31 +438,31 @@ export function useUserSelection() {
 
 ```typescript
 // src/composables/useUserList.ts
-import { ref, readonly } from 'vue'
-import type { User } from '@/types/user'
-import { userApi } from '@/api/userApi'
+import { ref, readonly } from 'vue';
+import type { User } from '@/types/user';
+import { userApi } from '@/api/userApi';
 
 // Module-level: all consumers share the same list and loading state
-const users = ref<User[]>([])
-const isLoading = ref(false)
-const error = ref<Error | null>(null)
-let requestId = 0
+const users = ref<User[]>([]);
+const isLoading = ref(false);
+const error = ref<Error | null>(null);
+let requestId = 0;
 
 async function fetchUsers() {
-  const thisId = ++requestId
-  isLoading.value = true
-  error.value = null
+  const thisId = ++requestId;
+  isLoading.value = true;
+  error.value = null;
 
   try {
-    const result = await userApi.getAll()
-    if (thisId !== requestId) return // discard stale response
-    users.value = result
+    const result = await userApi.getAll();
+    if (thisId !== requestId) return; // discard stale response
+    users.value = result;
   } catch (e) {
-    if (thisId !== requestId) return
-    error.value = e instanceof Error ? e : new Error(String(e))
+    if (thisId !== requestId) return;
+    error.value = e instanceof Error ? e : new Error(String(e));
   } finally {
     if (thisId === requestId) {
-      isLoading.value = false
+      isLoading.value = false;
     }
   }
 }
@@ -457,7 +473,7 @@ export function useUserList() {
     isLoading: readonly(isLoading),
     error: readonly(error),
     fetchUsers,
-  }
+  };
 }
 ```
 
@@ -468,14 +484,14 @@ export function useUserList() {
 ```vue
 <!-- src/components/UserTable.vue -->
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useUserList } from '@/composables/useUserList'
-import { useUserSelection } from '@/composables/useUserSelection'
+import { onMounted } from 'vue';
+import { useUserList } from '@/composables/useUserList';
+import { useUserSelection } from '@/composables/useUserSelection';
 
-const { users, isLoading, error, fetchUsers } = useUserList()
-const { selectedUser, selectUser } = useUserSelection()
+const { users, isLoading, error, fetchUsers } = useUserList();
+const { selectedUser, selectUser } = useUserSelection();
 
-onMounted(fetchUsers)
+onMounted(fetchUsers);
 </script>
 
 <template>
@@ -517,16 +533,16 @@ onMounted(fetchUsers)
 ```vue
 <!-- src/components/UserDetailPanel.vue -->
 <script setup lang="ts">
-import { useUserSelection } from '@/composables/useUserSelection'
-import { useUserList } from '@/composables/useUserList'
+import { useUserSelection } from '@/composables/useUserSelection';
+import { useUserList } from '@/composables/useUserList';
 
-const { selectedUser, clearSelection } = useUserSelection()
-const { fetchUsers } = useUserList()
+const { selectedUser, clearSelection } = useUserSelection();
+const { fetchUsers } = useUserList();
 
 async function handleRoleChange(newRole: string) {
-  if (!selectedUser.value) return
-  await userApi.updateRole(selectedUser.value.id, newRole)
-  await fetchUsers() // refresh the shared list
+  if (!selectedUser.value) return;
+  await userApi.updateRole(selectedUser.value.id, newRole);
+  await fetchUsers(); // refresh the shared list
   // selectedUser remains set to the same user reference
   // the table will reflect the updated data on next render
 }
@@ -555,13 +571,13 @@ async function handleRoleChange(newRole: string) {
 
 ### Trade-offs
 
-| Concern | Singleton Composable | Pinia Store |
-|---|---|---|
-| Setup complexity | Minimal -- just a `.ts` file | Requires Pinia install + store file |
-| DevTools support | Limited | Full time-travel debugging |
-| Server-side rendering | Safe if module reset on request | Requires SSR store instantiation |
-| Testability | Easy -- reset module state in test | Easy -- `createTestingPinia()` |
-| Scale | Good up to ~5 shared states | Better for 10+ interconnected states |
+| Concern               | Singleton Composable               | Pinia Store                          |
+| --------------------- | ---------------------------------- | ------------------------------------ |
+| Setup complexity      | Minimal -- just a `.ts` file       | Requires Pinia install + store file  |
+| DevTools support      | Limited                            | Full time-travel debugging           |
+| Server-side rendering | Safe if module reset on request    | Requires SSR store instantiation     |
+| Testability           | Easy -- reset module state in test | Easy -- `createTestingPinia()`       |
+| Scale                 | Good up to ~5 shared states        | Better for 10+ interconnected states |
 
 **Recommendation:** For 2--3 shared states like this user selection scenario, the singleton composable pattern is the right choice. Avoid introducing Pinia until you have 5+ stores or need DevTools time-travel debugging. The composable approach is simpler to understand, easier to co-locate with related components, and has no additional dependencies.
 
@@ -571,30 +587,30 @@ async function handleRoleChange(newRole: string) {
 
 ```typescript
 // src/composables/useUserSelection.test.ts
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('useUserSelection', () => {
   beforeEach(async () => {
     // Reset module-level state between tests by reimporting
-    vi.resetModules()
-  })
+    vi.resetModules();
+  });
 
   it('starts with no selection', async () => {
-    const { useUserSelection } = await import('./useUserSelection')
-    const { selectedUser } = useUserSelection()
-    expect(selectedUser.value).toBeNull()
-  })
+    const { useUserSelection } = await import('./useUserSelection');
+    const { selectedUser } = useUserSelection();
+    expect(selectedUser.value).toBeNull();
+  });
 
   it('shares state between two callers', async () => {
-    const { useUserSelection } = await import('./useUserSelection')
-    const caller1 = useUserSelection()
-    const caller2 = useUserSelection()
-    const mockUser = { id: '1', name: 'Alice', email: 'alice@example.com', role: 'admin', createdAt: '2024-01-01' }
+    const { useUserSelection } = await import('./useUserSelection');
+    const caller1 = useUserSelection();
+    const caller2 = useUserSelection();
+    const mockUser = { id: '1', name: 'Alice', email: 'alice@example.com', role: 'admin', createdAt: '2024-01-01' };
 
-    caller1.selectUser(mockUser)
-    expect(caller2.selectedUser.value?.id).toBe('1')
-  })
-})
+    caller1.selectUser(mockUser);
+    expect(caller2.selectedUser.value?.id).toBe('1');
+  });
+});
 ```
 
 Note `vi.resetModules()` in `beforeEach` -- this is essential for singleton composable tests. Without it, state leaks between tests because the module is cached.

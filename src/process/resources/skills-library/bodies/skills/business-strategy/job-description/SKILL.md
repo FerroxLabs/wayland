@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "template planning checklist report strategy"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'template planning checklist report strategy'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Job Description
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to write, create, draft, or update a job description, job posting, or JD for a specific role
 - The user needs to define a new position with responsibilities, requirements, and compensation structure for an open headcount
 - The user wants to convert an existing role description from a task list or org chart entry into a competency-based, hireable job posting
@@ -28,6 +30,7 @@ metadata:
 - The user is building a job architecture or leveling framework and needs consistent JD templates across a band
 
 **Do NOT use this skill when:**
+
 - The user wants to write a resume or CV for themselves or on behalf of a candidate -- use `resume-builder`
 - The user needs an interview guide, structured interview questions, or a scoring rubric for evaluating candidates -- use `interview-guide`
 - The user needs a formal offer letter or employment contract -- use `offer-letter`
@@ -60,12 +63,14 @@ Do not draft the JD before you have enough information. Attempt to extract the f
 Before writing, determine two parameters that govern every subsequent decision:
 
 **A. Role type classification** -- this shapes the vocabulary and structure:
+
 - **Individual contributor (IC):** Responsibilities are task and craft-focused ("Design and build," "Analyze and report," "Manage and maintain")
 - **Player-coach (manager who also does the work):** Split responsibilities between people leadership and direct contribution -- typically 40/60 or 60/40 depending on team maturity
 - **People manager:** Responsibilities focus on outcomes, team health, and cross-functional influence more than direct craft ("Build and develop a team," "Define the roadmap for," "Partner with")
 - **Executive:** Responsibilities are accountability areas, not tasks ("Own the commercial strategy," "Ensure the company's security posture scales with growth")
 
 **B. Leveling calibration** -- use this internal framework to set expectations:
+
 - **Entry:** Learning the craft, contributing to defined tasks, gaining exposure
 - **Mid:** Independent execution within a defined scope, handles ambiguity in familiar domains
 - **Senior:** Independent execution in novel situations, influences others, raises the floor of the team
@@ -85,6 +90,7 @@ The role summary is the single highest-ROI section of a job description. Researc
 - **Win condition:** What does outstanding performance look like at 6-12 months?
 
 Use second person ("You will...") unless the company's voice is third person. Avoid:
+
 - Corporate filler ("We are looking for a passionate, self-starter who thrives in a fast-paced environment")
 - Superlatives ("world-class," "best-in-class," "exceptional")
 - Culture-code words that signal exclusion ("hustle culture," "ninja," "rockstar," "guru," "wizard")
@@ -95,6 +101,7 @@ Good role summaries describe a real job with real stakes. If you cannot name the
 ### Step 4: Write 5-8 Responsibilities Using the AVR Method
 
 Each responsibility should follow the **Action-Value-Result (AVR)** structure:
+
 - **Action:** Begin with a present-tense action verb that matches the level (entry: "Support," "Contribute to," "Assist"; mid: "Develop," "Build," "Manage"; senior: "Design," "Own," "Lead"; executive: "Define," "Shape," "Ensure")
 - **Value:** Describe the domain or artifact being acted upon with enough specificity that the candidate understands the scope
 - **Result:** Where possible, describe the outcome or the standard of success ("...that supports 99.9% uptime targets" or "...enabling the sales team to reduce cycle time by 20%")
@@ -104,6 +111,7 @@ Each responsibility should follow the **Action-Value-Result (AVR)** structure:
 **Scope check:** If you need more than 8 responsibilities to describe the role, raise this with the user. Roles with 9+ distinct responsibility domains are typically two roles that have been combined, or an under-resourced team trying to fill multiple gaps with one hire. This conversation can save a company a 6-month bad hire.
 
 **Common verb banks by function:**
+
 - Engineering: Design, architect, build, implement, maintain, instrument, debug, optimize, migrate, review, document
 - Product: Define, prioritize, synthesize, communicate, coordinate, launch, analyze, iterate
 - Sales: Prospect, qualify, manage, close, forecast, develop, negotiate, expand, build
@@ -117,6 +125,7 @@ Each responsibility should follow the **Action-Value-Result (AVR)** structure:
 The most common JD mistake is conflating requirements (what you actually need) with preferences (what would be nice), and expressing both as years-of-experience proxies that do not predict performance.
 
 **Must-have requirements (target 4-6 items):** Apply the "Day One Rejection Test" to every item -- "If a candidate had every other quality we wanted but lacked this, would we reject them?" If the answer is no, move it to nice-to-have. Common categories for must-haves:
+
 - **Demonstrated capability:** "You have designed and shipped backend APIs that handle concurrent users at scale" not "5+ years of backend engineering"
 - **Domain knowledge:** "You understand double-entry bookkeeping and can reconcile a balance sheet" not "accounting degree required"
 - **Behavioral competency:** "You have managed competing priorities in an ambiguous, fast-moving environment and can show your process for doing so" -- useful for roles where judgment and adaptability are differentiating factors
@@ -125,6 +134,7 @@ The most common JD mistake is conflating requirements (what you actually need) w
 **Nice-to-have requirements (target 3-5 items):** These describe the best version of a candidate, not the minimum viable version. Useful framing: "A candidate who brings these skills will accelerate their impact and require less ramp time."
 
 **What to explicitly exclude:**
+
 - Degree requirements unless legally required or the role genuinely cannot be done without that credential -- removing degree requirements increases applicant pool diversity by 10-30% in most functions
 - Exact year counts ("3-5 years of...") -- these are arbitrary proxies for seniority that correlate poorly with performance and may create age discrimination exposure
 - Tool-specific lists ("Must know Jira, Confluence, Slack, Notion, and Asana") -- tool fluency is learned in days; include only tools where deep expertise is a genuine differentiator
@@ -133,6 +143,7 @@ The most common JD mistake is conflating requirements (what you actually need) w
 ### Step 6: Structure Compensation and Benefits Transparently
 
 **Compensation structure guidance:**
+
 - Express salary ranges as annual figures for full-time roles, hourly or daily rates for contract roles
 - The range should represent the realistic hiring range -- not a floor-to-ceiling span of $80K. Best practice is a range width of 15-25% of the midpoint (e.g., $120K-$150K for a $135K midpoint, not $100K-$200K)
 - If equity is included, describe the structure: "Stock options" vs. "RSUs," vesting schedule (4-year with 1-year cliff is standard), and whether the grant is a fixed number or a percentage of total shares outstanding
@@ -140,6 +151,7 @@ The most common JD mistake is conflating requirements (what you actually need) w
 - For contract roles: specify if the rate is corp-to-corp (C2C), W-2, or 1099, as the take-home varies significantly and candidates self-select based on tax implications
 
 **Benefits highlights (choose 3-5 that are genuinely differentiating):**
+
 - Do not list "competitive salary" as a benefit -- it is the salary, not a benefit
 - Do not list legally required benefits (Social Security matching, workers' comp) as perks
 - Differentiating benefits worth naming: employer-paid health premium percentage, 401(k) match percentage and vesting schedule, equity participation, parental leave weeks (not just "generous leave"), home office stipend amount, L&D budget amount, unlimited PTO with a floor, sabbatical policy
@@ -386,6 +398,7 @@ You will own the product strategy and execution for our analytics product -- the
 ### What We Are Looking For
 
 **You must bring:**
+
 - Demonstrated experience owning a B2B SaaS product end-to-end -- from discovery and prioritization through shipping and measuring outcomes. You have made difficult trade-off calls and can articulate how you made them.
 - The ability to work closely with data and analytics domains -- you do not need to be a data engineer, but you understand how data pipelines work, why data quality matters, and what it means to design an analytics UX that builds trust with business users.
 - Strong cross-functional influence. You have worked alongside sales, customer success, and enterprise customers, and you know how to navigate competing inputs without losing sight of the product strategy.
@@ -393,6 +406,7 @@ You will own the product strategy and execution for our analytics product -- the
 - The ability to write clearly and reason publicly. At our size, good written communication is how decisions get made asynchronously -- you can write a one-pager, a PRD, or a stakeholder update that people actually read and trust.
 
 **You will stand out if you also bring:**
+
 - Experience building analytics, reporting, or data visualization features -- you have thought deeply about how business users consume and act on data
 - Familiarity with enterprise SaaS sales cycles, including how product roadmap conversations factor into procurement decisions
 - Background working with a data or BI team on instrumentation strategy -- you know what good product analytics infrastructure looks like from the inside

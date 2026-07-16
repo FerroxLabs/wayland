@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "social-media marketing strategy planning"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'social-media marketing strategy planning'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Social Media Strategist
 
 ## When to Use
-
 
 ## Process
 
@@ -32,13 +31,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on social media strategist
 - User asks about social media strategist best practices or techniques
 - User wants a structured approach to social media strategist
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of social media strategist
+
 ## Questions to Ask the User First
 
 1. **What is your business/brand?** (Product, service, personal brand)
@@ -51,10 +53,13 @@ metadata:
 8. **What is your brand voice/personality?** (Professional, casual, funny, authoritative)
 9. **Who are 3-5 accounts in your space that you admire?**
 10. **What content has performed well for you in the past?**
+
 ---
+
 ## Step 1: Platform Selection
 
 ### Platform Selection Matrix
+
 ```
 PLATFORM SELECTION: WHERE IS YOUR AUDIENCE?
 
@@ -76,6 +81,7 @@ RECOMMENDATION:
 ```
 
 ### Platform-Audience Fit Guide
+
 ```
 QUICK PLATFORM GUIDE:
 
@@ -109,10 +115,13 @@ Local business:
   SECONDARY: Instagram
   WHY: Local discovery, reviews, community
 ```
+
 ---
+
 ## Step 2: Platform-Specific Content Strategy
 
 ### LinkedIn Strategy
+
 ```
 LINKEDIN CONTENT STRATEGY
 
@@ -147,6 +156,7 @@ ENGAGEMENT RULE: Spend 15 min engaging with others BEFORE and AFTER posting
 ```
 
 ### Twitter/X Strategy
+
 ```
 TWITTER/X CONTENT STRATEGY
 
@@ -180,6 +190,7 @@ ENGAGEMENT RULE: Reply to every reply on your tweets within 1 hour
 ```
 
 ### Instagram Strategy
+
 ```
 INSTAGRAM CONTENT STRATEGY
 
@@ -218,6 +229,7 @@ BEST TIMES: Mon-Fri, 11 AM-1 PM; evenings 7-9 PM
 ```
 
 ### TikTok Strategy
+
 ```
 TIKTOK CONTENT STRATEGY
 
@@ -251,6 +263,7 @@ BEST TIMES: Check your analytics (varies significantly)
 ```
 
 ### Facebook Strategy
+
 ```
 FACEBOOK CONTENT STRATEGY
 
@@ -281,8 +294,11 @@ FACEBOOK GROUPS STRATEGY:
 POSTING CADENCE: 3-5x/week
 BEST TIMES: Wed-Fri, 1-4 PM
 ```
+
 ---
+
 ## Step 3: Hashtag Strategy
+
 ```
 HASHTAG STRATEGY
 
@@ -312,8 +328,11 @@ BRANDED HASHTAG CREATION:
   Community hashtag: #{{CommunityName}}
   UGC hashtag: #{{UGCPrompt}}
 ```
+
 ---
+
 ## Step 4: Engagement Tactics
+
 ```
 ENGAGEMENT PLAYBOOK
 DAILY ENGAGEMENT ROUTINE (30-60 min):
@@ -354,8 +373,11 @@ TikTok:
   - Go live regularly to build rapport
   - Respond to every comment on new videos (first 1-2 hours)
 ```
+
 ---
+
 ## Step 5: Influencer Collaboration
+
 ```
 INFLUENCER COLLABORATION FRAMEWORK
 INFLUENCER TIERS:
@@ -405,8 +427,11 @@ MEASUREMENT:
   Attribution: Unique discount codes, UTM links, landing pages
   ROI = (Revenue from campaign - Campaign cost) / Campaign cost
 ```
+
 ---
+
 ## Step 6: Community Management
+
 ```
 COMMUNITY MANAGEMENT PLAYBOOK
 
@@ -433,8 +458,11 @@ COMMUNITY BUILDING TACTICS:
   6. Create rituals (weekly threads, monthly challenges)
   7. Empower super-fans as community moderators
 ```
+
 ---
+
 ## Step 7: Crisis Communication
+
 ```
 SOCIAL MEDIA CRISIS COMMUNICATION PLAN
 
@@ -472,8 +500,11 @@ CRISIS RESPONSE RULES:
 - Do take conversations to DM/email for resolution
 - Do document everything for post-crisis review
 ```
+
 ---
+
 ## Step 8: Analytics & KPIs
+
 ```
 SOCIAL MEDIA KPI DASHBOARD
 
@@ -516,7 +547,9 @@ REPORTING CADENCE:
   Monthly: Full platform review, strategy adjustments
   Quarterly: Deep dive, strategy overhaul if needed
 ```
+
 ---
+
 ## Output Checklist
 
 - [ ] Platform selection is justified by audience data
@@ -530,7 +563,6 @@ REPORTING CADENCE:
 - [ ] KPIs are defined and tracking is set up
 - [ ] Strategy is reviewed monthly and adapted based on data
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -543,13 +575,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with social media strategist for a mid-size project."
 
 **Output:** A complete social media strategist framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

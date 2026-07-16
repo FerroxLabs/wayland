@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "substack-writer content-calendar newsletter-growth-hacker content-monetizer"
+skills: 'substack-writer content-calendar newsletter-growth-hacker content-monetizer'
 trigger_phrases: >-
   I want to start a newsletter grow my newsletter to 1000 subscribers help me
   launch an email newsletter newsletter growth strategy build an email list how
@@ -25,8 +25,9 @@ metadata:
     newsletter email email-marketing content-marketing writing step-by-step
     planning
   category: creative-project
-  depends: "substack-writer content-calendar newsletter-growth-hacker content-monetizer"
+  depends: 'substack-writer content-calendar newsletter-growth-hacker content-monetizer'
 ---
+
 # Newsletter To 1000 Subscribers
 
 **Estimated time:** 3-6 months
@@ -158,6 +159,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -168,7 +170,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Writing for everyone:** A newsletter for "anyone interested in technology" will attract no one. Narrow your niche until it feels uncomfortably specific.
 - **Ignoring promotion:** Great writing without distribution is a journal. Spend 50% of your effort on promotion, especially in the first 6 months.
 - **Inconsistent schedule:** Missing issues causes subscribers to lose interest. Publish on the same day at the same time every week.
-
 
 ### Timeline Considerations
 

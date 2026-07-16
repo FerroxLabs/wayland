@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "youtube-creator video-producer video-editor-guide content-monetizer community-builder personal-brand-architect"
+skills: 'youtube-creator video-producer video-editor-guide content-monetizer community-builder personal-brand-architect'
 trigger_phrases: >-
   I want to start a YouTube channel help me launch on YouTube how to grow a
   YouTube channel YouTube content strategy become a YouTuber start creating
@@ -24,8 +24,9 @@ metadata:
     youtube video-production content-marketing social-media step-by-step
     planning
   category: creative-project
-  depends: "youtube-creator video-producer video-editor-guide content-monetizer community-builder personal-brand-architect"
+  depends: 'youtube-creator video-producer video-editor-guide content-monetizer community-builder personal-brand-architect'
 ---
+
 # Launch Youtube Channel
 
 **Estimated time:** 4-8 weeks
@@ -165,6 +166,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

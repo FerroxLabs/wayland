@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events planning"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events planning'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Family Meeting Facilitator
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about family meeting facilitator
 - User needs guidance on family meeting facilitator topics
 - User wants a structured approach to family meeting facilitator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 

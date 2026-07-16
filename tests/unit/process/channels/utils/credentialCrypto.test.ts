@@ -31,7 +31,9 @@ const { mockSecrets } = vi.hoisted(() => {
     mockSecrets: {
       CIPHER_PREFIX,
       isEncryptionAvailable: vi.fn(() => true),
-      encryptString: vi.fn((plaintext: string) => `${CIPHER_PREFIX}${Buffer.from(plaintext, 'utf-8').toString('base64')}`),
+      encryptString: vi.fn(
+        (plaintext: string) => `${CIPHER_PREFIX}${Buffer.from(plaintext, 'utf-8').toString('base64')}`
+      ),
       decryptString: vi.fn((encoded: string) => {
         if (!encoded.startsWith(CIPHER_PREFIX)) {
           throw new Error(`Refusing to decrypt value without "${CIPHER_PREFIX}" prefix.`);

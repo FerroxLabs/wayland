@@ -59,7 +59,7 @@ export type GoogleChatEvent = {
  */
 export function googleChatEventToUnified(
   event: GoogleChatEvent,
-  pluginInstanceId: string,
+  pluginInstanceId: string
 ): IUnifiedIncomingMessage | null {
   const eventType = (event.type ?? event.eventType ?? '').toUpperCase();
 
@@ -132,7 +132,7 @@ export type GoogleChatMessageBody = {
 
 export function toGoogleChatMessageBody(
   message: IUnifiedOutgoingMessage,
-  options?: ToGoogleChatMessageBodyOptions,
+  options?: ToGoogleChatMessageBodyOptions
 ): GoogleChatMessageBody {
   const text = message.text ?? '';
   const threadName = options?.threadName?.trim();
@@ -151,10 +151,7 @@ export function toGoogleChatMessageBody(
  * Returns null if no thread context can be inferred (caller should omit
  * `thread` and let the message be top-level).
  */
-export function deriveThreadName(
-  chatId: string,
-  replyToMessageId?: string,
-): string | null {
+export function deriveThreadName(chatId: string, replyToMessageId?: string): string | null {
   // Case 1: caller passed an explicit reply target.
   if (replyToMessageId) {
     const m = replyToMessageId.match(/^(spaces\/[^/]+\/threads\/[^/]+)/);

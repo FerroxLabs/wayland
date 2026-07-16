@@ -13,13 +13,13 @@
   postMessage works across origins (that's the whole point of the API), so
   the parent test can observe results.
 -->
-<html lang='en'>
+<html lang="en">
   <head>
-    <meta charset='utf-8' />
+    <meta charset="utf-8" />
     <title>redteam extension probe</title>
   </head>
   <body>
-    <div id='out'>red-team probe loaded</div>
+    <div id="out">red-team probe loaded</div>
     <script>
       // Helper: report result back to the parent (postMessage is allowed
       // across origins even with sandbox='allow-scripts').

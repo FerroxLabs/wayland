@@ -35,4 +35,3 @@ can actually read.
 
 No account, no API key, no telemetry. The server runs locally via `uvx` and
 processes files from disk or remote URIs.
-

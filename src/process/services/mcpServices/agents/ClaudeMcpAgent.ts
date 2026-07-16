@@ -243,10 +243,14 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
         for (const scope of scopes) {
           for (const candidateName of candidateNames) {
             try {
-              const result = await safeExecFile('claude', ['mcp', 'remove', '-s', scope, cliSafeMcpServerName(candidateName)], {
-                timeout: 5000,
-                ...getExecEnv(),
-              });
+              const result = await safeExecFile(
+                'claude',
+                ['mcp', 'remove', '-s', scope, cliSafeMcpServerName(candidateName)],
+                {
+                  timeout: 5000,
+                  ...getExecEnv(),
+                }
+              );
 
               if (result.stdout && result.stdout.includes('removed')) {
                 console.log(`[ClaudeMcpAgent] Removed MCP server from ${scope} scope: ${candidateName}`);

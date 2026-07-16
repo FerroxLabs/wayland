@@ -277,9 +277,7 @@ const ProjectSettingsDrawer: React.FC<{
           // Rules are drafted from the project's intent: feed the current
           // instructions and decisions so the rules stay consistent with them.
           relatedKnowledge={
-            wizard === 'rules'
-              ? [contextBody.trim(), decisionsBody.trim()].filter(Boolean).join('\n\n')
-              : undefined
+            wizard === 'rules' ? [contextBody.trim(), decisionsBody.trim()].filter(Boolean).join('\n\n') : undefined
           }
           onClose={() => setWizard(null)}
           onAccept={(draft) => acceptDraft(wizard, draft)}

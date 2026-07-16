@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "documentation best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'documentation best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Technical Documentation
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is designing or redesigning a documentation system for a software project and needs to choose between documentation approaches (README-only, wiki, docs-as-code, portal, in-code)
 - A user is writing or reviewing specific documentation artifacts -- API references, READMEs, architecture decision records, runbooks, onboarding guides, or changelogs
 - A user wants to establish documentation standards, templates, or contribution workflows for a team
@@ -30,6 +32,7 @@ metadata:
 - A user needs to write or update an OpenAPI/Swagger specification and wants to produce human-readable API documentation from it
 
 **Do NOT use this skill when:**
+
 - The user needs help writing API integration code from existing documentation -- this is an API integration skill
 - The user is asking how to set up a static site host (Netlify, Vercel, GitHub Pages) generically -- check the deployment skills subcategory
 - The user needs help with content marketing or product documentation for non-technical audiences -- this is a content strategy problem, not technical documentation
@@ -183,15 +186,15 @@ When providing documentation guidance, use this structured output format:
 
 ## Documentation Architecture Map
 
-| Document | Type | Audience | Owner | Review Cadence | Status |
-|----------|------|----------|-------|----------------|--------|
-| README.md | Reference + Entry point | All | Team lead | Per release | [exists/needed/update] |
-| CHANGELOG.md | Reference | Users + devs | Release owner | Per release | [exists/needed/update] |
-| docs/getting-started.md | Tutorial | New users | DX team | Quarterly | [exists/needed/update] |
-| docs/api-reference/ | Reference | API consumers | API owners | Per release | [exists/needed/update] |
-| docs/decisions/ | Explanation (ADRs) | Team | Architect | Per decision | [exists/needed/update] |
-| docs/runbooks/ | How-to | Operations | SRE team | Per incident | [exists/needed/update] |
-| CONTRIBUTING.md | How-to | Contributors | Team lead | Per process change | [exists/needed/update] |
+| Document                | Type                    | Audience      | Owner         | Review Cadence     | Status                 |
+| ----------------------- | ----------------------- | ------------- | ------------- | ------------------ | ---------------------- |
+| README.md               | Reference + Entry point | All           | Team lead     | Per release        | [exists/needed/update] |
+| CHANGELOG.md            | Reference               | Users + devs  | Release owner | Per release        | [exists/needed/update] |
+| docs/getting-started.md | Tutorial                | New users     | DX team       | Quarterly          | [exists/needed/update] |
+| docs/api-reference/     | Reference               | API consumers | API owners    | Per release        | [exists/needed/update] |
+| docs/decisions/         | Explanation (ADRs)      | Team          | Architect     | Per decision       | [exists/needed/update] |
+| docs/runbooks/          | How-to                  | Operations    | SRE team      | Per incident       | [exists/needed/update] |
+| CONTRIBUTING.md         | How-to                  | Contributors  | Team lead     | Per process change | [exists/needed/update] |
 
 ---
 
@@ -209,6 +212,7 @@ When providing documentation guidance, use this structured output format:
 ## Priority Improvements (Ordered by Impact)
 
 ### 1. [Highest priority gap]
+
 **Problem:** [specific deficiency]
 **Solution:** [concrete action]
 **Effort:** [small / medium / large]
@@ -216,17 +220,18 @@ When providing documentation guidance, use this structured output format:
 [Paste actual template or example content here]
 
 ### 2. [Second priority gap]
+
 ...
 
 ---
 
 ## Implementation Plan
 
-| Week | Deliverable | Owner | Definition of Done |
-|------|-------------|-------|-------------------|
-| 1 | [specific document or tooling task] | [role] | [testable completion criterion] |
-| 2 | [specific document or tooling task] | [role] | [testable completion criterion] |
-| 3 | [specific document or tooling task] | [role] | [testable completion criterion] |
+| Week | Deliverable                         | Owner  | Definition of Done              |
+| ---- | ----------------------------------- | ------ | ------------------------------- |
+| 1    | [specific document or tooling task] | [role] | [testable completion criterion] |
+| 2    | [specific document or tooling task] | [role] | [testable completion criterion] |
+| 3    | [specific document or tooling task] | [role] | [testable completion criterion] |
 
 ---
 
@@ -311,17 +316,17 @@ External contributors will not read or follow documentation standards they canno
 
 ## Documentation Architecture Map
 
-| Document | Type | Audience | Owner | Review Cadence | Status |
-|----------|------|----------|-------|----------------|--------|
-| README.md | Reference + Entry point | All internal devs | Tech lead | Per release | Update required |
-| CHANGELOG.md | Reference | All internal devs | Release owner | Per release | Create |
-| docs/getting-started.md | Tutorial | New SDK users | DX-focused engineer | Quarterly | Create |
-| docs/authentication.md | How-to + Reference | All users | Security team | Per auth change | Create |
-| docs/api-reference/ | Reference | All users | SDK owners | Per release | Create (generate from docstrings) |
-| docs/error-reference.md | Reference | All users | SDK owners | Per release | Create |
-| docs/decisions/ | Explanation (ADRs) | SDK team | Architect | Per major decision | Create |
-| CONTRIBUTING.md | How-to | SDK team + contributors | Tech lead | Per process change | Create |
-| docs/migration/ | How-to | All users | Release owner | Per major version | Create at v2.0 |
+| Document                | Type                    | Audience                | Owner               | Review Cadence     | Status                            |
+| ----------------------- | ----------------------- | ----------------------- | ------------------- | ------------------ | --------------------------------- |
+| README.md               | Reference + Entry point | All internal devs       | Tech lead           | Per release        | Update required                   |
+| CHANGELOG.md            | Reference               | All internal devs       | Release owner       | Per release        | Create                            |
+| docs/getting-started.md | Tutorial                | New SDK users           | DX-focused engineer | Quarterly          | Create                            |
+| docs/authentication.md  | How-to + Reference      | All users               | Security team       | Per auth change    | Create                            |
+| docs/api-reference/     | Reference               | All users               | SDK owners          | Per release        | Create (generate from docstrings) |
+| docs/error-reference.md | Reference               | All users               | SDK owners          | Per release        | Create                            |
+| docs/decisions/         | Explanation (ADRs)      | SDK team                | Architect           | Per major decision | Create                            |
+| CONTRIBUTING.md         | How-to                  | SDK team + contributors | Tech lead           | Per process change | Create                            |
+| docs/migration/         | How-to                  | All users               | Release owner       | Per major version  | Create at v2.0                    |
 
 ---
 
@@ -417,14 +422,15 @@ def create_user(
 
 **Tutorial template:**
 
-```markdown
+````markdown
 # Getting Started with the Platform SDK
 
-This tutorial walks you through installing the SDK, authenticating, 
-and making your first API calls. By the end, you will have created 
+This tutorial walks you through installing the SDK, authenticating,
+and making your first API calls. By the end, you will have created
 a user, listed resources, and handled your first error.
 
 **Prerequisites:**
+
 - Python 3.10 or later
 - Access to the internal PyPI registry (VPN required)
 - A Platform API key from the Developer Portal (Settings → API Keys)
@@ -438,6 +444,7 @@ a user, listed resources, and handled your first error.
 ```bash
 pip install platform-sdk
 ```
+````
 
 Verify the installation:
 
@@ -482,7 +489,8 @@ client = PlatformClient(api_key=os.environ["PLATFORM_API_KEY"])
 - Read the [full API reference](../api-reference/) for all available methods
 - Learn how to [handle errors and retries](../error-handling/)
 - See [batch operations](../advanced/batching/) for high-throughput use cases
-```
+
+````
 
 ---
 
@@ -505,19 +513,21 @@ for targeted handling.
 
 ## Error Hierarchy
 
-```
+````
+
 PlatformError
 ├── AuthenticationError
 ├── AuthorizationError  
 ├── RateLimitError
 ├── ValidationError
-│   ├── MissingParameterError
-│   └── InvalidParameterError
+│ ├── MissingParameterError
+│ └── InvalidParameterError
 ├── NotFoundError
 ├── ConflictError
-│   └── DuplicateUserError
+│ └── DuplicateUserError
 └── ServerError
-```
+
+````
 
 ---
 
@@ -544,7 +554,7 @@ except AuthenticationError as e:
     print(f"Request ID for support: {e.request_id}")
     # Attempt to refresh credentials if using dynamic key rotation
     client = PlatformClient(api_key=refresh_api_key())
-```
+````
 
 ---
 
@@ -555,6 +565,7 @@ except AuthenticationError as e:
 **HTTP status equivalent:** 429
 
 **Attributes:**
+
 - `retry_after` (int): Seconds to wait before retrying
 - `limit` (int): The rate limit that was exceeded (requests per minute)
 - `endpoint` (str): The endpoint that was rate limited
@@ -579,6 +590,7 @@ def create_user_with_backoff(client, email, max_retries=5):
 ```
 
 [... continue for all error types ...]
+
 ```
 
 ---
@@ -599,3 +611,4 @@ def create_user_with_backoff(client, email, max_retries=5):
 ---
 
 **Expected outcome at end of week 4:** The 200 internal developers have a complete, searchable API reference, a working Getting Started tutorial, and a canonical error reference. Based on similar SDK documentation rollouts, expect a 60-70% reduction in "how do I use X?" questions in Slack channels and a measurable decrease in incorrect SDK usage (wrong error handling, missing retry logic) caught in code review.
+```

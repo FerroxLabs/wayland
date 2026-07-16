@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting checklist planning"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'parenting checklist planning'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Moving with Children
@@ -30,6 +30,7 @@ Moving with children is logistically demanding and emotionally significant for k
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about moving with kids or how to help children through a move
 - User wants age-appropriate ways to tell children about an upcoming move
 - User needs a school transition checklist for a move
@@ -37,6 +38,7 @@ Moving with children is logistically demanding and emotionally significant for k
 - User wants to help children adjust after a move
 
 **Do NOT use this skill when:**
+
 - User wants general moving logistics without child-specific needs (use `moving-checklist`)
 - User asks about child custody and relocation legal issues (attorney required)
 - User asks about children's emotional disorders or behavioral problems related to a move (therapist needed)
@@ -46,13 +48,13 @@ Moving with children is logistically demanding and emotionally significant for k
 
 1. **Assess the children's ages and needs.** The approach changes significantly by developmental stage:
 
-   | Age Group | Key Concerns | Communication Style | Biggest Risk |
-   |-----------|-------------|--------------------|--------------|
-   | Infant/Toddler (0-2) | Routine disruption, sensory overwhelm on moving day | Maintain routine; no explanation needed | Disrupted sleep and feeding schedules |
-   | Preschool (3-5) | Magical thinking, fear of the unknown, loss of familiar spaces | Simple concrete explanations, read picture books about moving, visit new home if possible | Regression in behavior (bedwetting, clinginess, tantrums) |
-   | Elementary (6-10) | Losing friends, changing schools, losing familiar territory | Honest conversation, answer questions directly, involve in decisions where appropriate | Anxiety about new school and making friends |
-   | Tween (11-13) | Social connections, school changes, identity disruption, loss of independence | Respect their feelings, acknowledge the difficulty, give agency where possible | Anger and resistance; social withdrawal |
-   | Teen (14-17) | Peer group loss, academic disruption, identity and independence | Direct honest conversation, acknowledge the impact, negotiate accommodations | Deep resentment; academic or behavioral problems |
+   | Age Group            | Key Concerns                                                                  | Communication Style                                                                       | Biggest Risk                                              |
+   | -------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+   | Infant/Toddler (0-2) | Routine disruption, sensory overwhelm on moving day                           | Maintain routine; no explanation needed                                                   | Disrupted sleep and feeding schedules                     |
+   | Preschool (3-5)      | Magical thinking, fear of the unknown, loss of familiar spaces                | Simple concrete explanations, read picture books about moving, visit new home if possible | Regression in behavior (bedwetting, clinginess, tantrums) |
+   | Elementary (6-10)    | Losing friends, changing schools, losing familiar territory                   | Honest conversation, answer questions directly, involve in decisions where appropriate    | Anxiety about new school and making friends               |
+   | Tween (11-13)        | Social connections, school changes, identity disruption, loss of independence | Respect their feelings, acknowledge the difficulty, give agency where possible            | Anger and resistance; social withdrawal                   |
+   | Teen (14-17)         | Peer group loss, academic disruption, identity and independence               | Direct honest conversation, acknowledge the impact, negotiate accommodations              | Deep resentment; academic or behavioral problems          |
 
 2. **Have the age-appropriate conversation about the move:**
 
@@ -264,10 +266,10 @@ Moving with children is logistically demanding and emotionally significant for k
 
 ### Children's Profiles
 
-| Child | Age | Stage | Key Concerns | Approach |
-|-------|-----|-------|-------------|----------|
-| Child 1 | 4 | Preschool | Routine disruption, unfamiliar space anxiety | Simple explanations, visit new home, maintain routine |
-| Child 2 | 11 | Tween | Losing friend group, school change, deep sadness | Acknowledge feelings, give agency, plan friend connections |
+| Child   | Age | Stage     | Key Concerns                                     | Approach                                                   |
+| ------- | --- | --------- | ------------------------------------------------ | ---------------------------------------------------------- |
+| Child 1 | 4   | Preschool | Routine disruption, unfamiliar space anxiety     | Simple explanations, visit new home, maintain routine      |
+| Child 2 | 11  | Tween     | Losing friend group, school change, deep sadness | Acknowledge feelings, give agency, plan friend connections |
 
 ### Conversation Plan for Your 4-Year-Old
 
@@ -278,6 +280,7 @@ Moving with children is logistically demanding and emotionally significant for k
 "We are going to live in a new house in [city]. Your bed is coming with us. Your toys are coming too. [Pet's name] is coming. We are all going together."
 
 **Follow-up activities:**
+
 - Read 2-3 picture books about moving (ask your librarian for recommendations)
 - Let them help pack a "special box" of their favorite things
 - Visit the new home if possible, or show pictures and say "This is your new room"
@@ -294,17 +297,20 @@ Moving with children is logistically demanding and emotionally significant for k
 "I need to talk to you about something that affects you a lot. We are moving to [city] because of my job. I know this is really hard, and I know leaving your friends and school feels terrible. I am not going to pretend it is easy or that you should be happy about it. What I want to do is figure out together how to make it as okay as possible."
 
 **What NOT to say:**
+
 - "You will make new friends" (dismisses her current loss)
 - "It will be an adventure" (invalidates her grief)
 - "Other kids go through this all the time" (minimizes her experience)
 
 **Give her agency in these decisions:**
+
 - Which bedroom she wants in the new house
 - How she wants to arrange her room
 - Which activities or clubs to look into at the new school
 - How to say goodbye to her friends (farewell party, video call schedule, planned visit back)
 
 **Help her maintain friendships:**
+
 - Set up a regular video call schedule with her closest friends
 - Create a group chat for staying connected
 - Plan a specific visit back within 3 months if feasible: "We will come back in [month] so you can see everyone"
@@ -313,12 +319,14 @@ Moving with children is logistically demanding and emotionally significant for k
 ### School Transition Checklist
 
 **Your 4-Year-Old (Preschool):**
+
 - [ ] Notify current preschool of departure date
 - [ ] Research preschool or pre-K options near new home
 - [ ] Enroll early to secure a spot
 - [ ] Request any developmental assessments or records
 
 **Your 11-Year-Old (5th or 6th Grade):**
+
 - [ ] Notify current school and request official transcripts
 - [ ] Request teacher recommendation letters now (while teachers know her well)
 - [ ] Ask about transfer of credits and placement policies at the new school
@@ -330,12 +338,14 @@ Moving with children is logistically demanding and emotionally significant for k
 ### Moving Day Plans
 
 **4-Year-Old:**
+
 - Ideal: arrange childcare away from the moving chaos
 - If not possible: set up a safe, empty room with toys, snacks, and a trusted adult
 - Maintain nap time and meals on schedule
 - Give them their personal bag with comfort items
 
 **11-Year-Old:**
+
 - Give her a real job: supervising her own room's boxes, checking things off a list
 - Let her have private time in her room before it is packed
 - Allow her to say goodbye to the house
@@ -345,18 +355,21 @@ Moving with children is logistically demanding and emotionally significant for k
 ### Post-Move Adjustment Plan
 
 **Week 1:**
+
 - [ ] Set up both children's rooms first (arrange 4-year-old's room to match old layout as closely as possible)
 - [ ] Walk the neighborhood together: find the park, school route, library
 - [ ] Establish the new routine immediately (same bedtime, same morning process)
 - [ ] Video call with 11-year-old's friends
 
 **Month 1:**
+
 - [ ] 4-year-old: start preschool; expect 1-2 weeks of adjustment clinginess at drop-off
 - [ ] 11-year-old: sign up for one activity; invite one classmate over
 - [ ] Both: maintain one family ritual from the old home
 - [ ] Check in regularly with the 11-year-old: "How is school going? Is there anything that is hard right now?"
 
 **3-Month Check:**
+
 - [ ] Follow up with both children's teachers on adjustment
 - [ ] If the 11-year-old's sadness has not improved or has worsened, consult the school counselor
 - [ ] Plan a visit back to the old city if promised and feasible

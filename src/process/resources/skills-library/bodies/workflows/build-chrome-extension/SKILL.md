@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Build Chrome Extension
 
 **Estimated time:** 3-6 weeks
@@ -120,7 +121,7 @@ translate user feedback into actionable improvements. Monitor Chrome Web Store r
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Pivot the concept to address unmet needs
   - If **After Step 4**: Fix stability issues before security review
   - If **After Step 5**: Reduce permissions and fix security issues
@@ -171,6 +172,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

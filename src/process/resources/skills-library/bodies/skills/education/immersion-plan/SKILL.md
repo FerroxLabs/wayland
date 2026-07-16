@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "language-learning study-skills step-by-step guide"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'language-learning study-skills step-by-step guide'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Immersion Plan
 
 ## When to Use
@@ -52,6 +53,7 @@ Before producing any plan, collect the following. If any input is missing, ask f
 - **Primary goal and deadline** -- "reach B2 before moving to Germany in 8 months" or "feel comfortable watching Japanese anime without subtitles in 3 months" shapes everything; vague goals like "get better" need to be sharpened into a specific CEFR milestone or functional outcome
 
 Secondary inputs that improve plan quality:
+
 - Preferred media types (TV series, music, podcasts, books, news, gaming)
 - Access constraints (no Netflix, limited data, text-only access)
 - Previous study history and what has or has not worked
@@ -107,16 +109,19 @@ Build the listening and reading stack from these categories, matching each to th
 Output activities fall into three types, each serving a different acquisition function:
 
 **Production with correction (highest value for accuracy):**
+
 - Sessions with a paid tutor (1 hour/week minimum at B1+ to have meaningful impact)
 - Language exchange partner sessions via text or voice (30 minutes per session, reciprocal -- 15 minutes each language)
 - Italki, Preply, or similar platforms connect learners to tutors across price ranges; price is not the only variable -- find a tutor who speaks at a level just above the learner's comprehension floor
 
 **Unmonitored production (builds fluency and automaticity):**
+
 - Daily journal writing -- A1: 3--5 sentences, A2: 5--8 sentences, B1: 1 paragraph, B2+: multiple paragraphs on a specific prompt
 - Voice memos -- record yourself speaking for 1--3 minutes on a topic, replay to hear your own pronunciation patterns
 - Thinking aloud in the target language -- narrate mundane tasks (making breakfast, driving) in your head or quietly aloud; this builds spontaneous retrieval
 
 **Shadowing (bridges input and output):**
+
 - Find an audio clip of 30--60 seconds with a transcript
 - Listen 2--3 times without the transcript to capture rhythm and sound
 - Listen while reading the transcript
@@ -125,6 +130,7 @@ Output activities fall into three types, each serving a different acquisition fu
 - This technique is particularly powerful for prosody, rhythm, and connected speech at B1+
 
 **Output environment creation:**
+
 - Change phone, browser, and operating system language to the target language
 - Set calendar event labels in the target language
 - Write grocery lists and reminders in the target language
@@ -140,6 +146,7 @@ Distribute activities across a 7-day week based on the learner's time budget. Us
 - **Rest/light review (1 day/week):** Review the week's journal entries for self-correction, re-listen to a clip already understood, or watch something purely for entertainment in the target language without study pressure.
 
 Calculate total weekly input hours. For meaningful acquisition progress, research benchmarks suggest:
+
 - A1 to A2: approximately 150--200 hours total input
 - A2 to B1: approximately 200--300 hours total input
 - B1 to B2: approximately 300--400 hours total input
@@ -152,16 +159,19 @@ Tell the learner honestly how many weeks their time budget will take to reach th
 A plan without an environment often collapses within two weeks. Include concrete environmental modifications:
 
 **Physical environment:**
+
 - Label 10--15 household objects with sticky notes showing the target-language word (on the refrigerator, coffee maker, mirror, desk)
 - Keep a physical notebook dedicated to language journaling -- the tactile habit cue of picking it up is valuable
 - Set a specific location for immersion (a chair, a desk corner) that becomes associated only with this activity
 
 **Digital environment:**
+
 - Create a dedicated playlist or feed in the target language for each media type
 - Set phone and computer interface language to target language (only practical at B1+; below this level it creates confusion rather than immersion)
 - Use browser language settings to receive target-language suggestions for YouTube and similar platforms
 
 **Accountability structure:**
+
 - Suggest the learner track daily streaks with a simple paper habit tracker or a notes-app table
 - Recommend a once-weekly 5-minute self-check: Did I hit my daily anchor activity every day? Did I complete my speaking sessions? What was the hardest content this week?
 - If the learner has a study partner, schedule a brief weekly check-in message (even just a voice memo in the target language sent to a friend)
@@ -332,24 +342,31 @@ Produce the immersion plan in the following structure. Every field must be fille
 ## Edge Cases
 
 ### Learner is a true A1 beginner with zero prior exposure
+
 A complete beginner cannot self-assess comprehensibility because they cannot yet distinguish what they do and do not understand -- everything sounds like noise. Do not assign authentic media as primary input. Build the first 4--6 weeks entirely around structured input: a beginner audio course with printed transcripts, children's songs with lyrics, and simple graded reader Level 0. Authentic immersion becomes viable when the learner has a core vocabulary of approximately 500--800 high-frequency words. Recommend pairing this plan with `vocabulary-building` to build that foundation faster. Warn the learner that immersion feels unrewarding at A1 -- this is normal and temporary.
 
 ### Learner has a very limited time budget (15--20 minutes/day)
+
 At 15--20 minutes/day (roughly 1.75--2.3 hours/week), progress to CEFR milestones will take multiple years. Do not falsely compress the timeline. Instead, design a plan that maximizes habit formation at this realistic constraint. Assign the entire time budget to a single high-ROI activity per day (rotating across the week: Monday/Wednesday/Friday = listening; Tuesday/Thursday = reading; Saturday = writing; Sunday = review). Tell the learner that at this pace, A2 to B1 may take 2.5--3 years. Suggest they identify even 10 more minutes/day -- the compounding effect of 30 versus 20 minutes/day nearly halves the timeline.
 
 ### Learner has very high motivation but very limited authentic content available for their target language
+
 Some languages have limited graded reader libraries, limited learner podcasts, and limited streaming content (e.g., minority languages, regional languages, less-resourced languages). Adapt by: recommending parallel text methods (a book the learner has already read in their native language, obtained in the target language), using audio recordings of written texts when visual-only content dominates, and emphasizing human speaking practice (tutors, heritage speaker communities, diaspora communities) as a substitute for media content. Do not pretend the content landscape is richer than it is -- acknowledge the constraint and work around it.
 
 ### Learner wants to maintain multiple languages simultaneously
+
 Managing two active immersion plans simultaneously is possible but requires a minimum time budget. Each language needs at minimum 30 minutes/day of active input to maintain forward momentum -- below that, decay keeps pace with acquisition. Assign each language a clear role: one language as "primary" receiving 60--70% of immersion time, one as "maintenance" receiving 30--40%. Do not split evenly when both languages are below C1 -- the learner will plateau in both. Recommend alternating intensive weeks (two weeks primary language A, two weeks primary language B) over daily splitting, which fragments attention.
 
 ### Learner has tried immersion before and burned out
+
 Burnout in immersion is almost always caused by one of three things: content was too difficult (comprehensibility below 70%), time commitment was too high (100+ minutes/day is unsustainable for most learners long-term without significant life adaptation), or output was assigned too early before listening foundations were built. Diagnose which of these caused the previous burnout. Then deliberately set the new plan at 60% of the previous load. Use the phrase "sustainable immersion" -- the goal is a 12-month plan the learner can actually complete, not a 6-week sprint. Include explicit rest days.
 
 ### Learner's target language uses a non-Latin script (Japanese, Chinese, Korean, Arabic, Russian, etc.)
+
 Script literacy is a prerequisite for reading immersion and must be addressed before reading-based activities can be fully implemented. Include a dedicated script acquisition phase of 2--6 weeks depending on the script complexity: hiragana/katakana (Japanese phonetic scripts) can be learned in 1--2 weeks; Arabic script takes 3--4 weeks; kanji (Chinese characters or Japanese kanji) require months to years of parallel study. During the script acquisition phase, shift the input balance heavily toward listening (80% listening / 20% reading). Recommend pairing with `vocabulary-building` for script-integrated flashcard study. Do not assign reading materials until the learner can decode the script fluently enough to read without stopping at every character.
 
 ### Learner is preparing for immersion travel (departure in 4--8 weeks)
+
 This is a sprint scenario, not a sustainable long-term plan. Compress the immersion plan to maximize survival and communication skills rather than broad acquisition. Prioritize: listening to authentic speech at the destination's dialect/accent (not always the textbook standard dialect), high-frequency spoken vocabulary for logistics (transport, accommodation, food, emergencies), and speaking practice with a tutor who speaks the destination dialect. Reduce or eliminate reading-heavy activities in favor of listening + speaking. Set the goal as "functional survival competence" rather than CEFR advancement. Recommend the learner continue a long-term immersion plan after returning from travel.
 
 ---

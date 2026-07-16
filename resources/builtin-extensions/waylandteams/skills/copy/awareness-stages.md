@@ -4,7 +4,7 @@
 
 ## When to use
 
-Use any time you are deciding *what the first line should be*. That covers headlines, hero blocks, ad opens, email subjects, cold-outbound first sentences, video script openings, and landing-page leads. If you cannot answer the question *"what does this reader already know?"*, run this mode before drafting.
+Use any time you are deciding _what the first line should be_. That covers headlines, hero blocks, ad opens, email subjects, cold-outbound first sentences, video script openings, and landing-page leads. If you cannot answer the question _"what does this reader already know?"_, run this mode before drafting.
 
 ## The five stages
 
@@ -12,13 +12,13 @@ Five reader states. Each one wants a different first line.
 
 1. **Unaware.** Does not know they have the problem. Reading because the topic, story, or identity caught them. Lead with: a story, a pattern interrupt, a named identity ("If you run a 3-person agency…"), a strange specific. Do not lead with the product. Do not lead with the solution category. They do not know either exists yet.
 
-2. **Problem-aware.** Feels the pain. Does not know a fix exists. Lead with: the pain in their words, ideally a verbatim customer-voice pull. The first line names what they are feeling right now. The reward for reading the next line is *"there is a way out of this."*
+2. **Problem-aware.** Feels the pain. Does not know a fix exists. Lead with: the pain in their words, ideally a verbatim customer-voice pull. The first line names what they are feeling right now. The reward for reading the next line is _"there is a way out of this."_
 
 3. **Solution-aware.** Knows fixes exist. Comparing categories. Lead with: a category claim or contrarian take. ("Most CRMs solve this with X. We do Y, here is why.") The reader wants to understand why one approach beats another before they will look at a product.
 
 4. **Product-aware.** Knows your product. Weighing it against alternatives. Lead with: proof, comparison, or the objection they are silently holding. Specific outcomes from named customers. Direct competitor framing. ("Three reasons people switch from [tool] to us.")
 
-5. **Most-aware.** Ready to act. Needs a reason to act *now*. Lead with: the offer itself, a deadline, a price specific, a guarantee, or a tight scarcity claim. Skip the warm-up. Hit the button-adjacent line first.
+5. **Most-aware.** Ready to act. Needs a reason to act _now_. Lead with: the offer itself, a deadline, a price specific, a guarantee, or a tight scarcity claim. Skip the warm-up. Hit the button-adjacent line first.
 
 ## Diagnosing the stage
 
@@ -28,7 +28,7 @@ Diagnose from context, not gut.
 - **What came before this line?** If the reader has seen three educational posts, they are at least problem-aware. If they have read a product page, they are product-aware. The traffic source tells you the stage.
 - **What does the user (or Research) say about their funnel?** Top-of-funnel = unaware / problem-aware. Middle = solution-aware. Bottom = product-aware / most-aware.
 
-If you cannot diagnose from any of those, ask the user one question: *"At the moment they see this line, what do they already know about the problem and about you?"*
+If you cannot diagnose from any of those, ask the user one question: _"At the moment they see this line, what do they already know about the problem and about you?"_
 
 ## Decision rules
 
@@ -52,9 +52,11 @@ If you cannot diagnose from any of those, ask the user one question: *"At the mo
 **Diagnosis:** Cold ad → unaware or problem-aware audience. The user has heard the audience say "I never finish my own list, but I finish everyone else's." → problem-aware leaning unaware.
 
 **Before** (product-aware headline, wrong stage):
-> *Our 6-week productivity system, now 30% off.*
+
+> _Our 6-week productivity system, now 30% off._
 
 **After** (problem-aware headline, right stage):
-> *You finish everyone else's list. Yours never gets touched. We built a 6-week course for exactly that person.*
+
+> _You finish everyone else's list. Yours never gets touched. We built a 6-week course for exactly that person._
 
 Same product, same offer. The wrong stage made it skippable; the right stage made the next line inevitable.

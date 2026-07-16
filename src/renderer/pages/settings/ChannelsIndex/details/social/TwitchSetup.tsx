@@ -51,7 +51,7 @@ const TwitchSetup: React.FC = () => {
       pluginId='twitch_default'
       helpText={t(
         'settings.channels.twitch.help',
-        'Twitch chat via IRC (tmi.js). Connect a bot account with OAuth to read and send messages in one or more channels.',
+        'Twitch chat via IRC (tmi.js). Connect a bot account with OAuth to read and send messages in one or more channels.'
       )}
     >
       <TwitchConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

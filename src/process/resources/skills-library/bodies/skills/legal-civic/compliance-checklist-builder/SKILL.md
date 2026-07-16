@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy checklist guide planning"
-  category: "legal-civic"
-  subcategory: "business-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy checklist guide planning'
+  category: 'legal-civic'
+  subcategory: 'business-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Compliance Checklist Builder
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand compliance concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change frequently. Always consult a qualified attorney licensed in your jurisdiction and a licensed CPA or enrolled agent for advice on specific legal and tax matters affecting your business.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user is launching a new business and needs to know which registrations, permits, licenses, and ongoing filings apply before opening
 - A user wants to self-audit their existing business for compliance gaps -- for example, after adding employees, crossing a revenue threshold, or expanding into a new state
 - A user is preparing for a first meeting with a business attorney or CPA and wants to arrive with a structured list of compliance questions specific to their business type and location
@@ -33,6 +35,7 @@ metadata:
 - A user is adding an online sales channel to a previously brick-and-mortar business and needs to understand new sales tax nexus, data privacy, and PCI DSS obligations
 
 **Do NOT use when:**
+
 - The user wants to actually file registrations, tax returns, or permits on their behalf -- this skill builds checklists, it does not execute filings (use the user's state's online business portal directly)
 - The user needs deep industry-specific regulatory compliance guidance -- for example, full FDA 21 CFR Part 11 compliance for a pharmaceutical manufacturer, SEC registration for an investment adviser, or FINRA compliance for a broker-dealer (these require specialized licensed professionals)
 - The user is facing an active compliance investigation, enforcement action, regulatory subpoena, or litigation -- that is a legal emergency requiring an attorney immediately, not a checklist
@@ -427,7 +430,9 @@ Entity conversion is not simply a paperwork change -- it triggers a series of co
 **Output:**
 
 ## Business Compliance Checklist
+
 ### Online Tutoring Business | Single-Member LLC | Denver, Colorado
+
 **Generated for:** Single-member LLC providing online K-12 math and science tutoring nationally via Zoom; no employees; website with credit card payments and email list.
 **Prepared:** January 2025
 **Review date:** January 2026
@@ -439,19 +444,20 @@ Entity conversion is not simply a paperwork change -- it triggers a series of co
 ---
 
 ### Business Profile
-| Detail | Information |
-|--------|-------------|
-| Business activity | Online K-12 tutoring (math and science) via video conference |
-| Entity type | Single-member LLC |
-| Formation state | Colorado |
-| Operating location(s) | Denver, Colorado (home-based; students located nationally) |
-| Number of employees | 1 (owner only; no W-2 employees) |
-| Annual revenue (estimate) | ~$80,000 (Year 1) |
-| Products / Services / Both | Services only |
-| Online sales | Yes -- all services delivered online; national customer base |
-| Customer data collected | Basic contact info (email for newsletter); payment card data via website; data of minors (K-12 students) |
-| Regulated industry | Education (not licensed by a state board for K-12 tutoring, but note COPPA applies due to data from minors) |
-| Home-based or commercial | Home-based (Denver, Colorado) |
+
+| Detail                     | Information                                                                                                 |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Business activity          | Online K-12 tutoring (math and science) via video conference                                                |
+| Entity type                | Single-member LLC                                                                                           |
+| Formation state            | Colorado                                                                                                    |
+| Operating location(s)      | Denver, Colorado (home-based; students located nationally)                                                  |
+| Number of employees        | 1 (owner only; no W-2 employees)                                                                            |
+| Annual revenue (estimate)  | ~$80,000 (Year 1)                                                                                           |
+| Products / Services / Both | Services only                                                                                               |
+| Online sales               | Yes -- all services delivered online; national customer base                                                |
+| Customer data collected    | Basic contact info (email for newsletter); payment card data via website; data of minors (K-12 students)    |
+| Regulated industry         | Education (not licensed by a state board for K-12 tutoring, but note COPPA applies due to data from minors) |
+| Home-based or commercial   | Home-based (Denver, Colorado)                                                                               |
 
 ---
 

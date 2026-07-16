@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "swift mobile optimization"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'swift mobile optimization'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Swift Concurrency Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to structure async/await code in Swift 5.5+ to avoid data races, deadlocks, or excessive thread creation
 - The user wants to migrate from GCD (Grand Central Dispatch) or DispatchQueue-based code to the Swift concurrency model (actors, async/await, structured concurrency)
 - The user needs to decide between `async let`, `TaskGroup`, `Actor`, `@MainActor`, or `Sendable` for a specific iOS/macOS problem
@@ -29,6 +31,7 @@ metadata:
 - The user asks about `AsyncSequence`, `AsyncStream`, or `continuation`-based bridging with UIKit/AppKit delegate patterns
 
 **Do NOT use this skill when:**
+
 - The user is asking about Combine-specific operators (`.map`, `.flatMap`, `.merge`) without any Swift concurrency involvement -- use a Combine-specific skill instead
 - The user needs RxSwift, ReactiveSwift, or other reactive library patterns -- those have different execution models
 - The user is working in Swift for server-side (SwiftNIO, Vapor event-loop threading model) where actor isolation rules interact differently with NIO's EventLoop -- those require a server-side Swift skill
@@ -69,22 +72,26 @@ Swift concurrency's correctness depends heavily on knowing which actor context c
 Apply this decision framework in order:
 
 **For parallelism (doing multiple things at once):**
+
 - 2--4 statically known parallel tasks: use `async let` -- compiles to a child task per binding, automatic cancellation on scope exit
 - 5+ tasks or dynamically sized collections: use `withTaskGroup(of:)` for non-throwing work, `withThrowingTaskGroup(of:)` for throwing work; always iterate results inside the group body using `for await result in group` to avoid task accumulation
 - Unordered result collection where ordering does not matter: `addTaskUnlessCancelled` inside the group loop lets you bail cleanly when the parent task is cancelled
 
 **For shared state:**
+
 - Mutable state accessed from multiple tasks: `actor` -- guarantates serial access without explicit locking
 - High-read, low-write state that does not need mutation (configuration, lookup tables): use a `struct` passed as a `Sendable` value; avoid actor overhead on read-heavy paths
 - Main-thread-bound state (view models, UI controllers): `@MainActor` class -- the compiler enforces isolation; `nonisolated` marks functions that can run off the main thread
 - Global singletons: use a `global actor` (`@globalActor`) only when you need a single shared executor across multiple types; avoid overusing this pattern as it creates a hidden serialization point
 
 **For streaming:**
+
 - Push-based event source (delegate, callback): wrap in `AsyncStream { continuation in ... }` -- store the continuation; call `continuation.yield(value)` from the callback; call `continuation.finish()` on teardown
 - Backpressure-sensitive streaming: use `AsyncStream` with a `bufferingPolicy` of `.bufferingNewest(n)` or `.bufferingOldest(n)` to avoid unbounded memory growth; `.unbounded` is only safe when the producer is slower than the consumer
 - Transforming an existing `AsyncSequence`: use `.map`, `.filter`, `.compactMap` from the standard library; for custom transformations, implement the `AsyncSequence` protocol with an `AsyncIteratorProtocol`
 
 **For task lifecycle:**
+
 - Work tied to a SwiftUI view: use `.task {}` modifier -- automatically cancelled when the view disappears
 - Work tied to a UIViewController: create a `Task` in `viewDidAppear` and cancel it in `viewDidDisappear` or `deinit`; store the task in a `var task: Task<Void, Never>?` property
 - Background work that must complete even if the UI disappears (e.g., uploading a photo): use `URLSession` background sessions, not a detached `Task` -- the OS can terminate the app
@@ -100,6 +107,7 @@ Actor isolation is the most commonly misunderstood part of Swift concurrency. Ge
 - `actor` vs. `class` with a lock: actors provide compile-time isolation guarantees; a `class` with `NSLock` or `os_unfair_lock` provides runtime protection only; prefer actors for new code; when interoping with legacy lock-based code, use actors as a wrapper
 
 **Example of re-entrancy bug to avoid:**
+
 ```swift
 actor BankAccount {
     var balance: Double = 0
@@ -167,7 +175,7 @@ Swift concurrency is not automatically faster than GCD. Apply these benchmarks a
 
 When responding to a user question about Swift concurrency patterns, structure output as follows:
 
-```
+````
 ## Swift Concurrency Analysis
 
 ### Problem Classification
@@ -194,20 +202,25 @@ When responding to a user question about Swift concurrency patterns, structure o
 // - Cancellation checkpoints
 // - Error handling (throws / CancellationError)
 // - No TODO placeholders -- every function is implemented
-```
+````
 
 ### Cancellation Strategy
+
 [How and where cancellation is checked or propagated]
 
 ### Testing Approach
+
 [Specific XCTest or Swift Testing framework techniques for validating this pattern]
 
 ### Performance Considerations
+
 [Specific latency, throughput, or memory trade-offs for this pattern in this context]
 
 ### Migration Notes (if applicable)
+
 [How to incrementally replace existing GCD/Combine/callback code with this pattern]
-```
+
+````
 
 ---
 
@@ -269,13 +282,14 @@ actor Coordinator {
         isProcessing = false
     }
 }
-```
+````
 
 Avoid awaiting self-referential actor calls. Extract shared logic into `nonisolated` helpers that take actor state as parameters, or restructure the code to avoid the suspension between dependent state reads and writes.
 
 ### Sendable Closures Capturing Non-Sendable Types
 
 When passing a closure to `Task {}` or `TaskGroup.addTask {}`, the closure must be `@Sendable`. This means any captured values must be `Sendable`. Common non-`Sendable` types that get captured: `UIImage`, `UIColor`, `NSAttributedString`, `AVAudioPlayer`, and most `@objc` delegate objects. Solutions:
+
 - Convert `UIImage` to `Data` (a `Sendable` value type) before crossing the task boundary; reconstruct the image on the other side
 - Mark classes as `@unchecked Sendable` only after auditing thread safety
 - Use `@MainActor`-isolated types to remove the need to send them across boundaries -- the compiler knows they stay on the main actor
@@ -306,6 +320,7 @@ Always choose the group type and error-catching location deliberately based on w
 ### SwiftUI `.task` Modifier and State Updates
 
 The `.task {}` modifier creates a task scoped to the view's lifetime, but the task body runs on the main actor when the view is `@MainActor`-isolated (which all SwiftUI views are). Updating `@State` or `@StateObject` from inside `.task {}` is safe because the task is already on the main actor. However:
+
 - Avoid long synchronous work inside `.task {}` -- use `Task.yield()` to voluntarily suspend in CPU-heavy loops, allowing the main actor to process UI events
 - When the view reappears (e.g., after a sheet dismiss), SwiftUI creates a new task and cancels the previous one; design the task body to be re-entrant and handle `CancellationError` by exiting cleanly without logging an error
 - For paginated data loading triggered by scroll position, combine `.task(id:)` with the current page index as the `id` -- the task is automatically cancelled and restarted whenever the page changes
@@ -321,20 +336,22 @@ The `.task {}` modifier creates a task scoped to the view's lifetime, but the ta
 ## Swift Concurrency Analysis
 
 ### Problem Classification
+
 - Category: parallelism with rate limiting, UI state updates, lifecycle-bound cancellation
 - Execution context: custom actor for download state, `@MainActor` for progress updates
 - Swift/iOS minimum version required: iOS 16 / Swift 5.9
 
 ### Concurrency Primitive Decision
 
-| Requirement | Primitive | Rationale |
-|---|---|---|
-| Fetch 200 photos in parallel | `withTaskGroup` | Dynamic count known at call time; enables streaming result processing |
-| Limit concurrency to N parallel requests | Manual token semaphore via actor | `TaskGroup` has no built-in rate limiting; an actor-based token pool controls in-flight count |
-| Update progress indicator | `@MainActor` isolated property + `AsyncStream` | Progress changes must reach the UI thread; stream decouples producer from UI |
-| Cancel on view disappear | `.task {}` modifier on SwiftUI view, or `task.cancel()` in `viewDidDisappear` | Structured task cancellation propagates to all child tasks in the group |
+| Requirement                              | Primitive                                                                     | Rationale                                                                                     |
+| ---------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Fetch 200 photos in parallel             | `withTaskGroup`                                                               | Dynamic count known at call time; enables streaming result processing                         |
+| Limit concurrency to N parallel requests | Manual token semaphore via actor                                              | `TaskGroup` has no built-in rate limiting; an actor-based token pool controls in-flight count |
+| Update progress indicator                | `@MainActor` isolated property + `AsyncStream`                                | Progress changes must reach the UI thread; stream decouples producer from UI                  |
+| Cancel on view disappear                 | `.task {}` modifier on SwiftUI view, or `task.cancel()` in `viewDidDisappear` | Structured task cancellation propagates to all child tasks in the group                       |
 
 ### Recommended Pattern
+
 **Rate-Limited Parallel Task Group with Actor Token Pool**
 
 Fetch photos in parallel using `withThrowingTaskGroup`, control concurrency via an actor-based token pool that limits simultaneous in-flight requests, and stream progress back to the UI via `@MainActor` state updates.
@@ -536,6 +553,7 @@ struct AlbumView: View {
 ### Cancellation Strategy
 
 Cancellation propagates through the structured task hierarchy:
+
 1. The SwiftUI `.task {}` modifier cancels the `loadAlbum` task when the view disappears
 2. `AlbumViewModel.cancelLoad()` explicitly cancels `fetchTask` on `onDisappear` as a belt-and-suspenders guard
 3. Inside `fetchAllPhotos`, `try Task.checkCancellation()` before each `addTask` prevents queuing new work after cancellation is requested
@@ -638,6 +656,7 @@ group.notify(queue: .main) { completion(results) }
 ```
 
 Migrate incrementally:
+
 1. First, wrap `PhotoAPI.legacyFetch` in `withCheckedThrowingContinuation` to get an async version
 2. Replace `DispatchGroup` + result aggregation with `withThrowingTaskGroup` -- this is the highest-value change
 3. Replace `DispatchSemaphore` with the `RateLimiter` actor

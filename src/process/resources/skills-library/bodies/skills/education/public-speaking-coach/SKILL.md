@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills presentation guide"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills presentation guide'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Public Speaking Coach
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User needs to prepare for a speech, presentation, or public speaking event
 - User wants to improve delivery skills: voice, pacing, body language
 - User has speech anxiety and needs techniques to manage it
 - User wants feedback on a speech draft or presentation outline
 
 **Do NOT use this skill when:**
+
 - User needs slide design help -- use presentation-design skill
 - User wants to write persuasive copy -- use copywriting skills
 - User needs debate or argumentation strategy -- different from public speaking
@@ -510,6 +512,7 @@ When coaching public speaking, provide:
 **Anxiety level:** High -- requires desensitization plan
 
 ### Speech Structure (10 min)
+
 1. **Opening (1 min):** Personal greeting + one-liner to get a laugh and settle nerves
 2. **Story 1 (3 min):** Childhood/growing-up story that shows your brother's character
 3. **Story 2 (3 min):** Story involving the couple that shows why they work together
@@ -517,17 +520,20 @@ When coaching public speaking, provide:
 5. **Toast (1 min):** Raise glass, short memorable line, "To [names]!"
 
 ### Delivery Notes
+
 - Speak at 70% of your normal speed (nerves will speed you up)
 - Pause after laugh lines -- give the audience 3 seconds
 - Make eye contact with 3-4 friendly faces, not the whole room
 - Hold cards in one hand, keep the other free for gestures
 
 ### 3-Week Anxiety Reduction Plan
+
 - Week 1: Write speech, practice alone with recording (3x)
 - Week 2: Deliver to one trusted person, then a small group (2x each)
 - Week 3: Full rehearsal standing up with cards. Practice box breathing (4-4-4-4) before each run
 
 ### Emergency Plan
+
 If you freeze: take a sip of water, glance at your cards, smile, and say "Where was I?" The audience is on your side.
 
 ## Edge Cases

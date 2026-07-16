@@ -35,7 +35,7 @@ Every customer-facing message in the first 30 days serves one of these checkpoin
 ## Decision rules
 
 - **Measure progress, don't assume it.** "Days since signup" isn't progress. "Reached checkpoint 1" is. Watch each checkpoint event weekly.
-- **One intervention per stuck checkpoint.** If 25% miss checkpoint 1 in 72 hours, the message is specific to *that* checkpoint, not a generic "how are things?"
+- **One intervention per stuck checkpoint.** If 25% miss checkpoint 1 in 72 hours, the message is specific to _that_ checkpoint, not a generic "how are things?"
 - **Don't add a kickoff call to a self-serve segment.** White-glove on a speed-buyer is friction. Self-serve on a white-glove buyer is abandonment.
 - **Route bugs blocking checkpoints as P1.** A defect blocking a new customer costs more than one blocking a tenured one — they haven't earned trust yet.
 - **Hand a clean checkpoint-3 hit to Sales.** Expansion-ready signal worth routing.

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness guide step-by-step"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness guide step-by-step'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Cold Exposure Guide
 
 > **Health Disclaimer:** This skill provides general wellness and educational information only. Cold exposure carries real physiological risks including cardiac arrhythmia, hypothermia, cold shock response, and drowning. This is NOT medical advice. Always consult a qualified physician before beginning any cold exposure practice, particularly if you have cardiovascular conditions, Raynaud's disease, asthma, epilepsy, or are pregnant. Never practice cold water immersion alone in natural bodies of water. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks how to start cold showers, ice baths, cold plunges, or winter swimming for the first time
 - Wants a progressive protocol to build cold tolerance safely over weeks or months
 - Asks about the physiological mechanisms or evidence base behind cold therapy
@@ -36,6 +38,7 @@ metadata:
 - Asks about combining cold exposure with breathwork, sauna, fasting, or other modalities
 
 **Do NOT use this skill when:**
+
 - The user has described symptoms of a current medical emergency -- redirect to emergency services immediately
 - The user is seeking a specific medical diagnosis, prescribed treatment, or clinical rehabilitation protocol -- refer to a sports medicine physician or physiotherapist
 - The user asks exclusively about cryotherapy chambers or localized cryotherapy devices in a clinical setting -- this falls under medical therapy protocols outside this skill's scope
@@ -74,23 +77,27 @@ Users who understand what is happening inside their bodies are more compliant, l
 Never start a beginner at an ice bath. Never keep an experienced practitioner in a contrasting shower protocol they have already surpassed. Match the entry point to the individual.
 
 **Profile: Absolute Beginner (no prior cold exposure)**
+
 - Entry point: Contrast shower method -- full warm shower, then final 20-30 seconds cold
 - Target water temperature: Whatever the cold tap produces (typically 55-65F / 13-18C in most regions)
 - Duration target for Week 1: 20-30 seconds cold ending
 - Breathing focus: The only goal in Week 1 is not hyperventilating -- one controlled exhale after the gasp reflex
 
 **Profile: Some Prior Experience (occasional cold showers, no immersion)**
+
 - Entry point: Phase 2 deliberate cold showers -- full cold from start
 - Duration: 2-3 minutes
 - Frequency: 5-7 days per week
 - Begin monitoring HRV or subjective mood scores to track adaptation
 
 **Profile: Regular Cold Shower Practitioner (wants to progress to immersion)**
+
 - Entry point: Immersion at 59F (15C) for 1-2 minutes, 2-3 times per week
 - Use the immersion protocol in Step 5 below
 - Requires a safety plan (not alone, exit strategy, phone accessible)
 
 **Profile: Experienced Immersion Practitioner (wants to optimize or troubleshoot)**
+
 - Focus on goal-specific timing, temperature, and frequency optimization
 - Review common plateau-breaking strategies (lower temperature in 1-2F increments, extend duration by 30-second increments, add sauna contrast)
 
@@ -99,6 +106,7 @@ Never start a beginner at an ice bath. Never keep an experienced practitioner in
 Provide a written schedule -- vague advice produces vague results. The following is a reference framework to adapt based on user profile.
 
 **Weeks 1-2: Cold Shock Habituation**
+
 - Method: Contrast shower (warm shower, cold finish)
 - Cold duration: 20-30 seconds, increasing to 60 seconds by end of Week 2
 - Frequency: Daily
@@ -106,6 +114,7 @@ Provide a written schedule -- vague advice produces vague results. The following
 - Success criterion: The gasp reflex is noticeably diminished and breathing returns to controlled within 10-15 seconds of cold water contact
 
 **Weeks 3-4: Full Cold Showers**
+
 - Method: No warm water -- cold from the first second
 - Duration: 1-2 minutes
 - Frequency: Daily
@@ -113,18 +122,21 @@ Provide a written schedule -- vague advice produces vague results. The following
 - Success criterion: Entering cold without breath-holding or hyperventilation; mood elevation noted consistently within 30 minutes post-shower
 
 **Weeks 5-8: Extended Duration and Optional Immersion Introduction**
+
 - Cold showers: 2-3 minutes at full cold
 - If infrastructure allows: First ice bath or cold plunge at 59F (15C), 1-2 minutes, 2x per week
 - Begin tracking subjective data: mood before and after (1-10), energy level, sleep quality
 - Introduce post-exposure natural re-warming (walk, gentle movement) instead of hot shower
 
 **Weeks 9-12: Systematic Immersion Training**
+
 - Immersion sessions: 3-5x per week
 - Temperature: Decrease 2-3F per week toward target (typically 50-55F / 10-13C for intermediate practitioners)
 - Duration: 3-5 minutes at target temperature
 - Protocol refinement: Add goal-specific timing (see Step 6)
 
 **Ongoing Maintenance**
+
 - Most practitioners plateau at a protocol they maintain for months: 3-4x per week, 50-55F (10-13C), 3-5 minutes
 - Re-test limits by dropping temperature or extending duration quarterly
 - Adjust seasonally -- tap water temperature drops in winter, which changes the effective dose of a "cold shower"
@@ -134,6 +146,7 @@ Provide a written schedule -- vague advice produces vague results. The following
 Immersion is physiologically distinct from showers. The greater surface area contact and inability to move freely requires a specific procedure.
 
 **Before entering:**
+
 - Confirm water temperature with a waterproof thermometer -- do not guess
 - Have dry clothing, warm layers, and a towel within arm's reach
 - If using natural water, confirm a safety partner is present and an exit plan is established
@@ -141,6 +154,7 @@ Immersion is physiologically distinct from showers. The greater surface area con
 - Take 3-5 slow, controlled breaths to lower baseline heart rate before entry
 
 **Entry sequence:**
+
 1. Lower feet and legs first -- never jump in
 2. Sit down slowly, immerse to waist
 3. Pause 5-10 seconds -- allow the initial cold shock to register and breathing to stabilize
@@ -149,12 +163,14 @@ Immersion is physiologically distinct from showers. The greater surface area con
 6. Once breathing is fully controlled (10-15 seconds), submerge hands if desired
 
 **During immersion:**
+
 - Focus on slow, rhythmic nasal breathing -- 5-6 breaths per minute is the target
 - The sensation typically shifts from sharp pain to numbness between 60-90 seconds
 - Mild shivering during immersion is normal; uncontrollable shivering is an exit signal
 - Cognitive reframe: repeat internally "This is uncomfortable, not dangerous" -- this is not motivational filler; it activates prefrontal cortex regulation of the amygdala fear response
 
 **Exit signals (leave immediately if any occur):**
+
 - Uncontrollable shivering with loss of fine motor control
 - Chest pain or irregular heartbeat sensation
 - Confusion, slurred thoughts, or inability to track time
@@ -162,6 +178,7 @@ Immersion is physiologically distinct from showers. The greater surface area con
 - Any subjective sense of impending loss of consciousness
 
 **After exiting:**
+
 - Do not rush to a hot shower -- this is the most common mistake and negates the thermogenic cascade
 - Towel off, put on warm layers
 - Move gently -- walk, do light air squats, swing arms -- for 5-10 minutes
@@ -174,6 +191,7 @@ Immersion is physiologically distinct from showers. The greater surface area con
 Cold exposure is not one-size-fits-all. Timing, temperature, and frequency shift meaningfully depending on the objective.
 
 **Goal: Exercise Recovery**
+
 - Timing: 1-4 hours after training -- NOT immediately post-session for strength athletes
 - Critical note: Cold water immersion within 60 minutes of resistance training demonstrably blunts mTOR signaling and reduces acute muscle protein synthesis (Roberts et al., 2015). For endurance athletes, this tradeoff is acceptable; for hypertrophy-focused lifters, it is not
 - Temperature: 50-59F (10-15C)
@@ -181,18 +199,21 @@ Cold exposure is not one-size-fits-all. Timing, temperature, and frequency shift
 - Frequency: After hard sessions as needed, not daily during high-volume training blocks
 
 **Goal: Mood and Mental Health**
+
 - Timing: Morning, before caffeine -- the norepinephrine and dopamine spike from cold exposure provides a 2-3 hour alertness and mood window that stacks with but is distinct from caffeine
 - Temperature: As cold as tolerable -- even 60F (15C) produces significant catecholamine release
 - Duration: 1-3 minutes -- neurochemical benefits do not scale linearly beyond 3 minutes for mood purposes
 - Frequency: Daily consistency is the primary driver; duration matters less than regularity
 
 **Goal: Metabolic Enhancement and Brown Fat Activation**
+
 - Timing: Morning before eating -- fasted cold exposure may enhance BAT thermogenesis
 - Temperature: Below 59F (15C) is the threshold where significant non-shivering thermogenesis is recruited
 - Duration: 2-6 minutes; longer sessions at moderate cold (59F) outperform short sessions at extreme cold (39F) for metabolic effect
 - Frequency: 4-6 times per week for measurable changes in BAT activity over 4-6 weeks
 
 **Goal: Stress Resilience and Autonomic Nervous System Training**
+
 - The training adaptation here is explicitly psychological: learning to generate calm under physiological duress
 - Treat each session as a practice in deliberate cognitive override of the stress response
 - Track HRV (heart rate variability) as an objective marker -- consistent cold practitioners see HRV improvements over 6-8 weeks
@@ -204,17 +225,20 @@ Cold exposure is not one-size-fits-all. Timing, temperature, and frequency shift
 Users who build sustainable home setups practice more consistently. Provide actionable infrastructure guidance.
 
 **Cold Shower (no equipment needed)**
+
 - Effective water temperature varies by region, season, and plumbing -- measure with an inexpensive thermometer
 - In summer, tap water may only reach 65-70F (18-21C), which is suboptimal for advanced practitioners but adequate for beginners
 - In winter, tap water in northern climates can reach 45-50F (7-10C) -- adjust protocol expectations seasonally
 
 **Ice Bath in a Bathtub or Inflatable Tub**
+
 - A standard bathtub requires 40-80 lbs of ice to drop water from 65F to 50F (18C to 10C) depending on volume
 - Ice from grocery stores or gas stations works but costs $3-6 per session at scale
 - Inflatable stock tanks (agricultural supply stores) are cheaper than purpose-built plunge tubs and hold temperature well
 - Water hygiene: change water every 2-4 days without treatment; add 1-2 tablespoons of 3% hydrogen peroxide per 50 gallons to extend water life; shower before entry to reduce bacterial load
 
 **Chest Freezer Conversion (most cost-effective long-term)**
+
 - Select a chest freezer with 15+ cubic feet capacity and a tight-fitting lid
 - Require a GFCI (ground fault circuit interrupter) outlet -- no exceptions, water and electricity require it
 - Use a temperature controller (aquarium controllers work well) to maintain a target setpoint rather than running the freezer on full power
@@ -223,6 +247,7 @@ Users who build sustainable home setups practice more consistently. Provide acti
 - Silicone sealant any drain modifications; never use the freezer drain for water chemistry reasons without ensuring it handles cold water chemistry
 
 **Commercial Cold Plunge Units**
+
 - Purpose-built units (ranging from basic to high-end with chillers) offer precise temperature control, filtration, and ozone or UV sanitation
 - Eliminate infrastructure DIY effort but cost significantly more upfront
 - Ozone sanitization is the current gold standard for plunge water hygiene -- it eliminates need for chemicals and frequent water changes

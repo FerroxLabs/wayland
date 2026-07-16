@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart devops checklist template python javascript api-design cloud"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart devops checklist template python javascript api-design cloud'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Env File Manager
 
 You are an environment configuration specialist. Help the user set up, organize, and secure environment variables and env-config files. Provide exact file contents and commands. Prioritize security and team workflow.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about env file manager techniques or best practices
 - User needs guidance on env file manager concepts
 - User wants to implement or improve their approach to env file manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of env file manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -108,8 +109,8 @@ require('dotenv').config();
 require('dotenv').config({ path: 'env-config.staging' });
 
 // Access variables
-const dbUrl = processenv-config.DATABASE_URL;
-const port = parseInt(processenv-config.PORT, 10) || 3000;
+const dbUrl = processenv - config.DATABASE_URL;
+const port = parseInt(processenv - config.PORT, 10) || 3000;
 ```
 
 ### Python (python-dotenv)
@@ -139,10 +140,10 @@ debug = os.getenv('DEBUG', 'false').lower() == 'true'
 services:
   app:
     env_file:
-      - env-config                    # base values
-      - env-config.${ENVIRONMENT}     # environment-specific supersedes
+      - env-config # base values
+      - env-config.${ENVIRONMENT} # environment-specific supersedes
     environment:
-      - NODE_ENV=${NODE_ENV:-development}  # inline with default
+      - NODE_ENV=${NODE_ENV:-development} # inline with default
 ```
 
 ### Next.js / Vite / Create React App
@@ -193,13 +194,9 @@ AWS_REGION=us-east-1
 
 ```javascript
 // config.js - validate env vars at startup
-const required = [
-  'DATABASE_URL',
-  'API_KEY',
-  'JWT_SECRET',
-];
+const required = ['DATABASE_URL', 'API_KEY', 'JWT_SECRET'];
 
-const missing = required.filter(key => !processenv-config[key]);
+const missing = required.filter((key) => !processenv - config[key]);
 if (missing.length > 0) {
   console.error(`Missing required environment variables:\n  ${missing.join('\n  ')}`);
   console.error('\nCopy env-config.example to env-config and fill in values.');
@@ -209,12 +206,12 @@ if (missing.length > 0) {
 // Typed config object
 module.exports = {
   database: {
-    url: processenv-config.DATABASE_URL,
-    poolSize: parseInt(processenv-config.DATABASE_POOL_SIZE, 10) || 5,
+    url: processenv - config.DATABASE_URL,
+    poolSize: parseInt(processenv - config.DATABASE_POOL_SIZE, 10) || 5,
   },
-  port: parseInt(processenv-config.PORT, 10) || 3000,
-  isProduction: processenv-config.NODE_ENV === 'production',
-  logLevel: processenv-config.LOG_LEVEL || 'info',
+  port: parseInt(processenv - config.PORT, 10) || 3000,
+  isProduction: processenv - config.NODE_ENV === 'production',
+  logLevel: processenv - config.LOG_LEVEL || 'info',
 };
 ```
 
@@ -246,14 +243,14 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 
 ### Team Sharing (Secure Methods)
 
-| Method | Complexity | Best For |
-|--------|-----------|----------|
-| 1Password / Bitwarden shared vault | Low | Small teams |
-| `git-crypt` | Medium | Git-native encryption |
-| `sops` (Mozilla) | Medium | Cloud-integrated encryption |
-| AWS Secrets Manager | High | AWS production |
-| HashiCorp Vault | High | Enterprise, multi-cloud |
-| Doppler / Infisical | Medium | SaaS secrets management |
+| Method                             | Complexity | Best For                    |
+| ---------------------------------- | ---------- | --------------------------- |
+| 1Password / Bitwarden shared vault | Low        | Small teams                 |
+| `git-crypt`                        | Medium     | Git-native encryption       |
+| `sops` (Mozilla)                   | Medium     | Cloud-integrated encryption |
+| AWS Secrets Manager                | High       | AWS production              |
+| HashiCorp Vault                    | High       | Enterprise, multi-cloud     |
+| Doppler / Infisical                | Medium     | SaaS secrets management     |
 
 ### git-crypt Setup
 
@@ -318,7 +315,6 @@ export $(grep -v '^#' env-config | xargs)
 set -a; source env-config; set +a
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -326,7 +322,6 @@ set -a; source env-config; set +a
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -347,14 +342,12 @@ set -a; source env-config; set +a
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "template planning strategy guide checklist"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'template planning strategy guide checklist'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Performance Improvement Plan
 
 ## When to Use
 
 **Use this skill when:**
+
 - A manager needs to formally document an employee's sustained underperformance after informal coaching has not produced durable improvement -- typically after 2 or more documented conversations over 4+ weeks with no measurable change
 - An HR professional or manager needs a legally defensible PIP document that will withstand scrutiny in a wrongful termination claim or employment tribunal
 - A user needs to structure a formal improvement plan for quantifiable performance gaps: missed quota, below-threshold output, chronically late deliverables, recurring quality failures, or attendance patterns that meet the definition of excessive under policy
@@ -28,6 +30,7 @@ metadata:
 - A user is managing a remote or hybrid workforce where performance documentation is especially critical because in-person observation is limited and objective output data must substitute for behavioral observation
 
 **Do NOT use this skill when:**
+
 - The performance issue is a single incident -- isolated mistakes, one bad quarter, or a first-time policy violation belong in a documented coaching conversation or formal written warning, not a PIP (use a coaching conversation framework or disciplinary documentation)
 - The user wants a standard annual or quarterly performance review (use `performance-review` skill)
 - The user needs termination documentation, separation agreements, or severance language -- all of those require legal counsel and are outside this skill's scope
@@ -383,17 +386,17 @@ PIPs for director-level and above employees require heightened rigor because the
 
 ### Employee Information
 
-| Field                       | Detail                                                      |
-|-----------------------------|-------------------------------------------------------------|
-| Employee name               | [Sarah Chen] -- replace with actual name                    |
-| Job title                   | Customer Success Manager                                     |
-| Department                  | Customer Success                                             |
-| Location / work arrangement | [Complete before delivery]                                  |
-| Direct manager              | [Manager Name], Director of Customer Success                |
-| HR representative           | [HR Name], HR Business Partner                              |
-| PIP initiation date         | [Date]                                                      |
-| PIP end date                | [Date + 60 days]                                            |
-| Review period               | 60 days                                                     |
+| Field                       | Detail                                                            |
+| --------------------------- | ----------------------------------------------------------------- |
+| Employee name               | [Sarah Chen] -- replace with actual name                          |
+| Job title                   | Customer Success Manager                                          |
+| Department                  | Customer Success                                                  |
+| Location / work arrangement | [Complete before delivery]                                        |
+| Direct manager              | [Manager Name], Director of Customer Success                      |
+| HR representative           | [HR Name], HR Business Partner                                    |
+| PIP initiation date         | [Date]                                                            |
+| PIP end date                | [Date + 60 days]                                                  |
+| Review period               | 60 days                                                           |
 | Prior feedback dates        | March [date] (verbal + follow-up email), April [date] (Q1 review) |
 
 ---
@@ -408,19 +411,20 @@ This plan provides [Sarah Chen] with a structured 60-day period to achieve accep
 
 ### Performance Deficiency 1: Enterprise Client Retention Rate
 
-| Aspect                | Detail                                                                                              |
-|-----------------------|-----------------------------------------------------------------------------------------------------|
-| Expected standard     | Customer Success Managers managing enterprise accounts are expected to maintain a minimum net retention rate of 88%, per the Customer Success team standards document (revised January [year]) |
-| Current performance   | Q4 [year]: 94% net retention (11 of 12 accounts renewed). Q1 [year]: 83% (10 of 12 accounts renewed). Q2 [year] to date: 71% (7 of 10 renewal-eligible accounts -- 2 accounts churned in April, 1 in May) |
-| Performance gap       | Retention has declined 23 percentage points from Q4 to current period. Current rate is 17 points below the 88% minimum standard |
-| Comparison baseline   | Team median net retention rate for enterprise CSMs in Q1 and Q2: 91%                               |
-| Prior feedback given  | March [date]: Verbal conversation re: account health concerns + follow-up email (attached). April [date]: Discussed in Q1 performance review (review document attached) |
+| Aspect               | Detail                                                                                                                                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expected standard    | Customer Success Managers managing enterprise accounts are expected to maintain a minimum net retention rate of 88%, per the Customer Success team standards document (revised January [year])            |
+| Current performance  | Q4 [year]: 94% net retention (11 of 12 accounts renewed). Q1 [year]: 83% (10 of 12 accounts renewed). Q2 [year] to date: 71% (7 of 10 renewal-eligible accounts -- 2 accounts churned in April, 1 in May) |
+| Performance gap      | Retention has declined 23 percentage points from Q4 to current period. Current rate is 17 points below the 88% minimum standard                                                                           |
+| Comparison baseline  | Team median net retention rate for enterprise CSMs in Q1 and Q2: 91%                                                                                                                                      |
+| Prior feedback given | March [date]: Verbal conversation re: account health concerns + follow-up email (attached). April [date]: Discussed in Q1 performance review (review document attached)                                   |
 
 **Improvement target:** Achieve a net retention rate of 88% or higher across the enterprise portfolio by the end of the 60-day PIP period. No additional account churn during the PIP period attributable to delayed response, insufficient escalation management, or lack of proactive engagement.
 
 **Evidence source:** CRM renewal records and churned account documentation, reviewed by manager and VP of Customer Success at midpoint and final review.
 
 **Milestone targets:**
+
 - By Day 20: All at-risk accounts (health score below 6 in CRM) have active retention plans documented in the account record, with at least one touchpoint completed
 - By Day 30 (midpoint): No new accounts have moved to churn risk during the PIP period; all previously at-risk accounts show health score improvement or are in active renewal discussion
 - By Day 60 (end of PIP): Net retention rate of 88%+ across the portfolio; all renewal-eligible accounts have been contacted and renewal conversations are underway or complete
@@ -429,19 +433,20 @@ This plan provides [Sarah Chen] with a structured 60-day period to achieve accep
 
 ### Performance Deficiency 2: Escalation Response Timeliness
 
-| Aspect                | Detail                                                                                              |
-|-----------------------|-----------------------------------------------------------------------------------------------------|
-| Expected standard     | Per the Customer Success Escalation Policy (Section 3.2), enterprise account escalations flagged as high or critical priority must receive an initial response within 4 business hours and a resolution plan within 24 business hours |
-| Current performance   | Review of the CRM escalation log for the period February 1 -- May [date] shows 11 escalations flagged as high or critical priority across [Sarah Chen]'s accounts. Of those, 7 received initial responses after 24 business hours (ranging from 27 to 61 hours). On two occasions (March 14 -- Acme Corp escalation; April 28 -- Global Dynamics escalation), clients escalated directly to the VP of Customer Success due to non-response |
-| Performance gap       | 64% of high/critical escalations missed the 4-hour initial response standard. Two incidents resulted in executive escalation by the client |
-| Comparison baseline   | Team average response time for high/critical escalations: 3.1 business hours                       |
-| Prior feedback given  | March [date] conversation referenced the Acme Corp escalation specifically; April review noted the pattern of delayed responses |
+| Aspect               | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Expected standard    | Per the Customer Success Escalation Policy (Section 3.2), enterprise account escalations flagged as high or critical priority must receive an initial response within 4 business hours and a resolution plan within 24 business hours                                                                                                                                                                                                      |
+| Current performance  | Review of the CRM escalation log for the period February 1 -- May [date] shows 11 escalations flagged as high or critical priority across [Sarah Chen]'s accounts. Of those, 7 received initial responses after 24 business hours (ranging from 27 to 61 hours). On two occasions (March 14 -- Acme Corp escalation; April 28 -- Global Dynamics escalation), clients escalated directly to the VP of Customer Success due to non-response |
+| Performance gap      | 64% of high/critical escalations missed the 4-hour initial response standard. Two incidents resulted in executive escalation by the client                                                                                                                                                                                                                                                                                                 |
+| Comparison baseline  | Team average response time for high/critical escalations: 3.1 business hours                                                                                                                                                                                                                                                                                                                                                               |
+| Prior feedback given | March [date] conversation referenced the Acme Corp escalation specifically; April review noted the pattern of delayed responses                                                                                                                                                                                                                                                                                                            |
 
 **Improvement target:** 100% of high and critical priority escalations receive an initial response within 4 business hours and a documented resolution plan within 24 business hours, for the duration of the PIP period. Zero client-initiated executive escalations due to non-response.
 
 **Evidence source:** CRM escalation log, with timestamps of initial client message and first CSM response. Reviewed by manager weekly at PIP check-ins.
 
 **Milestone targets:**
+
 - By Day 14: Compliance rate with 4-hour initial response standard reaches 90% for the two-week period
 - By Day 30 (midpoint): 100% compliance with 4-hour initial response standard for the preceding 30-day period, with all resolution plans documented
 - By Day 60 (end of PIP): Sustained 100% compliance for the full 60-day PIP period; no client-initiated executive escalations due to response delays
@@ -452,29 +457,29 @@ This plan provides [Sarah Chen] with a structured 60-day period to achieve accep
 
 The company will provide the following support during this PIP period:
 
-| Support Type            | Specific Commitment                                                                       | Owner              | Start Date   |
-|-------------------------|-------------------------------------------------------------------------------------------|--------------------|--------------|
-| Escalation process training | [Sarah Chen] will complete a structured review session with the Customer Success Operations team covering escalation triage, CRM escalation workflow, and prioritization protocols. Duration: 2 hours, scheduled for [Date] | CS Ops Lead | [Date] |
-| Weekly PIP check-in     | 60-minute weekly 1:1 with direct manager, Tuesdays at 10:00 AM, dedicated to PIP progress review. Separate from regular 1:1 | Manager | [Date] |
-| Account portfolio review | Joint review of the full enterprise account health dashboard with manager during Weeks 1 and 2 to identify and prioritize at-risk accounts | Manager | [Date] |
-| Senior CSM pairing      | [Sarah Chen] will be paired with [Senior CSM Name], the team's enterprise retention specialist, for bi-weekly 30-minute sessions during the PIP period to discuss account strategy on at-risk accounts | Manager | [Date] |
-| Temporary admin offload | Quarterly reporting preparation responsibilities (approximately 3 hours/week) will be reassigned to [Colleague Name] for the 60-day PIP period to allow [Sarah Chen] to prioritize client-facing work | Manager | [Date] |
-| HR availability         | [Sarah Chen] may contact [HR Name] directly at any time during the PIP period with questions, concerns, or to provide feedback on the process | HR Rep | Ongoing |
+| Support Type                | Specific Commitment                                                                                                                                                                                                         | Owner       | Start Date |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------- |
+| Escalation process training | [Sarah Chen] will complete a structured review session with the Customer Success Operations team covering escalation triage, CRM escalation workflow, and prioritization protocols. Duration: 2 hours, scheduled for [Date] | CS Ops Lead | [Date]     |
+| Weekly PIP check-in         | 60-minute weekly 1:1 with direct manager, Tuesdays at 10:00 AM, dedicated to PIP progress review. Separate from regular 1:1                                                                                                 | Manager     | [Date]     |
+| Account portfolio review    | Joint review of the full enterprise account health dashboard with manager during Weeks 1 and 2 to identify and prioritize at-risk accounts                                                                                  | Manager     | [Date]     |
+| Senior CSM pairing          | [Sarah Chen] will be paired with [Senior CSM Name], the team's enterprise retention specialist, for bi-weekly 30-minute sessions during the PIP period to discuss account strategy on at-risk accounts                      | Manager     | [Date]     |
+| Temporary admin offload     | Quarterly reporting preparation responsibilities (approximately 3 hours/week) will be reassigned to [Colleague Name] for the 60-day PIP period to allow [Sarah Chen] to prioritize client-facing work                       | Manager     | [Date]     |
+| HR availability             | [Sarah Chen] may contact [HR Name] directly at any time during the PIP period with questions, concerns, or to provide feedback on the process                                                                               | HR Rep      | Ongoing    |
 
 ---
 
 ### Check-in and Review Schedule
 
-| Date    | Type                    | Attendees                              | Documentation Required                                 |
-|---------|-------------------------|----------------------------------------|--------------------------------------------------------|
-| [Date]  | Week 1 check-in         | [Sarah Chen] + Manager                 | Manager completes check-in log; CRM escalation report reviewed |
-| [Date]  | Week 2 check-in         | [Sarah Chen] + Manager                 | Manager completes check-in log; at-risk account plan review |
-| [Date]  | Week 3 check-in         | [Sarah Chen] + Manager                 | Manager completes check-in log                         |
-| [Date]  | Week 4 -- Midpoint review | [Sarah Chen] + Manager + HR Rep       | Signed midpoint assessment form; CRM retention and escalation data reviewed; written midpoint determination (on track / at risk / not meeting expectations) |
-| [Date]  | Week 5 check-in         | [Sarah Chen] + Manager                 | Manager completes check-in log                         |
-| [Date]  | Week 6 check-in         | [Sarah Chen] + Manager                 | Manager completes check-in log                         |
-| [Date]  | Week 7 check-in         | [Sarah Chen] + Manager                 | Manager completes check-in log                         |
-| [Date]  | Week 8 -- Final review  | [Sarah Chen] + Manager + HR Rep + VP CS | Signed outcome determination form; final CRM data pull; written outcome determination |
+| Date   | Type                      | Attendees                               | Documentation Required                                                                                                                                      |
+| ------ | ------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Date] | Week 1 check-in           | [Sarah Chen] + Manager                  | Manager completes check-in log; CRM escalation report reviewed                                                                                              |
+| [Date] | Week 2 check-in           | [Sarah Chen] + Manager                  | Manager completes check-in log; at-risk account plan review                                                                                                 |
+| [Date] | Week 3 check-in           | [Sarah Chen] + Manager                  | Manager completes check-in log                                                                                                                              |
+| [Date] | Week 4 -- Midpoint review | [Sarah Chen] + Manager + HR Rep         | Signed midpoint assessment form; CRM retention and escalation data reviewed; written midpoint determination (on track / at risk / not meeting expectations) |
+| [Date] | Week 5 check-in           | [Sarah Chen] + Manager                  | Manager completes check-in log                                                                                                                              |
+| [Date] | Week 6 check-in           | [Sarah Chen] + Manager                  | Manager completes check-in log                                                                                                                              |
+| [Date] | Week 7 check-in           | [Sarah Chen] + Manager                  | Manager completes check-in log                                                                                                                              |
+| [Date] | Week 8 -- Final review    | [Sarah Chen] + Manager + HR Rep + VP CS | Signed outcome determination form; final CRM data pull; written outcome determination                                                                       |
 
 ---
 
@@ -498,15 +503,15 @@ The company will provide the following support during this PIP period:
 
 This Performance Improvement Plan was reviewed and discussed with [Sarah Chen] on [date].
 
-Employee name (print): _______________________________
-Employee signature: ___________________________ Date: ___________
-*Signature acknowledges receipt and discussion of this plan. It does not constitute agreement with the performance assessment.*
+Employee name (print): **************\_\_\_**************
+Employee signature: ************\_\_\_************ Date: ****\_\_\_****
+_Signature acknowledges receipt and discussion of this plan. It does not constitute agreement with the performance assessment._
 
-Manager name (print): ________________________________
-Manager signature: ___________________________ Date: ___________
+Manager name (print): **************\_\_\_\_**************
+Manager signature: ************\_\_\_************ Date: ****\_\_\_****
 
-HR representative name (print): _______________________
-HR signature: ____________________________ Date: ___________
+HR representative name (print): **********\_\_\_**********
+HR signature: ************\_\_\_\_************ Date: ****\_\_\_****
 
 ---
 

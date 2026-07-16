@@ -13,14 +13,15 @@ description: >-
   atomic skill can handle.
 license: Apache-2.0
 type: workflow
-skills: "funnels-evergreen funnels-cart-cycle-launch funnels-daily-pivot funnels-story-drip"
+skills: 'funnels-evergreen funnels-cart-cycle-launch funnels-daily-pivot funnels-story-drip'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing funnels evergreen automation step-by-step scarcity
   category: marketing
-  depends: "funnels-evergreen funnels-cart-cycle-launch funnels-daily-pivot funnels-story-drip"
+  depends: 'funnels-evergreen funnels-cart-cycle-launch funnels-daily-pivot funnels-story-drip'
 ---
+
 # Evergreen Conversion
 
 **Estimated time:** 20-30 minutes

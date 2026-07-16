@@ -12,10 +12,7 @@
 import log from 'electron-log';
 import { ipcBridge } from '@/common';
 import type { IjfwInvokeResult } from '@/common/types/ijfw';
-import {
-  brainInvokeArgsSchema,
-  validateInvocation,
-} from '@process/services/ijfw/ipcSchemas';
+import { brainInvokeArgsSchema, validateInvocation } from '@process/services/ijfw/ipcSchemas';
 import { ijfwMcpClient } from '@process/services/ijfw/ijfwMcpClient';
 import { ijfwSystemService, getLastStatus } from '@process/services/ijfwSystemService';
 import { ProcessConfig } from '@process/utils/initStorage';

@@ -82,9 +82,7 @@ describe('buildTeamExport - whitelist enforcement', () => {
 
   it('includes rituals when the resolver returns a non-empty array', async () => {
     const team = makeTeam();
-    const payload = await buildTeamExport(team, async () => [
-      { name: 'Weekly review', cadence: 'weekly' },
-    ]);
+    const payload = await buildTeamExport(team, async () => [{ name: 'Weekly review', cadence: 'weekly' }]);
     expect(payload.rituals).toEqual([{ name: 'Weekly review', cadence: 'weekly' }]);
   });
 });

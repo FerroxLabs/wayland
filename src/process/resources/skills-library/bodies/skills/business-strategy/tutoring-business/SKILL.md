@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship teaching strategy"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship teaching strategy'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Tutoring Business
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start or grow a tutoring business with subject positioning and pricing tiers
 - The user needs help with online vs in-person delivery models, curriculum development, or parent communication
 - The user wants guidance on scheduling systems, marketing to schools, or scaling a tutoring operation
 - The user needs strategies for hiring tutors, quality assurance, or organizational partnerships
 
 **Do NOT use this skill when:**
+
 - The user wants tutoring technique or teaching methodology (use relevant education skill)
 - The user is building an educational game or platform (use educational-game-designer instead)
 - The user needs general solopreneur guidance (use solopreneur-toolkit instead)
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on tutoring business
 - User asks about tutoring business best practices or techniques
 - User wants a structured approach to tutoring business
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of tutoring business
+
 ## Questions to Ask First
 
 Before providing guidance, establish the tutor's situation:
@@ -67,6 +72,7 @@ Before providing guidance, establish the tutor's situation:
 ## Subject Expertise Positioning
 
 ### Positioning Framework
+
 ```
 NICHE FORMULA:
   [Subject Area] + [Student Level] + [Outcome] = Your Position
@@ -80,6 +86,7 @@ POSITIONING HIERARCHY (from least to most valuable):
 ```
 
 ### High-Demand Subjects by Rate Potential
+
 ```
 PREMIUM RATE SUBJECTS ($75-$200+/hour):
   - SAT/ACT/GRE/GMAT test prep
@@ -105,6 +112,7 @@ ENTRY-LEVEL SUBJECTS ($30-$60/hour):
 ## Pricing Tiers
 
 ### Rate Setting Framework
+
 ```
 FACTORS THAT DETERMINE YOUR RATE:
   1. Your credentials (degree, certifications, teaching experience)
@@ -140,6 +148,7 @@ RATE INCREASE SCHEDULE:
 ```
 
 ### Package and Program Pricing
+
 ```
 TEST PREP PACKAGES (Premium):
   Assessment + study plan:           $150-$300 (one-time)
@@ -158,6 +167,7 @@ ACADEMIC SUPPORT PACKAGES:
 ## Online vs. In-Person
 
 ### Platform and Tools
+
 ```
 ONLINE TUTORING SETUP:
   Video platform:
@@ -184,6 +194,7 @@ IN-PERSON SETUP:
 ```
 
 ### Online vs. In-Person Comparison
+
 ```
                     | ONLINE           | IN-PERSON
 --------------------|------------------|------------------
@@ -200,6 +211,7 @@ Scale potential     | Higher           | Limited by geography
 ## Curriculum Development
 
 ### Session Planning Framework
+
 ```
 FIRST SESSION (Assessment & Rapport):
   1. Meet student and parent (10 min) - goals, concerns, history
@@ -235,6 +247,7 @@ SESSION PLANNING TEMPLATE:
 ```
 
 ### Progress Tracking
+
 ```
 STUDENT PROGRESS RECORD:
   Student: ________
@@ -263,6 +276,7 @@ MILESTONE ASSESSMENTS:
 ```
 
 ### Test Prep Curriculum Design
+
 ```
 SAT/ACT PREP FRAMEWORK (12-16 weeks):
 
@@ -294,6 +308,7 @@ Phase 4: Final Preparation (Weeks 15-16)
 ## Parent Communication
 
 ### Communication Templates
+
 ```
 INITIAL ASSESSMENT REPORT (After First Session):
 Subject: [Student's Name] - Initial Assessment Summary
@@ -333,6 +348,7 @@ Best regards,
 ```
 
 ### Parent Communication Best Practices
+
 ```
 DO:
   - Send brief post-session summaries (2-3 sentences via text)
@@ -355,6 +371,7 @@ DON'T:
 ## Scheduling
 
 ### Scheduling System
+
 ```
 SOFTWARE OPTIONS:
   Tutorcruncher:     $24-$85/month (built for tutoring businesses)
@@ -379,6 +396,7 @@ SCHEDULING OPTIMIZATION:
 ```
 
 ### Capacity Planning
+
 ```
 SOLO TUTOR CAPACITY:
   Maximum sustainable sessions per week: 25-30
@@ -401,6 +419,7 @@ SOLO TUTOR CAPACITY:
 ## Scaling Strategies
 
 ### Growth Path
+
 ```
 STAGE 1: SOLO TUTOR ($0-$8K/month)
   Focus: Build reputation, collect testimonials, refine teaching
@@ -437,6 +456,7 @@ STAGE 4: MULTI-LOCATION OR FRANCHISE
 ```
 
 ### Tutor Recruitment and Management
+
 ```
 WHERE TO FIND TUTORS:
   - University career centers and education departments
@@ -464,6 +484,7 @@ TUTOR COMPENSATION (When Scaling):
 ## Marketing to Schools
 
 ### School Partnership Strategy
+
 ```
 APPROACH:
   1. Identify target schools (within your service area, matching your specialty)
@@ -489,6 +510,7 @@ SCHOOL OUTREACH TIMING:
 ```
 
 ### Other Marketing Channels
+
 ```
 1. GOOGLE BUSINESS PROFILE: Reviews from parents, area-specific SEO
 2. PARENT FACEBOOK GROUPS: Engage in local parenting communities
@@ -501,6 +523,7 @@ SCHOOL OUTREACH TIMING:
 ```
 
 ## Financial Management
+
 ```
 MONTHLY FINANCIAL TRACKER:
   Session revenue:               $________
@@ -540,7 +563,6 @@ MONTHLY FINANCIAL TRACKER:
 9. Not saving for summer income dips (put away 20% during school year peak)
 10. Spending on a tutoring center lease before proving demand with mobile/online first
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -553,13 +575,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with tutoring business for a mid-size project."
 
 **Output:** A complete tutoring business framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

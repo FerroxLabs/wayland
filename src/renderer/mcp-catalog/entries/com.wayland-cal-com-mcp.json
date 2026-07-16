@@ -14,8 +14,18 @@
       "runtimeHint": "native",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "CALCOM_API_KEY", "description": "API key from your Cal.com settings.", "isRequired": true, "isSecret": true },
-        { "name": "CALCOM_BASE_URL", "description": "Override for self-hosted Cal.com instances.", "isRequired": false, "default": "https://api.cal.com/v2" }
+        {
+          "name": "CALCOM_API_KEY",
+          "description": "API key from your Cal.com settings.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "CALCOM_BASE_URL",
+          "description": "Override for self-hosted Cal.com instances.",
+          "isRequired": false,
+          "default": "https://api.cal.com/v2"
+        }
       ]
     }
   ],

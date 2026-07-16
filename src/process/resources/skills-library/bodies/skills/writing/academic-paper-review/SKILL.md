@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing academic-writing research"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'editing academic-writing research'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Academic Paper Review
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user submits a complete or near-complete academic manuscript and asks for peer-review-style feedback on its merit, rigor, or publishability
 - A user wants a structured critique of an empirical study, theoretical paper, systematic review, methods paper, or case study before submission to a journal or conference
 - A user asks to evaluate the methodological soundness of a specific section -- such as the sampling strategy, statistical approach, or theoretical framework -- within the context of the full paper
@@ -29,6 +31,7 @@ metadata:
 - A user needs a pre-submission check to anticipate likely reviewer objections before submitting to a specific journal
 
 **Do NOT use this skill when:**
+
 - The user needs only grammar, spelling, and punctuation correction -- use `proofreading` instead
 - The user wants to write an academic paper from scratch or structure a new research document -- use `research-paper-structure` instead
 - The user wants to draft replies to specific peer reviewer comments already received -- use `peer-review-response` instead
@@ -47,7 +50,7 @@ Before analyzing the manuscript, gather the following parameters. They determine
 
 - **Discipline and subfield:** A psychology paper on cognitive load requires very different standards than a sociology paper on labor precarity. Natural sciences emphasize replicability and falsifiability; humanities emphasize interpretive depth and theoretical coherence; social sciences sit on a spectrum between them. Engineering papers may prioritize practical validation over theoretical generalization.
 - **Paper type:** Empirical (quantitative, qualitative, mixed-methods), theoretical/conceptual, systematic review or meta-analysis, methods paper, case study, commentary or perspective, or replication study. Each type has distinct evaluative criteria -- a case study cannot be faulted for lacking a large sample if it correctly frames itself as exploratory.
-- **Target venue:** A top-tier journal (Nature, Science, JAMA, APSR, Econometrica) demands higher rigor than a regional conference or disciplinary workshop. Know the difference between Q1 journals, field-specific A* conferences, and student or practitioner publications. If the user names the venue, calibrate accordingly.
+- **Target venue:** A top-tier journal (Nature, Science, JAMA, APSR, Econometrica) demands higher rigor than a regional conference or disciplinary workshop. Know the difference between Q1 journals, field-specific A\* conferences, and student or practitioner publications. If the user names the venue, calibrate accordingly.
 - **Developmental stage:** Early draft (argument and structure focus), late draft (everything), pre-submission (anticipate hostile reviewers), post-rejection revision (validate or challenge reviewer critique), thesis/dissertation (committee-appropriate depth).
 - **Author's stated goal:** "Make this publishable" is different from "tell me if the argument holds" which is different from "help me understand what the reviewers will object to." Clarify before reviewing.
 - **Field-specific conventions:** Certain fields require specific sections (IMRAD structure for biomedical sciences, full reflexivity statements in qualitative sociology, extensive related-work sections in computer science), specific referencing styles (APA, MLA, Chicago, Vancouver, IEEE), and specific norms around authorship, acknowledgment, and ethics statements.
@@ -98,6 +101,7 @@ The introduction and literature review establish the intellectual warrant for th
 Methodology is the single most scrutinized section in empirical peer review. Evaluate it using the specific standards of the paper's methodological tradition.
 
 **For quantitative research:**
+
 - **Sample size and power:** Was an a priori power analysis conducted? For most behavioral research, adequate power (β = 0.80) for detecting a medium effect (Cohen's d = 0.5) requires approximately 64 participants per group. For small effects (d = 0.2), this rises to ~394 per group. Undersized studies cannot reliably detect effects; oversized studies may detect trivial effects as statistically significant.
 - **Sampling strategy and representativeness:** Convenience samples (undergraduate students, MTurk workers, single organization) severely limit generalizability. The paper must acknowledge this. If the sample is convenience-based, check whether the conclusions are appropriately hedged.
 - **Measurement validity:** Are the measures validated instruments or ad hoc scales? Validated scales (e.g., PHQ-9 for depression, Big Five Inventory for personality) should be cited with their psychometric properties. Novel scales must report internal consistency (Cronbach's α ≥ 0.70 is the common threshold), test-retest reliability, and ideally factor structure.
@@ -107,6 +111,7 @@ Methodology is the single most scrutinized section in empirical peer review. Eva
 - **Confound control:** Are plausible confounding variables identified and controlled for statistically (regression covariates, propensity score matching) or by design (randomization, matching)?
 
 **For qualitative research:**
+
 - **Paradigmatic consistency:** The methodology must be internally consistent. A phenomenological study should follow phenomenological analysis (IPA, Giorgi method); grounded theory requires theoretical sampling and constant comparative analysis; ethnography requires extended field presence. Applying quantitative concepts like "representativeness" to purposive qualitative samples reflects a category error.
 - **Trustworthiness criteria:** Qualitative rigor is assessed through Lincoln and Guba's criteria -- credibility (member checking, prolonged engagement, peer debriefing), transferability (thick description), dependability (audit trail), and confirmability (reflexivity statement). Check whether the paper addresses these.
 - **Sample sufficiency:** Qualitative sample sizes should be justified by saturation, not by convention. Thematic saturation in interview studies typically occurs between 12-20 participants for homogeneous samples; heterogeneous samples may require more. Papers reporting 5 interviews as "sufficient" without saturation discussion require scrutiny.
@@ -114,6 +119,7 @@ Methodology is the single most scrutinized section in empirical peer review. Eva
 - **Analytic transparency:** The reader should be able to trace how raw data (interview transcripts, field notes, documents) were transformed into themes or categories. Papers that jump from "we collected data" to "we found three themes" without describing the analytic process fail basic transparency standards.
 
 **For systematic reviews and meta-analyses:**
+
 - **PRISMA compliance:** Systematic reviews should follow the PRISMA (Preferred Reporting Items for Systematic Reviews and Meta-Analyses) 2020 checklist. A PRISMA flow diagram showing screening stages is expected.
 - **Search strategy reproducibility:** The search strategy must be reported in enough detail to be replicated -- specific databases searched, search terms and Boolean operators used, date ranges, language restrictions, inclusion/exclusion criteria.
 - **Risk of bias assessment:** Studies included in a meta-analysis should be assessed for quality/risk of bias using validated tools (Cochrane Risk of Bias tool for RCTs, Newcastle-Ottawa Scale for observational studies, ROBIS for systematic reviews). Failure to do this is a major methodological gap.
@@ -355,7 +361,7 @@ The paper addresses a timely question with practical relevance, and the moderati
 
 4. **Attention to sector-specific context** (Section 1.2): The deliberate focus on financial services, rather than a generalized cross-sector sample, is methodologically defensible and practically meaningful. Financial services has specific regulatory, confidentiality, and client-interaction constraints that meaningfully affect the remote work-productivity relationship, and the paper contextualizes the findings within that sector appropriately.
 
-5. **Adequate sample size for main effect detection** (Statistical power: Section 3.5): The authors report conducting an a priori power analysis (G*Power 3.1) targeting β = 0.80 to detect a medium effect (f² = 0.15) in hierarchical regression, yielding a required N of 92 at α = 0.05. With N = 500, the study is well-powered for the primary analysis. However, this is not examined for the moderated regression, where power requirements are higher (see Major Concern 2).
+5. **Adequate sample size for main effect detection** (Statistical power: Section 3.5): The authors report conducting an a priori power analysis (G\*Power 3.1) targeting β = 0.80 to detect a medium effect (f² = 0.15) in hierarchical regression, yielding a required N of 92 at α = 0.05. With N = 500, the study is well-powered for the primary analysis. However, this is not examined for the moderated regression, where power requirements are higher (see Major Concern 2).
 
 ---
 
@@ -417,34 +423,34 @@ The paper addresses a timely question with practical relevance, and the moderati
 
 ### Section-by-Section Notes
 
-| Section | Assessment | Specific Comment |
-|---|---|---|
-| Title | Adequate | Accurately descriptive; could be more specific about the moderation component to signal theoretical contribution |
-| Abstract | Needs revision | Missing effect size for practical significance; productivity measure should be qualified as "self-reported" |
-| Introduction | Strong | Gap identification is specific and well-documented; research questions are clearly stated |
-| Literature Review | Adequate | Theoretical grounding is solid but contradictory evidence is underrepresented |
-| Methodology | Needs revision | Validated measures and multi-org design are strengths; power analysis gap and ethics statement missing are significant |
-| Results | Strong | Clear presentation; tables are readable; multilevel model is appropriate for nested data |
-| Discussion | Needs revision | Causal language throughout is inconsistent with cross-sectional design; contradictory literature underengaged |
-| Conclusion | Needs revision | Policy recommendation overstates what the evidence supports |
-| References | Adequate | Reasonably current; should add peer-reviewed sources for the 30% workforce claim |
-| Ethics / Transparency | Absent | No IRB statement -- required by the target journal |
+| Section               | Assessment     | Specific Comment                                                                                                       |
+| --------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Title                 | Adequate       | Accurately descriptive; could be more specific about the moderation component to signal theoretical contribution       |
+| Abstract              | Needs revision | Missing effect size for practical significance; productivity measure should be qualified as "self-reported"            |
+| Introduction          | Strong         | Gap identification is specific and well-documented; research questions are clearly stated                              |
+| Literature Review     | Adequate       | Theoretical grounding is solid but contradictory evidence is underrepresented                                          |
+| Methodology           | Needs revision | Validated measures and multi-org design are strengths; power analysis gap and ethics statement missing are significant |
+| Results               | Strong         | Clear presentation; tables are readable; multilevel model is appropriate for nested data                               |
+| Discussion            | Needs revision | Causal language throughout is inconsistent with cross-sectional design; contradictory literature underengaged          |
+| Conclusion            | Needs revision | Policy recommendation overstates what the evidence supports                                                            |
+| References            | Adequate       | Reasonably current; should add peer-reviewed sources for the 30% workforce claim                                       |
+| Ethics / Transparency | Absent         | No IRB statement -- required by the target journal                                                                     |
 
 ---
 
 ### Methodological Scorecard
 
-| Element | Status | Notes |
-|---|---|---|
-| Sample size / power justification | Partial | Power analysis conducted for main effects but not moderation |
-| Sampling strategy | Convenience -- requires acknowledgment | Ten-organization design improves on single-org; not probability sample |
-| Measurement validity | Validated instruments | Both scales have established psychometric properties; α reported |
-| Statistical assumptions tested | Adequate | Multilevel model assumptions discussed; multicollinearity reported (VIF < 3) |
-| Effect sizes reported | Partial | β coefficients reported; ΔR² present in text but missing from abstract |
-| Confound control | Partial | Covariates included but self-selection not addressed |
-| Multiple comparisons correction | Not required | Focused hypothesis set; not a concern for this design |
-| Ethics approval | Absent | Must be added before submission |
-| Data availability statement | Absent | Required by JAP; add statement on data sharing or non-sharing rationale |
+| Element                           | Status                                 | Notes                                                                        |
+| --------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------- |
+| Sample size / power justification | Partial                                | Power analysis conducted for main effects but not moderation                 |
+| Sampling strategy                 | Convenience -- requires acknowledgment | Ten-organization design improves on single-org; not probability sample       |
+| Measurement validity              | Validated instruments                  | Both scales have established psychometric properties; α reported             |
+| Statistical assumptions tested    | Adequate                               | Multilevel model assumptions discussed; multicollinearity reported (VIF < 3) |
+| Effect sizes reported             | Partial                                | β coefficients reported; ΔR² present in text but missing from abstract       |
+| Confound control                  | Partial                                | Covariates included but self-selection not addressed                         |
+| Multiple comparisons correction   | Not required                           | Focused hypothesis set; not a concern for this design                        |
+| Ethics approval                   | Absent                                 | Must be added before submission                                              |
+| Data availability statement       | Absent                                 | Required by JAP; add statement on data sharing or non-sharing rationale      |
 
 ---
 

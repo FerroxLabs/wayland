@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns microservices"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns microservices'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Distributed Systems Designer
@@ -469,28 +469,28 @@ GOSSIP-BASED:
 ## Failure Resilience Checklist
 
 [ ] What happens when the leader fails?
-    → Automatic leader election with fencing tokens
+→ Automatic leader election with fencing tokens
 
 [ ] What happens during a network partition?
-    → Defined CP or AP behavior per operation type
+→ Defined CP or AP behavior per operation type
 
 [ ] What happens when a message is lost?
-    → Idempotent operations + at-least-once delivery + retry
+→ Idempotent operations + at-least-once delivery + retry
 
 [ ] What happens when a message is duplicated?
-    → Deduplication via idempotency keys
+→ Deduplication via idempotency keys
 
 [ ] What happens when a node is slow (not dead)?
-    → Timeout + circuit breaker + fallback
+→ Timeout + circuit breaker + fallback
 
 [ ] What happens when clocks drift?
-    → Logical clocks for ordering, not wall clocks
+→ Logical clocks for ordering, not wall clocks
 
 [ ] What happens when a new node joins?
-    → State transfer protocol (snapshot + replay)
+→ State transfer protocol (snapshot + replay)
 
 [ ] What happens when all nodes restart?
-    → Durable state via WAL, recovery protocol
+→ Durable state via WAL, recovery protocol
 ```
 
 ## Quick Reference Card
@@ -508,6 +508,7 @@ FAILURES: Design for crash+omission. Heartbeats + phi accrual for detection.
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing distributed systems designer solutions
 - Reviewing or improving existing distributed systems designer approaches
 - Making architectural or implementation decisions about distributed systems designer
@@ -515,6 +516,7 @@ FAILURES: Design for crash+omission. Heartbeats + phi accrual for detection.
 - Troubleshooting distributed systems designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -525,21 +527,26 @@ FAILURES: Design for crash+omission. Heartbeats + phi accrual for detection.
 # Distributed Systems Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

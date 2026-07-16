@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness step-by-step"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness step-by-step'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Meditation & Mindfulness Coach
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about meditation coach
 - User needs guidance on meditation coach topics
 - User wants a structured approach to meditation coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -135,12 +137,14 @@ MEDITATION ASSESSMENT
 | 7 | Open awareness meditation | 15 min |
 
 ### Intermediate Program: Weeks 5-12 (Deepening)
+
 - Increase to 15-20 minutes daily
 - Introduce loving-kindness, insight, and walking meditation
 - Begin exploring specific traditions
 - Add a second short session (3-5 min) during the day
 
 ### Advanced Program: Weeks 13+ (Mastery)
+
 - 20-45 minutes daily
 - Silent unguided sits
 - Extended retreats (half-day, full-day)
@@ -367,24 +371,28 @@ When ready, open your eyes slowly...
 ## Breathwork Techniques
 
 ### Box Breathing (4-4-4-4)
+
 - **How:** Inhale 4 sec, hold 4 sec, exhale 4 sec, hold 4 sec
 - **Duration:** 4-10 minutes
 - **Best for:** Focus, calm, pre-performance
 - **Level:** All levels
 
 ### 4-7-8 Breathing
+
 - **How:** Inhale 4 sec, hold 7 sec, exhale 8 sec
 - **Duration:** 4-8 cycles
 - **Best for:** Sleep, deep relaxation, anxiety
 - **Level:** All levels
 
 ### Alternate Nostril Breathing (Nadi Shodhana)
+
 - **How:** Close right nostril, inhale left (4 sec). Close both, hold (4 sec). Close left, exhale right (4 sec). Inhale right (4 sec). Hold (4 sec). Exhale left (4 sec). That is one cycle.
 - **Duration:** 5-10 cycles
 - **Best for:** Balance, calm, focus
 - **Level:** Intermediate
 
 ### Cyclic Hyperventilation Breathing
+
 - **Overview:** This category of breathwork involves a series of deep, rhythmic breaths followed by breath retention. The Wim Hof Method(R), developed by Wim Hof, is the most well-known version of this technique. For the complete official protocol, safety guidelines, and instructor-led training, visit wimhofmethod.com.
 - **General pattern:** Multiple rounds of vigorous breathing (full inhale, relaxed exhale) followed by an exhale-hold retention, then a recovery breath with brief hold. Typically repeated for 3 rounds.
 - **Duration:** 10-15 minutes
@@ -393,6 +401,7 @@ When ready, open your eyes slowly...
 - **Caution:** Do NOT practice in water, while driving, or standing. May cause tingling or lightheadedness. Not for those who are pregnant or have epilepsy, cardiac issues, or uncontrolled blood pressure. Consult a doctor before beginning any intense breathwork practice.
 
 ### Coherence Breathing
+
 - **How:** Inhale 5-6 sec, exhale 5-6 sec (no pause)
 - **Duration:** 5-20 minutes
 - **Best for:** Heart rate variability, nervous system balance
@@ -401,6 +410,7 @@ When ready, open your eyes slowly...
 ## Meditation Traditions Overview
 
 ### Vipassana (Insight Meditation)
+
 - **Origin:** Theravada Buddhism
 - **Core practice:** Observing sensations with equanimity
 - **Key principle:** Anicca (impermanence) - all sensations arise and pass
@@ -408,6 +418,7 @@ When ready, open your eyes slowly...
 - **Retreat tradition:** 10-day silent retreats (S.N. Goenka tradition)
 
 ### Zen (Zazen)
+
 - **Origin:** Japanese Buddhism (from Chinese Chan)
 - **Core practice:** Just sitting (shikantaza) or koan practice
 - **Key principle:** Direct experience beyond conceptual thinking
@@ -415,6 +426,7 @@ When ready, open your eyes slowly...
 - **Posture emphasis:** Precise sitting posture is considered essential
 
 ### Loving-Kindness (Metta)
+
 - **Origin:** Buddhist tradition
 - **Core practice:** Cultivating unconditional goodwill toward all beings
 - **Key principle:** Starting with self, expanding outward in circles
@@ -422,6 +434,7 @@ When ready, open your eyes slowly...
 - **Benefits:** Well-researched for compassion, social connection, positive emotions
 
 ### Mindfulness-Based Stress Reduction (MBSR)
+
 - **Origin:** Jon Kabat-Zinn, 1979, secular/clinical
 - **Core practice:** 8-week structured program
 - **Key principle:** Non-judgmental present-moment awareness
@@ -431,11 +444,14 @@ When ready, open your eyes slowly...
 ## Habit Building for Meditation
 
 ### The Habit Stack Method
+
 Attach meditation to an existing habit:
+
 - "After I [existing habit], I will meditate for [duration]."
 - Example: "After I pour my morning coffee, I will meditate for 5 minutes."
 
 ### Minimum Viable Practice
+
 - Start with just 2 minutes per day
 - Consistency matters far more than duration
 - Never zero: even 1 minute counts
@@ -443,16 +459,16 @@ Attach meditation to an existing habit:
 
 ### Overcoming Common Obstacles
 
-| Obstacle | Solution |
-|----------|----------|
-| "I can't stop thinking" | That's normal; the goal isn't to stop thoughts |
-| "I don't have time" | Start with 2 minutes; everyone has 2 minutes |
-| "I can't sit still" | Try walking meditation or gentle movement |
-| "I fell asleep" | Sit upright rather than lying down; try open eyes |
-| "It's boring" | Try different techniques; boredom is also observable |
-| "I keep skipping" | Set a phone alarm; habit stack; put cushion in visible spot |
-| "I'm not doing it right" | If you're noticing experience, you're doing it right |
-| "I don't notice any benefits" | Benefits are often subtle; journal weekly reflections |
+| Obstacle                      | Solution                                                    |
+| ----------------------------- | ----------------------------------------------------------- |
+| "I can't stop thinking"       | That's normal; the goal isn't to stop thoughts              |
+| "I don't have time"           | Start with 2 minutes; everyone has 2 minutes                |
+| "I can't sit still"           | Try walking meditation or gentle movement                   |
+| "I fell asleep"               | Sit upright rather than lying down; try open eyes           |
+| "It's boring"                 | Try different techniques; boredom is also observable        |
+| "I keep skipping"             | Set a phone alarm; habit stack; put cushion in visible spot |
+| "I'm not doing it right"      | If you're noticing experience, you're doing it right        |
+| "I don't notice any benefits" | Benefits are often subtle; journal weekly reflections       |
 
 ### 30-Day Meditation Tracker
 
@@ -482,6 +498,7 @@ Week 4: _______________________________________________
 ## Posture Guide
 
 ### Sitting Positions (choose what is comfortable)
+
 1. **Chair:** Feet flat, back upright (not leaning), hands on thighs
 2. **Cross-legged on cushion:** Hips above knees, spine tall
 3. **Kneeling (seiza):** Kneeling on bench or cushion
@@ -490,6 +507,7 @@ Week 4: _______________________________________________
 6. **Full lotus:** Both feet on opposite thighs (advanced)
 
 ### Key Posture Points
+
 - Spine naturally upright (as if a string pulls from crown of head)
 - Shoulders relaxed and slightly back
 - Chin slightly tucked
@@ -507,7 +525,6 @@ Transform ordinary activities into meditation practice:
 - **Mindful commuting:** Notice surroundings instead of scrolling phone
 - **Mindful dishwashing:** Feel the water temperature, the weight of each dish
 - **Mindful showering:** Feel the water, notice the temperature, smell the soap
-
 
 ## Output Format
 

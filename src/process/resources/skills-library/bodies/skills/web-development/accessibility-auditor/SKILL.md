@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend accessibility"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend accessibility'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Accessibility Auditor
@@ -152,12 +152,8 @@ Native HTML equivalents:
 ```html
 <!-- Tabs -->
 <div role="tablist" aria-label="Account settings">
-  <button role="tab" id="tab-1" aria-selected="true" aria-controls="panel-1">
-    Profile
-  </button>
-  <button role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">
-    Security
-  </button>
+  <button role="tab" id="tab-1" aria-selected="true" aria-controls="panel-1">Profile</button>
+  <button role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">Security</button>
 </div>
 <div role="tabpanel" id="panel-1" aria-labelledby="tab-1">
   <!-- Profile content -->
@@ -167,19 +163,14 @@ Native HTML equivalents:
 </div>
 
 <!-- Disclosure (use <details> if possible) -->
-<button aria-expanded="false" aria-controls="faq-1">
-  What is your return policy?
-</button>
+<button aria-expanded="false" aria-controls="faq-1">What is your return policy?</button>
 <div id="faq-1" hidden>
   <p>You can return items within 30 days.</p>
-# ... (condensed) ...
-<div role="alert">
-  Your session will expire in 5 minutes.
-</div>
+  # ... (condensed) ...
+  <div role="alert">Your session will expire in 5 minutes.</div>
 
-<!-- Status -->
-<div role="status" aria-live="polite">
-  3 results found
+  <!-- Status -->
+  <div role="status" aria-live="polite">3 results found</div>
 </div>
 ```
 
@@ -251,18 +242,18 @@ function Modal({ isOpen, onClose, children }: ModalProps) {
 </body>
 
 <style>
-.skip-link {
-  position: absolute;
-  top: -100%;
-  left: 0;
-  z-index: 9999;
-  padding: 1rem;
-  background: var(--color-brand);
-  color: white;
-}
-.skip-link:focus {
-  top: 0;
-}
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    z-index: 9999;
+    padding: 1rem;
+    background: var(--color-brand);
+    color: white;
+  }
+  .skip-link:focus {
+    top: 0;
+  }
 </style>
 ```
 
@@ -276,11 +267,20 @@ function Toolbar({ items }: ToolbarProps) {
   function handleKeyDown(e: React.KeyboardEvent, index: number) {
     let newIndex = index;
     switch (e.key) {
-      case 'ArrowRight': newIndex = (index + 1) % items.length; break;
-      case 'ArrowLeft': newIndex = (index - 1 + items.length) % items.length; break;
-      case 'Home': newIndex = 0; break;
-      case 'End': newIndex = items.length - 1; break;
-      default: return;
+      case 'ArrowRight':
+        newIndex = (index + 1) % items.length;
+        break;
+      case 'ArrowLeft':
+        newIndex = (index - 1 + items.length) % items.length;
+        break;
+      case 'Home':
+        newIndex = 0;
+        break;
+      case 'End':
+        newIndex = items.length - 1;
+        break;
+      default:
+        return;
     }
     e.preventDefault();
     setActiveIndex(newIndex);
@@ -291,10 +291,9 @@ function Toolbar({ items }: ToolbarProps) {
   }, [activeIndex]);
 
   return (
-    <div role="toolbar" aria-label="Formatting">
+    <div role='toolbar' aria-label='Formatting'>
       {items.map((item, i) => (
-        <button key={i} id={`tool-${i}`} tabIndex={i === activeIndex ? 0 : -1}
-                onKeyDown={(e) => handleKeyDown(e, i)}>
+        <button key={i} id={`tool-${i}`} tabIndex={i === activeIndex ? 0 : -1} onKeyDown={(e) => handleKeyDown(e, i)}>
           {item.label}
         </button>
       ))}
@@ -334,8 +333,7 @@ Common failures:
 ```html
 <!-- Properly labeled input -->
 <label for="email">Email address</label>
-<input id="email" type="email" required aria-describedby="email-hint email-error"
-       aria-invalid="true" />
+<input id="email" type="email" required aria-describedby="email-hint email-error" aria-invalid="true" />
 <p id="email-hint" class="hint">We'll never share your email.</p>
 <p id="email-error" class="error" role="alert">Please enter a valid email address.</p>
 
@@ -372,22 +370,21 @@ Common failures:
 
 ```html
 <!-- Polite: announced when screen reader is idle -->
-<div aria-live="polite">
-  Search returned 42 results
-</div>
+<div aria-live="polite">Search returned 42 results</div>
 
 <!-- Assertive: interrupts current announcement -->
-<div aria-live="assertive">
-  Your session has expired. Please log in again.
-</div>
+<div aria-live="assertive">Your session has expired. Please log in again.</div>
 
 <!-- Role shortcuts -->
-<div role="status">...</div>   <!-- Equivalent to aria-live="polite" -->
-<div role="alert">...</div>    <!-- Equivalent to aria-live="assertive" -->
+<div role="status">...</div>
+<!-- Equivalent to aria-live="polite" -->
+<div role="alert">...</div>
+<!-- Equivalent to aria-live="assertive" -->
 
 <!-- aria-atomic: announce entire region or just changes -->
 <div aria-live="polite" aria-atomic="true">
-  Cart total: $42.00  <!-- Announces full text on change -->
+  Cart total: $42.00
+  <!-- Announces full text on change -->
 </div>
 ```
 
@@ -490,6 +487,7 @@ test('homepage meets accessibility standards', async ({ page }) => {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing accessibility auditor solutions
 - Reviewing or improving existing accessibility auditor approaches
 - Making architectural or implementation decisions about accessibility auditor
@@ -497,6 +495,7 @@ test('homepage meets accessibility standards', async ({ page }) => {
 - Troubleshooting accessibility auditor-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -507,21 +506,26 @@ test('homepage meets accessibility standards', async ({ page }) => {
 # Accessibility Auditor Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

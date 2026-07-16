@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary planning research"
-  category: "travel-experiences"
-  subcategory: "experiences-activities"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel itinerary planning research'
+  category: 'travel-experiences'
+  subcategory: 'experiences-activities'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Food Tourism Planner
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user's primary intent is to organize travel experiences around food discovery, culinary culture, and eating as the main activity of a trip.
 
 **Trigger scenarios:**
+
 - User explicitly frames their trip around eating: "We want to plan our whole trip around the food," "I'm going to Lyon just for the food scene," or "Help me build a food itinerary for Oaxaca"
 - User asks about specific culinary categories at a destination: street food routes, night markets, wet markets, food halls, mercados, souks, or hawker centers
 - User wants to find and schedule cooking classes, food tours, fermentation workshops, cheese-making sessions, or hands-on culinary experiences abroad
@@ -36,6 +38,7 @@ Use this skill when the user's primary intent is to organize travel experiences 
 - User is planning a food-focused trip for a special occasion: honeymoon culinary tour, food birthday trip, anniversary tasting experience, or group foodie travel
 
 **Do NOT use when:**
+
 - User needs a complete trip itinerary where food is one element among many (use `trip-itinerary-builder` -- food notes can be added as a layer on that plan)
 - User wants specific restaurant recommendations by name, reservations guidance, or review-style content (use `restaurant-research-assistant` if available; otherwise decline brand-specific guidance)
 - User wants to recreate dishes at home or learn cooking techniques for domestic use (use home-household cooking skills)
@@ -53,17 +56,20 @@ Use this skill when the user's primary intent is to organize travel experiences 
 Before building anything, collect the following inputs. If the user has already provided some, confirm them and ask only for what is missing. Do not ask all questions at once -- use conversational intake, grouping related questions together.
 
 **Destination and logistics:**
+
 - Destination city, region, or multi-city route (e.g., "Tokyo and Osaka," "Northern Vietnam from Hanoi to Hoi An")
 - Number of days allocated specifically to food exploration (separate from transit days)
 - Time of year -- seasonal availability dramatically affects dish quality and market offerings (mango sticky rice peaks March-June in Bangkok; truffle season in Périgord runs November-February; Dungeness crab in San Francisco peaks December-March)
 
 **Food interests and priorities:**
+
 - Primary food modality: street food and markets, casual local restaurants, fine dining or tasting menus, cooking classes, food history and heritage, fermentation or craft beverage culture, or a mix
 - Specific dishes or ingredients they already know they want to try
 - Interest in food shopping: bringing home spices, condiments, preserved goods, or specialty ingredients
 - Whether they want food-paired cultural experiences: sake breweries in Nada, olive oil estates in Tuscany, mezcal distilleries (palenques) in Oaxaca
 
 **Dietary profile:**
+
 - Restrictions (vegetarian, vegan, halal, kosher, pescatarian, no pork, no beef, gluten-free, lactose intolerant)
 - Allergens -- distinguish between preference ("I avoid shellfish") and medical necessity ("I carry an EpiPen for shellfish")
 - Spice tolerance on a 0-5 scale: 0 = no heat at all, 1 = very mild, 2 = mild, 3 = moderate, 4 = hot, 5 = no limit
@@ -71,6 +77,7 @@ Before building anything, collect the following inputs. If the user has already 
 - Adventurousness quotient: "I eat anything," "I'm adventurous but need to recognize what I'm eating," or "I want authentic but not confronting"
 
 **Practical parameters:**
+
 - Daily food budget per person, including all meals, snacks, and drinks -- frame this in USD or the user's home currency and note that it covers all food spending, not per-meal
 - Group composition: solo, couple, family with children (ages matter), multi-generational group, food-focused friend group
 - Eating schedule preference: traditional local meal times, grazers who eat many small portions throughout the day, one major meal with lighter bookends
@@ -84,26 +91,31 @@ Before building anything, collect the following inputs. If the user has already 
 For the confirmed destination, build a structured knowledge base across six dimensions before writing a single day of itinerary. This mapping prevents the common error of randomly assigning food experiences to days without understanding how the food culture actually flows.
 
 **Signature dish taxonomy (target 10-15 dishes):**
+
 - Identify dishes by three tiers: Tier 1 (iconic, non-negotiable -- Pad Thai in Bangkok, Peking duck in Beijing, Pasta cacio e pepe in Rome), Tier 2 (regionally essential and beloved by locals but less tourist-facing), Tier 3 (niche or adventurous, for the food-curious traveler)
 - For each dish, document: local-script name, romanized pronunciation, primary ingredients, preparation method (wok-fried, slow-braised, raw-cured, steamed), dominant flavor profile (sour-spicy, sweet-savory, umami-rich, bright and herbal), texture, portion size (single-serve snack vs. shareable main), and typical price band
 - Flag every dish that intersects with common allergens or dietary restrictions
 - Note which dishes have seasonal constraints -- some preparations are only available during specific festivals, harvest seasons, or weather windows
 
 **Food neighborhood mapping (3-6 districts per city):**
+
 - Each district should have a distinct identity: Old City markets, immigrant community food corridors, fishing village to urban seafood district, working-class lunch circuits, upscale food hall and boutique dining zones
 - Document peak operating hours -- many of the world's best food experiences follow schedules that differ radically from tourist expectations (Bangkok's Chinatown is dead at noon and electric at 6 PM; Tokyo's Tsukiji outer market is best at 7 AM; Marrakech's Jemaa el-Fna food stalls run 7 PM - 2 AM)
 - Note transit connections: which BTS or MRT stop, which metro line, which bus number, or whether a short taxi or tuk-tuk ride is more practical
 - Estimate walking distances within each district -- a proper food district graze requires 1-3 km of walking over 1-3 hours; flag this for users with mobility constraints
 
 **Market typology:**
+
 - Distinguish between wet markets (fresh produce, proteins, and daily ingredients -- primarily local commerce, best at 7-10 AM), covered permanent markets (e.g., La Boqueria in Barcelona, Mercado Benito Juárez in Oaxaca -- mix of local staples and prepared food), night markets (primarily prepared street food, peak 6 PM - midnight), floating markets (specialized tourist-adjacent experience common in Thailand and Vietnam -- schedule for weekends when local vendors predominate), hawker centers (Southeast Asia -- permanent structures with multiple independent stalls sharing communal seating), and food halls (modern, air-conditioned, higher-priced curation of local and regional food)
 - For each relevant market type at the destination, note hours, peak times, crowd patterns, cash vs. card acceptance, and what specifically to eat vs. buy vs. photograph
 
 **Cooking class landscape:**
+
 - Four main formats: (1) Market-to-table (90-180 minutes, includes a morning market visit followed by a 3-dish cooking session -- best for first-time visitors), (2) Traditional technique (3-4 hours, focused on a specific preparation method -- pasta-rolling in Bologna, mole-making in Oaxaca, dumpling-folding in Chengdu), (3) Home cook experience (hosted by a local family or retired chef in a residential setting -- smaller groups of 2-6, high authenticity, rare private sessions), (4) Professional school session (structured like a culinary school class, precise technique instruction -- best for travelers with cooking backgrounds)
 - Typical advance booking windows: cooking classes in high-demand destinations (Chiang Mai, Bologna, Kyoto, Paris) book 2-6 weeks ahead for peak season; shoulder season often requires only 1 week advance
 
 **Local meal timing culture:**
+
 - Understanding when locals eat is as important as understanding what they eat
 - Spain and Argentina: lunch is the main meal (2:00-4:00 PM), dinner rarely starts before 9:00 PM -- scheduling dinner at 6:30 PM means eating in an empty restaurant designed for tourists
 - Japan: ramen and soba shops often open at 11:00 AM and serve until sold out (2:00-3:00 PM), not dinner; kaiseki dinners begin at 6:00-7:00 PM in ryokans
@@ -111,6 +123,7 @@ For the confirmed destination, build a structured knowledge base across six dime
 - Mexico: comida corrida (set lunch) is the best-value meal, served 1:00-4:00 PM; street food is both a breakfast and late-night category
 
 **Food safety baseline for the destination:**
+
 - Water safety: tap water drinkable (most Western Europe, Japan, Australia) vs. avoid (most of Southeast Asia, India, Mexico, large parts of Africa -- bottled or filtered water only, ice from unknown sources to be avoided, fruits washed in tap water are a risk)
 - Raw preparation risk: raw shellfish, raw leafy salads, raw dairy, and raw preparations in destinations with limited cold chain infrastructure carry elevated risk
 - Street food safety indicators: high turnover (food is being continuously cooked and sold quickly, not sitting), visible heat (food cooked to order in front of the customer), local clientele (locals eating at a stall is a strong positive signal), and clean cooking surfaces relative to local norms
@@ -124,12 +137,14 @@ Build each day around a thematic food arc rather than simply listing meals. Them
 **Day theme examples:** Noodle Day, Market Immersion Day, Regional Specialty Deep Dive, Street Food Grazing Circuit, Cooking Class Day, Seafood Focus, Sweet and Pastry Tour, Beverage Culture Day
 
 **Structural rules for each day:**
+
 - Morning slot (7:00-10:00 AM): markets (best produce and local foot traffic), breakfast specialties that are time-specific (Jok in Thailand, Chilaquiles in Mexico, Natto-rice in Japan, Börek from a fırın in Turkey)
 - Midday slot (11:00 AM - 2:00 PM): this is often the best value and highest quality meal window in many cultures -- comida corrida in Mexico, weekday bento specials in Japan, set-price lunch menus in France (plat du jour) -- plan the most substantial or adventurous experience here
 - Afternoon slot (2:00-5:00 PM): this is the natural digestion and recovery period; use it for food shopping (spice markets, specialty stores), a single focus dessert or snack, coffee culture exploration, or neighborhood walking reconnaissance for the evening
 - Evening slot (5:00 PM onward): street food circuits, night markets, sit-down dinners at local restaurants, or food district grazing
 
 **Meal volume management:**
+
 - No more than two sit-down full meals per day -- the rest should be snacks, single-dish tastings, or grazing
 - Build in a deliberate "rest from eating" window of 3-4 hours between heavy experiences
 - Cap cooking classes at one per day; they always include a full meal, so adjust surrounding meals to lighter options
@@ -137,6 +152,7 @@ Build each day around a thematic food arc rather than simply listing meals. Them
 - Leave one meal per day completely unscheduled -- explicitly mark it as "Discovery Meal" and explain why: the best food discoveries in travel come from following smells, crowds, and instincts
 
 **Grazing circuit design:**
+
 - A proper food district graze is not random wandering -- it's a structured route covering 4-8 stops within a 1.5 km radius over 1.5-3 hours
 - Each stop should be a single item or a maximum of two dishes; never order a full meal at a grazing stop
 - Order of stops matters: start with savory and complex, move toward rich and filling, end with something sweet or refreshing
@@ -149,12 +165,14 @@ Build each day around a thematic food arc rather than simply listing meals. Them
 This step is non-negotiable for any user with restrictions. Dietary filtering is not a footnote -- it restructures which neighborhoods, markets, dishes, and classes appear in the itinerary.
 
 **For each food experience in the itinerary:**
+
 - Mark dishes as: (✓) Naturally compliant, (△) Modifiable with a specific request, (✗) Contains the allergen/restricted ingredient
 - For modifiable dishes, document the exact modification request in English and the local language
 - Identify which neighborhoods have the highest density of compliant options -- for vegan travelers in Japan, Kyoto's Shojin Ryori temple cuisine district is a completely different routing than what a non-restricted traveler would follow
 - Flag hidden animal products specific to the cuisine: fish sauce (nam pla) appears in virtually all Thai dishes; lard is standard in many Mexican preparations; bone broth is the default base in many Japanese and Korean soups; ghee appears in most Indian restaurant cooking
 
 **Dietary phrase card construction:**
+
 - Include the phrase in: English, local script (Thai, Japanese kanji/kana, Arabic, Devanagari, etc.), romanized transliteration, and a rough phonetic pronunciation guide
 - Core phrases for every trip with restrictions: "I cannot eat [X]," "Does this contain [X]?," "I am allergic to [X] and it is dangerous for me," "Is this cooked in [X]?," "Do you have a version without [X]?"
 - For severe allergies, flag that verbal communication alone is insufficient -- a printed allergy card in the local language that the user can hand to kitchen staff is essential
@@ -166,6 +184,7 @@ This step is non-negotiable for any user with restrictions. Dietary filtering is
 Each dish entry is a micro-profile that tells the traveler everything they need to know before ordering.
 
 **Dish profile components:**
+
 - **Name:** Local script + romanization + English translation or description
 - **Category:** Breakfast, street snack, main, dessert, beverage, condiment, or shared dish
 - **Core ingredients:** The 4-6 primary ingredients that define the dish -- not an exhaustive recipe, but enough to identify allergen risk and flavor profile
@@ -183,6 +202,7 @@ Each dish entry is a micro-profile that tells the traveler everything they need 
 Food budgets in travel are almost always misunderstood because travelers think in per-meal costs rather than daily totals that include snacks, drinks, market purchases, and incidentals.
 
 **Budget category breakdown:**
+
 - Street food and snacks: the most variable category -- set a realistic per-day range rather than a fixed number
 - Sit-down meals: distinguish between a lunch set (often extraordinary value) and a dinner with beverages
 - Market purchases (to eat): fresh fruit, prepared market foods, market desserts
@@ -191,6 +211,7 @@ Food budgets in travel are almost always misunderstood because travelers think i
 - Cooking classes: paid separately as an experience, not a meal budget
 
 **Budget calibration by destination tier:**
+
 - Tier 1 (very affordable): Southeast Asia street food economies (Bangkok, Hanoi, Penang, Yangon) -- $15-25/day covers abundant eating
 - Tier 2 (moderate): Mexico City, Marrakech, Istanbul, Lisbon, Porto -- $25-50/day covers excellent eating including sit-down meals
 - Tier 3 (expensive): Tokyo, Paris, Copenhagen, San Francisco, Sydney -- $60-150/day depending on the mix of street/casual/fine dining
@@ -201,6 +222,7 @@ Food budgets in travel are almost always misunderstood because travelers think i
 ### Step 7: Finalize, Format, and Deliver
 
 After assembling all components, review the complete itinerary for:
+
 - **Pacing coherence:** Does the daily arc make physical and logistical sense? Are two food neighborhoods in the same transit corridor scheduled on the same day? Are cooking class days appropriately light on surrounding meals?
 - **Dietary consistency:** Every dish, every neighborhood, every class -- do they all account for the user's restrictions?
 - **Redundancy check:** Have you avoided scheduling the same type of experience twice in a row (two night markets on consecutive evenings, two cooking classes in a week, the same dish type on consecutive days)?
@@ -502,12 +524,14 @@ First-time international food travelers may experience genuine culture shock aro
 **Vegetarian note specific to Oaxaca:** Oaxacan cuisine presents genuine challenges for vegetarians. Lard (manteca de cerdo) is standard in many tortilla and tamale preparations. Tasajo (salted beef) and cecina (pork) appear in nearly every market dish. However, the dairy tradition (quesillo, requeson, crema) means many dishes can be adapted, and eggs (especially in memelas and breakfast preparations) are prominent. Your partner as omnivore will face zero limitations. As the vegetarian traveler, you will need to ask specifically about lard in tortillas, which will sometimes be present.
 
 **Seasonal notes:**
+
 - **July-August (Guelaguetza season):** The region's largest indigenous festival, featuring traditional food of the seven regions of Oaxaca -- extraordinary timing for food tourism; markets are more abundant
 - **October-November (Day of the Dead):** Pan de muerto (bread of the dead), mole negro prepared for altars, atole (corn-based warm drink) -- deeply atmospheric food season
 - **Dry season (November-April):** Peak market season; rains do not disrupt outdoor market visits
 - **Rainy season (May-October):** Afternoon rains are common; schedule outdoor markets in the morning
 
 **Food safety baseline:**
+
 - Water: Do not drink tap water in Oaxaca. Use bottled water (agua purificada), hotel-provided filtered water, or sealed bottles for all drinking and teeth brushing. Ice in tourist-oriented restaurants is typically purified -- ask "¿El hielo es purificado?" to confirm.
 - Produce: Fruits and vegetables washed in tap water carry risk; in markets, stick to fruits you peel yourself (mangoes, oranges, bananas) or prepared items from high-turnover stalls. This risk is manageable with basic awareness.
 - Street food safety indicator: stalls with constant cooking activity, visible heat, and local clientele are the reliable choice. Avoid prepared foods sitting unrefrigerated for extended periods.
@@ -517,8 +541,9 @@ First-time international food travelers may experience genuine culture shock aro
 
 ### Must-Try Dish Guide
 
-| # | Dish (Spanish/Zapotec) | Romanized / Common Name | Description | Category | Where to Find | Time Available | Price (MXN/USD) | Key Allergens | Vegetarian? |
-|---|------------------------|-------------------------|-------------|----------|---------------|----------------|-----------------|---------------|-------------|
-| 1 | Tlayuda | Tlayuda | Large crisped tortilla spread with black bean paste (frijoles negros), Oaxacan string cheese (quesillo), and choice of toppings (tasajo, cecina, or veg toppings); open-faced, eaten with hands | Main | Market stalls, street stands, casual restaurants | Lunch and dinner | 50-120 MXN / $3-7 | Lard possibly in tortilla -- ask | M (request sin tasajo, add more quesillo and verduras) |
-| 2 | Mole Negro | Mole Negro | Oaxaca's most complex sauce -- 30+ ingredients including mulato, negro, and chihuacle chiles, charred tortilla, dark chocolate, nuts, and plantain; slow-cooked 6+ hours; served over turkey or chicken with rice | Main | Sit-down restaurants, market fondas | Lunch | 120-250 MXN / $7-15 | Tree nuts, sesame, chocolate | ✗ (traditionally meat-based; request over egg or cheese if offered) |
+| #   | Dish (Spanish/Zapotec) | Romanized / Common Name | Description                                                                                                                                                                                                       | Category | Where to Find                                    | Time Available   | Price (MXN/USD)     | Key Allergens                    | Vegetarian?                                                         |
+| --- | ---------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------ | ---------------- | ------------------- | -------------------------------- | ------------------------------------------------------------------- |
+| 1   | Tlayuda                | Tlayuda                 | Large crisped tortilla spread with black bean paste (frijoles negros), Oaxacan string cheese (quesillo), and choice of toppings (tasajo, cecina, or veg toppings); open-faced, eaten with hands                   | Main     | Market stalls, street stands, casual restaurants | Lunch and dinner | 50-120 MXN / $3-7   | Lard possibly in tortilla -- ask | M (request sin tasajo, add more quesillo and verduras)              |
+| 2   | Mole Negro             | Mole Negro              | Oaxaca's most complex sauce -- 30+ ingredients including mulato, negro, and chihuacle chiles, charred tortilla, dark chocolate, nuts, and plantain; slow-cooked 6+ hours; served over turkey or chicken with rice | Main     | Sit-down restaurants, market fondas              | Lunch            | 120-250 MXN / $7-15 | Tree nuts, sesame, chocolate     | ✗ (traditionally meat-based; request over egg or cheese if offered) |
+
 | 3

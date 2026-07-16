@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance automation guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'home-maintenance automation guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Smart Home Architect
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about smart home architect
 - User needs guidance on smart home architect topics
 - User wants a structured approach to smart home architect
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -35,43 +37,44 @@ metadata:
 
 **Step 1: Define Your Goals**
 
-| Goal | Example Automations |
-|------|-------------------|
-| Convenience | Lights on at sunset, auto-lock doors, voice-controlled everything |
+| Goal           | Example Automations                                               |
+| -------------- | ----------------------------------------------------------------- |
+| Convenience    | Lights on at sunset, auto-lock doors, voice-controlled everything |
 | Energy savings | Smart thermostat, automated lighting schedules, energy monitoring |
-| Security | Cameras, smart locks, motion sensors, automated alerts |
-| Entertainment | Multi-room audio, automated TV/projector, ambient lighting scenes |
-| Comfort | Climate zone control, automated blinds, wake-up routines |
-| Accessibility | Voice control for mobility limitations, automated door openers |
+| Security       | Cameras, smart locks, motion sensors, automated alerts            |
+| Entertainment  | Multi-room audio, automated TV/projector, ambient lighting scenes |
+| Comfort        | Climate zone control, automated blinds, wake-up routines          |
+| Accessibility  | Voice control for mobility limitations, automated door openers    |
 
 **Step 2: Choose Your Ecosystem**
 
 This is the most important decision. Mixing ecosystems creates complexity.
 
-| Ecosystem | Strengths | Weaknesses | Best For |
-|-----------|----------|------------|----------|
-| Apple HomeKit | Privacy-first, reliable, secure | Smaller device selection, Apple-only | Apple households, privacy-focused |
-| Google Home | Excellent voice assistant, wide compatibility | Privacy concerns, Google dependency | Android users, voice-heavy homes |
-| Amazon Alexa | Largest device selection, affordable | Privacy concerns, ad creep | Budget-conscious, variety seekers |
-| Samsung SmartThings | Protocol-agnostic, powerful automations | Steeper learning curve | Tinkerers, mixed-brand homes |
-| Home Assistant | Maximum flexibility, local control, privacy | Requires technical skill, self-hosted | Technical users, privacy purists |
+| Ecosystem           | Strengths                                     | Weaknesses                            | Best For                          |
+| ------------------- | --------------------------------------------- | ------------------------------------- | --------------------------------- |
+| Apple HomeKit       | Privacy-first, reliable, secure               | Smaller device selection, Apple-only  | Apple households, privacy-focused |
+| Google Home         | Excellent voice assistant, wide compatibility | Privacy concerns, Google dependency   | Android users, voice-heavy homes  |
+| Amazon Alexa        | Largest device selection, affordable          | Privacy concerns, ad creep            | Budget-conscious, variety seekers |
+| Samsung SmartThings | Protocol-agnostic, powerful automations       | Steeper learning curve                | Tinkerers, mixed-brand homes      |
+| Home Assistant      | Maximum flexibility, local control, privacy   | Requires technical skill, self-hosted | Technical users, privacy purists  |
 
 **Step 3: Choose Your Protocol**
 
-| Protocol | Range | Speed | Power | Best For |
-|----------|-------|-------|-------|----------|
-| Wi-Fi | Good | Fast | High (plugged in) | Cameras, speakers, displays |
-| Zigbee | Good (mesh) | Fast | Very low (battery) | Sensors, bulbs, switches |
-| Z-Wave | Good (mesh) | Moderate | Very low | Locks, sensors, switches |
-| Matter | Varies | Fast | Varies | Future-proof, cross-platform |
-| Bluetooth | Short | Moderate | Low | Proximity-based, simple devices |
-| Thread | Good (mesh) | Fast | Very low | Next-gen sensors, newer devices |
+| Protocol  | Range       | Speed    | Power              | Best For                        |
+| --------- | ----------- | -------- | ------------------ | ------------------------------- |
+| Wi-Fi     | Good        | Fast     | High (plugged in)  | Cameras, speakers, displays     |
+| Zigbee    | Good (mesh) | Fast     | Very low (battery) | Sensors, bulbs, switches        |
+| Z-Wave    | Good (mesh) | Moderate | Very low           | Locks, sensors, switches        |
+| Matter    | Varies      | Fast     | Varies             | Future-proof, cross-platform    |
+| Bluetooth | Short       | Moderate | Low                | Proximity-based, simple devices |
+| Thread    | Good (mesh) | Fast     | Very low           | Next-gen sensors, newer devices |
 
 **Recommendation**: Matter/Thread is the emerging standard backed by Apple, Google, Amazon, and Samsung. For new installations, prefer Matter-compatible devices when available.
 
 ## Room-by-Room Setup Guide
 
 ### Living Room
+
 - **Smart lighting**: Bulbs or switches (switches are better - they work for everyone)
 - **Smart speaker/display**: Central voice control hub
 - **Smart TV or streaming device**: Voice-integrated entertainment
@@ -79,24 +82,28 @@ This is the most important decision. Mixing ecosystems creates complexity.
 - **Motion sensor**: Auto-on lights, presence detection
 
 ### Kitchen
+
 - **Smart display**: Recipe display, timers, video calls while cooking
 - **Smart plugs**: Coffee maker on schedule, slow cooker remote control
 - **Water leak sensor**: Under sink, near dishwasher
 - **Smart lighting**: Task lighting with dimming capability
 
 ### Bedroom
+
 - **Smart lighting**: Warm dim bulbs, wake-up light simulation
 - **Smart blinds/shades**: Auto-open with alarm, close at night
 - **Smart speaker**: Alarm, sleep sounds, voice control from bed
 - **Temperature sensor**: Bedroom climate zone control
 
 ### Entryway
+
 - **Smart lock**: Keyless entry, auto-lock, guest codes
 - **Video doorbell**: See and talk to visitors remotely
 - **Contact sensor**: Door open/close detection
 - **Smart lighting**: Auto-on when arriving home
 
 ### Bathroom
+
 - **Motion-activated lighting**: Night mode (dim, warm) vs. day mode (bright)
 - **Humidity sensor**: Trigger exhaust fan automatically
 - **Water leak sensor**: Near toilet, under vanity
@@ -107,6 +114,7 @@ This is the most important decision. Mixing ecosystems creates complexity.
 ### Essential Automations
 
 **Good Morning**
+
 ```
 Trigger: Alarm goes off (or 6:30 AM weekdays)
 Actions:
@@ -119,6 +127,7 @@ Actions:
 ```
 
 **Leaving Home**
+
 ```
 Trigger: Everyone's phone leaves geofence (or "Goodbye" voice command)
 Actions:
@@ -131,6 +140,7 @@ Actions:
 ```
 
 **Arriving Home**
+
 ```
 Trigger: First person's phone enters geofence
 Actions:
@@ -142,6 +152,7 @@ Actions:
 ```
 
 **Good Night**
+
 ```
 Trigger: "Good night" voice command (or 10:30 PM)
 Actions:
@@ -155,6 +166,7 @@ Actions:
 ```
 
 **Away on Vacation**
+
 ```
 Trigger: Manual activation
 Actions:
@@ -169,16 +181,19 @@ Actions:
 ### Conditional Automations
 
 **Weather-Based**
+
 - If temperature drops below 32F: Alert about pipes, adjust thermostat
 - If UV index is high: Close motorized blinds on south-facing windows
 - If rain is forecast: Send reminder to close windows, cancel sprinkler
 
 **Time-Based**
+
 - Sunset: Turn on outdoor and accent lighting
 - Midnight: Ensure all doors locked, lights off
 - Work hours: Set office lighting to bright/cool, minimize distractions
 
 **Presence-Based**
+
 - Room occupied: Lights on, climate active
 - Room empty 15 minutes: Lights off, climate to setback
 - No one home for 30 minutes: Full away mode
@@ -188,6 +203,7 @@ Actions:
 ### Smart Home Security Layers
 
 **Network Security (Critical)**
+
 - Separate IoT network: Put smart devices on their own Wi-Fi SSID/VLAN
 - Strong router password (not default)
 - WPA3 encryption when possible
@@ -196,6 +212,7 @@ Actions:
 - Use a firewall that monitors IoT traffic
 
 **Device Security**
+
 - Change ALL default passwords immediately
 - Enable two-factor authentication on every account
 - Keep all device firmware updated
@@ -203,6 +220,7 @@ Actions:
 - Buy from reputable manufacturers with security track records
 
 **Account Security**
+
 - Unique, strong password for each smart home platform
 - Password manager for all accounts
 - Two-factor authentication on every account
@@ -211,6 +229,7 @@ Actions:
 ### Privacy Considerations
 
 **Voice Assistants**
+
 - Understand: voice assistants record and transmit audio to cloud servers
 - Review and delete voice recordings periodically
 - Disable "always listening" features in rooms where privacy is critical
@@ -218,6 +237,7 @@ Actions:
 - Consider local-only voice processing (Home Assistant with local STT)
 
 **Cameras**
+
 - Indoor cameras: Consider if the convenience is worth the privacy trade-off
 - Position cameras on entrances and exteriors, not bedrooms or bathrooms
 - Use cameras with local storage option (not cloud-only)
@@ -226,6 +246,7 @@ Actions:
 - Understand who has access (family members, the cloud provider)
 
 **Data Privacy**
+
 - Read privacy policies for major platforms
 - Opt out of data sharing where possible
 - Prefer devices with local processing over cloud-dependent ones
@@ -234,6 +255,7 @@ Actions:
 ## Energy Monitoring and Optimization
 
 ### Smart Thermostat Strategy
+
 - **Savings**: Smart thermostats save 10-15% on heating/cooling (EPA estimates)
 - **Learning thermostats** (Nest, Ecobee): Adapt to your schedule automatically
 - **Temperature sensors**: Place in most-used rooms for zone-based comfort
@@ -241,12 +263,14 @@ Actions:
 - **Geofencing**: Auto-adjust when everyone leaves/returns
 
 ### Energy Monitoring
+
 - **Whole-home monitor** (Sense, Emporia Vue): Track total consumption and identify individual devices
 - **Smart plugs with monitoring**: Track energy use of specific appliances
 - **Solar integration**: Monitor generation vs. consumption
 - **Time-of-use optimization**: Shift high-consumption activities to off-peak hours
 
 ### Cost Optimization Rules
+
 - LED smart bulbs use 80% less energy than incandescent
 - Smart plugs eliminate phantom/standby power draw
 - Automated lighting ensures lights are never left on in empty rooms
@@ -255,34 +279,38 @@ Actions:
 
 ## Troubleshooting Common Issues
 
-| Issue | Likely Cause | Fix |
-|-------|-------------|-----|
-| Device goes offline repeatedly | Wi-Fi range or congestion | Add mesh Wi-Fi node, reduce device density per access point |
-| Automation does not trigger | Condition not met, device offline | Check trigger conditions, verify device connectivity |
-| Voice commands not recognized | Device name conflict, network issue | Rename devices to unique names, check connectivity |
-| Slow response times | Cloud latency, Wi-Fi congestion | Prefer local-processing devices, improve Wi-Fi |
-| Battery devices die quickly | Too-frequent reporting, low signal | Adjust polling interval, improve mesh network |
-| Devices incompatible | Different protocols/ecosystems | Use a bridge (e.g., Zigbee stick with Home Assistant) |
+| Issue                          | Likely Cause                        | Fix                                                         |
+| ------------------------------ | ----------------------------------- | ----------------------------------------------------------- |
+| Device goes offline repeatedly | Wi-Fi range or congestion           | Add mesh Wi-Fi node, reduce device density per access point |
+| Automation does not trigger    | Condition not met, device offline   | Check trigger conditions, verify device connectivity        |
+| Voice commands not recognized  | Device name conflict, network issue | Rename devices to unique names, check connectivity          |
+| Slow response times            | Cloud latency, Wi-Fi congestion     | Prefer local-processing devices, improve Wi-Fi              |
+| Battery devices die quickly    | Too-frequent reporting, low signal  | Adjust polling interval, improve mesh network               |
+| Devices incompatible           | Different protocols/ecosystems      | Use a bridge (e.g., Zigbee stick with Home Assistant)       |
 
 ## Getting Started: Recommended First Purchases
 
 **Phase 1 (Week 1): Foundation**
+
 - Smart speaker or display (voice control hub)
 - 3-4 smart bulbs or 2 smart switches (most-used rooms)
 - 1 smart plug (coffee maker or lamp)
 
 **Phase 2 (Month 1): Security and Comfort**
+
 - Smart lock for front door
 - Video doorbell
 - Smart thermostat
 
 **Phase 3 (Month 2-3): Expansion**
+
 - Motion sensors for key rooms
 - Additional smart switches
 - Water leak sensors
 - Door/window contact sensors
 
 **Phase 4 (Month 3+): Advanced**
+
 - Smart blinds/shades
 - Multi-room audio
 - Energy monitoring
@@ -290,7 +318,6 @@ Actions:
 - Camera system (if desired)
 
 **Budget**: Start with $200-400 for Phase 1. Full smart home: $1,000-3,000+ depending on scope.
-
 
 ## Output Format
 

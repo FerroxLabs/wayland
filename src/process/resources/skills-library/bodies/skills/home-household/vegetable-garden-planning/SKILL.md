@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "gardening planning guide"
-  category: "home-household"
-  subcategory: "gardening"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'gardening planning guide'
+  category: 'home-household'
+  subcategory: 'gardening'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Vegetable Garden Planning
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to start a vegetable garden from scratch and needs help deciding what to grow, where to put beds, and how to sequence planting
 - A user asks what vegetables will grow well in their climate zone, city, or region -- including specific questions about frost dates or growing season length
 - A user needs a complete planting calendar with specific dates relative to their last and first frost dates
@@ -30,6 +32,7 @@ metadata:
 - A user is choosing between raised beds vs. in-ground beds and needs help with the decision
 
 **Do NOT use when:**
+
 - The user wants to grow herbs or vegetables exclusively indoors under grow lights or on windowsills -- use `indoor-plant-care`
 - The user only needs a planting calendar for crops they've already decided to grow -- use `seasonal-planting-calendar`
 - The user wants to design an ornamental garden, cottage garden, or mixed border with flowering plants as the primary focus
@@ -56,16 +59,16 @@ Before making a single recommendation, collect the minimum required inputs. Do n
 
 **Representative frost date ranges by USDA zone (continental US -- confirm with local cooperative extension):**
 
-| Zone | Last Spring Frost | First Fall Frost | Growing Season |
-|------|------------------|-----------------|----------------|
-| 3b | May 15 -- June 1 | Sept 1 -- Sept 15 | 90 -- 110 days |
-| 4a/4b | May 1 -- May 15 | Sept 15 -- Oct 1 | 110 -- 130 days |
-| 5a/5b | April 15 -- May 1 | Oct 1 -- Oct 15 | 140 -- 160 days |
-| 6a/6b | April 1 -- April 15 | Oct 15 -- Nov 1 | 160 -- 185 days |
-| 7a/7b | March 15 -- April 1 | Nov 1 -- Nov 15 | 185 -- 215 days |
-| 8a/8b | Feb 15 -- March 15 | Nov 15 -- Dec 1 | 210 -- 250 days |
-| 9a/9b | Jan 15 -- Feb 15 | Dec 1 -- Dec 15 | 250 -- 300 days |
-| 10a/10b | Frost-free most years | Frost-free most years | 300+ days |
+| Zone    | Last Spring Frost     | First Fall Frost      | Growing Season  |
+| ------- | --------------------- | --------------------- | --------------- |
+| 3b      | May 15 -- June 1      | Sept 1 -- Sept 15     | 90 -- 110 days  |
+| 4a/4b   | May 1 -- May 15       | Sept 15 -- Oct 1      | 110 -- 130 days |
+| 5a/5b   | April 15 -- May 1     | Oct 1 -- Oct 15       | 140 -- 160 days |
+| 6a/6b   | April 1 -- April 15   | Oct 15 -- Nov 1       | 160 -- 185 days |
+| 7a/7b   | March 15 -- April 1   | Nov 1 -- Nov 15       | 185 -- 215 days |
+| 8a/8b   | Feb 15 -- March 15    | Nov 15 -- Dec 1       | 210 -- 250 days |
+| 9a/9b   | Jan 15 -- Feb 15      | Dec 1 -- Dec 15       | 250 -- 300 days |
+| 10a/10b | Frost-free most years | Frost-free most years | 300+ days       |
 
 **Microclimate adjustment factors:** Urban areas run 2-5 degrees F warmer than surrounding suburbs (urban heat island). Hilltops shed cold air and may have a 1-2 week earlier last frost than valley bottoms. Within 1 mile of a large body of water, frost dates may shift 1-3 weeks later in spring and 1-3 weeks later in fall. Elevation increases of 1,000 feet correspond to roughly one full zone colder.
 
@@ -77,26 +80,27 @@ Match the bed type and size to the user's space, soil, budget, and experience. T
 
 **Raised beds vs. in-ground beds -- decision framework:**
 
-| Factor | Raised Bed | In-Ground |
-|--------|-----------|-----------|
-| Poor or clay soil | Strongly preferred -- fill with quality mix | Requires amendment; can take 1-3 seasons |
-| Drainage problems | Eliminates standing water issues | Must address or bed will fail |
-| Contaminated soil (near road, old paint, fill dirt) | Required -- eliminates contact with native soil | Not safe for edibles without testing |
-| Budget | $50-$200+ for lumber, soil | Lower material cost; higher labor for amendment |
-| Back/mobility issues | Add height to 24-30 inches for ADA access | More bending required |
-| Soil warmup speed | Raised beds warm 2-3 weeks earlier in spring | Slower to warm; significant in Zones 4-5 |
-| Water retention in hot zones | Dries faster -- needs more frequent irrigation | Better moisture retention in arid climates |
+| Factor                                              | Raised Bed                                      | In-Ground                                       |
+| --------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------- |
+| Poor or clay soil                                   | Strongly preferred -- fill with quality mix     | Requires amendment; can take 1-3 seasons        |
+| Drainage problems                                   | Eliminates standing water issues                | Must address or bed will fail                   |
+| Contaminated soil (near road, old paint, fill dirt) | Required -- eliminates contact with native soil | Not safe for edibles without testing            |
+| Budget                                              | $50-$200+ for lumber, soil                      | Lower material cost; higher labor for amendment |
+| Back/mobility issues                                | Add height to 24-30 inches for ADA access       | More bending required                           |
+| Soil warmup speed                                   | Raised beds warm 2-3 weeks earlier in spring    | Slower to warm; significant in Zones 4-5        |
+| Water retention in hot zones                        | Dries faster -- needs more frequent irrigation  | Better moisture retention in arid climates      |
 
 **Bed sizing by experience level:**
 
-| Gardener Level | Recommended Starting Footprint | Rationale |
-|----------------|-------------------------------|-----------|
-| Complete beginner | One 4x4 ft raised bed (16 sqft) | Forces selection of 4-6 crops, low overwhelm, manageable cost |
-| Some container or plot experience | One or two 4x8 ft raised beds (32-64 sqft) | Enough variety for a household's summer salads and side dishes |
-| Experienced (3+ seasons) | 100-200 sqft total across multiple beds | Allows crop rotation across seasons and meaningful harvest surplus |
-| Confident food producer | 200-400 sqft | Realistic for meaningful food production for a household of 2-4 |
+| Gardener Level                    | Recommended Starting Footprint             | Rationale                                                          |
+| --------------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+| Complete beginner                 | One 4x4 ft raised bed (16 sqft)            | Forces selection of 4-6 crops, low overwhelm, manageable cost      |
+| Some container or plot experience | One or two 4x8 ft raised beds (32-64 sqft) | Enough variety for a household's summer salads and side dishes     |
+| Experienced (3+ seasons)          | 100-200 sqft total across multiple beds    | Allows crop rotation across seasons and meaningful harvest surplus |
+| Confident food producer           | 200-400 sqft                               | Realistic for meaningful food production for a household of 2-4    |
 
 **Critical bed design specifications:**
+
 - Maximum bed width: 4 feet -- you must be able to reach the center from either side without stepping into the bed. Stepping on soil compacts it and destroys structure. For beds accessible from only one side (against a fence or wall), maximum width is 2 feet.
 - Raised bed height: 6-8 inches minimum for most crops. 12 inches for optimal performance in all vegetable crops. 18-24 inches for deep-rooted crops (carrots, parsnips, potatoes) or for mobility-accessible gardens. Deeper beds require significantly more soil -- a 4x8x12 inch bed requires approximately 32 cubic feet (1.2 cubic yards) of soil mix.
 - Raised bed soil mix (Mel's Mix variant is standard): 1/3 coarse vermiculite, 1/3 peat moss or coco coir, 1/3 blended compost. Pure compost compacts; pure topsoil compacts and drains poorly. Never fill a raised bed with only bagged topsoil.
@@ -117,29 +121,30 @@ Warm-season crops require soil temperatures above 60 degrees F to germinate and 
 
 **Crop ROI for small beds -- yield per square foot, difficulty, and beginner suitability:**
 
-| Crop | Yield per Sqft | Difficulty | Min. Growing Days | Best Zone Range | Notes |
-|------|---------------|-----------|-------------------|-----------------|-------|
-| Lettuce (leaf) | High | Easy | 30-45 days | 3-10 | Best beginner crop; cut-and-come-again |
-| Radishes | Very high | Very easy | 25-30 days | 3-10 | Fastest reward; plant as gap fillers |
-| Spinach | High | Easy | 40-50 days | 3-9 | Bolts quickly in heat; best as spring/fall |
-| Kale | High | Easy | 50-65 days | 3-9 | Frost improves flavor; very productive |
-| Bush beans | High | Easy | 50-60 days | 3-9 | Direct sow only; fix nitrogen |
-| Swiss chard | High | Easy | 50-60 days | 3-10 | Heat tolerant for a leafy green |
-| Peas (bush/pole) | Medium | Easy | 60-70 days | 3-8 | Spring only in most zones; cool-season |
-| Cucumbers | High | Easy-Medium | 50-65 days | 4-10 | Needs trellis for space efficiency |
-| Zucchini | Very high | Easy | 50-60 days | 3-10 | One plant per household is usually enough |
-| Tomatoes (determinate) | Medium-High | Medium | 65-75 days | 4-9 | More manageable than indeterminate types |
-| Tomatoes (indeterminate) | Very high over season | Medium | 75-85 days | 5-9 | Requires staking/caging; grows all season |
-| Peppers | Medium | Medium | 65-85 days | 5-10 | Need heat; underperform in cool summers |
-| Carrots | Medium | Medium | 70-80 days | 3-9 | Need loose, deep, stone-free soil |
-| Beets | High | Easy | 55-70 days | 3-9 | Both root and greens are edible |
-| Garlic | High | Easy | 240 days (fall-planted) | 3-9 | Fall plant, summer harvest; no in-season attention |
-| Corn | Low per sqft | Hard | 75-90 days | 4-9 | Needs large block for pollination; poor for small beds |
-| Melons | Low per sqft | Hard | 80-100 days | 6-10 | Space-intensive; avoid in beds under 200 sqft |
-| Broccoli | Medium | Medium | 60-80 days | 3-9 | Cool-season; plant in spring or fall |
-| Eggplant | Medium | Medium | 70-90 days | 6-10 | Needs heat; better in Zones 7-10 |
+| Crop                     | Yield per Sqft        | Difficulty  | Min. Growing Days       | Best Zone Range | Notes                                                  |
+| ------------------------ | --------------------- | ----------- | ----------------------- | --------------- | ------------------------------------------------------ |
+| Lettuce (leaf)           | High                  | Easy        | 30-45 days              | 3-10            | Best beginner crop; cut-and-come-again                 |
+| Radishes                 | Very high             | Very easy   | 25-30 days              | 3-10            | Fastest reward; plant as gap fillers                   |
+| Spinach                  | High                  | Easy        | 40-50 days              | 3-9             | Bolts quickly in heat; best as spring/fall             |
+| Kale                     | High                  | Easy        | 50-65 days              | 3-9             | Frost improves flavor; very productive                 |
+| Bush beans               | High                  | Easy        | 50-60 days              | 3-9             | Direct sow only; fix nitrogen                          |
+| Swiss chard              | High                  | Easy        | 50-60 days              | 3-10            | Heat tolerant for a leafy green                        |
+| Peas (bush/pole)         | Medium                | Easy        | 60-70 days              | 3-8             | Spring only in most zones; cool-season                 |
+| Cucumbers                | High                  | Easy-Medium | 50-65 days              | 4-10            | Needs trellis for space efficiency                     |
+| Zucchini                 | Very high             | Easy        | 50-60 days              | 3-10            | One plant per household is usually enough              |
+| Tomatoes (determinate)   | Medium-High           | Medium      | 65-75 days              | 4-9             | More manageable than indeterminate types               |
+| Tomatoes (indeterminate) | Very high over season | Medium      | 75-85 days              | 5-9             | Requires staking/caging; grows all season              |
+| Peppers                  | Medium                | Medium      | 65-85 days              | 5-10            | Need heat; underperform in cool summers                |
+| Carrots                  | Medium                | Medium      | 70-80 days              | 3-9             | Need loose, deep, stone-free soil                      |
+| Beets                    | High                  | Easy        | 55-70 days              | 3-9             | Both root and greens are edible                        |
+| Garlic                   | High                  | Easy        | 240 days (fall-planted) | 3-9             | Fall plant, summer harvest; no in-season attention     |
+| Corn                     | Low per sqft          | Hard        | 75-90 days              | 4-9             | Needs large block for pollination; poor for small beds |
+| Melons                   | Low per sqft          | Hard        | 80-100 days             | 6-10            | Space-intensive; avoid in beds under 200 sqft          |
+| Broccoli                 | Medium                | Medium      | 60-80 days              | 3-9             | Cool-season; plant in spring or fall                   |
+| Eggplant                 | Medium                | Medium      | 70-90 days              | 6-10            | Needs heat; better in Zones 7-10                       |
 
 **For first-time gardeners, recommend a starter set of 4-6 crops only.** A proven beginner combination for Zone 5-7 spring start:
+
 - Tomatoes (1-2 plants -- determinate or compact cherry variety)
 - Bush beans (one 3-foot row)
 - Lettuce (leaf varieties for cut-and-come-again harvest)
@@ -148,6 +153,7 @@ Warm-season crops require soil temperatures above 60 degrees F to germinate and 
 - Cucumbers (1-2 plants on a trellis)
 
 **Seed vs. transplant decision rules:**
+
 - Always start from transplant (purchased or homegrown): tomatoes, peppers, eggplant, broccoli, cauliflower, celery, leeks
 - Always direct sow (transplanting damages root system or they grow too fast to justify starts): beans, peas, carrots, radishes, beets, turnips, parsnips, corn
 - Can do either: cucumbers, squash, melons (direct sow is fine in Zones 5+; starting indoors 3-4 weeks early gives edge in short-season zones), lettuce, kale, chard, spinach
@@ -160,29 +166,30 @@ Translate crop choices into a physical layout that maximizes light, airflow, and
 
 **Spacing for intensive raised-bed planting (square-foot gardening spacing):**
 
-| Crop | Intensive Spacing | Plants per 4x4 Bed Square | Notes |
-|------|------------------|--------------------------|-------|
-| Tomatoes (indeterminate) | 1 per 4 sqft | 4 max -- usually 2 is better | Cage or stake; needs 5-6 ft vertical clearance |
-| Tomatoes (determinate/bush) | 1 per 2-3 sqft | 4-6 | Compact growth; stops at set height |
-| Peppers | 1 per 1-2 sqft | 8-16 | Less sprawling than tomatoes |
-| Cucumbers (trellised) | 1 per 1 sqft | 16 in a column (but grow on trellis) | Trellis doubles effective density |
-| Bush beans | 1 per 0.25 sqft (4-inch spacing) | 16-25 | Plant in blocks for easier harvest |
-| Pole beans | 1 per 0.25 sqft | Grow vertically on a trellis | 3-4x the yield of bush beans per sqft of bed |
-| Zucchini/squash | 1 per 4-9 sqft | 1-2 max | Sprawling; often better at bed edge |
-| Lettuce (head) | 1 per 1 sqft | 16 | Or 6-inch spacing for leaf varieties |
-| Lettuce (leaf/loose) | 1 per 0.25 sqft | 64 | Cut outer leaves; center keeps growing |
-| Kale | 1 per 1-2 sqft | 8-16 | Harvest lower leaves; grows tall |
-| Spinach | 1 per 0.25-0.5 sqft | 16-64 | Direct sow broadcast; thin to spacing |
-| Carrots | 1 per 0.1 sqft (3-inch spacing) | 64+ | Thin diligently at 2-inch seedling stage |
-| Radishes | 1 per 0.06 sqft (2-3 inch spacing) | 100+ | Interplant throughout bed |
-| Beets | 1 per 0.25 sqft (4-inch spacing) | 16-25 | Each "seed" is a seed cluster; thin to one |
-| Basil | 1 per 1 sqft | 16 | Pinch flowers to extend harvest |
-| Peas (bush) | 1 per 0.1 sqft | 100+ | Direct sow; early spring only |
+| Crop                        | Intensive Spacing                  | Plants per 4x4 Bed Square            | Notes                                          |
+| --------------------------- | ---------------------------------- | ------------------------------------ | ---------------------------------------------- |
+| Tomatoes (indeterminate)    | 1 per 4 sqft                       | 4 max -- usually 2 is better         | Cage or stake; needs 5-6 ft vertical clearance |
+| Tomatoes (determinate/bush) | 1 per 2-3 sqft                     | 4-6                                  | Compact growth; stops at set height            |
+| Peppers                     | 1 per 1-2 sqft                     | 8-16                                 | Less sprawling than tomatoes                   |
+| Cucumbers (trellised)       | 1 per 1 sqft                       | 16 in a column (but grow on trellis) | Trellis doubles effective density              |
+| Bush beans                  | 1 per 0.25 sqft (4-inch spacing)   | 16-25                                | Plant in blocks for easier harvest             |
+| Pole beans                  | 1 per 0.25 sqft                    | Grow vertically on a trellis         | 3-4x the yield of bush beans per sqft of bed   |
+| Zucchini/squash             | 1 per 4-9 sqft                     | 1-2 max                              | Sprawling; often better at bed edge            |
+| Lettuce (head)              | 1 per 1 sqft                       | 16                                   | Or 6-inch spacing for leaf varieties           |
+| Lettuce (leaf/loose)        | 1 per 0.25 sqft                    | 64                                   | Cut outer leaves; center keeps growing         |
+| Kale                        | 1 per 1-2 sqft                     | 8-16                                 | Harvest lower leaves; grows tall               |
+| Spinach                     | 1 per 0.25-0.5 sqft                | 16-64                                | Direct sow broadcast; thin to spacing          |
+| Carrots                     | 1 per 0.1 sqft (3-inch spacing)    | 64+                                  | Thin diligently at 2-inch seedling stage       |
+| Radishes                    | 1 per 0.06 sqft (2-3 inch spacing) | 100+                                 | Interplant throughout bed                      |
+| Beets                       | 1 per 0.25 sqft (4-inch spacing)   | 16-25                                | Each "seed" is a seed cluster; thin to one     |
+| Basil                       | 1 per 1 sqft                       | 16                                   | Pinch flowers to extend harvest                |
+| Peas (bush)                 | 1 per 0.1 sqft                     | 100+                                 | Direct sow; early spring only                  |
 
 **Vertical growing -- the most underused tool in small-bed gardening:**
 A trellis running along the north edge of a 4-foot-wide bed adds 20-40 sqft of effective growing surface without occupying any additional ground space. Use cattle panel (16-foot galvanized wire panel bent into an arch), wooden stake-and-twine systems, or purpose-built A-frame trellises. Crops that grow vertically and should always be trellised in small beds: cucumbers, pole beans, peas, indeterminate tomatoes (cage or single-stake), and winter squash (if space allows, the fruits may need slings made from old pantyhose or mesh bags to support their weight).
 
 **Interplanting strategies that increase bed productivity:**
+
 - Plant fast crops (radishes, lettuce) between slow crops (tomatoes, peppers). The fast crops harvest before the slow ones need the space.
 - Sow spinach in the shadow of a trellis where direct sun would otherwise bolt it.
 - Underplant the north side of taller crops with shade-tolerant herbs: parsley, cilantro, mint (contained in a pot sunk into the bed to prevent invasive spreading).
@@ -196,19 +203,20 @@ Companion planting is a real and documented phenomenon, but it is frequently ove
 
 **Well-supported companion planting relationships:**
 
-| Crop | Companion | Benefit | Mechanism |
-|------|-----------|---------|-----------|
-| Tomatoes | Basil | Pest deterrence (aphids, thrips); possibly flavor improvement | Volatile oils from basil may confuse pest host-finding |
-| Tomatoes | Carrots | Physical compatibility; carrots aerate soil around tomato roots | No chemical interaction; purely spatial |
-| Any brassica | Nasturtiums | Trap crop for aphids and whiteflies | Aphids prefer nasturtiums; inspect and remove |
-| Squash/Zucchini | Nasturtiums | Squash bug deterrent | Anecdotal but widely reported; nasturtiums are sacrificial |
-| Beans (any) | Corn, squash | Three Sisters system: beans fix nitrogen for corn; squash shades out weeds; corn supports pole beans | Nitrogen fixation is documented; shade competition is real |
-| Carrots | Onions/leeks | Carrot fly and onion fly mutual deterrence | Each crop's volatile oils mask the other from pest insects |
-| Brassicas | Dill (mature), cilantro | Attract parasitic wasps that prey on caterpillars | Flowering herbs attract Braconidae wasps; documented in IPM literature |
-| Lettuce | Tall crops (tomatoes, beans) | Shade protection; lettuce tolerates and may prefer partial shade in Zones 6+ | Physical benefit; extends lettuce season by 2-4 weeks |
-| Cucumbers | Dill (young, not flowering) | Aphid predator attraction | Dill attracts beneficial insects; remove before it bolts |
+| Crop            | Companion                    | Benefit                                                                                              | Mechanism                                                              |
+| --------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Tomatoes        | Basil                        | Pest deterrence (aphids, thrips); possibly flavor improvement                                        | Volatile oils from basil may confuse pest host-finding                 |
+| Tomatoes        | Carrots                      | Physical compatibility; carrots aerate soil around tomato roots                                      | No chemical interaction; purely spatial                                |
+| Any brassica    | Nasturtiums                  | Trap crop for aphids and whiteflies                                                                  | Aphids prefer nasturtiums; inspect and remove                          |
+| Squash/Zucchini | Nasturtiums                  | Squash bug deterrent                                                                                 | Anecdotal but widely reported; nasturtiums are sacrificial             |
+| Beans (any)     | Corn, squash                 | Three Sisters system: beans fix nitrogen for corn; squash shades out weeds; corn supports pole beans | Nitrogen fixation is documented; shade competition is real             |
+| Carrots         | Onions/leeks                 | Carrot fly and onion fly mutual deterrence                                                           | Each crop's volatile oils mask the other from pest insects             |
+| Brassicas       | Dill (mature), cilantro      | Attract parasitic wasps that prey on caterpillars                                                    | Flowering herbs attract Braconidae wasps; documented in IPM literature |
+| Lettuce         | Tall crops (tomatoes, beans) | Shade protection; lettuce tolerates and may prefer partial shade in Zones 6+                         | Physical benefit; extends lettuce season by 2-4 weeks                  |
+| Cucumbers       | Dill (young, not flowering)  | Aphid predator attraction                                                                            | Dill attracts beneficial insects; remove before it bolts               |
 
 **Documented antagonisms to observe:**
+
 - Alliums (onions, garlic, chives, leeks) and legumes (beans, peas): allium root exudates inhibit nitrogen fixation by Rhizobium bacteria on legume roots. Keep separated by at least 18 inches.
 - Fennel: allelopathic to most vegetables -- do not plant fennel in or near a vegetable bed. Grow it in a container or isolated bed if at all.
 - Potatoes and tomatoes: both are Solanaceae and share diseases (early blight, late blight, Verticillium wilt). Planting them together concentrates disease pressure. Also, allelopathic interactions have been reported.
@@ -222,27 +230,28 @@ Calculate all key dates relative to the two anchor points: last spring frost dat
 
 **Master timing formula -- weeks relative to last frost date:**
 
-| Timing | Action | Notes |
-|--------|--------|-------|
-| LFD minus 10-12 weeks | Start celery, leeks, onions from seed indoors | Slow-growing; need long indoor period |
-| LFD minus 8-10 weeks | Start peppers, eggplant indoors | Peppers are extremely slow from seed; earlier is safer |
-| LFD minus 6-8 weeks | Start tomatoes indoors | Most common beginner error: starting too late |
-| LFD minus 6-8 weeks | Start broccoli, cauliflower, cabbage indoors | Or direct sow outdoors if temp is above 40 degrees F soil temp |
-| LFD minus 4-6 weeks | Direct sow outdoors: peas, spinach, lettuce, kale, Swiss chard, radishes, beets | Soil temp must be at or above 35-40 degrees F; soil workable |
-| LFD minus 3-4 weeks | Direct sow outdoors: carrots, turnips; transplant broccoli/cabbage starts outdoors | These tolerate light frost |
-| LFD minus 2-3 weeks | Begin hardening off tomato and pepper seedlings: 1 hour of outdoor exposure increasing daily | Critical step -- skipping this causes transplant shock |
-| LFD minus 0-2 weeks | Transplant cold-tolerant transplants: broccoli, kale transplants | Watch nighttime temps |
-| LFD (last frost date) | Transition point; monitor nighttime forecasts closely for 2-3 weeks beyond LFD | Late frosts occur after LFD in some years |
-| LFD plus 1-2 weeks | Transplant tomatoes, peppers outdoors (nighttime above 50 degrees F) | Tomatoes stall if soil temp is below 55 degrees F; don't rush |
-| LFD plus 1-2 weeks | Direct sow beans, cucumbers, summer squash, zucchini (soil temp above 60 degrees F) | Use a soil thermometer; air temp is unreliable |
-| LFD plus 3-4 weeks | Direct sow corn, melons, sweet potatoes (soil temp above 65 degrees F) | These are the most cold-sensitive crops |
-| LFD plus 4-6 weeks | First succession planting of beans, cucumbers, lettuce (shade-sown), radishes | Every 2-3 weeks for continuous harvest of fast crops |
-| FFD minus 10-12 weeks | Direct sow fall brassicas: broccoli, kale, cabbage, Brussels sprouts | These need a full season in fall |
-| FFD minus 8-10 weeks | Direct sow or transplant fall lettuce, spinach, chard | Mid-summer planting; water well to establish in heat |
-| FFD minus 6-8 weeks | Direct sow fall radishes, turnips, beets | Quick crops for fall harvest |
-| FFD minus 4 weeks | Plant garlic cloves for overwintering (in most zones) | After first hard frost in Zones 3-6 |
+| Timing                | Action                                                                                       | Notes                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| LFD minus 10-12 weeks | Start celery, leeks, onions from seed indoors                                                | Slow-growing; need long indoor period                          |
+| LFD minus 8-10 weeks  | Start peppers, eggplant indoors                                                              | Peppers are extremely slow from seed; earlier is safer         |
+| LFD minus 6-8 weeks   | Start tomatoes indoors                                                                       | Most common beginner error: starting too late                  |
+| LFD minus 6-8 weeks   | Start broccoli, cauliflower, cabbage indoors                                                 | Or direct sow outdoors if temp is above 40 degrees F soil temp |
+| LFD minus 4-6 weeks   | Direct sow outdoors: peas, spinach, lettuce, kale, Swiss chard, radishes, beets              | Soil temp must be at or above 35-40 degrees F; soil workable   |
+| LFD minus 3-4 weeks   | Direct sow outdoors: carrots, turnips; transplant broccoli/cabbage starts outdoors           | These tolerate light frost                                     |
+| LFD minus 2-3 weeks   | Begin hardening off tomato and pepper seedlings: 1 hour of outdoor exposure increasing daily | Critical step -- skipping this causes transplant shock         |
+| LFD minus 0-2 weeks   | Transplant cold-tolerant transplants: broccoli, kale transplants                             | Watch nighttime temps                                          |
+| LFD (last frost date) | Transition point; monitor nighttime forecasts closely for 2-3 weeks beyond LFD               | Late frosts occur after LFD in some years                      |
+| LFD plus 1-2 weeks    | Transplant tomatoes, peppers outdoors (nighttime above 50 degrees F)                         | Tomatoes stall if soil temp is below 55 degrees F; don't rush  |
+| LFD plus 1-2 weeks    | Direct sow beans, cucumbers, summer squash, zucchini (soil temp above 60 degrees F)          | Use a soil thermometer; air temp is unreliable                 |
+| LFD plus 3-4 weeks    | Direct sow corn, melons, sweet potatoes (soil temp above 65 degrees F)                       | These are the most cold-sensitive crops                        |
+| LFD plus 4-6 weeks    | First succession planting of beans, cucumbers, lettuce (shade-sown), radishes                | Every 2-3 weeks for continuous harvest of fast crops           |
+| FFD minus 10-12 weeks | Direct sow fall brassicas: broccoli, kale, cabbage, Brussels sprouts                         | These need a full season in fall                               |
+| FFD minus 8-10 weeks  | Direct sow or transplant fall lettuce, spinach, chard                                        | Mid-summer planting; water well to establish in heat           |
+| FFD minus 6-8 weeks   | Direct sow fall radishes, turnips, beets                                                     | Quick crops for fall harvest                                   |
+| FFD minus 4 weeks     | Plant garlic cloves for overwintering (in most zones)                                        | After first hard frost in Zones 3-6                            |
 
 **Soil temperature thresholds (use a probe thermometer at 2-inch depth):**
+
 - 35 degrees F: minimum for spinach, peas germination (very slow)
 - 40 degrees F: lettuce, kale, chard, beets
 - 50 degrees F: carrots, onions, parsley
@@ -257,6 +266,7 @@ Calculate all key dates relative to the two anchor points: last spring frost dat
 A plan without soil guidance fails at the first shovel. Every garden plan must include baseline soil instructions.
 
 **In-ground bed preparation sequence:**
+
 1. Clear existing vegetation. For sod, either remove by hand (laborious but immediate) or smother with cardboard plus 4-6 inches of compost (lasagna/no-dig method; effective but needs 3-6 months).
 2. Test soil if any uncertainty exists. A cooperative extension soil test ($10-$30) returns pH, macronutrient levels, and organic matter percentage. Home test kits measure pH only.
 3. Amend based on test: most vegetable gardens perform best at pH 6.0-6.8. Below 6.0, add ground lime (dolomitic lime adds magnesium; calcitic lime is better if magnesium is not deficient). Above 7.0, add sulfur (slow) or acidifying fertilizer (faster).
@@ -264,12 +274,14 @@ A plan without soil guidance fails at the first shovel. Every garden plan must i
 5. For established beds: top-dress with 1-2 inches of compost each season. No-dig approach preserves soil structure and microbial communities -- recommended after the first year.
 
 **Basic fertility schedule:**
+
 - At planting: 2-4 inches compost incorporated or top-dressed
 - When seedlings are 6 inches tall or at transplanting: balanced slow-release organic fertilizer (4-4-4 or 5-5-5) per label rate
 - When heavy feeders (tomatoes, peppers, squash) begin to flower: side-dress with higher-nitrogen source (blood meal, fish emulsion, balanced organic fertilizer)
 - Avoid high-nitrogen fertilizers on crops grown for roots or fruits: excess nitrogen produces lush foliage at the expense of edible parts
 
 **Common soil problems and corrections:**
+
 - Clay-heavy soil: add coarse sand and compost in large quantities (a 1:1:1 ratio of native soil, coarse sand, and compost); avoid tilling wet clay (destroys structure permanently)
 - Sandy soil with poor retention: add compost heavily; biochar at 5% volume improves water retention in sandy soil
 - Low organic matter (below 2%): build compost into the system; every season add cover crops (annual ryegrass, crimson clover) if beds are fallow over winter
@@ -281,6 +293,7 @@ A plan without soil guidance fails at the first shovel. Every garden plan must i
 Combine all gathered information into the structured output format. Calculate every date as an actual calendar date (not "minus 6 weeks"). Include a visual layout description, full crop list with spacing and timing, companion planting notes, maintenance reminders, and a next-steps checklist appropriate to the user's experience level.
 
 When assembling the plan:
+
 - Lead with the garden profile so users can immediately verify your zone and date assumptions
 - Use a visual grid or ASCII layout that makes spatial relationships obvious
 - Show the planting calendar as actual dates, not relative formulas
@@ -313,18 +326,20 @@ When assembling the plan:
 [Provide a visual ASCII grid or descriptive zone map]
 
 ```
+
 NORTH (tallest crops -- trellis or cage)
 +----------------------------------+
-| [Crop A]  [Crop A]  [Crop B]     |  Row 1 -- 24-inch spacing
-|                                  |
-| [Crop C - 3 row block]           |  Row 2 -- 6-inch spacing
-| [Crop C] [Crop C] [Crop C] ...   |
-|                                  |
+| [Crop A] [Crop A] [Crop B] | Row 1 -- 24-inch spacing
+| |
+| [Crop C - 3 row block] | Row 2 -- 6-inch spacing
+| [Crop C] [Crop C] [Crop C] ... |
+| |
 | [Crop D] [Crop D] [Herb companion]| Row 3 -- 12-inch spacing
-|                                  |
-| [Crop E - 2 rows] [Crop F]       |  Row 4 -- 3-4 inch spacing
+| |
+| [Crop E - 2 rows] [Crop F] | Row 4 -- 3-4 inch spacing
 +----------------------------------+
 SOUTH (shortest crops -- full sun path)
+
 ```
 
 Orientation note: [Explain light and airflow rationale for this specific layout]
@@ -415,7 +430,9 @@ Orientation note: [Explain light and airflow rationale for this specific layout]
 ## Edge Cases
 
 ### Short Growing Season (Zones 3-4, 90-130 days)
+
 The primary constraint is days to maturity. Every crop must be vetted against the actual frost-to-frost window. Strategies:
+
 - Prioritize crops that mature in under 60 days: radishes (25 days), lettuce (30-45 days), spinach (40-50 days), peas (60 days), bush beans (50-55 days), kale (50-65 days)
 - For tomatoes: choose early-maturing varieties (60-70 days from transplant) rather than main-season varieties (75-90 days). Varieties bred for northern climates set fruit at lower temperatures than standard varieties
 - Start tomatoes and peppers indoors 8-10 weeks before last frost -- the full indoor period is non-negotiable in Zone 3-4
@@ -424,7 +441,9 @@ The primary constraint is days to maturity. Every crop must be vetted against th
 - For winter squash, choose compact bush-habit varieties with 80-day maturity (e.g., acorn or delicata types)
 
 ### Hot Climate with a Brutal Summer (Zones 8-10, especially inland areas)
+
 The growing calendar flips. Summer is not the primary growing season -- it is a dormancy period for most crops. Strategies:
+
 - Cool-season crops are the primary food garden and run October through April in Zone 8-9, November through March in Zone 10
 - Spring warm-season crops run February-June before heat shuts them down. Plant tomatoes and peppers earlier than any other zone (February in Zone 9)
 - Tomatoes stop setting fruit when daytime temperatures exceed 95 degrees F and nighttime temperatures stay above 75 degrees F. Choose heat-tolerant varieties for extended fruiting
@@ -433,7 +452,9 @@ The growing calendar flips. Summer is not the primary growing season -- it is a 
 - Soil moisture management is critical: drip irrigation on a timer and heavy mulch (3-4 inches of straw or wood chips) are essentially mandatory, not optional
 
 ### Container Gardening (Balcony, Patio, or No Ground Access)
+
 Container gardening requires a fundamentally different approach than bed gardening:
+
 - Minimum container sizes: tomatoes require a minimum 15-gallon container (5-gallon works only for compact/patio varieties); peppers and eggplant work in 5-gallon; cucumbers work in 5-gallon with a trellis; herbs and lettuce work in 2-3 gallon or window boxes
 - Never use native garden soil in containers -- it compacts, drains poorly, and harbors pathogens in the concentrated environment of a pot
 - Containers dry out 2-5x faster than raised beds. In summer, a 5-gallon tomato pot on a south-facing balcony may require watering twice daily. A self-watering container (reservoir-based) dramatically reduces this burden
@@ -442,7 +463,9 @@ Container gardening requires a fundamentally different approach than bed gardeni
 - Dark-colored containers absorb heat and can cook roots in hot climates. Use light-colored or ceramic pots, or double-pot (decorative outer, plain inner)
 
 ### Shaded Garden (Under 6 Hours of Direct Sun)
+
 Most people overestimate their sun. Conduct a sun audit on a clear day in summer: measure actual direct sun exposure at 9 AM, 12 PM, and 3 PM, noting when shade falls across the bed. Then:
+
 - 6+ hours direct sun (full sun): all crops are possible
 - 4-6 hours (partial sun): acceptable for leafy greens, herbs, peas, beets, chard; fruiting crops (tomatoes, cucumbers, squash) will produce below potential but may still yield
 - Under 4 hours (partial shade): restrict to lettuce, spinach, kale, chard, parsley, cilantro, mint, and chives. Do not attempt fruiting crops; the disappointment is near-certain
@@ -450,7 +473,9 @@ Most people overestimate their sun. Conduct a sun audit on a clear day in summer
 - Solutions for shaded spaces: move beds (even portable raised beds on wheels), use reflective mulch to redirect light, prune tree canopy (requires landowner permission), or accept a leafy green focus
 
 ### Soil Contamination and Unknown Site History
+
 Any urban or suburban site near old structures, previous commercial use, or roadways should be treated with caution before growing food:
+
 - Lead from old paint is the most common contaminant. Homes built before 1978 may have lead paint that has flaked into adjacent soil. Roadside soil often contains lead from decades of leaded gasoline use
 - A cooperative extension soil test specifically for heavy metals ($20-$50 as a separate add-on) is strongly recommended for any urban lot before growing food in-ground
 - Interim strategy while waiting for tests: use raised beds with a physical barrier (landscape fabric, heavy-gauge plastic liner, hardware cloth) separating native soil from the growing medium
@@ -458,14 +483,18 @@ Any urban or suburban site near old structures, previous commercial use, or road
 - Do not grow root vegetables (carrots, beets, radishes, potatoes) in contaminated soil -- roots directly contact soil particles
 
 ### Late Start (User Plans After the Optimal Window Has Passed)
+
 When a user comes to planning mid-season (e.g., reaching out in July in Zone 6), the plan must acknowledge reality and pivot:
+
 - Acknowledge what can no longer be started from seed outdoors (tomatoes for that year's spring crop, peppers, slow-maturing crops)
 - Pivot to what can still succeed: fast-maturing crops for the remaining warm season (bush beans, cucumbers from transplant if available, summer squash), and begin planning the fall cool-season garden which starts 8-10 weeks before FFD
 - Frame the season as fall garden season. In Zone 6 with an October 15 FFD, mid-July is ideal timing to start fall brassicas, kale, and schedule September lettuce and spinach sowing
 - Use the remaining warm weeks to build soil: establish a compost pile, add cover crops, build beds for next year's garden
 
 ### First Garden on Lawn (Converting Turf)
+
 Switching lawn to garden is the most common scenario but has unique complications:
+
 - Existing turf introduces weed seed bank, grass root regrowth (especially with rhizomatous grass like Bermuda, quack grass, or crabgrass), and possible compaction
 - No-dig/lasagna method: lay cardboard directly on turf (overlapping seams by 6 inches, removing tape and staples), wet thoroughly, pile 6-8 inches of compost or a raised bed on top. Earthworms and decomposition kill the turf in 2-3 months. Can plant into this system immediately with transplants.
 - Tilling method: till in spring when soil is moist but not wet, allow weeds to germinate for 2-3 weeks, till shallowly a second time to kill the flush of germinating weeds (the "stale seedbed" technique), then plant. Warning: deep tilling brings dormant weed seeds to the surface; each subsequent tilling does the same.
@@ -483,17 +512,18 @@ Switching lawn to garden is the most common scenario but has unique complication
 ## Vegetable Garden Plan: Zone 7a -- 6x10 Raised Bed, First Garden
 
 ### Garden Profile
-| Parameter            | Value                                    |
-|----------------------|------------------------------------------|
-| USDA Zone            | 7a (confirmed for Richmond, VA)          |
-| Last spring frost    | ~March 25 -- April 5                     |
-| First fall frost     | ~November 1 -- November 10               |
-| Growing season       | ~210 days                                |
-| Bed dimensions       | 6 ft wide x 10 ft long x 12 in tall      |
-| Total growing area   | 60 square feet                           |
-| Bed type             | Raised bed (recommended for first garden)|
-| Sun exposure         | ~6 hours direct sun (morning), partial afternoon shade |
-| Orientation          | Long axis north-south                    |
+
+| Parameter          | Value                                                  |
+| ------------------ | ------------------------------------------------------ |
+| USDA Zone          | 7a (confirmed for Richmond, VA)                        |
+| Last spring frost  | ~March 25 -- April 5                                   |
+| First fall frost   | ~November 1 -- November 10                             |
+| Growing season     | ~210 days                                              |
+| Bed dimensions     | 6 ft wide x 10 ft long x 12 in tall                    |
+| Total growing area | 60 square feet                                         |
+| Bed type           | Raised bed (recommended for first garden)              |
+| Sun exposure       | ~6 hours direct sun (morning), partial afternoon shade |
+| Orientation        | Long axis north-south                                  |
 
 **Sun note:** Six hours of direct morning sun is sufficient for the crops in this plan. The afternoon shade after 2 PM will actually benefit lettuce and herbs by reducing bolting in Richmond's hot summers. Tomatoes and peppers will perform slightly better with additional afternoon sun, but the plan accounts for this by selecting productive varieties suited to partial conditions.
 
@@ -536,4 +566,4 @@ NORTH END (trellis on north fence or stakes -- 5-6 ft tall)
 SOUTH END (shortest plants; maximum sun access from south)
 ```
 
-Trellis note: Install a cattle panel, bamboo poles with twine, or a purpose-built trellis running along the entire north end of the bed (6 feet wide, 5-6 feet tall). This is your highest-ROI infrastructure investment -- cucumbers trellised vertically occupy only 
+Trellis note: Install a cattle panel, bamboo poles with twine, or a purpose-built trellis running along the entire north end of the bed (6 feet wide, 5-6 feet tall). This is your highest-ROI infrastructure investment -- cucumbers trellised vertically occupy only

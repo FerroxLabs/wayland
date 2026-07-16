@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices guide"
-  category: "testing-quality"
-  subcategory: "test-automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices guide'
+  category: 'testing-quality'
+  subcategory: 'test-automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Test Data Generator
@@ -304,18 +304,18 @@ def test_user_serialization(snapshot):
 ```javascript
 // Jest snapshot testing
 test('user API response matches snapshot', () => {
-    const user = userFactory.build({
-        name: 'Alice Smith',
-        email: 'alice@example.com',
-    });
-    const serialized = serializeUser(user);
-    expect(serialized).toMatchSnapshot();
+  const user = userFactory.build({
+    name: 'Alice Smith',
+    email: 'alice@example.com',
+  });
+  const serialized = serializeUser(user);
+  expect(serialized).toMatchSnapshot();
 });
 
 // Inline snapshot
 test('error message format', () => {
-    const error = validateEmail('not-an-email');
-    expect(error).toMatchInlineSnapshot(`"Invalid email format: not-an-email"`);
+  const error = validateEmail('not-an-email');
+  expect(error).toMatchInlineSnapshot(`"Invalid email format: not-an-email"`);
 });
 ```
 
@@ -333,6 +333,7 @@ test('error message format', () => {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing test data generator solutions
 - Reviewing or improving existing test data generator approaches
 - Making architectural or implementation decisions about test data generator
@@ -340,6 +341,7 @@ test('error message format', () => {
 - Troubleshooting test data generator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -350,21 +352,26 @@ test('error message format', () => {
 # Test Data Generator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

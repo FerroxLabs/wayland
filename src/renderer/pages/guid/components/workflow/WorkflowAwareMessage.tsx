@@ -32,10 +32,7 @@
  */
 
 import React from 'react';
-import {
-  createParserState,
-  finalize,
-} from '@/renderer/pages/guid/components/workflow/workflowMarkerParser';
+import { createParserState, finalize } from '@/renderer/pages/guid/components/workflow/workflowMarkerParser';
 import type { WorkflowMarker } from '@/common/types/workflowTypes';
 
 export type WorkflowAwareMessageProps = {
@@ -52,12 +49,7 @@ export type WorkflowAwareMessageProps = {
   children: (cleanedBody: string) => React.ReactNode;
 };
 
-export const WorkflowAwareMessage: React.FC<WorkflowAwareMessageProps> = ({
-  body,
-  totalSteps,
-  onMarker,
-  children,
-}) => {
+export const WorkflowAwareMessage: React.FC<WorkflowAwareMessageProps> = ({ body, totalSteps, onMarker, children }) => {
   const { finalOutput, finalMarkers } = React.useMemo(() => {
     return finalize(createParserState(), totalSteps, body);
   }, [body, totalSteps]);

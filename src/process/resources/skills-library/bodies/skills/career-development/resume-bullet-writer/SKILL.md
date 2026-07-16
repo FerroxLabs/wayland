@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "resume-writing career template"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'resume-writing career template'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Resume Bullet Writer
 
 ## When to Use
@@ -82,18 +83,23 @@ When a user genuinely has no metrics -- common in education, nonprofits, early-c
 The opening verb of a resume bullet is the first signal of seniority and credibility. Using the wrong verb in either direction (too junior or too senior) damages trust with hiring managers. Calibrate to the user's actual role and actual contribution:
 
 **Strategic ownership -- C-suite, VP, Director, or senior individual contributor with org-wide impact:**
+
 - Spearheaded, Pioneered, Architected, Championed, Transformed, Overhauled, Established, Formulated, Envisioned, Negotiated (six-figure contracts or above)
 
 **Managerial and program-level execution -- Managers, Senior ICs, Program Leads:**
+
 - Led, Directed, Managed, Launched, Orchestrated, Oversaw, Scaled, Restructured, Mentored, Championed, Built (a team, system, or program from scratch)
 
 **Independent execution -- Mid-level ICs, Specialists, Coordinators with autonomy:**
+
 - Developed, Designed, Implemented, Delivered, Optimized, Streamlined, Automated, Produced, Engineered, Analyzed, Authored
 
 **Collaborative contribution -- Junior roles, early-career, support functions, interns:**
+
 - Contributed, Supported, Facilitated, Coordinated, Assisted, Collaborated, Prepared, Maintained, Monitored, Compiled, Drafted
 
 Absolute prohibitions regardless of seniority:
+
 - Never use "Responsible for" or "Responsibilities included" -- these describe a job description, not a human achievement
 - Never use "Helped with" or "Worked on" -- these erase ownership and signal passivity
 - Never use "Was tasked with," "Served as," or "Acted as" -- bureaucratic and weak
@@ -108,15 +114,19 @@ Not every bullet will contain all four elements, but every bullet must contain a
 Apply these structural variations depending on what information is available:
 
 **Full metric available (ideal):**
+
 > Reduced customer onboarding time by 35% by redesigning the 6-step intake workflow and eliminating 3 redundant approval checkpoints.
 
 **Volume/output metric available (strong):**
+
 > Produced 48 data quality audit reports annually, ensuring compliance for a portfolio of 320 active client accounts.
 
 **Scope indicator only (acceptable when no metrics exist):**
+
 > Managed IT infrastructure for a 200-person headquarters, including server maintenance, help desk operations, and vendor contract negotiations.
 
 **Comparative benchmark available (very strong):**
+
 > Achieved a 94% customer satisfaction score on a team of 12 agents, exceeding the department average of 87% for three consecutive quarters.
 
 Write all bullets in simple past tense for previous roles. For current roles, use simple present tense only for ongoing responsibilities, past tense for completed projects or achievements.
@@ -151,7 +161,7 @@ After writing 3 to 7 draft bullets, apply the following quality checks before de
 
 Always deliver the output in the format defined below. Do not deliver bullets alone -- include the Before/After Comparison and Why These Work sections because they accomplish two things: they help the user understand what changed and why, and they allow the user to validate that the rewrite accurately represents their work before they paste it onto their resume.
 
-If you invented an estimated metric or made an assumption, flag it explicitly with a note like: *(Assumed: 40% growth -- confirm this figure before using.)* Never let an estimated number pass silently into the output where it could be pasted verbatim as if it were a documented fact.
+If you invented an estimated metric or made an assumption, flag it explicitly with a note like: _(Assumed: 40% growth -- confirm this figure before using.)_ Never let an estimated number pass silently into the output where it could be pasted verbatim as if it were a documented fact.
 
 ---
 
@@ -275,6 +285,7 @@ Excess inputs scatter focus and produce bloated bullet sets. Handle this by:
 Many legitimate, skilled roles are about consistency, reliability, and quality -- not transformation. System administrators, quality control inspectors, customer service representatives, and operations staff do not always "improve" things. They maintain them.
 
 Reframe maintenance as reliability achievement:
+
 - "Maintained 99.97% network uptime for a 500-endpoint corporate infrastructure across 3 office locations" is a strong bullet
 - "Processed 200+ daily customer transactions with a 0.2% error rate over a 2-year tenure" is a strong bullet
 - "Sustained a 4.9/5 average customer satisfaction score across 1,200+ monthly service interactions" is a strong bullet
@@ -311,6 +322,7 @@ When the user wants critique rather than a full rewrite:
 ## Example
 
 **User Input:**
+
 > "I was a Customer Success Manager at a B2B software company for 3 years. My responsibilities were: managed a portfolio of enterprise clients, onboarded new customers, ran quarterly business reviews, handled escalations and churn risk, worked with the product team to pass along customer feedback, and tracked usage data in Salesforce and Gainsight. I'm applying for a Director of Customer Success role."
 
 ---
@@ -338,25 +350,25 @@ When the user wants critique rather than a full rewrite:
 
 ### Why These Work
 
-| # | Bullet Strength | Key Technique Applied |
-|---|----------------|-----------------------|
-| 1 | Opens with portfolio scale ($3.2M ARR) and the retention KPI that Directors live and die by (94% NRR) -- directly maps to the top success metric for the target role | Scope + Primary outcome benchmark |
-| 2 | QBRs are a core Director competency; quantifying both the volume (20+ per quarter) and the downstream churn reduction (30%) shows strategic as well as operational impact | Volume + Downstream outcome |
-| 3 | Demonstrates the process-building skill required at Director level ("standardized playbook") and provides a concrete before/after improvement (11 weeks → 7 weeks) | Process improvement with before/after metric |
-| 4 | "Coordinating cross-functional response teams" signals Director-level influence without direct authority -- a critical competency called out in most Director-level CS job descriptions | Scope + Cross-functional indicator + Dollar retention |
-| 5 | Product partnership is a differentiator for senior CS candidates; tracking the feedback loop to 6 feature releases quantifies influence in a domain where impact is typically invisible | Volume + Influence outcome |
+| #   | Bullet Strength                                                                                                                                                                         | Key Technique Applied                                 |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 1   | Opens with portfolio scale ($3.2M ARR) and the retention KPI that Directors live and die by (94% NRR) -- directly maps to the top success metric for the target role                    | Scope + Primary outcome benchmark                     |
+| 2   | QBRs are a core Director competency; quantifying both the volume (20+ per quarter) and the downstream churn reduction (30%) shows strategic as well as operational impact               | Volume + Downstream outcome                           |
+| 3   | Demonstrates the process-building skill required at Director level ("standardized playbook") and provides a concrete before/after improvement (11 weeks → 7 weeks)                      | Process improvement with before/after metric          |
+| 4   | "Coordinating cross-functional response teams" signals Director-level influence without direct authority -- a critical competency called out in most Director-level CS job descriptions | Scope + Cross-functional indicator + Dollar retention |
+| 5   | Product partnership is a differentiator for senior CS candidates; tracking the feedback loop to 6 feature releases quantifies influence in a domain where impact is typically invisible | Volume + Influence outcome                            |
 
 ---
 
 ### Before/After Comparison
 
-| Original Duty (User's Phrasing) | Polished Bullet |
-|--------------------------------|-----------------|
-| Managed a portfolio of enterprise clients | Managed a portfolio of 45 enterprise accounts totaling $3.2M in ARR, maintaining a 94% net revenue retention rate over 3 consecutive years |
-| Ran quarterly business reviews | Designed and delivered structured QBRs for 20+ accounts per quarter, reducing at-risk account flags by 30% and contributing to 12 upsells totaling $480K in expansion revenue |
-| Onboarded new customers | Onboarded 60+ new enterprise customers by building a standardized 30-60-90 day success playbook, reducing average time-to-value from 11 weeks to 7 weeks |
-| Handled escalations and churn risk | Identified and resolved 18 high-severity churn-risk escalations annually by coordinating cross-functional response teams, retaining an estimated $900K in at-risk ARR per year |
-| Worked with the product team to pass along customer feedback | Synthesized 140+ product feedback items into Gainsight and Jira, influencing 6 feature releases prioritized by the Product team within 12 months |
+| Original Duty (User's Phrasing)                              | Polished Bullet                                                                                                                                                                |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Managed a portfolio of enterprise clients                    | Managed a portfolio of 45 enterprise accounts totaling $3.2M in ARR, maintaining a 94% net revenue retention rate over 3 consecutive years                                     |
+| Ran quarterly business reviews                               | Designed and delivered structured QBRs for 20+ accounts per quarter, reducing at-risk account flags by 30% and contributing to 12 upsells totaling $480K in expansion revenue  |
+| Onboarded new customers                                      | Onboarded 60+ new enterprise customers by building a standardized 30-60-90 day success playbook, reducing average time-to-value from 11 weeks to 7 weeks                       |
+| Handled escalations and churn risk                           | Identified and resolved 18 high-severity churn-risk escalations annually by coordinating cross-functional response teams, retaining an estimated $900K in at-risk ARR per year |
+| Worked with the product team to pass along customer feedback | Synthesized 140+ product feedback items into Gainsight and Jira, influencing 6 feature releases prioritized by the Product team within 12 months                               |
 
 ---
 

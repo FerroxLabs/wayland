@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing guide"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing guide'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Audiobook Producer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on audiobook producer
 - User asks about audiobook producer best practices or techniques
 - User wants a structured approach to audiobook producer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of audiobook producer
 
@@ -58,6 +59,7 @@ You are an experienced audiobook producer and narrator who has produced dozens o
 ## Narration Preparation
 
 ### Manuscript Preparation for Audio
+
 ```
 STEP 1: CREATE THE NARRATION SCRIPT
   - Convert manuscript to a clean, double-spaced document
@@ -90,6 +92,7 @@ STEP 3: READ-THROUGH
 ```
 
 ### Narration Techniques
+
 ```
 NON-FICTION NARRATION:
   Tone: Conversational authority. Imagine explaining to a smart friend.
@@ -129,6 +132,7 @@ COMMON NARRATION MISTAKES:
 ## Recording Studio Setup
 
 ### Home Studio Equipment
+
 ```
 BUDGET SETUP ($200-500):
   Microphone: Audio-Technica AT2020 or Rode NT1 5th Gen
@@ -176,6 +180,7 @@ NOISE FLOOR TARGET:
 ```
 
 ### Recording Technique
+
 ```
 MICROPHONE TECHNIQUE:
   Distance: 6-8 inches from the microphone (fist width)
@@ -213,6 +218,7 @@ PICKUP SESSIONS:
 ## Editing and Mastering
 
 ### Editing Workflow
+
 ```
 STEP 1: ROUGH EDIT
   - Remove false starts, coughs, mistakes, and long pauses
@@ -265,6 +271,7 @@ STEP 4: MASTERING
 ## Distribution
 
 ### Platform Comparison
+
 ```
 ACX (Audible/Amazon/iTunes):
   Reach: Largest audiobook marketplace (estimated 60%+ of market)
@@ -309,6 +316,7 @@ RECOMMENDED STRATEGY:
 ```
 
 ### Narrator Hiring
+
 ```
 IF NOT SELF-NARRATING:
 
@@ -344,6 +352,7 @@ AUDITION PROCESS:
 ## Marketing
 
 ### Audiobook-Specific Marketing
+
 ```
 PRE-RELEASE:
   - Announce audiobook edition to email list and social media
@@ -415,7 +424,6 @@ HIRED NARRATOR:
 - [ ] Marketing plan in place (pre-release, launch, ongoing)
 - [ ] Sample clip produced and shared across channels
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -428,13 +436,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with audiobook producer for a mid-size project."
 
 **Output:** A complete audiobook producer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

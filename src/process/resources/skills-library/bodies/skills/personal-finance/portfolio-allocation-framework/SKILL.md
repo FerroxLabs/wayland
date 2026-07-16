@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "investing personal-finance analysis retirement-planning"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'investing personal-finance analysis retirement-planning'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Portfolio Allocation Framework
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly -- including tax situation, income stability, existing assets, liabilities, insurance coverage, and estate planning considerations -- that cannot be fully captured through a structured framework. The information provided should not be relied upon as a substitute for personalized professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
@@ -56,16 +57,17 @@ metadata:
 
 Before presenting any allocation analysis, establish the four core inputs that drive all allocation decisions. Missing inputs produce meaningless output -- do not skip this step.
 
-- **Risk tolerance profile:** Obtain this from their completed risk assessment (conservative, moderately conservative, moderate, moderately aggressive, aggressive). If they only have a vague self-description ("I'm okay with some risk"), press for the assessment score or a more precise characterization. Risk tolerance has two components that often diverge: *willingness* to take risk (emotional comfort with volatility) and *capacity* to take risk (financial ability to absorb losses without derailing the goal). Note both when available.
+- **Risk tolerance profile:** Obtain this from their completed risk assessment (conservative, moderately conservative, moderate, moderately aggressive, aggressive). If they only have a vague self-description ("I'm okay with some risk"), press for the assessment score or a more precise characterization. Risk tolerance has two components that often diverge: _willingness_ to take risk (emotional comfort with volatility) and _capacity_ to take risk (financial ability to absorb losses without derailing the goal). Note both when available.
 - **Time horizon:** Establish years until the money is needed, not just the nominal goal. A 45-year-old saving for retirement at 65 has a 20-year accumulation horizon but may also have a 25-to-30-year spending horizon after that -- this distinction matters for how aggressively they should invest. For multi-goal situations, separate horizons for each goal.
 - **Primary goal and its flexibility:** Retirement, education, down payment, and emergency funds have fundamentally different flexibility characteristics. A college tuition payment due in 4 years is inflexible -- the money must be there. A retirement that can be delayed by 2-3 years if needed is flexible -- this flexibility increases risk capacity.
 - **Supporting financial context:** Gather what you can about income stability (stable salaried vs. variable/commission-based vs. self-employed), emergency fund status (3-6 months expenses in cash outside this portfolio), existing assets and debts (pension, Social Security, real estate equity, high-interest debt), and other income sources in retirement (pension, rental, part-time work). These factors directly adjust the appropriate position within any allocation range.
 
 ### Step 2: Explain the Major Asset Classes with Real Behavioral Context
 
-Do not just describe asset classes in generic terms. Explain how each one behaves across economic environments so the user understands *why* combining them reduces risk.
+Do not just describe asset classes in generic terms. Explain how each one behaves across economic environments so the user understands _why_ combining them reduces risk.
 
 **Equities (Stocks) -- Growth Engine:**
+
 - Represent fractional ownership in businesses; returns come from earnings growth and dividend income
 - Historically the highest long-term returning major asset class in developed markets, but with the highest short-term volatility. Broad market drawdowns of 20% or more occur roughly every 5-10 years; drawdowns of 40-50% have occurred during severe recessions and financial crises
 - Perform best during economic expansion and early recovery; underperform during recessions and financial stress
@@ -74,6 +76,7 @@ Do not just describe asset classes in generic terms. Explain how each one behave
 - Key risks: market risk (the whole market falls), specific-issuer risk (a single company collapses), currency risk for international holdings, political and regulatory risk for emerging markets
 
 **Fixed Income (Bonds) -- Stability and Income Engine:**
+
 - Represent a loan from the investor to a government or corporation; returns come from interest payments (coupon) and price changes driven by interest rate movements
 - Duration is the most critical technical concept: longer-duration bonds are more sensitive to interest rate changes. A bond with a duration of 10 years loses approximately 10% of its price for every 1% rise in interest rates -- this is not a minor risk during rising-rate environments
 - Sub-dimensions: government (sovereign) vs. corporate vs. municipal; investment-grade vs. high-yield (junk); short (0-3 year duration), intermediate (3-10 year), and long (10+ year); inflation-linked (like TIPS) vs. nominal
@@ -83,6 +86,7 @@ Do not just describe asset classes in generic terms. Explain how each one behave
 - Key risks: interest rate risk (rising rates hurt bond prices), credit/default risk (the issuer cannot repay), reinvestment risk (maturing bonds must be reinvested at prevailing -- potentially lower -- rates), inflation risk (fixed nominal payments lose real value)
 
 **Cash and Cash Equivalents -- Liquidity and Safety Reserve:**
+
 - Includes savings accounts, money market funds, short-duration Treasury instruments (T-bills), and certificates of deposit
 - Primary role: maintain purchasing power over short periods and provide liquidity for near-term spending needs or opportunistic rebalancing
 - Real return over long periods is typically near zero or slightly negative after inflation, which is the direct cost of holding cash in a long-horizon portfolio
@@ -90,6 +94,7 @@ Do not just describe asset classes in generic terms. Explain how each one behave
 - Appropriate holding level: for a long-term investment portfolio specifically (separate from an emergency fund), 2-10% is typical. More than 10-15% in cash within a long-term portfolio is typically a drag on long-run outcomes unless it represents a specific tactical or bucket-strategy allocation
 
 **Real Assets -- Inflation Protection and Diversification:**
+
 - Encompasses real estate investment trusts (REITs), commodity-linked instruments, infrastructure, and inflation-linked bonds (TIPS)
 - Their defining characteristic is some degree of linkage to real economic activity and price levels -- they tend to hold or increase their real (inflation-adjusted) value when inflation rises, while nominal bonds suffer
 - REITs provide real estate exposure with stock-like liquidity; they behave partially like equities (they correlate with equity markets during financial stress) and partially like bonds (they are sensitive to interest rates due to leverage)
@@ -102,12 +107,14 @@ Do not just describe asset classes in generic terms. Explain how each one behave
 Each philosophy should be presented as a coherent intellectual framework with real mechanics, not a slogan. The user should understand what problem each philosophy was designed to solve.
 
 **The Age-Based / Lifecycle Approach:**
+
 - Core logic: as you age, your human capital (the present value of future wages) shrinks and your financial capital grows; your portfolio should gradually shift from risky (equity-like) to conservative (bond-like) to reflect this transition
 - The old "100 minus your age in equities" rule is outdated -- longer life expectancies and lower bond yields have pushed many practitioners toward "110 minus age" or "120 minus age" as starting points
 - The glide path concept: this is the schedule by which the equity allocation declines over time. Target-date fund structures are the institutionalized version of a lifecycle glide path
 - Limitation: this is a one-dimensional model that ignores income stability, wealth relative to spending needs, risk tolerance, and other financial resources. A 55-year-old with a government pension covering 90% of living expenses has far more capacity for equity risk than a 55-year-old depending entirely on their portfolio
 
 **The Risk-Profile-Based Approach:**
+
 - Core logic: allocation should match the investor's assessed risk tolerance rather than an automatic age formula
 - Standard mapping used across the advisory industry (ranges, not prescriptions):
   - Conservative: typically 20-40% equities, 50-70% fixed income, remainder in cash and real assets
@@ -115,18 +122,20 @@ Each philosophy should be presented as a coherent intellectual framework with re
   - Moderate: typically 50-70% equities, 20-40% fixed income, remainder in other
   - Moderately aggressive: typically 65-80% equities, 10-25% fixed income, remainder in other
   - Aggressive: typically 75-95% equities, 0-15% fixed income, minimal cash
-- Critical caveat: risk tolerance assessments measure *stated* willingness to take risk in normal conditions. Behavioral research consistently shows investors overestimate their tolerance before experiencing real losses. The 2008-2009 financial crisis saw widespread panic selling by investors who had stated moderate-to-aggressive profiles. Always build in a margin of conservatism
+- Critical caveat: risk tolerance assessments measure _stated_ willingness to take risk in normal conditions. Behavioral research consistently shows investors overestimate their tolerance before experiencing real losses. The 2008-2009 financial crisis saw widespread panic selling by investors who had stated moderate-to-aggressive profiles. Always build in a margin of conservatism
 
 **The Goal-Based / Bucket Approach:**
+
 - Core logic: a single investor typically has multiple goals with different timelines; pooling everything into one allocation forces unnecessary compromises
 - Bucket structure: divide the portfolio into time-segmented buckets
   - Bucket 1 (0-2 years of expenses): cash equivalents and short-term bonds -- this money should not be invested in equities because a 40% drawdown in the wrong year could force selling at the worst time
   - Bucket 2 (3-10 years): intermediate fixed income and some conservative equity exposure
   - Bucket 3 (10+ years): predominantly equities and real assets oriented toward growth
-- The bucket approach is particularly well-suited for the retirement *spending* phase because it addresses sequence-of-returns risk -- the danger that early retirement losses are especially damaging because you are drawing down the portfolio before it can recover
+- The bucket approach is particularly well-suited for the retirement _spending_ phase because it addresses sequence-of-returns risk -- the danger that early retirement losses are especially damaging because you are drawing down the portfolio before it can recover
 - Limitation: in practice, the buckets must be refilled over time using a disciplined rule set; without explicit rebalancing rules, the approach can drift into ad hoc decision-making
 
 **The Core-Satellite Approach:**
+
 - Core logic: separate the portfolio into a broadly diversified, low-cost core (designed to capture market-level returns efficiently) and a smaller satellite component (tilted toward specific factors, sectors, or strategies)
 - The core typically represents 60-80% of the total portfolio and is built with maximum diversification and minimum cost
 - Satellite positions might include a tilt toward small-cap value (which has historically carried a return premium attributed to additional risk), international exposure, sector concentration, or alternative strategies
@@ -134,6 +143,7 @@ Each philosophy should be presented as a coherent intellectual framework with re
 - Limitation: satellites increase complexity, require monitoring, and can underperform for extended periods (value was a losing factor for a decade in the 2010s); this approach requires more investment knowledge to implement and evaluate than a pure indexed core strategy
 
 **The Permanent Portfolio / All-Weather Approach:**
+
 - Core logic: build a portfolio that performs adequately across all economic environments rather than optimizing for any single environment
 - The classic Permanent Portfolio framework uses a four-quadrant design: equities (prosperity), long-term government bonds (deflation/recession), gold (inflation), and cash (depression/uncertainty) -- typically in roughly equal proportions
 - Ray Dalio's All-Weather variant uses risk parity: rather than equal dollar weights, it weights asset classes by their contribution to portfolio risk (volatility), which typically results in much heavier fixed income weighting in dollar terms to offset equities' much higher volatility
@@ -143,6 +153,7 @@ Each philosophy should be presented as a coherent intellectual framework with re
 ### Step 4: Build the Allocation Range Analysis for the User's Specific Profile
 
 Once you have the user's inputs and have explained the philosophies, produce a concrete allocation range analysis:
+
 - Create a table showing what each philosophy suggests for their specific profile combination (time horizon + risk tolerance)
 - Identify the overlap or consensus zone across philosophies -- the range where multiple frameworks converge is typically the most defensible starting point
 - Identify where the philosophies diverge and explain why (e.g., goal-based might suggest more equity than age-based because the long horizon provides recovery time)
@@ -154,17 +165,20 @@ Once you have the user's inputs and have explained the philosophies, produce a c
 Most users think of diversification as "stocks and bonds" and miss the equally important diversification within each class.
 
 **Within equities:**
+
 - Geographic diversification: domestic markets and international developed markets are less than perfectly correlated; emerging markets add further diversification with higher volatility
 - Market-cap diversification: large-cap stocks dominate indices by market weight but small- and mid-cap companies have historically carried size premiums; a pure market-cap-weighted approach is heavily concentrated in the largest companies
 - Style diversification: growth and value tend to take turns leading; a blend reduces the drag of being entirely in the wrong style at the wrong time
 - Sector diversification: if a single sector represents more than 20-25% of an equity allocation, that is a concentration risk. Technology's weight in broad U.S. indices has reached 30%+ at times, making even "diversified" index investors heavily exposed to a single sector
 
 **Within fixed income:**
+
 - Duration laddering: spreading maturities across short, intermediate, and long-term bonds reduces both interest rate risk and reinvestment risk; no single maturity point dominates
 - Credit quality diversification: investment-grade and high-yield bonds do not behave the same; keeping the core in investment-grade (BBB/Baa and above) with limited high-yield satellite exposure is a common approach
 - Geographic diversification: non-U.S. government bonds can provide additional diversification, though currency exposure is a complicating factor
 
 **Correlation -- the quantitative foundation of diversification:**
+
 - Diversification works because assets that do not move in perfect lockstep reduce portfolio-level volatility below the weighted average of individual asset volatilities
 - Perfect positive correlation (correlation = +1.0) provides no diversification benefit -- adding an asset with this profile just adds more of the same risk
 - Zero correlation reduces portfolio volatility; negative correlation (assets that tend to rise when others fall) provides the most powerful diversification
@@ -172,6 +186,7 @@ Most users think of diversification as "stocks and bonds" and miss the equally i
 - During severe market stress (2008, March 2020 initial shock), correlations among risk assets spike toward 1.0 -- this is called correlation breakdown and is the period when diversification is most needed and often least available. Only truly uncorrelated assets (high-quality government bonds, cash) reliably hold their diversification value during stress
 
 **Diminishing returns of diversification:**
+
 - Owning 20-30 individual securities in a single asset class captures most of the diversification benefit available within that class
 - Beyond 50-100 individual holdings, the marginal benefit becomes negligible and monitoring costs increase
 - For most individual investors, broad-market exposure across asset classes through highly diversified instruments is more practical than holding hundreds of individual securities
@@ -354,6 +369,7 @@ Unresolved factors that could shift this assessment: [list what is unknown]
 ### User Has Not Completed a Risk Tolerance Assessment
 
 Do not assign a risk profile and do not present the allocation range table with specific numbers -- the numbers are meaningless without a risk input. Instead:
+
 - Explain the four decision inputs that drive allocation and why risk tolerance is the non-negotiable starting point
 - Present the allocation philosophies conceptually without profile-specific ranges
 - Offer to discuss what a risk tolerance assessment typically covers (loss tolerance, time horizon, emotional response to volatility, financial capacity) to help the user understand what they will be asked
@@ -362,6 +378,7 @@ Do not assign a risk profile and do not present the allocation range table with 
 ### User Is Heavily Concentrated in a Single Position (Employer Stock, Inherited Stock, or Real Estate)
 
 This is a common and high-stakes scenario. Handle with care:
+
 - Do not simply say "you should diversify." Concentrated positions often have large embedded capital gains, creating a real tax cost to diversification. The decision requires tax analysis.
 - Present the diversification risk analytically: a 40-50% drawdown in a concentrated position (which is plausible for a single company stock) has the same portfolio impact as losing 40-50% of the entire portfolio, with no offsetting gains elsewhere
 - Explain that strategies exist for managing concentration risk (gifting appreciated shares to charity, exchange funds for eligible investors, protective options strategies, systematic liquidation over time) but that these require professional tax and legal counsel -- do not describe the mechanics of these strategies in detail
@@ -370,6 +387,7 @@ This is a common and high-stakes scenario. Handle with care:
 ### User Is in or Very Near Retirement (Within 5 Years)
 
 The accumulation-phase framework requires significant modification:
+
 - The key risk in early retirement is sequence-of-returns risk: a severe market decline in the first 3-5 years of retirement is far more damaging than the same decline in year 20, because early losses are amplified by ongoing withdrawals that prevent recovery
 - The sustainable withdrawal rate concept is relevant here: research suggests that portfolios with diversified equity/bond allocations have historically been able to sustain withdrawal rates of approximately 3.5-4.5% annually over 30-year periods without depleting -- but this research is sensitive to assumptions and should not be treated as a guarantee
 - The bucket strategy is particularly well-suited to this phase: 1-2 years of expected spending in cash provides a buffer that prevents forced selling of equities during downturns
@@ -379,6 +397,7 @@ The accumulation-phase framework requires significant modification:
 ### User Asks About Alternative Investments (Cryptocurrency, Private Equity, Hedge Funds, Collectibles)
 
 These exist outside the four standard asset classes and require distinct handling:
+
 - Cryptocurrency: extremely high volatility (drawdowns of 70-80% have been recorded multiple times), no cash flows or earnings to anchor valuation, evolving regulatory status, and essentially no correlation history during major traditional market downturns -- the 2022 period showed crypto and equity correlations rising during a stress period, undermining the diversification rationale
 - Private equity: historically documented return premium over public equities, but with substantial illiquidity (capital locked up for 7-12 years typically), high minimum investment sizes, significant fee complexity (management fees plus carried interest), and return data that may be affected by smoothed valuations
 - Hedge funds: highly heterogeneous category; some strategies (merger arbitrage, market neutral) genuinely reduce correlation with market returns; others are simply leveraged equity exposure with high fees
@@ -388,6 +407,7 @@ These exist outside the four standard asset classes and require distinct handlin
 ### User Has Multiple Goals with Conflicting Time Horizons
 
 A 38-year-old saving for both retirement (27 years away) and a child's college education (10 years away) cannot use a single allocation:
+
 - Present the goal-based / bucket framework as the most appropriate philosophy for their situation
 - Make clear that each goal should have its own allocation logic based on its specific horizon and flexibility
 - The retirement allocation (27 years, flexible) warrants a more growth-oriented approach within their risk profile
@@ -397,6 +417,7 @@ A 38-year-old saving for both retirement (27 years away) and a child's college e
 ### User Asks About Tactical Asset Allocation (Market Timing)
 
 Some users will ask whether they should "shift to more cash because the market seems high" or "buy more bonds because a recession is coming":
+
 - Distinguish strategic allocation (the long-term target driven by risk profile and time horizon -- what this skill covers) from tactical allocation (short-term deviations from the strategic target based on market forecasts)
 - Acknowledge that tactical allocation is practiced by professional investors, but that the evidence for its effectiveness among non-professional investors is weak -- market timing consistently underperforms in academic studies because it requires being right twice (when to exit and when to re-enter)
 - The classic data point: missing the 10 best trading days in a 20-year period typically reduces long-run returns by 50% or more; most of those best days occur immediately after the worst days, punishing investors who fled to cash
@@ -405,6 +426,7 @@ Some users will ask whether they should "shift to more cash because the market s
 ### User Has a Very Small Portfolio (Under $5,000)
 
 The conceptual framework applies at any portfolio size, but practical implementation issues arise:
+
 - Some asset classes (commodities, private real estate) are not practically accessible at small portfolio sizes
 - Transaction costs (brokerage commissions, spreads, minimum investments) have a proportionally higher impact on small portfolios
 - The priority with a very small portfolio is typically to maximize contributions and minimize costs rather than optimize the allocation precisely
@@ -414,6 +436,7 @@ The conceptual framework applies at any portfolio size, but practical implementa
 ### User Reports They Sold During a Past Market Downturn
 
 This is a critical behavioral flag:
+
 - Acknowledge this without judgment -- selling during downturns is extremely common and is not a character flaw; it is a predictable response to the emotional experience of watching portfolio value decline
 - But this behavioral history is important information: it suggests the user's willingness to take risk is lower than any questionnaire score might indicate, because stated preferences and actual behavior diverge under stress
 - Adjust the allocation analysis accordingly: recommend they weight toward the more conservative end of any range, and explicitly note that this conservatism has a real cost in expected long-term returns -- they are paying for the ability to stay invested and avoid panic selling
@@ -439,17 +462,17 @@ This is a critical behavioral flag:
 
 ### Your Profile Summary
 
-| Input | Your Information |
-|-------|-----------------|
-| Risk tolerance | Moderately Aggressive (31/40) |
-| Willingness vs. capacity split | Both appear aligned -- see analysis below |
-| Time horizon -- accumulation | 23 years (to age 65) |
-| Time horizon -- spending phase | Estimated 25-30 years in retirement |
-| Primary goal | Retirement savings |
-| Goal flexibility | Moderate -- retirement date has some flexibility |
-| Income stability | High -- government employment |
-| Emergency fund outside this portfolio | Yes -- 6 months confirmed |
-| Other retirement income sources | Pension covering ~60% of expected retirement expenses |
+| Input                                 | Your Information                                      |
+| ------------------------------------- | ----------------------------------------------------- |
+| Risk tolerance                        | Moderately Aggressive (31/40)                         |
+| Willingness vs. capacity split        | Both appear aligned -- see analysis below             |
+| Time horizon -- accumulation          | 23 years (to age 65)                                  |
+| Time horizon -- spending phase        | Estimated 25-30 years in retirement                   |
+| Primary goal                          | Retirement savings                                    |
+| Goal flexibility                      | Moderate -- retirement date has some flexibility      |
+| Income stability                      | High -- government employment                         |
+| Emergency fund outside this portfolio | Yes -- 6 months confirmed                             |
+| Other retirement income sources       | Pension covering ~60% of expected retirement expenses |
 
 **Profile note:** Your pension is a highly significant factor. A pension that covers 60% of your retirement living expenses is equivalent to having a substantial fixed-income annuity built into your financial plan at no cost from your investment portfolio. This means your investment portfolio does not need to generate your full retirement income -- it only needs to supplement the pension by approximately 40% of expenses. This substantially increases your capacity to take investment risk within this portfolio. Your stated moderately aggressive risk profile and your objective financial capacity are well-aligned.
 
@@ -457,51 +480,51 @@ This is a critical behavioral flag:
 
 ### Asset Class Behavioral Summary
 
-| Asset Class | Environment It Favors | Correlation with Domestic Equities | Role in Your Portfolio |
-|-------------|----------------------|-----------------------------------|----------------------|
-| Domestic Equities | Expansion, early recovery | Reference | Core long-term growth |
-| International Developed | Global expansion | Moderate-high (0.7-0.85 historically) | Geographic diversification |
-| Emerging Markets | Global growth, commodity cycles | Moderate (0.6-0.75 historically) | Higher-growth tilt |
-| Investment-Grade Bonds | Recession, deflation | Low to negative (-0.2 to +0.3 historically) | Stability and stress diversifier |
-| TIPS | Inflationary periods | Low to moderate (0.1-0.4) | Inflation protection |
-| REITs | Growth, moderate inflation | Moderate (correlation rises in stress) | Real estate exposure, income |
-| Cash Equivalents | All environments | Near zero | Liquidity buffer |
+| Asset Class             | Environment It Favors           | Correlation with Domestic Equities          | Role in Your Portfolio           |
+| ----------------------- | ------------------------------- | ------------------------------------------- | -------------------------------- |
+| Domestic Equities       | Expansion, early recovery       | Reference                                   | Core long-term growth            |
+| International Developed | Global expansion                | Moderate-high (0.7-0.85 historically)       | Geographic diversification       |
+| Emerging Markets        | Global growth, commodity cycles | Moderate (0.6-0.75 historically)            | Higher-growth tilt               |
+| Investment-Grade Bonds  | Recession, deflation            | Low to negative (-0.2 to +0.3 historically) | Stability and stress diversifier |
+| TIPS                    | Inflationary periods            | Low to moderate (0.1-0.4)                   | Inflation protection             |
+| REITs                   | Growth, moderate inflation      | Moderate (correlation rises in stress)      | Real estate exposure, income     |
+| Cash Equivalents        | All environments                | Near zero                                   | Liquidity buffer                 |
 
-*Note: Correlation figures are historical approximations from U.S. market data; they vary across time periods and should not be treated as fixed. Correlations among risk assets typically rise during market stress.*
+_Note: Correlation figures are historical approximations from U.S. market data; they vary across time periods and should not be treated as fixed. Correlations among risk assets typically rise during market stress._
 
 ---
 
 ### Allocation Ranges by Philosophy for Your Profile
 
-| Philosophy | Equities (Total) | Fixed Income (Total) | Real Assets | Cash | Key Rationale |
-|------------|-----------------|---------------------|-------------|------|--------------|
-| Age-based (120 minus age) | 70-80% | 15-25% | 0-10% | 2-5% | 120 - 42 = 78% equity starting point; adjusted for pension |
-| Risk-profile-based (Moderately Aggressive) | 65-80% | 10-25% | 5-10% | 2-5% | Standard range for this profile tier |
-| Goal-based (23-year accumulation) | 70-85% | 10-20% | 5-10% | 2-5% | Long horizon, growth-oriented bucket dominant |
-| Pension-adjusted capacity | 70-85% | 10-20% | 5-10% | 2-5% | Pension = built-in fixed income; portfolio can carry more equity |
-| **Consensus overlap zone** | **70-80%** | **12-22%** | **5-10%** | **2-5%** | **Where all four frameworks converge** |
+| Philosophy                                 | Equities (Total) | Fixed Income (Total) | Real Assets | Cash     | Key Rationale                                                    |
+| ------------------------------------------ | ---------------- | -------------------- | ----------- | -------- | ---------------------------------------------------------------- |
+| Age-based (120 minus age)                  | 70-80%           | 15-25%               | 0-10%       | 2-5%     | 120 - 42 = 78% equity starting point; adjusted for pension       |
+| Risk-profile-based (Moderately Aggressive) | 65-80%           | 10-25%               | 5-10%       | 2-5%     | Standard range for this profile tier                             |
+| Goal-based (23-year accumulation)          | 70-85%           | 10-20%               | 5-10%       | 2-5%     | Long horizon, growth-oriented bucket dominant                    |
+| Pension-adjusted capacity                  | 70-85%           | 10-20%               | 5-10%       | 2-5%     | Pension = built-in fixed income; portfolio can carry more equity |
+| **Consensus overlap zone**                 | **70-80%**       | **12-22%**           | **5-10%**   | **2-5%** | **Where all four frameworks converge**                           |
 
 **Reading this table:** The consensus overlap zone is where your risk profile, time horizon, goal structure, and financial situation all point in the same direction. This is your most defensible starting range. You will determine your specific position within this range based on the factors below.
 
 **Within-Equities Breakdown (illustrative for moderately aggressive, 23-year horizon):**
 
-| Equity Sub-Class | Illustrative Range | Rationale |
-|------------------|--------------------|-----------|
-| Domestic large-cap | 40-50% of equity allocation | Core domestic exposure |
-| Domestic small/mid-cap | 10-20% of equity allocation | Size factor diversification |
-| International developed | 20-30% of equity allocation | Reduces home-country concentration |
-| Emerging markets | 10-15% of equity allocation | Growth diversification; higher volatility |
+| Equity Sub-Class        | Illustrative Range          | Rationale                                 |
+| ----------------------- | --------------------------- | ----------------------------------------- |
+| Domestic large-cap      | 40-50% of equity allocation | Core domestic exposure                    |
+| Domestic small/mid-cap  | 10-20% of equity allocation | Size factor diversification               |
+| International developed | 20-30% of equity allocation | Reduces home-country concentration        |
+| Emerging markets        | 10-15% of equity allocation | Growth diversification; higher volatility |
 
 **Within-Fixed Income Breakdown (illustrative):**
 
-| Bond Sub-Class | Illustrative Range | Rationale |
-|---------------|-------------------|-----------|
-| Short-duration (0-3 yr) | 20-30% of bond allocation | Reduces interest rate risk |
-| Intermediate (3-10 yr) | 40-50% of bond allocation | Core bond diversification |
+| Bond Sub-Class          | Illustrative Range        | Rationale                                       |
+| ----------------------- | ------------------------- | ----------------------------------------------- |
+| Short-duration (0-3 yr) | 20-30% of bond allocation | Reduces interest rate risk                      |
+| Intermediate (3-10 yr)  | 40-50% of bond allocation | Core bond diversification                       |
 | Inflation-linked (TIPS) | 20-35% of bond allocation | Relevant given pension's nominal value exposure |
-| Long-duration (10+ yr) | 0-15% of bond allocation | Limited given higher rate sensitivity |
+| Long-duration (10+ yr)  | 0-15% of bond allocation  | Limited given higher rate sensitivity           |
 
-*Note: Given that your pension is a nominal income stream (not inflation-indexed, unless your pension plan specifies otherwise), maintaining meaningful TIPS exposure within the bond allocation serves as insurance against inflation eroding the real value of your pension income. Confirm whether your pension includes cost-of-living adjustments.*
+_Note: Given that your pension is a nominal income stream (not inflation-indexed, unless your pension plan specifies otherwise), maintaining meaningful TIPS exposure within the bond allocation serves as insurance against inflation eroding the real value of your pension income. Confirm whether your pension includes cost-of-living adjustments._
 
 ---
 
@@ -527,25 +550,25 @@ This is a critical behavioral flag:
 
 Your confirmed factors -- moderately aggressive risk profile, 23-year accumulation horizon, highly stable income, pension covering 60% of retirement expenses, and an established emergency fund -- all support a position in the upper half of the consensus equity range. An equity allocation in the 72-78% range, with 14-18% in diversified investment-grade and inflation-linked fixed income and 5-8% in real assets (REITs), is consistent with your situation as described. Your position within that narrower range depends on the unresolved behavioral question (how have you historically responded to significant portfolio declines?) and whether your pension includes inflation adjustments.
 
-*This is an illustrative range for decision-support purposes. It is not a recommendation.*
+_This is an illustrative range for decision-support purposes. It is not a recommendation._
 
 ---
 
 ### Key Questions to Resolve Before Finalizing
 
-| Question | Why It Matters | Which Direction It Could Push |
-|----------|---------------|-------------------------------|
-| Does your pension include cost-of-living adjustments? | Affects inflation risk of your total retirement income | COLA pension = more equity capacity; no COLA = more TIPS/real assets |
-| How did you respond emotionally and behaviorally during past major downturns (2008, 2020)? | Stated risk tolerance vs. actual behavior can diverge significantly | History of holding steady = support upper range; history of anxiety or selling = support lower range |
-| Do you expect to have significant large expenses in the next 5-10 years (children's education, home purchase)? | Near-term cash needs should not come from this portfolio | Major near-term expenses = keep them separate; confirms this portfolio is truly 23-year money |
-| Is the pension vested and guaranteed, or does it depend on continued employment? | Partially vested pensions carry risk if you change employers | Full vesting = high capacity; partial vesting = reduce assumed fixed income offset |
-| How are these accounts currently invested? | Identifies the gap between current state and framework target | May reveal unnecessary concentration risk or misalignment |
+| Question                                                                                                       | Why It Matters                                                      | Which Direction It Could Push                                                                        |
+| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Does your pension include cost-of-living adjustments?                                                          | Affects inflation risk of your total retirement income              | COLA pension = more equity capacity; no COLA = more TIPS/real assets                                 |
+| How did you respond emotionally and behaviorally during past major downturns (2008, 2020)?                     | Stated risk tolerance vs. actual behavior can diverge significantly | History of holding steady = support upper range; history of anxiety or selling = support lower range |
+| Do you expect to have significant large expenses in the next 5-10 years (children's education, home purchase)? | Near-term cash needs should not come from this portfolio            | Major near-term expenses = keep them separate; confirms this portfolio is truly 23-year money        |
+| Is the pension vested and guaranteed, or does it depend on continued employment?                               | Partially vested pensions carry risk if you change employers        | Full vesting = high capacity; partial vesting = reduce assumed fixed income offset                   |
+| How are these accounts currently invested?                                                                     | Identifies the gap between current state and framework target       | May reveal unnecessary concentration risk or misalignment                                            |
 
 ---
 
 ### Account-Level Consideration Note
 
-You mentioned both a 401(k) and a Roth IRA. The total allocation across all accounts should align with the framework above -- but the *location* of specific asset classes across account types matters for tax efficiency. As a general principle, growth-oriented assets with higher expected returns and no current income tend to benefit from tax-advantaged placement, while tax-efficient assets (like broad domestic equity) are more suitable for taxable accounts if you have them. For detailed tax location strategy, use `investment-account-types` and `tax-location-strategy`. This allocation framework defines the *what* -- the tax location decision defines the *where*.
+You mentioned both a 401(k) and a Roth IRA. The total allocation across all accounts should align with the framework above -- but the _location_ of specific asset classes across account types matters for tax efficiency. As a general principle, growth-oriented assets with higher expected returns and no current income tend to benefit from tax-advantaged placement, while tax-efficient assets (like broad domestic equity) are more suitable for taxable accounts if you have them. For detailed tax location strategy, use `investment-account-types` and `tax-location-strategy`. This allocation framework defines the _what_ -- the tax location decision defines the _where_.
 
 ---
 

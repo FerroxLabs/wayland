@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition cooking guide"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'nutrition cooking guide'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Recipe Modification Diet
 
 > **Disclaimer:** This skill provides general wellness and nutrition information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. Substitution guidance is not a substitute for professional dietary counseling. Individuals managing diagnosed conditions such as celiac disease, phenylketonuria, or severe food allergies should work with a registered dietitian or allergist. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user has an existing recipe and needs specific ingredient substitutions for a named dietary restriction -- gluten-free, dairy-free, vegan, egg-free, low-sodium, nut-free, low-FODMAP, or any combination thereof
 - A user identifies a specific guest, family member, or household member with a dietary limitation and wants to adapt a dish without making an entirely separate meal
 - A user asks how a proposed substitution will affect the texture, rise, browning, flavor profile, or shelf life of a dish
@@ -33,6 +35,7 @@ metadata:
 - A user preparing food for someone with a non-anaphylactic intolerance (lactose intolerance, non-celiac gluten sensitivity) wants proportionate guidance on tolerance thresholds
 
 **Do NOT use when:**
+
 - The user describes symptoms of an allergic reaction or anaphylaxis -- direct them to emergency services immediately
 - The user needs clinical dietary management for a medical condition such as celiac disease, kidney disease, PKU, or diabetes -- refer them to a registered dietitian (use `clinical-nutrition-guidance` if available)
 - The user wants to design a new recipe from scratch based on nutritional macros -- use a recipe-creation or meal-planning skill instead
@@ -67,10 +70,10 @@ Every ingredient serves one or more culinary functions. Substitution must addres
 - **Dairy fat (butter, cream, full-fat milk):** Provides fat coating for flakiness (pastry), emulsification (sauces), Maillard browning contributions, and richness. Butter is approximately 80% fat, 18% water, and 2% milk solids -- each component plays a role in baking chemistry.
 - **Dairy protein (casein, whey):** Provides stretch in melted cheese, helps bind sauces, contributes to browning in baked goods. This is why most plant-based cheese alternatives do not melt well -- they lack casein.
 - **Eggs:** Have four distinct functions that may require separate substitutions:
-  - *Binding:* holds structure together (replacement: flax egg, chia egg, aquafaba)
-  - *Leavening:* steam and air incorporated during whipping (replacement: aquafaba whipped to stiff peaks, commercial egg replacer with leavening agents)
-  - *Emulsification:* lecithin in yolk stabilizes fat-water emulsions (replacement: sunflower lecithin powder, soy lecithin)
-  - *Moisture and richness:* yolk fat adds tender crumb (replacement: full-fat plant yogurt, silken tofu)
+  - _Binding:_ holds structure together (replacement: flax egg, chia egg, aquafaba)
+  - _Leavening:_ steam and air incorporated during whipping (replacement: aquafaba whipped to stiff peaks, commercial egg replacer with leavening agents)
+  - _Emulsification:_ lecithin in yolk stabilizes fat-water emulsions (replacement: sunflower lecithin powder, soy lecithin)
+  - _Moisture and richness:_ yolk fat adds tender crumb (replacement: full-fat plant yogurt, silken tofu)
 - **Sodium (salt):** Suppresses bitter compounds, enhances aroma volatiles, controls yeast fermentation rate, strengthens gluten networks, and acts as a preservative in cured items.
 - **Nuts:** Provide fat, texture contrast, and flavor. In baked goods, nut flours (almond, hazelnut) also provide protein and fat that affect crumb structure.
 
@@ -80,51 +83,51 @@ Apply the following substitution principles, organized by restriction type. Rati
 
 **Gluten-Free Substitutions:**
 
-- *All-purpose flour in baked goods:* Use a commercial 1:1 gluten-free blend that already contains a hydrocolloid binder. These blends are typically formulated with rice flour, tapioca starch, and potato starch. For 100g of all-purpose flour, use 100g of the blend. If the blend does not contain xanthan gum, add 1/4 tsp xanthan gum per cup of flour for cookies/cakes, 1/2 tsp per cup for bread, and 3/4 tsp per cup for pizza dough.
-- *Alternatively, for single-flour substitution:* Use 70g superfine white rice flour + 15g tapioca starch + 15g potato starch per 100g all-purpose flour. This DIY blend is more cost-effective and allows ratio adjustment.
-- *Psyllium husk as a binder in bread:* 1 tsp psyllium husk powder per cup of gluten-free flour creates a gel network that mimics gluten elasticity. Psyllium creates a slightly gummy texture if overused -- do not exceed 2 tsp per cup.
-- *Wheat flour as a roux thickener:* Replace with equal parts cornstarch (which has twice the thickening power -- use half the amount if a 1:1 texture match is desired) or arrowroot starch for acidic dishes (arrowroot does not break down in acidic environments, unlike cornstarch). For a butter-flour roux, use sweet rice flour (mochiko) at a 1:1 ratio -- it produces the smoothest gluten-free sauce base.
-- *Soy sauce:* Replace with tamari (most is gluten-free, but verify label) or coconut aminos (slightly sweeter, lower sodium, 1:1 ratio).
-- *Oats:* Only certified gluten-free rolled oats are appropriate; standard oats carry high cross-contamination risk from shared milling equipment.
-- *Breadcrumbs (breading):* Use gluten-free panko (available commercially), crushed rice crackers, or a mixture of 50% gluten-free flour + 50% cornstarch for a lighter coating. The starch blend fries crispier than breadcrumbs alone.
+- _All-purpose flour in baked goods:_ Use a commercial 1:1 gluten-free blend that already contains a hydrocolloid binder. These blends are typically formulated with rice flour, tapioca starch, and potato starch. For 100g of all-purpose flour, use 100g of the blend. If the blend does not contain xanthan gum, add 1/4 tsp xanthan gum per cup of flour for cookies/cakes, 1/2 tsp per cup for bread, and 3/4 tsp per cup for pizza dough.
+- _Alternatively, for single-flour substitution:_ Use 70g superfine white rice flour + 15g tapioca starch + 15g potato starch per 100g all-purpose flour. This DIY blend is more cost-effective and allows ratio adjustment.
+- _Psyllium husk as a binder in bread:_ 1 tsp psyllium husk powder per cup of gluten-free flour creates a gel network that mimics gluten elasticity. Psyllium creates a slightly gummy texture if overused -- do not exceed 2 tsp per cup.
+- _Wheat flour as a roux thickener:_ Replace with equal parts cornstarch (which has twice the thickening power -- use half the amount if a 1:1 texture match is desired) or arrowroot starch for acidic dishes (arrowroot does not break down in acidic environments, unlike cornstarch). For a butter-flour roux, use sweet rice flour (mochiko) at a 1:1 ratio -- it produces the smoothest gluten-free sauce base.
+- _Soy sauce:_ Replace with tamari (most is gluten-free, but verify label) or coconut aminos (slightly sweeter, lower sodium, 1:1 ratio).
+- _Oats:_ Only certified gluten-free rolled oats are appropriate; standard oats carry high cross-contamination risk from shared milling equipment.
+- _Breadcrumbs (breading):_ Use gluten-free panko (available commercially), crushed rice crackers, or a mixture of 50% gluten-free flour + 50% cornstarch for a lighter coating. The starch blend fries crispier than breadcrumbs alone.
 
 **Dairy-Free Substitutions:**
 
-- *Milk (1 cup):* In savory dishes and most baking, oat milk is the most neutral substitute. For recipes that require fat content (custards, ice cream base, cream sauces), use full-fat coconut milk -- the fat content (12-17%) approaches whole milk's 3.5% fat only if blended or if the recipe tolerates the coconut flavor. Soy milk has the closest protein content to dairy milk and performs best in baking. Almond milk (low fat, thin) is the least suitable for baking or creamy sauces.
-- *Butter in baking (1 cup):* Solid stick-form plant-based butter at 1:1. Avoid spreadable tub margarines -- their higher water content (some contain 35-40% water versus butter's 18%) disrupts pastry and cookie structure, causing excessive spread or soggy texture.
-- *Butter for sautéing or finishing sauces:* Refined coconut oil at 1:1, or a neutral-flavor plant-based butter. Virgin coconut oil imparts coconut flavor; refined does not.
-- *Heavy cream for sauces (1 cup):* Full-fat canned coconut cream is the closest match in fat content and mouthfeel. For neutral-flavor applications, use cashew cream (soak 1 cup raw cashews in water 4+ hours, blend with 3/4 cup fresh water to produce ~1 cup cream). Cashew cream does not curdle in acidic sauces as readily as coconut cream.
-- *Cream cheese (8 oz):* Blended silken tofu (drained) with 1 tbsp lemon juice and 1 tbsp neutral oil approximates cream cheese texture and tang. Alternatively, soaked and blended raw cashews with lemon and apple cider vinegar.
-- *Parmesan or sharp cheese as flavor agent:* 3 tbsp nutritional yeast + 1 tbsp cashew flour + 1/4 tsp garlic powder per 1/4 cup grated parmesan. This mixture adds umami and a nutty/savory note.
-- *Yogurt (1 cup):* Full-fat coconut yogurt or soy yogurt at 1:1. In baking, dairy yogurt's lactic acid activates baking soda -- plant-based yogurts also contain acid, but the strength varies. If using a very mild plant yogurt, add 1/2 tsp apple cider vinegar to ensure adequate baking soda activation.
-- *Buttermilk (1 cup):* 1 cup unsweetened plant milk + 1 tbsp apple cider vinegar or white wine vinegar. Let sit 5 minutes until slightly curdled. This replicates buttermilk's acidity for leavening and tenderizing.
+- _Milk (1 cup):_ In savory dishes and most baking, oat milk is the most neutral substitute. For recipes that require fat content (custards, ice cream base, cream sauces), use full-fat coconut milk -- the fat content (12-17%) approaches whole milk's 3.5% fat only if blended or if the recipe tolerates the coconut flavor. Soy milk has the closest protein content to dairy milk and performs best in baking. Almond milk (low fat, thin) is the least suitable for baking or creamy sauces.
+- _Butter in baking (1 cup):_ Solid stick-form plant-based butter at 1:1. Avoid spreadable tub margarines -- their higher water content (some contain 35-40% water versus butter's 18%) disrupts pastry and cookie structure, causing excessive spread or soggy texture.
+- _Butter for sautéing or finishing sauces:_ Refined coconut oil at 1:1, or a neutral-flavor plant-based butter. Virgin coconut oil imparts coconut flavor; refined does not.
+- _Heavy cream for sauces (1 cup):_ Full-fat canned coconut cream is the closest match in fat content and mouthfeel. For neutral-flavor applications, use cashew cream (soak 1 cup raw cashews in water 4+ hours, blend with 3/4 cup fresh water to produce ~1 cup cream). Cashew cream does not curdle in acidic sauces as readily as coconut cream.
+- _Cream cheese (8 oz):_ Blended silken tofu (drained) with 1 tbsp lemon juice and 1 tbsp neutral oil approximates cream cheese texture and tang. Alternatively, soaked and blended raw cashews with lemon and apple cider vinegar.
+- _Parmesan or sharp cheese as flavor agent:_ 3 tbsp nutritional yeast + 1 tbsp cashew flour + 1/4 tsp garlic powder per 1/4 cup grated parmesan. This mixture adds umami and a nutty/savory note.
+- _Yogurt (1 cup):_ Full-fat coconut yogurt or soy yogurt at 1:1. In baking, dairy yogurt's lactic acid activates baking soda -- plant-based yogurts also contain acid, but the strength varies. If using a very mild plant yogurt, add 1/2 tsp apple cider vinegar to ensure adequate baking soda activation.
+- _Buttermilk (1 cup):_ 1 cup unsweetened plant milk + 1 tbsp apple cider vinegar or white wine vinegar. Let sit 5 minutes until slightly curdled. This replicates buttermilk's acidity for leavening and tenderizing.
 
 **Vegan Substitutions (Animal Product Removal Beyond Dairy):**
 
-- *Egg as binder (1 large egg = ~50g):* Ground flaxseed egg -- 1 tbsp ground flaxseed + 3 tbsp water, rest 5 minutes. Best for dense baked goods (muffins, cookies, brownies). Chia egg -- 1 tbsp chia seeds + 3 tbsp water, rest 10 minutes. Similar binding, slightly detectable seed texture. Unsweetened applesauce -- 1/4 cup per egg, adds moisture and mild sweetness; best for spiced cakes and quick breads. Mashed ripe banana -- 1/4 cup per egg; adds banana flavor, appropriate in banana bread or tropical recipes only.
-- *Egg as leavening (whipped):* Aquafaba (liquid from canned chickpeas) can be whipped to stiff peaks similar to egg whites using a stand mixer -- approximately 3 minutes on high. Use 3 tbsp aquafaba per egg white. Cream of tartar (1/8 tsp per 3 tbsp aquafaba) stabilizes the foam. This works for meringues, pavlova, chocolate mousse, and angel food cake analogues.
-- *Egg as emulsifier:* 1/2 tsp sunflower lecithin powder dissolved in the fat component of the recipe. Useful for mayonnaise-style emulsions and smooth custard replacements.
-- *Egg for egg wash (glaze):* 2 tbsp plant-based milk + 1 tsp maple syrup brushed on pastry provides golden browning. Plant-based milk alone provides some Maillard browning but less color than egg wash.
-- *Honey:* Maple syrup at 1:1 is slightly thinner and less sweet (maple is ~60 brix vs. honey's ~79 brix), so reduce liquid elsewhere in the recipe by 1 tbsp per 1/4 cup maple syrup used. Agave nectar at 3/4:1 (use 3 tbsp agave per 1/4 cup honey) -- agave is sweeter, has a lower glycemic index, and is very neutral in flavor.
-- *Gelatin (1 tsp powder):* Agar-agar powder at 1:1, but technique differs critically -- agar must be dissolved in cold liquid then brought to a full boil for 2 minutes to activate. Agar sets firmer and more brittle than gelatin; reduce by 15-20% if a softer set is needed. Agar does not melt at body temperature, so agar-set desserts have a distinct mouthfeel.
-- *Meat-based stocks:* Mushroom stock provides the deepest umami substitute for beef or chicken stock. To make a rapid mushroom stock: simmer 1 oz dried porcini mushrooms, 1 tbsp tomato paste, 1/2 tsp soy sauce, and 1 tsp miso in 4 cups water for 20 minutes. This produces rich, savory stock with significant glutamate content.
-- *Lard or rendered fat in pastry:* Solid vegetable shortening or chilled coconut oil at 1:1 for flakiness. Coconut oil-based pastry must be kept cold throughout -- coconut oil melts at 76°F (24°C) and warm hands will destroy the fat layers.
+- _Egg as binder (1 large egg = ~50g):_ Ground flaxseed egg -- 1 tbsp ground flaxseed + 3 tbsp water, rest 5 minutes. Best for dense baked goods (muffins, cookies, brownies). Chia egg -- 1 tbsp chia seeds + 3 tbsp water, rest 10 minutes. Similar binding, slightly detectable seed texture. Unsweetened applesauce -- 1/4 cup per egg, adds moisture and mild sweetness; best for spiced cakes and quick breads. Mashed ripe banana -- 1/4 cup per egg; adds banana flavor, appropriate in banana bread or tropical recipes only.
+- _Egg as leavening (whipped):_ Aquafaba (liquid from canned chickpeas) can be whipped to stiff peaks similar to egg whites using a stand mixer -- approximately 3 minutes on high. Use 3 tbsp aquafaba per egg white. Cream of tartar (1/8 tsp per 3 tbsp aquafaba) stabilizes the foam. This works for meringues, pavlova, chocolate mousse, and angel food cake analogues.
+- _Egg as emulsifier:_ 1/2 tsp sunflower lecithin powder dissolved in the fat component of the recipe. Useful for mayonnaise-style emulsions and smooth custard replacements.
+- _Egg for egg wash (glaze):_ 2 tbsp plant-based milk + 1 tsp maple syrup brushed on pastry provides golden browning. Plant-based milk alone provides some Maillard browning but less color than egg wash.
+- _Honey:_ Maple syrup at 1:1 is slightly thinner and less sweet (maple is ~60 brix vs. honey's ~79 brix), so reduce liquid elsewhere in the recipe by 1 tbsp per 1/4 cup maple syrup used. Agave nectar at 3/4:1 (use 3 tbsp agave per 1/4 cup honey) -- agave is sweeter, has a lower glycemic index, and is very neutral in flavor.
+- _Gelatin (1 tsp powder):_ Agar-agar powder at 1:1, but technique differs critically -- agar must be dissolved in cold liquid then brought to a full boil for 2 minutes to activate. Agar sets firmer and more brittle than gelatin; reduce by 15-20% if a softer set is needed. Agar does not melt at body temperature, so agar-set desserts have a distinct mouthfeel.
+- _Meat-based stocks:_ Mushroom stock provides the deepest umami substitute for beef or chicken stock. To make a rapid mushroom stock: simmer 1 oz dried porcini mushrooms, 1 tbsp tomato paste, 1/2 tsp soy sauce, and 1 tsp miso in 4 cups water for 20 minutes. This produces rich, savory stock with significant glutamate content.
+- _Lard or rendered fat in pastry:_ Solid vegetable shortening or chilled coconut oil at 1:1 for flakiness. Coconut oil-based pastry must be kept cold throughout -- coconut oil melts at 76°F (24°C) and warm hands will destroy the fat layers.
 
 **Low-Sodium Substitutions:**
 
-- *Salt reduction:* A 25% reduction is nearly imperceptible to most people. A 50% reduction is noticeable but acceptable with flavor compensation. Below 50% of original salt, the dish will taste flat without strategic layering of other flavor compounds.
-- *Flavor compensation for salt reduction:* Acid (lemon juice, lime juice, vinegars) sharpens flavor perception and partially compensates for lost saltiness. Add at the end of cooking to preserve volatile aromatics. Umami compounds (dried mushrooms, tomato paste, nutritional yeast, miso -- check sodium content of miso) enhance flavor depth. Fresh herbs and toasted whole spices bloom fat-soluble aroma compounds that distract from the absence of salt.
-- *Soy sauce (1 tbsp, ~900mg sodium):* Low-sodium soy sauce at 1:1 (approximately 570mg sodium). Coconut aminos at 1:1 (approximately 90-130mg sodium, plus slight sweetness -- balance with 1/4 tsp rice vinegar if desired).
-- *Canned beans and vegetables:* Rinsing with cold water for 30 seconds removes approximately 40% of sodium. Draining and rinsing canned tomatoes removes 20-30%. For recipes where the canning liquid matters (tuna, sardines), switching to no-salt-added versions and adding 1 tsp liquid back is preferable to rinsing.
-- *Baking powder (contains sodium bicarbonate):* Low-sodium baking powder exists commercially. Alternatively, use potassium bicarbonate at a 1:1 ratio as a baking soda substitute for low-sodium baking (mild potassium taste at higher quantities).
-- *MSG and salt alternatives:* Potassium chloride-based salt substitutes provide saltiness through a different ionic mechanism but carry a bitter or metallic aftertaste at high quantities. Suitable at up to 30-40% of the total sodium replacement; beyond that, the bitterness becomes noticeable in most users.
+- _Salt reduction:_ A 25% reduction is nearly imperceptible to most people. A 50% reduction is noticeable but acceptable with flavor compensation. Below 50% of original salt, the dish will taste flat without strategic layering of other flavor compounds.
+- _Flavor compensation for salt reduction:_ Acid (lemon juice, lime juice, vinegars) sharpens flavor perception and partially compensates for lost saltiness. Add at the end of cooking to preserve volatile aromatics. Umami compounds (dried mushrooms, tomato paste, nutritional yeast, miso -- check sodium content of miso) enhance flavor depth. Fresh herbs and toasted whole spices bloom fat-soluble aroma compounds that distract from the absence of salt.
+- _Soy sauce (1 tbsp, ~900mg sodium):_ Low-sodium soy sauce at 1:1 (approximately 570mg sodium). Coconut aminos at 1:1 (approximately 90-130mg sodium, plus slight sweetness -- balance with 1/4 tsp rice vinegar if desired).
+- _Canned beans and vegetables:_ Rinsing with cold water for 30 seconds removes approximately 40% of sodium. Draining and rinsing canned tomatoes removes 20-30%. For recipes where the canning liquid matters (tuna, sardines), switching to no-salt-added versions and adding 1 tsp liquid back is preferable to rinsing.
+- _Baking powder (contains sodium bicarbonate):_ Low-sodium baking powder exists commercially. Alternatively, use potassium bicarbonate at a 1:1 ratio as a baking soda substitute for low-sodium baking (mild potassium taste at higher quantities).
+- _MSG and salt alternatives:_ Potassium chloride-based salt substitutes provide saltiness through a different ionic mechanism but carry a bitter or metallic aftertaste at high quantities. Suitable at up to 30-40% of the total sodium replacement; beyond that, the bitterness becomes noticeable in most users.
 
 **Nut-Free Substitutions:**
 
-- *Almond flour (1 cup):* In baked goods, sunflower seed flour at 1:1. Note that sunflower seed flour turns green when it reacts with baking soda or baking powder due to a chlorogenic acid reaction -- add 1 tsp cream of tartar or 1 tsp apple cider vinegar per cup of sunflower seed flour to prevent this reaction. Pumpkin seed flour at 1:1 is an alternative without the color issue.
-- *Peanut butter:* Sunflower seed butter at 1:1. Tahini (sesame paste) at 1:1 for savory applications. Note sesame is a major allergen in many jurisdictions; confirm it is not also a restricted ingredient.
-- *Chopped nuts as texture element:* Toasted pumpkin seeds or sunflower seeds for crunch. Rolled oats (if gluten-free is not also required) for texture in cookies. Shredded unsweetened coconut for tropical and sweet applications.
-- *Nut-based milks and creams:* See dairy-free section -- oat milk and coconut milk are the primary nut-free alternatives.
+- _Almond flour (1 cup):_ In baked goods, sunflower seed flour at 1:1. Note that sunflower seed flour turns green when it reacts with baking soda or baking powder due to a chlorogenic acid reaction -- add 1 tsp cream of tartar or 1 tsp apple cider vinegar per cup of sunflower seed flour to prevent this reaction. Pumpkin seed flour at 1:1 is an alternative without the color issue.
+- _Peanut butter:_ Sunflower seed butter at 1:1. Tahini (sesame paste) at 1:1 for savory applications. Note sesame is a major allergen in many jurisdictions; confirm it is not also a restricted ingredient.
+- _Chopped nuts as texture element:_ Toasted pumpkin seeds or sunflower seeds for crunch. Rolled oats (if gluten-free is not also required) for texture in cookies. Shredded unsweetened coconut for tropical and sweet applications.
+- _Nut-based milks and creams:_ See dairy-free section -- oat milk and coconut milk are the primary nut-free alternatives.
 
 ### Step 4: Assess Structural Interactions for Multiple Simultaneous Restrictions
 
@@ -152,7 +155,7 @@ Some recipes are structurally incompatible with certain restrictions. Recognize 
 
 - **Egg-free soufflé:** A soufflé's structure is entirely dependent on whipped egg whites and yolk emulsification. Aquafaba can produce a foam, but it lacks the protein denaturation and heat-set stability of egg white -- an aquafaba soufflé will collapse more readily and cannot replicate the texture. Better alternative: a baked polenta cake or a silken tofu-based Japanese-style "steamed egg" analogue.
 - **Gluten-free puff pastry:** Gluten is essential for the extensible, elastic layers in puff pastry. A gluten-free version will not achieve distinct lamination. Better alternative: gluten-free tart shells or pie crusts, which do not require layering.
-- **Egg-free meringue (traditional):* Traditional meringue cannot be made without either egg whites or aquafaba. Aquafaba meringue is a viable substitute but requires more stabilization and is more humidity-sensitive. In very high-humidity environments, aquafaba meringue will weep and deflate faster than egg-white meringue.
+- \*_Egg-free meringue (traditional):_ Traditional meringue cannot be made without either egg whites or aquafaba. Aquafaba meringue is a viable substitute but requires more stabilization and is more humidity-sensitive. In very high-humidity environments, aquafaba meringue will weep and deflate faster than egg-white meringue.
 - **Vegan traditional hollandaise:** Real hollandaise requires emulsified egg yolk lecithin and cannot be replicated exactly. A cashew-butter emulsion sauce with lemon, Dijon, and turmeric (for color) is an acceptable approximation but a different sauce.
 - **Low-sodium cured or fermented products (soy sauce from scratch, kimchi, sauerkraut, cured meats):** Salt is microbiologically essential in fermentation for pathogen suppression and osmotic control. These products cannot be meaningfully made low-sodium without compromising food safety or the fermentation process.
 
@@ -264,27 +267,35 @@ After a first attempt, the user may report failures. Apply systematic troublesho
 ## Edge Cases
 
 ### Multiple Simultaneous Restrictions in Delicate Baked Goods
+
 When a recipe is gluten-free, dairy-free, and egg-free simultaneously -- commonly called a "triple-free" bake -- the cumulative structural deficit is significant. Gluten-free flour provides no protein network; plant-based butter may have higher water content; flax or chia eggs provide less binding strength than whole eggs. To compensate: increase total starch by adding 1 tbsp tapioca starch per cup of flour beyond standard blend, use full-fat plant-based milk (not almond milk), chill dough before baking, reduce oven temperature by 25°F (14°C), and extend bake time by 8-12 minutes. Use an instant-read thermometer to verify doneness. Accept that the result will be denser and moister than a wheat-dairy-egg original, and frame expectations accordingly.
 
 ### User Doesn't Know What Ingredients Are Restricted
+
 The user may say "my friend is vegan" or "someone has a gluten issue" without providing a recipe. In this case: (a) ask for the full recipe or dish type, then (b) proactively identify all animal products or gluten-containing ingredients present, (c) list them with their functional roles, and (d) offer to work through substitutions one by one or as a complete modified recipe. Do not wait for the user to identify hidden restricted ingredients -- that expertise is the value the skill provides.
 
 ### User Reports a Failed Modification
+
 Troubleshooting failures requires asking two questions: What happened (gummy, flat, didn't rise, separated, too dense), and exactly what substitutions and techniques were used. Work through the failure systematically using the troubleshooting logic in Step 7. Common failure modes are: insufficient binder (gummy gluten-free baked goods), too much moisture from egg replacers (wet center), plant butter too soft (cookies spread flat), and acid curdling dairy-free cream sauces. Provide a revised recipe or revised technique based on the reported failure, not just generic advice.
 
 ### Low-Sodium Baking (Yeast Breads and Chemically Leavened Goods)
+
 Salt in yeast bread is not merely a flavor agent -- it controls gluten strength and yeast fermentation rate. Reducing salt in a yeasted bread by more than 50% produces bread with a coarser crumb, a sour off-flavor (from uncontrolled yeast activity), and a tendency to overproof. When low-sodium bread is requested, recommend: (a) reducing salt by no more than 50%, (b) proofing in a cooler environment (65-68°F / 18-20°C) to slow yeast, and (c) checking dough by visual appearance rather than time. Baking powder in quick breads and cakes contains 30-40mg sodium per teaspoon -- for strict low-sodium baking, use low-sodium baking powder or a small amount of potassium bicarbonate.
 
 ### Nut-Free Modification With Sunflower Seed Flour
+
 Sunflower seed flour is one of the most practical nut-free substitutes for almond flour, but it contains chlorogenic acid, which reacts with baking soda and baking powder to produce a green or teal color in baked goods. This color is food-safe but visually alarming if not warned. Prevent it by adding 1 teaspoon of cream of tartar OR 1 teaspoon of apple cider vinegar per cup of sunflower seed flour to neutralize the reaction. Alert the user to this issue proactively rather than letting them discover green muffins after baking.
 
 ### Vegan Baking in High-Altitude Environments
+
 At elevations above 3,500 feet (1,067m), baked goods rise more rapidly due to reduced atmospheric pressure. This is more pronounced in vegan baking because egg replacers (aquafaba, flax egg) produce weaker structural foam than beaten eggs. Standard high-altitude adjustments apply: reduce leavening by 15-25%, increase flour by 1-2 tbsp per cup, and increase oven temperature by 15-25°F (8-14°C). For aquafaba meringues at altitude, increase cream of tartar by 50% to help stabilize the foam.
 
 ### Modifying a Family Recipe With Unknown Ingredient Amounts
+
 Users sometimes describe a recipe by process ("my grandmother's cake, she used a lot of butter and some eggs") without precise measurements. In this case, provide substitution ratios and qualitative guidance (e.g., "for every egg in the recipe, make one flax egg") so the user can apply the substitution proportionally regardless of their specific amounts. Also flag that first-attempt modifications of unknown-ratio recipes may require iteration, and suggest the user start with a half-batch to test before committing to a full recipe.
 
 ### Gluten-Free Modification for Traditional Pasta Dishes
+
 Gluten-free pasta (rice, corn, chickpea, or lentil-based) has significantly different cooking behavior than wheat pasta. It overcooks quickly, becoming mushy rather than al dente. Key adjustments: cook gluten-free pasta in more water (at least 5-6 quarts per pound), salt the water generously (this is especially important for low-protein gluten-free pastas that otherwise taste flat), and taste-test beginning 2 minutes before the package minimum time. Reserve more pasta water than usual (at least 1 cup) because gluten-free pasta starch is different in character and the sauce may need more pasta water to emulsify. Gluten-free pasta should be served immediately -- it continues cooking in its own heat and does not hold well in warm sauces.
 
 ---
@@ -305,12 +316,12 @@ Gluten-free pasta (rice, corn, chickpea, or lentil-based) has significantly diff
 
 ### Restricted Ingredient Analysis
 
-| Restricted Ingredient       | Role in This Recipe                         | Substitute                                          | Ratio                              | Flavor/Texture Impact                                                             |
-|-----------------------------|---------------------------------------------|-----------------------------------------------------|------------------------------------|-----------------------------------------------------------------------------------|
-| Eggs (2 large)              | Binding, moisture, some leavening           | Flax eggs (ground flaxseed + water)                 | 1 tbsp ground flaxseed + 3 tbsp water per egg; make 2 flax eggs total | Slightly nuttier flavor (masked well by banana), denser crumb than original. Banana already provides binding so flax eggs work very well here. |
-| Butter (1/3 cup melted)     | Fat, tenderness, moisture, flavor           | Melted refined coconut oil OR melted solid plant-based butter | 1:1 (1/3 cup)                | Coconut oil: neutral if refined, very slightly coconut-forward if virgin. Plant butter: closest flavor match to original. Both produce tender crumb. |
-| All-purpose flour (1.5 cups)| Structure, starch, some protein network     | 1:1 gluten-free baking blend (with xanthan gum included) | 1:1 (1.5 cups)             | Slightly denser, moister crumb. Gluten-free banana bread is particularly forgiving because banana starch contributes additional structure. |
-| Walnuts (1/2 cup, optional) | Texture contrast, flavor                    | Omit entirely or replace with toasted pumpkin seeds | 1:1 (1/2 cup pumpkin seeds)        | Pumpkin seeds provide crunch and a mildly nutty flavor. No color change. Confirm pumpkin seed sourcing is nut-free facility if allergy is severe. |
+| Restricted Ingredient        | Role in This Recipe                     | Substitute                                                    | Ratio                                                                 | Flavor/Texture Impact                                                                                                                                |
+| ---------------------------- | --------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Eggs (2 large)               | Binding, moisture, some leavening       | Flax eggs (ground flaxseed + water)                           | 1 tbsp ground flaxseed + 3 tbsp water per egg; make 2 flax eggs total | Slightly nuttier flavor (masked well by banana), denser crumb than original. Banana already provides binding so flax eggs work very well here.       |
+| Butter (1/3 cup melted)      | Fat, tenderness, moisture, flavor       | Melted refined coconut oil OR melted solid plant-based butter | 1:1 (1/3 cup)                                                         | Coconut oil: neutral if refined, very slightly coconut-forward if virgin. Plant butter: closest flavor match to original. Both produce tender crumb. |
+| All-purpose flour (1.5 cups) | Structure, starch, some protein network | 1:1 gluten-free baking blend (with xanthan gum included)      | 1:1 (1.5 cups)                                                        | Slightly denser, moister crumb. Gluten-free banana bread is particularly forgiving because banana starch contributes additional structure.           |
+| Walnuts (1/2 cup, optional)  | Texture contrast, flavor                | Omit entirely or replace with toasted pumpkin seeds           | 1:1 (1/2 cup pumpkin seeds)                                           | Pumpkin seeds provide crunch and a mildly nutty flavor. No color change. Confirm pumpkin seed sourcing is nut-free facility if allergy is severe.    |
 
 ---
 
@@ -335,27 +346,27 @@ Gluten-free pasta (rice, corn, chickpea, or lentil-based) has significantly diff
 
 ### Modified Ingredient List
 
-- 3 ripe bananas, well mashed *(unchanged -- the riper, the better for structure and sweetness)*
-- 2 flax eggs: 2 tbsp ground flaxseed + 6 tbsp water, rested 5 min *(replaces 2 large eggs)*
-- 1/3 cup refined coconut oil, melted and cooled slightly OR 1/3 cup melted solid plant-based butter *(replaces dairy butter)*
-- 3/4 cup granulated sugar (or organic cane sugar) *(unchanged in amount)*
-- 1 tsp pure vanilla extract *(verify gluten-free label)*
-- 1 tsp baking soda *(unchanged)*
-- 1/4 tsp salt *(unchanged)*
-- 1 1/2 cups 1:1 gluten-free baking flour blend (must contain xanthan gum) *(replaces all-purpose flour)*
-- 1/2 cup toasted pumpkin seeds, optional *(replaces walnuts)*
+- 3 ripe bananas, well mashed _(unchanged -- the riper, the better for structure and sweetness)_
+- 2 flax eggs: 2 tbsp ground flaxseed + 6 tbsp water, rested 5 min _(replaces 2 large eggs)_
+- 1/3 cup refined coconut oil, melted and cooled slightly OR 1/3 cup melted solid plant-based butter _(replaces dairy butter)_
+- 3/4 cup granulated sugar (or organic cane sugar) _(unchanged in amount)_
+- 1 tsp pure vanilla extract _(verify gluten-free label)_
+- 1 tsp baking soda _(unchanged)_
+- 1/4 tsp salt _(unchanged)_
+- 1 1/2 cups 1:1 gluten-free baking flour blend (must contain xanthan gum) _(replaces all-purpose flour)_
+- 1/2 cup toasted pumpkin seeds, optional _(replaces walnuts)_
 
 ---
 
 ### Expected Differences from Original
 
-| Attribute    | Original Recipe                                    | Modified Version                                                                          |
-|--------------|----------------------------------------------------|-------------------------------------------------------------------------------------------|
-| Texture      | Soft, springy crumb with light chew               | Slightly denser and moister, with a tender crumb; holds together well due to banana starch |
-| Flavor       | Rich, buttery banana with walnut earthiness        | Nearly identical banana flavor; slight nuttiness from flax masked by banana; coconut oil adds very mild richness |
-| Appearance   | Golden brown crust, medium rise                    | Similar golden brown crust; rise may be slightly less dramatic; center may appear more moist |
-| Shelf Life   | 3-4 days at room temperature, wrapped              | 2-3 days at room temperature (slightly less stable); refrigerate after day 2; freezes excellently for up to 3 months |
-| Difficulty   | Easy, very forgiving                               | Slightly more technique-dependent (flax egg timing, doneness by thermometer), but banana bread is one of the most forgiving recipes for this level of modification |
+| Attribute  | Original Recipe                             | Modified Version                                                                                                                                                   |
+| ---------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Texture    | Soft, springy crumb with light chew         | Slightly denser and moister, with a tender crumb; holds together well due to banana starch                                                                         |
+| Flavor     | Rich, buttery banana with walnut earthiness | Nearly identical banana flavor; slight nuttiness from flax masked by banana; coconut oil adds very mild richness                                                   |
+| Appearance | Golden brown crust, medium rise             | Similar golden brown crust; rise may be slightly less dramatic; center may appear more moist                                                                       |
+| Shelf Life | 3-4 days at room temperature, wrapped       | 2-3 days at room temperature (slightly less stable); refrigerate after day 2; freezes excellently for up to 3 months                                               |
+| Difficulty | Easy, very forgiving                        | Slightly more technique-dependent (flax egg timing, doneness by thermometer), but banana bread is one of the most forgiving recipes for this level of modification |
 
 ---
 

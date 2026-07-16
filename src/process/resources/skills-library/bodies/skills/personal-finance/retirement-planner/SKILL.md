@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance retirement-planning guide"
-  category: "personal-finance"
-  subcategory: "retirement-planning"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance retirement-planning guide'
+  category: 'personal-finance'
+  subcategory: 'retirement-planning'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Retirement Planner
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to plan for retirement and understand how much they need to save
 - User needs help choosing between retirement account types (401k, IRA, Roth)
 - User wants to calculate their retirement readiness or savings gap
 - User needs a retirement savings strategy based on their age and income
 
 **Do NOT use this skill when:**
+
 - User needs specific investment selection within retirement accounts -- use investment-advisor
 - User needs Social Security optimization -- specialized topic beyond general planning
 - User needs estate planning -- use estate planning skills
@@ -98,11 +100,13 @@ Step 3: Adjust for Social Security (optional)
 **Origin:** The Trinity Study found that withdrawing 4% of your portfolio in year one, then adjusting for inflation each year, has historically sustained a portfolio for 30+ years with high probability.
 
 **How it works:**
+
 1. Year 1: Withdraw 4% of starting portfolio
 2. Each subsequent year: Increase withdrawal by inflation rate
 3. Portfolio should last 30 years with ~95% historical success rate
 
 **Example:**
+
 ```
 Portfolio: $1,000,000
 Year 1 withdrawal: $40,000 (4%)
@@ -112,6 +116,7 @@ Year 3 (3% inflation): $42,436
 ```
 
 **Conservative alternatives:**
+
 - 3.5% withdrawal rate for 40+ year retirements (early retirees)
 - 3.0% withdrawal rate for maximum safety
 - Variable percentage: withdraw less in down markets, more in up markets
@@ -145,6 +150,7 @@ Claiming at 70 (maximum):
 ```
 
 **General guidance:**
+
 - Expect to live past 80? Delay claiming as long as possible (up to 70)
 - Need the income immediately? Claim earlier
 - Married? Coordinate spousal strategies (higher earner delays, lower earner claims earlier)
@@ -153,6 +159,7 @@ Claiming at 70 (maximum):
 ### Spousal Strategy
 
 The higher-earning spouse should generally delay to 70. This maximizes:
+
 1. The higher earner's benefit during both lifetimes
 2. The survivor benefit (the surviving spouse gets the higher of the two benefits)
 
@@ -195,6 +202,7 @@ Not getting the full match = leaving $__________ of free money per year.
 ```
 
 ### Vesting Schedule
+
 - **Immediate vesting:** Employer match is yours right away
 - **Cliff vesting:** 100% vesting after X years (usually 3)
 - **Graded vesting:** Partial vesting over time (e.g., 20% per year for 5 years)
@@ -224,6 +232,7 @@ Early withdrawal        10% penalty + taxes    Contributions: anytime tax-free
 ### Backdoor Roth IRA (for high earners)
 
 If your income exceeds Roth IRA limits:
+
 1. Contribute to a Traditional IRA (non-deductible)
 2. Convert to Roth IRA shortly after
 3. Pay tax on any gains between contribution and conversion (usually minimal)
@@ -233,14 +242,14 @@ If your income exceeds Roth IRA limits:
 
 ## Catch-Up Contributions
 
-| Account | Standard Limit (2024) | Catch-Up (50+) | Total (50+) |
-|---------|----------------------|----------------|-------------|
-| 401(k) | $23,000 | +$7,500 | $30,500 |
-| IRA (Traditional/Roth) | $7,000 | +$1,000 | $8,000 |
-| HSA (individual) | $4,150 | +$1,000 (55+) | $5,150 |
-| HSA (family) | $8,300 | +$1,000 (55+) | $9,300 |
-| 403(b) | $23,000 | +$7,500 | $30,500 |
-| SIMPLE IRA | $16,000 | +$3,500 | $19,500 |
+| Account                | Standard Limit (2024) | Catch-Up (50+) | Total (50+) |
+| ---------------------- | --------------------- | -------------- | ----------- |
+| 401(k)                 | $23,000               | +$7,500        | $30,500     |
+| IRA (Traditional/Roth) | $7,000                | +$1,000        | $8,000      |
+| HSA (individual)       | $4,150                | +$1,000 (55+)  | $5,150      |
+| HSA (family)           | $8,300                | +$1,000 (55+)  | $9,300      |
+| 403(b)                 | $23,000               | +$7,500        | $30,500     |
+| SIMPLE IRA             | $16,000               | +$3,500        | $19,500     |
 
 **Strategy for late starters:** If you are behind on retirement savings, max every catch-up contribution available. The extra $8,500/year in a 401k + IRA can add $100,000+ over a decade with growth.
 
@@ -287,6 +296,7 @@ Scenario D: Retire at 67 (FRA)
 ```
 
 **Key considerations for early retirement (before 59.5):**
+
 - 401k/IRA withdrawals face 10% penalty (exceptions: Rule of 55, 72(t) distributions, Roth contributions)
 - No Medicare until 65 -- budget $500-2,000/month for health insurance
 - Social Security reduced if claimed before FRA
@@ -322,6 +332,7 @@ Bucket 3: LONG-TERM (Years 11+)
 ### Tax-Efficient Withdrawal Order
 
 General guidance (varies by situation):
+
 1. **First:** Required Minimum Distributions (RMDs) from Traditional accounts
 2. **Second:** Taxable brokerage account (preferring long-term capital gains)
 3. **Third:** Traditional 401k/IRA (taxed as ordinary income)
@@ -377,27 +388,31 @@ When delivering retirement planning guidance, provide:
 **Target retirement:** Age 65 (30 years away)
 
 ### Retirement Income Target
+
 - Pre-retirement income: $80,000
 - Replacement ratio: 75% = $60,000/year in today's dollars
 - Adjusted for inflation (2.5%, 30 years): ~$126,000/year in future dollars
 - Nest egg needed (4% rule): $60,000 x 25 = $1,500,000 in today's dollars
 
 ### Current Trajectory
-| Scenario | Monthly Contribution | Employer Match | Balance at 65 (7% return) |
-|----------|---------------------|----------------|--------------------------|
-| Current minimum | $267 (4%) | $267 (4%) | ~$920,000 |
-| Recommended | $500 (7.5%) | $267 (4%) | ~$1,430,000 |
-| On-track target | $600 (9%) | $267 (4%) | ~$1,620,000 |
+
+| Scenario        | Monthly Contribution | Employer Match | Balance at 65 (7% return) |
+| --------------- | -------------------- | -------------- | ------------------------- |
+| Current minimum | $267 (4%)            | $267 (4%)      | ~$920,000                 |
+| Recommended     | $500 (7.5%)          | $267 (4%)      | ~$1,430,000               |
+| On-track target | $600 (9%)            | $267 (4%)      | ~$1,620,000               |
 
 ### Verdict: Slightly behind, but very fixable
 
 ### Action Plan
+
 1. **Immediately:** Increase 401k contribution from 4% to at least 9% ($600/mo)
 2. **This year:** Open Roth IRA and contribute $500/month ($6,000/year)
 3. **Annual:** Increase contribution by 1% each year with raises
 4. **Milestone check:** At age 45, you should have ~$400,000 across accounts
 
 ### Account Priority
+
 1. 401k to 4% match (free money -- you are doing this)
 2. Roth IRA to max ($7,000/year) -- tax-free growth for 30 years
 3. 401k above match to 15% total savings rate

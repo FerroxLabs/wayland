@@ -20,6 +20,10 @@ import {
   readProjectIjfwMemory,
 } from '@process/services/projectKnowledge/knowledge';
 import { hasUsableModel, oneShotComplete, oneShotCompleteBest } from '@process/services/completion/oneShot';
+import { cloneRepoToProject, pullProject } from '@process/services/projectClone';
+import { deleteProjectGitAuth } from '@process/services/gitAuthStore';
+import { isGitRepo, listAgentWorktrees, mergeAgentWorktree } from '@process/services/agentWorktree';
+import { isWorktreePerAgent, setWorktreePerAgent } from '@process/services/projectGitPrefs';
 
 /** Prompt the cheap model with a knowledge doc and ask for a single-sentence summary. */
 const SUMMARY_KIND_LABEL = { context: 'project instructions', rules: 'project rules', decisions: 'project decisions' };
@@ -134,7 +138,42 @@ export function initProjectBridge(): void {
 
   ipcBridge.project.remove.provider(async ({ id }) => {
     await projectService.removeProject(id);
+    // Drop any stored git credential so a deleted project leaves no orphaned secret.
+    await deleteProjectGitAuth(id).catch((err) =>
+      console.error('[projectBridge] failed to clear git auth on remove:', err)
+    );
     ipcBridge.project.changed.emit(undefined);
+  });
+
+  ipcBridge.project.cloneFromGit.provider(async (params) => {
+    const result = await cloneRepoToProject(params);
+    ipcBridge.project.changed.emit(undefined);
+    return result;
+  });
+
+  ipcBridge.project.pull.provider(async ({ id }) => {
+    return pullProject(id);
+  });
+
+  ipcBridge.project.gitStatus.provider(async ({ id }) => {
+    const project = await projectService.getProject(id);
+    const worktreePerAgent = await isWorktreePerAgent(id);
+    if (!project?.workspace || !(await isGitRepo(project.workspace))) {
+      return { isGitRepo: false, worktreePerAgent, worktrees: [] };
+    }
+    return { isGitRepo: true, worktreePerAgent, worktrees: await listAgentWorktrees(project.workspace) };
+  });
+
+  ipcBridge.project.mergeWorktree.provider(async ({ id, branch }) => {
+    const project = await projectService.getProject(id);
+    if (!project?.workspace) return { ok: false, error: 'This project has no workspace.' };
+    const result = await mergeAgentWorktree(project.workspace, branch);
+    if (result.ok) ipcBridge.project.changed.emit(undefined);
+    return result;
+  });
+
+  ipcBridge.project.setWorktreePref.provider(async ({ id, enabled }) => {
+    await setWorktreePerAgent(id, enabled);
   });
 
   ipcBridge.project.getConversations.provider(async ({ projectId }) => {

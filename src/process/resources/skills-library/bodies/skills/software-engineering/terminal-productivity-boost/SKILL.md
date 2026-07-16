@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart best-practices python api-design resume-writing"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart best-practices python api-design resume-writing'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Terminal Productivity Boost
 
 You are a terminal power user who helps developers and sysadmins get more done in the command line with minimal setup. Every tip here should be implementable in under 5 minutes and produce immediate productivity gains. No esoteric configurations - just the highest-impact improvements.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about terminal productivity boost techniques or best practices
 - User needs guidance on terminal productivity boost concepts
 - User wants to implement or improve their approach to terminal productivity boost
 
 **Do NOT use when:**
+
 - The request falls outside the scope of terminal productivity boost
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -198,11 +199,11 @@ git clone --depth 1 [GitHub repository] ~/.fzf
 
 ### Key Bindings (After Installation)
 
-| Shortcut | What It Does |
-|----------|-------------|
+| Shortcut | What It Does                                             |
+| -------- | -------------------------------------------------------- |
 | `Ctrl+R` | Fuzzy search command history (replaces reverse-i-search) |
-| `Ctrl+T` | Fuzzy find files in current directory |
-| `Alt+C` | Fuzzy find and cd into directories |
+| `Ctrl+T` | Fuzzy find files in current directory                    |
+| `Alt+C`  | Fuzzy find and cd into directories                       |
 
 `Ctrl+R` alone is worth the install. Instead of remembering exact commands, type any fragment and fzf finds it.
 
@@ -253,6 +254,7 @@ fga() {
 ### What tmux Does
 
 tmux lets you:
+
 - Split your terminal into panes (side by side, top/bottom)
 - Create multiple windows (like browser tabs for terminals)
 - Detach sessions (keep processes running after you disconnect)
@@ -272,21 +274,21 @@ sudo apt install tmux
 
 All tmux commands start with the prefix key: `Ctrl+b`, then the command key.
 
-| Action | Keys |
-|--------|------|
-| Start new session | `tmux` or `tmux new -s name` |
-| Detach from session | `Ctrl+b` then `d` |
-| Reattach to session | `tmux attach -t name` |
-| List sessions | `tmux ls` |
-| Split pane horizontally | `Ctrl+b` then `"` |
-| Split pane vertically | `Ctrl+b` then `%` |
-| Move between panes | `Ctrl+b` then arrow key |
-| New window | `Ctrl+b` then `c` |
-| Next window | `Ctrl+b` then `n` |
-| Previous window | `Ctrl+b` then `p` |
-| Kill pane | `Ctrl+b` then `x` |
-| Resize pane | `Ctrl+b` then hold arrow key |
-| Scroll mode | `Ctrl+b` then `[` (q to exit) |
+| Action                  | Keys                          |
+| ----------------------- | ----------------------------- |
+| Start new session       | `tmux` or `tmux new -s name`  |
+| Detach from session     | `Ctrl+b` then `d`             |
+| Reattach to session     | `tmux attach -t name`         |
+| List sessions           | `tmux ls`                     |
+| Split pane horizontally | `Ctrl+b` then `"`             |
+| Split pane vertically   | `Ctrl+b` then `%`             |
+| Move between panes      | `Ctrl+b` then arrow key       |
+| New window              | `Ctrl+b` then `c`             |
+| Next window             | `Ctrl+b` then `n`             |
+| Previous window         | `Ctrl+b` then `p`             |
+| Kill pane               | `Ctrl+b` then `x`             |
+| Resize pane             | `Ctrl+b` then hold arrow key  |
+| Scroll mode             | `Ctrl+b` then `[` (q to exit) |
 
 ### Minimal tmux Config
 
@@ -322,6 +324,7 @@ Reload: `tmux source-file ~/.tmux.conf`
 ### Quick Informative Prompt (shell)
 
 Add to ~/.bashrc:
+
 ```shell
 # Shows: user@host:directory (git branch) $
 parse_git_branch() {
@@ -333,6 +336,7 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\] $(par
 ### For zsh Users: Oh My Zsh or Starship
 
 **Starship (recommended, works on any shell):**
+
 ```shell
 # Security note: Always review install scripts before piping to shell.
 # Download and inspect first with: HTTP client request -sS [external resource] > install-script && less install-script && shell-run install-script
@@ -407,21 +411,20 @@ bat --language json data.json
 
 ## Cheat Sheet: Top 10 Changes by Impact
 
-| Priority | Change | Time to Set Up | Daily Time Saved |
-|----------|--------|---------------|-----------------|
-| 1 | Git aliases | 2 min | 10-15 min |
-| 2 | fzf Ctrl+R (history search) | 3 min | 5-10 min |
-| 3 | Navigation aliases (.. / dev / dl) | 1 min | 5 min |
-| 4 | mkcd function | 1 min | 3 min |
-| 5 | z/zoxide directory jumping | 3 min | 5-10 min |
-| 6 | tmux basics (split panes) | 5 min | 10+ min |
-| 7 | Starship prompt (git info at a glance) | 3 min | 5 min |
-| 8 | ripgrep replacing grep | 2 min | 5 min |
-| 9 | extract function | 1 min | 2 min |
-| 10 | Safety aliases (rm -i, mv -i) | 1 min | Prevents disasters |
+| Priority | Change                                 | Time to Set Up | Daily Time Saved   |
+| -------- | -------------------------------------- | -------------- | ------------------ |
+| 1        | Git aliases                            | 2 min          | 10-15 min          |
+| 2        | fzf Ctrl+R (history search)            | 3 min          | 5-10 min           |
+| 3        | Navigation aliases (.. / dev / dl)     | 1 min          | 5 min              |
+| 4        | mkcd function                          | 1 min          | 3 min              |
+| 5        | z/zoxide directory jumping             | 3 min          | 5-10 min           |
+| 6        | tmux basics (split panes)              | 5 min          | 10+ min            |
+| 7        | Starship prompt (git info at a glance) | 3 min          | 5 min              |
+| 8        | ripgrep replacing grep                 | 2 min          | 5 min              |
+| 9        | extract function                       | 1 min          | 2 min              |
+| 10       | Safety aliases (rm -i, mv -i)          | 1 min          | Prevents disasters |
 
 Total setup time: about 20 minutes. Daily time saved: 50-75 minutes. The ROI is extraordinary.
-
 
 ## Process
 
@@ -430,7 +433,6 @@ Total setup time: about 20 minutes. Daily time saved: 50-75 minutes. The ROI is 
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -451,14 +453,12 @@ Total setup time: about 20 minutes. Daily time saved: 50-75 minutes. The ROI is 
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

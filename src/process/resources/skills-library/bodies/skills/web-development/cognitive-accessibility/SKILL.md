@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility stress-management checklist step-by-step advanced javascript testing automation"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'accessibility stress-management checklist step-by-step advanced javascript testing automation'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Cognitive Accessibility
 
 You are an expert in cognitive accessibility, specializing in designing digital experiences that work for people with attention deficits, learning disabilities, memory challenges, executive function difficulties, and cognitive fatigue. You apply WCAG 2.2 cognitive criteria, the Cognitive Accessibility Guidance from W3C, and plain language principles to reduce mental load and prevent errors.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cognitive accessibility techniques or best practices
 - User needs guidance on cognitive accessibility concepts
 - User wants to implement or improve their approach to cognitive accessibility
 
 **Do NOT use when:**
+
 - The request falls outside the scope of cognitive accessibility
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,30 +60,30 @@ You are an expert in cognitive accessibility, specializing in designing digital 
 
 ### Writing Guidelines
 
-| Principle | Bad | Good |
-|-----------|-----|------|
-| Short sentences | "In the event that you wish to cancel your subscription, which can be done at any time, you should navigate to the account settings page." | "To cancel your subscription, go to Account Settings." |
-| Common words | "Utilize the authentication mechanism" | "Log in" |
-| Active voice | "The form must be submitted by the user" | "Submit the form" |
-| One idea per sentence | "Click Save to save your work and you'll be redirected to the dashboard where you can see your projects." | "Click Save. You'll go to the dashboard." |
-| Avoid jargon | "Configure your CI/CD pipeline parameters" | "Set up your automatic build and deploy settings" |
-| Define technical terms | "Enable MFA for your account" | "Enable multi-factor authentication (MFA) - a second step to verify your identity when you log in" |
+| Principle              | Bad                                                                                                                                        | Good                                                                                               |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Short sentences        | "In the event that you wish to cancel your subscription, which can be done at any time, you should navigate to the account settings page." | "To cancel your subscription, go to Account Settings."                                             |
+| Common words           | "Utilize the authentication mechanism"                                                                                                     | "Log in"                                                                                           |
+| Active voice           | "The form must be submitted by the user"                                                                                                   | "Submit the form"                                                                                  |
+| One idea per sentence  | "Click Save to save your work and you'll be redirected to the dashboard where you can see your projects."                                  | "Click Save. You'll go to the dashboard."                                                          |
+| Avoid jargon           | "Configure your CI/CD pipeline parameters"                                                                                                 | "Set up your automatic build and deploy settings"                                                  |
+| Define technical terms | "Enable MFA for your account"                                                                                                              | "Enable multi-factor authentication (MFA) - a second step to verify your identity when you log in" |
 
 ### Reading Level Targets
 
-| Audience | Target Grade Level | Tool |
-|----------|-------------------|------|
-| General public | 6th-8th grade | Hemingway Editor, readability-scores npm |
-| Healthcare consumers | 5th-6th grade | CDC Clear Communication Index |
+| Audience                    | Target Grade Level | Tool                                          |
+| --------------------------- | ------------------ | --------------------------------------------- |
+| General public              | 6th-8th grade      | Hemingway Editor, readability-scores npm      |
+| Healthcare consumers        | 5th-6th grade      | CDC Clear Communication Index                 |
 | Legal notices for consumers | 8th grade or lower | Plain Language Action and Information Network |
-| Internal tools | 10th-12th grade | Flesch-Kincaid in MS Word |
+| Internal tools              | 10th-12th grade    | Flesch-Kincaid in MS Word                     |
 
 ```javascript
 // Automated readability check in CI
 // add the package dependency text-readability
 const rs = require('text-readability');
 
-const text = "Click Save to keep your changes. You will return to the home page.";
+const text = 'Click Save to keep your changes. You will return to the home page.';
 console.log('Flesch-Kincaid Grade:', rs.fleschKincaidGrade(text));
 console.log('Dale-Chall:', rs.daleChallReadabilityScore(text));
 console.log('Coleman-Liau:', rs.colemanLiauIndex(text));
@@ -110,6 +111,7 @@ console.log('Coleman-Liau:', rs.colemanLiauIndex(text));
 ```
 
 Design rules for cognitive accessibility:
+
 - Navigation is in the same position on every page (WCAG 3.2.3)
 - Help mechanisms are in the same relative location on every page (WCAG 3.2.6)
 - Breadcrumbs show current location in the hierarchy
@@ -131,15 +133,9 @@ Design rules for cognitive accessibility:
 <!-- Progress indicator for multi-step processes -->
 <nav aria-label="Progress">
   <ol class="progress-steps">
-    <li class="completed">
-      <span class="sr-only">Completed:</span> Shipping
-    </li>
-    <li class="current" aria-current="step">
-      <span class="sr-only">Current:</span> Payment
-    </li>
-    <li class="upcoming">
-      <span class="sr-only">Upcoming:</span> Review
-    </li>
+    <li class="completed"><span class="sr-only">Completed:</span> Shipping</li>
+    <li class="current" aria-current="step"><span class="sr-only">Current:</span> Payment</li>
+    <li class="upcoming"><span class="sr-only">Upcoming:</span> Review</li>
   </ol>
 </nav>
 <!-- Visual: [1. Shipping ✓] - [2. Payment ●] - [3. Review ○] -->
@@ -167,8 +163,7 @@ Break complex tasks into discrete steps:
     <!-- One focused set of fields -->
     <div class="field-group">
       <label for="card-number">Card number</label>
-      <input id="card-number" type="text" inputmode="numeric"
-             autocomplete="cc-number" aria-describedby="card-hint">
+      <input id="card-number" type="text" inputmode="numeric" autocomplete="cc-number" aria-describedby="card-hint" />
       <p id="card-hint" class="hint">16 digits on the front of your card</p>
     </div>
 
@@ -187,15 +182,15 @@ Break complex tasks into discrete steps:
 
 Move focus programmatically in these situations:
 
-| Scenario | Move Focus To |
-|----------|---------------|
-| Page load (SPA navigation) | Main heading or skip target |
-| Modal opens | First focusable element inside modal |
-| Modal closes | The element that triggered the modal |
-| Inline error after form submission | First error message or the error summary |
-| Content deleted | The nearest remaining logical element |
+| Scenario                             | Move Focus To                               |
+| ------------------------------------ | ------------------------------------------- |
+| Page load (SPA navigation)           | Main heading or skip target                 |
+| Modal opens                          | First focusable element inside modal        |
+| Modal closes                         | The element that triggered the modal        |
+| Inline error after form submission   | First error message or the error summary    |
+| Content deleted                      | The nearest remaining logical element       |
 | New content loaded (infinite scroll) | Do NOT move focus; announce via live region |
-| Step change in a wizard | The new step heading |
+| Step change in a wizard              | The new step heading                        |
 
 ```javascript
 // Focus management for SPA route changes
@@ -205,9 +200,13 @@ function onRouteChange() {
     mainHeading.setAttribute('tabindex', '-1');
     mainHeading.focus();
     // Remove tabindex after blur to keep natural tab order clean
-    mainHeading.addEventListener('blur', () => {
-      mainHeading.removeAttribute('tabindex');
-    }, { once: true });
+    mainHeading.addEventListener(
+      'blur',
+      () => {
+        mainHeading.removeAttribute('tabindex');
+      },
+      { once: true }
+    );
   }
 }
 ```
@@ -260,17 +259,21 @@ function onRouteChange() {
 <!-- Inline error on a specific field -->
 <div class="field-group field-error">
   <label for="email">Email address</label>
-  <input id="email" type="email" aria-invalid="true"
-         aria-describedby="email-error email-hint"
-         autocomplete="email" value="user@">
+  <input
+    id="email"
+    type="email"
+    aria-invalid="true"
+    aria-describedby="email-error email-hint"
+    autocomplete="email"
+    value="user@"
+  />
   <p id="email-hint" class="hint">Example: name@company.com</p>
-  <p id="email-error" class="error-message">
-    Enter a complete email address, like name@company.com
-  </p>
+  <p id="email-error" class="error-message">Enter a complete email address, like name@company.com</p>
 </div>
 ```
 
 ### Error message writing rules:
+
 - Say what went wrong in plain language
 - Tell the user exactly how to fix it
 - Never use error codes alone ("Error 422")
@@ -282,7 +285,8 @@ function onRouteChange() {
 ```html
 <!-- Instead of immediate deletion, show undo option -->
 <div role="status" class="undo-toast" aria-live="polite">
-  <p>Email moved to Trash.
+  <p>
+    Email moved to Trash.
     <button type="button" onclick="undoDelete()">Undo</button>
     <span class="countdown">Undoing is available for 10 seconds</span>
   </p>
@@ -304,11 +308,11 @@ function onRouteChange() {
   <summary>Advanced shipping options</summary>
   <div class="advanced-options">
     <label>
-      <input type="checkbox" name="signature">
+      <input type="checkbox" name="signature" />
       Require signature on delivery
     </label>
     <label>
-      <input type="checkbox" name="insurance">
+      <input type="checkbox" name="insurance" />
       Add shipping insurance ($4.99)
     </label>
   </div>
@@ -350,19 +354,19 @@ function onRouteChange() {
 <!-- Leverage autocomplete to reduce memory burden -->
 <form>
   <label for="name">Full name</label>
-  <input id="name" autocomplete="name">
+  <input id="name" autocomplete="name" />
 
   <label for="email">Email</label>
-  <input id="email" type="email" autocomplete="email">
+  <input id="email" type="email" autocomplete="email" />
 
   <label for="address">Street address</label>
-  <input id="address" autocomplete="street-address">
+  <input id="address" autocomplete="street-address" />
 
   <label for="city">City</label>
-  <input id="city" autocomplete="address-level2">
+  <input id="city" autocomplete="address-level2" />
 
   <label for="zip">ZIP code</label>
-  <input id="zip" autocomplete="postal-code" inputmode="numeric">
+  <input id="zip" autocomplete="postal-code" inputmode="numeric" />
 </form>
 ```
 
@@ -376,12 +380,10 @@ function onRouteChange() {
 
 ```html
 <!-- Session timeout warning -->
-<div role="alertdialog" aria-modal="true"
-     aria-labelledby="timeout-title" aria-describedby="timeout-desc">
+<div role="alertdialog" aria-modal="true" aria-labelledby="timeout-title" aria-describedby="timeout-desc">
   <h2 id="timeout-title">Your session is about to expire</h2>
   <p id="timeout-desc">
-    You will be logged out in <span id="countdown">60</span> seconds.
-    Any unsaved work will be lost.
+    You will be logged out in <span id="countdown">60</span> seconds. Any unsaved work will be lost.
   </p>
   <button onclick="extendSession()">Stay logged in</button>
   <button onclick="logout()">Log out now</button>
@@ -390,25 +392,25 @@ function onRouteChange() {
 
 ## WCAG Criteria Most Relevant to Cognitive Accessibility
 
-| Criterion | Level | Summary |
-|-----------|-------|---------|
-| 1.3.5 Identify Input Purpose | AA | Use autocomplete attributes |
-| 1.3.6 Identify Purpose | AAA | UI components have programmatic purpose |
-| 2.2.1 Timing Adjustable | A | Users can extend, adjust, or disable time limits |
-| 2.2.6 Timeouts | AAA | Warn about data loss from inactivity |
-| 2.4.6 Headings and Labels | AA | Headings and labels describe purpose |
-| 3.1.3 Unusual Words | AAA | Define jargon and idioms |
-| 3.1.4 Abbreviations | AAA | Expand abbreviations |
-| 3.1.5 Reading Level | AAA | Supplemental version for lower secondary reading level |
-| 3.2.3 Consistent Navigation | AA | Navigation in same relative order |
-| 3.2.4 Consistent Identification | AA | Same function = same label |
-| 3.2.6 Consistent Help | A | Help in same relative location |
-| 3.3.1 Error Identification | A | Errors described in text |
-| 3.3.2 Labels or Instructions | A | Labels for user input |
-| 3.3.3 Error Suggestion | AA | Suggest corrections |
-| 3.3.4 Error Prevention (Legal, Financial) | AA | Reversible, checked, confirmed |
-| 3.3.7 Redundant Entry | A | Don't make users re-enter data |
-| 3.3.8 Accessible Authentication | AA | No cognitive function tests for login |
+| Criterion                                 | Level | Summary                                                |
+| ----------------------------------------- | ----- | ------------------------------------------------------ |
+| 1.3.5 Identify Input Purpose              | AA    | Use autocomplete attributes                            |
+| 1.3.6 Identify Purpose                    | AAA   | UI components have programmatic purpose                |
+| 2.2.1 Timing Adjustable                   | A     | Users can extend, adjust, or disable time limits       |
+| 2.2.6 Timeouts                            | AAA   | Warn about data loss from inactivity                   |
+| 2.4.6 Headings and Labels                 | AA    | Headings and labels describe purpose                   |
+| 3.1.3 Unusual Words                       | AAA   | Define jargon and idioms                               |
+| 3.1.4 Abbreviations                       | AAA   | Expand abbreviations                                   |
+| 3.1.5 Reading Level                       | AAA   | Supplemental version for lower secondary reading level |
+| 3.2.3 Consistent Navigation               | AA    | Navigation in same relative order                      |
+| 3.2.4 Consistent Identification           | AA    | Same function = same label                             |
+| 3.2.6 Consistent Help                     | A     | Help in same relative location                         |
+| 3.3.1 Error Identification                | A     | Errors described in text                               |
+| 3.3.2 Labels or Instructions              | A     | Labels for user input                                  |
+| 3.3.3 Error Suggestion                    | AA    | Suggest corrections                                    |
+| 3.3.4 Error Prevention (Legal, Financial) | AA    | Reversible, checked, confirmed                         |
+| 3.3.7 Redundant Entry                     | A     | Don't make users re-enter data                         |
+| 3.3.8 Accessible Authentication           | AA    | No cognitive function tests for login                  |
 
 ## Testing for Cognitive Accessibility
 
@@ -430,13 +432,13 @@ function onRouteChange() {
 ### User Testing Considerations
 
 When testing with participants who have cognitive disabilities:
+
 - Allow extra time for each task
 - Provide written instructions they can refer back to
 - Use think-aloud protocol gently - do not pressure
 - Have a clear, simple consent process
 - Test in a quiet, distraction-free environment
 - Include participants with diverse cognitive profiles (ADHD, dyslexia, traumatic brain injury, autism, Down syndrome, age-related cognitive decline)
-
 
 ## Process
 
@@ -445,7 +447,6 @@ When testing with participants who have cognitive disabilities:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -466,14 +467,12 @@ When testing with participants who have cognitive disabilities:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

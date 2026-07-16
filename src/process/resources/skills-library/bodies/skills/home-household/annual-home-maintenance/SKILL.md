@@ -11,19 +11,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance checklist planning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance checklist planning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Annual Home Maintenance Calendar
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks for a home maintenance schedule, annual checklist, or month-by-month upkeep plan
 - A user recently purchased a home (especially a first-time buyer) and wants a preventive care framework to avoid expensive surprises
 - A user asks "what should I be doing to maintain my house this year?" or similar open-ended upkeep questions
@@ -33,6 +35,7 @@ metadata:
 - A user is a landlord wanting a comprehensive annual schedule for a residential rental property
 
 **Do NOT use this skill when:**
+
 - The user has an active emergency -- burst pipe, loss of heat in winter, active roof leak, gas smell (use `home-repair-first-response` instead)
 - The user needs deep system-specific diagnostic guidance for a single system -- HVAC troubleshooting, furnace not igniting, AC not cooling (use `hvac-maintenance` instead)
 - The user needs detailed plumbing repair instructions for a specific failure (use `plumbing-basics` instead)
@@ -49,6 +52,7 @@ metadata:
 Before generating any calendar, collect the following information. If the user has not provided it, ask all questions at once in a single message to avoid back-and-forth.
 
 **Required information:**
+
 - **Home type:** Single-family detached, townhouse, condo (unit only), duplex/half-duplex, manufactured/mobile home on permanent foundation
 - **Year built:** This determines material ages, likely upgrade needs, and code-era context. Categorize as: Pre-1950 (historic), 1950-1978 (pre-lead-paint-ban overlap zone), 1979-1999 (mid-era), 2000-2015 (modern), 2016-present (recent/potentially under warranty)
 - **Climate region:** Use the five practical zones -- Cold/Northern (zones 6-8: upper Midwest, New England, Mountain West), Temperate/Mid-Atlantic (zones 5-6: Ohio Valley, DC corridor, Pacific NW), Hot-Humid/Southern (zones 2-4: Gulf Coast, Southeast, Florida), Arid/Desert (zones 2-3: Southwest, inland California), Mixed-Humid (zones 4-5: Mid-South, Carolinas, lower Midwest)
@@ -60,6 +64,7 @@ Before generating any calendar, collect the following information. If the user h
 - **Special systems:** Septic system (vs. municipal sewer), private well (vs. municipal water), whole-house generator, propane tank (above or below ground), irrigation/sprinkler system, solar panels, wood-burning fireplace or pellet stove
 
 **Optional but useful:**
+
 - Known deferred maintenance or recent repairs
 - Whether the user does DIY work comfortably or prefers to hire everything out
 - Whether there are young children or immunocompromised occupants (affects lead, mold, and air quality priorities)
@@ -71,6 +76,7 @@ Before generating any calendar, collect the following information. If the user h
 Climate region is the primary driver of WHEN tasks happen. Use this timing framework:
 
 **Cold/Northern (zones 6-8):**
+
 - Winterization tasks: October (hard deadline -- freeze events possible by early November)
 - Spring startup: April-May (frost-free date typically late April to mid-May)
 - AC prep: May
@@ -79,6 +85,7 @@ Climate region is the primary driver of WHEN tasks happen. Use this timing frame
 - Ice dam prevention: November (insulation and ventilation check before snowfall)
 
 **Temperate/Mid-Atlantic (zones 5-6):**
+
 - Winterization: Late October to early November
 - Spring startup: March-April
 - AC prep: March-April (schedule early; HVAC firms book up by May)
@@ -86,6 +93,7 @@ Climate region is the primary driver of WHEN tasks happen. Use this timing frame
 - Gutter cleaning: April and November
 
 **Hot-Humid/Southern (zones 2-4):**
+
 - No true winterization needed except freeze-event prep (November)
 - AC is the dominant system; schedule professional AC service in February-March (before brutal summer heat)
 - Heating (if heat pump): service in October
@@ -94,6 +102,7 @@ Climate region is the primary driver of WHEN tasks happen. Use this timing frame
 - Gutter cleaning: March and September (or year-round if heavy tree cover)
 
 **Arid/Desert (zones 2-3):**
+
 - Evaporative cooler startup: March, shutdown: October
 - Monsoon drainage prep: June (Southwest monsoon season July-September)
 - Freeze-event pipe protection: November (desert nights can drop below freezing)
@@ -101,6 +110,7 @@ Climate region is the primary driver of WHEN tasks happen. Use this timing frame
 - Gutter cleaning: After monsoon season (September-October) and spring (March)
 
 **Mixed-Humid (zones 4-5):**
+
 - Follows Mid-Atlantic timing but with additional humidity/mold monitoring in June-August
 - Crawlspace moisture checks are critical in spring and late summer
 
@@ -111,37 +121,44 @@ Climate region is the primary driver of WHEN tasks happen. Use this timing frame
 For each month, assign tasks from the following master categories. Not every category appears every month -- assign based on climate timing and system intervals.
 
 **HVAC system tasks (driven by fixed intervals):**
+
 - Filter replacement: Every 60-90 days for 1-inch filters (MERV 8-11 rating). Every 6-12 months for 4-5 inch media filters. More frequent (every 30-45 days) in homes with pets, occupants with allergies, or dusty remodeling activity
 - Professional AC tune-up: Once annually in spring. Technician should check refrigerant charge (target superheat and subcooling per manufacturer spec), clean evaporator and condenser coils, test capacitors and contactors, verify thermostat calibration, and measure static pressure
 - Professional furnace/heat pump tune-up: Once annually in fall. Includes heat exchanger inspection (critical -- cracked exchangers leak CO), burner cleaning, flue inspection, and blower belt check (if applicable)
 - Air handler drain line: Flush with distilled white vinegar or diluted bleach (1 cup per gallon) every spring in hot-humid climates to prevent clog-induced overflow. Annual in other climates
 
 **Water heater:**
+
 - Annual sediment flush: Connect garden hose to drain valve, shut off cold supply, open pressure relief valve, drain 2-3 gallons into bucket until clear. On electric heaters, turn off breaker first. On gas heaters, set to pilot. Note: If the unit is more than 8 years old and has never been flushed, partial flushing may dislodge sediment and cause temporary cloudy water -- warn the user this is normal
 - Anode rod inspection: Every 3-4 years on tank-style heaters. Magnesium anode rods are the sacrificial element that prevents tank corrosion. If the rod is less than 1/2 inch diameter or heavily encrusted, replace it. A new anode rod ($20-50 part) can extend tank life by 5+ years
 - Temperature setting verification: Should be set to 120°F (49°C) to prevent scalding and reduce Legionella risk. Temperatures above 140°F accelerate sediment buildup
 
 **Plumbing and water systems:**
+
 - Whole-house water shut-off exercise: Operate the main shut-off valve once per year (turn off and back on). Valves that sit unused for years can seize and fail when you need them most -- especially ball valves in older homes that were never turned
 - Hose bib/exterior faucet winterization: Shut off interior isolation valve, open exterior bib fully to drain, leave open over winter. Failure to do this is one of the most common causes of burst pipes in cold climates -- the exterior section of the line freezes and splits, but damage isn't visible until spring
 - Sump pump test: Pour 5 gallons of water into the pit to verify float activation. Check discharge line for blockage and ensure the discharge point is at least 10 feet from the foundation
 
 **Roof and gutters:**
+
 - Ground-level roof inspection with binoculars: Look for missing, cracked, or curled shingles; granule loss (bald patches on asphalt); lifted flashing at chimney, vents, and valleys; moss or algae growth (dark streaking)
 - Gutter inspection and cleaning: Flush with garden hose from ridge to downspout. Downspout must discharge at least 4-6 feet from foundation, preferably 10 feet. Check for sag (gutter should have 1/4-inch drop per 10 feet toward downspout)
 - Roof professional inspection: Every 3-5 years for asphalt shingles under 15 years old; every 1-2 years for roofs over 20 years old or after any severe hail/wind event. A licensed roofer walking the roof can find things a ground inspection misses -- particularly failed step flashing, lifted ridge cap, and cracked pipe boot collars
 
 **Exterior envelope:**
+
 - Caulking inspection: Check silicone or polyurethane caulk at all window frames, door frames, penetrations (pipes, vents, wires through exterior walls), and where dissimilar materials meet (wood to brick, siding to trim). Failed caulk is the leading cause of water intrusion in the building envelope. Replace when caulk shows cracking, shrinkage gaps, or separation from substrate
 - Paint and siding: Wood siding requires repainting every 5-7 years. Fiber cement every 10-15 years. Vinyl requires only cleaning. Look for peeling, bubbling, or dark staining (indicates moisture trapped behind)
 - Foundation grading: Soil or mulch at the foundation perimeter must slope away at a minimum of 6 inches of drop over the first 10 feet. Mulch piled against siding or wood trim invites rot and termite entry
 
 **Electrical safety:**
+
 - GFCI testing: Press test button (outlet should go dead), press reset. Test all GFCI outlets in bathrooms, kitchen, garage, exterior, unfinished basement, and within 6 feet of any sink. If a GFCI doesn't trip cleanly or won't reset, replace it -- GFCIs have an 8-10 year service life
 - Smoke and CO detectors: Test monthly with test button. Replace batteries in all non-sealed units annually (October is standard -- change when clocks change is the mnemonic). Replace entire units every 10 years (smoke) and every 5-7 years (CO) -- the sensing elements degrade
 - Dryer vent: A clogged dryer vent is the leading cause of residential appliance fires -- approximately 15,000 per year in the US. Clean the full duct run (not just the lint trap) annually. Use a rotary brush kit on a drill. Check the exterior termination cap for blockage, lint buildup, or birds/rodents nesting in it
 
 **Seasonal and climate-specific:**
+
 - Chimney and fireplace: Annual inspection by a Certified Chimney Sweep (CSIA-certified) if the fireplace is used more than 3 times per year. Inspect for creosote buildup (Class 1 = light dusty, Class 2 = shiny flaky, Class 3 = tar-like glazed -- Class 3 requires professional removal before use), cracked flue tiles, failed mortar crown
 - Deck/wood structure: Inspect annually in spring. Test boards by pressing with thumb -- soft spots indicate rot. Probe around ledger board connection to house (the ledger is the most failure-prone point; it must have flashing and proper lag bolt spacing). Re-seal decking every 2-3 years with penetrating water repellent; repaint/restain every 4-6 years
 
@@ -152,28 +169,33 @@ For each month, assign tasks from the following master categories. Not every cat
 Layer these additional tasks onto the base calendar based on the home's construction era:
 
 **Pre-1950 homes:**
+
 - Electrical system: Verify that knob-and-tube wiring has been fully replaced. If K&T is still present, it cannot be safely insulated over (creates fire risk) and is likely at end of service life (70+ years). This is an urgent professional evaluation, not a DIY assessment
 - Lead paint: Present in virtually all homes built before 1978. For pre-1950 homes, assume all painted surfaces have lead. Any sanding, scraping, or demolition of painted surfaces requires EPA Renovation, Repair, and Painting (RRP) rule compliance -- either hire a certified renovator or use full containment and HEPA vacuum protocols
 - Cast iron drain pipes: Expected service life 75-100 years. Homes with original cast iron drains should have a plumber perform a camera inspection if there are recurring slow drains, to check for interior corrosion (graphitization), cracking, or root intrusion
 - Galvanized steel supply lines: Galvanized pipe corrodes from the inside, progressively reducing flow and leaching iron. If original galvanized supply lines are still in place, add replumbing to the 3-5 year capital plan -- don't wait for a pinhole failure
 
 **1950-1978 homes:**
+
 - Lead paint: Present in homes built before 1978. Stable, intact paint is not a hazard -- peeling or disturbed paint is. Annual check of any deteriorating painted surfaces
 - Asbestos: Present in floor tiles (9x9 inch vinyl tiles are a reliable indicator), pipe insulation, duct insulation, textured ceilings (popcorn ceilings pre-1978), and roof shingles from this era. Do not disturb -- encapsulate or hire a licensed abatement contractor
 - Electrical panel: Federal Pacific Stab-Lok and Zinsco panels from this era have well-documented failure modes (breakers that don't trip under fault conditions). If present, prioritize replacement as a safety item, not a discretionary upgrade
 - Aluminum wiring: Used in homes built roughly 1965-1973 during the copper shortage. Aluminum branch circuit wiring requires CO/ALR rated devices and anti-oxidant compound at connections, or full replacement -- a licensed electrician should evaluate
 
 **1979-1999 homes:**
+
 - Polybutylene plumbing (gray plastic pipe, often with gray or blue fittings): Used from approximately 1978-1995. Known for chlorine degradation leading to brittle cracking and sudden failure. If present, budget for full replumbing ($3,000-8,000 for average home) -- this is not a "monitor it" situation
 - EIFS/synthetic stucco: Popular in the 1990s. Water intrusion behind EIFS is nearly invisible until rot is severe. Annual inspection by probing with a moisture meter at corners, windows, and penetrations is warranted
 - Builder-grade HVAC systems from this era are approaching or past their design life (furnaces: 15-25 years; AC compressors: 12-17 years). Add system-age tracking to the calendar
 
 **2000-2015 homes:**
+
 - Systems generally mid-life. Focus on preventive maintenance to maximize remaining service life
 - Verify any manufacturers' extended warranties are still active and are being maintained (many require documented annual service)
 - Chinese drywall was used in some homes built 2001-2009 in the Southeast (mainly Florida). Indicator: sulfur smell, corroded copper wiring/coils. If suspected, professional testing is required
 
 **2016-present (under 10 years):**
+
 - Builder warranty: Typically 1 year workmanship, 2 years mechanical systems, 10 years structural defects. Flag warranty expiration dates explicitly
 - Register all appliances immediately for manufacturer warranty
 - Reduce roof and foundation inspection frequency -- annual ground-level visual is sufficient for first 5 years
@@ -186,12 +208,14 @@ Layer these additional tasks onto the base calendar based on the home's construc
 Present costs in three tiers:
 
 **Maintenance cost benchmarks:**
+
 - Homes under 10 years old: 0.5-1% of home value per year
 - Homes 10-30 years old: 1-2% of home value per year
 - Homes 30-50 years old: 2-3% of home value per year
 - Homes over 50 years old: 3-4%+ of home value per year, with potential for capital expenditures on aging systems
 
 **Annual recurring baseline costs (typical single-family home):**
+
 - HVAC filters (four 1-inch changes/year): $30-100
 - HVAC professional service (furnace + AC): $160-330
 - Gutter cleaning (twice/year, professional): $150-400
@@ -205,6 +229,7 @@ Present costs in three tiers:
 **Typical annual total (hiring most tasks out): $1,200-2,800**
 
 **Capital expense planning (set aside separately from routine maintenance):**
+
 - HVAC replacement (furnace + AC): $5,000-15,000, expected at 15-25 years
 - Water heater replacement: $800-2,000 installed, expected at 8-15 years
 - Roof replacement (asphalt shingle): $8,000-20,000, expected at 20-30 years
@@ -233,6 +258,7 @@ Tasks that maintain appearance, improve comfort, or extend cosmetic life. Skippi
 ### Step 7: Deliver the Calendar and Systems Summary
 
 Produce the full 12-month table calendar in the format specified below. Then provide:
+
 - A Systems Summary table with service intervals and tracking columns
 - A Priority Tasks list (top 5 "never skip" items with explicit consequences)
 - A Capital Expense Watch List for systems approaching end of service life
@@ -243,6 +269,7 @@ Produce the full 12-month table calendar in the format specified below. Then pro
 ### Step 8: Offer to Customize Further
 
 After delivering the calendar, explicitly offer:
+
 - Printable/export format if the user wants to print or share
 - A reminder system prompt (suggest they set recurring calendar reminders for Critical tasks)
 - Adjustment if they discover additional systems not mentioned in their original profile
@@ -397,6 +424,7 @@ Focus the condo calendar on: HVAC filter and in-unit system maintenance, water h
 When a user does not know when systems were last serviced, the calendar must include a catch-up inspection phase before establishing the recurring schedule.
 
 First month after purchase:
+
 - Hire a licensed home inspector (if not already done at purchase) or use the purchase inspection report as baseline
 - Flush the water heater regardless of when it was last done -- if it has never been flushed and is over 5 years old, sediment is almost certainly present
 - Change all HVAC filters immediately -- do not wait for the calendar interval
@@ -465,71 +493,79 @@ The primary risk in this period is not wear-based failure but warranty managemen
 ---
 
 ### January
-| Task | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency | Priority |
-|------|---------------|------------|------------|------------|-----------|----------|
-| Replace HVAC filter (1-inch, MERV 8-11) | 10 min | $8-25 | N/A | DIY | Every 60-90 days | Critical |
-| Test sump pump: pour 5 gallons into pit, confirm float activation and discharge | 15 min | $0 | N/A | DIY | Quarterly (Jan/Apr/Jul/Oct) | Critical |
-| Check attic for ice dam evidence: frost on sheathing, icicles forming at eave overhang | 30 min | $0 | N/A | DIY | Annual | Important |
-| Inspect basement for new moisture, efflorescence (white mineral deposits), or crack changes | 20 min | $0 | $0 | DIY | Semi-annual | Important |
-| Test all smoke detectors and CO detectors with test button | 10 min | $0 | N/A | DIY | Monthly | Critical |
-| Lubricate door hinges and deadbolt hardware (prevents corrosion and binding) | 15 min | $5-10 | N/A | DIY | Annual | Beneficial |
+
+| Task                                                                                        | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency                   | Priority   |
+| ------------------------------------------------------------------------------------------- | ------------- | ---------- | ---------- | ---------- | --------------------------- | ---------- |
+| Replace HVAC filter (1-inch, MERV 8-11)                                                     | 10 min        | $8-25      | N/A        | DIY        | Every 60-90 days            | Critical   |
+| Test sump pump: pour 5 gallons into pit, confirm float activation and discharge             | 15 min        | $0         | N/A        | DIY        | Quarterly (Jan/Apr/Jul/Oct) | Critical   |
+| Check attic for ice dam evidence: frost on sheathing, icicles forming at eave overhang      | 30 min        | $0         | N/A        | DIY        | Annual                      | Important  |
+| Inspect basement for new moisture, efflorescence (white mineral deposits), or crack changes | 20 min        | $0         | $0         | DIY        | Semi-annual                 | Important  |
+| Test all smoke detectors and CO detectors with test button                                  | 10 min        | $0         | N/A        | DIY        | Monthly                     | Critical   |
+| Lubricate door hinges and deadbolt hardware (prevents corrosion and binding)                | 15 min        | $5-10      | N/A        | DIY        | Annual                      | Beneficial |
 
 ### February
-| Task | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency | Priority |
-|------|---------------|------------|------------|------------|-----------|----------|
-| Test all GFCI outlets: press test button (outlet goes dead), press reset -- replace any that fail | 20 min | $15-25 per outlet if replacing | $75-150/outlet Pro | DIY | Semi-annual (Feb/Aug) | Important |
-| Clean range hood grease filter: soak 15 min in hot water + degreaser, rinse, dry | 20 min | $5-10 | N/A | DIY | Quarterly | Beneficial |
-| Check weatherstripping on all exterior doors: close door on paper strip -- resistance indicates good seal | 20 min | $15-40 if replacing | $80-150 Pro | DIY | Annual | Important |
-| Inspect water heater for corrosion at fittings, discoloration around base, and pressure relief valve condition | 15 min | $0 | $0 | DIY | Annual | Important |
-| Review homeowner's insurance policy: update dwelling coverage to reflect current rebuild costs (not market value) | 30 min | $0 | N/A | DIY | Annual | Important |
+
+| Task                                                                                                              | Time Estimate | Cost (DIY)                     | Cost (Pro)         | DIY or Pro | Frequency             | Priority   |
+| ----------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------ | ------------------ | ---------- | --------------------- | ---------- |
+| Test all GFCI outlets: press test button (outlet goes dead), press reset -- replace any that fail                 | 20 min        | $15-25 per outlet if replacing | $75-150/outlet Pro | DIY        | Semi-annual (Feb/Aug) | Important  |
+| Clean range hood grease filter: soak 15 min in hot water + degreaser, rinse, dry                                  | 20 min        | $5-10                          | N/A                | DIY        | Quarterly             | Beneficial |
+| Check weatherstripping on all exterior doors: close door on paper strip -- resistance indicates good seal         | 20 min        | $15-40 if replacing            | $80-150 Pro        | DIY        | Annual                | Important  |
+| Inspect water heater for corrosion at fittings, discoloration around base, and pressure relief valve condition    | 15 min        | $0                             | $0                 | DIY        | Annual                | Important  |
+| Review homeowner's insurance policy: update dwelling coverage to reflect current rebuild costs (not market value) | 30 min        | $0                             | N/A                | DIY        | Annual                | Important  |
 
 ### March
-| Task | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency | Priority |
-|------|---------------|------------|------------|------------|-----------|----------|
-| Replace HVAC filter | 10 min | $8-25 | N/A | DIY | Every 60-90 days | Critical |
-| Schedule AC professional tune-up (book now -- HVAC firms fill rapidly in April-May) | 5 min | N/A | $100-180 | Professional | Annual | Critical |
-| Inspect exterior grading: soil should drop 6 inches over first 10 feet from foundation perimeter | 30 min | $0 inspection; $200-800 regrading | $500-1,500 Pro | DIY inspect, Pro fix | Annual | Critical |
-| Inspect exterior caulking at all window frames, door frames, and wall penetrations: replace cracked, shrunken, or separated caulk | 45 min | $20-60 | $200-400 Pro | DIY | Annual | Important |
-| Check crawlspace vents (if applicable) or basement window wells: clear debris, confirm no standing water | 20 min | $0 | N/A | DIY | Annual | Important |
-| Operate main water shut-off valve: turn off fully, turn back on -- replace ball valve if it sticks or leaks | 10 min | $0 | $150-300 Pro if valve fails | DIY | Annual | Important |
+
+| Task                                                                                                                              | Time Estimate | Cost (DIY)                        | Cost (Pro)                  | DIY or Pro           | Frequency        | Priority  |
+| --------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------- | --------------------------- | -------------------- | ---------------- | --------- |
+| Replace HVAC filter                                                                                                               | 10 min        | $8-25                             | N/A                         | DIY                  | Every 60-90 days | Critical  |
+| Schedule AC professional tune-up (book now -- HVAC firms fill rapidly in April-May)                                               | 5 min         | N/A                               | $100-180                    | Professional         | Annual           | Critical  |
+| Inspect exterior grading: soil should drop 6 inches over first 10 feet from foundation perimeter                                  | 30 min        | $0 inspection; $200-800 regrading | $500-1,500 Pro              | DIY inspect, Pro fix | Annual           | Critical  |
+| Inspect exterior caulking at all window frames, door frames, and wall penetrations: replace cracked, shrunken, or separated caulk | 45 min        | $20-60                            | $200-400 Pro                | DIY                  | Annual           | Important |
+| Check crawlspace vents (if applicable) or basement window wells: clear debris, confirm no standing water                          | 20 min        | $0                                | N/A                         | DIY                  | Annual           | Important |
+| Operate main water shut-off valve: turn off fully, turn back on -- replace ball valve if it sticks or leaks                       | 10 min        | $0                                | $150-300 Pro if valve fails | DIY                  | Annual           | Important |
 
 ### April
-| Task | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency | Priority |
-|------|---------------|------------|------------|------------|-----------|----------|
-| Clean gutters and downspouts (spring -- post-oak-pollen / bud drop): flush with hose, check slope | 1.5-2 hr | $0 (DIY) | $175-300 | DIY or Pro | Semi-annual + mid-summer check | Critical |
-| Inspect roof from ground with binoculars: missing/curled shingles, granule loss, lifted flashing | 20 min | $0 | $150-350 Pro full inspection | DIY | Semi-annual (Apr/Oct) | Critical |
-| Test smoke and CO detectors, replace all batteries | 20 min | $15-30 | N/A | DIY | Semi-annual (Apr/Oct) | Critical |
-| Test sump pump | 15 min | $0 | N/A | DIY | Quarterly | Critical |
-| Turn on exterior hose bibs: open slowly, check under house for dripping at the pipe connection | 15 min | $0-15 | $75-150 Pro if fitting cracked | DIY | Annual | Important |
-| Inspect deck or porch: probe boards for soft spots (rot), check ledger board flashing, look for popped nails/screws | 30 min | $0 inspection; $50-200 for spot repairs | $400-1,200 Pro repairs | DIY inspect | Annual | Important |
+
+| Task                                                                                                                | Time Estimate | Cost (DIY)                              | Cost (Pro)                     | DIY or Pro  | Frequency                      | Priority  |
+| ------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------------- | ------------------------------ | ----------- | ------------------------------ | --------- |
+| Clean gutters and downspouts (spring -- post-oak-pollen / bud drop): flush with hose, check slope                   | 1.5-2 hr      | $0 (DIY)                                | $175-300                       | DIY or Pro  | Semi-annual + mid-summer check | Critical  |
+| Inspect roof from ground with binoculars: missing/curled shingles, granule loss, lifted flashing                    | 20 min        | $0                                      | $150-350 Pro full inspection   | DIY         | Semi-annual (Apr/Oct)          | Critical  |
+| Test smoke and CO detectors, replace all batteries                                                                  | 20 min        | $15-30                                  | N/A                            | DIY         | Semi-annual (Apr/Oct)          | Critical  |
+| Test sump pump                                                                                                      | 15 min        | $0                                      | N/A                            | DIY         | Quarterly                      | Critical  |
+| Turn on exterior hose bibs: open slowly, check under house for dripping at the pipe connection                      | 15 min        | $0-15                                   | $75-150 Pro if fitting cracked | DIY         | Annual                         | Important |
+| Inspect deck or porch: probe boards for soft spots (rot), check ledger board flashing, look for popped nails/screws | 30 min        | $0 inspection; $50-200 for spot repairs | $400-1,200 Pro repairs         | DIY inspect | Annual                         | Important |
 
 ### May
-| Task | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency | Priority |
-|------|---------------|------------|------------|------------|-----------|----------|
-| Replace HVAC filter (if 60-day interval) | 10 min | $8-25 | N/A | DIY | Every 60-90 days | Critical |
-| Confirm AC professional tune-up is scheduled or completed | 5 min | N/A | $100-180 | Professional | Annual | Critical |
-| Inspect window screens: repair or replace torn/damaged screens before summer | 30 min | $5-20 per screen | $30-60 Pro per screen | DIY | Annual | Beneficial |
-| Power wash siding, deck, and front walkway: remove mold, mildew, and oxidation | 2-3 hr | $50-80 (rental) | $250-500 Pro | DIY or Pro | Annual | Beneficial |
-| Check dryer vent exterior termination cap: confirm flap opens freely, no lint buildup or bird nest | 10 min | $0-15 | N/A | DIY | Semi-annual (May/Nov) | Critical |
-| Trim any oak tree branches within 10 feet of roof or overhanging gutters: reduces debris load and prevents branch-impact damage | 1-3 hr | $0 small branches | $350-1,200 Pro (large branches) | Pro for branches over 4 inches diameter or over 12 ft height | Annual | Critical |
+
+| Task                                                                                                                            | Time Estimate | Cost (DIY)        | Cost (Pro)                      | DIY or Pro                                                   | Frequency             | Priority   |
+| ------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- | ------------------------------- | ------------------------------------------------------------ | --------------------- | ---------- |
+| Replace HVAC filter (if 60-day interval)                                                                                        | 10 min        | $8-25             | N/A                             | DIY                                                          | Every 60-90 days      | Critical   |
+| Confirm AC professional tune-up is scheduled or completed                                                                       | 5 min         | N/A               | $100-180                        | Professional                                                 | Annual                | Critical   |
+| Inspect window screens: repair or replace torn/damaged screens before summer                                                    | 30 min        | $5-20 per screen  | $30-60 Pro per screen           | DIY                                                          | Annual                | Beneficial |
+| Power wash siding, deck, and front walkway: remove mold, mildew, and oxidation                                                  | 2-3 hr        | $50-80 (rental)   | $250-500 Pro                    | DIY or Pro                                                   | Annual                | Beneficial |
+| Check dryer vent exterior termination cap: confirm flap opens freely, no lint buildup or bird nest                              | 10 min        | $0-15             | N/A                             | DIY                                                          | Semi-annual (May/Nov) | Critical   |
+| Trim any oak tree branches within 10 feet of roof or overhanging gutters: reduces debris load and prevents branch-impact damage | 1-3 hr        | $0 small branches | $350-1,200 Pro (large branches) | Pro for branches over 4 inches diameter or over 12 ft height | Annual                | Critical   |
 
 ### June
-| Task | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency | Priority |
-|------|---------------|------------|------------|------------|-----------|----------|
-| Flush water heater: shut off cold supply, attach hose to drain valve, drain 3 gallons until clear | 30 min | $0-10 | $80-150 Pro | DIY | Annual | Critical |
-| Inspect attic: confirm ridge and soffit vents are unobstructed, check for pest activity, check insulation depth (target R-38 for Mid-Atlantic) | 30 min | $0 | N/A | DIY | Annual | Important |
-| Check AC condensate drain line: pour 1/2 cup white vinegar or diluted bleach (1:16 ratio) into primary drain line access port to prevent algae clog | 10 min | $2-5 | N/A | DIY | Semi-annual (Jun/Sep) | Important |
-| Mid-year gutter check (oak trees warrant extra cleaning due to leaf and twig drop) | 30 min | $0 | $100-175 Pro | DIY or Pro | As needed / semi-annual | Important |
-| Inspect exterior paint and siding: look for peeling, bubbling, or dark staining behind siding | 30 min | $0 | $0 | DIY | Annual | Important |
+
+| Task                                                                                                                                                | Time Estimate | Cost (DIY) | Cost (Pro)   | DIY or Pro | Frequency               | Priority  |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---------- | ------------ | ---------- | ----------------------- | --------- |
+| Flush water heater: shut off cold supply, attach hose to drain valve, drain 3 gallons until clear                                                   | 30 min        | $0-10      | $80-150 Pro  | DIY        | Annual                  | Critical  |
+| Inspect attic: confirm ridge and soffit vents are unobstructed, check for pest activity, check insulation depth (target R-38 for Mid-Atlantic)      | 30 min        | $0         | N/A          | DIY        | Annual                  | Important |
+| Check AC condensate drain line: pour 1/2 cup white vinegar or diluted bleach (1:16 ratio) into primary drain line access port to prevent algae clog | 10 min        | $2-5       | N/A          | DIY        | Semi-annual (Jun/Sep)   | Important |
+| Mid-year gutter check (oak trees warrant extra cleaning due to leaf and twig drop)                                                                  | 30 min        | $0         | $100-175 Pro | DIY or Pro | As needed / semi-annual | Important |
+| Inspect exterior paint and siding: look for peeling, bubbling, or dark staining behind siding                                                       | 30 min        | $0         | $0           | DIY        | Annual                  | Important |
 
 ### July
-| Task | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency | Priority |
-|------|---------------|------------|------------|------------|-----------|----------|
-| Replace HVAC filter | 10 min | $8-25 | N/A | DIY | Every 60-90 days | Critical |
-| Test sump pump | 15 min | $0 | N/A | DIY | Quarterly | Critical |
-| Check basement for moisture after heavy rain events: look for seepage at wall-floor joint and window wells | 15 min | $0 | N/A | DIY | As needed / monthly in summer | Important |
-| Inspect deck for sun-induced wood cracking or finish failure: refinish if water no longer beads on surface | 20 min | $0 (inspect); $50-150 (refinish materials) | $400-900 Pro | DIY | Every 2-3 years | Beneficial |
+
+| Task                                                                                                       | Time Estimate | Cost (DIY)                                 | Cost (Pro)   | DIY or Pro | Frequency                     | Priority   |
+| ---------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------ | ------------ | ---------- | ----------------------------- | ---------- |
+| Replace HVAC filter                                                                                        | 10 min        | $8-25                                      | N/A          | DIY        | Every 60-90 days              | Critical   |
+| Test sump pump                                                                                             | 15 min        | $0                                         | N/A          | DIY        | Quarterly                     | Critical   |
+| Check basement for moisture after heavy rain events: look for seepage at wall-floor joint and window wells | 15 min        | $0                                         | N/A          | DIY        | As needed / monthly in summer | Important  |
+| Inspect deck for sun-induced wood cracking or finish failure: refinish if water no longer beads on surface | 20 min        | $0 (inspect); $50-150 (refinish materials) | $400-900 Pro | DIY        | Every 2-3 years               | Beneficial |
 
 ### August
+
 | Task | Time Estimate | Cost (DIY) | Cost (Pro) | DIY or Pro | Frequency | Priority |
-|------|---------------|------------|------------|------------|-----------|----------|
+| ---- | ------------- | ---------- | ---------- | ---------- | --------- | -------- |

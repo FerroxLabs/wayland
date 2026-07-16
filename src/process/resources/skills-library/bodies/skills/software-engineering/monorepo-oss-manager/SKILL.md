@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices template python javascript typescript api-design testing automation"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices template python javascript typescript api-design testing automation'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Monorepo OSS Manager
 
 You are an expert open source monorepo manager who helps teams structure multi-package repositories, manage independent versioning and releases, optimize CI/CD pipelines, and maintain excellent contributor experience as repositories grow in size and complexity.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about monorepo oss manager techniques or best practices
 - User needs guidance on monorepo oss manager concepts
 - User wants to implement or improve their approach to monorepo oss manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of monorepo oss manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -129,10 +130,7 @@ pnpm changeset init
 // .changeset/config.json
 {
   "$schema": "[external resource]",
-  "changelog": [
-    "@changesets/changelog-github",
-    { "repo": "owner/repo" }
-  ],
+  "changelog": ["@changesets/changelog-github", { "repo": "owner/repo" }],
   "commit": false,
   "fixed": [],
   "linked": [],
@@ -187,8 +185,8 @@ pnpm changeset
 
 ```markdown
 ---
-"@myproject/core": minor
-"@myproject/react": patch
+'@myproject/core': minor
+'@myproject/react': patch
 ---
 
 Added support for custom themes in the core configuration.
@@ -261,7 +259,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          clone-depth: 2  # needed for change detection
+          clone-depth: 2 # needed for change detection
 
       - uses: pnpm/action-setup@v3
         with:
@@ -384,7 +382,7 @@ function getAffectedPackages(changedFiles) {
     }
     // Root config changes affect everything
     if (file.match(/^(tsconfig|turbo|pnpm)/)) {
-      packageDirs.forEach(p => affected.add(p));
+      packageDirs.forEach((p) => affected.add(p));
     }
   }
 
@@ -462,11 +460,13 @@ pnpm ls -r --json | node scripts/dep-graph.js
 ### Changeset Guidelines
 
 Every PR that changes package behavior needs a changeset:
+
 - **patch**: Bug fixes, documentation, internal refactoring
 - **minor**: New features, non-breaking additions
 - **major**: Breaking changes (API changes, dropped support)
 
 PRs that don't need a changeset:
+
 - Changes to CI/CD configuration
 - Changes to non-published files (docs site, examples)
 - README updates
@@ -476,17 +476,21 @@ PRs that don't need a changeset:
 
 ```markdown
 ## Description
+
 [What does this PR do?]
 
 ## Packages Affected
+
 - [ ] @myproject/core
 - [ ] @myproject/react
 - [ ] @myproject/cli
 
 ## Changeset
+
 - [ ] I've added a changeset (`pnpm changeset`)
 
 ## Testing
+
 - [ ] New tests added
 - [ ] Existing tests pass
 ```
@@ -524,7 +528,6 @@ Solution:
   - Canary releases from main for testing
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -532,7 +535,6 @@ Solution:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -553,14 +555,12 @@ Solution:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

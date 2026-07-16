@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automotive home-maintenance checklist"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automotive home-maintenance checklist'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Car Mechanic Advisor
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about car mechanic advisor
 - User needs guidance on car mechanic advisor topics
 - User wants a structured approach to car mechanic advisor
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -48,36 +50,37 @@ metadata:
 
 ### Critical Lights (STOP DRIVING)
 
-| Light | Symbol | Meaning | Action |
-|-------|--------|---------|--------|
-| **Oil Pressure** | Oil can dripping | Low oil pressure - engine damage imminent | STOP immediately. Check oil level. Do NOT drive. |
-| **Temperature** | Thermometer in water | Engine overheating | STOP. Turn off AC, turn on heater. Let cool. Check coolant. |
-| **Brake System** | "BRAKE" or ! in circle | Brake failure or very low fluid | Stop safely. Check brake fluid. Do NOT drive if brakes feel soft. |
-| **Battery/Charging** | Battery symbol | Alternator or charging system failure | Drive to nearest safe location. Battery will drain. |
-| **Transmission Temp** | Thermometer in gear | Transmission overheating | Stop, let cool. Check trans fluid. |
+| Light                 | Symbol                 | Meaning                                   | Action                                                            |
+| --------------------- | ---------------------- | ----------------------------------------- | ----------------------------------------------------------------- |
+| **Oil Pressure**      | Oil can dripping       | Low oil pressure - engine damage imminent | STOP immediately. Check oil level. Do NOT drive.                  |
+| **Temperature**       | Thermometer in water   | Engine overheating                        | STOP. Turn off AC, turn on heater. Let cool. Check coolant.       |
+| **Brake System**      | "BRAKE" or ! in circle | Brake failure or very low fluid           | Stop safely. Check brake fluid. Do NOT drive if brakes feel soft. |
+| **Battery/Charging**  | Battery symbol         | Alternator or charging system failure     | Drive to nearest safe location. Battery will drain.               |
+| **Transmission Temp** | Thermometer in gear    | Transmission overheating                  | Stop, let cool. Check trans fluid.                                |
 
 ### Important Lights (Address Soon)
 
-| Light | Symbol | Meaning | Action |
-|-------|--------|---------|--------|
-| **Check Engine** | Engine outline | Engine/emissions issue (many causes) | Get code read (free at auto parts stores). Drive gently. |
-| **Check Engine (Flashing)** | Flashing engine | Misfire - catalytic converter damage risk | Reduce speed, avoid heavy acceleration, get to mechanic soon. |
-| **ABS** | "ABS" text | Anti-lock brake system issue | Normal brakes still work. Get checked within a week. |
-| **Traction Control** | Car with squiggly lines | Traction system active or disabled | If stays on, get checked. If flashing, system is actively working. |
-| **Airbag/SRS** | Person with circle | Airbag system malfunction | Get checked - airbags may not deploy in crash. |
-| **Power Steering** | Steering wheel with ! | Power steering failure | Steering will be heavy. Safe to drive slowly to mechanic. |
+| Light                       | Symbol                  | Meaning                                   | Action                                                             |
+| --------------------------- | ----------------------- | ----------------------------------------- | ------------------------------------------------------------------ |
+| **Check Engine**            | Engine outline          | Engine/emissions issue (many causes)      | Get code read (free at auto parts stores). Drive gently.           |
+| **Check Engine (Flashing)** | Flashing engine         | Misfire - catalytic converter damage risk | Reduce speed, avoid heavy acceleration, get to mechanic soon.      |
+| **ABS**                     | "ABS" text              | Anti-lock brake system issue              | Normal brakes still work. Get checked within a week.               |
+| **Traction Control**        | Car with squiggly lines | Traction system active or disabled        | If stays on, get checked. If flashing, system is actively working. |
+| **Airbag/SRS**              | Person with circle      | Airbag system malfunction                 | Get checked - airbags may not deploy in crash.                     |
+| **Power Steering**          | Steering wheel with !   | Power steering failure                    | Steering will be heavy. Safe to drive slowly to mechanic.          |
 
 ### Advisory Lights (Schedule Service)
 
-| Light | Symbol | Meaning | Action |
-|-------|--------|---------|--------|
-| **Tire Pressure (TPMS)** | ! inside tire cross-section | Low tire pressure | Check and inflate all tires to door sticker spec. |
-| **Maintenance Required** | Wrench or "MAINT" | Scheduled maintenance due | Schedule oil change or service based on mileage. |
-| **Fuel Level** | Gas pump | Low fuel | Refuel soon. ~30-50 miles remaining (varies by vehicle). |
-| **Washer Fluid** | Windshield with spray | Low washer fluid | Refill washer fluid reservoir. |
-| **Door Ajar** | Car with open door | Door, trunk, or hood not closed | Check all doors, trunk, and hood. |
+| Light                    | Symbol                      | Meaning                         | Action                                                   |
+| ------------------------ | --------------------------- | ------------------------------- | -------------------------------------------------------- |
+| **Tire Pressure (TPMS)** | ! inside tire cross-section | Low tire pressure               | Check and inflate all tires to door sticker spec.        |
+| **Maintenance Required** | Wrench or "MAINT"           | Scheduled maintenance due       | Schedule oil change or service based on mileage.         |
+| **Fuel Level**           | Gas pump                    | Low fuel                        | Refuel soon. ~30-50 miles remaining (varies by vehicle). |
+| **Washer Fluid**         | Windshield with spray       | Low washer fluid                | Refill washer fluid reservoir.                           |
+| **Door Ajar**            | Car with open door          | Door, trunk, or hood not closed | Check all doors, trunk, and hood.                        |
 
 ### Check Engine Light Diagnosis
+
 ```
 COMMON CHECK ENGINE LIGHT CAUSES (by frequency):
 
@@ -124,6 +127,7 @@ GET CODE READ:
 ## Common Sounds and What They Mean
 
 ### Sound Diagnostic Guide
+
 ```
 SQUEALING/SCREECHING:
 - When braking: Brake pads worn (replace soon, $150-350 per axle)
@@ -169,6 +173,7 @@ WHINING:
 ## DIY Fixes
 
 ### Jump-Starting a Battery
+
 ```
 EQUIPMENT NEEDED:
 - Jumper cables (12-gauge or thicker)
@@ -209,6 +214,7 @@ SAFETY:
 ```
 
 ### Changing a Flat Tire
+
 ```
 EQUIPMENT NEEDED (should be in your vehicle):
 - Spare tire (check pressure periodically)
@@ -248,6 +254,7 @@ AFTER INSTALLING SPARE:
 ```
 
 ### Checking and Topping Off Fluids
+
 ```
 FLUIDS TO CHECK REGULARLY:
 
@@ -292,6 +299,7 @@ FLUIDS TO CHECK REGULARLY:
 ## Maintenance Schedules
 
 ### Mileage-Based Maintenance
+
 ```
 EVERY 3,000-5,000 MILES (or as specified):
 [ ] Oil and filter change
@@ -330,6 +338,7 @@ EVERY 100,000+ MILES:
 ```
 
 ### Seasonal Maintenance
+
 ```
 SPRING:
 [ ] Check tire condition and pressure
@@ -366,24 +375,25 @@ WINTER:
 
 ### DIY vs Mechanic Decision Guide
 
-| Issue | DIY Possible? | Mechanic Needed? | Urgency |
-|-------|:---:|:---:|---------|
-| Oil change | Yes (easy) | Optional | Routine |
-| Air filter | Yes (easy) | Optional | Routine |
-| Wiper blades | Yes (easy) | Optional | As needed |
-| Battery replacement | Yes (moderate) | Optional | Same day |
-| Tire rotation | Yes (moderate) | Recommended | Routine |
-| Brake pads | Yes (moderate-hard) | Recommended | Soon |
-| Check engine light | Code read (easy) | For repair | Varies |
-| Brake fluid flush | Possible (hard) | Recommended | Routine |
-| Transmission service | No | Yes | Routine |
-| Timing belt | No | Yes | Critical at mileage |
-| Suspension work | No | Yes | Varies |
-| AC repair | No | Yes | Comfort |
-| Electrical diagnosis | No | Yes | Varies |
-| Engine/transmission repair | No | Yes | Critical |
+| Issue                      |    DIY Possible?    | Mechanic Needed? | Urgency             |
+| -------------------------- | :-----------------: | :--------------: | ------------------- |
+| Oil change                 |     Yes (easy)      |     Optional     | Routine             |
+| Air filter                 |     Yes (easy)      |     Optional     | Routine             |
+| Wiper blades               |     Yes (easy)      |     Optional     | As needed           |
+| Battery replacement        |   Yes (moderate)    |     Optional     | Same day            |
+| Tire rotation              |   Yes (moderate)    |   Recommended    | Routine             |
+| Brake pads                 | Yes (moderate-hard) |   Recommended    | Soon                |
+| Check engine light         |  Code read (easy)   |    For repair    | Varies              |
+| Brake fluid flush          |   Possible (hard)   |   Recommended    | Routine             |
+| Transmission service       |         No          |       Yes        | Routine             |
+| Timing belt                |         No          |       Yes        | Critical at mileage |
+| Suspension work            |         No          |       Yes        | Varies              |
+| AC repair                  |         No          |       Yes        | Comfort             |
+| Electrical diagnosis       |         No          |       Yes        | Varies              |
+| Engine/transmission repair |         No          |       Yes        | Critical            |
 
 ### Finding a Good Mechanic
+
 ```
 HOW TO FIND A TRUSTWORTHY MECHANIC:
 
@@ -422,6 +432,7 @@ HOW TO FIND A TRUSTWORTHY MECHANIC:
 ## Repair Cost Estimation
 
 ### Common Repair Costs (Approximate Ranges)
+
 ```
 ENGINE:
 Oil change: $30-75 (conventional) / $60-125 (synthetic)
@@ -483,6 +494,7 @@ Prices vary significantly by region and shop type (dealer vs independent).
 ## Output Format
 
 When diagnosing a vehicle issue, present it as:
+
 ```
 VEHICLE DIAGNOSTIC ASSESSMENT
 Vehicle: [Year Make Model]

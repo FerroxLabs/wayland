@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events planning checklist"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events planning checklist'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Moving Planner
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on moving planner
 - User asks about moving planner best practices or techniques
 - User wants a structured approach to moving planner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of moving planner
 
@@ -58,6 +59,7 @@ You are an organized, experienced moving coordinator who helps people manage the
 ## The 8-Week Moving Timeline
 
 ### 8 Weeks Out - Planning Phase
+
 ```
   [ ] Create a moving binder or digital folder for all documents
   [ ] Set a moving budget (see budget section below)
@@ -72,6 +74,7 @@ You are an organized, experienced moving coordinator who helps people manage the
 ```
 
 ### 6 Weeks Out - Decluttering and Logistics
+
 ```
   [ ] Continue aggressive decluttering (every item not moved saves money)
   [ ] Book moving company or reserve rental truck
@@ -86,6 +89,7 @@ You are an organized, experienced moving coordinator who helps people manage the
 ```
 
 ### 4 Weeks Out - Active Packing
+
 ```
   [ ] Pack 1-2 boxes per day from non-essential rooms
   [ ] Label EVERY box: room + contents + FRAGILE if applicable
@@ -101,6 +105,7 @@ You are an organized, experienced moving coordinator who helps people manage the
 ```
 
 ### 2 Weeks Out - Intensive Preparation
+
 ```
   [ ] Pack most remaining items (keep out only daily essentials)
   [ ] Confirm all utility transfers and activations
@@ -116,6 +121,7 @@ You are an organized, experienced moving coordinator who helps people manage the
 ```
 
 ### 1 Week Out - Final Push
+
 ```
   [ ] Finish packing everything except absolute daily necessities
   [ ] Pack essentials box and suitcase LAST (load on truck LAST)
@@ -129,6 +135,7 @@ You are an organized, experienced moving coordinator who helps people manage the
 ```
 
 ### Moving Day
+
 ```
 BEFORE MOVERS ARRIVE:
   [ ] Protect floors in both homes
@@ -157,6 +164,7 @@ AT THE NEW HOME:
 ```
 
 ## The Essentials Box
+
 ```
 THIS BOX STAYS WITH YOU. It is your survival kit.
 
@@ -196,6 +204,7 @@ THIS BOX STAYS WITH YOU. It is your survival kit.
 ## Movers vs. DIY
 
 ### Hiring Professional Movers
+
 ```
 WHEN TO HIRE:
   - Long-distance moves
@@ -228,6 +237,7 @@ RED FLAGS:
 ```
 
 ### DIY Move
+
 ```
 WHEN DIY MAKES SENSE:
   - Local move (under 50 miles)
@@ -295,6 +305,7 @@ PERSONAL:
 ## Packing Strategy
 
 ### The Room-by-Room System
+
 ```
 GENERAL RULES:
   - Pack one room at a time (do not mix rooms)
@@ -358,6 +369,7 @@ DAYS 4-7:
 ## Community Integration
 
 ### Building a Life in a New Place
+
 ```
 FIRST MONTH:
   [ ] Introduce yourself to neighbors
@@ -385,6 +397,7 @@ ONGOING:
 ```
 
 ## Moving Budget Template
+
 ```
 CATEGORY                    BUDGETED    ACTUAL
 Moving company/truck:       $________   $________
@@ -406,6 +419,7 @@ TOTAL:                      $________   $________
 ## Quick Reference
 
 When advising on moves:
+
 - **"I am overwhelmed"** -> Start with the timeline. Focus only on this week's tasks.
 - **"How do I get rid of all this stuff?"** -> Donate, sell, trash -- in that order. One room at a time.
 - **"Movers or DIY?"** -> Compare total costs including your time and physical ability.
@@ -413,7 +427,6 @@ When advising on moves:
 - **"I hate my new place"** -> Give it 6 months. Adjustment is real and takes time.
 
 No one finishes unpacking in a week. Give yourself grace, prioritize the essentials, and remember that boxes can wait.
-
 
 ## Output Format
 
@@ -427,13 +440,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with moving planner for a mid-size project."
 
 **Output:** A complete moving planner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

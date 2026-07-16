@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml data-science guide"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml data-science guide'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Vector DB Engineer
@@ -24,26 +24,26 @@ Vector databases are purpose-built systems for storing, indexing, and querying h
 
 ## Database Comparison
 
-| Feature | Pinecone | Weaviate | Qdrant | pgvector | Milvus | Chroma |
-|---------|----------|----------|--------|----------|--------|--------|
-| Type | Managed | Both | Both | Extension | Both | OSS |
-| Language | Proprietary | Go | Rust | C (PG) | Go/C++ | Python |
-| Max Vectors | 100B+ | Billions | Billions | ~10M | Billions | Millions |
-| Hybrid Search | Yes | Yes (BM25) | Yes (sparse) | With tsvector | Yes | No |
-| Multi-tenancy | Namespaces | Native | Collections | Schemas/RLS | Partitions | Collections |
-| Quantization | Auto | PQ, BQ | Scalar, PQ | Half-prec | PQ, SQ | No |
-| GPU Accel | Server-side | No | No | No | Yes | No |
+| Feature       | Pinecone    | Weaviate   | Qdrant       | pgvector      | Milvus     | Chroma      |
+| ------------- | ----------- | ---------- | ------------ | ------------- | ---------- | ----------- |
+| Type          | Managed     | Both       | Both         | Extension     | Both       | OSS         |
+| Language      | Proprietary | Go         | Rust         | C (PG)        | Go/C++     | Python      |
+| Max Vectors   | 100B+       | Billions   | Billions     | ~10M          | Billions   | Millions    |
+| Hybrid Search | Yes         | Yes (BM25) | Yes (sparse) | With tsvector | Yes        | No          |
+| Multi-tenancy | Namespaces  | Native     | Collections  | Schemas/RLS   | Partitions | Collections |
+| Quantization  | Auto        | PQ, BQ     | Scalar, PQ   | Half-prec     | PQ, SQ     | No          |
+| GPU Accel     | Server-side | No         | No           | No            | Yes        | No          |
 
 ### Pricing (approximate)
 
-| Database | Free Tier | 10M vectors (1536d) |
-|----------|-----------|---------------------|
-| Pinecone | 100K vectors | ~$70/mo |
-| Weaviate Cloud | 50K vectors | ~$150/mo |
-| Qdrant Cloud | 1M vectors | ~$100/mo |
-| pgvector | Self-hosted | DB hosting cost |
-| Zilliz (Milvus) | 200K vectors | ~$200/mo |
-| Chroma | Unlimited local | Server cost |
+| Database        | Free Tier       | 10M vectors (1536d) |
+| --------------- | --------------- | ------------------- |
+| Pinecone        | 100K vectors    | ~$70/mo             |
+| Weaviate Cloud  | 50K vectors     | ~$150/mo            |
+| Qdrant Cloud    | 1M vectors      | ~$100/mo            |
+| pgvector        | Self-hosted     | DB hosting cost     |
+| Zilliz (Milvus) | 200K vectors    | ~$200/mo            |
+| Chroma          | Unlimited local | Server cost         |
 
 ### Selection Decision Tree
 
@@ -75,13 +75,13 @@ Default -> Pinecone serverless (simplest operations)
 
 ## Indexing Strategies
 
-| Index | Query Speed | Memory | Recall@10 | Best For |
-|-------|-------------|--------|-----------|----------|
-| Flat (Brute Force) | Slow O(n) | Low | 100% | <100K, ground truth |
-| HNSW | Very Fast | High | 95-99% | General purpose, <50M |
-| IVF-Flat | Fast | Medium | 90-98% | Large datasets, GPU |
-| IVF-PQ | Very Fast | Low | 85-95% | Billions of vectors |
-| DiskANN | Fast | Very Low | 95-99% | SSD-based, cost-sensitive |
+| Index              | Query Speed | Memory   | Recall@10 | Best For                  |
+| ------------------ | ----------- | -------- | --------- | ------------------------- |
+| Flat (Brute Force) | Slow O(n)   | Low      | 100%      | <100K, ground truth       |
+| HNSW               | Very Fast   | High     | 95-99%    | General purpose, <50M     |
+| IVF-Flat           | Fast        | Medium   | 90-98%    | Large datasets, GPU       |
+| IVF-PQ             | Very Fast   | Low      | 85-95%    | Billions of vectors       |
+| DiskANN            | Fast        | Very Low | 95-99%    | SSD-based, cost-sensitive |
 
 ### HNSW Tuning
 
@@ -245,12 +245,12 @@ In between -> Pre-filter with over-get (search top_k*3, then filter)
 
 ## Multi-Tenancy
 
-| Pattern | Isolation | Cost | Best For |
-|---------|-----------|------|----------|
-| Metadata filtering | None | Lowest | Many small tenants |
-| Namespace per tenant | Logical | Low | Small-medium tenants |
-| Collection per tenant | Strong | High | Strict isolation |
-| Cluster per tenant | Physical | Highest | Enterprise compliance |
+| Pattern               | Isolation | Cost    | Best For              |
+| --------------------- | --------- | ------- | --------------------- |
+| Metadata filtering    | None      | Lowest  | Many small tenants    |
+| Namespace per tenant  | Logical   | Low     | Small-medium tenants  |
+| Collection per tenant | Strong    | High    | Strict isolation      |
+| Cluster per tenant    | Physical  | Highest | Enterprise compliance |
 
 ```python
 class MultiTenantVectorStore:
@@ -274,12 +274,12 @@ class MultiTenantVectorStore:
 
 ### Monitoring
 
-| Metric | Warning | Critical | Action |
-|--------|---------|----------|--------|
-| Query latency p99 | >200ms | >500ms | Scale up, tune ef_search |
-| Memory usage | >80% | >90% | Scale or enable disk index |
-| Recall@10 | <95% | <90% | Increase M or ef_search |
-| Error rate | >0.1% | >1% | Check connectivity |
+| Metric            | Warning | Critical | Action                     |
+| ----------------- | ------- | -------- | -------------------------- |
+| Query latency p99 | >200ms  | >500ms   | Scale up, tune ef_search   |
+| Memory usage      | >80%    | >90%     | Scale or enable disk index |
+| Recall@10         | <95%    | <90%     | Increase M or ef_search    |
+| Error rate        | >0.1%   | >1%      | Check connectivity         |
 
 ### Performance Tuning Workflow
 
@@ -327,6 +327,7 @@ Tiered Storage:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing vector db engineer solutions
 - Reviewing or improving existing vector db engineer approaches
 - Making architectural or implementation decisions about vector db engineer
@@ -334,6 +335,7 @@ Tiered Storage:
 - Troubleshooting vector db engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -344,21 +346,26 @@ Tiered Storage:
 # Vector Db Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

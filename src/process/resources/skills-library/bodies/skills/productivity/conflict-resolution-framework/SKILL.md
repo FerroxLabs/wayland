@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks template research safety emergency-preparedness"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks template research safety emergency-preparedness'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Conflict Resolution Framework Builder
 
 You are an expert in conflict resolution who helps users navigate interpersonal disagreements constructively. You understand that conflict is not inherently negative - it is a signal that something needs attention. Handled well, conflict strengthens relationships and leads to better outcomes. Handled poorly, it destroys trust and creates lasting damage. You help users move from avoidance or aggression to skilled resolution.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about conflict resolution framework techniques or best practices
 - User needs guidance on conflict resolution framework concepts
 - User wants to implement or improve their approach to conflict resolution framework
 
 **Do NOT use when:**
+
 - The request falls outside the scope of conflict resolution framework
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -61,12 +62,12 @@ STAGE 4: RESOLVE   - Reach agreement, set boundaries, or accept and adapt
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Thomas-Kilmann (TKI) | Self-awareness; choosing conflict strategy | There are five valid conflict modes; the right choice depends on the situation | Descriptive framework; does not teach communication skills |
-| Nonviolent Communication (Rosenberg) | Emotionally charged conflicts; relationships | Separate observations from judgments; express feelings and needs without blame | Can feel formulaic; difficult to use in heated moments without practice |
-| Crucial Conversations (Patterson et al.) | High-stakes workplace and relationship conversations | When stakes are high, opinions vary, and emotions run strong, skills matter most | Business-oriented; concepts require significant practice to internalize |
-| Mediation Principles (Fisher/various) | Multi-party conflicts; entrenched disagreements | A structured process with neutral facilitation can resolve what direct conversation cannot | Requires a neutral third party; formal process may feel heavy for small conflicts |
+| Approach                                 | Best For                                             | Key Insight                                                                                | Limitation                                                                        |
+| ---------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Thomas-Kilmann (TKI)                     | Self-awareness; choosing conflict strategy           | There are five valid conflict modes; the right choice depends on the situation             | Descriptive framework; does not teach communication skills                        |
+| Nonviolent Communication (Rosenberg)     | Emotionally charged conflicts; relationships         | Separate observations from judgments; express feelings and needs without blame             | Can feel formulaic; difficult to use in heated moments without practice           |
+| Crucial Conversations (Patterson et al.) | High-stakes workplace and relationship conversations | When stakes are high, opinions vary, and emotions run strong, skills matter most           | Business-oriented; concepts require significant practice to internalize           |
+| Mediation Principles (Fisher/various)    | Multi-party conflicts; entrenched disagreements      | A structured process with neutral facilitation can resolve what direct conversation cannot | Requires a neutral third party; formal process may feel heavy for small conflicts |
 
 ## Stage 1: Regulate
 
@@ -144,13 +145,13 @@ Every person has default conflict modes. Understanding yours and theirs helps yo
 
 ### When Each Mode Is Appropriate
 
-| Mode | Use When | Danger of Overuse |
-|------|----------|-------------------|
-| COMPETING | Emergency; protecting safety; you know you are right and stakes are high | Damages relationships; creates resentment; shuts down dialogue |
-| COLLABORATING | Both parties' concerns are too important to compromise; time exists for dialogue | Time-intensive; not every conflict warrants full collaboration |
-| COMPROMISING | Issues are moderately important; time is limited; equal power balance | Nobody gets what they really need; can become default when collaboration is possible |
-| AVOIDING | Issue is trivial; emotions are too high for productive conversation; you need more information | Problems fester; builds resentment; signals you do not value the relationship enough to address issues |
-| ACCOMMODATING | You realize you are wrong; the relationship matters more than the issue; building goodwill | Others may take advantage; your needs go unmet; can build hidden resentment |
+| Mode          | Use When                                                                                       | Danger of Overuse                                                                                      |
+| ------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| COMPETING     | Emergency; protecting safety; you know you are right and stakes are high                       | Damages relationships; creates resentment; shuts down dialogue                                         |
+| COLLABORATING | Both parties' concerns are too important to compromise; time exists for dialogue               | Time-intensive; not every conflict warrants full collaboration                                         |
+| COMPROMISING  | Issues are moderately important; time is limited; equal power balance                          | Nobody gets what they really need; can become default when collaboration is possible                   |
+| AVOIDING      | Issue is trivial; emotions are too high for productive conversation; you need more information | Problems fester; builds resentment; signals you do not value the relationship enough to address issues |
+| ACCOMMODATING | You realize you are wrong; the relationship matters more than the issue; building goodwill     | Others may take advantage; your needs go unmet; can build hidden resentment                            |
 
 ### The Conflict Type Assessment
 
@@ -333,15 +334,15 @@ When I notice my signs, I will: _______________
 
 ### Common Conflict Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Avoiding until it explodes | Discomfort with conflict; hoping it resolves | Address issues when they are small; use NVC template for low-risk practice |
-| Attacking the person, not the issue | Emotional flooding; built-up resentment | Regulate first; use observations not judgments; focus on behavior not character |
-| "Kitchen-sinking" (bringing up everything at once) | Years of unaddressed grievances | One issue per conversation; stay focused on the present concern |
-| Needing to be right | Ego; identity threat; insecurity | Ask "Would I rather be right or would I rather resolve this?" |
-| Not listening (preparing rebuttal) | Defense mode activated | Practice reflecting: "What I hear you saying is..." before responding |
-| Triangulating (complaining to a third party) | Easier than direct conversation; seeking validation | Talk TO the person, not ABOUT them; if you need support, be explicit that it is for coaching |
-| Accepting a false resolution | Wanting the discomfort to end | Check: "Are we both genuinely satisfied, or just relieved it is over?" |
+| Mistake                                            | Why It Happens                                      | Fix                                                                                          |
+| -------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Avoiding until it explodes                         | Discomfort with conflict; hoping it resolves        | Address issues when they are small; use NVC template for low-risk practice                   |
+| Attacking the person, not the issue                | Emotional flooding; built-up resentment             | Regulate first; use observations not judgments; focus on behavior not character              |
+| "Kitchen-sinking" (bringing up everything at once) | Years of unaddressed grievances                     | One issue per conversation; stay focused on the present concern                              |
+| Needing to be right                                | Ego; identity threat; insecurity                    | Ask "Would I rather be right or would I rather resolve this?"                                |
+| Not listening (preparing rebuttal)                 | Defense mode activated                              | Practice reflecting: "What I hear you saying is..." before responding                        |
+| Triangulating (complaining to a third party)       | Easier than direct conversation; seeking validation | Talk TO the person, not ABOUT them; if you need support, be explicit that it is for coaching |
+| Accepting a false resolution                       | Wanting the discomfort to end                       | Check: "Are we both genuinely satisfied, or just relieved it is over?"                       |
 
 ### When to Seek Professional Help
 
@@ -369,7 +370,6 @@ For deeper exploration of the source methodologies:
 
 The Resolution Protocol gives you a structured approach to conflict that honors both your needs and the other person's, turning potentially destructive situations into opportunities for deeper understanding.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -377,7 +377,6 @@ The Resolution Protocol gives you a structured approach to conflict that honors 
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -398,14 +397,12 @@ The Resolution Protocol gives you a structured approach to conflict that honors 
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

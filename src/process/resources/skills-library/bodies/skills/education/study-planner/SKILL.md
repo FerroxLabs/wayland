@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills planning guide"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills planning guide'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Study Planner
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User needs a structured study plan for an exam, course, or certification
 - User wants to organize study time across multiple subjects
 - User needs help with time management for academic work
 - User wants a revision schedule using spaced repetition or active recall
 
 **Do NOT use this skill when:**
+
 - User wants flashcards created -- use flashcard-creator
 - User needs tutoring on specific concepts -- use personal-tutor
 - User wants a full course curriculum designed -- use curriculum-design skills
@@ -93,6 +95,7 @@ _______________________  | _________ | ______ | ______ | ______ | ______ | _____
 ```
 
 ### Digital Tools for Spaced Repetition
+
 - **Anki:** Gold standard for flashcard-based spaced repetition (free on desktop, $25 on iOS)
 - **RemNote:** Combines note-taking with spaced repetition
 - **Quizlet:** Simpler flashcards with some spacing features
@@ -104,7 +107,7 @@ _______________________  | _________ | ______ | ______ | ______ | ______ | _____
 
 ### How It Works
 
-The timed focus session technique -- widely known as the Pomodoro Technique(R), developed by Francesco Cirillo -- uses a simple timer-based approach to maintain focus and prevent burnout. For the complete official method, see Francesco Cirillo's book *The Pomodoro Technique* and cirilloco.com.
+The timed focus session technique -- widely known as the Pomodoro Technique(R), developed by Francesco Cirillo -- uses a simple timer-based approach to maintain focus and prevent burnout. For the complete official method, see Francesco Cirillo's book _The Pomodoro Technique_ and cirilloco.com.
 
 ```
 TIMED FOCUS SESSION WORKFLOW
@@ -124,12 +127,12 @@ TIMED FOCUS SESSION WORKFLOW
 
 ### Session Length Variations
 
-| Variation | Work | Break | Best For |
-|-----------|------|-------|----------|
-| Standard | 25 min | 5 min | Most people, most tasks |
-| Extended | 50 min | 10 min | Deep reading, writing, coding |
-| Short | 15 min | 3 min | High-anxiety tasks, getting started |
-| Flexible | 25-50 min | 5-15 min | Variable focus capacity |
+| Variation | Work      | Break    | Best For                            |
+| --------- | --------- | -------- | ----------------------------------- |
+| Standard  | 25 min    | 5 min    | Most people, most tasks             |
+| Extended  | 50 min    | 10 min   | Deep reading, writing, coding       |
+| Short     | 15 min    | 3 min    | High-anxiety tasks, getting started |
+| Flexible  | 25-50 min | 5-15 min | Variable focus capacity             |
 
 ---
 
@@ -342,13 +345,13 @@ CONTEXT:
 
 ### Music and Study
 
-| Music Type | Effect | When to Use |
-|-----------|--------|-------------|
-| Silence | Best for complex problem-solving | Math, writing, coding |
-| Classical / Lo-fi | Moderate focus enhancement | Reading, reviewing notes |
-| White/brown noise | Masks distracting sounds | Noisy environments |
-| Lyrics / Pop music | Distracting for most tasks | Avoid during study |
-| Nature sounds | Calming, moderate focus | Anxiety-prone study sessions |
+| Music Type         | Effect                           | When to Use                  |
+| ------------------ | -------------------------------- | ---------------------------- |
+| Silence            | Best for complex problem-solving | Math, writing, coding        |
+| Classical / Lo-fi  | Moderate focus enhancement       | Reading, reviewing notes     |
+| White/brown noise  | Masks distracting sounds         | Noisy environments           |
+| Lyrics / Pop music | Distracting for most tasks       | Avoid during study           |
+| Nature sounds      | Calming, moderate focus          | Anxiety-prone study sessions |
 
 ---
 
@@ -514,27 +517,30 @@ When creating a study plan, provide:
 **Exam weight distribution:** Stoichiometry (20%), Thermodynamics (15%), Equilibrium (15%), Kinetics (10%), Other (40%)
 
 ### Time Allocation
-| Topic | Strength | Hours | Strategy |
-|-------|----------|-------|----------|
-| Thermodynamics | Weak | 20 hrs | Deep study + practice problems |
-| Equilibrium | Weak | 18 hrs | Concept review + Le Chatelier drills |
-| Kinetics | Medium | 10 hrs | Formula practice + rate law problems |
-| Stoichiometry | Strong | 6 hrs | Maintenance review only |
-| Other topics | Mixed | 18 hrs | Targeted review |
-| Full practice exams | -- | 12 hrs | 4 full exams (weeks 3, 4, 5, 6) |
+
+| Topic               | Strength | Hours  | Strategy                             |
+| ------------------- | -------- | ------ | ------------------------------------ |
+| Thermodynamics      | Weak     | 20 hrs | Deep study + practice problems       |
+| Equilibrium         | Weak     | 18 hrs | Concept review + Le Chatelier drills |
+| Kinetics            | Medium   | 10 hrs | Formula practice + rate law problems |
+| Stoichiometry       | Strong   | 6 hrs  | Maintenance review only              |
+| Other topics        | Mixed    | 18 hrs | Targeted review                      |
+| Full practice exams | --       | 12 hrs | 4 full exams (weeks 3, 4, 5, 6)      |
 
 ### Weekly Schedule (Sample - Week 1)
-| Day | Session 1 (1 hr) | Session 2 (1 hr) |
-|-----|-----------------|-----------------|
-| Mon | Thermodynamics: enthalpy concepts | Practice: enthalpy calculations |
-| Tue | Thermodynamics: entropy and Gibbs | Practice: spontaneity predictions |
-| Wed | Equilibrium: Keq expressions | Practice: ICE table problems |
-| Thu | Equilibrium: Le Chatelier principle | Practice: equilibrium shifts |
-| Fri | Kinetics: rate laws | Practice: integrated rate problems |
-| Sat | Stoichiometry review (maintenance) | Weak topic catch-up |
-| Sun | Full topic review quiz | Adjust next week's plan |
+
+| Day | Session 1 (1 hr)                    | Session 2 (1 hr)                   |
+| --- | ----------------------------------- | ---------------------------------- |
+| Mon | Thermodynamics: enthalpy concepts   | Practice: enthalpy calculations    |
+| Tue | Thermodynamics: entropy and Gibbs   | Practice: spontaneity predictions  |
+| Wed | Equilibrium: Keq expressions        | Practice: ICE table problems       |
+| Thu | Equilibrium: Le Chatelier principle | Practice: equilibrium shifts       |
+| Fri | Kinetics: rate laws                 | Practice: integrated rate problems |
+| Sat | Stoichiometry review (maintenance)  | Weak topic catch-up                |
+| Sun | Full topic review quiz              | Adjust next week's plan            |
 
 ### Checkpoints
+
 - Week 3: Practice exam 1 (diagnostic, identify remaining gaps)
 - Week 5: Practice exam 3 (target 4+ on AP scale)
 - Day before: Light review only, no new material

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Roguelike Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user is designing a roguelike or roguelite and needs help with permadeath philosophy, meta-progression, or run structure
 - The user wants guidance on procedural generation algorithms, room templates, or map building strategies
 - The user needs help balancing item synergies, loot tables, or difficulty scaling across runs
@@ -26,6 +27,7 @@ metadata:
 - The user is deciding where their game falls on the roguelike-roguelite spectrum
 
 **Do NOT use this skill when:**
+
 - The user is designing a non-roguelike game with procedural elements (use video-game-designer instead)
 - The user needs virtual economy or monetization design for a live-service roguelite (use game-economy-designer instead)
 - The user wants general level design principles rather than procedural generation (use level-design-master instead)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on roguelike designer
 - User asks about roguelike designer best practices or techniques
 - User wants a structured approach to roguelike designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of roguelike designer
 
@@ -307,7 +311,6 @@ ALWAYS log generation seeds. When players report bugs,
 seeds let you reproduce exactly.
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -320,13 +323,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with roguelike designer for a mid-size project."
 
 **Output:** A complete roguelike designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -10,13 +10,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  Client,
-  GatewayIntentBits,
-  Partials,
-  type Message as DiscordMessage,
-  type TextBasedChannel,
-} from 'discord.js';
+import { Client, GatewayIntentBits, Partials, type Message as DiscordMessage, type TextBasedChannel } from 'discord.js';
 
 import type {
   BotInfo,
@@ -26,12 +20,7 @@ import type {
   PluginType,
 } from '../../../types';
 import { BasePlugin } from '../../BasePlugin';
-import {
-  DISCORD_MESSAGE_LIMIT,
-  splitMessage,
-  toDiscordSendParams,
-  toUnifiedIncomingMessage,
-} from './DiscordAdapter';
+import { DISCORD_MESSAGE_LIMIT, splitMessage, toDiscordSendParams, toUnifiedIncomingMessage } from './DiscordAdapter';
 import { sendTyping } from './DiscordActions';
 
 /**
@@ -184,9 +173,13 @@ export class DiscordPlugin extends BasePlugin {
     // (previous behaviour) orphaned every earlier chunk on subsequent edits.
     // F-9: reply pointer + mention allowlist apply only to the first chunk;
     // follow-ups are plain content so they don't re-quote the parent.
-    const send = (channel as TextBasedChannel & {
-      send: (payload: string | { content: string; messageReference?: { messageId: string }; allowedMentions?: unknown }) => Promise<DiscordMessage>;
-    }).send.bind(channel);
+    const send = (
+      channel as TextBasedChannel & {
+        send: (
+          payload: string | { content: string; messageReference?: { messageId: string }; allowedMentions?: unknown }
+        ) => Promise<DiscordMessage>;
+      }
+    ).send.bind(channel);
 
     let firstId = '';
     let isFirst = true;
@@ -244,7 +237,7 @@ export class DiscordPlugin extends BasePlugin {
       await send(chunk);
     }
     console.warn(
-      `[DiscordPlugin] editMessage overflowed ${DISCORD_MESSAGE_LIMIT} chars (${content.length}); split into ${chunks.length} chunks (1 edit + ${chunks.length - 1} follow-up).`,
+      `[DiscordPlugin] editMessage overflowed ${DISCORD_MESSAGE_LIMIT} chars (${content.length}); split into ${chunks.length} chunks (1 edit + ${chunks.length - 1} follow-up).`
     );
   }
 
@@ -304,7 +297,7 @@ export class DiscordPlugin extends BasePlugin {
       // Fire-and-forget - discord.js handlers are sync; awaiting would block
       // subsequent event delivery from the Gateway shard.
       void this.emitMessage(unified).catch((err) =>
-        console.error('[DiscordPlugin] messageCreate handler failed:', err),
+        console.error('[DiscordPlugin] messageCreate handler failed:', err)
       );
     });
 
@@ -334,7 +327,7 @@ export class DiscordPlugin extends BasePlugin {
     this.client.on('shardReconnecting', (shardId) => {
       this.reconnectAttempts += 1;
       console.log(
-        `[DiscordPlugin] Shard ${shardId} reconnecting (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
+        `[DiscordPlugin] Shard ${shardId} reconnecting (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`
       );
       // F-14: previously the counter was decorative - discord.js retries
       // forever and once attempts >10 the log read `(11/10)` with no
@@ -343,10 +336,10 @@ export class DiscordPlugin extends BasePlugin {
       // retry loop.
       if (this.reconnectAttempts > this.maxReconnectAttempts) {
         console.error(
-          `[DiscordPlugin] Shard ${shardId} exceeded max reconnect attempts (${this.maxReconnectAttempts}); destroying client.`,
+          `[DiscordPlugin] Shard ${shardId} exceeded max reconnect attempts (${this.maxReconnectAttempts}); destroying client.`
         );
         this.setError(
-          `Discord Gateway failed to reconnect after ${this.maxReconnectAttempts} attempts. Check network connectivity and Discord status, then restart the plugin.`,
+          `Discord Gateway failed to reconnect after ${this.maxReconnectAttempts} attempts. Check network connectivity and Discord status, then restart the plugin.`
         );
         void this.client?.destroy().catch((): void => undefined);
         this.client = null;
@@ -356,9 +349,7 @@ export class DiscordPlugin extends BasePlugin {
     this.client.on('shardResume', (shardId, replayedEvents) => {
       // F-15: shardResume = session intact; `replayedEvents` is the count
       // Discord buffered for us. No data loss; clear degraded.
-      console.log(
-        `[DiscordPlugin] Shard ${shardId} resumed (replayed ${replayedEvents ?? 0} events)`,
-      );
+      console.log(`[DiscordPlugin] Shard ${shardId} resumed (replayed ${replayedEvents ?? 0} events)`);
       this.reconnectAttempts = 0;
       this.gatewayDegraded = false;
     });
@@ -371,7 +362,7 @@ export class DiscordPlugin extends BasePlugin {
       // session-loss reconnect.
       if (this.gatewayDegraded) {
         console.warn(
-          `[DiscordPlugin] Shard ${shardId} reconnected with a NEW session - events during the disconnect window were lost.`,
+          `[DiscordPlugin] Shard ${shardId} reconnected with a NEW session - events during the disconnect window were lost.`
         );
         this.gatewayDegraded = false;
       }
@@ -392,7 +383,7 @@ export class DiscordPlugin extends BasePlugin {
       // message and the plugin appears live.
       this.setStatus(
         'error',
-        'Discord session invalidated - the bot token was reset or revoked. Stop the plugin, paste the new token from the Developer Portal, and start again.',
+        'Discord session invalidated - the bot token was reset or revoked. Stop the plugin, paste the new token from the Developer Portal, and start again.'
       );
       // Best-effort cleanup; discord.js has already closed the WS.
       void this.client?.destroy().catch((): void => undefined);
@@ -403,25 +394,29 @@ export class DiscordPlugin extends BasePlugin {
     // the REST manager whenever a route hits its bucket; logging it gives
     // the operator a visible signal before the queue depth turns into
     // user-perceived hang.
-    const rest = (this.client as Client & {
-      rest?: { on?: (event: string, handler: (info: unknown) => void) => void };
-    }).rest;
+    const rest = (
+      this.client as Client & {
+        rest?: { on?: (event: string, handler: (info: unknown) => void) => void };
+      }
+    ).rest;
     if (rest && typeof rest.on === 'function') {
       rest.on('rateLimited', (info) => {
         this.rateLimitEvents += 1;
         this.lastRateLimitAt = Date.now();
-        const detail = info as {
-          route?: string;
-          method?: string;
-          timeToReset?: number;
-          global?: boolean;
-        } | undefined;
+        const detail = info as
+          | {
+              route?: string;
+              method?: string;
+              timeToReset?: number;
+              global?: boolean;
+            }
+          | undefined;
         const route = detail?.route ?? 'unknown';
         const method = detail?.method ?? 'unknown';
         const wait = detail?.timeToReset ?? 0;
         const scope = detail?.global ? 'GLOBAL' : 'route';
         console.warn(
-          `[DiscordPlugin] Rate-limited (${scope}) ${method} ${route} - waiting ${wait}ms (event #${this.rateLimitEvents})`,
+          `[DiscordPlugin] Rate-limited (${scope}) ${method} ${route} - waiting ${wait}ms (event #${this.rateLimitEvents})`
         );
       });
     }
@@ -447,9 +442,7 @@ export class DiscordPlugin extends BasePlugin {
    * Portal. Aligning the intent set turns "Test & Enable" into a truthful
    * gate.
    */
-  static async testConnection(
-    token: string,
-  ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
+  static async testConnection(token: string): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let probe: Client | null = null;
     try {
       probe = new Client({

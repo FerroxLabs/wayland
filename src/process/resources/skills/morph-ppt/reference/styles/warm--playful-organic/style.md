@@ -21,11 +21,11 @@ Warm and friendly design with organic blob shapes and playful multi-color dot ac
 
 ## Typography
 
-| Element    | Font                       |
-| ---------- | -------------------------- |
-| Title (EN) | Montserrat                 |
-| Title (CN) | Source Han Sans                    |
-| Body       | Source Han Sans            |
+| Element    | Font            |
+| ---------- | --------------- |
+| Title (EN) | Montserrat      |
+| Title (CN) | Source Han Sans |
+| Body       | Source Han Sans |
 
 ## Design Techniques
 

@@ -79,9 +79,7 @@ export function parseSynologyChatBody(rawBody: string): SynologyChatInboundPaylo
  * Convert a parsed Synology Chat inbound payload into a unified incoming
  * message. Returns null when required fields (user_id or text) are absent.
  */
-export function toUnifiedIncomingFromSynologyChat(
-  payload: SynologyChatInboundPayload,
-): IUnifiedIncomingMessage | null {
+export function toUnifiedIncomingFromSynologyChat(payload: SynologyChatInboundPayload): IUnifiedIncomingMessage | null {
   const userId = String(payload.user_id ?? '').trim();
   let text = (payload.text ?? '').trim();
 
@@ -95,8 +93,7 @@ export function toUnifiedIncomingFromSynologyChat(
   if (!userId || !text) return null;
 
   const username = (payload.username ?? userId).trim();
-  const channelId =
-    payload.channel_id !== undefined ? String(payload.channel_id) : userId;
+  const channelId = payload.channel_id !== undefined ? String(payload.channel_id) : userId;
 
   const timestamp = normalizeTimestamp(payload.timestamp);
 
@@ -123,10 +120,7 @@ export function toUnifiedIncomingFromSynologyChat(
  * incoming webhook URL. The payload is JSON-encoded inside the `payload`
  * URL parameter. Optionally includes `user_ids` to target a specific user.
  */
-export function toSynologyChatSendBody(
-  message: IUnifiedOutgoingMessage,
-  chatUserId?: string | number,
-): string {
+export function toSynologyChatSendBody(message: IUnifiedOutgoingMessage, chatUserId?: string | number): string {
   const text = (message.text ?? '').trim();
   const fileUrl = message.fileUrl;
 

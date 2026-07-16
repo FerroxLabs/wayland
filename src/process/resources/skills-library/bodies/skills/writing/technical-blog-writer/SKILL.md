@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation blog-post"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'technical-writing documentation blog-post'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Technical Blog Writer
@@ -84,6 +84,7 @@ Paragraph 4 (optional): Scope. What this post covers and doesn't cover.
 
 Describe the problem in enough detail that the reader understands
 the constraints. Include:
+
 - What the system looked like before
 - What wasn't working (performance? reliability? developer velocity?)
 - What you tried that didn't work (optional but engaging)
@@ -91,6 +92,7 @@ the constraints. Include:
 ## The Approach / Solution
 
 The technical meat. Organize by:
+
 - Chronological steps (for how-we-built-it)
 - Conceptual layers (for deep dives)
 - Criteria (for comparisons)
@@ -100,6 +102,7 @@ Include code examples, architecture diagrams, and data.
 ### Subheading for Each Major Section
 
 Each section should:
+
 1. Explain what and why (not just how)
 2. Include a code example or diagram
 3. Call out gotchas or non-obvious decisions
@@ -108,6 +111,7 @@ Each section should:
 ## Results
 
 Show the impact with data:
+
 - Before/after metrics
 - Performance benchmarks
 - Graphs or tables
@@ -123,7 +127,8 @@ same project today?
 discussion or point to related work.
 
 ---
-*Author bio. Links to Twitter/GitHub. "We're hiring" if applicable.*
+
+_Author bio. Links to Twitter/GitHub. "We're hiring" if applicable._
 ```
 
 ## Writing Clear Technical Explanations
@@ -407,27 +412,27 @@ Developer experience:
 ```yaml
 metrics:
   reach:
-    - page_views: "Total and unique"
-    - referral_sources: "Where readers come from"
-    - social_shares: "Twitter, LinkedIn, HN, Reddit"
-    - backlinks: "Other sites linking to this post"
+    - page_views: 'Total and unique'
+    - referral_sources: 'Where readers come from'
+    - social_shares: 'Twitter, LinkedIn, HN, Reddit'
+    - backlinks: 'Other sites linking to this post'
 
   engagement:
-    - average_time_on_page: "Target: > 4 minutes"
-    - scroll_depth: "% reaching end of article"
-    - bounce_rate: "Target: < 60%"
-    - comments: "Quality and quantity"
+    - average_time_on_page: 'Target: > 4 minutes'
+    - scroll_depth: '% reaching end of article'
+    - bounce_rate: 'Target: < 60%'
+    - comments: 'Quality and quantity'
 
   business_impact:
-    - developer_signups: "API key registrations from blog"
-    - documentation_visits: "Blog -> docs conversion"
-    - job_applications: "Mentions blog in application"
-    - brand_mentions: "Social mentions citing the post"
+    - developer_signups: 'API key registrations from blog'
+    - documentation_visits: 'Blog -> docs conversion'
+    - job_applications: 'Mentions blog in application'
+    - brand_mentions: 'Social mentions citing the post'
 
   content_health:
-    - evergreen_traffic: "Still getting views after 6 months?"
-    - search_rankings: "Position for target keywords"
-    - update_needed: "Are code examples still current?"
+    - evergreen_traffic: 'Still getting views after 6 months?'
+    - search_rankings: 'Position for target keywords'
+    - update_needed: 'Are code examples still current?'
 ```
 
 ## Writing Checklist
@@ -461,6 +466,7 @@ Before Publishing:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing technical blog writer solutions
 - Reviewing or improving existing technical blog writer approaches
 - Making architectural or implementation decisions about technical blog writer
@@ -468,6 +474,7 @@ Before Publishing:
 - Troubleshooting technical blog writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -478,21 +485,26 @@ Before Publishing:
 # Technical Blog Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

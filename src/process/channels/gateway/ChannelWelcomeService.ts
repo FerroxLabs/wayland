@@ -7,8 +7,7 @@
 import { getDatabase } from '@process/services/database';
 import type { IUnifiedOutgoingMessage } from '../types';
 
-const DEFAULT_WELCOME =
-  "Hey, it's Wayland. I'm connected. Reply to this message any time and I'll help you out.";
+const DEFAULT_WELCOME = "Hey, it's Wayland. I'm connected. Reply to this message any time and I'll help you out.";
 
 /**
  * Function a caller supplies to actually deliver the welcome to a target.
@@ -85,12 +84,7 @@ export class ChannelWelcomeService {
    *
    * @returns true if a welcome was sent, false if skipped (already welcomed).
    */
-  async welcomeOnConnect(
-    platform: string,
-    accountId: string,
-    target: string,
-    send: WelcomeSendFn,
-  ): Promise<boolean> {
+  async welcomeOnConnect(platform: string, accountId: string, target: string, send: WelcomeSendFn): Promise<boolean> {
     if (!accountId || !target) return false;
     if (await this.hasWelcomed(platform, accountId)) return false;
     return this.deliver(platform, accountId, target, send);
@@ -108,7 +102,7 @@ export class ChannelWelcomeService {
     platform: string,
     accountId: string,
     target: string,
-    send: WelcomeSendFn,
+    send: WelcomeSendFn
   ): Promise<boolean> {
     if (!accountId || !target) return false;
     if (await this.hasWelcomed(platform, accountId)) return false;
@@ -119,12 +113,7 @@ export class ChannelWelcomeService {
    * Shared delivery: send then mark. Marking only after a successful send keeps
    * the once-per-account guard honest under transient send failures.
    */
-  private async deliver(
-    platform: string,
-    accountId: string,
-    target: string,
-    send: WelcomeSendFn,
-  ): Promise<boolean> {
+  private async deliver(platform: string, accountId: string, target: string, send: WelcomeSendFn): Promise<boolean> {
     try {
       await send(target, { type: 'text', text: await this.welcomeText() });
     } catch (err) {

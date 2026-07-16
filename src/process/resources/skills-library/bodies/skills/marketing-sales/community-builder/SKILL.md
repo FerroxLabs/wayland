@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing social-media strategy"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing social-media strategy'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Community Builder
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on community builder
 - User asks about community builder best practices or techniques
 - User wants a structured approach to community builder
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of community builder
 
@@ -59,18 +60,18 @@ Before building any online community, answer these foundational questions:
 
 ### Platform Comparison Matrix
 
-| Feature | Discord | Slack | Circle | Mighty Networks | Skool |
-|---------|---------|-------|--------|----------------|-------|
-| Best for | Gaming, tech, creators | Professional, B2B | Course creators | Community businesses | Course + community |
-| Price (community) | Free | Free (limited) / $7.25+ per user | $89-399/mo | $33-247/mo | $99/mo |
-| Real-time chat | Excellent | Excellent | Good | Moderate | Basic |
-| Async discussion | Moderate (forums) | Good (threads) | Excellent | Excellent | Good |
-| Voice/Video | Built-in | Huddles | Zoom integration | Built-in | Zoom integration |
-| Customization | Very high | Moderate | High | High | Low |
-| Mobile app | Yes | Yes | Yes | Yes | Yes |
-| Learning curve | Moderate | Low | Low | Low | Very low |
-| Integrations | Bots, webhooks | Extensive | API, Zapier | Native | Limited |
-| Max free members | Unlimited | 10K messages visible | N/A (paid) | N/A (paid) | N/A (paid) |
+| Feature           | Discord                | Slack                            | Circle           | Mighty Networks      | Skool              |
+| ----------------- | ---------------------- | -------------------------------- | ---------------- | -------------------- | ------------------ |
+| Best for          | Gaming, tech, creators | Professional, B2B                | Course creators  | Community businesses | Course + community |
+| Price (community) | Free                   | Free (limited) / $7.25+ per user | $89-399/mo       | $33-247/mo           | $99/mo             |
+| Real-time chat    | Excellent              | Excellent                        | Good             | Moderate             | Basic              |
+| Async discussion  | Moderate (forums)      | Good (threads)                   | Excellent        | Excellent            | Good               |
+| Voice/Video       | Built-in               | Huddles                          | Zoom integration | Built-in             | Zoom integration   |
+| Customization     | Very high              | Moderate                         | High             | High                 | Low                |
+| Mobile app        | Yes                    | Yes                              | Yes              | Yes                  | Yes                |
+| Learning curve    | Moderate               | Low                              | Low              | Low                  | Very low           |
+| Integrations      | Bots, webhooks         | Extensive                        | API, Zapier      | Native               | Limited            |
+| Max free members  | Unlimited              | 10K messages visible             | N/A (paid)       | N/A (paid)           | N/A (paid)         |
 
 ### Decision Framework
 
@@ -100,6 +101,7 @@ A new member decides within the first 5 minutes whether they'll engage or lurk f
 ### Onboarding Flow Template
 
 **Step 1: Welcome Message (Automated)**
+
 ```
 Welcome to [Community Name], [member name]!
 
@@ -122,18 +124,21 @@ See you in there!
 ```
 
 **Step 2: Introduction Post (Member Action)**
+
 - Direct new members to an introductions channel
 - Provide a template to reduce friction
 - Have moderators or community managers respond to every intro within 4 hours
 - Tag members with similar interests to connect them
 
 **Step 3: Orientation Content**
+
 - Pinned post or dedicated channel explaining key channels and their purposes
 - Community guidelines and expectations
 - FAQ addressing common new-member questions
 - Quick-win resource (template, guide, checklist related to community topic)
 
 **Step 4: First-Week Follow-Up**
+
 - Day 2: DM checking in, "Did you find what you were looking for?"
 - Day 4: Tag them in a relevant conversation
 - Day 7: Invite them to upcoming event or challenge
@@ -222,35 +227,35 @@ Trigger (notification, email, habit)
 
 ### Daily Engagement Tactics
 
-| Tactic | Effort | Impact | Frequency |
-|--------|--------|--------|-----------|
-| Daily discussion prompt | Low | High | Daily |
-| Welcome new members personally | Medium | Very High | As needed |
-| Share a resource or insight | Low | Medium | Daily |
+| Tactic                          | Effort | Impact    | Frequency          |
+| ------------------------------- | ------ | --------- | ------------------ |
+| Daily discussion prompt         | Low    | High      | Daily              |
+| Welcome new members personally  | Medium | Very High | As needed          |
+| Share a resource or insight     | Low    | Medium    | Daily              |
 | Respond to unanswered questions | Medium | Very High | Multiple times/day |
-| Highlight member contributions | Low | Very High | Daily |
-| Create polls or surveys | Low | Medium | 2-3x/week |
+| Highlight member contributions  | Low    | Very High | Daily              |
+| Create polls or surveys         | Low    | Medium    | 2-3x/week          |
 
 ### Weekly Engagement Tactics
 
-| Tactic | Effort | Impact | Frequency |
-|--------|--------|--------|-----------|
-| Themed discussion days | Low | High | Weekly |
-| Member spotlight/feature | Medium | Very High | Weekly |
-| Live event (AMA, workshop, hangout) | High | Very High | Weekly |
-| Challenge or accountability check-in | Medium | High | Weekly |
-| Content roundup (best posts/resources) | Medium | Medium | Weekly |
-| Co-working sessions | Low | Medium | 1-3x/week |
+| Tactic                                 | Effort | Impact    | Frequency |
+| -------------------------------------- | ------ | --------- | --------- |
+| Themed discussion days                 | Low    | High      | Weekly    |
+| Member spotlight/feature               | Medium | Very High | Weekly    |
+| Live event (AMA, workshop, hangout)    | High   | Very High | Weekly    |
+| Challenge or accountability check-in   | Medium | High      | Weekly    |
+| Content roundup (best posts/resources) | Medium | Medium    | Weekly    |
+| Co-working sessions                    | Low    | Medium    | 1-3x/week |
 
 ### Monthly Engagement Tactics
 
-| Tactic | Effort | Impact | Frequency |
-|--------|--------|--------|-----------|
-| Guest expert session | High | Very High | Monthly |
-| Community survey/feedback | Medium | High | Monthly |
-| Monthly recap and celebrations | Medium | High | Monthly |
-| Community project or collaboration | High | Very High | Monthly/Quarterly |
-| Networking events (breakout rooms) | Medium | High | Monthly |
+| Tactic                             | Effort | Impact    | Frequency         |
+| ---------------------------------- | ------ | --------- | ----------------- |
+| Guest expert session               | High   | Very High | Monthly           |
+| Community survey/feedback          | Medium | High      | Monthly           |
+| Monthly recap and celebrations     | Medium | High      | Monthly           |
+| Community project or collaboration | High   | Very High | Monthly/Quarterly |
+| Networking events (breakout rooms) | Medium | High      | Monthly           |
 
 ### Gamification Elements
 
@@ -338,16 +343,16 @@ Enforcement:
 
 ### Event Types and Formats
 
-| Event Type | Format | Duration | Frequency | Best For |
-|-----------|--------|----------|-----------|----------|
-| AMA (Ask Me Anything) | Live Q&A | 60 min | Monthly | Expert access |
-| Workshop | Teaching + practice | 90-120 min | Biweekly/Monthly | Skill building |
-| Co-working | Silent work, camera on | 2-4 hours | Weekly | Accountability |
-| Networking | Breakout rooms | 60 min | Monthly | Connection |
-| Book/Content Club | Discussion | 60 min | Monthly | Learning |
-| Town Hall | Community updates | 30-45 min | Monthly/Quarterly | Transparency |
-| Social Hangout | Casual chat, games | 60-90 min | Weekly | Bonding |
-| Challenge Kickoff | Launch a group goal | 30 min | Monthly | Motivation |
+| Event Type            | Format                 | Duration   | Frequency         | Best For       |
+| --------------------- | ---------------------- | ---------- | ----------------- | -------------- |
+| AMA (Ask Me Anything) | Live Q&A               | 60 min     | Monthly           | Expert access  |
+| Workshop              | Teaching + practice    | 90-120 min | Biweekly/Monthly  | Skill building |
+| Co-working            | Silent work, camera on | 2-4 hours  | Weekly            | Accountability |
+| Networking            | Breakout rooms         | 60 min     | Monthly           | Connection     |
+| Book/Content Club     | Discussion             | 60 min     | Monthly           | Learning       |
+| Town Hall             | Community updates      | 30-45 min  | Monthly/Quarterly | Transparency   |
+| Social Hangout        | Casual chat, games     | 60-90 min  | Weekly            | Bonding        |
+| Challenge Kickoff     | Launch a group goal    | 30 min     | Monthly           | Motivation     |
 
 ### Event Production Checklist
 
@@ -382,30 +387,35 @@ After:
 ### The Community Growth Phases
 
 **Phase 1: Intimate (0-50 members)**
+
 - You know everyone by name
 - Every member gets personal attention
 - Focus: Culture setting, founding member relationships
 - Your role: Host and primary contributor
 
 **Phase 2: Village (50-200 members)**
+
 - Core group of regulars forms
 - Recruit first moderators
 - Focus: Establishing rituals and engagement patterns
 - Your role: Host and culture guardian
 
 **Phase 3: Town (200-1,000 members)**
+
 - Subgroups and interest clusters form
 - Need structured moderation and channel organization
 - Focus: Scalable engagement, member-led activities
 - Your role: Mayor (less daily involvement, more strategic)
 
 **Phase 4: City (1,000-10,000 members)**
+
 - Professional community management needed
 - Automated onboarding, bot-assisted moderation
 - Focus: Member experience consistency, preventing toxicity
 - Your role: Executive (strategy, culture, partnerships)
 
 **Phase 5: Metropolis (10,000+ members)**
+
 - Full community team needed
 - Sub-communities and special interest groups
 - Focus: Governance, member self-organization, quality control
@@ -461,16 +471,16 @@ PAID TIER 3 ($100+/month) (VIP/Inner Circle)
 
 Track these metrics monthly:
 
-| Metric | How to Measure | Healthy Range |
-|--------|---------------|---------------|
-| DAU/MAU ratio | Daily active / Monthly active users | 20-40% |
-| Messages per active member | Total messages / active members | 3-10/week |
-| New member retention (30-day) | Members active after 30 days | 40-60% |
-| Response time | Average time until a question gets a reply | Under 4 hours |
-| Event attendance rate | Attendees / total members | 5-15% |
-| Net Promoter Score | Survey: "Would you recommend?" | 30+ |
-| Churn rate (paid) | Members canceling / total members | Under 5%/month |
-| Member satisfaction | Periodic survey | 4.0+ out of 5 |
+| Metric                        | How to Measure                             | Healthy Range  |
+| ----------------------------- | ------------------------------------------ | -------------- |
+| DAU/MAU ratio                 | Daily active / Monthly active users        | 20-40%         |
+| Messages per active member    | Total messages / active members            | 3-10/week      |
+| New member retention (30-day) | Members active after 30 days               | 40-60%         |
+| Response time                 | Average time until a question gets a reply | Under 4 hours  |
+| Event attendance rate         | Attendees / total members                  | 5-15%          |
+| Net Promoter Score            | Survey: "Would you recommend?"             | 30+            |
+| Churn rate (paid)             | Members canceling / total members          | Under 5%/month |
+| Member satisfaction           | Periodic survey                            | 4.0+ out of 5  |
 
 ### Warning Signs of Community Decline
 
@@ -528,7 +538,6 @@ Total operating cost:             $2,200-5,800/month
 Break-even members at $30/month:  74-194 members
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -541,13 +550,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with community builder for a mid-size project."
 
 **Output:** A complete community builder framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -40,11 +40,7 @@ const SiderWorkflowsEntry: React.FC<SiderWorkflowsEntryProps> = ({
           onClick={onClick}
           data-testid='sider-workflows-entry'
         >
-          <Workflow
-            size={16}
-            className='block leading-none shrink-0'
-            style={{ lineHeight: 0 }}
-          />
+          <Workflow size={16} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
         </div>
       </Tooltip>
     );
@@ -62,11 +58,7 @@ const SiderWorkflowsEntry: React.FC<SiderWorkflowsEntryProps> = ({
         data-testid='sider-workflows-entry'
       >
         <span className='w-20px h-20px flex items-center justify-center shrink-0'>
-          <Workflow
-            size={16}
-            className='block leading-none'
-            style={{ lineHeight: 0 }}
-          />
+          <Workflow size={16} className='block leading-none' style={{ lineHeight: 0 }} />
         </span>
         <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px'>{label}</span>
       </div>

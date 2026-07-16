@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud ci-cd"
-  category: "devops-cloud"
-  subcategory: "ci-cd-pipelines"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'devops cloud ci-cd'
+  category: 'devops-cloud'
+  subcategory: 'ci-cd-pipelines'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # GitHub Actions
@@ -45,10 +45,10 @@ on:
     branches: [main]
   workflow_dispatch:
     # ... (condensed) ...
-      - uses: actions/checkout@v4
-      - name: Deploy
-        run: |
-          echo "Deploying ${{ needs.build.outputs.image-tag }} to production"
+    - uses: actions/checkout@v4
+    - name: Deploy
+      run: |
+        echo "Deploying ${{ needs.build.outputs.image-tag }} to production"
 ```
 
 ## Reusable Workflows
@@ -280,9 +280,9 @@ steps:
 ```yaml
 jobs:
   build:
-    runs-on: [self-hosted, linux, x64, gpu]    # Label-based selection
+    runs-on: [self-hosted, linux, x64, gpu] # Label-based selection
     timeout-minutes: 30
-    container:                                   # Run in Docker container
+    container: # Run in Docker container
       image: node:22-slim
       credentials:
         username: ${{ secrets.REGISTRY_USER }}
@@ -317,12 +317,12 @@ Runner labels:
 
 # Workflow-level: Minimal permissions per job
 permissions:
-  contents: read          # Default: read repo contents
-  packages: write         # Push to GHCR
-  id-token: write         # OIDC authentication
-  pull-requests: write    # Comment on PRs
-  issues: write           # Create/update issues
-  security-events: write  # Upload SARIF
+  contents: read # Default: read repo contents
+  packages: write # Push to GHCR
+  id-token: write # OIDC authentication
+  pull-requests: write # Comment on PRs
+  issues: write # Create/update issues
+  security-events: write # Upload SARIF
 ```
 
 ### Pin Actions by SHA
@@ -447,10 +447,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       # ... (condensed) ...
-          generate_release_notes: true
-          files: |
-            dist/*.tar.gz
-            dist/*.zip
+      generate_release_notes: true
+      files: |
+        dist/*.tar.gz
+        dist/*.zip
 ```
 
 ## Workflow Optimization Tips
@@ -489,6 +489,7 @@ jobs:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing github actions solutions
 - Reviewing or improving existing github actions approaches
 - Making architectural or implementation decisions about github actions
@@ -496,6 +497,7 @@ jobs:
 - Troubleshooting github actions-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -506,21 +508,26 @@ jobs:
 # Github Actions Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

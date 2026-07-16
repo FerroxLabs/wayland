@@ -13,9 +13,9 @@ steps:
   - id: api-key
     title: Paste your Mapbox access token
     estSeconds: 90
-    externalAction: { label: "Open Mapbox tokens dashboard", url: "https://console.mapbox.com/account/access-tokens/" }
+    externalAction: { label: 'Open Mapbox tokens dashboard', url: 'https://console.mapbox.com/account/access-tokens/' }
     inputs:
-      - { name: MAPBOX_ACCESS_TOKEN, label: "Mapbox access token", secret: true }
+      - { name: MAPBOX_ACCESS_TOKEN, label: 'Mapbox access token', secret: true }
     warning: |
       Don't use a **secret** token with URL restrictions for desktop use -
       restrictions block non-browser origins. A **public** token (or a secret

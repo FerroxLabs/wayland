@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching design guide"
-  category: "design-creative"
-  subcategory: "audio-music"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching design guide'
+  category: 'design-creative'
+  subcategory: 'audio-music'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Piano Teacher
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on piano teacher
 - User asks about piano teacher best practices or techniques
 - User wants a structured approach to piano teacher
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of piano teacher
 
@@ -60,6 +61,7 @@ Before providing piano instruction:
 ## Fundamentals: Technique and Posture
 
 ### Sitting Position
+
 - Sit at the front half of the bench, not leaning against the back
 - Bench height: forearms roughly parallel to the floor when hands are on keys. Elbows slightly above key level.
 - Distance from piano: with arms extended, fingertips should reach the fallboard (key cover). You should not be reaching.
@@ -67,6 +69,7 @@ Before providing piano instruction:
 - Spine upright but not rigid. Shoulders relaxed and dropped.
 
 ### Hand Position
+
 - Imagine holding a small ball or letting your hand hang naturally at your side -- that is the relaxed curved shape
 - Fingertips contact the keys (not the flat pads of the fingers)
 - Knuckle bridge (the large knuckles at the base of the fingers) should be the highest point of the hand
@@ -75,6 +78,7 @@ Before providing piano instruction:
 - No tension in the hand, wrist, forearm, or shoulder. If you feel tension, stop and reset.
 
 ### Finger Numbering
+
 - Thumb = 1 (both hands)
 - Index = 2
 - Middle = 3
@@ -84,7 +88,9 @@ Before providing piano instruction:
 Fingering is marked in sheet music above or below notes. Following correct fingering from the beginning prevents bad habits that are difficult to correct later.
 
 ### Touch and Tone Production
+
 The piano responds to how you press the key, not just whether you press it:
+
 - **Speed of key descent**: Faster = louder (forte), slower = softer (piano)
 - **Weight transfer**: Drop arm weight into the key from the shoulder. Do not press from the finger alone.
 - **Release**: How you lift affects the sound's ending. Abrupt release = staccato. Gradual lift = legato connection.
@@ -93,7 +99,9 @@ The piano responds to how you press the key, not just whether you press it:
 ## Beginner Curriculum (Months 1-6)
 
 ### Music Reading: Notes
+
 Learn to read notes on the grand staff:
+
 - **Treble clef** (right hand): Lines from bottom = E G B D F ("Every Good Boy Does Fine"). Spaces = F A C E.
 - **Bass clef** (left hand): Lines from bottom = G B D F A ("Good Boys Do Fine Always"). Spaces = A C E G.
 - **Middle C**: One ledger line below the treble staff or above the bass staff. Your starting reference point.
@@ -101,6 +109,7 @@ Learn to read notes on the grand staff:
 Start reading and playing from day one. Even simple one-note melodies build reading fluency.
 
 ### Music Reading: Rhythm
+
 - **Whole note**: 4 beats
 - **Half note**: 2 beats
 - **Quarter note**: 1 beat
@@ -111,18 +120,21 @@ Start reading and playing from day one. Even simple one-note melodies build read
 Clap and count rhythms before playing them on the piano. Rhythm must be secure before adding pitch.
 
 ### First Pieces and Patterns
+
 - Five-finger patterns in C major (C D E F G, right hand, then left hand, then together)
 - Simple melodies in the five-finger position (Mary Had a Little Lamb, Ode to Joy simplified)
 - Hands-together playing with simple contrary and parallel motion
 - Introduce C major, G major, and F major five-finger positions
 
 ### Basic Chord Playing
+
 - **Triads**: Three-note chords (root, third, fifth). C major = C E G. C minor = C Eb G.
 - Play triads in root position with the right hand while the left plays single bass notes.
 - Introduce the I-IV-V-I chord progression in C major (C, F, G, C). This progression underlies thousands of songs.
 - Simple accompaniment patterns: block chords, broken chords (arpeggiated).
 
 ### Method Books
+
 - **Alfred's Basic Piano Library**: Systematic, thorough, traditional approach
 - **Faber Piano Adventures**: Engaging, musical, excellent for children and adults
 - **Bastien Piano Basics**: Clear progression, theory integrated
@@ -131,13 +143,16 @@ Clap and count rhythms before playing them on the piano. Rhythm must be secure b
 ## Scales and Arpeggios
 
 ### Why Scales Matter
+
 Scales are not just exercises. They build:
+
 - Finger independence and evenness
 - Knowledge of key signatures and tonality
 - Physical familiarity with the keyboard geography
 - Muscle memory for common melodic patterns that appear in all music
 
 ### Major Scales: Learning Order
+
 1. **C major** (all white keys -- learn the pattern of whole and half steps)
 2. **G major** (one sharp: F#)
 3. **D major** (two sharps: F#, C#)
@@ -149,20 +164,26 @@ Scales are not just exercises. They build:
 9. Continue through all 12 major keys
 
 ### Scale Technique: Thumb Crossings
+
 The thumb crossing under the hand (and the hand crossing over the thumb) is the fundamental technique for scale playing:
+
 - Thumb crosses under smoothly without the hand bobbing up or the wrist twisting
 - The crossing should be inaudible -- no accent on the note after the crossing
 - Practice the crossing point in isolation: play the three notes around each thumb crossing slowly and evenly
 - Speed builds only after the crossing is smooth at a slow tempo
 
 ### Minor Scales
+
 Three forms for each minor key:
+
 - **Natural minor**: The pure minor scale (A B C D E F G A)
 - **Harmonic minor**: Raised 7th degree (A B C D E F G# A). Distinctive augmented second interval.
 - **Melodic minor**: Raised 6th and 7th ascending, natural descending. Smooth melodic contour.
 
 ### Arpeggios
+
 Play the notes of a chord sequentially across the keyboard:
+
 - Major arpeggios: root, third, fifth, octave, and back down
 - Minor arpeggios: root, flat third, fifth, octave
 - Dominant seventh arpeggios: root, third, fifth, flat seventh
@@ -173,12 +194,15 @@ Practice arpeggios in all keys, 1-2 octaves initially, expanding to 4 octaves.
 ## Chord Voicings and Accompaniment
 
 ### Lead Sheet Playing
+
 A lead sheet provides the melody and chord symbols. The pianist must create an accompaniment:
+
 - **Root position triads**: Simple but can sound blocky. Good for beginners.
 - **Inversions**: Rearrange chord tones so the top note changes. First inversion: 3rd on bottom. Second inversion: 5th on bottom. Inversions enable smooth voice leading between chords.
 - **Voice leading**: Move to the nearest available chord tones when changing chords. Minimize hand movement for smoother transitions.
 
 ### Left Hand Accompaniment Patterns
+
 - **Single bass notes**: Root of the chord on beats 1 and 3. Simple, effective.
 - **Octave bass**: Root played as an octave. Fuller sound.
 - **Root-fifth**: Alternating between the root and the fifth. Classic boogie-woogie and country pattern.
@@ -187,6 +211,7 @@ A lead sheet provides the melody and chord symbols. The pianist must create an a
 - **Arpeggiated patterns**: Broken chords in various rhythmic patterns. Creates flowing, gentle accompaniment.
 
 ### Pop and Contemporary Voicings
+
 - Move beyond basic triads to add color:
 - **Add9 chords**: Add the 9th (2nd) to a triad. Bright, modern sound. (C add9 = C E G D)
 - **Sus2 and Sus4**: Replace the 3rd with the 2nd or 4th. Open, ambiguous sound.
@@ -196,9 +221,11 @@ A lead sheet provides the melody and chord symbols. The pianist must create an a
 ## Sight Reading Development
 
 ### Building Sight Reading Fluency
+
 Sight reading is the ability to play music you have never seen before. It is a separate skill from repertoire learning and must be practiced separately.
 
 Principles:
+
 1. **Look ahead**: Your eyes should be 1-2 beats ahead of where your fingers are playing. Like reading text -- you do not read letter by letter.
 2. **Recognize patterns**: Scales, arpeggios, chord shapes, and common melodic patterns. You read words, not individual letters.
 3. **Keep going**: If you make a mistake, do not stop to fix it. Maintain the pulse. Stopping breaks the flow and destroys rhythmic continuity.
@@ -206,6 +233,7 @@ Principles:
 5. **Daily practice**: Even 5 minutes of sight reading daily produces dramatic improvement over months.
 
 ### Sight Reading Routine
+
 1. Before playing, scan the piece: key signature, time signature, tempo, dynamics, any tricky spots
 2. Identify patterns: scales, arpeggios, repeated sections, sequences
 3. Set a slow, manageable tempo
@@ -214,6 +242,7 @@ Principles:
 6. Do not repeat the same piece. Move to the next one. Volume of new material builds the skill.
 
 ### Resources for Sight Reading Material
+
 - Mikrokosmos by Bartok (progressive difficulty, excellent for sight reading)
 - Any graded exam book one or two levels below your current playing level
 - Hymnal books (consistent format, straightforward harmony)
@@ -223,12 +252,15 @@ Principles:
 ## Theory Integration
 
 ### Connecting Theory to Playing
+
 Theory should illuminate your playing, not be a separate academic exercise:
+
 - When learning a scale, identify the key signature in pieces you are playing. "This piece is in G major. I know this scale."
 - When learning chords, analyze the harmony in your repertoire. "The left hand is playing a V7 chord here. It wants to resolve to I."
 - When learning intervals, listen for them in melodies. "This melody jumps a perfect fifth, then steps down by seconds."
 
 ### Essential Theory Concepts by Level
+
 **Beginner**: Note names, basic rhythm, major and minor five-finger positions, simple intervals (2nds, 3rds, 5ths), key signatures up to 2 sharps/flats.
 
 **Intermediate**: All major and minor key signatures, triads and inversions, I-IV-V-I progressions in all keys, basic form analysis (ABA, binary, ternary), circle of fifths, relative major/minor.
@@ -238,12 +270,14 @@ Theory should illuminate your playing, not be a separate academic exercise:
 ## Practice Scheduling
 
 ### Beginner (15-30 Minutes Daily)
+
 - 5 min: Warm-up (five-finger patterns, simple scales in the key of your current piece)
 - 10 min: Current repertoire pieces (divide time between pieces if learning multiple)
 - 5 min: Sight reading (easy material, one or two short pieces)
 - 5 min: Fun playing (improvise, play a favorite easy song, explore the keyboard)
 
 ### Intermediate (30-60 Minutes Daily)
+
 - 10 min: Scales and arpeggios (rotate keys through the week)
 - 15 min: Repertoire (focus on problem sections, not just playing through from start to finish)
 - 10 min: Sight reading
@@ -251,6 +285,7 @@ Theory should illuminate your playing, not be a separate academic exercise:
 - 5 min: Ear training (sing intervals, identify chords by sound)
 
 ### Advanced (60-120 Minutes Daily)
+
 - 15 min: Technical work (scales, arpeggios, Hanon, Czerny, or Chopin Etudes)
 - 30 min: Primary repertoire piece(s) (slow practice of difficult passages, then integration)
 - 15 min: Secondary repertoire or new piece learning
@@ -258,6 +293,7 @@ Theory should illuminate your playing, not be a separate academic exercise:
 - 15 min: Improvisation, composition, or stylistic exploration
 
 ### Practice Technique Principles
+
 - **Slow practice**: Practice difficult passages at half speed or slower. Accuracy first, speed later.
 - **Hands separate**: Learn each hand's part independently before combining. This remains valuable at all levels.
 - **Small sections**: Isolate 2-4 bar problem passages rather than playing the whole piece repeatedly.
@@ -267,6 +303,7 @@ Theory should illuminate your playing, not be a separate academic exercise:
 ## Repertoire by Level
 
 ### Beginner Classics
+
 - Beethoven: Ode to Joy (simplified)
 - Bach: Minuet in G major (from Notebook for Anna Magdalena)
 - Clementi: Sonatina Op. 36 No. 1 (first movement)
@@ -274,6 +311,7 @@ Theory should illuminate your playing, not be a separate academic exercise:
 - Burgmuller: 25 Easy and Progressive Etudes, Op. 100
 
 ### Intermediate Repertoire
+
 - Bach: Two-Part Inventions
 - Mozart: Sonata in C major, K. 545 (first movement)
 - Chopin: Preludes Op. 28 (selected, No. 4 in E minor, No. 7 in A major)
@@ -281,6 +319,7 @@ Theory should illuminate your playing, not be a separate academic exercise:
 - Joplin: The Entertainer, Maple Leaf Rag
 
 ### Advanced Repertoire
+
 - Bach: Well-Tempered Clavier (Preludes and Fugues)
 - Beethoven: Sonatas (Pathetique, Moonlight, Waldstein, Appassionata)
 - Chopin: Ballades, Etudes, Nocturnes
@@ -291,6 +330,7 @@ Theory should illuminate your playing, not be a separate academic exercise:
 ## Improvisation Basics
 
 ### Starting Points for Improvisation
+
 Improvisation is not about playing random notes. It is about making musical choices within a framework:
 
 1. **Black key improvisation**: Play only the black keys. They form a pentatonic scale that always sounds good. Explore melodies, add left hand accompaniment.
@@ -300,6 +340,7 @@ Improvisation is not about playing random notes. It is about making musical choi
 5. **Call and response**: Play a short phrase, then answer it with a contrasting phrase. Develop musical conversation.
 
 ### Jazz Piano Introduction
+
 - Learn the ii-V-I progression in all keys (Dm7 - G7 - Cmaj7 in C major)
 - Practice shell voicings: root and 7th in the left hand, 3rd and 7th in a more advanced voicing
 - Learn to read lead sheets from The Real Book
@@ -309,22 +350,24 @@ Improvisation is not about playing random notes. It is about making musical choi
 ## Equipment Recommendations
 
 ### Digital Pianos (for Practice and Learning)
+
 - **Budget ($300-$600)**: Yamaha P-45/P-143, Casio CDP-S110, Roland FP-10
 - **Mid-range ($600-$1500)**: Yamaha P-225, Roland FP-30X, Kawai ES120, Casio PX-S3100
 - **Premium ($1500-$3000)**: Yamaha CLP series, Roland HP series, Kawai CN/CA series
 
 Essential features for learning:
+
 - **88 fully weighted keys**: Non-negotiable. Unweighted or semi-weighted keyboards do not develop proper technique.
 - **Touch sensitivity**: The keys must respond to how hard you play.
 - **Sustain pedal**: Included or purchased separately. Metal pedals feel better than plastic.
 - **Good built-in speakers or headphone output**: For practice flexibility.
 
 ### Acoustic vs Digital
+
 - Acoustic pianos offer superior touch, tone, and musical response
 - Digital pianos are more practical: headphone practice, no tuning costs, smaller footprint
 - A good digital piano is far better for learning than a neglected, out-of-tune acoustic
 - If you choose acoustic, budget for annual tuning ($100-$200) and ensure it is in reasonable condition
-
 
 ## Output Format
 
@@ -338,13 +381,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with piano teacher for a mid-size project."
 
 **Output:** A complete piano teacher framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

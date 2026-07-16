@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices version-control guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices version-control guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Git Workflow
@@ -32,6 +32,7 @@ main ─────●─────●─────●─────●─
 ```
 
 **Rules**:
+
 - `main` is always deployable.
 - Feature branches live less than 2 days.
 - Use feature flags for incomplete features.
@@ -52,6 +53,7 @@ main ─────●─────────●─────────
 ```
 
 **Rules**:
+
 - `main` is always deployable.
 - Create a branch from `main` for every change.
 - Open a PR for review.
@@ -76,6 +78,7 @@ develop ──●──●──●──●──●──●──●───
 ```
 
 **Rules**:
+
 - `main` tracks production releases.
 - `develop` is the integration branch.
 - Feature branches merge to `develop`.
@@ -86,13 +89,13 @@ develop ──●──●──●──●──●──●──●───
 
 ### When to Use Which
 
-| Factor | Trunk-Based | GitHub Flow | GitFlow |
-|--------|-------------|-------------|---------|
-| Release frequency | Continuous | Daily-weekly | Scheduled |
-| Team size | Any | Small-medium | Medium-large |
-| CI/CD maturity | High | Medium | Any |
-| Feature flags | Required | Optional | Not needed |
-| Complexity | Low | Low | High |
+| Factor            | Trunk-Based | GitHub Flow  | GitFlow      |
+| ----------------- | ----------- | ------------ | ------------ |
+| Release frequency | Continuous  | Daily-weekly | Scheduled    |
+| Team size         | Any         | Small-medium | Medium-large |
+| CI/CD maturity    | High        | Medium       | Any          |
+| Feature flags     | Required    | Optional     | Not needed   |
+| Complexity        | Low         | Low          | High         |
 
 ## Commit Message Conventions
 
@@ -107,18 +110,19 @@ develop ──●──●──●──●──●──●──●───
 ```
 
 ### Types
-| Type | When |
-|------|------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `docs` | Documentation only |
-| `style` | Formatting, missing semicolons (not CSS) |
+
+| Type       | When                                                    |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | New feature                                             |
+| `fix`      | Bug fix                                                 |
+| `docs`     | Documentation only                                      |
+| `style`    | Formatting, missing semicolons (not CSS)                |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `perf` | Performance improvement |
-| `test` | Adding or correcting tests |
-| `build` | Build system or external dependency changes |
-| `ci` | CI configuration changes |
-| `chore` | Other changes that do not modify src or test files |
+| `perf`     | Performance improvement                                 |
+| `test`     | Adding or correcting tests                              |
+| `build`    | Build system or external dependency changes             |
+| `ci`       | CI configuration changes                                |
+| `chore`    | Other changes that do not modify src or test files      |
 
 ### Examples
 
@@ -142,6 +146,7 @@ Fixes #567
 ```
 
 ### Commit Message Rules
+
 1. **Subject line under 72 characters.**
 2. **Use imperative mood**: "Add feature" not "Added feature" or "Adds feature".
 3. **Do not end the subject with a period.**
@@ -150,6 +155,7 @@ Fixes #567
 6. **Reference issues** in the footer.
 
 ### What Makes a Good Commit
+
 - **Atomic**: One logical change per commit. Not "fix bug and add feature and update docs".
 - **Complete**: The codebase compiles and tests pass after every commit.
 - **Meaningful**: Each commit tells a story. Squash "WIP" and "fix typo" before merging.
@@ -157,16 +163,19 @@ Fixes #567
 ## Merge vs Rebase
 
 ### Merge
+
 ```
 main:    A──B──C────────M──
               \        /
 feature:       D──E──F
 ```
+
 - Preserves complete history and branch topology.
 - Creates a merge commit.
 - Non-destructive: never rewrites history.
 
 ### Rebase
+
 ```
 Before:
 main:    A──B──C
@@ -178,26 +187,29 @@ main:    A──B──C
                  \
 feature:          D'──E'──F'
 ```
+
 - Produces a linear history.
 - Rewrites commit hashes (D, E, F become D', E', F').
 - Must NOT be used on shared/public branches.
 
 ### Decision Framework
 
-| Situation | Use |
-|-----------|-----|
-| Updating a personal feature branch with latest main | Rebase |
-| Merging a feature branch into main | Merge (or squash merge) |
-| Shared branch with multiple contributors | Merge (never rebase shared branches) |
-| Cleaning up local commits before PR | Interactive rebase |
-| Preserving detailed development history | Merge |
-| Creating a clean, linear history | Rebase + merge |
+| Situation                                           | Use                                  |
+| --------------------------------------------------- | ------------------------------------ |
+| Updating a personal feature branch with latest main | Rebase                               |
+| Merging a feature branch into main                  | Merge (or squash merge)              |
+| Shared branch with multiple contributors            | Merge (never rebase shared branches) |
+| Cleaning up local commits before PR                 | Interactive rebase                   |
+| Preserving detailed development history             | Merge                                |
+| Creating a clean, linear history                    | Rebase + merge                       |
 
 ### Squash Merge
+
 ```shell
 git merge --squash feature/xyz
 git commit -m "feat(auth): add OAuth2 login"
 ```
+
 Collapses all feature branch commits into one. Good for clean main history, but loses granular commit information.
 
 ## Interactive Rebase
@@ -210,6 +222,7 @@ git rebase -i HEAD~4
 ```
 
 Editor shows:
+
 ```
 pick a1b2c3d feat: add user model
 pick e4f5g6h fix: typo in user model
@@ -218,6 +231,7 @@ pick m0n1o2p fix: missing import in controller
 ```
 
 Clean up:
+
 ```
 pick a1b2c3d feat: add user model
 fixup e4f5g6h fix: typo in user model        # fold into previous, discard message
@@ -226,19 +240,21 @@ fixup m0n1o2p fix: missing import in controller  # fold into previous
 ```
 
 ### Rebase Commands
-| Command | Effect |
-|---------|--------|
-| `pick` | Keep the commit as-is |
-| `reword` | Keep the commit but change the message |
-| `edit` | Stop at this commit to amend it |
-| `squash` | Fold into previous commit, combine messages |
-| `fixup` | Fold into previous commit, discard this message |
-| `drop` | Remove the commit entirely |
-| `reorder` | Change the order of commits by moving lines |
+
+| Command   | Effect                                          |
+| --------- | ----------------------------------------------- |
+| `pick`    | Keep the commit as-is                           |
+| `reword`  | Keep the commit but change the message          |
+| `edit`    | Stop at this commit to amend it                 |
+| `squash`  | Fold into previous commit, combine messages     |
+| `fixup`   | Fold into previous commit, discard this message |
+| `drop`    | Remove the commit entirely                      |
+| `reorder` | Change the order of commits by moving lines     |
 
 ## Conflict Resolution
 
 ### Process
+
 1. **Understand the conflict.** Read both sides. Do not blindly accept one.
 2. **Check the intent.** Look at the original commits on each side to understand the purpose.
 3. **Resolve semantically, not textually.** The correct resolution may not be either version or a simple combination.
@@ -246,6 +262,7 @@ fixup m0n1o2p fix: missing import in controller  # fold into previous
 5. **Do not introduce new changes** in a conflict resolution commit.
 
 ### Conflict Markers
+
 ```
 <<<<<<< HEAD
 const timeout = 5000;
@@ -255,6 +272,7 @@ const timeout = 10000;
 ```
 
 ### Reducing Conflicts
+
 - Keep branches short-lived (< 2 days).
 - Merge/rebase from main frequently.
 - Avoid formatting-only commits that touch many lines.
@@ -289,6 +307,7 @@ git bisect reset
 ```
 
 ### Automated Bisect
+
 ```shell
 # Run a test script at each step
 git bisect start HEAD v1.2.0
@@ -300,14 +319,14 @@ git bisect run npm test
 
 ### Useful Hooks
 
-| Hook | Runs when | Use for |
-|------|-----------|---------|
-| `pre-commit` | Before commit is created | Lint, format, type check |
-| `commit-msg` | After message is written | Validate commit message format |
-| `pre-push` | Before push to remote | Run tests, prevent force push to main |
-| `prepare-commit-msg` | Before editor opens | Populate template |
-| `post-merge` | After merge completes | Install deps, run migrations |
-| `post-checkout` | After branch switch | Install deps, clear caches |
+| Hook                 | Runs when                | Use for                               |
+| -------------------- | ------------------------ | ------------------------------------- |
+| `pre-commit`         | Before commit is created | Lint, format, type check              |
+| `commit-msg`         | After message is written | Validate commit message format        |
+| `pre-push`           | Before push to remote    | Run tests, prevent force push to main |
+| `prepare-commit-msg` | Before editor opens      | Populate template                     |
+| `post-merge`         | After merge completes    | Install deps, run migrations          |
+| `post-checkout`      | After branch switch      | Install deps, clear caches            |
 
 ### Managing Hooks with Tools
 
@@ -332,6 +351,7 @@ repos:
 ```
 
 ### lint-staged Configuration
+
 ```json
 {
   "lint-staged": {
@@ -345,14 +365,18 @@ repos:
 ## Monorepo Git Strategies
 
 ### Sparse Checkout
+
 Check out only the directories you need:
+
 ```shell
 git sparse-checkout init --cone
 git sparse-checkout set packages/my-package packages/shared
 ```
 
 ### Shallow Clone
+
 Reduce clone time by fetching limited history:
+
 ```shell
 git clone --depth 1 --filter=blob:none <url>
 # Get more history later if needed
@@ -360,7 +384,9 @@ git get --unshallow
 ```
 
 ### CODEOWNERS
+
 Automatically assign reviewers based on file paths:
+
 ```
 # .github/CODEOWNERS
 packages/auth/**        @auth-team
@@ -372,6 +398,7 @@ packages/shared/**      @platform-team
 ## CI Integration
 
 ### Branch Protection Rules
+
 - Require PR review before merge.
 - Require status checks to pass (CI, linting, tests).
 - Require up-to-date branch before merge.
@@ -379,6 +406,7 @@ packages/shared/**      @platform-team
 - Require signed commits (optional, for high-security projects).
 
 ### CI Pipeline Triggers
+
 ```yaml
 # GitHub Actions
 on:
@@ -392,6 +420,7 @@ on:
 ```
 
 ### Optimizing CI for Git
+
 - Use shallow clones in CI: `get-depth: 1`.
 - Cache dependencies between runs.
 - Run only affected tests on PRs (use `git diff --name-only` to detect changed files).
@@ -400,6 +429,7 @@ on:
 ## Essential Git Commands
 
 ### Recovery Commands
+
 ```shell
 # Undo last commit, keep changes staged
 git reset --soft HEAD~1
@@ -420,6 +450,7 @@ git revert -m 1 <merge-commit-hash>
 ```
 
 ### Investigation Commands
+
 ```shell
 # Who changed this line and when?
 git blame -L 10,20 src/auth.ts
@@ -435,6 +466,7 @@ git log --follow -p -- path/to/file
 ```
 
 ### Cleanup Commands
+
 ```shell
 # Remove branches merged into main
 git branch --merged main | grep -v main | xargs git branch -d
@@ -449,6 +481,7 @@ git gc --aggressive --prune=now
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing git workflow solutions
 - Reviewing or improving existing git workflow approaches
 - Making architectural or implementation decisions about git workflow
@@ -456,6 +489,7 @@ git gc --aggressive --prune=now
 - Troubleshooting git workflow-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -466,21 +500,26 @@ git gc --aggressive --prune=now
 # Git Workflow Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

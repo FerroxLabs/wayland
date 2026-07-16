@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "market-researcher ecommerce-advisor copywriter social-media-strategist"
+skills: 'market-researcher ecommerce-advisor copywriter social-media-strategist'
 trigger_phrases: >-
   I want to launch an online store help me start an e-commerce business how to
   sell products online open an online shop start a Shopify store sell my
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: entrepreneurship sales marketing step-by-step planning
   category: business-operations
-  depends: "market-researcher ecommerce-advisor copywriter social-media-strategist"
+  depends: 'market-researcher ecommerce-advisor copywriter social-media-strategist'
 ---
+
 # Launch Ecommerce Store
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -160,6 +161,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -170,7 +172,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Poor product photography:** Invest in quality images. Photography is the most important conversion factor in e-commerce.
 - **Ignoring mobile experience:** 60-70% of e-commerce traffic is mobile. Test everything on a phone first.
 - **No email marketing:** Email has the highest ROI of any marketing channel. Set up automated flows from day one.
-
 
 ### Timeline Considerations
 

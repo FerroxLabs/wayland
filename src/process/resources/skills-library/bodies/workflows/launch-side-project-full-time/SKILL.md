@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "startup-advisor solopreneur-toolkit pricing-strategist business-planner productivity-system-builder"
+skills: 'startup-advisor solopreneur-toolkit pricing-strategist business-planner productivity-system-builder'
 trigger_phrases: >-
   I want to go full-time on my side project turn my side project into a business
   quit my job for my startup launch my product full-time side project to
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: entrepreneurship career step-by-step planning
   category: career
-  depends: "startup-advisor solopreneur-toolkit pricing-strategist business-planner productivity-system-builder"
+  depends: 'startup-advisor solopreneur-toolkit pricing-strategist business-planner productivity-system-builder'
 ---
+
 # Launch Side Project Full Time
 
 **Estimated time:** 3-9 months
@@ -167,6 +168,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

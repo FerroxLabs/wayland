@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing email planning template"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing email planning template'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Email Campaign
 
 ## When to Use
@@ -67,6 +68,7 @@ Do not begin drafting until you have answers to the following. If the user has n
 Different sequence types require different structural arcs. Match the architecture to the campaign type:
 
 **Welcome Sequence (new subscriber or lead):**
+
 - Email 1: Immediate value delivery + expectation-setting (send at trigger)
 - Email 2: Education or origin story -- deepen the relationship (day 2-3)
 - Email 3: Social proof -- show transformation or credibility (day 5-6)
@@ -74,6 +76,7 @@ Different sequence types require different structural arcs. Match the architectu
 - Email 5 (optional): Final offer with scarcity or urgency (day 12-14)
 
 **SaaS Onboarding/Trial Activation Sequence:**
+
 - Email 1: Welcome + single most important first action in the product (send at signup)
 - Email 2: Second activation milestone -- based on whether they completed Email 1's action (day 2-3, behavior-triggered if possible)
 - Email 3: Feature spotlight that solves a core pain point (day 4-5)
@@ -82,6 +85,7 @@ Different sequence types require different structural arcs. Match the architectu
 - Note: SaaS sequences should ideally branch on user behavior (completed action vs. did not). Flag this for the user even if the copy cannot branch.
 
 **Nurture Sequence (marketing-qualified lead, not yet ready to buy):**
+
 - Email 1: Acknowledge where they are + deliver high-value educational content (day 0)
 - Email 2: Address the most common objection or misconception in the category (day 5-7)
 - Email 3: Case study or social proof with specific, quantifiable results (day 10-12)
@@ -90,12 +94,14 @@ Different sequence types require different structural arcs. Match the architectu
 - Nurture sequences use longer delays because the reader is not yet ready; rushing converts no one.
 
 **Re-engagement Sequence (inactive for 60-180 days):**
+
 - Email 1: Re-introduction with an honest acknowledgment of absence (not guilt) + compelling reason to return
 - Email 2: New value -- what has changed since they were last active (feature update, new content, new offer)
 - Email 3: A direct "do you still want to hear from us?" ask with a clear stay/leave choice
 - This sequence is 3 emails maximum. After 3 non-responses, move to suppression to protect deliverability.
 
 **Promotional/Launch Sequence (time-bounded sale or launch):**
+
 - Email 1: Announcement -- what it is and why it matters (day 0)
 - Email 2: The details -- features, benefits, who it is for (day 2)
 - Email 3: Social proof or FAQ -- remove the last objections (day 3-4)
@@ -104,6 +110,7 @@ Different sequence types require different structural arcs. Match the architectu
 - Promotional sequences compress the timeline; urgency must be genuine or it destroys trust.
 
 **Post-Purchase Sequence:**
+
 - Email 1: Order/enrollment confirmation (transactional -- send immediately; often handled by platform)
 - Email 2: Onboarding -- how to get the most value from what they bought (day 1-2)
 - Email 3: Review or testimonial request (day 7-14, after they have experienced value)
@@ -117,11 +124,13 @@ Different sequence types require different structural arcs. Match the architectu
 For each email, produce two subject line variants for A/B testing. The variants should test meaningfully different psychological mechanisms -- not just word swaps.
 
 **Subject line length:**
+
 - Hard limit: 60 characters (displays fully on 90%+ of email clients)
 - Optimal: 35-50 characters
 - Mobile preview: The first 30-35 characters are what most readers see before deciding to open
 
 **The six most effective subject line mechanisms (pick two different ones per email):**
+
 1. **Benefit-explicit:** States exactly what the reader will get -- "Your free Canva template inside"
 2. **Curiosity gap:** Creates an open loop the reader must close -- "The mistake most home cooks make"
 3. **Specificity:** Numbers and concrete details outperform vague claims -- "5 questions to ask before you hire"
@@ -130,12 +139,14 @@ For each email, produce two subject line variants for A/B testing. The variants 
 6. **Fear of missing out:** Deadline or scarcity without being manipulative -- "Last chance: closes tonight"
 
 **Preview text (preheader):**
+
 - The first 85-140 characters that appear next to the subject line in most email clients
 - Do not let the email platform default to "View this email in your browser" -- this wastes the preview
 - Write preview text as a continuation of the subject line -- they should work as a pair
 - Test: Read subject + preview together as if you are the reader deciding whether to open
 
 **What to avoid:**
+
 - All-caps words (triggers spam filters and reads as shouting)
 - Excessive punctuation, especially multiple exclamation marks
 - Spam trigger words: "Free!!!", "Guaranteed", "Act now", "Limited time" (by itself), "100% free"
@@ -148,17 +159,20 @@ For each email, produce two subject line variants for A/B testing. The variants 
 Apply these structural principles to every email in the sequence:
 
 **Opening hook (first 2-3 sentences -- the most important real estate):**
+
 - Never open with "I hope this email finds you well," "My name is," or "As a valued customer"
 - Open with a specific observation, a provocative question, a counterintuitive statement, or a concrete scenario
 - The opening must earn the reader's continued attention -- assume they are deciding whether to keep reading after the first sentence
 
 **Body structure (choose one per email -- do not mix):**
+
 - **Problem-Agitate-Solve (PAS):** Identify a pain, amplify why it matters, present the solution. Best for conversion emails.
 - **AIDA (Attention-Interest-Desire-Action):** Classic funnel within a single email. Best for product introduction emails.
 - **Star-Story-Solution:** Lead with the protagonist (the reader or a customer like them), tell their story, resolve it with your product. Best for social proof emails.
 - **Direct:** State the point immediately, support it with one or two proof elements, give the CTA. Best for urgency/deadline emails where the reader already knows the offer.
 
 **Body copy length guidelines:**
+
 - Welcome and relationship-building emails: 150-250 words
 - Educational/nurture emails: 200-350 words (more is acceptable when delivering genuine value)
 - Conversion and promotional emails: 100-200 words (shorter creates more urgency)
@@ -166,19 +180,22 @@ Apply these structural principles to every email in the sequence:
 - These are guidelines, not rules -- length should be determined by what the email needs to say, not by hitting a word count
 
 **Social proof placement:**
+
 - Inline quotes: Best in email 3 or 4 where trust-building is the goal
 - Stats ("Joined by 12,000 marketers"): Best in email 1 to establish credibility fast
 - Named customer stories (with permission): Best in emails that use the Star-Story-Solution format
 - Generic testimonials ("Great product, 5 stars"): Avoid -- readers assign these low credibility
 
 **CTA rules:**
+
 - One primary CTA per email, stated as a specific action (not "click here" or "learn more")
-- CTA button text should complete the sentence "I want to ___": "Start my free trial," "Get the guide," "Book a 20-minute call"
+- CTA button text should complete the sentence "I want to \_\_\_": "Start my free trial," "Get the guide," "Book a 20-minute call"
 - Place the primary CTA both inline (as a hyperlinked sentence) and as a button at the bottom
 - For emails over 250 words, place a secondary CTA reference above the fold for readers who are already convinced and do not need to finish reading
 - Secondary CTAs (if included) should be lower-commitment than the primary: if the primary is "Book a demo," the secondary might be "Watch the 3-minute overview video first"
 
 **Signature and personalization:**
+
 - Sign from a real person's name, not a brand name -- people reply to people, not logos
 - Include a P.S. in conversion emails -- research consistently shows the P.S. is read almost as often as the opening, making it the second most valuable real estate in the email
 - Use merge tags for first-name personalization in the subject line and opening when the data is reliable -- but include a fallback ("there" instead of a blank field)
@@ -188,28 +205,31 @@ Apply these structural principles to every email in the sequence:
 ### Step 5: Define Send Timing and Automation Triggers
 
 **Trigger event (enrollment condition):**
+
 - Be specific: "User submits email on /free-guide landing page" is better than "user subscribes"
 - Identify what tag, list, or event in the email platform triggers the sequence
 - Specify whether the sequence is time-based (delays from trigger) or behavior-based (next email sends when reader takes or does not take an action)
 
 **Delay recommendations by sequence type:**
 
-| Sequence Type | Email 1 | Email 2 | Email 3 | Email 4 | Email 5 |
-|---------------|---------|---------|---------|---------|---------|
-| Welcome | Immediate | +2-3 days | +5-6 days | +9-10 days | +13-14 days |
-| SaaS Onboarding | Immediate | +1-2 days | +3-4 days | +7 days | +12 days |
-| Lead Nurture | Immediate | +5-7 days | +10-12 days | +16-18 days | +22-25 days |
-| Re-engagement | Immediate | +3-4 days | +6-7 days | -- | -- |
-| Promotional | Day 0 | Day 2 | Day 4 | Day 5 | Day of deadline |
-| Post-purchase | Immediate | +1-2 days | +7-10 days | +21-30 days | -- |
+| Sequence Type   | Email 1   | Email 2   | Email 3     | Email 4     | Email 5         |
+| --------------- | --------- | --------- | ----------- | ----------- | --------------- |
+| Welcome         | Immediate | +2-3 days | +5-6 days   | +9-10 days  | +13-14 days     |
+| SaaS Onboarding | Immediate | +1-2 days | +3-4 days   | +7 days     | +12 days        |
+| Lead Nurture    | Immediate | +5-7 days | +10-12 days | +16-18 days | +22-25 days     |
+| Re-engagement   | Immediate | +3-4 days | +6-7 days   | --          | --              |
+| Promotional     | Day 0     | Day 2     | Day 4       | Day 5       | Day of deadline |
+| Post-purchase   | Immediate | +1-2 days | +7-10 days  | +21-30 days | --              |
 
 **Send time optimization:**
+
 - For B2C audiences: Tuesday-Thursday, 10am or 2pm in the recipient's time zone, performs above average in most industries -- but always note that the user should test against their own list
 - For B2B audiences: Tuesday-Thursday, 7-9am (before the inbox clutter accumulates) or 12-1pm
 - For re-engagement: Weekend mornings often outperform weekdays because there is less competition in the inbox
 - Day-of-week matters less than consistent testing -- what works for a tech audience may underperform for a retail audience
 
 **Exit conditions (critical -- never omit):**
+
 - Purchased the offer the sequence promotes
 - Unsubscribed from the list
 - Sequence completed (reached the last email)
@@ -223,19 +243,20 @@ Apply these structural principles to every email in the sequence:
 
 Industry benchmarks vary significantly by vertical. Use these calibrated benchmarks when setting targets:
 
-| Industry | Avg Open Rate | Avg Click Rate | Avg Unsubscribe |
-|----------|--------------|----------------|-----------------|
-| SaaS / Software | 28-32% | 3-5% | 0.3-0.5% |
-| E-commerce / Retail | 20-25% | 2-4% | 0.4-0.7% |
-| Publishing / Media | 30-40% | 4-7% | 0.3-0.5% |
-| B2B Professional Services | 25-35% | 3-6% | 0.2-0.4% |
-| Education / E-learning | 28-35% | 4-7% | 0.3-0.5% |
-| Health / Wellness | 22-28% | 2-4% | 0.5-0.8% |
-| Nonprofit | 35-45% | 4-6% | 0.2-0.3% |
+| Industry                  | Avg Open Rate | Avg Click Rate | Avg Unsubscribe |
+| ------------------------- | ------------- | -------------- | --------------- |
+| SaaS / Software           | 28-32%        | 3-5%           | 0.3-0.5%        |
+| E-commerce / Retail       | 20-25%        | 2-4%           | 0.4-0.7%        |
+| Publishing / Media        | 30-40%        | 4-7%           | 0.3-0.5%        |
+| B2B Professional Services | 25-35%        | 3-6%           | 0.2-0.4%        |
+| Education / E-learning    | 28-35%        | 4-7%           | 0.3-0.5%        |
+| Health / Wellness         | 22-28%        | 2-4%           | 0.5-0.8%        |
+| Nonprofit                 | 35-45%        | 4-6%           | 0.2-0.3%        |
 
 **Note on open rate benchmarks:** Since Apple Mail Privacy Protection (MPP) introduced open tracking inflation in late 2021, open rate benchmarks have risen across all industries as many "opens" are now machine-reads. Weight click rate and conversion rate more heavily than open rate as true engagement signals.
 
 **Sequence-level conversion targets:**
+
 - Welcome sequences: 3-8% conversion to first purchase (e-commerce, B2C)
 - SaaS trial-to-paid via onboarding sequence: 15-25% (varies heavily by trial length and product)
 - Lead nurture to demo/consultation: 5-12%
@@ -249,12 +270,14 @@ Industry benchmarks vary significantly by vertical. Use these calibrated benchma
 Build the testing plan into the sequence from the start, not as an afterthought.
 
 **What to test and when:**
+
 - **Email 1:** Subject line mechanism (benefit vs. curiosity) -- highest volume makes this the best test
 - **Email 2-3:** CTA text and button placement -- reveals what action language resonates
 - **Email 4:** Short vs. long body copy for conversion emails -- reveals whether the audience needs more convincing or less friction
 - **Final email:** Urgency framing -- "Last chance" vs. a specific deadline countdown ("Offer ends at midnight")
 
 **Testing rules:**
+
 - Test one variable per email, never multiple changes simultaneously
 - Run for minimum 1,000 sends per variant before drawing conclusions
 - Statistical significance: Aim for 95% confidence (most email platforms show this)
@@ -397,24 +420,31 @@ Build the testing plan into the sequence from the start, not as an afterthought.
 ## Edge Cases
 
 ### Behavioral Branching in SaaS Onboarding
+
 When writing a SaaS onboarding sequence, the ideal architecture branches on whether the user completed the activation action from the previous email (e.g., "Did they connect their first integration?"). Most email platforms (ActiveCampaign, Klaviyo, HubSpot, Drip) support conditional branching based on link clicks or contact property changes. When the user wants this and their platform supports it, produce two variants of affected emails: one for users who completed the action ("Great, here is the next step") and one for users who did not ("Let us help you get past this"). Flag which emails need branching logic and specify the condition that triggers each path.
 
 ### Small List Size (Under 500 Subscribers)
+
 A/B testing is statistically meaningless at small list sizes -- 50 opens per variant cannot reach 95% confidence on a 2-3% difference in open rates. For small lists, advise the user to choose the stronger variant based on copywriting principles, document the rationale, and plan to test in future campaigns as the list grows. Suggest using the sequence itself as a baseline measurement rather than splitting traffic.
 
 ### Transactional Boundary Compliance
+
 Post-purchase sequences often blend transactional emails (order confirmation, shipping notification) with marketing emails (upsell, review request). In most jurisdictions under CAN-SPAM and GDPR, transactional emails can be sent to anyone regardless of marketing consent, but marketing emails require explicit opt-in. Flag this to the user if the sequence crosses that boundary. The first 1-2 emails in a post-purchase sequence may be transactional; emails 3+ are typically marketing and require consent.
 
 ### High-Ticket B2B Offer ($5,000+)
+
 For sequences promoting high-ticket services or enterprise software, email alone rarely closes the deal. The sequence's CTA goal should not be "purchase" but rather "book a discovery call" or "request a proposal." The email sequence functions as qualification and trust-building; the actual conversion happens off-email. Structure the sequence to screen for fit (ideal customer profile signals) and lower the barrier to the first conversation rather than attempting to close by email.
 
 ### Reusing Sequences Across Audience Segments
+
 If the user wants one sequence to serve multiple audience types (e.g., a welcome sequence for both individual freelancers and agency owners who subscribe to the same list), recommend against it. Audiences at different awareness levels and with different pain points will respond poorly to the same narrative. Instead, segment at the point of subscription (use a survey or intake form) and create tailored sequences. If the user cannot segment, write to the most common audience type and note who the sequence will underserve.
 
 ### Promotional Sequence During a Saturated Send Period
+
 If the user is running a launch during a high-email-volume period (Black Friday, end-of-quarter, January "new year" season), the sequence needs to account for inbox competition. In these windows, shorten delays between emails (do not wait 3 days between promotional emails when the sale window is 5 days total), increase subject line specificity, and move the urgency email earlier rather than waiting for the final day. Also recommend the user temporarily suppress the sequence from recipients who have not opened the last 2-3 sends, since those subscribers are unlikely to engage and will harm deliverability.
 
 ### Re-engagement Sequence for Compliance List Cleaning
+
 When the primary goal is list hygiene rather than reactivation (i.e., the user needs to identify and remove non-engaged contacts to improve deliverability), the sequence design changes. Email 1 should be the most compelling possible reason to stay (best offer, most valuable content). Email 3 should be a direct binary choice: click this link to confirm you want to keep receiving emails, or you will be removed. Contacts who do not click the confirmation link by 48 hours after Email 3 should be suppressed from future sends. This is distinct from a re-engagement sequence designed primarily to recover revenue.
 
 ---
@@ -438,15 +468,16 @@ When the primary goal is list hygiene rather than reactivation (i.e., the user n
 
 ### Sequence Overview
 
-| # | Email Name | Send Timing | Purpose | Primary CTA |
-|---|-----------|-------------|---------|-------------|
-| 1 | One thing to do today | Immediately on trial start | Drive to first integration connection | Connect your first integration |
-| 2 | What connected teams actually look like | +2 days | Education + social proof for non-activators | Connect an integration |
-| 3 | The feature most people miss | +4 days | Feature spotlight tied to integration value | See it in your account |
-| 4 | How [similar company] cut meeting time by 40% | +7 days | Customer story -- make the outcome concrete | Book a 15-minute walkthrough |
-| 5 | Your trial ends in 3 days | +11 days | Urgency + conversion to paid | Start your $29/month plan |
+| #   | Email Name                                    | Send Timing                | Purpose                                     | Primary CTA                    |
+| --- | --------------------------------------------- | -------------------------- | ------------------------------------------- | ------------------------------ |
+| 1   | One thing to do today                         | Immediately on trial start | Drive to first integration connection       | Connect your first integration |
+| 2   | What connected teams actually look like       | +2 days                    | Education + social proof for non-activators | Connect an integration         |
+| 3   | The feature most people miss                  | +4 days                    | Feature spotlight tied to integration value | See it in your account         |
+| 4   | How [similar company] cut meeting time by 40% | +7 days                    | Customer story -- make the outcome concrete | Book a 15-minute walkthrough   |
+| 5   | Your trial ends in 3 days                     | +11 days                   | Urgency + conversion to paid                | Start your $29/month plan      |
 
 **Exit Conditions:**
+
 - User connects their first integration (activation achieved -- move to "activated" nurture track)
 - User converts to paid plan (remove from sequence)
 - User unsubscribes
@@ -455,6 +486,7 @@ When the primary goal is list hygiene rather than reactivation (i.e., the user n
 ---
 
 ### Email 1: One thing to do today
+
 **Send:** Immediately on trial start
 **Sequence Purpose:** Get the user to take the single action most correlated with retention and conversion -- connecting their first integration -- before the novelty of a new tool wears off
 **Subject Line A:** One setup step that changes everything (48 chars)
@@ -491,6 +523,7 @@ Try it before end of day. That one step is the difference between a tool you eva
 ---
 
 ### Email 2: What connected teams actually look like
+
 **Send:** +2 days after trial start (send if integration NOT yet connected)
 **Sequence Purpose:** Overcome the "I will get to it later" inertia by making the outcome of activation concrete and showing social proof that real teams like theirs have done this
 **Subject Line A:** What your dashboard looks like with a live integration (55 chars)
@@ -524,6 +557,7 @@ You can be at this point by tonight.
 ---
 
 ### Email 3: The feature most people miss
+
 **Send:** +4 days after trial start
 **Sequence Purpose:** Deliver standalone educational value while reinforcing the integration dependency -- the most powerful features require an active integration, creating a natural incentive to activate
 **Subject Line A:** The reporting feature 80% of users find by accident (51 chars)
@@ -557,6 +591,7 @@ Either way -- go find it. It is the feature most teams wish they had found on we
 ---
 
 ### Email 4: How [similar company] cut meeting time by 40%
+
 **Send:** +7 days after trial start
 **Sequence Purpose:** Concrete, specific customer outcome story that makes the transformation real -- and softly introduces the paid plan by referencing a team that uses the full product
 **Subject Line A:** 40% fewer meetings -- here is exactly how they did it (51 chars)
@@ -574,6 +609,7 @@ They had the same problem most teams have: work was happening everywhere -- Slac
 Their setup took about 20 minutes. They connected Slack and Google Drive. That is it.
 
 One month later:
+
 - Morning standup dropped from 45 minutes to 18 minutes
 - Project managers stopped receiving "what is the status on X" messages
 - Their CEO could pull a real-time project health report without scheduling a meeting to get one
@@ -594,6 +630,7 @@ No sales pitch. Just your account, your integrations, and a setup that actually 
 ---
 
 ### Email 5: Your trial ends in 3 days
+
 **Send:** +11 days after trial start (3 days before trial expiration on day 14)
 **Sequence Purpose:** Direct urgency email -- this is not the time for education or stories. The reader either sees the value or they do not. The job of this email is to convert the ones who see the value but have not acted.
 **Subject Line A:** Your trial ends in 3 days -- here is what happens next (54 chars)
@@ -631,32 +668,33 @@ If you have questions about billing, team seats, or what the paid plan includes,
 
 ### Performance Targets
 
-| Metric | Target | Industry Benchmark | Notes |
-|--------|--------|--------------------|-------|
-| Email 1 Open Rate | 55-60% | 28-32% (SaaS) | Day-of send to fresh signups drives high open rates |
-| Sequence Average Open Rate | 35-40% | 28-32% | Expect drop-off; Email 5 often rebounds with urgency |
-| Integration Activation Rate | 30-40% from sequence | Varies | 40%+ activation predicts ~40% trial-to-paid conversion |
-| Trial-to-Paid Conversion | 20-25% of activated users | 15-25% (SaaS) | Non-activated users convert at ~6% regardless of sequence |
-| Click Rate (sequence avg) | 5-8% | 3-5% | Weight Email 1 and Email 5 CTAs most heavily |
-| Unsubscribe Rate | < 0.4% | 0.3-0.5% | Flag if any email exceeds 1% -- review targeting |
-| Demo/Walkthrough Bookings | 8-12% of Email 4 recipients | Varies | Leading indicator of high-value customer acquisition |
+| Metric                      | Target                      | Industry Benchmark | Notes                                                     |
+| --------------------------- | --------------------------- | ------------------ | --------------------------------------------------------- |
+| Email 1 Open Rate           | 55-60%                      | 28-32% (SaaS)      | Day-of send to fresh signups drives high open rates       |
+| Sequence Average Open Rate  | 35-40%                      | 28-32%             | Expect drop-off; Email 5 often rebounds with urgency      |
+| Integration Activation Rate | 30-40% from sequence        | Varies             | 40%+ activation predicts ~40% trial-to-paid conversion    |
+| Trial-to-Paid Conversion    | 20-25% of activated users   | 15-25% (SaaS)      | Non-activated users convert at ~6% regardless of sequence |
+| Click Rate (sequence avg)   | 5-8%                        | 3-5%               | Weight Email 1 and Email 5 CTAs most heavily              |
+| Unsubscribe Rate            | < 0.4%                      | 0.3-0.5%           | Flag if any email exceeds 1% -- review targeting          |
+| Demo/Walkthrough Bookings   | 8-12% of Email 4 recipients | Varies             | Leading indicator of high-value customer acquisition      |
 
 ---
 
 ### A/B Testing Plan
 
-| Test # | Email | Variable Tested | Variant A | Variant B | Min Send Volume | Decision Metric |
-|--------|-------|----------------|-----------|-----------|-----------------|-----------------|
-| 1 | Email 1 | Subject line mechanism | Benefit: "One setup step that changes everything" | Curiosity: "Most teams skip this on day one -- don't" | 500/variant | Open rate |
-| 2 | Email 1 | CTA placement | CTA button only at bottom | CTA inline above fold + button at bottom | 500/variant | Click rate |
-| 3 | Email 5 | Urgency framing | Deadline-specific ("before Friday") | Loss-aversion ("account goes read-only") | 500/variant | Conversion rate |
-| 4 | Email 4 | CTA type | Book a live walkthrough | Self-serve setup guide | 500/variant | Downstream paid conversion rate |
+| Test # | Email   | Variable Tested        | Variant A                                         | Variant B                                             | Min Send Volume | Decision Metric                 |
+| ------ | ------- | ---------------------- | ------------------------------------------------- | ----------------------------------------------------- | --------------- | ------------------------------- |
+| 1      | Email 1 | Subject line mechanism | Benefit: "One setup step that changes everything" | Curiosity: "Most teams skip this on day one -- don't" | 500/variant     | Open rate                       |
+| 2      | Email 1 | CTA placement          | CTA button only at bottom                         | CTA inline above fold + button at bottom              | 500/variant     | Click rate                      |
+| 3      | Email 5 | Urgency framing        | Deadline-specific ("before Friday")               | Loss-aversion ("account goes read-only")              | 500/variant     | Conversion rate                 |
+| 4      | Email 4 | CTA type               | Book a live walkthrough                           | Self-serve setup guide                                | 500/variant     | Downstream paid conversion rate |
 
 ---
 
 ### Automation Setup Notes
 
 **Platform-specific flags:**
+
 - Tag trigger: `trial_started` applied on account creation; sequence enrolls within 5 minutes
 - Exit condition 1: Tag `integration_connected` applied by webhook when first integration is saved -- suppresses emails 2-3 and adjusts emails 4-5 to reflect activated status (create separate "activated" track)
 - Exit condition 2: Tag `paid_customer` applied on billing webhook -- removes from sequence immediately

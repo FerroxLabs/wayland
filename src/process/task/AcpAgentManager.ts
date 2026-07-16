@@ -906,17 +906,24 @@ ${collectedResponses.join('\n')}`;
 
   /**
    * Resolve CLI config for a custom agent backend.
-   * Looks up assistants config by UUID, falling back to extension-contributed adapters.
+   * Looks up the preset `assistants` config by UUID first, then the raw
+   * `acp.customAgents` config (user-defined CLI agents added in Settings ->
+   * Agents -> Local Agents live here, not in `assistants`, since the
+   * `migration.assistantsSplitCustom` migration split the two stores), falling
+   * back to extension-contributed adapters last.
    */
   private async resolveCustomAgentCliConfig(data: AcpAgentManagerData): Promise<{
     cliPath?: string;
     customArgs?: string[];
     customEnv?: Record<string, string>;
   }> {
-    const customAgents = await ProcessConfig.get('assistants');
-    let customAgentConfig: CustomAgentLaunchConfig | undefined = customAgents?.find(
-      (agent) => agent.id === data.customAgentId
-    );
+    const [presetAgents, rawCustomAgents] = await Promise.all([
+      ProcessConfig.get('assistants'),
+      ProcessConfig.get('acp.customAgents'),
+    ]);
+    let customAgentConfig: CustomAgentLaunchConfig | undefined =
+      presetAgents?.find((agent) => agent.id === data.customAgentId) ??
+      rawCustomAgents?.find((agent) => agent.id === data.customAgentId);
 
     // Fallback: extension adapter (customAgentId format: ext:{extensionName}:{adapterId})
     if (!customAgentConfig && data.customAgentId!.startsWith('ext:')) {

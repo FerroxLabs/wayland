@@ -4,7 +4,7 @@
 
 ## When to use
 
-Use when the deliverable is a *scroll-stopping opener* — the first line that determines whether the second line gets read. Covers social-post openers, short-form video opens (as written copy; video execution is Channels'), email subject lines and preview text, cold-outbound first sentences, ad headlines, landing-page hero one-liners.
+Use when the deliverable is a _scroll-stopping opener_ — the first line that determines whether the second line gets read. Covers social-post openers, short-form video opens (as written copy; video execution is Channels'), email subject lines and preview text, cold-outbound first sentences, ad headlines, landing-page hero one-liners.
 
 The reader can leave costlessly after one line. The hook has to earn the second line or it dies.
 
@@ -28,7 +28,7 @@ Six patterns. They are starting points, not formulas. Pick one based on awarenes
 
 Every hook must satisfy one rule: **the first line earns the second.** After writing the hook, write the second line. If the second line does not feel inevitable given the first, the first line is wrong. Rework the first, not the second.
 
-A working hook produces forward pull — the reader does not decide to keep reading, they just keep reading. If the user (or you, reading aloud) has to *decide* to continue, the hook is failing.
+A working hook produces forward pull — the reader does not decide to keep reading, they just keep reading. If the user (or you, reading aloud) has to _decide_ to continue, the hook is failing.
 
 ## Procedure
 
@@ -63,9 +63,11 @@ A working hook produces forward pull — the reader does not decide to keep read
 **Awareness stage:** Problem-aware. They feel the time drain.
 
 **Before** (clever, vague, no second-line pull):
-> *Founders, are you stuck in the support inbox?*
+
+> _Founders, are you stuck in the support inbox?_
 
 **After** (named identity + specific promise, customer-voice pulled from interviews):
-> *You are a $12k-MRR founder answering the same five tickets every morning. Here is the exact moment you should hire your first VA — and what it actually costs.*
+
+> _You are a $12k-MRR founder answering the same five tickets every morning. Here is the exact moment you should hire your first VA — and what it actually costs._
 
 The "after" opens with a named identity and promises a specific decision point; the second line becomes the reason to keep reading. The "before" asks a yes/no question and dies on it.

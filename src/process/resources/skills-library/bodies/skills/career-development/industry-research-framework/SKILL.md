@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career analysis research planning"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career analysis research planning'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Industry Research Framework
@@ -224,53 +224,54 @@ metadata:
 
 ### Industry Structure
 
-| Segment | Description | Size (Relative) | Growth |
-|---------|------------|-----------------|--------|
-| Utility-scale solar | Large solar farms (10MW+) for grid power | Large (60-70% of capacity) | Strong |
-| Commercial/Industrial | Rooftop and ground-mount for businesses | Medium (20-25%) | Growing |
-| Residential | Home rooftop solar and battery systems | Medium (10-15%) | Growing |
-| Solar manufacturing | Panel, inverter, and component production | Medium | Mixed (growing demand, competitive imports) |
-| Solar services | O&M, monitoring, asset management | Small but growing | Strong |
+| Segment               | Description                               | Size (Relative)            | Growth                                      |
+| --------------------- | ----------------------------------------- | -------------------------- | ------------------------------------------- |
+| Utility-scale solar   | Large solar farms (10MW+) for grid power  | Large (60-70% of capacity) | Strong                                      |
+| Commercial/Industrial | Rooftop and ground-mount for businesses   | Medium (20-25%)            | Growing                                     |
+| Residential           | Home rooftop solar and battery systems    | Medium (10-15%)            | Growing                                     |
+| Solar manufacturing   | Panel, inverter, and component production | Medium                     | Mixed (growing demand, competitive imports) |
+| Solar services        | O&M, monitoring, asset management         | Small but growing          | Strong                                      |
 
 **Value chain:** Raw materials -> Cell/panel manufacturing -> Project development -> Installation -> Operations and maintenance -> Grid integration
 **Regulatory environment:** Federal Investment Tax Credit (ITC), state-level Renewable Portfolio Standards (RPS), net metering policies, interconnection regulations, building codes for rooftop systems
 
 ### Key Players
 
-| Company | Segment | Size | Known For | Hiring? |
-|---------|---------|------|-----------|---------|
-| [Major utility developer] | Utility-scale | 10,000+ employees | Largest US solar developer | Active |
-| [Major residential installer] | Residential | 15,000+ employees | Direct-to-consumer solar | Active |
-| [Panel manufacturer] | Manufacturing | 5,000+ employees | US-manufactured panels | Active |
-| [Inverter company] | Components | 3,000+ employees | String and micro-inverters | Moderate |
-| [Project developer] | Commercial | 2,000+ employees | C&I solar development | Active |
+| Company                       | Segment       | Size              | Known For                  | Hiring?  |
+| ----------------------------- | ------------- | ----------------- | -------------------------- | -------- |
+| [Major utility developer]     | Utility-scale | 10,000+ employees | Largest US solar developer | Active   |
+| [Major residential installer] | Residential   | 15,000+ employees | Direct-to-consumer solar   | Active   |
+| [Panel manufacturer]          | Manufacturing | 5,000+ employees  | US-manufactured panels     | Active   |
+| [Inverter company]            | Components    | 3,000+ employees  | String and micro-inverters | Moderate |
+| [Project developer]           | Commercial    | 2,000+ employees  | C&I solar development      | Active   |
 
 **Disruptors to watch:** Solar-plus-storage integrators, community solar platforms, solar financing startups
 **Key industry groups:** Solar Energy Industries Association (SEIA), Interstate Renewable Energy Council (IREC)
 
 ### Business Models
 
-| Model | Prevalence | Revenue Driver | Employee Impact |
-|-------|-----------|---------------|-----------------|
-| Project development (EPC) | Dominant | Engineering, procurement, construction contracts | Strong demand for engineers and PMs |
-| Residential sales/install | Common | Customer acquisition + installation fees | Sales and installation roles dominate |
-| Manufacturing | Common | Panel and component sales volume | Factory and QA engineering roles |
-| O&M services | Emerging | Long-term service contracts | Growing demand for field technicians |
+| Model                     | Prevalence | Revenue Driver                                   | Employee Impact                       |
+| ------------------------- | ---------- | ------------------------------------------------ | ------------------------------------- |
+| Project development (EPC) | Dominant   | Engineering, procurement, construction contracts | Strong demand for engineers and PMs   |
+| Residential sales/install | Common     | Customer acquisition + installation fees         | Sales and installation roles dominate |
+| Manufacturing             | Common     | Panel and component sales volume                 | Factory and QA engineering roles      |
+| O&M services              | Emerging   | Long-term service contracts                      | Growing demand for field technicians  |
 
 ### Industry Trends
 
-| Trend | Direction | Speed | Impact on Jobs |
-|-------|----------|-------|---------------|
-| Battery storage integration | Growing | Rapid | Creates new roles in energy storage engineering |
-| Manufacturing reshoring | Growing | Gradual | Creates US manufacturing and supply chain roles |
-| AI-driven site optimization | Growing | Gradual | Transforms development roles, adds data roles |
-| Grid-scale deployment acceleration | Growing | Rapid | Creates project management and engineering demand |
-| Distributed energy resources | Growing | Gradual | Creates microgrid and community solar roles |
+| Trend                              | Direction | Speed   | Impact on Jobs                                    |
+| ---------------------------------- | --------- | ------- | ------------------------------------------------- |
+| Battery storage integration        | Growing   | Rapid   | Creates new roles in energy storage engineering   |
+| Manufacturing reshoring            | Growing   | Gradual | Creates US manufacturing and supply chain roles   |
+| AI-driven site optimization        | Growing   | Gradual | Transforms development roles, adds data roles     |
+| Grid-scale deployment acceleration | Growing   | Rapid   | Creates project management and engineering demand |
+| Distributed energy resources       | Growing   | Gradual | Creates microgrid and community solar roles       |
 
 ### Job Market Assessment
 
 **Demand level:** High -- industry adding 15,000-25,000 jobs annually
 **Compensation ranges:**
+
 - Entry-level engineer: $65,000-$85,000
 - Mid-level engineer/PM: $85,000-$120,000
 - Senior engineer/director: $120,000-$170,000
@@ -291,13 +292,13 @@ metadata:
 
 ### Assessment Summary
 
-| Factor | Rating | Notes |
-|--------|--------|-------|
-| Growth outlook | Strong | Federal policy support, declining costs, climate targets drive sustained growth |
-| Compensation | At market | Comparable to automotive manufacturing; slightly lower at entry, comparable at senior |
-| Entry difficulty | Low | Mechanical engineering background is directly transferable; high demand reduces barriers |
-| Job security | Medium-High | Policy-dependent but multi-decade infrastructure buildout provides stability |
-| Remote flexibility | Medium | Design and corporate roles remote-friendly; field and project roles require on-site |
+| Factor             | Rating      | Notes                                                                                    |
+| ------------------ | ----------- | ---------------------------------------------------------------------------------------- |
+| Growth outlook     | Strong      | Federal policy support, declining costs, climate targets drive sustained growth          |
+| Compensation       | At market   | Comparable to automotive manufacturing; slightly lower at entry, comparable at senior    |
+| Entry difficulty   | Low         | Mechanical engineering background is directly transferable; high demand reduces barriers |
+| Job security       | Medium-High | Policy-dependent but multi-decade infrastructure buildout provides stability             |
+| Remote flexibility | Medium      | Design and corporate roles remote-friendly; field and project roles require on-site      |
 
 ### Recommended Next Steps
 

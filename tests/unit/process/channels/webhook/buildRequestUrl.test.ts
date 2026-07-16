@@ -19,14 +19,18 @@ describe('buildRequestUrl (webhook HMAC URL)', () => {
 
   it('uses SERVER_BASE_URL origin and IGNORES a spoofed x-forwarded-host', () => {
     process.env.SERVER_BASE_URL = 'https://wayland.example.com';
-    const url = buildRequestUrl(req({ 'x-forwarded-host': 'attacker.evil.com', host: 'attacker.evil.com' }, '/channels/twilio/webhook'));
+    const url = buildRequestUrl(
+      req({ 'x-forwarded-host': 'attacker.evil.com', host: 'attacker.evil.com' }, '/channels/twilio/webhook')
+    );
     expect(url).toBe('https://wayland.example.com/channels/twilio/webhook');
     expect(url).not.toContain('attacker');
   });
 
   it('strips any path/trailing slash from SERVER_BASE_URL, keeping only the origin', () => {
     process.env.SERVER_BASE_URL = 'https://wayland.example.com/ignored/path';
-    expect(buildRequestUrl(req({}, '/channels/twilio/webhook'))).toBe('https://wayland.example.com/channels/twilio/webhook');
+    expect(buildRequestUrl(req({}, '/channels/twilio/webhook'))).toBe(
+      'https://wayland.example.com/channels/twilio/webhook'
+    );
   });
 
   it('falls back to request headers only when no SERVER_BASE_URL is configured', () => {

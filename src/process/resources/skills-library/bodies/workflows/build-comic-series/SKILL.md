@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "comic-creator comic-book-creator self-publishing-guide"
+skills: 'comic-creator comic-book-creator self-publishing-guide'
 trigger_phrases: >-
   I want to create a comic series make a comic book start a webcomic publish a
   graphic novel how to make comics comic book from scratch build a comic series
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: creative-writing design content-marketing step-by-step planning
   category: creative-project
-  depends: "comic-creator comic-book-creator self-publishing-guide"
+  depends: 'comic-creator comic-book-creator self-publishing-guide'
 ---
+
 # Build Comic Series
 
 **Estimated time:** 4-8 months
@@ -157,6 +158,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -167,7 +169,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Scripting without understanding visual storytelling:** Comics are a visual medium. If your script requires 10 panels of dialogue on one page, it is not a comic script. Study panel layout and pacing.
 - **Inconsistent art quality across pages:** Rushing pages to meet a deadline creates uneven quality. Establish a sustainable production pace and stick to it.
 - **Ignoring lettering as an afterthought:** Bad lettering (wrong fonts, poor balloon placement, unreadable text) ruins good art. Study lettering conventions and invest in professional fonts.
-
 
 ### Timeline Considerations
 

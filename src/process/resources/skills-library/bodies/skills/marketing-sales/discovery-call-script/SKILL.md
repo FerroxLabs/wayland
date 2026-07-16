@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sales planning template strategy"
-  category: "marketing-sales"
-  subcategory: "sales"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sales planning template strategy'
+  category: 'marketing-sales'
+  subcategory: 'sales'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Discovery Call Script
@@ -293,12 +293,12 @@ metadata:
 
 ### Qualification Check (2-3 minutes)
 
-| Factor | Question | Qualified Signal |
-|--------|----------|-----------------|
-| Budget | "Do you have budget set aside for an HR platform, or would this be a new request?" | Budget exists or "we could make a case for it" |
-| Authority | "If you found the right solution, who else would need to be involved in the decision?" | HR Director decides or names 1-2 specific people |
-| Need | "On a scale of 1-10, how urgent is solving the onboarding and PTO problem for your team right now?" | 7+ |
-| Timeline | "If you found the right platform, when would you ideally want it live?" | Within 3 months |
+| Factor    | Question                                                                                            | Qualified Signal                                 |
+| --------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Budget    | "Do you have budget set aside for an HR platform, or would this be a new request?"                  | Budget exists or "we could make a case for it"   |
+| Authority | "If you found the right solution, who else would need to be involved in the decision?"              | HR Director decides or names 1-2 specific people |
+| Need      | "On a scale of 1-10, how urgent is solving the onboarding and PTO problem for your team right now?" | 7+                                               |
+| Timeline  | "If you found the right platform, when would you ideally want it live?"                             | Within 3 months                                  |
 
 ---
 

@@ -28,12 +28,7 @@ const { Client, LocalAuth, MessageMedia } = wwebPkg;
 export async function createBackend({ emit, sessionDir }) {
   const dataPath = sessionDir
     ? path.join(sessionDir, 'whatsapp-web')
-    : path.join(
-        process.env.HOME || process.env.USERPROFILE || '.',
-        '.wayland',
-        'whatsapp',
-        'whatsapp-web',
-      );
+    : path.join(process.env.HOME || process.env.USERPROFILE || '.', '.wayland', 'whatsapp', 'whatsapp-web');
 
   let client = null;
   let connectionState = 'disconnected';
@@ -54,9 +49,7 @@ export async function createBackend({ emit, sessionDir }) {
     });
 
     c.on('qr', (qr) => emit('qr.update', { qr }));
-    c.on('loading_screen', (percent, message) =>
-      setStatus('connecting', { percent, message }),
-    );
+    c.on('loading_screen', (percent, message) => setStatus('connecting', { percent, message }));
     c.on('authenticated', () => setStatus('connecting', { phase: 'authenticated' }));
     c.on('auth_failure', (msg) => {
       setStatus('logged_out', { reason: 'auth_failure', message: msg });
@@ -71,9 +64,9 @@ export async function createBackend({ emit, sessionDir }) {
         setTimeout(() => {
           if (!stopRequested) {
             client = buildClient();
-            client.initialize().catch((err) =>
-              emit('error', { kind: 'reconnect', message: String(err?.message || err) }),
-            );
+            client
+              .initialize()
+              .catch((err) => emit('error', { kind: 'reconnect', message: String(err?.message || err) }));
           }
         }, 3000);
       }

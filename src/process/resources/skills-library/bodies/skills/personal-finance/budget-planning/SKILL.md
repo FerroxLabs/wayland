@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance expenses savings planning"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance expenses savings planning'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Budget Planning
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to create a monthly budget, spending plan, or cash flow plan for personal or household finances
 - The user wants to know where their money is going and how to allocate income across categories deliberately
 - The user needs help choosing between budgeting methodologies (zero-based, 50/30/20, envelope, pay-yourself-first)
@@ -33,6 +35,7 @@ metadata:
 - The user is recovering from a budget overage and wants a corrective plan for the next month
 
 **Do NOT use when:**
+
 - The user wants specific investment product recommendations or portfolio allocation (use an investing skill instead)
 - The user needs tax optimization, deduction planning, or estimated quarterly tax calculations (use a tax-planning skill instead)
 - The user needs a business profit-and-loss budget, departmental budget, or business cash flow model (use a business finance skill instead)
@@ -263,27 +266,35 @@ A budget with no follow-through mechanism fails within 30 days for most people. 
 ## Edge Cases
 
 ### Irregular or Variable Income (Freelancers, Gig Workers, Commission-Based Employees)
+
 Fixed percentage targets are unreliable when monthly income changes by 30-50% or more. Use a **baseline income method**: calculate the average of the last 6 months of income, then identify the lowest single month in that window. Build the essential-expenses-only budget using the lowest month as the income ceiling -- this ensures needs are always covered. Budget the difference between the baseline average and the low month as variable surplus. In high-income months, direct the surplus in priority order: (1) replenish buffer fund to 1-2 months of essential expenses, (2) catch up on any savings goals behind target, (3) accelerate debt payoff. Recommend zero-based budgeting recalculated from scratch each month rather than a static template, because the monthly starting number changes. A "buffer account" holding 1-2 months of essential expenses is a critical infrastructure piece for irregular-income households -- build it into the budget explicitly.
 
 ### Shared Finances (Partners, Spouses, Roommates)
+
 The correct approach depends on how the household manages money. Ask: "Do you manage all finances jointly, split everything equally, or each pay different categories?" For **fully joint finances**: build one combined budget with all household income and all household expenses -- treat the household as a single entity. For **proportional contribution** (common when incomes differ significantly): each partner contributes to a shared account proportional to their income share (if one earns 60% of household income, they contribute 60% of shared expenses). Build the user's budget showing their contribution to shared expenses as fixed line items, plus their personal discretionary money. For **split-category arrangements** (one pays rent, one pays groceries): build the budget for the user's assigned categories only, note explicitly that the full household budget has additional categories handled by the partner, and flag that the user should know the full household picture even if they only manage half.
 
 ### Zero or Interrupted Income (Job Loss, Medical Leave, Parental Leave)
+
 Shift immediately from allocation budgeting to **emergency triage mode**. Do not build a standard budget. Instead: (1) Calculate current liquid reserves (checking + savings + accessible funds). (2) Identify the minimum monthly "survival budget" -- housing, utilities, groceries, insurance, minimum debt payments only -- everything else is suspended. (3) Divide liquid reserves by the survival budget to calculate runway in months. (4) Identify which expenses have hardship deferment options (federal student loans, many landlords, some insurers, most credit cards have hardship programs). (5) Set a weekly spending ceiling equal to (liquid reserves / estimated weeks until income resumes), preserving a 4-week buffer. Do not build wants categories into a zero-income budget.
 
 ### Very High Income with Large Surpluses
+
 When income is high enough that 50/30/20 produces surplus wants dollars that exceed any reasonable use, the framework needs upward recalibration. A household with $25,000/month after-tax take-home has a "wants" ceiling of $7,500/month -- which may vastly exceed actual lifestyle spending. In this case: increase the savings/debt target above 20% first (many high-income earners can sustainably save 30-40% and accelerate financial independence timelines significantly). Define specific additional savings goals: taxable brokerage contributions, children's 529 accounts, real estate reserve fund, charitable giving targets. Do not let unallocated surplus sit in checking -- assign it explicitly or it will inflate lifestyle spending by default.
 
 ### Household with Multiple Debt Minimums Consuming Most of the Budget
+
 When minimum debt payments across student loans, auto loans, personal loans, and credit cards consume 25-35% of after-tax income, the standard budget framework breaks down because minimum payments are Needs that crowd out savings entirely. In this case: (1) List every debt with its balance, interest rate, and minimum payment. (2) Identify whether any debts are at 0% promotional rates (treat differently from high-interest debt). (3) Note that the debt payoff sequencing decision itself should be handled by `debt-snowball-planner` or `debt-avalanche-planner` -- this budget skill covers only how to fit minimum payments into the current month's allocation. (4) Build the budget with all minimums as fixed line items. (5) Identify even a small extra payment allocation ($25-$100/month) that can be targeted at one debt -- even a minimal amount creates momentum and marginally reduces future minimum requirements.
 
 ### Users Who Have Never Tracked Their Spending and Cannot Provide Numbers
+
 Some users genuinely do not know what they spend in each category. Do not block budget creation on perfect data. Use a two-phase approach: **Phase 1** -- build a budget using estimates and averages (national average benchmarks: housing 25-35% of income, groceries $200-$400/month for one adult, utilities $150-$300/month, transportation 10-15% of income). Mark every estimated line item with an asterisk. **Phase 2** -- instruct the user to review their last two months of bank and credit card statements and replace every estimate with an actual average. Set the Phase 2 review as a specific action item with a date. A budget built on estimates is better than no budget, but the user must understand that the estimates carry significant uncertainty until replaced with real data.
 
 ### Student with Loans in Deferment or Grace Period
+
 Loans in deferment or grace period require a forward-looking budget adjustment. Include the **expected future minimum payment** as a sinking fund line item today -- the user is accumulating a future obligation right now even if no payment is currently due. Calculate when the grace period ends (typically 6 months after graduation for federal loans) and what the monthly payment will be under a standard 10-year repayment plan (rough estimate: $100/month per $10,000 borrowed at standard rates). Add this amount as "Future Student Loan Payment -- Sinking Fund" so the budget is not shocked when payments resume. Simultaneously, the money accumulating in this sinking fund can be held in savings and applied as a lump-sum payment when repayment begins, reducing principal and potentially shortening the loan term.
 
 ### Two-Income Household Facing Potential Income Reduction
+
 When one partner's income is at risk (contract work ending, pregnancy leave approaching, business struggling), build two explicit budgets: a **dual-income budget** (current state) and a **single-income contingency budget** (survive on one income only). The gap between the two budgets identifies which categories are fully funded by the at-risk income and would need to be cut or covered by the primary income. This forces the household to see the specific dollar impact of an income reduction before it happens and identify which cuts are manageable versus which would require structural changes (housing downsizing, vehicle reduction).
 
 ---
@@ -307,64 +318,66 @@ When one partner's income is at risk (contract work ending, pregnancy leave appr
 ---
 
 ### Income Sources
-| Source                     | Monthly Amount | Notes           |
-|----------------------------|---------------|-----------------|
-| Partner 1 (your income)    | $3,200        | After-tax       |
-| Partner 2 (spouse's income)| $2,800        | After-tax       |
-| **Total Monthly Income**   | **$6,000**    |                 |
+
+| Source                      | Monthly Amount | Notes     |
+| --------------------------- | -------------- | --------- |
+| Partner 1 (your income)     | $3,200         | After-tax |
+| Partner 2 (spouse's income) | $2,800         | After-tax |
+| **Total Monthly Income**    | **$6,000**     |           |
 
 ---
 
 ### Budget Allocations
-| Category                      | Budgeted  | % of Income | Type     |
-|-------------------------------|----------|-------------|----------|
-| **NEEDS**                     |          |             |          |
-| Rent                          | $1,850   | 31%         | Need     |
-| Electricity                   | $90      | 2%          | Need     |
-| Internet                      | $65      | 1%          | Need     |
-| Phone (both)                  | $120     | 2%          | Need     |
-| Groceries                     | $600     | 10%         | Need     |
-| Car payment (spouse)          | $380     | 6%          | Need     |
-| Car insurance                 | $180     | 3%          | Need     |
-| Transit / subway (your commute)| $100    | 2%          | Need*    |
-| *Needs Subtotal*              | *$3,385* | *56%*       |          |
-|                               |          |             |          |
-| **WANTS**                     |          |             |          |
-| Dining out / takeout          | $400     | 7%          | Want     |
-| Streaming subscriptions       | $100     | 2%          | Want     |
-| Other subscriptions           | $50      | 1%          | Want     |
-| Personal / miscellaneous      | $200     | 3%          | Want     |
-| *Wants Subtotal*              | *$750*   | *13%*       |          |
-|                               |          |             |          |
-| **SAVINGS & DEBT PAYOFF**     |          |             |          |
-| Emergency Fund                | $500     | 8%          | Savings  |
-| House Down Payment Fund       | $300     | 5%          | Savings  |
-| Retirement (IRA -- future)    | $0       | 0%          | Savings  |
-| *Savings Subtotal*            | *$800*   | *13%*       |          |
-|                               |          |             |          |
-| **SINKING FUNDS**             |          |             |          |
-| Car Maintenance Fund          | $65      | 1%          | Savings  |
-| Medical / Dental Fund         | $100     | 2%          | Savings  |
-| Holiday / Gifts Fund          | $60      | 1%          | Savings  |
-| Home / Apartment Fund         | $40      | 1%          | Savings  |
-| *Sinking Funds Subtotal*      | *$265*   | *4%*        |          |
-|                               |          |             |          |
-| **TOTAL ALLOCATED**           | **$5,200** | **87%**   |          |
-| **Unassigned Surplus**        | **$800** | **13%**     | Assign   |
 
-> *Transit estimate based on typical monthly transit pass cost -- confirm with your actual monthly pass or usage.
+| Category                        | Budgeted   | % of Income | Type    |
+| ------------------------------- | ---------- | ----------- | ------- |
+| **NEEDS**                       |            |             |         |
+| Rent                            | $1,850     | 31%         | Need    |
+| Electricity                     | $90        | 2%          | Need    |
+| Internet                        | $65        | 1%          | Need    |
+| Phone (both)                    | $120       | 2%          | Need    |
+| Groceries                       | $600       | 10%         | Need    |
+| Car payment (spouse)            | $380       | 6%          | Need    |
+| Car insurance                   | $180       | 3%          | Need    |
+| Transit / subway (your commute) | $100       | 2%          | Need\*  |
+| _Needs Subtotal_                | _$3,385_   | _56%_       |         |
+|                                 |            |             |         |
+| **WANTS**                       |            |             |         |
+| Dining out / takeout            | $400       | 7%          | Want    |
+| Streaming subscriptions         | $100       | 2%          | Want    |
+| Other subscriptions             | $50        | 1%          | Want    |
+| Personal / miscellaneous        | $200       | 3%          | Want    |
+| _Wants Subtotal_                | _$750_     | _13%_       |         |
+|                                 |            |             |         |
+| **SAVINGS & DEBT PAYOFF**       |            |             |         |
+| Emergency Fund                  | $500       | 8%          | Savings |
+| House Down Payment Fund         | $300       | 5%          | Savings |
+| Retirement (IRA -- future)      | $0         | 0%          | Savings |
+| _Savings Subtotal_              | _$800_     | _13%_       |         |
+|                                 |            |             |         |
+| **SINKING FUNDS**               |            |             |         |
+| Car Maintenance Fund            | $65        | 1%          | Savings |
+| Medical / Dental Fund           | $100       | 2%          | Savings |
+| Holiday / Gifts Fund            | $60        | 1%          | Savings |
+| Home / Apartment Fund           | $40        | 1%          | Savings |
+| _Sinking Funds Subtotal_        | _$265_     | _4%_        |         |
+|                                 |            |             |         |
+| **TOTAL ALLOCATED**             | **$5,200** | **87%**     |         |
+| **Unassigned Surplus**          | **$800**   | **13%**     | Assign  |
+
+> \*Transit estimate based on typical monthly transit pass cost -- confirm with your actual monthly pass or usage.
 
 ---
 
 ### Budget Summary vs. Method Targets
 
-| Type                    | Budgeted   | % of Income | Method Target | Status        |
-|-------------------------|-----------|-------------|---------------|---------------|
-| Needs                   | $3,385    | 56%         | ≤50%          | ⚠️ Over by 6% |
-| Wants                   | $750      | 13%         | ≤30%          | ✅ Well under  |
-| Savings + Sinking Funds | $1,065    | 18%         | ≥20%          | ⚠️ Slight gap  |
-| Unassigned              | $800      | 13%         | Assign to $0  | ⚠️ Needs assignment |
-| **Total**               | **$6,000**| **100%**    | 100%          | ✅             |
+| Type                    | Budgeted   | % of Income | Method Target | Status              |
+| ----------------------- | ---------- | ----------- | ------------- | ------------------- |
+| Needs                   | $3,385     | 56%         | ≤50%          | ⚠️ Over by 6%       |
+| Wants                   | $750       | 13%         | ≤30%          | ✅ Well under       |
+| Savings + Sinking Funds | $1,065     | 18%         | ≥20%          | ⚠️ Slight gap       |
+| Unassigned              | $800       | 13%         | Assign to $0  | ⚠️ Needs assignment |
+| **Total**               | **$6,000** | **100%**    | 100%          | ✅                  |
 
 > ⚠️ **Flag -- Needs at 56%:** Your needs exceed the 50% target, driven primarily by rent ($1,850 = 31% of income) and the car payment ($380 = 6%). These are fixed costs unlikely to change in the short term. The good news: your wants are only 13%, well below the 30% ceiling, giving you room to work. The structural note is that your needs percentage will improve as your income grows -- but the better immediate lever is assigning the $800 surplus to boost savings above 20%.
 
@@ -374,12 +387,12 @@ When one partner's income is at risk (contract work ending, pregnancy leave appr
 
 ### Sinking Fund Detail
 
-| Fund Name           | Annual Target | Monthly Contribution | Months to Fund | Notes                               |
-|---------------------|--------------|---------------------|----------------|-------------------------------------|
-| Car Maintenance     | $780         | $65                 | 12 months      | Oil changes, tires, misc. repairs   |
-| Medical / Dental    | $1,200       | $100                | 12 months      | Co-pays, deductibles, dental cleanings |
-| Holiday / Gifts     | $720         | $60                 | 12 months      | Both sides of the family            |
-| Home / Apartment    | $480         | $40                 | 12 months      | Small repairs, renter essentials    |
+| Fund Name        | Annual Target | Monthly Contribution | Months to Fund | Notes                                  |
+| ---------------- | ------------- | -------------------- | -------------- | -------------------------------------- |
+| Car Maintenance  | $780          | $65                  | 12 months      | Oil changes, tires, misc. repairs      |
+| Medical / Dental | $1,200        | $100                 | 12 months      | Co-pays, deductibles, dental cleanings |
+| Holiday / Gifts  | $720          | $60                  | 12 months      | Both sides of the family               |
+| Home / Apartment | $480          | $40                  | 12 months      | Small repairs, renter essentials       |
 
 Keep sinking fund contributions in a separate high-yield savings account with labeled sub-funds. This prevents the money from being accidentally spent on daily expenses.
 
@@ -411,12 +424,12 @@ You have $800/month unassigned after all current budget categories. Here is a re
 
 ### Goal Milestone Tracker
 
-| Goal                             | Monthly Contribution | Target Amount  | Months to Goal |
-|----------------------------------|---------------------|----------------|----------------|
-| Emergency Fund -- 1 month expenses | $1,000 (total)    | $6,000         | ~5 months      |
-| Emergency Fund -- 3 months expenses | $1,000 (total)   | $18,000        | ~18 months     |
-| House Down Payment (10% of $300k) | $400-700           | $30,000        | ~4-6 years     |
-| Retirement -- starter ($200 each) | $400 (after EF)   | Ongoing        | Begin month 6  |
+| Goal                                | Monthly Contribution | Target Amount | Months to Goal |
+| ----------------------------------- | -------------------- | ------------- | -------------- |
+| Emergency Fund -- 1 month expenses  | $1,000 (total)       | $6,000        | ~5 months      |
+| Emergency Fund -- 3 months expenses | $1,000 (total)       | $18,000       | ~18 months     |
+| House Down Payment (10% of $300k)   | $400-700             | $30,000       | ~4-6 years     |
+| Retirement -- starter ($200 each)   | $400 (after EF)      | Ongoing       | Begin month 6  |
 
 ---
 

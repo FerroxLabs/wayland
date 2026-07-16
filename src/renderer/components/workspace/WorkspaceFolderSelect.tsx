@@ -186,7 +186,8 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
           )}
         </div>
         {value ? (
-          <X size={14}
+          <X
+            size={14}
             className='shrink-0 text-t-secondary transition-colors hover:text-t-primary'
             onClick={handleClear}
           />

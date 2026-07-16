@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns cloud"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns cloud'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Edge Computing Architect
@@ -48,16 +48,16 @@ Should this run at the edge?
 
 ### Edge vs Origin Comparison
 
-| Factor | Edge | Origin |
-|--------|------|--------|
-| Latency | 5-50ms | 100-500ms |
-| CPU budget | 10-50ms typical limit | Unlimited |
-| Memory | 128MB typical limit | Unlimited |
-| Storage | KV stores, limited SQL | Full database access |
-| Cold start | <5ms (V8 isolates) | 50-500ms (containers) |
-| Cost model | Per-request + CPU time | Per-instance + bandwidth |
-| Debugging | Limited observability | Full debugging tools |
-| State | Distributed, eventually consistent | Centralized, strongly consistent |
+| Factor     | Edge                               | Origin                           |
+| ---------- | ---------------------------------- | -------------------------------- |
+| Latency    | 5-50ms                             | 100-500ms                        |
+| CPU budget | 10-50ms typical limit              | Unlimited                        |
+| Memory     | 128MB typical limit                | Unlimited                        |
+| Storage    | KV stores, limited SQL             | Full database access             |
+| Cold start | <5ms (V8 isolates)                 | 50-500ms (containers)            |
+| Cost model | Per-request + CPU time             | Per-instance + bandwidth         |
+| Debugging  | Limited observability              | Full debugging tools             |
+| State      | Distributed, eventually consistent | Centralized, strongly consistent |
 
 ## Edge Runtime Platforms
 
@@ -101,7 +101,7 @@ export default {
     }
 
     return get(request);
-  }
+  },
 };
 
 // Consistent hashing for A/B bucketing
@@ -109,7 +109,7 @@ function hashToPercent(input) {
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
   return Math.abs(hash) % 100;
@@ -128,11 +128,11 @@ export default {
 
     // Write to KV (propagates globally)
     await env.CONFIG_KV.put('last-deploy', Date.now().toString(), {
-      expirationTtl: 86400 // Auto-expire after 24 hours
+      expirationTtl: 86400, // Auto-expire after 24 hours
     });
 
     return new Response(JSON.stringify(config));
-  }
+  },
 };
 
 // Durable Objects: Strongly consistent, single-instance coordination
@@ -291,18 +291,18 @@ async function coalesceRequest(request, env, ctx) {
 
 ```html
 <!-- DNS prefetch for known third-party origins -->
-<link rel="dns-prefetch" href="//cdn.example.com">
-<link rel="dns-prefetch" href="//api.example.com">
+<link rel="dns-prefetch" href="//cdn.example.com" />
+<link rel="dns-prefetch" href="//api.example.com" />
 
 <!-- Preconnect for critical third-party origins (DNS + TCP + TLS) -->
-<link rel="preconnect" href="[reference URL]" crossorigin>
+<link rel="preconnect" href="[reference URL]" crossorigin />
 
 <!-- Prefetch likely next page resources -->
-<link rel="prefetch" href="/next-page-bundle.js">
+<link rel="prefetch" href="/next-page-bundle.js" />
 
 <!-- Preload critical resources for current page -->
-<link rel="preload" href="/critical-font.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/hero-image.webp" as="image">
+<link rel="preload" href="/critical-font.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/hero-image.webp" as="image" />
 ```
 
 ## Geolocation Routing
@@ -397,14 +397,12 @@ export default {
 
     // Set bucket cookie for consistency
     response = new Response(response.body, response);
-    response.headers.append('Set-Cookie',
-      `ab-bucket=${bucket}; Path=/; Max-Age=2592000; SameSite=Lax`
-    );
+    response.headers.append('Set-Cookie', `ab-bucket=${bucket}; Path=/; Max-Age=2592000; SameSite=Lax`);
     // Add Vary header so CDN caches both variants
     response.headers.set('Vary', 'Cookie');
 
     return response;
-  }
+  },
 };
 ```
 
@@ -463,21 +461,26 @@ Operations:
 # Edge Computing Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

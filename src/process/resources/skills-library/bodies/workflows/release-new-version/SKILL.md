@@ -15,13 +15,13 @@ skills: release-management conventional-commits deployment-strategies monitoring
 trigger_phrases: release new version ship a release cut a release deploy new version version bump
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: devops ci-cd planning step-by-step
   category: software-project
   depends: release-management conventional-commits deployment-strategies monitoring-alerting
   disclaimer: none
   difficulty: intermediate
-  interactivity: "auto"
+  interactivity: 'auto'
 ---
 
 # Release New Version
@@ -154,6 +154,7 @@ Overall Status: [RELEASED / MONITORING / ROLLED BACK]
 ```
 
 **Adaptation notes:**
+
 - For libraries and packages, Step 3 is publishing to a package registry instead of deploying
 - For services with SLA commitments, extend monitoring in Step 4 to cover a full SLA reporting period
 - Adjust staging verification duration based on release risk level

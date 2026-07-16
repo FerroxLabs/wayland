@@ -32,21 +32,16 @@ export type ExecFileResult = {
 export function execFileNoThrow(
   file: string,
   args: string[],
-  opts: { timeoutMs?: number } = {},
+  opts: { timeoutMs?: number } = {}
 ): Promise<ExecFileResult> {
   const timeoutMs = opts.timeoutMs ?? 30_000;
   return new Promise((resolve) => {
-    execFile(
-      file,
-      args,
-      { encoding: 'utf8', timeout: timeoutMs, windowsHide: true },
-      (error, stdout, stderr) => {
-        resolve({
-          stdout: (stdout ?? '').trim(),
-          stderr: (stderr ?? '').trim(),
-          exitCode: error?.code != null ? (error.code as number) : (error ? 1 : 0),
-        });
-      },
-    );
+    execFile(file, args, { encoding: 'utf8', timeout: timeoutMs, windowsHide: true }, (error, stdout, stderr) => {
+      resolve({
+        stdout: (stdout ?? '').trim(),
+        stderr: (stderr ?? '').trim(),
+        exitCode: error?.code != null ? (error.code as number) : error ? 1 : 0,
+      });
+    });
   });
 }

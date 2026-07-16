@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing planning strategy template"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing planning strategy template'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Campaign Planning
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to plan a specific marketing campaign -- a defined initiative with a start date, end date, offer or goal, and budget
 - A user wants a campaign brief for a product launch, seasonal promotion, event, limited-time offer, or awareness drive
 - A user needs to structure a multi-channel campaign with coordinated messaging, timing, and creative assets across two or more channels
@@ -34,6 +36,7 @@ metadata:
 - A user has a specific offer, event, or deadline and needs a coordinated plan to drive action against it
 
 **Do NOT use this skill when:**
+
 - The user needs an annual or quarterly marketing strategy across product lines (use `marketing-strategy` -- campaigns are executions within a strategy, not the strategy itself)
 - The user needs a detailed email drip sequence with send logic, segmentation rules, and automation workflows (use `email-campaign`)
 - The user needs a single piece of ad copy, a tagline, or an ad creative brief (use `paid-ad-copy`)
@@ -335,27 +338,35 @@ Measurement is not an afterthought -- it must be built before the campaign launc
 ## Edge Cases
 
 ### 1. Product Launch Campaign With No Existing Audience Data
+
 When a product is brand new and there is no purchase history, email list, or behavioral data to work from, audience targeting must be built from scratch. Start with first-party data from analogous products in the same company -- existing customers who fit the buyer profile of the new product, regardless of what they bought. Build a lookalike model from that list for paid social. Use interest and job-title targeting on LinkedIn or search intent targeting on Google as the acquisition layer. Do not attempt retention messaging or abandoned-cart retargeting -- these require cookied audiences that take 2-4 weeks to build. Note in the timeline that the first 2 weeks of the campaign should be treated as audience-building, with conversion optimization beginning in week 3.
 
 ### 2. Budget Changes After the Brief Is Finalized
+
 Budget cuts happen after campaign plans are approved. When a campaign budget is reduced by 20% or more after the brief is signed off, do not simply scale all channels down proportionally. Instead, apply a triage framework: (1) identify which channel has the highest historical ROI for this audience and protect its budget first; (2) pause the test channel allocation entirely, since testing requires statistical significance that under-budgeted channels cannot achieve; (3) reduce frequency before reducing reach -- it is better to reach the full target audience less often than to reach a fraction of the audience at full frequency. Revise the KPI targets downward to reflect the new budget reality, and document the revision and rationale in the brief.
 
 ### 3. Very Short Timeline (Under 2 Weeks From Briefing to Launch)
+
 Compressed timelines force a fundamentally different execution plan. When there are fewer than 10 business days between briefing and launch, prioritize owned channels (email, SMS, owned social) over paid channels -- owned channels require no platform approval cycles and can use existing creative templates. For paid channels, use existing proven creative rather than producing new assets. Reduce the number of channels to two or three maximum. Accept that A/B testing will not be possible -- launch with the single best hypothesis rather than a test-and-learn structure. Flag this explicitly: a rushed campaign produces launch-day data that cannot be optimized because there is no time to respond to it. Set realistic expectations with stakeholders before committing to the timeline.
 
 ### 4. Multi-Market or Multi-Language Campaign
+
 A campaign running in multiple languages or geographies is not one campaign -- it is multiple coordinated campaigns sharing a strategy. For each market, the following must be independently specified: audience segment (size and behavior vary by market), channel mix (WeChat is dominant in China; WhatsApp is dominant in Brazil; LinkedIn penetration varies significantly by country), creative localization (not translation -- cultural relevance requires different imagery, humor conventions, and offer structures in different markets), and legal compliance (promotional laws differ significantly: some countries require no-purchase-necessary disclaimers, specific sweepstakes registration, or restrictions on comparative advertising). Add a localization timeline to the creative requirements matrix with a separate deadline for each market, building in enough lead time for back-translation quality review (translated copy sent back to original language by a different translator to verify accuracy).
 
 ### 5. B2B Campaign With Long Sales Cycles
+
 B2B campaigns targeting enterprise buyers operate on fundamentally different conversion timeframes than B2C campaigns. A campaign with a 6-week run time cannot be measured primarily by closed revenue if the average sales cycle is 6-9 months. Redefine the primary KPI to a top-of-funnel metric (Marketing Qualified Leads, demo requests, content downloads) with secondary KPIs tracking pipeline influence (opportunities sourced, opportunities influenced, pipeline value attributed). Build a lead handoff protocol into the campaign brief: define what makes a lead "marketing qualified" before the campaign launches, set up lead routing logic in the CRM, and establish a follow-up SLA with the sales team (e.g., "Inbound demo requests followed up by SDR within 4 business hours"). The campaign brief should include a sales enablement section specifying what materials the sales team receives to follow up on campaign-generated leads.
 
 ### 6. Reactive or Crisis Campaign
+
 When a campaign must respond to an external event -- a competitor announcement, a public relations crisis, a sudden market shift, or an unexpected viral moment -- the standard 3-4 week pre-campaign timeline collapses to hours or days. In this scenario: prioritize message clarity over creative polish; a text-based social post that goes live in 2 hours beats a beautifully designed graphic that takes 48 hours; use owned channels first because they require no external approvals; pause any in-flight campaigns that are tonally inconsistent with the reactive moment; and brief the full team synchronously (one call, not a chain of approval emails). For crisis communications specifically, legal review is the one step that cannot be skipped even in a reactive scenario -- get legal on the same call. Document all decisions and their rationale in real time, because post-crisis debriefs require a record of what was decided and why.
 
 ### 7. Always-On Campaign Structure (No Fixed End Date)
+
 Some campaigns -- brand awareness programs, lead generation programs, ongoing retargeting -- are designed to run indefinitely rather than for a fixed period. For always-on campaigns, replace the fixed-duration timeline structure with a monthly cadence: budget is stated as monthly spend rather than total spend; creative is refreshed on a 4-6 week rotation schedule to prevent audience fatigue (ad frequency above 3-4 impressions per week per person typically causes CTR to decline by 30-50%); measurement focuses on trend lines and rolling 30-day averages rather than campaign-specific lift; and a quarterly review replaces the post-campaign report. Include a creative fatigue monitoring trigger in the measurement plan: if CTR declines more than 25% week-over-week for two consecutive weeks, initiate a creative refresh cycle.
 
 ### 8. Campaigns With Third-Party or Influencer Components
+
 When a campaign includes paid partnerships, influencer activations, or co-marketing arrangements, additional coordination layers must appear in the brief. Contractual deliverables (post count, content approval rights, usage rights for the brand to repurpose influencer content, exclusivity windows) must be specified in the creative requirements section. Influencer content approval timelines are typically longer than internal creative production -- budget at least 10-14 business days for review cycles when the influencer has content approval rights in their contract. FTC disclosure requirements must be listed as a non-negotiable creative requirement: paid partnerships require explicit disclosure (#ad, #sponsored, or "paid partnership" labels). Include a contingency plan for influencer non-delivery or content that fails brand review -- identify a backup asset or a budget reallocation plan so the channel slot is not empty if an influencer partnership falls through.
 
 ---
@@ -393,12 +404,12 @@ When a campaign includes paid partnerships, influencer activations, or co-market
 
 ### 2. Target Audience
 
-| Segment | Description | Est. Size | Funnel Stage | Priority |
-|---------|-------------|-----------|--------------|----------|
-| Warm prospects (site visitors, non-converting) | People who visited the product website in the last 90 days but did not start a trial | ~8,000 cookies | Consideration | Primary |
-| Current free users (non-paid, no AI feature) | Existing free tier users who have not activated the AI Scheduling feature | ~2,200 users | Conversion | Primary |
-| Net-new: Operations leaders, mid-market | LinkedIn: Operations Manager / Director / COO, company size 50-500, target industries | ~180,000 on LinkedIn | Awareness / Consideration | Secondary |
-| Net-new: High-intent search audience | Google Search users querying "project scheduling software," "AI scheduling tool," "operations management software" | Intent-based, not sized in advance | Consideration / Conversion | Secondary |
+| Segment                                        | Description                                                                                                        | Est. Size                          | Funnel Stage               | Priority  |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------- | -------------------------- | --------- |
+| Warm prospects (site visitors, non-converting) | People who visited the product website in the last 90 days but did not start a trial                               | ~8,000 cookies                     | Consideration              | Primary   |
+| Current free users (non-paid, no AI feature)   | Existing free tier users who have not activated the AI Scheduling feature                                          | ~2,200 users                       | Conversion                 | Primary   |
+| Net-new: Operations leaders, mid-market        | LinkedIn: Operations Manager / Director / COO, company size 50-500, target industries                              | ~180,000 on LinkedIn               | Awareness / Consideration  | Secondary |
+| Net-new: High-intent search audience           | Google Search users querying "project scheduling software," "AI scheduling tool," "operations management software" | Intent-based, not sized in advance | Consideration / Conversion | Secondary |
 
 **Audience Insights:** Operations leaders in mid-market companies are time-constrained decision-influencers, not always the final budget authority. They respond to proof of time savings (quantified) and peer validation (case studies from similar company sizes). They are skeptical of AI claims without a concrete demonstration -- "AI" alone is not a differentiator; "AI that reduces scheduling conflicts by 40%" is. Free trial framing outperforms demo request framing for this audience because it eliminates the sales interaction barrier at the consideration stage.
 
@@ -410,27 +421,28 @@ When a campaign includes paid partnerships, influencer activations, or co-market
 
 **Campaign Tone:** Direct and credible -- demonstrate value in 10 seconds or explain why in 30
 
-| Level | Message | Purpose | Channel Adaptation |
-|-------|---------|---------|-------------------|
-| Primary Message | Stop building schedules manually -- our AI does it in under 60 seconds | The one claim that makes the audience stop and engage; quantified, specific, testable | LinkedIn ad headline: "Schedule built in 60 seconds. Not manually." Google ad headline 1: "AI Scheduling -- Built in 60 Seconds." Email subject: "Your team is still building schedules by hand." |
-| Supporting Message 1 | Teams using AI Scheduling report 40% fewer scheduling conflicts and 6 hours saved per operations manager per week | Proof-backed benefit; makes the primary claim credible and translates to ROI | Featured in LinkedIn body copy, email body, landing page hero subhead |
-| Supporting Message 2 | Free to try -- no credit card, no sales call, live in your workflow today | Removes every friction point the audience would anticipate from a B2B SaaS trial | CTA section of every asset; LinkedIn ad copy line 3; email PS line |
-| Proof Point | "We eliminated our weekly scheduling meeting entirely in the first month." -- Sarah T., Director of Operations, 200-person logistics firm | Peer validation from the exact audience archetype; specific outcome, specific company size | LinkedIn carousel slide 3; email mid-body; landing page testimonial section |
-| Call-to-Action | Start your free trial -- see your first AI schedule in 60 seconds | Reinforces the primary message through the CTA; makes the trial feel immediate and low-risk | "Start Free Trial" button; LinkedIn CTA button; Google ad CTA extension |
+| Level                | Message                                                                                                                                   | Purpose                                                                                     | Channel Adaptation                                                                                                                                                                                |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary Message      | Stop building schedules manually -- our AI does it in under 60 seconds                                                                    | The one claim that makes the audience stop and engage; quantified, specific, testable       | LinkedIn ad headline: "Schedule built in 60 seconds. Not manually." Google ad headline 1: "AI Scheduling -- Built in 60 Seconds." Email subject: "Your team is still building schedules by hand." |
+| Supporting Message 1 | Teams using AI Scheduling report 40% fewer scheduling conflicts and 6 hours saved per operations manager per week                         | Proof-backed benefit; makes the primary claim credible and translates to ROI                | Featured in LinkedIn body copy, email body, landing page hero subhead                                                                                                                             |
+| Supporting Message 2 | Free to try -- no credit card, no sales call, live in your workflow today                                                                 | Removes every friction point the audience would anticipate from a B2B SaaS trial            | CTA section of every asset; LinkedIn ad copy line 3; email PS line                                                                                                                                |
+| Proof Point          | "We eliminated our weekly scheduling meeting entirely in the first month." -- Sarah T., Director of Operations, 200-person logistics firm | Peer validation from the exact audience archetype; specific outcome, specific company size  | LinkedIn carousel slide 3; email mid-body; landing page testimonial section                                                                                                                       |
+| Call-to-Action       | Start your free trial -- see your first AI schedule in 60 seconds                                                                         | Reinforces the primary message through the CTA; makes the trial feel immediate and low-risk | "Start Free Trial" button; LinkedIn CTA button; Google ad CTA extension                                                                                                                           |
 
 ---
 
 ### 4. Channel Plan
 
-| Channel | Tactic | Audience Targeting | Format | Frequency / Volume | Budget | Benchmark | Expected Output |
-|---------|--------|--------------------|--------|--------------------|--------|-----------|----------------|
-| LinkedIn Sponsored Content | Single image ads + Lead Gen Forms (pre-fills LinkedIn profile data into trial sign-up) | Operations Manager / Director / COO, 50-500 employees, professional services + logistics + healthcare staffing industries | 1200x627 static image; 1080x1080 square variant | 3-4 impressions/week per user; continuous 6 weeks | $14,000 (44%) | $60-80 CPM; 0.4-0.6% CTR; $15-25 CPC | 200 trial starts |
-| Google Search | Brand terms + feature-intent non-brand terms ("AI scheduling software," "project scheduling tool") | In-market search intent | Responsive Search Ads (RSAs) + Sitelink extensions | Continuous; budget-capped daily | $10,000 (31%) | 3-5% CTR branded; 1.5-2.5% non-branded; $8-14 CPC | 180 trial starts |
-| Retargeting (Google Display + Meta) | Retargeting 90-day site visitors who did not convert + lookalike from existing trial users | 90-day pixel audience + 1% lookalike of current trial users | Display banners (728x90, 300x250, 160x600); Meta feed 1080x1080 | 5-6 impressions/week per user; frequency cap at 7/week | $6,000 (19%) | $15-25 CPM retargeting; 0.5-1.2% CTR; $8-18 CPA | 150 trial starts |
-| Email to existing free-tier users | 3-email sequence: feature introduction, use case demonstration (video), limited-time upgrade prompt | 2,200 existing free-tier users who have not activated AI Scheduling | HTML email: product screenshot + GIF demo + CTA | 3 sends over 6 weeks; 1 per 2 weeks | $1,000 (3% -- internal tool costs + copywriting) | 20-25% open rate; 3-5% CTR | 70 trial activations |
-| Organic LinkedIn (Company Page) | 2 posts/week featuring customer story highlights, product demo clips, and scheduling tips | Company page followers + amplification through employee advocacy | Short-form video (60-90 sec), static graphic, text post with carousel | 2x/week | $1,000 (3% -- content production) | Not a primary conversion driver | Audience warm-up; incremental 20-30 trials |
+| Channel                             | Tactic                                                                                              | Audience Targeting                                                                                                        | Format                                                                | Frequency / Volume                                     | Budget                                           | Benchmark                                         | Expected Output                            |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------ | ------------------------------------------------- | ------------------------------------------ |
+| LinkedIn Sponsored Content          | Single image ads + Lead Gen Forms (pre-fills LinkedIn profile data into trial sign-up)              | Operations Manager / Director / COO, 50-500 employees, professional services + logistics + healthcare staffing industries | 1200x627 static image; 1080x1080 square variant                       | 3-4 impressions/week per user; continuous 6 weeks      | $14,000 (44%)                                    | $60-80 CPM; 0.4-0.6% CTR; $15-25 CPC              | 200 trial starts                           |
+| Google Search                       | Brand terms + feature-intent non-brand terms ("AI scheduling software," "project scheduling tool")  | In-market search intent                                                                                                   | Responsive Search Ads (RSAs) + Sitelink extensions                    | Continuous; budget-capped daily                        | $10,000 (31%)                                    | 3-5% CTR branded; 1.5-2.5% non-branded; $8-14 CPC | 180 trial starts                           |
+| Retargeting (Google Display + Meta) | Retargeting 90-day site visitors who did not convert + lookalike from existing trial users          | 90-day pixel audience + 1% lookalike of current trial users                                                               | Display banners (728x90, 300x250, 160x600); Meta feed 1080x1080       | 5-6 impressions/week per user; frequency cap at 7/week | $6,000 (19%)                                     | $15-25 CPM retargeting; 0.5-1.2% CTR; $8-18 CPA   | 150 trial starts                           |
+| Email to existing free-tier users   | 3-email sequence: feature introduction, use case demonstration (video), limited-time upgrade prompt | 2,200 existing free-tier users who have not activated AI Scheduling                                                       | HTML email: product screenshot + GIF demo + CTA                       | 3 sends over 6 weeks; 1 per 2 weeks                    | $1,000 (3% -- internal tool costs + copywriting) | 20-25% open rate; 3-5% CTR                        | 70 trial activations                       |
+| Organic LinkedIn (Company Page)     | 2 posts/week featuring customer story highlights, product demo clips, and scheduling tips           | Company page followers + amplification through employee advocacy                                                          | Short-form video (60-90 sec), static graphic, text post with carousel | 2x/week                                                | $1,000 (3% -- content production)                | Not a primary conversion driver                   | Audience warm-up; incremental 20-30 trials |
 
 **Budget Summary:**
+
 - Media spend: $31,000 ($14K LinkedIn, $10K Google Search, $6K Retargeting, $1K Email tool)
 - Creative production: $8,000 (copywriting $2K; design assets $4K; video/GIF production $2K)
 - Contingency / optimization buffer: $1,000
@@ -440,20 +452,21 @@ When a campaign includes paid partnerships, influencer activations, or co-market
 
 ### 5. Creative Requirements
 
-| Asset | Channel | Specs | Copy Requirements | Owner | Due Date |
-|-------|---------|-------|-------------------|-------|----------|
-| LinkedIn single image ad -- landscape | LinkedIn | 1200x627px, JPG/PNG, max 5MB | Headline: max 70 chars; Body: max 150 chars; must include "free trial" and time-savings claim | Designer | T-10 business days |
-| LinkedIn single image ad -- square | LinkedIn | 1080x1080px, JPG/PNG | Same copy; square crop may require image adjustment | Designer | T-10 business days |
-| Google RSAs | Google Search | Text only; 15 headlines max 30 chars each; 4 descriptions max 90 chars each | Include brand name in 2 headlines; feature name in 3 headlines; "free trial" in 1 description; "no credit card" in 1 description | Copywriter | T-7 business days |
-| Display banner set | Google Display / Retargeting | 728x90, 300x250, 160x600, 300x600 -- all 4 sizes; JPG or HTML5; max 150KB | Headline 6 words max; logo required; "Free Trial" CTA button; no animation exceeding 15 seconds | Designer | T-10 business days |
-| Meta retargeting feed ad | Meta | 1080x1080px; 1:1 ratio; keep text under 20% of image area | Primary text: 125 chars; Headline: 40 chars; "Start Free Trial" CTA | Designer | T-10 business days |
-| Email 1 -- Feature Introduction | Email (existing users) | HTML email, 600px wide; single CTA button; product screenshot required | Subject line: max 45 chars (mobile preview); Preview text: max 90 chars; Body: 150-200 words; one CTA button "Activate AI Scheduling" | Copywriter + Designer | T-7 business days |
-| Email 2 -- Use Case Demo | Email | HTML; animated GIF showing feature in action (max 2MB); or linked video thumbnail | Subject line: different from Email 1; feature a customer outcome in subject; Body: 100-150 words | Copywriter + Designer | T-5 business days |
-| Email 3 -- Final Push | Email | HTML; urgency framing; same template as Email 1 | Subject line must include time element; Body: 75-100 words; one CTA | Copywriter | T-3 business days |
-| Landing page copy | Web | N/A -- delivered as copy doc | Hero headline mirrors ad primary message; subhead has proof point stat; above-the-fold CTA is "Start Free Trial"; page includes one testimonial, one 60-second demo video embed, and one FAQ section | Copywriter | T-14 business days |
-| 60-second product demo video | LinkedIn organic + Email 2 embed | MP4, 1080x1080 or 1920x1080; max 200MB; captions required (85% watched mute); brand/offer in first 3 seconds | Script: demonstrate AI scheduling from blank project to published schedule in under 60 seconds; no voiceover narration required; on-screen text sufficient | Video producer | T-14 business days |
+| Asset                                 | Channel                          | Specs                                                                                                        | Copy Requirements                                                                                                                                                                                    | Owner                 | Due Date           |
+| ------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------ |
+| LinkedIn single image ad -- landscape | LinkedIn                         | 1200x627px, JPG/PNG, max 5MB                                                                                 | Headline: max 70 chars; Body: max 150 chars; must include "free trial" and time-savings claim                                                                                                        | Designer              | T-10 business days |
+| LinkedIn single image ad -- square    | LinkedIn                         | 1080x1080px, JPG/PNG                                                                                         | Same copy; square crop may require image adjustment                                                                                                                                                  | Designer              | T-10 business days |
+| Google RSAs                           | Google Search                    | Text only; 15 headlines max 30 chars each; 4 descriptions max 90 chars each                                  | Include brand name in 2 headlines; feature name in 3 headlines; "free trial" in 1 description; "no credit card" in 1 description                                                                     | Copywriter            | T-7 business days  |
+| Display banner set                    | Google Display / Retargeting     | 728x90, 300x250, 160x600, 300x600 -- all 4 sizes; JPG or HTML5; max 150KB                                    | Headline 6 words max; logo required; "Free Trial" CTA button; no animation exceeding 15 seconds                                                                                                      | Designer              | T-10 business days |
+| Meta retargeting feed ad              | Meta                             | 1080x1080px; 1:1 ratio; keep text under 20% of image area                                                    | Primary text: 125 chars; Headline: 40 chars; "Start Free Trial" CTA                                                                                                                                  | Designer              | T-10 business days |
+| Email 1 -- Feature Introduction       | Email (existing users)           | HTML email, 600px wide; single CTA button; product screenshot required                                       | Subject line: max 45 chars (mobile preview); Preview text: max 90 chars; Body: 150-200 words; one CTA button "Activate AI Scheduling"                                                                | Copywriter + Designer | T-7 business days  |
+| Email 2 -- Use Case Demo              | Email                            | HTML; animated GIF showing feature in action (max 2MB); or linked video thumbnail                            | Subject line: different from Email 1; feature a customer outcome in subject; Body: 100-150 words                                                                                                     | Copywriter + Designer | T-5 business days  |
+| Email 3 -- Final Push                 | Email                            | HTML; urgency framing; same template as Email 1                                                              | Subject line must include time element; Body: 75-100 words; one CTA                                                                                                                                  | Copywriter            | T-3 business days  |
+| Landing page copy                     | Web                              | N/A -- delivered as copy doc                                                                                 | Hero headline mirrors ad primary message; subhead has proof point stat; above-the-fold CTA is "Start Free Trial"; page includes one testimonial, one 60-second demo video embed, and one FAQ section | Copywriter            | T-14 business days |
+| 60-second product demo video          | LinkedIn organic + Email 2 embed | MP4, 1080x1080 or 1920x1080; max 200MB; captions required (85% watched mute); brand/offer in first 3 seconds | Script: demonstrate AI scheduling from blank project to published schedule in under 60 seconds; no voiceover narration required; on-screen text sufficient                                           | Video producer        | T-14 business days |
 
 **Creative Notes:**
+
 - All ads must include "Free Trial" language -- this is the primary conversion mechanism and must be visible without requiring a click
 - Legal must review any quantified claims before final approval: "40% fewer conflicts" and "6 hours saved per week" require source documentation or must be softened to "up to" language
 - Approval chain: Copywriter → Product Marketing (feature accuracy) → Creative Director (brand) → Legal (claims) → Campaign Owner (final)
@@ -465,30 +478,30 @@ When a campaign includes paid partnerships, influencer activations, or co-market
 
 **Pre-Campaign -- [5 weeks before launch] to [T-1 day]**
 
-| Task | Owner | Deadline | Dependency | Status |
-|------|-------|----------|------------|--------|
-| Campaign brief finalized and approved | VP Marketing | Week -5, Day 1 | Initial briefing | [ ] |
-| Audience segmentation: site retargeting pixel verified, free-tier user list pulled from CRM | Analytics + CRM | Week -5, Day 3 | Brief approved | [ ] |
-| LinkedIn Lead Gen Form created and tested | Paid Media Manager | Week -5, Day 3 | Brief approved | [ ] |
-| Landing page copy delivered | Copywriter | Week -4, Day 1 | Brief approved | [ ] |
-| Landing page built by web team | Web Developer | Week -3, Day 3 | Copy delivered | [ ] |
-| Landing page QA: UTM parameters, form submission, thank-you page, pixel firing | Analytics | Week -3, Day 5 | Page built | [ ] |
-| Demo video script approved | Product Marketing | Week -4, Day 2 | Brief approved | [ ] |
-| Demo video produced and captioned | Video Producer | Week -3, Day 1 | Script approved | [ ] |
-| All ad creative assets delivered | Design Team | Week -2, Day 1 -- 10 biz days before launch | Briefs issued Week -4 | [ ] |
-| Email copy (all 3 emails) delivered | Copywriter | Week -2, Day 3 | Brief approved | [ ] |
-| Legal review of all claims | Legal | Week -2, Day 5 | All copy and creative delivered | [ ] |
-| Creative revisions post-legal | Creative Team | Week -1, Day 2 | Legal review complete | [ ] |
-| Final stakeholder approval | Campaign Owner | Week -1, Day 3 | Revisions complete | [ ] |
-| Ad trafficking: LinkedIn, Google, Meta | Paid Media Manager | Week -1, Day 4 -- 2 biz days before launch | Assets approved | [ ] |
-| Email sequences loaded into platform and tested (send test to seed list) | Email Manager | Week -1, Day 4 | Email assets approved | [ ] |
-| Tracking verification: fire test conversion on landing page, verify UTM data in Google Analytics, confirm LinkedIn Insight Tag | Analytics | Week -1, Day 5 | All trafficking complete | [ ] |
+| Task                                                                                                                           | Owner              | Deadline                                    | Dependency                      | Status |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ------------------------------------------- | ------------------------------- | ------ |
+| Campaign brief finalized and approved                                                                                          | VP Marketing       | Week -5, Day 1                              | Initial briefing                | [ ]    |
+| Audience segmentation: site retargeting pixel verified, free-tier user list pulled from CRM                                    | Analytics + CRM    | Week -5, Day 3                              | Brief approved                  | [ ]    |
+| LinkedIn Lead Gen Form created and tested                                                                                      | Paid Media Manager | Week -5, Day 3                              | Brief approved                  | [ ]    |
+| Landing page copy delivered                                                                                                    | Copywriter         | Week -4, Day 1                              | Brief approved                  | [ ]    |
+| Landing page built by web team                                                                                                 | Web Developer      | Week -3, Day 3                              | Copy delivered                  | [ ]    |
+| Landing page QA: UTM parameters, form submission, thank-you page, pixel firing                                                 | Analytics          | Week -3, Day 5                              | Page built                      | [ ]    |
+| Demo video script approved                                                                                                     | Product Marketing  | Week -4, Day 2                              | Brief approved                  | [ ]    |
+| Demo video produced and captioned                                                                                              | Video Producer     | Week -3, Day 1                              | Script approved                 | [ ]    |
+| All ad creative assets delivered                                                                                               | Design Team        | Week -2, Day 1 -- 10 biz days before launch | Briefs issued Week -4           | [ ]    |
+| Email copy (all 3 emails) delivered                                                                                            | Copywriter         | Week -2, Day 3                              | Brief approved                  | [ ]    |
+| Legal review of all claims                                                                                                     | Legal              | Week -2, Day 5                              | All copy and creative delivered | [ ]    |
+| Creative revisions post-legal                                                                                                  | Creative Team      | Week -1, Day 2                              | Legal review complete           | [ ]    |
+| Final stakeholder approval                                                                                                     | Campaign Owner     | Week -1, Day 3                              | Revisions complete              | [ ]    |
+| Ad trafficking: LinkedIn, Google, Meta                                                                                         | Paid Media Manager | Week -1, Day 4 -- 2 biz days before launch  | Assets approved                 | [ ]    |
+| Email sequences loaded into platform and tested (send test to seed list)                                                       | Email Manager      | Week -1, Day 4                              | Email assets approved           | [ ]    |
+| Tracking verification: fire test conversion on landing page, verify UTM data in Google Analytics, confirm LinkedIn Insight Tag | Analytics          | Week -1, Day 5                              | All trafficking complete        | [ ]    |
 
 **Launch Phase -- Launch Day to T+3**
 
-| Task | Owner | Deadline | Status |
-|------|-------|----------|--------|
-| All paid channels activated (LinkedIn, Google, Meta retargeting) | Paid Media Manager | Launch Day, 9am | [ ] |
-| Email 1 sent to free-tier user list | Email Manager | Launch Day, 10am | [ ] |
-| Tracking verification: confirm test conversion registered in all dashboards | Analytics | Launch Day, 10am | [ ] |
-| Hour-1 delivery check: are ads serving? Is spend pacing correctly? | Paid Media Manager | Launch Day, 10am
+| Task                                                                        | Owner              | Deadline         | Status |
+| --------------------------------------------------------------------------- | ------------------ | ---------------- | ------ |
+| All paid channels activated (LinkedIn, Google, Meta retargeting)            | Paid Media Manager | Launch Day, 9am  | [ ]    |
+| Email 1 sent to free-tier user list                                         | Email Manager      | Launch Day, 10am | [ ]    |
+| Tracking verification: confirm test conversion registered in all dashboards | Analytics          | Launch Day, 10am | [ ]    |
+| Hour-1 delivery check: are ads serving? Is spend pacing correctly?          | Paid Media Manager | Launch Day, 10am |

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql guide"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql guide'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # CSV Transformer
@@ -261,20 +261,21 @@ def split_and_process(filepath, process_fn, workers=None):
 
 ## Format Comparison Decision Matrix
 
-| Format | Schema | Compression | Splittable | Column Pruning | Best For |
-|--------|--------|-------------|------------|----------------|----------|
-| CSV | No | No (unless gzipped) | Yes (uncompressed) | No | Interchange, human readability |
-| JSON/JSONL | Self-describing | No (unless gzipped) | JSONL: Yes | No | APIs, semi-structured data |
-| Parquet | Embedded | Snappy/ZSTD/Gzip | Yes | Yes | Analytics, data lakes |
-| Avro | Embedded | Deflate/Snappy | Yes | No | Streaming, schema evolution |
-| ORC | Embedded | ZLIB/Snappy/LZO | Yes | Yes | Hive ecosystems |
-| Arrow/IPC | Embedded | LZ4/ZSTD | No | Yes | In-memory analytics, IPC |
+| Format     | Schema          | Compression         | Splittable         | Column Pruning | Best For                       |
+| ---------- | --------------- | ------------------- | ------------------ | -------------- | ------------------------------ |
+| CSV        | No              | No (unless gzipped) | Yes (uncompressed) | No             | Interchange, human readability |
+| JSON/JSONL | Self-describing | No (unless gzipped) | JSONL: Yes         | No             | APIs, semi-structured data     |
+| Parquet    | Embedded        | Snappy/ZSTD/Gzip    | Yes                | Yes            | Analytics, data lakes          |
+| Avro       | Embedded        | Deflate/Snappy      | Yes                | No             | Streaming, schema evolution    |
+| ORC        | Embedded        | ZLIB/Snappy/LZO     | Yes                | Yes            | Hive ecosystems                |
+| Arrow/IPC  | Embedded        | LZ4/ZSTD            | No                 | Yes            | In-memory analytics, IPC       |
 
 **Default recommendation**: Use Parquet with Snappy compression for analytical workloads. Use Avro for streaming and message systems. Use CSV only for human interchange or legacy system requirements.
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing csv transformer solutions
 - Reviewing or improving existing csv transformer approaches
 - Making architectural or implementation decisions about csv transformer
@@ -282,6 +283,7 @@ def split_and_process(filepath, process_fn, workers=None):
 - Troubleshooting csv transformer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -292,21 +294,26 @@ def split_and_process(filepath, process_fn, workers=None):
 # Csv Transformer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -36,12 +36,8 @@ const BuildMyOwnTeamCard: React.FC<BuildMyOwnTeamCardProps> = ({ onClick }) => {
       <div className={styles.icon}>
         <Plus size={18} />
       </div>
-      <div className={styles.label}>
-        {t('teams.buildMyOwn.label', { defaultValue: 'Build my own team' })}
-      </div>
-      <div className={styles.hint}>
-        {t('teams.buildMyOwn.hint', { defaultValue: 'Start from a blank team' })}
-      </div>
+      <div className={styles.label}>{t('teams.buildMyOwn.label', { defaultValue: 'Build my own team' })}</div>
+      <div className={styles.hint}>{t('teams.buildMyOwn.hint', { defaultValue: 'Start from a blank team' })}</div>
     </div>
   );
 };

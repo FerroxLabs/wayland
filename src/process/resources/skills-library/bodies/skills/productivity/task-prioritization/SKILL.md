@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making planning analysis"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'decision-making planning analysis'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Task Prioritization
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a backlog of 4 or more tasks, features, or projects and needs a data-driven ranking with explicit scoring rationale
 - The user explicitly asks to apply RICE, MoSCoW, ICE, weighted scoring, or another named prioritization framework
 - The user is a product manager, engineer, or project lead deciding which features to build first within a sprint or quarterly plan
@@ -29,6 +31,7 @@ metadata:
 - The user is preparing a prioritization document for a team review, sprint planning session, or stakeholder presentation
 
 **Do NOT use when:**
+
 - The user wants to sort a small task list by urgency and importance on a 2x2 grid -- use `eisenhower-matrix` instead
 - The user wants to block specific tasks into time slots on their calendar -- use `time-blocking` instead
 - The user is choosing between exactly two mutually exclusive options -- use `weighted-decision-matrix` instead
@@ -58,6 +61,7 @@ Before selecting a method or scoring anything, extract all inputs that will affe
 Do not default to RICE for everything. Match the method to the context with precision.
 
 **Use RICE when:**
+
 - The items are product features or improvements
 - There is a measurable user population that items will "reach"
 - Effort can be estimated in person-hours or story points
@@ -65,6 +69,7 @@ Do not default to RICE for everything. Match the method to the context with prec
 - Classic RICE threshold: best for backlogs of 5-30 items
 
 **Use ICE (Impact, Confidence, Ease) when:**
+
 - RICE is too heavyweight for the context (personal projects, rapid triage)
 - Reach is impossible to estimate (no user data, early-stage product)
 - Speed of scoring matters more than precision
@@ -72,18 +77,21 @@ Do not default to RICE for everything. Match the method to the context with prec
 - Best for quick gut-check prioritization or backlogs under 15 items
 
 **Use MoSCoW when:**
+
 - You are negotiating scope with stakeholders for a specific delivery (sprint, release, project)
 - The audience is non-technical and needs category labels rather than numbers
 - The user needs to communicate "what we are not doing" explicitly to manage expectations
 - Warning: MoSCoW does not produce a ranked order within each category -- pair with effort estimates inside each bucket if sequencing matters
 
 **Use Weighted Scoring when:**
+
 - The user has multiple criteria that matter at different levels (e.g., strategic alignment matters 40%, user impact 35%, technical feasibility 25%)
 - The items are heterogeneous (mixing bugs, features, and operational work that don't share a natural Reach metric)
 - The user is reporting to stakeholders who want to see explicit trade-off reasoning by criterion
 - Criteria count: 3 minimum, 6 maximum. More than 6 criteria dilutes discrimination -- items converge to similar scores.
 
 **Default heuristic when the user has no preference:**
+
 - Feature backlog with user data → RICE
 - Feature backlog without user data or early stage → ICE
 - Scope negotiation for a release → MoSCoW
@@ -96,11 +104,13 @@ Scores are only as reliable as the definitions behind them. Ambiguous criteria p
 **For RICE:**
 
 Define Reach in concrete units tied to the planning horizon:
+
 - Sprint scope (2 weeks): users affected per sprint
 - Quarterly: users affected per quarter
 - Never leave Reach as "relative" -- assign an actual number or range. If unknown, estimate using: DAU × (% of users who encounter this feature path).
 
 Define Impact with explicit anchors, not just labels:
+
 - 3 = Massive: eliminates a blocker for all users, directly drives conversion or retention by >10%
 - 2 = High: significantly improves the core workflow for most users, drives 5-10% metric movement
 - 1 = Medium: noticeable improvement but narrow use case or marginal metric impact
@@ -108,11 +118,13 @@ Define Impact with explicit anchors, not just labels:
 - 0.25 = Minimal: cosmetic or trivial change with no measurable metric impact
 
 Define Confidence as the team's certainty in the Reach and Impact estimates combined:
+
 - 100%: backed by user research, A/B test data, or direct stakeholder confirmation
 - 80%: backed by qualitative user feedback or analytics trends
 - 50%: based on assumption or intuition without supporting evidence
 
 Define Effort in person-hours (not days, which are ambiguous). Use this calibration guide:
+
 - XS: 1-4 hours (bug fix, copy change, config update)
 - S: 5-16 hours (small feature, UI change, minor integration)
 - M: 17-40 hours (new screen, moderate integration, feature with edge cases)
@@ -126,6 +138,7 @@ A score of 100+ is strong. Scores below 10 are candidates for deferral. Scores a
 **For ICE:**
 
 All three dimensions scored 1-10 with anchors:
+
 - Impact 10: Will dramatically change the key metric we care about most
 - Impact 5: Meaningful improvement to a secondary metric
 - Impact 1: Barely noticeable change
@@ -147,6 +160,7 @@ Personal productivity criteria: Intrinsic value, External urgency, Skill develop
 Technical debt criteria: Risk of incident, Developer velocity impact, Cost of delay, Complexity of fix, User visibility
 
 For each criterion:
+
 - Name it precisely ("Revenue impact in next 90 days" not "revenue")
 - Assign a weight (all weights must sum to exactly 100%)
 - Define score anchors at 1, 3, and 5 (or 1, 5, and 10 if using a 10-point scale)
@@ -157,6 +171,7 @@ Weighted Score = Σ (score × weight/100) for all criteria. Results will fall be
 **For MoSCoW:**
 
 Apply the following decision tests before assigning any category:
+
 - **Must**: "If we ship without this, the deliverable fails its primary objective." Test: would you cancel the release if this was missing?
 - **Should**: "This significantly improves value but we could ship without it." Test: would stakeholders be disappointed but not derailed?
 - **Could**: "This is desirable and adds polish." Test: would most users not notice if it was absent?
@@ -180,17 +195,20 @@ Score all items before comparing any. If you compare items while scoring, anchor
 Raw scores alone are not sufficient to produce an actionable sequence.
 
 **Tie-breaking rules (apply in order):**
+
 1. Lower effort wins (same score with less work = higher ROI per hour)
 2. Higher confidence wins (a certain 50 beats a speculative 50)
 3. Shorter time-to-value wins (the item that delivers value sooner)
 
 **Dependency adjustments:**
+
 - If Item B is blocked until Item A is complete, and Item A has a lower score, move Item A up in sequence (not in score) and note the dependency explicitly.
 - Do not artificially inflate Item A's score -- keep scores pure and handle ordering separately.
 - If Item A is a low-score blocker for multiple high-score items, it becomes a de facto Tier 1 sequencing item. Mark it as a "dependency accelerator."
 - Hard deadline items: if an item has a contractual or regulatory deadline, flag it separately as a constrained item. Do not let deadline pressure inflate its RICE/ICE score -- keep scores honest and surface deadlines as a constraint overlay.
 
 **Effort-to-value consideration:**
+
 - After ranking, scan for any low-scored item with unusually low effort (under 4 hours). These "quick wins" may warrant inclusion even if they rank below the cut, because their cost of inclusion is negligible. Flag them explicitly.
 
 ### Step 6: Produce the Ranked List with Tier Groupings
@@ -232,8 +250,8 @@ Produce the complete output in the format below. Never deliver a partial output 
 ## Prioritized [Task / Feature / Project] List
 
 ### Summary
-[2-4 sentences explaining: which method was chosen and why, what the top priority is, 
-and the key trade-off or insight this prioritization reveals. Written for a non-technical 
+[2-4 sentences explaining: which method was chosen and why, what the top priority is,
+and the key trade-off or insight this prioritization reveals. Written for a non-technical
 reader.]
 
 ---
@@ -347,7 +365,7 @@ Formula: ICE Score = Impact × Confidence × Ease (max 1,000)
 ---
 
 ### Quick Wins (if applicable)
-Items with a score below Tier 1 but with ≤4 hours of effort. These may be worth including 
+Items with a score below Tier 1 but with ≤4 hours of effort. These may be worth including
 alongside Tier 1 work at negligible cost:
 | Item           | Score | Effort | Recommendation                              |
 |----------------|-------|--------|---------------------------------------------|
@@ -389,6 +407,7 @@ alongside Tier 1 work at negligible cost:
 ### 1. Mixed backlog (bugs, features, operational tasks, and technical debt in one list)
 
 Scoring bugs against features with RICE produces distorted results because bugs have a known population (affected users) while features have a hypothetical one. Handle this in two passes:
+
 - **Pass 1**: Separate the backlog into segments: Bugs, Features, Operational/Infra, and Technical Debt.
 - **Pass 2**: Score each segment independently using the same method and criteria.
 - **Pass 3**: Merge the ranked lists by selecting alternating items from each segment's Tier 1, weighted by the urgency of each segment type (bugs typically get 1.5x weight in the merge because they represent degraded current state, not future opportunity).
@@ -397,6 +416,7 @@ Scoring bugs against features with RICE produces distorted results because bugs 
 ### 2. Stakeholder insists on overriding the scored ranking
 
 This is one of the most common real-world failure modes. Handle it as follows:
+
 - Do not silently reorder the list to match the stakeholder preference.
 - Present the scored ranking first, then add an "Override Scenario" section showing what the ranking would look like if the stakeholder's preferred item were moved to #1.
 - Calculate the opportunity cost: "Moving [Item X] to #1 delays [Item Y, current #1] by [Z weeks]. The score difference implies [Item Y] is estimated to deliver [N × more value] per hour of effort."
@@ -405,6 +425,7 @@ This is one of the most common real-world failure modes. Handle it as follows:
 ### 3. Scoring paralysis -- user cannot estimate Reach or Impact
 
 Early-stage products and personal projects frequently cannot produce reliable Reach estimates. Escalation path:
+
 - Switch from RICE to ICE immediately. ICE eliminates Reach and is designed for low-data environments.
 - If the user cannot estimate Impact either, run a **forced ranking** pass first: present pairs of items and ask "Which has more impact?" Collect 6-10 pairwise judgments and derive a rough Impact rank order. Use this rank order (converted to a 1-5 scale) as your Impact scores.
 - Document the method switch and the reason. Never proceed with fabricated Reach numbers to make RICE work -- garbage inputs produce garbage rankings with false confidence.
@@ -412,6 +433,7 @@ Early-stage products and personal projects frequently cannot produce reliable Re
 ### 4. Items with hard external deadlines that disrupt the scored ranking
 
 A regulatory compliance item may score low on RICE (narrow reach, low impact on the core product) but carry a legal deadline that makes it non-negotiable. Handle it as follows:
+
 - Score it honestly against the chosen method. Do not inflate the score.
 - Add a **Constrained Items** section separate from the scored ranking, listing deadline-driven items with their deadline, the consequence of missing it, and their required start date.
 - Compute required start date as: deadline minus estimated effort minus a 20% buffer. If required start date is within the current planning horizon, it enters the action sequence as a constraint, not a priority.
@@ -420,6 +442,7 @@ A regulatory compliance item may score low on RICE (narrow reach, low impact on 
 ### 5. The user wants to reprioritize after completing some items
 
 Do not rescore completed items -- that history is informative but not actionable.
+
 - Remove completed items from the scoring table.
 - Re-examine Confidence scores for remaining items. Completed items may have revealed new information (e.g., the auth system was harder than estimated, suggesting that other auth-adjacent items should have their Effort scores increased).
 - Check whether any deprioritized items have had their revisit trigger met. A change in circumstances may have promoted a Tier 3 item.
@@ -429,6 +452,7 @@ Do not rescore completed items -- that history is informative but not actionable
 ### 6. Large backlogs (30+ items)
 
 Scoring 30+ items individually with full RICE creates analysis paralysis and takes too long to be useful.
+
 - Apply a **two-stage triage**: First, bin all items into three rough buckets (High / Medium / Low) using a rapid 60-second gut-check rule -- do not agonize.
 - Score only the High and Medium buckets with full RICE or weighted scoring (typically 10-20 items).
 - Park the Low bucket in a "not this cycle" list with no further scoring.
@@ -437,6 +461,7 @@ Scoring 30+ items individually with full RICE creates analysis paralysis and tak
 ### 7. All items produce very similar scores (scoring compression)
 
 When the top 5 items all score within 10% of each other, the framework is not differentiating effectively.
+
 - Check for **impact inflation**: if every item received Impact = 2 or 3, the scale is being used incorrectly. Force one item to be Impact = 3 and recalibrate all others relative to it.
 - Add a **tiebreaker criterion**: for feature backlogs, add "Strategic alignment" or "Customer-requested count" as a secondary sort. For personal tasks, add "Intrinsic motivation" or "Deadline proximity."
 - If compression persists after recalibration, run a **dot-voting** or **forced ranking** round: ask the user to assign 10 votes across all tied items (can put multiple votes on one item). Use vote counts as a final tiebreaker. Document this as an override of the scored ranking.
@@ -444,6 +469,7 @@ When the top 5 items all score within 10% of each other, the framework is not di
 ### 8. User has resource constraints mid-list (e.g., an engineer going on leave)
 
 Resource constraints that change mid-sequence invalidate action sequence assumptions even if the scoring is correct.
+
 - Add a **Resource Constraint Overlay** section to the output, listing constraints by name, duration, and impact.
 - Recompute available capacity for each time period in the action sequence separately (e.g., "Weeks 1-2: 40 hours. Weeks 3-4: 20 hours due to engineering leave.").
 - Adjust the action sequence to front-load high-effort items into high-capacity periods.
@@ -462,26 +488,30 @@ Resource constraints that change mid-sequence invalidate action sequence assumpt
 ## Prioritized Feature Backlog
 
 ### Summary
+
 Using RICE scoring calibrated to a 6-week development horizon with 40 paying customers and 200 registered users. The top priority is fixing the date picker bug -- it affects every user's core workflow and takes less than a day to fix, producing the highest ROI per hour in the entire backlog. Stripe billing is the second priority because it directly enables revenue growth and is currently a conversion bottleneck. The critical trade-off this prioritization reveals: SSO/SAML and team collaboration are high in perceived importance but score low because they require the most effort while serving the smallest portion of the current user base at this stage.
 
 ---
 
 ### Method: RICE Scoring
+
 ### Planning Horizon: 6 weeks (150 hours available)
+
 ### Available Capacity: 1 person × 25 hrs/week = 150 hours total
 
 ---
 
 ### Scoring Criteria
 
-| Criterion   | Definition for This Context                                           | Scale              |
-|-------------|-----------------------------------------------------------------------|--------------------|
-| Reach       | Number of registered users (or paying customers) affected per 6 weeks | Estimated count    |
-| Impact      | Effect on core business outcome: conversion, retention, or activation | 0.25 / 0.5 / 1 / 2 / 3 |
-| Confidence  | Evidence level for Reach and Impact estimates                         | 50% / 80% / 100%  |
-| Effort      | Solo developer hours to implement, test, and deploy                   | Person-hours       |
+| Criterion  | Definition for This Context                                           | Scale                  |
+| ---------- | --------------------------------------------------------------------- | ---------------------- |
+| Reach      | Number of registered users (or paying customers) affected per 6 weeks | Estimated count        |
+| Impact     | Effect on core business outcome: conversion, retention, or activation | 0.25 / 0.5 / 1 / 2 / 3 |
+| Confidence | Evidence level for Reach and Impact estimates                         | 50% / 80% / 100%       |
+| Effort     | Solo developer hours to implement, test, and deploy                   | Person-hours           |
 
 **Impact anchor definitions (calibrated to this product):**
+
 - 3 = Massive: Directly impacts paying customer activation or prevents churn. Core workflow.
 - 2 = High: Meaningfully improves conversion from free to paid, or reduces a significant friction point for majority of users.
 - 1 = Medium: Adds clear value for a meaningful segment; secondary to core workflow.
@@ -494,37 +524,37 @@ Formula: RICE Score = (Reach × Impact × Confidence) ÷ Effort
 
 ### Scored Items
 
-| Rank | Item                      | Reach | Impact | Conf.  | Effort (hrs) | RICE Score | Notes                                                      |
-|------|---------------------------|-------|--------|--------|-------------|------------|------------------------------------------------------------|
-| 1    | Fix date picker bug        | 200   | 3      | 1.00   | 6           | **100.0**  | Every user hits this on project creation. Fix is scoped and known. |
-| 2    | Set up Stripe billing      | 40    | 3      | 0.80   | 20          | **48.0**   | Without billing, growth is capped. Affects all 40 paying customers + future conversions. ⚠️ Assumes Stripe integration is straightforward -- may uncover edge cases. |
-| 3    | Email notification system  | 200   | 2      | 0.80   | 24          | **13.3**   | Affects all users; drives re-engagement and task follow-through. Medium-high confidence based on typical SaaS retention patterns. |
-| 4    | CSV export                 | 80    | 1      | 0.80   | 12          | **5.3**    | Estimated 40% of users (data-heavy PMs) need this. Low effort, clear scope. |
-| 5    | Help center / docs         | 200   | 0.5    | 0.80   | 16          | **5.0**    | Reduces support load; doesn't change core product capability. Broad reach but low per-user impact. |
-| 6    | Admin dashboard            | 1     | 2      | 0.80   | 20          | **0.08**   | Only the founder uses this. Very low reach makes RICE score collapse despite high per-user value. ⚠️ Consider if this unlocks other work. |
-| 7    | Team collaboration         | 30    | 2      | 0.50   | 60          | **0.50**   | Potential market expander but unvalidated with current users. High effort, low confidence. ⚠️ Assumption: 15% of users need team features -- not validated. |
-| 8    | SSO/SAML login             | 5     | 2      | 0.50   | 40          | **0.13**   | Only relevant to enterprise prospects; no current enterprise customers confirmed. ⚠️ Do not build for a customer you don't have yet. |
+| Rank | Item                      | Reach | Impact | Conf. | Effort (hrs) | RICE Score | Notes                                                                                                                                                                |
+| ---- | ------------------------- | ----- | ------ | ----- | ------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Fix date picker bug       | 200   | 3      | 1.00  | 6            | **100.0**  | Every user hits this on project creation. Fix is scoped and known.                                                                                                   |
+| 2    | Set up Stripe billing     | 40    | 3      | 0.80  | 20           | **48.0**   | Without billing, growth is capped. Affects all 40 paying customers + future conversions. ⚠️ Assumes Stripe integration is straightforward -- may uncover edge cases. |
+| 3    | Email notification system | 200   | 2      | 0.80  | 24           | **13.3**   | Affects all users; drives re-engagement and task follow-through. Medium-high confidence based on typical SaaS retention patterns.                                    |
+| 4    | CSV export                | 80    | 1      | 0.80  | 12           | **5.3**    | Estimated 40% of users (data-heavy PMs) need this. Low effort, clear scope.                                                                                          |
+| 5    | Help center / docs        | 200   | 0.5    | 0.80  | 16           | **5.0**    | Reduces support load; doesn't change core product capability. Broad reach but low per-user impact.                                                                   |
+| 6    | Admin dashboard           | 1     | 2      | 0.80  | 20           | **0.08**   | Only the founder uses this. Very low reach makes RICE score collapse despite high per-user value. ⚠️ Consider if this unlocks other work.                            |
+| 7    | Team collaboration        | 30    | 2      | 0.50  | 60           | **0.50**   | Potential market expander but unvalidated with current users. High effort, low confidence. ⚠️ Assumption: 15% of users need team features -- not validated.          |
+| 8    | SSO/SAML login            | 5     | 2      | 0.50  | 40           | **0.13**   | Only relevant to enterprise prospects; no current enterprise customers confirmed. ⚠️ Do not build for a customer you don't have yet.                                 |
 
 ---
 
 ### Assumptions
 
-| Assumption                                              | Affects                   | If Wrong, Impact                                               |
-|---------------------------------------------------------|---------------------------|----------------------------------------------------------------|
-| Date picker affects all 200 users on project creation  | Row 1 -- Reach = 200       | If only 50% trigger it, score drops to 50.0 -- still Rank 1   |
-| Stripe billing is the primary conversion blocker        | Row 2 -- Impact = 3        | If billing is already working partially, score drops; still Tier 1 |
-| ~40% of users (80) would use CSV export                | Row 4 -- Reach = 80        | If only 20 users need it, score drops to 1.7 -- drops to Tier 3 |
-| Team collaboration has low adoption confidence          | Row 7 -- Confidence = 0.5  | If validated by user interviews, score triples to 1.5 -- still Tier 3 |
+| Assumption                                            | Affects                   | If Wrong, Impact                                                      |
+| ----------------------------------------------------- | ------------------------- | --------------------------------------------------------------------- |
+| Date picker affects all 200 users on project creation | Row 1 -- Reach = 200      | If only 50% trigger it, score drops to 50.0 -- still Rank 1           |
+| Stripe billing is the primary conversion blocker      | Row 2 -- Impact = 3       | If billing is already working partially, score drops; still Tier 1    |
+| ~40% of users (80) would use CSV export               | Row 4 -- Reach = 80       | If only 20 users need it, score drops to 1.7 -- drops to Tier 3       |
+| Team collaboration has low adoption confidence        | Row 7 -- Confidence = 0.5 | If validated by user interviews, score triples to 1.5 -- still Tier 3 |
 
 ---
 
 ### Tier Groupings
 
-| Tier   | Label           | Score Range      | Items                                       | Rationale for Tier Boundary                           |
-|--------|-----------------|------------------|---------------------------------------------|-------------------------------------------------------|
-| Tier 1 | Act Now         | 48.0 and above   | Date picker bug, Stripe billing             | Score gap of 35 points between Rank 2 and Rank 3      |
-| Tier 2 | Plan Next Cycle | 5.0 -- 13.3      | Email notifications, CSV export, Help docs  | Clustered scores; all viable but none urgent          |
-| Tier 3 | Defer           | Below 1.0        | Admin dashboard, Team collaboration, SSO    | Admin: reach too low. Team + SSO: effort too high vs. validated demand |
+| Tier   | Label           | Score Range    | Items                                      | Rationale for Tier Boundary                                            |
+| ------ | --------------- | -------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
+| Tier 1 | Act Now         | 48.0 and above | Date picker bug, Stripe billing            | Score gap of 35 points between Rank 2 and Rank 3                       |
+| Tier 2 | Plan Next Cycle | 5.0 -- 13.3    | Email notifications, CSV export, Help docs | Clustered scores; all viable but none urgent                           |
+| Tier 3 | Defer           | Below 1.0      | Admin dashboard, Team collaboration, SSO   | Admin: reach too low. Team + SSO: effort too high vs. validated demand |
 
 ---
 
@@ -532,16 +562,16 @@ Formula: RICE Score = (Reach × Impact × Confidence) ÷ Effort
 
 **Capacity check:** Tier 1 total effort = 26 hours vs. available capacity = 150 hours. ✅ Tier 1 fits easily. Proceeding to include Tier 2 items in sequence to fill remaining capacity.
 
-| Order | Item                     | Tier | Start    | Effort  | Dependencies         | First Deliverable? |
-|-------|--------------------------|------|----------|---------|----------------------|--------------------|
-| 1     | Fix date picker bug       | 1    | Week 1   | 6 hrs   | None                 | ✅ Yes -- validates deployment pipeline |
-| 2     | Set up Stripe billing     | 1    | Week 1   | 20 hrs  | None (parallel to #1) | No                |
-| 3     | Email notification system | 2    | Week 2-3 | 24 hrs  | Stripe billing (#2) for payment event triggers | No |
-| 4     | CSV export                | 2    | Week 3-4 | 12 hrs  | None                 | No                 |
-| 5     | Help center / docs        | 2    | Week 4-5 | 16 hrs  | None                 | No                 |
-| --    | Admin dashboard           | 3    | Deferred | 20 hrs  | --                   | --                 |
-| --    | Team collaboration        | 3    | Deferred | 60 hrs  | --                   | --                 |
-| --    | SSO/SAML login            | 3    | Deferred | 40 hrs  | --                   | --                 |
+| Order | Item                      | Tier | Start    | Effort | Dependencies                                   | First Deliverable?                      |
+| ----- | ------------------------- | ---- | -------- | ------ | ---------------------------------------------- | --------------------------------------- |
+| 1     | Fix date picker bug       | 1    | Week 1   | 6 hrs  | None                                           | ✅ Yes -- validates deployment pipeline |
+| 2     | Set up Stripe billing     | 1    | Week 1   | 20 hrs | None (parallel to #1)                          | No                                      |
+| 3     | Email notification system | 2    | Week 2-3 | 24 hrs | Stripe billing (#2) for payment event triggers | No                                      |
+| 4     | CSV export                | 2    | Week 3-4 | 12 hrs | None                                           | No                                      |
+| 5     | Help center / docs        | 2    | Week 4-5 | 16 hrs | None                                           | No                                      |
+| --    | Admin dashboard           | 3    | Deferred | 20 hrs | --                                             | --                                      |
+| --    | Team collaboration        | 3    | Deferred | 60 hrs | --                                             | --                                      |
+| --    | SSO/SAML login            | 3    | Deferred | 40 hrs | --                                             | --                                      |
 
 **Total scheduled effort (items 1-5): 78 hours out of 150 available.**
 This leaves 72 hours of buffer for unplanned work, bug fixes discovered during development, and scope expansion on Stripe billing if edge cases arise. Do not backfill this buffer with Tier 3 items until Tier 1 and 2 are complete and validated.
@@ -550,11 +580,11 @@ This leaves 72 hours of buffer for unplanned work, bug fixes discovered during d
 
 ### Deprioritized Items
 
-| Item                 | Score  | Reason                                                                 | Revisit Trigger                                                |
-|----------------------|--------|------------------------------------------------------------------------|----------------------------------------------------------------|
-| Admin dashboard      | 0.08   | Reach = 1 (founder only). High effort for zero user-facing value. Internal tooling can wait. | When you have a second admin or customer success hire         |
-| Team collaboration   | 0.50   | High effort (60 hrs = 40% of total capacity). Demand is unvalidated -- no current users have explicitly requested this. | After 5+ paying customers request it in support tickets or interviews |
-| SSO/SAML login       | 0.13   | Enterprise-only feature with no confirmed enterprise pipeline. Building for a hypothetical customer is a classic early-stage trap. | When a specific enterprise prospect makes it a deal-breaker in a sales call |
+| Item               | Score | Reason                                                                                                                             | Revisit Trigger                                                             |
+| ------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Admin dashboard    | 0.08  | Reach = 1 (founder only). High effort for zero user-facing value. Internal tooling can wait.                                       | When you have a second admin or customer success hire                       |
+| Team collaboration | 0.50  | High effort (60 hrs = 40% of total capacity). Demand is unvalidated -- no current users have explicitly requested this.            | After 5+ paying customers request it in support tickets or interviews       |
+| SSO/SAML login     | 0.13  | Enterprise-only feature with no confirmed enterprise pipeline. Building for a hypothetical customer is a classic early-stage trap. | When a specific enterprise prospect makes it a deal-breaker in a sales call |
 
 ---
 

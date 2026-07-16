@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research academic-writing study-skills step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research academic-writing study-skills step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Source Evaluation
 
 ## When to Use
@@ -62,18 +63,21 @@ Before running any evaluation framework, gather everything available about the s
 Score each of the five CRAAP criteria on a 1--5 scale using specific evidence from the source. Do not assign scores by impression alone -- cite specific features of the source as justification.
 
 **Currency (C):**
+
 - Determine the original publication date and, for websites or reports, the last-updated date
 - Apply field-specific currency thresholds: hard sciences, technology, and medicine typically require sources from the last 5--7 years; social sciences and law allow 10--15 years; humanities may accept sources from 20+ years ago if they are primary texts or foundational scholarship
 - Flag superseded research: a nutrition study from 1985 on fat intake is almost certainly outdated given subsequent meta-analyses; a 2002 philosophy paper on free will may still be foundational
 - A score of 5 = published within the appropriate recency window with no signs of outdated data; 1 = clearly outdated, references superseded data, or no date is given at all
 
 **Relevance (R):**
+
 - Measure relevance against the user's specific research question, not against a general topic area
 - Assess the **depth of coverage**: does the source address the user's exact question, or only a tangential aspect?
 - Check the intended audience: a source written for policymakers uses different evidence standards than one written for biomedical researchers; a popular science article intended for a general audience is not the same as a primary study
 - A score of 5 = directly addresses the research question, appropriate audience level, substantial coverage; 1 = only tangentially related or written for a very different audience with no overlap
 
 **Authority (A):**
+
 - Investigate the author's credentials: academic position, institutional affiliation, publication history, relevant degrees
 - Distinguish between **domain authority** (credentials in the specific subfield) and **general authority** (being a known public figure)
 - Check the publisher: is the journal indexed in Web of Science, Scopus, or PubMed? Is the book publisher a recognized academic press (MIT Press, Cambridge University Press, Oxford University Press)? Is the report from a peer-recognized institution (CDC, World Bank, Cochrane Collaboration)?
@@ -81,6 +85,7 @@ Score each of the five CRAAP criteria on a 1--5 scale using specific evidence fr
 - A score of 5 = named expert with relevant credentials, respected publisher with editorial oversight; 1 = anonymous author, no institutional affiliation, self-published or predatory outlet
 
 **Accuracy (A):**
+
 - Examine whether claims are supported by citations to primary sources
 - Check for internal consistency: do the conclusions match the data presented?
 - Assess methodology if it is a research study: sample size, control conditions, statistical methods, peer-review status
@@ -89,6 +94,7 @@ Score each of the five CRAAP criteria on a 1--5 scale using specific evidence fr
 - A score of 5 = peer-reviewed, well-cited, methodology transparent and sound, no known retractions; 1 = no citations, anecdotal claims, retracted, or methodology fundamentally flawed
 
 **Purpose (P):**
+
 - Identify the intended function of the source: inform, persuade, advocate, sell, entertain, or deceive
 - Check funding and affiliation disclosures: industry-funded studies on their own products require extra scrutiny even when published in legitimate journals
 - Look for loaded language, selective use of evidence, or presentation of contested claims as settled consensus
@@ -296,13 +302,13 @@ Non-English sources follow the same evaluation framework. Language does not affe
 
 ## Example
 
-**Input:** "Can I use this source for my paper on the long-term mental health effects of social media use in adolescents? Here's the citation: Twenge, J. M., & Campbell, W. K. (2019). Media use is linked to lower psychological well-being: Evidence from three datasets. *Psychiatric Quarterly*, 90(2), 311--331."
+**Input:** "Can I use this source for my paper on the long-term mental health effects of social media use in adolescents? Here's the citation: Twenge, J. M., & Campbell, W. K. (2019). Media use is linked to lower psychological well-being: Evidence from three datasets. _Psychiatric Quarterly_, 90(2), 311--331."
 
 ---
 
 ## Source Evaluation Report
 
-**Source:** Twenge, J. M., & Campbell, W. K. (2019). Media use is linked to lower psychological well-being: Evidence from three datasets. *Psychiatric Quarterly*, 90(2), 311--331.
+**Source:** Twenge, J. M., & Campbell, W. K. (2019). Media use is linked to lower psychological well-being: Evidence from three datasets. _Psychiatric Quarterly_, 90(2), 311--331.
 **Source Type:** Peer-reviewed journal article
 **Evaluated for:** Long-term mental health effects of social media use in adolescents
 **Evaluator Date:** Current session
@@ -310,6 +316,7 @@ Non-English sources follow the same evaluation framework. Language does not affe
 ---
 
 ### OVERALL CREDIBILITY RATING: HIGH
+
 **Composite CRAAP Score:** 4.2 / 5.0
 
 This is a peer-reviewed article published in a legitimate psychiatric journal by credentialed researchers. It is directly relevant to the topic and provides multi-dataset empirical evidence. One important caveat applies: the study uses cross-sectional and correlational data, which limits causal claims -- the user should not cite this article as proving social media causes mental health decline.
@@ -318,14 +325,14 @@ This is a peer-reviewed article published in a legitimate psychiatric journal by
 
 ### CRAAP Scorecard
 
-| Criterion | Score (1–5) | Key Evidence |
-|-----------|-------------|--------------|
-| Currency | 4 | Published 2019 -- within the standard 5--7 year window for social and developmental psychology. The social media landscape has evolved since 2019 (TikTok growth, platform algorithm changes), so findings may not fully generalize to 2023--2025 adolescent use patterns. Adequate but not cutting-edge. |
-| Relevance | 5 | Directly addresses the research question: media use (including social media) and psychological well-being in youth. Three large datasets covering U.S. adolescents and young adults. Written for a psychiatric/psychological research audience, appropriate for an academic paper on this topic. |
-| Authority | 4 | Jean Twenge is a professor of psychology at San Diego State University with an extensive publication record on generational trends and adolescent mental health, including the widely cited book iGen (2017). W. Keith Campbell is a professor at the University of Georgia. *Psychiatric Quarterly* is indexed in PubMed and Scopus. Minor deduction: Twenge's broader work on this topic has been contested by other researchers (notably Amy Orben and Andrew Przybylski), which means the user should present this as one perspective in an ongoing debate. |
-| Accuracy | 4 | Three national datasets used (Monitoring the Future, Youth Risk Behavior Surveillance System, National Survey on Children's Health). Methodology is transparent. Statistical tests (regression analyses) reported with effect sizes. Citations are to peer-reviewed primary studies. Key limitation: all three datasets are cross-sectional, meaning the study cannot establish causality -- this is acknowledged by the authors. No known retraction or correction. Score docked one point for the well-documented replication concerns around correlational magnitude in this literature. |
-| Purpose | 4 | Published to contribute to empirical literature on media use and mental health. No pharmaceutical or commercial funding disclosed. The authors have a visible theoretical position (generational shift thesis) but disclose their perspective and acknowledge limitations. Purpose is academic, not commercial or advocacy-driven. Minor note: Twenge has been publicly vocal on this topic in media appearances, which warrants awareness of potential confirmation bias in framing, though it does not undermine the data. |
-| **COMPOSITE** | **4.2** | |
+| Criterion     | Score (1–5) | Key Evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Currency      | 4           | Published 2019 -- within the standard 5--7 year window for social and developmental psychology. The social media landscape has evolved since 2019 (TikTok growth, platform algorithm changes), so findings may not fully generalize to 2023--2025 adolescent use patterns. Adequate but not cutting-edge.                                                                                                                                                                                                                                                                                   |
+| Relevance     | 5           | Directly addresses the research question: media use (including social media) and psychological well-being in youth. Three large datasets covering U.S. adolescents and young adults. Written for a psychiatric/psychological research audience, appropriate for an academic paper on this topic.                                                                                                                                                                                                                                                                                            |
+| Authority     | 4           | Jean Twenge is a professor of psychology at San Diego State University with an extensive publication record on generational trends and adolescent mental health, including the widely cited book iGen (2017). W. Keith Campbell is a professor at the University of Georgia. _Psychiatric Quarterly_ is indexed in PubMed and Scopus. Minor deduction: Twenge's broader work on this topic has been contested by other researchers (notably Amy Orben and Andrew Przybylski), which means the user should present this as one perspective in an ongoing debate.                             |
+| Accuracy      | 4           | Three national datasets used (Monitoring the Future, Youth Risk Behavior Surveillance System, National Survey on Children's Health). Methodology is transparent. Statistical tests (regression analyses) reported with effect sizes. Citations are to peer-reviewed primary studies. Key limitation: all three datasets are cross-sectional, meaning the study cannot establish causality -- this is acknowledged by the authors. No known retraction or correction. Score docked one point for the well-documented replication concerns around correlational magnitude in this literature. |
+| Purpose       | 4           | Published to contribute to empirical literature on media use and mental health. No pharmaceutical or commercial funding disclosed. The authors have a visible theoretical position (generational shift thesis) but disclose their perspective and acknowledge limitations. Purpose is academic, not commercial or advocacy-driven. Minor note: Twenge has been publicly vocal on this topic in media appearances, which warrants awareness of potential confirmation bias in framing, though it does not undermine the data.                                                                |
+| **COMPOSITE** | **4.2**     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 **Credibility Tier:** High (4.0--5.0)
 
@@ -333,12 +340,12 @@ This is a peer-reviewed article published in a legitimate psychiatric journal by
 
 ### SIFT Cross-Check
 
-| SIFT Step | Finding |
-|-----------|---------|
-| Stop (claim identified) | The user may want to cite this for the claim that social media use is associated with lower psychological well-being in adolescents. |
-| Investigate (source reputation) | *Psychiatric Quarterly* is a Springer-published, PubMed-indexed journal founded in 1926. Twenge's work is widely cited (thousands of citations on Google Scholar) but has also been critically examined in high-profile responses, notably Orben & Przybylski (2019) in Nature Human Behaviour, who found effect sizes so small as to be practically negligible. The debate is active and genuine. |
-| Find better coverage | The association between social media and adolescent well-being is reported across multiple studies (Coyne et al., 2020; Odgers & Jensen, 2020; Haidt & Allen, 2020), but the direction and magnitude are actively contested. The claim is corroborated in existence but disputed in strength and causality. |
-| Trace claims to origin | The three datasets cited are publicly available government surveys. The authors' use of pre-existing datasets rather than proprietary data increases replicability. However, the operationalization of "media use" relies on self-report items from surveys not designed specifically to measure social media, which the authors note. |
+| SIFT Step                       | Finding                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stop (claim identified)         | The user may want to cite this for the claim that social media use is associated with lower psychological well-being in adolescents.                                                                                                                                                                                                                                                               |
+| Investigate (source reputation) | _Psychiatric Quarterly_ is a Springer-published, PubMed-indexed journal founded in 1926. Twenge's work is widely cited (thousands of citations on Google Scholar) but has also been critically examined in high-profile responses, notably Orben & Przybylski (2019) in Nature Human Behaviour, who found effect sizes so small as to be practically negligible. The debate is active and genuine. |
+| Find better coverage            | The association between social media and adolescent well-being is reported across multiple studies (Coyne et al., 2020; Odgers & Jensen, 2020; Haidt & Allen, 2020), but the direction and magnitude are actively contested. The claim is corroborated in existence but disputed in strength and causality.                                                                                        |
+| Trace claims to origin          | The three datasets cited are publicly available government surveys. The authors' use of pre-existing datasets rather than proprietary data increases replicability. However, the operationalization of "media use" relies on self-report items from surveys not designed specifically to measure social media, which the authors note.                                                             |
 
 **SIFT Assessment:** Qualifies the CRAAP rating -- the source is credible but sits within a contested literature; it cannot be cited as settling the debate.
 
@@ -352,6 +359,7 @@ This is a peer-reviewed article published in a legitimate psychiatric journal by
 **Evidence Hierarchy Fit:** Strong within correlational psychological research; below the level of a longitudinal study or randomized experiment in the evidence hierarchy. For clinical claims, a systematic review would outrank this.
 
 **Usability Verdict:**
+
 - [x] ⚠️ **USE WITH CAUTION** -- Suitable for academic citation when presented as evidence of a correlational association, not as proof of causation. Must be contextualized within the ongoing scholarly debate; cite alongside at least one contrasting study (e.g., Orben & Przybylski, 2019) to represent the literature accurately.
 
 ---
@@ -359,12 +367,14 @@ This is a peer-reviewed article published in a legitimate psychiatric journal by
 ### Specific Usage Guidance
 
 **Appropriate uses of this source:**
+
 - Citing as evidence that researchers have found a negative correlation between media use and adolescent psychological well-being using large national datasets
 - Introducing the empirical debate in a literature review section ("Twenge & Campbell, 2019, found that...")
 - Supporting a discussion of methodology in correlational research and its limits
 - Providing context for why social media and adolescent mental health has become a major policy and research concern
 
 **Inappropriate uses of this source:**
+
 - Claiming that "social media causes depression in teenagers" -- the study's cross-sectional design does not support causal language
 - Using this as the sole empirical support for a major argument about harmful effects without acknowledging Orben & Przybylski's reanalysis of similar data
 - Generalizing findings to post-2020 adolescent social media use, particularly short-form video platforms, which were not well-represented in the 2019 datasets
@@ -373,16 +383,16 @@ This is a peer-reviewed article published in a legitimate psychiatric journal by
 
 ### Red Flags Identified
 
-| Flag | Severity | Details |
-|------|----------|---------|
-| Cross-sectional design only | Medium | Cannot establish causality; limits the strength of causal claims the user can make |
-| Active scholarly controversy over effect sizes | Medium | Orben & Przybylski (2019, Nature Human Behaviour) reanalyzed comparable data and found effect sizes comparable to wearing glasses or eating potatoes -- the user must represent both perspectives |
-| Self-report media use measures | Low | Datasets used general screen time questions, not platform-specific social media measures; limits precision of the findings |
+| Flag                                           | Severity | Details                                                                                                                                                                                           |
+| ---------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cross-sectional design only                    | Medium   | Cannot establish causality; limits the strength of causal claims the user can make                                                                                                                |
+| Active scholarly controversy over effect sizes | Medium   | Orben & Przybylski (2019, Nature Human Behaviour) reanalyzed comparable data and found effect sizes comparable to wearing glasses or eating potatoes -- the user must represent both perspectives |
+| Self-report media use measures                 | Low      | Datasets used general screen time questions, not platform-specific social media measures; limits precision of the findings                                                                        |
 
 ---
 
 ### Next Steps
 
-1. **Immediately**: Locate and evaluate Orben, A., & Przybylski, A. K. (2019). The association between adolescent well-being and digital technology use. *Nature Human Behaviour*, 3(2), 173--182 -- this is the most prominent critical response and should be cited alongside Twenge & Campbell if you are making claims about the strength of the association.
+1. **Immediately**: Locate and evaluate Orben, A., & Przybylski, A. K. (2019). The association between adolescent well-being and digital technology use. _Nature Human Behaviour_, 3(2), 173--182 -- this is the most prominent critical response and should be cited alongside Twenge & Campbell if you are making claims about the strength of the association.
 2. **For stronger causal evidence**: Search PubMed for longitudinal studies on social media use and adolescent depression published after 2020 using the search terms: "social media" AND "adolescent" AND "depression" AND ("longitudinal" OR "cohort study"). These will rank higher in the evidence hierarchy than cross-sectional analyses.
 3. **For writing**: Once you have 3--4 sources evaluated and selected, use the `annotated-bibliography` skill to build concise summaries and synthesis notes, then use `citation-management` for APA 7th edition formatting.

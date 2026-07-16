@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation devops"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation devops'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Runbook Writer
@@ -35,17 +35,19 @@ This skill provides comprehensive expertise in creating operational runbooks tha
 
 ## Alert Details
 
-| Field | Value |
-|-------|-------|
-| Alert Name | `db-pool-exhaustion-warning` |
-| Severity | P2 (High) |
-| Monitoring | Datadog Monitor #12345 |
-| Dashboard | [Database Overview]([reference URL]) |
+| Field      | Value                                |
+| ---------- | ------------------------------------ |
+| Alert Name | `db-pool-exhaustion-warning`         |
+| Severity   | P2 (High)                            |
+| Monitoring | Datadog Monitor #12345               |
+| Dashboard  | [Database Overview]([reference URL]) |
+
 # ... (condensed) ...
-  FROM pg_stat_activity
-  WHERE (now() - pg_stat_activity.query_start) > interval '5 minutes'
-  AND state != 'idle'
-  ORDER BY duration DESC;
+
+FROM pg_stat_activity
+WHERE (now() - pg_stat_activity.query_start) > interval '5 minutes'
+AND state != 'idle'
+ORDER BY duration DESC;
 "
 ```
 
@@ -56,13 +58,16 @@ This skill provides comprehensive expertise in creating operational runbooks tha
 If the diagnosis shows long-running queries (>5 minutes):
 
 \```shell
+
 # Kill a specific query by PID
+
 psql -h $DB_HOST -U $DB_USER -c "SELECT pg_terminate_backend(<PID>);"
 
 # Kill all queries running longer than 10 minutes
+
 psql -h $DB_HOST -U $DB_USER -c "
-  SELECT pg_terminate_backend(pid)
-  FROM pg_stat_activity
+SELECT pg_terminate_backend(pid)
+FROM pg_stat_activity
 
 **Verification:** Connection count should start dropping within 30 seconds.
 
@@ -71,19 +76,25 @@ psql -h $DB_HOST -U $DB_USER -c "
 If connections are legitimately high (traffic spike, not runaway queries):
 
 \```shell
+
 # Scale up PgBouncer pool
+
 kubectl edit configmap pgbouncer-config -n production
-# Change: default_pool_size = 50  →  default_pool_size = 100
+
+# Change: default_pool_size = 50 → default_pool_size = 100
 
 # Restart PgBouncer to apply
+
 kubectl rollout restart deployment/pgbouncer -n production
 \```
 
 **Verification:**
 \```shell
+
 # Confirm new pool size
+
 kubectl run-cmd -it pgbouncer-xxx -n production -- \
-  psql -p 6432 pgbouncer -c "SHOW POOLS;"
+ psql -p 6432 pgbouncer -c "SHOW POOLS;"
 \```
 
 ### Step 3: Restart affected services (last resort)
@@ -91,10 +102,13 @@ kubectl run-cmd -it pgbouncer-xxx -n production -- \
 If connections are stuck and cannot be terminated:
 
 \```shell
+
 # Rolling restart of the API service
+
 kubectl rollout restart deployment/api-service -n production
 
 # Watch for pods to come back healthy
+
 kubectl rollout status deployment/api-service -n production
 \```
 
@@ -124,26 +138,28 @@ If the resolution made things worse:
 
 ## Escalation Path
 
-| Condition | Escalate To | Contact |
-|-----------|------------|---------|
-| Cannot resolve within 15 min | Platform Team Lead | @platform-lead (Slack) |
-| Database server itself unresponsive | DBA On-Call | PagerDuty: DBA rotation |
-| Revenue impact > $10K/hour | Engineering Director | @eng-director (Slack) + phone |
-| Data integrity concern | DBA + Security | PagerDuty: DBA + Security rotation |
+| Condition                           | Escalate To          | Contact                            |
+| ----------------------------------- | -------------------- | ---------------------------------- |
+| Cannot resolve within 15 min        | Platform Team Lead   | @platform-lead (Slack)             |
+| Database server itself unresponsive | DBA On-Call          | PagerDuty: DBA rotation            |
+| Revenue impact > $10K/hour          | Engineering Director | @eng-director (Slack) + phone      |
+| Data integrity concern              | DBA + Security       | PagerDuty: DBA + Security rotation |
 
 ## Communication Templates
 
 ### Internal Status Update (Slack)
+
 \```
-:rotating_light: *Incident: Database Connection Pool Exhaustion*
-*Status:* Investigating / Mitigating / Resolved
-*Impact:* API errors affecting ~X% of requests
-*Cause:* [Brief description]
-*ETA:* [Estimated time to resolution]
-*Responders:* @name1, @name2
+:rotating_light: _Incident: Database Connection Pool Exhaustion_
+_Status:_ Investigating / Mitigating / Resolved
+_Impact:_ API errors affecting ~X% of requests
+_Cause:_ [Brief description]
+_ETA:_ [Estimated time to resolution]
+_Responders:_ @name1, @name2
 \```
 
 ### Status Page Update
+
 \```
 Title: Elevated API Error Rates
 Status: Investigating
@@ -151,6 +167,7 @@ Status: Investigating
 ## Root Cause Analysis Triggers
 
 File an RCA if any of the following apply:
+
 - Incident lasted longer than 30 minutes
 - User-facing impact affected >5% of requests
 - Revenue impact exceeded $1,000
@@ -159,14 +176,16 @@ File an RCA if any of the following apply:
 
 ## Automation Opportunities
 
-| Step | Can Automate? | How |
-|------|--------------|-----|
-| Kill queries > 10 min | Yes | Cron job + pg_terminate_backend |
-| Pool size scaling | Yes | HPA based on connection metrics |
-| Service restart | Partial | Automated if health check fails 3x |
-| Communication | Yes | PagerDuty → Slack integration |
-| Diagnosis commands | Yes | Bot command: `/diagnose db-connections` |
+| Step                  | Can Automate? | How                                     |
+| --------------------- | ------------- | --------------------------------------- |
+| Kill queries > 10 min | Yes           | Cron job + pg_terminate_backend         |
+| Pool size scaling     | Yes           | HPA based on connection metrics         |
+| Service restart       | Partial       | Automated if health check fails 3x      |
+| Communication         | Yes           | PagerDuty → Slack integration           |
+| Diagnosis commands    | Yes           | Bot command: `/diagnose db-connections` |
+
 \```
+
 ```
 
 ## Alert-to-Runbook Mapping
@@ -174,6 +193,7 @@ File an RCA if any of the following apply:
 ### Mapping Strategy
 
 ```
+
 Alert-to-Runbook Mapping System:
 
 1. Every alert MUST link to a runbook
@@ -187,14 +207,15 @@ Alert-to-Runbook Mapping System:
 
 3. Mapping table (maintain in a central location)
 
-| Alert Name | Runbook | Owner | Last Tested |
-|-----------|---------|-------|-------------|
-| api-high-latency | RB-001 | API Team | 2025-01-01 |
-| db-pool-exhaustion | RB-042 | Platform | 2025-01-10 |
-| cert-expiry-warning | RB-015 | Security | 2024-12-15 |
-| disk-space-critical | RB-008 | Platform | 2025-01-05 |
-| payment-timeout | RB-023 | Payments | 2024-12-20 |
-```
+| Alert Name          | Runbook | Owner    | Last Tested |
+| ------------------- | ------- | -------- | ----------- |
+| api-high-latency    | RB-001  | API Team | 2025-01-01  |
+| db-pool-exhaustion  | RB-042  | Platform | 2025-01-10  |
+| cert-expiry-warning | RB-015  | Security | 2024-12-15  |
+| disk-space-critical | RB-008  | Platform | 2025-01-05  |
+| payment-timeout     | RB-023  | Payments | 2024-12-20  |
+
+````
 
 ### Prometheus Alert with Runbook Link
 
@@ -207,7 +228,7 @@ groups:
         expr: |
           pg_stat_activity_count / pg_settings_max_connections * 100 > 80
         for: 5m
-```
+````
 
 ## Step-by-Step Procedure Guidelines
 
@@ -221,13 +242,13 @@ Step Writing Rules:
 
 ### Conditional Branching in Runbooks
 
-```markdown
+````markdown
 ### Step 2: Determine the cause
 
 Check the query profile:
 
 \```shell
-psql -h $DB_HOST -c "SELECT state, count(*) FROM pg_stat_activity GROUP BY state;"
+psql -h $DB_HOST -c "SELECT state, count(\*) FROM pg_stat_activity GROUP BY state;"
 \```
 
 **If `active` count is high (> 50):**
@@ -238,39 +259,39 @@ psql -h $DB_HOST -c "SELECT state, count(*) FROM pg_stat_activity GROUP BY state
 
 **If `idle in transaction` count is high (> 20):**
 → Transaction not being committed/rolled back. Go to [Step 3C: Fix idle transactions](#step-3c).
-```
+````
 
 ## Escalation Paths
 
 ### Escalation Matrix Template
 
-```markdown
+````markdown
 ## Escalation Matrix
 
 ### Severity Definitions
 
-| Severity | Criteria | Response Time | Escalation Timer |
-|----------|----------|--------------|-----------------|
-| P1 Critical | Service completely down, data loss risk | 5 min | 15 min to team lead |
-| P2 High | Major feature degraded, >10% users affected | 15 min | 30 min to team lead |
-| P3 Medium | Minor feature degraded, <10% affected | 1 hour | 4 hours to team lead |
-| P4 Low | Non-impacting anomaly, monitoring alert | Next business day | N/A |
+| Severity    | Criteria                                    | Response Time     | Escalation Timer     |
+| ----------- | ------------------------------------------- | ----------------- | -------------------- |
+| P1 Critical | Service completely down, data loss risk     | 5 min             | 15 min to team lead  |
+| P2 High     | Major feature degraded, >10% users affected | 15 min            | 30 min to team lead  |
+| P3 Medium   | Minor feature degraded, <10% affected       | 1 hour            | 4 hours to team lead |
+| P4 Low      | Non-impacting anomaly, monitoring alert     | Next business day | N/A                  |
 
 ### Escalation Chain
 
 \```
 Level 0: On-call engineer (automatic PagerDuty)
-  └── Cannot resolve in 15 min (P1) or 30 min (P2)?
+└── Cannot resolve in 15 min (P1) or 30 min (P2)?
 
 ### Contact Information
 
-| Role | Name | Slack | Phone | PagerDuty |
-|------|------|-------|-------|-----------|
+| Role             | Name       | Slack            | Phone     | PagerDuty         |
+| ---------------- | ---------- | ---------------- | --------- | ----------------- |
 | Platform On-Call | (rotation) | @platform-oncall | PagerDuty | Platform schedule |
-| DBA On-Call | (rotation) | @dba-oncall | PagerDuty | DBA schedule |
-| Platform Lead | Jane Smith | @jsmith | 555-0101 | Direct |
-| Eng Director | Bob Jones | @bjones | 555-0102 | Direct |
-```
+| DBA On-Call      | (rotation) | @dba-oncall      | PagerDuty | DBA schedule      |
+| Platform Lead    | Jane Smith | @jsmith          | 555-0101  | Direct            |
+| Eng Director     | Bob Jones  | @bjones          | 555-0102  | Direct            |
+````
 
 ## Rollback Procedures
 
@@ -286,20 +307,25 @@ Is the issue caused by a recent deployment?
 
 ### Rollback Command Templates
 
-```markdown
+````markdown
 ### Kubernetes Deployment Rollback
 
 \```shell
+
 # View recent deployment history
+
 kubectl rollout history deployment/api-service -n production
 
 # Rollback to previous version
+
 kubectl rollout undo deployment/api-service -n production
 
 # Rollback to a specific revision
+
 kubectl rollout undo deployment/api-service -n production --to-revision=42
 
 # Verify rollback
+
 kubectl rollout status deployment/api-service -n production
 kubectl get pods -n production -l app=api-service
 \```
@@ -307,22 +333,26 @@ kubectl get pods -n production -l app=api-service
 ### Database Migration Rollback
 
 \```shell
+
 # View current migration version
+
 flyway info -url=$DB_URL
 
 # Rollback last migration
+
 flyway undo -url=$DB_URL
 
 # Verify schema state
-psql -h $DB_HOST -c "SELECT * FROM flyway_schema_history ORDER BY installed_rank DESC LIMIT 5;"
+
+psql -h $DB_HOST -c "SELECT \* FROM flyway_schema_history ORDER BY installed_rank DESC LIMIT 5;"
 \```
-```
+````
 
 ## Communication Templates
 
 ### Incident Communication Framework
 
-```markdown
+````markdown
 ### Initial Notification (within 5 minutes of detection)
 
 **Slack (#incidents channel):**
@@ -367,20 +397,23 @@ Killing long-running queries and scaling pool size.
 ### Customer-Facing Status Page Updates
 
 **Investigating:**
+
 > We are investigating reports of intermittent errors affecting our API.
 > Some users may experience failures when searching for products or
 > placing orders. We are actively investigating and will provide
 > an update within 30 minutes.
 
 **Identified:**
+
 > We have identified the cause of the API errors and are implementing
 > a fix. We expect the issue to be resolved within 15 minutes.
 
 **Resolved:**
+
 > The issue causing API errors has been resolved. All services are
 > operating normally. We apologize for the inconvenience. A full
 > incident report will be published within 48 hours.
-```
+````
 
 ## Post-Incident Updates
 
@@ -463,6 +496,7 @@ Runbooks should be tested regularly in a non-production environment:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing runbook writer solutions
 - Reviewing or improving existing runbook writer approaches
 - Making architectural or implementation decisions about runbook writer
@@ -470,6 +504,7 @@ Runbooks should be tested regularly in a non-production environment:
 - Troubleshooting runbook writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -480,21 +515,26 @@ Runbooks should be tested regularly in a non-production environment:
 # Runbook Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

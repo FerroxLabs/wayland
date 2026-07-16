@@ -465,6 +465,46 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     [acpButtonLabel, acpSourceLabel]
   );
 
+  // ── CLI agents backed by a connected catalog → full flyout (Option 2) ─────
+  // When a CLI agent maps to a connected provider/subscription catalog
+  // (claude→claude-subscription, codex→chatgpt-subscription) surface that WHOLE
+  // catalog through the SAME ModelSelectorFlyout Wayland Core uses, instead of
+  // the CLI's own short native model set. Brings the home composer to parity
+  // with the in-chat AcpModelSelector. Selection still routes through the ACP
+  // model state (`setSelectedAcpModel`) so the chat spawns THIS CLI with the
+  // picked id. Falls back to the native CLI menu below when there is no
+  // connected catalog (vendor CLIs, or a subscription not connected yet).
+  const cliHasEnabledCurated = React.useMemo(
+    () => Boolean(curated?.some((m) => !isFluxModelId(m.id) && m.enabled)),
+    [curated]
+  );
+  const cliSelectedCuratedKey = React.useMemo(() => {
+    const id = selectedAcpModel ?? currentAcpCachedModelInfo?.currentModelId ?? null;
+    if (!id) return null;
+    if (isFluxModelId(id)) return `flux-router:${id}`;
+    const m = curated?.find((c) => c.id === id);
+    return m ? `${m.providerId}:${m.id}` : id;
+  }, [selectedAcpModel, currentAcpCachedModelInfo?.currentModelId, curated]);
+  const cliFlyoutButtonLabel = React.useMemo(() => {
+    if (selectedAcpModel && !isFluxModelId(selectedAcpModel)) {
+      const m = curated?.find((c) => c.id === selectedAcpModel);
+      if (m) return m.displayName;
+    }
+    return acpButtonDisplayLabel;
+  }, [selectedAcpModel, curated, acpButtonDisplayLabel]);
+  const handlePickCliModelId = React.useCallback(
+    (modelId: string) => {
+      setSelectedAcpModel(modelId);
+      recordTelemetry({
+        eventType: 'guid.model_selected',
+        cliBackend: agentKey,
+        metadata: { modelId, source: 'curated' },
+      });
+      setPanelOpen(false);
+    },
+    [agentKey, recordTelemetry, setSelectedAcpModel]
+  );
+
   // ── Provider-based agents (Gemini / Wayland Core) - three-tier picker ────
   if (isGeminiMode) {
     return (
@@ -498,7 +538,40 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     );
   }
 
-  // ── CLI agents - ACP model selector ──────────────────────────────────────
+  // ── CLI agents WITH a connected catalog → shared flyout (Option 2) ────────
+  // Show the full connected provider/subscription catalog (identical to Wayland
+  // Core and the in-chat picker) rather than the CLI's own short model set. The
+  // flyout injects the Flux hero/tiers itself when Flux is connected, so a pick
+  // of any row - native model or Flux tier - routes through the ACP model state.
+  if (cliHasEnabledCurated) {
+    return (
+      <Dropdown
+        trigger='click'
+        position='bl'
+        popupVisible={panelOpen}
+        onVisibleChange={setPanelOpen}
+        droplist={
+          <CliModelFlyoutPanel
+            agentKey={agentKey}
+            selectedCuratedKey={cliSelectedCuratedKey}
+            onPickModelId={handlePickCliModelId}
+            onAddProvider={() => navigate('/settings/models')}
+            panelOpen={panelOpen}
+          />
+        }
+      >
+        <Button className={'sendbox-model-btn guid-config-btn'} shape='round' size='small'>
+          <span className='flex items-center gap-6px min-w-0'>
+            <Brain size={14} color={iconColors.secondary} className='shrink-0' />
+            <span>{cliFlyoutButtonLabel}</span>
+            <ChevronDown size={12} color={iconColors.secondary} className='shrink-0' />
+          </span>
+        </Button>
+      </Dropdown>
+    );
+  }
+
+  // ── CLI agents - native ACP model selector ────────────────────────────────
   // Render the picker whenever Flux Auto is offered OR there is any real model
   // to show (live cache or curated catalog). This kills the cold-start dead-end:
   // a connected Flux user sees Flux Auto from the first frame, and an enumerable
@@ -653,5 +726,37 @@ export const ModelSelectorPanel: React.FC<ModelSelectorPanelProps> = ({
 // Re-export for tests so they can mount the panel without the Arco Dropdown
 // shell.
 export type { ModelSelectorPanelProps };
+
+// ───────────────────────────────────────────────────────────────────────────
+// CliModelFlyoutPanel - the same unified flyout, but for a CLI agent backed by
+// a connected catalog (Option 2). Unlike ModelSelectorPanel it does NOT resolve
+// a CuratedModel or touch provider-based chat-start state: a CLI agent's model
+// is carried by its spawn, so selection routes back as a bare model id (native
+// catalog id OR a Flux tier id) through `onPickModelId` -> `setSelectedAcpModel`.
+// This mirrors the in-chat AcpModelSelector's flyout path exactly.
+// ───────────────────────────────────────────────────────────────────────────
+
+type CliModelFlyoutPanelProps = {
+  agentKey: string;
+  selectedCuratedKey: string | null;
+  onPickModelId: (modelId: string) => void;
+  onAddProvider: () => void;
+  panelOpen: boolean;
+};
+
+const CliModelFlyoutPanel: React.FC<CliModelFlyoutPanelProps> = ({
+  agentKey,
+  selectedCuratedKey,
+  onPickModelId,
+  onAddProvider,
+  panelOpen,
+}) => {
+  const { toggle: togglePinKey } = usePinnedModels(panelOpen);
+  const vm = useModelSelectorViewModel(agentKey, selectedCuratedKey);
+  // The flyout emits `(modelId, providerId)`; a CLI pick only needs the bare id
+  // (`setSelectedAcpModel` accepts native catalog ids and Flux tier ids alike).
+  const onSelect = React.useCallback((modelId: string) => onPickModelId(modelId), [onPickModelId]);
+  return <ModelSelectorFlyout vm={vm} onSelect={onSelect} onTogglePin={togglePinKey} onManage={onAddProvider} />;
+};
 
 export default GuidModelSelector;

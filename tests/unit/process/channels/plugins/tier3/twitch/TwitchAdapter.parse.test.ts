@@ -80,7 +80,7 @@ describe('toUnifiedIncomingFromTwitch - /me action message', () => {
       makeEvent({
         userstate: { ...makeEvent().userstate, 'message-type': 'action' },
         message: 'waves at everyone',
-      }),
+      })
     );
     expect(msg).not.toBeNull();
     expect(msg!.content.text).toBe('waves at everyone');
@@ -181,7 +181,7 @@ describe('extractTwitchRoles - F-3 role/badge surfacing', () => {
           subscriber: '1',
           badges: { moderator: '1', subscriber: '6' },
         },
-      }),
+      })
     );
     expect(msg).not.toBeNull();
     const raw = msg!.raw as { roles: TwitchRoles };

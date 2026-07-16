@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tiktok social-media marketing content-marketing"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tiktok social-media marketing content-marketing'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Tiktok Creator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on tiktok creator
 - User asks about tiktok creator best practices or techniques
 - User wants a structured approach to tiktok creator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of tiktok creator
 
@@ -62,29 +63,34 @@ The first 3 seconds determine whether a viewer stays or swipes. TikTok's algorit
 ### Hook Categories
 
 **1. Pattern Interrupt Hooks**
+
 - Unexpected visual (dropping something, sudden movement, unusual setting)
 - Jarring statement: "I got fired for this."
 - Breaking the fourth wall: Start mid-sentence, as if the viewer just walked in
 
 **2. Curiosity Gap Hooks**
+
 - "Nobody talks about this, but..."
 - "Here's what happens when you..."
 - "I tried [thing] for 30 days. Day 1 vs Day 30."
 - Show the end result first, then cut to "here's how"
 
 **3. Direct Value Hooks**
+
 - "3 things I wish I knew before..."
 - "Stop doing [common mistake]. Do this instead."
 - "The [audience] starter pack that actually works"
 - "POV: you finally learn how to..."
 
 **4. Emotional Hooks**
+
 - Share a vulnerable moment (authenticity wins on TikTok)
 - React to something with genuine emotion
 - "The moment I realized..."
 - Nostalgic references that trigger shared experiences
 
 **5. Controversy/Debate Hooks**
+
 - "Unpopular opinion: [hot take]"
 - "I don't care what anyone says, [statement]"
 - "This is going to make some people angry"
@@ -93,6 +99,7 @@ The first 3 seconds determine whether a viewer stays or swipes. TikTok's algorit
 ### Hook Testing Framework
 
 Create 3 versions of the same video with different hooks. Post them 48 hours apart. Compare:
+
 - Watch time (most important)
 - Completion rate
 - Comments (engagement quality)
@@ -105,6 +112,7 @@ The hook that keeps viewers longest wins. Use that pattern for your next 5 video
 ### Identifying Trends Early
 
 **Where to spot trends:**
+
 1. TikTok's Discover page (trending sounds and hashtags)
 2. TikTok Creative Center (official trend data)
 3. Your For You Page (what's appearing repeatedly)
@@ -123,22 +131,23 @@ Spot trend (Day 0)
 
 ### Evergreen Formats That Always Work
 
-| Format | Structure | Why It Works |
-|--------|-----------|-------------|
-| Before/After | Show transformation | Visual proof, satisfying |
-| Day in My Life | Time-lapse of activities | Voyeuristic appeal |
-| Tutorial | Step-by-step on screen | Pure value delivery |
-| Storytime | Narrative with text overlay | Emotional engagement |
-| Get Ready With Me | Doing something while talking | Casual, approachable |
-| Stitch/Duet | React to another video | Borrowed audience |
-| Green Screen | You over a background image | Commentary format |
-| POV | Acting out a scenario | Relatable humor |
-| List Reveal | Counting down items | Keeps viewers watching |
-| Challenge | Attempting something specific | Participatory energy |
+| Format            | Structure                     | Why It Works             |
+| ----------------- | ----------------------------- | ------------------------ |
+| Before/After      | Show transformation           | Visual proof, satisfying |
+| Day in My Life    | Time-lapse of activities      | Voyeuristic appeal       |
+| Tutorial          | Step-by-step on screen        | Pure value delivery      |
+| Storytime         | Narrative with text overlay   | Emotional engagement     |
+| Get Ready With Me | Doing something while talking | Casual, approachable     |
+| Stitch/Duet       | React to another video        | Borrowed audience        |
+| Green Screen      | You over a background image   | Commentary format        |
+| POV               | Acting out a scenario         | Relatable humor          |
+| List Reveal       | Counting down items           | Keeps viewers watching   |
+| Challenge         | Attempting something specific | Participatory energy     |
 
 ### Niche-Specific Format Adaptation
 
 Whatever the trending format, ask these questions:
+
 1. How does this format's structure translate to my niche?
 2. What is MY version of this trend?
 3. Can I add unique value while using the trending sound/format?
@@ -177,12 +186,12 @@ Optional:            Branded hashtag   #[yourbrand]challenge
 
 ### Optimal Posting Frequency
 
-| Growth Phase | Posts Per Day | Why |
-|-------------|--------------|-----|
-| Launch (first 30 days) | 1-3 | Test content types, feed the algorithm data |
-| Growth (30-90 days) | 1-2 | Quality over quantity, refine what works |
-| Established (90+ days) | 1 (consistently) | Maintain momentum without burnout |
-| Scaling | 1 main + 1-2 repurposed | Different angles on proven topics |
+| Growth Phase           | Posts Per Day           | Why                                         |
+| ---------------------- | ----------------------- | ------------------------------------------- |
+| Launch (first 30 days) | 1-3                     | Test content types, feed the algorithm data |
+| Growth (30-90 days)    | 1-2                     | Quality over quantity, refine what works    |
+| Established (90+ days) | 1 (consistently)        | Maintain momentum without burnout           |
+| Scaling                | 1 main + 1-2 repurposed | Different angles on proven topics           |
 
 ### Best Posting Times (General Guidelines)
 
@@ -256,13 +265,13 @@ Phase 4: Viral (100,000+ views)
 
 ### Platform Adaptation Guide
 
-| Original (TikTok) | Instagram Reels | YouTube Shorts | Notes |
-|-------------------|----------------|---------------|-------|
-| Vertical 9:16 | Same | Same | Same aspect ratio everywhere |
-| TikTok watermark | Remove or re-upload | Remove or re-upload | Platforms penalize competitor watermarks |
-| TikTok sounds | May not transfer | May not transfer | Re-add music natively on each platform |
-| Hashtags | Fewer, different set | Different set | Each platform has different hashtag dynamics |
-| Caption style | Can be longer on IG | Short for YT Shorts | Adapt captions to platform norms |
+| Original (TikTok) | Instagram Reels      | YouTube Shorts      | Notes                                        |
+| ----------------- | -------------------- | ------------------- | -------------------------------------------- |
+| Vertical 9:16     | Same                 | Same                | Same aspect ratio everywhere                 |
+| TikTok watermark  | Remove or re-upload  | Remove or re-upload | Platforms penalize competitor watermarks     |
+| TikTok sounds     | May not transfer     | May not transfer    | Re-add music natively on each platform       |
+| Hashtags          | Fewer, different set | Different set       | Each platform has different hashtag dynamics |
+| Caption style     | Can be longer on IG  | Short for YT Shorts | Adapt captions to platform norms             |
 
 ### Cross-Posting Workflow
 
@@ -288,14 +297,14 @@ Phase 4: Viral (100,000+ views)
 
 ### Monetization Milestones
 
-| Follower Count | Revenue Opportunities |
-|---------------|----------------------|
-| 0-1,000 | Affiliate links, own product promotion |
-| 1,000-10,000 | Micro-influencer deals ($100-500/post), TikTok Creator Fund |
-| 10,000-50,000 | Brand partnerships ($500-2,000/post), TikTok Shop |
-| 50,000-100,000 | Significant brand deals ($2,000-5,000/post) |
-| 100,000-500,000 | Major partnerships ($5,000-20,000/post) |
-| 500,000+ | Enterprise deals ($20,000-100,000+ per campaign) |
+| Follower Count  | Revenue Opportunities                                       |
+| --------------- | ----------------------------------------------------------- |
+| 0-1,000         | Affiliate links, own product promotion                      |
+| 1,000-10,000    | Micro-influencer deals ($100-500/post), TikTok Creator Fund |
+| 10,000-50,000   | Brand partnerships ($500-2,000/post), TikTok Shop           |
+| 50,000-100,000  | Significant brand deals ($2,000-5,000/post)                 |
+| 100,000-500,000 | Major partnerships ($5,000-20,000/post)                     |
+| 500,000+        | Enterprise deals ($20,000-100,000+ per campaign)            |
 
 ### Rate Card Framework
 
@@ -372,11 +381,11 @@ a partnership.
 
 ### Affiliate vs Own Products
 
-| Model | Commission | Control | Best For |
-|-------|-----------|---------|----------|
-| Affiliate (others' products) | 5-30% | Low | Creators without own products |
-| Own products | 100% (minus fees) | Full | Creators with physical/digital goods |
-| Hybrid | Variable | Medium | Diversified revenue approach |
+| Model                        | Commission        | Control | Best For                             |
+| ---------------------------- | ----------------- | ------- | ------------------------------------ |
+| Affiliate (others' products) | 5-30%             | Low     | Creators without own products        |
+| Own products                 | 100% (minus fees) | Full    | Creators with physical/digital goods |
+| Hybrid                       | Variable          | Medium  | Diversified revenue approach         |
 
 ## Content Production Workflow
 
@@ -403,26 +412,26 @@ Post-Production (1-2 hours):
 
 ### Equipment Essentials
 
-| Item | Budget Option | Premium Option |
-|------|--------------|---------------|
-| Phone | Any phone from last 3 years | iPhone Pro (best video quality) |
-| Tripod | $15 phone tripod | DJI OM gimbal ($120) |
-| Lighting | Window + $20 ring light | Elgato Key Light ($180) |
-| Microphone | Phone mic + quiet room | Rode Wireless Go II ($300) |
-| Background | Clean wall, simple setup | Aesthetic set design |
+| Item       | Budget Option               | Premium Option                  |
+| ---------- | --------------------------- | ------------------------------- |
+| Phone      | Any phone from last 3 years | iPhone Pro (best video quality) |
+| Tripod     | $15 phone tripod            | DJI OM gimbal ($120)            |
+| Lighting   | Window + $20 ring light     | Elgato Key Light ($180)         |
+| Microphone | Phone mic + quiet room      | Rode Wireless Go II ($300)      |
+| Background | Clean wall, simple setup    | Aesthetic set design            |
 
 ## Analytics and Iteration
 
 ### Key Metrics to Track Weekly
 
-| Metric | What It Tells You | Action If Low |
-|--------|------------------|---------------|
-| Average watch time | Content quality | Improve hooks, shorten videos |
-| Completion rate | Pacing and value | Cut filler, tighten edit |
-| Share rate | Viral potential | Create more share-worthy content |
-| Follow rate | Profile appeal | Optimize bio, pin best videos |
-| Comment rate | Engagement depth | Ask questions, create debate |
-| Profile views | Content driving curiosity | Ensure bio converts to follow |
+| Metric             | What It Tells You         | Action If Low                    |
+| ------------------ | ------------------------- | -------------------------------- |
+| Average watch time | Content quality           | Improve hooks, shorten videos    |
+| Completion rate    | Pacing and value          | Cut filler, tighten edit         |
+| Share rate         | Viral potential           | Create more share-worthy content |
+| Follow rate        | Profile appeal            | Optimize bio, pin best videos    |
+| Comment rate       | Engagement depth          | Ask questions, create debate     |
+| Profile views      | Content driving curiosity | Ensure bio converts to follow    |
 
 ### The Testing Mindset
 
@@ -445,7 +454,6 @@ Post-Production (1-2 hours):
 9. **Deleting underperforming videos**: Leave them up -- they can resurface weeks later
 10. **Ignoring audio quality**: Bad audio kills watch time even on short-form content
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -458,13 +466,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with tiktok creator for a mid-size project."
 
 **Output:** A complete tiktok creator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

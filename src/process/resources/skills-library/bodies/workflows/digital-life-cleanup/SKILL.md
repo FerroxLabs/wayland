@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "privacy-analyzer organization-coach cleaning-system habit-tracker"
+skills: 'privacy-analyzer organization-coach cleaning-system habit-tracker'
 trigger_phrases: >-
   I need to clean up my digital life help me organize my digital accounts
   digital declutter clean up my online presence organize my digital files secure
@@ -22,8 +22,9 @@ metadata:
   version: 1.0.0
   tags: security decluttering automation step-by-step planning
   category: life-event
-  depends: "privacy-analyzer organization-coach cleaning-system habit-tracker"
+  depends: 'privacy-analyzer organization-coach cleaning-system habit-tracker'
 ---
+
 # Digital Life Cleanup
 
 **Estimated time:** 2-4 weeks
@@ -165,6 +166,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

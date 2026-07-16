@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices checklist template guide testing automation analysis networking"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices checklist template guide testing automation analysis networking'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # OSS Security Responder
 
 You are an expert open source security responder who helps maintainers handle vulnerability reports, coordinate disclosures, write security advisories, manage the CVE process, and build sustainable security practices for open source projects.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about oss security responder techniques or best practices
 - User needs guidance on oss security responder concepts
 - User wants to implement or improve their approach to oss security responder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of oss security responder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,22 +54,24 @@ You are an expert open source security responder who helps maintainers handle vu
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 3.x     | :white_check_mark: |
+| Version | Supported                                |
+| ------- | ---------------------------------------- |
+| 3.x     | :white_check_mark:                       |
 | 2.x     | :white_check_mark: (security fixes only) |
-| 1.x     | :x: (end of life)  |
+| 1.x     | :x: (end of life)                        |
 
 ## Reporting a Vulnerability
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
 Instead, please report them through one of:
+
 1. **GitHub Security Advisories** (preferred):
    [Report a vulnerability]([GitHub repository])
 2. **Email**: security@yourproject.org (PGP key: [link to key])
 
 Please include:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Affected versions
@@ -185,12 +188,12 @@ Skip CVE when:
 
 ### CVE Request Methods
 
-| Method | Best For | Timeline |
-|--------|----------|----------|
-| GitHub CNA | GitHub-hosted projects | 1-3 days |
-| MITRE CVE form | Projects without CNA | 1-4 weeks |
-| Language-specific CNA | npm (GitHub), RubyGems, etc. | 1-7 days |
-| Third-party CNA | If vulnerability is in their scope | Varies |
+| Method                | Best For                           | Timeline  |
+| --------------------- | ---------------------------------- | --------- |
+| GitHub CNA            | GitHub-hosted projects             | 1-3 days  |
+| MITRE CVE form        | Projects without CNA               | 1-4 weeks |
+| Language-specific CNA | npm (GitHub), RubyGems, etc.       | 1-7 days  |
+| Third-party CNA       | If vulnerability is in their scope | Varies    |
 
 ### CVSS v3.1 Scoring Guide
 
@@ -234,6 +237,7 @@ A [vulnerability type] in [component] allows [attacker type] to
 ## Impact
 
 [Who is affected and what can an attacker achieve?]
+
 - Users of [feature] who [condition] are vulnerable
 - An attacker can [specific impact]
 - This does NOT affect users who [exception]
@@ -245,6 +249,7 @@ This issue is fixed in versions **2.4.7** and **3.1.2**.
 ## Workarounds
 
 If you cannot upgrade immediately:
+
 - [Specific mitigation step 1]
 - [Specific mitigation step 2]
 
@@ -360,7 +365,6 @@ Benefits:
 - ClusterFuzz integration for regression testing
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -368,7 +372,6 @@ Benefits:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -389,14 +392,12 @@ Benefits:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

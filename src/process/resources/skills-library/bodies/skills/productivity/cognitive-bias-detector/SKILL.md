@@ -5,19 +5,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making analysis frameworks"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'decision-making analysis frameworks'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Cognitive Bias Detector
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user describes a decision they made or are making and wants to know what cognitive distortions may have shaped it -- e.g., "We're $3M into this project and considering pulling the plug -- am I being rational?"
 - A user presents an argument, belief, or conclusion and wants it stress-tested for biased reasoning before they act on it
 - A user wants to audit a group decision-making process -- team, committee, board -- for systematic errors and recommends structural improvements
@@ -27,6 +29,7 @@ metadata:
 - A user describes a debate, disagreement, or negotiation and asks whether either party is reasoning poorly
 
 **Do NOT use this skill when:**
+
 - The user needs help with logical fallacies in formal argumentation (e.g., ad hominem, straw man, slippery slope) -- those are informal fallacies, not cognitive biases; use a logic/argumentation skill instead
 - The user is asking about mental health, depression, distorted thinking, or cognitive distortions in a clinical context -- that is CBT territory, not decision science
 - The user is doing statistical analysis and wants to check for measurement bias, sampling bias, or model bias -- use a data science/statistics skill instead
@@ -76,29 +79,34 @@ Apply the SCAN protocol systematically to the described situation. This produces
 After the SCAN, run the full 20-point bias diagnostic. For each applicable bias, determine: Present / Absent / Cannot Determine, and estimate its influence on the decision (Low / Medium / High).
 
 **Category 1 -- Anchoring and Estimation Biases:**
+
 - Anchoring: Was an initial number, date, or estimate mentioned before deliberation began?
 - Overconfidence: Is the confidence level expressed proportional to the actual expertise and evidence?
 - Planning Fallacy: Does any timeline or budget estimate ignore historical base rates for similar projects?
 
 **Category 2 -- Evidence Evaluation Biases:**
+
 - Confirmation Bias: Was evidence that contradicts the conclusion actively sought, or only evidence supporting it?
 - Availability Heuristic: Is probability being estimated from ease of recall rather than actual frequency data?
 - Survivorship Bias: Are conclusions drawn from observable successes while ignoring the distribution of failures?
 - Base Rate Neglect: Is a specific case being judged without reference to how often this type of situation ends in various outcomes?
 
 **Category 3 -- Loss and Change Biases:**
+
 - Sunk Cost Fallacy: Is past investment (time, money, emotion) cited as a reason to continue rather than future expected value?
 - Loss Aversion: Is a potential loss of X being weighted more heavily than an equivalent potential gain of X?
 - Status Quo Bias: Is the current option preferred primarily because changing requires action and the default is inertia?
 - Commitment Escalation: Is a prior public commitment driving the decision rather than new information?
 
 **Category 4 -- Social and Group Biases:**
+
 - Bandwagon Effect: Is the decision or belief supported primarily by consensus rather than independent evidence?
 - Authority Bias: Is an authority being cited outside their domain of genuine expertise?
 - In-Group Bias: Is evaluation of people or ideas influenced by tribal affiliation rather than merit?
 - Groupthink: Did a group suppress dissenting views or reach consensus faster than the complexity warranted?
 
 **Category 5 -- Perception and Attribution Biases:**
+
 - Halo Effect: Is a positive quality in one domain being imported to an unrelated domain?
 - Framing Effect: Would the decision change if the identical facts were presented with opposite framing?
 - Fundamental Attribution Error: Are other parties' behaviors attributed to character while one's own are attributed to circumstances?

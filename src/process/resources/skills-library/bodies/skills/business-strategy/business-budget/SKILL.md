@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning strategy analysis spreadsheets checklist"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning strategy analysis spreadsheets checklist'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Business Budget
 
 ## When to Use
 
 **Use this skill when:**
+
 - A business owner, finance leader, or operations manager asks to build an annual operating budget from scratch
 - A user wants to implement zero-based budgeting (ZBB) methodology, meaning every dollar of expense must be justified fresh rather than carried forward from prior year
 - A user needs to break down company-wide spending into department-level budgets with individual line-item justification
@@ -29,6 +31,7 @@ metadata:
 - A user is rebuilding the budget mid-year after actuals have significantly diverged from plan
 
 **Do NOT use this skill when:**
+
 - The user needs a personal or household budget -- household budgets involve income allocation, debt payoff sequencing, and savings rate optimization, all handled by the `budget-planning` skill
 - The user wants a full financial model with a three-statement structure (income statement, balance sheet, cash flow statement with linked projections) -- use `financial-model-structure`
 - The user wants to analyze or diagnose an existing profit and loss statement to find cost problems or margin erosion -- use `pl-analysis`
@@ -84,6 +87,7 @@ COGS is often the most misunderstood section of an operating budget because know
 Each department budget is built bottom-up: list every planned activity and resource, assign a cost to each, classify it, and justify it. The total is the sum of justified activities -- not a top-down allocation.
 
 **Engineering / R&D:**
+
 - Headcount: List every engineer by level (Junior, Mid, Senior, Staff, Principal) with fully loaded cost (salary + benefits + payroll tax + equity amortization). Fully loaded cost is typically 1.2-1.3x base salary for full-time employees in the US, 1.1-1.15x in most of Europe.
 - Phase new hires to planned start dates -- a Senior Engineer at $180K base ($234K fully loaded) starting in April costs $175.5K in the budget year, not $234K. This distinction commonly creates $50K-$200K errors in headcount-heavy budgets.
 - Infrastructure and cloud hosting belongs in COGS unless it is exclusively used for development/testing environments (development environments are R&D; production is COGS).
@@ -91,6 +95,7 @@ Each department budget is built bottom-up: list every planned activity and resou
 - Contractor budget: define the scope -- are contractors filling a permanent headcount gap or executing a specific project? Contractor rates are typically 40-70% higher per hour than equivalent FTE hourly rate, but carry no benefits cost and terminate cleanly.
 
 **Sales:**
+
 - Headcount cost for sales is more complex than other departments: base salary + on-target earnings (OTE). The variable commission component is a function of quota attainment, which is tied to revenue performance.
 - Budget commissions at 100% OTE attainment for conservatism -- this means if total sales headcount has $500K in base salary and $500K in commission upside, budget $1M total sales compensation.
 - Sales tools: CRM (Salesforce at $75-$300/user/month for Enterprise tier; HubSpot at $45-$120/user/month), sales engagement platforms, conversation intelligence, data enrichment, contract management. For a 10-person sales team these tools commonly total $100K-$250K per year.
@@ -98,22 +103,26 @@ Each department budget is built bottom-up: list every planned activity and resou
 - Budget sales travel and entertainment (T&E) separately from tools. T&E for enterprise sales teams commonly runs $5,000-$15,000 per rep per year for domestic accounts, $20,000-$40,000 for reps covering international territories.
 
 **Marketing:**
+
 - Marketing budget benchmark: growth-stage B2B companies typically spend 15-25% of target revenue on marketing; enterprise-focus companies 10-15%; B2C and consumer companies 20-35%.
 - Break marketing spend into subcategories with distinct drivers: paid acquisition (Google Ads, LinkedIn, Meta -- cost per lead x planned lead volume), content and SEO (primarily headcount and tools), events (conference sponsorships, owned events -- each with individual line items), PR/analyst relations (retainer or project cost), product marketing (headcount).
 - Paid acquisition budget must be tied to a unit economics assumption: if cost per lead (CPL) is $150 and sales close rate is 20%, cost per opportunity is $750. If average contract value is $30K and win rate is 25%, cost per closed deal is $3,000. Marketing budget allocation should be sized to deliver the lead volume the sales team needs to hit quota, not the other way around.
 - Marketing tools: Marketing automation (Marketo at $895-$3,195/month; HubSpot Marketing Hub $800-$3,600/month), analytics, SEO platforms ($200-$500/month), design and content tools.
 
 **Customer Success / Support:**
+
 - Determine the ratio of CSMs to accounts by ARR band -- a common model: one CSM per $2M-$4M ARR for high-touch enterprise, one CSM per $750K-$1.5M ARR for mid-market, and automated/tech-touch for SMB below a revenue threshold.
 - Support staffing: model based on ticket volume per customer per month x average handle time x target SLA coverage. A common starting point: one support agent per 150-300 customers depending on product complexity and customer technical sophistication.
 - Include a dedicated line for Customer Success tooling: CS platforms (Gainsight at $25-$40/user/month; ChurnZero similar), support ticketing (Zendesk, Intercom), knowledge base, and customer health monitoring.
 
 **General & Administrative (G&A):**
+
 - G&A is the cost center that scales the least with revenue and should decline as a percentage of revenue as the company grows. A mature public company targets 5-8% G&A as a % of revenue; a 50-person startup commonly runs 12-18%.
 - Key G&A line items: legal (outside counsel retainer + transaction counsel for fundraising or M&A, contracts review), audit and accounting (external audit at $25K-$150K depending on size and complexity; bookkeeping and controller costs), insurance (D&O, E&O, general liability, cyber -- total annual premium commonly $20K-$100K for a 50-person startup), office rent and utilities (if applicable -- post-pandemic many companies have hybrid arrangements), and finance tooling (ERP, accounting software, expense management).
 - Finance headcount: typically one Finance FTE per $8M-$15M revenue for early-stage; a VP of Finance or CFO is typically justified at $5M+ ARR for a growth company.
 
 **People / HR:**
+
 - Recruiting costs: either agency fees (typically 20-25% of first-year salary for executive/technical roles, 15-18% for professional roles) or in-house recruiting infrastructure (recruiting tools at $8,000-$20,000/year for an ATS like Greenhouse or Lever, plus recruiter headcount).
 - Benefits: US companies budget $8,000-$18,000 per employee per year for medical, dental, and vision depending on plan generosity and employer contribution percentage. 401(k) match adds $1,500-$4,500 per employee per year at typical 3-4% match levels.
 - L&D (learning and development): $500-$2,000 per employee per year is common; high-growth engineering organizations often invest $2,500-$5,000 per engineer.
@@ -360,6 +369,7 @@ If the budget process runs past the fiscal year start date (common in companies 
 ## Annual Business Budget: Horizon SaaS, Inc. -- FY2026
 
 ### Budget Parameters
+
 - **Fiscal year:** January 1, 2026 to December 31, 2026
 - **Methodology:** Zero-based (all line items justified from scratch)
 - **Revenue assumption:** $4,200,000 (base case -- $3,000,000 starting ARR growing to $4,500,000 exiting ARR, recognized ratably; average recognized ARR of $3,750,000 + $450,000 professional services)
@@ -373,11 +383,11 @@ If the budget process runs past the fiscal year start date (common in companies 
 
 ### Revenue Scenarios
 
-| Scenario | Annual Revenue | ARR Exit | Key Assumption |
-|----------|---------------|----------|----------------|
-| Upside | $4,600,000 | $5,200,000 | Close rate 26%, net revenue retention 108% |
+| Scenario          | Annual Revenue | ARR Exit       | Key Assumption                                 |
+| ----------------- | -------------- | -------------- | ---------------------------------------------- |
+| Upside            | $4,600,000     | $5,200,000     | Close rate 26%, net revenue retention 108%     |
 | **Base (Budget)** | **$4,200,000** | **$4,500,000** | **Close rate 21%, net revenue retention 103%** |
-| Downside | $3,500,000 | $3,600,000 | Close rate 16%, churn spikes to 12% |
+| Downside          | $3,500,000     | $3,600,000     | Close rate 16%, churn spikes to 12%            |
 
 **Downside trigger actions:** If Q2 revenue tracks below $900,000 (below downside annualized pace), freeze all discretionary marketing spend ($120K annualized), pause G&A hire #3 ($95K fully loaded), reduce event budget by 60% ($45K savings). Total identified discretionary cut: $260,000 annualized, reducing burn by ~$22K/month.
 
@@ -385,27 +395,27 @@ If the budget process runs past the fiscal year start date (common in companies 
 
 ### Budget Summary
 
-| Category | Annual Budget | % of Revenue | Notes |
-|----------|-------------|-------------|-------|
-| **Revenue** | $4,200,000 | 100% | Ratable ARR + PS fees |
-| COGS -- Infrastructure (Fixed) | ($168,000) | 4.0% | AWS base + monitoring |
-| COGS -- Support headcount (Fixed) | ($210,000) | 5.0% | 2 support engineers, fully loaded |
-| COGS -- Variable hosting/API (Variable) | ($84,000) | 2.0% | Scales with active customer count |
-| COGS -- Payment processing (Variable) | ($42,000) | 1.0% | 1% of subscription revenue |
-| **Total COGS** | **($504,000)** | **12.0%** | |
-| **Gross Profit** | **$3,696,000** | **88.0%** | +14 pts improvement from COGS optimization below |
-| Engineering / R&D | ($1,050,000) | 25.0% | 10 engineers avg including 4 new hires |
-| Sales | ($882,000) | 21.0% | 6 AEs avg including 3 new hires (OTE budgeted) |
-| Marketing | ($462,000) | 11.0% | 2 headcount + demand gen + events |
-| Customer Success | ($252,000) | 6.0% | 3 CSMs, 1:$1M ARR ratio |
-| G&A | ($336,000) | 8.0% | Finance, legal, insurance, IT |
-| People / HR | ($294,000) | 7.0% | Recruiting (10 hires) + benefits admin + L&D |
-| **Total OpEx** | **($3,276,000)** | **78.0%** | |
-| **EBITDA** | **$420,000** | **10.0%** | Pre-contingency |
-| Contingency reserve (7%) | ($229,320) | 5.5% | CFO-controlled, board visibility |
-| D&A (non-cash) | ($36,000) | 0.9% | Laptop depreciation + prior CapEx |
-| Interest (venture debt) | ($0) | -- | No debt currently |
-| **Net Income (Budget)** | **$154,680** | **3.7%** | |
+| Category                                | Annual Budget    | % of Revenue | Notes                                            |
+| --------------------------------------- | ---------------- | ------------ | ------------------------------------------------ |
+| **Revenue**                             | $4,200,000       | 100%         | Ratable ARR + PS fees                            |
+| COGS -- Infrastructure (Fixed)          | ($168,000)       | 4.0%         | AWS base + monitoring                            |
+| COGS -- Support headcount (Fixed)       | ($210,000)       | 5.0%         | 2 support engineers, fully loaded                |
+| COGS -- Variable hosting/API (Variable) | ($84,000)        | 2.0%         | Scales with active customer count                |
+| COGS -- Payment processing (Variable)   | ($42,000)        | 1.0%         | 1% of subscription revenue                       |
+| **Total COGS**                          | **($504,000)**   | **12.0%**    |                                                  |
+| **Gross Profit**                        | **$3,696,000**   | **88.0%**    | +14 pts improvement from COGS optimization below |
+| Engineering / R&D                       | ($1,050,000)     | 25.0%        | 10 engineers avg including 4 new hires           |
+| Sales                                   | ($882,000)       | 21.0%        | 6 AEs avg including 3 new hires (OTE budgeted)   |
+| Marketing                               | ($462,000)       | 11.0%        | 2 headcount + demand gen + events                |
+| Customer Success                        | ($252,000)       | 6.0%         | 3 CSMs, 1:$1M ARR ratio                          |
+| G&A                                     | ($336,000)       | 8.0%         | Finance, legal, insurance, IT                    |
+| People / HR                             | ($294,000)       | 7.0%         | Recruiting (10 hires) + benefits admin + L&D     |
+| **Total OpEx**                          | **($3,276,000)** | **78.0%**    |                                                  |
+| **EBITDA**                              | **$420,000**     | **10.0%**    | Pre-contingency                                  |
+| Contingency reserve (7%)                | ($229,320)       | 5.5%         | CFO-controlled, board visibility                 |
+| D&A (non-cash)                          | ($36,000)        | 0.9%         | Laptop depreciation + prior CapEx                |
+| Interest (venture debt)                 | ($0)             | --           | No debt currently                                |
+| **Net Income (Budget)**                 | **$154,680**     | **3.7%**     |                                                  |
 
 **Note on gross margin improvement:** Current gross margin is 74%. The 88% budget target requires moving 2 support engineers from COGS to Customer Success (their work is 80% proactive success, not reactive support -- reclassification is appropriate and should be reviewed with the company's accountant) and renegotiating AWS reserved instance pricing (migrating 60% of compute to 1-year reserved instances saves approximately $58,000 vs. on-demand pricing). The 88% is achievable with these two changes; confirm before finalizing.
 
@@ -413,33 +423,35 @@ If the budget process runs past the fiscal year start date (common in companies 
 
 ### Key Metrics Dashboard
 
-| Metric | FY2026 Budget | FY2025 Estimated Actual | SaaS Benchmark (growth-stage) |
-|--------|--------------|------------------------|-------------------------------|
-| Gross Margin % | 88.0% | 74.0% | 75-85% |
-| EBITDA Margin % | 10.0% | ~(8.0%) | (10)% to +10% at this ARR |
-| S&M as % of Revenue | 21.0% | ~19.0% | 18-28% |
-| R&D as % of Revenue | 25.0% | ~28.0% | 20-30% |
-| G&A as % of Revenue | 8.0% | ~10.0% | 7-12% |
-| Revenue per Employee | $116,667 | $100,000 | $100K-$150K (30-50 person SaaS) |
-| Fully Loaded Cost per Head | $101,667 | $96,667 | -- |
-| Rule of 40 Score | 50 (40% growth + 10% EBITDA) | ~28 | 40+ (healthy) |
-| Cash Runway (months) | 12.1 | -- | 18+ target |
+| Metric                     | FY2026 Budget                | FY2025 Estimated Actual | SaaS Benchmark (growth-stage)   |
+| -------------------------- | ---------------------------- | ----------------------- | ------------------------------- |
+| Gross Margin %             | 88.0%                        | 74.0%                   | 75-85%                          |
+| EBITDA Margin %            | 10.0%                        | ~(8.0%)                 | (10)% to +10% at this ARR       |
+| S&M as % of Revenue        | 21.0%                        | ~19.0%                  | 18-28%                          |
+| R&D as % of Revenue        | 25.0%                        | ~28.0%                  | 20-30%                          |
+| G&A as % of Revenue        | 8.0%                         | ~10.0%                  | 7-12%                           |
+| Revenue per Employee       | $116,667                     | $100,000                | $100K-$150K (30-50 person SaaS) |
+| Fully Loaded Cost per Head | $101,667                     | $96,667                 | --                              |
+| Rule of 40 Score           | 50 (40% growth + 10% EBITDA) | ~28                     | 40+ (healthy)                   |
+| Cash Runway (months)       | 12.1                         | --                      | 18+ target                      |
 
 **Runway flag:** The budgeted runway of 12.1 months is at the minimum acceptable threshold. Two risk mitigants: (1) the company turns EBITDA-positive in this budget, meaning cash burn stops if the revenue plan is hit; (2) the Downside action plan identified above adds approximately 2 months of runway if triggered. Recommend discussing a $1.5M venture debt facility as a runway buffer -- the cost (typically 1-2% origination + prime+2% interest) is far cheaper than raising equity prematurely.
 
 ---
 
 ### Department Budget: Engineering / R&D
+
 **Head:** VP Engineering | Headcount: 12 (Jan 1) → 16 (Dec 31) | Average: 14.0
 
-| Line Item | Type | Committed/ Disc. | Q1 | Q2 | Q3 | Q4 | Annual | Justification |
-|-----------|------|-----------------|-----|-----|-----|-----|--------|---------------|
-| Existing engineers (12, fully loaded avg $95K) | Fixed | Committed | $285,000 | $285,000 | $285,000 | $285,000 | $1,140,000 | Current team; includes 1.25x gross-up for benefits/taxes |
-| *Less: 2 support eng. moving to CS* | Fixed | Committed | ($47,500) | ($47,500) | ($47,500) | ($47,500) | ($190,000) | Reclassified to CS/COGS; see gross margin note |
-| New Eng hire #1 -- Backend (start Feb 1) | Fixed | Committed | $19,792 | $23,750 | $23,750 | $23,750 | $91,042 | Feb start; builds API infrastructure for enterprise tier |
-| New Eng hire #2 -- Frontend (start Mar 1) | Fixed | Committed | $0 | $23,750 | $23,750 | $23,750 | $71,250 | Mar start; accelerates dashboard product roadmap |
-| New Eng hire #3 -- Platform/Infra (start May 1) | Fixed | Disc. | $0 | $11,875 | $23,750 | $23,750 | $59,375 | May start; depends on Q1 revenue meeting $750K threshold |
-| New Eng hire #4 -- Senior Full Stack (start Aug 1) | Fixed | Disc. | $0 | $0 | $11,875 | $23,750 | $35,625 | Aug start; Q3 hire gated on Series A or Q2 revenue >$1.1M |
-| Developer tools (GitHub Teams, Jira, Confluence) | Fixed | Committed | $7,200 | $7,200 | $8,400 | $8,400 | $31,200 | $19/user/month; cost increases in Q3 when hires #3-#4 onboard |
-| Monitoring and observability (Datadog) | Fixed | Committed | $6,000 | $6,000 | $6,750 | $6,750 | $25,500 | $18/host/month; 9 hosts scaling to 12.5 avg |
+| Line Item                                          | Type  | Committed/ Disc. | Q1        | Q2        | Q3        | Q4        | Annual     | Justification                                                 |
+| -------------------------------------------------- | ----- | ---------------- | --------- | --------- | --------- | --------- | ---------- | ------------------------------------------------------------- |
+| Existing engineers (12, fully loaded avg $95K)     | Fixed | Committed        | $285,000  | $285,000  | $285,000  | $285,000  | $1,140,000 | Current team; includes 1.25x gross-up for benefits/taxes      |
+| _Less: 2 support eng. moving to CS_                | Fixed | Committed        | ($47,500) | ($47,500) | ($47,500) | ($47,500) | ($190,000) | Reclassified to CS/COGS; see gross margin note                |
+| New Eng hire #1 -- Backend (start Feb 1)           | Fixed | Committed        | $19,792   | $23,750   | $23,750   | $23,750   | $91,042    | Feb start; builds API infrastructure for enterprise tier      |
+| New Eng hire #2 -- Frontend (start Mar 1)          | Fixed | Committed        | $0        | $23,750   | $23,750   | $23,750   | $71,250    | Mar start; accelerates dashboard product roadmap              |
+| New Eng hire #3 -- Platform/Infra (start May 1)    | Fixed | Disc.            | $0        | $11,875   | $23,750   | $23,750   | $59,375    | May start; depends on Q1 revenue meeting $750K threshold      |
+| New Eng hire #4 -- Senior Full Stack (start Aug 1) | Fixed | Disc.            | $0        | $0        | $11,875   | $23,750   | $35,625    | Aug start; Q3 hire gated on Series A or Q2 revenue >$1.1M     |
+| Developer tools (GitHub Teams, Jira, Confluence)   | Fixed | Committed        | $7,200    | $7,200    | $8,400    | $8,400    | $31,200    | $19/user/month; cost increases in Q3 when hires #3-#4 onboard |
+| Monitoring and observability (Datadog)             | Fixed | Committed        | $6,000    | $6,000    | $6,750    | $6,750    | $25,500    | $18/host/month; 9 hosts scaling to 12.5 avg                   |
+
 |

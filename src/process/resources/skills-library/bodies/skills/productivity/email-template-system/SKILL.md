@@ -11,19 +11,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation template email"
-  category: "productivity"
-  subcategory: "automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'automation template email'
+  category: 'productivity'
+  subcategory: 'automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Email Template System
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly mentions sending repetitive emails and wants to stop rewriting them from scratch -- the trigger phrase is usually "I send the same email over and over" or "I spend too much time on emails"
 - The user asks for a template library, a personal email playbook, or a "swipe file" for common correspondence
 - The user's daily email count is high enough that routine writing creates significant friction (typically 15+ emails/day where 30-50% are variations of the same types)
@@ -33,6 +35,7 @@ metadata:
 - The user is rebuilding their workflow after a role change and wants templates that reflect a new audience, tone, or responsibility level
 
 **Do NOT use when:**
+
 - The user needs a single specific email written right now -- use a professional email writing skill instead, which focuses on crafting one precise message for a real situation
 - The user wants cold outreach or sales prospecting sequences -- use `cold-email-outreach`, which handles multi-touch cadences, A/B subject lines, and open rate optimization
 - The user wants to build marketing newsletters or customer campaign emails -- use business marketing skills that cover segmentation, CTAs, and conversion optimization
@@ -63,6 +66,7 @@ From this inventory, select the **5-8 highest-impact template candidates**. Prio
 Assign each candidate template three attributes before writing a single word of the template body. These attributes drive every structural and language decision.
 
 **Purpose classification (choose one):**
+
 - **Request** -- The email asks someone to take an action (schedule, approve, provide, review, decide)
 - **Response** -- The email replies to an inbound request or question
 - **Update/Report** -- The email pushes information to someone who expects it (status reports, project updates, summaries)
@@ -71,11 +75,13 @@ Assign each candidate template three attributes before writing a single word of 
 - **Difficult/Sensitive** -- The email conveys bad news, rejection, complaint, or conflict (requires extra care, separate handling -- see Edge Cases)
 
 **Audience tier (choose one):**
+
 - **Tier 1 -- Executive/client-facing:** C-suite, clients, senior external contacts. Maximum formality. No filler phrases. Every sentence earns its place. Under 150 words is ideal.
 - **Tier 2 -- Professional peer:** Colleagues, counterparts, vendor contacts. Professional but conversational. 100-200 words is typical.
 - **Tier 3 -- Internal/familiar:** Direct reports, close colleagues, team members. Warm and direct. Short is almost always better.
 
 **Tone register (choose one):**
+
 - **Formal:** Full sentences, no contractions, titles used (Dear Mr./Ms./Dr.), no colloquialisms
 - **Professional:** Full sentences, contractions acceptable, first names used, no slang
 - **Professional casual:** Conversational structure, bullet points acceptable, light warmth, mild informality acceptable
@@ -90,24 +96,28 @@ Create a simple classification table before proceeding. This prevents scope cree
 Every email type has a predictable structure. Map the structure before writing the template. For each selected template, identify:
 
 **Fixed elements (never change):**
+
 - Opening line pattern (e.g., all meeting requests start with "I'd like to schedule time to discuss...")
 - Standard transitional phrases that match the tone register
 - The closing convention (e.g., "Best," for professional, "Thanks," for internal)
 - Legal or compliance language if applicable (e.g., confidentiality footers, unsubscribe language)
 
 **Variable elements (always change):**
+
 - Recipient name, title, and relationship context
 - Dates, times, deadlines, and durations
 - Project names, document titles, and specific deliverables
 - Contextual one-liner explaining why this specific email is being sent now
 
 **Conditional elements (sometimes included):**
+
 - Alternative options if the first preference is not accepted
 - Pre-reading or preparation requests
 - Escalation notes if a deadline has passed
 - Apology or acknowledgment of delay if applicable
 
 **Optimal length targets (follow these unless context demands otherwise):**
+
 - Administrative and acknowledgment templates: 30-75 words
 - Request templates: 75-150 words
 - Update/report templates: 100-200 words (use bullets to increase scanability)
@@ -115,6 +125,7 @@ Every email type has a predictable structure. Map the structure before writing t
 - Difficult/sensitive templates: 100-200 words (never rush, but never ramble)
 
 **Subject line formula:** Every template must have a subject line formula, not a generic placeholder. Strong subject lines follow one of these patterns:
+
 - **[Action] + [Topic] + [Deadline/Date]:** "Approval Needed: Q2 Budget Proposal -- Due Friday"
 - **[Type]: [Specific Topic]:** "Meeting Request: Product Roadmap Alignment"
 - **[Project/Context] -- [What This Is]:** "Northbridge Campaign -- Status Update, Week of Jan 13"
@@ -127,27 +138,32 @@ Every email type has a predictable structure. Map the structure before writing t
 Write each template with the following structural requirements:
 
 **Subject line:**
+
 - Must contain at least one `{{placeholder}}` for a specific variable (never a fully static subject line)
 - Must follow one of the four subject line formulas identified in Step 3
 - Must be under 60 characters when placeholders are filled in (this is the mobile inbox preview limit)
 
 **Greeting:**
+
 - Use `{{recipient_name}}` -- never hard-code a name
 - Tier 1: "Dear {{recipient_name}},"
 - Tier 2/3: "Hi {{recipient_name}}," or "Hello {{recipient_name}},"
 - For groups: "Hi team," or "Hi {{team_name}} team,"
 
 **Opening line:**
+
 - State the purpose of the email in the first sentence -- no warm-up filler like "I hope this finds you well" in templates (it reads as robotic and insincere at scale)
 - Exception: relationship emails (introductions, thank-yous, check-ins) may open with genuine warmth, but make it specific and brief
 
 **Body:**
+
 - Keep to the identified length target
 - Use bullet points for lists of 3 or more items
 - Bold key information the recipient needs to act on (deadlines, decisions required, specific asks)
 - Conditional sections use `[IF {{condition}}: ... END IF]` syntax consistently
 
 **Closing call to action:**
+
 - Every email must end with one specific, unambiguous request or next step
 - Bad: "Let me know your thoughts" -- this asks for nothing specific
 - Bad: "Please advise" -- this is vague and sounds passive
@@ -155,10 +171,12 @@ Write each template with the following structural requirements:
 - Good: "If you have questions, please reply by {{question_deadline}} so I can address them before the meeting" -- specific action, specific timing, specific context
 
 **Sign-off:**
+
 - Use `{{sign_off}}` as a placeholder if the user has not specified preferences, but provide a recommended default in the variable table
 - Common sign-off conventions: "Best," and "Thanks," for Tier 2/3; "Best regards," and "Sincerely," for Tier 1
 
 **Placeholder format rules:**
+
 - All variable content uses `{{snake_case_name}}` format
 - Placeholder names must be self-documenting: `{{project_name}}` not `{{p}}`, `{{decision_deadline}}` not `{{date2}}`
 - Placeholders that have a strong default value (e.g., sign-off is almost always "Best,") should be noted in the variable table with "Default: Best,"
@@ -170,7 +188,7 @@ Write each template with the following structural requirements:
 Each template gets a variable table immediately following the template body. The table has four columns:
 
 | Placeholder | What to Fill In | Example Value | Required? |
-|------------|----------------|--------------|-----------|
+| ----------- | --------------- | ------------- | --------- |
 
 - **Required = Yes:** Email cannot be sent without this -- it would be nonsensical or look unprofessional
 - **Required = Contextual:** Include only if the conditional section applies
@@ -206,6 +224,7 @@ The quick-lookup guide appears at the top of the full output. It serves as the s
 If the user has more than 8 templates, group them into categories (e.g., Requests, Updates, Relationship, Administrative) with a sub-index for each category.
 
 **Fill-in time estimates by template complexity:**
+
 - 30-75 word templates with 3-4 variables: 1 minute
 - 75-150 word templates with 5-7 variables: 2-3 minutes
 - 150-200 word templates with 8+ variables or conditional sections: 3-5 minutes
@@ -333,20 +352,25 @@ END IF]
 ## Edge Cases
 
 ### The User's Email Workflow Is Highly Informal (Slack-Primary Workplace)
+
 Some users work in environments where email is reserved for external communication or formal internal escalations -- their day-to-day communication happens in Slack or Teams. For these users:
+
 - Focus the template library exclusively on external-facing emails (client communication, vendor correspondence, cross-company coordination)
 - Do not create internal peer templates -- they will not be used and will clutter the system
 - Increase formality guidance for all templates, since every email they send is inherently a higher-stakes communication
 - Add a note at the top of the quick-lookup guide: "These templates are for external or formal communications. Internal messages belong in [Slack/Teams]."
 
 ### The User Sends Emails in Multiple Languages
+
 - Create entirely separate templates for each language -- never bilingual hybrid templates with inline translation notes
 - Naming convention in the quick-lookup guide: append the language code (e.g., "Meeting Request (EN)", "Meeting Request (ES)")
 - Do not translate English templates word-for-word into other languages -- rewrite them using native-language conventions for that email type. Professional email register varies significantly by language and culture (e.g., German professional email typically opens with full formal address and title; French professional email has distinctive salutation and closing conventions; Japanese professional email has keigo formality levels that do not map to English at all)
 - Group the quick-lookup guide by language if there are more than 3 languages, with a top-level section for each language
 
 ### The User Needs Templates for Difficult Conversations
+
 Rejection, complaint, bad news, and pushback emails require a different templating approach than standard correspondence:
+
 - Create a dedicated "Difficult Communications" section in the template library
 - Each template in this section gets a severity variant: "direct delivery" (for situations where bluntness is appropriate) and "softened delivery" (for situations requiring more diplomatic framing) as separate templates
 - Include a mandatory cool-down checkpoint in the before-sending checklist: "Wait at least 30 minutes before sending -- reread after the waiting period"
@@ -354,28 +378,36 @@ Rejection, complaint, bad news, and pushback emails require a different templati
 - Do not soften these templates to the point of ambiguity. A rejection that does not clearly say "no" is a template failure. The template should make the substance undeniable while making the delivery respectful.
 
 ### The User Has Very High Email Volume (50+ Per Day)
+
 At high volume, template friction must be near-zero:
+
 - Prioritize templates that can be filled in under 90 seconds -- aim for 3-5 variables maximum
 - The highest-value template for high-volume users is a triage acknowledgment: "Received your email -- I will respond fully by `{{response_date}}`." This single template can transform inbox management.
 - Consider a batch of "one-tap" micro-templates -- emails that are 1-3 sentences with only 1-2 variables. These are not trivial; they cover 40-60% of actual email volume for high-traffic inboxes.
 - For high-volume users, recommend Gmail canned responses or Outlook Quick Parts specifically, since these allow template insertion without leaving the compose window -- copy-pasting from a notes app adds enough friction to kill the habit.
 
 ### The User Manages a Team and Wants Templates for Others to Use
+
 When templates will be used by multiple people, not just the creator:
+
 - Add a "voice calibration" note to each template explaining what decisions team members can make independently vs. what must be escalated before sending (e.g., "Do not send this template if the project is more than 2 weeks behind schedule -- escalate to the manager first")
 - Remove any first-person language that is personalized to the individual (e.g., "I have been working on this for the past three months") -- replace with neutral framing
 - Add a version date to the quick-lookup guide header: "Last updated: {{date}}" -- team templates drift if they are not versioned
 - Increase the specificity of all conditional sections, since team members will have less context about when to include or exclude them
 
 ### The User Wants Templates for Client-Facing External Communication
+
 Client-facing templates have higher stakes than internal ones:
+
 - Add a `{{relationship_stage}}` variable or create tiered variants: new client (more formal, more thorough), established client (warmer, can assume shared context), at-risk or escalating client (more attentive, faster response commitments)
 - Audit every template for internal jargon -- terms that are obvious internally ("sprint review", "ticket", "standup") may confuse external clients. Use the placeholder `{{project_milestone}}` instead of assuming the client knows the terminology.
 - Include a specific check in every client-facing before-sending checklist: "No internal project names, ticket numbers, or team-specific jargon visible to the client"
 - Add a `{{client_company_name}}` placeholder -- personalizing to the client's company name (not just the individual's name) significantly increases professionalism for Tier 1 external communications
 
 ### The User Has Inconsistent Email Habits and Is Unlikely to Adopt a Complex System
+
 Some users need templates precisely because their email habits are poor -- but presenting them with a 10-template library with conditional logic will overwhelm them and result in zero adoption:
+
 - Limit the initial system to 3 templates maximum -- the three with the highest frequency and lowest fill-in time
 - Use the simplest possible conditional structure: prefer writing two simple variant templates over one complex template with multiple `[IF]` sections
 - Frame the quick-lookup guide as a "starter kit" with a note to add templates as they identify new recurring types
@@ -392,19 +424,20 @@ Some users need templates precisely because their email habits are poor -- but p
 **Output:**
 
 ## Personal Email Template System
+
 For: Project Manager -- General Business Use
 
 ---
 
 ### Quick-Lookup Guide
 
-| # | Template Name | Use When | Fill-in Time | Audience | Tone |
-|---|---------------|----------|-------------|----------|------|
-| 1 | Vendor Status Request | Vendor deliverable is overdue or approaching deadline | 2 min | Tier 2 -- Professional Peer | Professional |
-| 2 | Executive Project Summary | Weekly or milestone-triggered update to sponsor | 4 min | Tier 1 -- Executive | Formal |
-| 3 | Project Kickoff Meeting Request | New project team needs its first meeting scheduled | 3 min | Tier 2 -- Professional Peer | Professional |
-| 4 | Colleague Introduction | Connecting two colleagues who should collaborate | 2 min | Tier 2 -- Professional Peer | Warm Professional |
-| 5 | Document Acknowledgment | Confirming receipt of any inbound document or deliverable | 1 min | Tier 2/3 | Professional |
+| #   | Template Name                   | Use When                                                  | Fill-in Time | Audience                    | Tone              |
+| --- | ------------------------------- | --------------------------------------------------------- | ------------ | --------------------------- | ----------------- |
+| 1   | Vendor Status Request           | Vendor deliverable is overdue or approaching deadline     | 2 min        | Tier 2 -- Professional Peer | Professional      |
+| 2   | Executive Project Summary       | Weekly or milestone-triggered update to sponsor           | 4 min        | Tier 1 -- Executive         | Formal            |
+| 3   | Project Kickoff Meeting Request | New project team needs its first meeting scheduled        | 3 min        | Tier 2 -- Professional Peer | Professional      |
+| 4   | Colleague Introduction          | Connecting two colleagues who should collaborate          | 2 min        | Tier 2 -- Professional Peer | Warm Professional |
+| 5   | Document Acknowledgment         | Confirming receipt of any inbound document or deliverable | 1 min        | Tier 2/3                    | Professional      |
 
 > **Do not use Template 1** if the vendor relationship is in formal dispute or legal review -- escalate to your procurement or legal contact instead.
 > **Do not use Template 2** for informal hallway-update-style emails -- use it only for structured written updates that go on record.
@@ -450,20 +483,21 @@ Best,
 
 **Variables:**
 
-| Placeholder | What to Fill In | Example Value | Required? |
-|------------|----------------|--------------|-----------|
-| {{vendor_contact_name}} | Vendor contact's first name | Marcus | Yes |
-| {{deliverable_name}} | Exact name of the deliverable | API integration documentation | Yes |
-| {{original_due_date}} | The agreed-upon due date | January 10 | Yes |
-| {{contract_or_agreement_reference}} | Reference to the agreement (SOW, PO number, email thread) | SOW #2024-117 | Yes |
-| {{response_deadline}} | When you need their reply | end of day Wednesday, January 15 | Yes |
-| {{escalation_flag}} | Include if this delay affects another dependent milestone | -- | Contextual |
-| {{dependent_project_milestone}} | The downstream milestone affected | client UAT sign-off | Contextual |
-| {{dependent_date}} | Date of the dependent milestone | January 22 | Contextual |
-| {{your_title}} | Your job title | Senior Project Manager | Yes |
-| {{project_name}} | Name of the project this vendor is working on | Northbridge Integration Project | Yes |
+| Placeholder                         | What to Fill In                                           | Example Value                    | Required?  |
+| ----------------------------------- | --------------------------------------------------------- | -------------------------------- | ---------- |
+| {{vendor_contact_name}}             | Vendor contact's first name                               | Marcus                           | Yes        |
+| {{deliverable_name}}                | Exact name of the deliverable                             | API integration documentation    | Yes        |
+| {{original_due_date}}               | The agreed-upon due date                                  | January 10                       | Yes        |
+| {{contract_or_agreement_reference}} | Reference to the agreement (SOW, PO number, email thread) | SOW #2024-117                    | Yes        |
+| {{response_deadline}}               | When you need their reply                                 | end of day Wednesday, January 15 | Yes        |
+| {{escalation_flag}}                 | Include if this delay affects another dependent milestone | --                               | Contextual |
+| {{dependent_project_milestone}}     | The downstream milestone affected                         | client UAT sign-off              | Contextual |
+| {{dependent_date}}                  | Date of the dependent milestone                           | January 22                       | Contextual |
+| {{your_title}}                      | Your job title                                            | Senior Project Manager           | Yes        |
+| {{project_name}}                    | Name of the project this vendor is working on             | Northbridge Integration Project  | Yes        |
 
 **Before sending:**
+
 - [ ] All `{{placeholders}}` replaced with actual values
 - [ ] Subject line confirms: deliverable name and due date are both accurate
 - [ ] `{{original_due_date}}` is verified against the actual contract or SOW -- do not rely on memory
@@ -494,14 +528,17 @@ Below is the weekly status update for {{project_name}} for the week of {{week_da
 **Overall Status:** {{status_indicator}} -- {{one_sentence_overall_summary}}
 
 **Progress this week:**
+
 - {{accomplishment_1}}
 - {{accomplishment_2}}
 
 [IF {{accomplishment_3}}:
+
 - {{accomplishment_3}}
-END IF]
+  END IF]
 
 **Upcoming milestones:**
+
 - {{next_milestone_1}}: {{next_milestone_1_date}}
 - {{next_milestone_2}}: {{next_milestone_2_date}}
 
@@ -535,27 +572,28 @@ Best regards,
 
 **Variables:**
 
-| Placeholder | What to Fill In | Example Value | Required? |
-|------------|----------------|--------------|-----------|
-| {{project_name}} | Full project name | Northbridge Integration Project | Yes |
-| {{week_date}} | Monday date of the week being reported | January 13, 2025 | Yes |
-| {{sponsor_name}} | Executive's last name (Tier 1 convention) or first name if they have specified a preference | Chen | Yes |
-| {{status_indicator}} | On Track / At Risk / Off Track | On Track | Yes |
-| {{one_sentence_overall_summary}} | One sentence describing the overall project health | All workstreams are progressing on schedule with one minor risk being monitored. | Requires original writing |
-| {{accomplishment_1}} | First key accomplishment this week | Completed vendor API documentation review | Yes |
-| {{accomplishment_2}} | Second key accomplishment | Finalized UAT test plan with the QA team | Yes |
-| {{accomplishment_3}} | Third accomplishment, if applicable | -- | Contextual |
-| {{next_milestone_1}} | Name of the next upcoming milestone | Vendor integration testing begins | Yes |
-| {{next_milestone_1_date}} | Date of that milestone | January 20 | Yes |
-| {{next_milestone_2}} | Second upcoming milestone | UAT sign-off with client | Yes |
-| {{next_milestone_2_date}} | Date of the second milestone | February 3 | Yes |
-| {{risk_description}} | Brief description of the active risk | Vendor API documentation is 3 days late, which may compress testing window | Contextual |
-| {{mitigation_action}} | What is being done about it | Accelerated internal test preparation to absorb potential delay | Contextual |
-| {{decision_description}} | What decision you need from the executive | Approval to extend the UAT window by 5 days if vendor delay persists | Contextual |
-| {{decision_deadline}} | When you need the decision | January 17 | Contextual |
-| {{next_meeting_date}} | Date of the next scheduled touchpoint | January 22 | Yes |
+| Placeholder                      | What to Fill In                                                                             | Example Value                                                                    | Required?                 |
+| -------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------- |
+| {{project_name}}                 | Full project name                                                                           | Northbridge Integration Project                                                  | Yes                       |
+| {{week_date}}                    | Monday date of the week being reported                                                      | January 13, 2025                                                                 | Yes                       |
+| {{sponsor_name}}                 | Executive's last name (Tier 1 convention) or first name if they have specified a preference | Chen                                                                             | Yes                       |
+| {{status_indicator}}             | On Track / At Risk / Off Track                                                              | On Track                                                                         | Yes                       |
+| {{one_sentence_overall_summary}} | One sentence describing the overall project health                                          | All workstreams are progressing on schedule with one minor risk being monitored. | Requires original writing |
+| {{accomplishment_1}}             | First key accomplishment this week                                                          | Completed vendor API documentation review                                        | Yes                       |
+| {{accomplishment_2}}             | Second key accomplishment                                                                   | Finalized UAT test plan with the QA team                                         | Yes                       |
+| {{accomplishment_3}}             | Third accomplishment, if applicable                                                         | --                                                                               | Contextual                |
+| {{next_milestone_1}}             | Name of the next upcoming milestone                                                         | Vendor integration testing begins                                                | Yes                       |
+| {{next_milestone_1_date}}        | Date of that milestone                                                                      | January 20                                                                       | Yes                       |
+| {{next_milestone_2}}             | Second upcoming milestone                                                                   | UAT sign-off with client                                                         | Yes                       |
+| {{next_milestone_2_date}}        | Date of the second milestone                                                                | February 3                                                                       | Yes                       |
+| {{risk_description}}             | Brief description of the active risk                                                        | Vendor API documentation is 3 days late, which may compress testing window       | Contextual                |
+| {{mitigation_action}}            | What is being done about it                                                                 | Accelerated internal test preparation to absorb potential delay                  | Contextual                |
+| {{decision_description}}         | What decision you need from the executive                                                   | Approval to extend the UAT window by 5 days if vendor delay persists             | Contextual                |
+| {{decision_deadline}}            | When you need the decision                                                                  | January 17                                                                       | Contextual                |
+| {{next_meeting_date}}            | Date of the next scheduled touchpoint                                                       | January 22                                                                       | Yes                       |
 
 **Before sending:**
+
 - [ ] All `{{placeholders}}` replaced with actual values
 - [ ] `{{status_indicator}}` is accurate -- do not send "On Track" if you are privately concerned about the timeline; this document goes on the official record
 - [ ] The "Decision needed" section is included only if there is a genuine action required from the executive -- do not manufacture decisions to appear engaged
@@ -588,6 +626,7 @@ Hi team,
 **Location:** {{location_or_video_link}}
 
 **Agenda:**
+
 1. Project overview, objectives, and success criteria ({{agenda_time_1}} min)
 2. Roles, responsibilities, and ownership ({{agenda_time_2}} min)
 3. Timeline, milestones, and key dependencies ({{agenda_time_3}} min)
@@ -608,24 +647,25 @@ Looking forward to working with everyone on this.
 
 **Variables:**
 
-| Placeholder | What to Fill In | Example Value | Required? |
-|------------|----------------|--------------|-----------|
-| {{project_name}} | Project name | Northbridge Integration Project | Yes |
-| {{proposed_date}} | Date of the meeting | Tuesday, January 21 | Yes |
-| {{proposed_time}} | Time with timezone | 10:00 AM -- 11:00 AM EST | Yes |
-| {{duration}} | Meeting length | 60 minutes | Yes |
-| {{location_or_video_link}} | Room or video link | Zoom -- link in calendar invite | Yes |
-| {{agenda_time_1}} | Minutes for first agenda item | 15 | Yes |
-| {{agenda_time_2}} | Minutes for second agenda item | 15 | Yes |
-| {{agenda_time_3}} | Minutes for third agenda item | 20 | Yes |
-| {{agenda_time_4}} | Minutes for open questions | 10 | Yes |
-| {{pre_reading}} | Include if there is pre-reading | -- | Contextual |
-| {{pre_reading_document}} | Name of the document | Project Charter v1.0 | Contextual |
-| {{pre_reading_link}} | Link or location of the document | SharePoint: /Projects/Northbridge | Contextual |
-| {{rsvp_deadline}} | When you need a response | end of day Thursday, January 16 | Yes |
-| {{alternative_date_range}} | Backup scheduling window | the week of January 27 | Yes |
+| Placeholder                | What to Fill In                  | Example Value                     | Required?  |
+| -------------------------- | -------------------------------- | --------------------------------- | ---------- |
+| {{project_name}}           | Project name                     | Northbridge Integration Project   | Yes        |
+| {{proposed_date}}          | Date of the meeting              | Tuesday, January 21               | Yes        |
+| {{proposed_time}}          | Time with timezone               | 10:00 AM -- 11:00 AM EST          | Yes        |
+| {{duration}}               | Meeting length                   | 60 minutes                        | Yes        |
+| {{location_or_video_link}} | Room or video link               | Zoom -- link in calendar invite   | Yes        |
+| {{agenda_time_1}}          | Minutes for first agenda item    | 15                                | Yes        |
+| {{agenda_time_2}}          | Minutes for second agenda item   | 15                                | Yes        |
+| {{agenda_time_3}}          | Minutes for third agenda item    | 20                                | Yes        |
+| {{agenda_time_4}}          | Minutes for open questions       | 10                                | Yes        |
+| {{pre_reading}}            | Include if there is pre-reading  | --                                | Contextual |
+| {{pre_reading_document}}   | Name of the document             | Project Charter v1.0              | Contextual |
+| {{pre_reading_link}}       | Link or location of the document | SharePoint: /Projects/Northbridge | Contextual |
+| {{rsvp_deadline}}          | When you need a response         | end of day Thursday, January 16   | Yes        |
+| {{alternative_date_range}} | Backup scheduling window         | the week of January 27            | Yes        |
 
 **Before sending:**
+
 - [ ] All `{{placeholders}}` replaced with actual values
 - [ ] Agenda time allocations add up to the total meeting duration
 - [ ] Calendar invite sent separately with the video link or room booking confirmed
@@ -666,19 +706,20 @@ Best,
 
 **Variables:**
 
-| Placeholder | What to Fill In | Example Value | Required? |
-|------------|----------------|--------------|-----------|
-| {{person_1_name}} | First person's first name | Priya | Yes |
-| {{person_2_name}} | Second person's first name | Daniel | Yes |
-| {{shared_topic}} | What connects them in 3-5 words | Northbridge data migration work | Yes |
-| {{connection_reason}} | Why you are making this introduction -- one clause | Priya is leading the data migration on our side and Daniel owns the vendor data architecture | Requires original writing |
-| {{person_1_role_description}} | Person 1's title and context | our Senior Data Analyst and the lead on the Northbridge migration | Yes |
-| {{person_1_relevant_context}} | One sentence of relevant background for Person 2 | She has the most current picture of our data structure requirements | Requires original writing |
-| {{person_2_role_description}} | Person 2's title and context | the data architect at Northbridge and Daniel's contact for technical integration questions | Yes |
-| {{person_2_relevant_context}} | One sentence of relevant background for Person 1 | He's already mapped the Northbridge schema and has answers to the field-mapping questions you raised last week | Requires original writing |
-| {{suggested_next_step}} | What you think they should do next | a 30-minute call to compare your schemas before the integration sprint starts January 27 | Yes |
+| Placeholder                   | What to Fill In                                    | Example Value                                                                                                  | Required?                 |
+| ----------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| {{person_1_name}}             | First person's first name                          | Priya                                                                                                          | Yes                       |
+| {{person_2_name}}             | Second person's first name                         | Daniel                                                                                                         | Yes                       |
+| {{shared_topic}}              | What connects them in 3-5 words                    | Northbridge data migration work                                                                                | Yes                       |
+| {{connection_reason}}         | Why you are making this introduction -- one clause | Priya is leading the data migration on our side and Daniel owns the vendor data architecture                   | Requires original writing |
+| {{person_1_role_description}} | Person 1's title and context                       | our Senior Data Analyst and the lead on the Northbridge migration                                              | Yes                       |
+| {{person_1_relevant_context}} | One sentence of relevant background for Person 2   | She has the most current picture of our data structure requirements                                            | Requires original writing |
+| {{person_2_role_description}} | Person 2's title and context                       | the data architect at Northbridge and Daniel's contact for technical integration questions                     | Yes                       |
+| {{person_2_relevant_context}} | One sentence of relevant background for Person 1   | He's already mapped the Northbridge schema and has answers to the field-mapping questions you raised last week | Requires original writing |
+| {{suggested_next_step}}       | What you think they should do next                 | a 30-minute call to compare your schemas before the integration sprint starts January 27                       | Yes                       |
 
 **Before sending:**
+
 - [ ] Both people are on the To: line, not CC -- this is an introduction, not a notification
 - [ ] Both descriptions are accurate -- verify titles and roles before sending
 - [ ] `{{suggested_next_step}}` is specific enough to be actionable without being prescriptive
@@ -716,17 +757,18 @@ Thanks,
 
 **Variables:**
 
-| Placeholder | What to Fill In | Example Value | Required? |
-|------------|----------------|--------------|-----------|
-| {{original_email_subject}} | The subject line of the email you are replying to | Vendor SOW -- Final v2 | Yes |
-| {{sender_name}} | Sender's first name | Marcus | Yes |
-| {{document_name}} | Specific name of what was sent | the final SOW for Phase 2 | Yes |
-| {{next_step}} | What you will produce after reviewing it | my written comments or approval confirmation | Yes |
-| {{review_deadline}} | When you will complete your review | end of day Thursday | Yes |
-| {{questions_anticipated}} | Include if the document is complex enough that questions are likely | -- | Contextual |
-| {{question_deadline}} | If questions section is included -- when you will send any questions | Wednesday noon | Contextual |
+| Placeholder                | What to Fill In                                                      | Example Value                                | Required?  |
+| -------------------------- | -------------------------------------------------------------------- | -------------------------------------------- | ---------- |
+| {{original_email_subject}} | The subject line of the email you are replying to                    | Vendor SOW -- Final v2                       | Yes        |
+| {{sender_name}}            | Sender's first name                                                  | Marcus                                       | Yes        |
+| {{document_name}}          | Specific name of what was sent                                       | the final SOW for Phase 2                    | Yes        |
+| {{next_step}}              | What you will produce after reviewing it                             | my written comments or approval confirmation | Yes        |
+| {{review_deadline}}        | When you will complete your review                                   | end of day Thursday                          | Yes        |
+| {{questions_anticipated}}  | Include if the document is complex enough that questions are likely  | --                                           | Contextual |
+| {{question_deadline}}      | If questions section is included -- when you will send any questions | Wednesday noon                               | Contextual |
 
 **Before sending:**
+
 - [ ] `{{review_deadline}}` is actually realistic given your current workload -- do not default to "end of day today" for complex documents
 - [ ] `{{document_name}}` matches what was actually sent (not a generic "the document")
 - [ ] `{{next_step}}` is specific -- "follow up" alone is not a next step

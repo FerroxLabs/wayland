@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "interview-prep career email writing template"
-  category: "career-development"
-  subcategory: "interview-preparation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'interview-prep career email writing template'
+  category: 'career-development'
+  subcategory: 'interview-preparation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Thank You Email Writer
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user just completed a job interview (phone screen, video call, in-person, or panel) and wants to send a thank-you note within the next 24 hours
 - The user asks how to follow up after an interview and wants a complete, ready-to-send email -- not general advice about follow-up etiquette
 - The user wants to reinforce their candidacy after an interview and close any gaps in their performance
@@ -34,6 +36,7 @@ metadata:
 - The user interviewed for a role they are especially excited about and wants the email to do more work than just express gratitude
 
 **Do NOT use this skill when:**
+
 - The user wants to cold-email a hiring manager or recruiter before any interview has taken place -- use `cold-outreach-email` instead
 - The user wants to send a message to a recruiter about their application status, negotiate timeline, or introduce themselves -- use `recruiter-outreach` instead
 - The user wants to build a relationship with someone they met at a conference, through a referral, or via LinkedIn without a prior interview -- use `networking-message-writer` instead
@@ -76,6 +79,7 @@ Before writing a single word, identify what this specific email needs to accompl
 Each paragraph has a distinct job. Understand the purpose before drafting each one.
 
 **Paragraph 1 -- Thank and Anchor (2-3 sentences):**
+
 - Open with the thank-you, but immediately anchor it to something specific from the conversation
 - The specific reference does two things: it proves the user was genuinely engaged (not just performing interest), and it makes the email memorable because it reflects a particular moment the interviewer will recognize
 - Good anchor: "Your description of the onboarding funnel drop-off problem made the challenge feel very concrete to me."
@@ -84,6 +88,7 @@ Each paragraph has a distinct job. Understand the purpose before drafting each o
 - Do not start with "I" -- start with "Thank you" or the interviewer's name or the topic
 
 **Paragraph 2 -- Reinforce Candidacy (2-3 sentences):**
+
 - This is the strategic core of the email; everything else supports it
 - Connect one specific qualification, result, or experience directly to a challenge or goal the interviewer expressed
 - Be quantified wherever possible -- results with numbers are 3-5x more memorable than claims without them ("reduced churn by 18% over 6 months" versus "improved retention")
@@ -92,12 +97,14 @@ Each paragraph has a distinct job. Understand the purpose before drafting each o
 - Do not use the word "passionate" -- it is the most overused and least credible word in job application language
 
 **Paragraph 3 -- Address a Gap or Add a Value Point (optional, 1-3 sentences):**
+
 - Use this paragraph if there is something worth saying; omit it if there is not -- do not pad
 - Gap recovery: "I wanted to revisit your question about managing distributed teams -- I gave an abbreviated answer in the moment, and I wanted to share that at my previous role, I coordinated a team across four time zones using a combination of async documentation sprints and structured overlap windows, which reduced meeting overhead by 40%."
 - Value add: If there is no gap to recover, add a brief thought, resource, or insight that is relevant to what they discussed -- a specific approach to a problem they raised, a framework the user has used, or an observation about the challenge that they did not have time to explore
 - Never apologize for "not being the best candidate" or express doubt about the fit -- if the user is worried about fit, address the specific concern directly with evidence, not with hedging
 
 **Paragraph 4 -- Close with a Thoughtful Question and Next-Step Language (2-3 sentences):**
+
 - Reaffirm enthusiasm once -- not twice, not three times -- with a specific reason (not "I'm really excited" but "I left the conversation more energized about this direction than when I started")
 - Include exactly one follow-up question that demonstrates depth of thinking and keeps the dialogue open -- not "when will I hear back?" which puts the interviewer in an administrative role, but a question about the problem, the team, or the role that suggests the user is already thinking about the work
 - Good follow-up questions: about a challenge they raised that you did not fully explore, about the team's current approach to a methodology you discussed, about how success is measured in the first 90 days
@@ -279,6 +286,7 @@ Best regards,
 This happens more often than expected, especially after back-to-back interviews or high-stress conversations. Do not write a generic email -- probe first.
 
 Ask the following reconstruction questions in order:
+
 1. "What was the main challenge, problem, or project the interviewer described in the most detail?"
 2. "Was there a moment where the energy of the conversation shifted -- either because you said something they responded to, or because they described something with obvious frustration or excitement?"
 3. "What questions did they ask you? The questions often reveal the underlying challenge."
@@ -378,22 +386,24 @@ Best regards,
 
 ### Email Breakdown
 
-| Element | What It Does |
-|---------|--------------|
-| Subject line | "The physician adoption challenge" triggers immediate memory association with the dominant topic of the interview -- Marcus spent 10 minutes on this, so the subject will feel like a direct continuation |
-| Conversation anchor | The 40-50% adoption ceiling -- this is a specific number Marcus used and almost certainly quoted from internal data; reflecting it back proves the user was listening carefully, not just waiting to speak |
-| Candidacy reinforcement | 38% to 81% adoption over 12 months with a named methodology (physician champion model) -- this maps Marcus's stated problem directly to a result the user has produced, in the same domain (clinical workflow), with enough specificity to be credible |
-| Gap recovery | The stakeholder conflict answer is addressed in Paragraph 3 -- reframed as an insight rather than a correction, which adds information without flagging that the original answer was weak; the "reframing compliance as workflow design" line is the kind of nuanced observation that registers as senior-level thinking |
-| Follow-up question | Asks about the physician champion model specifically -- whether it has been tried at Helix and what happened -- which accomplishes two things: it invites Marcus to share information that helps the user if they get the role, and it signals that the user is already thinking practically about the implementation challenge rather than just the interview |
-| Tone | Professional and direct without being stiff -- matches a Product Director at a healthtech company; uses "I think" once to avoid sounding like a consultant delivering a recommendation to a client, but otherwise confident and substantive |
+| Element                 | What It Does                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Subject line            | "The physician adoption challenge" triggers immediate memory association with the dominant topic of the interview -- Marcus spent 10 minutes on this, so the subject will feel like a direct continuation                                                                                                                                                      |
+| Conversation anchor     | The 40-50% adoption ceiling -- this is a specific number Marcus used and almost certainly quoted from internal data; reflecting it back proves the user was listening carefully, not just waiting to speak                                                                                                                                                     |
+| Candidacy reinforcement | 38% to 81% adoption over 12 months with a named methodology (physician champion model) -- this maps Marcus's stated problem directly to a result the user has produced, in the same domain (clinical workflow), with enough specificity to be credible                                                                                                         |
+| Gap recovery            | The stakeholder conflict answer is addressed in Paragraph 3 -- reframed as an insight rather than a correction, which adds information without flagging that the original answer was weak; the "reframing compliance as workflow design" line is the kind of nuanced observation that registers as senior-level thinking                                       |
+| Follow-up question      | Asks about the physician champion model specifically -- whether it has been tried at Helix and what happened -- which accomplishes two things: it invites Marcus to share information that helps the user if they get the role, and it signals that the user is already thinking practically about the implementation challenge rather than just the interview |
+| Tone                    | Professional and direct without being stiff -- matches a Product Director at a healthtech company; uses "I think" once to avoid sounding like a consultant delivering a recommendation to a client, but otherwise confident and substantive                                                                                                                    |
 
 ---
 
 ### Strategic Notes
 
 **What this email accomplishes beyond thank-you:**
+
 - It turns the candidacy reinforcement from a claim into evidence: the 38% to 81% number in the same domain (clinical EHR) is the kind of specific result that makes a hiring manager think "this person has done exactly this" rather than "this person seems like they could do this"
 - It recovers the stakeholder conflict answer without apologizing for the original, which would draw attention to the weakness -- the reframe to "compliance vs. workflow design" is a genuinely useful insight that adds value independent of the interview performance
 
 **What to do if you don't hear back by end of next week:**
+
 - Marcus mentioned the decision timeline is end of next week -- if you have not heard anything by the following Monday, reply to this same email thread (do not start a new one) with: "Hi Marcus -- I wanted to check in on the timeline you mentioned and reiterate my interest in the role. Happy to provide any additional information that would be helpful." Keep it to two sentences. Do not send before the stated deadline has passed.

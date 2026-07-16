@@ -50,7 +50,7 @@ export interface IjfwUpdateStatus {
 
 export interface UpdateCheckRequest {
   includePrerelease?: boolean;
-  /** Defaults to FerroxLabs/wayland when omitted */
+  /** Defaults to ShadowsTT/wayland when omitted */
   repo?: string;
 }
 

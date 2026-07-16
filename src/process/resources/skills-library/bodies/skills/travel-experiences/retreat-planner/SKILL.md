@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "event-planning planning guide"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'event-planning planning guide'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Retreat Planner
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on retreat planner
 - User asks about retreat planner best practices or techniques
 - User wants a structured approach to retreat planner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of retreat planner
 
@@ -520,7 +521,6 @@ RETREAT ROI CALCULATION (Corporate):
 9. No follow-up after the retreat (commitments fade without accountability)
 10. Planning a retreat when the real issue is a structural/management problem
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -533,13 +533,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with retreat planner for a mid-size project."
 
 **Output:** A complete retreat planner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

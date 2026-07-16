@@ -45,13 +45,7 @@ export type LaunchpadPickerProps = {
 
 const FLASH_MS = 600;
 
-const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({
-  onClose,
-  onPick,
-  pinnedIds,
-  assistants,
-  localeKey,
-}) => {
+const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({ onClose, onPick, pinnedIds, assistants, localeKey }) => {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [flashId, setFlashId] = useState<string | null>(null);
@@ -125,7 +119,12 @@ const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({
   };
 
   return (
-    <div className={styles.drawer} data-testid='launchpad-picker' role='region' aria-label={t('guid.launchpad.picker.title', { defaultValue: 'Add to your launchpad bar' })}>
+    <div
+      className={styles.drawer}
+      data-testid='launchpad-picker'
+      role='region'
+      aria-label={t('guid.launchpad.picker.title', { defaultValue: 'Add to your launchpad bar' })}
+    >
       <div className={styles.head}>
         <div>
           <span className={styles.title}>
@@ -226,11 +225,7 @@ const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({
               >
                 <AssistantIconTile paletteKey={entry.palette} size='sm'>
                   {entry.avatarUrl ? (
-                    <img
-                      src={entry.avatarUrl}
-                      alt=''
-                      style={{ width: '60%', height: '60%', objectFit: 'contain' }}
-                    />
+                    <img src={entry.avatarUrl} alt='' style={{ width: '60%', height: '60%', objectFit: 'contain' }} />
                   ) : entry.avatarEmoji ? (
                     <span style={{ fontSize: 14, lineHeight: '16px' }}>{entry.avatarEmoji}</span>
                   ) : (

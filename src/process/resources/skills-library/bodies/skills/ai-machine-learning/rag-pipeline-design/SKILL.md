@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml database backend"
-  category: "ai-machine-learning"
-  subcategory: "ai-ml-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml database backend'
+  category: 'ai-machine-learning'
+  subcategory: 'ai-ml-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # RAG Pipeline Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is designing or refactoring a Retrieval-Augmented Generation (RAG) pipeline and needs architectural guidance -- including chunking strategy, embedding model selection, vector store configuration, retrieval method, and generation layer design.
 - The user asks how to improve RAG quality metrics such as faithfulness, answer relevance, context precision, or context recall -- and needs concrete techniques rather than general advice.
 - The user is choosing between naive RAG, advanced RAG, or modular RAG patterns and needs a decision framework based on their specific use case, data volume, and latency constraints.
@@ -29,6 +31,7 @@ metadata:
 - The user is selecting between retrieval strategies: dense retrieval, sparse retrieval (BM25), hybrid retrieval, or graph-based retrieval -- and needs trade-off analysis grounded in their query patterns and data characteristics.
 
 **Do NOT use this skill when:**
+
 - The user needs to fine-tune a language model on domain data -- this is a separate skill covering supervised fine-tuning, LoRA, and RLHF workflows.
 - The user is asking about prompt engineering in isolation without a retrieval component -- use the prompt engineering skill.
 - The user needs an agent design with tool use, planning loops, or multi-agent orchestration -- use the AI agent architecture skill even if retrieval is one tool in the agent.
@@ -161,16 +164,16 @@ Quality Targets:      Faithfulness ≥ [X], Answer Relevance ≥ [X],
 
 ### Component Configuration Table
 
-| Stage | Component | Configuration | Rationale |
-|---|---|---|---|
-| Parsing | [Parser] | [format-aware settings] | [why this parser for this data] |
-| Chunking | [Strategy] | size=[tokens], overlap=[tokens] | [why this strategy] |
-| Embedding | [Model] | dim=[N], batch=[N] | [benchmark justification] |
-| Vector Store | [Store] | index=[HNSW/IVF], M=[N], ef=[N] | [scale and latency justification] |
-| Retrieval | [Dense/Sparse/Hybrid] | top-k=[N], alpha=[N for hybrid] | [query type justification] |
-| Query Transform | [HyDE/Decomp/None] | [config] | [query pattern justification] |
-| Reranking | [Cross-encoder/LLM/None] | top-n=[N] | [precision requirement] |
-| Generation | [LLM] | temp=[N], max_tokens=[N] | [task justification] |
+| Stage           | Component                | Configuration                   | Rationale                         |
+| --------------- | ------------------------ | ------------------------------- | --------------------------------- |
+| Parsing         | [Parser]                 | [format-aware settings]         | [why this parser for this data]   |
+| Chunking        | [Strategy]               | size=[tokens], overlap=[tokens] | [why this strategy]               |
+| Embedding       | [Model]                  | dim=[N], batch=[N]              | [benchmark justification]         |
+| Vector Store    | [Store]                  | index=[HNSW/IVF], M=[N], ef=[N] | [scale and latency justification] |
+| Retrieval       | [Dense/Sparse/Hybrid]    | top-k=[N], alpha=[N for hybrid] | [query type justification]        |
+| Query Transform | [HyDE/Decomp/None]       | [config]                        | [query pattern justification]     |
+| Reranking       | [Cross-encoder/LLM/None] | top-n=[N]                       | [precision requirement]           |
+| Generation      | [LLM]                    | temp=[N], max_tokens=[N]        | [task justification]              |
 
 ### System Architecture Diagram
 
@@ -549,18 +552,18 @@ This is a well-defined Advanced RAG use case with several domain-specific requir
 
 ### Component Configuration
 
-| Stage | Component | Configuration | Rationale |
-|---|---|---|---|
-| Parsing | Layout-aware PDF parser | Structure extraction enabled, TOC extraction, clause boundary detection | Legal PDFs have dense two-column layouts and section hierarchies that naive parsers flatten, destroying clause structure |
-| Chunking | Hierarchical clause-aware | Parent: contract section (1024 tokens), Child: individual clause (256--512 tokens), overlap: 0 (clause boundaries are hard) | Legal meaning is clause-scoped. Overlapping clause text creates ambiguous attributions. Parent-child allows precise retrieval with full-context generation |
-| Embedding | Legal-domain embedding model | 768-dimension, max 512 tokens, asymmetric retrieval trained | Legal language has a distinct vocabulary distribution. A general-purpose embedding model underperforms on legal terminology and clause-type classification |
-| Vector Store | HNSW index | M=32, ef_construction=400, ef_query=150 | 1.5M vectors requires ANN. M=32 provides higher recall than default M=16. At 1.5M vectors, HNSW retrieval latency is ~15--40ms, within latency budget |
-| Retrieval | Hybrid (dense + BM25) | dense top-k=20, sparse top-k=20, hybrid_alpha=0.6 (slightly dense-weighted), RRF k=60 | Contract queries frequently contain specific legal phrases ("limitation of liability," "indemnification," "force majeure") that are high-precision BM25 targets. Hybrid captures both semantic and keyword signals |
-| Query Transform | None for clause lookup; HyDE for interpretation queries | Query classifier routes interpretation queries through HyDE | Clause lookup queries are precise -- transformation degrades them. Interpretation queries are abstract -- HyDE improves recall significantly |
-| Reranking | Cross-encoder | top-n=5, legal domain cross-encoder preferred | Cross-encoder reranking is the highest single-stage quality improvement available. Latency budget: 400ms for reranking 40 candidate chunks. Use a distilled model for speed |
-| Context Assembly | Lost-in-middle mitigation + deduplication | Assemble up to 3500 context tokens using greedy packer | Clause answers are typically short. 3500 context tokens accommodates 5--7 full clauses with attribution headers |
-| Generation | LLM with legal grounding prompt | temperature=0.0, max_tokens=800, structured JSON output | Legal answers require high determinism. JSON output with `clause_found` boolean, `clause_text` extraction, `interpretation`, and `source_section` fields enables downstream citation display |
-| Citation Verification | NLI-based verifier | Verify each claim in the answer against retrieved chunks | Legal accuracy is non-negotiable. NLI verification catches generation-level hallucination. Flag unverified answers for human review |
+| Stage                 | Component                                               | Configuration                                                                                                               | Rationale                                                                                                                                                                                                          |
+| --------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Parsing               | Layout-aware PDF parser                                 | Structure extraction enabled, TOC extraction, clause boundary detection                                                     | Legal PDFs have dense two-column layouts and section hierarchies that naive parsers flatten, destroying clause structure                                                                                           |
+| Chunking              | Hierarchical clause-aware                               | Parent: contract section (1024 tokens), Child: individual clause (256--512 tokens), overlap: 0 (clause boundaries are hard) | Legal meaning is clause-scoped. Overlapping clause text creates ambiguous attributions. Parent-child allows precise retrieval with full-context generation                                                         |
+| Embedding             | Legal-domain embedding model                            | 768-dimension, max 512 tokens, asymmetric retrieval trained                                                                 | Legal language has a distinct vocabulary distribution. A general-purpose embedding model underperforms on legal terminology and clause-type classification                                                         |
+| Vector Store          | HNSW index                                              | M=32, ef_construction=400, ef_query=150                                                                                     | 1.5M vectors requires ANN. M=32 provides higher recall than default M=16. At 1.5M vectors, HNSW retrieval latency is ~15--40ms, within latency budget                                                              |
+| Retrieval             | Hybrid (dense + BM25)                                   | dense top-k=20, sparse top-k=20, hybrid_alpha=0.6 (slightly dense-weighted), RRF k=60                                       | Contract queries frequently contain specific legal phrases ("limitation of liability," "indemnification," "force majeure") that are high-precision BM25 targets. Hybrid captures both semantic and keyword signals |
+| Query Transform       | None for clause lookup; HyDE for interpretation queries | Query classifier routes interpretation queries through HyDE                                                                 | Clause lookup queries are precise -- transformation degrades them. Interpretation queries are abstract -- HyDE improves recall significantly                                                                       |
+| Reranking             | Cross-encoder                                           | top-n=5, legal domain cross-encoder preferred                                                                               | Cross-encoder reranking is the highest single-stage quality improvement available. Latency budget: 400ms for reranking 40 candidate chunks. Use a distilled model for speed                                        |
+| Context Assembly      | Lost-in-middle mitigation + deduplication               | Assemble up to 3500 context tokens using greedy packer                                                                      | Clause answers are typically short. 3500 context tokens accommodates 5--7 full clauses with attribution headers                                                                                                    |
+| Generation            | LLM with legal grounding prompt                         | temperature=0.0, max_tokens=800, structured JSON output                                                                     | Legal answers require high determinism. JSON output with `clause_found` boolean, `clause_text` extraction, `interpretation`, and `source_section` fields enables downstream citation display                       |
+| Citation Verification | NLI-based verifier                                      | Verify each claim in the answer against retrieved chunks                                                                    | Legal accuracy is non-negotiable. NLI verification catches generation-level hallucination. Flag unverified answers for human review                                                                                |
 
 ---
 
@@ -620,8 +623,9 @@ Legal contracts have a consistent heading pattern: numbered clauses (`1.`, `2.`,
 **Generation prompt structure:**
 
 ```
-System: You are a legal contract analysis assistant. Answer questions strictly 
-based on the contract clauses provided. If a clause is present, quote the 
-relevant text exactly. If a clause is absent, state that clearly. Do not 
+System: You are a legal contract analysis assistant. Answer questions strictly
+based on the contract clauses provided. If a clause is present, quote the
+relevant text exactly. If a clause is absent, state that clearly. Do not
 infer or assume terms not explicitly stated in the provided text.
 Output your answer as JSON with fields: clause_found (boolean), clause_
+```

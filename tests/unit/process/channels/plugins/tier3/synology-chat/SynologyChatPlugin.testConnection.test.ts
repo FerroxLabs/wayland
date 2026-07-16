@@ -51,25 +51,21 @@ describe('SynologyChatPlugin.testConnection - credential errors', () => {
   });
 
   it('returns failure when incomingUrl is missing', async () => {
-    const result = await SynologyChatPlugin.testConnection(
-      JSON.stringify({ incomingToken: 'tok' }),
-    );
+    const result = await SynologyChatPlugin.testConnection(JSON.stringify({ incomingToken: 'tok' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/URL/i);
   });
 
   it('returns failure when incomingToken is missing', async () => {
     const result = await SynologyChatPlugin.testConnection(
-      JSON.stringify({ incomingUrl: 'https://nas.example.com/webhook' }),
+      JSON.stringify({ incomingUrl: 'https://nas.example.com/webhook' })
     );
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/token/i);
   });
 
   it('returns failure when incomingUrl is empty string', async () => {
-    const result = await SynologyChatPlugin.testConnection(
-      JSON.stringify({ incomingUrl: '', incomingToken: 'tok' }),
-    );
+    const result = await SynologyChatPlugin.testConnection(JSON.stringify({ incomingUrl: '', incomingToken: 'tok' }));
     expect(result.success).toBe(false);
   });
 });

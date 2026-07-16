@@ -68,7 +68,6 @@ export function isCapGranted(team: TTeam, cap: TeamCapability): boolean {
 export function assertCapGranted(team: TTeam, cap: TeamCapability): void {
   if (isCapGranted(team, cap)) return;
   throw new TeamSandboxedError(
-    `Sandboxed team "${team.name}" lacks capability "${cap}". ` +
-      `Grant it via Settings → Teams → Trust to enable.`
+    `Sandboxed team "${team.name}" lacks capability "${cap}". ` + `Grant it via Settings → Teams → Trust to enable.`
   );
 }

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "note-taking study-skills research step-by-step"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'note-taking study-skills research step-by-step'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Note Synthesis
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when a learner explicitly needs to integrate knowledge across two or more distinct sources -- not simply review or organize a single source. The value of note synthesis is the emergent insight that only appears when sources are read against each other.
 
 **Use this skill when:**
+
 - A learner has notes from multiple lectures, chapters, or readings on the same topic and wants to build a unified mental model (e.g., "I have notes from three different professors explaining neural plasticity -- help me connect them")
 - A student has completed a unit of study and wants to prepare for an integrative exam question, essay, or oral exam that requires cross-source reasoning
 - A learner notices apparent contradictions across their sources and wants to resolve or map the tension (e.g., "My textbook says X but my professor said Y -- which is right?")
@@ -31,6 +33,7 @@ Use this skill when a learner explicitly needs to integrate knowledge across two
 - A student in a discipline with competing theoretical frameworks (psychology, economics, philosophy, political science, history) needs to compare how different schools of thought address the same phenomenon
 
 **Do NOT use when:**
+
 - The learner has only one source to work with -- use `cornell-notes` for single-source note taking and initial processing
 - The learner wants to map the internal structure of a single concept or topic -- use `concept-mapping` for visual organization of one idea
 - The learner is conducting a formal academic literature review with citation management and synthesis of scholarly sources -- use `literature-search`, which handles database strategy, inclusion/exclusion criteria, and citation formatting
@@ -337,11 +340,12 @@ When a learner shares a synthesis they have already written and asks for feedbac
 **Subject:** Cognitive Psychology / Neuroscience
 **Synthesis Goal:** Exam preparation -- integrative essay on how memory works and how to study effectively
 **Sources Synthesized:**
+
 - Source 1 (S1): Cognitive psychology textbook chapter -- standard memory model (encoding, STM, LTM, sleep, hippocampus)
 - Source 2 (S2): Neuroscience guest lecture -- reconsolidation theory, critique of static memory model
 - Source 3 (S3): Self-help book on study optimization -- spaced repetition recommendation (immediate, 24h, weekly)
-**Synthesis Date:** [Current date]
-**Learner Level:** Intermediate (exam-prep context)
+  **Synthesis Date:** [Current date]
+  **Learner Level:** Intermediate (exam-prep context)
 
 ---
 
@@ -353,13 +357,13 @@ When a learner shares a synthesis they have already written and asks for feedbac
 
 ### Source Relationship Map
 
-| Theme | S1: Textbook | S2: Neuroscience Lecture | S3: Self-Help Book | Relationship |
-|-------|-------------|--------------------------|-------------------|--------------|
-| Memory has distinct stages | Yes: encoding → STM → LTM | Critiques static model; stages are dynamic | Implicit; assumes stable memories | Tension: S1 static vs. S2 dynamic |
-| Sleep and consolidation | Central: sleep transfers STM to LTM | Consistent: sleep reactivates hippocampal traces | Not addressed | Extension: S2 adds mechanism to S1's claim |
-| Retrieval changes memory | Not addressed | Core claim: reconsolidation at every retrieval | Implies retrieval is neutral/beneficial | Contradiction: S2 vs. S3's implicit assumption |
-| Spaced repetition timing | Not addressed | Consistent with but doesn't prescribe intervals | Prescribes: immediate, 24h, weekly | Extension: S3 operationalizes what S1/S2 describe |
-| Role of the hippocampus | Described as consolidation site | Extended: also active in reconsolidation | Not addressed | Extension |
+| Theme                      | S1: Textbook                        | S2: Neuroscience Lecture                         | S3: Self-Help Book                      | Relationship                                      |
+| -------------------------- | ----------------------------------- | ------------------------------------------------ | --------------------------------------- | ------------------------------------------------- |
+| Memory has distinct stages | Yes: encoding → STM → LTM           | Critiques static model; stages are dynamic       | Implicit; assumes stable memories       | Tension: S1 static vs. S2 dynamic                 |
+| Sleep and consolidation    | Central: sleep transfers STM to LTM | Consistent: sleep reactivates hippocampal traces | Not addressed                           | Extension: S2 adds mechanism to S1's claim        |
+| Retrieval changes memory   | Not addressed                       | Core claim: reconsolidation at every retrieval   | Implies retrieval is neutral/beneficial | Contradiction: S2 vs. S3's implicit assumption    |
+| Spaced repetition timing   | Not addressed                       | Consistent with but doesn't prescribe intervals  | Prescribes: immediate, 24h, weekly      | Extension: S3 operationalizes what S1/S2 describe |
+| Role of the hippocampus    | Described as consolidation site     | Extended: also active in reconsolidation         | Not addressed                           | Extension                                         |
 
 ---
 
@@ -369,7 +373,7 @@ When a learner shares a synthesis they have already written and asks for feedbac
 
 All three sources implicitly or explicitly address how memories are formed and stored, but they present fundamentally different pictures of memory's nature. S1 describes memory as a progression through stages: information is encoded, held briefly in short-term memory (capacity approximately 7±2 items, duration 15-30 seconds without rehearsal), and if rehearsed or emotionally significant, transferred to long-term memory through hippocampal consolidation -- a process that S1 treats as largely complete once it occurs. S2 challenges this static picture directly, arguing that it reflects a theoretical model from the 1970s that has not kept pace with neuroimaging and molecular research. S2's central claim is that long-term memories are not permanently fixed structures but are stored as dynamic, protein-dependent traces that must be actively re-stabilized after retrieval -- the reconsolidation window. Rather than a one-time transfer from STM to LTM, memory in S2's framework is a continuous, iterative process where each retrieval temporarily destabilizes the memory trace.
 
-*Cross-source verdict:* These sources are not simply disagreeing -- S2 is arguing that S1's model is a useful approximation for basic pedagogy but a misleading description of actual neurobiological processes. For exam purposes, a sophisticated answer would present the standard model first and then qualify it with reconsolidation theory, showing awareness that the field has evolved. S1's model is not wrong -- it is incomplete.
+_Cross-source verdict:_ These sources are not simply disagreeing -- S2 is arguing that S1's model is a useful approximation for basic pedagogy but a misleading description of actual neurobiological processes. For exam purposes, a sophisticated answer would present the standard model first and then qualify it with reconsolidation theory, showing awareness that the field has evolved. S1's model is not wrong -- it is incomplete.
 
 ---
 
@@ -377,7 +381,7 @@ All three sources implicitly or explicitly address how memories are formed and s
 
 On the role of sleep, S1 and S2 converge more strongly than they diverge. S1 identifies sleep as the primary transfer mechanism from hippocampal short-term storage to neocortical long-term storage, and names slow-wave sleep (SWS) and REM sleep as the relevant phases. S2 confirms this and extends it: during sleep, the hippocampus replays recent experiences (memory reactivation), and this replay process is not passive transfer but an active reconsolidation event -- the same destabilize-and-restabilize process that occurs during waking retrieval. S3 does not address sleep at all, which is a notable gap given that its spaced repetition recommendations do not specify whether review sessions should occur before or after a sleep period (research suggests that reviewing immediately before sleep, rather than immediately after learning during a waking period, may produce better consolidation, though S3 does not address this).
 
-*Cross-source verdict:* S1 and S2 agree that sleep is essential and not optional for memory consolidation. S3's silence on sleep is a weakness in its practical advice. A complete answer to "how to optimize memory" must include sleep hygiene as a non-negotiable variable alongside study scheduling.
+_Cross-source verdict:_ S1 and S2 agree that sleep is essential and not optional for memory consolidation. S3's silence on sleep is a weakness in its practical advice. A complete answer to "how to optimize memory" must include sleep hygiene as a non-negotiable variable alongside study scheduling.
 
 ---
 
@@ -389,7 +393,7 @@ This is the most productive tension in the synthesis and the most likely target 
 
 **How to hold this tension:** Both are correct within their scope. For exam purposes, present retrieval practice as reliably beneficial under normal conditions (S3 / standard cognitive psychology), then qualify with reconsolidation theory (S2): the mechanism explains why retrieval works, and also suggests why emotionally aversive or confusing retrieval experiences might not consolidate well. This is the integrative move that distinguishes a sophisticated answer from a basic one.
 
-*Cross-source verdict:* Retrieval strengthens memory reliably, but the mechanism (reconsolidation) reveals that the quality of the retrieval experience -- not just its frequency -- matters. S3 tells you when to review; S2 tells you why it works and why it can sometimes fail.
+_Cross-source verdict:_ Retrieval strengthens memory reliably, but the mechanism (reconsolidation) reveals that the quality of the retrieval experience -- not just its frequency -- matters. S3 tells you when to review; S2 tells you why it works and why it can sometimes fail.
 
 ---
 
@@ -397,21 +401,21 @@ This is the most productive tension in the synthesis and the most likely target 
 
 S3 provides the most concrete study guidance: review immediately after learning, review again after 24 hours, and review again weekly. This is an accessible version of spaced repetition that aligns with a large body of experimental evidence on the spacing effect (though S3 does not cite this literature). S1 and S2 both provide the neurobiological underpinning for why this works without prescribing specific intervals. S1 explains that the hippocampus consolidates memories over a period of hours to days, meaning that massed repetition (studying everything the night before) does not allow sufficient consolidation time between encoding and re-encoding. S2 extends this: spaced retrieval is effective precisely because it repeatedly triggers reconsolidation, each time re-strengthening the memory trace and, through the reconsolidation process, integrating the memory more deeply into existing knowledge networks.
 
-*Cross-source verdict:* S3's practical advice is mechanistically justified by S1 and S2 together. The synthesis here is that spaced repetition works not merely because repetition increases exposure, but because each spaced retrieval event triggers a full reconsolidation cycle that both strengthens and updates the memory trace. This is a mechanistically richer answer than S3 alone provides.
+_Cross-source verdict:_ S3's practical advice is mechanistically justified by S1 and S2 together. The synthesis here is that spaced repetition works not merely because repetition increases exposure, but because each spaced retrieval event triggers a full reconsolidation cycle that both strengthens and updates the memory trace. This is a mechanistically richer answer than S3 alone provides.
 
 ---
 
 ### Knowledge Confidence Map
 
-| Concept / Claim | Evidence Strength | Sources | Confidence Level |
-|----------------|-------------------|---------|-----------------|
-| STM has ~7±2 item capacity, ~15-30s duration | Strong empirical (classic cognitive research) | S1 | High -- well replicated |
-| Sleep is essential for consolidation | Strong empirical (multiple sleep deprivation studies) | S1, S2 | High -- convergent |
-| Spaced retrieval outperforms massed practice | Strong empirical (decades of spacing effect research) | S3 (implied), consistent with S1/S2 mechanism | High |
-| Reconsolidation occurs at every retrieval | Strong (molecular/neuroimaging evidence) | S2 | High -- but note: most human studies are indirect |
-| Reconsolidation can degrade memory under stress | Moderate (animal studies robust; human studies fewer) | S2 | Moderate -- hold tentatively for humans |
-| Optimal review intervals: immediate, 24h, weekly | Moderate (S3 presents without citation; consistent with Ebbinghaus curve) | S3 | Moderate -- functional but not the most empirically optimized schedule |
-| Textbook STM/LTM model is "outdated" | S2's interpretive claim; not everyone agrees | S2 only | Low -- this is S2's position; S1's model is still dominant in most pedagogy |
+| Concept / Claim                                  | Evidence Strength                                                         | Sources                                       | Confidence Level                                                            |
+| ------------------------------------------------ | ------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------- |
+| STM has ~7±2 item capacity, ~15-30s duration     | Strong empirical (classic cognitive research)                             | S1                                            | High -- well replicated                                                     |
+| Sleep is essential for consolidation             | Strong empirical (multiple sleep deprivation studies)                     | S1, S2                                        | High -- convergent                                                          |
+| Spaced retrieval outperforms massed practice     | Strong empirical (decades of spacing effect research)                     | S3 (implied), consistent with S1/S2 mechanism | High                                                                        |
+| Reconsolidation occurs at every retrieval        | Strong (molecular/neuroimaging evidence)                                  | S2                                            | High -- but note: most human studies are indirect                           |
+| Reconsolidation can degrade memory under stress  | Moderate (animal studies robust; human studies fewer)                     | S2                                            | Moderate -- hold tentatively for humans                                     |
+| Optimal review intervals: immediate, 24h, weekly | Moderate (S3 presents without citation; consistent with Ebbinghaus curve) | S3                                            | Moderate -- functional but not the most empirically optimized schedule      |
+| Textbook STM/LTM model is "outdated"             | S2's interpretive claim; not everyone agrees                              | S2 only                                       | Low -- this is S2's position; S1's model is still dominant in most pedagogy |
 
 ---
 
@@ -422,7 +426,7 @@ S3 provides the most concrete study guidance: review immediately after learning,
 - **Gap 3:** None of the sources addresses what happens to memory consolidation during adolescent vs. adult development, which may be relevant depending on the learner's exam context
 - **Gap 4:** The interaction between retrieval quality (how actively you engage with the material during review) and reconsolidation strength is implied by S2 but not operationalized -- simply re-reading notes vs. actively recalling may produce different reconsolidation outcomes
 
-*Most important unanswered question revealed by this synthesis:* Under what conditions does reconsolidation strengthen versus weaken a memory trace, and what specific study behaviors put a learner in the "beneficial reconsolidation" vs. "labile/degradation" zone?
+_Most important unanswered question revealed by this synthesis:_ Under what conditions does reconsolidation strengthen versus weaken a memory trace, and what specific study behaviors put a learner in the "beneficial reconsolidation" vs. "labile/degradation" zone?
 
 ---
 
@@ -435,16 +439,19 @@ The three sources are largely convergent on foundational claims (memory needs sl
 ### Self-Check Questions
 
 **Level 1 -- Recall**
+
 - [ ] Can you define short-term memory capacity and duration limits without looking at notes?
 - [ ] Can you define reconsolidation in one sentence?
 - [ ] Can you state S3's three-interval spaced repetition schedule from memory?
 
 **Level 2 -- Relation**
+
 - [ ] Why does S2's reconsolidation theory provide a mechanistic explanation for why S3's spaced repetition advice works?
 - [ ] S1 says memories are consolidated during sleep; S2 says memories are reconsolidated during retrieval. Are these claims in conflict? Explain why or why not.
 - [ ] What does the Knowledge Confidence Map tell you about how confidently to assert S2's reconsolidation claims in your exam essay?
 
 **Level 3 -- Integration**
+
 - [ ] Explain the integrative thesis -- that each review is not passive retrieval but active reconsolidation -- to someone who has not read any of these three sources. Use a concrete example from everyday life (not from the sources).
 - [ ] A student pulls an all-night study session reviewing the same material ten times without sleeping. Using all three sources, predict what will happen to their memory consolidation and explain why.
 - [ ] If you were advising a student on how to review notes in a way that maximizes reconsolidation quality (not just frequency), what would you recommend, and which source limitations does your advice go beyond?
@@ -454,16 +461,19 @@ The three sources are largely convergent on foundational claims (memory needs sl
 ### Next Steps
 
 **Spaced Repetition Schedule:**
+
 - Day 1: Review Source Relationship Map and Integrative Thesis only (5 minutes). Test yourself on Level 1 questions.
 - Day 4: Attempt all Level 2 questions from memory before checking notes. Re-read the Theme 3 tension section.
 - Day 10: Full self-check at all three levels. Draft a practice paragraph answering "How does memory work and how should students study?" from memory.
 - Day 25: Final review if the exam is more than two weeks away; or use this as the basis for `exam-practice` now if the exam is approaching.
 
 **Recommended Follow-up:**
+
 - The gap around retrieval quality vs. quantity (Gap 4) is the most likely source of exam essay nuance -- use `exam-practice` to practice applying the reconsolidation framework to novel scenarios
 - The identified weakness in Level 3 self-check questions indicates conceptual integration is not yet complete -- run one round of `exam-practice` with the question "Evaluate the standard model of memory in light of reconsolidation theory"
 - For the Knowledge Confidence Map items marked "Moderate" or "Low" -- specifically S3's unvalidated intervals and S2's human reconsolidation claim -- consider deepening with one targeted `cornell-notes` session on reconsolidation research if the exam allows for sophisticated critique of sources
 
 **Connection to Broader Learning:**
+
 - This synthesis directly connects to upcoming material on: operant conditioning and reinforcement schedules (spacing effects have parallel structures), neuroplasticity, attention and working memory load
 - The integrative insight here reframes the naive study advice ("just review your notes more often") into a mechanistically grounded practice: retrieval quality and spacing interval both matter because each review is a neurobiological event, not just an information exposure

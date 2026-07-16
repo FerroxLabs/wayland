@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "spreadsheets automation template"
-  category: "data-analysis"
-  subcategory: "spreadsheets"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'spreadsheets automation template'
+  category: 'data-analysis'
+  subcategory: 'spreadsheets'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Google Sheets Advanced
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly mentions Google Sheets, Google Drive, or Google Workspace and needs formulas or automation features that are either unique to Sheets or behave differently than their Excel counterparts
 - The user asks about QUERY, ARRAYFORMULA, IMPORTRANGE, GOOGLETRANSLATE, GOOGLEFINANCE, IMAGE, SPARKLINE, or other Sheets-native functions not available in standard Excel
 - The user wants to pull data live from another Google Sheets file, a Google Form response sheet, a BigQuery table, or a published CSV via IMPORTDATA
@@ -31,6 +33,7 @@ metadata:
 - The user needs to implement ARRAYFORMULA-based column formulas that auto-populate as new rows are added, replacing the need to drag formulas down
 
 **Do NOT use when:**
+
 - The user needs formulas that work identically in both Excel and Google Sheets -- use the `excel-lookup-formulas` skill for INDEX/MATCH, XLOOKUP, VLOOKUP, and SUMIFS patterns
 - The user needs to clean, deduplicate, standardize, or transform raw data using text and date manipulation formulas -- use the `spreadsheet-data-cleaning` skill
 - The user wants to write a full Apps Script application with classes, external API calls, multi-function architecture, or complex event handling -- that is `software-development` scope
@@ -100,30 +103,39 @@ QUERY is the most complex and most commonly misused Sheets function. Apply these
 ARRAYFORMULA patterns require specific structural discipline to avoid error flooding:
 
 **Standard ARRAYFORMULA pattern (arithmetic):**
+
 ```
 =ARRAYFORMULA(IF(A2:A="", "", B2:B * C2:C))
 ```
+
 The outer `IF(A2:A="", "", ...)` is the blank-row guard. Without it, every empty row in the column returns 0 or an error, which breaks SUM formulas and clutters the sheet.
 
 **ARRAYFORMULA with VLOOKUP (lookup entire column):**
+
 ```
 =ARRAYFORMULA(IF(A2:A="", "", VLOOKUP(A2:A, LookupSheet!$A$1:$C$100, 2, FALSE)))
 ```
+
 This replaces dragging VLOOKUP down 1,000 rows. It recalculates in one operation, which is faster than 1,000 individual VLOOKUP cells.
 
 **ARRAYFORMULA with text concatenation:**
+
 ```
 =ARRAYFORMULA(IF(A2:A="", "", B2:B & " - " & C2:C))
 ```
+
 Ampersand concatenation works inside ARRAYFORMULA. CONCATENATE() does NOT work inside ARRAYFORMULA -- use `&` instead.
 
 **ARRAYFORMULA with REGEXMATCH:**
+
 ```
 =ARRAYFORMULA(IF(A2:A="", "", IF(REGEXMATCH(A2:A, "^[A-Z]{2}-\d{4}$"), "Valid", "Invalid")))
 ```
+
 This validates an entire column of product codes against a regex pattern in one formula.
 
 **Critical ARRAYFORMULA limits:**
+
 - Do NOT place an ARRAYFORMULA in a column where individual cells in that column also have formulas -- the array formula will conflict and produce errors.
 - ARRAYFORMULA cannot be used with FILTER, SORT, UNIQUE, QUERY, or IMPORTRANGE -- these functions are already array-returning and do not need the ARRAYFORMULA wrapper.
 - ARRAYFORMULA on a column that references another ARRAYFORMULA column can cause circular dependency errors. Use helper columns if chaining complex logic.
@@ -141,6 +153,7 @@ IMPORTRANGE is deceptively simple in syntax but requires careful setup:
 **Authorization:** The very first time IMPORTRANGE is used from a destination spreadsheet to a new source spreadsheet, a "You need to connect these sheets" warning appears. Hover over the cell and click "Allow access." This authorization is per source file, per destination file -- it only needs to be done once.
 
 **Performance guidance:**
+
 - Import only the columns you need. `Sheet1!A:B` is dramatically faster than `Sheet1!A:Z`.
 - IMPORTRANGE does not refresh on a timer -- it refreshes when the source file is modified or when the destination file recalculates (Ctrl+Shift+F5 forces recalc).
 - For ranges exceeding 10,000 rows, wrap in QUERY immediately: `=QUERY(IMPORTRANGE("id","Sheet1!A:F"), "SELECT Col1, Col3, Col6 WHERE Col2 = 'Active'", 1)` -- this filters before rendering, reducing the rendered output significantly.
@@ -153,14 +166,16 @@ IMPORTRANGE is deceptively simple in syntax but requires careful setup:
 For simple automation that does not require full application development, Apps Script triggers are appropriate within this skill's scope:
 
 **installable vs. simple triggers:**
+
 - Simple triggers (`onEdit`, `onOpen`, `onChange`) require no authorization and run instantly but cannot send emails, access external services, or modify other files.
 - Installable triggers require setup via Extensions > Apps Script > Triggers and can do everything, including sending email, writing to other sheets, and calling UrlFetch.
 
 **Simple onEdit trigger (marks row as modified):**
+
 ```javascript
 function onEdit(e) {
   const sheet = e.source.getActiveSheet();
-  if (sheet.getName() !== "Orders") return;
+  if (sheet.getName() !== 'Orders') return;
   const row = e.range.getRow();
   if (row < 2) return; // skip header
   sheet.getRange(row, 10).setValue(new Date()); // timestamp in column J
@@ -168,18 +183,21 @@ function onEdit(e) {
 ```
 
 **Time-driven trigger (daily data snapshot):**
+
 - Set up via Extensions > Apps Script > Triggers > Add Trigger
 - Function: `takeSnapshot`, event source: Time-driven, type: Day timer, time: 11pm-midnight
 - This pattern is used to copy IMPORTRANGE live values to a static archive tab daily
 
 **onChange trigger (detect new Google Form submission):**
+
 ```javascript
 function onFormSubmit(e) {
   const sheet = e.range.getSheet();
   const row = e.range.getRow();
-  sheet.getRange(row, 15).setValue("Pending Review"); // set status column
+  sheet.getRange(row, 15).setValue('Pending Review'); // set status column
 }
 ```
+
 Set trigger type to "On form submit" for this pattern.
 
 **Scope boundary for this skill:** Provide the trigger setup, the function signature, and 1-2 specific operations (setValue, getRange, sendEmail via MailApp.sendEmail). Full multi-function Apps Script applications (loops over external APIs, class definitions, complex data pipelines) exceed this skill's scope.
@@ -190,16 +208,16 @@ Set trigger type to "On form submit" for this pattern.
 
 For every formula or feature delivered, provide a structured Excel comparison:
 
-| Sheets Feature | Excel Equivalent | Key Differences |
-|---|---|---|
-| QUERY | Pivot Table or SUMIFS + helper columns | QUERY is formula-based and dynamic; pivot tables require manual refresh |
-| ARRAYFORMULA | Dynamic Arrays (Excel 365 only) | Sheets requires explicit ARRAYFORMULA wrapper; Excel 365 arrays spill automatically |
-| IMPORTRANGE | Power Query from SharePoint/OneDrive | IMPORTRANGE is a single formula; Power Query requires GUI setup and manual refresh |
-| FILTER | FILTER (Excel 365 only) | Identical in syntax and behavior for Excel 365; not available in Excel 2019 or earlier |
-| UNIQUE | UNIQUE (Excel 365 only) | Identical in Excel 365; not available in older Excel |
-| REGEXMATCH | No native equivalent | Excel requires VBA or Power Query for regex; Sheets has it natively |
-| GOOGLEFINANCE | No native equivalent | Excel requires a Stocks data type (Microsoft 365 only) for similar data |
-| date serial numbers | Different epoch | Sheets uses December 30, 1899 as day 0; Excel uses January 0, 1900. The difference is 0 for most dates but matters when pasting date values between platforms. |
+| Sheets Feature      | Excel Equivalent                       | Key Differences                                                                                                                                                |
+| ------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| QUERY               | Pivot Table or SUMIFS + helper columns | QUERY is formula-based and dynamic; pivot tables require manual refresh                                                                                        |
+| ARRAYFORMULA        | Dynamic Arrays (Excel 365 only)        | Sheets requires explicit ARRAYFORMULA wrapper; Excel 365 arrays spill automatically                                                                            |
+| IMPORTRANGE         | Power Query from SharePoint/OneDrive   | IMPORTRANGE is a single formula; Power Query requires GUI setup and manual refresh                                                                             |
+| FILTER              | FILTER (Excel 365 only)                | Identical in syntax and behavior for Excel 365; not available in Excel 2019 or earlier                                                                         |
+| UNIQUE              | UNIQUE (Excel 365 only)                | Identical in Excel 365; not available in older Excel                                                                                                           |
+| REGEXMATCH          | No native equivalent                   | Excel requires VBA or Power Query for regex; Sheets has it natively                                                                                            |
+| GOOGLEFINANCE       | No native equivalent                   | Excel requires a Stocks data type (Microsoft 365 only) for similar data                                                                                        |
+| date serial numbers | Different epoch                        | Sheets uses December 30, 1899 as day 0; Excel uses January 0, 1900. The difference is 0 for most dates but matters when pasting date values between platforms. |
 
 **Array formula entry difference:** In Excel (pre-365), array formulas require Ctrl+Shift+Enter to enter, which wraps the formula in curly braces `{=formula}`. In Google Sheets, ARRAYFORMULA is an explicit function -- never press Ctrl+Shift+Enter in Sheets. Doing so has no special effect.
 
@@ -236,7 +254,9 @@ Before presenting the final formula:
 
 **Paste into cell [cell reference] (leave this cell empty first):**
 ```
+
 =[exact complete formula]
+
 ```
 
 ### How It Works
@@ -247,16 +267,18 @@ Before presenting the final formula:
 ### QUERY Clause Breakdown (if using QUERY)
 
 ```
+
 =QUERY(
-  [data_range],          -- Source: [description]
-  "SELECT [cols]         -- Returns: [what columns]
-   WHERE [condition]     -- Filters: [what condition]
-   GROUP BY [col]        -- Aggregates: [how]
-   ORDER BY [col] DESC   -- Sorts: [by what]
-   LABEL [col] '[name]'  -- Renames: [output headers]
-  ",
-  [headers]              -- Header rows: [count and why]
+[data_range], -- Source: [description]
+"SELECT [cols] -- Returns: [what columns]
+WHERE [condition] -- Filters: [what condition]
+GROUP BY [col] -- Aggregates: [how]
+ORDER BY [col] DESC -- Sorts: [by what]
+LABEL [col] '[name]' -- Renames: [output headers]
+",
+[headers] -- Header rows: [count and why]
 )
+
 ```
 
 ### Setup Steps (if required)
@@ -320,6 +342,7 @@ Before presenting the final formula:
 ## Edge Cases
 
 ### Mixed Data Types in QUERY Source Column
+
 **Scenario:** A column contains mostly numbers but a few cells have text entries (e.g., "N/A", "TBD", or units like "100kg"). QUERY silently drops whichever type is the minority in that column. If 90% of column D has numbers and 10% has text, the 10% text rows are excluded from query results without any error or warning.
 
 **Detection:** Count the rows in source vs. QUERY output. If they differ unexpectedly, check the filtered column for mixed types using `=COUNTIF(D2:D, ">"&0)` vs. `=COUNTA(D2:D)` to spot text contamination.
@@ -329,6 +352,7 @@ Before presenting the final formula:
 ---
 
 ### IMPORTRANGE Authorization Fails for Service Account or Shared Drive Files
+
 **Scenario:** The source spreadsheet is owned by a Google Workspace service account, stored in a Shared Drive, or has restricted permissions. The "Allow access" button either does not appear or clicking it returns "You don't have permission."
 
 **Fix:** The user must have at least Viewer access to the source spreadsheet in their Google account. If the file is in a Shared Drive with access restrictions, they must request access to that specific file or folder. Confirming access: open the source spreadsheet URL in the same browser session where Sheets is open -- if it loads, IMPORTRANGE should work.
@@ -338,6 +362,7 @@ Before presenting the final formula:
 ---
 
 ### ARRAYFORMULA on Google Forms Response Sheet Conflicts with Form-Written Values
+
 **Scenario:** A Google Form writes responses to a sheet. The user places an ARRAYFORMULA in column H to calculate a derived value from the form responses. When the form submits a new response, Google Forms writes directly to that row -- but the ARRAYFORMULA already controls column H, causing a conflict. Forms may overwrite the formula cell or the formula may throw an error.
 
 **Root cause:** Google Forms writes values to a specific row and column. If that column is controlled by an ARRAYFORMULA, the written value conflicts with the formula's output.
@@ -347,9 +372,11 @@ Before presenting the final formula:
 ---
 
 ### QUERY Returns Empty Result Instead of "No Data" When Filter Matches Nothing
+
 **Scenario:** A QUERY with a WHERE clause that currently matches no rows returns a blank output -- not an error, just silence. This confuses users who expect to see "No results" or a zero, especially in dashboards.
 
 **Fix:** Wrap in IFERROR with a custom message is insufficient here because QUERY does not error on empty results -- it just returns nothing. The correct pattern is:
+
 ```
 =IFERROR(
   IF(ROWS(QUERY(A1:E,"SELECT B WHERE C='West'",1))<=1,
@@ -357,11 +384,13 @@ Before presenting the final formula:
      QUERY(A1:E,"SELECT B, SUM(E) WHERE C='West' GROUP BY B ORDER BY SUM(E) DESC",1)),
   "Query error")
 ```
+
 A simpler production pattern uses a helper cell: check `=COUNTIF(C2:C,"West")>0` and conditionally display the QUERY or a message using IF.
 
 ---
 
 ### QUERY Date Filter Fails When Date Column is Stored as Text
+
 **Scenario:** Dates appear to be dates visually but are stored as text strings (common when imported via CSV, pasted from a web scrape, or filled by a non-date Google Form field). The QUERY `WHERE A >= date '2025-01-01'` returns no results or errors because QUERY cannot compare a text string to a date literal.
 
 **Detection:** Select a cell in the date column. If the alignment is left (text default) rather than right (number/date default), the values are text. Confirm with `=ISNUMBER(A2)` -- it returns FALSE for text dates.
@@ -371,6 +400,7 @@ A simpler production pattern uses a helper cell: check `=COUNTIF(C2:C,"West")>0`
 ---
 
 ### Dynamic Range Expansion Breaks Named Ranges Used in IMPORTRANGE
+
 **Scenario:** A user defines a named range in the source spreadsheet (e.g., "SalesData" = Sheet1!A1:F500) and uses it in IMPORTRANGE: `=IMPORTRANGE("id", "SalesData")`. As data grows beyond row 500, IMPORTRANGE stops importing the new rows because the named range was defined with a fixed endpoint.
 
 **Fix:** Always define named ranges with open-ended row references: Sheet1!A1:F (no row limit). Open-ended named ranges in IMPORTRANGE update dynamically as data grows. Warn users that open-ended IMPORTRANGE ranges import ALL rows including empty ones -- wrap immediately with a QUERY that filters blank rows: `=QUERY(IMPORTRANGE("id","SalesData"), "SELECT * WHERE Col1 IS NOT NULL", 1)`.
@@ -378,25 +408,27 @@ A simpler production pattern uses a helper cell: check `=COUNTIF(C2:C,"West")>0`
 ---
 
 ### SPARKLINE and ARRAYFORMULA Incompatibility
+
 **Scenario:** A user wants to use ARRAYFORMULA to fill an entire column with SPARKLINE charts -- one chart per row showing a trend from that row's data. `=ARRAYFORMULA(SPARKLINE(B2:D))` returns an error because SPARKLINE is not array-aware and cannot be wrapped in ARRAYFORMULA.
 
 **Fix:** SPARKLINE must be entered individually in each cell. It cannot be automated with ARRAYFORMULA. For a large dataset, the only automated approach is an Apps Script that iterates each row and sets a SPARKLINE formula string using `setFormula()`:
+
 ```javascript
 function addSparklines() {
   const sheet = SpreadsheetApp.getActiveSheet();
   const lastRow = sheet.getLastRow();
   for (let i = 2; i <= lastRow; i++) {
-    sheet.getRange(i, 6).setFormula(
-      `=SPARKLINE(B${i}:E${i},{"charttype","column";"color","#4285F4"})`
-    );
+    sheet.getRange(i, 6).setFormula(`=SPARKLINE(B${i}:E${i},{"charttype","column";"color","#4285F4"})`);
   }
 }
 ```
+
 This is the boundary case where this skill hands off to Apps Script scope.
 
 ---
 
 ### QUERY PIVOT Generates Unpredictable Column Count and Overwrites Adjacent Data
+
 **Scenario:** A user places a QUERY with PIVOT in column A, and the pivot generates 12 columns (one per month). The next month, a new month appears in the source data and PIVOT generates 13 columns -- overwriting whatever was in the 13th column position.
 
 **Fix:** Always place PIVOT queries in an isolated area with at least 20+ empty columns to the right, or on a dedicated summary sheet. Add a visual warning in adjacent cells: a comment or a merged cell header that says "PIVOT expansion zone -- do not use." Alternatively, switch from PIVOT to a series of individual QUERY SUM statements with fixed column headers if the pivot dimensions are known and stable.
@@ -414,21 +446,24 @@ This is the boundary case where this skill hands off to Apps Script scope.
 ## Google Sheets Formula Solution
 
 ### Requirement
+
 Aggregate total revenue and total units by product category, filtered to Q1 2025 (January 1 -- March 31, 2025), sorted by total revenue descending, with formatted output headers. Then extend to a dynamic quarter selector using a dropdown.
 
 ### Data Layout Assumed
-| Column | Sheet Column | Letter in QUERY | Contains |
-|--------|-------------|-----------------|---------|
-| 1 | A | A | Date (date format, not text) |
-| 2 | B | B | Sales Rep (text) |
-| 3 | C | C | Region (text) |
-| 4 | D | D | Product Category (text) |
-| 5 | E | E | Units Sold (integer) |
-| 6 | F | F | Revenue (currency/number) |
+
+| Column | Sheet Column | Letter in QUERY | Contains                     |
+| ------ | ------------ | --------------- | ---------------------------- |
+| 1      | A            | A               | Date (date format, not text) |
+| 2      | B            | B               | Sales Rep (text)             |
+| 3      | C            | C               | Region (text)                |
+| 4      | D            | D               | Product Category (text)      |
+| 5      | E            | E               | Units Sold (integer)         |
+| 6      | F            | F               | Revenue (currency/number)    |
 
 ### Primary Formula -- Q1 2025 Static Version
 
 **Paste into cell H2 (columns H and I must be empty -- QUERY will spill into both):**
+
 ```
 =QUERY(A1:F, "SELECT D, SUM(F), SUM(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Product Category', SUM(F) 'Total Revenue', SUM(E) 'Total Units'", 1)
 ```
@@ -452,6 +487,7 @@ Aggregate total revenue and total units by product category, filtered to Q1 2025
 ```
 
 ### How It Works
+
 - **`A1:F` (open-ended range):** Includes all rows and automatically picks up new data added below row 5,000. The open-ended column range `A1:F` is equivalent to `A:F` but anchoring at row 1 ensures the header is included for the `1` headers parameter.
 - **`SELECT D, SUM(F), SUM(E)`:** Retrieves the Product Category column and computes sums of Revenue and Units per group. SUM is an aggregate -- it requires a GROUP BY clause.
 - **`WHERE A >= date '2025-01-01' AND A <= date '2025-03-31'`:** The `date` keyword is mandatory. QUERY treats bare strings like `'2025-01-01'` as text, not dates. The AND clause correctly captures the full Q1 range inclusive of both endpoints.
@@ -461,17 +497,18 @@ Aggregate total revenue and total units by product category, filtered to Q1 2025
 - **`1` (headers parameter):** Tells QUERY that row 1 of the source range is a header row and should not be treated as data.
 
 ### Setup Steps
+
 None required for this formula -- it is self-contained. If the date column (column A) shows as left-aligned, it may be stored as text -- see the Troubleshooting section below.
 
 ### Expected Output (H2 onward)
 
-| Product Category | Total Revenue | Total Units |
-|---|---|---|
-| Enterprise Software | $1,284,000 | 642 |
-| Professional Services | $876,500 | 1,753 |
-| Hardware | $543,200 | 2,716 |
-| Support Contracts | $312,800 | 1,564 |
-| Training | $98,400 | 984 |
+| Product Category      | Total Revenue | Total Units |
+| --------------------- | ------------- | ----------- |
+| Enterprise Software   | $1,284,000    | 642         |
+| Professional Services | $876,500      | 1,753       |
+| Hardware              | $543,200      | 2,716       |
+| Support Contracts     | $312,800      | 1,564       |
+| Training              | $98,400       | 984         |
 
 ---
 
@@ -483,6 +520,7 @@ This extends the static formula to filter by any quarter selected from a dropdow
 
 In cell K1, type the label: `Select Quarter:`
 In cell L1, set up data validation:
+
 - Select L1 > Data > Data validation > Add rule
 - Criteria: Dropdown (from a list)
 - Options: `Q1 2025`, `Q2 2025`, `Q3 2025`, `Q4 2025`, `Q1 2026`
@@ -490,11 +528,13 @@ In cell L1, set up data validation:
 **Step 2 -- Create start and end date helper cells using the dropdown**
 
 In cell L2 (Start Date):
+
 ```
 =IF(L1="Q1 2025", DATE(2025,1,1), IF(L1="Q2 2025", DATE(2025,4,1), IF(L1="Q3 2025", DATE(2025,7,1), IF(L1="Q4 2025", DATE(2025,10,1), IF(L1="Q1 2026", DATE(2026,1,1), "")))))
 ```
 
 In cell L3 (End Date):
+
 ```
 =IF(L1="Q1 2025", DATE(2025,3,31), IF(L1="Q2 2025", DATE(2025,6,30), IF(L1="Q3 2025", DATE(2025,9,30), IF(L1="Q4 2025", DATE(2025,12,31), IF(L1="Q1 2026", DATE(2026,3,31), "")))))
 ```
@@ -504,6 +544,7 @@ Format L2 and L3 as Date (Format > Number > Date).
 **Step 3 -- Dynamic QUERY that reads the date range from L2 and L3**
 
 **Paste into cell H2:**
+
 ```
 =IFERROR(QUERY(A1:F, "SELECT D, SUM(F), SUM(E) WHERE A >= date '"&TEXT(L2,"yyyy-MM-dd")&"' AND A <= date '"&TEXT(L3,"yyyy-MM-dd")&"' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Product Category', SUM(F) 'Total Revenue', SUM(E) 'Total Units'", 1), "Select a valid quarter in cell L1")
 ```
@@ -511,6 +552,7 @@ Format L2 and L3 as Date (Format > Number > Date).
 **Why `TEXT(L2,"yyyy-MM-dd")` is used:** QUERY date literals must be in ISO format inside the query string. Concatenating a raw date cell reference (`L2`) would insert a serial number (e.g., 45658) into the string, which QUERY cannot interpret. `TEXT(L2,"yyyy-MM-dd")` converts the date to the required `2025-01-01` string format before concatenation.
 
 ### Dynamic Query Clause Breakdown
+
 ```
 "SELECT D, SUM(F), SUM(E)
  WHERE A >= date '"&TEXT(L2,"yyyy-MM-dd")&"'    -- L2 = start date (e.g., 2025-01-01)
@@ -526,15 +568,15 @@ The query string is assembled by concatenation at runtime. The `"` characters at
 
 ### Common Variations
 
-| Use Case | Formula |
-|---------|---------|
-| Filter by region AND quarter | `=QUERY(A1:F, "SELECT D, SUM(F), SUM(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' AND C = 'West' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Category', SUM(F) 'Revenue', SUM(E) 'Units'", 1)` |
-| Show revenue share % (requires helper column) | Place QUERY in H2:J, then in K3: `=J3/SUM(J3:J$10)` formatted as % |
-| Add average deal size column | `=QUERY(A1:F, "SELECT D, SUM(F), COUNT(E), SUM(F)/COUNT(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Category', SUM(F) 'Revenue', COUNT(E) 'Deals', SUM(F)/COUNT(E) 'Avg Deal'", 1)` |
-| Crosstab: revenue by category by quarter (PIVOT) | `=QUERY(A1:F, "SELECT D, SUM(F) GROUP BY D PIVOT QUARTER(A) LABEL D 'Category'", 1)` -- note: QUARTER() is a QUERY date function that extracts quarter number |
-| Top 3 categories only | `=QUERY(A1:F, "SELECT D, SUM(F), SUM(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' GROUP BY D ORDER BY SUM(F) DESC LIMIT 3 LABEL D 'Category', SUM(F) 'Revenue', SUM(E) 'Units'", 1)` |
-| Exclude a specific category | `=QUERY(A1:F, "SELECT D, SUM(F), SUM(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' AND D != 'Training' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Category', SUM(F) 'Revenue', SUM(E) 'Units'", 1)` |
-| Using MATCHES for multiple category filter | `=QUERY(A1:F, "SELECT D, SUM(F) WHERE D MATCHES 'Hardware|Software|Services' AND A >= date '2025-01-01' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Category', SUM(F) 'Revenue'", 1)` |
+| Use Case                                         | Formula                                                                                                                                                                                                                                     |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
+| Filter by region AND quarter                     | `=QUERY(A1:F, "SELECT D, SUM(F), SUM(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' AND C = 'West' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Category', SUM(F) 'Revenue', SUM(E) 'Units'", 1)`                                   |
+| Show revenue share % (requires helper column)    | Place QUERY in H2:J, then in K3: `=J3/SUM(J3:J$10)` formatted as %                                                                                                                                                                          |
+| Add average deal size column                     | `=QUERY(A1:F, "SELECT D, SUM(F), COUNT(E), SUM(F)/COUNT(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Category', SUM(F) 'Revenue', COUNT(E) 'Deals', SUM(F)/COUNT(E) 'Avg Deal'", 1)` |
+| Crosstab: revenue by category by quarter (PIVOT) | `=QUERY(A1:F, "SELECT D, SUM(F) GROUP BY D PIVOT QUARTER(A) LABEL D 'Category'", 1)` -- note: QUARTER() is a QUERY date function that extracts quarter number                                                                               |
+| Top 3 categories only                            | `=QUERY(A1:F, "SELECT D, SUM(F), SUM(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' GROUP BY D ORDER BY SUM(F) DESC LIMIT 3 LABEL D 'Category', SUM(F) 'Revenue', SUM(E) 'Units'", 1)`                                          |
+| Exclude a specific category                      | `=QUERY(A1:F, "SELECT D, SUM(F), SUM(E) WHERE A >= date '2025-01-01' AND A <= date '2025-03-31' AND D != 'Training' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Category', SUM(F) 'Revenue', SUM(E) 'Units'", 1)`                              |
+| Using MATCHES for multiple category filter       | `=QUERY(A1:F, "SELECT D, SUM(F) WHERE D MATCHES 'Hardware                                                                                                                                                                                   | Software | Services' AND A >= date '2025-01-01' GROUP BY D ORDER BY SUM(F) DESC LABEL D 'Category', SUM(F) 'Revenue'", 1)` |
 
 ---
 
@@ -545,6 +587,7 @@ The query string is assembled by concatenation at runtime. The `"` characters at
 Excel does not have a QUERY function. Two equivalent approaches:
 
 **Option 1 -- Pivot Table (recommended for occasional analysis):**
+
 1. Click any cell in your data table
 2. Insert > PivotTable > New Sheet
 3. Drag "Product Category" to Rows, "Revenue" and "Units Sold" to Values (set both to Sum)
@@ -553,9 +596,11 @@ Excel does not have a QUERY function. Two equivalent approaches:
 6. **Limitation:** Pivot tables do not update automatically -- you must right-click > Refresh after data changes
 
 **Option 2 -- SUMIFS formula (for live dashboard):**
+
 ```
 =SUMIFS(F:F, D:D, H3, A:A, ">="&DATE(2025,1,1), A:A, "<="&DATE(2025,3,31))
 ```
+
 Where H3 contains the product category name. Requires manually maintaining a list of category names in column H.
 
 **Key difference to watch for:** Excel SUMIFS does not generate the category list automatically -- you must hardcode or separately extract unique category values. Sheets QUERY generates both the dimension list and the aggregates in one formula.
@@ -564,13 +609,13 @@ Where H3 contains the product category name. Requires manually maintaining a lis
 
 ### Troubleshooting
 
-| Error or Symptom | Cause | Fix |
-|---|---|---|
-| `Unable to parse query string` | Double quotes used inside WHERE clause (`WHERE C = "West"`), or smart/curly quotes used instead of straight single quotes | Replace with single straight quotes: `WHERE C = 'West'`. Check that markdown rendering hasn't converted `'` to `'` |
-| Date filter returns no rows despite matching data | Date column stored as text (left-aligned in cells), so `date '2025-01-01'` comparison fails silently | Test with `=ISNUMBER(A2)`. If FALSE, convert column: select column A > Data > Data cleanup > Convert to date, or use a helper column with `=ARRAYFORMULA(IF(A2:A="","",DATEVALUE(A2:A)))` |
-| Output numbers formatted as dates | QUERY inherits the cell format of the first data row; if revenue column was briefly formatted as dates, output inherits that format | Select the output cells > Format > Number > Accounting or Number |
-| `#REF!` error on QUERY output | The QUERY result is trying to spill into cells that are already occupied (another formula, a value, or a merged cell) | Clear all cells in the expected output range (H2 and all cells to the right and below) before entering the formula |
-| Headers parameter confusion: first data row treated as a header | Headers parameter set to 0 but data has a header row, or vice versa | Set to `1` if row 1 of the range has column label text; set to `0` if there is no header and all rows are data |
-| `SUM(F)/COUNT(E)` in QUERY returns zero | Division in QUERY operates on aggregated integers; if COUNT returns 0 for a group, division by zero produces 0 silently instead of an error | Add `WHERE E IS NOT NULL` to the query to exclude groups with no matching rows before division |
-| Dynamic query with `TEXT(L2,...)` returns parse error | L2 is empty (no quarter selected yet) so `TEXT("","yyyy-MM-dd")` returns empty string, creating `date ''` which is invalid | The `IFERROR(...)` wrapper catches this -- ensure it is included. Also set a default value in L1 to prevent the blank state |
-| QUERY output disappears when scrolling | The QUERY formula cell has scrolled out of view and users think output is gone | QUERY output spills downward from the formula cell. The formula cell always contains the formula; lower cells contain spilled values. Nothing is wrong -- scroll back to H2 |
+| Error or Symptom                                                | Cause                                                                                                                                       | Fix                                                                                                                                                                                       |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Unable to parse query string`                                  | Double quotes used inside WHERE clause (`WHERE C = "West"`), or smart/curly quotes used instead of straight single quotes                   | Replace with single straight quotes: `WHERE C = 'West'`. Check that markdown rendering hasn't converted `'` to `'`                                                                        |
+| Date filter returns no rows despite matching data               | Date column stored as text (left-aligned in cells), so `date '2025-01-01'` comparison fails silently                                        | Test with `=ISNUMBER(A2)`. If FALSE, convert column: select column A > Data > Data cleanup > Convert to date, or use a helper column with `=ARRAYFORMULA(IF(A2:A="","",DATEVALUE(A2:A)))` |
+| Output numbers formatted as dates                               | QUERY inherits the cell format of the first data row; if revenue column was briefly formatted as dates, output inherits that format         | Select the output cells > Format > Number > Accounting or Number                                                                                                                          |
+| `#REF!` error on QUERY output                                   | The QUERY result is trying to spill into cells that are already occupied (another formula, a value, or a merged cell)                       | Clear all cells in the expected output range (H2 and all cells to the right and below) before entering the formula                                                                        |
+| Headers parameter confusion: first data row treated as a header | Headers parameter set to 0 but data has a header row, or vice versa                                                                         | Set to `1` if row 1 of the range has column label text; set to `0` if there is no header and all rows are data                                                                            |
+| `SUM(F)/COUNT(E)` in QUERY returns zero                         | Division in QUERY operates on aggregated integers; if COUNT returns 0 for a group, division by zero produces 0 silently instead of an error | Add `WHERE E IS NOT NULL` to the query to exclude groups with no matching rows before division                                                                                            |
+| Dynamic query with `TEXT(L2,...)` returns parse error           | L2 is empty (no quarter selected yet) so `TEXT("","yyyy-MM-dd")` returns empty string, creating `date ''` which is invalid                  | The `IFERROR(...)` wrapper catches this -- ensure it is included. Also set a default value in L1 to prevent the blank state                                                               |
+| QUERY output disappears when scrolling                          | The QUERY formula cell has scrolled out of view and users think output is gone                                                              | QUERY output spills downward from the formula cell. The formula cell always contains the formula; lower cells contain spilled values. Nothing is wrong -- scroll back to H2               |

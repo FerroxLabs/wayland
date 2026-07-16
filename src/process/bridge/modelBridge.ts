@@ -553,7 +553,10 @@ export function initModelBridge(): void {
         return { success: true, data: { mode: modelList } };
       } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.warn('Failed to fetch DashScope coding-plan models via /v1/models, falling back to static list:', errorMessage);
+        console.warn(
+          'Failed to fetch DashScope coding-plan models via /v1/models, falling back to static list:',
+          errorMessage
+        );
         return { success: true, data: { mode: fallbackCodingPlanModels } };
       }
     }
@@ -952,8 +955,7 @@ export function initModelBridge(): void {
 
     // A LOCAL keyless backend needs no key; inject a placeholder so protocol
     // detection can probe it. A cloud endpoint with no key still errors.
-    const apiKeys =
-      parsedApiKeys.length === 0 && isLocalBaseUrl(baseUrl) ? [LOCAL_KEYLESS_PLACEHOLDER] : parsedApiKeys;
+    const apiKeys = parsedApiKeys.length === 0 && isLocalBaseUrl(baseUrl) ? [LOCAL_KEYLESS_PLACEHOLDER] : parsedApiKeys;
 
     if (apiKeys.length === 0) {
       return {

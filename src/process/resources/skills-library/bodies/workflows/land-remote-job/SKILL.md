@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "linkedin-optimizer personal-brand-architect resume-builder interview-coach salary-negotiator"
+skills: 'linkedin-optimizer personal-brand-architect resume-builder interview-coach salary-negotiator'
 trigger_phrases: >-
   I want to find a remote job help me land a remote position remote job search
   strategy how to get hired remotely work from home job search transition to
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: career interview-prep step-by-step planning
   category: career
-  depends: "linkedin-optimizer personal-brand-architect resume-builder interview-coach salary-negotiator"
+  depends: 'linkedin-optimizer personal-brand-architect resume-builder interview-coach salary-negotiator'
 ---
+
 # Land Remote Job
 
 **Estimated time:** 4-10 weeks
@@ -165,6 +166,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

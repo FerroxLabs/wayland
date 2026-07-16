@@ -440,9 +440,15 @@ export class AcpSession {
       }
 
       default: {
-        // starting / resuming - process died during bootstrap, treat as crash
+        // starting / resuming - process died during bootstrap, treat as crash.
+        // Only surface the banner once automatic retries are exhausted - while a
+        // retry is still scheduled (SessionLifecycle.handleStartError /
+        // handleResumeError), each attempt would otherwise fire its own crash
+        // signal before the final outcome is known, storming the UI (#676).
         this.lifecycle.clearClient();
-        this.emitCrashSignalIfProcessDied(info);
+        if (!this.lifecycle.hasRetriesRemaining(this._status as 'starting' | 'resuming')) {
+          this.emitCrashSignalIfProcessDied(info);
+        }
         this.setStatus('suspended');
       }
     }

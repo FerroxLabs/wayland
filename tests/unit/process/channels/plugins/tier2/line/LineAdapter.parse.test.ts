@@ -106,9 +106,7 @@ describe('lineMessageEventToUnified', () => {
   });
 
   it('uses group chatId for group messages', () => {
-    const unified = lineMessageEventToUnified(
-      baseEvent({ source: { type: 'group', groupId: 'G42', userId: 'U111' } }),
-    );
+    const unified = lineMessageEventToUnified(baseEvent({ source: { type: 'group', groupId: 'G42', userId: 'U111' } }));
     expect(unified?.chatId).toBe('group:G42');
     expect(unified?.user.id).toBe('U111');
   });
@@ -136,9 +134,7 @@ describe('lineMessageEventToUnified', () => {
       } as any,
     });
     const unified = lineMessageEventToUnified(event);
-    expect(unified?.content.text).toBe(
-      '📍 Tokyo Station (35.6812, 139.7671) - 1 Chome Marunouchi, Chiyoda',
-    );
+    expect(unified?.content.text).toBe('📍 Tokyo Station (35.6812, 139.7671) - 1 Chome Marunouchi, Chiyoda');
   });
 
   it('formats location messages without address', () => {

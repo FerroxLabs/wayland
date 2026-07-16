@@ -7,26 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide hiking budgeting nutrition beginner-friendly advanced testing planning"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'guide hiking budgeting nutrition beginner-friendly advanced testing planning'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Cycling Coach Guide
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cycling coach techniques or best practices
 - User needs guidance on cycling coach concepts
 - User wants to implement or improve their approach to cycling coach
 
 **Do NOT use when:**
+
 - The request falls outside the scope of cycling coach
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -49,6 +50,7 @@ Before recommending a cycling approach:
 ## Bike Types and Selection
 
 ### Road Bikes
+
 - **Purpose**: Paved roads, speed, distance, fitness, racing
 - **Features**: Drop handlebars, narrow tires (25-32mm), lightweight frame
 - **Endurance geometry**: More upright, comfortable for long rides (Canyon Endurace, Trek Domane)
@@ -57,6 +59,7 @@ Before recommending a cycling approach:
 - **Material**: Aluminum (great value), carbon fiber (lighter, absorbs vibration), steel (durable, comfortable), titanium (premium, lifetime)
 
 ### Mountain Bikes
+
 - **Purpose**: Off-road trails, dirt, rocks, roots, drops
 - **Hardtail** (front suspension only): Lighter, cheaper, better for cross-country and beginners
 - **Full suspension** (front and rear): Better for rough terrain, downhill, more comfortable, heavier, expensive
@@ -65,6 +68,7 @@ Before recommending a cycling approach:
 - **Wheel sizes**: 29" (faster, more stable), 27.5" (more nimble, playful)
 
 ### Gravel Bikes
+
 - **Purpose**: Mixed surface riding (pavement, gravel roads, light trails)
 - **Features**: Drop bars, wider tires (35-50mm), relaxed geometry, disc brakes
 - **Best for**: Versatility, bikepacking, exploring, those who want one bike for everything
@@ -72,12 +76,14 @@ Before recommending a cycling approach:
 - **Popular models**: Canyon Grail, Specialized Diverge, Trek Checkpoint
 
 ### Commuter/City Bikes
+
 - **Purpose**: Transportation, errands, daily commuting
 - **Features**: Fenders, lights, rack, upright position, low maintenance
 - **Types**: Flat-bar road bike, hybrid, single-speed, e-bike
 - **Budget**: $400-1,500
 
 ### E-Bikes
+
 - **Electric motor assist** (pedal-assist, not motorcycle)
 - **Classes**: Class 1 (pedal assist to 20mph), Class 2 (throttle to 20mph), Class 3 (pedal assist to 28mph)
 - **Best for**: Commuting, hills, longer distances, riders returning after injury, keeping up with faster friends
@@ -86,11 +92,13 @@ Before recommending a cycling approach:
 ## Bike Fit
 
 ### Why Fit Matters
+
 A properly fit bike prevents injury, increases power, improves comfort, and makes riding more enjoyable. A poor fit causes: Knee pain, back pain, neck pain, hand numbness, saddle discomfort, and inefficiency.
 
 ### Basic Fit Points
 
 **Saddle Height**
+
 - Stand next to bike: Saddle should be approximately hip height
 - Sitting on saddle with heel on pedal at bottom: Leg should be straight
 - Clipped in at bottom of pedal stroke: Slight bend in knee (25-35 degrees)
@@ -98,22 +106,26 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - Too low: Knee pain at front of knee, quad fatigue
 
 **Saddle Position (Fore/Aft)**
+
 - Sit on saddle, pedal at 3 o'clock position (forward)
 - Kneecap should be directly over pedal axle (KOPS method)
 - Adjust by sliding saddle forward/backward on rails
 
 **Handlebar Height and Reach**
+
 - Beginners: Bars level with or slightly above saddle (upright, comfortable)
 - Experienced: Bars 2-4cm below saddle (more aero, aggressive)
 - Reach: With hands on hoods, elbows should have slight bend, shoulders relaxed
 
 **Professional Bike Fit**
+
 - Worth the investment ($150-300) for anyone riding regularly
 - Retul or motion-capture systems measure body angles precisely
 - Address persistent pain or discomfort
 - Recommended: After buying a new bike, or if you have chronic pain
 
 ### Saddle Selection
+
 - Width: Match to sit bone width (bike shops have measuring tools)
 - Shape: Flat (flexible riders), curved (less flexible), cutout (relieves pressure)
 - Padding: More is not always better (too much padding can cause more pressure, not less)
@@ -122,6 +134,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 ## Training Plans
 
 ### Base Building (Weeks 1-4)
+
 - **Goal**: Build aerobic fitness, develop pedaling efficiency
 - **3-4 rides per week**, 30-60 minutes each
 - **Intensity**: Conversational pace (Zone 2, can talk comfortably)
@@ -129,6 +142,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - **Rest days**: At least 2 per week
 
 ### Building Fitness (Weeks 5-12)
+
 - **4-5 rides per week**
 - **Long ride**: One ride per week at 1.5-3 hours (builds endurance)
 - **Interval ride**: One ride with structured hard efforts (see below)
@@ -136,27 +150,30 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - **Introduce hills**: Hill repeats build strength and cardiovascular fitness
 
 ### Sample Week (Intermediate)
-| Day | Workout | Duration |
-|-----|---------|----------|
-| Monday | Rest | - |
-| Tuesday | Tempo ride (moderate sustained effort) | 60 min |
-| Wednesday | Easy spin / Recovery | 30-45 min |
-| Thursday | Intervals: 4x5 min hard, 3 min recovery | 60 min |
-| Friday | Rest or yoga/stretching | - |
-| Saturday | Long ride (endurance pace) | 2-3 hours |
-| Sunday | Easy ride or active recovery | 45-60 min |
+
+| Day       | Workout                                 | Duration  |
+| --------- | --------------------------------------- | --------- |
+| Monday    | Rest                                    | -         |
+| Tuesday   | Tempo ride (moderate sustained effort)  | 60 min    |
+| Wednesday | Easy spin / Recovery                    | 30-45 min |
+| Thursday  | Intervals: 4x5 min hard, 3 min recovery | 60 min    |
+| Friday    | Rest or yoga/stretching                 | -         |
+| Saturday  | Long ride (endurance pace)              | 2-3 hours |
+| Sunday    | Easy ride or active recovery            | 45-60 min |
 
 ### Training Zones
-| Zone | Name | Effort | Description |
-|------|------|--------|-------------|
-| 1 | Recovery | Very easy | Barely pedaling, spinning legs |
-| 2 | Endurance | Easy-moderate | Conversational, sustainable all day |
-| 3 | Tempo | Moderate | Can speak in sentences, work being done |
-| 4 | Threshold | Hard | Short sentences only, sustainable 20-60 min |
-| 5 | VO2 Max | Very hard | Few words, sustainable 3-8 min |
-| 6 | Anaerobic | Maximum | Cannot speak, 30 sec - 2 min efforts |
+
+| Zone | Name      | Effort        | Description                                 |
+| ---- | --------- | ------------- | ------------------------------------------- |
+| 1    | Recovery  | Very easy     | Barely pedaling, spinning legs              |
+| 2    | Endurance | Easy-moderate | Conversational, sustainable all day         |
+| 3    | Tempo     | Moderate      | Can speak in sentences, work being done     |
+| 4    | Threshold | Hard          | Short sentences only, sustainable 20-60 min |
+| 5    | VO2 Max   | Very hard     | Few words, sustainable 3-8 min              |
+| 6    | Anaerobic | Maximum       | Cannot speak, 30 sec - 2 min efforts        |
 
 ### Measuring Intensity
+
 - **Heart rate monitor** ($30-50 chest strap): Reliable, affordable
 - **Power meter** ($300-1,500): Gold standard, measures actual work output in watts
 - **Rate of Perceived Exertion (RPE)**: 1-10 scale, free, surprisingly useful
@@ -165,14 +182,17 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 ## Nutrition on Rides
 
 ### Under 60 Minutes
+
 - Water is usually sufficient
 - Eat a balanced meal 1-2 hours before
 
 ### 60-90 Minutes
+
 - Water: 16-24 oz per hour
 - Optional: One gel or bar if high intensity
 
 ### 90+ Minutes
+
 - **Water**: 16-32 oz per hour (more in heat)
 - **Electrolytes**: Add to water or take tablets (sodium, potassium, magnesium)
 - **Calories**: 200-300 calories per hour after the first hour
@@ -180,11 +200,13 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - **Rule**: Eat before you are hungry, drink before you are thirsty
 
 ### Fueling Strategy for Long Rides
+
 - **Pre-ride (2-3 hours before)**: Complex carbohydrates, moderate protein (oatmeal, toast, eggs)
 - **During ride**: Primarily simple carbohydrates (easily digestible sugars)
 - **Post-ride (within 30 minutes)**: Protein + carbohydrates for recovery (chocolate milk, recovery shake, balanced meal)
 
 ### Hydration
+
 - Dehydration of just 2% body weight reduces performance significantly
 - Light-colored urine = adequately hydrated
 - In heat: Consider electrolyte-heavy drinks, pre-load sodium
@@ -193,6 +215,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 ## Bike Maintenance
 
 ### Before Every Ride (ABC Quick Check)
+
 - **A**ir: Tires properly inflated (check with gauge, not squeeze test)
   - Road: 80-100 PSI (check sidewall for range)
   - Mountain: 25-35 PSI (lower for grip)
@@ -204,6 +227,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 ### Essential At-Home Maintenance
 
 **Flat Tire Repair** (Every cyclist must know this)
+
 1. Remove wheel (quick release or thru-axle)
 2. Deflate tube completely, unseat tire bead with tire levers
 3. Remove tube, find puncture (inflate and listen/feel)
@@ -214,6 +238,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 8. Practice at home before your first ride!
 
 **Chain Cleaning and Lubrication** (Every 100-200 miles)
+
 1. Apply degreaser to chain, scrub with chain cleaning tool or brush
 2. Wipe clean with rag
 3. Apply appropriate chain lube (wet lube for rain, dry lube for dry conditions)
@@ -221,20 +246,24 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 5. Shift through all gears
 
 **Brake Adjustment**
+
 - Rim brakes: Pads should contact rim squarely, 1-2mm clearance
 - Disc brakes: Pads should not rub rotor (listen for scraping sound)
 - Replace pads when wear indicator is reached
 
 **Derailleur Adjustment**
+
 - Basic barrel adjuster turns can fix minor shifting issues
 - If shifting is consistently off: Cable tension, limit screws, or hanger alignment may need professional adjustment
 
 ### Professional Service Schedule
+
 - **Annual tune-up**: Full inspection, cable/housing replacement, bearing check ($75-150)
 - **Major service**: Every 2,000-3,000 miles or annually (everything above plus bottom bracket, headset, wheel true)
 - **When to go to the shop**: Unusual noises, consistent shifting problems, wheel wobble, loose headset
 
 ### Essential Carry-Along Toolkit
+
 - Spare inner tube (2 for long rides)
 - Tire levers (2-3)
 - Mini pump or CO2 inflator
@@ -246,6 +275,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 ## Group Riding Etiquette
 
 ### Paceline Basics
+
 - **Single paceline**: Riders in a line, front rider pulls (breaks wind), rotates off after effort
 - **Double paceline**: Two lines of riders side by side, rotating
 - **Front rider controls pace** (do not accelerate when you move to front)
@@ -253,6 +283,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - **Gap**: Half wheel-length to one wheel-length behind rider in front (overlap is dangerous)
 
 ### Communication Signals
+
 - **"Car back!"**: Vehicle approaching from behind
 - **"Car up!"**: Vehicle ahead
 - **Pointing at road hazard**: Glass, pothole, debris (point and call it out)
@@ -263,6 +294,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - **"Clear!" / "Not clear!"**: At intersections
 
 ### Group Ride Norms
+
 - Introduce yourself if new to the group
 - Ride at the advertised pace (do not attack, do not lag)
 - No earbuds on group rides (you need to hear)
@@ -273,6 +305,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 ## Race Preparation
 
 ### Types of Cycling Events
+
 - **Gran Fondo / Century**: Long-distance mass-participation rides (50-100+ miles)
 - **Criterium**: Short course, many laps, fast and tactical
 - **Road race**: Point-to-point or circuit, tactics and teamwork
@@ -282,6 +315,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - **Cyclocross**: Short off-road circuits, dismounting/running required, fall/winter season
 
 ### Preparing for Your First Event
+
 1. **Choose appropriate event**: Beginners start with a charity ride or gran fondo
 2. **Train for the distance**: Build to event distance in training rides (several weeks before)
 3. **Nutrition practice**: Test your race-day food during training (never try new nutrition on race day)
@@ -293,6 +327,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 ## Commuting by Bike
 
 ### Setting Up for Commuting
+
 - **Route planning**: Use cycling-specific maps (Google Maps bike layer, Strava heat map for popular routes)
 - **Fenders**: Keep spray off you and your clothes
 - **Lights**: Front (minimum 300 lumens) and rear (minimum 50 lumens) - even during daytime
@@ -302,6 +337,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - **Shower access**: If workplace has showers, game changer; if not, baby wipes and fresh shirt
 
 ### Commuting Safety
+
 - Be visible: Bright colors, reflective elements, lights always on
 - Be predictable: Signal turns, hold your line, obey traffic laws
 - Assume drivers do not see you
@@ -311,6 +347,7 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - Avoid riding in car blind spots
 
 ### E-Bike Commuting
+
 - Eliminates the "arriving sweaty" problem
 - Flattens hills and headwinds
 - Extends practical commute distance to 10-20 miles each way
@@ -347,7 +384,6 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - **Community**: Local bike clubs, shop group rides, cycling advocacy organizations
 - **USA Cycling**: Racing licenses and event calendar
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -355,7 +391,6 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -376,14 +411,12 @@ A properly fit bike prevents injury, increases power, improves comfort, and make
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

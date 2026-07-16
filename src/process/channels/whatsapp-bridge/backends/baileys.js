@@ -180,7 +180,7 @@ export async function createBackend({ emit, sessionDir }) {
 
     sock.ev.on('creds.update', () => {
       Promise.resolve(saveCreds?.()).catch((err) =>
-        emit('error', { kind: 'creds_save', message: String(err?.message || err) }),
+        emit('error', { kind: 'creds_save', message: String(err?.message || err) })
       );
     });
 
@@ -221,9 +221,7 @@ export async function createBackend({ emit, sessionDir }) {
         if (reconnectTimer) clearTimeout(reconnectTimer);
         reconnectTimer = setTimeout(() => {
           if (!stopRequested) {
-            startSocket().catch((err) =>
-              emit('error', { kind: 'reconnect', message: String(err?.message || err) }),
-            );
+            startSocket().catch((err) => emit('error', { kind: 'reconnect', message: String(err?.message || err) }));
           }
         }, delayMs);
       } else if (connection === 'open') {
@@ -253,24 +251,14 @@ export async function createBackend({ emit, sessionDir }) {
         } else if (c.extendedTextMessage?.text) {
           body = c.extendedTextMessage.text;
         } else if (c.imageMessage || c.videoMessage || c.audioMessage || c.documentMessage) {
-          mediaType = c.imageMessage
-            ? 'image'
-            : c.videoMessage
-              ? 'video'
-              : c.audioMessage
-                ? 'audio'
-                : 'document';
-          body =
-            c.imageMessage?.caption ||
-            c.videoMessage?.caption ||
-            c.documentMessage?.caption ||
-            '';
+          mediaType = c.imageMessage ? 'image' : c.videoMessage ? 'video' : c.audioMessage ? 'audio' : 'document';
+          body = c.imageMessage?.caption || c.videoMessage?.caption || c.documentMessage?.caption || '';
           try {
             const buf = await downloadMediaMessage(
               msg,
               'buffer',
               {},
-              { logger, reuploadRequest: sock.updateMediaMessage },
+              { logger, reuploadRequest: sock.updateMediaMessage }
             );
             const cacheDir = path.join(authDir, '..', 'media-cache');
             mkdirSync(cacheDir, { recursive: true });

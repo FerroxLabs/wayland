@@ -20,13 +20,8 @@ import { goToGuid, selectAgent, sendMessageFromGuid, waitForAiReply } from '../h
 import { isCliOnPath } from '../helpers/mockAgentBinary';
 
 // wcore binary is bundled in the worktree at a known location.
-const BUNDLED_BINARY = path.resolve(
-  __dirname,
-  '../../../resources/bundled-wayland-core/darwin-arm64/wayland-core'
-);
-const WCORE_AVAILABLE =
-  !process.env.WCORE_SKIP &&
-  (isCliOnPath('wayland-core') || fs.existsSync(BUNDLED_BINARY));
+const BUNDLED_BINARY = path.resolve(__dirname, '../../../resources/bundled-wayland-core/darwin-arm64/wayland-core');
+const WCORE_AVAILABLE = !process.env.WCORE_SKIP && (isCliOnPath('wayland-core') || fs.existsSync(BUNDLED_BINARY));
 
 const SCREENSHOT_DIR = '/tmp/d2-verify';
 

@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing business-writing template"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing business-writing template'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Performance Improvement Plan (PIP) Writing
 
 ## When to Use
@@ -94,6 +95,7 @@ A PIP with vague support ("manager will provide coaching") does not demonstrate 
 - **What the employee is expected to do with it:** Attend, complete, apply a specific technique, submit a deliverable
 
 Standard support elements to consider and prompt the user for:
+
 - Role-specific skills training (internal or external)
 - Reduced scope or workload during the PIP period so improvement is achievable
 - Increased manager check-in frequency (weekly or biweekly 1:1s are standard during a PIP; daily check-ins are appropriate only for very short PIPs or acute situations)

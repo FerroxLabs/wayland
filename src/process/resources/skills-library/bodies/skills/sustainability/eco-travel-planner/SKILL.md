@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability travel guide"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability travel guide'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Eco Travel Planner
@@ -23,11 +23,13 @@ You are an expert sustainable travel consultant who helps travelers minimize the
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about eco travel planner
 - User needs guidance on eco travel planner topics
 - User wants a structured approach to eco travel planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -46,18 +48,18 @@ You are an expert sustainable travel consultant who helps travelers minimize the
 
 ### Transportation Emissions (approximate per passenger)
 
-| Mode | Emissions per km | 1000 km Trip |
-|------|-----------------|--------------|
-| Long-haul flight | 0.15-0.20 kg CO2 | 150-200 kg |
-| Short-haul flight | 0.25-0.35 kg CO2 | 250-350 kg |
-| Train (electric) | 0.03-0.05 kg CO2 | 30-50 kg |
-| Train (diesel) | 0.06-0.10 kg CO2 | 60-100 kg |
-| Coach/bus | 0.03-0.06 kg CO2 | 30-60 kg |
-| Car (solo) | 0.17-0.25 kg CO2 | 170-250 kg |
-| Car (4 passengers) | 0.04-0.06 kg CO2 | 40-60 kg |
-| Electric vehicle | 0.05-0.08 kg CO2 | 50-80 kg |
-| Ferry | 0.12-0.20 kg CO2 | 120-200 kg |
-| Cycling | 0.00 kg CO2 | 0 kg |
+| Mode               | Emissions per km | 1000 km Trip |
+| ------------------ | ---------------- | ------------ |
+| Long-haul flight   | 0.15-0.20 kg CO2 | 150-200 kg   |
+| Short-haul flight  | 0.25-0.35 kg CO2 | 250-350 kg   |
+| Train (electric)   | 0.03-0.05 kg CO2 | 30-50 kg     |
+| Train (diesel)     | 0.06-0.10 kg CO2 | 60-100 kg    |
+| Coach/bus          | 0.03-0.06 kg CO2 | 30-60 kg     |
+| Car (solo)         | 0.17-0.25 kg CO2 | 170-250 kg   |
+| Car (4 passengers) | 0.04-0.06 kg CO2 | 40-60 kg     |
+| Electric vehicle   | 0.05-0.08 kg CO2 | 50-80 kg     |
+| Ferry              | 0.12-0.20 kg CO2 | 120-200 kg   |
+| Cycling            | 0.00 kg CO2      | 0 kg         |
 
 ### Low-Carbon Travel Decision Framework
 
@@ -118,6 +120,7 @@ IF distance > 1500 km:
 ### Wildlife Tourism Red Flags
 
 AVOID experiences that involve:
+
 - Riding elephants, ostriches, or other wild animals
 - Petting or selfies with sedated wild animals
 - Captive dolphin or whale shows
@@ -126,6 +129,7 @@ AVOID experiences that involve:
 - Purchasing products made from endangered species
 
 SEEK experiences that:
+
 - Support sanctuaries with no-contact policies
 - Fund wildlife conservation and habitat protection
 - Use trained naturalist guides
@@ -148,6 +152,7 @@ SEEK experiences that:
 ### Choosing Quality Carbon Offsets
 
 Look for offsets certified by:
+
 - **Gold Standard**: Highest quality, co-benefits verified
 - **Verified Carbon Standard (VCS/Verra)**: Large-scale projects
 - **Plan Vivo**: Community and smallholder focused
@@ -155,14 +160,14 @@ Look for offsets certified by:
 
 ### Types of Offset Projects
 
-| Project Type | Co-Benefits | Considerations |
-|-------------|-------------|---------------|
-| Reforestation | Biodiversity, community jobs | Takes years to sequester |
-| Renewable energy | Air quality, energy access | Additionality questions |
-| Cookstove programs | Health, gender equity | Strong co-benefits |
-| Methane capture | Pollution reduction | Industrial focus |
-| Mangrove restoration | Coastal protection, fisheries | High carbon per hectare |
-| Direct air capture | Permanent removal | Most expensive |
+| Project Type         | Co-Benefits                   | Considerations           |
+| -------------------- | ----------------------------- | ------------------------ |
+| Reforestation        | Biodiversity, community jobs  | Takes years to sequester |
+| Renewable energy     | Air quality, energy access    | Additionality questions  |
+| Cookstove programs   | Health, gender equity         | Strong co-benefits       |
+| Methane capture      | Pollution reduction           | Industrial focus         |
+| Mangrove restoration | Coastal protection, fisheries | High carbon per hectare  |
+| Direct air capture   | Permanent removal             | Most expensive           |
 
 ### Calculating Your Trip Offset
 
@@ -204,32 +209,38 @@ Recommended: Offset 150-200% of calculated emissions
 
 ```markdown
 ## Eco-Trip: [Destination]
+
 **Dates**: [Start] to [End]
 **Travelers**: [Number]
 
 ### Pre-Trip
-- [ ] Carbon footprint estimate: ___ kg CO2
-- [ ] Offset purchased: ___ kg CO2 via [provider]
+
+- [ ] Carbon footprint estimate: \_\_\_ kg CO2
+- [ ] Offset purchased: \_\_\_ kg CO2 via [provider]
 - [ ] Cultural research completed
 - [ ] Eco-accommodation booked: [name, certification]
 - [ ] Local language basics learned
 
 ### Transportation Plan
+
 - Outbound: [mode, route, estimated emissions]
 - Local transport: [mode - bike, transit, walking]
 - Return: [mode, route, estimated emissions]
 
 ### Daily Plan
+
 **Day 1**: [Activity] - [eco-considerations]
 **Day 2**: [Activity] - [eco-considerations]
 ...
 
 ### Spending Priorities
-- Local guides and artisans: ___
-- Conservation contributions: ___
-- Local restaurants/markets: ___
+
+- Local guides and artisans: \_\_\_
+- Conservation contributions: \_\_\_
+- Local restaurants/markets: \_\_\_
 
 ### Post-Trip
+
 - [ ] Actual carbon calculated
 - [ ] Additional offset if needed
 - [ ] Review posted for eco-businesses
@@ -278,6 +289,7 @@ Recommended: Offset 150-200% of calculated emissions
 ### Post-Trip Assessment
 
 After each trip, evaluate:
+
 1. Total carbon footprint (actual vs. estimated)
 2. Percentage of spending that went to local businesses
 3. Single-use plastic consumed (aim for zero)
@@ -293,7 +305,6 @@ After each trip, evaluate:
 - Support policy and infrastructure for sustainable tourism
 - Build relationships with places and return to them
 - Choose quality of experience over quantity of destinations
-
 
 ## Output Format
 

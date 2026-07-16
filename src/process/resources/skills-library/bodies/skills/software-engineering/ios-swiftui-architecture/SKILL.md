@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile swift architecture"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile swift architecture'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # iOS SwiftUI Architecture
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is starting a new iOS app and needs to choose between MVVM, TCA (The Composable Architecture), VIPER, MV, or Clean Architecture for a SwiftUI project
 - A user has a growing SwiftUI codebase with state management problems -- views re-rendering too aggressively, state scattered across multiple sources of truth, or business logic leaking into views
 - A user needs to design a navigation system in SwiftUI using NavigationStack, NavigationSplitView, or a coordinator pattern and is unsure which approach scales to their use case
@@ -30,6 +32,7 @@ metadata:
 - A user needs to set up a multi-module Swift Package Manager workspace or Xcode project with clear dependency boundaries
 
 **Do NOT use this skill when:**
+
 - The user needs UIKit-specific architecture guidance without any SwiftUI integration -- use a UIKit MVC/MVVM skill instead
 - The user is working on React Native, Flutter, or other cross-platform frameworks -- use the appropriate cross-platform skill
 - The user needs Xcode build system configuration, CI/CD pipelines, or App Store submission guidance -- use the iOS DevOps skill
@@ -114,10 +117,10 @@ Structure communicates intent. A poorly structured project forces engineers to o
 State management is the most common source of SwiftUI bugs. Apply these rules precisely.
 
 - **Classify state by scope before writing any code:**
-  - *Ephemeral UI state* (is a button loading, is a sheet presented, currently focused field): `@State` in the owning view. Never lift this into a ViewModel.
-  - *Shared feature state* (the list of items shown in a screen, whether a user is authenticated): ViewModel or Store, injected via `@StateObject` at the root, passed down with `@ObservedObject` or `@EnvironmentObject`.
-  - *Global app state* (authentication status, theme, feature flags): `@EnvironmentObject` injected at the App root or a TCA Store accessed via `@Bindable`.
-  - *Navigation state* (current route stack, presented sheet): Owned by the coordinator or router, never by individual views.
+  - _Ephemeral UI state_ (is a button loading, is a sheet presented, currently focused field): `@State` in the owning view. Never lift this into a ViewModel.
+  - _Shared feature state_ (the list of items shown in a screen, whether a user is authenticated): ViewModel or Store, injected via `@StateObject` at the root, passed down with `@ObservedObject` or `@EnvironmentObject`.
+  - _Global app state_ (authentication status, theme, feature flags): `@EnvironmentObject` injected at the App root or a TCA Store accessed via `@Bindable`.
+  - _Navigation state_ (current route stack, presented sheet): Owned by the coordinator or router, never by individual views.
 - **With ObservableObject (iOS 14--16):** Annotate only properties that need to trigger re-renders with `@Published`. Non-published mutable properties do not cause re-renders. Mark computed properties carefully -- they do not trigger re-renders on their own unless a `@Published` dependency changes.
 - **With @Observable macro (iOS 17+):** All stored properties are tracked by default. Use `@ObservationIgnored` for properties that should not trigger re-renders (caches, loggers, internal flags). Inject models with `@State` at the owning layer and pass by reference to children -- no `@ObservedObject` or `@StateObject` needed.
 - **Avoid @EnvironmentObject overuse:** Passing everything through environment creates invisible dependencies. Use it for genuinely global concerns (auth state, theme). For feature-scoped state, pass ViewModels explicitly through initializers.
@@ -146,9 +149,9 @@ Navigation is where SwiftUI architecture most commonly breaks down at scale.
 
 - **Repository pattern for all external data:** Define protocols in the `Domain` layer: `PostRepositoryProtocol`, `AuthRepositoryProtocol`. Concrete implementations live in `Data`. ViewModels depend only on protocols, never on concrete types. This enables trivial swapping of implementations (real vs mock) in tests and previews.
 - **Dependency injection approach by team size:**
-  - *Small teams (1--3):* Constructor injection everywhere. A `DependencyContainer` singleton initialized at app startup provides dependencies. Simple and explicit.
-  - *Medium teams (4--8):* `@Environment` key-based injection using custom `EnvironmentKey` types. Testable and avoids singletons while remaining discoverable.
-  - *Large teams (8+) or TCA users:* TCA's built-in `DependencyValues` system or a dedicated DI container (Swift-native, not third-party). TCA's dependency system enforces that every effect is declared and swappable.
+  - _Small teams (1--3):_ Constructor injection everywhere. A `DependencyContainer` singleton initialized at app startup provides dependencies. Simple and explicit.
+  - _Medium teams (4--8):_ `@Environment` key-based injection using custom `EnvironmentKey` types. Testable and avoids singletons while remaining discoverable.
+  - _Large teams (8+) or TCA users:_ TCA's built-in `DependencyValues` system or a dedicated DI container (Swift-native, not third-party). TCA's dependency system enforces that every effect is declared and swappable.
 - **SwiftData (iOS 17+) integration:** Define `@Model` classes in the `Data` layer. Expose them to ViewModels through repository protocols that return domain entities, not `@Model` instances directly. This prevents SwiftUI views from depending on `ModelContext` directly, which complicates testing.
 - **Core Data integration (iOS 14--16):** Use `NSFetchedResultsController` wrapped in a Combine publisher for reactive updates. The persistence stack lives in `Data`; ViewModels observe a repository's publisher, not the `NSManagedObjectContext` directly.
 - **Network layer:** Use `URLSession` with async/await. Define a typed `APIClient` with an `Endpoint` protocol. Never call `URLSession.shared.data(from:)` directly from a ViewModel -- always go through the repository.
@@ -175,7 +178,7 @@ Navigation is where SwiftUI architecture most commonly breaks down at scale.
 
 Deliver architecture guidance using this structure. Adapt sections based on what the user is asking -- a navigation question does not need the full Data Layer section.
 
-```
+````
 ## iOS SwiftUI Architecture Recommendation
 
 ### Project Profile
@@ -221,14 +224,16 @@ Deliver architecture guidance using this structure. Adapt sections based on what
 #### [Pattern Name] -- ViewModel Template
 ```swift
 // Concrete, compilable code for the chosen architecture
-```
+````
 
 #### Navigation Router Template
+
 ```swift
 // Concrete, compilable router code
 ```
 
 #### Repository Protocol Template
+
 ```swift
 // Concrete, compilable protocol and mock for testing
 ```
@@ -237,20 +242,22 @@ Deliver architecture guidance using this structure. Adapt sections based on what
 
 ### Testing Strategy
 
-| Layer | Test Type | Tool | Coverage Target |
-|---|---|---|---|
-| Domain use cases | Unit | XCTest + async/await | 90%+ |
-| ViewModel | Unit | XCTest + mock repos | 80%+ |
-| Navigation flows | Integration | XCTest | Critical paths |
-| UI components | Snapshot | swift-snapshot-testing | Key components |
-| End-to-end journeys | UI | XCUITest | 5--10 critical flows |
+| Layer               | Test Type   | Tool                   | Coverage Target      |
+| ------------------- | ----------- | ---------------------- | -------------------- |
+| Domain use cases    | Unit        | XCTest + async/await   | 90%+                 |
+| ViewModel           | Unit        | XCTest + mock repos    | 80%+                 |
+| Navigation flows    | Integration | XCTest                 | Critical paths       |
+| UI components       | Snapshot    | swift-snapshot-testing | Key components       |
+| End-to-end journeys | UI          | XCUITest               | 5--10 critical flows |
 
 ---
 
 ### ADR Summary
+
 **Decision:** [What was decided]
 **Alternatives considered:** [What was not chosen and why]
 **Consequences:** [What this choice requires of the team]
+
 ```
 
 ---
@@ -344,65 +351,67 @@ When multiple async operations can mutate the same ViewModel state concurrently 
 ### Recommended Folder Structure
 
 ```
+
 NewsReader/
 ├── App/
-│   ├── NewsReaderApp.swift          # App struct, DI container init, scene setup
-│   └── DependencyContainer.swift   # Assembles all dependencies at launch
+│ ├── NewsReaderApp.swift # App struct, DI container init, scene setup
+│ └── DependencyContainer.swift # Assembles all dependencies at launch
 ├── Core/
-│   ├── Navigation/
-│   │   ├── AppRouter.swift          # Owns NavigationPath, handles deep links
-│   │   └── AppRoute.swift           # Route enum for all app destinations
-│   ├── Persistence/
-│   │   └── CoreDataStack.swift      # NSPersistentContainer setup
-│   └── Network/
-│       └── APIClient.swift          # URLSession wrapper, typed endpoint execution
+│ ├── Navigation/
+│ │ ├── AppRouter.swift # Owns NavigationPath, handles deep links
+│ │ └── AppRoute.swift # Route enum for all app destinations
+│ ├── Persistence/
+│ │ └── CoreDataStack.swift # NSPersistentContainer setup
+│ └── Network/
+│ └── APIClient.swift # URLSession wrapper, typed endpoint execution
 ├── Domain/
-│   ├── Entities/
-│   │   ├── Article.swift            # Pure Swift struct, no framework dependencies
-│   │   └── Bookmark.swift
-│   ├── Repositories/
-│   │   ├── ArticleRepositoryProtocol.swift
-│   │   └── BookmarkRepositoryProtocol.swift
-│   └── UseCases/
-│       ├── FetchFeedUseCase.swift
-│       ├── FetchArticleUseCase.swift
-│       └── ToggleBookmarkUseCase.swift
+│ ├── Entities/
+│ │ ├── Article.swift # Pure Swift struct, no framework dependencies
+│ │ └── Bookmark.swift
+│ ├── Repositories/
+│ │ ├── ArticleRepositoryProtocol.swift
+│ │ └── BookmarkRepositoryProtocol.swift
+│ └── UseCases/
+│ ├── FetchFeedUseCase.swift
+│ ├── FetchArticleUseCase.swift
+│ └── ToggleBookmarkUseCase.swift
 ├── Data/
-│   ├── Repositories/
-│   │   ├── ArticleRepository.swift  # Implements protocol; network + Core Data
-│   │   └── BookmarkRepository.swift
-│   ├── Network/
-│   │   ├── ArticlesEndpoint.swift
-│   │   └── DTOs/
-│   │       └── ArticleDTO.swift     # Decodable DTO, mapped to domain Article
-│   └── Persistence/
-│       ├── ArticleManagedObject.swift
-│       └── CoreDataArticleMapper.swift
+│ ├── Repositories/
+│ │ ├── ArticleRepository.swift # Implements protocol; network + Core Data
+│ │ └── BookmarkRepository.swift
+│ ├── Network/
+│ │ ├── ArticlesEndpoint.swift
+│ │ └── DTOs/
+│ │ └── ArticleDTO.swift # Decodable DTO, mapped to domain Article
+│ └── Persistence/
+│ ├── ArticleManagedObject.swift
+│ └── CoreDataArticleMapper.swift
 ├── Features/
-│   ├── Feed/
-│   │   ├── FeedView.swift
-│   │   ├── FeedViewModel.swift
-│   │   └── Subviews/
-│   │       ├── ArticleRowView.swift
-│   │       └── FeedErrorView.swift
-│   ├── ArticleDetail/
-│   │   ├── ArticleDetailView.swift
-│   │   └── ArticleDetailViewModel.swift
-│   ├── Bookmarks/
-│   │   ├── BookmarksView.swift
-│   │   └── BookmarksViewModel.swift
-│   └── Settings/
-│       ├── SettingsView.swift
-│       └── SettingsViewModel.swift
-├── Components/               # Shared, feature-agnostic UI components
-│   ├── ArticleThumbnailView.swift
-│   ├── LoadingStateView.swift
-│   └── ErrorBannerView.swift
+│ ├── Feed/
+│ │ ├── FeedView.swift
+│ │ ├── FeedViewModel.swift
+│ │ └── Subviews/
+│ │ ├── ArticleRowView.swift
+│ │ └── FeedErrorView.swift
+│ ├── ArticleDetail/
+│ │ ├── ArticleDetailView.swift
+│ │ └── ArticleDetailViewModel.swift
+│ ├── Bookmarks/
+│ │ ├── BookmarksView.swift
+│ │ └── BookmarksViewModel.swift
+│ └── Settings/
+│ ├── SettingsView.swift
+│ └── SettingsViewModel.swift
+├── Components/ # Shared, feature-agnostic UI components
+│ ├── ArticleThumbnailView.swift
+│ ├── LoadingStateView.swift
+│ └── ErrorBannerView.swift
 └── docs/
-    └── adr/
-        ├── 001-mvvm-over-tca.md
-        └── 002-core-data-over-swiftdata.md
-```
+└── adr/
+├── 001-mvvm-over-tca.md
+└── 002-core-data-over-swiftdata.md
+
+````
 
 ---
 
@@ -452,7 +461,7 @@ enum AppError: LocalizedError {
         }
     }
 }
-```
+````
 
 #### FeedViewModel -- MVVM with ObservableObject
 
@@ -638,26 +647,28 @@ struct FeedView: View {
 
 ### Testing Strategy
 
-| Layer | Test Type | Tool | Coverage Target |
-|---|---|---|---|
-| Domain use cases | Unit | XCTest + async/await | 90%+ |
-| FeedViewModel | Unit | XCTest + MockArticleRepository | 85%+ |
-| BookmarkViewModel | Unit | XCTest + MockBookmarkRepository | 85%+ |
-| ArticleRepository | Integration | XCTest + URLSession mock | Network + cache paths |
-| Navigation deep links | Unit | XCTest + AppRouter | All registered URL patterns |
-| Feed + Article Detail flow | UI | XCUITest | Happy path + error state |
-| ArticleRowView, LoadingStateView | Snapshot | swift-snapshot-testing | All variants (light/dark/dynamic type) |
+| Layer                            | Test Type   | Tool                            | Coverage Target                        |
+| -------------------------------- | ----------- | ------------------------------- | -------------------------------------- |
+| Domain use cases                 | Unit        | XCTest + async/await            | 90%+                                   |
+| FeedViewModel                    | Unit        | XCTest + MockArticleRepository  | 85%+                                   |
+| BookmarkViewModel                | Unit        | XCTest + MockBookmarkRepository | 85%+                                   |
+| ArticleRepository                | Integration | XCTest + URLSession mock        | Network + cache paths                  |
+| Navigation deep links            | Unit        | XCTest + AppRouter              | All registered URL patterns            |
+| Feed + Article Detail flow       | UI          | XCUITest                        | Happy path + error state               |
+| ArticleRowView, LoadingStateView | Snapshot    | swift-snapshot-testing          | All variants (light/dark/dynamic type) |
 
 ---
 
 ### ADR Summary
 
 **ADR 001 -- MVVM over TCA**
-- *Decision:* Use MVVM with ObservableObject and Clean Architecture layers.
-- *Alternatives considered:* TCA offers superior testability and time-travel debugging but requires the team to learn a new paradigm while simultaneously learning SwiftUI. The learning cost (estimated 3--4 weeks) is not justified for a 4-person team on a standard content app.
-- *Consequences:* The team must self-enforce ViewModel purity (no SwiftUI imports, no concrete dependencies). Add a SwiftLint rule banning `import SwiftUI` in files matching `*ViewModel.swift`. Revisit TCA adoption when the team has 6+ months of SwiftUI experience.
+
+- _Decision:_ Use MVVM with ObservableObject and Clean Architecture layers.
+- _Alternatives considered:_ TCA offers superior testability and time-travel debugging but requires the team to learn a new paradigm while simultaneously learning SwiftUI. The learning cost (estimated 3--4 weeks) is not justified for a 4-person team on a standard content app.
+- _Consequences:_ The team must self-enforce ViewModel purity (no SwiftUI imports, no concrete dependencies). Add a SwiftLint rule banning `import SwiftUI` in files matching `*ViewModel.swift`. Revisit TCA adoption when the team has 6+ months of SwiftUI experience.
 
 **ADR 002 -- Core Data over SwiftData**
-- *Decision:* Use Core Data for offline article caching and bookmarks.
-- *Alternatives considered:* SwiftData has cleaner syntax and direct SwiftUI integration but requires iOS 17+. The project targets iOS 16. SQLite via GRDB is a valid alternative with better testability but introduces a third-party dependency.
-- *Consequences:* Engineers must learn NSFetchedResultsController + Combine bridging. Core Data stack setup requires boilerplate. The repository abstraction ensures this implementation detail never leaks into ViewModels -- a swap to SwiftData when iOS 17 becomes the minimum target requires only repository implementation changes.
+
+- _Decision:_ Use Core Data for offline article caching and bookmarks.
+- _Alternatives considered:_ SwiftData has cleaner syntax and direct SwiftUI integration but requires iOS 17+. The project targets iOS 16. SQLite via GRDB is a valid alternative with better testability but introduces a third-party dependency.
+- _Consequences:_ Engineers must learn NSFetchedResultsController + Combine bridging. Core Data stack setup requires boilerplate. The repository abstraction ensures this implementation detail never leaks into ViewModels -- a swap to SwiftData when iOS 17 becomes the minimum target requires only repository implementation changes.

@@ -14,12 +14,12 @@ steps:
     title: Enter your IMAP credentials
     estSeconds: 120
     inputs:
-      - { name: IMAP_HOST, label: "IMAP host (e.g. imap.fastmail.com)" }
-      - { name: IMAP_PORT, label: "IMAP port", default: "993" }
-      - { name: IMAP_USER, label: "Username (usually your email)" }
-      - { name: IMAP_PASSWORD, label: "Password or app password", secret: true }
-      - { name: SMTP_HOST, label: "SMTP host (optional)" }
-      - { name: SMTP_PORT, label: "SMTP port", default: "587" }
+      - { name: IMAP_HOST, label: 'IMAP host (e.g. imap.fastmail.com)' }
+      - { name: IMAP_PORT, label: 'IMAP port', default: '993' }
+      - { name: IMAP_USER, label: 'Username (usually your email)' }
+      - { name: IMAP_PASSWORD, label: 'Password or app password', secret: true }
+      - { name: SMTP_HOST, label: 'SMTP host (optional)' }
+      - { name: SMTP_PORT, label: 'SMTP port', default: '587' }
     warning: |
       For iCloud, Gmail, and most providers you'll need an **app-specific
       password**, not your normal login. Generate one in your provider's

@@ -230,11 +230,7 @@ export class TaskManager {
    * The gate's own writes go straight to `repo.updateTask` (not back through
    * `update`), so the re-entrancy branch in `update()` is belt-and-suspenders.
    */
-  private async runVerificationGate(
-    taskId: string,
-    current: TeamTask,
-    updates: UpdateTaskParams
-  ): Promise<TeamTask> {
+  private async runVerificationGate(taskId: string, current: TeamTask, updates: UpdateTaskParams): Promise<TeamTask> {
     // The add AND the `verifying` write are inside the try so that if the
     // verifying write throws, the finally still removes taskId from `gating` -
     // otherwise the single-flight guard would silently drop all future completions.
@@ -280,7 +276,12 @@ export class TaskManager {
           metadata: {
             ...current.metadata,
             ...updates.metadata,
-            verification: { outcome: 'advisory', note: `verify write failed: ${message}`, failCount: 0, checkedAt: Date.now() },
+            verification: {
+              outcome: 'advisory',
+              note: `verify write failed: ${message}`,
+              failCount: 0,
+              checkedAt: Date.now(),
+            },
           },
           updatedAt: Date.now(),
         })

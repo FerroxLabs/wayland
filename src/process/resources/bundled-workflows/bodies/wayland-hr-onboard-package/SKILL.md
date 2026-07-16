@@ -12,14 +12,15 @@ description: >-
   that one atomic skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "hr-onboard"
+skills: 'hr-onboard'
 metadata:
   author: wayland
   version: 1.0.0
   tags: hr onboarding new-hire 30-60-90 step-by-step planning
   category: hr
-  depends: "hr-onboard"
+  depends: 'hr-onboard'
 ---
+
 # Build an Onboarding Package
 
 **Estimated time:** 20-30 minutes

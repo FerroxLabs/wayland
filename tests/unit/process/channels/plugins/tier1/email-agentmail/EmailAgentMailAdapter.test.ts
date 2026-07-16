@@ -48,18 +48,12 @@ describe('toUnifiedIncomingFromAgentMail', () => {
   });
 
   it('returns null when message_id is missing', () => {
-    const unified = toUnifiedIncomingFromAgentMail(
-      { message: { from: 'alice@example.com' } },
-      inboxAddress
-    );
+    const unified = toUnifiedIncomingFromAgentMail({ message: { from: 'alice@example.com' } }, inboxAddress);
     expect(unified).toBeNull();
   });
 
   it('returns null when from is missing', () => {
-    const unified = toUnifiedIncomingFromAgentMail(
-      { message: { message_id: '<m1@example.com>' } },
-      inboxAddress
-    );
+    const unified = toUnifiedIncomingFromAgentMail({ message: { message_id: '<m1@example.com>' } }, inboxAddress);
     expect(unified).toBeNull();
   });
 
@@ -109,8 +103,6 @@ describe('toAgentMailSendBody', () => {
   });
 
   it('throws when body text is empty after trim', () => {
-    expect(() => toAgentMailSendBody({ type: 'text', text: '   ' }, 'dest@example.com')).toThrow(
-      /cannot be empty/i
-    );
+    expect(() => toAgentMailSendBody({ type: 'text', text: '   ' }, 'dest@example.com')).toThrow(/cannot be empty/i);
   });
 });

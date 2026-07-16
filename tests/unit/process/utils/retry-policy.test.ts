@@ -26,8 +26,7 @@ async function runRetryCase(params: {
   vi.useFakeTimers();
   const runner = createChannelApiRetryRunner(params.runnerOptions);
   const fn = vi.fn();
-  const allRejects =
-    params.fnSteps.length > 0 && params.fnSteps.every((step) => step.type === 'reject');
+  const allRejects = params.fnSteps.length > 0 && params.fnSteps.every((step) => step.type === 'reject');
   if (allRejects) {
     fn.mockRejectedValue(params.fnSteps[0]?.value);
   }
@@ -99,8 +98,7 @@ describe('createChannelApiRetryRunner', () => {
         name: 'still retries when the strict predicate returns true',
         runnerOptions: {
           retry: { ...ZERO_DELAY_RETRY, attempts: 2 },
-          shouldRetry: (err: unknown): boolean =>
-            (err as { code?: string }).code === 'ECONNREFUSED',
+          shouldRetry: (err: unknown): boolean => (err as { code?: string }).code === 'ECONNREFUSED',
           strictShouldRetry: true,
         },
         fnSteps: [

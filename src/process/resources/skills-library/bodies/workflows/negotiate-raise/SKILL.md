@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "salary-negotiation career step-by-step"
-  category: "career"
-  depends: "performance-review-prep promotion-case-builder salary-negotiation-script workplace-conversation-prep"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'salary-negotiation career step-by-step'
+  category: 'career'
+  depends: 'performance-review-prep promotion-case-builder salary-negotiation-script workplace-conversation-prep'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Negotiate a Raise
@@ -155,7 +155,6 @@ When this workflow is complete, the user will have:
 4. A follow-up plan with email templates, timeline documentation, and next-step decision framework
 5. Either an approved raise with written confirmation, or a clear timeline and criteria for re-evaluation
 
-
 ### Timeline Considerations
 
 This workflow is designed to be completed sequentially, but experienced users may parallelize some steps. Key dependencies:
@@ -174,7 +173,6 @@ Track these signals to confirm the workflow is on track:
 - Deliverables from early steps remain valid as later steps are executed
 - No critical assumptions from earlier steps are invalidated
 - External feedback (where applicable) is incorporated before proceeding
-
 
 ### Timeline Considerations
 

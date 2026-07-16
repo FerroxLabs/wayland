@@ -12,7 +12,7 @@ A pitch without a named shift is a feature list. This skill produces the one-par
 
 Andy Raskin's macro pattern, condensed to one fillable frame:
 
-> *"There's been a fundamental change in the world. [Old world] is ending. [New world] is here. The winners will be the companies that [strategic move]. The losers will be the companies that [opposite move]."*
+> _"There's been a fundamental change in the world. [Old world] is ending. [New world] is here. The winners will be the companies that [strategic move]. The losers will be the companies that [opposite move]."_
 
 The frame is fillable in any domain. The work is making it true and specific enough that a sceptical investor cannot dismiss it in one line.
 
@@ -24,17 +24,17 @@ Every candidate shift sentence has to pass all three:
 
 2. **Irreversible.** Is there a structural reason this cannot revert? Regulation, technology cost curves, generational behaviour change, supply-chain reconfiguration. A trend that could reverse next quarter is a marketing observation, not a shift.
 
-3. **Creates new winner criteria.** Does the shift change *what it takes to win* in the buyer's world? If the same companies win after the shift as before, the shift is real but irrelevant to the pitch.
+3. **Creates new winner criteria.** Does the shift change _what it takes to win_ in the buyer's world? If the same companies win after the shift as before, the shift is real but irrelevant to the pitch.
 
 A shift that fails any one of the three is rejected. Ask the founder for the next candidate. Iterate until one passes.
 
 ## Procedure
 
-1. **List five candidate shifts.** Ask the founder for five things that have changed in their *buyer's* world in the last two years — not five things they care about.
+1. **List five candidate shifts.** Ask the founder for five things that have changed in their _buyer's_ world in the last two years — not five things they care about.
 2. **Score each against the three-question test.** Recent / irreversible / new winner criteria. Most will fail at least one.
 3. **Pick the shift the company is uniquely positioned to ride.** Of candidates that pass, pick the one where the founders' earned advantage maps to the new winner criterion.
 4. **Write the shift sentence in the Raskin frame.** Specific enough that a competitor cannot copy-paste it.
-5. **Stress-test against three competitors.** Name three companies in the adjacent space. Does this sentence describe what *they* do? If yes, rewrite until it picks out this company's move, not theirs.
+5. **Stress-test against three competitors.** Name three companies in the adjacent space. Does this sentence describe what _they_ do? If yes, rewrite until it picks out this company's move, not theirs.
 6. **Locate the proof point.** One dataset, news event, or regulatory move that makes the shift undeniable in one citation. This becomes the slide-one proof.
 7. **Lock the sentence to `TEAM_MEMORY.md`.** Stamp under `## Pitch`. Coin's market build and Mira's deck cover both depend on it.
 
@@ -57,9 +57,11 @@ A shift that fails any one of the three is rejected. Ask the founder for the nex
 **Brief:** "Help us frame the opening for a seed deck. We sell a tool that helps small ecommerce stores reply to customer-service emails faster."
 
 **Before** (generic, eternal, vendor-side):
-> *"Customer service is hard for small businesses. They lose customers when replies are slow."*
+
+> _"Customer service is hard for small businesses. They lose customers when replies are slow."_
 
 **After** (specific, recent, irreversible, new winner criterion):
-> *"Old world: a small ecommerce store competed on price and reviews. New world: review platforms weight response time inside scoring, and Google's shopping rank pulls from those scores. Winners reply in under one hour. Losers triage the inbox once a day."*
+
+> _"Old world: a small ecommerce store competed on price and reviews. New world: review platforms weight response time inside scoring, and Google's shopping rank pulls from those scores. Winners reply in under one hour. Losers triage the inbox once a day."_
 
 The "after" creates new winner criteria. The "before" describes the company.

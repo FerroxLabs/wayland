@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing writing template"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing writing template'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Voice and Tone Guide
@@ -245,21 +245,25 @@ Our voice is constant. It is who we are, regardless of channel or context.
 Our voice is constant. It is who we are, regardless of channel or context.
 
 **1. Technically Precise: We use correct terminology and show our work.**
+
 - We are: accurate, specific, and unafraid of technical depth
 - We are NOT: dumbed-down, vague, or handwavy about technical details
 - Spectrum: Oversimplified |--------X--| Academic
 
 **2. Direct: We say what we mean in the fewest words possible.**
+
 - We are: concise, action-oriented, and clear about what to do next
 - We are NOT: wordy, hedge-filled, or buried in qualifications
 - Spectrum: Terse |------X----| Verbose
 
 **3. Calm Under Pressure: We communicate urgency without panic.**
+
 - We are: composed, solution-focused, and steady in incident communication
 - We are NOT: alarming, dismissive ("no big deal"), or overly apologetic
 - Spectrum: Dismissive |--------X--| Panicked
 
 **4. Respectful of the Reader's Time: We front-load value.**
+
 - We are: structured, scannable, and immediately useful
 - We are NOT: padded, repetitive, or forcing readers to dig for the answer
 - Spectrum: Incomplete |------X----| Exhaustive
@@ -268,23 +272,23 @@ Our voice is constant. It is who we are, regardless of channel or context.
 
 ### Tone Adjustments by Context
 
-| Context | Tone Shift | Example |
-|---------|-----------|---------|
-| Celebrating a win | Proud but factual -- lead with the achievement, not the emotion | "PulseAPI now monitors 2 billion API calls per day. Here is what we built to get there." |
-| Delivering bad news (incident) | Calm, specific, solution-first | "API monitoring delayed by 3 minutes between 14:02-14:15 UTC. Root cause identified. All alerts are current." |
-| Educating/teaching | Patient but not patronizing -- assume the reader is smart | "Rate limiting prevents one client from consuming all available capacity. Here is how to implement it." |
-| Selling/promoting | Feature-first, outcome-clear -- show, do not claim | "Set up alerts in 4 lines of code. Get notified before your users notice." |
-| Apologizing | Take responsibility, state impact, describe fix | "We made a mistake in the billing calculation for March. Here is what happened, who is affected, and what we have done." |
+| Context                        | Tone Shift                                                      | Example                                                                                                                  |
+| ------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Celebrating a win              | Proud but factual -- lead with the achievement, not the emotion | "PulseAPI now monitors 2 billion API calls per day. Here is what we built to get there."                                 |
+| Delivering bad news (incident) | Calm, specific, solution-first                                  | "API monitoring delayed by 3 minutes between 14:02-14:15 UTC. Root cause identified. All alerts are current."            |
+| Educating/teaching             | Patient but not patronizing -- assume the reader is smart       | "Rate limiting prevents one client from consuming all available capacity. Here is how to implement it."                  |
+| Selling/promoting              | Feature-first, outcome-clear -- show, do not claim              | "Set up alerts in 4 lines of code. Get notified before your users notice."                                               |
+| Apologizing                    | Take responsibility, state impact, describe fix                 | "We made a mistake in the billing calculation for March. Here is what happened, who is affected, and what we have done." |
 
 ### Tone Adjustments by Channel
 
-| Channel | Tone Notes | Formality Level |
-|---------|-----------|----------------|
-| Blog | Thorough, educational, code examples welcome | Medium-formal |
-| Twitter/X | Punchy, technical one-liners, occasional dry humor | Casual |
-| Email | Direct, action-oriented, structured with headers | Medium-formal |
-| Product UI | Minimal, instructive, no personality flourishes | Formal |
-| Docs | Reference-style, scannable, example-heavy | Formal |
+| Channel    | Tone Notes                                         | Formality Level |
+| ---------- | -------------------------------------------------- | --------------- |
+| Blog       | Thorough, educational, code examples welcome       | Medium-formal   |
+| Twitter/X  | Punchy, technical one-liners, occasional dry humor | Casual          |
+| Email      | Direct, action-oriented, structured with headers   | Medium-formal   |
+| Product UI | Minimal, instructive, no personality flourishes    | Formal          |
+| Docs       | Reference-style, scannable, example-heavy          | Formal          |
 
 ---
 
@@ -322,17 +326,17 @@ Our voice is constant. It is who we are, regardless of channel or context.
 
 **Attribute: Technically Precise**
 
-| Do (On-Brand) | Don't (Off-Brand) |
-|--------------|-------------------|
+| Do (On-Brand)                                                                                                      | Don't (Off-Brand)                                                              |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
 | "PulseAPI checks endpoint health every 30 seconds and alerts you when p99 latency exceeds your defined threshold." | "PulseAPI keeps an eye on your APIs and lets you know if something seems off." |
-| "The agent requires 12MB of memory and adds less than 2ms of latency per request." | "The agent is lightweight and has minimal impact on performance." |
+| "The agent requires 12MB of memory and adds less than 2ms of latency per request."                                 | "The agent is lightweight and has minimal impact on performance."              |
 
 **Attribute: Direct**
 
-| Do (On-Brand) | Don't (Off-Brand) |
-|--------------|-------------------|
-| "Add the SDK. Set your thresholds. Deploy." | "Getting started with PulseAPI is a straightforward process that begins with adding our easy-to-use SDK to your application." |
-| "Your API returned 503 errors 47 times in the last hour." | "It appears that there may be some issues with your API availability that you might want to look into." |
+| Do (On-Brand)                                             | Don't (Off-Brand)                                                                                                             |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| "Add the SDK. Set your thresholds. Deploy."               | "Getting started with PulseAPI is a straightforward process that begins with adding our easy-to-use SDK to your application." |
+| "Your API returned 503 errors 47 times in the last hour." | "It appears that there may be some issues with your API availability that you might want to look into."                       |
 
 ---
 
@@ -360,14 +364,15 @@ Alert configuration saved. Monitoring starts within 60 seconds.
 
 ### Quick Reference Card
 
-| Attribute | We Are | We Are Not |
-|-----------|--------|-----------|
-| Technically Precise | Specific, accurate, depth-first | Vague, dumbed-down, imprecise |
-| Direct | Concise, action-oriented, clear | Wordy, hedging, buried |
-| Calm Under Pressure | Composed, solution-focused | Alarming, dismissive, over-apologetic |
-| Time-Respectful | Structured, scannable, front-loaded | Padded, repetitive, meandering |
+| Attribute           | We Are                              | We Are Not                            |
+| ------------------- | ----------------------------------- | ------------------------------------- |
+| Technically Precise | Specific, accurate, depth-first     | Vague, dumbed-down, imprecise         |
+| Direct              | Concise, action-oriented, clear     | Wordy, hedging, buried                |
+| Calm Under Pressure | Composed, solution-focused          | Alarming, dismissive, over-apologetic |
+| Time-Respectful     | Structured, scannable, front-loaded | Padded, repetitive, meandering        |
 
 **Before you publish, check:**
+
 - [ ] Does this sound like it was written by an engineer for engineers?
 - [ ] Could a developer act on this content without asking follow-up questions?
 - [ ] Is every claim specific and supported with numbers or examples?

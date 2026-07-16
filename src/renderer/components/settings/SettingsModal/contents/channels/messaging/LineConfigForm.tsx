@@ -76,10 +76,7 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
   const handleTestAndEnable = useCallback(async () => {
     if (!channelAccessToken.trim() || !channelSecret.trim()) {
       Message.warning(
-        t(
-          'settings.channels.line.credentials.bothRequired',
-          'Channel Access Token and Channel Secret are required',
-        ),
+        t('settings.channels.line.credentials.bothRequired', 'Channel Access Token and Channel Secret are required')
       );
       return;
     }
@@ -97,18 +94,12 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
       });
 
       if (!testResult.success || !testResult.data?.success) {
-        Message.error(
-          testResult.data?.error ??
-            t('settings.channels.line.connectionFailed', 'Connection failed'),
-        );
+        Message.error(testResult.data?.error ?? t('settings.channels.line.connectionFailed', 'Connection failed'));
         return;
       }
 
       Message.success(
-        t(
-          'settings.channels.line.connectionSuccess',
-          `Connected as ${testResult.data.botUsername ?? 'LINE Bot'}`,
-        ),
+        t('settings.channels.line.connectionSuccess', `Connected as ${testResult.data.botUsername ?? 'LINE Bot'}`)
       );
 
       const enableResult = await channel.enablePlugin.invoke({
@@ -136,9 +127,7 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
           onStatusChange?.(statusResult.data.find((p) => p.type === 'line') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ?? t('settings.channels.line.enableFailed', 'Failed to enable plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.line.enableFailed', 'Failed to enable plugin'));
       }
     } catch (error: unknown) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -154,7 +143,7 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
           type='warning'
           content={t(
             'settings.channels.line.accountLockWarning',
-            'Saving new credentials will replace the existing LINE bot connection.',
+            'Saving new credentials will replace the existing LINE bot connection.'
           )}
         />
       )}
@@ -163,7 +152,7 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
         label={t('settings.channels.line.credentials.channelAccessToken.label', 'Channel Access Token')}
         description={t(
           'settings.channels.line.credentials.channelAccessToken.help',
-          'Long-lived token from LINE Developers Console → Messaging API → Channel access token.',
+          'Long-lived token from LINE Developers Console → Messaging API → Channel access token.'
         )}
         required
       >
@@ -172,7 +161,7 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
           onChange={setChannelAccessToken}
           placeholder={t(
             'settings.channels.line.credentials.channelAccessToken.placeholder',
-            'Paste your channel access token',
+            'Paste your channel access token'
           )}
           visibilityToggle
           style={{ width: 320 }}
@@ -183,17 +172,14 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
         label={t('settings.channels.line.credentials.channelSecret.label', 'Channel Secret')}
         description={t(
           'settings.channels.line.credentials.channelSecret.help',
-          'Channel secret from LINE Developers Console → Basic settings. Used to verify webhook signatures.',
+          'Channel secret from LINE Developers Console → Basic settings. Used to verify webhook signatures.'
         )}
         required
       >
         <Input.Password
           value={channelSecret}
           onChange={setChannelSecret}
-          placeholder={t(
-            'settings.channels.line.credentials.channelSecret.placeholder',
-            'Paste your channel secret',
-          )}
+          placeholder={t('settings.channels.line.credentials.channelSecret.placeholder', 'Paste your channel secret')}
           visibilityToggle
           style={{ width: 320 }}
         />
@@ -204,16 +190,12 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
           label={t('settings.channels.line.webhookUrl.label', 'Inbound Webhook URL')}
           description={t(
             'settings.channels.line.webhookUrl.help',
-            'Paste this URL into LINE Developers Console → Messaging API → Webhook URL.',
+            'Paste this URL into LINE Developers Console → Messaging API → Webhook URL.'
           )}
         >
           <div className='flex items-center gap-8px'>
             <Input value={inboundUrl} readOnly style={{ width: 360 }} />
-            <Button
-              type='outline'
-              icon={<Copy size={14} />}
-              onClick={handleCopyInboundUrl}
-            >
+            <Button type='outline' icon={<Copy size={14} />} onClick={handleCopyInboundUrl}>
               {t('settings.channels.line.webhookUrl.copyButton', 'Copy')}
             </Button>
           </div>
@@ -226,7 +208,6 @@ const LineConfigForm: React.FC<LineConfigFormProps> = ({ pluginStatus, modelSele
         </Button>
       </div>
       <ChannelAgentModelSelector platform='line' modelSelection={modelSelection} />
-
     </div>
   );
 };

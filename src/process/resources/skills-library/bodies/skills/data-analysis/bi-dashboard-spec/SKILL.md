@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-visualization analysis template"
-  category: "data-analysis"
-  subcategory: "business-intelligence"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-visualization analysis template'
+  category: 'data-analysis'
+  subcategory: 'business-intelligence'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # BI Dashboard Specification
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to design, plan, or document a dashboard for a specific business function -- sales, marketing, product, operations, finance, customer support, HR, or executive leadership
 - A user wants a formal specification document before building in a BI tool (Tableau, Power BI, Looker, Metabase, ThoughtSpot, Sigma, or Redash) so implementation teams know exactly what to build
 - A user asks "what should be on my dashboard?" or "how should I organize my dashboard panels?" -- they need layout and prioritization guidance, not just a list of metrics
@@ -29,6 +31,7 @@ metadata:
 - A user is presenting a dashboard design for stakeholder approval and needs a readable, tool-agnostic specification document
 
 **Do NOT use when:**
+
 - The user needs individual KPI formulas, numerator/denominator logic, or metric ownership definitions -- use `kpi-definition` instead; this skill assumes KPIs have already been selected
 - The user needs to design a metric hierarchy that flows from a north star metric down to diagnostic and input metrics -- use `metric-framework` first, then return to this skill for the dashboard layout
 - The user is asking which chart type is best for a specific data pattern (e.g., "should I use a scatter plot or heatmap for this?") -- use `chart-type-selector`; this skill uses chart type guidance but does not teach chart selection theory
@@ -197,15 +200,17 @@ For each panel:
 ### 5. Layout Grid (ASCII)
 
 ```
+
 +--------[P1: Scorecard]-------+--------[P2: Scorecard]-------+--------[P3: Scorecard]-------+--------[P4: Scorecard]-------+
-|  Col 1-3                     |  Col 4-6                     |  Col 7-9                     |  Col 10-12                   |
+| Col 1-3 | Col 4-6 | Col 7-9 | Col 10-12 |
 +------------------------------+------------------------------+------------------------------+------------------------------+
-|           [P5: Primary Trend Chart -- Line]                              |     [P6: Ranking Bar Chart]          |
-|           Col 1-8                                                        |     Col 9-12                         |
+| [P5: Primary Trend Chart -- Line] | [P6: Ranking Bar Chart] |
+| Col 1-8 | Col 9-12 |
 +--------------------------------------------------------------------------+--------------------------------------+
-|     [P7: Secondary Chart]              |     [P8: Detail Table or Diagnostic Chart]                           |
-|     Col 1-6                            |     Col 7-12                                                        |
+| [P7: Secondary Chart] | [P8: Detail Table or Diagnostic Chart] |
+| Col 1-6 | Col 7-12 |
 +----------------------------------------+--------------------------------------------------------------------+
+
 ```
 
 ---
@@ -359,6 +364,7 @@ When the dashboard spans multiple departments (e.g., a company-wide performance 
 ---
 
 ## Dashboard Specification: E-Commerce Marketing Performance Dashboard
+
 Version: 1.0 | Status: Draft | Last Updated: [Current Date]
 Owner: Marketing Director | Requesting Team: E-Commerce Marketing
 
@@ -366,35 +372,36 @@ Owner: Marketing Director | Requesting Team: E-Commerce Marketing
 
 ### 1. Overview
 
-| Field | Value |
-|-------|-------|
-| Business Function | Marketing -- E-Commerce |
-| Primary Audience | Marketing Director (daily, morning check-in, strategic decision-making) |
-| Secondary Audience | Channel Managers -- Paid Search, Paid Social, Email, SEO (daily, spend optimization) |
+| Field               | Value                                                                                                                                                                                                                                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Business Function   | Marketing -- E-Commerce                                                                                                                                                                                                                                                                           |
+| Primary Audience    | Marketing Director (daily, morning check-in, strategic decision-making)                                                                                                                                                                                                                           |
+| Secondary Audience  | Channel Managers -- Paid Search, Paid Social, Email, SEO (daily, spend optimization)                                                                                                                                                                                                              |
 | Decisions Supported | 1. Reallocate budget across channels based on ROAS and CAC performance. 2. Escalate underperforming channels for tactical review. 3. Determine whether marketing is on track to hit monthly revenue contribution target. 4. Identify which audience segments or creatives are driving conversion. |
-| Viewing Frequency | Director: every morning (7-8 AM). Channel Managers: multiple times daily during active campaigns. |
-| Viewing Context | Desktop browser primary. Mobile for Director's morning check before standup. |
-| Target BI Tool | Looker (Google BigQuery backend) |
-| Data Readiness | Paid search (Google Ads via Fivetran to BigQuery -- available). Paid social (Meta Ads via Fivetran -- available). Email (Klaviyo via Fivetran -- available). Organic (GA4 events in BigQuery -- available). Revenue attribution model (last-click -- available in `prod.fct_attributed_orders`). |
+| Viewing Frequency   | Director: every morning (7-8 AM). Channel Managers: multiple times daily during active campaigns.                                                                                                                                                                                                 |
+| Viewing Context     | Desktop browser primary. Mobile for Director's morning check before standup.                                                                                                                                                                                                                      |
+| Target BI Tool      | Looker (Google BigQuery backend)                                                                                                                                                                                                                                                                  |
+| Data Readiness      | Paid search (Google Ads via Fivetran to BigQuery -- available). Paid social (Meta Ads via Fivetran -- available). Email (Klaviyo via Fivetran -- available). Organic (GA4 events in BigQuery -- available). Revenue attribution model (last-click -- available in `prod.fct_attributed_orders`).  |
 
 ---
 
 ### 2. Dashboard Questions (Strategic to Diagnostic)
 
-| Priority | Question | Type | Panel(s) That Answer It |
-|----------|----------|------|------------------------|
-| 1 | Is total marketing-attributed revenue on pace to hit the monthly target? | Strategic | P1 (scorecard), P5 (trend line) |
-| 2 | What is our blended ROAS and blended CAC across all paid channels today vs. target? | Strategic | P2, P3 (scorecards) |
-| 3 | Which channels are delivering the best and worst ROAS this week? | Supporting | P6 (horizontal bar -- ROAS by channel) |
-| 4 | Where is conversion rate breaking down -- channel, device, or audience? | Supporting | P7 (grouped bar -- CVR by channel and device) |
-| 5 | Which campaigns or ad groups have the highest spend but lowest ROAS right now? | Diagnostic | P8 (table -- campaign-level spend, ROAS, delta vs. 7-day avg) |
-| 6 | How is email performing vs. paid in terms of revenue contribution and CVR? | Diagnostic | P6 (channel ROAS bar includes email), P8 (table filtered to email) |
+| Priority | Question                                                                            | Type       | Panel(s) That Answer It                                            |
+| -------- | ----------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------ |
+| 1        | Is total marketing-attributed revenue on pace to hit the monthly target?            | Strategic  | P1 (scorecard), P5 (trend line)                                    |
+| 2        | What is our blended ROAS and blended CAC across all paid channels today vs. target? | Strategic  | P2, P3 (scorecards)                                                |
+| 3        | Which channels are delivering the best and worst ROAS this week?                    | Supporting | P6 (horizontal bar -- ROAS by channel)                             |
+| 4        | Where is conversion rate breaking down -- channel, device, or audience?             | Supporting | P7 (grouped bar -- CVR by channel and device)                      |
+| 5        | Which campaigns or ad groups have the highest spend but lowest ROAS right now?      | Diagnostic | P8 (table -- campaign-level spend, ROAS, delta vs. 7-day avg)      |
+| 6        | How is email performing vs. paid in terms of revenue contribution and CVR?          | Diagnostic | P6 (channel ROAS bar includes email), P8 (table filtered to email) |
 
 ---
 
 ### 3. Panel Specifications
 
 **Panel 1: Marketing Revenue vs. Monthly Target**
+
 - **Question answered:** Is total marketing-attributed revenue on pace to hit the monthly target?
 - **Chart type:** Scorecard / KPI card
 - **Primary dimension:** None
@@ -412,6 +419,7 @@ Owner: Marketing Director | Requesting Team: E-Commerce Marketing
 - **Conditional formatting:** Delta color: green if >= 90% of target; yellow if 75-89%; red if < 75%
 
 **Panel 2: Blended ROAS (Paid Channels)**
+
 - **Question answered:** Is our overall paid media investment generating acceptable return?
 - **Chart type:** Scorecard / KPI card
 - **Primary dimension:** None
@@ -428,6 +436,7 @@ Owner: Marketing Director | Requesting Team: E-Commerce Marketing
 - **Conditional formatting:** Green if ROAS >= 3.5; yellow if 2.5-3.49; red if < 2.5
 
 **Panel 3: Blended CAC (Paid Channels)**
+
 - **Question answered:** How much are we paying to acquire each new customer through paid channels?
 - **Chart type:** Scorecard / KPI card
 - **Primary dimension:** None
@@ -444,10 +453,11 @@ Owner: Marketing Director | Requesting Team: E-Commerce Marketing
 - **Conditional formatting:** Green if CAC <= $45; yellow if $45.01-$60; red if > $60
 
 **Panel 4: Blended Conversion Rate**
+
 - **Question answered:** Is site-wide conversion rate holding at the expected level?
 - **Chart type:** Scorecard / KPI card
 - **Primary dimension:** None
-- **Measure(s):** COUNT DISTINCT(order_id) / COUNT DISTINCT(session_id) * 100 for current month from `prod.fct_sessions` joined to `prod.fct_attributed_orders`
+- **Measure(s):** COUNT DISTINCT(order_id) / COUNT DISTINCT(session_id) \* 100 for current month from `prod.fct_sessions` joined to `prod.fct_attributed_orders`
 - **Comparison / reference:** vs. 2.8% target (from `prod.dim_targets`); display delta in percentage points and vs. prior month CVR
 - **Data source:** `prod.fct_sessions` joined to `prod.fct_attributed_orders`
 - **Filter response:** Responds to: Date Range, Channel, Device Type (if device filter added)
@@ -460,11 +470,12 @@ Owner: Marketing Director | Requesting Team: E-Commerce Marketing
 - **Conditional formatting:** Green if CVR >= 2.8%; yellow if 2.0-2.79%; red if < 2.0%
 
 **Panel 5: Daily Marketing Revenue vs. Pace**
+
 - **Question answered:** Are we tracking ahead of or behind the expected cumulative revenue pace for this month?
 - **Chart type:** Line chart (dual series)
 - **Primary dimension:** Date (daily grain, current month)
 - **Secondary dimension:** None
-- **Measure(s):** Series 1: Cumulative SUM(attributed_revenue) by day. Series 2: Cumulative target pace line (monthly target / days in month * day number -- calculated field)
+- **Measure(s):** Series 1: Cumulative SUM(attributed_revenue) by day. Series 2: Cumulative target pace line (monthly target / days in month \* day number -- calculated field)
 - **Comparison / reference:** Pace line (linear distribution of monthly target); Prior month cumulative actuals as a third reference series (dashed line)
 - **Data source:** `prod.fct_attributed_orders` for actuals; `prod.dim_targets` for pace calculation
 - **Filter response:** Responds to: Date Range (defaults to current month; show last 30 days if date range extended), Channel
@@ -477,6 +488,7 @@ Owner: Marketing Director | Requesting Team: E-Commerce Marketing
 - **Conditional formatting:** Actual line: blue. Pace line: gray dashed. Prior month: light gray dashed. When actual line is below pace by > 10%, shade the gap area in light red.
 
 **Panel 6: ROAS by Channel (This Month vs. Target)**
+
 - **Question answered:** Which channels are over- and under-performing their ROAS targets?
 - **Chart type:** Horizontal bar chart (sorted descending by ROAS)
 - **Primary dimension:** Channel Name (Paid Search, Paid Social -- Facebook, Paid Social -- TikTok, Email, Organic)
@@ -493,6 +505,7 @@ Owner: Marketing Director | Requesting Team: E-Commerce Marketing
 - **Mobile:** Simplified -- top 4 channels only (by spend volume), horizontal bars
 
 **Panel 7: Conversion Rate by Channel and Device**
+
 - **Question answered:** Is the conversion problem a channel issue, a device issue, or both?
 - **Chart type:** Grouped bar chart (channel on X-axis, grouped by device type: Desktop, Mobile, Tablet)
 - **Primary dimension:** Channel Name

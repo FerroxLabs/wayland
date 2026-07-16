@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation teaching"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'technical-writing documentation teaching'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Developer Tutorial Creator
@@ -99,6 +99,7 @@ You should see:
     {"error": "Token required"}
 
 If you see a different error, check that:
+
 - The server is running (`npm start`)
 - You saved both files
 - The require path matches your file location
@@ -175,30 +176,37 @@ Step 7: Challenge: Add authentication (Level 4 - independent)
 Before starting, make sure you have:
 
 ### Node.js 18 or later
+
 Verify: `node --version`
 Expected: `v18.x.x` or higher
 [Install Node.js]([reference URL])
 
 ### PostgreSQL 15+
+
 Verify: `psql --version`
 Expected: `psql (PostgreSQL) 15.x`
 [Install PostgreSQL]([reference URL])
 
 ### A running PostgreSQL instance
+
 Verify: `psql -U postgres -c "SELECT version();"`
 Expected: A version string (no connection error)
 
 ### Git
+
 Verify: `git --version`
 Expected: `git version 2.x.x`
 
 ### Knowledge prerequisites
+
 This tutorial assumes you:
+
 - Can write basic JavaScript (variables, functions, async/await)
 - Have used the command line before
 - Understand HTTP methods (GET, POST, PUT, DELETE)
 
 **New to any of these?** Start with:
+
 - JavaScript basics: [our JavaScript primer](/tutorials/js-primer)
 - Command line: [terminal basics](/tutorials/terminal)
 ```
@@ -260,11 +268,11 @@ At this point, your project structure should be:
 
 1. Health check:
    `HTTP client request [reference URL]
-   Expected: `{"status": "ok"}`
+Expected: `{"status": "ok"}`
 
 2. List users (no auth):
    `HTTP client request [reference URL]
-   Expected: `{"error": "Token required"}`
+Expected: `{"error": "Token required"}`
 
 3. List users (with auth):
    `HTTP client request -H "Authorization: Bearer [your-test-token]" [reference URL]
@@ -279,51 +287,51 @@ At this point, your project structure should be:
 
 ```yaml
 learning_path:
-  name: "Backend Development with Node.js"
-  description: "Go from zero to production-ready APIs"
-  estimated_time: "20 hours"
+  name: 'Backend Development with Node.js'
+  description: 'Go from zero to production-ready APIs'
+  estimated_time: '20 hours'
 
   modules:
-    - name: "Foundations"
+    - name: 'Foundations'
       tutorials:
-        - title: "Your First API Endpoint"
+        - title: 'Your First API Endpoint'
           duration: 30min
           level: beginner
           teaches: [express, routing, JSON]
 
-        - title: "Working with Databases"
+        - title: 'Working with Databases'
           duration: 45min
           level: beginner
           teaches: [postgresql, queries, migrations]
-          requires: ["Your First API Endpoint"]
+          requires: ['Your First API Endpoint']
 
-    - name: "Building Real Features"
+    - name: 'Building Real Features'
       tutorials:
-        - title: "Authentication with JWT"
+        - title: 'Authentication with JWT'
           duration: 60min
           level: intermediate
           teaches: [jwt, middleware, bcrypt]
-          requires: ["Working with Databases"]
+          requires: ['Working with Databases']
 
-        - title: "File Uploads and Storage"
+        - title: 'File Uploads and Storage'
           duration: 45min
           level: intermediate
           teaches: [multer, s3, streaming]
-          requires: ["Authentication with JWT"]
+          requires: ['Authentication with JWT']
 
-    - name: "Production Ready"
+    - name: 'Production Ready'
       tutorials:
-        - title: "Error Handling and Logging"
+        - title: 'Error Handling and Logging'
           duration: 45min
           level: intermediate
           teaches: [error-middleware, winston, structured-logs]
 
-        - title: "Testing Your API"
+        - title: 'Testing Your API'
           duration: 60min
           level: intermediate
           teaches: [jest, supertest, fixtures]
 
-        - title: "Deploy to Production"
+        - title: 'Deploy to Production'
           duration: 60min
           level: intermediate
           teaches: [docker, ci-cd, monitoring]
@@ -348,6 +356,7 @@ learning_path:
 **Cause:** PostgreSQL is not running.
 
 **Fix:**
+
 - macOS: `brew services start postgresql@15`
 - Linux: `sudo systemctl start postgresql`
 - Windows: Start "PostgreSQL" in Services
@@ -371,6 +380,7 @@ learning_path:
 **Cause:** Another process is using port 3000.
 
 **Fix:**
+
 - Find the process: `lsof -i :3000` (macOS/Linux)
 - Kill it: `kill -9 [PID]`
 - Or use a different port: `PORT=3001 npm start`
@@ -384,7 +394,7 @@ learning_path:
 **Cause:** Missing `Content-Type: application/json` header.
 
 **Fix:** Add this middleware before your routes:
-    app.use(express.json());
+app.use(express.json());
 ```
 
 ## Visual Aids
@@ -430,25 +440,25 @@ DON'T:
 
 ```yaml
 engagement:
-  - completion_rate: "% of readers who reach the final step"
-    target: "> 60%"
-  - drop_off_points: "Which steps have highest abandonment"
-    action: "Simplify or add more explanation at those steps"
-  - time_per_step: "How long readers spend on each step"
-    insight: "Steps taking 2x expected time need improvement"
+  - completion_rate: '% of readers who reach the final step'
+    target: '> 60%'
+  - drop_off_points: 'Which steps have highest abandonment'
+    action: 'Simplify or add more explanation at those steps'
+  - time_per_step: 'How long readers spend on each step'
+    insight: 'Steps taking 2x expected time need improvement'
 
 quality:
-  - feedback_score: "Thumbs up/down on each tutorial"
-    target: "> 80% positive"
-  - support_tickets: "Questions generated per 1000 readers"
-    target: "< 5 tickets per 1000 readers"
-  - github_issues: "Bug reports on tutorial code"
-    action: "Fix within 24 hours"
+  - feedback_score: 'Thumbs up/down on each tutorial'
+    target: '> 80% positive'
+  - support_tickets: 'Questions generated per 1000 readers'
+    target: '< 5 tickets per 1000 readers'
+  - github_issues: 'Bug reports on tutorial code'
+    action: 'Fix within 24 hours'
 
 impact:
-  - api_activations: "New developers making first API call within 24h of reading"
-  - sdk_installs: "Package downloads after tutorial publish"
-  - retention: "% of tutorial completers who make >10 API calls in 30 days"
+  - api_activations: 'New developers making first API call within 24h of reading'
+  - sdk_installs: 'Package downloads after tutorial publish'
+  - retention: '% of tutorial completers who make >10 API calls in 30 days'
 ```
 
 ## Tutorial Writing Checklist
@@ -486,6 +496,7 @@ Review:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing developer tutorial creator solutions
 - Reviewing or improving existing developer tutorial creator approaches
 - Making architectural or implementation decisions about developer tutorial creator
@@ -493,6 +504,7 @@ Review:
 - Troubleshooting developer tutorial creator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -503,21 +515,26 @@ Review:
 # Developer Tutorial Creator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

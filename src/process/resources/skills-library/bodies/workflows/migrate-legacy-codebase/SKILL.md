@@ -15,7 +15,7 @@ skills: tech-debt-assessment refactoring-patterns integration-testing-patterns d
 trigger_phrases: migrate legacy codebase modernize legacy system upgrade old codebase refactor legacy code
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: architecture refactoring testing devops step-by-step
   category: software-project
   depends: tech-debt-assessment refactoring-patterns integration-testing-patterns deployment-strategies
@@ -152,6 +152,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Steps 2-4 repeat for each component in the migration roadmap
 - For very large codebases, run Steps 1-4 per module rather than for the entire codebase at once
 - Adjust timeline based on team size and parallel feature development load

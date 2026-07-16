@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance step-by-step planning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance step-by-step planning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Tile Installation
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to install tile on a floor, wall, backsplash, or tub surround -- any interior surface where tile is being set in mortar or adhesive
 - User wants to plan a tile layout including starting point selection, pattern orientation, cut tile placement, and focal-wall alignment
 - User needs help choosing the correct thin-set mortar, grout type, trowel size, or backer board product for their specific substrate and tile combination
@@ -29,6 +31,7 @@ metadata:
 - User wants a day-by-day project schedule with cure-time windows built in
 
 **Do NOT use when:**
+
 - User is choosing between flooring types (hardwood vs. tile vs. LVP) -- use `flooring-selection` instead
 - User wants to remove existing tile -- demolition involves different tools, substrate damage assessment, and disposal concerns outside this skill's scope
 - User needs to install a radiant floor heating system under tile -- the low-voltage mat or hydronic loop installation requires its own skill; note that tiling OVER an already-installed mat is covered in Edge Cases here
@@ -51,15 +54,15 @@ metadata:
 
 **DIY suitability decision framework:**
 
-| Factor | DIY-Appropriate | Hire a Professional |
-|---|---|---|
-| Tile size | Up to 18×18 inches | 24×24 or larger on walls |
-| Layout pattern | Grid (straight), simple offset | Herringbone, Versailles, diagonal in non-square room |
-| Room shape | Rectangle, minimal obstacles | Many curves, angles, or L-shapes |
-| Surface | Floor | Shower floor with custom pan, steam shower |
-| Substrate condition | Sound, flat within 1/4" per 10 ft | Deflection, rot, structural bounce |
-| Wet area? | Tub surround (manageable) | Full shower enclosure, first project |
-| First tile project | Bathroom floor, backsplash | Any vertical wet area |
+| Factor              | DIY-Appropriate                   | Hire a Professional                                  |
+| ------------------- | --------------------------------- | ---------------------------------------------------- |
+| Tile size           | Up to 18×18 inches                | 24×24 or larger on walls                             |
+| Layout pattern      | Grid (straight), simple offset    | Herringbone, Versailles, diagonal in non-square room |
+| Room shape          | Rectangle, minimal obstacles      | Many curves, angles, or L-shapes                     |
+| Surface             | Floor                             | Shower floor with custom pan, steam shower           |
+| Substrate condition | Sound, flat within 1/4" per 10 ft | Deflection, rot, structural bounce                   |
+| Wet area?           | Tub surround (manageable)         | Full shower enclosure, first project                 |
+| First tile project  | Bathroom floor, backsplash        | Any vertical wet area                                |
 
 ---
 
@@ -68,6 +71,7 @@ metadata:
 Substrate preparation is the single most critical phase of tile installation. More tile failures originate from poor substrate prep than from any other cause. Never rush or skip any sub-step here.
 
 **Concrete slab:**
+
 - Clean with a degreaser; remove all paint, adhesive residue, and contaminants that would prevent mechanical bonding of thin-set.
 - Check flatness with a 10-foot straightedge. The maximum allowable variation for tile is 1/4 inch over 10 feet for standard tile, and 1/8 inch over 10 feet for tiles 15 inches or longer in any direction.
 - Fill low spots with floor-leveling compound (latex-modified, self-leveling is easiest). Allow 24 hours to cure. Sand or grind high spots -- an angle grinder with a diamond cup wheel works for minor humps.
@@ -75,6 +79,7 @@ Substrate preparation is the single most critical phase of tile installation. Mo
 - Test for moisture: tape a 16×16-inch plastic sheet to the slab with all edges sealed. Wait 24 hours. Condensation under the plastic indicates a moisture problem -- apply a moisture barrier or use epoxy thin-set rated for high-moisture substrates.
 
 **Plywood subfloor:**
+
 - Assess total subfloor thickness. The combined assembly (subfloor + backer board) must be at minimum 1-1/8 inches thick to resist deflection. Common assembly: 3/4-inch plywood subfloor + 1/2-inch cement backer board = 1-1/4 inches (good). Thin assemblies (5/8" + 1/4") are marginal -- reinforce by adding blocking between joists below.
 - Check for bounce and deflection. Stand in the center of the room and jump lightly. Any noticeable floor movement will eventually crack grout joints. The industry standard is L/360 deflection limit (span in inches divided by 360 equals the maximum midpoint deflection in inches). If the floor moves noticeably, add blocking or sister joists before proceeding.
 - Fasten any loose subfloor panels with 3-inch screws into joists every 6 inches along edges and 8 inches in the field. Squeaks indicate movement -- find the source and eliminate it.
@@ -82,16 +87,19 @@ Substrate preparation is the single most critical phase of tile installation. Mo
 - Tape all seams with 2-inch alkali-resistant fiberglass mesh tape embedded in a thin coat of unmodified thin-set. Feather smooth. This prevents crack transmission from the seam joints into the tile above.
 
 **Existing tile as substrate:**
+
 - Tile-over-tile is acceptable ONLY when the existing tile is fully bonded (test by tapping -- a hollow sound indicates debonding), flat within tolerance, and structurally sound. Verify the existing installation did not leave the floor at a height incompatible with adjacent flooring after adding a second tile layer.
 - Scarify (scuff) the existing tile surface with a 60-grit diamond sanding pad or surface grinder to improve adhesion. The glazed surface of most tile has zero porosity -- without scarifying, thin-set will not bond reliably.
 - Fill existing grout joints with a floor-leveling compound, screeding flush. Tiling over recessed grout joints creates a wavy surface in the new tile.
 
 **Drywall and wall surfaces:**
+
 - Standard drywall (gypsum) is acceptable for backsplashes and dry decorative wall tile only. It is never acceptable in wet areas.
 - In wet areas (tub surrounds, shower walls, areas within 6 inches of a sink or tub edge), replace drywall with one of three substrate options: (1) cement board (heavy, excellent bond, requires mesh tape at seams), (2) glass-mat gypsum board (lighter, same code approval), or (3) closed-cell foam tile backer (Schluter KERDI-BOARD, Wedi Board -- these are also waterproof on their own surface without additional membrane, which simplifies wet area waterproofing significantly).
 - Install cement board sheets with 1/4-inch gaps between sheets and between the board and the tub or shower base. Never let cement board contact standing water at the bottom -- this causes deterioration over years.
 
 **Waterproofing for wet areas (mandatory):**
+
 - For cement board substrates in showers and tub surrounds, apply a liquid waterproofing membrane (RedGard, LATICRETE Hydro Ban, or similar) in two coats. The first coat is red/purple when wet and turns uniformly pink when fully dry (approximately 1-2 hours in average conditions). Apply the second coat perpendicular to the first. The final dry color should be a uniform, unbroken pink -- any thin spots appear darker and need a third coat.
 - Pay special attention to corners, seams, and screw holes -- apply membrane tape or pre-formed corner pieces embedded in the first coat before the second coat.
 - Foam backer boards (KERDI-BOARD, Wedi) are self-waterproof on their face but require membrane tape with thin-set at all seams and corners.
@@ -104,6 +112,7 @@ Substrate preparation is the single most critical phase of tile installation. Mo
 Poor layout planning creates two highly visible problems: narrow slivers of cut tile at walls (anything less than half a tile width looks unfinished and unprofessional) and cut tiles that are not centered on focal points (windows, tub, doorways, fireplaces).
 
 **For floors:**
+
 - Find the true center of the room by snapping chalk lines from the midpoints of opposite wall pairs. The intersection is your starting reference point, but it is rarely the actual starting point for tile placement.
 - Dry-lay a row of tiles (with spacers) from the center point to each wall in both directions. Measure the cut tile that would result at each wall.
 - If the cut tile at any wall would be less than half a tile wide, shift the chalk line by half a tile in that direction. This ensures all cuts at walls are at least half a tile.
@@ -112,6 +121,7 @@ Poor layout planning creates two highly visible problems: narrow slivers of cut 
 - For diagonal (45-degree) layouts: snap the layout lines at 45 degrees across the room's diagonal midpoint. Diagonal layouts create significantly more cut tile (approximately 25-30% more waste than straight grid) and should be noted in material calculations.
 
 **For walls:**
+
 - Identify the focal wall -- the wall seen first upon entering (often the wall facing the doorway or the wall directly behind a freestanding tub or vanity).
 - On the focal wall, find the center and plan tile to be symmetric about that centerline. A centered layout on the focal wall should take priority over perfect cuts at side walls.
 - For tub surrounds: plan the layout so that cut tiles at the outside vertical corners of the surround are at least 3/4 of a tile wide. The back wall of the tub is the focal wall -- center the layout there.
@@ -119,6 +129,7 @@ Poor layout planning creates two highly visible problems: narrow slivers of cut 
 - Start wall tile installation from the second course up from the floor (not the first course). The first course is typically a cut tile that accounts for the floor not being perfectly level. Establish a level horizontal reference line (laser level or 4-foot spirit level) for the bottom of the second full-tile course, then install a temporary wooden ledger board along that line to support the weight of tile while thin-set cures.
 
 **Tile quantity calculation:**
+
 - Square footage × 1.10 for straight grid layouts (10% waste for cuts)
 - Square footage × 1.15 for offset/brick patterns (15% waste)
 - Square footage × 1.20 to 1.25 for diagonal patterns (20-25% waste)
@@ -133,16 +144,16 @@ Material selection errors are irreversible once installation begins. A mismatch 
 
 **Thin-set mortar selection:**
 
-| Tile and Substrate Combination | Correct Mortar |
-|---|---|
-| Ceramic tile on cement board or concrete | Standard unmodified thin-set (ANSI A118.1) |
-| Porcelain tile on any substrate | Polymer-modified thin-set (ANSI A118.4) -- porcelain's low absorption requires polymer for bond |
-| Any tile on plywood (over backer board) | Polymer-modified thin-set -- the polymer compensates for slight subfloor movement |
-| Large-format tile (15" or longer in any direction) | Large-format tile (LFT) mortar (ANSI A118.4 with medium-bed designation) -- creates thicker mortar bed |
-| Glass tile | White non-sagging medium-bed mortar (not gray -- gray shows through glass) |
-| Natural stone (marble, travertine) | White non-sag polymer-modified -- gray stains light-colored stone |
-| Tile over uncoupling membrane (Schluter DITRA) | Unmodified thin-set on both sides of the membrane -- DITRA manufacturer specs prohibit modified on membrane side in some configurations; verify the current spec sheet |
-| Any tile in wet area | Use an ANSI A118.4 modified thin-set or better -- never standard unmodified thin-set in wet areas |
+| Tile and Substrate Combination                     | Correct Mortar                                                                                                                                                         |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ceramic tile on cement board or concrete           | Standard unmodified thin-set (ANSI A118.1)                                                                                                                             |
+| Porcelain tile on any substrate                    | Polymer-modified thin-set (ANSI A118.4) -- porcelain's low absorption requires polymer for bond                                                                        |
+| Any tile on plywood (over backer board)            | Polymer-modified thin-set -- the polymer compensates for slight subfloor movement                                                                                      |
+| Large-format tile (15" or longer in any direction) | Large-format tile (LFT) mortar (ANSI A118.4 with medium-bed designation) -- creates thicker mortar bed                                                                 |
+| Glass tile                                         | White non-sagging medium-bed mortar (not gray -- gray shows through glass)                                                                                             |
+| Natural stone (marble, travertine)                 | White non-sag polymer-modified -- gray stains light-colored stone                                                                                                      |
+| Tile over uncoupling membrane (Schluter DITRA)     | Unmodified thin-set on both sides of the membrane -- DITRA manufacturer specs prohibit modified on membrane side in some configurations; verify the current spec sheet |
+| Any tile in wet area                               | Use an ANSI A118.4 modified thin-set or better -- never standard unmodified thin-set in wet areas                                                                      |
 
 - **Never use mastic (organic adhesive) on floors or in wet areas.** Mastic re-emulsifies when it contacts sustained moisture and releases the tile bond. It is appropriate only for dry, vertical wall applications where all of the following are true: no steam, no direct water contact, no floor, and tile is 12×12 or smaller.
 - Mortar coverage: one 50-pound bag of thin-set covers approximately 40-50 square feet at standard trowel depth. For large-format tile with back-buttering, reduce coverage estimate to 25-35 sqft per bag.
@@ -150,24 +161,24 @@ Material selection errors are irreversible once installation begins. A mismatch 
 
 **Trowel notch size selection:**
 
-| Tile Size | Trowel Notch |
-|---|---|
-| Mosaic (up to 4×4) | 3/16" V-notch |
-| Up to 8×8 | 1/4"×1/4" square notch |
-| 10×10 to 13×13 | 1/4"×3/8" square notch |
-| 15×15 to 20×20 | 3/8"×3/8" or 1/2"×1/2" square notch |
-| 24×24 and larger | 1/2"×1/2" square notch + back-butter every tile |
+| Tile Size          | Trowel Notch                                    |
+| ------------------ | ----------------------------------------------- |
+| Mosaic (up to 4×4) | 3/16" V-notch                                   |
+| Up to 8×8          | 1/4"×1/4" square notch                          |
+| 10×10 to 13×13     | 1/4"×3/8" square notch                          |
+| 15×15 to 20×20     | 3/8"×3/8" or 1/2"×1/2" square notch             |
+| 24×24 and larger   | 1/2"×1/2" square notch + back-butter every tile |
 
 The goal is minimum 80% mortar contact coverage for floors in dry areas, 95% minimum for all wet areas and all exterior applications (ANSI A108.5). Test by lifting a freshly set tile -- if the ridges have not collapsed to cover at least 80% of the tile back, increase trowel notch size or add back-buttering.
 
 **Grout selection:**
 
-| Grout Type | Joint Width Range | Best Use | Notes |
-|---|---|---|---|
-| Unsanded (non-sanded) | 1/16" to 1/8" | Wall tile, rectified tile, polished stone | Sanded grout scratches polished and honed surfaces |
-| Sanded | 1/8" to 1/2" | All floor tile, most wall tile | Requires sealing (cement-based); dominant type for most projects |
-| Premixed urethane grout (Fusion, SpectraLOCK SIMPLEGROUT) | 1/16" to 1/4" | Backsplashes, light-traffic areas | Stain-resistant without sealing; not for high-traffic floors |
-| Epoxy (2-part or 3-part) | Any width | Commercial kitchens, showers, high-stain areas | Superior stain and chemical resistance; difficult to work with; sets fast |
+| Grout Type                                                | Joint Width Range | Best Use                                       | Notes                                                                     |
+| --------------------------------------------------------- | ----------------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
+| Unsanded (non-sanded)                                     | 1/16" to 1/8"     | Wall tile, rectified tile, polished stone      | Sanded grout scratches polished and honed surfaces                        |
+| Sanded                                                    | 1/8" to 1/2"      | All floor tile, most wall tile                 | Requires sealing (cement-based); dominant type for most projects          |
+| Premixed urethane grout (Fusion, SpectraLOCK SIMPLEGROUT) | 1/16" to 1/4"     | Backsplashes, light-traffic areas              | Stain-resistant without sealing; not for high-traffic floors              |
+| Epoxy (2-part or 3-part)                                  | Any width         | Commercial kitchens, showers, high-stain areas | Superior stain and chemical resistance; difficult to work with; sets fast |
 
 - Grout quantity: one 10-pound bag of sanded grout covers approximately 40-50 sqft for 12×12 tile with 1/8-inch joints. Coverage decreases with smaller tile (more joint length per sqft) and increases with larger tile.
 - Grout color: choose a grout color before purchasing tile if possible. Light grout with dark tile in high-traffic areas is a maintenance challenge -- grout will discolor. Grout color approximately 1-2 shades darker than the tile is the lowest-maintenance choice.
@@ -190,13 +201,13 @@ The goal is minimum 80% mortar contact coverage for floors in dry areas, 95% min
 
 **Cutting techniques:**
 
-| Cut Type | Tool | Notes |
-|---|---|---|
-| Straight cuts | Manual snap cutter (score-and-snap) | Fast and clean for ceramic; marginal on dense porcelain -- requires quality cutter |
-| Straight cuts (porcelain or large format) | Wet saw (tile saw with diamond blade) | Most reliable for porcelain; required for tiles 16" or larger |
-| Curved cuts around toilet flange, pipes | Angle grinder with dry-cut diamond blade or wet saw with multiple straight kerfs | Score the curve and nibble with tile nippers to finish |
-| L-shaped cuts (around door jambs) | Wet saw with two intersecting cuts | Enter from each edge and stop at the corner -- do not cut through the corner |
-| Notched or scalloped cuts | Wet saw with multiple passes, tile nippers, or oscillating tool with diamond blade | Nippers are slow but produce tight curves; oscillating tool is fast but rough |
+| Cut Type                                  | Tool                                                                               | Notes                                                                              |
+| ----------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Straight cuts                             | Manual snap cutter (score-and-snap)                                                | Fast and clean for ceramic; marginal on dense porcelain -- requires quality cutter |
+| Straight cuts (porcelain or large format) | Wet saw (tile saw with diamond blade)                                              | Most reliable for porcelain; required for tiles 16" or larger                      |
+| Curved cuts around toilet flange, pipes   | Angle grinder with dry-cut diamond blade or wet saw with multiple straight kerfs   | Score the curve and nibble with tile nippers to finish                             |
+| L-shaped cuts (around door jambs)         | Wet saw with two intersecting cuts                                                 | Enter from each edge and stop at the corner -- do not cut through the corner       |
+| Notched or scalloped cuts                 | Wet saw with multiple passes, tile nippers, or oscillating tool with diamond blade | Nippers are slow but produce tight curves; oscillating tool is fast but rough      |
 
 - Always wear safety glasses and a dust mask (N95 or better) when dry-cutting tile. Crystalline silica dust from porcelain and stone is a serious respiratory hazard.
 - Score the tile face side up on a snap cutter; cut with a wet saw with the face side up as well (the blade exits through the face side on a wet saw, which can chip -- some cutters prefer face-down on the wet saw to put any chipping on the back).
@@ -399,20 +410,22 @@ Efflorescence appears when soluble salts migrate through the grout to the surfac
 ## Tile Installation Plan: Bathroom Floor (L-Shaped, 50 sqft)
 
 ### Project Summary
-| Parameter          | Value                                                |
-|--------------------|------------------------------------------------------|
-| Surface            | Floor                                                |
-| Total area         | 50 sqft                                              |
-| Tile size          | 12×24 porcelain                                      |
-| Layout pattern     | Brick offset (1/3 offset recommended over 1/2 for 12×24 to avoid lippage) |
-| Grout joint width  | 1/8 inch (minimum recommended for rectified porcelain) |
-| Substrate          | 3/4-inch plywood subfloor + 1/2-inch cement backer board |
-| Wet area?          | No -- standard bathroom floor, no shower            |
-| DIY assessment     | Manageable for a handy first-timer with preparation -- 12×24 format requires careful attention to flatness and back-buttering |
+
+| Parameter         | Value                                                                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Surface           | Floor                                                                                                                         |
+| Total area        | 50 sqft                                                                                                                       |
+| Tile size         | 12×24 porcelain                                                                                                               |
+| Layout pattern    | Brick offset (1/3 offset recommended over 1/2 for 12×24 to avoid lippage)                                                     |
+| Grout joint width | 1/8 inch (minimum recommended for rectified porcelain)                                                                        |
+| Substrate         | 3/4-inch plywood subfloor + 1/2-inch cement backer board                                                                      |
+| Wet area?         | No -- standard bathroom floor, no shower                                                                                      |
+| DIY assessment    | Manageable for a handy first-timer with preparation -- 12×24 format requires careful attention to flatness and back-buttering |
 
 ---
 
 ### Red Flags to Resolve Before Starting
+
 - The 3/4-inch plywood alone is insufficient -- you must install 1/2-inch cement backer board (total 1-1/4 inches). Confirm the current floor height + 1-1/4 inches (backer board) + 1/4 inch (thin-set) + 3/8 inch (tile thickness) does not create an unacceptable transition to the hallway floor or catch the bathroom door.
 - The L-shape creates more cut pieces than a rectangle -- budget 15% waste (not 10%) for the brick offset pattern in an L-shaped room. Factor in extra cuts around the vanity base and toilet flange.
 - 12×24 porcelain requires polymer-modified thin-set -- standard thin-set will not bond adequately to the low-absorption porcelain surface.
@@ -422,7 +435,8 @@ Efflorescence appears when soluble salts migrate through the grout to the surfac
 ---
 
 ### Materials List
-| Item                              | Specification                       | Quantity                   | Estimated Cost         |
-|-----------------------------------|-------------------------------------|----------------------------|------------------------|
-| Porcelain floor tile              | 12×24 rectified, your chosen color  | 58 sqft (50 sqft + 15%)    | $175-$580 (varies widely by grade) |
-| Cement backer board               | 1/2-inch HardieBacker, 3×
+
+| Item                 | Specification                      | Quantity                | Estimated Cost                     |
+| -------------------- | ---------------------------------- | ----------------------- | ---------------------------------- |
+| Porcelain floor tile | 12×24 rectified, your chosen color | 58 sqft (50 sqft + 15%) | $175-$580 (varies widely by grade) |
+| Cement backer board  | 1/2-inch HardieBacker, 3×          |

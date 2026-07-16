@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events relationships template"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events relationships template'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Family Meeting Framework
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to establish regular family meetings from scratch and needs a complete structure, not just advice
 - A user describes household disorganization, recurring conflicts, or children who feel excluded from family decisions and asks for a communication framework
 - A user has tried family meetings before and they broke down -- they want to diagnose what went wrong and restart with better structure
@@ -29,6 +31,7 @@ metadata:
 - A user wants to build family cohesion intentionally -- creating shared rituals, shared identity, and a forum for gratitude and connection alongside logistics
 
 **Do NOT use when:**
+
 - The user describes active family crisis, acute conflict, or a breakdown in basic safety -- redirect to licensed family therapist or family mediator (this skill produces structure, not clinical intervention)
 - A child or adult in the household is experiencing abuse, addiction, or mental health crisis -- family meetings are contraindicated when power dynamics are not safe; recommend professional support
 - The user is asking about workplace team meetings, project retrospectives, or organizational communication (use business meeting facilitation skills instead)
@@ -59,6 +62,7 @@ Before generating any framework, collect enough information to make the output g
 The standard family meeting has five discrete components. Each serves a specific psychological function. Do not collapse or omit them -- especially in early meetings.
 
 **Component 1: Appreciations (4-6 minutes)**
+
 - Each person names one specific, genuine thing they appreciated about another family member since the last meeting
 - Specificity matters: "I appreciated that you helped me find my backpack on Wednesday" is better than "I appreciate you." Vague appreciations lose impact within 4-5 meetings
 - This component activates what positive psychology researchers call the "broaden-and-build" response -- people are more cognitively open, creative, and cooperative for 15-20 minutes after genuine gratitude exchange
@@ -66,24 +70,28 @@ The standard family meeting has five discrete components. Each serves a specific
 - For young children (under 6), model first and accept anything: "You made me a picture" counts. The skill builds over time
 
 **Component 2: Agenda Review and Old Business (3-5 minutes)**
+
 - Review the written agenda list that has accumulated since last meeting (see Step 4 for the agenda capture system)
 - Check action items from the prior meeting: complete, partially complete, or needs more work
 - This component teaches children that agreements have real follow-through, which is one of the highest-value lessons family meetings deliver
 - Keep this brief -- it is not a re-argument of last week's issues, just a status check
 
 **Component 3: New Business (8-15 minutes depending on family age)**
+
 - Any family member can raise any topic: upcoming schedule changes, rule discussions, requests, celebrations, logistics, concerns
 - The facilitator's job here is to ensure every item gets acknowledged, not necessarily resolved -- some items belong in problem-solving, some are simple announcements
 - Sort items on the fly: "That's an announcement" vs. "That's a decision we need to make" vs. "That sounds like it needs problem-solving"
 - Children should raise topics here regularly -- if only parents raise agenda items for the first 3 months, the structure signals that the meeting is parent-driven
 
 **Component 4: Problem-Solving (5-10 minutes, one issue only)**
+
 - One structured issue per meeting, using the five-step protocol in the Output Format below
 - The five-step protocol is derived from collaborative problem-solving research by Dr. Ross Greene and family systems work: state the problem neutrally, brainstorm without judgment, evaluate options against shared criteria, decide by consensus or vote, assign ownership with deadlines
 - "One problem per meeting" is a hard rule. Families that try to solve three issues in forty minutes resolve none of them. Focus creates completion, which builds trust in the process
 - Not every meeting needs a problem-solving item. When there is no pressing issue, use this time for family values discussion, goal-sharing, or simply skip to fun planning
 
 **Component 5: Fun Planning (3-5 minutes)**
+
 - Plan one enjoyable shared activity before the next meeting
 - This is not optional and not a reward for good behavior -- it is a structural element that ensures meetings are associated with positive outcomes
 - For families with teenagers, "fun" must be genuinely teenager-accessible -- not a parent's definition of fun. Ask them to propose it
@@ -96,6 +104,7 @@ The standard family meeting has five discrete components. Each serves a specific
 Age calibration is the most technically complex part of family meeting design. The following thresholds reflect developmental research on executive function, language processing, and social cognition:
 
 **Ages 2-4 (Toddlers and young preschoolers):**
+
 - Not developmentally capable of sustained turn-taking, abstract reasoning, or deferred gratification
 - Inclusion goal: exposure to ritual, experience of being seen and named in the group, basic vocabulary of "our family talks together"
 - Participation: hold the talking object, say one appreciation (with support), choose a fun activity from two options adults pre-select
@@ -103,6 +112,7 @@ Age calibration is the most technically complex part of family meeting design. T
 - Do NOT expect them to contribute to problem-solving or honor agreements independently
 
 **Ages 5-7 (Early elementary):**
+
 - Can sustain attention for 15-20 minutes in an engaging, structured format
 - Can genuinely contribute ideas in brainstorming, though impulsiveness means they need the talking object rule strictly enforced
 - Respond very well to visual structure: a printed agenda they can see, a whiteboard where ideas are written, a timer they can watch
@@ -110,6 +120,7 @@ Age calibration is the most technically complex part of family meeting design. T
 - Understand fairness intensely at this stage -- use this: "Everyone gets exactly one turn before anyone gets a second turn"
 
 **Ages 8-11 (Middle childhood):**
+
 - Full participation in all five components
 - Can serve as note-taker, timekeeper, or co-facilitator starting around age 9-10
 - Can propose and own action items: at this age, children who own action items follow through at significantly higher rates than when adults assign tasks to them
@@ -117,6 +128,7 @@ Age calibration is the most technically complex part of family meeting design. T
 - Will test the process -- especially the "are parents really listening?" question. The answer must be demonstrated through action, not assurance
 
 **Ages 12-14 (Early adolescence):**
+
 - Identity development means they resist anything that feels childish or scripted
 - Frame the meeting as a "family council" or "family check-in" rather than "family meeting" if they resist the term
 - Give them real facilitation responsibility -- they take it more seriously when they are running it than when they are being run
@@ -124,6 +136,7 @@ Age calibration is the most technically complex part of family meeting design. T
 - Texts and notifications during the meeting are a genuine threat. Agree on phone policy before the meeting starts, ideally as a ground rule they helped create
 
 **Ages 15-18 (Later adolescence):**
+
 - Optional but valued participation, not mandatory
 - Their schedule may make the fixed weekly time difficult -- build in a 15-minute window adjustment tolerance
 - The most valuable role for older teens is peer mentor to younger siblings during meeting discussions
@@ -137,6 +150,7 @@ Age calibration is the most technically complex part of family meeting design. T
 Family meetings succeed or fail based on three infrastructure elements that exist between meetings, not during them:
 
 **The Agenda Capture System:**
+
 - A physical location (whiteboard, notebook, paper on the fridge) where any family member can add a topic at any time during the week
 - Critical rule: the act of adding something to the list means it WILL be discussed at the meeting -- not filtered or removed by a parent before the meeting
 - This is what makes the meeting feel safe for children to raise concerns. If they see their item removed or ignored, they stop adding items
@@ -144,12 +158,14 @@ Family meetings succeed or fail based on three infrastructure elements that exis
 - Separating agenda capture from the meeting itself prevents the meeting from starting cold with nothing prepared
 
 **The Action Item Record:**
+
 - A visible, persistent record (not just in someone's head or phone) of commitments made at the meeting
 - The most effective format is physical and posted somewhere the family sees daily: the refrigerator, a family command center, a whiteboard near the front door
 - Each item needs: what exactly will happen, who owns it, and by when -- not "we'll try to do better at mornings" but "Dad will pack lunches the night before starting Monday"
 - Review this at the start of every meeting. Follow-through on action items is what differentiates family meetings from family conversations
 
 **The Meeting Record (optional for families with 8+ year olds):**
+
 - A brief written record of decisions made and agreements reached
 - Useful primarily when disputes arise: "We agreed at the meeting on October 14th that..." resolves disagreements about what was decided
 - The 10-12 year old note-taker role works well for this -- they take pride in the record-keeping responsibility
@@ -178,24 +194,28 @@ Do not hand children a list of rules. Build the list together at the first meeti
 Most family meeting systems fail within the first four weeks. The failure mode is almost always the same: too much, too soon. Design the first three meetings as a gradual ramp:
 
 **Meeting 1 -- The Ritual Launch (10-15 minutes maximum):**
+
 - Purpose: establish positive association, introduce the format, create one concrete positive outcome
 - Do: appreciations, explain the format briefly, fun planning only
 - Do NOT: tackle any real problem, introduce complex rules, run longer than planned
 - End early if it feels like it's going well -- leave people wanting more
 
 **Meeting 2 -- Add Structure (15-20 minutes):**
+
 - Introduce the agenda list and old business component
 - Check in on the fun thing from last week: did it happen? (This demonstrates that the meeting produces real outcomes)
 - Introduce ground rules -- use the participatory process above
 - Still no heavy problem-solving
 
 **Meeting 3 -- Full Format Trial (20-30 minutes):**
+
 - Run the complete five-component format for the first time
 - Choose a low-stakes issue for the problem-solving component -- something solvable in one round, not the most contentious family issue
 - Introduce the action item tracker
 - After this meeting, the full format is established
 
 **Meetings 4 onward -- Steady state:**
+
 - Introduce harder topics only after the format feels natural
 - Rotate facilitation roles
 - Maintain strict time discipline
@@ -434,6 +454,7 @@ A move, divorce, new sibling, job loss, or death in the family creates condition
 ## Patterson Family Meeting Framework
 
 ### Meeting Basics
+
 - **Frequency:** Weekly
 - **Day and time:** Saturday at 9:30 AM -- after breakfast is cleared, before the day opens up and the 14-year-old disappears
 - **Duration:** 25 minutes (hard stop, with a target of 20 minutes once the format is established)
@@ -446,39 +467,40 @@ A move, divorce, new sibling, job loss, or death in the family creates condition
 
 ### Agenda Template
 
-| Component | Duration | Purpose | Facilitator | Notes |
-|-----------|----------|---------|-------------|-------|
-| Appreciations | 5 min | Build positive attention toward each family member before discussing any problems | Dad (Meetings 1-4), then rotate to 9-year-old | One genuine, specific appreciation per person; Dad and Mom model first |
-| Old Business | 2 min | Check action items from last meeting; demonstrate follow-through | Mom (Meetings 1-4) | Quick status only -- complete / not complete / carry forward |
-| New Business | 6 min | Any family member raises any topic -- announcements, schedule changes, requests, concerns | Dad (Meetings 1-4) | Facilitator sorts items: "announcement," "decision," or "problem-solve it" |
-| Problem-Solving | 8 min | One specific issue using the five-step protocol | Rotate after Meeting 3 | Start with low-stakes issue; the "unfair" complaints are Meeting 6-8 material |
-| Fun Planning | 4 min | Plan one enjoyable family activity before next Saturday | 5-year-old leads (with prompting) | Not optional; not a reward; ends every meeting positively |
+| Component       | Duration | Purpose                                                                                   | Facilitator                                   | Notes                                                                         |
+| --------------- | -------- | ----------------------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------- |
+| Appreciations   | 5 min    | Build positive attention toward each family member before discussing any problems         | Dad (Meetings 1-4), then rotate to 9-year-old | One genuine, specific appreciation per person; Dad and Mom model first        |
+| Old Business    | 2 min    | Check action items from last meeting; demonstrate follow-through                          | Mom (Meetings 1-4)                            | Quick status only -- complete / not complete / carry forward                  |
+| New Business    | 6 min    | Any family member raises any topic -- announcements, schedule changes, requests, concerns | Dad (Meetings 1-4)                            | Facilitator sorts items: "announcement," "decision," or "problem-solve it"    |
+| Problem-Solving | 8 min    | One specific issue using the five-step protocol                                           | Rotate after Meeting 3                        | Start with low-stakes issue; the "unfair" complaints are Meeting 6-8 material |
+| Fun Planning    | 4 min    | Plan one enjoyable family activity before next Saturday                                   | 5-year-old leads (with prompting)             | Not optional; not a reward; ends every meeting positively                     |
 
 **Total: 25 minutes. If appreciations or problem-solving run long, trim from new business -- never cut fun planning.**
 
 ---
 
 ### Ground Rules
-*(Introduce these at Meeting 2 using the participatory process. These are the non-negotiables to seed:)*
+
+_(Introduce these at Meeting 2 using the participatory process. These are the non-negotiables to seed:)_
 
 1. The person holding the talking object has the floor. No one talks over them -- including parents.
 2. We talk about situations, not people: "The problem is the TV rule" not "the problem is that [name] is selfish."
 3. Every idea goes on the list before we decide anything. "That won't work" is not allowed during brainstorming.
 4. If something is already decided and not up for discussion, a parent says so upfront: "This isn't a vote -- we're announcing this." We don't fake decisions.
 5. Meetings end at 10:00 AM. Unresolved topics go on next week's agenda -- they are not dropped, just deferred.
-6. *(Let the family add one more -- the 9 and 14-year-old will have opinions. Write it down and post it.)*
+6. _(Let the family add one more -- the 9 and 14-year-old will have opinions. Write it down and post it.)_
 
 ---
 
 ### Age-Appropriate Roles
 
-| Family Member | Age | Stage | Meeting Role | Participation Notes |
-|--------------|-----|-------|--------------|---------------------|
-| Dad | Adult | -- | Primary facilitator (Meetings 1-4), then rotates | Opens meeting, holds ground rules, manages time, passes talking object |
-| Mom | Adult | -- | Notetaker and action item tracker (Meetings 1-4), then rotates | Writes all action items on the tracker during the meeting |
-| 14-year-old | 14 | Early-mid adolescence | Full participant; co-facilitator starting Meeting 5 | Treat input as substantively equal to adults' on age-appropriate topics; give them the facilitation role early -- it transforms their engagement |
-| 9-year-old | 9 | Middle childhood | Note-taker starting Meeting 4; timekeeper role | Can add agenda items, brainstorm, and own action items independently; will be highly motivated by visible responsibility |
-| 5-year-old | 5 | Early childhood | Talking object keeper; leads fun planning with 2-option choice | Full participant in appreciations with support; not expected to contribute to problem-solving; shorten meeting if dysregulated |
+| Family Member | Age   | Stage                 | Meeting Role                                                   | Participation Notes                                                                                                                              |
+| ------------- | ----- | --------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Dad           | Adult | --                    | Primary facilitator (Meetings 1-4), then rotates               | Opens meeting, holds ground rules, manages time, passes talking object                                                                           |
+| Mom           | Adult | --                    | Notetaker and action item tracker (Meetings 1-4), then rotates | Writes all action items on the tracker during the meeting                                                                                        |
+| 14-year-old   | 14    | Early-mid adolescence | Full participant; co-facilitator starting Meeting 5            | Treat input as substantively equal to adults' on age-appropriate topics; give them the facilitation role early -- it transforms their engagement |
+| 9-year-old    | 9     | Middle childhood      | Note-taker starting Meeting 4; timekeeper role                 | Can add agenda items, brainstorm, and own action items independently; will be highly motivated by visible responsibility                         |
+| 5-year-old    | 5     | Early childhood       | Talking object keeper; leads fun planning with 2-option choice | Full participant in appreciations with support; not expected to contribute to problem-solving; shorten meeting if dysregulated                   |
 
 **Facilitation rotation schedule:** Starting at Meeting 5, the 14-year-old takes the facilitator role. Rotate every 3 meetings: 14-year-old, then Dad, then Mom. The 9-year-old joins the rotation by age 10-11.
 
@@ -506,26 +528,28 @@ For each idea on the list, go around the table. Each person says: "Yes / Maybe /
 
 **Step 4 -- Decide (1 minute)**
 Choose the highest-buy-in option (or a combination). Name the decision method:
+
 - If everyone says yes or maybe: consensus
 - If split: majority vote, with acknowledgment: "Three people chose this. [Name], we hear that this isn't your first choice. Is there anything we can add to make it work better for you?"
 - If safety or values are at stake: parent decision, named as such
 
 **Step 5 -- Assign (2 minutes)**
 Every decision produces at least one specific action item.
+
 > "[14-year-old's name] gets TV priority Saturdays 9 AM-11 AM. [9-year-old's name] gets priority 11 AM-1 PM. This starts today. Mom will write it on the whiteboard. We'll check in next Saturday to see if it's working."
 
 ---
 
 ### Action Item Tracker
 
-*(On the refrigerator, updated every Saturday.)*
+_(On the refrigerator, updated every Saturday.)_
 
-| Item | Owner | Deadline | Status |
-|------|-------|----------|--------|
-| [14-year-old] relinquishes TV at 11 AM Saturdays | [14-year-old] | Every Saturday | [ ] |
-| [9-year-old] waits until 11 AM without arguing | [9-year-old] | Every Saturday | [ ] |
-| Mom writes TV schedule on the whiteboard | Mom | Today (Saturday) | [ ] |
-| Everyone report back next Saturday: is it working? | All | Next Saturday 9:30 AM | [ ] |
+| Item                                               | Owner         | Deadline              | Status |
+| -------------------------------------------------- | ------------- | --------------------- | ------ |
+| [14-year-old] relinquishes TV at 11 AM Saturdays   | [14-year-old] | Every Saturday        | [ ]    |
+| [9-year-old] waits until 11 AM without arguing     | [9-year-old]  | Every Saturday        | [ ]    |
+| Mom writes TV schedule on the whiteboard           | Mom           | Today (Saturday)      | [ ]    |
+| Everyone report back next Saturday: is it working? | All           | Next Saturday 9:30 AM | [ ]    |
 
 ---
 
@@ -543,7 +567,7 @@ Every decision produces at least one specific action item.
 **9:30 AM -- Open (2 minutes)**
 Dad: "We're starting something new. Every Saturday at 9:30, we sit together for about 20 minutes. Everyone gets to share, everyone gets to suggest things, and we plan something fun. This is not a lecture -- it is not about anyone being in trouble. It is our time together. The rule is: whoever holds the talking object has the floor. Ready? First -- what should be our talking object? [Name an option] or [name another option]?"
 
-*(Let the 5-year-old pick. Write down whatever they pick. Now it has buy-in.)*
+_(Let the 5-year-old pick. Write down whatever they pick. Now it has buy-in.)_
 
 **9:32 AM -- Appreciations (5 minutes)**
 Dad: "We start every meeting with appreciations. One specific thing you appreciated about someone in this family this week. It has to be specific -- not 'I appreciate everyone,' but something that actually happened. I'll go first."
@@ -552,10 +576,10 @@ Dad: "I appreciated that [9-year-old's name] helped carry groceries from the car
 
 Mom: "I appreciated that [14-year-old's name] was patient with [5-year-old's name] when they were upset on Thursday night. That was kind."
 
-*(Continue around the table. Support the 5-year-old: "Can you think of something nice [name] did?" They will say something. It counts.)*
+_(Continue around the table. Support the 5-year-old: "Can you think of something nice [name] did?" They will say something. It counts.)_
 
 **9:37 AM -- Fun Planning (5 minutes)**
-Dad: "Last section -- we plan one fun thing to do together before next Saturday. Everyone say one idea." *(Write them down.)* "Okay, we have [4 ideas]. Let's vote. [5-year-old's name], you get to count the votes." *(Simple show of hands.)* "We're doing [winning activity] on [day]. [Name], can you remind us on Thursday?"
+Dad: "Last section -- we plan one fun thing to do together before next Saturday. Everyone say one idea." _(Write them down.)_ "Okay, we have [4 ideas]. Let's vote. [5-year-old's name], you get to count the votes." _(Simple show of hands.)_ "We're doing [winning activity] on [day]. [Name], can you remind us on Thursday?"
 
 **9:42 AM -- Close (1 minute)**
 Dad: "That is our first family meeting -- 12 minutes. Same time next Saturday. During the week, if there's something you want us to talk about, write it on the paper on the fridge. Anyone can add anything. See you next Saturday."
@@ -564,15 +588,15 @@ Dad: "That is our first family meeting -- 12 minutes. Same time next Saturday. D
 
 ### Meeting Evolution Schedule
 
-| Meeting # | New Element | Rationale |
-|-----------|------------|-----------|
-| 1 | Appreciations + Talking object + Fun Planning | Short, positive, create habit and association |
-| 2 | Agenda review + Ground Rules (participatory) + Old Business | Check: did the fun thing happen? Demonstrate follow-through |
-| 3 | Full format, low-stakes problem-solving issue | Choose something the 9 and 14-year-old raised; demonstrate their voice produces results |
-| 4 | 9-year-old becomes notetaker; action item tracker introduced | Visible responsibility builds ownership |
-| 5 | 14-year-old takes facilitation role | Transforms their engagement; gives them status in the process |
-| 6-8 | "Life is unfair" conflict raised as a structured agenda item | By now the process has credibility; they have seen it produce real outcomes |
-| Every 6 months | Meeting review: what's working, what should change | Evolve the format with the family |
+| Meeting #      | New Element                                                  | Rationale                                                                               |
+| -------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| 1              | Appreciations + Talking object + Fun Planning                | Short, positive, create habit and association                                           |
+| 2              | Agenda review + Ground Rules (participatory) + Old Business  | Check: did the fun thing happen? Demonstrate follow-through                             |
+| 3              | Full format, low-stakes problem-solving issue                | Choose something the 9 and 14-year-old raised; demonstrate their voice produces results |
+| 4              | 9-year-old becomes notetaker; action item tracker introduced | Visible responsibility builds ownership                                                 |
+| 5              | 14-year-old takes facilitation role                          | Transforms their engagement; gives them status in the process                           |
+| 6-8            | "Life is unfair" conflict raised as a structured agenda item | By now the process has credibility; they have seen it produce real outcomes             |
+| Every 6 months | Meeting review: what's working, what should change           | Evolve the format with the family                                                       |
 
 ---
 

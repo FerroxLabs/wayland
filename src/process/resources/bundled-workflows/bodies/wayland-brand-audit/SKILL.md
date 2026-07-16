@@ -13,14 +13,15 @@ description: >-
   brand skill can answer without the full three-dimension audit.
 license: Apache-2.0
 type: workflow
-skills: "market-brand market-audit"
+skills: 'market-brand market-audit'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing brand audit positioning voice step-by-step
   category: marketing
-  depends: "market-brand market-audit"
+  depends: 'market-brand market-audit'
 ---
+
 # Brand Audit
 
 **Estimated time:** 20-30 minutes

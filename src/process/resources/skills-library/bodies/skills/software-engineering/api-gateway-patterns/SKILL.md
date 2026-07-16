@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture api-design backend"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture api-design backend'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # API Gateway Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is designing or refactoring the entry point for a microservices architecture and needs to decide which gateway topology to use (single gateway, Backend for Frontend, multi-tier, etc.)
 - A user asks how to implement cross-cutting concerns -- authentication, rate limiting, request transformation, observability -- without duplicating that logic across dozens of services
 - A user needs to decide between a self-hosted API gateway (Kong, Envoy, NGINX), a cloud-managed gateway (AWS API Gateway, Azure API Management, Google Cloud Apigee), or a service mesh sidecar pattern
@@ -30,6 +32,7 @@ metadata:
 - A user is migrating a monolith to microservices and needs the strangler fig pattern at the routing layer
 
 **Do NOT use this skill when:**
+
 - The user needs help designing internal service-to-service communication contracts without an external-facing edge component -- use an internal RPC/gRPC design skill instead
 - The user is asking about REST API design principles (resource naming, HTTP status codes, HATEOAS) without a gateway component -- use an API design skill
 - The user needs help with database schema design or query optimization -- this skill does not cover data access patterns
@@ -125,7 +128,7 @@ Gateway configuration bugs cause production outages that are difficult to diagno
 
 When providing API gateway pattern guidance, structure the response as follows:
 
-```
+````
 ## API Gateway Pattern Analysis
 
 ### Traffic Profile
@@ -165,29 +168,34 @@ When providing API gateway pattern guidance, structure the response as follows:
 ```yaml
 # [Kong / Envoy / NGINX config for the primary route]
 [concrete configuration block]
-```
+````
 
 #### Redis Rate Limit Configuration
+
 ```
 [Connection pool settings, key schema, fallback policy]
 ```
 
 #### Observability Setup
+
 ```
 [Prometheus scrape config, alert rule examples]
 ```
 
 ### Trade-off Summary
-| Decision           | Chosen Approach       | Alternative Considered | Reason for Choice               |
-|--------------------|-----------------------|------------------------|---------------------------------|
-| [decision point]   | [chosen]              | [alternative]          | [specific technical rationale]  |
+
+| Decision         | Chosen Approach | Alternative Considered | Reason for Choice              |
+| ---------------- | --------------- | ---------------------- | ------------------------------ |
+| [decision point] | [chosen]        | [alternative]          | [specific technical rationale] |
 
 ### Operational Runbook (Brief)
+
 - **Scale up:** [specific trigger metric and action]
 - **Circuit breaker open:** [diagnosis steps and recovery procedure]
 - **Rate limit spike:** [investigation steps]
 - **Certificate expiry:** [rotation procedure]
-```
+
+````
 
 ---
 
@@ -364,7 +372,7 @@ services:
           cache_ttl: 30
           strategy: memory
           cache_control: false         # gateway controls TTL, not upstream headers
-```
+````
 
 #### Redis Rate Limit Key Schema and Fallback Policy
 
@@ -407,8 +415,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "API Gateway 5xx rate exceeded 1% for 5 minutes"
-          runbook: "Check circuit breaker status; inspect upstream service logs"
+          summary: 'API Gateway 5xx rate exceeded 1% for 5 minutes'
+          runbook: 'Check circuit breaker status; inspect upstream service logs'
 
       - alert: GatewayHighLatency
         expr: |
@@ -419,7 +427,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Gateway p99 latency above 300ms on route {{ $labels.route }}"
+          summary: 'Gateway p99 latency above 300ms on route {{ $labels.route }}'
 
       - alert: RedisConnectionPoolSaturation
         expr: |
@@ -428,18 +436,18 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Redis connection pool at {{ $value | humanizePercentage }} capacity"
+          summary: 'Redis connection pool at {{ $value | humanizePercentage }} capacity'
 ```
 
 ### Trade-off Summary
 
-| Decision                       | Chosen Approach                        | Alternative Considered              | Reason for Choice                                                             |
-|--------------------------------|----------------------------------------|-------------------------------------|-------------------------------------------------------------------------------|
-| Single vs. BFF gateway         | BFF (web SPA + partner API separation) | Single gateway with route policies  | Partner API stability guarantees conflict with SPA rapid iteration cadence    |
-| Self-hosted Kong vs. AWS APIGW | Self-hosted Kong on ECS Fargate        | AWS API Gateway                     | AWS APIGW costs scale per-request; at 5,000 RPS Kong has 60--70% lower cost  |
-| JWT vs. API key for partners   | JWT (RS256) primary + API key fallback | API key only                        | JWT carries plan tier claims, eliminating per-request authorization lookups   |
-| Synchronous vs. queue-backed   | Synchronous for all routes initially   | SQS-backed for high-write endpoints | Simpler to operate; revisit if order-service becomes the saturation bottleneck|
-| Redis rate limit TTL strategy  | 2x window TTL                          | Exact window TTL                    | Prevents race condition where counter expires mid-window, resetting the count |
+| Decision                       | Chosen Approach                        | Alternative Considered              | Reason for Choice                                                              |
+| ------------------------------ | -------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Single vs. BFF gateway         | BFF (web SPA + partner API separation) | Single gateway with route policies  | Partner API stability guarantees conflict with SPA rapid iteration cadence     |
+| Self-hosted Kong vs. AWS APIGW | Self-hosted Kong on ECS Fargate        | AWS API Gateway                     | AWS APIGW costs scale per-request; at 5,000 RPS Kong has 60--70% lower cost    |
+| JWT vs. API key for partners   | JWT (RS256) primary + API key fallback | API key only                        | JWT carries plan tier claims, eliminating per-request authorization lookups    |
+| Synchronous vs. queue-backed   | Synchronous for all routes initially   | SQS-backed for high-write endpoints | Simpler to operate; revisit if order-service becomes the saturation bottleneck |
+| Redis rate limit TTL strategy  | 2x window TTL                          | Exact window TTL                    | Prevents race condition where counter expires mid-window, resetting the count  |
 
 ### Operational Runbook (Brief)
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting habits time-management"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'goal-setting habits time-management'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Routine Designer
@@ -25,11 +25,13 @@ Your tone is practical and flexible. You understand that the "perfect" routine i
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about routine designer
 - User needs guidance on routine designer topics
 - User wants a structured approach to routine designer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -51,6 +53,7 @@ Before designing a routine, understand their life:
 ### Why Mornings Matter
 
 The morning sets the tone for the day. A well-designed morning routine provides:
+
 - A sense of control before the world starts making demands
 - Consistent time for priorities that otherwise get crowded out
 - Momentum that carries into the rest of the day
@@ -60,6 +63,7 @@ The morning sets the tone for the day. A well-designed morning routine provides:
 
 **Phase 1: Activation (5-15 minutes)**
 Transition from sleep to wakefulness.
+
 - Hydrate (water first, coffee second)
 - Move your body (stretching, walking, light exercise)
 - Exposure to natural light (signals your circadian rhythm)
@@ -67,6 +71,7 @@ Transition from sleep to wakefulness.
 
 **Phase 2: Intention Setting (5-20 minutes)**
 Orient your mind toward what matters.
+
 - Meditation or mindfulness (even 5 minutes makes a difference)
 - Journaling or gratitude practice
 - Review your priorities for the day
@@ -74,6 +79,7 @@ Orient your mind toward what matters.
 
 **Phase 3: Investment (15-60 minutes)**
 Invest time in something important that would otherwise get skipped.
+
 - Exercise
 - Deep work on a creative or professional project
 - Learning (reading, online course, language study)
@@ -82,18 +88,21 @@ Invest time in something important that would otherwise get skipped.
 ### Morning Routine Templates by Time Available
 
 **The 15-Minute Morning (for the time-crunched):**
+
 1. Glass of water (1 min)
 2. Three deep breaths (1 min)
 3. Write 3 priorities for the day (3 min)
 4. 10-minute movement (stretching, walk, bodyweight exercises)
 
 **The 30-Minute Morning:**
+
 1. Hydrate and stretch (5 min)
 2. Meditation or breathing exercise (5 min)
 3. Journal: gratitude + daily intentions (5 min)
 4. Exercise or creative work (15 min)
 
 **The 60-Minute Morning:**
+
 1. Hydrate, stretch, natural light (10 min)
 2. Exercise (20 min)
 3. Shower and get ready (15 min)
@@ -101,6 +110,7 @@ Invest time in something important that would otherwise get skipped.
 5. Journal and plan the day (10 min)
 
 **The 90-Minute Morning (the full experience):**
+
 1. Wake naturally, hydrate, light exposure (10 min)
 2. Exercise (30 min)
 3. Shower and get ready (15 min)
@@ -128,18 +138,21 @@ Invest time in something important that would otherwise get skipped.
 ### The Evening Routine Framework (60-90 minutes before bed)
 
 **Phase 1: Shutdown (15-20 min)**
+
 - Close all work (email, messages, tasks)
 - Write tomorrow's top 3 priorities
 - Perform a "brain dump" - write down anything lingering in your mind
 - Say to yourself: "Shutdown complete." (Cal Newport's technique to mentally close the work day)
 
 **Phase 2: Preparation (15-20 min)**
+
 - Lay out tomorrow's clothes
 - Prepare breakfast or lunch if needed
 - Tidy your space (a clean environment supports calm)
 - Pack your bag for tomorrow
 
 **Phase 3: Wind-Down (30-45 min)**
+
 - Dim the lights (signals melatonin production)
 - No screens ideally; if screens, use night mode / blue light filter
 - Relaxing activity: reading (paper book), gentle stretching, conversation, a bath
@@ -153,11 +166,13 @@ Invest time in something important that would otherwise get skipped.
 Your body operates in 90-120 minute cycles of high and low energy throughout the day (ultradian rhythms). Instead of fighting these cycles, design your routine around them.
 
 **The Basic Ultradian Pattern:**
+
 - 90 minutes of focused work
 - 20-30 minutes of rest/recovery
 - Repeat throughout the day
 
 **Signs you're in a trough (low phase):**
+
 - Difficulty concentrating
 - Increased mistakes
 - Yawning, fidgeting
@@ -165,6 +180,7 @@ Your body operates in 90-120 minute cycles of high and low energy throughout the
 - Desire to check phone or procrastinate
 
 **What to do during troughs:**
+
 - Take a real break (walk, stretch, not social media)
 - Eat a small, healthy snack
 - Step outside for natural light and fresh air
@@ -274,6 +290,7 @@ Professional activities performed in a state of distraction-free concentration t
 ### The Shutdown Ritual
 
 At the end of each workday:
+
 1. Review every incomplete task, email, and commitment
 2. Confirm that each has a plan (next action or a place in your system)
 3. Review your calendar for the next day
@@ -396,6 +413,7 @@ Once these three anchors are solid (2-3 weeks), add more elements gradually.
 It will break. Travel, illness, life changes, bad weeks. That's normal.
 
 **Recovery protocol:**
+
 1. Don't try to get "back to normal" all at once
 2. Start with your three anchor habits only
 3. Rebuild one element per day
@@ -405,6 +423,7 @@ It will break. Travel, illness, life changes, bad weeks. That's normal.
 ## Response Guidelines
 
 When designing a routine:
+
 - Ask about their chronotype and energy patterns before scheduling
 - Build around their non-negotiable commitments first
 - Start small and build up over weeks, not days
@@ -413,7 +432,6 @@ When designing a routine:
 - Insist on a wind-down routine (sleep is the foundation of everything)
 - Customize for their lifestyle - a student's routine should not look like a CEO's
 - Remind them: the best routine is the one they'll actually follow
-
 
 ## Output Format
 

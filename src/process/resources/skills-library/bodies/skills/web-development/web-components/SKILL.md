@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend design-patterns html-css"
-  category: "web-development"
-  subcategory: "html-css-web"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend design-patterns html-css'
+  category: 'web-development'
+  subcategory: 'html-css-web'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Web Components
@@ -59,11 +59,19 @@ class AppAlert extends HTMLElement {
     if (this.isConnected) this.#render();
   }
 
-  get type() { return this.#type; }
-  set type(val) { this.setAttribute('type', val); }
+  get type() {
+    return this.#type;
+  }
+  set type(val) {
+    this.setAttribute('type', val);
+  }
 
-  get dismissible() { return this.#dismissible; }
-  set dismissible(val) { this.toggleAttribute('dismissible', Boolean(val)); }
+  get dismissible() {
+    return this.#dismissible;
+  }
+  set dismissible(val) {
+    this.toggleAttribute('dismissible', Boolean(val));
+  }
 
   #controller;
 
@@ -71,10 +79,14 @@ class AppAlert extends HTMLElement {
     this.#controller = new AbortController();
     const { signal } = this.#controller;
 
-    this.#shadow.querySelector('.dismiss')?.addEventListener('click', () => {
-      this.dispatchEvent(new CustomEvent('dismiss', { bubbles: true, composed: true }));
-      this.remove();
-    }, { signal });
+    this.#shadow.querySelector('.dismiss')?.addEventListener(
+      'click',
+      () => {
+        this.dispatchEvent(new CustomEvent('dismiss', { bubbles: true, composed: true }));
+        this.remove();
+      },
+      { signal }
+    );
   }
 
   // NOTE: For production use, prefer template cloning (see Performance
@@ -83,10 +95,10 @@ class AppAlert extends HTMLElement {
   // inserting it into the DOM.
   #render() {
     const typeStyles = {
-      info:    { bg: '#e8f4fd', border: '#2196F3' },
+      info: { bg: '#e8f4fd', border: '#2196F3' },
       success: { bg: '#e8f5e9', border: '#4CAF50' },
       warning: { bg: '#fff8e1', border: '#FF9800' },
-      error:   { bg: '#fde8e8', border: '#f44336' },
+      error: { bg: '#fde8e8', border: '#f44336' },
     };
     const colors = typeStyles[this.#type] || typeStyles.info;
 
@@ -141,9 +153,7 @@ customElements.define('app-alert', AppAlert);
 ### Usage
 
 ```html
-<app-alert type="success" dismissible>
-  Your changes have been saved.
-</app-alert>
+<app-alert type="success" dismissible> Your changes have been saved. </app-alert>
 
 <script>
   document.querySelector('app-alert').addEventListener('dismiss', (e) => {
@@ -286,16 +296,22 @@ class AppRating extends HTMLElement {
   }
 
   // Key form integration points:
-  get value() { return this.#value; }
+  get value() {
+    return this.#value;
+  }
   set value(val) {
     this.#value = Number(val);
-    this.#internals.setFormValue(String(this.#value));  // Submit value
+    this.#internals.setFormValue(String(this.#value)); // Submit value
     this.#validate();
     this.#render();
   }
 
-  get form() { return this.#internals.form; }
-  get validity() { return this.#internals.validity; }
+  get form() {
+    return this.#internals.form;
+  }
+  get validity() {
+    return this.#internals.validity;
+  }
 
   #validate() {
     if (this.hasAttribute('required') && this.#value === 0) {
@@ -305,11 +321,17 @@ class AppRating extends HTMLElement {
     }
   }
 
-  formResetCallback() { this.value = 0; }          // Called on form.reset()
-  formDisabledCallback(disabled) { this.#render(); } // Called when disabled changes
+  formResetCallback() {
+    this.value = 0;
+  } // Called on form.reset()
+  formDisabledCallback(disabled) {
+    this.#render();
+  } // Called when disabled changes
   // formStateRestoreCallback(state, mode)           // Called on browser back/forward
 
-  #render() { /* build star rating UI */ }
+  #render() {
+    /* build star rating UI */
+  }
 }
 customElements.define('app-rating', AppRating);
 ```
@@ -318,17 +340,17 @@ Usage: `<form><app-rating name="rating" required></app-rating></form>` -- the va
 
 ## Lifecycle Callback Reference
 
-| Callback | When It Fires | Common Uses |
-|---|---|---|
-| `constructor()` | Element created | Attach shadow DOM, init state |
-| `connectedCallback()` | Added to document | Render, add listeners, get data |
-| `disconnectedCallback()` | Removed from document | Cleanup listeners, timers, observers |
-| `attributeChangedCallback(name, old, new)` | Observed attribute changes | Update state, re-render |
-| `adoptedCallback()` | Moved to new document | Re-initialize document-dependent code |
-| `formAssociatedCallback(form)` | Associated with a form | Store form reference |
-| `formResetCallback()` | Form is reset | Reset to default value |
-| `formDisabledCallback(disabled)` | Disabled state changes | Update UI disabled state |
-| `formStateRestoreCallback(state, mode)` | Browser restores form state | Restore saved value |
+| Callback                                   | When It Fires               | Common Uses                           |
+| ------------------------------------------ | --------------------------- | ------------------------------------- |
+| `constructor()`                            | Element created             | Attach shadow DOM, init state         |
+| `connectedCallback()`                      | Added to document           | Render, add listeners, get data       |
+| `disconnectedCallback()`                   | Removed from document       | Cleanup listeners, timers, observers  |
+| `attributeChangedCallback(name, old, new)` | Observed attribute changes  | Update state, re-render               |
+| `adoptedCallback()`                        | Moved to new document       | Re-initialize document-dependent code |
+| `formAssociatedCallback(form)`             | Associated with a form      | Store form reference                  |
+| `formResetCallback()`                      | Form is reset               | Reset to default value                |
+| `formDisabledCallback(disabled)`           | Disabled state changes      | Update UI disabled state              |
+| `formStateRestoreCallback(state, mode)`    | Browser restores form state | Restore saved value                   |
 
 ## Framework Interoperability
 
@@ -366,19 +388,20 @@ Usage: `<form><app-rating name="rating" required></app-rating></form>` -- the va
 
 ## Decision Matrix: Component Approach
 
-| Factor | Web Components | Framework Component |
-|---|---|---|
-| Cross-framework reuse needed | Preferred | Not possible |
-| Design system / shared library | Preferred | Only if single framework |
-| Requires complex state management | Consider carefully | Preferred |
-| Form integration needed | Use `formAssociated` | Native framework forms |
-| SSR required | Needs declarative shadow DOM | Better framework support |
-| Team expertise | Standards knowledge | Framework knowledge |
-| Style encapsulation critical | Shadow DOM enforces it | CSS modules / scoped styles |
+| Factor                            | Web Components               | Framework Component         |
+| --------------------------------- | ---------------------------- | --------------------------- |
+| Cross-framework reuse needed      | Preferred                    | Not possible                |
+| Design system / shared library    | Preferred                    | Only if single framework    |
+| Requires complex state management | Consider carefully           | Preferred                   |
+| Form integration needed           | Use `formAssociated`         | Native framework forms      |
+| SSR required                      | Needs declarative shadow DOM | Better framework support    |
+| Team expertise                    | Standards knowledge          | Framework knowledge         |
+| Style encapsulation critical      | Shadow DOM enforces it       | CSS modules / scoped styles |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing web components solutions
 - Reviewing or improving existing web components approaches
 - Making architectural or implementation decisions about web components
@@ -386,6 +409,7 @@ Usage: `<form><app-rating name="rating" required></app-rating></form>` -- the va
 - Troubleshooting web components-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -396,21 +420,26 @@ Usage: `<form><app-rating name="rating" required></app-rating></form>` -- the va
 # Web Components Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,9 +7,7 @@
   "websiteUrl": "https://slack.com/marketplace/mcp",
   "repository": { "url": "https://github.com/slackapi/slack-mcp-server", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.slack.com" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.slack.com" }],
   "x-wayland": {
     "tier": "core",
     "categories": ["communication", "productivity"],

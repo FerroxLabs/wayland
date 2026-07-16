@@ -85,7 +85,12 @@ const TMP_SUFFIX = '.tmp';
 export class VoiceAssetManager {
   private static readonly active = new Map<string, AbortController>();
 
-  static async download(asset: VoiceAsset, onProgress?: (p: DownloadProgress) => void, signal?: AbortSignal, io: VoiceAssetIo = defaultVoiceAssetIo): Promise<DownloadResult> {
+  static async download(
+    asset: VoiceAsset,
+    onProgress?: (p: DownloadProgress) => void,
+    signal?: AbortSignal,
+    io: VoiceAssetIo = defaultVoiceAssetIo
+  ): Promise<DownloadResult> {
     if (io.exists(asset.destPath)) {
       return {
         assetId: asset.id,
@@ -127,7 +132,10 @@ export class VoiceAssetManager {
       if (!response.ok || !response.body) {
         await writer.close();
         await io.unlink(tmpPath);
-        throw new VoiceAssetDownloadError('VOICE_ASSET_FETCH_FAILED', `${response.status} ${response.statusText || ''}`.trim());
+        throw new VoiceAssetDownloadError(
+          'VOICE_ASSET_FETCH_FAILED',
+          `${response.status} ${response.statusText || ''}`.trim()
+        );
       }
 
       const contentLength = response.headers.get('content-length');

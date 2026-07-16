@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "retirement-planning personal-finance estate-planning planning step-by-step"
-  category: "life-event"
-  depends: "retirement-savings-calculator net-worth-tracker budget-planning insurance-needs-assessment will-preparation-checklist estate-document-organizer career-pivot-roadmap"
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'retirement-planning personal-finance estate-planning planning step-by-step'
+  category: 'life-event'
+  depends: 'retirement-savings-calculator net-worth-tracker budget-planning insurance-needs-assessment will-preparation-checklist estate-document-organizer career-pivot-roadmap'
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
 
 # Start Retirement

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare teaching checklist template guide testing analysis planning"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'healthcare teaching checklist template guide testing analysis planning'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Medical Education Designer
@@ -22,15 +22,16 @@ You are a medical education design specialist who helps health professions educa
 
 > **DISCLAIMER**: This skill provides general guidance on medical education design for professional development purposes only. It does not constitute medical advice, clinical training, or a substitute for accredited health professions education programs. Educational designs should be reviewed by qualified medical educators, subject matter experts, and institutional education committees. Clinical content used in educational materials must be validated for accuracy by appropriate clinical experts. Always follow your institution's policies and accreditation requirements.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about medical education designer techniques or best practices
 - User needs guidance on medical education designer concepts
 - User wants to implement or improve their approach to medical education designer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of medical education designer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -52,15 +53,15 @@ Before designing medical education experiences:
 
 ### Simulation Types
 
-| Type | Description | Best For | Resource Level |
-|------|-------------|----------|---------------|
-| Standardized patient (SP) | Trained actors portraying patients | Communication skills, history-taking, physical exam, difficult conversations | Moderate to high |
-| Task trainer | Partial-body models for specific procedures | Technical skills (IV insertion, suturing, intubation) | Low to moderate |
-| High-fidelity mannequin | Full-body computerized mannequin | Team-based resuscitation, acute care scenarios | High |
-| Virtual simulation | Computer-based clinical scenarios | Clinical reasoning, decision-making, large group access | Moderate (technology) |
-| In-situ simulation | Simulation conducted in the actual clinical environment | Systems testing, team dynamics, latent safety threat identification | Variable |
-| Tabletop simulation | Discussion-based scenario walkthrough | Emergency preparedness, process review, low-resource settings | Low |
-| Hybrid simulation | Combination of SP with task trainer or technology | Procedures requiring both communication and technical skills | Moderate to high |
+| Type                      | Description                                             | Best For                                                                     | Resource Level        |
+| ------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------- |
+| Standardized patient (SP) | Trained actors portraying patients                      | Communication skills, history-taking, physical exam, difficult conversations | Moderate to high      |
+| Task trainer              | Partial-body models for specific procedures             | Technical skills (IV insertion, suturing, intubation)                        | Low to moderate       |
+| High-fidelity mannequin   | Full-body computerized mannequin                        | Team-based resuscitation, acute care scenarios                               | High                  |
+| Virtual simulation        | Computer-based clinical scenarios                       | Clinical reasoning, decision-making, large group access                      | Moderate (technology) |
+| In-situ simulation        | Simulation conducted in the actual clinical environment | Systems testing, team dynamics, latent safety threat identification          | Variable              |
+| Tabletop simulation       | Discussion-based scenario walkthrough                   | Emergency preparedness, process review, low-resource settings                | Low                   |
+| Hybrid simulation         | Combination of SP with task trainer or technology       | Procedures requiring both communication and technical skills                 | Moderate to high      |
 
 ### Simulation Scenario Design Template
 
@@ -126,12 +127,12 @@ Debriefing is the most important part of simulation-based education. The learnin
 
 **Phases of Debriefing**
 
-| Phase | Purpose | Techniques |
-|-------|---------|-----------|
-| **Reactions** | Process emotions and initial impressions | "How are you feeling?" "What was your initial reaction?" |
-| **Description** | Establish a shared understanding of what happened | "Walk me through what happened from your perspective" |
-| **Analysis** | Explore thinking, decisions, and alternatives | "What were you thinking when...?" "What led you to that decision?" |
-| **Summary** | Identify key takeaways and transfer to practice | "What are you taking away from this?" "What will you do differently?" |
+| Phase           | Purpose                                           | Techniques                                                            |
+| --------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
+| **Reactions**   | Process emotions and initial impressions          | "How are you feeling?" "What was your initial reaction?"              |
+| **Description** | Establish a shared understanding of what happened | "Walk me through what happened from your perspective"                 |
+| **Analysis**    | Explore thinking, decisions, and alternatives     | "What were you thinking when...?" "What led you to that decision?"    |
+| **Summary**     | Identify key takeaways and transfer to practice   | "What are you taking away from this?" "What will you do differently?" |
 
 **Debriefing Best Practices**
 
@@ -238,35 +239,35 @@ Facilitator Guide:
 
 Health professions education commonly uses competency-based frameworks. Regardless of the specific framework, the general domains include:
 
-| Domain | Description | Assessment Methods |
-|--------|-------------|-------------------|
-| Medical/clinical knowledge | Foundation of scientific and clinical knowledge | Written exams, oral exams, case discussions |
-| Patient care / Clinical skills | Ability to provide effective, safe clinical care | OSCEs, direct observation, simulation |
-| Communication | Effective interaction with patients, families, and teams | Standardized patient encounters, observation, 360 feedback |
-| Professionalism | Ethical behavior, accountability, respect | Behavioral observation, self-assessment, peer feedback |
-| Systems-based practice | Understanding and navigating healthcare systems | Quality improvement projects, systems analysis |
-| Practice-based learning | Self-directed learning and evidence application | Learning portfolios, journal clubs, reflective practice |
-| Interprofessional collaboration | Working effectively with other health professions | Team simulations, direct observation, peer assessment |
+| Domain                          | Description                                              | Assessment Methods                                         |
+| ------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------- |
+| Medical/clinical knowledge      | Foundation of scientific and clinical knowledge          | Written exams, oral exams, case discussions                |
+| Patient care / Clinical skills  | Ability to provide effective, safe clinical care         | OSCEs, direct observation, simulation                      |
+| Communication                   | Effective interaction with patients, families, and teams | Standardized patient encounters, observation, 360 feedback |
+| Professionalism                 | Ethical behavior, accountability, respect                | Behavioral observation, self-assessment, peer feedback     |
+| Systems-based practice          | Understanding and navigating healthcare systems          | Quality improvement projects, systems analysis             |
+| Practice-based learning         | Self-directed learning and evidence application          | Learning portfolios, journal clubs, reflective practice    |
+| Interprofessional collaboration | Working effectively with other health professions        | Team simulations, direct observation, peer assessment      |
 
 ### Assessment Methods
 
-| Method | What It Measures | Strengths | Limitations |
-|--------|-----------------|-----------|-------------|
-| Written exam (MCQ) | Knowledge recall and application | Standardized, efficient, reliable | Does not assess clinical skills or behavior |
-| OSCE | Clinical skills in standardized scenarios | Standardized, multi-station, observable | Resource-intensive, artificial setting |
-| Direct observation | Real clinical performance | Authentic, contextual | Assessor variability, Hawthorne effect |
-| Mini-CEX | Brief clinical encounters with feedback | Feasible, longitudinal, formative | Single-point observation, assessor bias |
-| 360-degree feedback | Behavior as perceived by multiple raters | Multi-perspective, captures interpersonal skills | Subjectivity, leniency bias |
-| Portfolio | Longitudinal evidence of growth | Learner-driven, comprehensive, reflective | Time-intensive to create and assess |
-| Simulation assessment | Performance in controlled clinical scenarios | Standardized, repeatable, safe | May not transfer to real practice |
-| Chart-stimulated recall | Clinical reasoning behind documentation | Explores thinking behind decisions | Retrospective, memory-dependent |
+| Method                  | What It Measures                             | Strengths                                        | Limitations                                 |
+| ----------------------- | -------------------------------------------- | ------------------------------------------------ | ------------------------------------------- |
+| Written exam (MCQ)      | Knowledge recall and application             | Standardized, efficient, reliable                | Does not assess clinical skills or behavior |
+| OSCE                    | Clinical skills in standardized scenarios    | Standardized, multi-station, observable          | Resource-intensive, artificial setting      |
+| Direct observation      | Real clinical performance                    | Authentic, contextual                            | Assessor variability, Hawthorne effect      |
+| Mini-CEX                | Brief clinical encounters with feedback      | Feasible, longitudinal, formative                | Single-point observation, assessor bias     |
+| 360-degree feedback     | Behavior as perceived by multiple raters     | Multi-perspective, captures interpersonal skills | Subjectivity, leniency bias                 |
+| Portfolio               | Longitudinal evidence of growth              | Learner-driven, comprehensive, reflective        | Time-intensive to create and assess         |
+| Simulation assessment   | Performance in controlled clinical scenarios | Standardized, repeatable, safe                   | May not transfer to real practice           |
+| Chart-stimulated recall | Clinical reasoning behind documentation      | Explores thinking behind decisions               | Retrospective, memory-dependent             |
 
 ### Rubric Design for Clinical Competencies
 
 **Milestone-Based Rubric Template**
 
-| Competency | Level 1 (Novice) | Level 2 (Advanced Beginner) | Level 3 (Competent) | Level 4 (Proficient) | Level 5 (Expert) |
-|------------|-------------------|---------------------------|--------------------|--------------------|-----------------|
+| Competency        | Level 1 (Novice)                                                        | Level 2 (Advanced Beginner)                        | Level 3 (Competent)                                                                        | Level 4 (Proficient)                                     | Level 5 (Expert)                       |
+| ----------------- | ----------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------- | -------------------------------------- |
 | [Competency name] | Requires direct supervision for basic tasks; identifies simple findings | Performs with guidance; recognizes common patterns | Functions independently in routine situations; manages complexity with minimal supervision | Manages complex and ambiguous situations; teaches others | Innovates and leads; recognized expert |
 
 **Assessment Quality Checklist**
@@ -284,26 +285,26 @@ Health professions education commonly uses competency-based frameworks. Regardle
 
 ### Learner Dashboard Components
 
-| Data Element | Source | Update Frequency |
-|-------------|--------|-----------------|
-| Competency milestone levels | Faculty assessments, OSCE scores | Per rotation or assessment period |
-| Procedure log | Learner-entered, supervisor-verified | Continuous |
-| Simulation performance | Simulation center records | Per session |
-| Exam scores | Testing platform | Per exam |
-| Feedback summaries | Multi-source feedback compilations | Per rotation |
-| Self-assessment | Learner reflections | Monthly or per rotation |
-| Learning goals | Learner-set with advisor input | Reviewed monthly |
-| Remediation status | Program leadership tracking | As needed |
+| Data Element                | Source                               | Update Frequency                  |
+| --------------------------- | ------------------------------------ | --------------------------------- |
+| Competency milestone levels | Faculty assessments, OSCE scores     | Per rotation or assessment period |
+| Procedure log               | Learner-entered, supervisor-verified | Continuous                        |
+| Simulation performance      | Simulation center records            | Per session                       |
+| Exam scores                 | Testing platform                     | Per exam                          |
+| Feedback summaries          | Multi-source feedback compilations   | Per rotation                      |
+| Self-assessment             | Learner reflections                  | Monthly or per rotation           |
+| Learning goals              | Learner-set with advisor input       | Reviewed monthly                  |
+| Remediation status          | Program leadership tracking          | As needed                         |
 
 ### Progress Review Meeting Structure
 
-| Phase | Duration | Activities |
-|-------|----------|-----------|
-| Data review | 10 min | Reviewer presents compiled assessment data |
-| Learner reflection | 10 min | Learner shares self-assessment and reflections |
-| Discussion | 15 min | Compare data with self-assessment; identify patterns |
-| Goal setting | 10 min | Agree on specific goals for the next period |
-| Documentation | 5 min | Record meeting outcomes and goals |
+| Phase              | Duration | Activities                                           |
+| ------------------ | -------- | ---------------------------------------------------- |
+| Data review        | 10 min   | Reviewer presents compiled assessment data           |
+| Learner reflection | 10 min   | Learner shares self-assessment and reflections       |
+| Discussion         | 15 min   | Compare data with self-assessment; identify patterns |
+| Goal setting       | 10 min   | Agree on specific goals for the next period          |
+| Documentation      | 5 min    | Record meeting outcomes and goals                    |
 
 ### Identifying and Supporting Struggling Learners
 
@@ -361,12 +362,12 @@ Documentation:
 
 ### Kirkpatrick's Four Levels Applied to Medical Education
 
-| Level | Question | Data Sources |
-|-------|----------|-------------|
-| 1. Reaction | Did learners find the experience valuable and engaging? | Post-session evaluations, satisfaction surveys |
-| 2. Learning | Did learners gain knowledge, skills, or attitudes? | Pre/post assessments, OSCE scores, exam results |
-| 3. Behavior | Did learners change their practice as a result? | Direct observation, chart review, patient outcomes |
-| 4. Results | Did the education improve patient or system outcomes? | Quality metrics, patient satisfaction, safety data |
+| Level       | Question                                                | Data Sources                                       |
+| ----------- | ------------------------------------------------------- | -------------------------------------------------- |
+| 1. Reaction | Did learners find the experience valuable and engaging? | Post-session evaluations, satisfaction surveys     |
+| 2. Learning | Did learners gain knowledge, skills, or attitudes?      | Pre/post assessments, OSCE scores, exam results    |
+| 3. Behavior | Did learners change their practice as a result?         | Direct observation, chart review, patient outcomes |
+| 4. Results  | Did the education improve patient or system outcomes?   | Quality metrics, patient satisfaction, safety data |
 
 ### Continuous Improvement Cycle
 
@@ -377,7 +378,6 @@ Documentation:
 5. **Evaluate impact**: Did the changes produce the desired effect?
 6. **Document**: Record decisions and rationale for accreditation and future reference
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -385,7 +385,6 @@ Documentation:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -406,14 +405,12 @@ Documentation:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

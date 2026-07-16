@@ -78,7 +78,7 @@ describe('teams bundle (vendored) - content smoke', () => {
 
   it('exactly the 7 Standing Companies have standing:true and non-empty rituals[]', () => {
     const standing = bundle.filter((a) => a.standing === true);
-    expect(standing.map((a) => a.id).sort()).toEqual(STANDING_IDS);
+    expect(standing.map((a) => a.id).toSorted()).toEqual(STANDING_IDS);
     for (const company of standing) {
       expect(Array.isArray(company.rituals)).toBe(true);
       expect((company.rituals ?? []).length).toBeGreaterThan(0);

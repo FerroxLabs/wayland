@@ -6,14 +6,7 @@
 
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  MoreHorizontal,
-  Shield,
-  ShieldAlert,
-  ShieldOff,
-  ShieldQuestion,
-  Star,
-} from 'lucide-react';
+import { MoreHorizontal, Shield, ShieldAlert, ShieldOff, ShieldQuestion, Star } from 'lucide-react';
 import type { SkillIndexEntry, SkillSource, SkillVerdict } from '@/common/types/skillTypes';
 import { toDisplayName } from './displayName';
 
@@ -158,9 +151,7 @@ const SkillRow: React.FC<Props> = ({ entry, pinned, onTogglePin, onClick }) => {
                     }),
               }}
             >
-              {isBlocked
-                ? t('filters.verdict.blocked', 'Blocked')
-                : t('filters.verdict.review', 'Review')}
+              {isBlocked ? t('filters.verdict.blocked', 'Blocked') : t('filters.verdict.review', 'Review')}
             </span>
           ) : null}
         </div>

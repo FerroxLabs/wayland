@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "statistics analysis data-science"
-  category: "data-analysis"
-  subcategory: "exploratory-data-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'statistics analysis data-science'
+  category: 'data-analysis'
+  subcategory: 'exploratory-data-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Outlier Detection
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks whether extreme values in a numeric column are errors, anomalies, or legitimate extremes -- and needs a systematic, documented decision for each
 - The user reports that the mean and standard deviation seem inflated or distorted, or that a regression model is behaving unexpectedly due to leverage points
 - The user is preparing data for statistical modeling (regression, clustering, PCA) and needs to identify influential observations before fitting the model
@@ -30,6 +32,7 @@ metadata:
 - The user has a skewed distribution (income, prices, sensor readings, count data) and wants outlier detection that does not assume normality
 
 **Do NOT use when:**
+
 - The user wants a full exploratory data analysis of distributions, correlations, and data types -- use `eda-framework` instead
 - The user wants to address multiple data quality issues simultaneously -- missing values, encoding inconsistencies, type mismatches -- use `data-cleaning-protocol` instead
 - The user wants to detect anomalies in sequential time-series data, where temporal autocorrelation makes standard IQR/z-score methods inappropriate -- use a time-series anomaly detection approach with rolling baselines or STL decomposition
@@ -68,6 +71,7 @@ Descriptive statistics reveal whether standard outlier thresholds are appropriat
 - Compare mean vs. median: if mean > median by more than one standard deviation, right-skew is severe; if mean < median by that margin, left-skew is severe; in either case, rely on IQR over z-score
 
 **In Excel/Sheets:**
+
 - Skewness: `=SKEW(range)`
 - Kurtosis: `=KURT(range)` -- excess kurtosis > 3 (leptokurtic) means heavy tails and more legitimate extreme values than a normal distribution would produce
 - Coefficient of variation: `=STDEV(range)/AVERAGE(range)`
@@ -80,14 +84,15 @@ The IQR method is non-parametric and does not assume normality, making it suitab
 
 - Compute Q1 = 25th percentile and Q3 = 75th percentile
 - Compute IQR = Q3 -- Q1
-- Compute the standard inner fence: lower = Q1 -- 1.5 * IQR; upper = Q3 + 1.5 * IQR; flag values outside this range as "mild outliers"
-- Compute the outer fence: lower = Q1 -- 3.0 * IQR; upper = Q3 + 3.0 * IQR; flag values outside this range as "extreme outliers" -- these are the cases most likely to be errors or system artifacts
+- Compute the standard inner fence: lower = Q1 -- 1.5 _ IQR; upper = Q3 + 1.5 _ IQR; flag values outside this range as "mild outliers"
+- Compute the outer fence: lower = Q1 -- 3.0 _ IQR; upper = Q3 + 3.0 _ IQR; flag values outside this range as "extreme outliers" -- these are the cases most likely to be errors or system artifacts
 - Override the statistical lower fence with the domain minimum if the statistical fence is below a physically impossible value (e.g., if the lower fence calculates to -$67,500 and revenue cannot be negative, the effective lower fence is $0)
 - For heavily right-skewed data (income, asset values, response counts), consider applying IQR on the log-transformed values: compute log(x) for each value, apply IQR to the log scale, then back-transform the fences using exp(); this prevents the right tail from being over-flagged relative to the left tail
 - Count: (a) values below the lower inner fence, (b) values above the upper inner fence, (c) values beyond the outer fence on either side
 - If more than 10% of values fall outside the inner fence, the distribution is likely heavy-tailed or multimodal, not a dataset with occasional outliers; report this prominently
 
 **In Excel/Sheets:**
+
 ```
 Q1:           =PERCENTILE(range, 0.25)
 Q3:           =PERCENTILE(range, 0.75)
@@ -114,9 +119,10 @@ The z-score method complements IQR but must be interpreted with awareness of its
   - |z| > 4.0: extreme outlier -- expected in roughly 1 in 15,800 records from a normal distribution; almost always worth investigating regardless of domain
 - Be aware of the masking effect: a single massive outlier inflates the standard deviation, compressing all other z-scores toward zero -- this can cause the z-score method to miss additional outliers that the IQR method catches; if one value has |z| > 5, re-run z-scores after excluding it
 - For small samples (n < 30), z-scores are unstable because the sample standard deviation is a poor estimate of the population standard deviation; rely on IQR as primary and treat z-scores as advisory only
-- Use the modified z-score (Iglewicz-Hoaglin method) when the data is skewed: modified z = 0.6745 * (value -- median) / MAD, where MAD is the median absolute deviation; flag modified |z| > 3.5; this method is more robust than the standard z-score for non-normal data
+- Use the modified z-score (Iglewicz-Hoaglin method) when the data is skewed: modified z = 0.6745 \* (value -- median) / MAD, where MAD is the median absolute deviation; flag modified |z| > 3.5; this method is more robust than the standard z-score for non-normal data
 
 **In Excel/Sheets:**
+
 ```
 Z-score:         =(value - AVERAGE(range)) / STDEV(range)
 Z-score flag:    =IF(ABS([z cell])>4,"EXTREME",IF(ABS([z cell])>3,"OUTLIER",IF(ABS([z cell])>2.5,"PROBABLE",IF(ABS([z cell])>2,"INVESTIGATE","OK"))))
@@ -159,33 +165,39 @@ The most important step -- determining WHY a value is extreme drives every subse
 Map each outlier's classification to a concrete, justified action using the decision framework below.
 
 **Remove (delete the row or null the value):**
+
 - Use only when the value is confirmed as a data entry error or measurement error AND no correction can be made
 - Never remove solely because a value is statistically unusual -- that is circular reasoning
 - Document the record identifier, original value, and reason for removal
 - Removal changes the dataset's n; note this in the report
 
 **Cap / Winsorize (replace with the fence value):**
+
 - Replace values beyond the inner fence with the fence value itself (not the nearest non-outlier)
 - Use when: the record is otherwise valid, removing the row would lose important non-outlier information in other columns, and the analysis is sensitive to extreme values (e.g., regression, PCA)
 - Standard Winsorization levels: 1% (cap the top and bottom 1%), 5% (cap the top and bottom 5%), or IQR-fence-based (cap at Q3 + 1.5*IQR and Q1 -- 1.5*IQR)
 - After capping, always recompute the mean and standard deviation to confirm the impact
 
 **Flag (mark with an indicator column, retain original value):**
+
 - Add a binary column (e.g., `revenue_outlier_flag = 1`) to mark the observation
 - Use when: the value is a legitimate extreme, the analysis should run both with and without the flagged records, or downstream users need to make their own judgment
 - This is the safest action when classification is uncertain -- it preserves data while creating visibility
 
 **Transform (apply a mathematical transformation to the whole column):**
+
 - When a large fraction of values are flagged because the variable is naturally right-skewed (income, prices, counts), a log transformation or square root transformation may compress the distribution so that the IQR/z-score methods behave appropriately
 - Apply log(x + 1) rather than log(x) when zeroes are present
 - After transformation, re-run outlier detection on the transformed values
 
 **Keep with documentation:**
+
 - Use when the value is a confirmed legitimate extreme and the analysis should accurately represent the full distribution
 - Explicitly document: "Store 47's $890,000 revenue is a confirmed flagship location and is included in all calculations"
 - Provide both mean and median in summary statistics so readers can see the outlier's influence
 
 **Investigate (defer decision):**
+
 - Use when the classification cannot be determined from data alone
 - Provide the specific record identifier, the value, the z-score, and the IQR fence distance to the data owner
 - Set a resolution deadline -- "flagged for review; excluded from this analysis pending confirmation"
@@ -302,20 +314,22 @@ Measure how much the identified outliers actually affect the analysis to help th
 ### Formulas Reference (Excel / Google Sheets)
 
 ```
-Q1:                 =PERCENTILE([range], 0.25)
-Q3:                 =PERCENTILE([range], 0.75)
-IQR:                =[Q3 cell] - [Q1 cell]
-Lower inner fence:  =[Q1 cell] - 1.5 * [IQR cell]
-Upper inner fence:  =[Q3 cell] + 1.5 * [IQR cell]
-Lower outer fence:  =[Q1 cell] - 3.0 * [IQR cell]
-Upper outer fence:  =[Q3 cell] + 3.0 * [IQR cell]
-IQR flag:           =IF([cell]<[lo outer],"EXTREME LOW",IF([cell]<[li inner],"MILD LOW",IF([cell]>[uo outer],"EXTREME HIGH",IF([cell]>[ui inner],"MILD HIGH","OK"))))
-Z-score:            =([cell] - AVERAGE([range])) / STDEV([range])
-Z-score flag:       =IF(ABS([z])>4,"EXTREME",IF(ABS([z])>3,"OUTLIER",IF(ABS([z])>2.5,"PROBABLE",IF(ABS([z])>2,"INVESTIGATE","OK"))))
-MAD:                =MEDIAN(ABS([range] - MEDIAN([range])))
-Modified z-score:   =0.6745 * ([cell] - MEDIAN([range])) / [MAD cell]
-Winsorized value:   =MAX([lower inner fence], MIN([cell], [upper inner fence]))
-Trimmed mean (5%):  =TRIMMEAN([range], 0.1)
+
+Q1: =PERCENTILE([range], 0.25)
+Q3: =PERCENTILE([range], 0.75)
+IQR: =[Q3 cell] - [Q1 cell]
+Lower inner fence: =[Q1 cell] - 1.5 _ [IQR cell]
+Upper inner fence: =[Q3 cell] + 1.5 _ [IQR cell]
+Lower outer fence: =[Q1 cell] - 3.0 _ [IQR cell]
+Upper outer fence: =[Q3 cell] + 3.0 _ [IQR cell]
+IQR flag: =IF([cell]<[lo outer],"EXTREME LOW",IF([cell]<[li inner],"MILD LOW",IF([cell]>[uo outer],"EXTREME HIGH",IF([cell]>[ui inner],"MILD HIGH","OK"))))
+Z-score: =([cell] - AVERAGE([range])) / STDEV([range])
+Z-score flag: =IF(ABS([z])>4,"EXTREME",IF(ABS([z])>3,"OUTLIER",IF(ABS([z])>2.5,"PROBABLE",IF(ABS([z])>2,"INVESTIGATE","OK"))))
+MAD: =MEDIAN(ABS([range] - MEDIAN([range])))
+Modified z-score: =0.6745 \* ([cell] - MEDIAN([range])) / [MAD cell]
+Winsorized value: =MAX([lower inner fence], MIN([cell], [upper inner fence]))
+Trimmed mean (5%): =TRIMMEAN([range], 0.1)
+
 ```
 
 ---
@@ -339,7 +353,7 @@ Trimmed mean (5%):  =TRIMMEAN([range], 0.1)
 
 2. **Always apply both IQR and z-score methods and compare their results.** Neither method is sufficient alone. IQR misses outliers when the distribution has extreme skew and the fence is placed very far out. Z-score misses outliers when a single massive value inflates the standard deviation (the masking effect). The comparison between methods is itself diagnostic information.
 
-3. **Apply domain fences before statistical fences.** If a variable cannot physically be negative (revenue, age, count, probability), the effective lower fence is zero regardless of what Q1 -- 1.5*IQR calculates to. Always state domain fences explicitly.
+3. **Apply domain fences before statistical fences.** If a variable cannot physically be negative (revenue, age, count, probability), the effective lower fence is zero regardless of what Q1 -- 1.5\*IQR calculates to. Always state domain fences explicitly.
 
 4. **Identify sentinel values before running any calculation.** Values of -1, 0, -999, 9999, 99999, or any value the user confirms is a missing-data placeholder must be excluded from the analysis and reclassified as missing. Including them corrupts every statistical fence and summary statistic.
 
@@ -365,7 +379,7 @@ Trimmed mean (5%):  =TRIMMEAN([range], 0.1)
 
 ### Masking Effect: A Single Extreme Value Hides Others
 
-When one value is dramatically larger than all others (e.g., a data entry of 9,000,000 when all other values are under 1,000), the standard deviation is inflated so severely that every other value compresses to a z-score near zero -- meaning genuine outliers are invisible to the z-score method. Detect this situation by comparing the maximum value to Q3 + 10 * IQR; if the maximum exceeds this, masking is likely. The remedy: run z-score analysis twice -- once on the full dataset and once excluding the single extreme value. Report both sets of results. The IQR method is unaffected by masking because it uses quartiles, not the mean and standard deviation.
+When one value is dramatically larger than all others (e.g., a data entry of 9,000,000 when all other values are under 1,000), the standard deviation is inflated so severely that every other value compresses to a z-score near zero -- meaning genuine outliers are invisible to the z-score method. Detect this situation by comparing the maximum value to Q3 + 10 \* IQR; if the maximum exceeds this, masking is likely. The remedy: run z-score analysis twice -- once on the full dataset and once excluding the single extreme value. Report both sets of results. The IQR method is unaffected by masking because it uses quartiles, not the mean and standard deviation.
 
 ### Right-Skewed Variables (Income, Revenue, Prices, Counts)
 
@@ -419,18 +433,18 @@ If a data entry error caused a record to be duplicated many times (say, the same
 
 ### Descriptive Statistics
 
-| Statistic | Value |
-|-----------|-------|
-| Minimum | $18.50 |
-| Q1 (25th percentile) | $62.00 |
-| Median (Q2) | $127.00 |
-| Q3 (75th percentile) | $241.00 |
-| Maximum | $4,200.00 |
-| Mean (all 113 records) | $287.40 |
-| Standard deviation | $412.80 |
-| Skewness coefficient | 2.41 |
-| Coefficient of variation | 1.44 |
-| IQR | $179.00 |
+| Statistic                | Value     |
+| ------------------------ | --------- |
+| Minimum                  | $18.50    |
+| Q1 (25th percentile)     | $62.00    |
+| Median (Q2)              | $127.00   |
+| Q3 (75th percentile)     | $241.00   |
+| Maximum                  | $4,200.00 |
+| Mean (all 113 records)   | $287.40   |
+| Standard deviation       | $412.80   |
+| Skewness coefficient     | 2.41      |
+| Coefficient of variation | 1.44      |
+| IQR                      | $179.00   |
 
 Note: Skewness of 2.41 and coefficient of variation of 1.44 confirm heavy right skew. The z-score method is unreliable as a primary method here. The inflated mean ($287.40 vs. median $127.00) is almost entirely explained by a small number of high-value transactions.
 
@@ -438,16 +452,16 @@ Note: Skewness of 2.41 and coefficient of variation of 1.44 confirm heavy right 
 
 ### IQR Method Results
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Lower inner fence (Q1 -- 1.5×IQR) | -$206.50 | Domain override: effective lower fence = $0.00 (transaction value cannot be negative) |
-| Upper inner fence (Q3 + 1.5×IQR) | $509.50 | |
-| Lower outer fence (Q1 -- 3.0×IQR) | -$475.00 | Domain override: effective lower fence = $0.00 |
-| Upper outer fence (Q3 + 3.0×IQR) | $778.00 | |
-| Mild outliers below lower inner fence | 0 (0%) | All low-end values are above $0 |
-| Mild outliers above upper inner fence | 8 (7.1%) | Values between $509.50 and $778.00 |
-| Extreme outliers beyond upper outer fence | 3 (2.7%) | Values above $778.00 |
-| **Total IQR-flagged** | **11 (9.7%)** | |
+| Metric                                    | Value         | Notes                                                                                 |
+| ----------------------------------------- | ------------- | ------------------------------------------------------------------------------------- |
+| Lower inner fence (Q1 -- 1.5×IQR)         | -$206.50      | Domain override: effective lower fence = $0.00 (transaction value cannot be negative) |
+| Upper inner fence (Q3 + 1.5×IQR)          | $509.50       |                                                                                       |
+| Lower outer fence (Q1 -- 3.0×IQR)         | -$475.00      | Domain override: effective lower fence = $0.00                                        |
+| Upper outer fence (Q3 + 3.0×IQR)          | $778.00       |                                                                                       |
+| Mild outliers below lower inner fence     | 0 (0%)        | All low-end values are above $0                                                       |
+| Mild outliers above upper inner fence     | 8 (7.1%)      | Values between $509.50 and $778.00                                                    |
+| Extreme outliers beyond upper outer fence | 3 (2.7%)      | Values above $778.00                                                                  |
+| **Total IQR-flagged**                     | **11 (9.7%)** |                                                                                       |
 
 Note: 9.7% flagged is above the 7% threshold that suggests a distributional issue rather than individual errors. The right-skewed nature of transaction data explains this -- this is expected for e-commerce or retail transaction data. The flagged records still warrant individual review.
 
@@ -455,15 +469,15 @@ Note: 9.7% flagged is above the 7% threshold that suggests a distributional issu
 
 ### Z-Score / Modified Z-Score Method Results
 
-| Metric | Value |
-|--------|-------|
-| Mean | $287.40 |
-| Standard deviation | $412.80 |
-| Median absolute deviation (MAD) | $76.50 |
-| Values with \|z\| > 2.0 (investigate) | 5 (4.4%) |
-| Values with \|z\| > 2.5 (probable outlier) | 4 (3.5%) |
-| Values with \|z\| > 3.0 (outlier) | 3 (2.7%) |
-| Values with \|z\| > 4.0 (extreme outlier) | 2 (1.8%) |
+| Metric                                         | Value    |
+| ---------------------------------------------- | -------- |
+| Mean                                           | $287.40  |
+| Standard deviation                             | $412.80  |
+| Median absolute deviation (MAD)                | $76.50   |
+| Values with \|z\| > 2.0 (investigate)          | 5 (4.4%) |
+| Values with \|z\| > 2.5 (probable outlier)     | 4 (3.5%) |
+| Values with \|z\| > 3.0 (outlier)              | 3 (2.7%) |
+| Values with \|z\| > 4.0 (extreme outlier)      | 2 (1.8%) |
 | Values with \|modified z\| > 3.5 (robust flag) | 9 (8.0%) |
 
 Note: The modified z-score (which uses the median and MAD instead of mean and SD) flags 9 values -- much closer to the IQR result of 11 -- confirming that the standard z-score is understating the problem due to SD inflation from the extreme values. Use modified z-score results as the z-score reference for this dataset.
@@ -472,31 +486,31 @@ Note: The modified z-score (which uses the median and MAD instead of mean and SD
 
 ### Method Agreement Summary
 
-| Agreement Level | Count | Values / Range |
-|----------------|-------|----------------|
-| Flagged by BOTH IQR and modified z-score (strong evidence) | 8 | $530, $615, $720, $780, $910, $1,450, $2,800, $4,200 |
-| Flagged by IQR only | 3 | $512, $518, $525 |
-| Flagged by modified z-score only | 1 | $505 |
-| Sentinel values (-1.00) excluded before analysis | 7 | All equal to -1.00 |
+| Agreement Level                                            | Count | Values / Range                                       |
+| ---------------------------------------------------------- | ----- | ---------------------------------------------------- |
+| Flagged by BOTH IQR and modified z-score (strong evidence) | 8     | $530, $615, $720, $780, $910, $1,450, $2,800, $4,200 |
+| Flagged by IQR only                                        | 3     | $512, $518, $525                                     |
+| Flagged by modified z-score only                           | 1     | $505                                                 |
+| Sentinel values (-1.00) excluded before analysis           | 7     | All equal to -1.00                                   |
 
 ---
 
 ### Outlier Detail and Action Plan
 
-| # | Record ID | Value | IQR Fence Distance | Z-Score | Mod. Z | IQR Flag Level | Classification | Recommended Action | Rationale |
-|---|-----------|-------|--------------------|---------|--------|---------------|---------------|-------------------|-----------|
-| 1 | TXN-0047 | $4,200.00 | +21.5×IQR above Q3 | 9.47 | 26.1 | EXTREME | Ambiguous -- investigate | Investigate immediately | Value is 10× the 95th percentile; could be a data entry error (extra zero), a bulk order, or a legitimate high-value purchase; retrieve original receipt |
-| 2 | TXN-0112 | $2,800.00 | +14.3×IQR above Q3 | 6.10 | 17.3 | EXTREME | Ambiguous -- investigate | Investigate | Same reasoning as TXN-0047; both should be reviewed together to determine if they share a product category or customer segment |
-| 3 | TXN-0083 | $1,450.00 | +6.7×IQR above Q3 | 2.82 | 8.89 | EXTREME | Natural extreme possible | Flag and keep pending investigation | Could be a legitimate high-value purchase; z-score alone would classify as "probable" only; investigate but do not remove |
-| 4 | TXN-0009 | $910.00 | +3.7×IQR above Q3 | 1.51 | 5.53 | Mild | Natural extreme | Flag -- include with note | Plausible high-value transaction; well above inner fence but modified z-score confirms it is genuinely unusual relative to bulk of data |
-| 5 | TXN-0055 | $780.00 | +3.0×IQR above Q3 | 1.19 | 4.75 | Mild (at outer fence) | Natural extreme | Flag -- include with note | Sits exactly at the outer fence threshold; strong IQR evidence but z-score does not flag; include but note in report |
-| 6 | TXN-0031 | $720.00 | +2.7×IQR above Q3 | 1.05 | 4.37 | Mild | Natural extreme | Flag -- include with note | High-value but consistent with premium purchase behavior; no investigation needed |
-| 7 | TXN-0078 | $615.00 | +2.1×IQR above Q3 | 0.79 | 3.76 | Mild | Natural extreme | Flag -- include with note | Same classification; include in mean calculation but note in summary |
-| 8 | TXN-0019 | $530.00 | +1.6×IQR above Q3 | 0.59 | 3.56 | Mild | Natural extreme | Keep | Just above inner fence; modified z-score marginally elevated; retain without restriction |
-| 9 | TXN-0064 | $525.00 | +1.6×IQR above Q3 | 0.57 | 3.49 | Mild | Natural extreme | Keep | Same as TXN-0019 |
-| 10 | TXN-0102 | $518.00 | +1.5×IQR above Q3 | 0.56 | 3.43 | Mild | Natural extreme | Keep | Borderline; marginally above inner fence only |
-| 11 | TXN-0071 | $512.00 | +1.5×IQR above Q3 | 0.54 | 3.38 | Mild | Natural extreme | Keep | Same; no action needed |
-| 12 | TXN-SENTINEL | -$1.00 | -- | -- | -- | SENTINEL | System artifact (voided transaction code) | Reclassify as missing (null) | Already excluded from analysis above; confirm with data owner that all -1 values represent voids and are not legitimate refunds of $1.00 |
+| #   | Record ID    | Value     | IQR Fence Distance | Z-Score | Mod. Z | IQR Flag Level        | Classification                            | Recommended Action                  | Rationale                                                                                                                                                |
+| --- | ------------ | --------- | ------------------ | ------- | ------ | --------------------- | ----------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | TXN-0047     | $4,200.00 | +21.5×IQR above Q3 | 9.47    | 26.1   | EXTREME               | Ambiguous -- investigate                  | Investigate immediately             | Value is 10× the 95th percentile; could be a data entry error (extra zero), a bulk order, or a legitimate high-value purchase; retrieve original receipt |
+| 2   | TXN-0112     | $2,800.00 | +14.3×IQR above Q3 | 6.10    | 17.3   | EXTREME               | Ambiguous -- investigate                  | Investigate                         | Same reasoning as TXN-0047; both should be reviewed together to determine if they share a product category or customer segment                           |
+| 3   | TXN-0083     | $1,450.00 | +6.7×IQR above Q3  | 2.82    | 8.89   | EXTREME               | Natural extreme possible                  | Flag and keep pending investigation | Could be a legitimate high-value purchase; z-score alone would classify as "probable" only; investigate but do not remove                                |
+| 4   | TXN-0009     | $910.00   | +3.7×IQR above Q3  | 1.51    | 5.53   | Mild                  | Natural extreme                           | Flag -- include with note           | Plausible high-value transaction; well above inner fence but modified z-score confirms it is genuinely unusual relative to bulk of data                  |
+| 5   | TXN-0055     | $780.00   | +3.0×IQR above Q3  | 1.19    | 4.75   | Mild (at outer fence) | Natural extreme                           | Flag -- include with note           | Sits exactly at the outer fence threshold; strong IQR evidence but z-score does not flag; include but note in report                                     |
+| 6   | TXN-0031     | $720.00   | +2.7×IQR above Q3  | 1.05    | 4.37   | Mild                  | Natural extreme                           | Flag -- include with note           | High-value but consistent with premium purchase behavior; no investigation needed                                                                        |
+| 7   | TXN-0078     | $615.00   | +2.1×IQR above Q3  | 0.79    | 3.76   | Mild                  | Natural extreme                           | Flag -- include with note           | Same classification; include in mean calculation but note in summary                                                                                     |
+| 8   | TXN-0019     | $530.00   | +1.6×IQR above Q3  | 0.59    | 3.56   | Mild                  | Natural extreme                           | Keep                                | Just above inner fence; modified z-score marginally elevated; retain without restriction                                                                 |
+| 9   | TXN-0064     | $525.00   | +1.6×IQR above Q3  | 0.57    | 3.49   | Mild                  | Natural extreme                           | Keep                                | Same as TXN-0019                                                                                                                                         |
+| 10  | TXN-0102     | $518.00   | +1.5×IQR above Q3  | 0.56    | 3.43   | Mild                  | Natural extreme                           | Keep                                | Borderline; marginally above inner fence only                                                                                                            |
+| 11  | TXN-0071     | $512.00   | +1.5×IQR above Q3  | 0.54    | 3.38   | Mild                  | Natural extreme                           | Keep                                | Same; no action needed                                                                                                                                   |
+| 12  | TXN-SENTINEL | -$1.00    | --                 | --      | --     | SENTINEL              | System artifact (voided transaction code) | Reclassify as missing (null)        | Already excluded from analysis above; confirm with data owner that all -1 values represent voids and are not legitimate refunds of $1.00                 |
 
 ---
 
@@ -508,13 +522,13 @@ Note: The modified z-score (which uses the median and MAD instead of mean and SD
 
 ### Impact Assessment
 
-| Statistic | Full 113 Records | Without TXN-0047 and TXN-0112 (2 under investigation) | Without All 8 Flagged | Change (Full vs. No Flags) |
-|-----------|-----------------|-------------------------------------------------------|----------------------|---------------------------|
-| Mean | $287.40 | $238.70 | $157.20 | -$130.20 (-45.3%) |
-| Standard deviation | $412.80 | $244.60 | $92.40 | -$320.40 (-77.6%) |
-| Median | $127.00 | $126.00 | $124.50 | -$2.50 (-2.0%) |
-| Minimum | $18.50 | $18.50 | $18.50 | No change |
-| Maximum | $4,200.00 | $1,450.00 | $530.00 | -- |
+| Statistic          | Full 113 Records | Without TXN-0047 and TXN-0112 (2 under investigation) | Without All 8 Flagged | Change (Full vs. No Flags) |
+| ------------------ | ---------------- | ----------------------------------------------------- | --------------------- | -------------------------- |
+| Mean               | $287.40          | $238.70                                               | $157.20               | -$130.20 (-45.3%)          |
+| Standard deviation | $412.80          | $244.60                                               | $92.40                | -$320.40 (-77.6%)          |
+| Median             | $127.00          | $126.00                                               | $124.50               | -$2.50 (-2.0%)             |
+| Minimum            | $18.50           | $18.50                                                | $18.50                | No change                  |
+| Maximum            | $4,200.00        | $1,450.00                                             | $530.00               | --                         |
 
 **Interpretation:** The two extreme values under investigation ($4,200 and $2,800) alone account for a $48.70 inflation of the mean (17% of the full-dataset mean). If those two transactions are confirmed as data errors and removed, the mean drops to $238.70. If all 8 flagged records are excluded (very aggressive treatment), the mean drops to $157.20 -- a 45% reduction. The median barely moves regardless of treatment ($127 vs. $124.50), confirming it as the robust central tendency measure.
 
@@ -554,4 +568,4 @@ Exclude sentinel (-1):  =COUNTIF(B2:B114, -1)  [use to verify sentinel count]
 
 **Outliers with no action required:** 4 records ($530, $525, $518, $512). These are borderline IQR flags only; modified z-score and domain context support retaining them without restriction.
 
-**Recommended mean for quarterly report:** Use median ($127.00) or trimmed mean (~$148) until TXN-0047 and TXN-0112 
+**Recommended mean for quarterly report:** Use median ($127.00) or trimmed mean (~$148) until TXN-0047 and TXN-0112

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly workout-planning running checklist"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly workout-planning running checklist'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Beginner Running Plan
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user explicitly says they have never run before or have not run in 5+ years and wants to start
 - A user asks about a "couch-to-5K," "C25K," or "walk-to-run" program by name
 - A user asks how to build cardiovascular endurance from zero without prior running history
@@ -30,6 +32,7 @@ metadata:
 - A parent or coach asks for a beginner running structure to introduce a teenager or older adult to running
 
 **Do NOT use when:**
+
 - User already runs 3+ miles continuously without stopping -- use an intermediate or 10K training skill instead
 - User asks about marathon, half-marathon, or 10K race preparation -- those require periodization and long-run structures beyond this skill
 - User wants speed work, tempo runs, VO2 max training, or interval training for performance improvement -- those presuppose an aerobic base this plan builds
@@ -69,6 +72,7 @@ Use the assessment matrix below. Placing the runner in the wrong starting week i
 Construct the full progression table using the standard 8-week structure below. Adjust the starting week based on Step 2 assessment.
 
 **Session structure for every workout:**
+
 - 5-minute warm-up walk at a comfortable pace (never skip -- this is not optional)
 - The run/walk interval block (see table)
 - 5-minute cool-down walk at an easy pace
@@ -77,15 +81,15 @@ Construct the full progression table using the standard 8-week structure below. 
 **Standard 8-Week Progression Table:**
 
 | Week | Run Interval | Walk Interval | Repetitions | Total Run Time | Total Session Time | Weekly Mileage (est. @ 12:00/mi pace) |
-|------|-------------|---------------|-------------|----------------|-------------------|---------------------------------------|
-| 1    | 1 min       | 2 min         | 8           | 8 min          | 29 min            | ~2.0 miles/week (3 sessions)          |
-| 2    | 2 min       | 2 min         | 6           | 12 min         | 29 min            | ~2.5 miles/week                       |
-| 3    | 3 min       | 1.5 min       | 5           | 15 min         | 27.5 min          | ~3.0 miles/week                       |
-| 4    | 4 min       | 1 min         | 5           | 20 min         | 30 min            | ~3.5 miles/week                       |
-| 5    | 5 min       | 1 min         | 4           | 20 min         | 29 min            | ~3.5 miles/week                       |
-| 6    | 8 min       | 1 min         | 3           | 24 min         | 30 min            | ~4.0 miles/week                       |
-| 7    | 12 min      | 1 min         | 2           | 24 min         | 28 min            | ~4.0 miles/week                       |
-| 8    | 30 min      | --            | 1           | 30 min         | 35 min            | ~4.5 miles/week                       |
+| ---- | ------------ | ------------- | ----------- | -------------- | ------------------ | ------------------------------------- |
+| 1    | 1 min        | 2 min         | 8           | 8 min          | 29 min             | ~2.0 miles/week (3 sessions)          |
+| 2    | 2 min        | 2 min         | 6           | 12 min         | 29 min             | ~2.5 miles/week                       |
+| 3    | 3 min        | 1.5 min       | 5           | 15 min         | 27.5 min           | ~3.0 miles/week                       |
+| 4    | 4 min        | 1 min         | 5           | 20 min         | 30 min             | ~3.5 miles/week                       |
+| 5    | 5 min        | 1 min         | 4           | 20 min         | 29 min             | ~3.5 miles/week                       |
+| 6    | 8 min        | 1 min         | 3           | 24 min         | 30 min             | ~4.0 miles/week                       |
+| 7    | 12 min       | 1 min         | 2           | 24 min         | 28 min             | ~4.0 miles/week                       |
+| 8    | 30 min       | --            | 1           | 30 min         | 35 min             | ~4.5 miles/week                       |
 
 **Weekly mileage estimates are based on a conservative 12:00/mile pace.** Many beginners run at 13:00-14:00/mile pace, which is completely correct and results in slightly lower mileage -- this is fine. The 10% rule governs time, not distance, for beginners because beginners cannot reliably measure distance without GPS.
 
@@ -106,26 +110,31 @@ Rest day placement is as important as the run days. Provide a specific named-day
 This section is non-negotiable. Every plan must include it. Frame it as "how to make the plan work," not as medical advice.
 
 **The 10% Rule -- apply to time, not pace:**
+
 - Never increase total weekly running time by more than 10% from one week to the next
 - The standard progression in Step 3 already respects this rule when sessions are 3 per week
 - If a user adds an extra session one week (going from 3 to 4 sessions), they are effectively increasing volume by 33% -- warn against this
 
 **Shin splints (medial tibial stress syndrome):**
+
 - Cause in beginners: rapid increase in mileage or impact on hard surfaces before bone density adapts
 - Prevention: follow the progression strictly, land with feet under hips (not out in front), run on softer surfaces for the first 4 weeks, do calf raises daily
 - Warning sign: dull aching pain along the inner lower leg that starts during runs and resolves with rest. If it worsens during a run or is present at rest, stop running and rest 5-7 days
 
 **Runner's knee (patellofemoral pain syndrome):**
+
 - Cause in beginners: weak quadriceps and hip abductors allow the kneecap to track improperly
 - Prevention: single-leg glute bridges, lateral band walks, step-downs from a low step
 - Warning sign: dull ache under or around the kneecap that worsens going downstairs or sitting for long periods. Take 3-5 rest days, add hip strengthening, repeat the previous week
 
 **Plantar fasciitis:**
+
 - Cause in beginners: tight calf and Achilles complex, poor shoe support, rapid mileage increase
 - Prevention: stretch calves after every run (gastrocnemius stretch: straight knee against a wall; soleus stretch: bent knee against a wall -- 30 seconds each), roll the bottom of the foot on a frozen water bottle for 2 minutes post-run if soreness develops
 - Warning sign: sharp or stabbing heel pain on the first steps in the morning. This resolves with movement but returns. Address it at the first sign -- ignoring it leads to 3-6 months of recovery
 
 **IT band syndrome:**
+
 - Less common in beginners than in intermediate runners but can appear in Week 5-8 when run intervals lengthen
 - Warning sign: sharp pain on the outside of the knee, usually appearing after 15-20 minutes of continuous running
 - Prevention: foam roll the lateral quadriceps (not the IT band itself -- rolling the IT band directly is ineffective and painful), add hip abductor strengthening
@@ -148,18 +157,21 @@ Poor footwear is the most preventable source of beginner injury and is consisten
 Give the user a concrete system for deciding each week whether to advance or repeat.
 
 **Track for each session:**
+
 - Date and day of week
 - Intervals completed (e.g., "completed 6/8 run intervals -- stopped 2 early")
 - Perceived effort rating using the 1-10 scale: 1-3 is easy, 4-6 is moderate, 7-8 is comfortably hard, 9-10 is maximum effort. Target for most sessions: 4-6
 - Body feedback: any soreness, pain, or tightness (location matters -- muscle soreness in calves and thighs is expected and fine; joint pain in knees, ankles, or hips is a flag)
 
 **Weekly advancement decision:**
+
 - **Advance to the next week:** All 3 sessions completed AND the average perceived effort was 6 or below AND no joint pain occurred
 - **Repeat the current week:** Missed 1 or more sessions for any reason; OR the average perceived effort was 7 or above across 2+ sessions; OR any joint pain occurred (even mild)
 - **Go back one week:** If a session had to be stopped early due to pain or extreme fatigue, not just effort. Drop back one week and progress more slowly from there
 - **Critical mindset reframe for the user:** Repeating a week is not a failure -- the plan is designed to be repeated. The original Couch-to-5K research (Constance Cullum, Jeff Galloway's walk-break methodology, and modern adaptations) all explicitly account for repeated weeks as part of successful completion. The average beginner takes 10-12 weeks to complete an 8-week plan. This is normal and healthy.
 
 **After completing Week 8:**
+
 - Do not immediately run a 5K race. Spend 2 more weeks running 30 continuous minutes 3 times per week to consolidate the adaptation
 - Register for a local 5K as a motivational milestone -- many beginners find that having a registered race date increases completion rates significantly
 - At a 12:00/mile pace, 30 minutes of running covers approximately 2.5 miles. The runner will need to run 37-38 minutes to cover the full 5K. This gap is bridged by the consolidation weeks -- extend one run per week by 2-3 minutes until reaching 38 minutes
@@ -328,6 +340,7 @@ After each week, complete this review:
 ### User Has a BMI Over 35 or Describes Significant Excess Body Weight
 
 Higher body weight multiplies ground reaction force during running -- each footstrike at 200+ lbs generates considerably more impact on joints than at 150 lbs. Adjust the plan as follows:
+
 - Begin with the 2-week walking pre-program regardless of current activity level; the connective tissue loading requirement is the same even for active heavier individuals
 - Use the extended 12-week progression: spend 2 weeks on each level (Week 1a and 1b, Week 2a and 2b, etc.) rather than advancing weekly
 - Increase run interval increments to 30 seconds rather than 1-minute jumps
@@ -338,6 +351,7 @@ Higher body weight multiplies ground reaction force during running -- each foots
 ### User Is Over 55 and Has Been Sedentary for 5+ Years
 
 Cardiovascular deconditioning is more pronounced in older adults, but more importantly, bone density, tendon compliance, and proprioception (balance and joint position sense) are all reduced with age and sedentary behavior. Adjust as follows:
+
 - Recommend medical clearance before beginning any running program, and specifically mention this to the user -- not as a liability disclaimer, but because a resting ECG, blood pressure check, and brief musculoskeletal screen are genuinely useful at this stage
 - Begin with the 2-week walking pre-program
 - Use the 12-week extended progression at 2-3 days per week maximum for the first 6 weeks
@@ -348,6 +362,7 @@ Cardiovascular deconditioning is more pronounced in older adults, but more impor
 ### User Lives in a Climate With Extreme Heat (Regularly Over 85°F / 29°C)
 
 Heat is not a reason to skip runs, but it requires specific modifications:
+
 - Shift all run sessions to early morning (within 1 hour of sunrise) or evening (after 7 PM). Do not run in midday heat as a beginner under any circumstances
 - Reduce each run interval by 30 seconds for temperatures between 85-95°F (29-35°C). Above 95°F, skip the run and substitute a treadmill session or reschedule
 - Hydration: drink 16 oz of water 30-60 minutes before the run. During runs over 20 minutes in heat, carry 8-12 oz and sip every 10-15 minutes. After the run, drink to thirst over the following 2 hours
@@ -357,6 +372,7 @@ Heat is not a reason to skip runs, but it requires specific modifications:
 ### User Has Only Access to a Treadmill
 
 The entire 8-week plan translates directly to treadmill running with these specific adjustments:
+
 - Set the incline to 1.0-1.5% to simulate outdoor air resistance. Running at 0% incline on a treadmill is biomechanically easier than outdoor running and produces less cardiovascular adaptation per minute
 - The treadmill belt assists leg turnover slightly, which can make beginners run faster than their true conversational pace. Check the conversational pace test explicitly every interval -- treadmill speed readouts encourage racing the display
 - Use the treadmill timer for interval management rather than a separate watch -- this is the primary practical advantage
@@ -366,6 +382,7 @@ The entire 8-week plan translates directly to treadmill running with these speci
 ### User Wants to Run With Their Dog
 
 This is more common than it appears and creates specific complications:
+
 - Dogs must be at least 12-18 months old before beginning a running program. Puppies under 12 months have growth plates that have not yet closed, and repetitive impact can cause permanent joint damage. Giant breeds (over 50 lbs adult weight) should wait until 18-24 months
 - Start the dog at Week 1 regardless of how energetic it seems -- the dog's enthusiasm disguises musculoskeletal fatigue, and dogs will not voluntarily stop even when tired
 - Dogs overheat faster than humans and cannot communicate distress clearly. Warning signs in dogs during runs: excessive panting (mouth wide open with rapid shallow breaths), drooling that is unusual for the breed, reluctance to move forward, or seeking shade. Stop immediately if these appear and move to shade with water
@@ -375,6 +392,7 @@ This is more common than it appears and creates specific complications:
 ### User Reports Being Discouraged and Wanting to Quit (Weeks 3-5)
 
 Weeks 3-5 represent the highest statistical dropout zone in walk-to-run programs. The novelty has worn off, the effort is increasing, and results are not yet visible. Address this specifically:
+
 - The feeling of "this is getting harder, not easier" at Weeks 3-5 is physiologically accurate: the plan is intentionally increasing stimulus. The body has not yet adapted. Adaptation lags stimulus by 1-2 weeks. They are building capacity they cannot feel yet
 - Suggest three specific interventions: (1) change the route -- novel environments measurably reduce perceived effort in studies of exercise psychology; (2) add a podcast, audiobook, or playlist that is only listened to during runs (creates a Pavlovian motivation cue); (3) find a running partner even for one session per week -- social accountability is the strongest predictor of beginner running adherence in behavioral research
 - Remind the user explicitly: the hardest week of the plan (by effort) is typically Week 6, and it still has a 1-minute walk break built in. They are not being asked to run continuously for 30 minutes until Week 8
@@ -383,6 +401,7 @@ Weeks 3-5 represent the highest statistical dropout zone in walk-to-run programs
 ### User Has Asthma (Exercise-Induced or Persistent)
 
 Running is generally safe and beneficial for people with well-managed asthma, but beginners need specific guidance:
+
 - Always recommend the user consult their physician before starting and confirm their rescue inhaler is current and accessible during every run
 - Cold, dry air is a primary trigger for exercise-induced bronchoconstriction. If the user runs in cold weather, breathing through a buff, gaiter, or face covering warms and humidifies the air and measurably reduces bronchospasm
 - Warm up even more gradually than the standard plan: add an extra 3-5 minutes of walking before the first run interval to allow the airways to pre-warm
@@ -400,42 +419,44 @@ Running is generally safe and beneficial for people with well-managed asthma, bu
 ## Beginner Running Plan: 10-Week Walk-to-Run Progression
 
 ### Your Runner Profile
-| Parameter                  | Value                                                         |
-|----------------------------|---------------------------------------------------------------|
-| Current activity level     | Sedentary (desk-bound, last 5 years)                          |
-| Baseline walking ability   | Cannot yet walk 30 min briskly -- 20-25 min is current limit |
-| Starting week              | Pre-Program (Weeks 0A and 0B) -- then Week 1 of main plan     |
-| Training days per week     | 3 -- Monday, Wednesday, Saturday mornings                     |
-| Physical flags             | None reported                                                 |
-| Preferred surface          | Park near home (path / grass)                                 |
-| Primary goal               | Complete a 5K -- personal milestone, no race required         |
-| Estimated completion       | 10 weeks from start (2 pre-program weeks + 8 main weeks)      |
+
+| Parameter                | Value                                                        |
+| ------------------------ | ------------------------------------------------------------ |
+| Current activity level   | Sedentary (desk-bound, last 5 years)                         |
+| Baseline walking ability | Cannot yet walk 30 min briskly -- 20-25 min is current limit |
+| Starting week            | Pre-Program (Weeks 0A and 0B) -- then Week 1 of main plan    |
+| Training days per week   | 3 -- Monday, Wednesday, Saturday mornings                    |
+| Physical flags           | None reported                                                |
+| Preferred surface        | Park near home (path / grass)                                |
+| Primary goal             | Complete a 5K -- personal milestone, no race required        |
+| Estimated completion     | 10 weeks from start (2 pre-program weeks + 8 main weeks)     |
 
 ---
 
 ### Your Weekly Schedule
 
-| Day       | Activity                                                           |
-|-----------|--------------------------------------------------------------------|
-| Monday    | Run/walk session (or walk session during pre-program)              |
-| Tuesday   | Rest -- optional 15-20 min easy walk in the park                  |
-| Wednesday | Run/walk session (or walk session during pre-program)              |
-| Thursday  | Rest -- add bodyweight strength routine (Weeks 3-8, 10-12 min)    |
-| Friday    | Rest or optional gentle walk (20 min max)                          |
-| Saturday  | Run/walk session (or walk session during pre-program)              |
-| Sunday    | Full rest                                                          |
+| Day       | Activity                                                       |
+| --------- | -------------------------------------------------------------- |
+| Monday    | Run/walk session (or walk session during pre-program)          |
+| Tuesday   | Rest -- optional 15-20 min easy walk in the park               |
+| Wednesday | Run/walk session (or walk session during pre-program)          |
+| Thursday  | Rest -- add bodyweight strength routine (Weeks 3-8, 10-12 min) |
+| Friday    | Rest or optional gentle walk (20 min max)                      |
+| Saturday  | Run/walk session (or walk session during pre-program)          |
+| Sunday    | Full rest                                                      |
 
 You have a natural 2-rest-day buffer between Wednesday and Saturday sessions. This is ideal for the first 4 weeks when your body is doing the most foundational adaptation work.
 
 ---
 
 ### Phase 1: Walking Base (Weeks 0A and 0B)
+
 **Purpose:** Build your walking base to 30 continuous minutes before introducing any running. This is not a detour -- this is the foundation that makes every future run session safer and easier. Tendons, ligaments, and bone need 2-4 weeks of walking before they are ready for running impact.
 
-| Week | Monday       | Wednesday    | Saturday     | Goal                                    |
-|------|--------------|--------------|--------------|----------------------------------------|
-| 0A   | Walk 20 min  | Walk 22 min  | Walk 25 min  | Comfortable pace, no stopping          |
-| 0B   | Walk 25 min  | Walk 28 min  | Walk 30 min  | Brisk pace -- you should feel slightly breathless but able to talk |
+| Week | Monday      | Wednesday   | Saturday    | Goal                                                               |
+| ---- | ----------- | ----------- | ----------- | ------------------------------------------------------------------ |
+| 0A   | Walk 20 min | Walk 22 min | Walk 25 min | Comfortable pace, no stopping                                      |
+| 0B   | Walk 25 min | Walk 28 min | Walk 30 min | Brisk pace -- you should feel slightly breathless but able to talk |
 
 **Brisk pace definition:** You can hold a conversation but you would prefer not to. This is approximately 3.0-3.5 mph for most people. If the 20-minute Monday session of Week 0A feels easy, walk at a slightly faster pace rather than increasing the time.
 
@@ -446,6 +467,7 @@ You have a natural 2-rest-day buffer between Wednesday and Saturday sessions. Th
 ### Phase 2: 8-Week Run/Walk Progression
 
 Every session has the same structure:
+
 1. 5-minute warm-up walk at a comfortable pace (not brisk)
 2. Run/walk intervals (see table below)
 3. 5-minute cool-down walk at an easy, slowing pace
@@ -453,16 +475,16 @@ Every session has the same structure:
 
 Total door-to-door time including stretching: approximately 40-45 minutes per session.
 
-| Week | Run     | Walk    | Reps | Total Run | Session   | Effort Target        | Key Focus This Week                               |
-|------|---------|---------|------|-----------|-----------|----------------------|---------------------------------------------------|
-| 1    | 1 min   | 2 min   | 8    | 8 min     | ~29 min   | 4-5 / 10 (easy chat) | Learn what conversational pace feels like         |
-| 2    | 2 min   | 2 min   | 6    | 12 min    | ~29 min   | 4-5 / 10             | Settle into a rhythm -- this should feel similar to Week 1 |
-| 3    | 3 min   | 1.5 min | 5    | 15 min    | ~27.5 min | 5-6 / 10             | Shorter walk breaks -- trust that you can keep going |
-| 4    | 4 min   | 1 min   | 5    | 20 min    | ~30 min   | 5-6 / 10             | Walk breaks are strategy, not weakness           |
-| 5    | 5 min   | 1 min   | 4    | 20 min    | ~29 min   | 5-6 / 10             | Hold a consistent pace across all 4 run blocks   |
-| 6    | 8 min   | 1 min   | 3    | 24 min    | ~30 min   | 6 / 10               | Longest single run interval so far -- go slower if needed |
-| 7    | 12 min  | 1 min   | 2    | 24 min    | ~28 min   | 6 / 10               | Two long blocks -- the home stretch is close     |
-| 8    | 30 min  | --      | 1    | 30 min    | ~35 min   | 6 / 10               | Your first continuous run -- a genuine milestone |
+| Week | Run    | Walk    | Reps | Total Run | Session   | Effort Target        | Key Focus This Week                                        |
+| ---- | ------ | ------- | ---- | --------- | --------- | -------------------- | ---------------------------------------------------------- |
+| 1    | 1 min  | 2 min   | 8    | 8 min     | ~29 min   | 4-5 / 10 (easy chat) | Learn what conversational pace feels like                  |
+| 2    | 2 min  | 2 min   | 6    | 12 min    | ~29 min   | 4-5 / 10             | Settle into a rhythm -- this should feel similar to Week 1 |
+| 3    | 3 min  | 1.5 min | 5    | 15 min    | ~27.5 min | 5-6 / 10             | Shorter walk breaks -- trust that you can keep going       |
+| 4    | 4 min  | 1 min   | 5    | 20 min    | ~30 min   | 5-6 / 10             | Walk breaks are strategy, not weakness                     |
+| 5    | 5 min  | 1 min   | 4    | 20 min    | ~29 min   | 5-6 / 10             | Hold a consistent pace across all 4 run blocks             |
+| 6    | 8 min  | 1 min   | 3    | 24 min    | ~30 min   | 6 / 10               | Longest single run interval so far -- go slower if needed  |
+| 7    | 12 min | 1 min   | 2    | 24 min    | ~28 min   | 6 / 10               | Two long blocks -- the home stretch is close               |
+| 8    | 30 min | --      | 1    | 30 min    | ~35 min   | 6 / 10               | Your first continuous run -- a genuine milestone           |
 
 **The conversational pace test:** While running, say out loud: "I can say this sentence clearly." If you can say it without gasping, your pace is correct. If you cannot, slow down immediately -- even to a walk, catch your breath, then resume running. Running too fast as a beginner is the single most common mistake. There is no prize for going faster. Slow pace builds the same aerobic base as fast pace, with a fraction of the injury risk.
 
@@ -471,13 +493,14 @@ Total door-to-door time including stretching: approximately 40-45 minutes per se
 ---
 
 ### Rest Day Strength Routine (Begin Week 3, do on Thursdays and one other rest day)
+
 Takes 10-12 minutes. No equipment needed for the first two exercises. A light resistance band (looped, available for under $10) helps with clamshells but is not required.
 
-| Exercise                       | Sets | Reps / Duration   | Why It Matters for Runners                                        |
-|--------------------------------|------|-------------------|--------------------------------------------------------------------|
-| Single-leg glute bridge        | 3    | 10 per side       | Prevents runner's knee by keeping the kneecap tracking correctly  |
-| Standing heel raises (slow)    | 3    | 15 (2 sec up, 2 sec down) | Builds the calf-Achilles complex -- primary defense against shin splints |
-| Clamshell (resistance band)    | 3    | 12 per side       | Strengthens hip abductors -- protects the IT band and outer knee  |
+| Exercise                    | Sets | Reps / Duration           | Why It Matters for Runners                                               |
+| --------------------------- | ---- | ------------------------- | ------------------------------------------------------------------------ |
+| Single-leg glute bridge     | 3    | 10 per side               | Prevents runner's knee by keeping the kneecap tracking correctly         |
+| Standing heel raises (slow) | 3    | 15 (2 sec up, 2 sec down) | Builds the calf-Achilles complex -- primary defense against shin splints |
+| Clamshell (resistance band) | 3    | 12 per side               | Strengthens hip abductors -- protects the IT band and outer knee         |
 
 **How to do a single-leg glute bridge:** Lie on your back with knees bent, feet flat on the floor. Extend one leg straight. Press through the heel of the grounded foot and lift your hips until your body forms a straight line from shoulder to knee. Hold 1 second at the top. Lower slowly. This is harder than it looks. If you cannot do 10, do 5 and build up.
 
@@ -485,14 +508,15 @@ Takes 10-12 minutes. No equipment needed for the first two exercises. A light re
 
 ### Injury Prevention Reference
 
-| Condition            | Warning Sign                                          | Immediate Action                                              |
-|----------------------|-------------------------------------------------------|---------------------------------------------------------------|
-| Shin splints         | Dull ache along inner lower leg during or after a run | Rest 5-7 days, add heel raises daily, repeat the prior week  |
-| Runner's knee        | Dull ache under or around the kneecap; worse on stairs| Rest 3-5 days, add glute bridges, repeat the prior week      |
-| Plantar fasciitis    | Sharp or stabbing heel pain on first steps in morning | Calf stretches after every run; roll foot on frozen water bottle 2 min post-run |
-| IT band syndrome     | Sharp pain on outer knee after 15+ minutes of running | Rest 5-7 days, foam roll lateral quad (not the IT band), add clamshells |
+| Condition         | Warning Sign                                           | Immediate Action                                                                |
+| ----------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| Shin splints      | Dull ache along inner lower leg during or after a run  | Rest 5-7 days, add heel raises daily, repeat the prior week                     |
+| Runner's knee     | Dull ache under or around the kneecap; worse on stairs | Rest 3-5 days, add glute bridges, repeat the prior week                         |
+| Plantar fasciitis | Sharp or stabbing heel pain on first steps in morning  | Calf stretches after every run; roll foot on frozen water bottle 2 min post-run |
+| IT band syndrome  | Sharp pain on outer knee after 15+ minutes of running  | Rest 5-7 days, foam roll lateral quad (not the IT band), add clamshells         |
 
 **Stop and rest immediately -- do not walk it off -- if you experience:**
+
 - Sharp or stabbing pain in any joint (knee, ankle, hip, foot)
 - Pain that gets worse as the run continues (not soreness that warms up and fades)
 - Swelling or visible puffiness in any joint after a run

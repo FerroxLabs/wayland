@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns microservices"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns microservices'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Distributed Systems
@@ -23,6 +23,7 @@ You are an expert in distributed systems design and patterns. You understand the
 ## Fundamental Theorems
 
 ### CAP Theorem
+
 ```
 In a distributed system, you can only guarantee TWO of three properties:
 
@@ -50,6 +51,7 @@ things go wrong?
 ```
 
 ### PACELC Theorem (Extension of CAP)
+
 ```
 If there is a Partition (P):
   Choose between Availability (A) and Consistency (C)
@@ -64,6 +66,7 @@ Examples:
 ```
 
 ### The Eight Fallacies of Distributed Computing
+
 ```
 1. The network is reliable          → Build retry logic, circuit breakers
 2. Latency is zero                  → Design for latency, async where possible
@@ -78,6 +81,7 @@ Examples:
 ## Consensus Algorithms
 
 ### Raft (Recommended for Most Use Cases)
+
 ```
 Purpose: Achieve consensus among distributed nodes on a shared state.
 
@@ -109,6 +113,7 @@ Client → Leader (Term 5) → Append to log → Replicate to 2/4 followers
 ```
 
 ### Paxos (Theoretical Foundation)
+
 ```
 Roles:
 - Proposer: Proposes values
@@ -137,6 +142,7 @@ Why Raft over Paxos:
 ## Distributed Transactions
 
 ### Two-Phase Commit (2PC)
+
 ```
 Coordinator manages a transaction across multiple participants.
 
@@ -169,6 +175,7 @@ Problems with 2PC:
 ```
 
 ### Saga Pattern (Preferred for Microservices)
+
 ```
 A saga is a sequence of local transactions. Each step has a compensating
 action that undoes its effect if a later step fails.
@@ -200,6 +207,7 @@ Two Coordination Approaches:
 ```
 
 ### Saga Design Best Practices
+
 ```
 1. Design compensating actions for EVERY step
 2. Compensating actions must be idempotent (safe to retry)
@@ -213,6 +221,7 @@ Two Coordination Approaches:
 ## Consistent Hashing
 
 ### The Problem
+
 ```
 Simple hashing: node = hash(key) % N
 When N changes (add/remove node), MOST keys get remapped.
@@ -223,6 +232,7 @@ Adding 1 node to 3 remaps only ~25% of keys
 ```
 
 ### How Consistent Hashing Works
+
 ```
 1. Hash both nodes and keys onto a circular ring (0 to 2^32)
 2. Each key is assigned to the first node clockwise from its hash position
@@ -249,6 +259,7 @@ Virtual Nodes (VNodes):
 ```
 
 ### Applications of Consistent Hashing
+
 - Load balancing (distribute requests across servers)
 - Database sharding (distribute data across shards)
 - CDN (route requests to nearest cache)
@@ -257,6 +268,7 @@ Virtual Nodes (VNodes):
 ## Gossip Protocols
 
 ### How Gossip Works
+
 ```
 Gossip (epidemic) protocols spread information like a rumor:
 
@@ -288,6 +300,7 @@ Time 2: C gossips with A → C now knows {A, B, C}
 ```
 
 ### Gossip Protocol Applications
+
 - Cluster membership (which nodes are alive?)
 - Failure detection (is a node dead?)
 - Configuration dissemination (spread config changes)
@@ -296,6 +309,7 @@ Time 2: C gossips with A → C now knows {A, B, C}
 ## Vector Clocks
 
 ### The Problem of Ordering in Distributed Systems
+
 ```
 Physical clocks are unreliable in distributed systems:
 - Clock skew between machines
@@ -306,6 +320,7 @@ Logical clocks provide a partial ordering of events.
 ```
 
 ### Lamport Timestamps
+
 ```
 Rules:
 1. Before each event, increment local counter
@@ -324,6 +339,7 @@ But if a=3 and b=3, you can't tell if they're concurrent or causally related.
 ```
 
 ### Vector Clocks
+
 ```
 Each node maintains a vector of counters (one per node).
 
@@ -347,6 +363,7 @@ Conflict Resolution for Concurrent Events:
 ## Leader Election
 
 ### Why Leader Election?
+
 ```
 - Coordinate distributed operations (one writer, many readers)
 - Avoid conflicts (only one node processes a particular task)
@@ -354,6 +371,7 @@ Conflict Resolution for Concurrent Events:
 ```
 
 ### Leader Election with ZooKeeper/etcd
+
 ```
 Using ZooKeeper:
 1. All candidates create ephemeral sequential znodes under /election/
@@ -374,6 +392,7 @@ Using etcd:
 ```
 
 ### Fencing Tokens
+
 ```
 Problem: Old leader doesn't know it's no longer leader (network partition,
 GC pause, slow response). It continues acting as leader → split brain.
@@ -393,6 +412,7 @@ Leader 1 (token: 34) → Database → REJECTS (34 < 35)
 ## Distributed Locking
 
 ### Redis-Based Distributed Lock (Redlock)
+
 ```
 Simple Lock (single Redis instance):
 SET lock_key unique_value NX PX 30000
@@ -419,6 +439,7 @@ Lock Considerations:
 ```
 
 ### Lock-Free Alternatives
+
 ```
 Sometimes you can avoid distributed locks entirely:
 
@@ -432,6 +453,7 @@ Sometimes you can avoid distributed locks entirely:
 ## Eventual Consistency
 
 ### Consistency Models Spectrum
+
 ```
 Strongest ←──────────────────────────────────→ Weakest
 
@@ -460,6 +482,7 @@ Eventual Consistency:
 ```
 
 ### Conflict Resolution Strategies
+
 ```
 1. Last Writer Wins (LWW):
    - Highest timestamp wins
@@ -505,6 +528,7 @@ Eventual Consistency:
 ## Quick Decision Guide
 
 When asked about distributed systems:
+
 - **"How to keep data consistent across services?"** → Choose consistency model based on requirements, implement saga for transactions
 - **"How to handle node failures?"** → Replication with consensus (Raft), health checks, automatic failover
 - **"How to distribute data?"** → Consistent hashing for even distribution, replication for fault tolerance
@@ -515,6 +539,7 @@ When asked about distributed systems:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing distributed systems solutions
 - Reviewing or improving existing distributed systems approaches
 - Making architectural or implementation decisions about distributed systems
@@ -522,6 +547,7 @@ When asked about distributed systems:
 - Troubleshooting distributed systems-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -532,21 +558,26 @@ When asked about distributed systems:
 # Distributed Systems Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

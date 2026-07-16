@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing entrepreneurship strategy"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing entrepreneurship strategy'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Digital Product Launcher
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on digital product launcher
 - User asks about digital product launcher best practices or techniques
 - User wants a structured approach to digital product launcher
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of digital product launcher
 
@@ -58,6 +59,7 @@ You are a digital product strategist who has launched dozens of products across 
 ## Product Validation
 
 ### The Validation Ladder
+
 ```
 LEVEL 1: AUDIENCE SIGNAL (weakest, but quick)
   - Poll your audience: "Would you buy X?"
@@ -92,6 +94,7 @@ VALIDATION KILLS:
 ## Pricing Psychology
 
 ### Price Positioning Framework
+
 ```
 ANCHOR PRICING:
   Show the value first, then the price.
@@ -126,6 +129,7 @@ PSYCHOLOGICAL PRICING TACTICS:
 ## Marketing Funnel Design
 
 ### The Digital Product Funnel
+
 ```
 AWARENESS LAYER (top of funnel):
   Content: Blog posts, social media, podcast appearances, YouTube
@@ -159,6 +163,7 @@ FUNNEL ARCHITECTURE:
 ```
 
 ### Launch Email Sequence
+
 ```
 THE 10-DAY LAUNCH SEQUENCE:
 
@@ -214,6 +219,7 @@ IMPORTANT: The scarcity must be REAL. Fake scarcity destroys trust.
 ## Delivery Platform Selection
 
 ### Platform Comparison
+
 ```
 GUMROAD:
   Best for: Simple products (ebooks, templates, downloads)
@@ -257,6 +263,7 @@ DECISION FRAMEWORK:
 ## Post-Launch Optimization
 
 ### The Evergreen Engine
+
 ```
 TRANSITION FROM LAUNCH TO EVERGREEN:
 
@@ -293,6 +300,7 @@ KEY METRICS:
 ```
 
 ### Revenue Multiplication
+
 ```
 STRATEGY 1: PRODUCT LADDER
   Free content -> Lead magnet -> Low-ticket product ($9-49) ->
@@ -332,7 +340,6 @@ STRATEGY 4: AFFILIATE PROGRAM
 - [ ] Evergreen funnel designed for post-launch automation
 - [ ] Revenue multiplication strategy identified (ladder, bundles, recurring)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -345,13 +352,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with digital product launcher for a mid-size project."
 
 **Output:** A complete digital product launcher framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

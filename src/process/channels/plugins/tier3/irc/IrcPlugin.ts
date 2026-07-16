@@ -280,9 +280,7 @@ export class IrcPlugin extends BasePlugin {
         const unified = toUnifiedIncomingFromIrc(e, this.selfNick);
         if (!unified) return;
         this.activeUsers.add(unified.user.id);
-        void this.emitMessage(unified).catch((err) =>
-          console.error('[IrcPlugin] emitMessage failed:', err),
-        );
+        void this.emitMessage(unified).catch((err) => console.error('[IrcPlugin] emitMessage failed:', err));
       });
 
       // NOTICE handling: distinct from PRIVMSG (NICKSERV/CHANSERV replies,
@@ -305,9 +303,7 @@ export class IrcPlugin extends BasePlugin {
           };
         }
         this.activeUsers.add(unified.user.id);
-        void this.emitMessage(unified).catch((err) =>
-          console.error('[IrcPlugin] emitMessage failed:', err),
-        );
+        void this.emitMessage(unified).catch((err) => console.error('[IrcPlugin] emitMessage failed:', err));
       });
 
       // Pre-welcome error listener: handles nick collision (433) with an
@@ -318,29 +314,27 @@ export class IrcPlugin extends BasePlugin {
       const onPreWelcomeError = (event: unknown) => {
         // Already-registered clients drop through to the JOIN-failure handler.
         if (this.client === client) return;
-        const e = event as {
-          error?: string;
-          reason?: string;
-          command?: string;
-          nick?: string;
-        } | string;
+        const e = event as
+          | {
+              error?: string;
+              reason?: string;
+              command?: string;
+              nick?: string;
+            }
+          | string;
         const isNickInUse =
-          typeof e === 'object' &&
-          e !== null &&
-          (e.command === '433' || e.error === 'nickname_in_use');
+          typeof e === 'object' && e !== null && (e.command === '433' || e.error === 'nickname_in_use');
         if (isNickInUse) {
           nickCollisionAttempts += 1;
           if (nickCollisionAttempts > NICK_COLLISION_MAX_RETRIES) {
             reject(
-              new Error(
-                `IRC nick collision: tried ${creds.nick} + ${NICK_COLLISION_MAX_RETRIES} underscore retries`,
-              ),
+              new Error(`IRC nick collision: tried ${creds.nick} + ${NICK_COLLISION_MAX_RETRIES} underscore retries`)
             );
             return;
           }
           const retryNick = `${creds.nick}${'_'.repeat(nickCollisionAttempts)}`;
           console.warn(
-            `[IrcPlugin] nick ${creds.nick} in use; retrying as ${retryNick} (attempt ${nickCollisionAttempts}/${NICK_COLLISION_MAX_RETRIES})`,
+            `[IrcPlugin] nick ${creds.nick} in use; retrying as ${retryNick} (attempt ${nickCollisionAttempts}/${NICK_COLLISION_MAX_RETRIES})`
           );
           try {
             if (typeof client.changeNick === 'function') {
@@ -354,9 +348,9 @@ export class IrcPlugin extends BasePlugin {
         const msg =
           typeof e === 'string'
             ? e
-            : (e as { error?: string; reason?: string }).error ??
+            : ((e as { error?: string; reason?: string }).error ??
               (e as { error?: string; reason?: string }).reason ??
-              'IRC server error';
+              'IRC server error');
         reject(new Error(msg));
       };
       client.on('irc error', onPreWelcomeError);
@@ -423,12 +417,11 @@ export class IrcPlugin extends BasePlugin {
     // Audit gemini MED1 2026-05-18: add jitter (0-1000ms) to backoff to avoid
     // thundering-herd reconnects when multiple bots see the same server
     // restart / network flap simultaneously.
-    const delay = Math.min(
-      RECONNECT_BACKOFF_START_MS * 2 ** (this.reconnectFailureCount - 1),
-      RECONNECT_BACKOFF_CAP_MS,
-    ) + Math.floor(Math.random() * 1000);
+    const delay =
+      Math.min(RECONNECT_BACKOFF_START_MS * 2 ** (this.reconnectFailureCount - 1), RECONNECT_BACKOFF_CAP_MS) +
+      Math.floor(Math.random() * 1000);
     console.warn(
-      `[IrcPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`,
+      `[IrcPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`
     );
     this.setError(`IRC disconnected; retrying in ${delay}ms`);
 
@@ -451,7 +444,7 @@ export class IrcPlugin extends BasePlugin {
    * The token argument is a JSON-encoded IrcCreds blob from the renderer.
    */
   static override async testConnection(
-    token: string,
+    token: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let parsed: Record<string, unknown>;
     try {
@@ -503,9 +496,9 @@ export class IrcPlugin extends BasePlugin {
         const msg =
           typeof e === 'string'
             ? e
-            : (e as { error?: string; reason?: string }).error ??
+            : ((e as { error?: string; reason?: string }).error ??
               (e as { error?: string; reason?: string }).reason ??
-              'IRC server error';
+              'IRC server error');
         resolve({ success: false, error: msg });
       });
 
@@ -583,18 +576,13 @@ function resolveCreds(raw: Record<string, unknown>): IrcCreds {
   const rawMechanism = readString(raw['saslMechanism'] ?? raw['ircSaslMechanism']);
   // irc-framework only negotiates SASL PLAIN natively; SCRAM-SHA-256 is
   // intentionally not supported here to avoid silent degrade.
-  const saslMechanism: IrcCreds['saslMechanism'] =
-    rawMechanism === 'none' ? 'none' : 'PLAIN';
+  const saslMechanism: IrcCreds['saslMechanism'] = rawMechanism === 'none' ? 'none' : 'PLAIN';
 
   // Optional NickServ IDENTIFY block - alternative to SASL PLAIN for older
   // networks that gate un-cloaked channels behind NickServ.
   const nickServRaw = raw['nickServ'] as { password?: unknown; service?: unknown } | undefined;
-  const nickServPassword = readString(
-    raw['nickServPassword'] ?? raw['ircNickServPassword'] ?? nickServRaw?.password,
-  );
-  const nickServService = readString(
-    raw['nickServService'] ?? raw['ircNickServService'] ?? nickServRaw?.service,
-  );
+  const nickServPassword = readString(raw['nickServPassword'] ?? raw['ircNickServPassword'] ?? nickServRaw?.password);
+  const nickServService = readString(raw['nickServService'] ?? raw['ircNickServService'] ?? nickServRaw?.service);
   const nickServ = nickServPassword
     ? { password: nickServPassword, ...(nickServService ? { service: nickServService } : {}) }
     : undefined;

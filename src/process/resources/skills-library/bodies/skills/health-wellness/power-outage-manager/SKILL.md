@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness budgeting checklist guide beginner-friendly testing automation safety"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness budgeting checklist guide beginner-friendly testing automation safety'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Power Outage Manager
@@ -22,15 +22,16 @@ You are a power outage preparedness advisor who helps households plan for and ma
 
 > **DISCLAIMER**: This skill provides general guidance about power outage preparedness and management. It is not a substitute for professional electrical work, which should always be performed by licensed electricians. Improper generator use, including indoor operation, causes carbon monoxide deaths every year. Never operate generators, grills, camp stoves, or other combustion equipment inside a home, garage, or enclosed space. Always follow manufacturer instructions and local electrical codes.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about power outage manager techniques or best practices
 - User needs guidance on power outage manager concepts
 - User wants to implement or improve their approach to power outage manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of power outage manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -73,41 +74,43 @@ You are a power outage preparedness advisor who helps households plan for and ma
 
 ### Generator Types
 
-| Type | Power Output | Runtime | Cost | Best For |
-|------|-------------|---------|------|---------|
-| Portable (gas) | 2,000-12,000W | 8-12 hrs/tank | $400-2,000 | Periodic outages, key circuits |
-| Portable (dual fuel) | 3,000-12,000W | 8-12 hrs/tank | $500-2,500 | Flexibility, fuel options |
-| Inverter (portable) | 1,000-7,000W | 4-18 hrs | $300-3,000 | Sensitive electronics, quiet operation |
-| Standby (permanent) | 7,000-50,000W | Continuous (with fuel) | $3,000-15,000+ | Whole-house, automatic transfer |
-| Solar + battery | Varies | Varies | $2,000-20,000+ | Silent, no fuel, renewable |
+| Type                 | Power Output  | Runtime                | Cost           | Best For                               |
+| -------------------- | ------------- | ---------------------- | -------------- | -------------------------------------- |
+| Portable (gas)       | 2,000-12,000W | 8-12 hrs/tank          | $400-2,000     | Periodic outages, key circuits         |
+| Portable (dual fuel) | 3,000-12,000W | 8-12 hrs/tank          | $500-2,500     | Flexibility, fuel options              |
+| Inverter (portable)  | 1,000-7,000W  | 4-18 hrs               | $300-3,000     | Sensitive electronics, quiet operation |
+| Standby (permanent)  | 7,000-50,000W | Continuous (with fuel) | $3,000-15,000+ | Whole-house, automatic transfer        |
+| Solar + battery      | Varies        | Varies                 | $2,000-20,000+ | Silent, no fuel, renewable             |
 
 ### Sizing Your Generator
 
 **Step 1: List what you need to power**
 
-| Appliance | Running Watts | Starting Watts |
-|-----------|--------------|---------------|
-| Refrigerator | 150-400 | 400-1,200 |
-| Freezer | 100-400 | 400-1,200 |
-| Sump pump (1/2 HP) | 800-1,000 | 1,300-2,100 |
-| Well pump (1/2 HP) | 700-1,000 | 1,400-2,100 |
-| Window AC (10,000 BTU) | 1,200 | 1,800 |
-| Space heater (electric) | 1,500 | 1,500 |
-| Furnace blower | 300-800 | 600-1,600 |
-| Lights (LED) | 10-25 each | 10-25 |
-| Phone charger | 10-25 | 10-25 |
-| TV | 100-400 | 100-400 |
-| Microwave | 600-1,200 | 600-1,200 |
-| Coffee maker | 600-1,200 | 600-1,200 |
-| Medical equipment | Check device | Check device |
+| Appliance               | Running Watts | Starting Watts |
+| ----------------------- | ------------- | -------------- |
+| Refrigerator            | 150-400       | 400-1,200      |
+| Freezer                 | 100-400       | 400-1,200      |
+| Sump pump (1/2 HP)      | 800-1,000     | 1,300-2,100    |
+| Well pump (1/2 HP)      | 700-1,000     | 1,400-2,100    |
+| Window AC (10,000 BTU)  | 1,200         | 1,800          |
+| Space heater (electric) | 1,500         | 1,500          |
+| Furnace blower          | 300-800       | 600-1,600      |
+| Lights (LED)            | 10-25 each    | 10-25          |
+| Phone charger           | 10-25         | 10-25          |
+| TV                      | 100-400       | 100-400        |
+| Microwave               | 600-1,200     | 600-1,200      |
+| Coffee maker            | 600-1,200     | 600-1,200      |
+| Medical equipment       | Check device  | Check device   |
 
 **Step 2: Calculate your total need**
+
 - Add running watts of everything you want to run simultaneously
 - Add the highest starting wattage (largest motor) to the running total
 - This is your minimum generator size
 - Add 20% margin for safety
 
 **Example:**
+
 - Refrigerator (200W running) + Freezer (150W) + Lights (100W) + Phone chargers (50W) + Furnace blower (500W) = 1,000W running
 - Furnace blower starting surge: +1,000W
 - Total needed: 2,000W + 20% = 2,400W minimum generator
@@ -130,11 +133,13 @@ You are a power outage preparedness advisor who helps households plan for and ma
 ### Transfer Switches
 
 **Why you need one:**
+
 - Connecting a generator to your home's electrical panel without a transfer switch is illegal and dangerous
 - Backfeeding through the panel can electrocute utility workers repairing lines
 - A transfer switch safely isolates your home from the grid during generator use
 
 **Types:**
+
 - **Manual transfer switch**: You switch circuits manually ($300-800 installed)
 - **Automatic transfer switch**: Detects outage and switches automatically ($500-2,000 installed)
 - **Interlock kit**: Less expensive alternative for manual switching ($100-300 + installation)
@@ -143,14 +148,15 @@ You are a power outage preparedness advisor who helps households plan for and ma
 
 ### Fuel Management
 
-| Fuel Type | Storage Life | Storage Tips |
-|-----------|-------------|-------------|
-| Gasoline | 3-6 months (with stabilizer) | Approved containers, cool dry location, away from heat |
-| Propane | Indefinite | Proper tanks, outdoor storage, check connections |
-| Diesel | 6-12 months (with treatment) | Approved containers, cool location |
-| Natural gas | Continuous supply | Permanent connection for standby generators |
+| Fuel Type   | Storage Life                 | Storage Tips                                           |
+| ----------- | ---------------------------- | ------------------------------------------------------ |
+| Gasoline    | 3-6 months (with stabilizer) | Approved containers, cool dry location, away from heat |
+| Propane     | Indefinite                   | Proper tanks, outdoor storage, check connections       |
+| Diesel      | 6-12 months (with treatment) | Approved containers, cool location                     |
+| Natural gas | Continuous supply            | Permanent connection for standby generators            |
 
 **Fuel storage safety:**
+
 - Use only approved fuel containers
 - Store fuel away from living spaces and heat sources
 - Rotate fuel stock (use and replace)
@@ -172,6 +178,7 @@ You are a power outage preparedness advisor who helps households plan for and ma
 - Best for electronics, lights, CPAP, small appliances
 
 **Sizing guide:**
+
 - 200-500Wh: Phone charging, lights, small electronics (1-2 days)
 - 500-1,000Wh: Above plus CPAP, laptop, small TV (1-2 days)
 - 1,000-2,000Wh: Above plus mini fridge, fan (1-2 days)
@@ -200,17 +207,20 @@ You are a power outage preparedness advisor who helps households plan for and ma
 ### Refrigerator and Freezer Management
 
 **Keep doors closed:**
+
 - Refrigerator: Stays cold ~4 hours if door stays closed
 - Full freezer: Stays frozen ~48 hours
 - Half-full freezer: Stays frozen ~24 hours
 
 **Temperature monitoring:**
+
 - Place a thermometer in both fridge and freezer
 - If available, use a wireless thermometer you can read without opening the door
 - Refrigerator should stay below 40F (4C)
 - Freezer should stay below 0F (-18C)
 
 **The "ice cube in a bag" trick:**
+
 - Before a potential outage, freeze a cup of water
 - Place a coin on top of the ice
 - If you return and the coin has sunk, the freezer thawed and refroze (food may not be safe)
@@ -218,6 +228,7 @@ You are a power outage preparedness advisor who helps households plan for and ma
 ### Food Safety Decision Guide
 
 **KEEP - These foods are safe without refrigeration:**
+
 - Unopened canned goods
 - Peanut butter
 - Bread, crackers, cereal
@@ -230,6 +241,7 @@ You are a power outage preparedness advisor who helps households plan for and ma
 - Dried foods (jerky, dried fruit, nuts)
 
 **DISCARD - If above 40F for more than 2 hours:**
+
 - Raw or cooked meat, poultry, fish
 - Soft cheeses, shredded cheese
 - Milk, cream, yogurt
@@ -246,22 +258,23 @@ You are a power outage preparedness advisor who helps households plan for and ma
 
 ### Cooking Without Power
 
-| Method | Indoor Safe? | Notes |
-|--------|-------------|-------|
-| Gas stove | Yes (with ventilation) | May need manual ignition if electronic ignition |
-| Camp stove | NO - outdoor only | CO and fire risk indoors |
-| Charcoal grill | NO - outdoor only | Extreme CO risk indoors |
-| Propane grill | NO - outdoor only | CO and fire risk |
-| Fireplace | Yes (if functional) | Can heat food in fireplace-safe cookware |
-| Solar oven | Outdoor | Requires direct sunlight |
-| Sterno/canned heat | With ventilation | Good for warming, limited cooking |
-| Car inverter | N/A | Can power small appliances from car battery |
+| Method             | Indoor Safe?           | Notes                                           |
+| ------------------ | ---------------------- | ----------------------------------------------- |
+| Gas stove          | Yes (with ventilation) | May need manual ignition if electronic ignition |
+| Camp stove         | NO - outdoor only      | CO and fire risk indoors                        |
+| Charcoal grill     | NO - outdoor only      | Extreme CO risk indoors                         |
+| Propane grill      | NO - outdoor only      | CO and fire risk                                |
+| Fireplace          | Yes (if functional)    | Can heat food in fireplace-safe cookware        |
+| Solar oven         | Outdoor                | Requires direct sunlight                        |
+| Sterno/canned heat | With ventilation       | Good for warming, limited cooking               |
+| Car inverter       | N/A                    | Can power small appliances from car battery     |
 
 ## Heating and Cooling Without Power
 
 ### Staying Warm (Cold Weather Outages)
 
 **Passive heating strategies:**
+
 - Close off unused rooms to concentrate heat
 - Hang blankets over windows for insulation
 - Use draft blockers under doors
@@ -272,12 +285,14 @@ You are a power outage preparedness advisor who helps households plan for and ma
 - Hot water bottles for personal warming
 
 **Active heating options:**
+
 - Fireplace or wood stove (if you have one, with proper ventilation)
 - Kerosene heater (only approved for indoor use, with ventilation)
 - Propane indoor-rated heater (only models specifically rated for indoor use, with ventilation)
 - Generator powering an electric heater (generator OUTSIDE)
 
 **DANGER: Carbon monoxide**
+
 - NEVER use outdoor heating devices indoors (grills, camp stoves, outdoor propane)
 - NEVER run a generator in the garage "with the door open"
 - NEVER use the oven or gas stove to heat your home
@@ -285,6 +300,7 @@ You are a power outage preparedness advisor who helps households plan for and ma
 - Install battery-operated CO detectors
 
 **When to leave:**
+
 - If indoor temperature drops below 50F and you cannot heat safely
 - If anyone shows signs of hypothermia
 - If you cannot maintain safe conditions for children, elderly, or vulnerable people
@@ -302,6 +318,7 @@ You are a power outage preparedness advisor who helps households plan for and ma
 - Go to a cooling center if indoor temperatures become dangerous
 
 **Heat danger signs:**
+
 - Heat exhaustion: Heavy sweating, weakness, cold/clammy skin, nausea
 - Heat stroke: Hot/dry skin, no sweating, confusion, high body temp - EMERGENCY
 
@@ -406,15 +423,15 @@ You are a power outage preparedness advisor who helps households plan for and ma
 
 ### Device-Specific Backup Options
 
-| Device | Backup Options |
-|--------|---------------|
-| CPAP/BiPAP | Battery pack, portable power station, car adapter |
+| Device              | Backup Options                                      |
+| ------------------- | --------------------------------------------------- |
+| CPAP/BiPAP          | Battery pack, portable power station, car adapter   |
 | Oxygen concentrator | Backup O2 tanks, portable concentrator with battery |
-| Nebulizer | Battery-operated model, portable power station |
-| Electric wheelchair | Spare batteries, car charging adapter |
-| Home dialysis | Notify treatment center, know backup facility |
-| Insulin pump | Extra batteries, manual injection supplies |
-| Ventilator | Battery backup, generator, notify utility and EMS |
+| Nebulizer           | Battery-operated model, portable power station      |
+| Electric wheelchair | Spare batteries, car charging adapter               |
+| Home dialysis       | Notify treatment center, know backup facility       |
+| Insulin pump        | Extra batteries, manual injection supplies          |
+| Ventilator          | Battery backup, generator, notify utility and EMS   |
 
 ## Seasonal Power Outage Checklist
 
@@ -431,7 +448,6 @@ You are a power outage preparedness advisor who helps households plan for and ma
 - [ ] Know your utility's outage reporting number
 - [ ] Review insurance coverage for food loss and generator damage
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -439,7 +455,6 @@ You are a power outage preparedness advisor who helps households plan for and ma
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -460,14 +475,12 @@ You are a power outage preparedness advisor who helps households plan for and ma
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

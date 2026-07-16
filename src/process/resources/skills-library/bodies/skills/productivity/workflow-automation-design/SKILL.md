@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation planning optimization"
-  category: "productivity"
-  subcategory: "automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation planning optimization'
+  category: 'productivity'
+  subcategory: 'automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Workflow Automation Design
 
 ## When to Use
@@ -34,6 +35,7 @@ Use this skill when the user's need matches one of these specific scenarios:
 - User wants to build a personal operating system -- a set of documented personal workflows that covers how they handle their recurring professional responsibilities
 
 **Do NOT use when:**
+
 - User wants specific configuration help for Zapier, Make, n8n, or IFTTT -- those tools have their own integration logic and this skill produces tool-agnostic workflow specifications (use a tool-specific automation configuration skill instead)
 - User is redesigning an entire business process involving multiple departments, approval chains, or compliance requirements -- that requires business process reengineering methodology, not personal workflow design
 - User needs to automate software builds, CI/CD pipelines, or infrastructure provisioning -- use DevOps or platform engineering skills
@@ -136,13 +138,13 @@ Automation plans that do not have explicit measurement criteria get abandoned or
 
 ### Task Audit Summary
 
-| Task | Trigger Type | Freq/Mo | Min/Occ | Hrs/Mo | Pain (1-5) | Feasibility (1-5) | Priority Score |
-|------|-------------|---------|---------|--------|------------|-------------------|----------------|
-| [Task 1] | [time/event/state] | [#] | [#] | [#.#] | [#] | [#] | [#.#] |
-| [Task 2] | [time/event/state] | [#] | [#] | [#.#] | [#] | [#] | [#.#] |
-| [Task 3] | [time/event/state] | [#] | [#] | [#.#] | [#] | [#] | [#.#] |
-| [Task 4] | [time/event/state] | [#] | [#] | [#.#] | [#] | [#] | [#.#] |
-| [Task 5] | [time/event/state] | [#] | [#] | [#.#] | [#] | [#] | [#.#] |
+| Task     | Trigger Type       | Freq/Mo | Min/Occ | Hrs/Mo | Pain (1-5) | Feasibility (1-5) | Priority Score |
+| -------- | ------------------ | ------- | ------- | ------ | ---------- | ----------------- | -------------- |
+| [Task 1] | [time/event/state] | [#]     | [#]     | [#.#]  | [#]        | [#]               | [#.#]          |
+| [Task 2] | [time/event/state] | [#]     | [#]     | [#.#]  | [#]        | [#]               | [#.#]          |
+| [Task 3] | [time/event/state] | [#]     | [#]     | [#.#]  | [#]        | [#]               | [#.#]          |
+| [Task 4] | [time/event/state] | [#]     | [#]     | [#.#]  | [#]        | [#]               | [#.#]          |
+| [Task 5] | [time/event/state] | [#]     | [#]     | [#.#]  | [#]        | [#]               | [#.#]          |
 
 **Total monthly time on audited tasks:** [X.X] hours
 **Tasks selected for automation:** [Task 1, Task 2, Task 3] (priority score > 1.0)
@@ -158,10 +160,12 @@ Automation plans that do not have explicit measurement criteria get abandoned or
 
 **Trigger:** [Exact trigger condition -- e.g., "Every Monday at 8:30 AM" or "New message arrives in shared-inbox@company.com"]
 **Preconditions:**
+
 - [What must be ready before this automation can run]
 - [Where the required inputs are located]
 
 **Supporting infrastructure needed:**
+
 - [Reference document, filing convention, or trigger mechanism required]
 
 ---
@@ -171,10 +175,11 @@ Automation plans that do not have explicit measurement criteria get abandoned or
 [USE ONE OF THE FOUR FORMATS BELOW:]
 
 **-- TEMPLATE FORMAT --**
-
 ```
+
 [Full template with {{variable_name}} placeholders.
 Every section filled in. No placeholder descriptions -- the actual template.]
+
 ```
 
 **Variable fill-in checklist (complete in this order):**
@@ -373,13 +378,13 @@ Some tasks have a consistent structure at the abstract level but vary so much in
 
 ### Task Audit Summary
 
-| Task | Trigger Type | Freq/Mo | Min/Occ | Hrs/Mo | Pain (1-5) | Feasibility (1-5) | Priority Score |
-|------|-------------|---------|---------|--------|------------|-------------------|----------------|
-| CEO status update | Time (Monday) | 4.3 | 60 | 4.3 | 5 | 3 | 6.5 |
-| Project inbox processing | Time (2x daily) | 43 | 15 | 10.8 | 4 | 4 | 17.2 |
-| Retrospective agenda prep | Time (biweekly) | 2 | 75 | 2.5 | 3 | 5 | 3.8 |
-| Friday roadmap update | Time (Friday) | 4.3 | 35 | 2.5 | 3 | 4 | 3.0 |
-| New client onboarding email | Event (project kickoff) | 3 | 40 | 2.0 | 4 | 5 | 4.0 |
+| Task                        | Trigger Type            | Freq/Mo | Min/Occ | Hrs/Mo | Pain (1-5) | Feasibility (1-5) | Priority Score |
+| --------------------------- | ----------------------- | ------- | ------- | ------ | ---------- | ----------------- | -------------- |
+| CEO status update           | Time (Monday)           | 4.3     | 60      | 4.3    | 5          | 3                 | 6.5            |
+| Project inbox processing    | Time (2x daily)         | 43      | 15      | 10.8   | 4          | 4                 | 17.2           |
+| Retrospective agenda prep   | Time (biweekly)         | 2       | 75      | 2.5    | 3          | 5                 | 3.8            |
+| Friday roadmap update       | Time (Friday)           | 4.3     | 35      | 2.5    | 3          | 4                 | 3.0            |
+| New client onboarding email | Event (project kickoff) | 3       | 40      | 2.0    | 4          | 5                 | 4.0            |
 
 **Total monthly time on audited tasks:** 22.1 hours
 **Tasks selected for automation:** Project inbox processing (17.2), CEO status update (6.5), New client onboarding email (4.0), Retrospective agenda prep (3.8)
@@ -395,11 +400,13 @@ Some tasks have a consistent structure at the abstract level but vary so much in
 
 **Trigger:** Twice daily calendar block -- 10:00-10:20 AM and 3:00-3:20 PM
 **Preconditions:**
+
 - Project inbox is accessible (shared inbox at projects@[company].com)
 - FAQ reference document is open in a browser tab before starting the batch
 - Project tracker is open to the current sprint view
 
 **Supporting infrastructure needed:**
+
 - VIP senders list (CEO, all clients, Board members) -- stored in a pinned note in email client
 - Standard responses FAQ document (see infrastructure table below)
 - Processing rules are printed and taped to monitor for first two weeks
@@ -424,28 +431,34 @@ Some tasks have a consistent structure at the abstract level but vary so much in
 **Classification decision tree:**
 
 Condition 1: Is the sender on the VIP list?
+
 - IF YES → Branch A (VIP handling)
 - IF NO → evaluate Condition 2
 
 Condition 2: Does the subject or first line indicate a question or request for information?
+
 - IF YES → evaluate Condition 3
 - IF NO → evaluate Condition 4
 
 Condition 3: Does the FAQ document contain a matching standard answer?
+
 - IF YES → Branch B (FAQ reply)
 - IF NO → Branch C (research queue)
 
 Condition 4: Is this a status update, FYI, or notification requiring no response?
+
 - IF YES → Branch D (file and record)
 - IF NO → Branch E (default -- review and categorize)
 
 **Branch A -- VIP Handling:**
+
 1. Open immediately, read fully
 2. If actionable: draft reply within this batch window; if reply requires more than 5 minutes to draft, add to personal task list with 4-hour deadline and send an acknowledgment ("Received, will respond by [time] today")
 3. Flag message with "VIP-responded" label
 4. Expected time: 3-8 min per message
 
 **Branch B -- FAQ Reply:**
+
 1. Locate matching response in FAQ document
 2. Copy response, paste into reply window
 3. Personalize opening line with sender's name and specific reference to their question (1 sentence only)
@@ -454,18 +467,21 @@ Condition 4: Is this a status update, FYI, or notification requiring no response
 6. Expected time: 2-3 min per message
 
 **Branch C -- Research Queue:**
+
 1. Mark with "needs-research" label
 2. Add to personal task list with 24-hour deadline: "Reply to [sender] re: [topic]"
 3. Send acknowledgment: "Thanks for reaching out -- I'm looking into this and will reply by [next business day] EOD."
 4. Expected time: 1-2 min per message (reply handled outside batch)
 
 **Branch D -- File and Record:**
+
 1. Extract any project status data mentioned (milestone completions, blockers, decisions made)
 2. If data is relevant to Friday roadmap update: copy data point to the "Weekly Inputs" section of the roadmap staging doc
 3. Apply project label, mark as read
 4. Expected time: 1-2 min per message
 
 **Branch E (Default) -- Review and Categorize:**
+
 1. Read fully
 2. Determine whether it is a task, a question, an FYI, or an introduction
 3. Assign to the nearest matching branch above and process accordingly
@@ -486,12 +502,14 @@ Condition 4: Is this a status update, FYI, or notification requiring no response
 
 **Trigger:** Project kickoff meeting is scheduled in calendar (create this email the same day the kickoff is added to calendar)
 **Preconditions:**
+
 - Client name, company name, and primary contact confirmed
 - Project name and internal project code assigned
 - Kickoff meeting date and time confirmed on calendar
 - Project lead and key team members identified
 
 **Supporting infrastructure needed:**
+
 - Template stored as a draft in email client labeled "TEMPLATE -- Client Onboarding" (do not send this draft -- duplicate it each time)
 - Standard project resources link list maintained in a shared note (link to onboarding portal, project charter template, communication guidelines)
 
@@ -555,6 +573,7 @@ We look forward to a great project together.
 - [ ] `{{comms_channel}}` and `{{standard_response_sla}}` -- Source: Standard SLA document
 
 **Pre-send checklist:**
+
 - [ ] All `{{placeholder}}` text replaced -- search for "{{" in the draft to catch any missed fields
 - [ ] CC: project lead (if not sender), BCC: internal project archive address
 - [ ] Subject line updated with actual project name
@@ -578,6 +597,7 @@ We look forward to a great project together.
 **Trigger:** Friday roadmap update completion (Automation 4) triggers status update prep. By the time the PM arrives Monday morning, data is already compiled.
 
 **Preconditions:**
+
 - Friday roadmap update (Automation 4) completed Friday by 4:00 PM
 - Team members have updated their individual status fields in the project tracker by end of day Friday (requires a Friday 3:00 PM calendar reminder sent to team -- add to implementation checklist)
 - Status update template is pre-populated with Friday's data collection output
@@ -647,6 +667,7 @@ If none: "No decisions needed this week."
 - [ ] `{{long_blocked_count}}` -- Count blockers with >3-day age from tracker
 
 **Pre-send checklist:**
+
 - [ ] All placeholders replaced
 - [ ] Blocker items: confirm whether each has been resolved since Friday (quick 60-second tracker check)
 - [ ] "Decisions needed" section: confirm each decision is still open
@@ -666,11 +687,13 @@ If none: "No decisions needed this week."
 
 **Trigger:** Calendar reminder fires 48 hours before each retrospective (set as recurring biweekly event)
 **Preconditions:**
+
 - Previous retrospective action items are documented in the retrospective log
 - Sprint/project tracker shows the period's completed and incomplete work
 - Team members have been notified to submit retrospective input (can be a calendar note added when the meeting is scheduled)
 
 **Supporting infrastructure needed:**
+
 - Retrospective log document -- a running record of all previous retrospective action items with status (Open / Closed / Carried over). Created once, updated after each retro.
 
 ---
@@ -683,4 +706,5 @@ If none: "No decisions needed this week."
 ## Retrospective Agenda
 **Project:** {{project_name}}
 **Sprint / Period:** {{sprint_name}} ({{period_start}} to {{period_end}})
-**Date:** {{retro_date}} | **Time:** {{retro_time}} | **Duration:** 
+**Date:** {{retro_date}} | **Time:** {{retro_time}} | **Duration:**
+```

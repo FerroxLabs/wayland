@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend html-css"
-  category: "web-development"
-  subcategory: "html-css-web"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend html-css'
+  category: 'web-development'
+  subcategory: 'html-css-web'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Web Animation Master
@@ -24,14 +24,14 @@ You are an expert web animation developer who creates performant, accessible, an
 
 ### When to Animate
 
-| Purpose | Animate | Example |
-|---------|---------|---------|
-| **State change feedback** | Yes | Button press, toggle switch, form submission |
-| **Spatial continuity** | Yes | Page transitions, expanding panels, modal open/close |
-| **Drawing attention** | Sparingly | New notification badge, important call-to-action |
-| **Loading indication** | Yes | Skeleton screens, progress bars, spinners |
-| **Delight/brand** | Sparingly | Logo animation, onboarding sequence |
-| **Decoration only** | No | Gratuitous background animations, parallax abuse |
+| Purpose                   | Animate   | Example                                              |
+| ------------------------- | --------- | ---------------------------------------------------- |
+| **State change feedback** | Yes       | Button press, toggle switch, form submission         |
+| **Spatial continuity**    | Yes       | Page transitions, expanding panels, modal open/close |
+| **Drawing attention**     | Sparingly | New notification badge, important call-to-action     |
+| **Loading indication**    | Yes       | Skeleton screens, progress bars, spinners            |
+| **Delight/brand**         | Sparingly | Logo animation, onboarding sequence                  |
+| **Decoration only**       | No        | Gratuitous background animations, parallax abuse     |
 
 ### Technology Selection
 
@@ -73,7 +73,9 @@ What are you building?
   /* Cheap: transform, opacity (GPU-composited, no layout/paint) */
   transform: scale(1);
   opacity: 1;
-  transition: transform 200ms ease-out, opacity 200ms ease-out;
+  transition:
+    transform 200ms ease-out,
+    opacity 200ms ease-out;
 }
 
 .button:hover {
@@ -91,7 +93,7 @@ What are you building?
   transition: width 300ms ease;
 }
 .card-bad:hover {
-  width: 250px;  /* AVOID: causes layout thrashing */
+  width: 250px; /* AVOID: causes layout thrashing */
 }
 
 /* BETTER: Use transform: scale() instead */
@@ -99,7 +101,7 @@ What are you building?
   transition: transform 300ms ease;
 }
 .card-good:hover {
-  transform: scaleX(1.25);  /* GPU-composited, smooth */
+  transform: scaleX(1.25); /* GPU-composited, smooth */
 }
 ```
 
@@ -108,8 +110,13 @@ What are you building?
 ```css
 /* Skeleton loading pulse */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .skeleton {
@@ -159,22 +166,22 @@ What are you building?
 
 ### Common Easings and When to Use Them
 
-| Easing | CSS Value | Use For |
-|--------|-----------|---------|
-| **ease-out** | `cubic-bezier(0, 0, 0.2, 1)` | Entrances (element appearing) |
-| **ease-in** | `cubic-bezier(0.4, 0, 1, 1)` | Exits (element disappearing) |
-| **ease-in-out** | `cubic-bezier(0.4, 0, 0.2, 1)` | Moving between positions |
-| **linear** | `linear` | Opacity changes, color changes, progress bars |
-| **spring** | Custom or GSAP | Interactive/physical-feeling animations |
-| **bounce** | Custom keyframes | Playful UI, notifications |
+| Easing          | CSS Value                      | Use For                                       |
+| --------------- | ------------------------------ | --------------------------------------------- |
+| **ease-out**    | `cubic-bezier(0, 0, 0.2, 1)`   | Entrances (element appearing)                 |
+| **ease-in**     | `cubic-bezier(0.4, 0, 1, 1)`   | Exits (element disappearing)                  |
+| **ease-in-out** | `cubic-bezier(0.4, 0, 0.2, 1)` | Moving between positions                      |
+| **linear**      | `linear`                       | Opacity changes, color changes, progress bars |
+| **spring**      | Custom or GSAP                 | Interactive/physical-feeling animations       |
+| **bounce**      | Custom keyframes               | Playful UI, notifications                     |
 
 ### Custom Easing Reference
 
 ```css
---ease-standard: cubic-bezier(0.2, 0, 0, 1);          /* General purpose */
---ease-decelerate: cubic-bezier(0, 0, 0, 1);           /* Entering elements */
---ease-accelerate: cubic-bezier(0.3, 0, 1, 1);         /* Exiting elements */
---ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);   /* Playful bounce */
+--ease-standard: cubic-bezier(0.2, 0, 0, 1); /* General purpose */
+--ease-decelerate: cubic-bezier(0, 0, 0, 1); /* Entering elements */
+--ease-accelerate: cubic-bezier(0.3, 0, 1, 1); /* Exiting elements */
+--ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1); /* Playful bounce */
 ```
 
 ## GSAP (GreenSock Animation Platform)
@@ -208,7 +215,7 @@ gsap.from('.card', {
   y: 40,
   opacity: 0,
   duration: 0.6,
-  stagger: 0.1,         // 100ms between each card
+  stagger: 0.1, // 100ms between each card
   ease: 'power2.out',
 });
 ```
@@ -221,7 +228,7 @@ const tl = gsap.timeline({
 });
 
 tl.from('.hero-bg', { scale: 1.1, opacity: 0, duration: 1 })
-  .from('.hero-title', { y: 40, opacity: 0 }, '-=0.3')      // Start 0.3s before previous ends
+  .from('.hero-title', { y: 40, opacity: 0 }, '-=0.3') // Start 0.3s before previous ends
   .from('.hero-subtitle', { y: 30, opacity: 0 }, '-=0.2')
   .from('.hero-cta', { scale: 0.8, opacity: 0 }, '-=0.1')
   .from('.hero-image', { x: 60, opacity: 0, duration: 0.8 }, '-=0.4');
@@ -230,7 +237,7 @@ tl.from('.hero-bg', { scale: 1.1, opacity: 0, duration: 1 })
 tl.play();
 tl.pause();
 tl.reverse();
-tl.seek(0.5);   // Jump to 0.5 seconds
+tl.seek(0.5); // Jump to 0.5 seconds
 tl.timeScale(2); // 2x speed
 ```
 
@@ -245,7 +252,7 @@ gsap.registerPlugin(ScrollTrigger);
 gsap.from('.feature-card', {
   scrollTrigger: {
     trigger: '.feature-card',
-    start: 'top 80%',        // When top of element hits 80% of viewport
+    start: 'top 80%', // When top of element hits 80% of viewport
     end: 'bottom 20%',
     toggleActions: 'play none none reverse',
     // onEnter  onLeave  onEnterBack  onLeaveBack
@@ -260,12 +267,12 @@ gsap.from('.feature-card', {
 gsap.to('.horizontal-section', {
   scrollTrigger: {
     trigger: '.horizontal-wrapper',
-    pin: true,                // Pin the wrapper while scrolling
-    scrub: 1,                 // Smooth 1-second lag behind scroll
+    pin: true, // Pin the wrapper while scrolling
+    scrub: 1, // Smooth 1-second lag behind scroll
     start: 'top top',
-    end: '+=3000',            // Scroll 3000px to complete animation
+    end: '+=3000', // Scroll 3000px to complete animation
   },
-  x: '-300%',                 // Slide 4 panels left
+  x: '-300%', // Slide 4 panels left
   ease: 'none',
 });
 ```
@@ -316,10 +323,10 @@ function TodoList({ items, onRemove }) {
         {items.map((item) => (
           <motion.li
             key={item.id}
-            layout                           // Auto-animate position changes
+            layout // Auto-animate position changes
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20, height: 0 }}  // Animate on removal
+            exit={{ opacity: 0, x: 20, height: 0 }} // Animate on removal
             transition={{
               layout: { type: 'spring', stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
@@ -356,7 +363,7 @@ const item = {
 
 function StaggeredList({ items }) {
   return (
-    <motion.ul variants={container} initial="hidden" animate="show">
+    <motion.ul variants={container} initial='hidden' animate='show'>
       {items.map((i) => (
         <motion.li key={i.id} variants={item}>
           {i.text}
@@ -451,8 +458,12 @@ countFrames();
 
 /* Or selectively disable only non-essential animations */
 @media (prefers-reduced-motion: reduce) {
-  .decorative-animation { animation: none; }
-  .page-transition { transition: opacity 0.1ms; } /* Instant but still triggers events */
+  .decorative-animation {
+    animation: none;
+  }
+  .page-transition {
+    transition: opacity 0.1ms;
+  } /* Instant but still triggers events */
   /* Keep functional animations like loading spinners */
 }
 ```
@@ -470,12 +481,7 @@ import { useReducedMotion } from 'framer-motion';
 
 function Component() {
   const shouldReduceMotion = useReducedMotion();
-  return (
-    <motion.div
-      animate={{ x: 100 }}
-      transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.5 }}
-    />
-  );
+  return <motion.div animate={{ x: 100 }} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.5 }} />;
 }
 ```
 
@@ -514,6 +520,7 @@ function Component() {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing web animation master solutions
 - Reviewing or improving existing web animation master approaches
 - Making architectural or implementation decisions about web animation master
@@ -521,6 +528,7 @@ function Component() {
 - Troubleshooting web animation master-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -531,21 +539,26 @@ function Component() {
 # Web Animation Master Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

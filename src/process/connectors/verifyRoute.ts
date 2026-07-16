@@ -47,7 +47,7 @@ async function defaultRestore(backupPath: string, configPath: string): Promise<v
 
   const tmpPath = path.join(
     path.dirname(configPath),
-    `.${path.basename(configPath)}.restore-${process.pid}-${Date.now()}.tmp`,
+    `.${path.basename(configPath)}.restore-${process.pid}-${Date.now()}.tmp`
   );
   await fs.writeFile(tmpPath, backupContent);
   await fs.rename(tmpPath, configPath);

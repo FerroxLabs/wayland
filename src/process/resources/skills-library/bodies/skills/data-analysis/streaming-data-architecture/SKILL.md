@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science analysis planning"
-  category: "data-analysis"
-  subcategory: "data-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science analysis planning'
+  category: 'data-analysis'
+  subcategory: 'data-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Streaming Data Architecture
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to design a real-time pipeline that processes events as they arrive -- common triggers include "detect fraud as transactions happen," "alert when IoT sensors exceed thresholds," "update dashboards with live clickstream data," or "replicate database changes to downstream systems in real time"
 - The user wants to move from a nightly batch job to a continuous processing model, and needs help reasoning through the architectural trade-offs, not just the code
 - The user is building a system with multiple independent consumers that each need to react to the same event stream -- for example, an order event that simultaneously feeds a fraud scorer, an inventory service, a notification system, and an analytics aggregator
@@ -30,6 +32,7 @@ metadata:
 - The user needs to perform windowed aggregations over live data -- counting events per user per 5 minutes, computing rolling averages, or detecting velocity patterns
 
 **Do NOT use when:**
+
 - The user wants a scheduled ETL job that runs hourly or nightly, even if the destination is a streaming-adjacent system -- use `etl-pipeline-design`
 - The user wants to design a data warehouse schema, dimensional model, or OLAP layer -- use `data-warehouse-design`
 - The user wants to poll an external API on a schedule to extract data -- use `api-data-extraction`
@@ -142,7 +145,7 @@ Compile all design decisions into the structured specification document defined 
 
 ## Output Format
 
-```
+````
 ## Streaming Architecture: [System Name]
 
 ### 1. System Overview
@@ -182,9 +185,10 @@ Compile all design decisions into the structured specification document defined 
   "correlation_id": "uuid-v4",
   "partition_key": "[value used as partition key]"
 }
-```
+````
 
 **Payload (event-specific):**
+
 ```json
 {
   "data": {
@@ -209,26 +213,27 @@ Compile all design decisions into the structured specification document defined 
 
 ### 3. Producer Configuration
 
-| Producer ID | Source System | Output Topic | Partition Key | Ack Mode | Idempotent | Compression | Fallback on Broker Unavailable |
-|-------------|--------------|-------------|---------------|----------|-----------|-------------|-------------------------------|
-| [id] | [service] | [topic name] | [key field] | [acks=all/1/0] | [yes/no] | [lz4/snappy/none] | [local buffer / fail request / drop] |
+| Producer ID | Source System | Output Topic | Partition Key | Ack Mode       | Idempotent | Compression       | Fallback on Broker Unavailable       |
+| ----------- | ------------- | ------------ | ------------- | -------------- | ---------- | ----------------- | ------------------------------------ |
+| [id]        | [service]     | [topic name] | [key field]   | [acks=all/1/0] | [yes/no]   | [lz4/snappy/none] | [local buffer / fail request / drop] |
 
 **Producer-specific configuration notes:**
+
 - [Producer ID]: [Any non-standard configuration: batching, linger.ms, special serialization, CDC source details]
 
 ---
 
 ### 4. Topic / Stream Design
 
-| Topic Name | Partitions | Retention | Replication Factor | min.insync.replicas | Compaction | Purpose |
-|-----------|-----------|-----------|-------------------|--------------------|-----------|---------| 
-| [topic] | [n] | [7d / 30d / indefinite] | [3] | [2] | [yes/no] | [brief description] |
+| Topic Name | Partitions | Retention               | Replication Factor | min.insync.replicas | Compaction | Purpose             |
+| ---------- | ---------- | ----------------------- | ------------------ | ------------------- | ---------- | ------------------- |
+| [topic]    | [n]        | [7d / 30d / indefinite] | [3]                | [2]                 | [yes/no]   | [brief description] |
 
 **Dead letter topics:**
 
-| DLQ Topic | Source Topic | Retention | Partition Count | Consumer |
-|-----------|-------------|-----------|-----------------|----------|
-| [topic.dlq] | [source] | [90d] | [1] | [manual review process] |
+| DLQ Topic   | Source Topic | Retention | Partition Count | Consumer                |
+| ----------- | ------------ | --------- | --------------- | ----------------------- |
+| [topic.dlq] | [source]     | [90d]     | [1]             | [manual review process] |
 
 ---
 
@@ -236,59 +241,60 @@ Compile all design decisions into the structured specification document defined 
 
 #### Consumer [N]: [Consumer Name]
 
-| Property | Value |
-|----------|-------|
-| Consumer group ID | [group-name] |
-| Input topic(s) | [topic names] |
-| Processing type | [Stateless / Stateful] |
-| Framework | [Kafka Streams / Flink / custom consumer loop] |
-| Instance count (normal) | [n] |
-| Instance count (peak) | [n] |
-| Scaling trigger | [consumer lag > X messages / CPU > Y%] |
+| Property                | Value                                          |
+| ----------------------- | ---------------------------------------------- |
+| Consumer group ID       | [group-name]                                   |
+| Input topic(s)          | [topic names]                                  |
+| Processing type         | [Stateless / Stateful]                         |
+| Framework               | [Kafka Streams / Flink / custom consumer loop] |
+| Instance count (normal) | [n]                                            |
+| Instance count (peak)   | [n]                                            |
+| Scaling trigger         | [consumer lag > X messages / CPU > Y%]         |
 
 **Processing logic:**
+
 1. [Step 1 of what this consumer does]
 2. [Step 2]
 3. [Continue for all processing steps]
 
 **State management (if stateful):**
 
-| State Store | Technology | Data Stored | Key | TTL | Recovery Method |
-|------------|-----------|-------------|-----|-----|----------------|
+| State Store  | Technology                     | Data Stored      | Key         | TTL         | Recovery Method                                 |
+| ------------ | ------------------------------ | ---------------- | ----------- | ----------- | ----------------------------------------------- |
 | [store name] | [RocksDB / Redis / PostgreSQL] | [what is stored] | [key field] | [TTL value] | [changelog replay / cache rebuild / cold start] |
 
 **Window definitions (if windowed):**
 
-| Window | Type | Size | Advance / Gap | Purpose | Late Event Handling |
-|--------|------|------|---------------|---------|-------------------|
+| Window | Type                       | Size       | Advance / Gap             | Purpose            | Late Event Handling                                |
+| ------ | -------------------------- | ---------- | ------------------------- | ------------------ | -------------------------------------------------- |
 | [name] | [Tumbling/Sliding/Session] | [duration] | [advance or gap duration] | [what it computes] | [drop / route to late-event topic / extend window] |
 
 **Output:**
 
-| Destination | Type | Write Mode | Idempotency Key |
-|------------|------|-----------|----------------|
+| Destination        | Type                            | Write Mode                  | Idempotency Key        |
+| ------------------ | ------------------------------- | --------------------------- | ---------------------- |
 | [db / topic / API] | [table / topic name / endpoint] | [upsert / insert / publish] | [field used for dedup] |
 
 **Fault handling:**
 
-| Failure Mode | Retry Count | Retry Delay | After Max Retries | Fallback Behavior |
-|-------------|-------------|-------------|------------------|------------------|
-| [Database write failure] | [3] | [exponential: 1s, 2s, 4s] | [route to DLQ] | [continue processing next event] |
-| [State store unavailable] | [2] | [500ms] | [degraded mode] | [describe degraded processing] |
-| [Deserialization failure] | [0] | [n/a] | [route to DLQ immediately] | [n/a] |
+| Failure Mode              | Retry Count | Retry Delay               | After Max Retries          | Fallback Behavior                |
+| ------------------------- | ----------- | ------------------------- | -------------------------- | -------------------------------- |
+| [Database write failure]  | [3]         | [exponential: 1s, 2s, 4s] | [route to DLQ]             | [continue processing next event] |
+| [State store unavailable] | [2]         | [500ms]                   | [degraded mode]            | [describe degraded processing]   |
+| [Deserialization failure] | [0]         | [n/a]                     | [route to DLQ immediately] | [n/a]                            |
 
 ---
 
 ### 6. Fault Tolerance Summary
 
-| Failure Scenario | Detection Method | Recovery Steps | Expected Data Impact | RTO |
-|-----------------|-----------------|---------------|---------------------|-----|
-| Consumer instance crash | Consumer group heartbeat timeout ([n]s) | [Partition rebalance; restart instance] | [Events delayed by rebalance time; none lost] | [<60s] |
-| Message broker unavailable | Producer connection failure | [Producer activates local buffer; alert ops; restore broker] | [Events buffered up to [X] GB; replayed on recovery] | [depends on broker HA config] |
-| Poison message | Deserialization exception or processing exception | [Route to DLQ after [n] retries] | [Single event unprocessed; isolated in DLQ] | [Immediate; does not block pipeline] |
-| State store unavailable | Connection timeout | [Activate fallback / degraded mode; alert ops] | [Describe what degrades] | [<30s for cache; longer for DB] |
-| Consumer lag growth | Lag monitoring metric | [Scale consumers; alert] | [Processing delayed; SLA at risk if not resolved] | [<5 min with auto-scale] |
-| Out-of-order events | Watermark check in window processor | [Accept within watermark; route late events to late-event topic] | [Windows accurate within watermark bound] | [n/a -- by design] |
+| Failure Scenario           | Detection Method                                  | Recovery Steps                                                   | Expected Data Impact                                 | RTO                                  |
+| -------------------------- | ------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------ |
+| Consumer instance crash    | Consumer group heartbeat timeout ([n]s)           | [Partition rebalance; restart instance]                          | [Events delayed by rebalance time; none lost]        | [<60s]                               |
+| Message broker unavailable | Producer connection failure                       | [Producer activates local buffer; alert ops; restore broker]     | [Events buffered up to [X] GB; replayed on recovery] | [depends on broker HA config]        |
+| Poison message             | Deserialization exception or processing exception | [Route to DLQ after [n] retries]                                 | [Single event unprocessed; isolated in DLQ]          | [Immediate; does not block pipeline] |
+| State store unavailable    | Connection timeout                                | [Activate fallback / degraded mode; alert ops]                   | [Describe what degrades]                             | [<30s for cache; longer for DB]      |
+| Consumer lag growth        | Lag monitoring metric                             | [Scale consumers; alert]                                         | [Processing delayed; SLA at risk if not resolved]    | [<5 min with auto-scale]             |
+| Out-of-order events        | Watermark check in window processor               | [Accept within watermark; route late events to late-event topic] | [Windows accurate within watermark bound]            | [n/a -- by design]                   |
 
 ---
 
@@ -310,16 +316,17 @@ Compile all design decisions into the structured specification document defined 
 
 ### 8. Monitoring and Alerting
 
-| Metric | Source | Warning Threshold | Critical Threshold | Alert Channel | Notes |
-|--------|--------|------------------|-------------------|---------------|-------|
-| Consumer lag (max across partitions) | Broker metrics | [X messages] | [Y messages] | [Slack / PagerDuty] | [Calculate: alert when lag growth rate implies SLA breach in <10 min] |
-| End-to-end latency (p99) | event_timestamp to output write time | [X% of SLA target] | [SLA target] | [PagerDuty] | [Compute in consumer; emit as metric] |
-| DLQ message rate | DLQ topic consumer lag | [>0 in 5 min] | [>50 in 1 hour] | [Slack #data-ops] | [Any DLQ activity warrants investigation] |
-| Producer error rate | Producer client metrics | [0.01% of sends] | [0.1% of sends] | [PagerDuty] | [Sudden increase indicates broker or network issue] |
-| Schema validation failure rate | Consumer deserialization errors | [0.01%] | [0.1%] | [Slack #data-ops] | [May indicate producer-side schema drift] |
-| State store operation latency (p99) | Consumer metrics | [10ms] | [50ms] | [Slack #data-ops] | [Above 50ms directly impacts end-to-end latency] |
-| Topic disk usage | Broker metrics | [70% of capacity] | [85% of capacity] | [Slack #infra] | [May need to reduce retention or expand storage] |
-```
+| Metric                               | Source                               | Warning Threshold  | Critical Threshold | Alert Channel       | Notes                                                                 |
+| ------------------------------------ | ------------------------------------ | ------------------ | ------------------ | ------------------- | --------------------------------------------------------------------- |
+| Consumer lag (max across partitions) | Broker metrics                       | [X messages]       | [Y messages]       | [Slack / PagerDuty] | [Calculate: alert when lag growth rate implies SLA breach in <10 min] |
+| End-to-end latency (p99)             | event_timestamp to output write time | [X% of SLA target] | [SLA target]       | [PagerDuty]         | [Compute in consumer; emit as metric]                                 |
+| DLQ message rate                     | DLQ topic consumer lag               | [>0 in 5 min]      | [>50 in 1 hour]    | [Slack #data-ops]   | [Any DLQ activity warrants investigation]                             |
+| Producer error rate                  | Producer client metrics              | [0.01% of sends]   | [0.1% of sends]    | [PagerDuty]         | [Sudden increase indicates broker or network issue]                   |
+| Schema validation failure rate       | Consumer deserialization errors      | [0.01%]            | [0.1%]             | [Slack #data-ops]   | [May indicate producer-side schema drift]                             |
+| State store operation latency (p99)  | Consumer metrics                     | [10ms]             | [50ms]             | [Slack #data-ops]   | [Above 50ms directly impacts end-to-end latency]                      |
+| Topic disk usage                     | Broker metrics                       | [70% of capacity]  | [85% of capacity]  | [Slack #infra]      | [May need to reduce retention or expand storage]                      |
+
+````
 
 ---
 
@@ -425,18 +432,49 @@ When a stateful consumer starts for the first time (no previous checkpoint) or m
   "correlation_id": "uuid-v4",
   "partition_key": "zone_downtown_north"
 }
-```
+````
 
 **Payload:**
+
 ```json
 {
   "data": {
-    "rider_id": { "type": "string", "nullable": false, "description": "Unique rider identifier", "example": "rider_8821aa" },
-    "zone_id": { "type": "string", "nullable": false, "description": "Geohash-based zone identifier, precision 5 (~4.9km x 4.9km)", "example": "zone_downtown_north" },
-    "latitude": { "type": "double", "nullable": false, "description": "Rider latitude at time of request", "example": 40.7589 },
-    "longitude": { "type": "double", "nullable": false, "description": "Rider longitude at time of request", "example": -73.9851 },
-    "estimated_fare_usd": { "type": "decimal", "nullable": false, "description": "Estimated fare before surge", "example": 14.50 },
-    "ride_type": { "type": "string", "nullable": false, "description": "Enum: standard, xl, premium", "example": "standard" }
+    "rider_id": {
+      "type": "string",
+      "nullable": false,
+      "description": "Unique rider identifier",
+      "example": "rider_8821aa"
+    },
+    "zone_id": {
+      "type": "string",
+      "nullable": false,
+      "description": "Geohash-based zone identifier, precision 5 (~4.9km x 4.9km)",
+      "example": "zone_downtown_north"
+    },
+    "latitude": {
+      "type": "double",
+      "nullable": false,
+      "description": "Rider latitude at time of request",
+      "example": 40.7589
+    },
+    "longitude": {
+      "type": "double",
+      "nullable": false,
+      "description": "Rider longitude at time of request",
+      "example": -73.9851
+    },
+    "estimated_fare_usd": {
+      "type": "decimal",
+      "nullable": false,
+      "description": "Estimated fare before surge",
+      "example": 14.5
+    },
+    "ride_type": {
+      "type": "string",
+      "nullable": false,
+      "description": "Enum: standard, xl, premium",
+      "example": "standard"
+    }
   }
 }
 ```
@@ -449,6 +487,7 @@ When a stateful consumer starts for the first time (no previous checkpoint) or m
 #### 2.2 driver.location
 
 **Payload:**
+
 ```json
 {
   "data": {
@@ -456,3 +495,4 @@ When a stateful consumer starts for the first time (no previous checkpoint) or m
     "zone_id": { "type": "string", "nullable": false, "description": "Current zone of driver (same geohash scheme as ride.request)", "example": "zone_downtown_north" },
     "latitude": { "type": "double", "nullable": false, "description": "Driver GPS latitude", "example": 40.7601 },
     "longitude": { "type": "double", "nullable": false,
+```

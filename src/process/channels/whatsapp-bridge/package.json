@@ -1,8 +1,8 @@
 {
   "name": "@wayland/whatsapp-bridge",
   "version": "0.1.0",
-  "description": "WhatsApp bridge subprocess for Wayland - JSON-RPC over stdio with pluggable backends (Baileys, whatsapp-web.js, Meta Cloud API)",
   "private": true,
+  "description": "WhatsApp bridge subprocess for Wayland - JSON-RPC over stdio with pluggable backends (Baileys, whatsapp-web.js, Meta Cloud API)",
   "type": "module",
   "main": "bridge.js",
   "scripts": {

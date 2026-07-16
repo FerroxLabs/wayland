@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Slider } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { ConfigStorage } from '@/common/config/storage';
+import { isElectronDesktop } from '@renderer/utils/platform';
 import { useWcoreConfig } from '@renderer/hooks/useWcoreConfig';
 import WcSwitch from '../components/WcSwitch';
 import WcSegmented from '../components/WcSegmented';
@@ -60,6 +61,10 @@ const RuntimePane: React.FC = () => {
     return (MODE_VALUES as readonly string[]).includes(m ?? '') ? (m as RuntimeMode) : 'local';
   }, [section]);
   const concurrency = typeof section?.concurrency === 'number' ? section.concurrency : 6;
+  // SEC-6: mode & concurrency persist via wcoreConfig.setSection, which is
+  // human-only and remote-denied. In the web console (no electronAPI) those
+  // writes are rejected, so surface them read-only instead of silently failing.
+  const runtimeConfigReadOnly = !isElectronDesktop();
 
   const modeOptions = useMemo(
     () => [
@@ -103,6 +108,14 @@ const RuntimePane: React.FC = () => {
       </div>
 
       <div className={styles.section}>
+        {runtimeConfigReadOnly && (
+          <div className={styles.modeHint}>
+            {t('settings.wcoreConfig.runtime.remoteReadOnly', {
+              defaultValue:
+                'Read-only from the web console — runtime mode and concurrency are edited in the desktop app for security.',
+            })}
+          </div>
+        )}
         <div className={styles.group}>
           <div className={styles.listRow}>
             <div>
@@ -121,6 +134,7 @@ const RuntimePane: React.FC = () => {
                 value={mode}
                 onChange={(v) => persist({ ...section, mode: v })}
                 label={t('settings.wcoreConfig.runtime.runtimeMode', { defaultValue: 'Runtime mode' })}
+                disabled={runtimeConfigReadOnly}
               />
             </div>
           </div>
@@ -158,6 +172,7 @@ const RuntimePane: React.FC = () => {
                   max={12}
                   step={1}
                   value={concurrency}
+                  disabled={runtimeConfigReadOnly}
                   style={{ flex: 1, minWidth: 180 }}
                   onChange={(v) => persist({ ...section, concurrency: Number(v) })}
                 />

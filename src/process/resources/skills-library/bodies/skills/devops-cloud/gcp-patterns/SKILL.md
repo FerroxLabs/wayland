@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cloud architecture optimization"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cloud architecture optimization'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # GCP Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to architect a new GCP workload and needs guidance on which services to use together (e.g., "should I use Cloud Run or GKE for my API?")
 - User needs a production-ready reference architecture for a specific pattern -- microservices, event-driven, data pipeline, multi-region HA, or hub-and-spoke networking
 - User wants to evaluate trade-offs between GCP-native services for a concrete use case (e.g., Pub/Sub vs. Eventarc, BigQuery vs. Spanner, Cloud Run vs. Cloud Functions)
@@ -29,6 +31,7 @@ metadata:
 - User is troubleshooting a GCP architecture problem and needs to understand which pattern to apply to fix it
 
 **Do NOT use this skill when:**
+
 - User needs Terraform or Infrastructure as Code authoring help specifically -- use the infrastructure-as-code skill instead
 - User needs CI/CD pipeline design -- use the CI/CD skill in the devops-cloud subcategory
 - User is asking about Kubernetes internals or Helm charts unrelated to GKE-specific GCP integration -- use the Kubernetes skill
@@ -242,40 +245,51 @@ Phase 7 (Day 5): Binary Authorization attestor, CI/CD integration, min-instances
 ## Edge Cases
 
 ### Multi-Region Active-Active with Cloud Spanner
+
 When the workload requires < 10ms global write latency across US and EU simultaneously, Cloud Spanner with a multi-region configuration is the only GCP-native option. Key considerations: Spanner multi-region instances add 2-3x latency overhead vs. single-region for reads (due to Paxos quorum across regions). Use regional read-only endpoints for read-heavy workloads. Cost is significant -- a `nam6` (North America 6-region) Spanner instance with 3 nodes costs ~$5,832/month. Validate that the workload actually requires multi-region writes before committing; 90% of "global" applications only need multi-region reads, which Cloud SQL read replicas handle at 1/10th the cost.
 
 ### Hybrid Connectivity (On-Premises to GCP)
+
 When workloads span on-premises data centers and GCP, the connectivity choice determines the entire architecture:
+
 - **Cloud Interconnect (Dedicated):** 10Gbps or 100Gbps physical circuits. Use when sustained bandwidth > 300Mbps or when SLA requirements > 99.9%. 99.99% SLA requires two Dedicated Interconnect attachments in different metro locations. Provisioning takes 4-8 weeks.
 - **Cloud Interconnect (Partner):** For < 10Gbps, faster provisioning (1-2 weeks), lower commitment. Bandwidth from 50Mbps to 50Gbps.
 - **Cloud VPN (HA VPN):** Use for < 3Gbps, dev/staging environments, or as backup to Interconnect. HA VPN with two tunnels provides 99.99% SLA. Max throughput ~3Gbps per tunnel pair.
 - **Pattern:** Route on-premises to GCP via the Shared VPC host project only. Never create VPN/Interconnect attachments in service projects -- it creates routing complexity and bypasses centralized firewall control.
 
 ### GKE Autopilot vs. Standard Node Pool Cost Optimization
+
 Autopilot bills per pod resource request (CPU and memory) rather than per node. This is cheaper for bursty or variable workloads but more expensive when pods have high resource requests relative to what they actually use. Concrete example: a pod requesting 4 CPU / 8GB RAM but using 0.5 CPU / 2GB RAM costs $0.048/vCPU-hour in Autopilot vs. the actual node utilization cost in Standard. For steady, predictable workloads with > 70% resource utilization, GKE Standard with committed use discounts (CUDs) is typically 30-40% cheaper. Always run both options through the GCP pricing calculator with actual pod specs before deciding.
 
 ### Cloud Run Cold Start Mitigation for Large Images
+
 Cloud Run cold starts increase with image size. An image > 500MB will have cold starts of 3-5 seconds even with optimized code. Mitigation techniques in priority order:
+
 1. Use multi-stage Docker builds to reduce final image size. A Node.js app should have a build stage and a runtime stage using `node:18-slim` or `gcr.io/distroless/nodejs18`. Target < 100MB compressed.
 2. Enable CPU always-on with `--cpu-always-allocated` if the service processes background work (Pub/Sub push subscriptions). This prevents the CPU throttling that causes initialization slowness.
 3. Set `min-instances: 1` for production services and use Cloud Scheduler to send a synthetic request every 5 minutes if scale-to-zero is cost-required.
 4. Use Cloud Run's startup CPU boost feature (`--cpu-boost`) which temporarily doubles CPU during cold start initialization.
 
 ### BigQuery Slot Contention Under On-Demand Pricing
+
 Under BigQuery on-demand pricing ($5/TB scanned), high-concurrency analytical workloads create unpredictable query latency when multiple teams run large queries simultaneously. Symptoms: queries that run in 10 seconds at low concurrency take 3-5 minutes under load. Resolution path:
+
 - Move to BigQuery reservations (flat-rate pricing) when monthly on-demand spend exceeds ~$5,000/month or when p95 query latency SLOs exist.
 - Use BigQuery reservation slots: 100 slots minimum ($2,000/month committed 1-year). Use flex slots ($0.04/slot-hour) for burst capacity.
 - Implement workload management: assign priority 100 to BI dashboards, priority 200 to batch ETL jobs, priority 300 to ad-hoc analyst queries. Higher priority number = lower precedence.
 - For real-time dashboards requiring < 1 second query latency, use BigQuery BI Engine (in-memory cache) or materialize to Bigtable for point lookups.
 
 ### VPC Service Controls Breaking Legitimate Workflows
+
 VPC Service Controls (VPC-SC) perimeters are the most common source of hard-to-debug 403 errors in GCP. When a service account outside the perimeter tries to access a resource inside, it gets a generic "Access denied" error that does not mention VPC-SC. Diagnostic approach:
+
 1. Check the `cloudaudit.googleapis.com/policy` log in Cloud Logging -- VPC-SC violations appear here with `policyViolationInfo` fields.
 2. Use dry-run mode (`enforcementMode: DRY_RUN`) before enforcing a new perimeter. This logs violations without blocking access.
 3. Common legitimate access patterns that require explicit perimeter bridges or ingress/egress rules: Cloud Build accessing BigQuery during CI, Looker (external) accessing BigQuery, Dataflow reading from Cloud Storage while writing to BigQuery (all three services must be in the same perimeter or have explicit access levels defined).
 4. Service account access levels (`accessPolicies/*/accessLevels/`) are the correct mechanism for granting specific SAs access to perimeter resources from outside -- not perimeter exceptions.
 
 ### Shared VPC with Multiple Subnets and GKE Secondary Ranges
+
 GKE requires two secondary IP ranges per subnet: one for pods (recommend /17 for large clusters -- 32,767 pod IPs) and one for services (recommend /22 -- 1,024 service IPs). In a Shared VPC, these secondary ranges must be pre-planned in the host project before GKE clusters are created in service projects. Running out of secondary IP space requires cluster recreation -- there is no in-place expansion. Best practice: allocate /16 for pods and /20 for services per GKE cluster, even if current cluster is small. Use the `subnetwork-range-name` and `cluster-secondary-range-name` flags explicitly when creating GKE clusters in Shared VPC to avoid GKE creating its own ranges.
 
 ---
@@ -291,6 +305,7 @@ GKE requires two secondary IP ranges per subnet: one for pods (recommend /17 for
 ## GCP Architecture Pattern: Event-Driven Order Processing (PCI DSS)
 
 ### Architecture Summary
+
 ```
 Workload type:     Event-driven microservices + streaming analytics
 Primary region:    us-central1 (low latency to payment processors, low cost)
@@ -302,23 +317,23 @@ Peak throughput:   2,500 orders/minute (500 * 5x Black Friday factor)
 
 ### Component Map
 
-| Layer | GCP Service | Configuration Notes |
-|---|---|---|
-| Ingress | Global HTTPS Load Balancer | Cloud Armor WAF, TLS 1.2+ enforced, DDoS protection |
-| API Compute | Cloud Run (managed) | min-instances: 3, concurrency: 50, CPU: 2, memory: 1GB |
-| Order Queue | Pub/Sub | `orders-received` topic, dead-letter after 5 attempts |
-| Inventory Svc | Cloud Run | min-instances: 2, concurrency: 80, connects to Spanner |
-| Payment Svc | Cloud Run | min-instances: 2, concurrency: 20, connects to Cloud SQL |
-| Fulfillment Svc | Cloud Run | min-instances: 1, concurrency: 50, publishes to `fulfillment-events` |
-| Order State (OLTP) | Cloud Spanner (multi-region nam6) | 3 nodes, 99.999% SLA, strong consistency |
-| Payment Records | Cloud SQL PostgreSQL 15 HA | Private IP, automated daily backup, point-in-time recovery |
-| Analytics | BigQuery | partitioned by `order_date`, clustered by `status`, `region` |
-| Streaming ETL | Dataflow (streaming) | Pub/Sub → Dataflow → BigQuery, exactly-once semantics |
-| Cache | Memorystore Redis 7 | 4GB, read replica, auth + TLS enabled, inventory counts |
-| Secrets | Secret Manager | CMEK with Cloud HSM-backed key, all payment credentials |
-| Container Images | Artifact Registry | Docker repo, Binary Authorization enforced in Cloud Run |
-| Networking | Shared VPC | Private Google Access, Cloud NAT, no external IPs |
-| Security Perimeter | VPC Service Controls | Perimeter around data-project: Spanner, BigQuery, Cloud SQL |
+| Layer              | GCP Service                       | Configuration Notes                                                  |
+| ------------------ | --------------------------------- | -------------------------------------------------------------------- |
+| Ingress            | Global HTTPS Load Balancer        | Cloud Armor WAF, TLS 1.2+ enforced, DDoS protection                  |
+| API Compute        | Cloud Run (managed)               | min-instances: 3, concurrency: 50, CPU: 2, memory: 1GB               |
+| Order Queue        | Pub/Sub                           | `orders-received` topic, dead-letter after 5 attempts                |
+| Inventory Svc      | Cloud Run                         | min-instances: 2, concurrency: 80, connects to Spanner               |
+| Payment Svc        | Cloud Run                         | min-instances: 2, concurrency: 20, connects to Cloud SQL             |
+| Fulfillment Svc    | Cloud Run                         | min-instances: 1, concurrency: 50, publishes to `fulfillment-events` |
+| Order State (OLTP) | Cloud Spanner (multi-region nam6) | 3 nodes, 99.999% SLA, strong consistency                             |
+| Payment Records    | Cloud SQL PostgreSQL 15 HA        | Private IP, automated daily backup, point-in-time recovery           |
+| Analytics          | BigQuery                          | partitioned by `order_date`, clustered by `status`, `region`         |
+| Streaming ETL      | Dataflow (streaming)              | Pub/Sub → Dataflow → BigQuery, exactly-once semantics                |
+| Cache              | Memorystore Redis 7               | 4GB, read replica, auth + TLS enabled, inventory counts              |
+| Secrets            | Secret Manager                    | CMEK with Cloud HSM-backed key, all payment credentials              |
+| Container Images   | Artifact Registry                 | Docker repo, Binary Authorization enforced in Cloud Run              |
+| Networking         | Shared VPC                        | Private Google Access, Cloud NAT, no external IPs                    |
+| Security Perimeter | VPC Service Controls              | Perimeter around data-project: Spanner, BigQuery, Cloud SQL          |
 
 ### Network Topology
 
@@ -356,53 +371,56 @@ Traffic flows:
 
 ### IAM Bindings
 
-| Principal | Role | Scope |
-|---|---|---|
-| sa-api-cloudrun@pci-compute.iam | roles/pubsub.publisher | orders-received topic only |
-| sa-api-cloudrun@pci-compute.iam | roles/spanner.databaseUser | order-db database only |
-| sa-api-cloudrun@pci-compute.iam | roles/secretmanager.secretAccessor | api-secrets/* |
-| sa-payment-svc@pci-compute.iam | roles/cloudsql.client | payment-db instance only |
-| sa-payment-svc@pci-compute.iam | roles/secretmanager.secretAccessor | payment-secrets/* |
-| sa-dataflow@pci-data.iam | roles/bigquery.dataEditor | analytics dataset only |
-| sa-dataflow@pci-data.iam | roles/pubsub.subscriber | order-events-sub subscription |
-| sa-cicd@pci-build.iam | roles/run.developer | all Cloud Run services |
-| sa-cicd@pci-build.iam | roles/artifactregistry.writer | docker-repo only |
+| Principal                       | Role                               | Scope                         |
+| ------------------------------- | ---------------------------------- | ----------------------------- |
+| sa-api-cloudrun@pci-compute.iam | roles/pubsub.publisher             | orders-received topic only    |
+| sa-api-cloudrun@pci-compute.iam | roles/spanner.databaseUser         | order-db database only        |
+| sa-api-cloudrun@pci-compute.iam | roles/secretmanager.secretAccessor | api-secrets/\*                |
+| sa-payment-svc@pci-compute.iam  | roles/cloudsql.client              | payment-db instance only      |
+| sa-payment-svc@pci-compute.iam  | roles/secretmanager.secretAccessor | payment-secrets/\*            |
+| sa-dataflow@pci-data.iam        | roles/bigquery.dataEditor          | analytics dataset only        |
+| sa-dataflow@pci-data.iam        | roles/pubsub.subscriber            | order-events-sub subscription |
+| sa-cicd@pci-build.iam           | roles/run.developer                | all Cloud Run services        |
+| sa-cicd@pci-build.iam           | roles/artifactregistry.writer      | docker-repo only              |
 
 ### Decision Matrix
 
-| Criterion | Cloud Spanner (chosen) | Cloud SQL HA | Cloud Firestore |
-|---|---|---|---|
-| Multi-region HA | Yes (99.999% SLA) | Read replica only | Yes (multi-region) |
-| Strong consistency | Yes (external) | Yes (single-region) | Eventual (default) |
-| Write throughput | 2000 QPS/node | ~500 QPS | ~1 write/doc/sec |
-| PCI audit trail | Yes (change streams) | Point-in-time recovery | Limited |
-| Cost (3 nodes nam6) | ~$5,832/month | ~$300/month HA | Per-operation |
-| Recommendation | ✅ Order state (high QPS, HA) | ✅ Payment records (relational, auditable) | ❌ Not for OLTP |
+| Criterion           | Cloud Spanner (chosen)        | Cloud SQL HA                               | Cloud Firestore    |
+| ------------------- | ----------------------------- | ------------------------------------------ | ------------------ |
+| Multi-region HA     | Yes (99.999% SLA)             | Read replica only                          | Yes (multi-region) |
+| Strong consistency  | Yes (external)                | Yes (single-region)                        | Eventual (default) |
+| Write throughput    | 2000 QPS/node                 | ~500 QPS                                   | ~1 write/doc/sec   |
+| PCI audit trail     | Yes (change streams)          | Point-in-time recovery                     | Limited            |
+| Cost (3 nodes nam6) | ~$5,832/month                 | ~$300/month HA                             | Per-operation      |
+| Recommendation      | ✅ Order state (high QPS, HA) | ✅ Payment records (relational, auditable) | ❌ Not for OLTP    |
 
-| Criterion | Cloud Run (chosen for API) | GKE Autopilot | GKE Standard |
-|---|---|---|---|
-| Ops burden | Minimal | Medium | High |
-| Kubernetes exp. req. | No | Yes | Yes |
-| Scale-to-zero | Yes (set min-instances: 3 for prod) | No | No |
-| 5x burst handling | Automatic (Cloud Run scales in seconds) | Pod scheduling ~30-60s | Node provisioning ~2-4 min |
-| PCI network isolation | VPC connector | VPC-native pods | VPC-native pods |
-| Recommendation | ✅ Best fit for team maturity + burst | If team gains K8s expertise | Not yet |
+| Criterion             | Cloud Run (chosen for API)              | GKE Autopilot               | GKE Standard               |
+| --------------------- | --------------------------------------- | --------------------------- | -------------------------- |
+| Ops burden            | Minimal                                 | Medium                      | High                       |
+| Kubernetes exp. req.  | No                                      | Yes                         | Yes                        |
+| Scale-to-zero         | Yes (set min-instances: 3 for prod)     | No                          | No                         |
+| 5x burst handling     | Automatic (Cloud Run scales in seconds) | Pod scheduling ~30-60s      | Node provisioning ~2-4 min |
+| PCI network isolation | VPC connector                           | VPC-native pods             | VPC-native pods            |
+| Recommendation        | ✅ Best fit for team maturity + burst   | If team gains K8s expertise | Not yet                    |
 
 ### Architecture Decision Records
 
 **ADR-001: Cloud Spanner for Order State**
+
 - Context: 2,500 peak orders/minute, PCI compliance, 99.95% uptime target, 8 engineers without DBA expertise
 - Decision: Cloud Spanner `nam6` multi-region, 3 nodes
 - Rationale: Cloud SQL HA provides 99.95% but only within a single region; a region failure causes a 1-2 minute failover gap. At 2,500 orders/minute, that is 2,500-5,000 lost orders during failover. Spanner `nam6` provides 99.999% SLA with no failover gap. Change streams provide the audit trail required for PCI DSS Requirement 10.
 - Revisit trigger: Monthly cost > $10,000 -- at that scale, dedicated Spanner nodes with CUDs reduce cost by 20%.
 
 **ADR-002: Pub/Sub for Order Pipeline (Not Synchronous)**
+
 - Context: Inventory, payment, and fulfillment must all succeed for an order. Tight synchronous coupling creates latency and failure propagation.
 - Decision: API publishes to Pub/Sub `orders-received`. Downstream services consume via push subscriptions. Saga pattern: each service publishes success/failure to `order-events` topic; a state machine in Cloud Spanner tracks order status.
 - Rationale: Decoupling allows each service to scale independently. Payment processing averages 800ms; without decoupling, API p95 latency would be > 1 second. Pub/Sub provides at-least-once delivery with dead-letter queuing for failed messages.
 - Trade-off: Eventual consistency in the order pipeline. A customer sees "Order processing" for 2-4 seconds before confirmation. Acceptable for e-commerce; revisit if synchronous confirmation is a hard product requirement.
 
 **ADR-003: Dataflow for Pub/Sub to BigQuery (Not Pub/Sub BigQuery Subscription)**
+
 - Context: PCI requires transforming and masking PAN (Primary Account Number) data before it enters the analytics warehouse.
 - Decision: Dataflow streaming pipeline with Apache Beam PAN masking step (replace card digits with `****`) between Pub/Sub and BigQuery.
 - Rationale: The native Pub/Sub-to-BigQuery subscription writes raw events without transformation. Dataflow allows the PAN masking, schema validation, and deduplication steps required for PCI compliance and data quality.

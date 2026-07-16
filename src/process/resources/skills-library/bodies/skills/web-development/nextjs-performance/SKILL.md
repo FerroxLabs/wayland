@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript frameworks optimization web-development"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript frameworks optimization web-development'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Next.js Performance
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to reduce Time to First Byte (TTFB), Largest Contentful Paint (LCP), Cumulative Layout Shift (CLS), or First Input Delay (FID/INP) in a Next.js application
 - User wants to choose between Static Site Generation (SSG), Server-Side Rendering (SSR), Incremental Static Regeneration (ISR), and React Server Components (RSC) for a specific route or data pattern
 - User needs to optimize bundle size, reduce JavaScript sent to the browser, or eliminate render-blocking resources in a Next.js project
@@ -29,6 +31,7 @@ metadata:
 - User is setting up performance monitoring, Web Vitals reporting, or Lighthouse CI for a Next.js project
 
 **Do NOT use this skill when:**
+
 - User needs general React performance optimization (component memoization, context splitting, virtualization) without a Next.js-specific question -- use the react-performance skill
 - User is asking about database query optimization or backend API performance that happens to be called by Next.js -- use the backend-api-performance skill
 - User needs help migrating from Pages Router to App Router in general -- use the nextjs-app-router-migration skill
@@ -126,28 +129,31 @@ Performance work without measurement degrades over time. Instrument the applicat
 
 When responding to a Next.js performance question, deliver output in this structure:
 
-```markdown
+````markdown
 ## Performance Analysis: [Route or Feature Name]
 
 ### Current Bottleneck Assessment
-| Metric | Current Value | Target Threshold | Status |
-|--------|--------------|-----------------|--------|
-| LCP    | [ms]         | < 2500 ms       | ✅/⚠️/❌ |
-| INP    | [ms]         | < 200 ms        | ✅/⚠️/❌ |
-| CLS    | [score]      | < 0.1           | ✅/⚠️/❌ |
-| TTFB   | [ms]         | < 200 ms        | ✅/⚠️/❌ |
-| First Load JS | [KB] | < 150 KB gzip  | ✅/⚠️/❌ |
+
+| Metric        | Current Value | Target Threshold | Status   |
+| ------------- | ------------- | ---------------- | -------- |
+| LCP           | [ms]          | < 2500 ms        | ✅/⚠️/❌ |
+| INP           | [ms]          | < 200 ms         | ✅/⚠️/❌ |
+| CLS           | [score]       | < 0.1            | ✅/⚠️/❌ |
+| TTFB          | [ms]          | < 200 ms         | ✅/⚠️/❌ |
+| First Load JS | [KB]          | < 150 KB gzip    | ✅/⚠️/❌ |
 
 ### Root Cause
+
 [1-3 sentences identifying the specific bottleneck with evidence from measurements]
 
 ### Rendering Strategy Decision
-| Factor | Assessment | Recommendation |
-|--------|-----------|----------------|
+
+| Factor                     | Assessment                       | Recommendation    |
+| -------------------------- | -------------------------------- | ----------------- |
 | Data freshness requirement | [per-request/hourly/deploy-time] | [SSR/ISR/SSG/RSC] |
-| Personalization | [yes/no] | [dynamic/static] |
-| Acceptable TTFB | [ms] | [cached/uncached] |
-| Scale (pages/requests) | [count/rps] | [strategy] |
+| Personalization            | [yes/no]                         | [dynamic/static]  |
+| Acceptable TTFB            | [ms]                             | [cached/uncached] |
+| Scale (pages/requests)     | [count/rps]                      | [strategy]        |
 
 **Selected Strategy:** [SSG / ISR (revalidate: N) / RSC with fetch cache / SSR with edge runtime]
 **Rationale:** [2-3 sentences]
@@ -155,27 +161,33 @@ When responding to a Next.js performance question, deliver output in this struct
 ### Implementation
 
 #### [File: app/[route]/page.tsx or relevant file]
+
 ```tsx
 // Complete, working TypeScript code
 ```
+````
 
 #### [File: next.config.js -- if config changes needed]
+
 ```js
 // Complete configuration changes
 ```
 
 ### Bundle Impact
+
 - Before: [X] KB first-load JS
-- After: [X] KB first-load JS  
+- After: [X] KB first-load JS
 - Change: [-X KB / -X%]
 - Method: [dynamic import / moved to Server Component / replaced library]
 
 ### Validation Steps
+
 1. Run `ANALYZE=true next build` and verify [specific chunk] is no longer in client bundle
 2. Run Lighthouse on [specific URL] and confirm LCP < 2500 ms
 3. Check Network tab for [specific resource] -- verify it loads with [cache header]
 4. Measure TTFB for [route] -- should be under [N] ms after deploying
-```
+
+````
 
 ---
 
@@ -259,7 +271,7 @@ Two separate problems exist. The 380 KB first-load JS strongly indicates that he
 | Acceptable TTFB | < 100 ms (CDN-cached) | Cached static response |
 | Scale | Potentially millions of product pages | ISR with on-demand revalidation |
 
-**Selected Strategy:** ISR with `revalidate: 3600` plus on-demand revalidation via CMS webhook  
+**Selected Strategy:** ISR with `revalidate: 3600` plus on-demand revalidation via CMS webhook
 **Rationale:** Product listings for unauthenticated users are identical across all visitors -- there is no reason to re-fetch from the API on every request. ISR caches the rendered HTML at the CDN edge, serving sub-100 ms TTFB. When a product is updated in the CMS, a webhook calls `revalidateTag('products')` to immediately invalidate the relevant cached pages.
 
 ### Implementation
@@ -318,42 +330,35 @@ export default async function ProductsPage() {
     </main>
   )
 }
-```
+````
 
 #### File: `components/HeroProduct.tsx`
 
 ```tsx
 // This is a Server Component -- no "use client" needed
-import Image from 'next/image'
+import Image from 'next/image';
 
 interface HeroProductProps {
   product: {
-    id: string
-    name: string
-    price: number
-    imageSrc: string
-    imageAlt: string
-    slug: string
-  }
+    id: string;
+    name: string;
+    price: number;
+    imageSrc: string;
+    imageAlt: string;
+    slug: string;
+  };
 }
 
 export function HeroProduct({ product }: HeroProductProps) {
   return (
-    <section className="relative h-[480px] w-full">
+    <section className='relative h-[480px] w-full'>
       {/* priority prop preloads this image, directly fixing LCP */}
-      <Image
-        src={product.imageSrc}
-        alt={product.imageAlt}
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-      />
-      <div className="absolute bottom-8 left-8">
-        <h1 className="text-4xl font-bold text-white">{product.name}</h1>
+      <Image src={product.imageSrc} alt={product.imageAlt} fill priority sizes='100vw' className='object-cover' />
+      <div className='absolute bottom-8 left-8'>
+        <h1 className='text-4xl font-bold text-white'>{product.name}</h1>
       </div>
     </section>
-  )
+  );
 }
 ```
 
@@ -362,40 +367,40 @@ export function HeroProduct({ product }: HeroProductProps) {
 ```tsx
 // Server Component -- renders all product cards server-side
 // No "use client" means this entire component tree stays out of the JS bundle
-import Image from 'next/image'
-import Link from 'next/link'
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface Product {
-  id: string
-  name: string
-  price: number
-  imageSrc: string
-  imageAlt: string
-  slug: string
+  id: string;
+  name: string;
+  price: number;
+  imageSrc: string;
+  imageAlt: string;
+  slug: string;
 }
 
 // Only the interactive "Add to Cart" button is a Client Component
 // Import it separately so the rest of the grid stays server-rendered
-import { AddToCartButton } from './AddToCartButton'
+import { AddToCartButton } from './AddToCartButton';
 
 export function ProductGrid({ products }: { products: Product[] }) {
   return (
-    <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4">
+    <div className='grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4'>
       {products.map((product) => (
-        <article key={product.id} className="flex flex-col">
+        <article key={product.id} className='flex flex-col'>
           <Link href={`/products/${product.slug}`}>
-            <div className="relative aspect-square w-full">
+            <div className='relative aspect-square w-full'>
               <Image
                 src={product.imageSrc}
                 alt={product.imageAlt}
                 fill
                 // Correct sizes: full width mobile, 1/3 tablet, 1/4 desktop
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                className="object-cover"
+                sizes='(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw'
+                className='object-cover'
               />
             </div>
-            <h2 className="mt-2 text-sm font-medium">{product.name}</h2>
-            <p className="text-sm text-gray-600">
+            <h2 className='mt-2 text-sm font-medium'>{product.name}</h2>
+            <p className='text-sm text-gray-600'>
               {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
@@ -407,44 +412,40 @@ export function ProductGrid({ products }: { products: Product[] }) {
         </article>
       ))}
     </div>
-  )
+  );
 }
 ```
 
 #### File: `components/AddToCartButton.tsx`
 
 ```tsx
-'use client'
+'use client';
 // This is the ONLY Client Component in the product grid subtree
 // Everything above it is server-rendered and not included in JS bundle
 
-import { useState } from 'react'
+import { useState } from 'react';
 
 export function AddToCartButton({ productId }: { productId: string }) {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   async function handleAddToCart() {
-    setLoading(true)
+    setLoading(true);
     try {
       await fetch('/api/cart', {
         method: 'POST',
         body: JSON.stringify({ productId }),
         headers: { 'Content-Type': 'application/json' },
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
-    <button
-      onClick={handleAddToCart}
-      disabled={loading}
-      className="mt-2 w-full rounded bg-blue-600 py-2 text-white"
-    >
+    <button onClick={handleAddToCart} disabled={loading} className='mt-2 w-full rounded bg-blue-600 py-2 text-white'>
       {loading ? 'Adding...' : 'Add to Cart'}
     </button>
-  )
+  );
 }
 ```
 
@@ -453,22 +454,22 @@ export function AddToCartButton({ productId }: { productId: string }) {
 ```ts
 // Webhook endpoint called by CMS when products are updated
 // Instantly invalidates ISR cache without waiting for revalidate timer
-import { revalidateTag } from 'next/cache'
-import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  const secret = request.headers.get('x-revalidate-secret')
+  const secret = request.headers.get('x-revalidate-secret');
 
   if (secret !== process.env.REVALIDATE_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  revalidateTag('products')
+  revalidateTag('products');
 
   return NextResponse.json({
     revalidated: true,
     timestamp: new Date().toISOString(),
-  })
+  });
 }
 ```
 
@@ -477,7 +478,7 @@ export async function POST(request: NextRequest) {
 ```js
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
-})
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -500,7 +501,7 @@ const nextConfig = {
           },
         ],
       },
-    ]
+    ];
   },
 
   images: {
@@ -515,18 +516,20 @@ const nextConfig = {
       },
     ],
   },
-}
+};
 
-module.exports = withBundleAnalyzer(nextConfig)
+module.exports = withBundleAnalyzer(nextConfig);
 ```
 
 ### Bundle Impact
+
 - Before: 380 KB first-load JS (entire product grid, product card components, image handling all in client bundle)
 - After: ~95 KB first-load JS (only `AddToCartButton` and Next.js runtime in client bundle; all product rendering is server-side)
 - Change: -285 KB (-75%)
 - Method: Removed `"use client"` from `ProductGrid` and `ProductCard`, converting them to Server Components; pushed `"use client"` boundary down to `AddToCartButton` only; replaced any client-side `useState`-based fetching with server-side ISR data fetching
 
 ### Validation Steps
+
 1. Run `ANALYZE=true next build` -- verify `ProductGrid` and `ProductCard` are not present in any client-side chunk; only `AddToCartButton` should appear in client chunks
 2. Run `next build && next start` in production mode; check the terminal output for the `/products` route -- it should show `○ (Static)` or `◐ (ISR)` indicator, not `λ (Server)`
 3. Open Chrome DevTools Network tab with throttling set to Slow 4G; verify `X-Nextjs-Cache: HIT` response header appears on the second load, confirming ISR cache is working

@@ -20,7 +20,7 @@ steps:
   - id: authorize
     title: Sign in with Cloudflare
     estSeconds: 60
-    primaryAction: { label: "Sign in with Cloudflare", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Cloudflare', action: 'oauth-flow' }
     warning: |
       On the consent screen, **uncheck any product you don't want Wayland
       to touch**. Granting Workers Bindings means Wayland can deploy and

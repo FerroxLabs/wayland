@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting planning checklist"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'goal-setting planning checklist'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Quarterly Planning
@@ -211,14 +211,14 @@ Checklist:
 **Goals:** 4 (5th moved to stretch)
 **Available weekly hours for goal work:** 12 hours (estimated: 2 hrs/day weeknights + 2 hrs weekend)
 
-| # | Goal | Life Area | Priority | Status |
-|---|------|-----------|----------|--------|
-| 1 | Complete work online course (all 8 remaining modules + final project) | Career | Primary | Not started |
-| 2 | Exercise 4x/week for 12 weeks, reaching 3 consecutive pull-ups | Health | Primary | Not started |
-| 3 | Complete Spanish A1 level (Duolingo tree + 10 conversation sessions) | Learning | Secondary | Not started |
-| 4 | Read 6 books (at least 2 non-fiction) | Learning | Stretch | Not started |
+| #   | Goal                                                                  | Life Area | Priority  | Status      |
+| --- | --------------------------------------------------------------------- | --------- | --------- | ----------- |
+| 1   | Complete work online course (all 8 remaining modules + final project) | Career    | Primary   | Not started |
+| 2   | Exercise 4x/week for 12 weeks, reaching 3 consecutive pull-ups        | Health    | Primary   | Not started |
+| 3   | Complete Spanish A1 level (Duolingo tree + 10 conversation sessions)  | Learning  | Secondary | Not started |
+| 4   | Read 6 books (at least 2 non-fiction)                                 | Learning  | Stretch   | Not started |
 
-*Side project deferred to Q3: not enough capacity this quarter with 3 active goals plus stretch. Revisit during week 13 evaluation.*
+_Side project deferred to Q3: not enough capacity this quarter with 3 active goals plus stretch. Revisit during week 13 evaluation._
 
 ---
 
@@ -230,20 +230,20 @@ Checklist:
 
 #### Milestones
 
-| Phase | Weeks | Milestone | Target Date |
-|-------|-------|-----------|-------------|
-| Foundation | 1-4 | Modules 1-4 complete | April 28 |
-| Build | 5-9 | Modules 5-8 complete, project outline done | June 2 |
-| Finish | 10-13 | Final project submitted and graded | June 30 |
+| Phase      | Weeks | Milestone                                  | Target Date |
+| ---------- | ----- | ------------------------------------------ | ----------- |
+| Foundation | 1-4   | Modules 1-4 complete                       | April 28    |
+| Build      | 5-9   | Modules 5-8 complete, project outline done | June 2      |
+| Finish     | 10-13 | Final project submitted and graded         | June 30     |
 
 #### Foundation Phase Weekly Targets (Weeks 1-4)
 
-| Week | Target | Actions |
-|------|--------|---------|
-| 1 | Module 1 complete | 3 hrs: watch lectures, complete exercises, pass quiz |
-| 2 | Module 2 complete | 3 hrs: same pattern |
-| 3 | Module 3 complete | 3 hrs: same pattern |
-| 4 | Module 4 complete | 3 hrs: Foundation checkpoint -- review notes, identify weak areas for modules 5-8 |
+| Week | Target            | Actions                                                                           |
+| ---- | ----------------- | --------------------------------------------------------------------------------- |
+| 1    | Module 1 complete | 3 hrs: watch lectures, complete exercises, pass quiz                              |
+| 2    | Module 2 complete | 3 hrs: same pattern                                                               |
+| 3    | Module 3 complete | 3 hrs: same pattern                                                               |
+| 4    | Module 4 complete | 3 hrs: Foundation checkpoint -- review notes, identify weak areas for modules 5-8 |
 
 ---
 
@@ -255,20 +255,20 @@ Checklist:
 
 #### Milestones
 
-| Phase | Weeks | Milestone | Target Date |
-|-------|-------|-----------|-------------|
-| Foundation | 1-4 | 16 workouts logged, routine established | April 28 |
-| Build | 5-9 | 36 cumulative workouts, 1 pull-up achieved | June 2 |
-| Finish | 10-13 | 48 cumulative workouts, 3 consecutive pull-ups | June 30 |
+| Phase      | Weeks | Milestone                                      | Target Date |
+| ---------- | ----- | ---------------------------------------------- | ----------- |
+| Foundation | 1-4   | 16 workouts logged, routine established        | April 28    |
+| Build      | 5-9   | 36 cumulative workouts, 1 pull-up achieved     | June 2      |
+| Finish     | 10-13 | 48 cumulative workouts, 3 consecutive pull-ups | June 30     |
 
 #### Foundation Phase Weekly Targets (Weeks 1-4)
 
-| Week | Target | Actions |
-|------|--------|---------|
-| 1 | 4 workouts | Choose workout days (Mon/Wed/Fri/Sat), complete beginner routine, log in tracker |
-| 2 | 4 workouts | Same routine, add assisted pull-up practice (2 sets each session) |
-| 3 | 4 workouts | Increase resistance/weight slightly on 2 exercises |
-| 4 | 4 workouts | Foundation check: test pull-up baseline, adjust routine if needed |
+| Week | Target     | Actions                                                                          |
+| ---- | ---------- | -------------------------------------------------------------------------------- |
+| 1    | 4 workouts | Choose workout days (Mon/Wed/Fri/Sat), complete beginner routine, log in tracker |
+| 2    | 4 workouts | Same routine, add assisted pull-up practice (2 sets each session)                |
+| 3    | 4 workouts | Increase resistance/weight slightly on 2 exercises                               |
+| 4    | 4 workouts | Foundation check: test pull-up baseline, adjust routine if needed                |
 
 ---
 
@@ -278,6 +278,7 @@ Checklist:
 **Duration:** 30 minutes
 
 Checklist:
+
 - [ ] Course: How many modules completed this week? On track?
 - [ ] Exercise: How many workouts logged? What is the weekly count?
 - [ ] Spanish: How many lessons and conversation sessions this week?
@@ -290,28 +291,28 @@ Checklist:
 
 ### Review Checkpoints
 
-| Checkpoint | Date | Purpose |
-|-----------|------|---------|
-| Week 4 Review | April 28 | Foundation check: Are all 4 goals launched and on track? |
-| Week 9 Review | June 2 | Build check: Course nearing completion? Pull-up progress? Spanish on pace? |
-| Week 13 Review | June 30 | Final evaluation: Complete quarter-end assessment below |
+| Checkpoint     | Date     | Purpose                                                                    |
+| -------------- | -------- | -------------------------------------------------------------------------- |
+| Week 4 Review  | April 28 | Foundation check: Are all 4 goals launched and on track?                   |
+| Week 9 Review  | June 2   | Build check: Course nearing completion? Pull-up progress? Spanish on pace? |
+| Week 13 Review | June 30  | Final evaluation: Complete quarter-end assessment below                    |
 
 ---
 
 ### Quarter-End Evaluation Template
 
 **Quarter:** Q2 2026
-**Date completed:** _______________
+**Date completed:** ******\_\_\_******
 
-| Goal | Result | Achievement Level | Key Lesson |
-|------|--------|-------------------|------------|
-| Work course | [modules done]/8, project: [status] | Complete / Partial / Not achieved | [lesson] |
-| Exercise | [workouts]/48, pull-ups: [count] | Complete / Partial / Not achieved | [lesson] |
-| Spanish | [lessons]/[target], conversations: [count]/10 | Complete / Partial / Not achieved | [lesson] |
-| Reading | [books]/6 | Complete / Partial / Not achieved | [lesson] |
+| Goal        | Result                                        | Achievement Level                 | Key Lesson |
+| ----------- | --------------------------------------------- | --------------------------------- | ---------- |
+| Work course | [modules done]/8, project: [status]           | Complete / Partial / Not achieved | [lesson]   |
+| Exercise    | [workouts]/48, pull-ups: [count]              | Complete / Partial / Not achieved | [lesson]   |
+| Spanish     | [lessons]/[target], conversations: [count]/10 | Complete / Partial / Not achieved | [lesson]   |
+| Reading     | [books]/6                                     | Complete / Partial / Not achieved | [lesson]   |
 
-**Overall quarter rating:** ___/5
-**Biggest win:** _______________
-**Biggest learning:** _______________
-**Carry forward to next quarter:** _______________
+**Overall quarter rating:** **\_/5
+**Biggest win:** ******\_********
+**Biggest learning:** ******\_\_\_******
+**Carry forward to next quarter:** ******\_\_\_******
 **Side project (deferred from this quarter):** Ready to start? Y/N. If Y, add to Q3 plan.

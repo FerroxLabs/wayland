@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain stress-management checklist testing analysis networking contracts"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced blockchain stress-management checklist testing analysis networking contracts'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Tokenomics Designer
@@ -22,15 +22,16 @@ You are an expert in token economic design, covering the full spectrum of supply
 
 > **IMPORTANT DISCLAIMER:** This skill provides educational information about token economic design only. It is NOT financial or investment advice. Tokens may be classified as securities in many jurisdictions. Token economic models involve significant financial risk and regulatory uncertainty. Always consult qualified legal counsel regarding securities law compliance before launching any token. Past tokenomics designs do not predict future success.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about tokenomics designer techniques or best practices
 - User needs guidance on tokenomics designer concepts
 - User wants to implement or improve their approach to tokenomics designer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of tokenomics designer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,14 +52,14 @@ You are an expert in token economic design, covering the full spectrum of supply
 
 ### Model Comparison
 
-| Model | Mechanism | Examples | Best For |
-|-------|-----------|----------|----------|
-| Fixed supply | Predetermined max, no new minting | Bitcoin (21M) | Store of value, scarcity narratives |
-| Inflationary | New tokens minted on schedule | Ethereum (PoS ~0.5%/yr) | Staking rewards, security incentives |
-| Deflationary | Tokens burned from circulation | BNB (quarterly burn) | Value accrual to holders |
-| Elastic/Rebase | Supply adjusts to target price | Ampleforth | Experimental, stablecoin attempts |
-| Dual-token | Governance + utility separation | Axie (AXS + SLP) | Complex economies with distinct needs |
-| veToken | Lock tokens for voting + revenue share | Curve (CRV -> veCRV) | Deep liquidity incentive alignment |
+| Model          | Mechanism                              | Examples                | Best For                              |
+| -------------- | -------------------------------------- | ----------------------- | ------------------------------------- |
+| Fixed supply   | Predetermined max, no new minting      | Bitcoin (21M)           | Store of value, scarcity narratives   |
+| Inflationary   | New tokens minted on schedule          | Ethereum (PoS ~0.5%/yr) | Staking rewards, security incentives  |
+| Deflationary   | Tokens burned from circulation         | BNB (quarterly burn)    | Value accrual to holders              |
+| Elastic/Rebase | Supply adjusts to target price         | Ampleforth              | Experimental, stablecoin attempts     |
+| Dual-token     | Governance + utility separation        | Axie (AXS + SLP)        | Complex economies with distinct needs |
+| veToken        | Lock tokens for voting + revenue share | Curve (CRV -> veCRV)    | Deep liquidity incentive alignment    |
 
 ### Supply Model Decision Framework
 
@@ -92,16 +93,16 @@ Start with these questions:
 
 ### Allocation Framework
 
-| Stakeholder | Typical Range | Purpose | Vesting |
-|------------|--------------|---------|---------|
-| Community/Ecosystem | 30-50% | User incentives, airdrops, grants, liquidity mining | 3-5 year distribution schedule |
-| Team and Founders | 15-25% | Align team incentives with long-term success | 1 year cliff + 3-4 year linear vest |
-| Investors (Seed) | 5-15% | Early capital and strategic support | 6-12 month cliff + 2-3 year vest |
-| Investors (Series A+) | 5-15% | Growth capital | 6-12 month cliff + 1.5-2.5 year vest |
-| Treasury/DAO | 10-20% | Protocol development, partnerships, emergencies | Governance-controlled release |
-| Advisors | 2-5% | Strategic guidance, network, credibility | 1 year cliff + 2 year vest |
-| Liquidity | 3-10% | Initial DEX/CEX liquidity | Partially locked in LP |
-| Airdrop | 5-15% | User acquisition, community building | Immediate or with claim period |
+| Stakeholder           | Typical Range | Purpose                                             | Vesting                              |
+| --------------------- | ------------- | --------------------------------------------------- | ------------------------------------ |
+| Community/Ecosystem   | 30-50%        | User incentives, airdrops, grants, liquidity mining | 3-5 year distribution schedule       |
+| Team and Founders     | 15-25%        | Align team incentives with long-term success        | 1 year cliff + 3-4 year linear vest  |
+| Investors (Seed)      | 5-15%         | Early capital and strategic support                 | 6-12 month cliff + 2-3 year vest     |
+| Investors (Series A+) | 5-15%         | Growth capital                                      | 6-12 month cliff + 1.5-2.5 year vest |
+| Treasury/DAO          | 10-20%        | Protocol development, partnerships, emergencies     | Governance-controlled release        |
+| Advisors              | 2-5%          | Strategic guidance, network, credibility            | 1 year cliff + 2 year vest           |
+| Liquidity             | 3-10%         | Initial DEX/CEX liquidity                           | Partially locked in LP               |
+| Airdrop               | 5-15%         | User acquisition, community building                | Immediate or with claim period       |
 
 ### Allocation Red Flags
 
@@ -184,16 +185,16 @@ token.transfer(address(teamVesting), teamAllocation);
 
 ### Vesting Best Practices
 
-| Practice | Details |
-|----------|---------|
-| Team cliff >= 1 year | Shows long-term commitment; aligns with community |
-| Total vest >= 3 years | Prevents short-term extraction |
-| TGE unlock for team: 0% | Team should earn tokens over time |
-| TGE unlock for community: 0-50% | Some immediate utility needed |
-| Investor cliff >= 6 months | Prevents immediate dumping |
-| Advisory vest >= 2 years | Ensures ongoing involvement |
-| Vesting contracts audited | Lock cannot be bypassed |
-| Transparent unlock schedule | Published and on-chain verifiable |
+| Practice                        | Details                                           |
+| ------------------------------- | ------------------------------------------------- |
+| Team cliff >= 1 year            | Shows long-term commitment; aligns with community |
+| Total vest >= 3 years           | Prevents short-term extraction                    |
+| TGE unlock for team: 0%         | Team should earn tokens over time                 |
+| TGE unlock for community: 0-50% | Some immediate utility needed                     |
+| Investor cliff >= 6 months      | Prevents immediate dumping                        |
+| Advisory vest >= 2 years        | Ensures ongoing involvement                       |
+| Vesting contracts audited       | Lock cannot be bypassed                           |
+| Transparent unlock schedule     | Published and on-chain verifiable                 |
 
 ---
 
@@ -255,13 +256,13 @@ Trade-offs:
 
 ### Burn Mechanics
 
-| Burn Type | Mechanism | Example |
-|-----------|-----------|---------|
-| Fee burn | Portion of transaction fees burned | Ethereum EIP-1559 (base fee burned) |
-| Buy-back and burn | Protocol uses revenue to buy and burn tokens | BNB quarterly burn |
-| Burn-on-use | Token burned when service is consumed | Helium (burn HNT to mint Data Credits) |
-| Redemption burn | Token burned when redeemed for underlying asset | Backed NFTs, synthetic assets |
-| Penalty burn | Slashed tokens burned | Validator misbehavior |
+| Burn Type         | Mechanism                                       | Example                                |
+| ----------------- | ----------------------------------------------- | -------------------------------------- |
+| Fee burn          | Portion of transaction fees burned              | Ethereum EIP-1559 (base fee burned)    |
+| Buy-back and burn | Protocol uses revenue to buy and burn tokens    | BNB quarterly burn                     |
+| Burn-on-use       | Token burned when service is consumed           | Helium (burn HNT to mint Data Credits) |
+| Redemption burn   | Token burned when redeemed for underlying asset | Backed NFTs, synthetic assets          |
+| Penalty burn      | Slashed tokens burned                           | Validator misbehavior                  |
 
 ---
 
@@ -269,13 +270,13 @@ Trade-offs:
 
 ### Launch Mechanism Comparison
 
-| Mechanism | How It Works | Best For |
-|-----------|-------------|----------|
-| Liquidity Bootstrapping Pool (LBP) | Starting high weight (e.g., 95/5 TOKEN/USDC), weights shift over time to 50/50, creating declining price pressure | Fair price discovery, reduces bots |
-| Initial DEX Offering (IDO) | Fixed-price sale on launchpad platform | Broad distribution, platform audience |
-| Airdrop + LP | Airdrop tokens, provide initial LP | Community-first, no fundraise |
-| Protocol-Owned Liquidity (POL) | Protocol owns its LP positions permanently | Long-term stability, no mercenary LP |
-| Bonds | Users trade LP tokens or assets for discounted protocol tokens | POL acquisition (popularized by OlympusDAO) |
+| Mechanism                          | How It Works                                                                                                      | Best For                                    |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Liquidity Bootstrapping Pool (LBP) | Starting high weight (e.g., 95/5 TOKEN/USDC), weights shift over time to 50/50, creating declining price pressure | Fair price discovery, reduces bots          |
+| Initial DEX Offering (IDO)         | Fixed-price sale on launchpad platform                                                                            | Broad distribution, platform audience       |
+| Airdrop + LP                       | Airdrop tokens, provide initial LP                                                                                | Community-first, no fundraise               |
+| Protocol-Owned Liquidity (POL)     | Protocol owns its LP positions permanently                                                                        | Long-term stability, no mercenary LP        |
+| Bonds                              | Users trade LP tokens or assets for discounted protocol tokens                                                    | POL acquisition (popularized by OlympusDAO) |
 
 ### Liquidity Depth Guidelines
 
@@ -320,13 +321,13 @@ UNSUSTAINABLE sources of token value:
 
 ### Token Value Accrual Mechanisms
 
-| Mechanism | How Value Accrues | Sustainability |
-|-----------|------------------|---------------|
-| Fee switch (revenue to stakers) | Protocol fees distributed to token stakers | High -- tied to real revenue |
-| Buy-back and burn | Protocol uses revenue to reduce supply | High -- tied to real revenue |
-| Governance over treasury | Token governs allocation of real assets | Medium -- depends on treasury management |
-| Utility demand (gas, access) | Token required to use protocol | Medium-High -- tied to usage |
-| Speculative demand | Market expects future value | Low -- reflexive and fragile |
+| Mechanism                       | How Value Accrues                          | Sustainability                           |
+| ------------------------------- | ------------------------------------------ | ---------------------------------------- |
+| Fee switch (revenue to stakers) | Protocol fees distributed to token stakers | High -- tied to real revenue             |
+| Buy-back and burn               | Protocol uses revenue to reduce supply     | High -- tied to real revenue             |
+| Governance over treasury        | Token governs allocation of real assets    | Medium -- depends on treasury management |
+| Utility demand (gas, access)    | Token required to use protocol             | Medium-High -- tied to usage             |
+| Speculative demand              | Market expects future value                | Low -- reflexive and fragile             |
 
 ### Modeling Token Economy Health
 
@@ -382,17 +383,16 @@ Emission Schedule Sustainability:
 
 ## Common Tokenomics Mistakes
 
-| Mistake | Why It Fails | Fix |
-|---------|-------------|-----|
-| 100% of value from emissions | Inflation destroys value for non-stakers | Tie rewards to protocol revenue |
-| No vesting for insiders | Mass selling at TGE crashes price | Minimum 1 year cliff for team and investors |
-| Over-complicated model | Users cannot understand value proposition | Keep core mechanics simple, complexity in edges |
-| Governance without treasury | Voting on nothing meaningful | Ensure governance controls real parameters/funds |
-| Fixed staking APY via inflation | Unsustainable, rewards exceed value creation | Dynamic rates tied to actual revenue |
-| No demand sinks | High velocity, no reason to hold | Build utility that requires locking or burning |
-| Copying another project's tokenomics | Every protocol has different needs | Design for YOUR specific use case and users |
-| Launching token before product | No utility, pure speculation | Build product with real users first |
-
+| Mistake                              | Why It Fails                                 | Fix                                              |
+| ------------------------------------ | -------------------------------------------- | ------------------------------------------------ |
+| 100% of value from emissions         | Inflation destroys value for non-stakers     | Tie rewards to protocol revenue                  |
+| No vesting for insiders              | Mass selling at TGE crashes price            | Minimum 1 year cliff for team and investors      |
+| Over-complicated model               | Users cannot understand value proposition    | Keep core mechanics simple, complexity in edges  |
+| Governance without treasury          | Voting on nothing meaningful                 | Ensure governance controls real parameters/funds |
+| Fixed staking APY via inflation      | Unsustainable, rewards exceed value creation | Dynamic rates tied to actual revenue             |
+| No demand sinks                      | High velocity, no reason to hold             | Build utility that requires locking or burning   |
+| Copying another project's tokenomics | Every protocol has different needs           | Design for YOUR specific use case and users      |
+| Launching token before product       | No utility, pure speculation                 | Build product with real users first              |
 
 ## Process
 
@@ -401,7 +401,6 @@ Emission Schedule Sustainability:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -422,14 +421,12 @@ Emission Schedule Sustainability:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

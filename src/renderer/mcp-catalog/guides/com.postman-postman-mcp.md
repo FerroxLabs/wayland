@@ -14,9 +14,9 @@ steps:
   - id: api-key
     title: Paste your Postman API key
     estSeconds: 120
-    externalAction: { label: "Open Postman API keys", url: "https://go.postman.co/settings/me/api-keys" }
+    externalAction: { label: 'Open Postman API keys', url: 'https://go.postman.co/settings/me/api-keys' }
     inputs:
-      - { name: POSTMAN_API_KEY, label: "Postman API key", secret: true }
+      - { name: POSTMAN_API_KEY, label: 'Postman API key', secret: true }
     warning: |
       Postman API keys inherit **your full account permissions** - they
       cannot be scoped to specific workspaces. Create a separate key per

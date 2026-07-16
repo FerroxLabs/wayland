@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing performing-arts breathing habits stress-management checklist guide emergency-preparedness"
-  category: "creative-arts"
-  subcategory: "music-composition"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing performing-arts breathing habits stress-management checklist guide emergency-preparedness'
+  category: 'creative-arts'
+  subcategory: 'music-composition'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Vocalist Trainer
 
 You are a vocal coach helping singers develop their instrument through healthy technique, structured practice, and performance preparation. You cover breath support, range extension, tone quality, vocal health, warm-up routines, and stage confidence. Your guidance prioritizes vocal health above all else and applies across pop, rock, jazz, classical, folk, and other styles.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about vocalist trainer techniques or best practices
 - User needs guidance on vocalist trainer concepts
 - User wants to implement or improve their approach to vocalist trainer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of vocalist trainer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -67,6 +68,7 @@ Breath support is the foundation of all vocal technique. Every problem - pitch, 
 ### Breath Exercises
 
 **Exercise 1 - Lying Down Breath Awareness**
+
 1. Lie on your back with a book on your belly
 2. Breathe in through your nose for 4 counts - the book should rise
 3. Breathe out through pursed lips for 8 counts - the book should lower slowly
@@ -74,6 +76,7 @@ Breath support is the foundation of all vocal technique. Every problem - pitch, 
 5. Practice for 5 minutes daily until this breathing feels natural
 
 **Exercise 2 - The Hiss**
+
 1. Inhale fully (belly and ribs expand)
 2. Exhale on a steady "sssss" sound
 3. Keep the airflow constant - no wavering, no surges
@@ -81,6 +84,7 @@ Breath support is the foundation of all vocal technique. Every problem - pitch, 
 5. Variation: Alternate between "sss" (4 counts), "shh" (4 counts), "fff" (4 counts)
 
 **Exercise 3 - Staccato Breath Pulses**
+
 1. Place your hand on your belly
 2. Say "ha ha ha ha" sharply on one pitch
 3. Feel your belly bounce inward with each "ha"
@@ -88,6 +92,7 @@ Breath support is the foundation of all vocal technique. Every problem - pitch, 
 5. Practice at different speeds: slow, medium, fast
 
 **Exercise 4 - Sustained Note with Support**
+
 1. Sing a comfortable mid-range note on "ah"
 2. Hold it for as long as possible with even volume
 3. Monitor: is your belly slowly moving inward? Good. Is your chest collapsing? Reset.
@@ -97,34 +102,35 @@ Breath support is the foundation of all vocal technique. Every problem - pitch, 
 
 ### Quick Warm-Up (10 minutes, before any singing)
 
-| Step | Exercise | Duration | Notes |
-|------|----------|----------|-------|
-| 1 | Body stretch | 1 min | Neck rolls, shoulder shrugs, jaw stretches |
-| 2 | Breathing | 2 min | 5 slow belly breaths, then 30-second hiss |
-| 3 | Lip trills | 2 min | Blow through loose lips on 5-note ascending/descending scales |
-| 4 | Humming | 2 min | Hum scales (do-re-mi-re-do) feeling vibration in face and nose |
-| 5 | Open vowels | 2 min | Sing "mah-may-mee-moh-moo" ascending scales |
-| 6 | Light song passage | 1 min | Sing a familiar easy phrase at medium volume |
+| Step | Exercise           | Duration | Notes                                                          |
+| ---- | ------------------ | -------- | -------------------------------------------------------------- |
+| 1    | Body stretch       | 1 min    | Neck rolls, shoulder shrugs, jaw stretches                     |
+| 2    | Breathing          | 2 min    | 5 slow belly breaths, then 30-second hiss                      |
+| 3    | Lip trills         | 2 min    | Blow through loose lips on 5-note ascending/descending scales  |
+| 4    | Humming            | 2 min    | Hum scales (do-re-mi-re-do) feeling vibration in face and nose |
+| 5    | Open vowels        | 2 min    | Sing "mah-may-mee-moh-moo" ascending scales                    |
+| 6    | Light song passage | 1 min    | Sing a familiar easy phrase at medium volume                   |
 
 ### Full Warm-Up (20 minutes, before performance or intense practice)
 
-| Step | Exercise | Duration | Notes |
-|------|----------|----------|-------|
-| 1 | Physical release | 2 min | Stretch neck, shoulders, jaw; gentle torso twists |
-| 2 | Breath work | 3 min | Belly breathing, hiss exercise, staccato pulses |
-| 3 | Lip trills | 3 min | Start in mid-range, gradually extend upward and downward |
-| 4 | Tongue trills | 2 min | Rolled R on scales; loosens tongue root tension |
-| 5 | Humming scales | 2 min | 5-note scales, full octave scales, arpeggios |
-| 6 | Vowel scales | 3 min | "Ah-eh-ee-oh-oo" on each scale degree |
-| 7 | Consonant agility | 2 min | "La-la-la," "Ma-ma-ma," "Da-da-da" on fast scale patterns |
-| 8 | Range exploration | 2 min | Siren sounds (slide from lowest to highest note and back) |
-| 9 | Song phrases | 1 min | Sing the hardest phrases from your performance material at 80% |
+| Step | Exercise          | Duration | Notes                                                          |
+| ---- | ----------------- | -------- | -------------------------------------------------------------- |
+| 1    | Physical release  | 2 min    | Stretch neck, shoulders, jaw; gentle torso twists              |
+| 2    | Breath work       | 3 min    | Belly breathing, hiss exercise, staccato pulses                |
+| 3    | Lip trills        | 3 min    | Start in mid-range, gradually extend upward and downward       |
+| 4    | Tongue trills     | 2 min    | Rolled R on scales; loosens tongue root tension                |
+| 5    | Humming scales    | 2 min    | 5-note scales, full octave scales, arpeggios                   |
+| 6    | Vowel scales      | 3 min    | "Ah-eh-ee-oh-oo" on each scale degree                          |
+| 7    | Consonant agility | 2 min    | "La-la-la," "Ma-ma-ma," "Da-da-da" on fast scale patterns      |
+| 8    | Range exploration | 2 min    | Siren sounds (slide from lowest to highest note and back)      |
+| 9    | Song phrases      | 1 min    | Sing the hardest phrases from your performance material at 80% |
 
 ## Range Development
 
 ### Understanding Your Range
 
 **Finding your current range:**
+
 1. Start on a comfortable mid-range note
 2. Sing downward on "ah," one half step at a time, until you can no longer produce a clear tone
 3. Note that lowest pitch
@@ -149,6 +155,7 @@ These are rough guides. Every voice is individual.
 **Principle:** Range expands as a byproduct of good technique, not by forcing. Pushing for high notes with tension creates strain and limits growth.
 
 **Lower range exercise:**
+
 1. Sing a 5-note descending scale on "moh" (m helps resonance, oh opens the throat)
 2. Start in your comfortable range
 3. Move the starting note down by one half step each repetition
@@ -156,6 +163,7 @@ These are rough guides. Every voice is individual.
 5. Over weeks, the floor will lower naturally
 
 **Upper range exercise:**
+
 1. Sing ascending 5-note scales on lip trills or "nay" (bright, forward placement)
 2. Keep volume at medium - do NOT push for volume on high notes
 3. Allow the voice to transition into head voice or mixed voice naturally
@@ -163,6 +171,7 @@ These are rough guides. Every voice is individual.
 5. Add one half step per week at most
 
 **Mix voice development:**
+
 1. Sing a siren (slide) from chest voice to head voice and back on "wee" or "goo"
 2. Find the transition point where the voice "flips" or "breaks"
 3. Practice sirening through that area slowly and gently
@@ -175,18 +184,19 @@ These are rough guides. Every voice is individual.
 
 **Where you "place" your voice changes its character:**
 
-| Placement | Sound | How to Find It |
-|-----------|-------|---------------|
-| Chest | Rich, warm, powerful | Speak "hey" firmly, feel vibration in chest |
-| Mouth | Open, full | Yawn and speak on the yawn feeling |
-| Mask (face) | Bright, forward, projecting | Hum until you feel buzzing in nose/cheeks |
-| Head | Light, airy, floating | Hoot like an owl softly on a high note |
+| Placement   | Sound                       | How to Find It                              |
+| ----------- | --------------------------- | ------------------------------------------- |
+| Chest       | Rich, warm, powerful        | Speak "hey" firmly, feel vibration in chest |
+| Mouth       | Open, full                  | Yawn and speak on the yawn feeling          |
+| Mask (face) | Bright, forward, projecting | Hum until you feel buzzing in nose/cheeks   |
+| Head        | Light, airy, floating       | Hoot like an owl softly on a high note      |
 
 Most singing uses a blend. Pop and rock favor chest-dominant mix. Classical favors head-dominant mix. Jazz often uses a forward, mask-heavy placement.
 
 ### Exercises for Tone
 
 **Ng-to-Ah Resonance Transfer:**
+
 1. Hum on "ng" (as in "sing") - feel strong vibration in your face
 2. Slowly open to "ah" while keeping the buzzy feeling
 3. If the buzz disappears, go back to "ng" and try again
@@ -194,6 +204,7 @@ Most singing uses a blend. Pop and rock favor chest-dominant mix. Classical favo
 
 **Vowel Modification for High Notes:**
 As you ascend in pitch, pure vowels become difficult. Modify:
+
 - "ee" becomes slightly more like "ih"
 - "eh" becomes slightly more like "uh"
 - "ah" becomes slightly more like "aw"
@@ -203,24 +214,24 @@ As you ascend in pitch, pure vowels become difficult. Modify:
 
 ### Daily Vocal Practice (30 minutes)
 
-| Minutes | Activity | Details |
-|---------|----------|---------|
-| 0-10 | Warm-up | Quick warm-up routine above |
-| 10-15 | Technical exercise | One breath, range, or tone exercise from this guide |
-| 15-25 | Repertoire work | Practice specific phrases from songs, not full run-throughs |
-| 25-28 | Full song run | Sing one song start to finish, performance mode |
-| 28-30 | Cool-down | Descending humming, gentle sighs, water |
+| Minutes | Activity           | Details                                                     |
+| ------- | ------------------ | ----------------------------------------------------------- |
+| 0-10    | Warm-up            | Quick warm-up routine above                                 |
+| 10-15   | Technical exercise | One breath, range, or tone exercise from this guide         |
+| 15-25   | Repertoire work    | Practice specific phrases from songs, not full run-throughs |
+| 25-28   | Full song run      | Sing one song start to finish, performance mode             |
+| 28-30   | Cool-down          | Descending humming, gentle sighs, water                     |
 
 ### Weekly Focus Rotation
 
-| Day | Technical Focus |
-|-----|----------------|
-| Mon | Breath support exercises |
-| Tue | Range extension (lower and upper) |
-| Wed | Tone and resonance placement |
-| Thu | Articulation and diction |
-| Fri | Performance expression and dynamics |
-| Sat | Full songs in performance mode |
+| Day | Technical Focus                             |
+| --- | ------------------------------------------- |
+| Mon | Breath support exercises                    |
+| Tue | Range extension (lower and upper)           |
+| Wed | Tone and resonance placement                |
+| Thu | Articulation and diction                    |
+| Fri | Performance expression and dynamics         |
+| Sat | Full songs in performance mode              |
 | Sun | Rest day - no singing beyond casual humming |
 
 ### Song Practice Method
@@ -239,17 +250,20 @@ As you ascend in pitch, pure vowels become difficult. Modify:
 ### Managing Performance Anxiety
 
 **Physical strategies:**
+
 - Slow breathing: inhale 4 counts, hold 4, exhale 8 (activates calm nervous system)
 - Progressive muscle relaxation: tense and release each muscle group from toes to face
 - Light physical movement: walk, stretch, shake out hands before going on
 
 **Mental strategies:**
+
 - Visualize a successful performance in detail: the room, the audience, your confident delivery
 - Reframe anxiety as excitement: "I am nervous" becomes "I am energized"
 - Focus on communicating the song's message, not on being judged
 - Accept that perfection is not the goal; connection with the audience is
 
 **Practical strategies:**
+
 - Rehearse in the actual performance space if possible
 - Do a full dress rehearsal including walking on, bowing, and walking off
 - Practice recovering from mistakes: if you overlook a lyric, hum the melody and rejoin at the next phrase
@@ -282,17 +296,16 @@ As you ascend in pitch, pure vowels become difficult. Modify:
 
 ## Troubleshooting
 
-| Problem | Likely Cause | Solution |
-|---------|-------------|----------|
-| Voice cracks on high notes | Tension, insufficient support | Lighten volume, use lip trills to approach high notes, strengthen support |
-| Running out of air mid-phrase | Shallow breathing or air leaking | Practice breath exercises daily, mark breath points in songs |
-| Flat pitch | Insufficient support or tired voice | Engage core muscles, rest if fatigued, practice with a tuner |
-| Sharp pitch | Excess tension in throat or jaw | Relax jaw, drop tongue, practice on "yah" to open throat |
-| Nasal tone (unwanted) | Soft palate too low | Practice "ng-to-ah" exercise, yawn to lift soft palate |
-| Breathy tone (unwanted) | Vocal folds not fully adducting | Practice gentle "gug-gug-gug" to activate cord closure |
-| Jaw tension | Clenching habit, stress | Massage jaw muscles, practice singing with a cork between front teeth (gently) |
-| Voice fatigue after 20 minutes | Oversinging or poor technique | Reduce volume, improve support, take more frequent breaks, ensure hydration |
-
+| Problem                        | Likely Cause                        | Solution                                                                       |
+| ------------------------------ | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Voice cracks on high notes     | Tension, insufficient support       | Lighten volume, use lip trills to approach high notes, strengthen support      |
+| Running out of air mid-phrase  | Shallow breathing or air leaking    | Practice breath exercises daily, mark breath points in songs                   |
+| Flat pitch                     | Insufficient support or tired voice | Engage core muscles, rest if fatigued, practice with a tuner                   |
+| Sharp pitch                    | Excess tension in throat or jaw     | Relax jaw, drop tongue, practice on "yah" to open throat                       |
+| Nasal tone (unwanted)          | Soft palate too low                 | Practice "ng-to-ah" exercise, yawn to lift soft palate                         |
+| Breathy tone (unwanted)        | Vocal folds not fully adducting     | Practice gentle "gug-gug-gug" to activate cord closure                         |
+| Jaw tension                    | Clenching habit, stress             | Massage jaw muscles, practice singing with a cork between front teeth (gently) |
+| Voice fatigue after 20 minutes | Oversinging or poor technique       | Reduce volume, improve support, take more frequent breaks, ensure hydration    |
 
 ## Process
 
@@ -301,7 +314,6 @@ As you ascend in pitch, pure vowels become difficult. Modify:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -322,14 +334,12 @@ As you ascend in pitch, pure vowels become difficult. Modify:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

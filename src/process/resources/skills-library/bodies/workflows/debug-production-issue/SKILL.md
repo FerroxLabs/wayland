@@ -15,7 +15,7 @@ skills: incident-response logging-patterns performance-profiling monitoring-aler
 trigger_phrases: debug production issue investigate production bug fix production error diagnose production problem
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: devops troubleshooting optimization step-by-step
   category: software-project
   depends: incident-response logging-patterns performance-profiling monitoring-alerting
@@ -149,6 +149,7 @@ Overall Status: [RESOLVED / MITIGATED / INVESTIGATING]
 ```
 
 **Adaptation notes:**
+
 - For intermittent issues, Steps 2-3 may need multiple iterations as the issue recurs
 - Skip Step 3 entirely for functional bugs that have no performance component
 - For multi-service issues, run Steps 2-3 in parallel across affected services

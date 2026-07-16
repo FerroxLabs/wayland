@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making analysis planning"
-  category: "productivity"
-  subcategory: "decision-making"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'decision-making analysis planning'
+  category: 'productivity'
+  subcategory: 'decision-making'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Pro-Con Analysis
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is weighing a binary or two-option decision and wants structured reasoning -- not just a gut check but a methodology that surfaces what they might be missing
 - The user says they are "torn," "going back and forth," or "can't decide" between two specific choices and wants clarity on why
 - The user asks for help evaluating a yes/no decision where one branch is a clear status quo and the other is a proposed change (accept job offer, move cities, end a relationship, launch a side project)
@@ -29,6 +31,7 @@ metadata:
 - The user has been deliberating for too long and wants an external framework to break the stalemate and produce a recommendation
 
 **Do NOT use when:**
+
 - The user has three or more meaningfully distinct options to compare -- use `weighted-decision-matrix`, which handles multi-option scoring with configurable criteria weights more rigorously
 - The user wants to imagine all the ways a decision could fail before committing -- use `premortem-analysis`, which is specifically designed for failure-mode exploration and risk cataloging
 - The user wants to map second-order and third-order consequences of a decision across time -- use `second-order-thinking`, which traces causal chains rather than weighing static factors
@@ -302,6 +305,7 @@ This is a sophisticated edge case. A user may say "financial security is my top 
 ## Pro-Con Analysis: Accept Series A Startup Offer vs. Stay at Current Company
 
 ### Decision Context
+
 - **Decision:** Should I accept the Series A startup job offer before the deadline in 5 days?
 - **Option A (Change):** Accept the startup offer -- 50% salary raise, equity package, fully remote, 30-person company, Series A, 18 months old
 - **Option B (Status Quo):** Stay at current company -- 4-year tenure, stable income, strong team relationships, defined promotion path
@@ -368,6 +372,7 @@ This is a sophisticated edge case. A user may say "financial security is my top 
 ### Hidden Factors
 
 **Cognitive Bias Check:**
+
 - **Status quo bias:** Staying at the current company feels safer partly because it is known and comfortable. The reversal test: if you were currently at the startup and your old company offered you the equivalent of current stability + team + promotion path, would you seriously consider returning? Likely yes -- which suggests Option B's appeal is partly familiarity, not pure quality.
 - **Sunk cost identified:** Four years of tenure at the current company is a meaningful sunk cost. The effort, relationships, and loyalty built are real -- but they do not obligate future years. They are not a reason to stay; they are an emotional pull that needs to be named and separated from forward-looking analysis.
 - **Omission audit:** The user did not mention the equity vesting schedule (typical is 4-year vest with 1-year cliff -- if laid off at month 11, all equity is forfeited), the startup's runway beyond Series A (how many months of cash on hand?), or the identity of the startup's investors (tier-1 VCs dramatically reduce failure risk and increase exit probability). These are critical data points that are missing from the analysis.
@@ -386,15 +391,15 @@ This is a sophisticated edge case. A user may say "financial security is my top 
 
 ### Comparison Summary
 
-| Dimension | Option A: Accept Startup | Option B: Stay Current |
-|-----------|------------------------|----------------------|
-| Weighted Pros Total | 9.5 | 8.5 |
-| Weighted Cons Total | 14.0 | 10.25 |
-| **Net Score** | **-4.5** | **-1.75** |
-| Score difference | Option B wins by 2.75 points -- meaningful but not decisive | -- |
-| Key advantage | 50% salary raise (certain, immediate) + remote flexibility | Income stability protecting mortgage + family during startup's highest-risk phase |
-| Key risk | Job loss at month 12-18 due to startup failure with mortgage active | $240k foregone income over 5 years + increasing career stagnation signal |
-| Regret asymmetry | 10-year regret of never trying is high; 1-year regret of failed risk is acute | 1-year regret of staying is manageable; 10-year regret of staying grows over time |
+| Dimension           | Option A: Accept Startup                                                      | Option B: Stay Current                                                            |
+| ------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Weighted Pros Total | 9.5                                                                           | 8.5                                                                               |
+| Weighted Cons Total | 14.0                                                                          | 10.25                                                                             |
+| **Net Score**       | **-4.5**                                                                      | **-1.75**                                                                         |
+| Score difference    | Option B wins by 2.75 points -- meaningful but not decisive                   | --                                                                                |
+| Key advantage       | 50% salary raise (certain, immediate) + remote flexibility                    | Income stability protecting mortgage + family during startup's highest-risk phase |
+| Key risk            | Job loss at month 12-18 due to startup failure with mortgage active           | $240k foregone income over 5 years + increasing career stagnation signal          |
+| Regret asymmetry    | 10-year regret of never trying is high; 1-year regret of failed risk is acute | 1-year regret of staying is manageable; 10-year regret of staying grows over time |
 
 ---
 

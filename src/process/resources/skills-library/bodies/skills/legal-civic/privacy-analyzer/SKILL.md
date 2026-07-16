@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts security"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts security'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Privacy Analyzer
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand privacy policies, terms of service, and applicable consumer rights frameworks. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change frequently. Always consult a qualified privacy attorney or your jurisdiction's data protection authority for advice on specific legal matters.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Wants to understand what a specific app, website, or platform collects about them and whether that collection is proportionate to the service offered
 - Needs to know their opt-out, deletion, correction, or portability rights under CCPA/CPRA, GDPR, state privacy laws, or COPPA before taking action
 - Is evaluating whether to sign up for a service, share sensitive data, or connect a third-party app and wants an informed risk assessment
@@ -35,6 +37,7 @@ metadata:
 - Needs to understand what "selling" data means under California law versus what "sharing for cross-context behavioral advertising" means and why the distinction matters
 
 **Do NOT use this skill when:**
+
 - The user has received a formal legal complaint, regulatory notice, or is a subject of law enforcement data request -- refer them to a licensed privacy attorney immediately
 - The user is a business needing to draft, audit, or certify a compliant privacy program -- that requires professional compliance counsel, not consumer-facing literacy guidance
 - The request involves an active data breach response where legal hold, forensics, or regulatory notification deadlines apply -- this is attorney and CISO territory
@@ -682,4 +685,4 @@ COMPLAINT PATHWAYS:
 
 ---
 
-*This analysis provides educational information to support informed decisions about privacy. It does not constitute legal advice. For COPPA enforcement matters involving documented violations affecting your child, consider consulting a consumer protection or privacy attorney in addition to filing FTC and state complaints.*
+_This analysis provides educational information to support informed decisions about privacy. It does not constitute legal advice. For COPPA enforcement matters involving documented violations affecting your child, consider consulting a consumer protection or privacy attorney in addition to filing FTC and state complaints._

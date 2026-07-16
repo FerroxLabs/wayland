@@ -86,7 +86,9 @@ export class WaylandMcpAgent extends AbstractMcpAgent {
             updatedAt: Date.now(),
           });
         } else {
-          console.warn(`[WaylandMcpAgent] Skipping ${server.name}: unsupported transport type ${server.transport.type}`);
+          console.warn(
+            `[WaylandMcpAgent] Skipping ${server.name}: unsupported transport type ${server.transport.type}`
+          );
         }
       });
 

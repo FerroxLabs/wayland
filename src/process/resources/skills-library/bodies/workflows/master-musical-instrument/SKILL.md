@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "personal-tutor study-planner habit-tracker goal-setter"
+skills: 'personal-tutor study-planner habit-tracker goal-setter'
 trigger_phrases: >-
   I want to learn an instrument help me learn guitar how to learn piano master a
   musical instrument start playing music learn to play an instrument
@@ -21,10 +21,11 @@ metadata:
   version: 1.0.0
   tags: performing-arts step-by-step study-skills planning
   category: life-event
-  depends: "personal-tutor study-planner habit-tracker goal-setter"
+  depends: 'personal-tutor study-planner habit-tracker goal-setter'
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Master Musical Instrument
 
 **Estimated time:** 6-24 months
@@ -157,6 +158,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -167,7 +169,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Practicing only what you can already play:** Deliberate practice means spending time on what is hard, not replaying what is easy.
 - **Skipping fundamentals:** Technique, posture, and basics seem boring but they prevent injury and plateaus later.
 - **Inconsistent practice:** Twenty minutes daily beats two hours on Sunday. Consistency is everything.
-
 
 ### Timeline Considerations
 

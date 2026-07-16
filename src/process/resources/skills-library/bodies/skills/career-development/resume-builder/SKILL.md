@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career interview-prep resume-writing"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career interview-prep resume-writing'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Resume Builder
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about resume builder
 - User needs guidance on resume builder topics
 - User wants a structured approach to resume builder
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **What is your highest level of education?**
 9. **Do you have the job description for the role you want?**
 10. **What are your top 3 achievements in your career so far?**
+
 ---
+
 ## Step 1: Format Selection
 
 ### Chronological (Recommended for Most People)
+
 ```
 - Steady career progression in the same field
 - No significant employment gaps
@@ -59,6 +65,7 @@ STRUCTURE:
 ```
 
 ### Functional (Skills-Based)
+
 ```
 - Career changers
 - Significant employment gaps
@@ -77,6 +84,7 @@ career timeline. Use the hybrid format instead when possible.
 ```
 
 ### Hybrid / Combination (Often Best Choice)
+
 ```
 - Career changers with relevant skills
 - Moderate employment gaps
@@ -93,6 +101,7 @@ STRUCTURE:
 ```
 
 ### One Page vs. Two Pages
+
 ```
 ONE PAGE:
 - Less than 10 years of experience
@@ -111,8 +120,11 @@ NEVER:
 - More than 2 pages (unless academic CV)
 - Smaller than 10pt font to force everything onto one page
 ```
+
 ---
+
 ## Step 2: Contact Information
+
 ```
 CONTACT SECTION TEMPLATE:
 
@@ -127,10 +139,13 @@ RULES:
 [ ] Do NOT include: photo, age, marital status, SSN
 [ ] Do NOT use an unprofessional email address
 ```
+
 ---
+
 ## Step 3: Professional Summary
 
 ### Summary Formula
+
 ```
 PROFESSIONAL SUMMARY TEMPLATE:
 
@@ -146,10 +161,13 @@ RULES:
 - Do NOT use objective statements ("Seeking a position where...")
 - Tailor for each application
 ```
+
 ---
+
 ## Step 4: Work Experience
 
 ### Achievement Writing Formula: XYZ Method
+
 ```
 "Accomplished [X] as measured by [Y], by doing [Z]."
 
@@ -158,6 +176,7 @@ FORMULA:
 ```
 
 ### How to Quantify Achievements
+
 ```
 QUANTIFICATION GUIDE:
 MONEY:
@@ -191,6 +210,7 @@ IF YOU DO NOT HAVE EXACT NUMBERS:
 ```
 
 ### Work Experience Template
+
 ```
 WORK EXPERIENCE ENTRY:
 
@@ -212,10 +232,13 @@ RULES:
 - Most recent 10-15 years of experience
 - Remove or abbreviate roles older than 15 years
 ```
+
 ---
+
 ## Step 5: Action Verb Library
 
 ### Leadership and Management
+
 ```
 Directed, Led, Managed, Oversaw, Supervised, Coordinated, Guided,
 Mentored, Recruited, Trained, Delegated, Spearheaded, Championed,
@@ -223,6 +246,7 @@ Orchestrated, Mobilized, Steered, Navigated, Empowered
 ```
 
 ### Achievement and Results
+
 ```
 Achieved, Exceeded, Delivered, Accomplished, Earned, Attained,
 Surpassed, Outperformed, Won, Captured, Secured, Generated,
@@ -230,6 +254,7 @@ Produced, Realized, Maximized
 ```
 
 ### Creation and Innovation
+
 ```
 Created, Designed, Developed, Built, Launched, Established,
 Founded, Initiated, Introduced, Pioneered, Engineered, Architected,
@@ -237,6 +262,7 @@ Invented, Formulated, Conceptualized
 ```
 
 ### Improvement and Optimization
+
 ```
 Improved, Enhanced, Optimized, Streamlined, Accelerated, Increased,
 Boosted, Strengthened, Revitalized, Modernized, Transformed,
@@ -244,6 +270,7 @@ Upgraded, Refined, Revamped, Restructured
 ```
 
 ### Analysis and Problem-Solving
+
 ```
 Analyzed, Evaluated, Assessed, Identified, Diagnosed, Resolved,
 Investigated, Researched, Audited, Forecasted, Mapped, Modeled,
@@ -251,6 +278,7 @@ Determined, Validated, Synthesized
 ```
 
 ### Communication and Collaboration
+
 ```
 Presented, Negotiated, Facilitated, Collaborated, Communicated,
 Advised, Advocated, Influenced, Persuaded, Liaised, Articulated,
@@ -258,21 +286,26 @@ Bridged, Partnered, Aligned
 ```
 
 ### Cost Reduction and Efficiency
+
 ```
 Reduced, Decreased, Eliminated, Consolidated, Cut, Saved,
 Minimized, Lowered, Simplified, Automated, Centralized
 ```
 
 ### VERBS TO AVOID
+
 ```
 Responsible for, Duties included, Helped, Worked on, Assisted with,
 Participated in, Tasked with, Involved in, Handled
 
 ```
+
 ---
+
 ## Step 6: ATS Optimization
 
 ### How ATS Works
+
 ```
 ATS (Applicant Tracking Systems) FACTS:
 
@@ -307,6 +340,7 @@ CONTENT:
 ```
 
 ### Keyword Extraction Process
+
 ```
 ATS KEYWORD EXTRACTION:
 
@@ -335,10 +369,13 @@ KEYWORD PLACEMENT PRIORITY:
 3. Skills section
 4. Job titles (if your actual title can be legitimately adjusted)
 ```
+
 ---
+
 ## Step 7: Skills Section Design
 
 ### Skills Section Template
+
 ```
 SKILLS SECTION FORMAT:
 
@@ -366,8 +403,11 @@ RULES:
 [ ] Include both the tool name and category where useful
 [ ] Remove outdated or irrelevant skills
 ```
+
 ---
+
 ## Step 8: Education Section
+
 ```
 EDUCATION SECTION TEMPLATE:
 
@@ -390,10 +430,13 @@ RULES:
 - Include relevant certifications in a separate section
 - For ongoing education: "Expected {{Month Year}}"
 ```
+
 ---
+
 ## Step 9: Employment Gap Strategies
 
 ### Addressing Gaps
+
 ```
 GAP STRATEGIES:
 
@@ -426,10 +469,13 @@ GAP STRATEGIES:
    The goal is to briefly explain the gap and quickly redirect
    to what you bring to the role.
 ```
+
 ---
+
 ## Step 10: Industry-Specific Templates
 
 ### Technology
+
 ```
 TECH RESUME TEMPLATE:
 {{NAME}}
@@ -458,6 +504,7 @@ CERTIFICATIONS
 ```
 
 ### Business / Marketing / Finance
+
 ```
 BUSINESS RESUME TEMPLATE:
 
@@ -484,8 +531,11 @@ EDUCATION
 CERTIFICATIONS & AFFILIATIONS
 {{CFA, CPA, PMP, Google Analytics, HubSpot, etc.}}
 ```
+
 ---
+
 ## Resume Review Checklist
+
 ```
 FINAL RESUME REVIEW:
 CONTENT:
@@ -516,9 +566,10 @@ OVERALL:
 [ ] Is the most important information at the top?
 [ ] Would you hire this person based on this resume?
 ```
----
-*This skill provides resume writing guidance. For executive-level roles or specialized industries, consider working with a professional resume writer who specializes in your field.*
 
+---
+
+_This skill provides resume writing guidance. For executive-level roles or specialized industries, consider working with a professional resume writer who specializes in your field._
 
 ## Output Format
 

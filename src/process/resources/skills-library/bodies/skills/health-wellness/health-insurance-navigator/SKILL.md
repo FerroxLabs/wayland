@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness budgeting checklist step-by-step research networking emergency-preparedness performing-arts"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness budgeting checklist step-by-step research networking emergency-preparedness performing-arts'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Health Insurance Navigator
@@ -22,15 +22,16 @@ You are a health insurance guidance specialist who helps individuals and familie
 
 > **DISCLAIMER:** This skill provides general educational information about health insurance navigation. It is not a substitute for advice from a licensed insurance broker, benefits counselor, or legal professional. Insurance regulations vary by state and plan. Always verify information with your specific insurance carrier and consult qualified professionals for decisions about your coverage.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about health insurance navigator techniques or best practices
 - User needs guidance on health insurance navigator concepts
 - User wants to implement or improve their approach to health insurance navigator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of health insurance navigator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -54,60 +55,60 @@ Before analyzing your insurance situation, clarify:
 
 ### Key Terms Glossary
 
-| Term | Definition | Why It Matters |
-|------|-----------|---------------|
-| Premium | Monthly payment for your plan | Your guaranteed cost regardless of usage |
-| Deductible | Amount you pay before insurance kicks in | Higher deductible = lower premium, more risk |
-| Copay | Fixed amount per visit or service | Predictable per-visit cost |
-| Coinsurance | Your percentage share after deductible | Usually 20-40% of the bill |
-| Out-of-pocket max | Most you pay in a year (excluding premiums) | Your financial safety net |
-| Network | Approved doctors and facilities | Out-of-network costs dramatically more |
-| Formulary | List of covered medications | Determines your drug costs |
-| Prior authorization | Insurance approval needed before a service | Failing to get it can mean full cost to you |
-| EOB | Explanation of Benefits statement | Not a bill; it explains what was processed |
+| Term                | Definition                                  | Why It Matters                               |
+| ------------------- | ------------------------------------------- | -------------------------------------------- |
+| Premium             | Monthly payment for your plan               | Your guaranteed cost regardless of usage     |
+| Deductible          | Amount you pay before insurance kicks in    | Higher deductible = lower premium, more risk |
+| Copay               | Fixed amount per visit or service           | Predictable per-visit cost                   |
+| Coinsurance         | Your percentage share after deductible      | Usually 20-40% of the bill                   |
+| Out-of-pocket max   | Most you pay in a year (excluding premiums) | Your financial safety net                    |
+| Network             | Approved doctors and facilities             | Out-of-network costs dramatically more       |
+| Formulary           | List of covered medications                 | Determines your drug costs                   |
+| Prior authorization | Insurance approval needed before a service  | Failing to get it can mean full cost to you  |
+| EOB                 | Explanation of Benefits statement           | Not a bill; it explains what was processed   |
 
 ### Plan Type Comparison
 
-| Plan Type | Network Flexibility | Referral Needed? | Out-of-Network Coverage | Best For |
-|-----------|-------------------|------------------|------------------------|----------|
-| HMO | Most restricted | Yes, for specialists | Usually none | Budget-conscious, healthy |
-| PPO | Broad flexibility | No | Yes, at higher cost | Those wanting choice |
-| EPO | Moderate | No | Usually none | Balance of cost and access |
-| POS | Moderate | Yes, for specialists | Limited | Those with a regular PCP |
-| HDHP | Varies | Varies | Varies | HSA-eligible, healthy, savers |
+| Plan Type | Network Flexibility | Referral Needed?     | Out-of-Network Coverage | Best For                      |
+| --------- | ------------------- | -------------------- | ----------------------- | ----------------------------- |
+| HMO       | Most restricted     | Yes, for specialists | Usually none            | Budget-conscious, healthy     |
+| PPO       | Broad flexibility   | No                   | Yes, at higher cost     | Those wanting choice          |
+| EPO       | Moderate            | No                   | Usually none            | Balance of cost and access    |
+| POS       | Moderate            | Yes, for specialists | Limited                 | Those with a regular PCP      |
+| HDHP      | Varies              | Varies               | Varies                  | HSA-eligible, healthy, savers |
 
 ### HSA, FSA, and HRA Comparison
 
-| Feature | HSA | FSA | HRA |
-|---------|-----|-----|-----|
-| Who owns it | You | Employer | Employer |
-| Rolls over | Yes, fully | Limited ($640 or grace period) | Employer determines |
-| Portable | Yes, stays with you | No, tied to employer | No, tied to employer |
-| Contribution limit | ~$4,150 individual / ~$8,300 family | ~$3,200 | Employer sets |
-| Tax advantages | Triple tax benefit | Pre-tax contributions | Employer-funded |
-| Requires HDHP | Yes | No | No |
-| Investment option | Yes, after threshold | No | No |
+| Feature            | HSA                                 | FSA                            | HRA                  |
+| ------------------ | ----------------------------------- | ------------------------------ | -------------------- |
+| Who owns it        | You                                 | Employer                       | Employer             |
+| Rolls over         | Yes, fully                          | Limited ($640 or grace period) | Employer determines  |
+| Portable           | Yes, stays with you                 | No, tied to employer           | No, tied to employer |
+| Contribution limit | ~$4,150 individual / ~$8,300 family | ~$3,200                        | Employer sets        |
+| Tax advantages     | Triple tax benefit                  | Pre-tax contributions          | Employer-funded      |
+| Requires HDHP      | Yes                                 | No                             | No                   |
+| Investment option  | Yes, after threshold                | No                             | No                   |
 
 ## Plan Comparison Framework
 
 ### Side-by-Side Comparison Worksheet
 
-| Factor | Plan A | Plan B | Plan C |
-|--------|--------|--------|--------|
-| Plan name and type | | | |
-| Monthly premium | $_____ | $_____ | $_____ |
-| Annual premium cost | $_____ | $_____ | $_____ |
-| Individual deductible | $_____ | $_____ | $_____ |
-| Family deductible | $_____ | $_____ | $_____ |
-| Primary care copay | $_____ | $_____ | $_____ |
-| Specialist copay | $_____ | $_____ | $_____ |
-| ER copay | $_____ | $_____ | $_____ |
-| Coinsurance rate | _____% | _____% | _____% |
-| Out-of-pocket maximum | $_____ | $_____ | $_____ |
-| Prescription tiers | | | |
-| HSA eligible? | | | |
-| My doctors in network? | | | |
-| My hospital in network? | | | |
+| Factor                  | Plan A  | Plan B  | Plan C  |
+| ----------------------- | ------- | ------- | ------- |
+| Plan name and type      |         |         |         |
+| Monthly premium         | $**\_** | $**\_** | $**\_** |
+| Annual premium cost     | $**\_** | $**\_** | $**\_** |
+| Individual deductible   | $**\_** | $**\_** | $**\_** |
+| Family deductible       | $**\_** | $**\_** | $**\_** |
+| Primary care copay      | $**\_** | $**\_** | $**\_** |
+| Specialist copay        | $**\_** | $**\_** | $**\_** |
+| ER copay                | $**\_** | $**\_** | $**\_** |
+| Coinsurance rate        | **\_**% | **\_**% | **\_**% |
+| Out-of-pocket maximum   | $**\_** | $**\_** | $**\_** |
+| Prescription tiers      |         |         |         |
+| HSA eligible?           |         |         |         |
+| My doctors in network?  |         |         |         |
+| My hospital in network? |         |         |         |
 
 ### Total Cost Estimation by Usage Scenario
 
@@ -147,6 +148,7 @@ Choose the plan where your most likely scenario has the lowest total cost:
 ### Reviewing Your EOB
 
 Check every EOB for these items:
+
 - [ ] Correct patient name and date of service
 - [ ] Accurate description of the service received
 - [ ] Provider charged a reasonable amount
@@ -158,20 +160,21 @@ Check every EOB for these items:
 
 ### Common Billing Errors to Watch For
 
-| Error | What Happened | What to Do |
-|-------|-------------|-----------|
-| Balance billing | In-network provider billing above allowed amount | Contact insurance and provider |
-| Upcoding | Charged for a more expensive service than received | Request itemized bill, dispute |
-| Duplicate charge | Same service billed twice | Call provider billing department |
-| Wrong coding | Preventive visit coded as diagnostic | Ask provider to resubmit with correct code |
-| Out-of-network surprise | In-network facility but out-of-network provider | File complaint, check surprise billing protections |
-| Unbundling | Procedure split into separate charges to bill more | Request review from insurance |
+| Error                   | What Happened                                      | What to Do                                         |
+| ----------------------- | -------------------------------------------------- | -------------------------------------------------- |
+| Balance billing         | In-network provider billing above allowed amount   | Contact insurance and provider                     |
+| Upcoding                | Charged for a more expensive service than received | Request itemized bill, dispute                     |
+| Duplicate charge        | Same service billed twice                          | Call provider billing department                   |
+| Wrong coding            | Preventive visit coded as diagnostic               | Ask provider to resubmit with correct code         |
+| Out-of-network surprise | In-network facility but out-of-network provider    | File complaint, check surprise billing protections |
+| Unbundling              | Procedure split into separate charges to bill more | Request review from insurance                      |
 
 ## Filing an Appeal
 
 ### When to Appeal
 
 Appeal when:
+
 - A claim is denied that you believe should be covered
 - You are charged in-network rates for emergency out-of-network care
 - Prior authorization was not obtained but care was medically necessary
@@ -181,11 +184,13 @@ Appeal when:
 ### Appeal Process Steps
 
 **Step 1: Understand the Denial**
+
 - Read the denial letter carefully for the specific reason
 - Note the appeal deadline (usually 30-180 days depending on type)
 - Request the complete claims file if needed
 
 **Step 2: Gather Supporting Evidence**
+
 - [ ] Denial letter with specific reason code
 - [ ] Your plan's Summary of Benefits and Coverage
 - [ ] Medical records supporting necessity
@@ -197,6 +202,7 @@ Appeal when:
 **Step 3: Write the Appeal Letter**
 
 Include these elements:
+
 - Your name, member ID, and claim number
 - Date of service and provider name
 - Specific reason for the denial (quote their letter)
@@ -207,12 +213,14 @@ Include these elements:
 - Your contact information
 
 **Step 4: Submit and Track**
+
 - Send via certified mail or the insurer's portal
 - Keep copies of everything submitted
 - Note the expected response timeline
 - Follow up if you do not hear back within the stated timeframe
 
 **Step 5: Escalate if Needed**
+
 - Internal appeal (first level)
 - Internal appeal (second level if available)
 - External review by independent third party
@@ -224,6 +232,7 @@ Include these elements:
 ### Maximizing Preventive Benefits
 
 All ACA-compliant plans cover these at no cost:
+
 - Annual wellness visit
 - Immunizations recommended by CDC
 - Cancer screenings (colonoscopy, mammogram, pap smear, etc.)
@@ -271,6 +280,7 @@ All ACA-compliant plans cover these at no cost:
 ## Know Your Rights
 
 ### Key Patient Protections
+
 - Emergency care must be covered at in-network rates regardless of facility
 - Surprise billing protections limit out-of-network charges in many situations
 - Preventive care must be covered at no cost under ACA plans
@@ -281,13 +291,13 @@ All ACA-compliant plans cover these at no cost:
 - Mental health coverage must be at parity with physical health coverage
 
 ### Where to Get Help
+
 - Your plan's member services number (on your insurance card)
 - State insurance commissioner's office
 - Healthcare.gov for marketplace plan questions
 - SHIP (State Health Insurance Assistance Program) for Medicare questions
 - Patient advocate at your hospital or healthcare facility
 - Legal aid organizations for coverage disputes
-
 
 ## Process
 
@@ -296,7 +306,6 @@ All ACA-compliant plans cover these at no cost:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -317,14 +326,12 @@ All ACA-compliant plans cover these at no cost:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

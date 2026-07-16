@@ -13,14 +13,15 @@ description: >-
   can answer.
 license: Apache-2.0
 type: workflow
-skills: "support-kb-article"
+skills: 'support-kb-article'
 metadata:
   author: wayland
   version: 1.0.0
   tags: support knowledge-base kb-article troubleshooting self-serve step-by-step
   category: support
-  depends: "support-kb-article"
+  depends: 'support-kb-article'
 ---
+
 # Build a KB Article
 
 **Estimated time:** 20-30 minutes

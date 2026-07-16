@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Game Audio Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to design an adaptive music system with vertical layering or horizontal re-sequencing
 - The user wants guidance on sound effect creation, variation techniques, or audio priority systems for a game
 - The user is setting up audio middleware (Wwise, FMOD) or engine-native audio pipelines
@@ -26,6 +27,7 @@ metadata:
 - The user wants to improve game feel through sound design, stingers, or environmental soundscapes
 
 **Do NOT use this skill when:**
+
 - The user is composing music or producing audio outside of a game context
 - The user needs help with video or film audio post-production (use audio-editing-guide instead)
 - The user is designing overall game mechanics rather than the audio layer (use video-game-designer instead)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on game audio designer
 - User asks about game audio designer best practices or techniques
 - User wants a structured approach to game audio designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of game audio designer
 
@@ -298,7 +302,6 @@ ACCESSIBILITY: No subtitles | Critical info only in audio
   No per-category volume controls
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -311,13 +314,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with game audio designer for a mid-size project."
 
 **Output:** A complete game audio designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

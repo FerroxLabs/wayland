@@ -32,10 +32,7 @@ describe('ijfw/entryResolver', () => {
   });
 
   it('resolves bin when it is a string', async () => {
-    fs.writeFileSync(
-      path.join(dir, 'package.json'),
-      JSON.stringify({ bin: './dist/server.js' }),
-    );
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ bin: './dist/server.js' }));
     const entry = await resolveEntry(dir);
     expect(entry).toBe(path.join(dir, './dist/server.js'));
   });
@@ -43,17 +40,14 @@ describe('ijfw/entryResolver', () => {
   it('resolves bin["ijfw-mcp"] when bin is an object', async () => {
     fs.writeFileSync(
       path.join(dir, 'package.json'),
-      JSON.stringify({ bin: { 'ijfw-mcp': './bin/mcp.js', 'other-cli': './other.js' } }),
+      JSON.stringify({ bin: { 'ijfw-mcp': './bin/mcp.js', 'other-cli': './other.js' } })
     );
     const entry = await resolveEntry(dir);
     expect(entry).toBe(path.join(dir, './bin/mcp.js'));
   });
 
   it('falls back to main when bin is absent', async () => {
-    fs.writeFileSync(
-      path.join(dir, 'package.json'),
-      JSON.stringify({ main: 'index.js' }),
-    );
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ main: 'index.js' }));
     const entry = await resolveEntry(dir);
     expect(entry).toBe(path.join(dir, 'index.js'));
   });

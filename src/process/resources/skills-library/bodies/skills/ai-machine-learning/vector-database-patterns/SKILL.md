@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml database optimization"
-  category: "ai-machine-learning"
-  subcategory: "ai-ml-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml database optimization'
+  category: 'ai-machine-learning'
+  subcategory: 'ai-ml-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Vector Database Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is designing or implementing a vector similarity search system (semantic search, recommendation engine, RAG pipeline, duplicate detection, anomaly detection)
 - User asks about choosing between vector database options -- pgvector, Pinecone, Weaviate, Qdrant, Milvus, Chroma, Redis with vector module, or FAISS
 - User needs to optimize query latency or recall in an existing vector store deployment (e.g., recall dropping below 90%, p99 latency exceeding 200ms)
@@ -31,6 +33,7 @@ metadata:
 - User is migrating from one vector store to another and needs a safe cutover strategy
 
 **Do NOT use this skill when:**
+
 - User needs help with embedding model selection, fine-tuning, or training -- use the embedding-model-selection skill instead
 - User needs general RAG system design beyond the vector store layer -- use the rag-architecture-design skill
 - User is asking about traditional full-text search (Elasticsearch, Solr) with no vector component -- use the search-architecture skill
@@ -62,7 +65,7 @@ Apply this decision framework based on requirements gathered in Step 1:
 - **If you need fully managed, no operational overhead, and corpus is under 100M vectors:** Pinecone or Qdrant Cloud. Pinecone has a proven managed offering. Qdrant Cloud offers richer filtering without performance penalty via its payload index system.
 - **If self-hosted is required and corpus exceeds 10M vectors:** Milvus with HNSW or IVF_HNSW index. It supports distributed sharding, separate storage and compute scaling, and has mature Kubernetes operators.
 - **If running a Python prototype or local RAG with under 1M vectors:** Chroma (in-process) or FAISS (library). Do not use these for production multi-tenant workloads -- they lack durability guarantees and concurrent write handling.
-- **If latency is critical (under 5ms p99) and corpus fits in RAM:** FAISS with a flat index (exact search) or HNSW. Exact search is only feasible when corpus size * dimensionality * 4 bytes fits in ~80% of available RAM.
+- **If latency is critical (under 5ms p99) and corpus fits in RAM:** FAISS with a flat index (exact search) or HNSW. Exact search is only feasible when corpus size _ dimensionality _ 4 bytes fits in ~80% of available RAM.
 - **If hybrid dense+sparse search is a core requirement:** Weaviate (BM25 + vector native hybrid) or Qdrant (sparse vector support). Do not bolt hybrid search onto a system not designed for it.
 
 ### 3. Choose and Configure the Index Algorithm
@@ -145,7 +148,7 @@ Operational patterns prevent the most common production failures:
 
 For each vector database design engagement, produce the following structured output:
 
-```
+````
 ## Vector Database Design Document
 
 ### Requirements Summary
@@ -183,9 +186,10 @@ search_params = {
     "ef": 64,                       # query-time recall-speed tradeoff
                                     # increase to 128 if recall < 0.95
 }
-```
+````
 
 ### Schema Design
+
 ```python
 # Collection/index schema
 schema = {
@@ -202,6 +206,7 @@ schema = {
 ```
 
 ### Ingestion Pipeline
+
 ```python
 async def ingest_documents(
     documents: list[Document],
@@ -211,24 +216,24 @@ async def ingest_documents(
 ) -> IngestionResult:
     """
     Idempotent ingestion with deduplication and retry.
-    
+
     Batches at batch_size to balance throughput and memory.
     Skips documents whose content_hash already exists.
     Retries embedding API calls with exponential backoff.
     """
     results = IngestionResult()
-    
+
     for batch in chunk_list(documents, batch_size):
         # Deduplication check
         existing_hashes = await collection.get_existing_hashes(
             [doc.content_hash for doc in batch]
         )
         new_docs = [d for d in batch if d.content_hash not in existing_hashes]
-        
+
         if not new_docs:
             results.skipped += len(batch)
             continue
-        
+
         # Embed with retry
         embeddings = await embed_with_retry(
             texts=[doc.text for doc in new_docs],
@@ -236,10 +241,10 @@ async def ingest_documents(
             max_retries=5,
             initial_delay=1.0,
         )
-        
+
         # Normalize for cosine similarity
         embeddings = normalize_l2(embeddings)
-        
+
         # Upsert (overwrite on duplicate ID)
         await collection.upsert(
             ids=[doc.doc_id for doc in new_docs],
@@ -247,11 +252,12 @@ async def ingest_documents(
             payloads=[doc.metadata for doc in new_docs],
         )
         results.inserted += len(new_docs)
-    
+
     return results
 ```
 
 ### Query Implementation
+
 ```python
 async def semantic_search(
     query: str,
@@ -263,7 +269,7 @@ async def semantic_search(
 ) -> list[SearchResult]:
     """
     Semantic search with optional pre-filtering.
-    
+
     Increases ef_search to 128 when filters reduce candidate
     pool to < 20% of corpus to maintain recall target.
     """
@@ -272,41 +278,44 @@ async def semantic_search(
         client=embedding_client,
     )
     query_embedding = normalize_l2(query_embedding)[0]
-    
+
     # Adaptive ef_search for filtered queries
     effective_ef = ef_search
     if filters:
         estimated_filtered_fraction = estimate_filter_selectivity(filters)
         if estimated_filtered_fraction < 0.20:
             effective_ef = min(ef_search * 4, 512)
-    
+
     results = await collection.search(
         query_vector=query_embedding,
         top_k=top_k,
         filter=filters,
         search_params={"ef": effective_ef},
     )
-    
+
     return results
 ```
 
 ### Monitoring Plan
-| Metric                  | Alert Threshold         | Measurement Method         |
-|-------------------------|------------------------|----------------------------|
-| recall@10               | < 0.90                 | Weekly offline eval         |
-| p95 query latency       | > 150ms                | APM traces                 |
-| p99 query latency       | > 500ms                | APM traces                 |
-| Index memory usage      | > 80% of allocation    | Prometheus metric           |
-| Ingestion error rate    | > 1%                   | Dead-letter queue depth     |
-| Delete ratio            | > 20% of total vectors | Index health check         |
+
+| Metric               | Alert Threshold        | Measurement Method      |
+| -------------------- | ---------------------- | ----------------------- |
+| recall@10            | < 0.90                 | Weekly offline eval     |
+| p95 query latency    | > 150ms                | APM traces              |
+| p99 query latency    | > 500ms                | APM traces              |
+| Index memory usage   | > 80% of allocation    | Prometheus metric       |
+| Ingestion error rate | > 1%                   | Dead-letter queue depth |
+| Delete ratio         | > 20% of total vectors | Index health check      |
 
 ### Capacity Estimate
-| Component              | Current     | 18-Month Projection  | Instance Type          |
-|------------------------|-------------|----------------------|------------------------|
-| HNSW index memory      | ~16 GB      | ~48 GB               | 64 GB RAM node         |
-| Storage (raw vectors)  | ~15 GB      | ~45 GB               | 100 GB SSD             |
-| Query throughput       | 500 QPS     | 1500 QPS             | 3 replicas             |
-```
+
+| Component             | Current | 18-Month Projection | Instance Type  |
+| --------------------- | ------- | ------------------- | -------------- |
+| HNSW index memory     | ~16 GB  | ~48 GB              | 64 GB RAM node |
+| Storage (raw vectors) | ~15 GB  | ~45 GB              | 100 GB SSD     |
+| Query throughput      | 500 QPS | 1500 QPS            | 3 replicas     |
+
+````
 
 ---
 
@@ -444,9 +453,10 @@ WITH (m = 16, ef_construction = 128);
 -- Set query-time ef_search for the session or connection pool
 SET hnsw.ef_search = 64;
 -- Increase to 100 if recall@10 falls below 0.93 in evaluation
-```
+````
 
 **Memory estimate:**
+
 - 800K vectors × 1536 dims × 4 bytes = ~4.9 GB for raw vectors
 - HNSW graph overhead with M=16: ~800K × 16 × 2 × 8 bytes ≈ 0.2 GB
 - Total: ~5.1 GB -- fits in db.r7g.xlarge (32 GB RAM) with headroom
@@ -478,7 +488,7 @@ async def ingest_articles(
 ) -> dict:
     """
     Idempotent ingestion pipeline for KB articles.
-    
+
     Uses SHA-256 content hashing to skip unchanged articles.
     Normalizes embeddings for cosine similarity correctness.
     Batches at 500 to stay within OpenAI token limits per request.
@@ -505,7 +515,7 @@ async def ingest_articles(
                 list(hashes.keys()),
             )
         existing_map = {row["external_id"]: row["content_hash"] for row in existing}
-        
+
         changed = [
             chunk for chunk in batch
             if hashes[chunk.external_id] != existing_map.get(chunk.external_id)
@@ -592,7 +602,7 @@ async def search_kb(
 ) -> list[dict]:
     """
     Semantic search over KB articles.
-    
+
     Returns top_k articles ranked by cosine similarity.
     Optional category filter uses Postgres WHERE clause (pre-filter).
     Category filter is safe here because categories are broad --
@@ -605,7 +615,7 @@ async def search_kb(
         model="text-embedding-3-small",
     )
     query_vec = query_embeddings[0]
-    
+
     # Normalize query vector
     query_np = np.array(query_vec, dtype=np.float32)
     query_normalized = (query_np / np.linalg.norm(query_np)).tolist()
@@ -613,7 +623,7 @@ async def search_kb(
     async with pool.acquire() as conn:
         # Set ef_search for this query
         await conn.execute(f"SET hnsw.ef_search = {ef_search}")
-        
+
         if category_filter:
             results = await conn.fetch(
                 """
@@ -646,14 +656,14 @@ async def search_kb(
 
 ### Monitoring Plan
 
-| Metric                  | Alert Threshold     | Measurement Method                        |
-|-------------------------|---------------------|-------------------------------------------|
-| recall@10               | < 0.92              | Weekly eval on 500-query golden set       |
-| p95 query latency       | > 100ms             | RDS Performance Insights / APM            |
-| p99 query latency       | > 300ms             | RDS Performance Insights / APM            |
-| Index memory usage      | > 80% shared_buffers| RDS CloudWatch FreeableMemory             |
-| Ingestion error rate    | > 0.5%             | Dead-letter queue (SQS) depth             |
-| Articles without vector | > 100              | Daily COUNT query vs CMS article count    |
+| Metric                  | Alert Threshold      | Measurement Method                     |
+| ----------------------- | -------------------- | -------------------------------------- |
+| recall@10               | < 0.92               | Weekly eval on 500-query golden set    |
+| p95 query latency       | > 100ms              | RDS Performance Insights / APM         |
+| p99 query latency       | > 300ms              | RDS Performance Insights / APM         |
+| Index memory usage      | > 80% shared_buffers | RDS CloudWatch FreeableMemory          |
+| Ingestion error rate    | > 0.5%               | Dead-letter queue (SQS) depth          |
+| Articles without vector | > 100                | Daily COUNT query vs CMS article count |
 
 **Recall measurement setup:**
 
@@ -677,14 +687,15 @@ async def measure_recall_at_k(
 
 ### Capacity Estimate
 
-| Component              | Now (800K vectors) | 14 Months (1M vectors) | RDS Instance           |
-|------------------------|--------------------|------------------------|------------------------|
-| HNSW index + vectors   | ~5.1 GB RAM        | ~6.4 GB RAM            | db.r7g.xlarge (32 GB)  |
-| Raw vector storage     | ~4.9 GB disk       | ~6.1 GB disk           | 100 GB gp3 volume      |
-| Query throughput       | 200 QPS            | 300 QPS (estimated)    | Single instance + RO replica |
-| Ingestion throughput   | 500/day            | 500/day                | Within API rate limits |
+| Component            | Now (800K vectors) | 14 Months (1M vectors) | RDS Instance                 |
+| -------------------- | ------------------ | ---------------------- | ---------------------------- |
+| HNSW index + vectors | ~5.1 GB RAM        | ~6.4 GB RAM            | db.r7g.xlarge (32 GB)        |
+| Raw vector storage   | ~4.9 GB disk       | ~6.1 GB disk           | 100 GB gp3 volume            |
+| Query throughput     | 200 QPS            | 300 QPS (estimated)    | Single instance + RO replica |
+| Ingestion throughput | 500/day            | 500/day                | Within API rate limits       |
 
 **Cost estimate (AWS us-east-1):**
+
 - db.r7g.xlarge: ~$280/month reserved (1yr)
 - Embedding calls: 500 articles/day × 500 tokens × $0.02/1M tokens = $0.005/day (~$0.15/month)
 - Total incremental cost for vector search capability: ~$280/month

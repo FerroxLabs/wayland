@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "investing personal-finance analysis"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'investing personal-finance analysis'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Investment Fee Analyzer
 
 > **Disclaimer:** This skill provides educational information about investment fees and their mathematical impact on long-term wealth accumulation. It does NOT constitute financial advice, investment recommendations, or tax guidance. Fee analysis is one input among many in investment decision-making. Always consult a qualified financial advisor, CPA, or licensed financial planner before making investment decisions. Past performance does not predict future results, and assumed return rates are mathematical constructs, not predictions.
@@ -29,6 +30,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how expense ratios, advisor fees, or transaction costs affect their portfolio over time -- especially when they want to see the dollar impact, not just the percentage
 - The user is comparing two or more funds or fee structures and wants a side-by-side mathematical analysis (e.g., a 0.03% index fund vs. a 0.75% actively managed fund)
 - The user wants to understand "fee drag" -- the compounding opportunity cost created by fees extracted from an investment account year after year
@@ -38,6 +40,7 @@ metadata:
 - The user wants to express fee impact in relatable terms -- months of contributions consumed by fees, percentage of total growth surrendered, or the "fee equivalent salary" they effectively pay their fund manager each year
 
 **Do NOT use this skill when:**
+
 - The user wants specific fund or product recommendations -- never name or recommend specific funds, ETFs, or fund families (the math here is agnostic to specific products)
 - The user wants to understand which account type to use for tax-advantaged investing -- use `investment-account-types` instead, since account structure affects after-tax returns independently of fees
 - The user is building or rebalancing a portfolio allocation -- use `portfolio-allocation-framework`; fee analysis is an input to portfolio construction, not a substitute for it
@@ -64,6 +67,7 @@ Before calculating anything, catalog every fee the user is facing. Fees fall int
 - **Wrap fees:** An all-inclusive annual fee (typically 1.0--3.0%) that bundles advisory, trading, and custody. Identify whether an advisor is quoting a wrap fee or unbundled fees.
 
 Ask the user to provide the fees for each scenario they want to compare. If they do not know where to find them, explain:
+
 - Expense ratios: Fund fact sheet, prospectus, or fund screener (look for "net expense ratio" not "gross expense ratio" -- the net figure reflects any contractual fee waivers)
 - Advisor fees: Client agreement or ADV Part 2A, which registered investment advisors must provide
 - 401(k) fees: Plan's annual fee disclosure (ERISA 404a-5 notice), or the plan's fund lineup on the provider's website
@@ -85,6 +89,7 @@ Collect the following parameters precisely -- small input differences produce la
 Use the following methodology, which models fees correctly as a continuous annual drag on compound growth:
 
 **Net annual return (per scenario):**
+
 ```
 r_net = r_gross - ER - AUM_fee - (fixed_fees / average_balance)
 ```
@@ -92,6 +97,7 @@ r_net = r_gross - ER - AUM_fee - (fixed_fees / average_balance)
 For fixed dollar fees (account maintenance fees), convert to a percentage by dividing by the projected average balance for that year. For large portfolios, fixed fees become negligible; for accounts under $10,000, a $30/year fee can represent 0.30%+.
 
 **Front-end load adjustment:**
+
 ```
 P₀_adjusted = P₀ × (1 - front_end_load_rate)
 ```
@@ -99,6 +105,7 @@ P₀_adjusted = P₀ × (1 - front_end_load_rate)
 **End-of-year balance formula with monthly contributions:**
 
 Use the future value of a growing annuity with monthly compounding. For annual approximation (sufficient for most users):
+
 ```
 FV_year_n = P₀_adjusted × (1 + r_net)^n + C_annual × [((1 + r_net)^n - 1) / r_net]
 ```
@@ -106,6 +113,7 @@ FV_year_n = P₀_adjusted × (1 + r_net)^n + C_annual × [((1 + r_net)^n - 1) / 
 Where C_annual = monthly contribution × 12, and the annuity assumes end-of-year contributions (conservative). For beginning-of-year contributions, multiply the annuity term by (1 + r_net).
 
 **For monthly precision (preferred when contributions are monthly):**
+
 ```
 Monthly rate: r_m = (1 + r_net)^(1/12) - 1
 
@@ -116,6 +124,7 @@ FV_month_m = P₀_adjusted × (1 + r_m)^m + C_monthly × [((1 + r_m)^m - 1) / r_
 Calculate the same formula with r_net = r_gross and no load adjustment. This baseline represents the hypothetical portfolio with zero fees, used to calculate total fee cost.
 
 **Total estimated fees paid:**
+
 ```
 Total fees = FV_no_fee - FV_scenario
 ```
@@ -123,6 +132,7 @@ Total fees = FV_no_fee - FV_scenario
 This is the opportunity cost framing -- it captures not just what was paid in fees, but what those fee dollars would have grown to if they had remained invested.
 
 **Fee cost as percentage of no-fee final value:**
+
 ```
 Fee drag % = (Total fees / FV_no_fee) × 100
 ```
@@ -136,6 +146,7 @@ Calculate balances at years 0, 5, 10, 15, 20, 25, and the user's final year (if 
 - Difference expressed as a percentage of the lower-fee scenario's balance
 
 Key inflection points to highlight in commentary:
+
 - The year the cumulative fee difference crosses $10,000, $50,000, $100,000 -- these dollar thresholds make the abstract percentage feel concrete
 - The year the fee difference exceeds one year's worth of contributions -- a powerful framing for many users
 
@@ -156,7 +167,8 @@ When comparing a higher-fee option to a lower-fee one, calculate the required an
 
 In most cases, this equals the fee difference exactly -- if Fund B costs 0.65% more per year, it must return 0.65% more per year, every year, just to break even. This is not an approximation; it is mathematically exact for the net return calculation.
 
-However, the *probability* of achieving this consistently compounds negatively over time:
+However, the _probability_ of achieving this consistently compounds negatively over time:
+
 - Achieving 0.65% annual outperformance for 5 years: Requires consistent edge
 - Achieving 0.65% annual outperformance for 25 years: Statistically very rare even among professional fund managers
 - Cite as context: S&P SPIVA reports have historically found that a significant majority of actively managed funds (typically 80--90% over 15+ year periods) underperform their benchmark net of fees -- present this as a documented research finding, not as advice
@@ -164,11 +176,11 @@ However, the *probability* of achieving this consistently compounds negatively o
 Add sensitivity analysis showing how the required outperformance changes if the fee difference is larger or smaller:
 
 | Fee Difference | Required Annual Outperformance | 20-Year Compounded Impact |
-|---------------|-------------------------------|--------------------------|
-| 0.25% | 0.25% per year | ~5% of final portfolio |
-| 0.50% | 0.50% per year | ~10% of final portfolio |
-| 1.00% | 1.00% per year | ~18% of final portfolio |
-| 1.50% | 1.50% per year | ~26% of final portfolio |
+| -------------- | ------------------------------ | ------------------------- |
+| 0.25%          | 0.25% per year                 | ~5% of final portfolio    |
+| 0.50%          | 0.50% per year                 | ~10% of final portfolio   |
+| 1.00%          | 1.00% per year                 | ~18% of final portfolio   |
+| 1.50%          | 1.50% per year                 | ~26% of final portfolio   |
 
 ### Step 7: Frame Limitations and Contextual Nuance
 
@@ -437,26 +449,26 @@ If the user has multiple accounts (taxable brokerage, traditional IRA, Roth IRA,
 
 ### Your Inputs
 
-| Parameter                  | Value                              |
-|----------------------------|------------------------------------|
-| Starting investment        | $85,000                            |
-| Monthly contribution       | $600/month                         |
-| Annual contribution total  | $7,200/year                        |
-| Time horizon               | 27 years (to age 65)               |
-| Target year                | 2052                               |
-| Assumed gross return       | 7.00% per year (nominal, pre-fee)  |
-| Front-end load             | None stated                        |
+| Parameter                 | Value                             |
+| ------------------------- | --------------------------------- |
+| Starting investment       | $85,000                           |
+| Monthly contribution      | $600/month                        |
+| Annual contribution total | $7,200/year                       |
+| Time horizon              | 27 years (to age 65)              |
+| Target year               | 2052                              |
+| Assumed gross return      | 7.00% per year (nominal, pre-fee) |
+| Front-end load            | None stated                       |
 
 ---
 
 ### Fee Scenarios
 
-| Fee Component              | Scenario A: Self-Directed | Scenario B: Advised Approach |
-|----------------------------|-------------------------:|-----------------------------:|
-| Expense ratio              | 0.05%                    | 0.82%                        |
-| Advisor / AUM fee          | 0.00%                    | 1.00%                        |
-| **Total annual % cost**    | **0.05%**                | **1.82%**                    |
-| **Net return after fees**  | **6.95%**                | **5.18%**                    |
+| Fee Component             | Scenario A: Self-Directed | Scenario B: Advised Approach |
+| ------------------------- | ------------------------: | ---------------------------: |
+| Expense ratio             |                     0.05% |                        0.82% |
+| Advisor / AUM fee         |                     0.00% |                        1.00% |
+| **Total annual % cost**   |                 **0.05%** |                    **1.82%** |
+| **Net return after fees** |                 **6.95%** |                    **5.18%** |
 
 **Note:** The advised approach has a 1.77% annual fee difference. This is the combined cost of the expense ratio differential (0.77%) and the advisor fee (1.00%). Both layers are charged on the full account balance each year, making the total all-in cost the relevant number for this comparison.
 
@@ -464,17 +476,18 @@ If the user has multiple accounts (taxable brokerage, traditional IRA, Roth IRA,
 
 ### Portfolio Growth Comparison
 
-| Year | Age | Scenario A (0.05%) | Scenario B (1.82%) | Difference   | A advantage |
-|-----:|----:|-------------------:|-------------------:|-------------:|------------:|
-| 0    | 38  | $85,000            | $85,000            | $0           | 0.0%        |
-| 5    | 43  | $163,204           | $151,118           | $12,086      | 8.0%        |
-| 10   | 48  | $271,877           | $237,853           | $34,024      | 14.3%       |
-| 15   | 53  | $420,498           | $355,083           | $65,415      | 18.4%       |
-| 20   | 58  | $621,511           | $511,740           | $109,771     | 21.5%       |
-| 25   | 63  | $901,088           | $719,133           | $181,955     | 25.3%       |
-| 27   | 65  | $1,018,756         | $799,421           | $219,335     | 27.4%       |
+| Year | Age | Scenario A (0.05%) | Scenario B (1.82%) | Difference | A advantage |
+| ---: | --: | -----------------: | -----------------: | ---------: | ----------: |
+|    0 |  38 |            $85,000 |            $85,000 |         $0 |        0.0% |
+|    5 |  43 |           $163,204 |           $151,118 |    $12,086 |        8.0% |
+|   10 |  48 |           $271,877 |           $237,853 |    $34,024 |       14.3% |
+|   15 |  53 |           $420,498 |           $355,083 |    $65,415 |       18.4% |
+|   20 |  58 |           $621,511 |           $511,740 |   $109,771 |       21.5% |
+|   25 |  63 |           $901,088 |           $719,133 |   $181,955 |       25.3% |
+|   27 |  65 |         $1,018,756 |           $799,421 |   $219,335 |       27.4% |
 
 **Key milestones:**
+
 - The fee difference crosses $10,000 by approximately year 5
 - The fee difference crosses $100,000 by approximately year 20
 - The fee difference exceeds $200,000 by retirement at year 27
@@ -483,16 +496,17 @@ If the user has multiple accounts (taxable brokerage, traditional IRA, Roth IRA,
 
 ### Fee Impact Summary
 
-| Metric                                    | Scenario A      | Scenario B      |
-|-------------------------------------------|-----------------|-----------------|
-| Final portfolio value                     | $1,018,756      | $799,421        |
-| Total contributions made                  | $279,400        | $279,400        |
-| Total net growth                          | $739,356        | $520,021        |
-| Estimated total fees paid (opportunity)   | ~$6,200         | ~$225,635       |
-| Fees as % of no-fee final value           | ~0.6%           | ~21.9%          |
-| Fees as % of total growth earned          | ~0.8%           | ~33.5%          |
+| Metric                                  | Scenario A | Scenario B |
+| --------------------------------------- | ---------- | ---------- |
+| Final portfolio value                   | $1,018,756 | $799,421   |
+| Total contributions made                | $279,400   | $279,400   |
+| Total net growth                        | $739,356   | $520,021   |
+| Estimated total fees paid (opportunity) | ~$6,200    | ~$225,635  |
+| Fees as % of no-fee final value         | ~0.6%      | ~21.9%     |
+| Fees as % of total growth earned        | ~0.8%      | ~33.5%     |
 
 **Fee cost between scenarios:**
+
 - Dollar difference (A vs B): **$219,335** over 27 years
 - Equivalent to: **365 months** (30.4 years) of your $600/month contribution
 - Equivalent to: **78 cents** in lost potential wealth per dollar contributed in Scenario B vs. Scenario A
@@ -505,12 +519,12 @@ If the user has multiple accounts (taxable brokerage, traditional IRA, Roth IRA,
 
 For Scenario B (the advised approach) to match Scenario A's final portfolio value of $1,018,756, it must consistently achieve a gross return of exactly **8.77% per year** -- which is 1.77% above the 7.00% base assumption -- every single year for all 27 years.
 
-| Horizon   | Required Annual Gross Return (Scenario B) | Required Outperformance vs. 7% |
-|-----------|------------------------------------------:|-------------------------------:|
-| 5 years   | 8.77%                                     | +1.77%/year                    |
-| 10 years  | 8.77%                                     | +1.77%/year                    |
-| 20 years  | 8.77%                                     | +1.77%/year                    |
-| 27 years  | 8.77%                                     | +1.77%/year                    |
+| Horizon  | Required Annual Gross Return (Scenario B) | Required Outperformance vs. 7% |
+| -------- | ----------------------------------------: | -----------------------------: |
+| 5 years  |                                     8.77% |                    +1.77%/year |
+| 10 years |                                     8.77% |                    +1.77%/year |
+| 20 years |                                     8.77% |                    +1.77%/year |
+| 27 years |                                     8.77% |                    +1.77%/year |
 
 The required annual outperformance is constant at 1.77% per year -- because that is the fee difference. The longer the horizon, the lower the historical probability of any active manager achieving this consistently.
 
@@ -521,12 +535,12 @@ The required annual outperformance is constant at 1.77% per year -- because that
 ### Sensitivity: What If Scenario B Achieves Different Gross Returns?
 
 | Scenario B gross return | Scenario B final value | vs. Scenario A ($1,018,756) |
-|-------------------------|----------------------:|----------------------------:|
-| 5.50% (underperforms)   | $672,801              | Behind by $345,955          |
-| 7.00% (equal, base)     | $799,421              | Behind by $219,335          |
-| 7.50% (modest edge)     | $858,340              | Behind by $160,416          |
-| 8.77% (break-even)      | $1,018,756            | Equal                       |
-| 9.50% (strong edge)     | $1,121,490            | Ahead by $102,734           |
+| ----------------------- | ---------------------: | --------------------------: |
+| 5.50% (underperforms)   |               $672,801 |          Behind by $345,955 |
+| 7.00% (equal, base)     |               $799,421 |          Behind by $219,335 |
+| 7.50% (modest edge)     |               $858,340 |          Behind by $160,416 |
+| 8.77% (break-even)      |             $1,018,756 |                       Equal |
+| 9.50% (strong edge)     |             $1,121,490 |           Ahead by $102,734 |
 
 ---
 
@@ -545,6 +559,7 @@ The required annual outperformance is constant at 1.77% per year -- because that
 ---
 
 ### Next Steps
+
 - [ ] Obtain your exact fee schedule: your advisor's ADV Part 2A (the fee table on pages 4--6 typically), and your current fund's "net expense ratio" from the fund fact sheet
 - [ ] Ask your advisor: "What is my total all-in annual cost, including fund expense ratios inside my account?" A good advisor will provide this number directly
 - [ ] Ask your advisor what specific services are included in the 1.00% fee and what the estimated annual value of those services is

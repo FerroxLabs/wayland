@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "email writing marketing-copy"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'email writing marketing-copy'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Cold Email Outreach
 
 ## When to Use
@@ -79,6 +80,7 @@ For each sequence, identify which tier is being used and flag where variables mu
 The three-email sequence is not three chances to say the same thing. Each email has a distinct job:
 
 **Email 1 -- The Thesis Email**
+
 - Word count target: 75-100 words for individual senders; up to 125 words for highly segmented B2B
 - Opening sentence: About them (Tier 1-2 personalization). Not "I" or "We." Starts with "[Company name]" or "[First name]" or a direct observation.
 - Value proposition sentence: One sentence, outcome-first. "X companies like yours use [product] to [specific result] without [specific pain]."
@@ -86,6 +88,7 @@ The three-email sequence is not three chances to say the same thing. Each email 
 - CTA: One ask. Low commitment. Not "schedule a 30-minute demo" -- that is too high for a cold email. Use "Would it be worth a 15-minute look?" or "Does this map to anything you are working on?" or "Want me to send the one-page overview?"
 
 **Email 2 -- The Insight Email (Day 3-5)**
+
 - Do not open with "Just following up" under any circumstances.
 - Lead with a new piece of value: a statistic relevant to their role, a short case study result (two sentences maximum), a question that reframes the problem, or a counterintuitive finding from your space.
 - Reference Email 1 in one clause only -- do not re-pitch the entire product.
@@ -94,6 +97,7 @@ The three-email sequence is not three chances to say the same thing. Each email 
 - Word count: 60-90 words.
 
 **Email 3 -- The Permission-to-Close Email (Day 8-12)**
+
 - This email does one job: make it psychologically easy to say either yes or no.
 - Acknowledge the silence explicitly but without guilt. "I do not want to keep showing up in your inbox if the timing is off."
 - Add one final piece of value -- a number, an observation, or a risk framing ("companies that delay this until Q4 typically lose the budget window").
@@ -125,6 +129,7 @@ Subject lines determine whether the email is opened. Cold email subject lines op
 The same offering pitched to different seniority levels requires fundamentally different emails. Build calibration rules into the sequence before drafting:
 
 **C-Suite (CEO, CRO, CMO, CFO, COO):**
+
 - Maximum word count: 75 words per email. Executives receive 200+ emails per day.
 - Lead with the P&L, growth, or risk implication -- not the operational mechanics.
 - Never ask for a demo. Ask for a 15-minute strategic conversation or offer to send a 2-minute summary video.
@@ -132,12 +137,14 @@ The same offering pitched to different seniority levels requires fundamentally d
 - Avoid buzzwords entirely. Plain language, specific numbers.
 
 **VP / Director Level:**
+
 - Word count: 85-110 words. They care about outcomes and team capacity.
 - Lead with the team pain point -- headcount, time, throughput, or quality of output.
 - Offer a process improvement or a benchmark comparison ("how your team's process compares to what high-growth companies in your space are doing").
 - CTA can be a demo or a technical assessment.
 
 **Manager / IC Level:**
+
 - These contacts can rarely approve budget but can be powerful internal champions if you give them something valuable.
 - Lead with a tactic, tool, or technique they can use immediately -- even if they do not buy.
 - Make the CTA about learning or resource access, not a sales call.
@@ -388,16 +395,17 @@ If a prospect has previously received a cold sequence from the user's company (e
 
 ### Personalization Variable Map
 
-| Variable | Type | Description | Source |
-|---|---|---|---|
-| [FIRST_NAME] | Template | Recipient's first name | Contact list |
-| [COMPANY_NAME] | Template | Recipient's company | Contact list |
-| [RECENT_SIGNAL] | Unique | Observable company or personal event (LinkedIn post, new product release, hiring for CSM roles, public churn discussion) | Manual research per recipient |
-| [CHURN_PATTERN] | Segment | Role-specific churn challenge for this company's growth stage (early churn, expansion-to-churn, long-tail customer churn) | Research by segment |
-| [SOCIAL_PROOF_CO] | Template | "Pendo" | Static |
-| [SOCIAL_PROOF_METRIC] | Template | "22% reduction in churned ARR in six months" | Static |
+| Variable              | Type     | Description                                                                                                               | Source                        |
+| --------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| [FIRST_NAME]          | Template | Recipient's first name                                                                                                    | Contact list                  |
+| [COMPANY_NAME]        | Template | Recipient's company                                                                                                       | Contact list                  |
+| [RECENT_SIGNAL]       | Unique   | Observable company or personal event (LinkedIn post, new product release, hiring for CSM roles, public churn discussion)  | Manual research per recipient |
+| [CHURN_PATTERN]       | Segment  | Role-specific churn challenge for this company's growth stage (early churn, expansion-to-churn, long-tail customer churn) | Research by segment           |
+| [SOCIAL_PROOF_CO]     | Template | "Pendo"                                                                                                                   | Static                        |
+| [SOCIAL_PROOF_METRIC] | Template | "22% reduction in churned ARR in six months"                                                                              | Static                        |
 
 **Personalization level required before sending:**
+
 - Unique (per recipient): [RECENT_SIGNAL] in Email 1 opening sentence
 - Segment (per persona batch): [CHURN_PATTERN] in Email 2 insight
 - Template (static for all): Value prop sentence, Pendo social proof, all CTAs, Email 3 full body
@@ -463,18 +471,19 @@ Jamie
 
 ### Sequence Operational Notes
 
-| Parameter | Guidance |
-|---|---|
-| Send timing | Tuesday-Thursday, 8-10 AM recipient's local timezone |
-| Email 1 → 2 gap | 4 business days |
-| Email 2 → 3 gap | 6 business days after Email 2 |
-| Stop trigger | Any reply (book a call, "not interested," "wrong person") -- remove from sequence immediately |
-| Post-sequence action | Non-responders: add to 90-day re-engagement list with a fresh angle (new case study, relevant industry report, product update) |
-| Compliance note | Include company address in footer; provide opt-out mechanism; review EU GDPR requirements for any European contacts before sending |
-| Deliverability | Warm sending domain minimum 4 weeks before campaign launch; max 150-200 sends/day per sending address; verify email addresses against bounce-checking tool before import |
-| Sequencing tool notes | [RECENT_SIGNAL] maps to a custom field requiring manual input before Email 1 sends; [CHURN_PATTERN] can be set as a segment-level static field per batch |
+| Parameter             | Guidance                                                                                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Send timing           | Tuesday-Thursday, 8-10 AM recipient's local timezone                                                                                                                     |
+| Email 1 → 2 gap       | 4 business days                                                                                                                                                          |
+| Email 2 → 3 gap       | 6 business days after Email 2                                                                                                                                            |
+| Stop trigger          | Any reply (book a call, "not interested," "wrong person") -- remove from sequence immediately                                                                            |
+| Post-sequence action  | Non-responders: add to 90-day re-engagement list with a fresh angle (new case study, relevant industry report, product update)                                           |
+| Compliance note       | Include company address in footer; provide opt-out mechanism; review EU GDPR requirements for any European contacts before sending                                       |
+| Deliverability        | Warm sending domain minimum 4 weeks before campaign launch; max 150-200 sends/day per sending address; verify email addresses against bounce-checking tool before import |
+| Sequencing tool notes | [RECENT_SIGNAL] maps to a custom field requiring manual input before Email 1 sends; [CHURN_PATTERN] can be set as a segment-level static field per batch                 |
 
 **Personalization QA checklist (complete before each batch sends):**
+
 - [ ] [RECENT_SIGNAL] is filled in with a specific, verifiable observation -- not a generic company attribute
 - [ ] Pendo metric and name are included verbatim in Email 1
 - [ ] [CHURN_PATTERN] segment variable matches the growth stage of this recipient batch

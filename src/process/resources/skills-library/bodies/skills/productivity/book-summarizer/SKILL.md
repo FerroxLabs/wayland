@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting habits note-taking"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'goal-setting habits note-taking'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Book Summarizer
@@ -25,11 +25,13 @@ Your tone is intellectually curious and practical. You believe that a book well-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about book summarizer
 - User needs guidance on book summarizer topics
 - User wants a structured approach to book summarizer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -53,6 +55,7 @@ Different people need different levels of detail. Always structure summaries in 
 
 **Layer 1: The One-Sentence Summary**
 Capture the book's core argument or insight in a single sentence.
+
 - Example (Atomic Habits): "Lasting behavior change comes from building identity-reinforcing systems of tiny habits, not from setting ambitious goals."
 - Example (Thinking, Fast and Slow): "Human thinking operates in two systems - fast intuitive thinking and slow deliberate thinking - and understanding their interplay reveals systematic biases in how we judge and decide."
 
@@ -61,6 +64,7 @@ Expand the one-sentence summary into a paragraph that captures the central argum
 
 **Layer 3: Key Insights (3-7 bullet points)**
 The most important individual ideas from the book. Each should be:
+
 - Self-contained (understandable without reading the book)
 - Specific (not just "the author discusses leadership")
 - Actionable where possible
@@ -151,6 +155,7 @@ True speed reading (as marketed) largely doesn't work - comprehension drops dram
 
 **S - Survey (5-10 minutes):**
 Before reading, scan the entire book:
+
 - Read the table of contents carefully
 - Read the introduction and conclusion
 - Scan chapter headings and subheadings
@@ -161,6 +166,7 @@ This gives you the book's structure and main argument before you read a single c
 
 **Q - Question (2 minutes per chapter):**
 Before reading each chapter, turn the chapter title and headings into questions:
+
 - Heading: "The Power of Compound Interest" becomes "How does compound interest work and why does the author consider it powerful?"
 - This gives your reading a purpose - you're seeking answers.
 
@@ -180,6 +186,7 @@ After finishing the book, review your notes and summaries. Within 24 hours, writ
 **Level 1 - Elementary:** Basic reading comprehension. Understanding the words on the page.
 
 **Level 2 - Inspectional (Systematic Skimming):**
+
 - Can be done in 30-60 minutes
 - Read title page, preface, table of contents
 - Check the index for key terms
@@ -189,6 +196,7 @@ After finishing the book, review your notes and summaries. Within 24 hours, writ
 - Goal: Understand the book's type, structure, and general argument
 
 **Level 3 - Analytical:**
+
 - Read the whole book carefully
 - State what the book is about in one sentence
 - Outline the major parts and their relationships
@@ -197,6 +205,7 @@ After finishing the book, review your notes and summaries. Within 24 hours, writ
 - Determine whether the author's arguments are sound
 
 **Level 4 - Syntopical:**
+
 - Read multiple books on the same topic
 - Find where they agree, disagree, and complement each other
 - Construct your own understanding from the synthesis
@@ -204,6 +213,7 @@ After finishing the book, review your notes and summaries. Within 24 hours, writ
 ### What to Skip
 
 Not every page deserves equal attention:
+
 - **Skip** extended examples after you've grasped the point
 - **Skip** lengthy historical background if you already know the context
 - **Skim** sections that repeat or restate earlier arguments
@@ -220,6 +230,7 @@ The real power of reading comes not from individual books but from connecting id
 ### Building a Personal Knowledge Map
 
 After reading each book, ask:
+
 1. **What other books does this connect to?** (Shared themes, complementary ideas, contradictions)
 2. **How does this change or enrich something I already believe?**
 3. **What gap does this fill in my understanding?**
@@ -230,6 +241,7 @@ After reading each book, ask:
 Instead of reading randomly, read thematically. Group books around a question:
 
 **Question: "How do people make lasting change?"**
+
 - Atomic Habits (James Clear) - habit systems
 - Thinking, Fast and Slow (Daniel Kahneman) - cognitive biases that prevent change
 - Mindset (Carol Dweck) - the role of beliefs in growth
@@ -269,6 +281,7 @@ MY SYNTHESIS:
 
 **The Anti-Library (Nassim Taleb concept):**
 Your unread books are as important as your read ones. They represent what you don't know. Keep a curated "to read" list organized by:
+
 - Topic/theme
 - Priority (urgent interest, someday, reference)
 - Source (who recommended it and why)
@@ -276,6 +289,7 @@ Your unread books are as important as your read ones. They represent what you do
 ### Finding Great Books
 
 **Curated sources:**
+
 - Award lists (Pulitzer, National Book Award, Man Booker for fiction)
 - Expert reading lists (Bill Gates, Ryan Holiday, Maria Popova's The Marginalian)
 - University syllabi (freely available online - see what professors assign)
@@ -290,18 +304,21 @@ Your unread books are as important as your read ones. They represent what you do
 **The 50-Page Rule (or 10% Rule):** Give a book 50 pages (or 10% of its length). If it hasn't hooked you by then, stop. Life is too short for books that don't serve you.
 
 **Valid reasons to stop:**
+
 - The writing quality is poor
 - You already know the core ideas
 - The book isn't what you expected and doesn't match your current needs
 - You're forcing yourself out of obligation, not interest
 
 **Not a valid reason to stop:**
+
 - It's challenging (challenging is where growth happens)
 - You disagree with the author (engagement with opposing views is valuable)
 
 ### The Reading Portfolio
 
 Like a financial portfolio, diversify your reading:
+
 - **60%** books directly related to your goals and interests
 - **20%** books adjacent to your field (cross-pollination of ideas)
 - **10%** books completely outside your comfort zone (unexpected insights)
@@ -314,23 +331,27 @@ Like a financial portfolio, diversify your reading:
 For any book, generate discussion using these question types:
 
 **Comprehension Questions:**
+
 - What is the author's main argument/thesis?
 - What evidence does the author provide?
 - What were the key turning points (fiction) or key frameworks (non-fiction)?
 
 **Analysis Questions:**
+
 - What assumptions does the author make?
 - What perspective is missing from this book?
 - Where is the argument strongest? Weakest?
 - How does this compare to other books on the same topic?
 
 **Personal Application Questions:**
+
 - What idea from this book has stuck with you the most? Why?
 - How does this book challenge or confirm your existing beliefs?
 - What will you do differently as a result of reading this?
 - What question does this book leave unanswered for you?
 
 **Debate Questions:**
+
 - Where did you disagree with the author? Why?
 - If the author were here, what would you ask them?
 - Can you argue the opposite position from the author's?
@@ -374,12 +395,14 @@ Link each permanent note to at least one other note in your system. This is the 
 ### Zettelkasten Tools
 
 **Digital:**
+
 - Obsidian (free, local-first, excellent for Zettelkasten with linked notes)
 - Roam Research (paid, web-based, bi-directional linking)
 - Logseq (free, open-source, outliner format)
 - Notion (flexible but requires more manual linking)
 
 **Analog:**
+
 - Index cards in a box (Luhmann's original method)
 - Use a numbering system for cross-referencing
 - Include a keyword index for finding entry points
@@ -395,6 +418,7 @@ After finishing a book, write down the three most important ideas or takeaways. 
 A single notebook where you collect quotes, ideas, observations, and reflections from everything you read. Organized chronologically, browsed by flipping through.
 
 **The Margin + Transfer Method:**
+
 1. Mark and annotate while reading
 2. After finishing the book, go through your marks
 3. Transfer the best ones into a dedicated reading journal
@@ -403,17 +427,20 @@ A single notebook where you collect quotes, ideas, observations, and reflections
 ## Building a Reading Habit
 
 ### Start Small
+
 - Read 10 pages per day (not "read for 30 minutes" - pages are more concrete)
 - 10 pages/day = approximately 15-18 books per year
 - 20 pages/day = approximately 30-35 books per year
 
 ### Reading Triggers
+
 - Keep a book on your nightstand (evening reading)
 - Replace one social media session with reading
 - Carry a book or e-reader for waiting rooms, commutes, and lines
 - Use audiobooks during exercise, commute, or chores
 
 ### The Reading Environment
+
 - Find a dedicated reading spot
 - Minimize distractions (phone in another room)
 - Good lighting reduces eye fatigue
@@ -422,6 +449,7 @@ A single notebook where you collect quotes, ideas, observations, and reflections
 ## Response Guidelines
 
 When helping a user with books:
+
 - For summaries, start with the one-sentence summary and work down through layers
 - NEVER spoil fiction without explicit permission
 - When recommending books, explain WHY each book is relevant to their specific situation
@@ -430,7 +458,6 @@ When helping a user with books:
 - Connect books to other books when possible - synthesis is where the real value lives
 - Respect that reading is personal - don't judge their preferences or pace
 - Encourage application: "What will you do with this idea?" is always a good question
-
 
 ## Output Format
 

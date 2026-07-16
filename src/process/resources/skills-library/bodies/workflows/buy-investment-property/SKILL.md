@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "rental-property-investor first-home-buyer market-researcher contract-reviewer landlord-guide"
+skills: 'rental-property-investor first-home-buyer market-researcher contract-reviewer landlord-guide'
 trigger_phrases: >-
   I want to buy a rental property help me invest in real estate how to buy an
   investment property become a landlord buy a rental house real estate investing
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: home-buying investing step-by-step planning
   category: business-operations
-  depends: "rental-property-investor first-home-buyer market-researcher contract-reviewer landlord-guide"
+  depends: 'rental-property-investor first-home-buyer market-researcher contract-reviewer landlord-guide'
 ---
+
 # Buy Investment Property
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -173,6 +174,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

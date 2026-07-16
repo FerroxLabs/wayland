@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fashion design guide"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'fashion design guide'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Occasion Dresser
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is preparing for a specific named event -- wedding, gala, job interview, funeral, holiday party, black tie dinner, graduation ceremony, charity auction, gallery opening, bar mitzvah, quinceañera, garden party, beach wedding, office function, or similar -- and needs outfit-level guidance
 - A user has received an invitation with a dress code label they cannot interpret (e.g., "festive attire," "creative black tie," "dressy casual," "island formal," "smart casual chic")
 - A user needs to build a complete look from existing wardrobe pieces and wants help combining items, identifying gaps, and selecting accessories
@@ -29,6 +31,7 @@ metadata:
 - A user is shopping for a specific occasion and needs criteria to evaluate whether a garment or accessory actually works
 
 **Do NOT use when:**
+
 - The user needs personal shopping from specific retailers with current inventory -- use a product-search or e-commerce skill instead
 - The user is designing clothing for production (pattern-making, construction, materials sourcing) -- use a fashion design or garment construction skill
 - The user is building a wardrobe strategy from scratch with no specific event in mind -- use a capsule wardrobe planning skill

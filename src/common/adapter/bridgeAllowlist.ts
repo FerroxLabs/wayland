@@ -337,6 +337,14 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     WS caller must never drive an OAuth mint or a refresh-token exchange. ---
   'chatgpt.auth.login',
   'chatgpt.auth.refresh',
+  // --- Native "Sign in with Claude" OAuth. All three mint/persist the
+  //     `claude-subscription` bundle (refresh + access tokens) and write the
+  //     Claude Code credential file - same credential-minting class as
+  //     chatgpt.auth.* above. A remote WS caller must never drive an OAuth mint,
+  //     a refresh-token exchange, or feed a pasted authorization code. ---
+  'anthropic.auth.login',
+  'anthropic.auth.refresh',
+  'anthropic.auth.submit-code',
   // --- Cost observability (WS-D / WS-F). The whole cost.* namespace is already
   //     denied to remote callers via the `cost.` prefix above; these exact keys
   //     are enumerated for documentation + defence-in-depth. byConversation +
@@ -367,6 +375,20 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'memory.delete-entry',
   // --- Project knowledge draft (reads arbitrary filePaths to feed the model) ---
   'project.generate-knowledge-draft',
+  // --- Git clone/pull. clone-from-git spawns `git clone` against a caller-supplied
+  //     URL with caller-supplied credentials (exec + credential handling + fetches
+  //     arbitrary repo contents onto disk); pull execs `git pull` and re-applies a
+  //     stored token/SSH key. A paired-device WS token proves a remote browser, not
+  //     the local trusted user, so both are local-renderer-only. ---
+  'project.clone-from-git',
+  'project.pull',
+  // git-status execs git and discloses local worktree filesystem paths;
+  // read-only but local-renderer-only for defence-in-depth (same class as pull).
+  'project.git-status',
+  // merge-worktree execs git merge/commit/branch mutations; set-worktree-pref
+  // flips project isolation policy. Both are local-renderer-only.
+  'project.merge-worktree',
+  'project.set-worktree-pref',
   // --- Storage destructive / disk operations ---
   'storage:changeDir',
   'storage:clearDir',

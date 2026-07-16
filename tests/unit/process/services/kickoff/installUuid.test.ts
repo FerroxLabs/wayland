@@ -42,9 +42,7 @@ describe('getInstallUuid', () => {
   });
 
   it('returns the same value on subsequent calls (cache + storage round-trip)', async () => {
-    const { getInstallUuid, __resetInstallUuidCacheForTests } = await import(
-      '@process/services/kickoff/installUuid'
-    );
+    const { getInstallUuid, __resetInstallUuidCacheForTests } = await import('@process/services/kickoff/installUuid');
     const first = await getInstallUuid();
     __resetInstallUuidCacheForTests();
     const second = await getInstallUuid();
@@ -73,10 +71,7 @@ describe('getInstallUuid', () => {
     expect(value.length).toBeGreaterThan(0);
     // Storage was never written successfully - storage state stays undefined.
     expect(storageState.value).toBeUndefined();
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('persist failed'),
-      expect.anything()
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('persist failed'), expect.anything());
     warnSpy.mockRestore();
   });
 

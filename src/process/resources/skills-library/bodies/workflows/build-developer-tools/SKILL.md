@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Build Developer Tools
 
 **Estimated time:** 4-8 weeks
@@ -120,7 +121,7 @@ launch the tool and build a developer community. For open-source tools: publish 
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Pivot to a different pain point or contribute to existing tools
   - If **After Step 2**: Iterate on interface design based on feedback
   - If **After Step 4**: Fix platform-specific issues before documenting
@@ -171,6 +172,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability guide research teaching"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'sustainability guide research teaching'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Climate Science Explainer
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how climate change works mechanically -- the greenhouse effect, radiative forcing, feedback loops, or atmospheric physics
 - The user wants a plain-language explanation of a specific climate science concept they encountered in news coverage, a documentary, or a conversation
 - The user is a student, teacher, or curious adult who wants to understand the science behind global warming at a conceptual level, without needing to read technical papers
@@ -30,6 +32,7 @@ metadata:
 - The user wants to understand specific terms they encountered: radiative forcing, albedo, tipping points, RCP/SSP pathways, equilibrium climate sensitivity, or attribution science
 
 **Do NOT use when:**
+
 - The user asks which climate policies to support, oppose, or vote for -- use `environmental-policy-researcher` for policy analysis
 - The user wants to calculate their personal or household carbon footprint -- use `carbon-footprint-estimator`
 - The user needs a sustainability action plan for their home, business, or organization -- use dedicated sustainability planning skills
@@ -69,6 +72,7 @@ Always start with the greenhouse effect as the physical foundation, even if the 
 4. **Radiative equilibrium at a higher temperature:** Earth must radiate as much energy to space as it receives from the sun (energy balance). If greenhouse gases trap more outgoing radiation, the surface must warm until it radiates enough energy to restore balance. More greenhouse gases means equilibrium is reached at a higher surface temperature. This is the fundamental physics, established in laboratory measurements by Eunice Newton Foote in 1856 and John Tyndall in 1859.
 
 **Key teaching distinctions at this stage:**
+
 - The natural greenhouse effect (pre-industrial) is essential and beneficial -- without it, Earth's average temperature would be approximately -0.4F (-18C)
 - The enhanced greenhouse effect is the additional warming from human-emitted greenhouse gases added on top of the natural effect
 - The greenhouse effect analogy to an actual glass greenhouse is imperfect -- a real greenhouse works primarily by preventing convective cooling; the atmospheric greenhouse effect works through radiation absorption. A better analogy is a blanket: it does not generate heat, but it slows heat loss
@@ -81,13 +85,13 @@ Present gases with quantitative context, not just a list:
 
 **Radiative forcing** is the key concept here -- it measures how much a gas alters the energy balance of the atmosphere, expressed in watts per square meter (W/m²). Total human-caused radiative forcing since pre-industrial times is approximately +2.7 W/m² as of 2022 (IPCC AR6).
 
-| Gas | Chemical Formula | Contribution to Enhanced Warming | Global Warming Potential (100-yr, vs CO2) | Atmospheric Lifetime | Primary Human Sources |
-|-----|-----------------|----------------------------------|-------------------------------------------|---------------------|-----------------------|
-| Carbon dioxide | CO2 | ~65% | 1 (reference) | Centuries to millennia | Fossil fuel combustion, deforestation, cement production (~37 billion tonnes CO2/year currently) |
-| Methane | CH4 | ~16% | ~30 | ~12 years | Livestock (~32%), fossil fuel extraction (~33%), landfills, rice paddies |
-| Nitrous oxide | N2O | ~6% | ~273 | ~114 years | Nitrogen fertilizers (~70%), livestock waste, industrial processes |
-| Fluorinated gases | HFCs, PFCs, SF6 | ~2% | 1,000-23,000+ | Years to millennia | Refrigerants, air conditioning, semiconductor manufacturing |
-| Water vapor | H2O | Largest amplifier | Not applicable as a forcing | ~10 days (rapid turnover) | Not directly emitted -- increases as temperature rises (feedback, not forcing) |
+| Gas               | Chemical Formula | Contribution to Enhanced Warming | Global Warming Potential (100-yr, vs CO2) | Atmospheric Lifetime      | Primary Human Sources                                                                            |
+| ----------------- | ---------------- | -------------------------------- | ----------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------ |
+| Carbon dioxide    | CO2              | ~65%                             | 1 (reference)                             | Centuries to millennia    | Fossil fuel combustion, deforestation, cement production (~37 billion tonnes CO2/year currently) |
+| Methane           | CH4              | ~16%                             | ~30                                       | ~12 years                 | Livestock (~32%), fossil fuel extraction (~33%), landfills, rice paddies                         |
+| Nitrous oxide     | N2O              | ~6%                              | ~273                                      | ~114 years                | Nitrogen fertilizers (~70%), livestock waste, industrial processes                               |
+| Fluorinated gases | HFCs, PFCs, SF6  | ~2%                              | 1,000-23,000+                             | Years to millennia        | Refrigerants, air conditioning, semiconductor manufacturing                                      |
+| Water vapor       | H2O              | Largest amplifier                | Not applicable as a forcing               | ~10 days (rapid turnover) | Not directly emitted -- increases as temperature rises (feedback, not forcing)                   |
 
 **Key teaching point on water vapor:** Water vapor is the most abundant greenhouse gas, contributing approximately 50% of the total natural greenhouse effect. But it is a feedback, not a forcing. Humans do not add meaningful amounts of water vapor directly. Instead, warming from CO2 allows the warmer atmosphere to hold more water vapor (about 7% more per 1°C of warming, following the Clausius-Clapeyron relation), which amplifies warming further. This is why CO2 is described as the "control knob" of Earth's temperature.
 
@@ -116,6 +120,7 @@ Feedback loops are often the most confusing concept for non-scientists. Use the 
 - **CO2 fertilization (partial):** Higher atmospheric CO2 and longer growing seasons increase plant growth in some regions, causing additional carbon uptake. However, this effect is limited by water availability, nutrient cycles, and temperature stress -- it absorbs only a fraction of human emissions.
 
 **Cloud feedbacks (uncertain -- still active research area):**
+
 - Low clouds (below 2 km altitude, such as marine stratus and stratocumulus) reflect sunlight strongly -- a stabilizing feedback if they increase
 - High clouds (cirrus, above 6 km altitude) trap outgoing longwave radiation -- an amplifying feedback if they increase or thin
 - IPCC AR6 best estimate is that cloud feedbacks are net positive (amplifying), contributing approximately +0.42 W/m²/°C, but with wide uncertainty bounds
@@ -163,6 +168,7 @@ Explain evidence in terms of both what is measured and why scientists trust each
 Frame the carbon cycle as a set of reservoirs and fluxes that were in approximate balance before industrialization:
 
 **Major carbon reservoirs:**
+
 - Atmosphere: approximately 870 billion tonnes of carbon (GtC)
 - Terrestrial vegetation and soil: approximately 2,600 GtC (includes ~1,500 GtC in permafrost)
 - Ocean surface layer: approximately 900 GtC (exchanges rapidly with atmosphere)
@@ -174,6 +180,7 @@ Natural annual fluxes between atmosphere and land (photosynthesis vs. respiratio
 
 **The human disruption:**
 Current human CO2 emissions are approximately 37-40 GtCO2 per year (approximately 10 GtC per year). Of this:
+
 - ~46% remains in the atmosphere (driving the observed CO2 rise)
 - ~26% is absorbed by oceans (causing ocean acidification)
 - ~28% is absorbed by land ecosystems (CO2 fertilization and increased vegetation growth)
@@ -196,12 +203,14 @@ Climate models (General Circulation Models, or GCMs; more recently Earth System 
 The core physics (radiative transfer, thermodynamics, fluid dynamics) are the same equations used in weather forecasting, which is itself validated daily. Climate models are not opinion or assumption -- they encode the same atmospheric physics as short-range forecasts, run over longer timescales.
 
 **How they have been validated:**
+
 - Models trained on pre-1970 data have successfully projected post-1970 warming trends
 - Models correctly predicted stratospheric cooling concurrent with surface warming
 - Models correctly predicted Arctic amplification decades before it was confirmed by observation
 - CMIP6 multi-model ensemble projections compare the outputs of 40+ independent modeling centers worldwide
 
 **Scenarios (SSP pathways in AR6):**
+
 - SSP1-1.9: Very low emissions, consistent with limiting warming to 1.5°C above pre-industrial
 - SSP2-4.5: Intermediate emissions, broadly consistent with current policies -- projected warming of approximately 2.7°C by 2100
 - SSP3-7.0: High emissions, limited climate policy -- projected warming of approximately 3.6°C by 2100
@@ -432,12 +441,14 @@ The reason warming does not accelerate forever is the Planck feedback -- a funda
 Before feedbacks, adding CO2 alone would cause a warming of approximately 1.2°C for each doubling of atmospheric CO2 concentration. This is called the no-feedback climate sensitivity and is calculated from basic radiative physics. Feedbacks are everything that happens on top of this initial warming.
 
 **2. Water vapor feedback (amplifying -- the largest feedback):**
+
 - Warmer air can hold more water vapor, following the Clausius-Clapeyron equation (~7% more moisture per 1°C of warming)
 - Water vapor is itself a potent greenhouse gas, absorbing infrared radiation across broad wavelength bands
 - More warming → more atmospheric water vapor → more greenhouse warming → more warming
 - Magnitude: roughly doubles the warming from CO2 alone. The Equilibrium Climate Sensitivity (ECS) rises from ~1.2°C to roughly 2.0-2.5°C from this feedback alone
 
 **3. Ice-albedo feedback (amplifying -- regionally very important):**
+
 - Ice and snow reflect approximately 80-90% of incoming sunlight (high albedo)
 - Dark ocean water absorbs approximately 94% of incoming sunlight (low albedo)
 - Warming melts Arctic sea ice → dark ocean is exposed → more solar energy absorbed → more warming → more ice melts
@@ -445,23 +456,27 @@ Before feedbacks, adding CO2 alone would cause a warming of approximately 1.2°C
 - Current status: Arctic September sea ice extent has declined approximately 40% from the 1979-2000 average
 
 **4. Planck feedback (stabilizing -- the fundamental restoring force):**
+
 - All physical objects radiate more energy as they get warmer (energy ∝ temperature⁴ per Stefan-Boltzmann)
 - As Earth's surface warms, it radiates more infrared energy to space
 - This is the primary reason warming reaches a new equilibrium rather than escalating without limit
 - Magnitude: approximately -3.2 W/m²/°C -- the largest single feedback, stabilizing
 
 **5. Lapse rate feedback (stabilizing in tropics, amplifying in Arctic):**
+
 - In the tropics, the atmosphere aloft warms faster than the surface due to moist convection dynamics
 - A warmer upper atmosphere radiates more energy to space -- a stabilizing effect in tropical latitudes
 - In the Arctic, surface warming is stronger than upper-atmosphere warming, producing a slight amplifying effect
 - Net global effect: slightly stabilizing (approximately -0.42 W/m²/°C globally)
 
 **6. Cloud feedbacks (uncertain -- net slightly amplifying in best estimates):**
+
 - **Low clouds:** Marine stratus and stratocumulus clouds reflect a large fraction of incoming sunlight. If warming causes more low cloud coverage, this is stabilizing. If warming causes less, this is amplifying.
 - **High clouds (cirrus):** Trap outgoing infrared radiation more than they reflect incoming sunlight. Changes in high cloud altitude or coverage are amplifying if clouds rise higher.
 - Net estimate: IPCC AR6 best estimate is +0.42 W/m²/°C (net amplifying), but with the widest uncertainty range of any major feedback. This is the primary remaining source of spread between climate models.
 
 **7. Permafrost feedback (amplifying -- slow, delayed, non-linear):**
+
 - Approximately 1.5 trillion tonnes of organic carbon stored in permafrost
 - Warming thaws permafrost → microbial decomposition releases CO2 (aerobic) and methane (anaerobic)
 - Adds greenhouse gases to atmosphere → causes more warming → thaws more permafrost
@@ -472,40 +487,42 @@ Before feedbacks, adding CO2 alone would cause a warming of approximately 1.2°C
 
 ### Key Numbers and Measurements
 
-| Metric | Value | Pre-industrial / Reference Baseline | Rate of Change | What It Means |
-|--------|-------|-------------------------------------|----------------|---------------|
-| No-feedback climate sensitivity | ~1.2°C per CO2 doubling | Reference (physics-based calculation) | Fixed | What warming would be without any feedbacks |
-| Equilibrium Climate Sensitivity (ECS) with all feedbacks | ~3°C (likely range 2.5-4°C) | Per CO2 doubling | Continuously refined | How much Earth ultimately warms per CO2 doubling once system reaches equilibrium |
-| Water vapor feedback magnitude | +1.8 W/m²/°C | 0 (reference) | Measurable increase observed | Largest single amplifying feedback |
-| Planck feedback magnitude | -3.2 W/m²/°C | 0 (reference) | N/A | Largest single stabilizing feedback -- prevents runaway warming |
-| Cloud feedback magnitude | +0.42 W/m²/°C | 0 (reference) | Uncertain direction in some models | Single largest source of model projection uncertainty |
-| Arctic amplification ratio | 3-4x global average warming | 1:1 ratio (no amplification) | Increasing | Reflects ice-albedo and lapse rate feedbacks combined |
-| Arctic September sea ice extent | ~4.5 million km² (recent years) | ~7 million km² (1979-2000 average) | ~-0.87 million km² per decade | Direct evidence of ice-albedo feedback in action |
+| Metric                                                   | Value                           | Pre-industrial / Reference Baseline   | Rate of Change                     | What It Means                                                                    |
+| -------------------------------------------------------- | ------------------------------- | ------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------- |
+| No-feedback climate sensitivity                          | ~1.2°C per CO2 doubling         | Reference (physics-based calculation) | Fixed                              | What warming would be without any feedbacks                                      |
+| Equilibrium Climate Sensitivity (ECS) with all feedbacks | ~3°C (likely range 2.5-4°C)     | Per CO2 doubling                      | Continuously refined               | How much Earth ultimately warms per CO2 doubling once system reaches equilibrium |
+| Water vapor feedback magnitude                           | +1.8 W/m²/°C                    | 0 (reference)                         | Measurable increase observed       | Largest single amplifying feedback                                               |
+| Planck feedback magnitude                                | -3.2 W/m²/°C                    | 0 (reference)                         | N/A                                | Largest single stabilizing feedback -- prevents runaway warming                  |
+| Cloud feedback magnitude                                 | +0.42 W/m²/°C                   | 0 (reference)                         | Uncertain direction in some models | Single largest source of model projection uncertainty                            |
+| Arctic amplification ratio                               | 3-4x global average warming     | 1:1 ratio (no amplification)          | Increasing                         | Reflects ice-albedo and lapse rate feedbacks combined                            |
+| Arctic September sea ice extent                          | ~4.5 million km² (recent years) | ~7 million km² (1979-2000 average)    | ~-0.87 million km² per decade      | Direct evidence of ice-albedo feedback in action                                 |
 
 ---
 
 ### Evidence That Feedbacks Are Operating Now
 
-| Evidence Type | What Is Measured | What It Shows | Time Period | Confidence Level |
-|---------------|-----------------|---------------|------------|-----------------|
-| Satellite water vapor measurements | Total column water vapor in atmosphere | ~7% increase per 1°C warming, consistent with Clausius-Clapeyron | 1988-present | High |
-| Satellite sea ice observations | Arctic sea ice extent and area | ~40% decline in September minimum since 1979 | 1979-present | High |
-| Surface temperature records in Arctic | Regional temperature anomalies | Arctic warming 3-4x global average rate | 1950-present | High |
-| Radiosonde and satellite temperature profiles | Temperature at different altitude levels | Stratospheric cooling concurrent with surface warming -- confirms greenhouse forcing, not solar | 1978-present | High |
-| GRACE satellite gravity measurements | Ice sheet mass loss | Greenland and Antarctic ice sheets losing mass -- sea level contribution | 2002-present | High |
-| Cloud fraction and altitude measurements | Cloud properties globally | Net cloud feedback remains uncertain; best estimate net positive | Ongoing | Medium |
+| Evidence Type                                 | What Is Measured                         | What It Shows                                                                                   | Time Period  | Confidence Level |
+| --------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------ | ---------------- |
+| Satellite water vapor measurements            | Total column water vapor in atmosphere   | ~7% increase per 1°C warming, consistent with Clausius-Clapeyron                                | 1988-present | High             |
+| Satellite sea ice observations                | Arctic sea ice extent and area           | ~40% decline in September minimum since 1979                                                    | 1979-present | High             |
+| Surface temperature records in Arctic         | Regional temperature anomalies           | Arctic warming 3-4x global average rate                                                         | 1950-present | High             |
+| Radiosonde and satellite temperature profiles | Temperature at different altitude levels | Stratospheric cooling concurrent with surface warming -- confirms greenhouse forcing, not solar | 1978-present | High             |
+| GRACE satellite gravity measurements          | Ice sheet mass loss                      | Greenland and Antarctic ice sheets losing mass -- sea level contribution                        | 2002-present | High             |
+| Cloud fraction and altitude measurements      | Cloud properties globally                | Net cloud feedback remains uncertain; best estimate net positive                                | Ongoing      | Medium           |
 
 ---
 
 ### Established Consensus vs. Active Research Areas
 
 **Well-established (very high scientific confidence):**
+
 - Water vapor is a strong amplifying feedback -- magnitude well-constrained by satellite measurements
 - Ice-albedo feedback is operating and explains Arctic amplification -- directly observed
 - Planck feedback prevents runaway warming under any realistic CO2 doubling scenario
 - Equilibrium Climate Sensitivity (ECS) is very likely between 2.5°C and 4°C per CO2 doubling (IPCC AR6)
 
 **Active research areas (medium confidence, continued refinement):**
+
 - Exact cloud feedback magnitude and sign in different regions -- largest source of model spread
 - Precise timing and magnitude of permafrost feedback -- non-linear processes are difficult to model
 - Whether any feedback combination could trigger abrupt, irreversible tipping points (e.g., ice sheet collapse) -- risk increases with warming level but exact thresholds uncertain

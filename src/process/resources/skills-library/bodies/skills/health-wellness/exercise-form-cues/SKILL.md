@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fitness workout-planning checklist"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'fitness workout-planning checklist'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Exercise Form Cues
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before starting a new fitness program, changing your training, or if you experience pain during exercise. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks about proper technique for a major compound barbell or dumbbell movement: squat, deadlift (conventional, sumo, Romanian), bench press, bent-over row, overhead press, front squat, goblet squat, or their dumbbell variants
 - A user describes a specific sensation during a lift that suggests a technical fault -- lower back dominance in squats, shoulder impingement in pressing, biceps strain in rows -- and wants technique-based correction
 - A user wants a step-by-step setup checklist before their first session with a barbell lift or before adding significant weight
@@ -33,6 +35,7 @@ metadata:
 - A user is introducing a new training partner or athlete to a lift and wants a structured cue sequence to teach from
 
 **Do NOT use when:**
+
 - The user wants sets, reps, periodization, or loading progressions -- use `beginner-strength-training` or `intermediate-strength-training` skills
 - The user is asking about yoga, Pilates, or static flexibility work -- use `yoga-routine-builder` or `flexibility-mobility` skills
 - The user has a diagnosed injury or is in active rehabilitation -- direct them to a licensed physical therapist; do NOT provide "modified" form guidance for injured tissue
@@ -82,22 +85,26 @@ Setup is sequential and non-negotiable -- errors in setup propagate through the 
 Each lift has three to four distinct phases. Every phase gets specific, sensory-grounded cues -- what the lifter should feel, see, and hear, not just abstract positional descriptions.
 
 **Eccentric (descent/lowering) phase:**
+
 - Lead with the correct initiator for the lift (squat: simultaneous hip back and knee forward; deadlift: no eccentric; bench press: controlled descent with elbows tracking at 45-75 degrees; overhead press: bar path straight down close to face)
 - Provide a tempo guideline: eccentric phases of 2-3 seconds are appropriate for learning; do not descend so slowly that the lifter loses tension (greater than 5 seconds creates energy leakage)
 - Identify the depth or range of motion landmark: for squat, hip crease at or below the patella (parallel); for bench, bar touches the sternum or lower chest; for overhead press, bar touches the clavicle/upper chest; for Romanian deadlift, mild hamstring stretch with maintained neutral spine (typically mid-shin to just below the knee for most people)
 
 **Bottom/stretch position:**
+
 - This is the most mechanically demanding position and the most common place for technical breakdown
 - For squats: look for maintained arch (butt wink is pelvic posterior tilt, not a flat lower back -- distinguish these), knees still tracking toes, weight still through the whole foot
 - For bench: scapulae must remain retracted and depressed (not elevated toward the ears), wrists stacked over elbows, bar in light contact with the chest or 1 cm above
 - For deadlift: there is no eccentric phase -- the bottom position is the start position; the setup IS the bottom position
 
 **Concentric (ascent/drive) phase:**
+
 - Provide a single dominant drive cue that will fix the most common fault for that lift: "push the floor away" (squat), "push the floor away while dragging the bar up the shins" (deadlift), "push the bar through the ceiling" (overhead press), "push yourself away from the bar" (bench press)
 - Identify the primary sticking point for each lift and the cue to break through it: squat sticking point is typically just above parallel (address with "accelerate through the hole"); deadlift sticking point is typically 2-4 inches off the floor (address with "leg press the earth"); bench press sticking point is typically 2-4 inches above the chest (address with "drive your upper back into the bench")
 - Describe the lockout: full hip extension in squat and deadlift (glute squeeze cue), elbows locked with bar directly over the shoulder joint in bench press, elbows locked with bar directly over the head (ears inside the arms) in overhead press
 
 **Transition and reset (between reps):**
+
 - For most compound lifts in a set of 5+, re-brace between each rep at the top
 - For deadlifts, the question of touch-and-go vs. dead-stop matters: dead-stop requires fully resetting the setup each rep; touch-and-go maintains tension but can become a bounce that bypasses the intended range of motion -- note this for the user
 
@@ -266,24 +273,31 @@ Perform these steps in order before each working set:
 ## Edge Cases
 
 ### User Asks About Dumbbell Variants
+
 Dumbbell variants introduce three key differences: (1) each arm must independently stabilize the load, increasing rotator cuff and scapular stabilizer demand; (2) each wrist and elbow can rotate freely, which changes the optimal arm path -- for dumbbell bench press, a neutral grip (palms facing each other) is biomechanically easier on the shoulder and is a valid cue; (3) the absolute load is lower, which makes dumbbells well-suited for learning movement patterns. Provide the same five-section guide adapted to the dumbbell variant. Call out specifically where the technique differs from the barbell version and why.
 
 ### User Describes Acute Pain Mid-Exercise
+
 Do not continue providing technique cues. Acknowledge the symptom, state clearly that sharp, localized, or radiating pain is not normal, and direct the user to stop that movement and consult a qualified healthcare professional before continuing. You may note that if the discomfort resolves completely between sessions and they want to maintain training, general lower-body movements like leg press or goblet squats may have lower spinal loading -- but frame this as a suggestion to discuss with their healthcare provider, not as a substitute movement recommendation.
 
 ### User Asks About Lifting With a Known Medical Condition
+
 Do not provide condition-specific modifications. The conditions that affect exercise selection and technique (e.g., disc herniation, labral tears, spondylolisthesis, hypertension, pregnancy) require individualized assessment by a healthcare provider and ideally a physical therapist or certified strength and conditioning specialist who can observe movement in person. State this clearly, do not attempt to approximate what a clinician would say, and offer to provide general healthy-population form guidance separately.
 
 ### User Asks to Compare Two Technique Camps
+
 Some exercises have legitimate technique debates in the strength training community: high bar vs. low bar squat, conventional vs. sumo deadlift, full range of motion vs. partial range bench press, touch-and-go vs. dead-stop deadlift. When a user asks which is correct, do not arbitrate dogmatically. Explain the mechanical trade-offs of each approach, who each tends to suit (body proportions, training goals, comfort), and recommend experimenting with both under light load to find what feels strongest and most natural. Avoid framing any established technique school as universally wrong.
 
 ### User Is Training Without a Spotter or Rack
+
 Provide explicit safety guidance specific to the lift. For squats: safety pins or safeties are non-negotiable for working sets; if neither is available, do not attempt maximal effort squats -- use goblet squats or safety-bar squats instead. For bench press: if training without safeties and without a spotter, use dumbbells or a Smith machine as a safer alternative; the roll-of-shame can be practiced with an empty barbell. For overhead press: standing overhead press is self-spotting (drop the bar in front); sitting press without safeties carries higher risk of bar landing on the neck if a fail occurs anteriorly. Specifically recommend using collars on overhead work and ensuring a clear drop zone.
 
 ### User Has Significantly Long or Short Limb Proportions
+
 Limb length affects every compound lift substantially. Long-femur lifters will have greater forward torso lean in high-bar squats and may find low-bar or front squat more comfortable. Long-armed lifters will have a shorter deadlift pull and may find conventional pull distances very short, making sumo less of an advantage. Short-armed lifters may struggle with the deadlift setup and may benefit from a slightly elevated starting position. When a user mentions that standard cues "don't feel right" despite careful setup, flag that their limb proportions may necessitate individual adjustments beyond standard templates and recommend a session with a qualified coach who can observe them in person.
 
 ### User Asks About Barbell Row Grip and Angle Variants
+
 Barbell bent-over row has three meaningful variants: (1) Overhand (pronated) grip, torso 45 degrees -- emphasizes upper back and rear deltoids; (2) Underhand (supinated) grip, torso closer to 45-60 degrees -- increases biceps contribution and allows slightly more load; (3) Pendlay row (torso parallel to floor, dead-stop from the floor each rep) -- eliminates momentum and maximally isolates the pull from the back. Each is valid. Describe the mechanical differences when asked and provide setup cues appropriate to the specific variant. The common fault of using lumbar extension as a "cheat" to generate momentum applies to all three variants and should always be flagged.
 
 ---
@@ -296,7 +310,7 @@ Barbell bent-over row has three meaningful variants: (1) Overhand (pronated) gri
 
 ## Form Guide: Romanian Deadlift (Barbell)
 
-> *General technique education only. Stop and consult a healthcare professional if you experience sharp, shooting, or radiating pain during any movement.*
+> _General technique education only. Stop and consult a healthcare professional if you experience sharp, shooting, or radiating pain during any movement._
 
 ---
 
@@ -325,6 +339,7 @@ Perform these steps in order before each working set:
 ### Movement Phases
 
 **Phase 1 -- Eccentric (Descent/Hip Hinge):**
+
 - The dominant cue: "push your hips back toward the wall behind you" -- this initiates the movement from the hip joint, not the lumbar spine
 - The knees stay bent at a fixed angle (that same soft 15-20 degree bend) throughout the entire descent -- they do NOT straighten more as you go down, and they do NOT bend more into a squat
 - The bar stays in contact with or within 1-2 cm of the thighs and shins -- if you can see a gap forming between the bar and your legs, the lats have disengaged
@@ -332,18 +347,21 @@ Perform these steps in order before each working set:
 - Depth marker: descend until you feel a strong stretch sensation in the hamstrings. For most people, this is mid-shin to just below the knee. The lower back must remain neutral at this point -- if you can only reach mid-thigh before the lower back rounds, that is your working range of motion
 
 **Phase 2 -- Bottom/Stretch Position:**
+
 - You should feel a clear pulling sensation in the belly of the hamstrings (back of the thigh, not behind the knee and not in the lower back)
 - The spine should look neutral from the side: the same curve as standing, not a rounded "C" shape in the lumbar region
 - Shoulders should be directly over or very slightly in front of the bar when viewed from the side
 - What should NOT be present: a visible rounding of the lower lumbar spine, a "good-morning" posture where the torso is parallel to the floor (unless this is your natural hamstring range -- some flexible lifters can reach here with neutral spine)
 
 **Phase 3 -- Concentric (Ascent):**
+
 - Primary drive cue: "drive your hips forward to the bar" -- the hips move forward to meet the bar, rather than lifting the bar upward with the lower back
 - The bar path is straight and vertical when viewed from the side -- the bar does not swing away from the body as you rise
 - Hips and shoulders rise at the same rate -- if the hips shoot up faster than the shoulders, the lower back is taking over the movement
 - Lockout: stand tall at full hip extension with glutes gently squeezed. Do not hyperextend the lumbar spine at the top -- full hip extension does not require leaning backward
 
 **Phase 4 -- Reset (Top Position):**
+
 - Re-brace fully at the top before each rep
 - Check that the bar is back at hip height and that you are standing at full height with neutral spine before descending again
 - For sets of 5+ reps, this reset takes 1-2 seconds and is not optional -- rushing into the next rep is how the brace is lost
@@ -352,23 +370,23 @@ Perform these steps in order before each working set:
 
 ### Common Faults and Corrections
 
-| Fault | What It Looks Like | Why It Happens | Corrective Cue | Drill to Fix It |
-|---|---|---|---|---|
-| Rounding the lower back (lumbar flexion) | Lower back visibly rounds into a "C" during the descent; load is felt as compression in the lumbar spine, not stretch in the hamstrings | Insufficient bracing, descending past the hamstring flexibility limit, or initiating with the waist instead of the hip | "Proud chest, hips back" | Wall hip hinge drill: stand 6 inches from a wall, push hips back to touch the wall while keeping chest tall and spine neutral. 3 sets of 10 reps with no load |
-| Bar drifting away from the body | A gap forms between the bar and the legs; lower back is loaded as a lever arm as the bar moves forward | Lat disengagement, grip too relaxed, or initiating with a forward lean of the torso | "Drag the bar down your legs" | Practice the descent with the bar intentionally touching the thighs the entire way -- you can lightly chalk the thighs to see the contact mark |
-| Knees straightening during descent | The legs straighten as the bar descends, shifting the movement toward a stiff-leg deadlift and increasing lumbar demand | Misunderstanding the "soft knee" cue as straightening the legs to reach the floor | "Keep the knee bend locked in throughout" | Perform the eccentric with a deliberate focus on maintaining the initial knee angle -- use a light load and slow the descent to 4 seconds |
-| Hips rising faster than shoulders on ascent | The torso stays nearly horizontal as the hips shoot up first; the concentric becomes a good-morning | Habit from conventional deadlift, or insufficient leg drive contribution | "Drive your hips forward to the bar" | Hip hinge against a band or cable: loop a band around the hips, attach to an anchor behind you; the band forces the hips to drive forward rather than up |
-| Descending past hamstring flexibility | Lower back rounds at the bottom because the hamstrings have run out of range of motion | Trying to achieve a specific depth rather than working to the individual flexibility end-range | "Stop where you feel the stretch -- that is your depth" | Mark your working depth with a target (a box, a plate stack) at the height where neutral spine is last maintained; work to that depth consistently |
+| Fault                                       | What It Looks Like                                                                                                                      | Why It Happens                                                                                                         | Corrective Cue                                          | Drill to Fix It                                                                                                                                               |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rounding the lower back (lumbar flexion)    | Lower back visibly rounds into a "C" during the descent; load is felt as compression in the lumbar spine, not stretch in the hamstrings | Insufficient bracing, descending past the hamstring flexibility limit, or initiating with the waist instead of the hip | "Proud chest, hips back"                                | Wall hip hinge drill: stand 6 inches from a wall, push hips back to touch the wall while keeping chest tall and spine neutral. 3 sets of 10 reps with no load |
+| Bar drifting away from the body             | A gap forms between the bar and the legs; lower back is loaded as a lever arm as the bar moves forward                                  | Lat disengagement, grip too relaxed, or initiating with a forward lean of the torso                                    | "Drag the bar down your legs"                           | Practice the descent with the bar intentionally touching the thighs the entire way -- you can lightly chalk the thighs to see the contact mark                |
+| Knees straightening during descent          | The legs straighten as the bar descends, shifting the movement toward a stiff-leg deadlift and increasing lumbar demand                 | Misunderstanding the "soft knee" cue as straightening the legs to reach the floor                                      | "Keep the knee bend locked in throughout"               | Perform the eccentric with a deliberate focus on maintaining the initial knee angle -- use a light load and slow the descent to 4 seconds                     |
+| Hips rising faster than shoulders on ascent | The torso stays nearly horizontal as the hips shoot up first; the concentric becomes a good-morning                                     | Habit from conventional deadlift, or insufficient leg drive contribution                                               | "Drive your hips forward to the bar"                    | Hip hinge against a band or cable: loop a band around the hips, attach to an anchor behind you; the band forces the hips to drive forward rather than up      |
+| Descending past hamstring flexibility       | Lower back rounds at the bottom because the hamstrings have run out of range of motion                                                  | Trying to achieve a specific depth rather than working to the individual flexibility end-range                         | "Stop where you feel the stretch -- that is your depth" | Mark your working depth with a target (a box, a plate stack) at the height where neutral spine is last maintained; work to that depth consistently            |
 
 ---
 
 ### Breathing and Bracing Protocol
 
-| Set Type | Inhale Timing | Brace Quality | Exhale Timing | Re-brace |
-|---|---|---|---|---|
-| Heavy sets (1-5 reps) | At the top, before each descent | Full Valsalva -- 360-degree maximal brace | At lockout only | Full re-brace every rep at the top |
-| Moderate sets (6-12 reps) | At the top, before each descent | Hard brace -- hold through the full range | After reaching lockout at the top | Hard re-brace at top each rep |
-| Light/warm-up sets (12+ reps) | At the top, before each descent | Firm brace -- never skip this | After each rep at the top | Brief reset and re-brace at top |
+| Set Type                      | Inhale Timing                   | Brace Quality                             | Exhale Timing                     | Re-brace                           |
+| ----------------------------- | ------------------------------- | ----------------------------------------- | --------------------------------- | ---------------------------------- |
+| Heavy sets (1-5 reps)         | At the top, before each descent | Full Valsalva -- 360-degree maximal brace | At lockout only                   | Full re-brace every rep at the top |
+| Moderate sets (6-12 reps)     | At the top, before each descent | Hard brace -- hold through the full range | After reaching lockout at the top | Hard re-brace at top each rep      |
+| Light/warm-up sets (12+ reps) | At the top, before each descent | Firm brace -- never skip this             | After each rep at the top         | Brief reset and re-brace at top    |
 
 **Brace cue for Romanian deadlift specifically:** Because the torso is hinged forward during the movement, the 360-degree brace is even more critical than in a standing position. Imagine your spine is a steel rod inside an inflated tube -- the tube (your braced core) is what prevents the rod from bending. The lower back push-out component of the brace is particularly important in this hinged position.
 

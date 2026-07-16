@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql backend"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'database sql backend'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Supabase Builder
@@ -237,10 +237,10 @@ const channel = supabase
   .on(
     'postgres_changes',
     {
-      event: '*',        // INSERT, UPDATE, DELETE, or *
+      event: '*', // INSERT, UPDATE, DELETE, or *
       schema: 'public',
       table: 'posts',
-      filter: 'published=eq.true',  // Optional row filter
+      filter: 'published=eq.true', // Optional row filter
     },
     (payload) => {
       console.log('Change received:', payload.eventType);
@@ -277,7 +277,7 @@ function cleanup() {
 ```typescript
 // Presence: Track who is online in a room
 const room = supabase.channel('room-1', {
-  config: { presence: { key: userId } }
+  config: { presence: { key: userId } },
 });
 
 room
@@ -326,23 +326,25 @@ chatChannel.send({
 const { data, error } = await supabase.auth.signUp({
   email: 'user@example.com',
   password: 'secure-password',
-  options: { data: { username: 'alice', full_name: 'Alice Johnson' } }
+  options: { data: { username: 'alice', full_name: 'Alice Johnson' } },
 });
 
 // OAuth (GitHub, Google, etc.)
 await supabase.auth.signInWithOAuth({
   provider: 'github',
-  options: { redirectTo: '[reference URL]' }
+  options: { redirectTo: '[reference URL]' },
 });
 
 // Magic link (passwordless)
 await supabase.auth.signInWithOtp({
   email: 'user@example.com',
-  options: { emailRedirectTo: '[reference URL]' }
+  options: { emailRedirectTo: '[reference URL]' },
 });
 
 // Session management and auth state listener
-const { data: { user } } = await supabase.auth.getUser();
+const {
+  data: { user },
+} = await supabase.auth.getUser();
 supabase.auth.onAuthStateChange((event, session) => {
   // event: SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED, PASSWORD_RECOVERY
 });
@@ -387,14 +389,14 @@ CREATE POLICY "Avatar images are publicly accessible"
 
 ```typescript
 // Upload with upsert
-await supabase.storage.from('avatars')
-  .upload(`${userId}/avatar.png`, file, { cacheControl: '3600', upsert: true });
+await supabase.storage.from('avatars').upload(`${userId}/avatar.png`, file, { cacheControl: '3600', upsert: true });
 
 // Get public URL with on-the-fly image transform
-const { data: { publicUrl } } = supabase.storage.from('avatars')
-  .getPublicUrl(`${userId}/avatar.png`, {
-    transform: { width: 200, height: 200, resize: 'cover', quality: 80 }
-  });
+const {
+  data: { publicUrl },
+} = supabase.storage.from('avatars').getPublicUrl(`${userId}/avatar.png`, {
+  transform: { width: 200, height: 200, resize: 'cover', quality: 80 },
+});
 ```
 
 ## Edge Functions
@@ -407,24 +409,24 @@ import { createClient } from '[reference URL]';
 
 serve(async (req) => {
   // Create client with user's auth token for RLS-scoped access
-  const supabase = createClient(
-    Deno.config.get('SUPABASE_URL')!,
-    Deno.config.get('SUPABASE_ANON_KEY')!,
-    { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
-  );
+  const supabase = createClient(Deno.config.get('SUPABASE_URL')!, Deno.config.get('SUPABASE_ANON_KEY')!, {
+    global: { headers: { Authorization: req.headers.get('Authorization')! } },
+  });
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return new Response('Unauthorized', { status: 401 });
 
   // Use service role for privileged operations
-  const admin = createClient(
-    Deno.config.get('SUPABASE_URL')!,
-    Deno.config.get('SUPABASE_SERVICE_ROLE_KEY')!
-  );
+  const admin = createClient(Deno.config.get('SUPABASE_URL')!, Deno.config.get('SUPABASE_SERVICE_ROLE_KEY')!);
 
   const { recipient_id, message } = await req.json();
   await admin.from('notifications').insert({
-    recipient_id, sender_id: user.id, message, type: 'direct_message',
+    recipient_id,
+    sender_id: user.id,
+    message,
+    type: 'direct_message',
   });
 
   return new Response(JSON.stringify({ success: true }), {
@@ -470,6 +472,7 @@ API:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing supabase builder solutions
 - Reviewing or improving existing supabase builder approaches
 - Making architectural or implementation decisions about supabase builder
@@ -477,6 +480,7 @@ API:
 - Troubleshooting supabase builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -487,21 +491,26 @@ API:
 # Supabase Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

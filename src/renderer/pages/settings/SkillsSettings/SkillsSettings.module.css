@@ -2,7 +2,7 @@
  * full-thickness scrollbar reads as a debug artefact against the dark theme.
  * Apply globally to elements inside the skills-shell so both the row list and
  * the filter rail share the same look. */
-:global(.skills-shell) :global([data-virtuoso-scroller="true"]) {
+:global(.skills-shell) :global([data-virtuoso-scroller='true']) {
   scrollbar-width: thin;
   scrollbar-color: var(--border-2, rgba(255, 255, 255, 0.12)) transparent;
 }

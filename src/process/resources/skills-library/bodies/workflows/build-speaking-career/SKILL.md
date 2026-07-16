@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "storytelling-master presentation-builder public-speaking-coach personal-brand-architect content-monetizer"
+skills: 'storytelling-master presentation-builder public-speaking-coach personal-brand-architect content-monetizer'
 trigger_phrases: >-
   I want to become a speaker build a speaking career how to get speaking gigs
   become a conference speaker keynote speaking guide start speaking at events
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: presentation content-marketing career step-by-step planning
   category: career
-  depends: "storytelling-master presentation-builder public-speaking-coach personal-brand-architect content-monetizer"
+  depends: 'storytelling-master presentation-builder public-speaking-coach personal-brand-architect content-monetizer'
 ---
+
 # Build Speaking Career
 
 **Estimated time:** 6-18 months
@@ -164,6 +165,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

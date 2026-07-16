@@ -47,14 +47,29 @@ describe('buildAgentConversationParams - account binding stickiness', () => {
   });
 
   it('lets two conversations on the same backend hold different accounts', () => {
-    const a = buildAgentConversationParams({ backend: 'wcore', name: 'A', workspace: '/tmp/a', model: baseModel('acct_alpha') });
-    const b = buildAgentConversationParams({ backend: 'wcore', name: 'B', workspace: '/tmp/b', model: baseModel('acct_beta') });
+    const a = buildAgentConversationParams({
+      backend: 'wcore',
+      name: 'A',
+      workspace: '/tmp/a',
+      model: baseModel('acct_alpha'),
+    });
+    const b = buildAgentConversationParams({
+      backend: 'wcore',
+      name: 'B',
+      workspace: '/tmp/b',
+      model: baseModel('acct_beta'),
+    });
     expect(a.model.accountId).toBe('acct_alpha');
     expect(b.model.accountId).toBe('acct_beta');
   });
 
   it('a binding with no accountId resolves to the default account', () => {
-    const params = buildAgentConversationParams({ backend: 'wcore', name: 'A', workspace: '/tmp/a', model: baseModel() });
+    const params = buildAgentConversationParams({
+      backend: 'wcore',
+      name: 'A',
+      workspace: '/tmp/a',
+      model: baseModel(),
+    });
     expect(params.model.accountId).toBeUndefined();
     expect(resolveAccountId(params.model)).toBe('default');
   });

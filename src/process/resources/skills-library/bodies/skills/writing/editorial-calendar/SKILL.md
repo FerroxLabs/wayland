@@ -9,14 +9,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing writing planning"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing writing planning'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Editorial Calendar
 
 ## When to Use
@@ -24,6 +25,7 @@ metadata:
 Use this skill when the user explicitly needs a structured, multi-week publishing plan -- not a single piece of content.
 
 **Trigger scenarios:**
+
 - User needs a 30, 60, or 90-day content calendar for a blog, newsletter, podcast, or video channel
 - User is launching a new content program and needs a framework for what to publish and when
 - User wants to coordinate content across multiple channels (e.g., blog + LinkedIn + email) so that content ladder up to a shared theme
@@ -33,6 +35,7 @@ Use this skill when the user explicitly needs a structured, multi-week publishin
 - User is pitching a content program to leadership and needs a concrete, time-bounded plan to show scope and cadence
 
 **Do NOT use when:**
+
 - The user needs a detailed brief for one specific piece of content -- use `content-brief` instead, which captures audience, angle, structure, and source requirements at the piece level
 - The user wants to audit existing published content for performance, gaps, or cannibalization -- use `content-audit` instead
 - The user wants help writing an individual blog post, article, or newsletter issue -- use `blog-post-writing` instead
@@ -287,27 +290,35 @@ Planned -- In Progress -- In Review -- Approved -- Scheduled -- Published -- Ana
 ## Edge Cases
 
 ### New program with no existing audience or keyword data
+
 When the user has no prior content program, no analytics, and no keyword research, do not fill a 90-day calendar with specific keyword targets you cannot validate. Instead: build a 30-day calendar at a conservative cadence (1-2 blog posts per week maximum for a solo operator), use topic-first planning based on the audience's documented pain points, and explicitly mark keyword targets as "to be validated" with a note to run keyword research using the pillar themes before publishing. Recommend the user set up Google Search Console on day one so that post-publish query data begins accumulating. After 60 days of publishing, enough signal will exist to refine keyword targeting for the next planning period.
 
 ### User manages simultaneous content programs for multiple brands or product lines
+
 Do not combine multiple brands into a single calendar -- brand voice, audience, and pillar differentiation will collapse. Build separate calendar documents per brand. However, if content themes overlap (two brands both cover "enterprise security," for example), add a cross-promotion row to each calendar noting where one brand's content could be referenced by the other, and where the same research or data asset could be used to generate distinct pieces for each brand. This reduces production burden without sacrificing brand separation.
 
 ### Requested cadence exceeds team capacity
+
 If a user requests a calendar at a cadence that exceeds realistic production capacity -- for example, daily blog publishing for a solo writer -- do not silently comply by building an unrealistic calendar. Flag the issue explicitly: a solo writer producing 22 blog posts in 30 days at 1,000+ words each is approximately 22,000 words of publishable content per month, which is not sustainable without significant editorial shortcuts or AI-assisted drafting. Propose a reduced cadence alternative (3x/week blog at 12 posts/month), explain the production math, and let the user decide. If they still want daily publishing, shift to a mixed-length format calendar where 3 posts per week are full-length articles and the remaining slots are short-form (300-500 word quick takes, roundups, or repurposed social-to-blog content).
 
 ### User has existing content that should be repurposed, not replaced
+
 If the user mentions having an archive of existing blog posts, podcast episodes, webinar recordings, or research reports, treat these as production capacity multipliers before assuming all new content must be created from scratch. Audit the most relevant existing assets (even informally), identify which ones can be updated and republished (content refreshes for SEO), which can be reformatted (turning a webinar into a blog post), and which can be threaded into the newsletter. A content refresh of a high-traffic post with outdated information often generates more SEO value than a new post on the same topic, and costs less production effort. Build at least 20% of a 90-day calendar as "refresh or repurpose" entries when the user has existing content.
 
 ### User publishes across more than four channels simultaneously
+
 Calendars covering six or more channels (blog + newsletter + LinkedIn + Twitter + Instagram + YouTube) become difficult to manage in a single table without collapsing readability. In this case, build the calendar in two layers: (1) a master thematic calendar showing weekly anchor content and cross-channel theme, and (2) channel-specific sub-tables for each distribution channel showing that channel's specific schedule. This prevents the master table from becoming a 12-column monstrosity while keeping all channel schedules visible within the same document. Flag to the user that content governance across 6+ channels typically requires a dedicated content operations tool (an asynchronous project management workflow, not just a spreadsheet) to avoid scheduling conflicts and missed dates.
 
 ### User operates in a regulated industry (healthcare, finance, legal)
+
 Compliance review cycles are non-negotiable constraints in regulated industries and must be built into the calendar's production timeline, not treated as optional. For healthcare content under FDA guidelines or financial content under FINRA/SEC guidance, draft-to-publish cycles commonly run 15-30 business days when legal or compliance review is required. Build the calendar with dual date columns: Draft Due, Compliance Review Submitted, Expected Clearance, Publish Date. Never place time-sensitive content (conference tie-ins, news commentary) on regulated industry calendars without a clear plan for expedited review or a pre-approved content template that bypasses standard review. Pillar topics should be reviewed at the pillar level for compliance sensitivity before the full calendar is built -- some topic areas may be off-limits entirely regardless of how carefully they are framed.
 
 ### Pillar topics face high-competition keyword environments
+
 In categories where domain authority of competitors is very high (major tech publications, industry associations, category leaders with DR 80+), standard keyword targeting for mid-volume terms will not produce rankings for a domain with DR below 50. In this case, restructure the SEO component of the calendar toward long-tail keyword clusters (3-5 word phrases, 100-500 monthly searches, low keyword difficulty) and content differentiation strategies that compete on depth, original data, or specific audience niches rather than broad head terms. A company with a DR of 35 will not rank for "product management" -- but it can rank for "product management frameworks for hardware startups" or "product prioritization for teams under 10 engineers." Adjust the keyword column of every blog entry to reflect this constraint and note the domain authority issue explicitly in the calendar header.
 
 ### User requests a full-year calendar
+
 Annual editorial calendars at the topic level are speculative and almost always become obsolete within 60-90 days as business priorities shift, audience data accumulates, and industry events evolve. Build the year in quarterly blocks: deliver Q1 as a fully detailed calendar with specific topics, dates, keywords, and format assignments. Deliver Q2-Q4 as pillar-level frameworks with thematic focus areas, anchor content types, and seasonal hooks identified -- but leave topic titles and keyword assignments blank. Include a quarterly review instruction: at the end of each quarter, use performance data from the prior quarter to refine the next quarter's plan before populating it fully. This gives leadership the annual view they want while preserving the tactical flexibility to make the calendar actually work.
 
 ---
@@ -332,23 +343,23 @@ Annual editorial calendars at the topic level are speculative and almost always 
 
 ### Content Pillars
 
-| Pillar | Description | Target % | Keyword Cluster (Examples) | Funnel Stage Mix |
-|--------|-------------|----------|---------------------------|-----------------|
-| Threat Intelligence | Real-world attack patterns, ransomware, phishing, zero-day threats -- what IT teams actually face | 35% | ransomware response plan, endpoint threat detection, zero day attack prevention | 60% TOFU / 30% MOFU / 10% BOFU |
-| Endpoint Security Operations | How to implement, configure, and manage endpoint protection in mid-market environments | 30% | endpoint security for small teams, EDR vs antivirus, endpoint detection and response setup | 30% TOFU / 50% MOFU / 20% BOFU |
-| Compliance and Risk Management | Meeting NIST, SOC 2, CIS Controls, and cyber insurance requirements without a large security team | 20% | SOC 2 endpoint requirements, CIS controls implementation, cyber insurance checklist | 20% TOFU / 50% MOFU / 30% BOFU |
-| Security Team Leadership | Managing security programs, communicating risk to the board, building security culture | 15% | security awareness training program, presenting security risk to board, CISO communication | 70% TOFU / 25% MOFU / 5% BOFU |
+| Pillar                         | Description                                                                                       | Target % | Keyword Cluster (Examples)                                                                 | Funnel Stage Mix               |
+| ------------------------------ | ------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------ | ------------------------------ |
+| Threat Intelligence            | Real-world attack patterns, ransomware, phishing, zero-day threats -- what IT teams actually face | 35%      | ransomware response plan, endpoint threat detection, zero day attack prevention            | 60% TOFU / 30% MOFU / 10% BOFU |
+| Endpoint Security Operations   | How to implement, configure, and manage endpoint protection in mid-market environments            | 30%      | endpoint security for small teams, EDR vs antivirus, endpoint detection and response setup | 30% TOFU / 50% MOFU / 20% BOFU |
+| Compliance and Risk Management | Meeting NIST, SOC 2, CIS Controls, and cyber insurance requirements without a large security team | 20%      | SOC 2 endpoint requirements, CIS controls implementation, cyber insurance checklist        | 20% TOFU / 50% MOFU / 30% BOFU |
+| Security Team Leadership       | Managing security programs, communicating risk to the board, building security culture            | 15%      | security awareness training program, presenting security risk to board, CISO communication | 70% TOFU / 25% MOFU / 5% BOFU  |
 
 ---
 
 ### Anchor Content Schedule
 
-| Week | Theme | Anchor Piece | Pillar | Channel |
-|------|-------|-------------|--------|---------|
-| Week 1 | Endpoint Fundamentals | How Mid-Market Companies Should Choose Between EDR and Antivirus in 2024 | Endpoint Ops | Blog (Tue) |
-| Week 2 | Ransomware Readiness | Ransomware Response Plan Template: What to Do in the First 72 Hours | Threat Intelligence | Blog (Tue) |
-| Week 3 | Compliance Pressure | SOC 2 Type II Endpoint Requirements: A Checklist for Companies Without a Dedicated Security Team | Compliance | Blog (Tue) |
-| Week 4 | Board Communication | How to Present Endpoint Security Risk to a Board That Does Not Speak Technical | Leadership | Blog (Tue) |
+| Week   | Theme                 | Anchor Piece                                                                                     | Pillar              | Channel    |
+| ------ | --------------------- | ------------------------------------------------------------------------------------------------ | ------------------- | ---------- |
+| Week 1 | Endpoint Fundamentals | How Mid-Market Companies Should Choose Between EDR and Antivirus in 2024                         | Endpoint Ops        | Blog (Tue) |
+| Week 2 | Ransomware Readiness  | Ransomware Response Plan Template: What to Do in the First 72 Hours                              | Threat Intelligence | Blog (Tue) |
+| Week 3 | Compliance Pressure   | SOC 2 Type II Endpoint Requirements: A Checklist for Companies Without a Dedicated Security Team | Compliance          | Blog (Tue) |
+| Week 4 | Board Communication   | How to Present Endpoint Security Risk to a Board That Does Not Speak Technical                   | Leadership          | Blog (Tue) |
 
 ---
 
@@ -357,13 +368,14 @@ Annual editorial calendars at the topic level are speculative and almost always 
 **Anchor piece:** How Mid-Market Companies Should Choose Between EDR and Antivirus in 2024
 **Pillar focus:** Endpoint Security Operations
 
-| Date | Day | Channel | Format | Topic Title | Pillar | Target Keyword | Intent | Owner | Status |
-|------|-----|---------|--------|-------------|--------|---------------|--------|-------|--------|
-| Mar 4 | Tue | Blog | Comparison guide | How Mid-Market Companies Should Choose Between EDR and Antivirus in 2024 | Endpoint Ops | edr vs antivirus mid-market | MOFU | Writer A | Planned |
-| Mar 6 | Thu | Blog | Listicle | 7 Signs Your Current Antivirus Is Not Protecting You From Modern Threats | Threat Intelligence | signs antivirus not enough | TOFU | Writer B | Planned |
-| Mar 7 | Fri | Newsletter | Curated digest | What IT Teams Are Talking About This Week: Endpoint Protection Trends | Endpoint Ops | -- | TOFU | Editor | Planned |
+| Date  | Day | Channel    | Format           | Topic Title                                                              | Pillar              | Target Keyword              | Intent | Owner    | Status  |
+| ----- | --- | ---------- | ---------------- | ------------------------------------------------------------------------ | ------------------- | --------------------------- | ------ | -------- | ------- |
+| Mar 4 | Tue | Blog       | Comparison guide | How Mid-Market Companies Should Choose Between EDR and Antivirus in 2024 | Endpoint Ops        | edr vs antivirus mid-market | MOFU   | Writer A | Planned |
+| Mar 6 | Thu | Blog       | Listicle         | 7 Signs Your Current Antivirus Is Not Protecting You From Modern Threats | Threat Intelligence | signs antivirus not enough  | TOFU   | Writer B | Planned |
+| Mar 7 | Fri | Newsletter | Curated digest   | What IT Teams Are Talking About This Week: Endpoint Protection Trends    | Endpoint Ops        | --                          | TOFU   | Editor   | Planned |
 
 **Distribution notes:**
+
 - Mar 4 blog (EDR vs Antivirus) features in Friday newsletter as "this week's deep dive" with 200-word summary and link
 - Pull key stat from Mar 4 post ("EDR detects 60% more threats than signature-based AV in mid-market environments") for a Wednesday LinkedIn native text post -- Writer A drafts
 - Mar 6 listicle promoted as Thursday LinkedIn link post with "which of these 7 signs does your environment show?" CTA
@@ -378,13 +390,14 @@ Annual editorial calendars at the topic level are speculative and almost always 
 **Pillar focus:** Threat Intelligence
 **Note:** Anchor piece supports March 18 webinar registration -- include webinar CTA in body and sidebar
 
-| Date | Day | Channel | Format | Topic Title | Pillar | Target Keyword | Intent | Owner | Status |
-|------|-----|---------|--------|-------------|--------|---------------|--------|-------|--------|
-| Mar 11 | Tue | Blog | How-to guide + template | Ransomware Response Plan Template: What to Do in the First 72 Hours | Threat Intelligence | ransomware response plan template | MOFU | Writer A | Planned |
-| Mar 13 | Thu | Blog | Data-driven post | Ransomware Costs Mid-Market Companies an Average of $1.4M Per Incident -- Here Is Where the Money Goes | Threat Intelligence | ransomware cost mid-market | TOFU | Writer B | Planned |
-| Mar 14 | Fri | Newsletter | Deep dive | Before the Webinar: What We Know About Ransomware Response That Most IT Teams Get Wrong | Threat Intelligence | -- | MOFU | Editor | Planned |
+| Date   | Day | Channel    | Format                  | Topic Title                                                                                            | Pillar              | Target Keyword                    | Intent | Owner    | Status  |
+| ------ | --- | ---------- | ----------------------- | ------------------------------------------------------------------------------------------------------ | ------------------- | --------------------------------- | ------ | -------- | ------- |
+| Mar 11 | Tue | Blog       | How-to guide + template | Ransomware Response Plan Template: What to Do in the First 72 Hours                                    | Threat Intelligence | ransomware response plan template | MOFU   | Writer A | Planned |
+| Mar 13 | Thu | Blog       | Data-driven post        | Ransomware Costs Mid-Market Companies an Average of $1.4M Per Incident -- Here Is Where the Money Goes | Threat Intelligence | ransomware cost mid-market        | TOFU   | Writer B | Planned |
+| Mar 14 | Fri | Newsletter | Deep dive               | Before the Webinar: What We Know About Ransomware Response That Most IT Teams Get Wrong                | Threat Intelligence | --                                | MOFU   | Editor   | Planned |
 
 **Distribution notes:**
+
 - Both blog posts and Friday newsletter should include a webinar registration CTA (March 18 event)
 - Mar 11 template piece earns a gated PDF version for lead capture -- coordinate with demand gen team before publish
 - Mar 13 cost data post ideal for LinkedIn as a native post leading with the $1.4M figure -- high shareability, Writer B drafts social adaptation
@@ -397,13 +410,14 @@ Annual editorial calendars at the topic level are speculative and almost always 
 **Pillar focus:** Compliance and Risk Management
 **Note:** March 18 webinar -- newsletter this week covers post-webinar takeaways rather than pre-event promotion
 
-| Date | Day | Channel | Format | Topic Title | Pillar | Target Keyword | Intent | Owner | Status |
-|------|-----|---------|--------|-------------|--------|---------------|--------|-------|--------|
-| Mar 18 | Tue | Blog | Checklist / guide | SOC 2 Type II Endpoint Requirements: A Checklist for Companies Without a Dedicated Security Team | Compliance | SOC 2 endpoint requirements checklist | MOFU | Writer B | Planned |
-| Mar 20 | Thu | Blog | Opinion piece | Why Cyber Insurance Requirements Are Actually Making Mid-Market Security Better | Compliance | cyber insurance security requirements | TOFU | Writer A | Planned |
-| Mar 21 | Fri | Newsletter | Event recap | 5 Things Our Ransomware Response Webinar Audience Asked That You Should Know | Threat Intelligence | -- | TOFU | Editor | Planned |
+| Date   | Day | Channel    | Format            | Topic Title                                                                                      | Pillar              | Target Keyword                        | Intent | Owner    | Status  |
+| ------ | --- | ---------- | ----------------- | ------------------------------------------------------------------------------------------------ | ------------------- | ------------------------------------- | ------ | -------- | ------- |
+| Mar 18 | Tue | Blog       | Checklist / guide | SOC 2 Type II Endpoint Requirements: A Checklist for Companies Without a Dedicated Security Team | Compliance          | SOC 2 endpoint requirements checklist | MOFU   | Writer B | Planned |
+| Mar 20 | Thu | Blog       | Opinion piece     | Why Cyber Insurance Requirements Are Actually Making Mid-Market Security Better                  | Compliance          | cyber insurance security requirements | TOFU   | Writer A | Planned |
+| Mar 21 | Fri | Newsletter | Event recap       | 5 Things Our Ransomware Response Webinar Audience Asked That You Should Know                     | Threat Intelligence | --                                    | TOFU   | Editor   | Planned |
 
 **Distribution notes:**
+
 - Mar 18 checklist piece can be repurposed as a downloadable PDF with Vantix branding -- high MOFU conversion potential
 - Mar 21 newsletter leverages webinar Q&A content -- Editor pulls top 5 unanswered or most-asked questions from the live event
 - Mar 20 opinion piece seeded to LinkedIn as a longer-form native post (500+ words) to build thought leadership visibility -- Writer A adapts
@@ -415,13 +429,14 @@ Annual editorial calendars at the topic level are speculative and almost always 
 **Anchor piece:** How to Present Endpoint Security Risk to a Board That Does Not Speak Technical
 **Pillar focus:** Security Team Leadership
 
-| Date | Day | Channel | Format | Topic Title | Pillar | Target Keyword | Intent | Owner | Status |
-|------|-----|---------|--------|-------------|--------|---------------|--------|-------|--------|
-| Mar 25 | Tue | Blog | How-to guide | How to Present Endpoint Security Risk to a Board That Does Not Speak Technical | Leadership | presenting security risk to board | TOFU | Writer A | Planned |
-| Mar 27 | Thu | Blog | BUFFER -- reactive slot | Reactive content -- hold for news or opportunity | -- | -- | -- | TBD | Buffer |
-| Mar 28 | Fri | Newsletter | Curated digest | This Month in Endpoint Security: March Recap and What to Watch in April | Leadership | -- | TOFU | Editor | Planned |
+| Date   | Day | Channel    | Format                  | Topic Title                                                                    | Pillar     | Target Keyword                    | Intent | Owner    | Status  |
+| ------ | --- | ---------- | ----------------------- | ------------------------------------------------------------------------------ | ---------- | --------------------------------- | ------ | -------- | ------- |
+| Mar 25 | Tue | Blog       | How-to guide            | How to Present Endpoint Security Risk to a Board That Does Not Speak Technical | Leadership | presenting security risk to board | TOFU   | Writer A | Planned |
+| Mar 27 | Thu | Blog       | BUFFER -- reactive slot | Reactive content -- hold for news or opportunity                               | --         | --                                | --     | TBD      | Buffer  |
+| Mar 28 | Fri | Newsletter | Curated digest          | This Month in Endpoint Security: March Recap and What to Watch in April        | Leadership | --                                | TOFU   | Editor   | Planned |
 
 **Distribution notes:**
+
 - Mar 25 board communication post is highly shareable with security directors -- LinkedIn native post leading with "the one metric your board actually understands" framing
 - Buffer slot (Mar 27) to be filled if major breach news, CVE disclosure, or regulatory update emerges in the week of Mar 24; otherwise leave unpublished or fill with a lightweight roundup
 - Mar 28 newsletter serves as a monthly wrap-up -- reference top 3 performing posts from March and preview April themes
@@ -430,61 +445,61 @@ Annual editorial calendars at the topic level are speculative and almost always 
 
 ### Content Mix Summary
 
-| Format | Count | % of Total | Primary Goal |
-|--------|-------|-----------|-------------|
-| How-to guide | 2 | 18% | Keyword ranking / search intent |
-| Comparison guide | 1 | 9% | Keyword ranking / MOFU conversion |
-| Listicle | 1 | 9% | Social sharing / TOFU discovery |
-| Data-driven post | 1 | 9% | Backlink potential / PR |
-| Checklist / guide | 1 | 9% | MOFU conversion / lead gen |
-| Opinion piece | 1 | 9% | Thought leadership positioning |
-| Newsletter (deep dive) | 1 | 9% | Audience retention / MOFU |
-| Newsletter (curated digest) | 2 | 18% | Audience retention / TOFU |
-| Newsletter (event recap) | 1 | 9% | Audience retention / engagement |
-| Buffer / reactive | 1 | -- | Timeliness / opportunity |
-| **Total** | **12 planned** | **100%** | |
+| Format                      | Count          | % of Total | Primary Goal                      |
+| --------------------------- | -------------- | ---------- | --------------------------------- |
+| How-to guide                | 2              | 18%        | Keyword ranking / search intent   |
+| Comparison guide            | 1              | 9%         | Keyword ranking / MOFU conversion |
+| Listicle                    | 1              | 9%         | Social sharing / TOFU discovery   |
+| Data-driven post            | 1              | 9%         | Backlink potential / PR           |
+| Checklist / guide           | 1              | 9%         | MOFU conversion / lead gen        |
+| Opinion piece               | 1              | 9%         | Thought leadership positioning    |
+| Newsletter (deep dive)      | 1              | 9%         | Audience retention / MOFU         |
+| Newsletter (curated digest) | 2              | 18%        | Audience retention / TOFU         |
+| Newsletter (event recap)    | 1              | 9%         | Audience retention / engagement   |
+| Buffer / reactive           | 1              | --         | Timeliness / opportunity          |
+| **Total**                   | **12 planned** | **100%**   |                                   |
 
 ### Pillar Distribution Summary
 
-| Pillar | Pieces Planned | % of Total | Target % | Gap |
-|--------|---------------|-----------|----------|-----|
-| Threat Intelligence | 4 | 33% | 35% | -2 pts (within range) |
-| Endpoint Security Operations | 3 | 25% | 30% | -5 pts (monitor) |
-| Compliance and Risk Management | 3 | 25% | 20% | +5 pts (within range) |
-| Security Team Leadership | 2 | 17% | 15% | +2 pts (within range) |
+| Pillar                         | Pieces Planned | % of Total | Target % | Gap                   |
+| ------------------------------ | -------------- | ---------- | -------- | --------------------- |
+| Threat Intelligence            | 4              | 33%        | 35%      | -2 pts (within range) |
+| Endpoint Security Operations   | 3              | 25%        | 30%      | -5 pts (monitor)      |
+| Compliance and Risk Management | 3              | 25%        | 20%      | +5 pts (within range) |
+| Security Team Leadership       | 2              | 17%        | 15%      | +2 pts (within range) |
 
 ### Funnel Stage Distribution
 
-| Stage | Pieces | % of Total | Recommended for SEO + Thought Leadership |
-|-------|--------|-----------|----------------------------------------|
-| TOFU (awareness) | 6 | 50% | 50% -- on target |
-| MOFU (consideration) | 5 | 42% | 35% -- slightly high, acceptable |
-| BOFU (decision) | 0 | 0% | 15% -- gap; address in April calendar |
+| Stage                | Pieces | % of Total | Recommended for SEO + Thought Leadership |
+| -------------------- | ------ | ---------- | ---------------------------------------- |
+| TOFU (awareness)     | 6      | 50%        | 50% -- on target                         |
+| MOFU (consideration) | 5      | 42%        | 35% -- slightly high, acceptable         |
+| BOFU (decision)      | 0      | 0%         | 15% -- gap; address in April calendar    |
 
 **Note:** No BOFU content is scheduled this month. For April, plan 2 BOFU pieces -- customer case study or product comparison page targeting high-intent terms like "best endpoint security for mid-market" or "Vantix vs [competitor]."
 
 ### Key Dates and Events
 
-| Date | Event/Milestone | Content Tie-In | Lead Time Required |
-|------|----------------|---------------|-------------------|
-| Mar 18 | Vantix Ransomware Response Webinar | Anchor blog post (Mar 11) + newsletter (Mar 14) pre-promote; Newsletter (Mar 21) recaps takeaways | Blog published 7 days before; newsletter 4 days before |
-| Mar 31 | End of Q1 / fiscal year-end for many mid-market companies | March 28 newsletter acknowledges Q1 security priorities and sets up April as planning season | None -- newsletter is recap format |
+| Date   | Event/Milestone                                           | Content Tie-In                                                                                    | Lead Time Required                                     |
+| ------ | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Mar 18 | Vantix Ransomware Response Webinar                        | Anchor blog post (Mar 11) + newsletter (Mar 14) pre-promote; Newsletter (Mar 21) recaps takeaways | Blog published 7 days before; newsletter 4 days before |
+| Mar 31 | End of Q1 / fiscal year-end for many mid-market companies | March 28 newsletter acknowledges Q1 security priorities and sets up April as planning season      | None -- newsletter is recap format                     |
 
 ### Buffer Slots
 
-| Date | Channel | Notes |
-|------|---------|-------|
-| Mar 27 | Blog | Reserved for reactive content -- breach news, CVE, regulatory update, or webinar follow-up extension; Editor approves topic 48 hours before; if no topic, slot remains empty |
+| Date   | Channel | Notes                                                                                                                                                                        |
+| ------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mar 27 | Blog    | Reserved for reactive content -- breach news, CVE, regulatory update, or webinar follow-up extension; Editor approves topic 48 hours before; if no topic, slot remains empty |
 
 Total buffer slots: 1 (8% of blog calendar -- on the lower end; consider 2 buffers in April if March reactive volume is high)
 
 ### Production Load Estimate
 
-| Channel | Pieces | Avg. Length | Est. Total Effort |
-|---------|--------|-------------|------------------|
-| Blog posts | 8 planned + 1 buffer | 1,200 words avg | ~9,600 publishable words |
-| Newsletters | 4 | 500 words avg | ~2,000 words |
-| **Total** | | | **~11,600 words** |
+| Channel     | Pieces               | Avg. Length     | Est. Total Effort        |
+| ----------- | -------------------- | --------------- | ------------------------ |
+| Blog posts  | 8 planned + 1 buffer | 1,200 words avg | ~9,600 publishable words |
+| Newsletters | 4                    | 500 words avg   | ~2,000 words             |
+| **Total**   |                      |                 | **~11,600 words**        |
 
 **Recommended capacity:** 2 writers at ~5,800 words each per month -- within range for quality output with a 5-business-day review window.
 **Draft due dates:** All Thursday blog posts require drafts by the prior Thursday (5 business days); all Tuesday blog posts require drafts by the prior Tuesday. Newsletter drafts due Wednesday for Friday publication.

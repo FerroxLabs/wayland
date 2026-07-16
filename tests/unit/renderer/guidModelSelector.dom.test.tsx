@@ -462,6 +462,10 @@ describe('GuidModelSelector home picker', () => {
     // like `sonnet`/`haiku`/`opus` that never equal a curated model id like
     // `claude-sonnet-4-5`. The tier resolver must fuzzy-match on family /
     // displayName tokens so the $ / $$ / $$$ badge actually renders.
+    // The curated models here are `enabled: false`: they exist only as tier-
+    // lookup data (family/cost), NOT a connected catalog - so the picker stays
+    // on the native ACP menu (an *enabled* curated set now routes to the shared
+    // flyout instead; see the Option-2 test below).
     mockCuratedForAgent.mockResolvedValue([
       curated({
         id: 'claude-sonnet-4-5',
@@ -470,6 +474,7 @@ describe('GuidModelSelector home picker', () => {
         family: 'claude-sonnet',
         costInPerM: 3,
         costOutPerM: 15,
+        enabled: false,
       }),
       curated({
         id: 'claude-haiku-4-5',
@@ -478,6 +483,7 @@ describe('GuidModelSelector home picker', () => {
         family: 'claude-haiku',
         costInPerM: 0.8,
         costOutPerM: 4,
+        enabled: false,
       }),
       curated({
         id: 'claude-opus-4-5',
@@ -486,6 +492,7 @@ describe('GuidModelSelector home picker', () => {
         family: 'claude-opus',
         costInPerM: 5,
         costOutPerM: 25,
+        enabled: false,
       }),
     ]);
     const acpInfo = {
@@ -518,28 +525,35 @@ describe('GuidModelSelector home picker', () => {
     expect(screen.getByText('$')).toBeInTheDocument();
   });
 
-  it('labels the composer button from the curated set when a CLI model is picked with no session cache yet', async () => {
-    // Regression: on a brand-new Codex chat the ACP session cache is null, so the
-    // button label resolved only from `currentAcpCachedModelInfo` and fell back to
-    // "Default Model" even after the user picked gpt-5.6-sol — the selection looked
-    // like it did nothing. The label must resolve from the curated catalog (the
-    // same list the dropdown renders), so the pick shows immediately.
-    mockCuratedForAgent.mockResolvedValue([
-      curated({ id: 'gpt-5.6-sol', providerId: 'openai', displayName: 'GPT-5.6-Sol', family: 'GPT-5.6' }),
-      curated({ id: 'gpt-5.6-luna', providerId: 'openai', displayName: 'GPT-5.6-Luna', family: 'GPT-5.6' }),
-    ]);
+  it('renders the full connected catalog through the shared flyout for a CLI agent (Option 2)', async () => {
+    // Option 2: a CLI agent (Claude Code / Codex) backed by an ENABLED connected
+    // catalog surfaces that whole catalog via the same ModelSelectorFlyout Wayland
+    // Core uses - NOT the CLI's own short native model set. Distinct from the tier
+    // test above, whose curated set is `enabled: false` and stays on the native menu.
+    mockCuratedForAgent.mockResolvedValue(CLAUDE_MODELS);
+
     render(
       <GuidModelSelector
         {...baseProps}
         isGeminiMode={false}
-        agentKey='codex'
-        currentAcpCachedModelInfo={null}
-        selectedAcpModel='gpt-5.6-sol'
+        agentKey='claude'
+        currentAcpCachedModelInfo={{
+          // A native CLI model set is present, but the enabled connected catalog
+          // wins: the flyout replaces these short native rows.
+          currentModelId: 'sonnet',
+          currentModelLabel: 'Sonnet',
+          availableModels: [{ id: 'sonnet', label: 'Sonnet' }],
+          canSwitch: true,
+          source: 'models',
+          sourceDetail: 'acp-models',
+        }}
       />
     );
 
-    // The composer button (dropdown closed) reflects the pick, not the default.
-    expect(await screen.findByText('GPT-5.6-Sol')).toBeInTheDocument();
+    // The flyout (its title + a real catalog displayName) renders instead of the
+    // native CLI menu, confirming the CLI picker now shows the connected catalog.
+    expect(await screen.findByText('Claude Opus 4.7')).toBeInTheDocument();
+    expect(screen.getByText('conversation.modelSelector.title')).toBeInTheDocument();
   });
 
   it('passes the non-secret chat-start handle through to setCurrentModel (audit C4)', async () => {

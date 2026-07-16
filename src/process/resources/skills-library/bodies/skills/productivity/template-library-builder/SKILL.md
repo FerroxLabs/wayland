@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation template planning"
-  category: "productivity"
-  subcategory: "automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'automation template planning'
+  category: 'productivity'
+  subcategory: 'automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Template Library Builder
 
 ## When to Use
@@ -59,11 +60,12 @@ Before building anything, map the user's actual output landscape. Ask targeted q
 - Prompt for categories users forget: meeting summaries, status updates, proposals, invoices, onboarding materials, reference documents, performance reviews, vendor evaluations, briefs, agendas
 
 For each document surfaced, capture five attributes:
-  - **Name and purpose:** What is this document called, and what decision or action does it enable?
-  - **Frequency:** Exact count per month (not "often" -- press for a number)
-  - **Time to create from scratch:** Minutes, estimated honestly -- most people underestimate by 30-40%
-  - **Audience and delivery method:** Who receives it, and how (email, shared drive, Slack, printed)
-  - **Structure consistency:** On a scale of 1-5, how similar is the structure between instances? (1 = starts fresh every time, 5 = identical structure, content is the only thing that changes)
+
+- **Name and purpose:** What is this document called, and what decision or action does it enable?
+- **Frequency:** Exact count per month (not "often" -- press for a number)
+- **Time to create from scratch:** Minutes, estimated honestly -- most people underestimate by 30-40%
+- **Audience and delivery method:** Who receives it, and how (email, shared drive, Slack, printed)
+- **Structure consistency:** On a scale of 1-5, how similar is the structure between instances? (1 = starts fresh every time, 5 = identical structure, content is the only thing that changes)
 
 ### Step 2: Score and Prioritize Template Candidates
 
@@ -72,6 +74,7 @@ Not every recurring document justifies a template. Apply the Template Value Scor
 **TVS = (Structure Consistency × Frequency_per_month × Minutes_per_creation) ÷ 100**
 
 Interpretation thresholds:
+
 - TVS ≥ 10: High-priority -- build this template first
 - TVS 4-9: Medium priority -- build after high-priority templates
 - TVS 1-3: Low priority -- consider a skeleton outline rather than a full template
@@ -80,6 +83,7 @@ Interpretation thresholds:
 Example scoring: A weekly status update with consistency 4, frequency 4, and 30 minutes per creation scores (4 × 4 × 30) ÷ 100 = 4.8 -- medium-high priority.
 
 After scoring:
+
 - Select the top 5-8 documents for full template development (building more than 8 in one session leads to superficial templates and library abandonment)
 - Flag any documents below TVS 1 and explain the reasoning to the user -- don't build templates for them
 - If two documents share 70% or more of their structure, flag them as merge candidates -- one master template with conditional sections is better than two near-identical templates
@@ -89,24 +93,28 @@ After scoring:
 For each selected document, ask the user to walk you through 2-3 real recent instances or describe what the document contains. If they can paste a recent version, that is ideal. Systematically classify every element:
 
 **Fixed content** -- Stays verbatim or near-verbatim every time:
-  - Section headers and subheaders
-  - Standard opening and closing language ("I hope this finds you well" or "Please review and advise")
-  - Legal disclaimers, confidentiality notices, or required regulatory language
-  - Structural formatting (table layouts, numbered sections, signature blocks)
+
+- Section headers and subheaders
+- Standard opening and closing language ("I hope this finds you well" or "Please review and advise")
+- Legal disclaimers, confidentiality notices, or required regulatory language
+- Structural formatting (table layouts, numbered sections, signature blocks)
 
 **Variable fields** -- Changes every instance and must be filled in fresh:
-  - Names, dates, amounts, durations, locations, versions
-  - Project-specific details, metrics, results, findings
-  - Classify each variable as: **simple** (one value, easy lookup), **calculated** (requires arithmetic or data pull), or **narrative** (requires thinking and writing, not just retrieval)
+
+- Names, dates, amounts, durations, locations, versions
+- Project-specific details, metrics, results, findings
+- Classify each variable as: **simple** (one value, easy lookup), **calculated** (requires arithmetic or data pull), or **narrative** (requires thinking and writing, not just retrieval)
 
 **Conditional sections** -- Present in some instances, absent in others:
-  - Identify the exact condition that triggers each section ("include this if the budget is over $10,000")
-  - Note the default state: is this section more often included or excluded?
-  - Conditional sections represent the highest-value template element -- they prevent the user from either always including irrelevant content or forgetting to include relevant content
+
+- Identify the exact condition that triggers each section ("include this if the budget is over $10,000")
+- Note the default state: is this section more often included or excluded?
+- Conditional sections represent the highest-value template element -- they prevent the user from either always including irrelevant content or forgetting to include relevant content
 
 **Boilerplate text with minor variation** -- A paragraph that is always included but with 2-3 words that change:
-  - These become the richest template elements -- fixed prose with 1-3 embedded placeholders
-  - Example: "The project is currently tracking {{on_schedule | behind_schedule | ahead_of_schedule}} against the original baseline of {{original_completion_date}}."
+
+- These become the richest template elements -- fixed prose with 1-3 embedded placeholders
+- Example: "The project is currently tracking {{on_schedule | behind_schedule | ahead_of_schedule}} against the original baseline of {{original_completion_date}}."
 
 Cap variable fields at 15 per template. If analysis reveals more than 15, the document has two distinct logical sections -- split it into a parent template and a sub-template, or use a reference block approach where one section calls out to a separate reference card.
 
@@ -130,14 +138,14 @@ Build each template in this order to ensure quality:
 
 The fill-in guide transforms a template from a document into a repeatable workflow. For every variable:
 
-| Column | What to Include |
-|--------|----------------|
-| Variable name | The exact `{{placeholder}}` as it appears in the template |
-| Description | One sentence explaining what information belongs here |
-| Example value | A realistic, non-sensitive example that shows format and level of detail |
-| Source | Exactly where the user finds this information (specific tool, report, person, calculation) |
-| Type | Simple / Calculated / Narrative |
-| Validation | Any check the user should perform before filling in (e.g., "Confirm with PM before inserting") |
+| Column        | What to Include                                                                                |
+| ------------- | ---------------------------------------------------------------------------------------------- |
+| Variable name | The exact `{{placeholder}}` as it appears in the template                                      |
+| Description   | One sentence explaining what information belongs here                                          |
+| Example value | A realistic, non-sensitive example that shows format and level of detail                       |
+| Source        | Exactly where the user finds this information (specific tool, report, person, calculation)     |
+| Type          | Simple / Calculated / Narrative                                                                |
+| Validation    | Any check the user should perform before filling in (e.g., "Confirm with PM before inserting") |
 
 For **calculated variables**, write the full calculation in the Source column -- for example: "Divide actual spend (from Expense Tracker > Monthly Summary) by approved budget (from Project Charter, line 4). Multiply by 100 for percentage."
 
@@ -148,10 +156,12 @@ For **narrative variables**, provide a sentence-starter or structural guide -- f
 Structure determines whether a library actually gets used or becomes another neglected folder:
 
 **Naming convention:** `[Audience]_[DocumentType]_[Cadence or Trigger]`
+
 - Good: `Client_StatusUpdate_Weekly`, `Internal_BudgetVarianceReport_Monthly`, `Vendor_PurchaseOrderRequest_AsNeeded`
 - Bad: `Weekly Update`, `Report Template`, `New Doc`
 
 **Category structure** (use only what the user's document set actually requires):
+
 - **Client-facing:** Anything that leaves the building toward paying clients or customers
 - **Internal:** Reports, updates, memos intended for colleagues, managers, or leadership
 - **Vendor and partner:** Outbound communications to suppliers, contractors, or partners
@@ -159,6 +169,7 @@ Structure determines whether a library actually gets used or becomes another neg
 - **Personal:** Career documents, professional development, self-tracking
 
 **Library index rules:**
+
 - Sort primarily by frequency (most-used templates at the top)
 - Include a "Last Used" column the user updates manually -- this is the early-warning system for templates drifting out of date
 - Include a "Version" field using simple date versioning: `2026-01` means the template was last revised in January 2026
@@ -169,21 +180,24 @@ Structure determines whether a library actually gets used or becomes another neg
 A template library without maintenance degrades within 6 months. Build a minimal, realistic maintenance system:
 
 **Quarterly review (30 minutes per quarter):**
-  - Open every template and compare against the most recent actual document produced using it
-  - Check for: new standard content that has crept in, old boilerplate that is no longer accurate, changed audience or distribution, variables that are always the same value (these should become fixed content)
-  - Flag templates not used in the past quarter for potential retirement
+
+- Open every template and compare against the most recent actual document produced using it
+- Check for: new standard content that has crept in, old boilerplate that is no longer accurate, changed audience or distribution, variables that are always the same value (these should become fixed content)
+- Flag templates not used in the past quarter for potential retirement
 
 **Triggered updates (immediate, within 48 hours of trigger):**
-  - Role or job title change
-  - New client, project, or engagement type
-  - Process or tool change (the CRM changed, the report now pulls from a different system)
-  - Feedback that a document was unclear, incomplete, or formatted incorrectly
-  - Regulatory or compliance change affecting standard language
+
+- Role or job title change
+- New client, project, or engagement type
+- Process or tool change (the CRM changed, the report now pulls from a different system)
+- Feedback that a document was unclear, incomplete, or formatted incorrectly
+- Regulatory or compliance change affecting standard language
 
 **Retirement criteria:**
-  - Template not used in 6 months with no planned future use
-  - The document type has been eliminated from the user's workflow
-  - A better template supersedes this one (archive, don't delete -- patterns may recur)
+
+- Template not used in 6 months with no planned future use
+- The document type has been eliminated from the user's workflow
+- A better template supersedes this one (archive, don't delete -- patterns may recur)
 
 **Retirement process:** Move retired templates to an `_Archive` section at the bottom of the library index with a retirement date and reason. Never delete -- archived templates often serve as the starting point when a similar need re-emerges.
 
@@ -383,13 +397,13 @@ Personal template libraries are designed for a single user's workflow. When 2-5 
 
 **Inventory scoring:**
 
-| Document | Consistency | Freq/mo | Min/creation | TVS |
-|----------|------------|---------|-------------|-----|
-| Weekly Client Status Update | 5 | 8 | 35 | 14.0 |
-| Client Meeting Recap | 4 | 12 | 20 | 9.6 |
-| Budget Variance Report | 5 | 2 | 45 | 4.5 |
-| Project Proposal | 3 | 3 | 90 | 8.1 |
-| Quarterly Retainer Review | 4 | 1 | 60 | 2.4 |
+| Document                    | Consistency | Freq/mo | Min/creation | TVS  |
+| --------------------------- | ----------- | ------- | ------------ | ---- |
+| Weekly Client Status Update | 5           | 8       | 35           | 14.0 |
+| Client Meeting Recap        | 4           | 12      | 20           | 9.6  |
+| Budget Variance Report      | 5           | 2       | 45           | 4.5  |
+| Project Proposal            | 3           | 3       | 90           | 8.1  |
+| Quarterly Retainer Review   | 4           | 1       | 60           | 2.4  |
 
 All five score above TVS 2 -- build all five, starting with the Weekly Status Update.
 
@@ -408,13 +422,13 @@ All five score above TVS 2 -- build all five, starting with the Weekly Status Up
 
 ### Library Index
 
-| # | Template Name | Category | Frequency | TVS Score | Time Saved/Use | Version | Last Used |
-|---|--------------|----------|-----------|-----------|----------------|---------|-----------|
-| 1 | Client_StatusUpdate_Weekly | Client-facing | 8/month | 14.0 | 25 min | 2026-06 | -- |
-| 2 | Client_MeetingRecap_PostCall | Client-facing | 12/month | 9.6 | 15 min | 2026-06 | -- |
-| 3 | Client_ProjectProposal_New | Client-facing | 3/month | 8.1 | 65 min | 2026-06 | -- |
-| 4 | Internal_BudgetVariance_Monthly | Internal | 2/month | 4.5 | 30 min | 2026-06 | -- |
-| 5 | Client_RetainerReview_Quarterly | Client-facing | 1/month | 2.4 | 45 min | 2026-06 | -- |
+| #   | Template Name                   | Category      | Frequency | TVS Score | Time Saved/Use | Version | Last Used |
+| --- | ------------------------------- | ------------- | --------- | --------- | -------------- | ------- | --------- |
+| 1   | Client_StatusUpdate_Weekly      | Client-facing | 8/month   | 14.0      | 25 min         | 2026-06 | --        |
+| 2   | Client_MeetingRecap_PostCall    | Client-facing | 12/month  | 9.6       | 15 min         | 2026-06 | --        |
+| 3   | Client_ProjectProposal_New      | Client-facing | 3/month   | 8.1       | 65 min         | 2026-06 | --        |
+| 4   | Internal_BudgetVariance_Monthly | Internal      | 2/month   | 4.5       | 30 min         | 2026-06 | --        |
+| 5   | Client_RetainerReview_Quarterly | Client-facing | 1/month   | 2.4       | 45 min         | 2026-06 | --        |
 
 **Retirement Watch:** None currently
 
@@ -442,8 +456,8 @@ Here is your project update for the week ending {{week_ending_date}}.
 
 **Overall Status: {{status_indicator | Choose one: ON TRACK / AT RISK / NEEDS ATTENTION}}**
 
-{{status_summary | 2-3 sentences. Lead with the most significant development this week. 
-State what it means for the project trajectory. Flag anything the client needs to 
+{{status_summary | 2-3 sentences. Lead with the most significant development this week.
+State what it means for the project trajectory. Flag anything the client needs to
 know before next week.}}
 
 ---
@@ -514,38 +528,40 @@ Best regards,
 
 #### Fill-in Guide
 
-| Variable | Description | Example | Source | Type | Validation |
-|----------|-------------|---------|--------|------|------------|
-| `{{client_short_name}}` | Client company name as they refer to themselves | Meridian Logistics | Contract header | Simple | Match exactly -- clients notice misspellings of their own name |
-| `{{week_ending_date}}` | This Friday's date, written out | June 20, 2026 | Calendar | Simple | Confirm it is Friday's date, not today's if writing on Thursday |
-| `{{client_contact_first_name}}` | First name of primary client contact | Rachel | Email thread or CRM | Simple | Confirm you are addressing the right person if the contact changed |
-| `{{status_indicator}}` | Project health: ON TRACK, AT RISK, or NEEDS ATTENTION | ON TRACK | Your professional judgment | Simple | If AT RISK or NEEDS ATTENTION, the blocker section must be populated |
-| `{{status_summary}}` | 2-3 sentence narrative summary | "This week we completed the discovery interviews and synthesized key findings into the requirements brief. The project remains on track for the July 11 milestone. Next week's user testing sessions are confirmed and materials are ready." | Your notes + task tracker | Narrative | Must address the status indicator -- if AT RISK, the summary must explain why |
-| `{{completed_N}}` | Specific deliverable or milestone finished this week | Requirements brief v1 delivered and acknowledged | Task tracker | Simple | Use deliverable names, not task names -- "brief delivered" not "wrote brief" |
-| `{{task_N_name}}` | Name of in-progress work item | User testing session design | Task tracker | Simple | -- |
-| `{{task_N_owner}}` | Who is responsible for this task | You / Rachel (client) / Dev team | Task tracker | Simple | If owner is client-side, this is a soft reminder to them |
-| `{{task_N_pct}}` | Honest percent complete estimate | 60 | Your estimate | Calculated | Round to nearest 10; never say 99% -- say 90% until it is done |
-| `{{task_N_target_date}}` | When this task will be complete | June 27, 2026 | Project schedule | Simple | If target date has slipped, note the original date in the blocker section |
-| `{{blocker_1_description}}` | Clear description of what is blocked | API documentation not yet provided by client's IT team | Your notes | Narrative | Be specific -- "waiting on client" is not an actionable blocker description |
-| `{{blocker_1_impact}}` | How serious: Low, Medium, or High | High | Your judgment | Simple | High impact blockers must appear in the subject line addition: add "(Action Required)" to email subject |
-| `{{client_action_N}}` | Specific action the client must take | Approve revised project schedule | Notes from last meeting | Simple | Every client action needs a deadline -- never leave the deadline blank |
+| Variable                        | Description                                           | Example                                                                                                                                                                                                                                      | Source                     | Type       | Validation                                                                                              |
+| ------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ---------- | ------------------------------------------------------------------------------------------------------- |
+| `{{client_short_name}}`         | Client company name as they refer to themselves       | Meridian Logistics                                                                                                                                                                                                                           | Contract header            | Simple     | Match exactly -- clients notice misspellings of their own name                                          |
+| `{{week_ending_date}}`          | This Friday's date, written out                       | June 20, 2026                                                                                                                                                                                                                                | Calendar                   | Simple     | Confirm it is Friday's date, not today's if writing on Thursday                                         |
+| `{{client_contact_first_name}}` | First name of primary client contact                  | Rachel                                                                                                                                                                                                                                       | Email thread or CRM        | Simple     | Confirm you are addressing the right person if the contact changed                                      |
+| `{{status_indicator}}`          | Project health: ON TRACK, AT RISK, or NEEDS ATTENTION | ON TRACK                                                                                                                                                                                                                                     | Your professional judgment | Simple     | If AT RISK or NEEDS ATTENTION, the blocker section must be populated                                    |
+| `{{status_summary}}`            | 2-3 sentence narrative summary                        | "This week we completed the discovery interviews and synthesized key findings into the requirements brief. The project remains on track for the July 11 milestone. Next week's user testing sessions are confirmed and materials are ready." | Your notes + task tracker  | Narrative  | Must address the status indicator -- if AT RISK, the summary must explain why                           |
+| `{{completed_N}}`               | Specific deliverable or milestone finished this week  | Requirements brief v1 delivered and acknowledged                                                                                                                                                                                             | Task tracker               | Simple     | Use deliverable names, not task names -- "brief delivered" not "wrote brief"                            |
+| `{{task_N_name}}`               | Name of in-progress work item                         | User testing session design                                                                                                                                                                                                                  | Task tracker               | Simple     | --                                                                                                      |
+| `{{task_N_owner}}`              | Who is responsible for this task                      | You / Rachel (client) / Dev team                                                                                                                                                                                                             | Task tracker               | Simple     | If owner is client-side, this is a soft reminder to them                                                |
+| `{{task_N_pct}}`                | Honest percent complete estimate                      | 60                                                                                                                                                                                                                                           | Your estimate              | Calculated | Round to nearest 10; never say 99% -- say 90% until it is done                                          |
+| `{{task_N_target_date}}`        | When this task will be complete                       | June 27, 2026                                                                                                                                                                                                                                | Project schedule           | Simple     | If target date has slipped, note the original date in the blocker section                               |
+| `{{blocker_1_description}}`     | Clear description of what is blocked                  | API documentation not yet provided by client's IT team                                                                                                                                                                                       | Your notes                 | Narrative  | Be specific -- "waiting on client" is not an actionable blocker description                             |
+| `{{blocker_1_impact}}`          | How serious: Low, Medium, or High                     | High                                                                                                                                                                                                                                         | Your judgment              | Simple     | High impact blockers must appear in the subject line addition: add "(Action Required)" to email subject |
+| `{{client_action_N}}`           | Specific action the client must take                  | Approve revised project schedule                                                                                                                                                                                                             | Notes from last meeting    | Simple     | Every client action needs a deadline -- never leave the deadline blank                                  |
 
 **Calculated variables -- full formulas:**
+
 - `{{task_N_pct}}`: Count completed sub-tasks for this item ÷ total sub-tasks × 100. If not using sub-tasks, estimate based on time elapsed vs. total estimated time for this task.
 
 #### Conditional Sections
 
-| Condition Name | Trigger -- When to Include | Default State | Section Summary |
-|---------------|---------------------------|---------------|----------------|
-| `more_than_three_completions` | More than 3 items were completed this week | Excluded | Additional completed items 4 and 5 |
-| `blockers_exist` | Any task is blocked, slipped, or at risk | Excluded | Blocker table with impact, resolution, owner, and deadline |
-| `no_blockers` | No tasks are blocked or at risk | Included | Single line confirming clean status |
-| `client_actions_needed` | Client must do something before work can continue | Excluded | Table of required client actions with deadlines |
-| `no_client_actions` | No client input required this week | Included | Single line releasing client from obligation this week |
+| Condition Name                | Trigger -- When to Include                        | Default State | Section Summary                                            |
+| ----------------------------- | ------------------------------------------------- | ------------- | ---------------------------------------------------------- |
+| `more_than_three_completions` | More than 3 items were completed this week        | Excluded      | Additional completed items 4 and 5                         |
+| `blockers_exist`              | Any task is blocked, slipped, or at risk          | Excluded      | Blocker table with impact, resolution, owner, and deadline |
+| `no_blockers`                 | No tasks are blocked or at risk                   | Included      | Single line confirming clean status                        |
+| `client_actions_needed`       | Client must do something before work can continue | Excluded      | Table of required client actions with deadlines            |
+| `no_client_actions`           | No client input required this week                | Included      | Single line releasing client from obligation this week     |
 
 #### Post-Fill Checklist
 
 Before sending this update:
+
 - [ ] Search the document for `{{` -- any remaining placeholder means a field was missed
 - [ ] Status indicator matches the blocker section: AT RISK or NEEDS ATTENTION always has a populated blocker table
 - [ ] All target dates are in the future (or explicitly flagged as slipped if past)
@@ -584,7 +600,7 @@ Thank you for the time today. Here is a summary of what we covered and what happ
 
 **What We Discussed**
 
-{{discussion_summary | 3-5 bullet points. One bullet per major topic. State what was discussed 
+{{discussion_summary | 3-5 bullet points. One bullet per major topic. State what was discussed
 and what conclusion or decision was reached -- not just that the topic came up.}}
 
 ---
@@ -644,34 +660,35 @@ Best regards,
 
 #### Fill-in Guide
 
-| Variable | Description | Example | Source | Type | Validation |
-|----------|-------------|---------|--------|------|------------|
-| `{{meeting_title}}` | Descriptive name for this meeting | Discovery Workshop -- Phase 2 Scope | Calendar invite title | Simple | Use a title that describes the meeting's purpose, not just "Call" |
-| `{{meeting_date}}` | Full date of the meeting | June 18, 2026 | Calendar invite | Simple | -- |
-| `{{attendee_list}}` | All participants with company | Rachel Voss (Meridian), Tom Keller (Meridian), You | Meeting attendees | Simple | Include every person present -- omissions cause awkward corrections |
-| `{{meeting_duration_minutes}}` | Actual meeting length in minutes | 55 | Calendar invite or your timer | Simple | Use actual duration, not scheduled duration |
-| `{{discussion_summary}}` | Key topics with outcomes | "Reviewed Phase 2 scope -- agreed to include mobile responsive design. Discussed timeline risks around API dependency." | Your meeting notes | Narrative | Each bullet must state the conclusion, not just the topic |
-| `{{decision_N}}` | Specific, irreversible choice made | Approved expanded scope to include mobile responsive design | Meeting notes | Simple | Decisions are irreversible choices -- tentative agreements are open questions |
-| `{{action_N}}` | Specific task with a deliverable | Share revised project schedule reflecting Phase 2 scope | Meeting notes | Simple | Every action must be specific enough that completion is unambiguous |
-| `{{action_N_owner}}` | Person responsible for this action | Rachel (client) / You | Meeting notes | Simple | If owner is the client, the recap serves as their written commitment |
-| `{{action_N_due}}` | Hard deadline for this action | June 25, 2026 | Agreed in meeting or your judgment | Simple | Never leave a due date blank -- if not discussed, propose one |
-| `{{scheduling_followup_date}}` | When you will send next meeting options | June 20, 2026 | Your calendar | Simple | Should be within 48 hours of this email |
+| Variable                       | Description                             | Example                                                                                                                 | Source                             | Type      | Validation                                                                    |
+| ------------------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | --------- | ----------------------------------------------------------------------------- |
+| `{{meeting_title}}`            | Descriptive name for this meeting       | Discovery Workshop -- Phase 2 Scope                                                                                     | Calendar invite title              | Simple    | Use a title that describes the meeting's purpose, not just "Call"             |
+| `{{meeting_date}}`             | Full date of the meeting                | June 18, 2026                                                                                                           | Calendar invite                    | Simple    | --                                                                            |
+| `{{attendee_list}}`            | All participants with company           | Rachel Voss (Meridian), Tom Keller (Meridian), You                                                                      | Meeting attendees                  | Simple    | Include every person present -- omissions cause awkward corrections           |
+| `{{meeting_duration_minutes}}` | Actual meeting length in minutes        | 55                                                                                                                      | Calendar invite or your timer      | Simple    | Use actual duration, not scheduled duration                                   |
+| `{{discussion_summary}}`       | Key topics with outcomes                | "Reviewed Phase 2 scope -- agreed to include mobile responsive design. Discussed timeline risks around API dependency." | Your meeting notes                 | Narrative | Each bullet must state the conclusion, not just the topic                     |
+| `{{decision_N}}`               | Specific, irreversible choice made      | Approved expanded scope to include mobile responsive design                                                             | Meeting notes                      | Simple    | Decisions are irreversible choices -- tentative agreements are open questions |
+| `{{action_N}}`                 | Specific task with a deliverable        | Share revised project schedule reflecting Phase 2 scope                                                                 | Meeting notes                      | Simple    | Every action must be specific enough that completion is unambiguous           |
+| `{{action_N_owner}}`           | Person responsible for this action      | Rachel (client) / You                                                                                                   | Meeting notes                      | Simple    | If owner is the client, the recap serves as their written commitment          |
+| `{{action_N_due}}`             | Hard deadline for this action           | June 25, 2026                                                                                                           | Agreed in meeting or your judgment | Simple    | Never leave a due date blank -- if not discussed, propose one                 |
+| `{{scheduling_followup_date}}` | When you will send next meeting options | June 20, 2026                                                                                                           | Your calendar                      | Simple    | Should be within 48 hours of this email                                       |
 
 #### Conditional Sections
 
-| Condition Name | Trigger -- When to Include | Default State | Section Summary |
-|---------------|---------------------------|---------------|----------------|
-| `decisions_were_made` | At least one formal decision was reached and agreed to by all parties | Excluded | Decision table with owner and effective date |
-| `no_decisions` | Meeting was exploratory or advisory -- no commitments made | Included | Statement acknowledging items are still in consideration |
-| `additional_actions` | More than 2 action items resulted from the meeting | Excluded | Third action item row |
-| `open_questions_exist` | Questions were raised but not resolved | Excluded | List of open questions with follow-up owner and date |
-| `no_open_questions` | All questions were resolved in the meeting | Included | Single line confirming clean resolution |
-| `next_meeting_scheduled` | Next meeting is already on the calendar | Excluded | Date, time, and stated purpose of next meeting |
-| `next_meeting_not_scheduled` | No next meeting is yet scheduled | Included | Commitment to send scheduling options by a specific date |
+| Condition Name               | Trigger -- When to Include                                            | Default State | Section Summary                                          |
+| ---------------------------- | --------------------------------------------------------------------- | ------------- | -------------------------------------------------------- |
+| `decisions_were_made`        | At least one formal decision was reached and agreed to by all parties | Excluded      | Decision table with owner and effective date             |
+| `no_decisions`               | Meeting was exploratory or advisory -- no commitments made            | Included      | Statement acknowledging items are still in consideration |
+| `additional_actions`         | More than 2 action items resulted from the meeting                    | Excluded      | Third action item row                                    |
+| `open_questions_exist`       | Questions were raised but not resolved                                | Excluded      | List of open questions with follow-up owner and date     |
+| `no_open_questions`          | All questions were resolved in the meeting                            | Included      | Single line confirming clean resolution                  |
+| `next_meeting_scheduled`     | Next meeting is already on the calendar                               | Excluded      | Date, time, and stated purpose of next meeting           |
+| `next_meeting_not_scheduled` | No next meeting is yet scheduled                                      | Included      | Commitment to send scheduling options by a specific date |
 
 #### Post-Fill Checklist
 
 Before sending:
+
 - [ ] Search for `{{` -- no unfilled placeholders remain
 - [ ] Every action item has a named owner and a specific due date (not "TBD" or "ASAP")
 - [ ] Attendee list is complete -- count against the calendar invite attendees
@@ -705,9 +722,9 @@ Valid Through: {{proposal_valid_through_date | Typically 30 days from proposal_d
 
 EXECUTIVE SUMMARY
 
-{{executive_summary | 3-4 sentences. State: (1) the problem or opportunity this project 
-addresses, (2) your proposed approach in plain language, (3) the key outcome the client 
-will have when the project is complete, (4) one sentence on why you are the right person 
+{{executive_summary | 3-4 sentences. State: (1) the problem or opportunity this project
+addresses, (2) your proposed approach in plain language, (3) the key outcome the client
+will have when the project is complete, (4) one sentence on why you are the right person
 for this work.}}
 
 ---
@@ -715,7 +732,7 @@ for this work.}}
 PROJECT SCOPE
 
 **Objective**
-{{project_objective | One sentence. Starts with "To [verb]..." -- e.g., "To design and 
+{{project_objective | One sentence. Starts with "To [verb]..." -- e.g., "To design and
 implement a vendor onboarding process that reduces onboarding time from 6 weeks to 2 weeks."}}
 
 **Deliverables**
@@ -811,6 +828,6 @@ I look forward to working with you on this project. Please do not hesitate to re
 
 #### Fill-in Guide
 
-| Variable | Description | Example | Source | Type | Validation |
-|----------|-------------|---------|--------|------|------------|
-| `{{proposal_reference_id}}` | Unique ID for tracking this proposal | PROP-2026-06-ML | Your own numbering system | Calculated | Keep a
+| Variable                    | Description                          | Example         | Source                    | Type       | Validation |
+| --------------------------- | ------------------------------------ | --------------- | ------------------------- | ---------- | ---------- |
+| `{{proposal_reference_id}}` | Unique ID for tracking this proposal | PROP-2026-06-ML | Your own numbering system | Calculated | Keep a     |

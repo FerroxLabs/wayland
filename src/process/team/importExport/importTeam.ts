@@ -22,12 +22,7 @@
  */
 
 import { TeamImportError } from './errors';
-import {
-  enforceMaxDepth,
-  MAX_JSON_DEPTH,
-  rejectPrototypePollutionKeys,
-  safeParseWithTimeout,
-} from './safeParse';
+import { enforceMaxDepth, MAX_JSON_DEPTH, rejectPrototypePollutionKeys, safeParseWithTimeout } from './safeParse';
 import { TeamExportSchema, type TeamExport } from './TeamExportSchema';
 
 export type ImportPreviewResult = {

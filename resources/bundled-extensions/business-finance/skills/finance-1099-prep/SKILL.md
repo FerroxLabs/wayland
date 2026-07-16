@@ -38,6 +38,7 @@ Vendor / contractor 1099 preparation workflow. Covers W-9 collection, classifica
 ### Gate 1 - IRS Common-Law / 20-Factor test
 
 Three control categories:
+
 1. **Behavioral control** - does the payer instruct when, where, how, with what tools, in what sequence?
 2. **Financial control** - who provides equipment, who bears the risk of loss, is the worker available to other clients, is there an investment in facilities?
 3. **Type of relationship** - written contract, benefits, expected duration, services performed are key activity of payer.
@@ -47,6 +48,7 @@ If the payer controls the work, the worker is likely an **employee**, not a cont
 ### Gate 2 - State ABC test (CA AB5 + ~20 other states)
 
 Worker is presumed an **employee** unless **all three** prongs satisfied:
+
 - **A.** Free from control and direction in fact and under contract.
 - **B.** Performs work outside the usual course of the hiring entity's business.
 - **C.** Customarily engaged in an independently established trade, occupation, or business of the same nature.
@@ -56,6 +58,7 @@ CA AB5 codified ABC broadly with carve-outs (Borello multi-factor for some occup
 ### Gate 3 - Section 530 Safe Harbor (Federal)
 
 Section 530 of the Revenue Act of 1978 may protect against IRS reclassification if:
+
 1. All required 1099s were filed on time
 2. Worker and similar workers were treated **consistently** as contractors
 3. There is a **reasonable basis** for the classification (judicial precedent, prior IRS audit, long-standing industry practice)
@@ -65,6 +68,7 @@ Section 530 protects FICA / FUTA / income-tax-withholding. Does NOT protect agai
 ### Gate 4 - Backup withholding
 
 If the payee:
+
 - Fails TIN matching, OR
 - Refuses or fails to provide a W-9, OR
 - Has been notified of incorrect TIN by IRS ("B notice")
@@ -90,13 +94,17 @@ Before any payment of $50+ to a non-employee, request **Form W-9 (Request for Ta
 ## 1099-NEC vs 1099-MISC vs 1099-K decision tree
 
 ### 1099-NEC (Nonemployee Compensation)
+
 Use for payments to **non-employees** for services rendered (formerly Box 7 of 1099-MISC; spun off in 2020).
+
 - Threshold: `[1099-NEC threshold for {filing_year}]` (historically $600; **OBBBA-era law schedules raise to $2,000** - confirm effective year for `{filing_year}`)
 - Recipient types: independent contractors, freelancers, gig workers, attorneys (ALL legal-services payments regardless of entity), medical/health care providers (also regardless of entity)
 - Filing deadline: **January 31** (both to recipient AND to IRS - no later filing for IRS copy)
 
 ### 1099-MISC (Miscellaneous Information)
+
 Use for non-service payments:
+
 - Box 1 - Rents (≥$600)
 - Box 2 - Royalties (≥$10)
 - Box 3 - Other income (prizes, awards) (≥$600)
@@ -107,7 +115,9 @@ Use for non-service payments:
 - Filing deadline: paper Feb 28 / e-file March 31; recipient copy by Jan 31 (verify for `{filing_year}`)
 
 ### 1099-K (Payment Card and Third-Party Network Transactions)
+
 **Issued by payment processors / third-party settlement organizations (TPSO)**, NOT the payer business. **Do not issue 1099-K yourself unless you are the TPSO.**
+
 - Threshold for `{filing_year}` - **highly volatile**. The threshold has been changed and delayed multiple times:
   - Pre-2022: $20,000 + 200 transactions
   - 2022 ARPA scheduled to drop to $600; delayed

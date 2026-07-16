@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel safety checklist planning"
-  category: "travel-experiences"
-  subcategory: "travel-logistics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel safety checklist planning'
+  category: 'travel-experiences'
+  subcategory: 'travel-logistics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Travel Safety Prep
@@ -28,6 +28,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about travel safety preparation or pre-trip safety planning
 - User wants to create an emergency contacts card for travel
 - User asks what safety steps to take before a trip
@@ -36,6 +37,7 @@ metadata:
 - User wants to prepare for potential emergencies while traveling
 
 **Do NOT use when:**
+
 - User wants a full solo travel itinerary with safety layers (use `solo-travel-planner`)
 - User wants to compare travel insurance policies (use `travel-insurance-evaluator`)
 - User wants visa or entry requirements (use `visa-requirements-checker`)
@@ -225,70 +227,71 @@ metadata:
 
 ### Emergency Contacts Card (Print and Carry)
 
-| Contact                     | Number / Info                              |
-|-----------------------------|--------------------------------------------|
-| Local emergency number      | 19 (police), 15 (ambulance)                |
-| Tourist police              | 177 (toll-free tourist assistance line)     |
-| Nearest embassy/consulate   | [Check your country's embassy in Rabat or nearest consulate] |
-| Accommodation (City)        | [Fill in after booking: name, address, phone] |
-| Accommodation (Desert)      | [Fill in after booking: tour company contact] |
-| Home emergency contact      | [Name, phone, relationship]                |
-| Travel insurance emergency  | [Policy number, 24-hour line]              |
-| Bank card emergency (Card 1)| [Card issuer lost card phone number]        |
-| Bank card emergency (Card 2)| [Second card issuer lost card phone number] |
+| Contact                      | Number / Info                                                |
+| ---------------------------- | ------------------------------------------------------------ |
+| Local emergency number       | 19 (police), 15 (ambulance)                                  |
+| Tourist police               | 177 (toll-free tourist assistance line)                      |
+| Nearest embassy/consulate    | [Check your country's embassy in Rabat or nearest consulate] |
+| Accommodation (City)         | [Fill in after booking: name, address, phone]                |
+| Accommodation (Desert)       | [Fill in after booking: tour company contact]                |
+| Home emergency contact       | [Name, phone, relationship]                                  |
+| Travel insurance emergency   | [Policy number, 24-hour line]                                |
+| Bank card emergency (Card 1) | [Card issuer lost card phone number]                         |
+| Bank card emergency (Card 2) | [Second card issuer lost card phone number]                  |
 
 ---
 
 ### Pre-Departure Timeline
 
-| Deadline             | Action                                                          | Status |
-|----------------------|-----------------------------------------------------------------|--------|
-| 8-10 weeks before    | Check passport validity (6+ months), schedule travel health consultation | [ ] |
-| 6-8 weeks before     | Purchase travel insurance, make document copies                  | [ ]    |
-| 4 weeks before       | Notify bank of travel dates, research local SIM options          | [ ]    |
-| 2 weeks before       | Download offline maps, save emergency numbers in phone           | [ ]    |
-| 1 week before        | Print emergency card, share itinerary with home contact          | [ ]    |
-| Day of travel        | Verify documents in carry-on, cash in money belt, phone charged  | [ ]    |
+| Deadline          | Action                                                                   | Status |
+| ----------------- | ------------------------------------------------------------------------ | ------ |
+| 8-10 weeks before | Check passport validity (6+ months), schedule travel health consultation | [ ]    |
+| 6-8 weeks before  | Purchase travel insurance, make document copies                          | [ ]    |
+| 4 weeks before    | Notify bank of travel dates, research local SIM options                  | [ ]    |
+| 2 weeks before    | Download offline maps, save emergency numbers in phone                   | [ ]    |
+| 1 week before     | Print emergency card, share itinerary with home contact                  | [ ]    |
+| Day of travel     | Verify documents in carry-on, cash in money belt, phone charged          | [ ]    |
 
 ### Document Preparation Checklist
 
-| # | Document                       | Action                                           | Status |
-|---|--------------------------------|--------------------------------------------------|--------|
-| 1 | Passport                       | Verify valid 6+ months past return date, 2 blank pages | [ ] |
-| 2 | Passport photocopy (paper)     | Two copies: one in carry-on, one in checked bag   | [ ]    |
-| 3 | Passport photocopy (digital)   | Photo stored in cloud and on phone                 | [ ]    |
-| 4 | Travel insurance policy        | Print summary page with policy number and phone    | [ ]    |
-| 5 | Accommodation confirmations    | Print addresses in French or Arabic for taxi use   | [ ]    |
-| 6 | Desert tour confirmation       | Print booking with guide name and pickup details   | [ ]    |
-| 7 | Return flight confirmation     | Print boarding pass or confirmation number         | [ ]    |
-| 8 | Emergency contact card         | Print wallet-sized card from template above        | [ ]    |
+| #   | Document                     | Action                                                 | Status |
+| --- | ---------------------------- | ------------------------------------------------------ | ------ |
+| 1   | Passport                     | Verify valid 6+ months past return date, 2 blank pages | [ ]    |
+| 2   | Passport photocopy (paper)   | Two copies: one in carry-on, one in checked bag        | [ ]    |
+| 3   | Passport photocopy (digital) | Photo stored in cloud and on phone                     | [ ]    |
+| 4   | Travel insurance policy      | Print summary page with policy number and phone        | [ ]    |
+| 5   | Accommodation confirmations  | Print addresses in French or Arabic for taxi use       | [ ]    |
+| 6   | Desert tour confirmation     | Print booking with guide name and pickup details       | [ ]    |
+| 7   | Return flight confirmation   | Print boarding pass or confirmation number             | [ ]    |
+| 8   | Emergency contact card       | Print wallet-sized card from template above            | [ ]    |
 
 ### Health and Medical Preparation
 
-| # | Item                           | Action                                           | Status |
-|---|--------------------------------|--------------------------------------------------|--------|
-| 1 | Travel health consultation     | Visit a travel clinic 6-8 weeks before -- they will assess vaccination needs for Morocco (Hepatitis A, Typhoid commonly recommended -- consult the clinic) | [ ] |
-| 2 | First aid kit                  | Pack: band-aids, antiseptic wipes, anti-diarrhea medication, rehydration sachets, pain reliever, antihistamine, blister patches | [ ] |
-| 3 | Sun protection                 | SPF 50+ sunscreen, hat, sunglasses (desert sun is intense -- UV index regularly 10+) | [ ] |
-| 4 | Stomach preparation            | Pack anti-diarrhea medication and rehydration sachets -- traveler's stomach is common | [ ] |
-| 5 | Prescriptions                  | If taking any medications: pack in original packaging with prescription label | [ ] |
-| 6 | Nearest clinic research        | Identify clinic or hospital near city accommodation and note address | [ ] |
+| #   | Item                       | Action                                                                                                                                                     | Status |
+| --- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 1   | Travel health consultation | Visit a travel clinic 6-8 weeks before -- they will assess vaccination needs for Morocco (Hepatitis A, Typhoid commonly recommended -- consult the clinic) | [ ]    |
+| 2   | First aid kit              | Pack: band-aids, antiseptic wipes, anti-diarrhea medication, rehydration sachets, pain reliever, antihistamine, blister patches                            | [ ]    |
+| 3   | Sun protection             | SPF 50+ sunscreen, hat, sunglasses (desert sun is intense -- UV index regularly 10+)                                                                       | [ ]    |
+| 4   | Stomach preparation        | Pack anti-diarrhea medication and rehydration sachets -- traveler's stomach is common                                                                      | [ ]    |
+| 5   | Prescriptions              | If taking any medications: pack in original packaging with prescription label                                                                              | [ ]    |
+| 6   | Nearest clinic research    | Identify clinic or hospital near city accommodation and note address                                                                                       | [ ]    |
 
 ### Communication and Technology Setup
 
-| # | Item                           | Action                                           | Status |
-|---|--------------------------------|--------------------------------------------------|--------|
-| 1 | Phone plan                     | Purchase local SIM at airport or activate international roaming | [ ] |
-| 2 | Offline maps                   | Download Morocco map for offline use in maps application | [ ] |
-| 3 | Location sharing               | Set up live location sharing with home contact     | [ ]    |
-| 4 | Emergency numbers in phone     | Save 19 (police), 15 (ambulance), 177 (tourist police), embassy number | [ ] |
-| 5 | Banking notification           | Call both card issuers: notify of Morocco travel dates to prevent blocks | [ ] |
-| 6 | Cloud document backup          | Upload passport photo, insurance policy, itinerary to cloud storage | [ ] |
-| 7 | Translation tool               | Download French and Arabic offline translation pack | [ ] |
+| #   | Item                       | Action                                                                   | Status |
+| --- | -------------------------- | ------------------------------------------------------------------------ | ------ |
+| 1   | Phone plan                 | Purchase local SIM at airport or activate international roaming          | [ ]    |
+| 2   | Offline maps               | Download Morocco map for offline use in maps application                 | [ ]    |
+| 3   | Location sharing           | Set up live location sharing with home contact                           | [ ]    |
+| 4   | Emergency numbers in phone | Save 19 (police), 15 (ambulance), 177 (tourist police), embassy number   | [ ]    |
+| 5   | Banking notification       | Call both card issuers: notify of Morocco travel dates to prevent blocks | [ ]    |
+| 6   | Cloud document backup      | Upload passport photo, insurance policy, itinerary to cloud storage      | [ ]    |
+| 7   | Translation tool           | Download French and Arabic offline translation pack                      | [ ]    |
 
 ### Personal Safety Protocol
 
 **Money and valuables:**
+
 - Carry daily spending cash in a front pocket or cross-body bag with zipper
 - Keep larger cash reserves and backup card in a hidden money belt under clothing
 - Split cash between two locations (one on each person)
@@ -296,12 +299,14 @@ metadata:
 - Exchange currency at official exchange offices, not street changers
 
 **Transportation:**
+
 - Use licensed petit taxis (metered) within cities -- insist on the meter or agree on a price before entering
 - For inter-city travel, use grand taxis from official stands or pre-booked private transfer
 - For the desert tour, confirm the tour operator through your accommodation -- avoid street-solicited tours
 - At night, arrange return transport before going out (have accommodation call a taxi)
 
 **Common scams in Morocco:**
+
 1. **"Free" henna or gift scam:** Someone applies henna to your hand or drapes a necklace on you without asking, then demands payment. **Avoid:** Firmly decline any unsolicited service or gift. Say "la, shukran" (no, thank you) and walk away.
 2. **Fake guide in medina:** A person offers to "help" you find your hotel or a shop, leads you through alleys, then demands a guide fee. **Avoid:** Politely decline help. Use your offline map. If lost, ask a shopkeeper for directions.
 3. **Overpriced market goods with aggressive negotiation:** Initial prices in markets may be 5-10x the fair price. **Avoid:** Research typical prices before shopping. Start at 30-40% of the asking price and negotiate from there. Be willing to walk away -- the final price is often offered as you leave.
@@ -309,6 +314,7 @@ metadata:
 ### Emergency Response Procedures
 
 **If passport is lost or stolen:**
+
 1. File a police report at the nearest police station (bring a photocopy of your passport)
 2. Contact your embassy or consulate (number on emergency card) to request an emergency travel document
 3. Bring 2 passport photos and the police report to the embassy appointment
@@ -316,6 +322,7 @@ metadata:
 5. Contact your travel insurance to report the incident and ask about coverage for replacement costs
 
 **If medical emergency occurs:**
+
 1. Call 15 (ambulance) or have your accommodation call for you
 2. If the situation allows, go to the nearest private clinic (generally faster and better equipped than public hospitals)
 3. Contact your travel insurance 24-hour emergency line immediately -- they can coordinate care and direct payment
@@ -323,6 +330,7 @@ metadata:
 5. Contact your home emergency contact
 
 **If belongings are stolen:**
+
 1. Report to police immediately and obtain a written police report (required for insurance claims)
 2. Call your bank to cancel stolen cards (use the numbers on your emergency card)
 3. Contact your travel insurance to initiate a claim (provide the police report number)

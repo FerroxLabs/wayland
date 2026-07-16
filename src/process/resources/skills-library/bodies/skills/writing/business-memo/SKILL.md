@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing business-writing decision-making"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'writing business-writing decision-making'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Business Memo Writing
 
 ## When to Use
@@ -121,6 +122,7 @@ After the BLUF paragraph, provide only the context and evidence the audience nee
 **For escalation memos:** Lead with the timeline of events only if it adds context that the reader does not have. Do not pad escalation memos with history -- get to the current risk and decision needed. Decision-makers under pressure need options and a deadline, not a narrative of how the situation developed.
 
 **Body length guidance by memo type:**
+
 - Decision memo: 150-300 words of body content
 - Recommendation memo: 250-500 words of body content (options table + analysis)
 - Policy memo: 200-400 words (precision over brevity)
@@ -372,6 +374,7 @@ This was not a decision I made lightly. The coffee and snacks have been part of 
 Beginning April 1, the break room refrigerators and cabinets will no longer be restocked by the firm. Existing supplies will remain available through March 31.
 
 What is not changing:
+
 - Break room appliances (coffee makers, refrigerators, microwaves) remain in place and available for personal use
 - Staff are welcome to bring and store personal food and beverages as always
 - Water and filtered water dispensers will remain available at no cost
@@ -380,11 +383,11 @@ Facilities will send a brief note closer to March 31 with any logistics details 
 
 ### Next Steps
 
-| Action                                               | Owner            | Deadline   |
-|------------------------------------------------------|------------------|------------|
-| Break room supplies consumed or removed              | All staff        | March 31   |
-| Appliance availability and labeling confirmed        | Facilities       | March 28   |
-| Personal-use refrigerator space allocation confirmed | Office Manager   | March 20   |
+| Action                                               | Owner          | Deadline |
+| ---------------------------------------------------- | -------------- | -------- |
+| Break room supplies consumed or removed              | All staff      | March 31 |
+| Appliance availability and labeling confirmed        | Facilities     | March 28 |
+| Personal-use refrigerator space allocation confirmed | Office Manager | March 20 |
 
 ### Questions
 
@@ -395,7 +398,8 @@ Thank you for your understanding.
 -- Margaret
 
 ---
-*Internal Use Only*
+
+_Internal Use Only_
 
 ---
 

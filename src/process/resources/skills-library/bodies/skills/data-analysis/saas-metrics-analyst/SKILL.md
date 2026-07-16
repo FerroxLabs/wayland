@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tech-industry data-science budgeting template analysis marketing"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tech-industry data-science budgeting template analysis marketing'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # SaaS Metrics Analyst
@@ -22,15 +22,16 @@ You are an expert SaaS financial analyst and growth strategist. You help founder
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about saas metrics analyst techniques or best practices
 - User needs guidance on saas metrics analyst concepts
 - User wants to implement or improve their approach to saas metrics analyst
 
 **Do NOT use when:**
+
 - The request falls outside the scope of saas metrics analyst
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -360,7 +361,6 @@ Revenue per Employee = ARR / Total Employees
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -381,7 +381,6 @@ When analyzing SaaS metrics, provide:
 6. **Dashboard recommendations** -- What to track and how to visualize it
 7. **Benchmark context** -- How metrics compare to stage-appropriate benchmarks
 
-
 ```template
 ## Saas Metrics Analyst -- Structured Output
 
@@ -396,14 +395,12 @@ When analyzing SaaS metrics, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ruby optimization debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ruby optimization debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Ruby Performance
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to diagnose slow response times, high memory usage, or GC pressure in a Ruby or Ruby on Rails application
 - User wants to profile a Ruby application and interpret results from tools like rack-mini-profiler, ruby-prof, stackprof, or derailed_benchmarks
 - User needs to optimize specific Ruby constructs -- string allocation, object creation, ActiveRecord queries, or background job throughput
@@ -30,6 +32,7 @@ metadata:
 - User is experiencing Sidekiq, Delayed Job, or Resque throughput problems and needs queue optimization guidance
 
 **Do NOT use this skill when:**
+
 - User needs help with JRuby or TruffleRuby platform-specific tuning -- those runtimes have different GC models, threading, and JVM/Graal-specific considerations
 - User is asking about Rails architecture decisions unrelated to performance (authentication, authorization, API design) -- use a Rails architecture skill instead
 - User needs database schema design or query optimization as the primary concern -- use a SQL/database optimization skill; this skill covers the Ruby-side query patterns (N+1, eager loading) but not index design
@@ -64,10 +67,11 @@ Different bottlenecks require entirely different solutions. Misidentifying the c
 - **ActiveRecord/ORM-bound:** SQL query count explodes with dataset size (N+1) or individual queries are slow. Solutions involve eager loading, query optimization, or moving to raw SQL for hot paths.
 
 Use this diagnosis checklist:
-  - Is GC time > 15% of wall time? -- GC-bound
-  - Is `pg` or `mysql2` adapter the top stackprof frame? -- DB I/O bound
-  - Is object allocation count > 100,000 per request? -- likely allocation-bound
-  - Is CPU pegged at 100% on one core with multiple threads idle? -- GVL-bound
+
+- Is GC time > 15% of wall time? -- GC-bound
+- Is `pg` or `mysql2` adapter the top stackprof frame? -- DB I/O bound
+- Is object allocation count > 100,000 per request? -- likely allocation-bound
+- Is CPU pegged at 100% on one core with multiple threads idle? -- GVL-bound
 
 ### 3. Address Object Allocation and GC Pressure
 
@@ -147,7 +151,7 @@ Performance gains must be measured and protected from regression.
 
 ## Output Format
 
-```
+````
 ## Ruby Performance Analysis Report
 
 ### Baseline Measurements
@@ -189,10 +193,12 @@ posts.each { |p| puts p.author.name }
 # 45ms, 2 SQL queries
 posts = Post.includes(:author)
 posts.each { |p| puts p.author.name }
-```
+````
+
 **Verification:** [benchmark command and expected output]
 
 ### GC / Runtime Configuration (if applicable)
+
 ```bash
 # Production environment variables
 RUBY_GC_HEAP_INIT_SLOTS=1000000
@@ -204,19 +210,22 @@ WEB_CONCURRENCY=2
 ```
 
 ### Validation Results
-| Metric                  | Before  | After   | Improvement |
-|-------------------------|---------|---------|-------------|
-| p50 response time       | X ms    | Y ms    | Z%          |
-| Objects allocated/req   | X       | Y       | Z%          |
-| SQL queries per request | X       | Y       | Z%          |
-| Memory per request      | X KB    | Y KB    | Z%          |
+
+| Metric                  | Before | After | Improvement |
+| ----------------------- | ------ | ----- | ----------- |
+| p50 response time       | X ms   | Y ms  | Z%          |
+| Objects allocated/req   | X      | Y     | Z%          |
+| SQL queries per request | X      | Y     | Z%          |
+| Memory per request      | X KB   | Y KB  | Z%          |
 
 ### Regression Prevention
+
 - [ ] benchmark-ips script added to `benchmarks/`
 - [ ] rspec-benchmark assertion added for this endpoint
 - [ ] APM alert threshold configured (p95 < Xms)
 - [ ] bullet gem enabled in test environment
-```
+
+````
 
 ---
 
@@ -285,9 +294,10 @@ gem 'rack-mini-profiler', require: false
 gem 'memory_profiler'
 gem 'stackprof'
 gem 'bullet', group: :development
-```
+````
 
 Enable rack-mini-profiler for this endpoint in `config/initializers/profiler.rb`:
+
 ```ruby
 if Rails.env.development? || Rails.env.staging?
   require 'rack-mini-profiler'
@@ -296,6 +306,7 @@ end
 ```
 
 Enable bullet in `config/environments/development.rb`:
+
 ```ruby
 config.after_initialize do
   Bullet.enable = true
@@ -307,15 +318,17 @@ end
 Make one request to `GET /api/posts`. rack-mini-profiler overlay reveals:
 
 ### Baseline Measurements
-| Metric                  | Value        | Tool Used           | Threshold |
-|-------------------------|--------------|---------------------|-----------|
-| p95 response time       | 800ms        | rack-mini-profiler  | < 300ms   |
-| Objects allocated/req   | 284,000      | memory_profiler     | < 50,000  |
-| Memory per request      | 18.4 MB      | derailed_benchmarks | < 2 MB    |
-| SQL queries per request | 15,003       | rack-mini-profiler  | < 10      |
-| GC time % of wall time  | 22%          | GC::Profiler        | < 10%     |
+
+| Metric                  | Value   | Tool Used           | Threshold |
+| ----------------------- | ------- | ------------------- | --------- |
+| p95 response time       | 800ms   | rack-mini-profiler  | < 300ms   |
+| Objects allocated/req   | 284,000 | memory_profiler     | < 50,000  |
+| Memory per request      | 18.4 MB | derailed_benchmarks | < 2 MB    |
+| SQL queries per request | 15,003  | rack-mini-profiler  | < 10      |
+| GC time % of wall time  | 22%     | GC::Profiler        | < 10%     |
 
 ### Bottleneck Diagnosis
+
 **Category:** ORM-bound (N+1 queries) + Memory/GC-bound (excessive object allocation)
 **Evidence:** 15,003 SQL queries = 1 query for posts + 15,000 queries for authors (one per post) + 1 query for... wait, comment counts are coming from a `.count` call per post. Bullet log confirms: `N+1 Query detected Post => [:author]` and `Counter cache not used for Post#comments`.
 **Root Cause #1:** `Post.all` loads all 15,000 posts with no pagination, no column selection
@@ -324,6 +337,7 @@ Make one request to `GET /api/posts`. rack-mini-profiler overlay reveals:
 **Root Cause #4:** Loading full `Post` objects including a large `body:text` column not needed in the list view
 
 ### Problematic Controller Code (Before)
+
 ```ruby
 # app/controllers/api/posts_controller.rb
 def index
@@ -341,15 +355,15 @@ end
 
 ### Recommendations (Prioritized by Impact/Effort)
 
-| Priority | Technique                                | Expected Gain              | Effort | Risk |
-|----------|------------------------------------------|----------------------------|--------|------|
-| P1       | Add pagination (kaminari/pagy)           | -99% query count, data vol | Low    | Low  |
-| P2       | `includes(:author)` to fix author N+1   | -14,999 queries            | Low    | Low  |
-| P3       | `counter_cache: true` for comments       | -15,000 COUNT queries      | Low    | Med* |
-| P4       | `select` to exclude body column          | -60% memory/request        | Low    | Low  |
-| P5       | frozen_string_literal                    | -10% allocations           | Low    | Low  |
+| Priority | Technique                             | Expected Gain              | Effort | Risk  |
+| -------- | ------------------------------------- | -------------------------- | ------ | ----- |
+| P1       | Add pagination (kaminari/pagy)        | -99% query count, data vol | Low    | Low   |
+| P2       | `includes(:author)` to fix author N+1 | -14,999 queries            | Low    | Low   |
+| P3       | `counter_cache: true` for comments    | -15,000 COUNT queries      | Low    | Med\* |
+| P4       | `select` to exclude body column       | -60% memory/request        | Low    | Low   |
+| P5       | frozen_string_literal                 | -10% allocations           | Low    | Low   |
 
-*Counter cache requires a migration and backfill
+\*Counter cache requires a migration and backfill
 
 ### Implementation
 
@@ -409,11 +423,13 @@ Post.select(:id, :title, :author_id, :comments_count, :created_at)
 #### P5: Frozen String Literals
 
 Add to every file in the project:
+
 ```ruby
 # frozen_string_literal: true
 ```
 
 Or add to `.rubocop.yml` to enforce:
+
 ```yaml
 Style/FrozenStringLiteralComment:
   Enabled: true
@@ -473,19 +489,20 @@ WEB_CONCURRENCY=2
 
 After applying P1-P5:
 
-| Metric                  | Before   | After   | Improvement |
-|-------------------------|----------|---------|-------------|
-| p95 response time       | 800ms    | 18ms    | -97.8%      |
-| Objects allocated/req   | 284,000  | 3,200   | -98.9%      |
-| Memory per request      | 18.4 MB  | 0.4 MB  | -97.8%      |
-| SQL queries per request | 15,003   | 2       | -99.9%      |
-| GC time % of wall time  | 22%      | 1.2%    | -94.5%      |
+| Metric                  | Before  | After  | Improvement |
+| ----------------------- | ------- | ------ | ----------- |
+| p95 response time       | 800ms   | 18ms   | -97.8%      |
+| Objects allocated/req   | 284,000 | 3,200  | -98.9%      |
+| Memory per request      | 18.4 MB | 0.4 MB | -97.8%      |
+| SQL queries per request | 15,003  | 2      | -99.9%      |
+| GC time % of wall time  | 22%     | 1.2%   | -94.5%      |
 
 **Two SQL queries remain:** one for the paginated posts (with author preloaded as a second query by `includes`), which is the correct minimum.
 
 ### Regression Prevention
 
 Add to `spec/requests/api/posts_spec.rb`:
+
 ```ruby
 require 'rails_helper'
 require 'rspec-benchmark'

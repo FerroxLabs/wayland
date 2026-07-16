@@ -54,13 +54,7 @@ function renderModal(overrides: Overrides = {}) {
   const onConfirm = vi.fn();
   const onCancel = vi.fn();
   const utils = render(
-    <DeleteTeamConfirmModal
-      visible
-      teamName='Renewal Push'
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-      {...overrides}
-    />
+    <DeleteTeamConfirmModal visible teamName='Renewal Push' onConfirm={onConfirm} onCancel={onCancel} {...overrides} />
   );
   const getConfirm = () => screen.getByTestId('delete-team-confirm-cta') as HTMLButtonElement;
   const getCancel = () => screen.getByTestId('delete-team-confirm-cancel') as HTMLButtonElement;
@@ -68,8 +62,7 @@ function renderModal(overrides: Overrides = {}) {
   // span, but the actual <input> we need to fire onChange against is a
   // descendant. We look the input up by placeholder which is the most
   // stable identifier without depending on Arco's internal DOM shape.
-  const getInput = () =>
-    document.querySelector('input[placeholder="delete"]') as HTMLInputElement;
+  const getInput = () => document.querySelector('input[placeholder="delete"]') as HTMLInputElement;
   return { ...utils, onConfirm, onCancel, getConfirm, getCancel, getInput };
 }
 

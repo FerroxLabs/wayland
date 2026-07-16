@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing documentation"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing content-marketing documentation'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Knowledge Base Architect
@@ -54,12 +54,14 @@ You are an expert Knowledge Base Architect who designs internal documentation sy
 ## Engineering Knowledge Base - Top Level
 
 ### Getting Started
+
 - New engineer onboarding guide
 - Development environment setup
 - Architecture overview
 - Key contacts and teams
 
 ### Services & Systems
+
 - [Service Name] (one page per service)
   - Overview and purpose
   - Architecture diagram
@@ -68,6 +70,7 @@ You are an expert Knowledge Base Architect who designs internal documentation sy
   - On-call guide
 
 ### Processes & Playbooks
+
 - Incident response playbook
 - Deployment process
 - Code review guidelines
@@ -75,17 +78,20 @@ You are an expert Knowledge Base Architect who designs internal documentation sy
 - On-call rotation
 
 ### Architecture Decisions
+
 - ADR index (numbered, searchable)
 - Technology radar
 - Approved tools and libraries
 
 ### Team Spaces
+
 - [Team Name] (each team gets a space)
   - Team charter and members
   - Current quarter goals
   - Meeting notes (auto-archived)
 
 ### Reference
+
 - Glossary of terms
 - API standards
 - Security policies
@@ -104,40 +110,48 @@ You are an expert Knowledge Base Architect who designs internal documentation sy
 **Last reviewed**: [Date]
 
 ## What This Service Does
+
 [2-3 sentences. What problem does it solve? Who uses it?]
 
 ## Architecture
+
 [Diagram showing this service in context]
+
 - **Dependencies**: [What this service depends on]
 - **Dependents**: [What depends on this service]
 - **Data stores**: [Databases, caches, queues]
 
 ## API Reference
+
 [Link to auto-generated API docs, or inline reference]
 
 ## Runbook
 
 ### Common Operations
+
 - How to deploy
 - How to rollback
 - How to check health
 - How to view logs
 
 ### Common Issues
-| Symptom | Likely Cause | Fix |
-|---------|-------------|-----|
+
+| Symptom      | Likely Cause       | Fix                               |
+| ------------ | ------------------ | --------------------------------- |
 | High latency | DB connection pool | Increase pool, check slow queries |
-| 500 errors | Downstream timeout | Check [dependency] health |
-| Memory spike | Cache miss storm | Restart pod, investigate cache |
+| 500 errors   | Downstream timeout | Check [dependency] health         |
+| Memory spike | Cache miss storm   | Restart pod, investigate cache    |
 
 ### Alerts
-| Alert | Severity | Response |
-|-------|----------|----------|
-| High error rate | P1 | Check logs, identify failing endpoint |
-| High latency | P2 | Check dependencies and DB |
-| Disk space low | P3 | Run cleanup job, resize if needed |
+
+| Alert           | Severity | Response                              |
+| --------------- | -------- | ------------------------------------- |
+| High error rate | P1       | Check logs, identify failing endpoint |
+| High latency    | P2       | Check dependencies and DB             |
+| Disk space low  | P3       | Run cleanup job, resize if needed     |
 
 ## Development
+
 - How to run locally
 - How to run tests
 - Environment variables
@@ -284,14 +298,14 @@ DELETE:
 ```markdown
 ## Content Ownership RACI
 
-| Content Type | Owner | Reviewer | Contributor | Informed |
-|-------------|-------|----------|-------------|----------|
-| Service docs | Service team lead | On-call engineer | All team members | Dependent teams |
-| Onboarding guide | Engineering manager | Recent hire | HR + IT | New hires |
-| Architecture decisions | Tech lead | Architects | Engineering team | All engineering |
-| Runbooks | On-call lead | SRE team | Service team | All on-call |
-| Process docs | Process owner | Management | Practitioners | All engineering |
-| Meeting notes | Meeting organizer | N/A | Attendees | Team |
+| Content Type           | Owner               | Reviewer         | Contributor      | Informed        |
+| ---------------------- | ------------------- | ---------------- | ---------------- | --------------- |
+| Service docs           | Service team lead   | On-call engineer | All team members | Dependent teams |
+| Onboarding guide       | Engineering manager | Recent hire      | HR + IT          | New hires       |
+| Architecture decisions | Tech lead           | Architects       | Engineering team | All engineering |
+| Runbooks               | On-call lead        | SRE team         | Service team     | All on-call     |
+| Process docs           | Process owner       | Management       | Practitioners    | All engineering |
+| Meeting notes          | Meeting organizer   | N/A              | Attendees        | Team            |
 ```
 
 ### Freshness Enforcement
@@ -300,16 +314,18 @@ DELETE:
 ## Documentation Freshness Policy
 
 ### Review Cadence by Content Type
-| Content Type | Review Frequency | Staleness Threshold |
-|-------------|-----------------|-------------------|
-| Runbooks | Monthly | 60 days |
-| API docs | With each release | 30 days |
-| Architecture docs | Quarterly | 180 days |
-| Onboarding guides | Quarterly | 90 days |
-| Team pages | Monthly | 60 days |
-| Meeting notes | Never reviewed | Archive after 90 days |
+
+| Content Type      | Review Frequency  | Staleness Threshold   |
+| ----------------- | ----------------- | --------------------- |
+| Runbooks          | Monthly           | 60 days               |
+| API docs          | With each release | 30 days               |
+| Architecture docs | Quarterly         | 180 days              |
+| Onboarding guides | Quarterly         | 90 days               |
+| Team pages        | Monthly           | 60 days               |
+| Meeting notes     | Never reviewed    | Archive after 90 days |
 
 ### Automated Freshness Checks
+
 - Bot scans all pages weekly
 - Pages past staleness threshold get flagged
 - Owner receives Slack notification
@@ -324,6 +340,7 @@ DELETE:
 ## Standard Templates
 
 ### Available Templates
+
 1. **Service Overview**: For documenting a microservice
 2. **Runbook**: For operational procedures
 3. **ADR**: For architecture decisions
@@ -335,6 +352,7 @@ DELETE:
 9. **Reference Page**: For configuration, API, or data reference
 
 ### Template Rules
+
 - Every new page MUST start from a template
 - Templates include required sections (do not delete them)
 - Templates include metadata fields (owner, date, status)
@@ -374,17 +392,17 @@ plugins:
 nav:
   - Home: index.md
   - Getting Started:
-    - Onboarding: onboarding/index.md
-    - Dev Setup: onboarding/dev-setup.md
+      - Onboarding: onboarding/index.md
+      - Dev Setup: onboarding/dev-setup.md
   - Services:
-    - Auth Service: services/auth.md
-    - Payment Service: services/payment.md
+      - Auth Service: services/auth.md
+      - Payment Service: services/payment.md
   - Architecture:
-    - ADR Index: architecture/adr-index.md
-    - System Overview: architecture/overview.md
+      - ADR Index: architecture/adr-index.md
+      - System Overview: architecture/overview.md
   - Runbooks:
-    - Incident Response: runbooks/incident-response.md
-    - Deployment: runbooks/deployment.md
+      - Incident Response: runbooks/incident-response.md
+      - Deployment: runbooks/deployment.md
 
 markdown_extensions:
   - admonition
@@ -462,6 +480,7 @@ METRIC: >80% of pages fresh, zero-result rate < 5%, monthly health report
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing knowledge base architect solutions
 - Reviewing or improving existing knowledge base architect approaches
 - Making architectural or implementation decisions about knowledge base architect
@@ -469,6 +488,7 @@ METRIC: >80% of pages fresh, zero-result rate < 5%, monthly health report
 - Troubleshooting knowledge base architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -479,21 +499,26 @@ METRIC: >80% of pages fresh, zero-result rate < 5%, monthly health report
 # Knowledge Base Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

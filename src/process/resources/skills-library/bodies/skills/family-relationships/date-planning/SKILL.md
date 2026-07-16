@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships event-planning planning"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'relationships event-planning planning'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Date Planning
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to plan a romantic date -- first date, recurring date night, anniversary, birthday outing, or a spontaneous outing for a partner
 - A user asks for date ideas filtered by budget (under $30, under $100, splurge), location type (urban, suburban, rural), or season
 - A user wants help structuring a surprise date where logistics must be hidden from the partner until the moment
@@ -29,6 +31,7 @@ metadata:
 - A user is planning a first date after meeting someone online or through social circles and wants to strike the right tone
 
 **Do NOT use when:**
+
 - User is planning a wedding, engagement party, or rehearsal dinner -- use wedding or large event planning skills
 - User wants to coordinate a group outing for more than two people -- use event planning skills
 - User is asking how to assess the health or direction of their relationship -- use relationship communication or counseling-adjacent skills
@@ -63,6 +66,7 @@ If the user says "I don't know what she/he likes" or "they're hard to plan for" 
 Match the occasion to the right structural template before building the itinerary:
 
 **First Date Architecture:**
+
 - Duration: 60-90 minutes maximum
 - Format: Single-venue, public, low-commitment, easy natural exit
 - Flow: Arrival → Conversation-driven activity (coffee, walk, casual drinks) → Natural close
@@ -70,24 +74,28 @@ Match the occasion to the right structural template before building the itinerar
 - Location logic: Walking distance between parking and venue, public area, daytime or early evening
 
 **Regular Date Night Architecture:**
+
 - Duration: 2-4 hours
 - Format: One or two activities, familiar comfort zone with one small novel element
 - Flow: Transition from daily mode (short car ride, brief walk) → Main activity → Close (dessert, walk, brief intentional moment)
 - Goal: Connection maintenance, not peak experience. Presence over production value
 
 **Anniversary / Special Occasion Architecture:**
+
 - Duration: 3-6 hours depending on occasion magnitude
 - Format: Multi-phase -- activity + meal + close -- each phase thematically connected
 - Flow: Opening moment (gift, note, surprise reveal) → Active or experiential component → Dinner/meal → Meaningful close
 - Key element: At least one deeply personalized touch tied to the specific occasion (a memory artifact, a callback to a shared experience, a future-oriented gesture)
 
 **Rekindling / Reconnection Architecture:**
+
 - Duration: 3-5 hours, but quality of presence matters more than length
 - Format: Novel experience neither person has done before -- removes the "we already know how this goes" dynamic
 - Flow: Shared novelty activity → Conversation-rich environment (meal, slow walk) → Intentional close with explicit acknowledgment of the date's purpose
 - Key element: The framing matters -- even saying "I wanted us to do something neither of us has ever done" signals intentionality
 
 **Long-Distance Reunion Architecture:**
+
 - Duration: Depends on visit length, but the first evening should not be over-programmed
 - Format: Reconnection before adventure -- avoid packing the first night with logistics
 - Flow: Private arrival moment (home or hotel) → Low-key first evening (takeout, familiar comfort) → Bigger plans for subsequent days
@@ -100,6 +108,7 @@ Match the occasion to the right structural template before building the itinerar
 Select the primary activity type by cross-referencing occasion type, partner interests, and budget tier. Activity categories with specific logic:
 
 **Experiential / Skill-Based Activities** (cooking class, pottery, painting, axe throwing, escape room, dance lesson, improv class)
+
 - Best for: Rekindling, established couples (6+ months), partners who are experientially oriented
 - Why they work: Shared mild challenge creates bonding through the "effort-together" mechanism. Couples who try new activities together report higher relationship satisfaction in research on novelty and attachment
 - Avoid for: First dates (too long, too much performance pressure), partners with social anxiety in group classes
@@ -107,6 +116,7 @@ Select the primary activity type by cross-referencing occasion type, partner int
 - Timing: Book 3-7 days in advance; popular classes sell out on weekends
 
 **Outdoor / Nature Activities** (hike, picnic, kayaking, botanical garden, sunset spot, farmers market walk)
+
 - Best for: Active partners, spring/summer/fall, couples who want low-pressure conversation time
 - Why they work: Side-by-side activity reduces the intensity of direct eye contact, making conversation feel more natural and less like an interview
 - Avoid for: Winter without weather backup, partners with mobility limitations, first dates in isolated areas
@@ -114,6 +124,7 @@ Select the primary activity type by cross-referencing occasion type, partner int
 - Timing: Check weather 48 hours before; always have an indoor backup
 
 **Culinary / Food-Centered Dates** (restaurant, food market, cooking together at home, food tour, wine/cocktail tasting)
+
 - Best for: All relationship stages and occasions -- food is universally social
 - Restaurant tiers: Casual ($15-25/person), mid-range ($35-60/person), upscale ($80-150+/person)
 - Reservation timing: Casual -- same-day or next-day; mid-range -- 3-5 days; upscale -- 1-3 weeks, especially on weekends
@@ -121,6 +132,7 @@ Select the primary activity type by cross-referencing occasion type, partner int
 - At-home cooking: Significantly cheaper, high intimacy, requires prep. Choose a recipe that takes 45-60 minutes of active cooking -- long enough to be a shared activity, not so long it becomes a chore
 
 **Cultural / Intellectual Activities** (museum, gallery opening, live music, comedy show, literary event, documentary film)
+
 - Best for: Intellectually curious partners, mid-to-long-term couples, partners who don't like physically active dates
 - Why they work: Shared external stimulus creates natural conversation ("what did you think of that?") without requiring the couple to generate conversation from nothing
 - Avoid for: First dates with a museum as the only activity (long silences in galleries can become awkward without existing rapport)
@@ -128,6 +140,7 @@ Select the primary activity type by cross-referencing occasion type, partner int
 - Timing: Check venue schedules; gallery openings often happen on Thursday or Friday evenings and are free
 
 **At-Home / Low-Cost Dates** (board games with candles, movie night with curated film, cooking together, backyard stargazing, home spa night)
+
 - Best for: Tight budget, parents with kids already in bed, introverted partners, cold weather
 - Key principle: Elevation through effort -- the difference between a boring night in and a genuine date is intentionality. Candles, a curated playlist, putting phones in another room, preparing a dish you've never made, and choosing a film together in advance transforms a stay-in into a date
 - Budget: $0-$30 (good wine or takeout from a specific place)
@@ -140,24 +153,28 @@ Select the primary activity type by cross-referencing occasion type, partner int
 Poor budget management kills date plans. Use this allocation framework:
 
 **Tier 1 ($0-$30):**
+
 - Activity: Free (park, hike, beach, gallery, backyard)
 - Food: Home-prepared ($10-15 in ingredients) or one shared item (coffee and pastries ~$12)
 - Extras: A handwritten note, a playlist, borrowed materials -- all $0
 - Do not apologize for the budget. A $15 picnic with a handwritten poem outperforms a $200 dinner where both people are on their phones
 
 **Tier 2 ($30-$100):**
+
 - Activity: $0-$30 (free park + paid class, or free activity + mid-range food)
 - Food/drinks: $30-$60 (casual restaurant or takeout from a special place)
 - Extras: $5-$15 (flowers from a grocery store, a small local bakery item, a specific bottle of wine they mentioned)
 - Budget split guideline: Spend 60-70% on the shared experience (food, activity), 10-15% on personal touches, remainder as buffer
 
 **Tier 3 ($100-$250):**
+
 - Activity: $20-$80 (class, show tickets, kayak rental)
 - Food: $60-$120 (mid-to-upscale restaurant)
 - Extras: $20-$40 (flowers, a small meaningful gift, valet if needed)
 - Sitter: $40-$80 if applicable (4-5 hours at $15-20/hour is the current market rate in most US cities; book sitters 5-7 days in advance for weekends)
 
 **Tier 4 ($250+):**
+
 - Enables: Hotel stay, tasting menu, concert + dinner, spa day, day trip with transportation
 - Key mistake to avoid: Spending the entire budget on one flashy element and neglecting the personal touches that create the actual emotional memory
 
@@ -174,6 +191,7 @@ Personal touches are what separate a memorable date from a pleasant outing. They
 **The Framing Statement:** Say out loud why this date is happening. "I planned this because I wanted a whole evening where we actually talk" or "I wanted to do something neither of us has done before" or "I've been thinking about you a lot and wanted to do something special." Articulating intention elevates the evening before it begins.
 
 **The Conversation Architecture:** Dates fail not because the activity was wrong but because the conversation stayed shallow. Build in at least three conversation prompts at different depths:
+
 - Light/fun: "What's the most useless skill you've secretly gotten good at?"
 - Medium/reflective: "What's something you're looking forward to in the next year that we haven't talked about yet?"
 - Deep/connective: "What's something about our relationship that you're genuinely proud of?"
@@ -186,6 +204,7 @@ Personal touches are what separate a memorable date from a pleasant outing. They
 Every date needs three layers of logistics:
 
 **Primary Logistics:**
+
 - Reservation confirmation (restaurant, activity, parking) with confirmation number saved
 - Transportation -- specifically who drives, parking plan, or rideshare timing
 - Childcare -- sitter confirmed, instructions written, backup contact identified
@@ -193,15 +212,18 @@ Every date needs three layers of logistics:
 - Outfit/dress code awareness -- tell the partner if they need specific shoes (for a hike or rooftop venue), so they are not underdressed or overdressed
 
 **Weather Backup (for any outdoor element):**
+
 - Check forecast 48-72 hours before
 - Have a specific indoor alternative ready, not just a vague "we'll figure it out" -- "if it rains, we'll go to the [type of indoor venue] instead" is a plan; "we'll see" is not
 
 **Activity Backup:**
+
 - If the restaurant is full or overbooked: have a second restaurant type identified
 - If the activity venue is closed or sold out: have an alternative activity category ready
 - If childcare falls through last-minute: have a compressed at-home version planned (not as a punishment -- as a genuine alternative)
 
 **Communication Plan for Surprises:**
+
 - If the date is a surprise, the partner needs to know: appropriate dress code, time of departure, and approximately how long they'll be gone (so they can arrange their own logistics)
 - Never leave a partner in the dark about logistics that affect their comfort or safety
 - A surprise date can still have logistics transparency: "Dress comfortably and wear closed-toe shoes, we're leaving at 6 PM" gives enough without spoiling
@@ -215,6 +237,7 @@ The close of the date is the part most planners neglect and the part most rememb
 **The Peak:** Usually the main activity or a moment of genuine connection during dinner. Sometimes it is the micro-surprise. Do not try to manufacture this -- just create conditions for it to happen (no phones, good conversation prompts, a physically or emotionally engaging activity).
 
 **The Close:** Do not let the date fizzle into "okay, I guess we should head home." Close with a brief intentional ritual:
+
 - A short walk after dinner (even 10 minutes)
 - Sharing one thing each person appreciated about the evening ("what was your favorite part?")
 - A specific expression of affection -- verbal or physical -- that bookends the night
@@ -364,38 +387,48 @@ Produce the output following the format below. Include all sections. Tailor ever
 ## Edge Cases
 
 ### Partner with strong sensory preferences or social anxiety
+
 Some partners find loud restaurants, crowded venues, or high-stimulation environments genuinely uncomfortable, not just mildly annoying. If the user mentions their partner is introverted, has anxiety, or has sensory sensitivities -- build the entire date around low-stimulation environments: quieter restaurants (request a booth; avoid open kitchens and bar-adjacent seating), outdoor settings with natural pacing, at-home experiences, or small-group rather than large-group classes. Do not suggest escape rooms (confined, timed, high-pressure), loud music venues, or large crowded markets as primary activities. If the user has not mentioned sensory preferences, ask: "Does your partner prefer louder social environments or quieter, more intimate ones?"
 
 ### Budget under $30 with meaningful outcome expected
+
 Free and ultra-low-cost dates can be profoundly memorable -- the mechanism is effort and personalization, not expense. A sunrise hike with a thermos of coffee the partner loves, a picnic with their favorite foods prepared at home, a backyard stargazing setup with a printed star chart from the date they met, or a living room cooking competition (each person makes a dish, they judge each other's). The personal touches that cost nothing -- a handwritten list of 10 things the user loves about the partner, a curated playlist, a printed photo from a meaningful moment -- carry emotional weight that a $200 generic dinner cannot. Do not apologize for the budget. Frame the low-cost date fully and confidently.
 
 ### User who does not know what their partner likes
+
 Do not accept "I don't know" as a complete answer. Probe with these specific questions:
+
 - "What does your partner do when they have a completely free Saturday?"
 - "What's the last thing they got genuinely excited about?"
 - "What's something they've said they want to try or do someday?"
 - "Are they more physically active or more mentally/creatively oriented?"
 - "What kind of food would they order if they could eat anywhere?"
 - "Do they prefer doing things or experiencing things -- being out vs. being cozy?"
-Usually within 2-3 answers, a clear preference profile emerges. Build from that profile, not from a generic "romantic date" template.
+  Usually within 2-3 answers, a clear preference profile emerges. Build from that profile, not from a generic "romantic date" template.
 
 ### Long-distance couples with limited time together
+
 The emotional stakes are higher and the time pressure creates a tendency to over-program. Resist this. For a 3-day visit, do not plan 3 days of elaborate dates -- the first evening should decompress and reconnect in a low-key way (favorite takeout, a comfortable home environment, no agenda). Reserve one genuinely special outing for day 2. Leave unstructured time for the organic moments that actually define long-distance reunion visits. The over-programmed reunion feels like a performance; the partially unstructured one feels like home.
 
 ### Anniversary of a difficult year (grief, illness, conflict, hardship)
+
 Some anniversaries occur in the shadow of a hard year. Acknowledge this explicitly in the plan. Do not plan a relentlessly cheerful celebration that ignores what the couple has been through -- it will feel hollow. Instead, build in a moment of acknowledgment: a toast that names the difficulty ("this year was hard and we're still here"), a conversation prompt that invites honesty ("what do you want next year to feel like?"), or a gesture that honors resilience rather than pretending the hardship did not happen. The date can still be joyful -- grief and celebration are not mutually exclusive -- but the plan must make space for authentic feeling.
 
 ### First date after a divorce or long dry spell (re-entering dating)
+
 The user may be planning their first date in years. The context matters. Lower the stakes dramatically. Keep the date short (60-75 minutes), casual, and conversation-forward. The goal is not to impress -- it is to remember that they can do this and that it can feel good. Suggest a format that allows for natural pacing: a coffee shop with outdoor seating in a busy area, a walk through a neighborhood with interesting shops, a museum with a natural conversation-generating exhibit. Avoid elaborate or expensive plans that create performance pressure when what the person needs most is ease and spontaneity.
 
 ### Couple with children who cannot get a sitter
+
 This is one of the most common practical constraints and it should never be treated as a reason to give up on the date. Options by category:
+
 - **After-bedtime at-home date:** After kids are asleep, set up intentionally -- candles, a tablecloth on the kitchen table, takeout from a restaurant they love, a shared dessert, no screens. This is a real date.
 - **Nap-window date:** For families with toddlers who nap, a 2-hour window mid-day can support a condensed date: a quick lunch out or a walk together while a trusted family member watches the child.
 - **Bring the kids but build connection around them:** A farmers market walk, a family picnic at a scenic spot, a new neighborhood to explore together -- these are not the same as a couples-only date, but they create shared experience and joy. Do not frame this as the ideal option if the user specifically wants couple time.
 - **Neighbor swap:** Arrange a playdate trade with another family. Child goes to their house for 3 hours; return the favor next weekend.
 
 ### User planning a date to propose (without saying it outright)
+
 If the user mentions anything that hints at a proposal -- "I want to make it really special," "this is a big one," "I'm planning to give her something" -- ask directly: "Are you planning to propose during this date?" If yes, this changes the entire architecture. The proposal moment needs to be private (not in a crowded restaurant where other diners become unwilling witnesses, unless that is specifically wanted), emotionally elevated (a location meaningful to the couple is better than a generic "romantic" backdrop), logistically clean (no fumbling for the ring), and followed by a clear next step (reservation at their favorite restaurant, champagne, a way to celebrate). The plan also needs a backup for a "no" or "not yet" response -- the evening should not collapse if the answer is unexpected.
 
 ---
@@ -409,6 +442,7 @@ If the user mentions anything that hints at a proposal -- "I want to make it rea
 ## Date Plan: 7th Anniversary -- Art, Gratitude, and Presence
 
 ### Overview
+
 - **Occasion:** 7th wedding anniversary -- with specific context of recovering from a hard year
 - **Relationship Stage:** Long-term (7 years, two children)
 - **Date & Time:** Saturday, 2:00 PM - 8:30 PM (recommended timing: sitter arrives before, kids already occupied)
@@ -421,17 +455,17 @@ If the user mentions anything that hints at a proposal -- "I want to make it rea
 
 ### Itinerary
 
-| Time | Activity | Location Type | Duration | Notes |
-|------|----------|--------------|----------|-------|
-| 1:45 PM | Sitter arrives; handoff | Home | 15 min | Written routine sheet for both kids. Departure before 2:00 PM -- do not linger. |
-| 2:00 PM | Drive to ceramics studio | En route | 20 min | Playlist: meaningful songs from their relationship. No reveal of the destination yet. |
-| 2:20 PM | Ceramics class (surprise reveal at studio door) | Local ceramics / pottery studio | 90 min | Book a private or semi-private couples session. Tell the studio in advance it is an anniversary. Many will set up the table with a small personalized detail. Wear clothes you can get dirty. |
-| 3:50 PM | Walk near the studio / gallery area | Nearby arts district or neighborhood | 30 min | Decompress from the class. Browse a gallery or just walk. This is a transition with no agenda. |
-| 4:30 PM | Drive to dinner | En route | 15-20 min | Ask her one of the conversation prompts during the drive. |
-| 4:50 PM | Dinner at a mid-upscale restaurant | Fine dining or upscale casual restaurant; her favorite cuisine or a new one she has mentioned | 90 min | Reserved 1-2 weeks in advance. Requested a corner booth or quiet table. Let the server know it is a 7th anniversary. |
-| 6:30 PM | Post-dinner walk + dessert | Nearby neighborhood, bakery, or gelato shop | 45 min | Pick up a single dessert to share. Walk and close the evening. Exchange appreciation. |
-| 7:30 PM | Drive home | En route | 20 min | Play a slow, meaningful song. Quiet comfortable silence is allowed. |
-| 7:50 PM | Home; relieve sitter | Home | -- | The evening can continue quietly at home once kids are settled. |
+| Time    | Activity                                        | Location Type                                                                                 | Duration  | Notes                                                                                                                                                                                         |
+| ------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1:45 PM | Sitter arrives; handoff                         | Home                                                                                          | 15 min    | Written routine sheet for both kids. Departure before 2:00 PM -- do not linger.                                                                                                               |
+| 2:00 PM | Drive to ceramics studio                        | En route                                                                                      | 20 min    | Playlist: meaningful songs from their relationship. No reveal of the destination yet.                                                                                                         |
+| 2:20 PM | Ceramics class (surprise reveal at studio door) | Local ceramics / pottery studio                                                               | 90 min    | Book a private or semi-private couples session. Tell the studio in advance it is an anniversary. Many will set up the table with a small personalized detail. Wear clothes you can get dirty. |
+| 3:50 PM | Walk near the studio / gallery area             | Nearby arts district or neighborhood                                                          | 30 min    | Decompress from the class. Browse a gallery or just walk. This is a transition with no agenda.                                                                                                |
+| 4:30 PM | Drive to dinner                                 | En route                                                                                      | 15-20 min | Ask her one of the conversation prompts during the drive.                                                                                                                                     |
+| 4:50 PM | Dinner at a mid-upscale restaurant              | Fine dining or upscale casual restaurant; her favorite cuisine or a new one she has mentioned | 90 min    | Reserved 1-2 weeks in advance. Requested a corner booth or quiet table. Let the server know it is a 7th anniversary.                                                                          |
+| 6:30 PM | Post-dinner walk + dessert                      | Nearby neighborhood, bakery, or gelato shop                                                   | 45 min    | Pick up a single dessert to share. Walk and close the evening. Exchange appreciation.                                                                                                         |
+| 7:30 PM | Drive home                                      | En route                                                                                      | 20 min    | Play a slow, meaningful song. Quiet comfortable silence is allowed.                                                                                                                           |
+| 7:50 PM | Home; relieve sitter                            | Home                                                                                          | --        | The evening can continue quietly at home once kids are settled.                                                                                                                               |
 
 ---
 
@@ -453,49 +487,53 @@ At the ceramics studio, if they keep the pieces to be fired and picked up later,
 
 ### Conversation Guide
 
-| Depth Level | Question | Best Moment to Use |
-|-------------|----------|--------------------|
-| Light / Fun | "If the ceramics piece you made today became famous in a museum, what would the title be?" | During or right after the class |
-| Medium / Reflective | "What's something you're looking forward to in year eight that we haven't talked about yet?" | During dinner |
-| Deep / Connective | "What's something about the way we handled this past year that you're quietly proud of?" | During dinner, after the card |
-| Memory-Activating | "What's the most random moment from our first year of marriage that you still think about?" | During the post-dinner walk |
+| Depth Level         | Question                                                                                     | Best Moment to Use              |
+| ------------------- | -------------------------------------------------------------------------------------------- | ------------------------------- |
+| Light / Fun         | "If the ceramics piece you made today became famous in a museum, what would the title be?"   | During or right after the class |
+| Medium / Reflective | "What's something you're looking forward to in year eight that we haven't talked about yet?" | During dinner                   |
+| Deep / Connective   | "What's something about the way we handled this past year that you're quietly proud of?"     | During dinner, after the card   |
+| Memory-Activating   | "What's the most random moment from our first year of marriage that you still think about?"  | During the post-dinner walk     |
 
 ---
 
 ### Budget Breakdown
 
-| Item | Estimated Cost | Notes |
-|------|---------------|-------|
-| Ceramics / pottery couples class (private or semi-private) | $60-$75 | Book 7-10 days in advance; call ahead to mention anniversary |
-| Dinner (mid-upscale, two people, shared appetizer, mains, one bottle of wine or cocktails) | $85-$100 | Reserve 1-2 weeks out; request corner or booth table |
-| Handwritten card + card materials or printed card | $0-$5 | Write it yourself -- this is not the moment for a store-bought sentiment |
-| Post-dinner dessert (gelato, pastry, shared) | $8-$12 | From a local bakery or gelato shop near the restaurant |
-| Parking and transportation | $5-$15 | Budget for one paid parking spot or rideshare if drinking wine at dinner |
-| **Total** | **~$160-$205** | Within $200 target; adjust dinner order if needed to stay in range |
+| Item                                                                                       | Estimated Cost | Notes                                                                    |
+| ------------------------------------------------------------------------------------------ | -------------- | ------------------------------------------------------------------------ |
+| Ceramics / pottery couples class (private or semi-private)                                 | $60-$75        | Book 7-10 days in advance; call ahead to mention anniversary             |
+| Dinner (mid-upscale, two people, shared appetizer, mains, one bottle of wine or cocktails) | $85-$100       | Reserve 1-2 weeks out; request corner or booth table                     |
+| Handwritten card + card materials or printed card                                          | $0-$5          | Write it yourself -- this is not the moment for a store-bought sentiment |
+| Post-dinner dessert (gelato, pastry, shared)                                               | $8-$12         | From a local bakery or gelato shop near the restaurant                   |
+| Parking and transportation                                                                 | $5-$15         | Budget for one paid parking spot or rideshare if drinking wine at dinner |
+| **Total**                                                                                  | **~$160-$205** | Within $200 target; adjust dinner order if needed to stay in range       |
 
-*Sitter cost not included above -- assumed pre-existing arrangement. If extended hours are needed, budget an additional $60-$80 (4 hours at $15-20/hour).*
+_Sitter cost not included above -- assumed pre-existing arrangement. If extended hours are needed, budget an additional $60-$80 (4 hours at $15-20/hour)._
 
 ---
 
 ### Logistics Checklist
 
 **Reservations and Bookings (do this week):**
+
 - [ ] Book ceramics / pottery couples class -- call or book online; mention anniversary; confirm duration and whether pieces are held for firing or taken same-day
 - [ ] Restaurant reservation -- call specifically to request a corner booth or quiet table away from the kitchen; mention 7th anniversary
 - [ ] Confirm sitter for 1:45 PM arrival; extend to 8:30 PM if usual arrangement is shorter
 
 **Preparation (3-5 days before):**
+
 - [ ] Write the anniversary card -- 3-4 sentences naming the year, her strength, and what you are proud of
 - [ ] Create the car playlist -- songs from their relationship, their first dance, a song from a meaningful trip or moment
 - [ ] Check the ceramics studio's dress code (clay-appropriate clothes; plan outfits accordingly)
 - [ ] Identify a bakery or gelato spot near the dinner restaurant for the post-dinner walk
 
 **48-72 Hours Before:**
+
 - [ ] Check weather forecast -- if the walk/outdoor transition will be uncomfortable, identify a gallery or warm indoor option for that segment
 - [ ] Confirm reservation and sitter
 - [ ] Purchase any flowers or extra touch item if desired (optional; not essential given the card and class)
 
 **Day-of:**
+
 - [ ] Print or write kids' routine sheet for the sitter
 - [ ] Charge phone for one photo at the ceramics studio, then put it away
 - [ ] Leave 5 minutes before you think you need to -- the schedule has buffer but starting relaxed matters

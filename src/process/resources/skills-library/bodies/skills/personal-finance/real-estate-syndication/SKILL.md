@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing budgeting checklist guide analysis performing-arts tax-planning"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance investing budgeting checklist guide analysis performing-arts tax-planning'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Real Estate Syndication Guide
@@ -24,15 +24,16 @@ You are a real estate investment educator who helps users understand passive rea
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about real estate syndication techniques or best practices
 - User needs guidance on real estate syndication concepts
 - User wants to implement or improve their approach to real estate syndication
 
 **Do NOT use when:**
+
 - The request falls outside the scope of real estate syndication
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -54,17 +55,17 @@ You are a real estate investment educator who helps users understand passive rea
 
 ### Comparison Table
 
-| Feature | REITs (Public) | REITs (Private) | Crowdfunding | Syndication |
-|---------|---------------|----------------|--------------|-------------|
-| Minimum Investment | ~$10-100 | $1,000-25,000 | $500-50,000 | $25,000-100,000+ |
-| Liquidity | Daily (publicly traded) | Limited / quarterly | Limited | Very illiquid (5-10 yr hold) |
-| Accreditation Required | No | Sometimes | Varies by platform | Usually yes |
-| Control | None | None | None | None (passive LP) |
-| Transparency | SEC reporting | Varies | Platform-dependent | Sponsor-dependent |
-| Tax Benefits | Ordinary dividend income | Some pass-through | Pass-through (K-1) | Full pass-through (K-1) |
-| Typical Returns | 8-12% total | 8-15% total | 8-18% projected | 12-25% projected (higher risk) |
-| Diversification | Hundreds of properties | Multiple properties | Single or multiple | Usually single property/portfolio |
-| Fees | Expense ratio (0.1-1%) | Higher management fees | Platform + sponsor fees | Sponsor fees + promote |
+| Feature                | REITs (Public)           | REITs (Private)        | Crowdfunding            | Syndication                       |
+| ---------------------- | ------------------------ | ---------------------- | ----------------------- | --------------------------------- |
+| Minimum Investment     | ~$10-100                 | $1,000-25,000          | $500-50,000             | $25,000-100,000+                  |
+| Liquidity              | Daily (publicly traded)  | Limited / quarterly    | Limited                 | Very illiquid (5-10 yr hold)      |
+| Accreditation Required | No                       | Sometimes              | Varies by platform      | Usually yes                       |
+| Control                | None                     | None                   | None                    | None (passive LP)                 |
+| Transparency           | SEC reporting            | Varies                 | Platform-dependent      | Sponsor-dependent                 |
+| Tax Benefits           | Ordinary dividend income | Some pass-through      | Pass-through (K-1)      | Full pass-through (K-1)           |
+| Typical Returns        | 8-12% total              | 8-15% total            | 8-18% projected         | 12-25% projected (higher risk)    |
+| Diversification        | Hundreds of properties   | Multiple properties    | Single or multiple      | Usually single property/portfolio |
+| Fees                   | Expense ratio (0.1-1%)   | Higher management fees | Platform + sponsor fees | Sponsor fees + promote            |
 
 ---
 
@@ -177,16 +178,16 @@ Business Plan:
 
 ### Metrics to Evaluate Before Investing
 
-| Metric | Definition | Target Range | Red Flag |
-|--------|-----------|-------------|----------|
-| Cap Rate | NOI / Purchase Price | 4-8% (market dependent) | Below 4% in secondary markets |
-| Cash-on-Cash Return | Annual Cash Flow / Invested Equity | 6-10% | Below 4% with no appreciation plan |
-| Preferred Return | Minimum return to LPs before GP profit share | 6-10% | Below 6% or non-cumulative |
-| IRR (Projected) | Internal rate of return over hold period | 12-20% | >25% (likely unrealistic) |
-| Equity Multiple | Total distributions / Invested capital | 1.5-2.5x over 5 years | Below 1.5x for 5+ year hold |
-| Debt-to-Value | Loan amount / Property value | 55-75% | Above 80% (high leverage risk) |
-| DSCR | NOI / Annual Debt Service | >1.25x | Below 1.1x |
-| Break-Even Occupancy | Occupancy needed to cover all expenses + debt | Below 85% | Above 90% (thin margin) |
+| Metric               | Definition                                    | Target Range            | Red Flag                           |
+| -------------------- | --------------------------------------------- | ----------------------- | ---------------------------------- |
+| Cap Rate             | NOI / Purchase Price                          | 4-8% (market dependent) | Below 4% in secondary markets      |
+| Cash-on-Cash Return  | Annual Cash Flow / Invested Equity            | 6-10%                   | Below 4% with no appreciation plan |
+| Preferred Return     | Minimum return to LPs before GP profit share  | 6-10%                   | Below 6% or non-cumulative         |
+| IRR (Projected)      | Internal rate of return over hold period      | 12-20%                  | >25% (likely unrealistic)          |
+| Equity Multiple      | Total distributions / Invested capital        | 1.5-2.5x over 5 years   | Below 1.5x for 5+ year hold        |
+| Debt-to-Value        | Loan amount / Property value                  | 55-75%                  | Above 80% (high leverage risk)     |
+| DSCR                 | NOI / Annual Debt Service                     | >1.25x                  | Below 1.1x                         |
+| Break-Even Occupancy | Occupancy needed to cover all expenses + debt | Below 85%               | Above 90% (thin margin)            |
 
 ---
 
@@ -217,17 +218,17 @@ By Property Type:
 
 ### REIT Evaluation Criteria
 
-| Metric | Definition | What to Look For |
-|--------|-----------|-----------------|
-| FFO/Share | Funds from operations per share | Consistent growth |
-| AFFO/Share | Adjusted FFO (more conservative) | FFO minus maintenance CapEx |
-| P/FFO | Price / FFO ratio | Compare to sector peers |
-| Dividend Yield | Annual dividend / Share price | Sustainable, not borrowing to pay |
-| Payout Ratio | Dividends / AFFO | Below 85% (room for growth) |
-| NAV Premium/Discount | Price vs. net asset value | Prefer discount to NAV |
-| Occupancy Rate | % of space leased | Above 90% |
-| Weighted Avg Lease Term | Average remaining lease duration | Longer = more predictable |
-| Debt/EBITDA | Leverage ratio | Below 6x |
+| Metric                  | Definition                       | What to Look For                  |
+| ----------------------- | -------------------------------- | --------------------------------- |
+| FFO/Share               | Funds from operations per share  | Consistent growth                 |
+| AFFO/Share              | Adjusted FFO (more conservative) | FFO minus maintenance CapEx       |
+| P/FFO                   | Price / FFO ratio                | Compare to sector peers           |
+| Dividend Yield          | Annual dividend / Share price    | Sustainable, not borrowing to pay |
+| Payout Ratio            | Dividends / AFFO                 | Below 85% (room for growth)       |
+| NAV Premium/Discount    | Price vs. net asset value        | Prefer discount to NAV            |
+| Occupancy Rate          | % of space leased                | Above 90%                         |
+| Weighted Avg Lease Term | Average remaining lease duration | Longer = more predictable         |
+| Debt/EBITDA             | Leverage ratio                   | Below 6x                          |
 
 ---
 
@@ -351,7 +352,6 @@ to have locked up for the full hold period (typically 5-10 years).
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -373,7 +373,6 @@ When discussing real estate investment opportunities, provide:
 7. **Questions to ask the sponsor/platform** -- Specific to their situation
 8. **Disclaimer** -- Reiterate this is education, not investment advice; consult professionals
 
-
 ```template
 ## Real Estate Syndication -- Structured Output
 
@@ -388,14 +387,12 @@ When discussing real estate investment opportunities, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

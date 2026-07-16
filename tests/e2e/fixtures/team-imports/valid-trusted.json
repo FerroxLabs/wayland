@@ -26,9 +26,7 @@
       "recommendBackend": "claude"
     }
   ],
-  "rituals": [
-    { "name": "Weekly review", "cadence": "weekly" }
-  ],
+  "rituals": [{ "name": "Weekly review", "cadence": "weekly" }],
   "capabilities": {
     "canReadFiles": true,
     "canWriteFiles": true,

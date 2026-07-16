@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly step-by-step guide checklist"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly step-by-step guide checklist'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # FDM Printing Beginner Guide
 
 ## When to Use
@@ -79,6 +80,7 @@ A beginner cannot troubleshoot what they do not understand. Give them the correc
 This is the core technical step. Every setting needs a specific starting value and a clear explanation of when and why to deviate from it.
 
 **Layer height -- the primary quality-vs-speed trade-off:**
+
 - 0.08--0.12mm: fine detail, smooth surfaces, long print times. Use for display figurines, jewelry, models with fine text or surface detail. Nozzle wear is higher at fine layers due to back-pressure.
 - 0.16--0.20mm: the default for most prints. Balances surface quality and print time. Start every new printer calibration here.
 - 0.24--0.28mm: draft quality, visible layer lines, significantly faster. Use for mechanical prototypes, hidden structural parts, test-fitting before a final quality print.
@@ -86,12 +88,14 @@ This is the core technical step. Every setting needs a specific starting value a
 - Variable layer height: most slicers support assigning different layer heights to different Z-heights. Use 0.28mm for the infill-heavy base, 0.12mm for detailed top sections. This is intermediate but worth mentioning.
 
 **Wall count (perimeters/shells) -- more important than infill for strength:**
+
 - 2 walls: minimum, adequate for display prints only.
 - 3 walls: good default for most prints. Recommended starting point.
 - 4--5 walls: use for functional parts that will be drilled, tapped, or stressed. Adding walls increases strength far more efficiently than increasing infill.
 - Wall width is typically equal to nozzle diameter (0.4mm). Some slicers allow 0.45mm walls (slight over-extrusion per wall for better bonding).
 
 **Infill -- internal structural density:**
+
 - 0--5%: decorative only. Will crack if handled. Use only for large display pieces where weight matters.
 - 10--15%: light household objects, decorative prints that will be handled.
 - 20%: the standard starting point. Adequate for most non-load-bearing prints.
@@ -101,6 +105,7 @@ This is the core technical step. Every setting needs a specific starting value a
 - Infill pattern selection: Grid (default, fast, adequate), Gyroid (isotropic strength -- strong in all directions, best for functional parts that may be stressed in unknown directions, ~10% slower than grid), Honeycomb (classic, good lateral strength), Lines (fastest, weakest, use only for non-structural fill on draft prints), Cubic (good for flat stress distribution).
 
 **Temperature settings -- filament-specific, not printer-specific:**
+
 - Always start with the temperature range printed on the filament spool label. A manufacturer printing "195--215°C" on the label has tested their specific formulation.
 - PLA: nozzle 190--215°C (200°C is the safe middle-ground starting point), bed 50--65°C. PLA requires no enclosure. Glass transition temperature approximately 60°C -- do not use PLA parts in hot cars or near heat sources.
 - PETG: nozzle 225--250°C (235°C starting point), bed 70--85°C. PETG is hygroscopic (absorbs moisture from air), which causes bubbling and poor surface quality. Dry filament before printing if it has been exposed to air for more than a few days.
@@ -109,6 +114,7 @@ This is the core technical step. Every setting needs a specific starting value a
 - TPU (flexible): nozzle 220--240°C, bed 30--60°C, direct-drive extruder required, print speed 15--25 mm/s, retraction off or set to 0.5mm maximum.
 
 **Retraction -- the fix for stringing:**
+
 - Retraction is the extruder reversing the filament slightly during travel moves (when the nozzle moves without printing) to prevent ooze.
 - Bowden extruder retraction: 4--7mm at 40--60 mm/s.
 - Direct-drive retraction: 0.5--2.0mm at 25--45 mm/s.
@@ -116,6 +122,7 @@ This is the core technical step. Every setting needs a specific starting value a
 - Combing mode: enables the nozzle to travel only over already-printed areas rather than crossing open space, dramatically reducing strings without needing high retraction. Enable by default.
 
 **Print speed:**
+
 - First layer: 15--25 mm/s regardless of material. Slow first layer = better adhesion = print success.
 - Outer walls (perimeters): 30--40 mm/s. The surface you see is printed at this speed -- quality depends on it.
 - Inner walls: 40--60 mm/s.
@@ -124,6 +131,7 @@ This is the core technical step. Every setting needs a specific starting value a
 - Reducing overall print speed by 20% is the single fastest fix for unexplained print quality issues.
 
 **Support structures:**
+
 - The 45-degree rule: FDM can bridge angles up to approximately 45° from vertical without support. Surface angles greater than 45° from vertical (or overhangs greater than 45° from horizontal, depending on how your slicer measures) need support.
 - Bridging (horizontal overhangs): FDM can bridge gaps up to approximately 50--60mm with no support, using fan cooling to solidify the bridging material mid-air. Beyond 60mm, support is usually needed.
 - Normal (linear) supports: print directly beneath the overhang, touching the model. Leave contact marks. Adequate for most prints where appearance of the support-contact surface does not matter.
@@ -157,14 +165,14 @@ Beginners need to understand why materials behave differently, not just which on
 - TPU and flexible filaments are advanced. Requires direct-drive extruder, slow speed (15--25 mm/s), and essentially no retraction. Very rewarding once mastered (phone cases, gaskets, flexible hinges).
 - PLA+ (sometimes called PLA Pro or Tough PLA): marketing term for modified PLA with added impact modifiers. Generally prints identically to standard PLA but with improved toughness and slightly higher temperature resistance. Good upgrade from standard PLA once comfortable with the basics.
 
-| Material | Nozzle Temp | Bed Temp | Enclosure | Strength | Heat Resist | Fumes | Beginner Level |
-|----------|-------------|----------|-----------|----------|-------------|-------|----------------|
-| PLA | 190--215°C | 50--65°C | No | Moderate | ~60°C | Minimal | Start here |
-| PLA+ | 195--220°C | 55--65°C | No | Good | ~65°C | Minimal | First upgrade |
-| PETG | 225--250°C | 70--85°C | No | High | ~80°C | Low | After 10 PLA prints |
-| ABS | 230--250°C | 95--110°C | Required | High | ~100°C | Significant | Advanced only |
-| ASA | 240--260°C | 90--110°C | Required | High | ~100°C | Moderate | Advanced only |
-| TPU (95A) | 220--240°C | 30--50°C | No | Flexible | ~80°C | Low | Advanced only |
+| Material  | Nozzle Temp | Bed Temp  | Enclosure | Strength | Heat Resist | Fumes       | Beginner Level      |
+| --------- | ----------- | --------- | --------- | -------- | ----------- | ----------- | ------------------- |
+| PLA       | 190--215°C  | 50--65°C  | No        | Moderate | ~60°C       | Minimal     | Start here          |
+| PLA+      | 195--220°C  | 55--65°C  | No        | Good     | ~65°C       | Minimal     | First upgrade       |
+| PETG      | 225--250°C  | 70--85°C  | No        | High     | ~80°C       | Low         | After 10 PLA prints |
+| ABS       | 230--250°C  | 95--110°C | Required  | High     | ~100°C      | Significant | Advanced only       |
+| ASA       | 240--260°C  | 90--110°C | Required  | High     | ~100°C      | Moderate    | Advanced only       |
+| TPU (95A) | 220--240°C  | 30--50°C  | No        | Flexible | ~80°C       | Low         | Advanced only       |
 
 ---
 
@@ -188,23 +196,27 @@ Every failure has a cause -- a specific mechanical or thermal reason. Teach the 
 The four-print sequence is designed so each print teaches a specific skill and validates a specific system. Do not skip prints.
 
 **Print 1 -- Calibration Cube (20mm):**
+
 - Download: search for "calibration cube 20mm" in any model repository. The print should have embossed X, Y, Z labels on each face.
 - Settings: 0.2mm layer height, 3 walls, 20% grid infill, no supports, 200°C nozzle, 60°C bed.
 - After printing, measure with digital calipers (a $15--25 investment that pays off immediately). Each side should measure 20.0mm ± 0.2mm.
 - If X and Y are off but Z is correct: adjust the flow rate (E-steps calibration). If Z is too short: adjust Z-steps or flow rate. If one axis is off: check that axis's belt tension.
 
 **Print 2 -- Benchy (3D Benchy boat benchmark):**
+
 - The Benchy is the universal FDM benchmark model. It tests: bed adhesion (flat bottom), overhang angles (bow), bridging (interior cabin roof), small details (chimney, porthole letters), stringing (chimney to cabin), and general surface quality.
 - Settings: 0.2mm layer height, 3 walls, 15% infill (it is hollow, infill is cosmetic), no supports (Benchy is designed to print without supports).
 - Evaluate: smooth hull below waterline, clean bow overhang (no drooping), cabin roof bridge with no sagging, no strings between chimney and cabin, legible text on stern.
 - A clean Benchy means your printer is calibrated. A Benchy with specific issues tells you exactly which setting to adjust.
 
 **Print 3 -- Functional Item with Supports:**
+
 - Choose a phone stand, cable clip, wall hook, or drawer organizer. Any model with at least one overhang greater than 45° that requires support.
 - Settings: 0.2mm layer height, 4 walls, 30% gyroid infill, tree supports enabled, support Z-distance 0.2mm.
 - Post-print skills to teach: Remove supports by breaking at the base with pliers or flush cutters (diagonal cutting pliers, often called "dikes"). Use fine-grit sandpaper (220--400 grit) to smooth support contact points. A sharp hobby knife (X-Acto or similar) removes support remnants from internal features.
 
 **Print 4 -- Multi-Part Assembly:**
+
 - Print a two-part box with snap-fit lid, or a two-part bracket with bolt holes. The model must have parts that fit together with intentional clearance.
 - Standard FDM dimensional tolerance is ±0.2--0.3mm. Designers build clearances of 0.2--0.4mm for slip fits, 0.1--0.2mm for press fits.
 - If parts do not fit: try increasing flow rate by 2% (if parts are too big) or decreasing by 2% (if parts are too small). After two or three assemblies, this calibration becomes intuitive.
@@ -323,7 +335,9 @@ Use this template when responding to a beginner user. Fill in all fields with sp
 ## Edge Cases
 
 ### User Is Still Shopping for a First Printer
+
 Provide selection criteria without naming specific brands. Key specs to prioritize:
+
 - Build volume: 220x220x250mm (LxWxH) is the standard "starter" envelope. Adequate for the vast majority of household and hobby objects. Larger build volumes cost more and have no benefit for beginners.
 - Auto bed leveling (ABL): a proximity sensor that automatically measures the bed surface and compensates for tilt in software. This is not a luxury -- manual bed leveling is a significant source of beginner frustration. ABL reduces first-print failure rates substantially. Prioritize this feature.
 - Direct-drive extruder: mounts the extruder motor directly above the hotend. Enables better retraction control, handles flexible filaments, and reduces stringing. The trade-off is slightly increased print head weight, which reduces maximum print speed slightly. Better than Bowden for beginners.
@@ -332,7 +346,9 @@ Provide selection criteria without naming specific brands. Key specs to prioriti
 - Budget tiers: $200--300 covers capable starter FDM printers with ABL, heated beds, and reasonable build volumes. $300--500 adds more reliable components, direct-drive, and better part quality. Over $500 for a beginner usually means paying for features they will not use for 12+ months.
 
 ### User Has Persistent First-Layer Adhesion Failures
+
 This is the most common beginner crisis. Work through this exact sequence:
+
 1. Heat the bed to print temperature before starting (thermal expansion changes bed geometry -- always level and set Z-offset at operating temperature).
 2. Clean the bed with fresh IPA and a lint-free cloth, wiping in a single direction (not circular scrubbing, which redistributes oils).
 3. Confirm Z-offset: the first layer should look slightly squished and lines should be touching each other. If you can see gaps between lines, Z-offset is too high.
@@ -342,38 +358,48 @@ This is the most common beginner crisis. Work through this exact sequence:
 7. If warping specifically: add an 8--10mm brim and confirm there are no air currents hitting the print (even from the part-cooling fan if mounted to direct air at the bed corners).
 
 ### User Wants to Print with a 0.6mm or 0.8mm Nozzle (Speed Printing)
+
 This is not advanced -- it is increasingly common as a technique for large functional parts where surface detail is not critical.
+
 - With a 0.6mm nozzle: maximum layer height = 0.45mm, standard layer height = 0.4mm, wall width = 0.6mm. Print speed can increase by 30--40% vs. 0.4mm.
 - With a 0.8mm nozzle: maximum layer height = 0.6mm, standard layer height = 0.5mm. Dramatically faster for large structural parts. Fine details will be lost.
 - Temperature increase is required with larger nozzles: the same mass of filament passes through a larger orifice in the same time, requiring more thermal energy. Increase nozzle temperature by 5--10°C vs. 0.4mm settings.
 - Retraction settings decrease with larger nozzles: less back-pressure means less retraction needed. Reduce retraction by 0.5--1mm vs. 0.4mm settings.
 
 ### User Is Printing in a Cold or Inconsistent Environment
+
 Room temperature below 18°C causes: PLA adhesion failures, more severe warping, and first-layer separation. PETG and ABS become nearly unprintable in cold rooms without an enclosure.
+
 - Immediate fix: build a simple enclosure from cardboard, foam board, or an IKEA LACK table with acrylic panels. An enclosure does not need to be sealed -- even a partially open enclosure traps enough heat to stabilize the ambient temperature around the print.
 - Target chamber temperature: 25--35°C for PLA, 35--45°C for PETG, 55--65°C for ABS/ASA.
 - Do not enclose PLA printing at high chamber temperatures for extended periods -- PLA benefits from active part cooling, and a fully sealed hot enclosure can cause heat creep at the hotend.
 - Move the printer away from exterior walls, air vents, and open windows.
 
 ### User Wants to Print Large Objects That Exceed Build Volume
+
 Any model larger than the build plate must be split and assembled. Teach this workflow:
+
 - Most slicers (Cura, PrusaSlicer, OrcaSlicer) include a "split model" or "cut" tool. The user can specify a cutting plane, split the model into two or more parts sized to fit the bed, and print separately.
 - Design alignment features into the split: flat split faces are difficult to align accurately. Best practice is to add alignment pins (3mm diameter cylindrical protrusions on one face, corresponding 3.1mm holes on the mating face) at two points minimum.
 - Joining methods: CA (cyanoacrylate / super glue) works for PLA and most FDM plastics. For high-stress or outdoor joints, 2-part epoxy is more durable. For PETG, use gel CA. For ABS, acetone welding (brush acetone on both faces, press together for 30 seconds) creates a near-homogeneous bond.
 - Clearance at split faces: plan for 0.1--0.2mm clearance on mating surfaces so they press together without forcing.
 
 ### User's Filament Is Producing Bubbling, Popping Sounds or Extreme Stringing
+
 This is almost always a moisture problem, not a slicer setting problem. Hygroscopic filaments (PETG, Nylon, PVA, and to a lesser extent PLA) absorb atmospheric moisture. Moisture turns to steam inside the nozzle, creating bubbles, surface roughness, steam-popping sounds during extrusion, and dramatically increased stringing.
+
 - Diagnostic test: extrude 100mm of filament manually through a heated nozzle. Listen for popping sounds. Wet filament pops and snaps. Dry filament extrudes silently.
 - Drying protocol: food dehydrator at 45--50°C for 4--6 hours for PLA; 65°C for 4--6 hours for PETG; 80°C for 8--12 hours for Nylon. Oven at the lowest setting (usually 50--60°C) for 4--6 hours also works. Remove spools immediately when done -- leaving them in a warm oven as it cools can cause them to absorb humidity from the cooling air.
 - Prevention: store filament in sealed bags or containers with silica gel desiccant. A vacuum-sealed bag with fresh silica gel will keep filament dry for months. A purpose-built filament dry box (heated, with humidity readout) is the best long-term solution for PETG and Nylon users.
 
 ### User Has a Partial or Complete Nozzle Clog
+
 Nozzle clogs are a rite of passage. Teach the complete procedure:
+
 - Identify severity: partial clog (filament extrudes but inconsistently or thinly) vs. complete clog (nothing extrudes).
 - First response -- cold pull (atomic pull):
   1. Heat nozzle to full print temperature (200°C for PLA).
-  2. Manually push 50mm of filament through. 
+  2. Manually push 50mm of filament through.
   3. Reduce nozzle temperature to 90°C (PLA) or 120°C (PETG, ABS).
   4. When temperature reaches target, grip the filament firmly and pull with a single sharp, steady pull.
   5. The pulled filament should have a clean, shiny pointed tip shaped like the nozzle interior. If it is dirty or broken, repeat.
@@ -394,6 +420,7 @@ Nozzle clogs are a rite of passage. Teach the complete procedure:
 ## Your 3D Printing Setup and Learning Plan
 
 ### Your Profile
+
 - Printer type: Cartesian FDM with Bowden extruder + auto bed leveling (ABL)
 - Extruder type: Bowden -- this affects your retraction settings (use 5mm, not 1mm)
 - Build surface: check what came with the printer (likely glass with adhesion coating or PEI spring steel sheet)
@@ -406,12 +433,14 @@ Nozzle clogs are a rite of passage. Teach the complete procedure:
 ### Phase 1: Initial Setup -- Do These Before Opening the Slicer
 
 **1. Mechanical checks (10 minutes):**
+
 - Power on the printer and navigate to the preheat menu. Heat the bed to 60°C and the nozzle to 200°C.
 - While heating, check that both the X and Y axis belts feel taut when you pluck them -- like a guitar string that's in tune. If one feels loose, tighten it before your first print.
 - With everything at temperature, check that the hotend cooling fan (the smaller fan that runs continuously on the heatsink) is spinning. A dead hotend fan causes heat creep and clogs within minutes of printing.
 - Navigate to the extruder control menu. Manually extrude 100mm of PLA at 200°C. Watch the filament come out of the nozzle -- it should flow in a smooth, consistent strand with no bubbling or popping sounds. Wet filament pops. If yours pops, dry it at 45°C for 4--6 hours in an oven before continuing.
 
 **2. Run the auto bed leveling routine (your printer handles the hard part):**
+
 - Follow your printer's ABL procedure (usually in the menu under "Leveling" or "Calibration"). The printer will probe multiple points on the bed surface and build a compensation mesh.
 - After ABL completes, you still need to set the Z-offset (the fine-tuning of how close the nozzle is to the bed on the first layer). Navigate to your Z-offset menu.
 - Print a single-layer 150x150mm square (any slicer will let you make one, or find a "first layer test" file online). Watch the lines lay down:
@@ -426,10 +455,11 @@ Nozzle clogs are a rite of passage. Teach the complete procedure:
 
 Open your slicer, create a new print profile, and set these values:
 
-| Setting               | Your Value                   | Why / When to Change                                     |
-|-----------------------|------------------------------|----------------------------------------------------------|
-| Layer height          | 0.20mm                       | Use 0.12mm for quality prints, 0.28mm for fast drafts    |
-| Wall count            | 3 walls                      | Bump to 4 walls for all your bracket/organizer prints    |
-| Top/bottom layers     | 4 layers                     | 5 layers for large flat top surfaces                     |
-| Infill %              | 20% (calibration only)       | 30--40% for everything functional                       |
+| Setting           | Your Value             | Why / When to Change                                  |
+| ----------------- | ---------------------- | ----------------------------------------------------- |
+| Layer height      | 0.20mm                 | Use 0.12mm for quality prints, 0.28mm for fast drafts |
+| Wall count        | 3 walls                | Bump to 4 walls for all your bracket/organizer prints |
+| Top/bottom layers | 4 layers               | 5 layers for large flat top surfaces                  |
+| Infill %          | 20% (calibration only) | 30--40% for everything functional                     |
+
 |

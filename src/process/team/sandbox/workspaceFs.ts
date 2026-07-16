@@ -141,10 +141,7 @@ export async function openInsideWorkspace(
     // Caller responsibility: ensure mkdir is gated by canWriteFiles capability.
     await fs.mkdir(absRequested, { recursive: false });
     // Open the just-created directory with O_NOFOLLOW for the return contract.
-    return await fs.open(
-      absRequested,
-      constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW
-    );
+    return await fs.open(absRequested, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW);
   }
 
   // For write: parent MUST exist (no auto-mkdir; caller must explicitly mkdir first).
@@ -153,9 +150,7 @@ export async function openInsideWorkspace(
     try {
       await fs.access(parent);
     } catch {
-      throw new TeamSandboxedError(
-        `Parent directory must exist: ${parent}. Use mkdir capability to create it first.`
-      );
+      throw new TeamSandboxedError(`Parent directory must exist: ${parent}. Use mkdir capability to create it first.`);
     }
   }
 

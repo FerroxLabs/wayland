@@ -21,18 +21,21 @@ prerequisites:
 Standalone CRO teardown for a single landing page. Produces a section-by-section score, prioritized fixes, and A/B test hypotheses. Unlike `market-audit`, this skill does not fan out - it runs end-to-end in the parent and writes one report.
 
 ## When to Use
+
 - User supplies a landing-page URL and asks for conversion optimization, CRO review, or signup-rate help
 - Slash: `/market-landing <url>` or `/market landing <url>` (via `market` orchestrator)
 - After `/market-audit` if the funnel dimension flagged the landing page as the bottleneck
 
 ## When NOT to Use
+
 - Whole-site audit across many pages - use `market-audit`
 - Copy-only rewrite without conversion-mechanic analysis - use `market-copy`
 - Full funnel (ad → landing → email → checkout) - use `market-funnel`
 
-*Authoring a fresh sales/squeeze/OTO/landing page from a brief - use `/convert <page-type>` (business-conversion pack). market-landing audits existing pages; convert-pack authors fresh ones.*
+_Authoring a fresh sales/squeeze/OTO/landing page from a brief - use `/convert <page-type>` (business-conversion pack). market-landing audits existing pages; convert-pack authors fresh ones._
 
 ## Inputs
+
 - `<url>` - required. Bare domains are normalized to `https://<url>`.
 - `out_path` - optional. Default: `build_report_path("business-marketing", f"landing {url}")`.
 
@@ -60,16 +63,16 @@ Children-blocked tools do not apply here - this skill runs in the parent agent l
 
 Page type sets benchmark expectations and scoring weights.
 
-| Page Type | Primary Goal | Good CR | Great CR |
-|---|---|---|---|
-| Lead Capture | Email/form submission | 5-10% | 15%+ |
-| SaaS Signup | Free trial or freemium signup | 3-7% | 10%+ |
-| E-commerce Product | Add to cart / Purchase | 2-4% | 5%+ |
-| Webinar Registration | Register for event | 20-30% | 40%+ |
-| App Download | Install app | 10-15% | 20%+ |
-| Waitlist | Join waitlist | 15-25% | 35%+ |
-| Consultation Booking | Schedule a call | 5-10% | 15%+ |
-| Nonprofit Donation | Make a donation | 2-5% | 8%+ |
+| Page Type            | Primary Goal                  | Good CR | Great CR |
+| -------------------- | ----------------------------- | ------- | -------- |
+| Lead Capture         | Email/form submission         | 5-10%   | 15%+     |
+| SaaS Signup          | Free trial or freemium signup | 3-7%    | 10%+     |
+| E-commerce Product   | Add to cart / Purchase        | 2-4%    | 5%+      |
+| Webinar Registration | Register for event            | 20-30%  | 40%+     |
+| App Download         | Install app                   | 10-15%  | 20%+     |
+| Waitlist             | Join waitlist                 | 15-25%  | 35%+     |
+| Consultation Booking | Schedule a call               | 5-10%   | 15%+     |
+| Nonprofit Donation   | Make a donation               | 2-5%    | 8%+      |
 
 ### Step 3 - Run the 7-point CRO framework
 
@@ -80,6 +83,7 @@ Score each section 1-10. Weights are fixed; total weighted score is reported out
 First-screen content. ~80% of conversion decisions begin here.
 
 Checklist:
+
 - [ ] Headline is visible within 2 seconds of page load
 - [ ] Headline communicates the primary benefit (not a feature)
 - [ ] Headline is under 10 words
@@ -93,6 +97,7 @@ Checklist:
 - [ ] No navigation menu competing with the CTA (for dedicated landing pages)
 
 Scoring criteria:
+
 - 9-10: Headline is benefit-driven, specific, and compelling. CTA is clear and contrasting. Visual supports the message. Trust indicators present.
 - 7-8: Strong headline and CTA but missing one element (trust badges, supporting visual, or specificity).
 - 5-6: Generic headline or weak CTA. Missing multiple above-the-fold elements.
@@ -102,6 +107,7 @@ Scoring criteria:
 #### Section 2 - Value Proposition (weight 20%)
 
 Checklist:
+
 - [ ] Clear statement of what the product/service does
 - [ ] Specific outcomes or results promised
 - [ ] Differentiation from alternatives (why THIS solution)
@@ -110,6 +116,7 @@ Checklist:
 - [ ] Value proposition is scannable (not buried in paragraphs)
 
 Evaluate using the 4U framework:
+
 1. **Useful** - Does it solve a real problem the visitor has?
 2. **Urgent** - Is there a reason to act now?
 3. **Unique** - Is it different from competitors?
@@ -118,6 +125,7 @@ Evaluate using the 4U framework:
 #### Section 3 - Social Proof (weight 15%)
 
 Types of social proof, ranked by persuasion power:
+
 1. Revenue/results metrics ("$2.4B processed", "500K users")
 2. Named customer testimonials with photos, titles, and companies
 3. Recognizable client logos
@@ -129,6 +137,7 @@ Types of social proof, ranked by persuasion power:
 9. Social media follower counts
 
 Checklist:
+
 - [ ] At least 2 types of social proof present
 - [ ] Testimonials include real names and photos
 - [ ] Testimonials mention specific results or outcomes
@@ -140,6 +149,7 @@ Checklist:
 #### Section 4 - Features and Benefits (weight 15%)
 
 Checklist:
+
 - [ ] Features are translated into benefits (what the feature DOES for the user)
 - [ ] Content is scannable (icons, bullet points, short paragraphs)
 - [ ] Visual hierarchy guides the eye through features
@@ -149,6 +159,7 @@ Checklist:
 - [ ] Feature list is comprehensive but not overwhelming (3-7 key features)
 
 Feature-to-benefit translation check:
+
 - Bad: "AI-powered analytics dashboard"
 - Good: "See exactly which campaigns drive revenue - AI analyzes your data so you don't have to"
 
@@ -156,17 +167,18 @@ Feature-to-benefit translation check:
 
 Common objections by page type:
 
-| Objection | How to Address |
-|---|---|
-| "Too expensive" | ROI calculator, price comparison, money-back guarantee |
-| "Not sure it works" | Case studies, free trial, demo video |
-| "Too complicated" | Setup wizard, onboarding support, "get started in 5 minutes" |
-| "Not sure I need it" | Problem agitation, cost of inaction |
-| "What if I don't like it?" | Free trial, money-back guarantee, cancel anytime |
-| "Is my data safe?" | Security badges, compliance logos, privacy policy link |
-| "I need to ask my team" | Shareable comparison page, team trial, ROI one-pager |
+| Objection                  | How to Address                                               |
+| -------------------------- | ------------------------------------------------------------ |
+| "Too expensive"            | ROI calculator, price comparison, money-back guarantee       |
+| "Not sure it works"        | Case studies, free trial, demo video                         |
+| "Too complicated"          | Setup wizard, onboarding support, "get started in 5 minutes" |
+| "Not sure I need it"       | Problem agitation, cost of inaction                          |
+| "What if I don't like it?" | Free trial, money-back guarantee, cancel anytime             |
+| "Is my data safe?"         | Security badges, compliance logos, privacy policy link       |
+| "I need to ask my team"    | Shareable comparison page, team trial, ROI one-pager         |
 
 Checklist:
+
 - [ ] FAQ section addresses top 3-5 objections
 - [ ] Risk reversals present (guarantee, free trial, cancel anytime)
 - [ ] Pricing transparency (no hidden fees or surprise costs)
@@ -176,6 +188,7 @@ Checklist:
 #### Section 6 - Call-to-Action (weight 10%)
 
 CTA button checklist:
+
 - [ ] CTA text describes the VALUE, not the action ("Get My Free Report" vs "Submit")
 - [ ] CTA button is visually dominant (size, color, whitespace)
 - [ ] CTA appears multiple times on long pages
@@ -185,6 +198,7 @@ CTA button checklist:
 - [ ] CTA is specific to the offer (not generic)
 
 CTA copy scoring:
+
 - Weak: "Submit", "Click Here", "Learn More"
 - Medium: "Sign Up", "Get Started", "Download Now"
 - Strong: "Start My Free Trial", "Get My Custom Report", "Claim Your Discount"
@@ -192,6 +206,7 @@ CTA copy scoring:
 #### Section 7 - Footer and Secondary Elements (weight 5%)
 
 Checklist:
+
 - [ ] Final CTA present at bottom of page
 - [ ] Contact information or support options visible
 - [ ] Privacy policy and terms of service linked
@@ -216,20 +231,21 @@ Copy Score = average of the 5 dimensions × 10 (out of 100).
 
 If the page has a form:
 
-| Element | Best Practice |
-|---|---|
-| Field count | Every additional field reduces conversion ~7%. Lead capture: 3-5 fields max. |
-| Labels | Use inline labels or floating labels. Avoid placeholder-only labels. |
-| Button text | Match the value proposition. "Get My Free Guide" > "Submit". |
-| Error handling | Inline validation. Specific error messages. Don't clear the entire form on error. |
-| Multi-step | Break long forms into steps with progress indicator. |
-| Required vs optional | Mark optional fields, not required ones. |
-| Auto-fill | Enable browser auto-fill for standard fields. |
-| Field types | Use appropriate input types (email, tel, url) for mobile keyboards. |
+| Element              | Best Practice                                                                     |
+| -------------------- | --------------------------------------------------------------------------------- |
+| Field count          | Every additional field reduces conversion ~7%. Lead capture: 3-5 fields max.      |
+| Labels               | Use inline labels or floating labels. Avoid placeholder-only labels.              |
+| Button text          | Match the value proposition. "Get My Free Guide" > "Submit".                      |
+| Error handling       | Inline validation. Specific error messages. Don't clear the entire form on error. |
+| Multi-step           | Break long forms into steps with progress indicator.                              |
+| Required vs optional | Mark optional fields, not required ones.                                          |
+| Auto-fill            | Enable browser auto-fill for standard fields.                                     |
+| Field types          | Use appropriate input types (email, tel, url) for mobile keyboards.               |
 
 ### Step 6 - Mobile responsiveness audit
 
 Mobile is 60%+ of web traffic. Check:
+
 - [ ] CTA is thumb-reachable (bottom half of screen)
 - [ ] Text is readable without zooming (16px minimum body text)
 - [ ] Forms are usable on mobile (large tap targets, appropriate keyboards)
@@ -243,19 +259,19 @@ Mobile is 60%+ of web traffic. Check:
 
 Conversion impact benchmarks:
 
-| Load Time | Conversion Impact |
-|---|---|
-| 0-2 seconds | Baseline (optimal) |
-| 2-3 seconds | -7% conversion rate |
-| 3-5 seconds | -20% conversion rate |
-| 5-8 seconds | -35% conversion rate |
-| 8+ seconds | -50%+ conversion rate |
+| Load Time   | Conversion Impact     |
+| ----------- | --------------------- |
+| 0-2 seconds | Baseline (optimal)    |
+| 2-3 seconds | -7% conversion rate   |
+| 3-5 seconds | -20% conversion rate  |
+| 5-8 seconds | -35% conversion rate  |
+| 8+ seconds  | -50%+ conversion rate |
 
 Common speed issues to flag: unoptimized images (use WebP, lazy loading), render-blocking JavaScript, missing browser caching, no CDN, excessive third-party scripts, unminified CSS/JS.
 
 ### Step 8 - A/B test hypotheses
 
-Format each test as: *"If we [CHANGE], then [METRIC] will [IMPROVE/INCREASE] because [REASON]."*
+Format each test as: _"If we [CHANGE], then [METRIC] will [IMPROVE/INCREASE] because [REASON]."_
 
 Candidate tests: headline variations (benefit vs outcome), CTA color and text, social-proof placement (above vs below fold), form field count (-1/-2 fields), hero image vs hero video, long-form vs short-form, urgency elements (countdown, limited spots), price anchoring, testimonial format (text vs video), chatbot/live chat.
 

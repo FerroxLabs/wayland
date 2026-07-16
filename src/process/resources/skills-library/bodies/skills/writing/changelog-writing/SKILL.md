@@ -9,14 +9,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation writing"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'technical-writing documentation writing'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Changelog Writing
 
 ## When to Use
@@ -24,6 +25,7 @@ metadata:
 Use this skill when the user needs to create or maintain a structured `CHANGELOG.md` file that communicates version history to downstream consumers -- developers, operators, or end users who need to understand what changed between releases.
 
 **Trigger scenarios:**
+
 - User is setting up a new open-source or internal project and needs a changelog file from scratch
 - User has accumulated commits or PRs and needs to distill them into a curated changelog entry for an upcoming release
 - User needs to add one or more version entries to an existing `CHANGELOG.md` that already follows Keep-a-Changelog format
@@ -33,6 +35,7 @@ Use this skill when the user needs to create or maintain a structured `CHANGELOG
 - User needs to back-fill changelog entries for past releases that were undocumented
 
 **Do NOT use this skill when:**
+
 - The user wants narrative release notes for a product announcement, email, or social post -- use `release-notes` instead, which is audience-facing storytelling rather than a technical record
 - The user wants a blog post explaining what changed and why -- use `technical-blog-post`
 - The user wants internal sprint status or team-facing progress updates -- use `status-update`
@@ -69,6 +72,7 @@ Assign each change to exactly one of the six canonical Keep-a-Changelog categori
 - **Security** -- Any change addressing a vulnerability, regardless of severity. Always include the CVE identifier if one exists. Include CVSS severity level when known (e.g., "High (CVSS 8.1)"). Never omit security entries to save face -- transparency here is an obligation.
 
 **Categorization judgment calls:**
+
 - A dependency upgrade that patches a vulnerability is Security, not Changed
 - A dependency upgrade that adds functionality is Changed (or Added if it enables new user-facing features)
 - A performance improvement that changes behavior (e.g., changes output ordering) is Changed, not Fixed
@@ -91,6 +95,7 @@ If the user has not yet decided on a version number, help them select it using t
 Transform raw change descriptions into clean, user-facing changelog entries. This is a prose writing task, not a code task.
 
 **Structural rules for entries:**
+
 - Each entry is a single bullet point starting with a hyphen and a space (`- `)
 - Begin with a noun or verb phrase describing the user-visible impact, not the internal implementation
 - Past tense is preferred for released versions; present tense for Unreleased sections is acceptable but not required
@@ -99,6 +104,7 @@ Transform raw change descriptions into clean, user-facing changelog entries. Thi
 - Keep each entry to one line -- if context is so complex it requires multiple sentences, add a second bullet indented under the first using two spaces
 
 **Writing quality standards:**
+
 - **Specific, not vague:** "Fixed crash when parsing JSON files with Unicode null characters (U+0000)" not "Fixed JSON parsing issue"
 - **User perspective, not developer perspective:** "Reduced memory usage by 40% during large file exports" not "Replaced ArrayList with LinkedHashMap in ExportService"
 - **Impact-led:** Lead with what the user experiences. "Added support for ARM64 architecture on Linux and macOS" not "Added ARM64 build targets to CI pipeline"
@@ -224,17 +230,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Key formatting details by element:**
 
-| Element | Format | Example |
-|---|---|---|
-| File title | `# Changelog` (H1, exact text) | `# Changelog` |
-| Version header | `## [X.Y.Z] - YYYY-MM-DD` (H2) | `## [2.1.0] - 2024-06-15` |
-| Unreleased header | `## [Unreleased]` (H2) | `## [Unreleased]` |
-| Category header | `### Added` (H3) | `### Fixed` |
-| Entry bullet | `- Description (#ref)` | `- Fixed crash on empty input (#89)` |
-| Breaking prefix | `**Breaking:**` in bold before description | `**Breaking:** Removed --legacy flag` |
-| Link definition | `[label]: URL` at file bottom | `[2.1.0]: https://...` |
-| Yanked release | `## [X.Y.Z] - YYYY-MM-DD [YANKED]` | `## [2.0.1] - 2024-05-01 [YANKED]` |
-| Pre-release | Full identifier in brackets | `## [2.0.0-rc.1] - 2024-05-20` |
+| Element           | Format                                     | Example                               |
+| ----------------- | ------------------------------------------ | ------------------------------------- |
+| File title        | `# Changelog` (H1, exact text)             | `# Changelog`                         |
+| Version header    | `## [X.Y.Z] - YYYY-MM-DD` (H2)             | `## [2.1.0] - 2024-06-15`             |
+| Unreleased header | `## [Unreleased]` (H2)                     | `## [Unreleased]`                     |
+| Category header   | `### Added` (H3)                           | `### Fixed`                           |
+| Entry bullet      | `- Description (#ref)`                     | `- Fixed crash on empty input (#89)`  |
+| Breaking prefix   | `**Breaking:**` in bold before description | `**Breaking:** Removed --legacy flag` |
+| Link definition   | `[label]: URL` at file bottom              | `[2.1.0]: https://...`                |
+| Yanked release    | `## [X.Y.Z] - YYYY-MM-DD [YANKED]`         | `## [2.0.1] - 2024-05-01 [YANKED]`    |
+| Pre-release       | Full identifier in brackets                | `## [2.0.0-rc.1] - 2024-05-20`        |
 
 ---
 

@@ -53,6 +53,6 @@ Output: a numbered map with three columns — module title, cognitive level, ass
 
 ## Before / after
 
-**Before:** *"I want to teach my freelance copywriting system. Module one is the foundations of copy, module two is the niche-picking framework, module three is..."*
+**Before:** _"I want to teach my freelance copywriting system. Module one is the foundations of copy, module two is the niche-picking framework, module three is..."_
 
-**After:** *"Transformation: a generalist freelance writer charging under $500 per project lands three retainer clients at $2,000+ per month within ninety days, using a single-channel outbound system. Enduring understanding one: retainer copy is sold on the writer's promise to a business outcome, not on the deliverable. Assessment: the learner sends three outreach messages to named businesses, each tied to one revenue outcome. Module one: pick the outcome (apply). Module two: name the businesses (analyze). Module three: write the message (create). Module four: send and iterate (evaluate)."*
+**After:** _"Transformation: a generalist freelance writer charging under $500 per project lands three retainer clients at $2,000+ per month within ninety days, using a single-channel outbound system. Enduring understanding one: retainer copy is sold on the writer's promise to a business outcome, not on the deliverable. Assessment: the learner sends three outreach messages to named businesses, each tied to one revenue outcome. Module one: pick the outcome (apply). Module two: name the businesses (analyze). Module three: write the message (create). Module four: send and iterate (evaluate)."_

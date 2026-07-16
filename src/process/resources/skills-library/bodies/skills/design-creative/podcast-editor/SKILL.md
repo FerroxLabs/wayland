@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "podcast design"
-  category: "design-creative"
-  subcategory: "audio-music"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'podcast design'
+  category: 'design-creative'
+  subcategory: 'audio-music'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Podcast Editor
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on podcast editor
 - User asks about podcast editor best practices or techniques
 - User wants a structured approach to podcast editor
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of podcast editor
 
@@ -60,9 +61,11 @@ Before providing podcast editing guidance:
 ## Audio Cleanup Fundamentals
 
 ### Noise Reduction
+
 Background noise is the most common audio quality issue in podcasts:
 
 **Types of noise and solutions**:
+
 - **Constant hum/buzz** (HVAC, electrical, computer fans): Use spectral noise reduction. Capture a noise profile from a silent section, then apply reduction to the full track. Tools: iZotope RX, Adobe Audition Noise Reduction, Audacity Noise Reduction.
 - **Room reverb/echo**: Harder to remove than constant noise. Use de-reverb tools (iZotope RX De-reverb). Prevention is better: treat the room with absorption panels, record in a closet, or use a dynamic mic close to the mouth.
 - **Clicks and pops**: Mouth clicks are extremely common in spoken audio. Use a de-click tool (RX Mouth De-click) or manually edit them out.
@@ -73,6 +76,7 @@ Background noise is the most common audio quality issue in podcasts:
 ### EQ for Voice
 
 Standard voice EQ approach:
+
 1. **High-pass filter at 80-100Hz**: Removes rumble, handling noise, and low-frequency room noise. Essential on every voice track.
 2. **Reduce muddiness (200-400Hz)**: If the voice sounds boxy or muddy, cut gently in this range (1-3dB, wide Q).
 3. **Add presence (2-5kHz)**: A gentle boost here makes the voice clearer and more intelligible. 1-3dB, wide Q.
@@ -84,6 +88,7 @@ Standard voice EQ approach:
 Compression evens out the dynamic range so the listener does not need to constantly adjust volume:
 
 **Recommended settings for voice**:
+
 - Threshold: Set to catch peaks, typically -18dB to -12dB
 - Ratio: 3:1 to 4:1 (moderate compression)
 - Attack: 5-15ms (fast enough to catch transients but not so fast it sounds unnatural)
@@ -93,7 +98,9 @@ Compression evens out the dynamic range so the listener does not need to constan
 **Multiple stages**: For highly dynamic recordings, use two compressors in series with gentle settings rather than one compressor working hard. First compressor tames the biggest peaks, second compressor evens out the rest.
 
 ### Processing Chain Order
+
 Apply effects in this order on each voice track:
+
 1. Noise reduction / cleanup (RX or similar)
 2. High-pass filter
 3. EQ (corrective cuts)
@@ -105,6 +112,7 @@ Apply effects in this order on each voice track:
 ## Editing for Pacing and Storytelling
 
 ### What to Remove
+
 - **Filler words**: "um," "uh," "like," "you know," "basically," "actually." Remove most but not all -- some filler words sound natural and removing every one creates an uncanny robotic feel.
 - **False starts**: When a speaker starts a sentence, stops, and restarts. Remove the false start cleanly.
 - **Excessive pauses**: Tighten long pauses (3+ seconds) down to 0.5-1 second. Keep some pauses for rhythm and emphasis.
@@ -113,6 +121,7 @@ Apply effects in this order on each voice track:
 - **Cross-talk and interruptions**: In interviews, clean up overlapping speech where possible.
 
 ### What to Keep
+
 - Natural breathing (but reduce excessively loud breaths)
 - Laughter and genuine reactions
 - Thoughtful pauses that add dramatic weight
@@ -120,7 +129,9 @@ Apply effects in this order on each voice track:
 - Imperfect moments that feel authentic
 
 ### Structural Editing
+
 Beyond cleaning up audio, shape the episode for the listener:
+
 1. **Cold open**: Start with the most compelling 15-30 seconds of the episode before the intro music. This hooks the listener.
 2. **Intro**: Branded intro with music, show name, host introduction. Keep it under 30 seconds.
 3. **Content segments**: Break long episodes into clear sections. Use music or sound design transitions between topics.
@@ -128,6 +139,7 @@ Beyond cleaning up audio, shape the episode for the listener:
 5. **Outro**: Recap, call to action (subscribe, review, visit website), next episode tease, closing music.
 
 ### Interview Editing Techniques
+
 - Remove the interviewer's affirmative sounds ("mm-hmm," "yeah," "right") when they overlap with the guest speaking
 - Reorder answers if the conversation jumped around and a different sequence tells a clearer story
 - Use room tone to fill gaps where you remove content
@@ -135,7 +147,9 @@ Beyond cleaning up audio, shape the episode for the listener:
 - If the host's question is long-winded, trim it to the essential question
 
 ### Narrative Podcast Editing
+
 For story-driven podcasts with narration and tape (recorded interviews, field audio):
+
 - Write the script first, then edit audio to fit the script
 - Narration is the spine. Interview clips and field audio are the evidence.
 - Vary the pace: dense informational sections need breathing room afterward
@@ -145,24 +159,28 @@ For story-driven podcasts with narration and tape (recorded interviews, field au
 ## Music Beds and Sound Design
 
 ### Selecting Music
+
 - **Mood matching**: Music should support the emotional tone of the content, not compete with it
 - **Instrumental only**: Vocals in music compete with speech and are distracting
 - **Energy variation**: Use different energy levels for intro (upbeat), transitions (medium), emotional moments (gentle), and outro (resolving)
 - **Consistency**: Use a consistent musical palette across episodes for brand recognition
 
 ### Music Sources
+
 - **Royalty-free libraries**: Artlist, Epidemic Sound, Musicbed (subscription-based, cleared for podcast use)
 - **Free options**: YouTube Audio Library, Free Music Archive, Pixabay Music
 - **Custom composition**: If budget allows, original theme music creates the strongest brand identity
 - **Licensing**: Always verify that the license covers podcast distribution. Some music licenses do not cover all platforms.
 
 ### Working with Music Beds
+
 - Music under speech should be -20dB to -24dB below the voice level
 - Fade music in and out gradually (1-3 second fades) rather than cutting abruptly
 - Use ducking: automate the music volume to decrease when speech begins and increase during pauses. Many editing tools have auto-ducking features.
 - Avoid music with prominent melodies under speech. Simple, rhythmic, or ambient textures work best as beds.
 
 ### Sound Design Elements
+
 - **Transitions**: Whooshes, stingers, or musical hits between segments
 - **Ambient beds**: Environmental sounds that place the listener in a scene (coffee shop, street, rain, office)
 - **Emphasis sounds**: Subtle effects that highlight key moments (a gentle chime, a bass note)
@@ -173,6 +191,7 @@ Keep sound design subtle. It should enhance, not distract. If the listener notic
 ## Intro and Outro Design
 
 ### Intro Structure
+
 1. **Cold open hook** (0-15 seconds): A compelling quote or moment from the episode
 2. **Music sting** (2-5 seconds): Branded musical transition
 3. **Show intro** (10-20 seconds): Show name, host name, brief description. Can be pre-recorded or spoken fresh each episode.
@@ -180,12 +199,14 @@ Keep sound design subtle. It should enhance, not distract. If the listener notic
 5. **Total intro time**: Under 60 seconds. Under 30 is even better.
 
 ### Outro Structure
+
 1. **Content wrap-up** (15-30 seconds): Summary or final thought
 2. **Call to action** (10-15 seconds): Subscribe, leave a review, visit the website, join the community
 3. **Next episode tease** (5-10 seconds): What is coming next (if known)
 4. **Closing music** (5-15 seconds): Branded music fading out
 
 ### Creating a Branded Intro
+
 - Choose theme music that reflects the show's personality and genre
 - Record a voiceover introduction (can be the host or a separate voice)
 - Layer the voiceover over the music, with the music ducking under speech
@@ -195,22 +216,27 @@ Keep sound design subtle. It should enhance, not distract. If the listener notic
 ## Loudness Standards
 
 ### Target Loudness
+
 - **Integrated loudness**: -16 LUFS (standard for most podcast platforms)
 - **True peak ceiling**: -1 dBTP (prevents clipping on playback devices)
 - **Loudness range**: 6-10 LU (some dynamic variation but not extreme)
 
 ### Why Loudness Matters
+
 - Listeners switch between podcasts, music, and other audio. Consistent loudness prevents jarring volume changes.
 - Platforms like Apple Podcasts and Spotify apply their own normalization. If your podcast is mastered too loud, it will be turned down and may lose quality. If too quiet, it will be turned up and noise becomes audible.
 - Aim for -16 LUFS and you will sound consistent across all platforms.
 
 ### Measuring Loudness
+
 - **LUFS meters**: YouLean Loudness Meter (free), iZotope Insight, Waves WLM Plus
 - Measure the full episode, not just peaks. Integrated LUFS is the average over the entire duration.
 - Check loudness after all processing is complete but before final export.
 
 ### Mastering the Episode
+
 Final processing on the master bus:
+
 1. Gentle compression if needed (1-2dB gain reduction, slow attack, auto release)
 2. Limiter set to -1 dBTP ceiling
 3. Adjust gain to hit -16 LUFS integrated
@@ -219,7 +245,9 @@ Final processing on the master bus:
 ## Show Notes and Transcription
 
 ### Show Notes Best Practices
+
 Show notes serve discoverability (SEO), accessibility, and listener convenience:
+
 - **Episode title**: Clear, descriptive, keyword-rich
 - **Summary**: 2-3 sentence overview of the episode
 - **Timestamps/chapters**: Key topics with time codes (00:00 - Introduction, 05:30 - Topic A, etc.)
@@ -229,7 +257,9 @@ Show notes serve discoverability (SEO), accessibility, and listener convenience:
 - **Transcript link**: For accessibility and SEO
 
 ### Transcription
+
 Transcription makes your podcast accessible to deaf and hard-of-hearing audiences, improves SEO, and provides content for repurposing:
+
 - **AI transcription tools**: Descript, Otter.ai, Whisper (free/open-source), Amazon Transcribe
 - **Accuracy**: AI transcription typically achieves 85-95% accuracy. Always proofread and correct proper nouns, technical terms, and unclear passages.
 - **Speaker identification**: Label each speaker clearly (Host:, Guest Name:)
@@ -238,6 +268,7 @@ Transcription makes your podcast accessible to deaf and hard-of-hearing audience
 ## Publishing Workflow
 
 ### File Export Settings
+
 - **Format**: MP3 (most compatible, smallest file size) or AAC/M4A (better quality at same bitrate)
 - **Bitrate**: 128 kbps mono for speech-only, 192 kbps stereo if music is prominent
 - **Mono vs Stereo**: Mono is standard for single-voice or interview podcasts (half the file size). Stereo for narrative shows with panned elements or prominent music.
@@ -245,7 +276,9 @@ Transcription makes your podcast accessible to deaf and hard-of-hearing audience
 - **ID3 tags**: Embed title, artist/show name, episode number, artwork, and description in the file metadata
 
 ### Podcast Hosting Platforms
+
 A podcast host stores your audio files and generates the RSS feed that distributes to all platforms:
+
 - **Buzzsprout**: User-friendly, good for beginners, free tier available
 - **Libsyn**: Long-established, reliable, professional features
 - **Transistor**: Clean interface, multiple show support, good analytics
@@ -254,7 +287,9 @@ A podcast host stores your audio files and generates the RSS feed that distribut
 - **Simplecast**: Advanced analytics, enterprise features
 
 ### Distribution Checklist
+
 Submit your RSS feed to:
+
 - Apple Podcasts (largest directory)
 - Spotify
 - Google Podcasts / YouTube Music
@@ -267,6 +302,7 @@ Submit your RSS feed to:
 Submission is a one-time process per platform. New episodes distribute automatically via RSS.
 
 ### Episode Release Workflow
+
 1. Final audio edit and master to -16 LUFS
 2. Export MP3 with proper ID3 tags
 3. Create episode artwork if different from show artwork
@@ -281,26 +317,29 @@ Submission is a one-time process per platform. New episodes distribute automatic
 ## Software Recommendations
 
 ### For Beginners
+
 - **Descript**: Edit audio by editing text. Revolutionary for non-audio people. Built-in transcription, filler word removal, and publishing.
 - **GarageBand (Mac)**: Free, intuitive, capable for basic podcast editing.
 - **Audacity (Free, cross-platform)**: Powerful but less intuitive. Excellent for the budget-conscious.
 
 ### For Intermediate Editors
+
 - **Hindenburg Journalist**: Designed specifically for spoken word and podcast editing. Automatic loudness management.
 - **Adobe Audition**: Professional audio editor with strong noise reduction and multitrack capabilities.
 - **Logic Pro (Mac)**: Full-featured DAW at a one-time cost. Excellent for podcasts with music or complex sound design.
 
 ### For Advanced Production
+
 - **Pro Tools**: Industry standard for audio post-production. Best for narrative podcasts and audio dramas.
 - **iZotope RX**: Not an editor, but the essential toolkit for audio repair (noise reduction, de-click, de-reverb, dialogue isolate).
 - **Reaper**: Affordable, infinitely customizable DAW with a loyal community. Steep learning curve but powerful.
 
 ### Remote Recording Tools
+
 - **Riverside.fm**: Records locally on each participant's machine for high-quality audio. Video capability.
 - **SquadCast**: Similar local recording approach. Clean interface.
 - **Zencastr**: Free tier, local recording, automatic post-production.
 - **Zoom**: Widely available but records compressed audio over the internet (lower quality). Use the "Record separate audio file for each participant" setting and local recording when possible.
-
 
 ## Output Format
 
@@ -314,13 +353,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with podcast editor for a mid-size project."
 
 **Output:** A complete podcast editor framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

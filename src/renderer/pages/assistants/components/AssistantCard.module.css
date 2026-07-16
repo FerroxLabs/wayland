@@ -8,7 +8,11 @@
   border-radius: 12px;
   background: var(--color-bg-2);
   cursor: pointer;
-  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
   /* Compact card now that the backend hint is gone (F3) - gives the
      description room to breathe across up to 3 lines instead of 2 padded. */
   min-height: 104px;
@@ -128,7 +132,9 @@
   border-radius: 6px;
   color: var(--color-text-3);
   opacity: 0;
-  transition: opacity 0.12s ease, background 0.12s ease;
+  transition:
+    opacity 0.12s ease,
+    background 0.12s ease;
   background: transparent;
   border: 0;
   cursor: pointer;

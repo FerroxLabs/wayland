@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management report template"
-  category: "productivity"
-  subcategory: "project-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'project-management report template'
+  category: 'productivity'
+  subcategory: 'project-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Project Status Report
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to produce a recurring status report for an active project -- weekly, biweekly, or monthly cadence -- and wants a consistent format that stakeholders can scan in under two minutes
 - A user asks how to communicate project health to a sponsor, client, manager, or collaborator who is not embedded in day-to-day work
 - A user wants to establish a RAG (Red/Amber/Green) reporting discipline so that status is objective and comparable across periods rather than anecdotal
@@ -29,6 +31,7 @@ metadata:
 - A user wants a written record of project health over time -- for accountability, lessons-learned, or performance documentation
 
 **Do NOT use when:**
+
 - The user is launching a brand-new project for the first time and needs a charter, scope statement, or kickoff agenda -- use `project-kickoff` instead
 - The user wants a retrospective or post-mortem after the project closes -- use `retrospective-facilitator` instead
 - The user needs to build or replan the project schedule, milestone sequence, or work breakdown structure -- use `milestone-planning` instead
@@ -59,21 +62,25 @@ If the user provides all information in one prompt, extract it directly. If they
 Never let the user assign RAG ratings without applying objective criteria. Use these thresholds across all reports:
 
 **Schedule RAG:**
+
 - GREEN: On track or ahead. No milestone slippage. Completion date unchanged.
 - AMBER: 1--7 calendar days behind plan on current milestone OR completion date at risk but recoverable within current scope. A credible recovery plan exists.
 - RED: 8+ calendar days behind plan, OR completion date will slip without scope reduction or resource addition, OR a milestone has already been missed with no recovery plan in place.
 
 **Budget RAG (when budget is tracked):**
+
 - GREEN: Cumulative spend within 5% of planned spend-to-date. No unbudgeted items pending.
 - AMBER: Cumulative spend 6--15% over plan-to-date, OR a known unbudgeted cost is pending approval but within contingency reserve.
 - RED: Cumulative spend 16%+ over plan-to-date, OR contingency reserve exhausted, OR cost overrun requires stakeholder authorization to continue.
 
 **Scope RAG:**
+
 - GREEN: Delivering exactly what was agreed. No change requests open or pending.
 - AMBER: A change request is open and under evaluation. Scope creep has been identified but not yet approved. Outcome uncertain.
 - RED: Scope has been reduced without stakeholder approval, OR approved scope cannot be delivered within current constraints, OR unauthorized work is consuming capacity.
 
 **Quality RAG:**
+
 - GREEN: Deliverables meet acceptance criteria. No rework items open.
 - AMBER: Minor rework identified on 1--2 deliverables. Issue is contained, no impact on downstream milestones.
 - RED: A deliverable failed acceptance review and must be substantially reworked. A downstream milestone depends on the failed item. Delivery risk is elevated.
@@ -151,8 +158,8 @@ Apply these formatting disciplines when assembling the report:
 ---
 
 ### Executive Summary
-[2--3 sentences. State overall status in plain terms. Name the most important accomplishment 
-this period. Name the most critical action needed from stakeholders. Written for someone who 
+[2--3 sentences. State overall status in plain terms. Name the most important accomplishment
+this period. Name the most critical action needed from stakeholders. Written for someone who
 will not read the rest of the report.]
 
 ---
@@ -180,7 +187,7 @@ will not read the rest of the report.]
 | Budget | [G/A/R] | [Specific: "$X of $Y spent (Z%) -- on/over/under plan-to-date" -- omit row if no budget tracked] |
 | Quality | [G/A/R] | [Specific: "All deliverables accepted" or "Homepage mockup requires rework -- 2 days"] |
 
-**Overall status is [color] because:** [One sentence explaining the determining factor -- which 
+**Overall status is [color] because:** [One sentence explaining the determining factor -- which
 dimension drove the overall rating and why.]
 
 ---
@@ -190,7 +197,7 @@ dimension drove the overall rating and why.]
 - **Overall completion:** [X of Y milestones complete] ([Z]%)
 - **Current active milestone:** [Milestone name] -- [On track / At risk / Delayed by X days]
 - **Projected completion date:** [Date] ([Unchanged / Moved from original date of (date)])
-- **Key project metric:** [Domain-specific measure: e.g., "8 of 22 features shipped," "4 of 6 
+- **Key project metric:** [Domain-specific measure: e.g., "8 of 22 features shipped," "4 of 6
   chapters drafted," "3 of 5 rooms complete"]
 
 ---
@@ -248,9 +255,9 @@ dimension drove the overall rating and why.]
 
 ### Notes and Context
 
-[Freeform section. Use for: observations that don't fit other sections, positive signals worth 
-documenting, lessons being applied from prior periods, context a new reader would need to 
-understand the report, or anything that would otherwise be said verbally but not documented. 
+[Freeform section. Use for: observations that don't fit other sections, positive signals worth
+documenting, lessons being applied from prior periods, context a new reader would need to
+understand the report, or anything that would otherwise be said verbally but not documented.
 Keep to 3--5 sentences. Bold the single most important sentence.]
 
 ---
@@ -356,6 +363,7 @@ Red does not mean failure -- it means the project needs attention. Help the user
 **Output:**
 
 ## Project Status Report -- Business Book: First Draft
+
 **Report #3 of 10 | Reporting Period: May 26 -- June 1, 2025**
 
 ---
@@ -368,26 +376,26 @@ The book project is currently **AMBER**. Four of 12 chapters are complete (33%),
 
 ### Report Header
 
-| Field | Value |
-|-------|-------|
-| Project | Business Book -- First Draft (12 Chapters) |
-| Report Number | #3 |
-| Report Date | June 1, 2025 |
-| Reporting Period | May 26 -- June 1, 2025 |
-| Report Author | [Author] |
-| Primary Audience | Editor |
-| Next Report Due | June 8, 2025 |
+| Field            | Value                                      |
+| ---------------- | ------------------------------------------ |
+| Project          | Business Book -- First Draft (12 Chapters) |
+| Report Number    | #3                                         |
+| Report Date      | June 1, 2025                               |
+| Reporting Period | May 26 -- June 1, 2025                     |
+| Report Author    | [Author]                                   |
+| Primary Audience | Editor                                     |
+| Next Report Due  | June 8, 2025                               |
 
 ---
 
 ### Overall Status: 🟡 AMBER
 
-| Dimension | Status | Detail |
-|-----------|--------|--------|
-| Schedule | AMBER | Chapter 5 research not started -- delivery will slip 10 days from June 6 to June 16 |
-| Scope | GREEN | All 12 chapters remain in scope; no structural changes requested or planned |
-| Budget | GREEN | $1,800 of $6,000 spent (30%) at Week 6 of 20 (30% of timeline) -- exactly on track |
-| Quality | GREEN | All 4 completed chapters accepted without rework requests |
+| Dimension | Status | Detail                                                                              |
+| --------- | ------ | ----------------------------------------------------------------------------------- |
+| Schedule  | AMBER  | Chapter 5 research not started -- delivery will slip 10 days from June 6 to June 16 |
+| Scope     | GREEN  | All 12 chapters remain in scope; no structural changes requested or planned         |
+| Budget    | GREEN  | $1,800 of $6,000 spent (30%) at Week 6 of 20 (30% of timeline) -- exactly on track  |
+| Quality   | GREEN  | All 4 completed chapters accepted without rework requests                           |
 
 **Overall status is AMBER because:** Schedule dimension is AMBER -- Chapter 5 is at risk of a confirmed 10-day delay, which may compress later chapters if not managed.
 
@@ -404,22 +412,22 @@ The book project is currently **AMBER**. Four of 12 chapters are complete (33%),
 
 ### Accomplishments This Period
 
-| # | Deliverable/Milestone | Completed | vs. Plan | Notes |
-|---|-----------------------|-----------|----------|-------|
-| 1 | Chapter 3 -- Leadership Principles: full draft | May 27 | On time | Strongest chapter to date per self-review; sent to editor |
-| 2 | Chapter 4 -- Building High-Trust Teams: full draft | May 31 | 1 day early | Research was already complete from Chapter 3 overlap -- accelerated draft |
-| 3 | Research dossier for Chapters 6--8 compiled by freelancer | May 30 | On time | 47-page research summary delivered; covers case studies for Parts 2 and 3 |
+| #   | Deliverable/Milestone                                     | Completed | vs. Plan    | Notes                                                                     |
+| --- | --------------------------------------------------------- | --------- | ----------- | ------------------------------------------------------------------------- |
+| 1   | Chapter 3 -- Leadership Principles: full draft            | May 27    | On time     | Strongest chapter to date per self-review; sent to editor                 |
+| 2   | Chapter 4 -- Building High-Trust Teams: full draft        | May 31    | 1 day early | Research was already complete from Chapter 3 overlap -- accelerated draft |
+| 3   | Research dossier for Chapters 6--8 compiled by freelancer | May 30    | On time     | 47-page research summary delivered; covers case studies for Parts 2 and 3 |
 
 ---
 
 ### Upcoming Work -- Next Period (June 2 -- June 8, 2025)
 
-| # | Milestone/Deliverable | Target Date | Owner | Dependencies | Risk |
-|---|-----------------------|-------------|-------|-------------|------|
-| 1 | Chapter 5 research -- complete primary source review | June 5 | Author | None -- starting now | High |
-| 2 | Chapter 5 -- first draft | June 16 | Author | Chapter 5 research (above) | High |
-| 3 | Begin Chapter 6 research | June 7 | Author | Chapters 6--8 dossier (complete) | Low |
-| 4 | Editor check-in call | June 8 | Author + Editor | This status report | Low |
+| #   | Milestone/Deliverable                                | Target Date | Owner           | Dependencies                     | Risk |
+| --- | ---------------------------------------------------- | ----------- | --------------- | -------------------------------- | ---- |
+| 1   | Chapter 5 research -- complete primary source review | June 5      | Author          | None -- starting now             | High |
+| 2   | Chapter 5 -- first draft                             | June 16     | Author          | Chapter 5 research (above)       | High |
+| 3   | Begin Chapter 6 research                             | June 7      | Author          | Chapters 6--8 dossier (complete) | Low  |
+| 4   | Editor check-in call                                 | June 8      | Author + Editor | This status report               | Low  |
 
 ---
 
@@ -437,11 +445,11 @@ No decisions required this period. The editor is informed of the Chapter 5 delay
 
 ### Risks and Issues Log
 
-| # | Risk/Issue | Category | Probability | Impact | Status | Mitigation/Action | Last Updated |
-|---|-----------|----------|-------------|--------|--------|-------------------|-------------|
-| 1 | Chapter 5 delay cascades into Chapters 6--7 | Schedule | Medium | Medium | Active | Begin Chapter 6 research in parallel this week; do not wait for Chapter 5 to finish | June 1, 2025 |
-| 2 | Freelance researcher unavailable for Chapters 9--12 | External | Low | High | Monitoring | Confirm availability with researcher by June 15; identify backup if needed | June 1, 2025 |
-| 3 | Scope of Chapter 8 may expand based on new research | Scope | Low | Low | Monitoring | Flag to editor before drafting if expansion seems warranted | June 1, 2025 |
+| #   | Risk/Issue                                          | Category | Probability | Impact | Status     | Mitigation/Action                                                                   | Last Updated |
+| --- | --------------------------------------------------- | -------- | ----------- | ------ | ---------- | ----------------------------------------------------------------------------------- | ------------ |
+| 1   | Chapter 5 delay cascades into Chapters 6--7         | Schedule | Medium      | Medium | Active     | Begin Chapter 6 research in parallel this week; do not wait for Chapter 5 to finish | June 1, 2025 |
+| 2   | Freelance researcher unavailable for Chapters 9--12 | External | Low         | High   | Monitoring | Confirm availability with researcher by June 15; identify backup if needed          | June 1, 2025 |
+| 3   | Scope of Chapter 8 may expand based on new research | Scope    | Low         | Low    | Monitoring | Flag to editor before drafting if expansion seems warranted                         | June 1, 2025 |
 
 ---
 
@@ -453,8 +461,8 @@ The delay on Chapter 5 is a sequencing error -- research for this chapter was de
 
 ### Report History (Last 3 Periods)
 
-| Report # | Period | Overall | Schedule | Budget | Key Issue |
-|----------|--------|---------|----------|--------|-----------|
-| #1 | May 12--18 | 🟢 GREEN | GREEN | GREEN | None -- strong start, Chapters 1--2 complete |
-| #2 | May 19--25 | 🟢 GREEN | GREEN | GREEN | Chapter 3 started late but recovered within period |
-| #3 (current) | May 26--Jun 1 | 🟡 AMBER | AMBER | GREEN | Chapter 5 research not started -- 10-day delay projected |
+| Report #     | Period        | Overall  | Schedule | Budget | Key Issue                                                |
+| ------------ | ------------- | -------- | -------- | ------ | -------------------------------------------------------- |
+| #1           | May 12--18    | 🟢 GREEN | GREEN    | GREEN  | None -- strong start, Chapters 1--2 complete             |
+| #2           | May 19--25    | 🟢 GREEN | GREEN    | GREEN  | Chapter 3 started late but recovered within period       |
+| #3 (current) | May 26--Jun 1 | 🟡 AMBER | AMBER    | GREEN  | Chapter 5 research not started -- 10-day delay projected |

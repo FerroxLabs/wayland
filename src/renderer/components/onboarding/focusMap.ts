@@ -54,24 +54,13 @@ export const FOCUS_PERSONAS: readonly FocusPersona[] = [
     icon: 'pen-line',
     specialists: ['ext-copy', 'ext-humanizer', 'ext-mira', 'ext-voiceprint', 'ext-research', 'ext-lens'],
     teams: ['ext-content-studio', 'ext-creator-studio', 'ext-editorial-newsroom'],
-    workflows: [
-      'wayland-blog-publish',
-      'wayland-content-calendar-build',
-      'wayland-headline-lab',
-      'wayland-vsl-build',
-    ],
+    workflows: ['wayland-blog-publish', 'wayland-content-calendar-build', 'wayland-headline-lab', 'wayland-vsl-build'],
   },
   {
     id: 'sales',
     icon: 'trending-up',
     specialists: ['ext-sales', 'ext-forge', 'ext-stage', 'ext-vault', 'ext-copy'],
-    teams: [
-      'ext-cold-outbound',
-      'ext-growth-loop',
-      'ext-product-launch',
-      'ext-sales-pipeline',
-      'ext-first-customers',
-    ],
+    teams: ['ext-cold-outbound', 'ext-growth-loop', 'ext-product-launch', 'ext-sales-pipeline', 'ext-first-customers'],
     workflows: ['wayland-outreach-build', 'wayland-full-funnel-design', 'wayland-offer-build'],
   },
   {

@@ -132,7 +132,11 @@ const SkillsFlyout: React.FC<Props> = ({ composer, draftText = '', suggestions, 
       <div className={styles.meta}>
         <div className={styles.name}>
           {s.name}
-          <span className={styles.srcTag}>{s.kind === 'builtin' ? t('conversation.composerMenu.tagBuiltin', { defaultValue: 'builtin' }) : t('conversation.composerMenu.tagAdded', { defaultValue: 'added' })}</span>
+          <span className={styles.srcTag}>
+            {s.kind === 'builtin'
+              ? t('conversation.composerMenu.tagBuiltin', { defaultValue: 'builtin' })
+              : t('conversation.composerMenu.tagAdded', { defaultValue: 'added' })}
+          </span>
         </div>
         <div className={styles.desc}>{s.description}</div>
       </div>

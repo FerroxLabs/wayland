@@ -157,7 +157,9 @@ async function notarizeAndStapleWithRetry({ dmg, name, appleId, appleIdPassword,
 
       // Staple the ticket so Gatekeeper validates the dmg offline. `stapler`
       // contacts Apple's ticket servers with no client timeout, so bound it too.
-      if (!runBounded('xcrun', ['stapler', 'staple', dmg], { timeoutMs: 300000, label: `notarizeDmg: stapling ${name}` })) {
+      if (
+        !runBounded('xcrun', ['stapler', 'staple', dmg], { timeoutMs: 300000, label: `notarizeDmg: stapling ${name}` })
+      ) {
         throw new Error(`stapler staple failed or timed out for ${name}`);
       }
       console.log(`notarizeDmg: stapled ${name}`);
@@ -234,4 +236,3 @@ function signDmgNoTimestamp(identity, dmg) {
 
 // Exported for unit testing the retry policy without spawning notarytool.
 exports.shouldRetryNotarization = shouldRetryNotarization;
-

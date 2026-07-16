@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Food Truck Operator
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start or run a food truck business and needs guidance on permits, licensing, or equipment
 - The user needs help with mobile menu design, route planning, event booking, or commissary kitchen requirements
 - The user wants food truck marketing strategies, seasonal adaptation plans, or financial projections
 - The user is deciding between a food truck and a brick-and-mortar restaurant
 
 **Do NOT use this skill when:**
+
 - The user is opening a traditional restaurant (use restaurant-owner instead)
 - The user needs general food preparation or cooking guidance (use relevant home-household skill)
 - The user wants general small business advice not specific to food trucks (use business-planner instead)
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on food truck operator
 - User asks about food truck operator best practices or techniques
 - User wants a structured approach to food truck operator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of food truck operator
+
 ## Questions to Ask First
 
 Before providing guidance, establish the operator's situation:
@@ -67,6 +72,7 @@ Before providing guidance, establish the operator's situation:
 ## Permits and Licenses
 
 ### Required Documentation Checklist
+
 ```
 BUSINESS FORMATION:
 [ ] Business entity (LLC recommended)
@@ -104,6 +110,7 @@ INSURANCE:
 ```
 
 ### Permit Costs Budget (Typical Ranges)
+
 ```
 Mobile food vendor license:     $100-$1,000/year (varies by city)
 Health department permit:       $200-$600/year
@@ -118,6 +125,7 @@ TOTAL ANNUAL PERMITS:           $1,000-$5,000+
 ## Menu Design for Mobile Operations
 
 ### Mobile Menu Principles
+
 ```
 CONSTRAINTS TO DESIGN AROUND:
 - Limited prep space (typically 80-120 sq ft)
@@ -143,6 +151,7 @@ DESIGN RULES:
 ```
 
 ### Menu Board Design
+
 ```
 Layout:
   TOP: Business name/logo
@@ -160,6 +169,7 @@ Tips:
 ```
 
 ### Pricing Strategy
+
 ```
 Food Cost Targets:
   Target food cost: 28-32% of menu price
@@ -174,6 +184,7 @@ Average Check Target: $12-$18 per customer
 ## Equipment and Truck Setup
 
 ### Truck Acquisition Options
+
 ```
 NEW CUSTOM BUILD:
   Cost: $75,000-$200,000+
@@ -201,6 +212,7 @@ TRAILER:
 ```
 
 ### Essential Equipment Checklist
+
 ```
 COOKING:
 [ ] Flat-top griddle (36" recommended)
@@ -241,6 +253,7 @@ POWER:
 ## Route Planning and Location Strategy
 
 ### Location Types and Revenue Potential
+
 ```
 LOCATION TYPE        | AVG REVENUE/DAY | COMPETITION | CONSISTENCY
 ---------------------|-----------------|-------------|------------
@@ -256,6 +269,7 @@ Hospital/office parks| $400-$900       | Low-Med     | M-F reliable
 ```
 
 ### Route Planning Process
+
 ```
 WEEKLY ROUTE DEVELOPMENT:
 1. Map potential locations within your operating area
@@ -285,6 +299,7 @@ Keep locations scoring 35+ in regular rotation.
 ## Event Booking
 
 ### Event Pricing Models
+
 ```
 MODEL 1: MINIMUM GUARANTEE
   Client guarantees minimum purchase (e.g., $1,500)
@@ -306,6 +321,7 @@ MODEL 4: COMMISSION
 ```
 
 ### Event Booking Checklist
+
 ```
 PRE-EVENT:
 [ ] Written agreement with event details
@@ -331,6 +347,7 @@ DAY OF:
 ## Commissary Kitchen
 
 ### Commissary Requirements
+
 ```
 Most jurisdictions require food trucks to operate from
 a licensed commissary kitchen for:
@@ -355,6 +372,7 @@ TYPICAL COSTS:
 ```
 
 ### Commissary Workflow
+
 ```
 DAILY PREP CYCLE:
   5:00 AM - Arrive at commissary
@@ -370,6 +388,7 @@ DAILY PREP CYCLE:
 ## Social Media Marketing
 
 ### Platform Strategy
+
 ```
 INSTAGRAM (Primary):
   Post frequency: 1-2x daily during service
@@ -400,6 +419,7 @@ GOOGLE BUSINESS PROFILE:
 ```
 
 ### Content Calendar Template
+
 ```
 MONDAY:    Location announcement + menu photo
 TUESDAY:   Behind-the-scenes prep video
@@ -422,6 +442,7 @@ SUNDAY:    Meal prep content, week-ahead preview
 ## Seasonal Adaptation
 
 ### Seasonal Strategy
+
 ```
 SPRING (Mar-May):
   - Festival season begins; book early
@@ -453,6 +474,7 @@ WINTER (Dec-Feb):
 ## Financial Planning
 
 ### Startup Budget Template
+
 ```
 TRUCK AND BUILD-OUT:
   Vehicle/truck:                 $________
@@ -486,6 +508,7 @@ Typical range: $50,000-$200,000
 ```
 
 ### Monthly P&L Template
+
 ```
 REVENUE:
   Street sales:                  $________
@@ -520,6 +543,7 @@ ANNUAL REVENUE TARGETS:
 ```
 
 ### Break-Even Analysis
+
 ```
 Fixed Monthly Costs (rent, insurance, permits, loan payment): $________
 Variable Cost per Sale (food + packaging as % of price): ________%
@@ -540,7 +564,6 @@ Break-Even Revenue: Fixed Costs / Contribution Margin %
 9. Not tracking daily sales and food cost data
 10. Trying to do everything solo instead of hiring help during rush periods
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -553,13 +576,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with food truck operator for a mid-size project."
 
 **Output:** A complete food truck operator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

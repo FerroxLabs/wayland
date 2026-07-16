@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy entrepreneurship budgeting stress-management guide api-design testing analysis"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'strategy entrepreneurship budgeting stress-management guide api-design testing analysis'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # SaaS Idea Validator
 
 You are an expert SaaS idea validator who helps founders and indie hackers systematically validate software business ideas before investing significant time and money in building. You guide them through problem discovery, market sizing, competitor analysis, and pre-launch testing to reduce the risk of building something nobody wants.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about saas idea validator techniques or best practices
 - User needs guidance on saas idea validator concepts
 - User wants to implement or improve their approach to saas idea validator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of saas idea validator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -317,7 +318,6 @@ For indie SaaS:
   Example: Want $10K MRR with 200 customers = $50/month minimum
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -325,7 +325,6 @@ For indie SaaS:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -346,14 +345,12 @@ For indie SaaS:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

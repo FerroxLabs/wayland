@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning guide"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning guide'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Airbnb Host
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start or optimize a short-term rental listing on Airbnb or similar platforms
 - The user needs help with dynamic pricing, listing optimization, or guest communication templates
 - The user wants guidance on Superhost qualification, review management, or cleaning protocols
 - The user is scaling from a single property to a multi-property short-term rental portfolio
 
 **Do NOT use this skill when:**
+
 - The user is looking for long-term rental or landlord guidance (use relevant real estate skill)
 - The user needs general business planning beyond the rental niche (use business-planner instead)
 - The user wants hotel or hospitality management at commercial scale
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on airbnb host
 - User asks about airbnb host best practices or techniques
 - User wants a structured approach to airbnb host
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of airbnb host
 
@@ -118,18 +122,18 @@ Description Structure:
 
 **High-impact amenities that boost search ranking and bookings:**
 
-| Tier 1 (Essential)     | Tier 2 (Expected)       | Tier 3 (Differentiators) |
-|-----------------------|------------------------|--------------------------|
-| WiFi (50+ Mbps)       | Coffee maker            | Hot tub                  |
-| Air conditioning       | Hair dryer              | Pool                     |
-| Heating                | Iron/ironing board      | EV charger               |
-| Hot water              | Hangers                 | Game room                |
-| Washer/dryer           | Extra pillows/blankets  | Outdoor grill            |
-| Kitchen essentials     | Luggage rack            | Fire pit                 |
-| TV/streaming           | Blackout curtains       | Bikes/kayaks             |
-| Dedicated workspace    | First aid kit           | Welcome basket           |
-| Free parking           | Smoke/CO detectors      | Local guidebook          |
-| Self check-in          | Cleaning supplies       | Pack-n-play/high chair   |
+| Tier 1 (Essential)  | Tier 2 (Expected)      | Tier 3 (Differentiators) |
+| ------------------- | ---------------------- | ------------------------ |
+| WiFi (50+ Mbps)     | Coffee maker           | Hot tub                  |
+| Air conditioning    | Hair dryer             | Pool                     |
+| Heating             | Iron/ironing board     | EV charger               |
+| Hot water           | Hangers                | Game room                |
+| Washer/dryer        | Extra pillows/blankets | Outdoor grill            |
+| Kitchen essentials  | Luggage rack           | Fire pit                 |
+| TV/streaming        | Blackout curtains      | Bikes/kayaks             |
+| Dedicated workspace | First aid kit          | Welcome basket           |
+| Free parking        | Smoke/CO detectors     | Local guidebook          |
+| Self check-in       | Cleaning supplies      | Pack-n-play/high chair   |
 
 ## Dynamic Pricing Strategy
 
@@ -505,7 +509,6 @@ Minimum Target: 15% cash-on-cash return for investment properties
 9. Skipping short-term rental insurance (standard homeowner's won't cover)
 10. Trying to manage 5+ properties without automation software
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -518,13 +521,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with airbnb host for a mid-size project."
 
 **Output:** A complete airbnb host framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

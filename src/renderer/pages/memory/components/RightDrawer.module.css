@@ -5,7 +5,9 @@
   width: 0;
   overflow: hidden;
   border-left: 1px solid transparent;
-  transition: width 0.22s ease, border-color 0.22s ease;
+  transition:
+    width 0.22s ease,
+    border-color 0.22s ease;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -96,7 +98,7 @@
   border-radius: 10px;
   font-size: 10.5px;
   background: rgba(74, 222, 128, 0.1);
-  color: #4ADE80;
+  color: #4ade80;
 }
 
 /* Actions */
@@ -143,15 +145,15 @@
 }
 
 .scoreGreen {
-  background: #4ADE80;
+  background: #4ade80;
 }
 
 .scoreAmber {
-  background: #FBBF24;
+  background: #fbbf24;
 }
 
 .scoreMuted {
-  background: #3F4248;
+  background: #3f4248;
 }
 
 .scoreMarker {
@@ -296,7 +298,7 @@
   border: none;
   cursor: pointer;
   font-size: 12px;
-  color: #FF7A45;
+  color: #ff7a45;
   text-align: left;
   transition: background 0.1s;
 }
@@ -337,7 +339,7 @@
 }
 
 .sourcePanelAnchor {
-  border-left: 3px solid #FF7A45;
+  border-left: 3px solid #ff7a45;
   padding-left: 8px;
   margin: 4px 0;
   color: var(--color-text-1);
@@ -354,6 +356,6 @@
 }
 
 .sourcePanelError {
-  color: #F87171;
+  color: #f87171;
   font-size: 12px;
 }

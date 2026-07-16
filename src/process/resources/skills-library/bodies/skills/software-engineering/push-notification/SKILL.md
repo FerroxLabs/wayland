@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices guide"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices guide'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Push Notification Expert
@@ -111,12 +111,12 @@ class APNsClient:
 
 ### APNs Interruption Levels (iOS 15+)
 
-| Level | Behavior | Use Case |
-|-------|----------|----------|
-| `passive` | No sound, no screen wake | Low-priority updates |
-| `active` (default) | Sound, appears normally | Standard notifications |
-| `time-sensitive` | Breaks through Focus modes | Delivery updates, time-limited events |
-| `critical` | Supersedes mute, plays sound | Requires Apple entitlement, emergency only |
+| Level              | Behavior                     | Use Case                                   |
+| ------------------ | ---------------------------- | ------------------------------------------ |
+| `passive`          | No sound, no screen wake     | Low-priority updates                       |
+| `active` (default) | Sound, appears normally      | Standard notifications                     |
+| `time-sensitive`   | Breaks through Focus modes   | Delivery updates, time-limited events      |
+| `critical`         | Supersedes mute, plays sound | Requires Apple entitlement, emergency only |
 
 ## FCM Integration (Android)
 
@@ -187,13 +187,13 @@ class NotificationChannelManager(private val context: Context) {
 
 ### Channel Importance Mapping
 
-| Importance | Behavior | Use Case |
-|-----------|----------|----------|
-| IMPORTANCE_MAX | Sound + heads-up + screen wake | Incoming calls |
-| IMPORTANCE_HIGH | Sound + heads-up | Direct messages |
-| IMPORTANCE_DEFAULT | Sound + status bar | Order updates |
-| IMPORTANCE_LOW | No sound, status bar only | Promotions |
-| IMPORTANCE_MIN | No sound, no status bar | Silent sync |
+| Importance         | Behavior                       | Use Case        |
+| ------------------ | ------------------------------ | --------------- |
+| IMPORTANCE_MAX     | Sound + heads-up + screen wake | Incoming calls  |
+| IMPORTANCE_HIGH    | Sound + heads-up               | Direct messages |
+| IMPORTANCE_DEFAULT | Sound + status bar             | Order updates   |
+| IMPORTANCE_LOW     | No sound, status bar only      | Promotions      |
+| IMPORTANCE_MIN     | No sound, no status bar        | Silent sync     |
 
 ## Rich Notifications
 
@@ -390,14 +390,14 @@ Opt-In Strategy (maximize permission grant rate):
 
 ### Measuring Notification Effectiveness
 
-| Metric | Formula | Target |
-|--------|---------|--------|
-| Opt-in rate | Users with permission / Total users | >60% |
-| Delivery rate | Delivered / Sent | >95% |
-| Open rate | Opened / Delivered | >5% (varies by type) |
-| Conversion rate | Conversions / Opened | Varies by goal |
-| Opt-out rate | Disabled permissions / Total with permission | <2% per month |
-| Uninstall attribution | Uninstalls within 24h of notification / Total | <0.1% |
+| Metric                | Formula                                       | Target               |
+| --------------------- | --------------------------------------------- | -------------------- |
+| Opt-in rate           | Users with permission / Total users           | >60%                 |
+| Delivery rate         | Delivered / Sent                              | >95%                 |
+| Open rate             | Opened / Delivered                            | >5% (varies by type) |
+| Conversion rate       | Conversions / Opened                          | Varies by goal       |
+| Opt-out rate          | Disabled permissions / Total with permission  | <2% per month        |
+| Uninstall attribution | Uninstalls within 24h of notification / Total | <0.1%                |
 
 ## Analytics Implementation
 
@@ -442,6 +442,7 @@ class NotificationAnalytics:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing push notification solutions
 - Reviewing or improving existing push notification approaches
 - Making architectural or implementation decisions about push notification
@@ -449,6 +450,7 @@ class NotificationAnalytics:
 - Troubleshooting push notification-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -459,21 +461,26 @@ class NotificationAnalytics:
 # Push Notification Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -70,14 +70,9 @@ test.describe('Auth: POST /logout', () => {
     expect(beforeLogout.status, 'authenticated /api/auth/user works pre-logout').toBe(200);
 
     // Issue logout.
-    const logoutRes = await postJsonWithCsrf(
-      electronApp,
-      webui.localUrl,
-      '/logout',
-      {},
-      session.ticket,
-      [session.sessionCookie]
-    );
+    const logoutRes = await postJsonWithCsrf(electronApp, webui.localUrl, '/logout', {}, session.ticket, [
+      session.sessionCookie,
+    ]);
     expect(logoutRes.status, 'logout returns 200').toBe(200);
     const logoutBody = JSON.parse(logoutRes.body) as { success: boolean };
     expect(logoutBody.success).toBe(true);
@@ -100,14 +95,9 @@ test.describe('Auth: POST /logout', () => {
     // Capture the JWT before logout - we'll try to refresh it AFTER blacklisting.
     const stolenJwt = session.jwt;
 
-    const logoutRes = await postJsonWithCsrf(
-      electronApp,
-      webui.localUrl,
-      '/logout',
-      {},
-      session.ticket,
-      [session.sessionCookie]
-    );
+    const logoutRes = await postJsonWithCsrf(electronApp, webui.localUrl, '/logout', {}, session.ticket, [
+      session.sessionCookie,
+    ]);
     expect(logoutRes.status, 'logout completed').toBe(200);
 
     // Try to exchange the now-blacklisted token for a fresh one. The refresh

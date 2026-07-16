@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care nutrition strategy"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'pet-care nutrition strategy'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Pet Nutrition Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how much to feed their dog or cat by weight, age, or life stage
 - User wants a feeding schedule with specific times and meal frequencies for a puppy, kitten, adult, or senior pet
 - User asks how to read a pet food label, compare brands, or interpret AAFCO statements
@@ -30,6 +32,7 @@ metadata:
 - User asks about body condition scoring and how to assess their pet's weight at home
 
 **Do NOT use when:**
+
 - Pet has a diagnosed medical condition requiring a prescription diet (kidney disease, diabetes, pancreatitis, struvite crystals, inflammatory bowel disease) -- refer to the veterinarian and the prescription-diet guidance context
 - Pet is clinically obese (body condition score 8-9/9) or severely underweight -- these require a veterinary weight management protocol, not a general feeding guide
 - User is asking about food allergy diagnosis or elimination diet trials -- these are clinical procedures requiring veterinary supervision
@@ -72,6 +75,7 @@ Life stage is the master variable that governs everything else in the nutrition 
 | Pregnant/Lactating | Any | Any | Requires puppy/kitten food or a food labeled "for all life stages"; calorie needs increase 25-50% in late pregnancy and up to 75-200% during peak lactation -- consult veterinarian |
 
 **Key nutritional distinctions by species:**
+
 - Cats require dietary taurine (cannot synthesize sufficient quantities) -- deficiency causes dilated cardiomyopathy and retinal degeneration. Only feed foods labeled for cats.
 - Cats require dietary arachidonic acid (cannot convert linoleic acid) -- plant-based fat sources are insufficient.
 - Cats are poor at metabolizing carbohydrates; high-carb diets contribute to obesity and diabetes.
@@ -106,6 +110,7 @@ RER ≈ 30 x (weight in kg) + 70
 | Kitten (6-12 months) | 2.0 |
 
 **Converting DER to food volume:**
+
 1. Find the food's calorie density on the label: expressed as kcal/cup for dry food, kcal/can or kcal/kg for wet food.
 2. Divide DER by calorie density to get daily food volume.
 3. Divide daily volume by number of meals for per-meal portion.
@@ -126,6 +131,7 @@ Frequency is not arbitrary -- it is tied to digestive physiology and behavioral 
 | Senior | 2 meals/day; consider 3 smaller meals for seniors with GI issues | 2-3 meals/day |
 
 **Frequency rationale -- do not skip this when explaining to users:**
+
 - Two meals per day for adult dogs reduces gastric acid accumulation and hunger-driven scavenging behavior. Large deep-chested breeds (Great Danes, German Shepherds, Standard Poodles, Weimaraners, Rottweilers) should always be fed twice daily and should rest 1 hour before and after eating -- gastric dilatation-volvulus (GDV/bloat) is a life-threatening emergency with a mortality rate of 15-20% even with emergency surgery.
 - Free-feeding (leaving food out all day) is appropriate only for kittens under 6 months with high energy needs and no obesity risk. For adult cats, free-feeding is a primary driver of the 60% overweight/obesity prevalence in the US cat population.
 - Consistent meal times for puppies support house training -- predictable eating leads to predictable elimination within 15-30 minutes of eating.
@@ -136,6 +142,7 @@ Frequency is not arbitrary -- it is tied to digestive physiology and behavioral 
 A user who can read a label confidently is better equipped than one who merely follows a plan. Teach all five components.
 
 **Component 1: AAFCO Nutritional Adequacy Statement**
+
 - This is the single most important sentence on the label. It must say one of two things:
   - "[Food name] is formulated to meet the nutritional levels established by the AAFCO Dog/Cat Food Nutrient Profiles for [life stage]." -- this means the company calculated it on paper. Acceptable but lower standard.
   - "[Food name] has been substantiated by feeding tests using AAFCO procedures for [life stage]." -- this means the food was actually fed to animals in a feeding trial. Higher standard.
@@ -144,6 +151,7 @@ A user who can read a label confidently is better equipped than one who merely f
 - "For supplemental or intermittent feeding only" means it is not a complete diet. Treats, toppers, and broths often carry this statement -- they cannot be the sole food source.
 
 **Component 2: Ingredient List**
+
 - Ingredients are listed by pre-cooking weight, which can be misleading. Chicken is 70% water; chicken meal has had the water removed and is actually more protein-dense per pound.
 - "Chicken" as the first ingredient followed by four grain or starch ingredients means the grains collectively outweigh the chicken.
 - Ingredient splitting: manufacturers sometimes list corn as "corn flour," "corn gluten meal," and "ground corn" separately, each lower on the list, when combined they would be the dominant ingredient.
@@ -152,6 +160,7 @@ A user who can read a label confidently is better equipped than one who merely f
 - Avoid foods where the first two ingredients are grains or starches for carnivore-leaning diets. For cats especially, look for named meat or fish as the first three ingredients.
 
 **Component 3: Guaranteed Analysis (GA)**
+
 - The GA reports minimum protein, minimum fat, maximum fiber, and maximum moisture. These are guarantees, not precise values.
 - Because wet food contains 75-82% moisture and dry food contains 8-12%, direct GA comparison between food types is meaningless. Convert to dry-matter basis (DMB).
 - **Dry-matter basis conversion:** DMB% = (Nutrient% / (100 - Moisture%)) x 100
@@ -164,12 +173,14 @@ A user who can read a label confidently is better equipped than one who merely f
 - Fiber: under 5% DMB is typical for most commercial foods; higher fiber (8-10%) may appear in weight management formulas.
 
 **Component 4: Calorie Content Statement**
+
 - Required on all US pet food labels since 2013. Typically found near the feeding guidelines.
 - Expressed as kcal ME (metabolizable energy) per kilogram, and per common household unit (cup or can).
 - Per-cup calorie density ranges significantly: low-density dry foods run 270-320 kcal/cup; most standard kibbles run 330-400 kcal/cup; high-fat performance formulas run 450-550+ kcal/cup. Using a 400 kcal/cup formula when you assume 330 kcal/cup causes 20% overfeeding daily.
 - If the kcal/cup is not on the label, the manufacturer is required to provide it on request. Without this number, accurate portioning is impossible.
 
 **Component 5: Life Stage, Breed Size, and Manufacturing Information**
+
 - Check whether the food is formulated for the pet's life stage specifically.
 - Large breed puppy foods are not the same as puppy foods -- they have controlled calcium (0.7-1.2% DMB) and phosphorus (0.6-1.1% DMB) levels and a Ca:P ratio of 1:1 to 1.3:1. Excess calcium in large breed puppies does not get excreted -- it deposits in bone and accelerates abnormal growth.
 - "Made in USA" does not mean ingredients are sourced in the USA. Look for "made with ingredients from the USA" if sourcing matters to the user.
@@ -180,6 +191,7 @@ A user who can read a label confidently is better equipped than one who merely f
 Treats are the most overlooked calorie source in pet nutrition. Handle this systematically.
 
 **Treat calorie budget:**
+
 - Maximum 10% of daily caloric intake from treats. This is not a soft guideline -- it is the threshold above which the diet's nutritional balance is meaningfully disrupted.
 - Calculate the budget: DER x 0.10 = maximum treat calories per day
 - Common treat calorie counts: small dog biscuit (25-40 kcal), medium rawhide chew (50-100 kcal), dental chew (60-100 kcal), peanut butter (1 teaspoon = 32 kcal), commercial training treat (3-10 kcal each)
@@ -192,6 +204,7 @@ Treats are the most overlooked calorie source in pet nutrition. Handle this syst
 **Foods that are toxic to cats:** All of the above plus: raw fish (thiamine deficiency with regular feeding), raw eggs (avidin blocks biotin absorption), milk/dairy (most adult cats are lactose intolerant despite the cultural image -- causes diarrhea), dog food as a primary diet (taurine-deficient for cats).
 
 **Supplements:** Most pets eating a complete and balanced diet do not need supplements. Exceptions where evidence supports supplementation:
+
 - Omega-3 fatty acids (EPA/DHA from fish oil): 20-55 mg EPA+DHA per kg body weight for dogs; 10-20 mg/kg for cats. Benefits include coat health, inflammatory modulation, and possible joint support. Use fish oil, not flaxseed oil (cats cannot convert ALA to EPA/DHA efficiently; dogs convert poorly).
 - Probiotics: evidence is mixed but generally safe. Useful during antibiotic treatment, GI upset, or transition periods. Canine/feline-specific strains (Lactobacillus acidophilus, Bifidobacterium animalis) are preferable to human probiotics.
 - Never supplement calcium to pets on a complete and balanced commercial diet -- excess calcium in puppies causes orthopedic disease, and excess calcium in adult dogs can cause urinary calcium oxalate stones.
@@ -375,17 +388,18 @@ Shelters often feed ad libitum or in controlled portions based on their own prot
 ## Pet Nutrition Plan: Mochi (Adult Cat, 5 Years, Recently Spayed)
 
 ### Pet Profile
-| Parameter            | Value                                                |
-|----------------------|------------------------------------------------------|
-| Species              | Cat                                                  |
-| Breed / Size class   | Unknown (assumed domestic shorthair/mixed)           |
-| Age                  | 5 years                                              |
-| Current weight       | 12 lbs (5.45 kg)                                    |
-| Life stage           | Adult                                                |
-| Reproductive status  | Spayed (1 month ago -- recent metabolic change)     |
-| Activity level       | Sedentary (indoor only)                             |
+
+| Parameter            | Value                                                            |
+| -------------------- | ---------------------------------------------------------------- |
+| Species              | Cat                                                              |
+| Breed / Size class   | Unknown (assumed domestic shorthair/mixed)                       |
+| Age                  | 5 years                                                          |
+| Current weight       | 12 lbs (5.45 kg)                                                 |
+| Life stage           | Adult                                                            |
+| Reproductive status  | Spayed (1 month ago -- recent metabolic change)                  |
+| Activity level       | Sedentary (indoor only)                                          |
 | Body condition score | Unknown -- assess with rib/waist/tuck check (instructions below) |
-| Health status        | Healthy (spay was routine surgery)                  |
+| Health status        | Healthy (spay was routine surgery)                               |
 
 ---
 
@@ -397,15 +411,15 @@ Mochi was spayed last month, which is exactly the right time to reassess her foo
 
 ### Calorie Calculation
 
-| Step                          | Value                                                 |
-|-------------------------------|-------------------------------------------------------|
-| Weight in kg                  | 12 lbs ÷ 2.2 = 5.45 kg                               |
-| RER formula                   | 70 x (5.45)^0.75 = 70 x 3.85 = **approximately 270 kcal/day** |
-| Quick-check formula           | 30 x 5.45 + 70 = 163 + 70 = 233 kcal/day (approximation; use 270 from full formula) |
-| Life stage multiplier         | 1.0-1.2 (spayed, sedentary adult indoor cat)          |
-| Pre-spay DER estimate         | 270 x 1.2 = 324 kcal/day                             |
-| Post-spay adjustment          | Reduce by 20-25% to account for metabolic change      |
-| **Post-spay calorie target**  | **270 x 1.0 = 270 kcal/day (start here; adjust based on BCS at 4 weeks)** |
+| Step                         | Value                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| Weight in kg                 | 12 lbs ÷ 2.2 = 5.45 kg                                                              |
+| RER formula                  | 70 x (5.45)^0.75 = 70 x 3.85 = **approximately 270 kcal/day**                       |
+| Quick-check formula          | 30 x 5.45 + 70 = 163 + 70 = 233 kcal/day (approximation; use 270 from full formula) |
+| Life stage multiplier        | 1.0-1.2 (spayed, sedentary adult indoor cat)                                        |
+| Pre-spay DER estimate        | 270 x 1.2 = 324 kcal/day                                                            |
+| Post-spay adjustment         | Reduce by 20-25% to account for metabolic change                                    |
+| **Post-spay calorie target** | **270 x 1.0 = 270 kcal/day (start here; adjust based on BCS at 4 weeks)**           |
 
 **Practical note:** 270 kcal/day is a starting point. Cats have individual metabolic variation. Mochi's actual need could be anywhere from 240-300 kcal/day. The body condition check every 2-3 weeks is what fine-tunes this number to her specific metabolism.
 
@@ -415,11 +429,11 @@ Mochi was spayed last month, which is exactly the right time to reassess her foo
 
 To calculate Mochi's exact portion, locate the calorie information on her dry food bag. It will look like: **"Calorie Content: [X] kcal/kg; [Y] kcal/cup"** -- find the kcal per cup (or kcal per 8-oz measuring cup).
 
-| Scenario                   | Food kcal/cup | Daily Amount       | Per Meal (2 meals)  |
-|----------------------------|--------------|--------------------|----------------------|
-| Low-density kibble         | 290 kcal/cup | 270 ÷ 290 = 0.93 cups | 0.47 cups (~just under ½ cup) |
-| Standard kibble            | 360 kcal/cup | 270 ÷ 360 = 0.75 cups | 0.38 cups (~⅓ cup + 1 Tbsp) |
-| High-density kibble        | 430 kcal/cup | 270 ÷ 430 = 0.63 cups | 0.31 cups (~⅓ cup)  |
+| Scenario            | Food kcal/cup | Daily Amount          | Per Meal (2 meals)            |
+| ------------------- | ------------- | --------------------- | ----------------------------- |
+| Low-density kibble  | 290 kcal/cup  | 270 ÷ 290 = 0.93 cups | 0.47 cups (~just under ½ cup) |
+| Standard kibble     | 360 kcal/cup  | 270 ÷ 360 = 0.75 cups | 0.38 cups (~⅓ cup + 1 Tbsp)   |
+| High-density kibble | 430 kcal/cup  | 270 ÷ 430 = 0.63 cups | 0.31 cups (~⅓ cup)            |
 
 **These amounts may look small.** That is intentional and correct. Most indoor adult cats need far less food than their owners expect, and far less than the bag's feeding chart recommends. Stick with the calculated amount and monitor body condition.
 
@@ -429,10 +443,10 @@ To calculate Mochi's exact portion, locate the calorie information on her dry fo
 
 ### Daily Feeding Schedule
 
-| Time          | Meal          | Portion                       | Notes                                    |
-|---------------|---------------|-------------------------------|------------------------------------------|
-| 7:00 AM       | Breakfast     | Half the daily calculated amount | Serve at the same time daily; consistency regulates hunger |
-| 6:00 PM       | Dinner        | Half the daily calculated amount | Pick up any uneaten food after 20 minutes |
+| Time    | Meal      | Portion                          | Notes                                                      |
+| ------- | --------- | -------------------------------- | ---------------------------------------------------------- |
+| 7:00 AM | Breakfast | Half the daily calculated amount | Serve at the same time daily; consistency regulates hunger |
+| 6:00 PM | Dinner    | Half the daily calculated amount | Pick up any uneaten food after 20 minutes                  |
 
 **Why meal feeding instead of free-choice:** Now that Mochi is spayed and has a reduced metabolic rate, leaving food out all day makes it very easy for her to eat more than she needs. Two scheduled meals with measured portions gives you control over her intake and will help prevent the gradual weight gain that affects most post-spay indoor cats.
 
@@ -440,13 +454,13 @@ To calculate Mochi's exact portion, locate the calorie information on her dry fo
 
 ### Treat Budget
 
-| Parameter               | Value                                                     |
-|-------------------------|-----------------------------------------------------------|
-| Daily calorie target    | 270 kcal/day                                             |
-| 10% treat allowance     | 27 kcal/day maximum from treats                          |
+| Parameter                  | Value                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| Daily calorie target       | 270 kcal/day                                                                   |
+| 10% treat allowance        | 27 kcal/day maximum from treats                                                |
 | Approximate treat examples | Small commercial cat treat: 2-4 kcal each -- she can have 7-13 per day maximum |
-| Plain cooked chicken    | 1 tablespoon shredded = ~9 kcal -- a great high-protein option |
-| Plain cooked shrimp     | 1 small shrimp = ~7 kcal                                 |
+| Plain cooked chicken       | 1 tablespoon shredded = ~9 kcal -- a great high-protein option                 |
+| Plain cooked shrimp        | 1 small shrimp = ~7 kcal                                                       |
 
 **Practical guidance:** "A couple of treats a day" is probably fine as long as the treats are small. Check the calorie content on the treat bag -- many commercial cat treats list kcal per treat or kcal per bag serving. If treats are large or high-calorie, switch to breaking them into smaller pieces. Mochi gets the same sensory reward from a pea-sized piece as from a full-sized treat.
 
@@ -461,7 +475,7 @@ When you look at Mochi's food bag, check for these things:
 - [ ] **AAFCO statement:** Should say "complete and balanced for adult maintenance" or "for all life stages." If it says "supplemental or intermittent feeding only," this is not a complete diet and should not be her only food.
 - [ ] **Life stage:** She is an adult, so "adult" or "all life stages" is correct. Kitten food has excess calories and nutrient levels for her current needs.
 - [ ] **First ingredient:** Should be a named protein source -- chicken, turkey, salmon, tuna, beef. Not "meat" or "poultry" without a species name.
-- [ ] **Calorie content:** Note the exact kcal per cup. This is essential for accurate portioning. Record it here: _______ kcal/cup.
+- [ ] **Calorie content:** Note the exact kcal per cup. This is essential for accurate portioning. Record it here: **\_\_\_** kcal/cup.
 - [ ] **Expiration or best by date:** Dry food has a shelf life. Check that the bag is within the use-by window.
 
 ---
@@ -475,6 +489,7 @@ Since we don't know Mochi's current BCS, assess her now and use it to calibrate 
 3. **Tummy tuck:** View her from the side. Her belly should slope upward between her chest and hips. If it hangs level or sags, she likely has excess abdominal fat.
 
 **Interpreting the result:**
+
 - If ribs are easy to feel, waist visible, tuck present: start at 270 kcal/day and maintain.
 - If ribs are hard to feel, no clear waist: start at 245-255 kcal/day (approximately 10% below calculated DER), reassess in 4 weeks.
 - If ribs are sharp or visible, tuck pronounced: consult a veterinarian. Do not increase calories dramatically without ruling out a medical cause of low weight.
@@ -483,12 +498,12 @@ Since we don't know Mochi's current BCS, assess her now and use it to calibrate 
 
 ### Body Condition Monitoring Schedule
 
-| Frequency      | Action                                                         |
-|----------------|----------------------------------------------------------------|
-| Every 2 weeks  | Rib/waist/tuck check                                          |
-| Monthly        | Weigh on home scale (weigh yourself, then hold Mochi, subtract) or at veterinarian's office |
-| 4 weeks out    | First calorie adjustment checkpoint -- increase or decrease by 10% based on BCS trend |
-| Annual exam    | Ask your veterinarian to assess body condition score formally and review diet |
+| Frequency     | Action                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| Every 2 weeks | Rib/waist/tuck check                                                                        |
+| Monthly       | Weigh on home scale (weigh yourself, then hold Mochi, subtract) or at veterinarian's office |
+| 4 weeks out   | First calorie adjustment checkpoint -- increase or decrease by 10% based on BCS trend       |
+| Annual exam   | Ask your veterinarian to assess body condition score formally and review diet               |
 
 ---
 

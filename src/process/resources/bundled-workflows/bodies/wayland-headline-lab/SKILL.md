@@ -11,13 +11,13 @@ description: >-
   wayland-full-sales-asset) or a copy audit (use wayland-conversion-audit).
 license: Apache-2.0
 type: workflow
-skills: "convert-temperature convert-above-fold"
+skills: 'convert-temperature convert-above-fold'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing conversion copywriting headlines above-fold step-by-step
   category: marketing
-  depends: "convert-temperature convert-above-fold"
+  depends: 'convert-temperature convert-above-fold'
 ---
 
 Headline lab. Generate ranked headline angles for an offer or page, each tagged

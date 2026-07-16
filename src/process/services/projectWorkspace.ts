@@ -32,6 +32,12 @@ export async function enforceProjectWorkspace(extra: Record<string, unknown> | u
   if (!extra || !projectId) return false;
   // A user who explicitly picked a workspace owns that choice.
   if (extra.customWorkspace) return false;
+  // A chat that was assigned its own agent worktree owns that dir - don't pin it
+  // back to the shared repo (this runs at spawn for resumed/migrated rows). If
+  // the worktree dir was deleted, fall through so it re-pins to the project
+  // workspace instead of stranding the chat in a missing directory.
+  const worktreePath = typeof extra.worktreePath === 'string' ? extra.worktreePath.trim() : '';
+  if (worktreePath && existsSync(worktreePath)) return false;
   try {
     const project = await new SqliteProjectRepository().getProject(projectId);
     const projectWorkspace = project?.workspace;

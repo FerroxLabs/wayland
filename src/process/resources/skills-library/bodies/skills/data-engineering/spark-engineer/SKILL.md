@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql guide"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql guide'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Spark Engineer
@@ -26,11 +26,11 @@ Apache Spark is the de facto standard for large-scale distributed data processin
 
 ### When to Use Each API
 
-| API | Language | Type Safety | Optimization | Use Case |
-|-----|----------|-------------|--------------|----------|
-| RDD | Python/Scala/Java | None (Python), Compile-time (Scala) | None (opaque to Catalyst) | Low-level control, custom partitioning, unstructured data |
-| DataFrame | Python/Scala/Java/R | Runtime only | Full Catalyst + Tungsten | Most ETL, SQL-like transformations, interop with BI tools |
-| Dataset | Scala/Java only | Compile-time | Full Catalyst + Tungsten | Type-safe operations in Scala/Java |
+| API       | Language            | Type Safety                         | Optimization              | Use Case                                                  |
+| --------- | ------------------- | ----------------------------------- | ------------------------- | --------------------------------------------------------- |
+| RDD       | Python/Scala/Java   | None (Python), Compile-time (Scala) | None (opaque to Catalyst) | Low-level control, custom partitioning, unstructured data |
+| DataFrame | Python/Scala/Java/R | Runtime only                        | Full Catalyst + Tungsten  | Most ETL, SQL-like transformations, interop with BI tools |
+| Dataset   | Scala/Java only     | Compile-time                        | Full Catalyst + Tungsten  | Type-safe operations in Scala/Java                        |
 
 **Rule of thumb**: Use DataFrames (PySpark) or Datasets (Scala) unless you have a specific reason to drop to RDDs.
 
@@ -174,6 +174,7 @@ def resolve_country(code):
 ```
 
 **Broadcast decision rules**:
+
 - Table < 10 MB: Always broadcast (automatic)
 - Table 10-500 MB: Broadcast if memory allows (increase threshold)
 - Table > 500 MB: Do not broadcast; use sort-merge join
@@ -467,6 +468,7 @@ Key places to investigate Spark performance issues:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing spark engineer solutions
 - Reviewing or improving existing spark engineer approaches
 - Making architectural or implementation decisions about spark engineer
@@ -474,6 +476,7 @@ Key places to investigate Spark performance issues:
 - Troubleshooting spark engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -484,21 +487,26 @@ Key places to investigate Spark performance issues:
 # Spark Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

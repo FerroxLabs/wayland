@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing clean-code best-practices"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing clean-code best-practices'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Coverage Analysis
 
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to establish or tune code coverage thresholds for a CI/CD pipeline (e.g., "what percentage should we require?")
 - User is analyzing a coverage report and needs help interpreting gaps -- uncovered branches, untested error paths, or dead code
 - User wants to differentiate between line coverage, branch coverage, function coverage, and statement coverage, and understand when each matters
@@ -30,6 +32,7 @@ metadata:
 - User is dealing with a legacy codebase and needs a phased coverage improvement strategy
 
 **Do NOT use this skill when:**
+
 - User is asking how to write unit tests from scratch -- use the unit-testing skill
 - User needs mutation testing guidance (coverage is a prerequisite topic but mutation analysis is a separate discipline)
 - User is asking about integration or end-to-end test strategy at a system architecture level -- use the test-strategy skill
@@ -81,24 +84,28 @@ A single global threshold is almost always wrong. Define thresholds by risk tier
 Misconfigured tools produce misleading numbers. Each tool has critical configuration decisions.
 
 **Jest (JavaScript/TypeScript):**
+
 - Set `collectCoverageFrom` explicitly -- without it, Jest only measures files that were `require()`d during tests, missing untested files entirely and inflating percentages
 - Use `"coverageProvider": "v8"` for accurate branch coverage in modern Node.js; use `"babel"` only if you need support for older transform pipelines
 - Configure `coverageThreshold` with both global and per-pattern overrides
 - Set `coverageReporters: ["text", "lcov", "json-summary"]` -- `lcov` feeds into GitHub/GitLab coverage widgets; `json-summary` enables automated threshold scripting
 
 **pytest-cov (Python):**
+
 - Always specify `--cov=src` (or your package name) -- never `--cov=.` which includes test files themselves and inflates numbers
 - Use `--cov-branch` to enable branch coverage; without this flag, you are measuring statement coverage only
 - Configure `[coverage:run]` in `pyproject.toml` or `.coveragerc` with `omit` patterns for migrations, settings files, and `__init__.py` files that only contain imports
 - Use `--cov-fail-under=N` for CI gates; combine with `--cov-report=xml` to feed SonarQube or Codecov
 
 **JaCoCo (Java/Kotlin):**
+
 - Configure the `prepare-agent` goal in Maven or the `jacoco` task in Gradle to instrument bytecode at compile time, not just at test execution
 - Set `excludes` patterns for Lombok-generated methods, Spring Boot auto-configuration classes, and MapStruct-generated mappers -- these will otherwise show as uncovered and obscure real gaps
 - Use the `check` goal/task to enforce thresholds; configure it to fail the build with `haltOnFailure: true`
 - Branch coverage in JaCoCo counts every conditional expression, including null checks in generated code -- tune exclusions carefully
 
 **Istanbul/nyc (JavaScript legacy):**
+
 - Use `--all` flag to include files not imported during tests
 - Configure `include` and `exclude` in `.nycrc` rather than relying on command-line flags for reproducibility
 
@@ -233,6 +240,7 @@ When responding to a coverage analysis request, structure the output as follows:
 ### Legacy Codebase with Near-Zero Coverage
 
 When a codebase has 5-20% coverage and has never had gates enforced:
+
 - Do not set a target threshold above the current level on the first day. Set the CI gate at `current - 2%` to establish the ratchet without blocking the team.
 - Identify the 10 highest-risk files (payment flows, authentication, data mutation endpoints) and create a focused "coverage sprint" targeting only those files in the first cycle.
 - Use `jest --coverage --changedSince=main` (or `pytest-cov --cov=src` scoped to modified files) to enforce that new code introduced in PRs meets an 80% branch threshold even when the overall project is far below that. This stops new debt accumulation immediately while the team pays down old debt.
@@ -241,6 +249,7 @@ When a codebase has 5-20% coverage and has never had gates enforced:
 ### Generated Code Inflating or Deflating Coverage
 
 Generated code (GraphQL resolvers, Protobuf classes, ORM models, OpenAPI client stubs, Lombok-annotated classes) creates two problems:
+
 - If included in measurement: the generated getters, setters, and boilerplate inflate your total line count and make your percentage look better than it is. The generated code is not your risk surface.
 - If measured but not excluded: every generated class that has no tests will drop your percentage, causing phantom failures in CI.
 - Resolution: maintain an explicit exclusion list in your coverage config. For JaCoCo, use `excludes` with patterns like `**/*Generated.class`. For coverage.py, add `omit` patterns in `.coveragerc`. For Jest, use `coveragePathIgnorePatterns`. Commit this exclusion list to source control and require justification for every addition.
@@ -248,6 +257,7 @@ Generated code (GraphQL resolvers, Protobuf classes, ORM models, OpenAPI client 
 ### Microservices or Monorepo with Per-Service Coverage Requirements
 
 In a monorepo with multiple services, a single global threshold hides per-service gaps:
+
 - Configure per-package or per-directory thresholds. Jest supports `coverageThreshold` with glob keys. JaCoCo supports per-bundle rules in Gradle multi-project builds.
 - Each service or bounded context should have its own threshold configuration, committed in its own configuration file, not inherited from a root config.
 - In CI, fail the build at the service level, not the monorepo level -- a coverage failure in `payments-service` should not be masked by high coverage in `notifications-service`.
@@ -256,6 +266,7 @@ In a monorepo with multiple services, a single global threshold hides per-servic
 ### Test Suite Runs Slowly with Coverage Enabled
 
 Coverage instrumentation adds 20-50% overhead to test execution time in most environments. This is not a tool bug -- it is the cost of instrumenting every line.
+
 - Never run coverage on every local test invocation. Configure a separate npm/Makefile/tox target: `npm test` runs tests without coverage; `npm run test:coverage` runs with coverage. Coverage runs belong in CI, not in the inner development loop.
 - For Jest: use `--testPathPattern` to run coverage only on the changed files during development. Run full coverage only in CI.
 - For Python: use `pytest-xdist` with `-n auto` for parallel test execution -- coverage.py is compatible with parallel runs when configured with `--concurrency=multiprocessing`.
@@ -265,6 +276,7 @@ Coverage instrumentation adds 20-50% overhead to test execution time in most env
 ### Coverage Paradox: High Percentage, Low Confidence
 
 This is the most dangerous edge case -- a codebase reporting 85% coverage but with poor tests that only execute code without asserting behavior:
+
 - Coverage alone cannot detect this. Signal this limitation explicitly when the user asks "our coverage is 85%, why are we still getting production bugs?"
 - Recommend mutation testing as the next level of analysis: Stryker (JavaScript/TypeScript), PITest (Java), mutmut or Cosmic Ray (Python). Mutation testing injects deliberate bugs and checks whether the test suite catches them. A "mutation score" of 40% on an 85%-covered codebase means most tests are not actually verifying the code's behavior.
 - Look for test anti-patterns: tests without assertions, tests that only call a function without checking its return value or side effects, tests that use `expect(true).toBe(true)` style assertions that always pass. These inflate coverage without providing safety.
@@ -273,6 +285,7 @@ This is the most dangerous edge case -- a codebase reporting 85% coverage but wi
 ### Coverage Tools and TypeScript/Transpiled Code
 
 TypeScript, Babel-transpiled JavaScript, and source-mapped languages create a coverage accuracy problem:
+
 - Coverage is measured on the compiled output, then mapped back to source via source maps. If source maps are inaccurate or missing, the coverage report will show wrong lines as uncovered.
 - For Jest with TypeScript: use `ts-jest` with `coverageProvider: "v8"` for the most accurate source-mapped coverage. The `"babel"` provider uses instrumentation before transpilation, which is more accurate in some edge cases but less accurate for modern TypeScript features.
 - For `esbuild` or `swc`-based pipelines: verify that coverage source map integration is explicitly configured -- these fast transpilers sometimes disable source map generation for performance reasons.
@@ -281,6 +294,7 @@ TypeScript, Babel-transpiled JavaScript, and source-mapped languages create a co
 ### CI Coverage Reporting Flakiness
 
 Coverage percentages sometimes fluctuate 1-3% between identical test runs due to test execution order, async timing, or conditional code paths that depend on timing:
+
 - Set coverage thresholds with a 2-3% buffer below the actual measured coverage to absorb natural fluctuation without false failures.
 - Investigate any fluctuation larger than 3% -- this usually indicates non-deterministic test setup (shared state, time-dependent code, network-dependent tests) rather than a coverage tool issue.
 - Use `--forceExit` (Jest) or equivalent only as a last resort -- it can cause coverage data to not flush to disk, producing incorrect reports.
@@ -305,16 +319,16 @@ Your senior engineer is likely correct. The most common sources of false confide
 // jest.config.ts
 export default {
   collectCoverageFrom: [
-    "src/**/*.ts",
-    "!src/**/*.d.ts",
-    "!src/**/*.test.ts",
-    "!src/**/*.spec.ts",
-    "!src/generated/**",
-    "!src/migrations/**",
-    "!src/index.ts",       // Express bootstrap -- exclude
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/**/*.test.ts',
+    '!src/**/*.spec.ts',
+    '!src/generated/**',
+    '!src/migrations/**',
+    '!src/index.ts', // Express bootstrap -- exclude
   ],
-  coverageProvider: "v8",  // More accurate branch coverage for modern TS
-  coverageReporters: ["text", "text-summary", "lcov", "json-summary"],
+  coverageProvider: 'v8', // More accurate branch coverage for modern TS
+  coverageReporters: ['text', 'text-summary', 'lcov', 'json-summary'],
 };
 ```
 
@@ -328,28 +342,28 @@ If you were not using `collectCoverageFrom`, re-run with this config. Your actua
 
 Run `jest --coverage` with the corrected config and fill in this table:
 
-| Metric            | Current % | Target % | Gap  | Priority |
-|-------------------|-----------|----------|------|----------|
-| Line Coverage     | ~72% (reported) | TBD after config fix | -- | Medium |
-| Branch Coverage   | Unknown -- check report | 80% (Tier 2), 90% (Tier 1) | -- | **High** |
-| Function Coverage | Unknown   | 90%      | --   | High     |
-| Statement Coverage| ~72%      | (use branch instead) | -- | Low |
+| Metric             | Current %               | Target %                   | Gap | Priority |
+| ------------------ | ----------------------- | -------------------------- | --- | -------- |
+| Line Coverage      | ~72% (reported)         | TBD after config fix       | --  | Medium   |
+| Branch Coverage    | Unknown -- check report | 80% (Tier 2), 90% (Tier 1) | --  | **High** |
+| Function Coverage  | Unknown                 | 90%                        | --  | High     |
+| Statement Coverage | ~72%                    | (use branch instead)       | --  | Low      |
 
 ---
 
 ### Module Risk Tier Classification
 
-| Module/Directory             | Risk Tier | Line Target | Branch Target | Rationale                              |
-|-----------------------------|-----------|-------------|---------------|----------------------------------------|
-| `src/payments/`             | Tier 1    | 95%         | 90%           | Financial transactions, data integrity |
-| `src/auth/`                 | Tier 1    | 95%         | 90%           | Authentication, authorization          |
-| `src/orders/`               | Tier 2    | 85%         | 80%           | Core business logic                    |
-| `src/users/`                | Tier 2    | 85%         | 80%           | User data management                   |
-| `src/routes/`               | Tier 2    | 80%         | 75%           | Request handling, validation           |
-| `src/middleware/`           | Tier 3    | 65%         | 60%           | Logging, error formatting              |
-| `src/config/`               | Tier 3    | 50%         | N/A           | Env-var loading, DI setup              |
-| `src/generated/`            | Excluded  | --          | --            | Auto-generated GraphQL/OpenAPI types   |
-| `src/migrations/`           | Excluded  | --          | --            | Database migrations                    |
+| Module/Directory  | Risk Tier | Line Target | Branch Target | Rationale                              |
+| ----------------- | --------- | ----------- | ------------- | -------------------------------------- |
+| `src/payments/`   | Tier 1    | 95%         | 90%           | Financial transactions, data integrity |
+| `src/auth/`       | Tier 1    | 95%         | 90%           | Authentication, authorization          |
+| `src/orders/`     | Tier 2    | 85%         | 80%           | Core business logic                    |
+| `src/users/`      | Tier 2    | 85%         | 80%           | User data management                   |
+| `src/routes/`     | Tier 2    | 80%         | 75%           | Request handling, validation           |
+| `src/middleware/` | Tier 3    | 65%         | 60%           | Logging, error formatting              |
+| `src/config/`     | Tier 3    | 50%         | N/A           | Env-var loading, DI setup              |
+| `src/generated/`  | Excluded  | --          | --            | Auto-generated GraphQL/OpenAPI types   |
+| `src/migrations/` | Excluded  | --          | --            | Database migrations                    |
 
 ---
 
@@ -362,6 +376,7 @@ Open the HTML coverage report in `coverage/lcov-report/index.html`. Navigate to 
 - **Uncovered catch blocks** -- Any `try/catch` where the `catch` branch shows as uncovered means the error handling path for payment failures has never executed in tests. This is almost certainly causing your production bugs: when the payment gateway returns a network error or a malformed response, the untested catch block runs and does something unknown (swallows the error, returns wrong status, throws uncaught, etc.).
 
 - **Uncovered else branches on payment validation** -- If you have code like:
+
   ```typescript
   if (amount > 0 && amount <= MAX_TRANSACTION_LIMIT) {
     // process payment
@@ -369,6 +384,7 @@ Open the HTML coverage report in `coverage/lcov-report/index.html`. Navigate to 
     // reject -- is this branch tested?
   }
   ```
+
   The else path rejecting invalid amounts is a critical security and correctness path.
 
 - **Uncovered response-code handling** -- Payment gateway responses for declined cards, insufficient funds, fraud flags, and timeouts are distinct code paths. Each must be an explicit test case.
@@ -379,42 +395,42 @@ Open the HTML coverage report in `coverage/lcov-report/index.html`. Navigate to 
 
 ```typescript
 // jest.config.ts
-import type { Config } from "jest";
+import type { Config } from 'jest';
 
 const config: Config = {
-  preset: "ts-jest",
-  testEnvironment: "node",
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   collectCoverageFrom: [
-    "src/**/*.ts",
-    "!src/**/*.d.ts",
-    "!src/**/*.{test,spec}.ts",
-    "!src/generated/**",
-    "!src/migrations/**",
-    "!src/index.ts",
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/**/*.{test,spec}.ts',
+    '!src/generated/**',
+    '!src/migrations/**',
+    '!src/index.ts',
   ],
-  coverageProvider: "v8",
-  coverageReporters: ["text", "lcov", "json-summary"],
+  coverageProvider: 'v8',
+  coverageReporters: ['text', 'lcov', 'json-summary'],
   coverageThreshold: {
     // Global minimum -- ratchet, not aspirational target
     global: {
-      lines: 70,         // Set to current - 2%
-      branches: 60,      // Branch coverage will be lower than line -- this is normal
+      lines: 70, // Set to current - 2%
+      branches: 60, // Branch coverage will be lower than line -- this is normal
       functions: 75,
     },
     // Tier 1: payments -- strict
-    "./src/payments/**/*.ts": {
+    './src/payments/**/*.ts': {
       lines: 90,
       branches: 85,
       functions: 90,
     },
     // Tier 1: auth -- strict
-    "./src/auth/**/*.ts": {
+    './src/auth/**/*.ts': {
       lines: 90,
       branches: 85,
       functions: 90,
     },
     // Tier 2: orders
-    "./src/orders/**/*.ts": {
+    './src/orders/**/*.ts': {
       lines: 80,
       branches: 75,
       functions: 85,
@@ -452,14 +468,15 @@ export default config;
 
 ### Exclusion Policy
 
-| Pattern                   | Reason                              | Review Date |
-|--------------------------|-------------------------------------|-------------|
-| `src/generated/**`       | Auto-generated from OpenAPI spec    | Each spec update |
-| `src/migrations/**`      | Knex migration files, not runtime   | Quarterly |
-| `src/index.ts`           | Express bootstrap, no logic         | Quarterly |
-| `src/config/env.ts`      | Reads process.env, no branching logic | 90 days |
+| Pattern             | Reason                                | Review Date      |
+| ------------------- | ------------------------------------- | ---------------- |
+| `src/generated/**`  | Auto-generated from OpenAPI spec      | Each spec update |
+| `src/migrations/**` | Knex migration files, not runtime     | Quarterly        |
+| `src/index.ts`      | Express bootstrap, no logic           | Quarterly        |
+| `src/config/env.ts` | Reads process.env, no branching logic | 90 days          |
 
 All suppression annotations in source code (`/* c8 ignore next */`) must include an inline comment explaining why:
+
 ```typescript
 /* c8 ignore next -- exhaustive switch on PaymentStatus enum, default is unreachable by type construction */
 default:

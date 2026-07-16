@@ -43,11 +43,7 @@ const WeChatSetup: React.FC = () => {
       )}
       showDisconnect={!!pluginStatus?.enabled}
     >
-      <WeixinConfigForm
-        pluginStatus={pluginStatus}
-        modelSelection={modelSelection}
-        onStatusChange={setPluginStatus}
-      />
+      <WeixinConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
     </ChannelDetailLayout>
   );
 };

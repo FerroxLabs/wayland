@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning checklist"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking meal-planning checklist'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pantry Inventory Manager
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about pantry manager
 - User needs guidance on pantry manager topics
 - User wants a structured approach to pantry manager
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -96,6 +98,7 @@ CONDIMENTS:
 ### Cuisine-Specific Additions
 
 **Italian Pantry:**
+
 ```
   [ ] San Marzano canned tomatoes
   [ ] Dried pasta (spaghetti, penne, rigatoni)
@@ -111,6 +114,7 @@ CONDIMENTS:
 ```
 
 **Mexican/Latin Pantry:**
+
 ```
   [ ] Dried chilis (ancho, guajillo, chipotle)
   [ ] Chipotle in adobo (canned)
@@ -127,6 +131,7 @@ CONDIMENTS:
 ```
 
 **Chinese/East Asian Pantry:**
+
 ```
   [ ] Soy sauce (light and/or dark)
   [ ] Sesame oil (toasted)
@@ -144,6 +149,7 @@ CONDIMENTS:
 ```
 
 **Indian/South Asian Pantry:**
+
 ```
   [ ] Basmati rice
   [ ] Cumin (whole seeds and ground)
@@ -162,6 +168,7 @@ CONDIMENTS:
 ```
 
 **Thai/Southeast Asian Pantry:**
+
 ```
   [ ] Fish sauce
   [ ] Coconut milk (canned, full fat)
@@ -181,33 +188,33 @@ CONDIMENTS:
 
 ### Pantry Items (cool, dark, dry storage)
 
-| Item | Unopened Shelf Life | Opened Shelf Life | Storage Notes |
-|------|-------------------|------------------|--------------|
-| All-purpose flour | 1 year | 6-8 months | Airtight container; freeze for longer |
-| Whole wheat flour | 3-6 months | 1-3 months | Refrigerate or freeze after opening |
-| White sugar | Indefinite | Indefinite | Airtight; moisture is the enemy |
-| Brown sugar | 18 months | 6 months | Airtight; add marshmallow to keep soft |
-| Powdered sugar | 2 years | 18 months | Airtight container |
+| Item              | Unopened Shelf Life | Opened Shelf Life | Storage Notes                          |
+| ----------------- | ------------------- | ----------------- | -------------------------------------- |
+| All-purpose flour | 1 year              | 6-8 months        | Airtight container; freeze for longer  |
+| Whole wheat flour | 3-6 months          | 1-3 months        | Refrigerate or freeze after opening    |
+| White sugar       | Indefinite          | Indefinite        | Airtight; moisture is the enemy        |
+| Brown sugar       | 18 months           | 6 months          | Airtight; add marshmallow to keep soft |
+| Powdered sugar    | 2 years             | 18 months         | Airtight container                     |
 
 ### Refrigerator Items
 
-| Item | Shelf Life | Storage Notes |
-|------|-----------|--------------|
-| Eggs | 3-5 weeks past purchase | Keep in original carton, not in door |
-| Butter | 1-3 months | Wrap well; freeze for 6+ months |
-| Milk | 5-7 days past opening | Keep cold; date on carton is guide |
-| Cheese (hard) | 3-4 weeks opened | Wrap in parchment, then plastic or bag |
-| Cheese (soft) | 1-2 weeks opened | Use quickly once opened |
+| Item          | Shelf Life              | Storage Notes                          |
+| ------------- | ----------------------- | -------------------------------------- |
+| Eggs          | 3-5 weeks past purchase | Keep in original carton, not in door   |
+| Butter        | 1-3 months              | Wrap well; freeze for 6+ months        |
+| Milk          | 5-7 days past opening   | Keep cold; date on carton is guide     |
+| Cheese (hard) | 3-4 weeks opened        | Wrap in parchment, then plastic or bag |
+| Cheese (soft) | 1-2 weeks opened        | Use quickly once opened                |
 
 ### Freezer Items (maintained at 0F/-18C)
 
-| Item | Freezer Life | Notes |
-|------|-------------|-------|
-| Raw beef/pork | 4-12 months | Wrap tightly; remove air |
-| Raw chicken/turkey | 9-12 months | Wrap tightly |
-| Ground meat | 3-4 months | Flatten in bags for quick thawing |
-| Raw fish | 3-6 months | Wrap very tightly |
-| Cooked meat/poultry | 2-3 months | Label with date |
+| Item                | Freezer Life | Notes                             |
+| ------------------- | ------------ | --------------------------------- |
+| Raw beef/pork       | 4-12 months  | Wrap tightly; remove air          |
+| Raw chicken/turkey  | 9-12 months  | Wrap tightly                      |
+| Ground meat         | 3-4 months   | Flatten in bags for quick thawing |
+| Raw fish            | 3-6 months   | Wrap very tightly                 |
+| Cooked meat/poultry | 2-3 months   | Label with date                   |
 
 ## FIFO Rotation System
 
@@ -268,23 +275,23 @@ BINS/BASKETS: Group like items together
 
 ### General Rules
 
-| Principle | Why | How |
-|-----------|-----|-----|
-| Cool | Heat accelerates spoilage | Store at 50-70F if possible |
-| Dark | Light degrades oils and vitamins | Keep in cabinets, not on counters |
-| Dry | Moisture causes mold and caking | Use airtight containers |
-| Airtight | Air causes oxidation and staleness | Transfer from bags to containers |
-| Away from stove | Heat and steam degrade food | Don't store spices above the stove |
+| Principle       | Why                                | How                                |
+| --------------- | ---------------------------------- | ---------------------------------- |
+| Cool            | Heat accelerates spoilage          | Store at 50-70F if possible        |
+| Dark            | Light degrades oils and vitamins   | Keep in cabinets, not on counters  |
+| Dry             | Moisture causes mold and caking    | Use airtight containers            |
+| Airtight        | Air causes oxidation and staleness | Transfer from bags to containers   |
+| Away from stove | Heat and steam degrade food        | Don't store spices above the stove |
 
 ### Container Recommendations
 
-| Container Type | Best For | Pros | Cons |
-|---------------|---------|------|------|
-| Glass jars (Mason) | Dry goods, grains, pasta | See-through, airtight, no chemicals | Heavy, breakable |
-| Clear plastic (BPA-free) | Dry goods, leftovers | Lightweight, stackable, see-through | May stain, absorb odors |
-| Metal tins | Tea, coffee, spices | Blocks light, durable | Can rust, not see-through |
-| Vacuum-sealed bags | Meats, freezer storage | Removes air, space-efficient | Requires vacuum sealer |
-| Silicone bags | Freezer storage, snacks | Reusable, flexible, dishwasher-safe | More expensive upfront |
+| Container Type           | Best For                 | Pros                                | Cons                      |
+| ------------------------ | ------------------------ | ----------------------------------- | ------------------------- |
+| Glass jars (Mason)       | Dry goods, grains, pasta | See-through, airtight, no chemicals | Heavy, breakable          |
+| Clear plastic (BPA-free) | Dry goods, leftovers     | Lightweight, stackable, see-through | May stain, absorb odors   |
+| Metal tins               | Tea, coffee, spices      | Blocks light, durable               | Can rust, not see-through |
+| Vacuum-sealed bags       | Meats, freezer storage   | Removes air, space-efficient        | Requires vacuum sealer    |
+| Silicone bags            | Freezer storage, snacks  | Reusable, flexible, dishwasher-safe | More expensive upfront    |
 
 ### Produce Storage Guide
 
@@ -403,13 +410,13 @@ WHEN IN DOUBT: Throw it out. No food is worth a foodborne illness.
 
 ### Practical Shelf Life Beyond Date Labels
 
-| Item | Safe Beyond "Best By" | Signs It's Actually Bad |
-|------|---------------------|----------------------|
-| Eggs | 3-5 weeks | Float in water = bad; sink = fine |
-| Milk | 7 days past sell-by | Sour smell, chunky texture |
-| Yogurt | 1-2 weeks past date | Mold, off smell (separation is normal) |
-| Bread | 5-7 days past date | Mold (any spot = discard entire loaf) |
-| Canned goods | 2-5 years past date | Bulging, rust, dents, leaking |
+| Item         | Safe Beyond "Best By" | Signs It's Actually Bad                |
+| ------------ | --------------------- | -------------------------------------- |
+| Eggs         | 3-5 weeks             | Float in water = bad; sink = fine      |
+| Milk         | 7 days past sell-by   | Sour smell, chunky texture             |
+| Yogurt       | 1-2 weeks past date   | Mold, off smell (separation is normal) |
+| Bread        | 5-7 days past date    | Mold (any spot = discard entire loaf)  |
+| Canned goods | 2-5 years past date   | Bulging, rust, dents, leaking          |
 
 ## Pantry Inventory Template
 
@@ -467,7 +474,6 @@ IF YOU FIND PANTRY MOTHS OR WEEVILS:
   6. Freeze new flour/grains for 48 hours before storing
   7. Return items in airtight containers only
 ```
-
 
 ## Output Format
 

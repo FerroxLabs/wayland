@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness budgeting safety emergency-preparedness energy-efficiency travel video-production email"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness budgeting safety emergency-preparedness energy-efficiency travel video-production email'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Home Security Planner
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about home security planner techniques or best practices
 - User needs guidance on home security planner concepts
 - User wants to implement or improve their approach to home security planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of home security planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -55,6 +56,7 @@ metadata:
 Walk through your property and assess each area from the perspective of someone trying to break in.
 
 **Exterior Assessment:**
+
 - [ ] Are all entry points visible from the street or neighbors?
 - [ ] Are there hiding spots near doors and windows (overgrown bushes, recessed areas)?
 - [ ] Is the property well-lit at night (especially at entry points)?
@@ -66,15 +68,16 @@ Walk through your property and assess each area from the perspective of someone 
 
 **Door Assessment:**
 
-| Door | Type (solid/hollow) | Lock Type | Deadbolt? | Frame Condition | Strike Plate Reinforced? |
-|------|-------------------|-----------|-----------|-----------------|-------------------------|
-| Front | _____________ | _________ | Y / N | ____________ | Y / N |
-| Back | _____________ | _________ | Y / N | ____________ | Y / N |
-| Side | _____________ | _________ | Y / N | ____________ | Y / N |
-| Garage entry | _____________ | _________ | Y / N | ____________ | Y / N |
-| Sliding | _____________ | _________ | N/A | ____________ | N/A |
+| Door         | Type (solid/hollow) | Lock Type  | Deadbolt? | Frame Condition  | Strike Plate Reinforced? |
+| ------------ | ------------------- | ---------- | --------- | ---------------- | ------------------------ |
+| Front        | ******\_******      | ****\_**** | Y / N     | ****\_\_\_\_**** | Y / N                    |
+| Back         | ******\_******      | ****\_**** | Y / N     | ****\_\_\_\_**** | Y / N                    |
+| Side         | ******\_******      | ****\_**** | Y / N     | ****\_\_\_\_**** | Y / N                    |
+| Garage entry | ******\_******      | ****\_**** | Y / N     | ****\_\_\_\_**** | Y / N                    |
+| Sliding      | ******\_******      | ****\_**** | N/A       | ****\_\_\_\_**** | N/A                      |
 
 **Window Assessment:**
+
 - [ ] Do all windows have functional locks?
 - [ ] Are ground-floor windows easily accessible from outside?
 - [ ] Do basement windows have security measures (bars, film, locks)?
@@ -82,6 +85,7 @@ Walk through your property and assess each area from the perspective of someone 
 - [ ] Can any windows be pried open from outside?
 
 **Garage Assessment:**
+
 - [ ] Does the garage door close and lock securely?
 - [ ] Is there an emergency release (cord visible from outside)?
 - [ ] Is the door from garage to house as secure as an exterior door?
@@ -97,34 +101,40 @@ Walk through your property and assess each area from the perspective of someone 
 **The front door is the most common entry point for burglars (34%).**
 
 **Door itself:**
+
 - Solid core wood or metal door (not hollow core)
 - Minimum 1.75 inches thick
 - No large glass panels near the lock (or use security film)
 - Peephole or video doorbell for identifying visitors
 
 **Deadbolt:**
+
 - Grade 1 or Grade 2 deadbolt (ANSI/BHMA rating)
 - Minimum 1-inch throw bolt
 - Bump-resistant and pick-resistant cylinder
 - Do not rely on spring-latch locks alone (easily bypassed)
 
 **Strike plate:**
+
 - 3-inch screws into the door frame AND wall studs (most strike plates use short screws that only go into the trim)
 - Reinforced strike plate (also called a security strike plate)
 - This single upgrade dramatically increases kick-in resistance
 - Cost: $10-$30 for the plate, $0 if you have a screwdriver
 
 **Door frame:**
+
 - Door frame reinforcement kit (Door Armor, StrikeMaster)
 - Wraps the frame in steel where the lock engages
 - Most effective single upgrade for preventing forced entry
 - Cost: $50-$100 for a complete kit
 
 **Hinge side:**
+
 - Hinge bolts or security hinges (prevent door removal if hinges are on the outside)
 - Use 3-inch screws in all hinge screws
 
 ### Sliding Door Security
+
 - Security bar or dowel in the track (prevents forced opening)
 - Anti-lift device (prevents door from being lifted off track)
 - Auxiliary lock at top of door
@@ -133,14 +143,14 @@ Walk through your property and assess each area from the perspective of someone 
 
 ### Window Security
 
-| Improvement | Cost | Effectiveness | Renter-Friendly |
-|-------------|------|-------------|-----------------|
-| Window locks (verify all function) | $0 | Basic | Yes |
-| Window pin locks (drill-installed) | $5-$10 per window | Good | No (leaves holes) |
-| Window security film (3M, etc.) | $5-$15/window (DIY) | Good (holds glass together when broken) | Yes (removable) |
-| Window sensors (alarm system) | $15-$30 each | Good (detection) | Yes (wireless) |
-| Window bars (basement/ground floor) | $50-$150 per window | Excellent | No |
-| Laminated glass replacement | $200-$500 per window | Excellent | No |
+| Improvement                         | Cost                 | Effectiveness                           | Renter-Friendly   |
+| ----------------------------------- | -------------------- | --------------------------------------- | ----------------- |
+| Window locks (verify all function)  | $0                   | Basic                                   | Yes               |
+| Window pin locks (drill-installed)  | $5-$10 per window    | Good                                    | No (leaves holes) |
+| Window security film (3M, etc.)     | $5-$15/window (DIY)  | Good (holds glass together when broken) | Yes (removable)   |
+| Window sensors (alarm system)       | $15-$30 each         | Good (detection)                        | Yes (wireless)    |
+| Window bars (basement/ground floor) | $50-$150 per window  | Excellent                               | No                |
+| Laminated glass replacement         | $200-$500 per window | Excellent                               | No                |
 
 ---
 
@@ -149,6 +159,7 @@ Walk through your property and assess each area from the perspective of someone 
 ### Exterior Lighting Plan
 
 **Key areas to light:**
+
 - [ ] All entry doors (front, back, side, garage)
 - [ ] Driveway and walkways
 - [ ] Backyard and side yards
@@ -158,15 +169,16 @@ Walk through your property and assess each area from the perspective of someone 
 
 ### Lighting Types for Security
 
-| Type | Best For | Cost | Notes |
-|------|---------|------|-------|
-| Motion-activated floodlights | Entries, driveways, yards | $20-$80 | Startle effect, draws attention |
-| Dusk-to-dawn lights | Front porch, walkways | $15-$50 | Always on from sunset to sunrise |
-| Smart lights (programmable) | Interior and exterior | $15-$60 each | Controllable remotely, schedules, vacation mode |
-| Solar pathway lights | Walkways, landscaping | $5-$15 each | No wiring needed, free operation |
-| Timer-controlled interior lights | Living room, bedroom | $5-$15 per timer | Simulates occupancy when away |
+| Type                             | Best For                  | Cost             | Notes                                           |
+| -------------------------------- | ------------------------- | ---------------- | ----------------------------------------------- |
+| Motion-activated floodlights     | Entries, driveways, yards | $20-$80          | Startle effect, draws attention                 |
+| Dusk-to-dawn lights              | Front porch, walkways     | $15-$50          | Always on from sunset to sunrise                |
+| Smart lights (programmable)      | Interior and exterior     | $15-$60 each     | Controllable remotely, schedules, vacation mode |
+| Solar pathway lights             | Walkways, landscaping     | $5-$15 each      | No wiring needed, free operation                |
+| Timer-controlled interior lights | Living room, bedroom      | $5-$15 per timer | Simulates occupancy when away                   |
 
 ### Lighting Best Practices
+
 - Eliminate all dark areas around the perimeter of your home
 - Use LED bulbs (long-lasting, energy-efficient, bright)
 - Set motion sensors to appropriate sensitivity (avoid false triggers from animals)
@@ -180,15 +192,15 @@ Walk through your property and assess each area from the perspective of someone 
 
 ### Camera System Options
 
-| System | Type | Cost | Monthly Fee | Key Features |
-|--------|------|------|------------|-------------|
-| Ring (Amazon) | Wi-Fi cameras | $50-$250/camera | $4-$20/month | Doorbell integration, easy setup |
-| Arlo | Wire-free battery cameras | $100-$300/camera | $3-$15/month | Battery powered, flexible placement |
-| Nest/Google | Wi-Fi cameras | $100-$300/camera | $6-$12/month | Google Home integration, AI detection |
-| Wyze | Budget Wi-Fi cameras | $25-$50/camera | $2-$5/month optional | Affordable, good for basics |
-| Reolink | PoE/Wi-Fi cameras | $40-$150/camera | No monthly fee (local storage) | Local NVR storage, no subscription |
-| Lorex | Wired NVR system | $200-$800 (system) | No monthly fee | Professional-grade, local storage |
-| Eufy | Wire-free cameras | $100-$200/camera | No monthly fee (local storage) | No subscription required |
+| System        | Type                      | Cost               | Monthly Fee                    | Key Features                          |
+| ------------- | ------------------------- | ------------------ | ------------------------------ | ------------------------------------- |
+| Ring (Amazon) | Wi-Fi cameras             | $50-$250/camera    | $4-$20/month                   | Doorbell integration, easy setup      |
+| Arlo          | Wire-free battery cameras | $100-$300/camera   | $3-$15/month                   | Battery powered, flexible placement   |
+| Nest/Google   | Wi-Fi cameras             | $100-$300/camera   | $6-$12/month                   | Google Home integration, AI detection |
+| Wyze          | Budget Wi-Fi cameras      | $25-$50/camera     | $2-$5/month optional           | Affordable, good for basics           |
+| Reolink       | PoE/Wi-Fi cameras         | $40-$150/camera    | No monthly fee (local storage) | Local NVR storage, no subscription    |
+| Lorex         | Wired NVR system          | $200-$800 (system) | No monthly fee                 | Professional-grade, local storage     |
+| Eufy          | Wire-free cameras         | $100-$200/camera   | No monthly fee (local storage) | No subscription required              |
 
 ### Camera Placement Priority
 
@@ -205,26 +217,26 @@ HOME CAMERA PLACEMENT (Priority Order)
 
 ### Alarm System Options
 
-| System | Type | Monthly Cost | Contract | Professional Monitoring |
-|--------|------|-------------|----------|----------------------|
-| SimpliSafe | DIY wireless | $0-$28/month | No contract | Optional |
-| Ring Alarm | DIY wireless | $10-$20/month | No contract | Optional |
-| ADT | Professional install | $28-$60/month | 36-month contract typical | Yes |
-| Vivint | Professional install | $30-$50/month | 42-60 month contract typical | Yes |
-| Abode | DIY wireless | $0-$20/month | No contract | Optional |
-| Cove | DIY wireless | $15-$25/month | No contract | Yes |
+| System     | Type                 | Monthly Cost  | Contract                     | Professional Monitoring |
+| ---------- | -------------------- | ------------- | ---------------------------- | ----------------------- |
+| SimpliSafe | DIY wireless         | $0-$28/month  | No contract                  | Optional                |
+| Ring Alarm | DIY wireless         | $10-$20/month | No contract                  | Optional                |
+| ADT        | Professional install | $28-$60/month | 36-month contract typical    | Yes                     |
+| Vivint     | Professional install | $30-$50/month | 42-60 month contract typical | Yes                     |
+| Abode      | DIY wireless         | $0-$20/month  | No contract                  | Optional                |
+| Cove       | DIY wireless         | $15-$25/month | No contract                  | Yes                     |
 
 ### Choosing Between DIY and Professional
 
-| Factor | DIY System | Professional System |
-|--------|-----------|-------------------|
-| Installation | Self-install (1-2 hours) | Professional installation |
-| Monthly cost | $0-$20/month | $25-$60/month |
-| Contract | Usually no contract | Often 3-5 year contract |
-| Customization | High (you choose components) | Moderate (installer recommends) |
-| Monitoring | Self or optional professional | Professional monitoring included |
-| Moving | Easy to take with you | May be complex to transfer |
-| Best for | Renters, budget-conscious, tech-comfortable | Homeowners wanting full service |
+| Factor        | DIY System                                  | Professional System              |
+| ------------- | ------------------------------------------- | -------------------------------- |
+| Installation  | Self-install (1-2 hours)                    | Professional installation        |
+| Monthly cost  | $0-$20/month                                | $25-$60/month                    |
+| Contract      | Usually no contract                         | Often 3-5 year contract          |
+| Customization | High (you choose components)                | Moderate (installer recommends)  |
+| Monitoring    | Self or optional professional               | Professional monitoring included |
+| Moving        | Easy to take with you                       | May be complex to transfer       |
+| Best for      | Renters, budget-conscious, tech-comfortable | Homeowners wanting full service  |
 
 ---
 
@@ -232,16 +244,17 @@ HOME CAMERA PLACEMENT (Priority Order)
 
 ### Smart Lock Comparison
 
-| Feature | Keypad/Code | Fingerprint | Bluetooth/Wi-Fi | Key supersede |
-|---------|-----------|-------------|-----------------|-------------|
-| Schlage Encode | Yes | No | Wi-Fi | Yes |
-| August Wi-Fi | No | No | Wi-Fi + Bluetooth | Yes (existing deadbolt) |
-| Yale Assure 2 | Yes | Yes (some models) | Wi-Fi/Bluetooth | Yes |
-| Ultraloq U-Bolt Pro | Yes | Yes | Wi-Fi + Bluetooth | Yes |
-| Level Lock | No | No | Bluetooth | Yes (invisible smart lock) |
-| Kwikset Halo | Yes | No | Wi-Fi | Yes |
+| Feature             | Keypad/Code | Fingerprint       | Bluetooth/Wi-Fi   | Key supersede              |
+| ------------------- | ----------- | ----------------- | ----------------- | -------------------------- |
+| Schlage Encode      | Yes         | No                | Wi-Fi             | Yes                        |
+| August Wi-Fi        | No          | No                | Wi-Fi + Bluetooth | Yes (existing deadbolt)    |
+| Yale Assure 2       | Yes         | Yes (some models) | Wi-Fi/Bluetooth   | Yes                        |
+| Ultraloq U-Bolt Pro | Yes         | Yes               | Wi-Fi + Bluetooth | Yes                        |
+| Level Lock          | No          | No                | Bluetooth         | Yes (invisible smart lock) |
+| Kwikset Halo        | Yes         | No                | Wi-Fi             | Yes                        |
 
 ### Smart Lock Considerations
+
 - Always choose a lock with a physical key backup
 - Look for ANSI/BHMA Grade 1 or 2 rating (security certification)
 - Ensure compatibility with your door and existing holes
@@ -251,6 +264,7 @@ HOME CAMERA PLACEMENT (Priority Order)
 - Encryption standard (look for AES 128-bit or higher)
 
 ### Smart Lock Best Practices
+
 - Change default codes immediately
 - Create unique codes for different people (family, house cleaner, dog walker)
 - Set temporary codes for guests and service providers
@@ -263,9 +277,11 @@ HOME CAMERA PLACEMENT (Priority Order)
 ## Phase 6: Safe Room Concept
 
 ### What is a Safe Room?
+
 A designated room in your home where you can retreat in the event of a home intrusion, providing a barrier between you and the threat while you contact emergency services.
 
 ### Minimum Safe Room Requirements
+
 - [ ] Solid core door with a deadbolt (key lockable from inside)
 - [ ] Charged cell phone (for calling 911)
 - [ ] Flashlight
@@ -273,6 +289,7 @@ A designated room in your home where you can retreat in the event of a home intr
 - [ ] List of emergency numbers
 
 ### Enhanced Safe Room
+
 - [ ] Reinforced door frame (same principles as exterior doors)
 - [ ] Solid walls (not just drywall -- ideally between studs)
 - [ ] Second phone line or charged spare phone
@@ -282,6 +299,7 @@ A designated room in your home where you can retreat in the event of a home intr
 - [ ] Security camera monitor (to see what is happening in the house)
 
 ### Safe Room Protocol
+
 1. If you hear an intruder, get all household members to the safe room
 2. Lock the door
 3. Call 911 immediately
@@ -295,6 +313,7 @@ A designated room in your home where you can retreat in the event of a home intr
 ## Phase 7: Neighborhood Watch and Community Security
 
 ### Neighborhood Watch Benefits
+
 - Reduces crime through community vigilance
 - Builds relationships with neighbors
 - Creates communication networks for suspicious activity reporting
@@ -302,6 +321,7 @@ A designated room in your home where you can retreat in the event of a home intr
 - Demonstrates community engagement (deters criminals)
 
 ### Starting or Joining a Neighborhood Watch
+
 1. Contact your local police department (many have community liaison officers)
 2. Recruit interested neighbors (start with a meeting)
 3. Establish communication channels (group text, social media group, email list)
@@ -311,6 +331,7 @@ A designated room in your home where you can retreat in the event of a home intr
 7. Hold regular meetings (quarterly minimum)
 
 ### Being a Good Neighbor for Security
+
 - Know your neighbors by name and face
 - Be aware of unusual activity on your street
 - Collect mail and packages for traveling neighbors
@@ -339,6 +360,7 @@ A designated room in your home where you can retreat in the event of a home intr
 - [ ] Give a trusted person a key and your contact information
 
 ### While You Are Away
+
 - Check camera feeds periodically
 - Monitor alarm system notifications
 - Have a neighbor walk the perimeter occasionally
@@ -351,19 +373,20 @@ A designated room in your home where you can retreat in the event of a home intr
 
 ### Package Theft Prevention Strategies
 
-| Strategy | Cost | Effectiveness | Notes |
-|----------|------|-------------|-------|
-| Video doorbell | $100-$250 | Good (deterrent and evidence) | Records deliveries and approaches |
-| Lockable package box | $50-$300 | Excellent | Large enough for common packages |
-| Delivery to locker (Amazon Hub) | Free | Excellent | Not available everywhere |
-| Delivery to workplace | Free | Good | If permitted by employer |
-| Require signature | Free-$5 | Good | Must be home for delivery |
-| Package notification alerts | Free | Moderate | Retrieve quickly after delivery |
-| Smart lock with delivery access | $150-$300 | Good | Amazon Key, requires trust |
-| Neighbor agreement | Free | Good | Ask a neighbor to grab packages |
-| PO Box or UPS Store mailbox | $10-$30/month | Good | Gives you a secure address |
+| Strategy                        | Cost          | Effectiveness                 | Notes                             |
+| ------------------------------- | ------------- | ----------------------------- | --------------------------------- |
+| Video doorbell                  | $100-$250     | Good (deterrent and evidence) | Records deliveries and approaches |
+| Lockable package box            | $50-$300      | Excellent                     | Large enough for common packages  |
+| Delivery to locker (Amazon Hub) | Free          | Excellent                     | Not available everywhere          |
+| Delivery to workplace           | Free          | Good                          | If permitted by employer          |
+| Require signature               | Free-$5       | Good                          | Must be home for delivery         |
+| Package notification alerts     | Free          | Moderate                      | Retrieve quickly after delivery   |
+| Smart lock with delivery access | $150-$300     | Good                          | Amazon Key, requires trust        |
+| Neighbor agreement              | Free          | Good                          | Ask a neighbor to grab packages   |
+| PO Box or UPS Store mailbox     | $10-$30/month | Good                          | Gives you a secure address        |
 
 ### If a Package is Stolen
+
 1. Check with neighbors (may have been misdelivered)
 2. Check with the carrier (USPS, UPS, FedEx, Amazon) for tracking confirmation
 3. Contact the retailer for a replacement or refund
@@ -377,6 +400,7 @@ A designated room in your home where you can retreat in the event of a home intr
 ## Home Security Action Plan
 
 ### Immediate (This Week, Under $50)
+
 - [ ] Install 3-inch screws in all exterior door strike plates and hinges
 - [ ] Verify all window locks function
 - [ ] Install timer on at least one interior light
@@ -386,6 +410,7 @@ A designated room in your home where you can retreat in the event of a home intr
 - [ ] Introduce yourself to immediate neighbors if you have not already
 
 ### Short-Term (This Month, Under $200)
+
 - [ ] Install motion-activated exterior lighting at all entries
 - [ ] Install a video doorbell
 - [ ] Replace any hollow core exterior doors with solid core
@@ -394,6 +419,7 @@ A designated room in your home where you can retreat in the event of a home intr
 - [ ] Create a family security plan (what to do if alarm sounds, if someone is at the door, etc.)
 
 ### Medium-Term (1-3 Months, Under $500)
+
 - [ ] Install a complete camera system (at least front door, back door, driveway)
 - [ ] Install or upgrade alarm system
 - [ ] Upgrade to smart locks on primary entries
@@ -401,6 +427,7 @@ A designated room in your home where you can retreat in the event of a home intr
 - [ ] Join or start a neighborhood watch
 
 ### Long-Term (3-12 Months, $500+)
+
 - [ ] Professional security assessment
 - [ ] Comprehensive alarm system with professional monitoring
 - [ ] Fence or gate installation (if applicable)
@@ -410,7 +437,6 @@ A designated room in your home where you can retreat in the event of a home intr
 
 The most effective home security combines physical barriers (strong doors and locks), detection systems (cameras and alarms), deterrents (lighting and visible security), and community awareness (neighbors who watch out for each other). Start with the basics and build over time.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -418,7 +444,6 @@ The most effective home security combines physical barriers (strong doors and lo
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -439,14 +464,12 @@ The most effective home security combines physical barriers (strong doors and lo
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

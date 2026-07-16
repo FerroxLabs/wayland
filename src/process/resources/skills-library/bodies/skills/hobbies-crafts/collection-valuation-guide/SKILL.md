@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research analysis guide checklist"
-  category: "hobbies-crafts"
-  subcategory: "collecting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research analysis guide checklist'
+  category: 'hobbies-crafts'
+  subcategory: 'collecting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Collection Valuation Guide
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about determining the value of collectible items
 - User wants to understand how collectible pricing works
 - User needs to compare valuation methods (market comps, auction results, price guides, dealer appraisals)
@@ -29,6 +30,7 @@ metadata:
 - User mentions wanting to know what their collection is worth
 
 **Do NOT use when:**
+
 - User needs to verify authenticity before valuation (use `collectible-authentication-guide` first)
 - User needs inventory or cataloguing help (use `collection-inventory-builder`)
 - User asks about collectibles as a financial investment strategy (this is collecting, not investing)
@@ -230,13 +232,14 @@ metadata:
 ## Collection Valuation Report
 
 ### Collection Overview
-| Parameter            | Value                                  |
-|----------------------|----------------------------------------|
-| Collection type      | Coins (U.S. and possibly world)        |
-| Total items          | ~500 coins                             |
-| Valuation purpose    | Estate settlement + future disposition |
-| Value type           | Fair Market Value (FMV) at date of death |
-| Valuation date       | [Current date -- but estate FMV should be pegged to date of death] |
+
+| Parameter         | Value                                                              |
+| ----------------- | ------------------------------------------------------------------ |
+| Collection type   | Coins (U.S. and possibly world)                                    |
+| Total items       | ~500 coins                                                         |
+| Valuation purpose | Estate settlement + future disposition                             |
+| Value type        | Fair Market Value (FMV) at date of death                           |
+| Valuation date    | [Current date -- but estate FMV should be pegged to date of death] |
 
 ### Recommended Approach for a 500-Coin Inherited Collection
 
@@ -246,60 +249,62 @@ Given the estate context, here is the step-by-step process:
 
 Sort all 500 coins into three tiers. You do not need to be a coin expert for this step.
 
-| Tier | How to Identify                                            | Expected % of collection |
-|------|------------------------------------------------------------|--------------------------|
-| A    | Gold coins, silver dollars, coins in individual holders with notes, coins in certified slabs (hard plastic cases with labels), anything that looks old (pre-1900) | 5-15% (~25-75 coins) |
-| B    | Silver coins (pre-1965 U.S. dimes, quarters, half-dollars are 90% silver), individual coins in flips or holders with year/mint mark notes, foreign coins that appear old or unusual | 20-30% (~100-150 coins) |
-| C    | Modern circulated coins, penny collections, common commemoratives, wheat pennies (1909-1958) in average condition, loose coins without holders | 55-75% (~275-375 coins) |
+| Tier | How to Identify                                                                                                                                                                     | Expected % of collection |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| A    | Gold coins, silver dollars, coins in individual holders with notes, coins in certified slabs (hard plastic cases with labels), anything that looks old (pre-1900)                   | 5-15% (~25-75 coins)     |
+| B    | Silver coins (pre-1965 U.S. dimes, quarters, half-dollars are 90% silver), individual coins in flips or holders with year/mint mark notes, foreign coins that appear old or unusual | 20-30% (~100-150 coins)  |
+| C    | Modern circulated coins, penny collections, common commemoratives, wheat pennies (1909-1958) in average condition, loose coins without holders                                      | 55-75% (~275-375 coins)  |
 
 **Step 2: Professional Appraisal for Tier A (Strongly Recommended)**
 
 For estate purposes, Tier A items need professional evaluation.
 
-| Action                           | Why                                          | Expected Cost     |
-|----------------------------------|----------------------------------------------|-------------------|
-| Written appraisal from a numismatist | Estate tax compliance, FMV documentation | $100-300 for the collection |
-| Individual authentication for potential key-date coins | Ensures accurate grading and identification | $20-50 per coin |
+| Action                                                 | Why                                         | Expected Cost               |
+| ------------------------------------------------------ | ------------------------------------------- | --------------------------- |
+| Written appraisal from a numismatist                   | Estate tax compliance, FMV documentation    | $100-300 for the collection |
+| Individual authentication for potential key-date coins | Ensures accurate grading and identification | $20-50 per coin             |
 
 Visit 2-3 coin dealers. Ask for a written appraisal for estate purposes (specify you are not selling yet). A written appraisal documents the FMV and is defensible if the estate is reviewed.
 
 **Step 3: Price Guide Estimates for Tier B**
 
-| Method       | How to Apply                                        |
-|--------------|-----------------------------------------------------|
-| Silver value | U.S. pre-1965 silver coins: calculate melt value. Weight x 90% silver x current silver spot price per troy ounce. This is the floor value. |
+| Method       | How to Apply                                                                                                                                    |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Silver value | U.S. pre-1965 silver coins: calculate melt value. Weight x 90% silver x current silver spot price per troy ounce. This is the floor value.      |
 | Price guide  | Look up individual coins by year, mint mark, and condition in an annual coin reference guide. Use the grade that matches the coin's wear level. |
-| Comps        | For coins that may be above common value, check completed auction listings for the specific year/mint/grade. |
+| Comps        | For coins that may be above common value, check completed auction listings for the specific year/mint/grade.                                    |
 
 **Step 4: Lot Estimate for Tier C**
 
-| Item Type             | Typical Value                              |
-|-----------------------|--------------------------------------------|
-| Common modern coins   | Face value only ($0.01-$1.00 each)         |
-| Wheat pennies (avg. condition) | $0.05-$0.25 each (bulk lot price) |
-| Common world coins    | $0.10-$0.50 each (bulk lot price)          |
-| Common commemoratives | Face value to $2-3 each                    |
+| Item Type                      | Typical Value                      |
+| ------------------------------ | ---------------------------------- |
+| Common modern coins            | Face value only ($0.01-$1.00 each) |
+| Wheat pennies (avg. condition) | $0.05-$0.25 each (bulk lot price)  |
+| Common world coins             | $0.10-$0.50 each (bulk lot price)  |
+| Common commemoratives          | Face value to $2-3 each            |
 
 ### Estimated Value Framework
 
 Without seeing the specific coins, here is the typical range for a 500-coin collection accumulated over 40 years by a dedicated collector:
 
-| Tier   | Items  | Est. Value Range    | Notes                                      |
-|--------|--------|---------------------|--------------------------------------------|
-| Tier A | 25-75  | $500-$10,000+      | Depends heavily on whether gold or key-date silver is present |
-| Tier B | 100-150| $200-$2,000        | Silver melt value provides a reliable floor |
-| Tier C | 275-375| $50-$200            | Mostly face value with occasional exceptions |
-| **Total** | **500** | **$750-$12,000+** | Wide range reflects uncertainty without item-specific data |
+| Tier      | Items   | Est. Value Range  | Notes                                                         |
+| --------- | ------- | ----------------- | ------------------------------------------------------------- |
+| Tier A    | 25-75   | $500-$10,000+     | Depends heavily on whether gold or key-date silver is present |
+| Tier B    | 100-150 | $200-$2,000       | Silver melt value provides a reliable floor                   |
+| Tier C    | 275-375 | $50-$200          | Mostly face value with occasional exceptions                  |
+| **Total** | **500** | **$750-$12,000+** | Wide range reflects uncertainty without item-specific data    |
 
 **Important:** These ranges are illustrative. The actual value depends entirely on the specific coins. A single rare coin could be worth more than the rest of the collection combined.
 
 ### Value Context
+
 - Value type: Fair Market Value (for estate)
 - Market trend: U.S. coin market has been stable to appreciating over the past 5 years, with key-date coins and gold particularly strong
 - Confidence: Low (no individual items examined yet)
 - Formal appraisal needed: Yes -- for estate settlement
 
 ### Recommended Actions
+
 1. **Immediate:** Do not clean any coins. Cleaning reduces value by 50% or more. Store in a dry location at room temperature
 2. **Within 30 days:** Complete the triage sort to identify Tier A items
 3. **Within 60 days:** Take Tier A items to 2-3 coin dealers for written appraisal quotes

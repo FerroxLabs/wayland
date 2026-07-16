@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Linear
     estSeconds: 60
-    primaryAction: { label: "Sign in with Linear", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Linear', action: 'oauth-flow' }
     warning: |
       Linear had a bug where MCP OAuth sessions could disconnect after about
       24 hours. It's resolved in current builds, but if Wayland stops

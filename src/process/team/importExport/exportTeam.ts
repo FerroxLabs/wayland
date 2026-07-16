@@ -47,10 +47,7 @@ export type RitualsResolver = (
  * Error when the team has no leader agent (catastrophic - should never
  * happen for a persisted row, but defended for safety).
  */
-export async function buildTeamExport(
-  team: TTeam,
-  resolveRituals?: RitualsResolver
-): Promise<TeamExport> {
+export async function buildTeamExport(team: TTeam, resolveRituals?: RitualsResolver): Promise<TeamExport> {
   const leader = team.agents.find((a) => a.role === 'leader');
   if (!leader) {
     throw new Error(`Team "${team.id}" has no leader agent - cannot export`);

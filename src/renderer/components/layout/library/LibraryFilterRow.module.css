@@ -12,7 +12,10 @@
   color: var(--color-text-2);
   cursor: pointer;
   outline: none;
-  transition: background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
+  transition:
+    background var(--motion-fast),
+    color var(--motion-fast),
+    border-color var(--motion-fast);
 }
 
 .row:hover {

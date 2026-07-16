@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "refactoring clean-code design-patterns"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'refactoring clean-code design-patterns'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Refactoring Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a specific method, class, module, or system component they want to restructure without changing its observable behavior
 - The user describes code smells -- long methods (>20 lines), god classes (>500 lines), deeply nested conditionals (>3 levels), duplicated logic across 3+ locations, or primitive obsession
 - The user asks how to break apart a tightly coupled system to improve testability, extensibility, or readability
@@ -29,6 +31,7 @@ metadata:
 - The user wants to eliminate technical debt in a specific area of the codebase with a concrete plan
 
 **Do NOT use this skill when:**
+
 - The user is asking about architectural restructuring at the system or service boundary level -- use a system design or architecture skill instead
 - The user is asking about general clean code principles without a specific target to refactor -- use a code review or style guide skill
 - The user needs help writing new code from scratch -- refactoring applies only to existing working code
@@ -72,6 +75,7 @@ Refactoring without tests is not refactoring -- it is gambling. Establish safety
 Match the diagnosed code smell to the appropriate catalog pattern. Use this decision framework:
 
 **For structural decomposition (too big, too complex):**
+
 - Long method with partitioned logic → **Extract Method** (Martin Fowler Catalog #106)
 - Method logic belongs on another class → **Move Method**
 - Large class with multiple responsibilities → **Extract Class** then optionally **Extract Interface**
@@ -79,23 +83,27 @@ Match the diagnosed code smell to the appropriate catalog pattern. Use this deci
 - Complex conditional logic → **Decompose Conditional** (extract condition and branches into named methods)
 
 **For abstraction and encapsulation (exposing too much, expressing too little):**
+
 - Primitive fields with business rules → **Replace Primitive with Object** (Value Object)
 - Data bags without behavior → **Replace Record with Data Class**, then incrementally add methods
 - Long parameter lists → **Introduce Parameter Object** or **Preserve Whole Object**
 - Constructor complexity → **Replace Constructor with Factory Method** or **Builder Pattern**
 
 **For coupling reduction (too entangled):**
+
 - Direct instantiation of dependencies → **Extract Interface** + dependency injection
 - Feature envy → **Move Method** to the envied class
 - Bidirectional dependencies → introduce an intermediary (Mediator) or invert one dependency
 - Concrete class references → **Replace Concrete Class with Interface**
 
 **For conditional dispatch (type-based or state-based switching):**
+
 - Switch/if-else on type → **Replace Conditional with Polymorphism** (Strategy or Visitor)
 - Switch on state → **Replace State-Altering Conditionals with State Object**
 - Null checks everywhere → **Introduce Null Object** or use an Option/Maybe monad
 
 **For duplication elimination:**
+
 - Identical logic in sibling classes → **Pull Up Method** to superclass or extract shared utility
 - Nearly-identical algorithms → **Extract Method** the identical parts, leave the variant parts as parameters (Template Method Pattern)
 - Duplicated data transformations → **Extract Function** and centralize
@@ -110,7 +118,7 @@ Each refactoring move must leave the code in a passing state. Never accumulate m
   - VS Code + language extensions: Extract to function, Extract to constant, Rename Symbol (F2)
   - Eclipse: Refactor menu provides all Fowler operations
   - PyCharm: Extract Method, Extract Variable, Pull Up, Push Down
-- For Extract Method: select the code, invoke the automated extraction, then rename the extracted method to express its intent. The name should say *what* not *how*.
+- For Extract Method: select the code, invoke the automated extraction, then rename the extracted method to express its intent. The name should say _what_ not _how_.
 - For Move Method: first copy the method, verify tests still pass on the original, then delete the original and update call sites.
 - After each step, run the full test suite. A red test at this stage means you changed behavior -- stop and revert.
 - Keep refactoring commits separate from behavioral changes. A commit that says "Refactor: Extract UserValidator from UserService" should contain zero functional changes.
@@ -162,7 +170,7 @@ Large-scale structural improvement is a series of small safe moves, not a single
 
 When helping a user with refactoring, produce a structured response in the following format:
 
-```
+````
 ## Refactoring Plan: [Module / Class / Function Name]
 
 ### Diagnosed Code Smells
@@ -194,25 +202,29 @@ Apply in this order (each step must pass tests before proceeding to next):
 **Before:**
 ```[language]
 [concrete before code]
-```
+````
 
 **After:**
+
 ```[language]
 [concrete after code]
 ```
 
 ### Metrics Impact
-| Metric | Before | After | Target |
-|--------|--------|-------|--------|
-| Method length (max) | 87 lines | 12 lines | ≤ 20 lines |
-| Cyclomatic complexity | 14 | 3 | ≤ 10 |
-| Test coverage | 42% | 91% | ≥ 80% |
-| Number of responsibilities | 5 | 1 | 1 |
+
+| Metric                     | Before   | After    | Target     |
+| -------------------------- | -------- | -------- | ---------- |
+| Method length (max)        | 87 lines | 12 lines | ≤ 20 lines |
+| Cyclomatic complexity      | 14       | 3        | ≤ 10       |
+| Test coverage              | 42%      | 91%      | ≥ 80%      |
+| Number of responsibilities | 5        | 1        | 1          |
 
 ### Follow-On Opportunities
+
 - [Next refactoring now made possible by this one]
 - [Next refactoring now made possible by this one]
-```
+
+````
 
 ---
 
@@ -347,11 +359,12 @@ def _validate_registration_input(self, email: str, password: str) -> None:
         raise ValueError("Invalid email format")
     if len(password) < 8:
         raise ValueError("Password must be at least 8 characters")
-```
+````
 
 ---
 
 **Step 2: Extract Method -- Welcome Email Logic**
+
 - **Target:** All lines in `registerUser()` that construct and send the welcome email
 - **Operation:** Extract to private method `_send_welcome_email(user)` -- keep it on UserService for now, behavior is unchanged
 - **Result:** `registerUser()` calls `_send_welcome_email(user)` as one line
@@ -360,6 +373,7 @@ def _validate_registration_input(self, email: str, password: str) -> None:
 ---
 
 **Step 3: Extract Method -- Role Assignment**
+
 - **Target:** Lines that assign the default "member" role to the new user
 - **Operation:** Extract to `_assign_default_role(user)`
 - **Result:** `registerUser()` is now 15-20 lines with clear named steps
@@ -380,6 +394,7 @@ def register_user(self, email: str, password: str, name: str) -> User:
 ---
 
 **Step 4: Extract Class -- Move Email Logic to NotificationService**
+
 - **Target:** `_send_welcome_email()` and any other email-related private methods on UserService
 - **Operation:**
   1. Create a new class `NotificationService` in `services/notification_service.py`
@@ -422,6 +437,7 @@ class UserService:
 ---
 
 **Step 5: Extract Class -- Move Validation to UserRegistrationValidator**
+
 - **Target:** `_validate_registration_input()` and any password complexity logic
 - **Operation:** Create `UserRegistrationValidator` with a `validate(email, password)` method. This class can later be enhanced with configurable rules without touching UserService.
 - **Result:** Validation rules change independently of registration flow
@@ -430,20 +446,21 @@ class UserService:
 ---
 
 **Step 6: Extract Class -- Authentication Separation (Follow-On)**
+
 - **Note:** After completing Steps 1-5, `UserService` should be approximately 80-120 lines handling only registration and basic user lifecycle. Authentication logic (login, token generation, session management) should be extracted to `AuthenticationService` in a subsequent refactoring pass, following the same sequence.
 
 ---
 
 ### Metrics Impact
 
-| Metric | Before | After (Steps 1-5) | Target |
-|--------|--------|-------------------|--------|
-| `registerUser` method length | 78 lines | 12 lines | ≤ 20 lines |
-| `UserService` total lines | 340 lines | ~120 lines | ≤ 200 lines |
-| Cyclomatic complexity of `registerUser` | 11 | 2 | ≤ 5 |
-| Number of responsibilities in `UserService` | 4 | 2 (registration + profile) | 1-2 |
-| Email test isolation | Impossible | Full mock | Mockable boundary |
-| Test coverage (estimated) | ~35% | ~88% | ≥ 80% |
+| Metric                                      | Before     | After (Steps 1-5)          | Target            |
+| ------------------------------------------- | ---------- | -------------------------- | ----------------- |
+| `registerUser` method length                | 78 lines   | 12 lines                   | ≤ 20 lines        |
+| `UserService` total lines                   | 340 lines  | ~120 lines                 | ≤ 200 lines       |
+| Cyclomatic complexity of `registerUser`     | 11         | 2                          | ≤ 5               |
+| Number of responsibilities in `UserService` | 4          | 2 (registration + profile) | 1-2               |
+| Email test isolation                        | Impossible | Full mock                  | Mockable boundary |
+| Test coverage (estimated)                   | ~35%       | ~88%                       | ≥ 80%             |
 
 ---
 

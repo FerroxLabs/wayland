@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning entrepreneurship decision-making"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy planning entrepreneurship decision-making'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Ansoff Matrix
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how a business should grow and needs a structured framework to evaluate directional options -- "should we expand to new markets or build new products for existing customers?"
 - The user's business has hit a growth plateau in its current market and needs to identify the next growth lever -- typically signaled by YoY growth rates declining by more than 30% of their prior rate
 - The user is preparing a board presentation, investor deck, or strategic planning session and needs to justify a growth direction with risk-rated alternatives
@@ -34,6 +36,7 @@ metadata:
 - The user has a specific revenue or market share target and needs to evaluate whether organic strategies can realistically achieve it
 
 **Do NOT use when:**
+
 - The user needs to classify an existing product portfolio by market growth and relative market share -- use `bcg-matrix` instead, which maps cash generation vs. investment need across a portfolio
 - The user needs a competitive landscape analysis identifying rivals, their positioning, and differentiation gaps -- use `competitive-analysis` instead
 - The user has already selected a growth strategy and needs a detailed go-to-market plan with channel strategy, pricing, and launch sequencing -- use `go-to-market-strategy` instead
@@ -146,23 +149,26 @@ at [$X revenue], [N] customers, growing at [X%] YoY (down from [X%] prior year)
 ### Ansoff Matrix
 
 ```
+
                               PRODUCTS
                     EXISTING                  NEW
               +----------------------+----------------------+
               |  MARKET PENETRATION  |  PRODUCT DEVELOPMENT |
-   EXISTING   |  Risk: LOW           |  Risk: MEDIUM        |
-   MARKETS    |  Potential: $[X-Y]M  |  Potential: $[X-Y]M  |
-              |  Fit: [H/M/L]        |  Fit: [H/M/L]        |
-              |  Verdict: [PURSUE /  |  Verdict: [PURSUE /  |
-              |  SECONDARY / AVOID]  |  SECONDARY / AVOID]  |
-              +----------------------+----------------------+
-              |  MARKET DEVELOPMENT  |  DIVERSIFICATION     |
-   NEW        |  Risk: MEDIUM        |  Risk: HIGH          |
-   MARKETS    |  Potential: $[X-Y]M  |  Potential: $[X-Y]M  |
-              |  Fit: [H/M/L]        |  Fit: [H/M/L]        |
-              |  Verdict: [PURSUE /  |  Verdict: [PURSUE /  |
-              |  SECONDARY / AVOID]  |  SECONDARY / AVOID]  |
-              +----------------------+----------------------+
+
+EXISTING | Risk: LOW | Risk: MEDIUM |
+MARKETS | Potential: $[X-Y]M | Potential: $[X-Y]M |
+| Fit: [H/M/L] | Fit: [H/M/L] |
+| Verdict: [PURSUE / | Verdict: [PURSUE / |
+| SECONDARY / AVOID] | SECONDARY / AVOID] |
++----------------------+----------------------+
+| MARKET DEVELOPMENT | DIVERSIFICATION |
+NEW | Risk: MEDIUM | Risk: HIGH |
+MARKETS | Potential: $[X-Y]M | Potential: $[X-Y]M |
+| Fit: [H/M/L] | Fit: [H/M/L] |
+| Verdict: [PURSUE / | Verdict: [PURSUE / |
+| SECONDARY / AVOID] | SECONDARY / AVOID] |
++----------------------+----------------------+
+
 ```
 
 ---
@@ -355,27 +361,35 @@ at [$X revenue], [N] customers, growing at [X%] YoY (down from [X%] prior year)
 ## Edge Cases
 
 ### 1. The Market is Actually Saturated, Not Declining
+
 A company may report slowing growth and assume their market is saturated, when the real problem is competitive displacement, poor retention, or a CAC/ACV mismatch. Before accepting saturation as given, ask for the evidence: Is total market growth slowing, or just the company's share growth? If the total market is still growing at 15-20% but the company is growing at 5%, the problem is competitive positioning, not market saturation -- and the right response is penetration strategy improvement (competitive displacement, pricing adjustment, retention investment), not market development. Explicitly distinguish between "market is saturating" and "our penetration is stalling."
 
 ### 2. The User Wants to Pursue Diversification Immediately
+
 Challenge this before proceeding. Ask the user: What evidence shows that existing markets and products are exhausted or inadequate? What specific opportunity in the new market makes the risk justified? Have you modeled the failure scenario? Most users who ask for diversification analysis are actually describing a product extension (Product Development) or a new segment (Market Development) that they are labeling as diversification. Reframe the request by clarifying what is "new" about the product and what is "new" about the market. If they genuinely mean an entirely new product in an entirely new market, walk through the failure rate data explicitly and ask whether the company has the capital to survive a failed diversification attempt.
 
 ### 3. Two Strategies are Equally Viable (Tied Recommendation)
+
 Sometimes Market Development and Product Development genuinely score equally. Do not artificially break the tie with a weak justification. Instead, present both as co-primary strategies and sequence them based on which one can be validated fastest and cheapest. The faster-to-validate strategy goes first. If both can be validated in the same timeframe, assess which one consumes less critical resource -- typically, if the company is engineering-constrained, Market Development (which does not require building new product) should precede Product Development. If the company is sales-constrained, Product Development (which leverages existing customer relationships) should precede Market Development. Make the constraint the deciding factor.
 
 ### 4. Conglomerate or Multi-Business-Unit Company
+
 Applying Ansoff at the corporate level for a conglomerate produces a meaningless analysis -- a diversified business cannot meaningfully define a single "existing product" and "existing market." In this case, apply the Ansoff analysis at the business unit level for each major unit. Then provide a portfolio-level summary noting which units are in which quadrant and what the aggregate resource allocation implication is. At the corporate level, the relevant question is portfolio balance: does the overall portfolio have enough penetration-stage businesses generating cash to fund development-stage businesses? Reference the BCG matrix skill for the portfolio-level classification if needed, and use the Ansoff analysis to determine the directional strategy for each unit.
 
 ### 5. Rapid Market Decline (Existing Market Structurally Shrinking)
+
 When the existing market is declining -- not slowing, but actually contracting due to structural forces (regulatory change, technological obsolescence, channel disruption) -- the standard Ansoff priority order inverts. Market Penetration has a narrow and closing window. The appropriate analysis is: (a) Quantify the decline rate and estimate how many years of viable penetration remain; (b) Prioritize Market Development aggressively to migrate the customer base to a stable or growing adjacent market; (c) Evaluate Product Development as a mechanism to retain customers who cannot follow to new markets; (d) Frame Diversification as strategic survival rather than growth optionality. Document the market decline evidence clearly -- declining market analysis is more urgent than growth analysis and should be framed as risk mitigation.
 
 ### 6. International Expansion Requested but User Has Not Considered Localisation Costs
+
 Users often underestimate what international Market Development actually costs. If a user mentions international expansion, flag three categories of underestimated costs before the analysis proceeds: (a) Regulatory and compliance costs -- GDPR for EU, data residency requirements, local business registration, industry-specific compliance (finance, health) in each country -- often $50K-$200K in legal and technical work before the first sale; (b) Go-to-market investment -- whether the company sells direct (requires local sales hire at $80-150K fully loaded in major markets, 6-9 month ramp) or through partners (requires 6-12 months of partner recruitment and enablement before revenue materialises); (c) Support and success capacity -- serving customers in different time zones and languages requires either staffing for coverage or accepting a degraded customer experience. International expansion is not a low-cost Market Development option; it is a moderate-to-high investment that requires 12-24 months to produce meaningful return.
 
 ### 7. Growth Target Requires a CAGR That No Single Strategy Can Deliver
+
 When the gap-to-target analysis shows that even the most optimistic strategy execution leaves a significant shortfall, be direct. Lay out three realistic responses: (a) Extend the timeline -- the target is achievable but requires 36 months rather than 24; (b) Increase investment -- the target is achievable in 24 months with a larger capital commitment than currently planned; (c) Add M&A as a growth lever -- inorganic growth (acqui-hire, tuck-in acquisition, strategic partnership with revenue-sharing) can close gaps that organic strategies cannot. The Ansoff matrix is an organic strategy framework, so note this explicitly as a boundary -- if M&A is needed, the user should reference a separate M&A strategy or inorganic growth skill.
 
 ### 8. Single-Product Startup That Has Not Yet Reached Product-Market Fit
+
 If the company is pre-PMF (typically signaled by high churn >15% annually, NPS below 30, inconsistent sales motion, or the founder describing "still figuring out who our best customers are"), the Ansoff analysis should be produced but heavily qualified. Market Penetration is not only the lowest-risk strategy -- it is the required strategy. All other quadrants should be explicitly labelled "Not Applicable Until PMF Achieved" with a brief explanation that attempting Market Development without a repeatable sales motion means burning capital in a new market while the core product problem is unresolved, and attempting Product Development before understanding the existing product's customer deeply enough to know what else they need is speculative. Recommend a modified roadmap: achieve PMF milestones (reduce churn below 8%, NPS above 40, 3 consecutive months of consistent new ACV), then revisit the full Ansoff analysis.
 
 ---
@@ -435,12 +449,12 @@ If the company is pre-PMF (typically signaled by high churn >15% annually, NPS b
 
 ### Strategy Evaluation Table
 
-| Strategy | Addl. Revenue Potential | Risk Level | Key Risk Factors | Est. Investment | Time to First $1M | Strategic Fit |
-|---|---|---|---|---|---|---|
-| Market Penetration | $2-4M over 24 months | LOW | (1) Growth deceleration may indicate structural CAC increase; (2) Sales capacity may be the binding constraint, not market size | $400-700K | 6 months | HIGH |
-| Market Development | $5-9M over 24 months | MEDIUM | (1) New verticals (distribution, food manufacturing) require vertical-specific ERP integrations; (2) Segment expansion to enterprise requires new sales motion | $800K-1.5M | 9-12 months | HIGH (sales-motion transfer) |
-| Product Development | $3-6M over 24 months | MEDIUM-HIGH | (1) Engineering backlog is 14 months -- any new product delays or displaces current roadmap; (2) Adoption risk if customers expect features in base plan | $1.5-3M + eng capacity | 12-18 months | LOW (eng-constrained) |
-| Diversification | $2-4M over 36+ months | HIGH | (1) 30-50% failure rate for related; (2) No available capital or engineering capacity post-development investment | $3M+ | 18-24 months | LOW |
+| Strategy            | Addl. Revenue Potential | Risk Level  | Key Risk Factors                                                                                                                                               | Est. Investment        | Time to First $1M | Strategic Fit                |
+| ------------------- | ----------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ----------------- | ---------------------------- |
+| Market Penetration  | $2-4M over 24 months    | LOW         | (1) Growth deceleration may indicate structural CAC increase; (2) Sales capacity may be the binding constraint, not market size                                | $400-700K              | 6 months          | HIGH                         |
+| Market Development  | $5-9M over 24 months    | MEDIUM      | (1) New verticals (distribution, food manufacturing) require vertical-specific ERP integrations; (2) Segment expansion to enterprise requires new sales motion | $800K-1.5M             | 9-12 months       | HIGH (sales-motion transfer) |
+| Product Development | $3-6M over 24 months    | MEDIUM-HIGH | (1) Engineering backlog is 14 months -- any new product delays or displaces current roadmap; (2) Adoption risk if customers expect features in base plan       | $1.5-3M + eng capacity | 12-18 months      | LOW (eng-constrained)        |
+| Diversification     | $2-4M over 36+ months   | HIGH        | (1) 30-50% failure rate for related; (2) No available capital or engineering capacity post-development investment                                              | $3M+                   | 18-24 months      | LOW                          |
 
 ---
 
@@ -448,17 +462,20 @@ If the company is pre-PMF (typically signaled by high churn >15% annually, NPS b
 
 **Growth Potential:** $2-4M additional ARR over 24 months
 **Revenue Basis:**
+
 - Net Revenue Retention improvement: Current churn unknown, but assume 8% gross annual churn (industry average for mid-market SaaS). Reducing to 5% on $8M base = $240K/year improvement in NRR. ARPU expansion through upsell (additional modules, user seats) at 10% of base = $800K/year. Year 1-2 combined NRR improvement: ~$2M.
 - New customer acquisition: If current sales motion generates 35-40 net new customers/year at $50K ACV, re-accelerating to 50 net new customers/year (through sales hiring) adds $500K additional ARR per year = $1M over 24 months.
 - Combined: $2-3M from retention and NRR improvement + $1M from sales acceleration = $3-4M total.
 
 **Specific Tactics:**
+
 1. **Diagnose growth deceleration first (Month 1-2):** Analyze closed-won/lost data for the last 12 months by deal stage. Determine whether deceleration is driven by fewer leads entering top of funnel (marketing problem), lower conversion rates (product or sales problem), or longer sales cycles (buyer behavior problem). This diagnosis changes the penetration tactics.
 2. **Sales capacity expansion:** At $50K ACV with a 6-month sales cycle, each account executive can close approximately 8-10 deals/year. With the current team size and $8M ARR, the company likely has 2-3 quota-carrying AEs. Adding 2 net new AEs ($150K fully-loaded each) = $300K/year investment to generate 16-20 additional closings/year at $50K = $800K-1M incremental ARR. ROI positive within 12 months.
 3. **Reduce churn through customer success investment:** One additional CSM ($100K fully-loaded) managing at-risk accounts can realistically prevent 3-4 churns per year at $50K ACV = $150-200K ARR saved per year. Payback is immediate. Target: reduce gross churn from estimated 8% to 5% within 12 months.
 4. **ARPU expansion through packaged upsell:** Create a "Manufacturing Intelligence" add-on tier bundling advanced reporting, multi-entity consolidation, and ERP integration depth at $10-15K/year above base. Target 30% adoption among 160 existing customers in year 1 = 48 customers × $12.5K = $600K incremental ARR.
 
 **Risk Factors:**
+
 - The growth deceleration pattern (55% → 22% → 18%) suggests the initial cohort of easily-identifiable mid-market manufacturing buyers has been captured, and the marginal prospect now requires more effort to find and convert. Sales efficiency (revenue per AE) may be declining, which means adding headcount alone will not solve the problem without also improving targeting.
 - Engineering backlog of 14 months creates a product gap risk: if competitors are shipping faster, prospects may be choosing alternatives during demos. Penetration tactics that require product improvement (additional ERP integrations, mobile AP approval workflow) are blocked by the backlog.
 
@@ -471,6 +488,7 @@ If the company is pre-PMF (typically signaled by high churn >15% annually, NPS b
 
 **Growth Potential:** $5-9M additional ARR over 24 months
 **Revenue Basis:**
+
 - Adjacent verticals (distribution, food & beverage manufacturing, industrial services): Each represents roughly 20-40% of the manufacturing TAM in addressable count. The core product (AP automation, invoice processing) is highly transferable -- the problem is identical. Conservative estimate: entering 2 adjacent verticals and acquiring 40 customers each at $50K ACV = 80 customers × $50K = $4M new ARR over 24 months.
 - Segment expansion to lower mid-market (companies with $20-100M revenue, ACV of $25-30K): This is a different buyer profile but the same product. Accessing this segment through a self-serve or light-touch sales motion could add 80-100 customers at $27.5K average ACV = $2.2-2.75M over 24 months.
 - Combined with realistic execution: $5-7M is achievable; $9M requires aggressive execution on both vectors.

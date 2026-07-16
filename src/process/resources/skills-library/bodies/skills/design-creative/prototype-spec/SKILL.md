@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design planning template"
-  category: "design-creative"
-  subcategory: "ui-ux-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design planning template'
+  category: 'design-creative'
+  subcategory: 'ui-ux-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Prototype Spec
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to specify screen transitions, micro-interactions, gesture responses, or state animations for a prototype that will be handed off to developers or used as a reference for a design tool prototype build
 - The user has completed layout design and needs to add motion intent -- defining what moves, how it moves, how fast, and what triggers it
 - The user needs a formal interaction specification document for a design review, sprint planning, or engineering handoff meeting
@@ -29,6 +31,7 @@ metadata:
 - The user needs to reconcile animation behavior across platforms (iOS, Android, web) where native motion conventions differ significantly
 
 **Do NOT use when:**
+
 - The user needs to create or document static screen layouts -- use the `wireframe-specification` skill instead
 - The user wants to map the logical navigation paths between screens without caring about how transitions animate -- use the `user-flow-mapping` skill instead
 - The user wants to write working animation code in CSS, JavaScript, Swift, or Kotlin -- this skill produces specifications, not implementation code
@@ -301,6 +304,7 @@ Define the **gesture thresholds** explicitly: minimum swipe distance (50px for i
 Animating from `height: 0` to `height: auto` (accordions, expandable sections, dynamic content) cannot be done with CSS transitions alone because `auto` is not a calculable interpolation value.
 
 Document one of three acceptable approaches and note which is expected:
+
 - **max-height trick:** `max-height: 0` to `max-height: [generous estimate]px` -- works but creates timing distortion when actual content is much shorter than max-height. Acceptable for content under 300px.
 - **Web Animations API:** `element.animate([{height: '0px'}, {height: element.scrollHeight + 'px'}])` -- accurate but requires JavaScript. Specify that this is the expected implementation.
 - **CSS Grid trick:** Parent has `display: grid; grid-template-rows: 0fr` animating to `grid-template-rows: 1fr` -- pure CSS, accurate, works in modern browsers (Chrome 107+, Safari 16+). Specify browser support requirement to determine if this is viable.
@@ -344,32 +348,33 @@ When a modal, drawer, or panel opens with a 300ms reveal animation, focus must b
 ---
 
 ## Prototype Spec: Dashboard Onboarding Flow
-**Version:** 1.0  **Platform:** Web (desktop)  **Tone:** Professional
+
+**Version:** 1.0 **Platform:** Web (desktop) **Tone:** Professional
 
 ---
 
 ### Overview
 
-| Property              | Value                                                    |
-|-----------------------|----------------------------------------------------------|
-| Screens in scope      | Empty State, Wizard Step 1, Step 2, Step 3, Dashboard    |
-| Total interactions    | 18 (4 screen transitions, 11 micro-interactions, 3 loading states) |
-| Animation tone        | Professional -- smooth, purposeful, no spring overshoot  |
-| Reduced-motion support| Required                                                 |
-| Handoff target        | CSS + JavaScript (React)                                 |
-| Token system          | Defined in this spec (no existing system)                |
+| Property               | Value                                                              |
+| ---------------------- | ------------------------------------------------------------------ |
+| Screens in scope       | Empty State, Wizard Step 1, Step 2, Step 3, Dashboard              |
+| Total interactions     | 18 (4 screen transitions, 11 micro-interactions, 3 loading states) |
+| Animation tone         | Professional -- smooth, purposeful, no spring overshoot            |
+| Reduced-motion support | Required                                                           |
+| Handoff target         | CSS + JavaScript (React)                                           |
+| Token system           | Defined in this spec (no existing system)                          |
 
 ---
 
 ### Screen Transitions
 
-| ID  | Trigger                  | Source Screen   | Target Screen   | Animation Type     | Direction     | Duration | Easing                          | Delay | Backdrop        |
-|-----|--------------------------|-----------------|-----------------|--------------------|---------------|----------|---------------------------------|-------|-----------------|
-| ST1 | Click "Get Started"      | Empty State     | Wizard Step 1   | Fade + Scale-up    | Center-out    | 300ms    | cubic-bezier(0.0, 0.0, 0.2, 1)  | 0ms   | None            |
-| ST2 | Click "Next" (Steps 1→2) | Wizard Step 1   | Wizard Step 2   | Slide (content only)| Right-to-left | 250ms    | cubic-bezier(0.4, 0.0, 0.2, 1)  | 0ms   | None            |
-| ST3 | Click "Next" (Steps 2→3) | Wizard Step 2   | Wizard Step 3   | Slide (content only)| Right-to-left | 250ms    | cubic-bezier(0.4, 0.0, 0.2, 1)  | 0ms   | None            |
-| ST4 | Click "Back" (any step)  | Wizard Step N   | Wizard Step N-1 | Slide (content only)| Left-to-right | 250ms    | cubic-bezier(0.4, 0.0, 0.2, 1)  | 0ms   | None            |
-| ST5 | Click "Finish" (Step 3)  | Wizard Step 3   | Dashboard       | Cross-fade         | N/A           | 400ms    | cubic-bezier(0.0, 0.0, 0.2, 1)  | 0ms   | None            |
+| ID  | Trigger                  | Source Screen | Target Screen   | Animation Type       | Direction     | Duration | Easing                         | Delay | Backdrop |
+| --- | ------------------------ | ------------- | --------------- | -------------------- | ------------- | -------- | ------------------------------ | ----- | -------- |
+| ST1 | Click "Get Started"      | Empty State   | Wizard Step 1   | Fade + Scale-up      | Center-out    | 300ms    | cubic-bezier(0.0, 0.0, 0.2, 1) | 0ms   | None     |
+| ST2 | Click "Next" (Steps 1→2) | Wizard Step 1 | Wizard Step 2   | Slide (content only) | Right-to-left | 250ms    | cubic-bezier(0.4, 0.0, 0.2, 1) | 0ms   | None     |
+| ST3 | Click "Next" (Steps 2→3) | Wizard Step 2 | Wizard Step 3   | Slide (content only) | Right-to-left | 250ms    | cubic-bezier(0.4, 0.0, 0.2, 1) | 0ms   | None     |
+| ST4 | Click "Back" (any step)  | Wizard Step N | Wizard Step N-1 | Slide (content only) | Left-to-right | 250ms    | cubic-bezier(0.4, 0.0, 0.2, 1) | 0ms   | None     |
+| ST5 | Click "Finish" (Step 3)  | Wizard Step 3 | Dashboard       | Cross-fade           | N/A           | 400ms    | cubic-bezier(0.0, 0.0, 0.2, 1) | 0ms   | None     |
 
 **ST1 note:** Only the wizard modal/card animates. The background empty state does not animate. Wizard card: opacity 0→1 + transform scale(0.97)→scale(1.0).
 
@@ -381,29 +386,29 @@ When a modal, drawer, or panel opens with a 300ms reveal animation, focus must b
 
 ### Micro-Interactions
 
-| ID   | Component            | State / Trigger       | Property Animated          | From Value         | To Value           | Duration | Easing                          | Notes                                    |
-|------|----------------------|-----------------------|----------------------------|--------------------|--------------------|---------|---------------------------------|------------------------------------------|
-| MI1  | "Get Started" button | Hover                 | background-color           | #1A56DB            | #1E429F            | 150ms   | cubic-bezier(0.0, 0.0, 0.2, 1)  | Also transition box-shadow: add 0 4px 12px rgba(0,0,0,0.15) |
-| MI2  | "Get Started" button | Mouse-down / press    | transform: scale           | 1.0                | 0.97               | 80ms    | cubic-bezier(0.4, 0.0, 1, 1)    | Release: scale 0.97→1.0, 120ms ease-out  |
-| MI3  | Step indicator dots  | Step advance          | background-color + scale   | inactive (#D1D5DB) → active (#1A56DB) | N/A | 200ms | cubic-bezier(0.4, 0.0, 0.2, 1) | Active dot scale: 1.0→1.2→1.0 over 200ms; completed dots show checkmark, 150ms fade-in |
-| MI4  | "Next" / "Back" btns | Hover                 | background-color           | transparent        | #F3F4F6            | 150ms   | cubic-bezier(0.0, 0.0, 0.2, 1)  | Border-color: #D1D5DB→#9CA3AF simultaneously |
-| MI5  | "Next" / "Back" btns | Press                 | transform: scale           | 1.0                | 0.97               | 80ms    | cubic-bezier(0.4, 0.0, 1, 1)    | Release: 120ms ease-out                  |
-| MI6  | "Next" btn           | Disabled state        | opacity                    | 1.0                | 0.4                | 200ms   | cubic-bezier(0.4, 0.0, 0.2, 1)  | Disabled when required fields in step are empty; no transition needed on programmatic disable, only on re-enable |
-| MI7  | Text input fields    | Focus                 | border-color               | #D1D5DB            | #1A56DB            | 150ms   | cubic-bezier(0.0, 0.0, 0.2, 1)  | border-width: 1px→2px simultaneously     |
-| MI8  | Text input fields    | Validation error      | transform: translateX      | 0px                | -8px, 8px, -6px, 6px, 0px (shake) | 400ms | linear (oscillation) | Shake triggers on click "Next" with empty required field; error text below field fades in: opacity 0→1, 200ms ease-out, T+0ms |
-| MI9  | Checkbox (settings)  | Check / uncheck       | opacity (checkmark SVG)    | 0                  | 1                  | 150ms   | cubic-bezier(0.0, 0.0, 0.2, 1)  | Background fill: 200ms ease-out simultaneously |
-| MI10 | "Finish" button      | Loading (API call)    | content swap               | "Finish" text      | Spinner            | 150ms   | cubic-bezier(0.0, 0.0, 0.2, 1)  | Button width locked at current width to prevent collapse; spinner replaces text via cross-fade |
-| MI11 | Progress bar (wizard)| Step advance          | width                      | 33%                | 66% or 100%        | 300ms   | cubic-bezier(0.4, 0.0, 0.2, 1)  | Animates simultaneously with ST2/ST3     |
+| ID   | Component             | State / Trigger    | Property Animated        | From Value                            | To Value                          | Duration | Easing                         | Notes                                                                                                                         |
+| ---- | --------------------- | ------------------ | ------------------------ | ------------------------------------- | --------------------------------- | -------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| MI1  | "Get Started" button  | Hover              | background-color         | #1A56DB                               | #1E429F                           | 150ms    | cubic-bezier(0.0, 0.0, 0.2, 1) | Also transition box-shadow: add 0 4px 12px rgba(0,0,0,0.15)                                                                   |
+| MI2  | "Get Started" button  | Mouse-down / press | transform: scale         | 1.0                                   | 0.97                              | 80ms     | cubic-bezier(0.4, 0.0, 1, 1)   | Release: scale 0.97→1.0, 120ms ease-out                                                                                       |
+| MI3  | Step indicator dots   | Step advance       | background-color + scale | inactive (#D1D5DB) → active (#1A56DB) | N/A                               | 200ms    | cubic-bezier(0.4, 0.0, 0.2, 1) | Active dot scale: 1.0→1.2→1.0 over 200ms; completed dots show checkmark, 150ms fade-in                                        |
+| MI4  | "Next" / "Back" btns  | Hover              | background-color         | transparent                           | #F3F4F6                           | 150ms    | cubic-bezier(0.0, 0.0, 0.2, 1) | Border-color: #D1D5DB→#9CA3AF simultaneously                                                                                  |
+| MI5  | "Next" / "Back" btns  | Press              | transform: scale         | 1.0                                   | 0.97                              | 80ms     | cubic-bezier(0.4, 0.0, 1, 1)   | Release: 120ms ease-out                                                                                                       |
+| MI6  | "Next" btn            | Disabled state     | opacity                  | 1.0                                   | 0.4                               | 200ms    | cubic-bezier(0.4, 0.0, 0.2, 1) | Disabled when required fields in step are empty; no transition needed on programmatic disable, only on re-enable              |
+| MI7  | Text input fields     | Focus              | border-color             | #D1D5DB                               | #1A56DB                           | 150ms    | cubic-bezier(0.0, 0.0, 0.2, 1) | border-width: 1px→2px simultaneously                                                                                          |
+| MI8  | Text input fields     | Validation error   | transform: translateX    | 0px                                   | -8px, 8px, -6px, 6px, 0px (shake) | 400ms    | linear (oscillation)           | Shake triggers on click "Next" with empty required field; error text below field fades in: opacity 0→1, 200ms ease-out, T+0ms |
+| MI9  | Checkbox (settings)   | Check / uncheck    | opacity (checkmark SVG)  | 0                                     | 1                                 | 150ms    | cubic-bezier(0.0, 0.0, 0.2, 1) | Background fill: 200ms ease-out simultaneously                                                                                |
+| MI10 | "Finish" button       | Loading (API call) | content swap             | "Finish" text                         | Spinner                           | 150ms    | cubic-bezier(0.0, 0.0, 0.2, 1) | Button width locked at current width to prevent collapse; spinner replaces text via cross-fade                                |
+| MI11 | Progress bar (wizard) | Step advance       | width                    | 33%                                   | 66% or 100%                       | 300ms    | cubic-bezier(0.4, 0.0, 0.2, 1) | Animates simultaneously with ST2/ST3                                                                                          |
 
 ---
 
 ### Loading States
 
-| ID  | Screen / Component       | Loading Indicator    | Shimmer | Duration / Condition              | Exit Animation               | Error State Transition               |
-|-----|--------------------------|----------------------|---------|-----------------------------------|------------------------------|--------------------------------------|
-| LS1 | Step 1: Data source list | Skeleton rows (5)    | Yes     | Until data source API responds    | Skeleton fades out 150ms ease-in; rows fade in staggered 50ms each, 200ms ease-out | Skeleton out 150ms; error message fades in 200ms ease-out |
-| LS2 | Step 3: Team invite      | Spinner (inline btn) | No      | Until invitation API confirms     | Spinner cross-fades to "Invited ✓" text, 200ms ease-out | Spinner out 150ms; inline error text fades in 200ms |
-| LS3 | Dashboard initial load   | Full skeleton layout | Yes     | Until dashboard data API responds | Column-by-column fade-in: left column T+0ms, center T+100ms, right T+200ms; each 300ms ease-out | Full error state fades in 300ms, no skeleton |
+| ID  | Screen / Component       | Loading Indicator    | Shimmer | Duration / Condition              | Exit Animation                                                                                  | Error State Transition                                    |
+| --- | ------------------------ | -------------------- | ------- | --------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| LS1 | Step 1: Data source list | Skeleton rows (5)    | Yes     | Until data source API responds    | Skeleton fades out 150ms ease-in; rows fade in staggered 50ms each, 200ms ease-out              | Skeleton out 150ms; error message fades in 200ms ease-out |
+| LS2 | Step 3: Team invite      | Spinner (inline btn) | No      | Until invitation API confirms     | Spinner cross-fades to "Invited ✓" text, 200ms ease-out                                         | Spinner out 150ms; inline error text fades in 200ms       |
+| LS3 | Dashboard initial load   | Full skeleton layout | Yes     | Until dashboard data API responds | Column-by-column fade-in: left column T+0ms, center T+100ms, right T+200ms; each 300ms ease-out | Full error state fades in 300ms, no skeleton              |
 
 **LS1 shimmer spec:** background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%); background-size: 200% 100%; animation: shimmer 1.5s linear infinite. Sweep direction: left-to-right.
 
@@ -413,13 +418,13 @@ When a modal, drawer, or panel opens with a 300ms reveal animation, focus must b
 
 **Sequence S1: Dashboard Entrance (fires after ST5 cross-fade completes)**
 
-| Seq | Step | Element                  | Animation                         | Start Condition               | Duration | Easing                          |
-|-----|------|--------------------------|-----------------------------------|-------------------------------|----------|---------------------------------|
-| S1  | 1    | Page header / nav bar    | opacity 0→1 + translateY(-8px→0)  | T+0ms (dashboard visible)     | 300ms    | cubic-bezier(0.0, 0.0, 0.2, 1)  |
-| S1  | 2    | Left sidebar             | opacity 0→1 + translateX(-8px→0)  | T+50ms                        | 300ms    | cubic-bezier(0.0, 0.0, 0.2, 1)  |
-| S1  | 3    | Main content area        | opacity 0→1                       | T+100ms                       | 300ms    | cubic-bezier(0.0, 0.0, 0.2, 1)  |
-| S1  | 4    | Stat cards (3 cards)     | opacity 0→1 + translateY(8px→0), stagger 75ms each | T+150ms | 250ms | cubic-bezier(0.0, 0.0, 0.2, 1) |
-| S1  | 5    | "Setup complete" toast   | opacity 0→1 + translateY(8px→0)   | T+400ms (after cards begin)   | 250ms    | cubic-bezier(0.0, 0.0, 0.2, 1)  |
+| Seq | Step | Element                | Animation                                          | Start Condition             | Duration | Easing                         |
+| --- | ---- | ---------------------- | -------------------------------------------------- | --------------------------- | -------- | ------------------------------ |
+| S1  | 1    | Page header / nav bar  | opacity 0→1 + translateY(-8px→0)                   | T+0ms (dashboard visible)   | 300ms    | cubic-bezier(0.0, 0.0, 0.2, 1) |
+| S1  | 2    | Left sidebar           | opacity 0→1 + translateX(-8px→0)                   | T+50ms                      | 300ms    | cubic-bezier(0.0, 0.0, 0.2, 1) |
+| S1  | 3    | Main content area      | opacity 0→1                                        | T+100ms                     | 300ms    | cubic-bezier(0.0, 0.0, 0.2, 1) |
+| S1  | 4    | Stat cards (3 cards)   | opacity 0→1 + translateY(8px→0), stagger 75ms each | T+150ms                     | 250ms    | cubic-bezier(0.0, 0.0, 0.2, 1) |
+| S1  | 5    | "Setup complete" toast | opacity 0→1 + translateY(8px→0)                    | T+400ms (after cards begin) | 250ms    | cubic-bezier(0.0, 0.0, 0.2, 1) |
 
 **S1 total sequence duration:** ~650ms (T+400ms start of toast + 250ms toast animation). Toast auto-dismisses after 4000ms with opacity 1→0, 200ms ease-in.
 
@@ -427,40 +432,40 @@ When a modal, drawer, or panel opens with a 300ms reveal animation, focus must b
 
 ### Reduced-Motion Alternatives
 
-| Interaction ID | Standard Animation                              | Reduced-Motion Alternative           | Property Used       |
-|----------------|-------------------------------------------------|--------------------------------------|---------------------|
-| ST1            | Fade + scale-up 300ms                           | Instant appear (opacity 0→1, 1ms)    | opacity only        |
-| ST2            | Slide right-to-left 250ms with overlap          | Cross-fade 1ms (instant swap)        | opacity only        |
-| ST3            | Slide right-to-left 250ms                       | Cross-fade 1ms                       | opacity only        |
-| ST4            | Slide left-to-right 250ms                       | Cross-fade 1ms                       | opacity only        |
-| ST5            | Cross-fade 400ms                                | Instant swap (1ms opacity)           | opacity only        |
-| MI1            | Background-color 150ms                          | No transition (instant color change) | none                |
-| MI2            | Scale press 80ms                                | No scale (remove entirely)           | none                |
-| MI3            | Dot scale + color 200ms                         | Instant color change, no scale       | none                |
-| MI8            | Shake translateX 400ms                          | No shake; error text appears instant | opacity only (error)|
-| MI10           | Cross-fade to spinner 150ms                     | Instant swap to spinner              | none                |
-| MI11           | Progress bar width 300ms                        | Instant width update                 | none                |
-| LS1/LS2/LS3    | Shimmer 1.5s infinite                           | Static gray skeleton (no shimmer)    | none                |
-| S1 (all steps) | Staggered entrance sequence                     | All elements appear at T+0ms, opacity 0→1, 1ms | opacity only |
+| Interaction ID | Standard Animation                     | Reduced-Motion Alternative                     | Property Used        |
+| -------------- | -------------------------------------- | ---------------------------------------------- | -------------------- |
+| ST1            | Fade + scale-up 300ms                  | Instant appear (opacity 0→1, 1ms)              | opacity only         |
+| ST2            | Slide right-to-left 250ms with overlap | Cross-fade 1ms (instant swap)                  | opacity only         |
+| ST3            | Slide right-to-left 250ms              | Cross-fade 1ms                                 | opacity only         |
+| ST4            | Slide left-to-right 250ms              | Cross-fade 1ms                                 | opacity only         |
+| ST5            | Cross-fade 400ms                       | Instant swap (1ms opacity)                     | opacity only         |
+| MI1            | Background-color 150ms                 | No transition (instant color change)           | none                 |
+| MI2            | Scale press 80ms                       | No scale (remove entirely)                     | none                 |
+| MI3            | Dot scale + color 200ms                | Instant color change, no scale                 | none                 |
+| MI8            | Shake translateX 400ms                 | No shake; error text appears instant           | opacity only (error) |
+| MI10           | Cross-fade to spinner 150ms            | Instant swap to spinner                        | none                 |
+| MI11           | Progress bar width 300ms               | Instant width update                           | none                 |
+| LS1/LS2/LS3    | Shimmer 1.5s infinite                  | Static gray skeleton (no shimmer)              | none                 |
+| S1 (all steps) | Staggered entrance sequence            | All elements appear at T+0ms, opacity 0→1, 1ms | opacity only         |
 
 ---
 
 ### Animation Tokens
 
-| Token Name           | Duration | Easing                              | iOS Equivalent                                   | React Equivalent (CSS var)       | Usage                                   |
-|----------------------|----------|-------------------------------------|--------------------------------------------------|----------------------------------|-----------------------------------------|
-| `--duration-fast`    | 100ms    | --                                  | --                                               | --                               | Duration only; pair with easing token   |
-| `--duration-normal`  | 200ms    | --                                  | --                                               | --                               | Duration only                           |
-| `--duration-moderate`| 300ms    | --                                  | --                                               | --                               | Duration only                           |
-| `--duration-slow`    | 400ms    | --                                  | --                                               | --                               | Duration only; screen transitions max   |
-| `--ease-decelerate`  | --       | cubic-bezier(0.0, 0.0, 0.2, 1)      | .easeOut                                         | --ease-decelerate                | Entering elements                       |
-| `--ease-accelerate`  | --       | cubic-bezier(0.4, 0.0, 1, 1)        | .easeIn                                          | --ease-accelerate                | Exiting elements                        |
-| `--ease-standard`    | --       | cubic-bezier(0.4, 0.0, 0.2, 1)      | .easeInOut                                       | --ease-standard                  | Within-view state changes               |
-| `--ease-linear`      | --       | cubic-bezier(0, 0, 1, 1)            | .linear                                          | --ease-linear                    | Shimmer, spinner only                   |
+| Token Name            | Duration | Easing                         | iOS Equivalent | React Equivalent (CSS var) | Usage                                 |
+| --------------------- | -------- | ------------------------------ | -------------- | -------------------------- | ------------------------------------- |
+| `--duration-fast`     | 100ms    | --                             | --             | --                         | Duration only; pair with easing token |
+| `--duration-normal`   | 200ms    | --                             | --             | --                         | Duration only                         |
+| `--duration-moderate` | 300ms    | --                             | --             | --                         | Duration only                         |
+| `--duration-slow`     | 400ms    | --                             | --             | --                         | Duration only; screen transitions max |
+| `--ease-decelerate`   | --       | cubic-bezier(0.0, 0.0, 0.2, 1) | .easeOut       | --ease-decelerate          | Entering elements                     |
+| `--ease-accelerate`   | --       | cubic-bezier(0.4, 0.0, 1, 1)   | .easeIn        | --ease-accelerate          | Exiting elements                      |
+| `--ease-standard`     | --       | cubic-bezier(0.4, 0.0, 0.2, 1) | .easeInOut     | --ease-standard            | Within-view state changes             |
+| `--ease-linear`       | --       | cubic-bezier(0, 0, 1, 1)       | .linear        | --ease-linear              | Shimmer, spinner only                 |
 
 **Composed tokens (duration + easing):**
 
-| Token Name                | Value                                              | Usage                         |
-|---------------------------|----------------------------------------------------|-------------------------------|
-| `transition-micro`        | 100ms cubic-bezier(0.0, 0.0, 0.2, 1)              | Button hover                  |
-| `transition-press`        | 80ms cubic-bezier(0.
+| Token Name         | Value                                | Usage        |
+| ------------------ | ------------------------------------ | ------------ |
+| `transition-micro` | 100ms cubic-bezier(0.0, 0.0, 0.2, 1) | Button hover |
+| `transition-press` | 80ms cubic-bezier(0.                 |

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science analysis planning"
-  category: "data-analysis"
-  subcategory: "data-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science analysis planning'
+  category: 'data-analysis'
+  subcategory: 'data-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # ETL Pipeline Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to design a new data pipeline to move data from one or more source systems into a data warehouse, data lake, data mart, or analytics database
 - The user wants to plan an ETL or ELT workflow for a new integration -- including the extraction pattern, transformation logic, and load strategy
 - The user needs to document the data flow logic for an existing pipeline that has grown organically and lacks a formal specification
@@ -29,6 +31,7 @@ metadata:
 - The user is planning a migration from one pipeline architecture to another (e.g., moving from nightly batch ETL to ELT with transformation inside the warehouse)
 
 **Do NOT use when:**
+
 - The user wants application code that reads a database to serve a web request -- that is software engineering, not data engineering
 - The user wants to design the target data warehouse schema, dimensional model, or star schema -- use `data-warehouse-design`
 - The user wants to set up monitoring, alerting, or observability for a running pipeline -- use `data-pipeline-monitoring`
@@ -58,6 +61,7 @@ Before designing anything, establish the full context. Missing information at th
 The extract design must handle source-specific mechanics, authentication, extraction patterns, and failure modes for every source individually.
 
 **Choose the extraction pattern first -- this is the most consequential decision in the extract design:**
+
 - **Full extract** (truncate source and pull everything): Simple, no state management, but unsustainable beyond ~5 million rows or when extraction time exceeds the available window. Use for small, slowly changing reference tables.
 - **Incremental by timestamp** (pull records where updated_at > last_run_max_updated_at): Works for most OLTP databases and many APIs. Requires a reliable, indexed updated_at column. Risk: records with backdated timestamps are missed. Mitigation: add a 30--60 minute lookback window (pull records where updated_at > last_run_max_updated_at - 60 minutes) and deduplicate in the transform step.
 - **Incremental by auto-increment ID** (pull records where id > last_run_max_id): Safe for insert-only tables with no updates. Simple state management. Fails for tables with updates or deletes.
@@ -65,11 +69,12 @@ The extract design must handle source-specific mechanics, authentication, extrac
 - **API cursor pagination**: For REST APIs, never use offset pagination (page 1, page 2, page 3) for large datasets -- records shift between pages during extraction. Use cursor-based pagination (next_cursor from response header or body) and store the cursor as pipeline state.
 
 **For each source, document:**
+
 - Connection endpoint, port, database/schema name
 - Authentication method: service account with IAM role (preferred for cloud), Vault-managed credential, OAuth2 client credentials, API key in [SECRETS_MANAGER] -- never inline credentials
 - The exact SQL query or API endpoint for extraction, including the incremental filter predicate
 - Field list with source data types -- do not extract columns the pipeline does not use (column pruning reduces extraction load)
-- Extraction schedule as a cron expression (e.g., 0 2 * * * for 2 AM UTC daily) or event trigger
+- Extraction schedule as a cron expression (e.g., 0 2 \* \* \* for 2 AM UTC daily) or event trigger
 - Retry policy: minimum 3 retries with exponential backoff starting at 5 seconds; cap at 3--5 minutes per retry; log each attempt with timestamp and error code
 - Schema drift handling: what the pipeline does when a source column is added, dropped, or changes type (see Edge Cases)
 
@@ -78,6 +83,7 @@ The extract design must handle source-specific mechanics, authentication, extrac
 Transforms are the logic core of the pipeline. Every transform must be named, sequenced, and independently testable.
 
 **Sequence transforms in this canonical order for correctness and performance:**
+
 1. **Filter early** -- eliminate rows that will never reach the target as early as possible. Filtering before joins reduces join input size dramatically. Example: filter to status IN ('active', 'completed') before joining to a customer dimension.
 2. **Clean next** -- handle nulls, cast types, normalize strings, fix encoding. Do this before derived field calculations to avoid null propagation errors.
 3. **Join** -- combine sources using explicit join keys and join types. Always document whether a join is INNER (drops unmatched rows -- verify this is intentional), LEFT (keeps all left rows -- document what null right-side values mean), or FULL OUTER. Fanout risk: joins on non-unique keys multiply rows -- always verify join cardinality with row counts before and after.
@@ -87,12 +93,14 @@ Transforms are the logic core of the pipeline. Every transform must be named, se
 7. **Conform dimensions** -- map source-specific codes to enterprise-standard values (ISO country codes, canonical status labels, standard currency codes). This step makes the data joinable to other pipelines.
 
 **For each transform step, document:**
+
 - Step ID (T1, T2, T3...), operation type, input fields/tables, output fields, and explicit logic (SQL expression, formula, or business rule)
 - Null handling decisions are business decisions, not technical defaults -- document why each null is replaced with a specific value
 - For currency conversion, always specify the exchange rate source, the conversion date logic (use trade date, not load date), and how to handle missing exchange rates
 - For string normalization: UPPER() vs. LOWER(), TRIM() on all string fields, remove non-printable characters, handle encoding differences between sources (UTF-8, Latin-1, CP1252)
 
 **ELT vs. ETL choice:**
+
 - **ETL** (transform before load): Use when the target system is expensive per-query (e.g., Redshift on a small cluster), when PII must be masked before it touches the target, or when the transform logic requires imperative code (Python, Spark) rather than SQL
 - **ELT** (load raw, transform inside warehouse): Use when the target is a modern columnar warehouse (BigQuery, Snowflake, Databricks) with abundant compute, when you want raw data preserved for replay, or when transform logic changes frequently (easier to rebuild a SQL view than re-run an ETL pipeline). In ELT, the Extract and Load steps move raw data, and a SQL transformation layer (dbt is the standard tool) runs inside the warehouse.
 
@@ -102,36 +110,39 @@ The load strategy is the second most consequential decision after the extraction
 
 **Load strategy decision framework:**
 
-| Strategy | When to Use | Risk | Performance |
-|---|---|---|---|
-| Truncate and reload | Small tables (<1M rows), no concurrent readers, simple | Downtime during load; lose data if load fails | Fast for small tables |
-| Append only | Insert-only event tables, log data, immutable facts | Duplicates accumulate if pipeline reruns | Fastest insert performance |
-| Upsert / MERGE | Most dimension and fact tables; handles updates + inserts | Slower than append; requires a reliable primary key | Moderate |
-| Partition swap | Large fact tables partitioned by date; replace one day's partition at a time | Requires partitioned target table design | Fastest for large tables |
-| Swap table | Any size; load into staging table, validate, then rename | Brief lock during rename; requires staging table | Best for zero-downtime |
+| Strategy            | When to Use                                                                  | Risk                                                | Performance                |
+| ------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------- | -------------------------- |
+| Truncate and reload | Small tables (<1M rows), no concurrent readers, simple                       | Downtime during load; lose data if load fails       | Fast for small tables      |
+| Append only         | Insert-only event tables, log data, immutable facts                          | Duplicates accumulate if pipeline reruns            | Fastest insert performance |
+| Upsert / MERGE      | Most dimension and fact tables; handles updates + inserts                    | Slower than append; requires a reliable primary key | Moderate                   |
+| Partition swap      | Large fact tables partitioned by date; replace one day's partition at a time | Requires partitioned target table design            | Fastest for large tables   |
+| Swap table          | Any size; load into staging table, validate, then rename                     | Brief lock during rename; requires staging table    | Best for zero-downtime     |
 
 **For the load design, document:**
+
 - Target schema and table name (fully qualified: database.schema.table)
 - Primary key or natural key for upsert operations
 - All indexes: cluster keys (for Snowflake), sort keys (for Redshift), ZORDER BY (for Databricks Delta), or B-tree/BRIN indexes (for PostgreSQL)
 - Whether the target uses partitioning and by what column
 - The exact MERGE key (for upsert) -- composite keys of (source_system_id, record_id) are safer than single-column keys when merging from multiple sources
 - Soft delete handling: when a record disappears from the source, does the pipeline set is_deleted = true and deleted_at = CURRENT_TIMESTAMP, or hard-delete it from the target?
-- Metadata columns to add on load: _loaded_at TIMESTAMP (when the record was loaded), _source_system VARCHAR (which source it came from), _pipeline_run_id VARCHAR (for lineage tracing)
+- Metadata columns to add on load: \_loaded_at TIMESTAMP (when the record was loaded), \_source_system VARCHAR (which source it came from), \_pipeline_run_id VARCHAR (for lineage tracing)
 
 ### Step 5 -- Define Post-Load Validation
 
 Post-load validation is not optional. It is the gate between a pipeline run completing and the data being usable.
 
 **Standard validation checks every pipeline must have:**
+
 - **Row count delta check:** Compare the row count of the target after load to the row count before load. Alert if the delta is outside an expected range (e.g., more than 3x the average daily delta or a decrease in total rows when only inserts were expected). Express the threshold in percentage terms so it scales as data grows.
 - **Null check on NOT NULL columns:** Any NOT NULL column with nulls is a pipeline defect. This should cause a hard failure -- halt the pipeline and alert.
 - **Freshness check:** Verify the maximum value of the created_at or updated_at field in the loaded data matches the expected extraction window. Stale data in the target is often caused by a silent extract failure that loaded zero new rows without error.
-- **Duplicate primary key check:** After upsert, verify no duplicate values exist on the primary key. Run SELECT primary_key, COUNT(*) GROUP BY primary_key HAVING COUNT(*) > 1 -- result should be empty.
+- **Duplicate primary key check:** After upsert, verify no duplicate values exist on the primary key. Run SELECT primary_key, COUNT(_) GROUP BY primary_key HAVING COUNT(_) > 1 -- result should be empty.
 - **Referential integrity check:** If the target table has a foreign key to another table, verify that all loaded foreign key values exist in the parent table.
 - **Numeric sanity check:** For revenue, counts, or other measurable KPIs, define a plausible range based on historical data. Revenue for a business doing $1M/day should not load as $0 or $1B -- both indicate data errors.
 
 **Validation failure actions must be specific -- never just "alert":**
+
 - Row count drop of 50%+ or zero new rows: Halt pipeline, alert, do NOT update the pipeline state watermark (the next run will re-extract the same window)
 - NOT NULL violation: Rollback the load (or swap back to pre-load table), alert with sample violating rows
 - Duplicate primary key: Alert and investigate -- do not rollback if data is otherwise valid, but this must be resolved before the next run
@@ -268,24 +279,26 @@ Compile all design decisions from Steps 1--7 into the complete specification usi
 ### Pipeline DAG
 
 ```
+
 [Source 1 Extract (parallel)] ──────────────────────────────────────────────────────┐
-                                                                                      ▼
+▼
 [Source 2 Extract (parallel)] ──> [Wait: All Extracts Complete] ──> [T1: Filter] ──> [T2: Clean]
-                                                                                      │
+│
 [Exchange Rate Lookup] ──────────────────────────────────────────────────────────────┘
-                                                                      ▼
-                                                           [T3: Join] ──> [T4: Dedup] ──> [T5: Derive]
-                                                                                               │
-                                                                                               ▼
-                                                                                          [Load: MERGE]
-                                                                                               │
-                                                                                               ▼
-                                                                               [Post-Load Validation]
-                                                                                               │
-                                                            ┌──────────────────────────────────┤
-                                                            │ PASS: Advance watermark           │ FAIL: Alert + halt
-                                                            ▼                                   ▼
-                                                  [Downstream Trigger]               [Dead Letter Queue]
+▼
+[T3: Join] ──> [T4: Dedup] ──> [T5: Derive]
+│
+▼
+[Load: MERGE]
+│
+▼
+[Post-Load Validation]
+│
+┌──────────────────────────────────┤
+│ PASS: Advance watermark │ FAIL: Alert + halt
+▼ ▼
+[Downstream Trigger] [Dead Letter Queue]
+
 ```
 
 ---
@@ -354,7 +367,7 @@ When joining data from two sources that refresh at different rates (e.g., orders
 
 ### Source API with Rate Limits
 
-Calculate the worst-case extraction time: (total records to extract) / (page size) * (seconds per request). For a Stripe API with a 100-request-per-second rate limit and 250 records per page, extracting 500,000 records requires 2,000 API calls -- which at 100 req/sec takes 20 seconds in theory but is often 3--5 minutes in practice due to response latency. If this exceeds the extraction time window, you have three options: (1) negotiate a higher rate limit with the provider, (2) split extraction across multiple API keys if the provider allows it, or (3) switch to a provider-provided bulk export (most SaaS platforms offer nightly data exports via S3 or SFTP that bypass API rate limits). Always design with cursor-based checkpoint resumption: if the extraction is interrupted, resume from the last successful cursor, not from page 1. Store the cursor in the pipeline state table.
+Calculate the worst-case extraction time: (total records to extract) / (page size) \* (seconds per request). For a Stripe API with a 100-request-per-second rate limit and 250 records per page, extracting 500,000 records requires 2,000 API calls -- which at 100 req/sec takes 20 seconds in theory but is often 3--5 minutes in practice due to response latency. If this exceeds the extraction time window, you have three options: (1) negotiate a higher rate limit with the provider, (2) split extraction across multiple API keys if the provider allows it, or (3) switch to a provider-provided bulk export (most SaaS platforms offer nightly data exports via S3 or SFTP that bypass API rate limits). Always design with cursor-based checkpoint resumption: if the extraction is interrupted, resume from the last successful cursor, not from page 1. Store the cursor in the pipeline state table.
 
 ### Schema Evolution in the Source Database
 
@@ -392,20 +405,20 @@ Some pipelines need to load the same source data into multiple targets simultane
 
 ### Overview
 
-| Property | Value |
-|---|---|
-| Pipeline name | stripe_billing_to_bigquery |
-| Purpose | Load daily Stripe subscription and payment data into BigQuery for finance reconciliation, revenue recognition, and subscription analytics. Powers the daily 7 AM finance reconciliation report. |
-| Pattern | ELT -- extract raw JSON to BigQuery raw layer; transform using BigQuery SQL inside the warehouse |
-| Source system(s) | Stripe REST API v2 (Charges endpoint, Subscriptions endpoint, Customers endpoint) |
-| Target system | BigQuery: analytics_prod.finance.stripe_payments_daily (transformed), analytics_prod.raw.stripe_charges (raw), analytics_prod.raw.stripe_subscriptions (raw) |
-| Schedule | Extract + Load: 0 2 * * * (2:00 AM Pacific daily) -- leaves 5 hours before the 7 AM report deadline. Transform: triggered by successful load completion. |
-| Freshness SLA | Stripe charges updated through 11:59 PM Pacific of the prior day must be visible in BigQuery by 6:00 AM Pacific |
-| Estimated volume | ~2,000 charge events/day (~8 KB per charge with nested metadata), ~500 subscription changes/day, ~100 customer updates/day |
-| Data sensitivity | PCI-scoped (partial card data), PII (customer name, email). Masking required before writing to transformed layer. |
-| Pipeline version | 1.0 |
-| Owner | Data Engineering team |
-| Last updated | [Date of spec creation] |
+| Property         | Value                                                                                                                                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pipeline name    | stripe_billing_to_bigquery                                                                                                                                                                      |
+| Purpose          | Load daily Stripe subscription and payment data into BigQuery for finance reconciliation, revenue recognition, and subscription analytics. Powers the daily 7 AM finance reconciliation report. |
+| Pattern          | ELT -- extract raw JSON to BigQuery raw layer; transform using BigQuery SQL inside the warehouse                                                                                                |
+| Source system(s) | Stripe REST API v2 (Charges endpoint, Subscriptions endpoint, Customers endpoint)                                                                                                               |
+| Target system    | BigQuery: analytics_prod.finance.stripe_payments_daily (transformed), analytics_prod.raw.stripe_charges (raw), analytics_prod.raw.stripe_subscriptions (raw)                                    |
+| Schedule         | Extract + Load: 0 2 \* \* \* (2:00 AM Pacific daily) -- leaves 5 hours before the 7 AM report deadline. Transform: triggered by successful load completion.                                     |
+| Freshness SLA    | Stripe charges updated through 11:59 PM Pacific of the prior day must be visible in BigQuery by 6:00 AM Pacific                                                                                 |
+| Estimated volume | ~2,000 charge events/day (~8 KB per charge with nested metadata), ~500 subscription changes/day, ~100 customer updates/day                                                                      |
+| Data sensitivity | PCI-scoped (partial card data), PII (customer name, email). Masking required before writing to transformed layer.                                                                               |
+| Pipeline version | 1.0                                                                                                                                                                                             |
+| Owner            | Data Engineering team                                                                                                                                                                           |
+| Last updated     | [Date of spec creation]                                                                                                                                                                         |
 
 ---
 
@@ -413,75 +426,75 @@ Some pipelines need to load the same source data into multiple targets simultane
 
 #### Source 1: Stripe Charges API
 
-| Property | Value |
-|---|---|
-| System type | Stripe REST API v2 |
-| Connection endpoint | https://api.stripe.com/v1/charges |
-| Authentication | Stripe restricted API key (read-only, Charges scope) stored in GCP Secret Manager: projects/[PROJECT_ID]/secrets/stripe_api_key_readonly/versions/latest |
-| Extraction pattern | Incremental by timestamp + cursor pagination |
-| Incremental key | created (Unix timestamp); filter: created >= (last_run_watermark - 3600) to apply 1-hour lookback |
-| Lookback window | 60 minutes -- Stripe webhooks and late-posting bank events can cause charges to appear with a created timestamp up to 45 minutes behind the actual API response time |
-| Extraction query / endpoint | GET /v1/charges?limit=100&created[gte]=[watermark_minus_1hr]&created[lte]=[run_start_unix] |
-| Pagination | Cursor-based: use starting_after=[last_charge_id] from each response. Store the last processed charge ID in pipeline state table bigquery: analytics_prod.pipeline_state.stripe_charges_cursor |
-| Schedule | 0 2 * * * Pacific (02:00 AM Pacific = 10:00 AM UTC) |
-| Expected row count | ~2,100 charges/day (2,000 new + 100 updates in lookback window) |
-| Error handling | Retry 3x with backoff: 30s, 120s, 300s. On HTTP 429: honor Retry-After header (typically 30--60s for Stripe). On 5xx: retry. On 4xx except 429: halt and alert (auth or endpoint misconfiguration). On exhaustion: alert Slack #finance-data-alerts + PagerDuty (finance pipeline failure), skip run WITHOUT advancing watermark. |
-| Schema drift handling | Stripe adds fields without versioning. New top-level fields: log to pipeline_metadata.schema_changes and continue. Removal of expected required field (id, amount, currency, status, created): halt and alert immediately. |
+| Property                    | Value                                                                                                                                                                                                                                                                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| System type                 | Stripe REST API v2                                                                                                                                                                                                                                                                                                                |
+| Connection endpoint         | https://api.stripe.com/v1/charges                                                                                                                                                                                                                                                                                                 |
+| Authentication              | Stripe restricted API key (read-only, Charges scope) stored in GCP Secret Manager: projects/[PROJECT_ID]/secrets/stripe_api_key_readonly/versions/latest                                                                                                                                                                          |
+| Extraction pattern          | Incremental by timestamp + cursor pagination                                                                                                                                                                                                                                                                                      |
+| Incremental key             | created (Unix timestamp); filter: created >= (last_run_watermark - 3600) to apply 1-hour lookback                                                                                                                                                                                                                                 |
+| Lookback window             | 60 minutes -- Stripe webhooks and late-posting bank events can cause charges to appear with a created timestamp up to 45 minutes behind the actual API response time                                                                                                                                                              |
+| Extraction query / endpoint | GET /v1/charges?limit=100&created[gte]=[watermark_minus_1hr]&created[lte]=[run_start_unix]                                                                                                                                                                                                                                        |
+| Pagination                  | Cursor-based: use starting_after=[last_charge_id] from each response. Store the last processed charge ID in pipeline state table bigquery: analytics_prod.pipeline_state.stripe_charges_cursor                                                                                                                                    |
+| Schedule                    | 0 2 \* \* \* Pacific (02:00 AM Pacific = 10:00 AM UTC)                                                                                                                                                                                                                                                                            |
+| Expected row count          | ~2,100 charges/day (2,000 new + 100 updates in lookback window)                                                                                                                                                                                                                                                                   |
+| Error handling              | Retry 3x with backoff: 30s, 120s, 300s. On HTTP 429: honor Retry-After header (typically 30--60s for Stripe). On 5xx: retry. On 4xx except 429: halt and alert (auth or endpoint misconfiguration). On exhaustion: alert Slack #finance-data-alerts + PagerDuty (finance pipeline failure), skip run WITHOUT advancing watermark. |
+| Schema drift handling       | Stripe adds fields without versioning. New top-level fields: log to pipeline_metadata.schema_changes and continue. Removal of expected required field (id, amount, currency, status, created): halt and alert immediately.                                                                                                        |
 
 **Fields extracted:**
 
-| Field Name | Source Type | Required | Notes |
-|---|---|---|---|
-| id | string | Y | Stripe charge ID, format: ch_[alphanumeric] |
-| amount | integer | Y | Amount in smallest currency unit (cents for USD) |
-| amount_captured | integer | Y | May differ from amount for partial captures |
-| amount_refunded | integer | Y | Cumulative refund amount |
-| currency | string | Y | ISO 4217 lowercase (usd, eur, gbp) |
-| status | string | Y | succeeded, pending, failed |
-| created | integer | Y | Unix timestamp -- incremental key |
-| customer | string | N | Stripe customer ID (null for one-time charges) |
-| invoice | string | N | Stripe invoice ID (null for non-subscription charges) |
-| payment_intent | string | Y | Stripe payment intent ID |
-| failure_code | string | N | Stripe failure code if status=failed |
-| failure_message | string | N | PII risk: may contain bank-provided messages with card details |
-| billing_details.email | string | N | PII: customer email -- mask in transform layer |
-| billing_details.name | string | N | PII: cardholder name -- mask in transform layer |
-| card.brand | string | N | visa, mastercard, amex, etc. |
-| card.last4 | string | N | Last 4 digits only -- PCI compliant to store |
-| card.exp_month | integer | N | |
-| card.exp_year | integer | N | |
-| metadata | object | N | Arbitrary key-value pairs set by the application -- load as JSON string |
-| livemode | boolean | Y | Must be true -- filter out test mode charges in T1 |
+| Field Name            | Source Type | Required | Notes                                                                   |
+| --------------------- | ----------- | -------- | ----------------------------------------------------------------------- |
+| id                    | string      | Y        | Stripe charge ID, format: ch\_[alphanumeric]                            |
+| amount                | integer     | Y        | Amount in smallest currency unit (cents for USD)                        |
+| amount_captured       | integer     | Y        | May differ from amount for partial captures                             |
+| amount_refunded       | integer     | Y        | Cumulative refund amount                                                |
+| currency              | string      | Y        | ISO 4217 lowercase (usd, eur, gbp)                                      |
+| status                | string      | Y        | succeeded, pending, failed                                              |
+| created               | integer     | Y        | Unix timestamp -- incremental key                                       |
+| customer              | string      | N        | Stripe customer ID (null for one-time charges)                          |
+| invoice               | string      | N        | Stripe invoice ID (null for non-subscription charges)                   |
+| payment_intent        | string      | Y        | Stripe payment intent ID                                                |
+| failure_code          | string      | N        | Stripe failure code if status=failed                                    |
+| failure_message       | string      | N        | PII risk: may contain bank-provided messages with card details          |
+| billing_details.email | string      | N        | PII: customer email -- mask in transform layer                          |
+| billing_details.name  | string      | N        | PII: cardholder name -- mask in transform layer                         |
+| card.brand            | string      | N        | visa, mastercard, amex, etc.                                            |
+| card.last4            | string      | N        | Last 4 digits only -- PCI compliant to store                            |
+| card.exp_month        | integer     | N        |                                                                         |
+| card.exp_year         | integer     | N        |                                                                         |
+| metadata              | object      | N        | Arbitrary key-value pairs set by the application -- load as JSON string |
+| livemode              | boolean     | Y        | Must be true -- filter out test mode charges in T1                      |
 
 #### Source 2: Stripe Subscriptions API
 
-| Property | Value |
-|---|---|
-| System type | Stripe REST API v2 |
-| Connection endpoint | https://api.stripe.com/v1/subscriptions |
-| Authentication | Same restricted API key as Source 1 -- GCP Secret Manager |
-| Extraction pattern | Incremental by timestamp |
-| Incremental key | current_period_end (Unix timestamp) -- captures subscriptions entering a new period; supplemented by secondary extract on status = 'canceled' with canceled_at >= watermark |
-| Schedule | Same as Source 1: 0 2 * * * Pacific |
-| Expected row count | ~500 subscription events/day |
-| Error handling | Same retry and alerting policy as Source 1 |
+| Property            | Value                                                                                                                                                                       |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| System type         | Stripe REST API v2                                                                                                                                                          |
+| Connection endpoint | https://api.stripe.com/v1/subscriptions                                                                                                                                     |
+| Authentication      | Same restricted API key as Source 1 -- GCP Secret Manager                                                                                                                   |
+| Extraction pattern  | Incremental by timestamp                                                                                                                                                    |
+| Incremental key     | current_period_end (Unix timestamp) -- captures subscriptions entering a new period; supplemented by secondary extract on status = 'canceled' with canceled_at >= watermark |
+| Schedule            | Same as Source 1: 0 2 \* \* \* Pacific                                                                                                                                      |
+| Expected row count  | ~500 subscription events/day                                                                                                                                                |
+| Error handling      | Same retry and alerting policy as Source 1                                                                                                                                  |
 
 **Fields extracted:**
 
-| Field Name | Source Type | Required | Notes |
-|---|---|---|---|
-| id | string | Y | Stripe subscription ID, format: sub_[alphanumeric] |
-| customer | string | Y | Stripe customer ID -- join key to customers |
-| status | string | Y | active, past_due, canceled, trialing, unpaid, incomplete |
-| current_period_start | integer | Y | Unix timestamp |
-| current_period_end | integer | Y | Unix timestamp -- incremental key |
-| canceled_at | integer | N | Unix timestamp; present when status=canceled |
-| plan.id | string | Y | Stripe plan/price ID |
-| plan.amount | integer | Y | Recurring charge amount in cents |
-| plan.currency | string | Y | ISO 4217 |
-| plan.interval | string | Y | month, year, week |
-| quantity | integer | Y | Seat count or quantity multiplier |
-| metadata | object | N | Application-defined tags -- load as JSON string |
+| Field Name           | Source Type | Required | Notes                                                    |
+| -------------------- | ----------- | -------- | -------------------------------------------------------- |
+| id                   | string      | Y        | Stripe subscription ID, format: sub\_[alphanumeric]      |
+| customer             | string      | Y        | Stripe customer ID -- join key to customers              |
+| status               | string      | Y        | active, past_due, canceled, trialing, unpaid, incomplete |
+| current_period_start | integer     | Y        | Unix timestamp                                           |
+| current_period_end   | integer     | Y        | Unix timestamp -- incremental key                        |
+| canceled_at          | integer     | N        | Unix timestamp; present when status=canceled             |
+| plan.id              | string      | Y        | Stripe plan/price ID                                     |
+| plan.amount          | integer     | Y        | Recurring charge amount in cents                         |
+| plan.currency        | string      | Y        | ISO 4217                                                 |
+| plan.interval        | string      | Y        | month, year, week                                        |
+| quantity             | integer     | Y        | Seat count or quantity multiplier                        |
+| metadata             | object      | N        | Application-defined tags -- load as JSON string          |
 
 ---
 
@@ -489,16 +502,16 @@ Some pipelines need to load the same source data into multiple targets simultane
 
 **Transformation sequence (runs inside BigQuery using SQL after raw load completes):**
 
-| Step ID | Operation | Input Fields / Tables | Output Fields | Logic |
-|---|---|---|---|---|
-| T1 | Filter test data | raw.stripe_charges | livemode = true charges only | WHERE livemode = true -- exclude all Stripe test mode charges (livemode = false) which exist in the same API response |
-| T2 | Type cast + unit conversion | amount, amount_captured, amount_refunded, created | amount_usd, created_at | ROUND(amount / 100.0, 2) for all monetary fields (Stripe stores in cents); TIMESTAMP_SECONDS(created) for all Unix timestamps |
-| T3 | PII masking | billing_details.email, billing_details.name, failure_message | email_hash, name_hash, failure_message_masked | email_hash = TO_HEX(SHA256(LOWER(TRIM(billing_details.email)) || [SALT_FROM_SECRET_MANAGER])); name_hash = TO_HEX(SHA256(billing_details.name || [SALT])); failure_message: replace content with 'REDACTED' in transformed layer -- preserve in raw layer behind column-level access control |
-| T4 | Currency normalization | currency, amount_usd | amount_usd_normalized | For non-USD charges: JOIN to analytics_prod.reference.exchange_rates on currency + DATE(created_at); multiply amount_usd by rate. Exchange rate source: European Central Bank daily rates loaded by a separate pipeline. If exchange rate is missing for a currency + date combination: use the most recent available rate for that currency and log a warning to pipeline_metadata.exchange_rate_warnings |
-| T5 | Join subscription context | stripe_charges.invoice, stripe_subscriptions.id | subscription_id, plan_id, plan_interval, subscription_status | LEFT JOIN raw.stripe_subscriptions ON charges.invoice = subscriptions.latest_invoice. Cardinality: N:1 (many charges per subscription). A charge with invoice IS NULL is a one-time charge -- subscription columns will be null; this is expected. |
-| T6 | Deduplicate | (id, created_at) -- the charge ID is globally unique in Stripe | One row per charge ID | ROW_NUMBER() OVER (PARTITION BY id ORDER BY _loaded_at DESC) -- keep rank 1. Duplicates arise from the 60-minute lookback window overlap. |
-| T7 | Derive calculated fields | amount_usd_normalized, amount_refunded | net_amount_usd, is_refunded, is_failed, charge_date | net_amount_usd = amount_usd_normalized - ROUND(amount_refunded / 100.0, 2); is_refunded = CASE WHEN amount_refunded > 0 THEN true ELSE false END; is_failed = CASE WHEN status = 'failed' THEN true ELSE false END; charge_date = DATE(created_at, 'America/Los_Angeles') -- use Pacific time for finance reconciliation alignment |
-| T8 | Conform status codes | status | status_normalized | Stripe statuses are already lowercase English strings -- no normalization needed. Add status_category: 'successful' for status='succeeded', 'in_progress' for status='pending', 'failed' for status='failed' |
+| Step ID | Operation                   | Input Fields / Tables                                          | Output Fields                                                | Logic                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------- | --------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ---------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1      | Filter test data            | raw.stripe_charges                                             | livemode = true charges only                                 | WHERE livemode = true -- exclude all Stripe test mode charges (livemode = false) which exist in the same API response                                                                                                                                                                                                                                                                                      |
+| T2      | Type cast + unit conversion | amount, amount_captured, amount_refunded, created              | amount_usd, created_at                                       | ROUND(amount / 100.0, 2) for all monetary fields (Stripe stores in cents); TIMESTAMP_SECONDS(created) for all Unix timestamps                                                                                                                                                                                                                                                                              |
+| T3      | PII masking                 | billing_details.email, billing_details.name, failure_message   | email_hash, name_hash, failure_message_masked                | email_hash = TO_HEX(SHA256(LOWER(TRIM(billing_details.email))                                                                                                                                                                                                                                                                                                                                              |     | [SALT_FROM_SECRET_MANAGER])); name_hash = TO_HEX(SHA256(billing_details.name |     | [SALT])); failure_message: replace content with 'REDACTED' in transformed layer -- preserve in raw layer behind column-level access control |
+| T4      | Currency normalization      | currency, amount_usd                                           | amount_usd_normalized                                        | For non-USD charges: JOIN to analytics_prod.reference.exchange_rates on currency + DATE(created_at); multiply amount_usd by rate. Exchange rate source: European Central Bank daily rates loaded by a separate pipeline. If exchange rate is missing for a currency + date combination: use the most recent available rate for that currency and log a warning to pipeline_metadata.exchange_rate_warnings |
+| T5      | Join subscription context   | stripe_charges.invoice, stripe_subscriptions.id                | subscription_id, plan_id, plan_interval, subscription_status | LEFT JOIN raw.stripe_subscriptions ON charges.invoice = subscriptions.latest_invoice. Cardinality: N:1 (many charges per subscription). A charge with invoice IS NULL is a one-time charge -- subscription columns will be null; this is expected.                                                                                                                                                         |
+| T6      | Deduplicate                 | (id, created_at) -- the charge ID is globally unique in Stripe | One row per charge ID                                        | ROW_NUMBER() OVER (PARTITION BY id ORDER BY \_loaded_at DESC) -- keep rank 1. Duplicates arise from the 60-minute lookback window overlap.                                                                                                                                                                                                                                                                 |
+| T7      | Derive calculated fields    | amount_usd_normalized, amount_refunded                         | net_amount_usd, is_refunded, is_failed, charge_date          | net_amount_usd = amount_usd_normalized - ROUND(amount_refunded / 100.0, 2); is_refunded = CASE WHEN amount_refunded > 0 THEN true ELSE false END; is_failed = CASE WHEN status = 'failed' THEN true ELSE false END; charge_date = DATE(created_at, 'America/Los_Angeles') -- use Pacific time for finance reconciliation alignment                                                                         |
+| T8      | Conform status codes        | status                                                         | status_normalized                                            | Stripe statuses are already lowercase English strings -- no normalization needed. Add status_category: 'successful' for status='succeeded', 'in_progress' for status='pending', 'failed' for status='failed'                                                                                                                                                                                               |
 
 **Transformation order rationale:** Filter test data (T1) immediately to prevent test charges contaminating any downstream step. Type cast (T2) before all calculations because monetary math on integers in cents causes downstream confusion. Mask PII (T3) before any join or staging that might write intermediate results -- PII must never appear in the transformed layer. Currency normalization (T4) before aggregation to ensure all amounts are in the same unit. Join subscription context (T5) before deduplication so the dedup comparison includes all fields. Dedup (T6) before derived fields so calculated fields are based on unique records only.
 
@@ -510,7 +523,7 @@ Some pipelines need to load the same source data into multiple targets simultane
 
 **Raw layer load (before transformation):**
 
-| Property | Value |
-|---|---|
-| Target table | analytics_prod.raw.stripe_charges |
+| Property      | Value                                                      |
+| ------------- | ---------------------------------------------------------- |
+| Target table  | analytics_prod.raw.stripe_charges                          |
 | Load strategy | Append (raw layer is immutable event log; never overwrite) |

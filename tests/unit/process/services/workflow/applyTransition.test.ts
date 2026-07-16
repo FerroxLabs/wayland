@@ -6,18 +6,14 @@
 
 import { describe, expect, it } from 'vitest';
 import { applyTransition } from '@process/services/workflow/applyTransition';
-import type {
-  StepStatus,
-  StepTransition,
-  StepTransitionSource,
-} from '@/common/types/workflowTypes';
+import type { StepStatus, StepTransition, StepTransitionSource } from '@/common/types/workflowTypes';
 
 // Helper to build a transition with sensible defaults.
 function makeTx(
   status: StepStatus,
   source: StepTransitionSource = 'parent',
   timestamp = 1_000,
-  dispatch_id: string | null = null,
+  dispatch_id: string | null = null
 ): StepTransition {
   return {
     step_n: 1,
@@ -227,8 +223,6 @@ describe('applyTransition - edge cases', () => {
         timestamp: 1_000,
       },
     ];
-    expect(() => applyTransition('todo', incoming, competing)).toThrow(
-      /invalid transition source/i,
-    );
+    expect(() => applyTransition('todo', incoming, competing)).toThrow(/invalid transition source/i);
   });
 });

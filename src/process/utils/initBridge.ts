@@ -37,10 +37,7 @@ import {
 } from '@process/services/workflow/autonomousWatchdog';
 import { handleParentWorkflowTurn } from '@process/services/workflow/parentTurnDriver';
 import { resumeInterruptedParentRuns } from '@process/services/workflow/resumeRuns';
-import {
-  sweepStalledParentRuns,
-  PARENT_WATCHDOG_INTERVAL_MS,
-} from '@process/services/workflow/parentWatchdog';
+import { sweepStalledParentRuns, PARENT_WATCHDOG_INTERVAL_MS } from '@process/services/workflow/parentWatchdog';
 import { setWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -128,6 +125,15 @@ void import('@process/services/cron/cronReadiness').then(({ setCronReadyPromise 
 // Start in-process Wayland Core MCP server for team-guide tools (aion_create_team)
 void initTeamGuideService(teamSessionService).catch((error) => {
   console.error('[initBridge] Failed to initialize TeamGuideMcpServer:', error);
+});
+
+// #665 - on startup nothing is actually running yet, so any teammate still
+// persisted as `active` from before a crash/kill/power-loss is stale. Sweep
+// once at boot so the roster dot doesn't lie until the user manually hits
+// "Restart". Single-user desktop app - 'system_default_user' matches the
+// same fallback used elsewhere (e.g. TeamGuideMcpServer).
+void teamSessionService.reconcileStaleActiveAgents('system_default_user').catch((error) => {
+  console.error('[initBridge] Failed to reconcile stale active agents:', error);
 });
 
 // Usage telemetry bridge. Register the IPC provider EAGERLY so the first

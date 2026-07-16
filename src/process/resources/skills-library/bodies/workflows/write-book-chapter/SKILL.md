@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing editing creative-writing step-by-step planning"
-  category: "content-creation"
-  depends: "content-brief long-form-article structural-editing style-guide-compliance proofreading copy-editing"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing editing creative-writing step-by-step planning'
+  category: 'content-creation'
+  depends: 'content-brief long-form-article structural-editing style-guide-compliance proofreading copy-editing'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Write a Book Chapter
@@ -189,6 +189,7 @@ When this workflow is complete, the user will have:
 ## Chapter Pipeline: Building Trust Without Face-to-Face Interaction
 
 ### Chapter Brief
+
 - **Book:** Remote Team Management
 - **Chapter Number:** 4 of 12
 - **Chapter Thesis/Arc:** Trust in remote teams is built through predictable behavior patterns, not relationship-building activities
@@ -204,28 +205,33 @@ When this workflow is complete, the user will have:
   6. Measuring trust health -- signals and surveys for distributed teams
 
 ### Draft Status
+
 - **Word Count:** 5,200 (target: 5,000)
 - **Sections Completed:** 6/6
 - **Inline Flags:** 3 items ([CHECK: Buffer remote work survey year], [EXPAND: status update template example], [CHECK: Lencioni trust model citation])
 
 ### Structural Edit
+
 - **Sections Reordered:** Yes -- Sections 2 and 3 swapped (transparency is prerequisite for predictability)
 - **Sections Expanded:** Section 5 expanded from 400 to 700 words (vulnerability concept needs more nuance)
 - **Sections Condensed:** None
 - **Gaps Filled:** 1 (added transition from Chapter 3 communication rhythms to trust discussion)
 
 ### Style Compliance
+
 - **Terminology Standardized:** "distributed team" used consistently (replaced "remote team" and "virtual team" per Chapters 1-3 convention)
 - **Voice Consistency:** Matches established practical-advisory tone with data support
 - **New Conventions:** "predictability framework" established as book-specific term for Chapters 5-8
 
 ### Fact-Check Log
+
 - **Claims Verified:** 12
 - **Claims Updated:** 2 (Buffer survey updated to 2024 edition, Lencioni citation confirmed)
 - **Claims Removed:** 0
 - **Forward References Flagged:** 1 (reference to Chapter 5 conflict resolution verified against outline)
 
 ### Copy Edit Results
+
 - **Corrections Applied:** 14 (6 punctuation, 3 sentence restructures, 2 spelling, 2 paragraph breaks, 1 em-dash standardization)
 - **Final Word Count:** 5,480
 - **Format:** Publisher submission (Chicago Manual of Style 17th edition)

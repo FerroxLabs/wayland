@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript testing frameworks tdd"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript testing frameworks tdd'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Vue Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is writing tests for Vue 3 components using Vitest, Jest, or Vue Test Utils and needs guidance on structure, patterns, or common pitfalls
 - User wants to test Pinia stores, composables, or reactive logic in isolation without mounting full components
 - User is setting up a testing strategy for a Vue project and needs to decide between unit, integration, and end-to-end test coverage boundaries
@@ -29,6 +31,7 @@ metadata:
 - User is implementing TDD for a Vue feature and needs concrete patterns for writing tests before components
 
 **Do NOT use this skill when:**
+
 - User needs help setting up end-to-end testing with Cypress or Playwright -- use the e2e-testing skill instead
 - User needs help with Vue 3 component architecture or composition API design -- use the vue-composition-api skill
 - User needs TypeScript configuration for a Vue project -- use the vue-typescript-setup skill
@@ -61,8 +64,8 @@ A misconfigured test environment causes more wasted time than poor test design. 
 
 ```typescript
 // vitest.config.ts
-import { defineConfig } from 'vitest/config'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vitest/config';
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   plugins: [vue()],
@@ -71,7 +74,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
   },
-})
+});
 ```
 
 - Create a `setup.ts` file that installs global plugins (e.g., i18n, router mocks, custom directives) once rather than in every test file.
@@ -110,7 +113,7 @@ const wrapper = mount(UserCard, {
     mocks: { $t: (key: string) => key },
   },
   props: { userId: '42' },
-})
+});
 ```
 
 - Use `createTestingPinia` from `@pinia/testing` instead of the real Pinia. It makes all store actions spies by default, preventing real network calls.
@@ -120,7 +123,7 @@ const wrapper = mount(UserCard, {
 ```typescript
 const wrapper = mount(ThemeConsumer, {
   global: { provide: { theme: 'dark' } },
-})
+});
 ```
 
 - For slots, use the `slots` mounting option with template strings or render functions. Test that the correct slot content is rendered, not the slot mechanism itself.
@@ -133,18 +136,18 @@ Composables are the most testable unit in Vue 3. Test them directly without moun
 
 ```typescript
 // test/helpers/withSetup.ts
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 
 export function withSetup<T>(composable: () => T): [T, ReturnType<typeof createApp>] {
-  let result: T
+  let result: T;
   const app = createApp({
     setup() {
-      result = composable()
-      return () => {}
+      result = composable();
+      return () => {};
     },
-  })
-  app.mount(document.createElement('div'))
-  return [result!, app]
+  });
+  app.mount(document.createElement('div'));
+  return [result!, app];
 }
 ```
 
@@ -160,19 +163,19 @@ Pinia stores are plain objects with reactive state -- test them like you would t
 - Import the store definition and call it directly inside a `setActivePinia(createPinia())` context:
 
 ```typescript
-import { setActivePinia, createPinia } from 'pinia'
-import { useCartStore } from '@/stores/cart'
+import { setActivePinia, createPinia } from 'pinia';
+import { useCartStore } from '@/stores/cart';
 
 beforeEach(() => {
-  setActivePinia(createPinia())
-})
+  setActivePinia(createPinia());
+});
 
 it('adds item to cart', () => {
-  const cart = useCartStore()
-  cart.addItem({ id: '1', name: 'Widget', price: 9.99 })
-  expect(cart.items).toHaveLength(1)
-  expect(cart.total).toBe(9.99)
-})
+  const cart = useCartStore();
+  cart.addItem({ id: '1', name: 'Widget', price: 9.99 });
+  expect(cart.items).toHaveLength(1);
+  expect(cart.total).toBe(9.99);
+});
 ```
 
 - For stores with async actions that call APIs, mock the API module using `vi.mock` at the top of the test file, then verify the store state after the action resolves.
@@ -190,9 +193,9 @@ The most important discipline in Vue testing is choosing what to assert.
 - Assert on **emitted events** using `wrapper.emitted()`:
 
 ```typescript
-await wrapper.find('[data-testid="submit-btn"]').trigger('click')
-expect(wrapper.emitted('form-submit')).toHaveLength(1)
-expect(wrapper.emitted('form-submit')![0]).toEqual([{ name: 'Alice', email: 'alice@example.com' }])
+await wrapper.find('[data-testid="submit-btn"]').trigger('click');
+expect(wrapper.emitted('form-submit')).toHaveLength(1);
+expect(wrapper.emitted('form-submit')![0]).toEqual([{ name: 'Alice', email: 'alice@example.com' }]);
 ```
 
 - Avoid `wrapper.vm` access in assertions except for debugging. If you find yourself asserting `wrapper.vm.someInternalState`, your test is too tightly coupled to implementation.
@@ -206,11 +209,11 @@ Async is the leading cause of flaky Vue tests. Follow these patterns consistentl
 - For debounced or throttled inputs, use fake timers and advance by the debounce duration (e.g., 300ms) before asserting:
 
 ```typescript
-vi.useFakeTimers()
-await wrapper.find('input').trigger('input')
-vi.advanceTimersByTime(300)
-await nextTick()
-expect(mockSearchFn).toHaveBeenCalledWith('query')
+vi.useFakeTimers();
+await wrapper.find('input').trigger('input');
+vi.advanceTimersByTime(300);
+await nextTick();
+expect(mockSearchFn).toHaveBeenCalledWith('query');
 ```
 
 - Mock `fetch` using `vi.fn()` or use `msw` (Mock Service Worker) for component tests that involve multiple API calls. MSW is preferable for integration tests because it intercepts at the network level and avoids brittle mock setup.
@@ -289,18 +292,18 @@ When a component uses `useRouter`, `useRoute`, or `RouterLink`, provide a mock r
 - Install `vue-router@4` in test with `createMemoryHistory()` and a route matching your component's expected `$route.params`:
 
 ```typescript
-import { createRouter, createMemoryHistory } from 'vue-router'
+import { createRouter, createMemoryHistory } from 'vue-router';
 
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [{ path: '/users/:id', component: { template: '<div />' } }],
-})
-router.push('/users/42')
-await router.isReady()
+});
+router.push('/users/42');
+await router.isReady();
 
 const wrapper = mount(UserProfile, {
   global: { plugins: [router] },
-})
+});
 ```
 
 - For components that only read `$route` params without navigating, use a simpler mock via `global.mocks`:
@@ -321,7 +324,7 @@ Vue's `Teleport` component renders content outside the component tree, which bre
 const wrapper = mount(Modal, {
   global: { stubs: { Teleport: true } },
   props: { isOpen: true },
-})
+});
 // Now wrapper.find('[data-testid="modal-content"]') works correctly
 ```
 
@@ -335,11 +338,11 @@ Vue Transition and TransitionGroup components cause timing issues in tests becau
 
 ```typescript
 // setup.ts
-import { config } from '@vue/test-utils'
+import { config } from '@vue/test-utils';
 config.global.stubs = {
   Transition: { template: '<slot />' },
   TransitionGroup: { template: '<slot />' },
-}
+};
 ```
 
 - Never test CSS animation behavior in unit or integration tests -- that belongs in visual regression testing.
@@ -352,12 +355,12 @@ Testing two-way binding in custom components requires understanding how Vue 3 `v
 
 ```typescript
 // Test prop side: does the component display the modelValue?
-const wrapper = mount(CustomInput, { props: { modelValue: 'hello' } })
-expect(wrapper.find('input').element.value).toBe('hello')
+const wrapper = mount(CustomInput, { props: { modelValue: 'hello' } });
+expect(wrapper.find('input').element.value).toBe('hello');
 
 // Test emit side: does typing update the parent via emit?
-await wrapper.find('input').setValue('world')
-expect(wrapper.emitted('update:modelValue')).toEqual([['world']])
+await wrapper.find('input').setValue('world');
+expect(wrapper.emitted('update:modelValue')).toEqual([['world']]);
 ```
 
 - For components using multiple named v-models (Vue 3.x feature), test each named model independently: `v-model:title` compiles to `:title` + `@update:title`.
@@ -394,7 +397,7 @@ const wrapper = mount(DeepChild, {
       formContext: { register: vi.fn(), unregister: vi.fn(), validate: vi.fn() },
     },
   },
-})
+});
 ```
 
 - For tests that verify the full provide/inject chain (e.g., a `Form` component providing context to `FormField` children), mount the `Form` component with real `FormField` children as slots. Do not try to simulate the injection manually -- test the integration directly.
@@ -422,12 +425,7 @@ const wrapper = mount(DeepChild, {
 <!-- src/components/SearchBar.vue -->
 <template>
   <div>
-    <input
-      data-testid="search-input"
-      :value="query"
-      @input="onInput"
-      placeholder="Search..."
-    />
+    <input data-testid="search-input" :value="query" @input="onInput" placeholder="Search..." />
     <div v-if="searchStore.isLoading" data-testid="loading-spinner">Loading...</div>
     <div
       v-else-if="searchStore.results.length === 0 && query.length > 0 && !searchStore.isLoading"
@@ -436,11 +434,7 @@ const wrapper = mount(DeepChild, {
       No results found
     </div>
     <ul data-testid="results-list">
-      <li
-        v-for="result in searchStore.results"
-        :key="result.id"
-        data-testid="result-item"
-      >
+      <li v-for="result in searchStore.results" :key="result.id" data-testid="result-item">
         {{ result.title }}
       </li>
     </ul>
@@ -448,21 +442,21 @@ const wrapper = mount(DeepChild, {
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
-import { useSearchStore } from '@/stores/search'
+import { ref } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
+import { useSearchStore } from '@/stores/search';
 
-const query = ref('')
-const searchStore = useSearchStore()
+const query = ref('');
+const searchStore = useSearchStore();
 
 const debouncedFetch = useDebounceFn((value: string) => {
-  searchStore.fetchResults(value)
-}, 300)
+  searchStore.fetchResults(value);
+}, 300);
 
 function onInput(event: Event) {
-  query.value = (event.target as HTMLInputElement).value
+  query.value = (event.target as HTMLInputElement).value;
   if (query.value.length > 0) {
-    debouncedFetch(query.value)
+    debouncedFetch(query.value);
   }
 }
 </script>
@@ -474,12 +468,12 @@ function onInput(event: Event) {
 
 ```typescript
 // src/components/__tests__/SearchBar.test.ts
-import { mount, flushPromises } from '@vue/test-utils'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createTestingPinia } from '@pinia/testing'
-import { nextTick } from 'vue'
-import SearchBar from '../SearchBar.vue'
-import { useSearchStore } from '@/stores/search'
+import { mount, flushPromises } from '@vue/test-utils';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createTestingPinia } from '@pinia/testing';
+import { nextTick } from 'vue';
+import SearchBar from '../SearchBar.vue';
+import { useSearchStore } from '@/stores/search';
 
 // Factory function -- single source of truth for mounting SearchBar in tests
 function createWrapper(overrides: { initialState?: object } = {}) {
@@ -498,131 +492,131 @@ function createWrapper(overrides: { initialState?: object } = {}) {
         }),
       ],
     },
-  })
+  });
 }
 
 describe('SearchBar', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
-  })
+    vi.useFakeTimers();
+  });
 
   afterEach(() => {
-    vi.useRealTimers()
-    vi.clearAllMocks()
-  })
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
 
   // ----------------------------------------------------------------
   describe('initial rendering', () => {
     it('renders an empty input field', () => {
-      const wrapper = createWrapper()
-      const input = wrapper.find('[data-testid="search-input"]')
-      expect(input.exists()).toBe(true)
-      expect((input.element as HTMLInputElement).value).toBe('')
-    })
+      const wrapper = createWrapper();
+      const input = wrapper.find('[data-testid="search-input"]');
+      expect(input.exists()).toBe(true);
+      expect((input.element as HTMLInputElement).value).toBe('');
+    });
 
     it('does not show loading spinner on initial render', () => {
-      const wrapper = createWrapper()
-      expect(wrapper.find('[data-testid="loading-spinner"]').exists()).toBe(false)
-    })
+      const wrapper = createWrapper();
+      expect(wrapper.find('[data-testid="loading-spinner"]').exists()).toBe(false);
+    });
 
     it('does not show empty state message when query is empty', () => {
-      const wrapper = createWrapper()
-      expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(false)
-    })
+      const wrapper = createWrapper();
+      expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(false);
+    });
 
     it('does not render any result items when results are empty', () => {
-      const wrapper = createWrapper()
-      expect(wrapper.findAll('[data-testid="result-item"]')).toHaveLength(0)
-    })
-  })
+      const wrapper = createWrapper();
+      expect(wrapper.findAll('[data-testid="result-item"]')).toHaveLength(0);
+    });
+  });
 
   // ----------------------------------------------------------------
   describe('debounced search behavior', () => {
     it('does NOT call fetchResults immediately on input', async () => {
-      const wrapper = createWrapper()
-      const store = useSearchStore()
+      const wrapper = createWrapper();
+      const store = useSearchStore();
 
-      await wrapper.find('[data-testid="search-input"]').setValue('vue')
+      await wrapper.find('[data-testid="search-input"]').setValue('vue');
       // Advance time by less than debounce threshold
-      vi.advanceTimersByTime(299)
-      await nextTick()
+      vi.advanceTimersByTime(299);
+      await nextTick();
 
-      expect(store.fetchResults).not.toHaveBeenCalled()
-    })
+      expect(store.fetchResults).not.toHaveBeenCalled();
+    });
 
     it('calls fetchResults with the query after 300ms debounce', async () => {
-      const wrapper = createWrapper()
-      const store = useSearchStore()
+      const wrapper = createWrapper();
+      const store = useSearchStore();
 
-      await wrapper.find('[data-testid="search-input"]').setValue('vue')
-      vi.advanceTimersByTime(300)
-      await nextTick()
+      await wrapper.find('[data-testid="search-input"]').setValue('vue');
+      vi.advanceTimersByTime(300);
+      await nextTick();
 
-      expect(store.fetchResults).toHaveBeenCalledOnce()
-      expect(store.fetchResults).toHaveBeenCalledWith('vue')
-    })
+      expect(store.fetchResults).toHaveBeenCalledOnce();
+      expect(store.fetchResults).toHaveBeenCalledWith('vue');
+    });
 
     it('calls fetchResults only once when user types rapidly', async () => {
-      const wrapper = createWrapper()
-      const store = useSearchStore()
-      const input = wrapper.find('[data-testid="search-input"]')
+      const wrapper = createWrapper();
+      const store = useSearchStore();
+      const input = wrapper.find('[data-testid="search-input"]');
 
       // Simulate rapid typing: v, vu, vue in quick succession
-      await input.setValue('v')
-      vi.advanceTimersByTime(100)
-      await input.setValue('vu')
-      vi.advanceTimersByTime(100)
-      await input.setValue('vue')
-      vi.advanceTimersByTime(300) // Only last keystroke's debounce completes
-      await nextTick()
+      await input.setValue('v');
+      vi.advanceTimersByTime(100);
+      await input.setValue('vu');
+      vi.advanceTimersByTime(100);
+      await input.setValue('vue');
+      vi.advanceTimersByTime(300); // Only last keystroke's debounce completes
+      await nextTick();
 
-      expect(store.fetchResults).toHaveBeenCalledOnce()
-      expect(store.fetchResults).toHaveBeenCalledWith('vue')
-    })
+      expect(store.fetchResults).toHaveBeenCalledOnce();
+      expect(store.fetchResults).toHaveBeenCalledWith('vue');
+    });
 
     it('does NOT call fetchResults when input is cleared to empty string', async () => {
-      const wrapper = createWrapper()
-      const store = useSearchStore()
+      const wrapper = createWrapper();
+      const store = useSearchStore();
 
-      await wrapper.find('[data-testid="search-input"]').setValue('')
-      vi.advanceTimersByTime(300)
-      await nextTick()
+      await wrapper.find('[data-testid="search-input"]').setValue('');
+      vi.advanceTimersByTime(300);
+      await nextTick();
 
-      expect(store.fetchResults).not.toHaveBeenCalled()
-    })
-  })
+      expect(store.fetchResults).not.toHaveBeenCalled();
+    });
+  });
 
   // ----------------------------------------------------------------
   describe('loading state', () => {
     it('shows loading spinner when store isLoading is true', async () => {
-      const wrapper = createWrapper({ initialState: { isLoading: true } })
-      expect(wrapper.find('[data-testid="loading-spinner"]').exists()).toBe(true)
-    })
+      const wrapper = createWrapper({ initialState: { isLoading: true } });
+      expect(wrapper.find('[data-testid="loading-spinner"]').exists()).toBe(true);
+    });
 
     it('hides loading spinner when store isLoading transitions to false', async () => {
-      const wrapper = createWrapper({ initialState: { isLoading: true } })
-      const store = useSearchStore()
+      const wrapper = createWrapper({ initialState: { isLoading: true } });
+      const store = useSearchStore();
 
       // Simulate the store completing its fetch
-      store.isLoading = false
-      await nextTick()
+      store.isLoading = false;
+      await nextTick();
 
-      expect(wrapper.find('[data-testid="loading-spinner"]').exists()).toBe(false)
-    })
+      expect(wrapper.find('[data-testid="loading-spinner"]').exists()).toBe(false);
+    });
 
     it('does not show empty state while loading is in progress', async () => {
       const wrapper = createWrapper({
         initialState: { isLoading: true, results: [] },
-      })
+      });
       // Type a query to set local query ref
-      await wrapper.find('[data-testid="search-input"]').setValue('vue')
-      await nextTick()
+      await wrapper.find('[data-testid="search-input"]').setValue('vue');
+      await nextTick();
 
       // Empty state should NOT show -- loading takes visual priority
-      expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(false)
-      expect(wrapper.find('[data-testid="loading-spinner"]').exists()).toBe(true)
-    })
-  })
+      expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(false);
+      expect(wrapper.find('[data-testid="loading-spinner"]').exists()).toBe(true);
+    });
+  });
 
   // ----------------------------------------------------------------
   describe('results rendering', () => {
@@ -635,66 +629,66 @@ describe('SearchBar', () => {
           ],
           isLoading: false,
         },
-      })
+      });
 
-      const items = wrapper.findAll('[data-testid="result-item"]')
-      expect(items).toHaveLength(2)
-      expect(items[0].text()).toBe('Vue 3 Fundamentals')
-      expect(items[1].text()).toBe('Composition API Deep Dive')
-    })
+      const items = wrapper.findAll('[data-testid="result-item"]');
+      expect(items).toHaveLength(2);
+      expect(items[0].text()).toBe('Vue 3 Fundamentals');
+      expect(items[1].text()).toBe('Composition API Deep Dive');
+    });
 
     it('renders correct number of results from store', async () => {
       const results = Array.from({ length: 10 }, (_, i) => ({
         id: String(i),
         title: `Result ${i}`,
-      }))
-      const wrapper = createWrapper({ initialState: { results, isLoading: false } })
+      }));
+      const wrapper = createWrapper({ initialState: { results, isLoading: false } });
 
-      expect(wrapper.findAll('[data-testid="result-item"]')).toHaveLength(10)
-    })
-  })
+      expect(wrapper.findAll('[data-testid="result-item"]')).toHaveLength(10);
+    });
+  });
 
   // ----------------------------------------------------------------
   describe('empty state', () => {
     it('shows empty state message after search with no results', async () => {
       // Start with no results and not loading
-      const wrapper = createWrapper({ initialState: { results: [], isLoading: false } })
+      const wrapper = createWrapper({ initialState: { results: [], isLoading: false } });
 
       // User has typed a query (simulate post-debounce state)
-      await wrapper.find('[data-testid="search-input"]').setValue('xyznotfound')
-      vi.advanceTimersByTime(300)
-      await flushPromises()
+      await wrapper.find('[data-testid="search-input"]').setValue('xyznotfound');
+      vi.advanceTimersByTime(300);
+      await flushPromises();
 
       // Manually update store to simulate action completing with empty results
-      const store = useSearchStore()
-      store.isLoading = false
-      await nextTick()
+      const store = useSearchStore();
+      store.isLoading = false;
+      await nextTick();
 
-      expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="empty-state"]').text()).toBe('No results found')
-    })
+      expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(true);
+      expect(wrapper.find('[data-testid="empty-state"]').text()).toBe('No results found');
+    });
 
     it('does not show empty state when query is blank even if results are empty', async () => {
-      const wrapper = createWrapper({ initialState: { results: [], isLoading: false } })
+      const wrapper = createWrapper({ initialState: { results: [], isLoading: false } });
       // input remains empty -- no query typed
-      expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(false)
-    })
-  })
-})
+      expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(false);
+    });
+  });
+});
 ```
 
 ---
 
 #### Decision Matrix for SearchBar Test Choices
 
-| Decision | Choice Made | Alternative Considered | Reason |
-|----------|-------------|----------------------|--------|
-| Pinia setup | `createTestingPinia` | Real Pinia | Prevents state leak, auto-spies actions |
-| Timer handling | `vi.useFakeTimers()` | `await new Promise(r => setTimeout(r, 300))` | Fake timers are deterministic and instant |
-| Input triggering | `setValue()` | `trigger('input')` | `setValue` correctly sets `event.target.value` |
-| Selectors | `data-testid` | CSS classes | CSS classes are styling concerns, not test contracts |
-| Test isolation | `beforeEach` factory | Shared wrapper | Each test gets clean state with no pollution risk |
-| DOM assertions | `wrapper.find().exists()` | `wrapper.vm.query` | Tests behavior visible to user, not internal state |
+| Decision         | Choice Made               | Alternative Considered                       | Reason                                               |
+| ---------------- | ------------------------- | -------------------------------------------- | ---------------------------------------------------- |
+| Pinia setup      | `createTestingPinia`      | Real Pinia                                   | Prevents state leak, auto-spies actions              |
+| Timer handling   | `vi.useFakeTimers()`      | `await new Promise(r => setTimeout(r, 300))` | Fake timers are deterministic and instant            |
+| Input triggering | `setValue()`              | `trigger('input')`                           | `setValue` correctly sets `event.target.value`       |
+| Selectors        | `data-testid`             | CSS classes                                  | CSS classes are styling concerns, not test contracts |
+| Test isolation   | `beforeEach` factory      | Shared wrapper                               | Each test gets clean state with no pollution risk    |
+| DOM assertions   | `wrapper.find().exists()` | `wrapper.vm.query`                           | Tests behavior visible to user, not internal state   |
 
 ---
 

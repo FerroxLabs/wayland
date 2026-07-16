@@ -28,7 +28,11 @@
       }
       try {
         window.parent.postMessage(
-          { type: 'e2e-minimal:probe', sameOriginReachable: sameOriginReachable, parentDomReachable: parentDomReachable },
+          {
+            type: 'e2e-minimal:probe',
+            sameOriginReachable: sameOriginReachable,
+            parentDomReachable: parentDomReachable,
+          },
           '*'
         );
       } catch (_e) {

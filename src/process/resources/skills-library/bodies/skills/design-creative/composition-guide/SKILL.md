@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "photography design checklist"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'photography design checklist'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Composition Guide
 
 ## When to Use
@@ -97,12 +98,12 @@ Give exact positional instructions, not vague directional guidance.
 Leading lines are the most powerful tool for controlling how a viewer's eye moves through a frame. Every scene has potential lines -- the skill is identifying them and deciding which to use, which to suppress, and which direction they should run.
 
 - **Types and their psychological effects:**
-  - *Converging parallel lines* (roads, train tracks, rows of trees, hallways, fence posts): Create strong depth illusion by converging toward a vanishing point. Most powerful when the vanishing point aligns with the subject or a power point.
-  - *S-curves* (rivers, winding paths, coastlines, roads in hilly terrain): The most elegant line type. The eye follows an S-curve with pleasure, making it ideal for peaceful, organic, and romantic compositions. The subject typically sits at the upper end of the S.
-  - *Diagonals* (stairways, escalators, shadow lines from hard light, rooflines): Carry energy and dynamism. A diagonal running from lower-left to upper-right feels "ascending" and optimistic. Lower-right to upper-left feels "descending" or dramatic.
-  - *Radial lines* (spokes of a wheel, sunburst rays, aerial drone shots of roads meeting at an intersection, colonnades): All lines point inward toward the subject. Extremely powerful centering force -- best for centered symmetrical compositions where the subject sits exactly at the convergence.
-  - *Horizontal lines* (horizons, shelves, window sills): Stabilize the composition and create calm. Too many unbroken horizontals create a static, even boring, image. Interrupt them with a vertical or diagonal element.
-  - *Vertical lines* (tree trunks, columns, doorframes, figures): Communicate authority, strength, solemnity. A vertical subject on a vertical line feels stable and powerful.
+  - _Converging parallel lines_ (roads, train tracks, rows of trees, hallways, fence posts): Create strong depth illusion by converging toward a vanishing point. Most powerful when the vanishing point aligns with the subject or a power point.
+  - _S-curves_ (rivers, winding paths, coastlines, roads in hilly terrain): The most elegant line type. The eye follows an S-curve with pleasure, making it ideal for peaceful, organic, and romantic compositions. The subject typically sits at the upper end of the S.
+  - _Diagonals_ (stairways, escalators, shadow lines from hard light, rooflines): Carry energy and dynamism. A diagonal running from lower-left to upper-right feels "ascending" and optimistic. Lower-right to upper-left feels "descending" or dramatic.
+  - _Radial lines_ (spokes of a wheel, sunburst rays, aerial drone shots of roads meeting at an intersection, colonnades): All lines point inward toward the subject. Extremely powerful centering force -- best for centered symmetrical compositions where the subject sits exactly at the convergence.
+  - _Horizontal lines_ (horizons, shelves, window sills): Stabilize the composition and create calm. Too many unbroken horizontals create a static, even boring, image. Interrupt them with a vertical or diagonal element.
+  - _Vertical lines_ (tree trunks, columns, doorframes, figures): Communicate authority, strength, solemnity. A vertical subject on a vertical line feels stable and powerful.
 
 - **Line direction rules:** Lines must lead toward the subject, not away from it. A road that leads out of the frame pulls the eye out. A road that leads to the subject anchors the viewer. If a natural line leads away from the subject, reframe so the line enters from a corner and terminates near the subject.
 - **Line weight:** A thick, dark, bold line (a highway, a wall) carries more visual weight than a thin, light one (a fence, a crack in pavement). Use thick lines for primary direction, thin lines for secondary support.
@@ -115,9 +116,9 @@ Leading lines are the most powerful tool for controlling how a viewer's eye move
 Photographs are two-dimensional. Depth layering is the primary technique for overcoming this limitation -- creating a convincing illusion of three-dimensional space within a flat frame.
 
 - **The three-layer model:**
-  - *Foreground (near field):* Something within 1-5 feet of the camera position (for most scenes). Options include: ground texture (grass, pebbles, snow, sand, fallen leaves), flowers, rocks, water surface, a person's shoulder in a two-person composition, architectural detail, the edge of a window frame. Purpose: anchors the viewer in the scene, creates immediate scale reference, provides a visual "entry point" into the image.
-  - *Middle ground (subject zone):* This is where the primary subject lives in the majority of compositions. It should be the sharpest plane in the image unless the technique specifically calls for selective focus elsewhere. In a landscape with no singular subject, the middle ground typically contains the most complex visual information.
-  - *Background (far field):* Either a contextual narrative background (tells us where we are, what story surrounds the subject) or a clean separation background (sky, smooth wall, bokeh field). The background must not have competing bright spots, clashing colors, or visual elements with similar contrast to the subject.
+  - _Foreground (near field):_ Something within 1-5 feet of the camera position (for most scenes). Options include: ground texture (grass, pebbles, snow, sand, fallen leaves), flowers, rocks, water surface, a person's shoulder in a two-person composition, architectural detail, the edge of a window frame. Purpose: anchors the viewer in the scene, creates immediate scale reference, provides a visual "entry point" into the image.
+  - _Middle ground (subject zone):_ This is where the primary subject lives in the majority of compositions. It should be the sharpest plane in the image unless the technique specifically calls for selective focus elsewhere. In a landscape with no singular subject, the middle ground typically contains the most complex visual information.
+  - _Background (far field):_ Either a contextual narrative background (tells us where we are, what story surrounds the subject) or a clean separation background (sky, smooth wall, bokeh field). The background must not have competing bright spots, clashing colors, or visual elements with similar contrast to the subject.
 
 - **Aperture and depth layering:** At f/2.8 on a 50mm lens at 6 feet from the subject, the depth of field is approximately 0.8 feet -- enough to keep eyes sharp but blur ears on a portrait. At f/8 on the same setup, depth of field extends to about 3.5 feet. For layered landscape compositions requiring front-to-back sharpness, use f/8 to f/11 and calculate hyperfocal distance. State the aperture recommendation when depth layer separation is relevant -- but note this crosses into exposure territory and direct the user to `exposure-triangle` for the full exposure calculation.
 - **Scale anchors:** A human figure, a car, or any object of known size in the background establishes the scale of a landscape. A figure in the foreground versus the middle ground versus the background creates dramatically different impressions of the landscape's size. Use scale anchors deliberately.
@@ -390,6 +391,7 @@ Interior spaces create forced perspective automatically -- walls converge toward
 ### Leading Lines
 
 **Primary line:**
+
 - Type: Converging parallel lines with strong single-point perspective
 - Source element: The pier planks and the pier railing or edge boards running from the bottom of the frame toward the figure and beyond
 - Entry point: Both lower corners of the frame -- the pier fills the lower portion and converges toward the fisherman's position
@@ -397,6 +399,7 @@ Interior spaces create forced perspective automatically -- walls converge toward
 - Psychological effect: The converging pier lines create an irresistible depth draw. The viewer is pulled through the frame toward the figure, arriving at the fisherman with a sense of having traveled to reach him. This reinforces the "timeless journey" quality the user requested. At 85mm, the pier's perspective compression will make the planks appear closer together (less dramatic convergence than a wide angle) -- this subtlety suits the painterly mood.
 
 **Secondary line:**
+
 - Type: Diagonal -- dynamic, upward sweep
 - Source element: The fishing rod and casting line arc, beginning at the fisherman's hands and extending upward and to the right toward the upper-right zone of the frame
 - Role: Counterbalances the inward convergence of the pier. While the pier pulls the eye toward the subject, the casting arc releases the eye upward and outward -- creating a compositional "breath." The line also adds the only element of motion and action in an otherwise still scene.
@@ -405,11 +408,11 @@ Interior spaces create forced perspective automatically -- walls converge toward
 
 ### Depth Layers
 
-| Layer | Specific Element | Focus Treatment | Compositional Purpose |
-|-------|-----------------|-----------------|----------------------|
-| Foreground | Weathered pier planks, visible from approximately 3 feet in front of the camera -- grain, worn wood texture, possibly a fisherman's bucket or tackle box at frame edge | Sharp -- the texture detail of old wood at f/4-5.6 provides tactile grounding; the 85mm at this distance maintains sharpness here while separating the background | Grounds the viewer physically on the pier, establishes the weathered/timeless texture that signals age and repetition of ritual |
-| Middle ground | Fisherman figure with casting arc, approximately 15-20 feet from camera | Sharp -- primary focus plane, tack-sharp on the silhouette and casting line | The emotional and narrative anchor of the image -- the human ritual against vast nature |
-| Background | Ocean surface, distant island on the horizon, sunrise sky | Soft separation at f/4-5.6 with 85mm at 15-20 feet subject distance -- the island and sky are naturally separated by atmospheric haze at dawn | Creates the vast oceanic context; the island at the lower-right golden point provides a destination for the eye after it rests on the fisherman; the sunrise sky fills 67% of the frame as active, glowing negative space |
+| Layer         | Specific Element                                                                                                                                                       | Focus Treatment                                                                                                                                                   | Compositional Purpose                                                                                                                                                                                                     |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Foreground    | Weathered pier planks, visible from approximately 3 feet in front of the camera -- grain, worn wood texture, possibly a fisherman's bucket or tackle box at frame edge | Sharp -- the texture detail of old wood at f/4-5.6 provides tactile grounding; the 85mm at this distance maintains sharpness here while separating the background | Grounds the viewer physically on the pier, establishes the weathered/timeless texture that signals age and repetition of ritual                                                                                           |
+| Middle ground | Fisherman figure with casting arc, approximately 15-20 feet from camera                                                                                                | Sharp -- primary focus plane, tack-sharp on the silhouette and casting line                                                                                       | The emotional and narrative anchor of the image -- the human ritual against vast nature                                                                                                                                   |
+| Background    | Ocean surface, distant island on the horizon, sunrise sky                                                                                                              | Soft separation at f/4-5.6 with 85mm at 15-20 feet subject distance -- the island and sky are naturally separated by atmospheric haze at dawn                     | Creates the vast oceanic context; the island at the lower-right golden point provides a destination for the eye after it rests on the fisherman; the sunrise sky fills 67% of the frame as active, glowing negative space |
 
 ---
 

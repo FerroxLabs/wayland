@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing design"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing design'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Flash Fiction
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly requests flash fiction, micro fiction, sudden fiction, or a complete story under 1,000 words
 - The user names a specific constrained format: drabble (100 words), drabble and a half (150 words), double drabble (200 words), twitterature (280 characters), six-word story, 55-fiction (exactly 55 words), or postcard fiction (under 500 words)
 - The user wants a story that functions as a complete narrative -- with stakes, change, and consequence -- not just a mood piece or vignette
@@ -29,6 +31,7 @@ metadata:
 - The user is submitting to a flash fiction journal, competition, or anthology with a specific word-count ceiling
 
 **Do NOT use this skill when:**
+
 - The user wants a story between 1,000 and 10,000 words -- use `short-story-writing`, which handles pacing, scene-building, and subplot in ways flash cannot
 - The user wants poetry, a prose poem, or lyric essay -- these are distinct forms even when short; use `poetry-writing`
 - The user wants a quick sketch, brainstorm, or scene fragment from a writing prompt without committing to a finished narrative -- use `writing-prompt-response`
@@ -285,7 +288,7 @@ Flash fiction submission markets have precise requirements that differ from gene
 
 ## Thirty-Seven
 
-*Quiet horror / literary | 497 words*
+_Quiet horror / literary | 497 words_
 
 He finds them the night after the party, while his wife is putting their daughter to bed.
 
@@ -332,6 +335,7 @@ Then he puts it back exactly where it was.
 **Structural note:** The final beat -- putting the hospital photograph back "exactly where it was" -- carries the story's meaning. The action contains both denial and acceptance simultaneously; the reader decides which is operating. The piece withholds the character's conclusion because flash fiction's job is not to resolve but to arrive.
 
 **Revision levers:**
+
 - Highest-leverage line: "He holds the phone very still" -- this is the story's emotional fulcrum; the stillness is the character's only visible response to the impossible. Do not cut or revise this line.
 - Lowest-leverage element: the detail about the good lens ("the one he bought specifically for her parties") -- this adds specificity and parental devotion but could be trimmed if word count is tight.
 - Most cuttable: "one by one" in the desktop application sentence -- these words add rhythm but not meaning; removing them saves two words and loses nothing.

@@ -43,11 +43,7 @@ const formatDuration = (ms: number): string => {
 const countDoneSteps = (steps: StepState[]): number =>
   steps.reduce((acc, step) => (step.status === 'done' ? acc + 1 : acc), 0);
 
-const computeEtaRemainingMs = (
-  elapsedMs: number,
-  stepsDone: number,
-  totalSteps: number,
-): number | null => {
+const computeEtaRemainingMs = (elapsedMs: number, stepsDone: number, totalSteps: number): number | null => {
   if (stepsDone <= 0) return null;
   const stepsRemaining = Math.max(0, totalSteps - stepsDone);
   if (stepsRemaining === 0) return 0;
@@ -85,12 +81,7 @@ export const WorkflowStatusBar: React.FC<WorkflowStatusBarProps> = ({ session, l
   const spendDollars = liveStats !== undefined ? liveStats.spentCents / 100 : 0;
 
   return (
-    <div
-      className={`${styles.bar} font-mono`}
-      data-testid='workflow-status-bar'
-      role='status'
-      aria-live='polite'
-    >
+    <div className={`${styles.bar} font-mono`} data-testid='workflow-status-bar' role='status' aria-live='polite'>
       <span className={styles.segment} data-testid='workflow-status-bar-status'>
         <span className={statusDotClass(session.status)} aria-hidden='true' />
         <span className={styles.statusLabel}>{session.status}</span>

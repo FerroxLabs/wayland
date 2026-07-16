@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Miro
     estSeconds: 30
-    primaryAction: { label: "Sign in with Miro", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Miro', action: 'oauth-flow' }
     body: |
       Click **Sign in with Miro** below. A browser tab opens to `miro.com`
       and prompts you to sign in with the account whose boards you want

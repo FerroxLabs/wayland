@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "yoga fitness mental-wellness"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'yoga fitness mental-wellness'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Yoga Routine Builder
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. This information is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before beginning a new fitness program, particularly if you have any pre-existing conditions, injuries, or chronic pain. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to build a structured yoga sequence for a specific time of day -- morning energizing practice, midday reset, or evening wind-down
 - A user requests a yoga routine targeting a specific area -- hip openers, hamstring lengthening, spinal decompression, shoulder mobility, or chest opening
 - A user wants a goal-oriented yoga sequence -- stress reduction, improved sleep, athletic recovery, or general flexibility development
@@ -33,6 +35,7 @@ metadata:
 - A user practicing at home wants prop adaptations and modifications to replace studio instruction
 
 **Do NOT use this skill when:**
+
 - The user wants only pranayama (breathwork) or meditation without physical asana -- use a dedicated breathing or mindfulness skill instead
 - The user is recovering from a specific injury (torn rotator cuff, herniated disc, post-surgical rehabilitation, ankle fracture) -- refer them to a qualified yoga therapist (C-IAYT) or physical therapist; do not adapt sequences therapeutically without clinical assessment
 - The user asks for advanced inversion training -- headstand (Sirsasana), handstand (Adho Mukha Vrksasana), or forearm stand (Pincha Mayurasana) all require direct in-person instruction for safe neck, shoulder, and fall mechanics; do not program these
@@ -76,14 +79,14 @@ Every yoga sequence follows a physiological arc -- the body must be prepared lay
 
 **Duration allocation by session length:**
 
-| Phase | 15 min | 20 min | 30 min | 45 min | 60 min |
-|---|---|---|---|---|---|
-| Arrival + breath | 1 min | 1 min | 2 min | 2 min | 3 min |
-| Spinal warm-up | 2 min | 3 min | 4 min | 5 min | 6 min |
-| Primary phase | 6 min | 9 min | 14 min | 22 min | 30 min |
-| Counter-poses | 1 min | 1 min | 2 min | 3 min | 5 min |
-| Cool-down | 2 min | 3 min | 5 min | 7 min | 10 min |
-| Savasana | 3 min | 3 min | 3 min | 5 min | 6 min |
+| Phase            | 15 min | 20 min | 30 min | 45 min | 60 min |
+| ---------------- | ------ | ------ | ------ | ------ | ------ |
+| Arrival + breath | 1 min  | 1 min  | 2 min  | 2 min  | 3 min  |
+| Spinal warm-up   | 2 min  | 3 min  | 4 min  | 5 min  | 6 min  |
+| Primary phase    | 6 min  | 9 min  | 14 min | 22 min | 30 min |
+| Counter-poses    | 1 min  | 1 min  | 2 min  | 3 min  | 5 min  |
+| Cool-down        | 2 min  | 3 min  | 5 min  | 7 min  | 10 min |
+| Savasana         | 3 min  | 3 min  | 3 min  | 5 min  | 6 min  |
 
 ### Step 3: Select the Sequence Template by Purpose
 
@@ -91,43 +94,45 @@ Each practice type has a proven structural template. Use the appropriate one and
 
 **Morning Energizing:**
 Arrival (Sukhasana, 3-part breath) -- Spinal warm-up (Cat-Cow, Table circles) -- Sun Salutations A (Surya Namaskar A, 2-4 rounds depending on time) -- Standing sequence (Warrior I, Warrior II, Extended Side Angle, Triangle) -- Balance (Tree, Warrior III with wall option) -- Seated forward fold -- Savasana
-*Rationale: Sun salutations generate internal heat and synchronize breath and movement, which elevates cortisol appropriately for morning alertness. Standing poses build neuromuscular activation. Balance poses sharpen proprioception.*
+_Rationale: Sun salutations generate internal heat and synchronize breath and movement, which elevates cortisol appropriately for morning alertness. Standing poses build neuromuscular activation. Balance poses sharpen proprioception._
 
 **Evening Wind-Down:**
 Arrival (Supine with knees to chest, slow breathing) -- Gentle spinal warm-up (supine Cat-Cow, pelvic tilts) -- Seated hip openers (Bound Angle, Seated Twist, Head-to-Knee) -- Supine sequence (Reclined Pigeon, Supine Twist, Happy Baby) -- Legs Up the Wall (Viparita Karani, 5-7 min) -- Savasana
-*Rationale: No standing poses in the primary phase -- standing poses activate the sympathetic nervous system. Everything remains low to the ground, which reduces vestibular stimulation and supports parasympathetic transition.*
+_Rationale: No standing poses in the primary phase -- standing poses activate the sympathetic nervous system. Everything remains low to the ground, which reduces vestibular stimulation and supports parasympathetic transition._
 
 **Hip Opening:**
 Arrival (Child's Pose with wide knees) -- Cat-Cow -- Low Lunge series (Anjaneyasana, Crescent) -- Standing hip openers (Warrior II, Goddess, Wide-Legged Forward Fold) -- Seated deep openers (Pigeon, Lizard, Fire Log/Double Pigeon) -- Supine hip openers (Reclined Pigeon, Happy Baby) -- Savasana
-*Rationale: Hip opening progresses from external rotation in standing (Warrior II) to combined flexion and external rotation in floor poses (Pigeon, Fire Log). Forcing Pigeon without adequate warm-up risks medial knee strain.*
+_Rationale: Hip opening progresses from external rotation in standing (Warrior II) to combined flexion and external rotation in floor poses (Pigeon, Fire Log). Forcing Pigeon without adequate warm-up risks medial knee strain._
 
 **Back Relief (Spinal Decompression):**
 Arrival (Constructive Rest -- supine, knees bent) -- Cat-Cow (10+ rounds, slow) -- Thread the Needle twist -- Child's Pose -- Sphinx (gentle backbend) -- Bridge (Setu Bandha Sarvangasana, supported option) -- Supine Twist -- Knees-to-Chest (Apanasana) -- Savasana
-*Rationale: Chronic back discomfort often involves both tight hip flexors (pulling lumbar into extension) and weak glutes. Cat-Cow addresses spinal mobility. Sphinx and Bridge gently activate posterior chain. Twists restore rotational mobility.*
+_Rationale: Chronic back discomfort often involves both tight hip flexors (pulling lumbar into extension) and weak glutes. Cat-Cow addresses spinal mobility. Sphinx and Bridge gently activate posterior chain. Twists restore rotational mobility._
 
 **Stress Reduction:**
 Arrival with extended exhale breathing (4-count inhale, 6-8 count exhale, 2-3 min) -- Child's Pose (extended, 2 min) -- Seated gentle flow (Easy Seat twists, Seated Forward Fold) -- Reclined Bound Angle (Supta Baddha Konasana, 5 min) -- Legs Up the Wall (Viparita Karani, 5-7 min) -- Savasana (extended, 8-10 min)
-*Rationale: The extended exhale directly activates the vagus nerve, accelerating parasympathetic response. Long holds (2-5+ min) at low intensity maximize relaxation response more effectively than a vigorous flow at the same duration.*
+_Rationale: The extended exhale directly activates the vagus nerve, accelerating parasympathetic response. Long holds (2-5+ min) at low intensity maximize relaxation response more effectively than a vigorous flow at the same duration._
 
 **Shoulder and Chest Opening:**
 Arrival -- Cat-Cow with Thread the Needle alternating -- Puppy Pose (Anahatasana) -- Downward Dog with shoulder rolls -- Warrior I with clasped hands behind back -- Cow Face Arms (Gomukhasana arms) standing and seated -- Seated Chest Opener with strap or hands clasped -- Reclined Twist -- Savasana
-*Rationale: Shoulder mobility work progresses from axial extension (Puppy Pose) to combined glenohumeral and thoracic extension (Warrior I with bound hands) to isolated glenohumeral rotation (Cow Face Arms). Straps are nearly essential for Cow Face Arms in tight practitioners.*
+_Rationale: Shoulder mobility work progresses from axial extension (Puppy Pose) to combined glenohumeral and thoracic extension (Warrior I with bound hands) to isolated glenohumeral rotation (Cow Face Arms). Straps are nearly essential for Cow Face Arms in tight practitioners._
 
 **Athletic Recovery:**
 Arrival -- Supine full-body check-in (body scan) -- Low Lunge with quad stretch (Anjaneyasana with back knee down) -- Pigeon (hold 2+ min per side) -- Hamstring stretch supine with strap -- IT band stretch (Supine cross-body leg) -- Legs Up the Wall -- Savasana
-*Rationale: Post-training (especially running and cycling), the priority is hip flexor release, quad lengthening, hamstring decompression, and IT band work. Longer hold times (90 seconds to 3 minutes) at low intensity facilitate deeper myofascial release than short holds.*
+_Rationale: Post-training (especially running and cycling), the priority is hip flexor release, quad lengthening, hamstring decompression, and IT band work. Longer hold times (90 seconds to 3 minutes) at low intensity facilitate deeper myofascial release than short holds._
 
 ### Step 4: Assign Poses Using the Curated Library
 
 Select poses appropriate to the template and experience level. Every pose has three tiers.
 
 **Warm-Up Poses:**
+
 - Cat-Cow (Marjaryasana-Bitilasana): Beginner -- slow 4 counts each direction; Standard -- link to breath; Advanced -- add lateral flexion and thoracic circles
 - Child's Pose (Balasana): Beginner -- knees wide, arms forward or at sides; Standard -- full expression; Advanced -- extended arm stretch with side bend
 - Tabletop Circles: Beginner -- small slow circles; Standard -- full barrel roll with breath; Advanced -- one-armed variation
 - Thread the Needle (Parsva Balasana): Beginner -- small rotation; Standard -- shoulder to floor; Advanced -- bind top arm behind back
 
 **Standing Poses:**
+
 - Warrior I (Virabhadrasana I): Beginner -- shorten stance, back heel slightly lifted; Standard -- back heel grounded, 90-degree front knee; Advanced -- clasp hands behind back, mini backbend
 - Warrior II (Virabhadrasana II): Beginner -- narrower stance; Standard -- front knee over second toe, arms parallel to floor; Advanced -- reverse warrior flowing transition
 - Extended Side Angle (Utthita Parsvakonasana): Beginner -- forearm on front thigh; Standard -- hand to floor outside front foot; Advanced -- full bind
@@ -137,11 +142,13 @@ Select poses appropriate to the template and experience level. Every pose has th
 - Wide-Legged Forward Fold (Prasarita Padottanasana): Beginner -- hands to blocks; Standard -- hands to floor, crown of head toward floor; Advanced -- hands clasped behind back
 
 **Balance Poses (always include wall as option for beginners):**
+
 - Tree (Vrksasana): Beginner -- foot on calf below knee, fingertips on wall; Standard -- foot inner thigh above knee; Advanced -- arms overhead, eyes closed
 - Warrior III (Virabhadrasana III): Beginner -- both hands on wall, lifted leg low; Standard -- arms extended; Advanced -- bound or eagle-arm variation
 - Half Moon (Ardha Chandrasana): Beginner -- hand on block, standing foot near wall; Standard -- full expression; Advanced -- top hand grips top foot (Sugarcane)
 
 **Hip-Opening Poses:**
+
 - Low Lunge (Anjaneyasana): Beginner -- back knee padded with folded mat; Standard -- full expression with arms overhead; Advanced -- add quad stretch (reach back for foot)
 - Pigeon (Eka Pada Rajakapotasana, preparation): Beginner -- blanket under front hip, upright torso; Standard -- fold forward; Advanced -- extended pigeon (prop foot away from hip for more intensity)
 - Lizard (Utthan Pristhasana): Beginner -- back knee down; Standard -- both forearms to floor; Advanced -- forearms down, twist top arm to sky
@@ -151,12 +158,14 @@ Select poses appropriate to the template and experience level. Every pose has th
 - Happy Baby (Ananda Balasana): Beginner -- hold backs of thighs; Standard -- hold outer feet; Advanced -- rock side to side, single-leg extension
 
 **Spinal / Back Poses:**
+
 - Sphinx (Salamba Bhujangasana): Beginner -- elbows wide; Standard -- elbows under shoulders; Advanced -- press forearms to deepen curve
 - Bridge (Setu Bandha Sarvangasana): Beginner -- small lift, hands at sides; Standard -- full bridge with chin away from chest; Advanced -- clasp hands under back, full expression
 - Locust (Salabhasana): Beginner -- one leg at a time; Standard -- both legs, arms back; Advanced -- full Locust with arms extended
 - Supine Twist (Supta Matsyendrasana): Beginner -- knees stacked, small rotation; Standard -- knees stacked, shoulder to floor; Advanced -- top leg extended
 
 **Restorative / Long-Hold Poses:**
+
 - Legs Up the Wall (Viparita Karani): Beginner -- blanket under hips; Standard -- hips close to wall; Advanced -- bound angle variation (feet together, knees wide)
 - Reclined Bound Angle (Supta Baddha Konasana): Beginner -- blocks under thighs; Standard -- bolster under spine; Advanced -- full expression without support
 - Supported Child's Pose: Beginner and all levels -- bolster under chest, knees wide, arms forward, 3-5 min hold
@@ -167,20 +176,21 @@ Hold times are one of the most consequential decisions in sequencing. More is no
 
 **Hold time reference by pose type and effect:**
 
-| Pose Category | Hold Duration | Primary Effect | Breath Pattern |
-|---|---|---|---|
-| Sun salutation transitions | 1 breath per movement | Circulation, heat | Ujjayi or natural |
-| Active standing poses | 5-8 breaths (30-50 sec) | Strength, stability | Steady Ujjayi |
-| Balance poses | 5-10 breaths | Neuromuscular focus | Soft, quiet breath |
-| Active seated poses | 8-12 breaths (50-75 sec) | Flexibility initiation | Steady |
-| Deep hip openers (Pigeon, Lizard) | 15-25 breaths (90 sec - 2.5 min) | Connective tissue + hip flexors | Slow, diaphragmatic |
-| Restorative holds | 2-5 minutes | Parasympathetic activation, deep release | Natural, extended exhale |
-| Legs Up the Wall | 3-7 minutes | Venous return, nervous system reset | Natural |
-| Savasana | 3-10 minutes | Integration | Natural |
+| Pose Category                     | Hold Duration                    | Primary Effect                           | Breath Pattern           |
+| --------------------------------- | -------------------------------- | ---------------------------------------- | ------------------------ |
+| Sun salutation transitions        | 1 breath per movement            | Circulation, heat                        | Ujjayi or natural        |
+| Active standing poses             | 5-8 breaths (30-50 sec)          | Strength, stability                      | Steady Ujjayi            |
+| Balance poses                     | 5-10 breaths                     | Neuromuscular focus                      | Soft, quiet breath       |
+| Active seated poses               | 8-12 breaths (50-75 sec)         | Flexibility initiation                   | Steady                   |
+| Deep hip openers (Pigeon, Lizard) | 15-25 breaths (90 sec - 2.5 min) | Connective tissue + hip flexors          | Slow, diaphragmatic      |
+| Restorative holds                 | 2-5 minutes                      | Parasympathetic activation, deep release | Natural, extended exhale |
+| Legs Up the Wall                  | 3-7 minutes                      | Venous return, nervous system reset      | Natural                  |
+| Savasana                          | 3-10 minutes                     | Integration                              | Natural                  |
 
 **Ujjayi breath guidance:** A slight constriction at the back of the throat creates a soft ocean sound during both inhale and exhale. Regulates breath pace, builds mild internal heat, and sharpens mind-body connection. Recommend it during active phases; release it during restorative holds.
 
 **Directional breath cues:**
+
 - Inhale expands the ribcage outward and upward -- pair with chest-opening movements, rising, extending, lengthening the spine
 - Exhale contracts the ribcage inward and downward -- pair with folding, twisting, grounding, descending into a pose
 - In twists: inhale to lengthen the spine, exhale to rotate further
@@ -190,11 +200,13 @@ Hold times are one of the most consequential decisions in sequencing. More is no
 ### Step 6: Add Modifications Systematically
 
 For every pose in the sequence, provide three tiers in the output table:
+
 - **Beginner/Tighter:** Reduces range of motion, adds a prop for support, or offers an alternative entrance into the shape that demands less flexibility or balance
 - **Standard:** The conventional form of the pose as taught in most classes
 - **Deepening:** An intensification that is appropriate without crossing into advanced inversion or arm balance territory
 
 Critical modification knowledge:
+
 - Knees in Downward Dog: bending the knees takes hamstrings out of the equation and allows the spine to lengthen -- this is almost always the better beginner cue over forcing straight legs with a rounded back
 - Blocks in Triangle: placing the bottom hand on a block rather than the floor prevents collapsing in the torso and preserves the full spinal rotation that makes the pose effective
 - Blanket under the front hip in Pigeon: without this, tight practitioners rotate the pelvis so severely to compensate that the hip flexor (primary target) barely stretches -- the blanket levels the pelvis and makes the stretch actually work
@@ -353,38 +365,38 @@ Target the three highest-priority areas for most athletes: hip flexors (compress
 
 ### Phase Breakdown
 
-| Phase | Duration | Description |
-|---|---|---|
-| Arrival & Breath | 2 min | Constructive Rest -- supine, knees bent, hands on belly. Observe breath. Set intention for releasing rather than forcing. |
-| Spinal Warm-Up | 4 min | Cat-Cow and Tabletop hip circles to lubricate the spine and begin warming hip flexors before standing work |
-| Standing Hip Openers | 8 min | Low Lunge, Warrior II, Goddess -- builds heat and warms the hip complex through active range before floor-based deep holds |
-| Deep Floor Openers | 10 min | Lizard, Fire Log, Bound Angle -- deep connective tissue and external rotator work; long holds apply |
-| Supine Release | 3 min | Reclined Pigeon and Happy Baby -- passive, gravity-assisted final hip release |
-| Savasana | 3 min | Full-body integration in stillness |
+| Phase                | Duration | Description                                                                                                                |
+| -------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Arrival & Breath     | 2 min    | Constructive Rest -- supine, knees bent, hands on belly. Observe breath. Set intention for releasing rather than forcing.  |
+| Spinal Warm-Up       | 4 min    | Cat-Cow and Tabletop hip circles to lubricate the spine and begin warming hip flexors before standing work                 |
+| Standing Hip Openers | 8 min    | Low Lunge, Warrior II, Goddess -- builds heat and warms the hip complex through active range before floor-based deep holds |
+| Deep Floor Openers   | 10 min   | Lizard, Fire Log, Bound Angle -- deep connective tissue and external rotator work; long holds apply                        |
+| Supine Release       | 3 min    | Reclined Pigeon and Happy Baby -- passive, gravity-assisted final hip release                                              |
+| Savasana             | 3 min    | Full-body integration in stillness                                                                                         |
 
 ---
 
 ### Full Sequence
 
-| # | Pose (English) | Sanskrit | Phase | Hold | L/R | Beginner Modification | Standard Form | Deepening Option |
-|---|---|---|---|---|---|---|---|---|
-| 1 | Constructive Rest | (no Sanskrit) | Arrival | 2 min | -- | Place one hand on belly, one on chest; simply breathe | Supine, knees bent, feet hip-width, arms at sides | Close eyes; notice which hip feels more restricted |
-| 2 | Cat-Cow | Marjaryasana-Bitilasana | Warm-Up | 10 slow rounds | -- | Move at half-speed; tiny range of motion is fine | Inhale to arch (Cow), exhale to round (Cat), full spinal wave | Add lateral flexion between rounds; look over each shoulder at the end |
-| 3 | Tabletop Hip Circles | (no Sanskrit) | Warm-Up | 8 circles each direction | -- | Keep circles small and slow | Draw large circles with the hips in Table position | Reverse and add figure-eights |
-| 4 | Low Lunge -- right | Anjaneyasana | Standing | 8 breaths | R first | Back knee on folded blanket; hands on front thigh | Arms overhead, lengthen through the back hip flexor | Add quad stretch: reach back for back foot with same-side hand |
-| 5 | Low Lunge -- left | Anjaneyasana | Standing | 8 breaths | L | Same as right side | Same as right side | Same as right side |
-| 6 | Warrior II -- right | Virabhadrasana II | Standing | 6 breaths | R | Narrower stance; front knee bent less | Front knee over second toe, arms exactly parallel to floor, gaze over front fingers | Transition directly to Reverse Warrior: flip front palm up, arc top arm back |
-| 7 | Warrior II -- left | Virabhadrasana II | Standing | 6 breaths | L | Same as right | Same as right | Same as right |
-| 8 | Goddess Pose | Utkata Konasana | Standing | 8 breaths | Both | Slight knee bend; toes pointed forward more | Feet wide, toes 45 degrees out, knees track over second toes, thighs toward parallel | Pulse 3x on exhale, then hold; add Cactus arms (elbows at shoulder height, bent 90 degrees) |
-| 9 | Lizard -- right | Utthan Pristhasana | Floor | 15 breaths / ~90 sec | R | Back knee down; hands on blocks at highest height | Both forearms to floor or blocks; back knee down | Forearms to floor, twist top arm to ceiling; or lower back knee and reach for top foot |
-| 10 | Lizard -- left | Utthan Pristhasana | Floor | 15 breaths / ~90 sec | L | Same as right | Same as right | Same as right |
-| 11 | Fire Log -- right leg on top | Agnistambhasana | Floor | 20 breaths / ~2 min | R on top | Sit on folded blanket to tilt pelvis; keep bottom leg straight (Janu Sirsasana shape) if stacked shins are inaccessible | Stacked shins, both feet flexed, sit tall; fold forward on exhale if available | Fold fully forward, forehead toward floor; hands extended |
-| 12 | Fire Log -- left leg on top | Agnistambhasana | Floor | 20 breaths / ~2 min | L on top | Same as right | Same as right | Same as right |
-| 13 | Bound Angle | Baddha Konasana | Floor | 20 breaths / ~2 min | Both | Sit on folded blanket; place blocks under each knee for support | Feet together, soles touching, fold gently forward; hold feet or ankles | Feet pulled close to pelvis; walk hands forward and rest forehead toward heels |
-| 14 | Reclined Pigeon -- right | Supta Kapotasana | Supine | 12 breaths / ~75 sec | R | Keep bottom foot on floor; gentle pull | Thread right ankle over left thigh; flex right foot; pull left thigh toward chest with hands or strap | Pull deeply; extend bottom leg toward ceiling for double hamstring/hip opener |
-| 15 | Reclined Pigeon -- left | Supta Kapotasana | Supine | 12 breaths / ~75 sec | L | Same as right | Same as right | Same as right |
-| 16 | Happy Baby | Ananda Balasana | Supine | 10 breaths | Both | Hold backs of thighs or calves | Hold outer edges of feet; pull knees toward armpits | Rock gently side to side; extend one leg at a time toward ceiling |
-| 17 | Savasana | Savasana | Final Rest | 3 min | -- | Blanket over the body if cool; support under knees if low back is tender | Arms slightly away from body, palms up, feet naturally falling out | Full stillness; allow the hip work to integrate; breathe naturally |
+| #   | Pose (English)               | Sanskrit                | Phase      | Hold                     | L/R      | Beginner Modification                                                                                                   | Standard Form                                                                                         | Deepening Option                                                                            |
+| --- | ---------------------------- | ----------------------- | ---------- | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1   | Constructive Rest            | (no Sanskrit)           | Arrival    | 2 min                    | --       | Place one hand on belly, one on chest; simply breathe                                                                   | Supine, knees bent, feet hip-width, arms at sides                                                     | Close eyes; notice which hip feels more restricted                                          |
+| 2   | Cat-Cow                      | Marjaryasana-Bitilasana | Warm-Up    | 10 slow rounds           | --       | Move at half-speed; tiny range of motion is fine                                                                        | Inhale to arch (Cow), exhale to round (Cat), full spinal wave                                         | Add lateral flexion between rounds; look over each shoulder at the end                      |
+| 3   | Tabletop Hip Circles         | (no Sanskrit)           | Warm-Up    | 8 circles each direction | --       | Keep circles small and slow                                                                                             | Draw large circles with the hips in Table position                                                    | Reverse and add figure-eights                                                               |
+| 4   | Low Lunge -- right           | Anjaneyasana            | Standing   | 8 breaths                | R first  | Back knee on folded blanket; hands on front thigh                                                                       | Arms overhead, lengthen through the back hip flexor                                                   | Add quad stretch: reach back for back foot with same-side hand                              |
+| 5   | Low Lunge -- left            | Anjaneyasana            | Standing   | 8 breaths                | L        | Same as right side                                                                                                      | Same as right side                                                                                    | Same as right side                                                                          |
+| 6   | Warrior II -- right          | Virabhadrasana II       | Standing   | 6 breaths                | R        | Narrower stance; front knee bent less                                                                                   | Front knee over second toe, arms exactly parallel to floor, gaze over front fingers                   | Transition directly to Reverse Warrior: flip front palm up, arc top arm back                |
+| 7   | Warrior II -- left           | Virabhadrasana II       | Standing   | 6 breaths                | L        | Same as right                                                                                                           | Same as right                                                                                         | Same as right                                                                               |
+| 8   | Goddess Pose                 | Utkata Konasana         | Standing   | 8 breaths                | Both     | Slight knee bend; toes pointed forward more                                                                             | Feet wide, toes 45 degrees out, knees track over second toes, thighs toward parallel                  | Pulse 3x on exhale, then hold; add Cactus arms (elbows at shoulder height, bent 90 degrees) |
+| 9   | Lizard -- right              | Utthan Pristhasana      | Floor      | 15 breaths / ~90 sec     | R        | Back knee down; hands on blocks at highest height                                                                       | Both forearms to floor or blocks; back knee down                                                      | Forearms to floor, twist top arm to ceiling; or lower back knee and reach for top foot      |
+| 10  | Lizard -- left               | Utthan Pristhasana      | Floor      | 15 breaths / ~90 sec     | L        | Same as right                                                                                                           | Same as right                                                                                         | Same as right                                                                               |
+| 11  | Fire Log -- right leg on top | Agnistambhasana         | Floor      | 20 breaths / ~2 min      | R on top | Sit on folded blanket to tilt pelvis; keep bottom leg straight (Janu Sirsasana shape) if stacked shins are inaccessible | Stacked shins, both feet flexed, sit tall; fold forward on exhale if available                        | Fold fully forward, forehead toward floor; hands extended                                   |
+| 12  | Fire Log -- left leg on top  | Agnistambhasana         | Floor      | 20 breaths / ~2 min      | L on top | Same as right                                                                                                           | Same as right                                                                                         | Same as right                                                                               |
+| 13  | Bound Angle                  | Baddha Konasana         | Floor      | 20 breaths / ~2 min      | Both     | Sit on folded blanket; place blocks under each knee for support                                                         | Feet together, soles touching, fold gently forward; hold feet or ankles                               | Feet pulled close to pelvis; walk hands forward and rest forehead toward heels              |
+| 14  | Reclined Pigeon -- right     | Supta Kapotasana        | Supine     | 12 breaths / ~75 sec     | R        | Keep bottom foot on floor; gentle pull                                                                                  | Thread right ankle over left thigh; flex right foot; pull left thigh toward chest with hands or strap | Pull deeply; extend bottom leg toward ceiling for double hamstring/hip opener               |
+| 15  | Reclined Pigeon -- left      | Supta Kapotasana        | Supine     | 12 breaths / ~75 sec     | L        | Same as right                                                                                                           | Same as right                                                                                         | Same as right                                                                               |
+| 16  | Happy Baby                   | Ananda Balasana         | Supine     | 10 breaths               | Both     | Hold backs of thighs or calves                                                                                          | Hold outer edges of feet; pull knees toward armpits                                                   | Rock gently side to side; extend one leg at a time toward ceiling                           |
+| 17  | Savasana                     | Savasana                | Final Rest | 3 min                    | --       | Blanket over the body if cool; support under knees if low back is tender                                                | Arms slightly away from body, palms up, feet naturally falling out                                    | Full stillness; allow the hip work to integrate; breathe naturally                          |
 
 ---
 
@@ -397,6 +409,7 @@ Target the three highest-priority areas for most athletes: hip flexors (compress
 **Pause after exhale:** Yes -- in Fire Log and Bound Angle, after a full exhale, notice the moment of stillness before the next inhale. That pause is when the nervous system registers the new, released position. Do not rush the next breath.
 
 **Key transitions:**
+
 - From Low Lunge (right) to Warrior II (right): plant back foot parallel to the back of the mat, straighten the front knee briefly, then re-bend into Warrior II -- avoid going directly from Low Lunge to Warrior II without this intermediate step, which prevents knee torquing
 - From Warrior II (right) to Warrior II (left): step the right foot to meet the left, pause in Mountain Pose (Tadasana) for one breath, then step left foot forward into Low Lunge left before transitioning to Warrior II left
 - From standing (Goddess) to floor (Lizard): from Goddess, pivot to face the long edge of the mat, come to hands and knees (Table), then step the right foot forward to the outside of the right hand

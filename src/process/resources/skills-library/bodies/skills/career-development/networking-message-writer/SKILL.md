@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career writing template linkedin networking"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'career writing template linkedin networking'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Networking Message Writer
 
 ## When to Use
@@ -34,6 +35,7 @@ Use this skill when the user needs a complete, ready-to-send professional networ
 - User attended an event (conference, meetup, webinar) and wants to follow up with a speaker, panelist, or attendee they briefly met or interacted with in a public forum
 
 **Do NOT use this skill when:**
+
 - User wants to cold-email a hiring manager about a specific open job posting -- use `cold-outreach-email` instead (the framing, structure, and intent are fundamentally different)
 - User wants to message a recruiter at a target company or staffing agency -- use `recruiter-outreach` instead (recruiter messages require a resume summary, availability, and job-match framing)
 - User needs a post-interview thank-you email -- use `thank-you-email-writer` instead (that context requires specific interview references and continuation-of-interest framing)
@@ -54,6 +56,7 @@ Before writing a single word, classify which of the three message types applies 
 - **Introduction request:** User wants access to a third person and is going through a mutual contact -- this is a two-message scenario (one to the mutual contact, one to be forwarded as the intro message)
 
 After classification, check the information inventory. If ANY of these are missing, ask before writing:
+
 - Recipient's name, title, and current company
 - How the user knows of or found the recipient (mutual contact, conference, LinkedIn post, article, GitHub repo, podcast appearance)
 - What the user specifically wants to discuss or learn -- not "career advice" but a precise question
@@ -116,6 +119,7 @@ Architecture: Context → The Target Person → Why You Want to Connect → The 
 **Message 2 -- The Forwarded Intro Note (target: 60-80 words)**
 
 This is the short message the mutual contact forwards or pastes when making the introduction. Write it in the third person, from the mutual contact's perspective. It should:
+
 - Introduce the user by name, role, and one-sentence context
 - State why the mutual contact thinks the connection is valuable
 - Name the single topic the user wants to discuss
@@ -133,6 +137,7 @@ Not all networking messages should sound the same. Calibrate tone to the actual 
 - **Close contact you have drifted from:** Very warm, almost casual. The message should feel like a conversation starter, not a formal request. You can even reference the drift lightly: "It has been way too long" is acceptable when the relationship was genuinely close.
 
 Platform affects tone calibration as well:
+
 - LinkedIn InMail: Medium formality, professional but not stiff, under 120 words
 - LinkedIn connection request note: High brevity and specificity, under 300 characters, must establish relevance immediately or it reads as spam
 - Email: Slightly more formal, subject line required, can go up to 150 words, include a clear subject line that gives the recipient context before opening
@@ -150,6 +155,7 @@ For email, the subject line determines open rate before the message quality matt
 - Keep subject lines under 50 characters to prevent truncation in mobile email clients
 
 Strong subject line formulas:
+
 - "[Mutual Contact's Name] suggested I reach out"
 - "Question about [specific topic] -- [your name] from [context]"
 - "Your [article/talk/post] on [specific topic] -- a quick question"
@@ -301,6 +307,7 @@ If adapting this message for other recipients, change these specific elements fo
 ### The recipient is a complete stranger with no mutual connection, no shared context, and no discoverable public work
 
 This is functionally cold outreach, not networking, and the `cold-outreach-email` skill is the more appropriate tool. If the user insists on a networking frame, the message must be anchored on one of the following:
+
 - A piece of specific public content the recipient has created (article, talk, GitHub commit, public comment, LinkedIn post) -- read it carefully and reference a specific claim or insight, not just the title
 - A community or event they both participated in, even asynchronously (the same Slack community, the same conference, the same industry newsletter)
 - The recipient's specific role and company, with a clearly articulated reason why this person specifically can answer the user's question (not just "I want to learn about your field")
@@ -312,6 +319,7 @@ If none of these exist, advise the user that spending 15 minutes finding a real 
 Many users frame a referral request as an informational interview because it feels less presumptuous. This backfires when the recipient agrees to an informational call expecting a career conversation and then feels ambushed by a referral ask at the end. Advise the user to be transparent but tactful:
 
 Structure for the hybrid ask:
+
 - Lead with the genuine informational intent ("I want to understand the role and culture before applying")
 - Acknowledge the dual purpose explicitly and without apology: "I saw that [Company] has an opening for [Role], and before I apply, I wanted to talk to someone who could give me a realistic picture of what the team is like. If after our conversation you felt the fit was strong and you were comfortable putting in a word, I would be genuinely grateful -- but no pressure either way."
 - The explicit "no pressure either way" is not just politeness -- it de-risks the ask for the recipient by making clear they can say no without damaging the relationship
@@ -403,13 +411,13 @@ David -- former Brightway engineer here. You pushed me into the tech lead track 
 
 ### Message Breakdown
 
-| Element           | Content Used                                      | Purpose                                                                    |
-|-------------------|---------------------------------------------------|----------------------------------------------------------------------------|
-| Opening hook      | Specific memory of the payments infrastructure conversation | Signals genuine relationship depth -- could not be fabricated, not generic |
-| Credibility line  | Senior engineer at current company                | Shows career progression since they last connected -- David's mentorship worked |
-| Specific ask      | 20-minute call about his decision to move into EM | Single, defined topic David can evaluate whether he is the right person for |
-| Tone calibration  | Warm and personal                                 | Matches the close prior relationship -- excessive formality would feel false |
-| Key risk mitigated| Avoided "I know it's been a while" opener         | Eliminated the apologetic framing that highlights the gap rather than the relationship |
+| Element            | Content Used                                                | Purpose                                                                                |
+| ------------------ | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Opening hook       | Specific memory of the payments infrastructure conversation | Signals genuine relationship depth -- could not be fabricated, not generic             |
+| Credibility line   | Senior engineer at current company                          | Shows career progression since they last connected -- David's mentorship worked        |
+| Specific ask       | 20-minute call about his decision to move into EM           | Single, defined topic David can evaluate whether he is the right person for            |
+| Tone calibration   | Warm and personal                                           | Matches the close prior relationship -- excessive formality would feel false           |
+| Key risk mitigated | Avoided "I know it's been a while" opener                   | Eliminated the apologetic framing that highlights the gap rather than the relationship |
 
 ---
 
@@ -437,7 +445,7 @@ If adapting this message for other former managers or senior mentors the user ha
 - **[SPECIFIC_QUESTION]:** The EM transition question is specific to David's career path -- replace with the specific question that is only answerable by this particular person's career experience
 - **[SHARED_CONTEXT]:** The mention of Brightway's scaling phase and the tech lead push are unique to this relationship -- do not reuse across other messages
 
-*Estimated personalization time per message: 4-5 minutes (the specific memory retrieval is the most time-intensive and most valuable step)*
+_Estimated personalization time per message: 4-5 minutes (the specific memory retrieval is the most time-intensive and most valuable step)_
 
 ---
 

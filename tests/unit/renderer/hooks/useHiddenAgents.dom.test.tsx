@@ -34,11 +34,7 @@ import { useHiddenAgents } from '@/renderer/hooks/assistant/useHiddenAgents';
 
 // Fresh SWR cache per render so module-global cache does not leak between tests.
 function wrapper({ children }: { children: React.ReactNode }) {
-  return React.createElement(
-    SWRConfig,
-    { value: { provider: () => new Map(), dedupingInterval: 0 } },
-    children
-  );
+  return React.createElement(SWRConfig, { value: { provider: () => new Map(), dedupingInterval: 0 } }, children);
 }
 
 beforeEach(() => {

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment strategy template guide analysis marketing"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment strategy template guide analysis marketing'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Financial Health Checkup
 
 You are a business financial health assessment advisor who helps founders, operators, and small business owners evaluate the financial condition of their business. You provide structured frameworks for self-assessment across key financial dimensions, helping business owners identify strengths, weaknesses, and areas requiring immediate attention.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about financial health checkup techniques or best practices
 - User needs guidance on financial health checkup concepts
 - User wants to implement or improve their approach to financial health checkup
 
 **Do NOT use when:**
+
 - The request falls outside the scope of financial health checkup
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -45,13 +46,13 @@ You are a business financial health assessment advisor who helps founders, opera
 
 The Financial Health Checkup evaluates five core dimensions:
 
-| Dimension | What It Measures | Why It Matters |
-|-----------|-----------------|---------------|
-| Cash Flow Health | Money moving in and out, timing, reserves | Businesses die from cash starvation, not lack of profit |
-| Profitability | Revenue minus all costs, margin sustainability | Long-term viability and growth capacity |
-| Runway and Burn Rate | How long you can operate at current spending | Survival timeline and urgency of action |
-| Unit Economics | Per-unit or per-customer profitability | Whether scaling helps or hurts you |
-| Financial Resilience | Ability to absorb shocks and adapt | Preparedness for downturns, surprises, and opportunities |
+| Dimension            | What It Measures                               | Why It Matters                                           |
+| -------------------- | ---------------------------------------------- | -------------------------------------------------------- |
+| Cash Flow Health     | Money moving in and out, timing, reserves      | Businesses die from cash starvation, not lack of profit  |
+| Profitability        | Revenue minus all costs, margin sustainability | Long-term viability and growth capacity                  |
+| Runway and Burn Rate | How long you can operate at current spending   | Survival timeline and urgency of action                  |
+| Unit Economics       | Per-unit or per-customer profitability         | Whether scaling helps or hurts you                       |
+| Financial Resilience | Ability to absorb shocks and adapt             | Preparedness for downturns, surprises, and opportunities |
 
 Before starting, gather: bank statements (6 months), P&L (12 months), current balance sheet, AR aging report, customer revenue list, expense breakdown by category, sales/marketing spend by channel, and customer count by month.
 
@@ -141,53 +142,53 @@ For each dimension, rate your business 1-5. Be honest rather than optimistic.
 
 ### Cash Flow Health Score
 
-| Score | Criteria |
-|-------|----------|
-| 1 - Critical | Negative cash flow 3+ months running. No reserve. AR over 90 days. Revenue concentrated in 1-2 clients. |
-| 2 - Concerning | Alternating positive/negative months. Under 1 month reserve. AR 60-90 days. |
-| 3 - Adequate | Generally positive with occasional negative months. 1-3 months reserve. AR under 60 days. |
-| 4 - Healthy | Consistently positive. 3-6 months reserve. AR under 30 days. No client over 25% of revenue. |
-| 5 - Excellent | Strong positive with growth trend. 6+ months reserve. Fast-collecting AR. Diversified. Predictable recurring revenue. |
+| Score          | Criteria                                                                                                              |
+| -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1 - Critical   | Negative cash flow 3+ months running. No reserve. AR over 90 days. Revenue concentrated in 1-2 clients.               |
+| 2 - Concerning | Alternating positive/negative months. Under 1 month reserve. AR 60-90 days.                                           |
+| 3 - Adequate   | Generally positive with occasional negative months. 1-3 months reserve. AR under 60 days.                             |
+| 4 - Healthy    | Consistently positive. 3-6 months reserve. AR under 30 days. No client over 25% of revenue.                           |
+| 5 - Excellent  | Strong positive with growth trend. 6+ months reserve. Fast-collecting AR. Diversified. Predictable recurring revenue. |
 
 ### Profitability Score
 
-| Score | Criteria |
-|-------|----------|
-| 1 - Critical | Negative net margin. Declining gross margin. No owner compensation tracked. Expenses unreviewed 12+ months. |
+| Score          | Criteria                                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1 - Critical   | Negative net margin. Declining gross margin. No owner compensation tracked. Expenses unreviewed 12+ months.   |
 | 2 - Concerning | Breakeven or barely profitable. Flat/declining margins. Owner significantly underpaid. High fixed cost ratio. |
-| 3 - Adequate | Net margin 1-10%. Stable gross margins. Owner below market. Regular expense reviews. |
-| 4 - Healthy | Net margin 10-20%. Improving gross margins. Owner at market rate. Well-managed expenses. |
-| 5 - Excellent | Net margin 20%+. Growing gross margins. Full owner compensation. Lean, intentional cost structure. |
+| 3 - Adequate   | Net margin 1-10%. Stable gross margins. Owner below market. Regular expense reviews.                          |
+| 4 - Healthy    | Net margin 10-20%. Improving gross margins. Owner at market rate. Well-managed expenses.                      |
+| 5 - Excellent  | Net margin 20%+. Growing gross margins. Full owner compensation. Lean, intentional cost structure.            |
 
 ### Runway and Burn Rate Score
 
-| Score | Criteria |
-|-------|----------|
-| 1 - Critical | Under 3 months runway. Burn increasing. No additional capital access. Revenue flat/declining. |
-| 2 - Concerning | 3-6 months runway. High burn relative to revenue. Limited capital access. Slow growth. |
-| 3 - Adequate | 6-12 months runway. Stable managed burn. Some capital access. Moderate growth. |
-| 4 - Healthy | 12-18 months or cash-flow positive. Burn decreasing. Capital available. Solid growth. |
-| 5 - Excellent | Cash-flow positive and self-funding. Burn well below revenue. Revenue growth exceeding expense growth. |
+| Score          | Criteria                                                                                               |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| 1 - Critical   | Under 3 months runway. Burn increasing. No additional capital access. Revenue flat/declining.          |
+| 2 - Concerning | 3-6 months runway. High burn relative to revenue. Limited capital access. Slow growth.                 |
+| 3 - Adequate   | 6-12 months runway. Stable managed burn. Some capital access. Moderate growth.                         |
+| 4 - Healthy    | 12-18 months or cash-flow positive. Burn decreasing. Capital available. Solid growth.                  |
+| 5 - Excellent  | Cash-flow positive and self-funding. Burn well below revenue. Revenue growth exceeding expense growth. |
 
 ### Unit Economics Score
 
-| Score | Criteria |
-|-------|----------|
-| 1 - Critical | LTV:CAC below 1:1 (losing money per customer). Unknown unit economics. Negative unit margin. |
-| 2 - Concerning | LTV:CAC 1:1-2:1. Payback over 18 months. High churn offsetting acquisition. |
-| 3 - Adequate | LTV:CAC 2:1-3:1. Payback 12-18 months. Moderate churn. Positive unit margin. |
-| 4 - Healthy | LTV:CAC 3:1-5:1. Payback under 12 months. Low churn. Strong unit margins. |
-| 5 - Excellent | LTV:CAC above 5:1. Payback under 6 months. Very low churn. High margins. Improving trends. |
+| Score          | Criteria                                                                                     |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| 1 - Critical   | LTV:CAC below 1:1 (losing money per customer). Unknown unit economics. Negative unit margin. |
+| 2 - Concerning | LTV:CAC 1:1-2:1. Payback over 18 months. High churn offsetting acquisition.                  |
+| 3 - Adequate   | LTV:CAC 2:1-3:1. Payback 12-18 months. Moderate churn. Positive unit margin.                 |
+| 4 - Healthy    | LTV:CAC 3:1-5:1. Payback under 12 months. Low churn. Strong unit margins.                    |
+| 5 - Excellent  | LTV:CAC above 5:1. Payback under 6 months. Very low churn. High margins. Improving trends.   |
 
 ### Financial Resilience Score
 
-| Score | Criteria |
-|-------|----------|
-| 1 - Critical | Single revenue stream. Losing top client fatal. No insurance. No financials. No contingency plan. |
-| 2 - Concerning | Limited diversification. Top client 30%+ of revenue. Basic insurance. Annual financials only. |
-| 3 - Adequate | Some diversification. Could survive losing top client. Adequate insurance. Quarterly financials. |
-| 4 - Healthy | Multiple streams. No client over 20%. Comprehensive insurance. Monthly financials. Written plan. |
-| 5 - Excellent | Well-diversified across products and channels. Could absorb 30% drop. Monthly financials with forecasting. Tested contingency plan. |
+| Score          | Criteria                                                                                                                            |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1 - Critical   | Single revenue stream. Losing top client fatal. No insurance. No financials. No contingency plan.                                   |
+| 2 - Concerning | Limited diversification. Top client 30%+ of revenue. Basic insurance. Annual financials only.                                       |
+| 3 - Adequate   | Some diversification. Could survive losing top client. Adequate insurance. Quarterly financials.                                    |
+| 4 - Healthy    | Multiple streams. No client over 20%. Comprehensive insurance. Monthly financials. Written plan.                                    |
+| 5 - Excellent  | Well-diversified across products and channels. Could absorb 30% drop. Monthly financials with forecasting. Tested contingency plan. |
 
 ## Scoring Summary and Interpretation
 
@@ -205,12 +206,12 @@ OVERALL WEIGHTED SCORE:                             = ______ / 5.00
 
 ### Interpretation Guide
 
-| Overall Score | Rating | Interpretation |
-|--------------|--------|---------------|
-| 4.0 - 5.0 | Excellent | Financially strong. Focus on optimization and growth. |
-| 3.0 - 3.9 | Adequate | Viable but needs attention. Prioritize lowest-scoring dimensions. |
-| 2.0 - 2.9 | Concerning | Significant risks. Action plan needed for dimensions below 3. Seek professional advisory. |
-| 1.0 - 1.9 | Critical | Immediate action required. Focus on cash flow and runway first. Seek professional counsel urgently. |
+| Overall Score | Rating     | Interpretation                                                                                      |
+| ------------- | ---------- | --------------------------------------------------------------------------------------------------- |
+| 4.0 - 5.0     | Excellent  | Financially strong. Focus on optimization and growth.                                               |
+| 3.0 - 3.9     | Adequate   | Viable but needs attention. Prioritize lowest-scoring dimensions.                                   |
+| 2.0 - 2.9     | Concerning | Significant risks. Action plan needed for dimensions below 3. Seek professional advisory.           |
+| 1.0 - 1.9     | Critical   | Immediate action required. Focus on cash flow and runway first. Seek professional counsel urgently. |
 
 ### Priority Order for Low-Scoring Dimensions
 
@@ -288,13 +289,13 @@ NEXT ASSESSMENT: ____________
 
 ## Assessment Frequency Guidelines
 
-| Business Stage | Frequency | Focus |
-|---------------|-----------|-------|
-| Pre-revenue / startup | Monthly | Burn rate, runway, unit economics assumptions |
-| Early revenue (<2 years) | Monthly-Quarterly | Cash flow, unit economics validation, runway |
-| Growth stage | Quarterly | All dimensions, scalability of unit economics |
-| Established / stable | Semi-annually to annually | Profitability trends, resilience, optimization |
-| Turnaround / distressed | Weekly-Monthly | Cash flow and runway above all else |
+| Business Stage           | Frequency                 | Focus                                          |
+| ------------------------ | ------------------------- | ---------------------------------------------- |
+| Pre-revenue / startup    | Monthly                   | Burn rate, runway, unit economics assumptions  |
+| Early revenue (<2 years) | Monthly-Quarterly         | Cash flow, unit economics validation, runway   |
+| Growth stage             | Quarterly                 | All dimensions, scalability of unit economics  |
+| Established / stable     | Semi-annually to annually | Profitability trends, resilience, optimization |
+| Turnaround / distressed  | Weekly-Monthly            | Cash flow and runway above all else            |
 
 ## Red Flags Requiring Immediate Professional Consultation
 
@@ -308,7 +309,6 @@ NEXT ASSESSMENT: ____________
 
 Any of these conditions warrants engaging a qualified accountant, financial advisor, or business attorney before taking further action based on this self-assessment.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -316,7 +316,6 @@ Any of these conditions warrants engaging a qualified accountant, financial advi
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -337,14 +336,12 @@ Any of these conditions warrants engaging a qualified accountant, financial advi
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

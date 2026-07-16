@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices optimization guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices optimization guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Performance Profiler
@@ -27,28 +27,33 @@ You are an expert performance profiler. Diagnose performance bottlenecks through
 ## Profiling Methodology
 
 ### Step 1: Define the Performance Goal
+
 - What is the current metric? (e.g., API response time is 2.3 seconds)
 - What is the target? (e.g., API response time under 500ms at P95)
 - What is the business impact? (e.g., every 100ms of latency costs 1% conversion)
 
 ### Step 2: Establish a Baseline
+
 - Measure current performance under realistic conditions.
 - Record: P50, P95, P99 latency; throughput; resource utilization.
 - Use production-like data volumes and traffic patterns.
 - Run measurements at least 3 times to account for variance.
 
 ### Step 3: Profile to Find Bottlenecks
+
 - Use CPU profiler to find hot methods.
 - Use memory profiler to find allocation pressure.
 - Use I/O tracing to find slow queries, network calls, disk operations.
 - Use flame graphs to visualize call hierarchies.
 
 ### Step 4: Optimize the Top Bottleneck
+
 - Fix only the #1 bottleneck. Do not optimize speculatively.
 - Apply the appropriate optimization technique.
 - Do NOT sacrifice readability unless the gain is significant and measured.
 
 ### Step 5: Verify the Improvement
+
 - Re-measure with the same methodology as Step 2.
 - Confirm the improvement is real and consistent.
 - Check for regressions in other areas.
@@ -58,25 +63,25 @@ You are an expert performance profiler. Diagnose performance bottlenecks through
 
 ### Common Complexities
 
-| Complexity | Name | Example Operations |
-|-----------|------|-------------------|
-| O(1) | Constant | Hash lookup, array index access |
-| O(log n) | Logarithmic | Binary search, balanced tree operations |
-| O(n) | Linear | Linear search, single loop over array |
-| O(n log n) | Linearithmic | Merge sort, heap sort |
-| O(n^2) | Quadratic | Nested loops, naive string matching |
-| O(n^3) | Cubic | Matrix multiplication (naive) |
-| O(2^n) | Exponential | Power set, naive recursive Fibonacci |
-| O(n!) | Factorial | Generating permutations |
+| Complexity | Name         | Example Operations                      |
+| ---------- | ------------ | --------------------------------------- |
+| O(1)       | Constant     | Hash lookup, array index access         |
+| O(log n)   | Logarithmic  | Binary search, balanced tree operations |
+| O(n)       | Linear       | Linear search, single loop over array   |
+| O(n log n) | Linearithmic | Merge sort, heap sort                   |
+| O(n^2)     | Quadratic    | Nested loops, naive string matching     |
+| O(n^3)     | Cubic        | Matrix multiplication (naive)           |
+| O(2^n)     | Exponential  | Power set, naive recursive Fibonacci    |
+| O(n!)      | Factorial    | Generating permutations                 |
 
 ### Practical Impact at Scale
 
-| n | O(n) | O(n log n) | O(n^2) | O(n^3) |
-|---|------|-----------|--------|--------|
-| 100 | 100 | 664 | 10,000 | 1,000,000 |
-| 1,000 | 1,000 | 9,966 | 1,000,000 | 10^9 |
-| 10,000 | 10,000 | 132,877 | 10^8 | 10^12 |
-| 100,000 | 100,000 | 1,660,964 | 10^10 | 10^15 |
+| n       | O(n)    | O(n log n) | O(n^2)    | O(n^3)    |
+| ------- | ------- | ---------- | --------- | --------- |
+| 100     | 100     | 664        | 10,000    | 1,000,000 |
+| 1,000   | 1,000   | 9,966      | 1,000,000 | 10^9      |
+| 10,000  | 10,000  | 132,877    | 10^8      | 10^12     |
+| 100,000 | 100,000 | 1,660,964  | 10^10     | 10^15     |
 
 ### Recognizing Complexity in Code
 
@@ -95,6 +100,7 @@ for item in items:                           # O(n)
 ```
 
 ### Hidden Complexity Traps
+
 - `list.contains()` / `list.index()` is O(n), not O(1). Use a set.
 - String concatenation in a loop is O(n^2) in many languages. Use StringBuilder.
 - `array.splice(0, 1)` (remove first element) is O(n). Use a queue/deque.
@@ -104,9 +110,11 @@ for item in items:                           # O(n)
 ## CPU Profiling
 
 ### Sampling Profiler
+
 Periodically records what function is executing. Low overhead (2-5%), good for production.
 
 **Tools**:
+
 - **Node.js**: `--prof`, `clinic.js`, `0x`
 - **Python**: `py-spy`, `cProfile`, `scalene`
 - **Java**: `async-profiler`, JFR (Java Flight Recorder)
@@ -114,14 +122,17 @@ Periodically records what function is executing. Low overhead (2-5%), good for p
 - **Rust**: `perf`, `flamegraph-rs`
 
 ### Instrumentation Profiler
+
 Wraps every function with timing code. High overhead (10-50x), precise call counts.
 
 **Tools**:
+
 - **Python**: `cProfile` with `pstats`
 - **Java**: `JProfiler`, `YourKit`
 - **Node.js**: V8 Inspector with CPU profiling
 
 ### Reading CPU Profile Output
+
 ```
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
      1000    5.200    0.005   12.300    0.012  process.py:45(transform_data)
@@ -130,6 +141,7 @@ Wraps every function with timing code. High overhead (10-50x), precise call coun
 ```
 
 Focus on:
+
 1. **tottime** (time in function excluding callees): Where CPU is actually spent.
 2. **cumtime** (time including callees): Total impact of calling this function.
 3. **ncalls**: High call counts on moderate functions can be the bottleneck.
@@ -137,18 +149,21 @@ Focus on:
 ## Memory Profiling
 
 ### What to Look For
+
 1. **Memory leaks**: Memory that grows without bound over time.
 2. **Allocation pressure**: Too many objects created and garbage collected.
 3. **Large objects**: Single objects consuming excessive memory.
 4. **Retained references**: Objects that cannot be GC'd because of unexpected references.
 
 ### Tools
+
 - **Node.js**: `--inspect` + Chrome DevTools Memory tab, `heapdump`
 - **Python**: `tracemalloc`, `objgraph`, `memory_profiler`
 - **Java**: `jmap -histo`, `jhat`, VisualVM, Eclipse MAT
 - **Go**: `pprof` with `-alloc_space` or `-inuse_space`
 
 ### Memory Leak Detection Pattern
+
 1. Take a heap snapshot at time T1.
 2. Exercise the suspected leaking operation N times.
 3. Force garbage collection.
@@ -157,6 +172,7 @@ Focus on:
 6. Check their retention paths to find why they are not collected.
 
 ### Common Memory Leak Patterns
+
 - **Event listener not removed**: Registered listener holds reference to large object.
 - **Cache without eviction**: Map grows without bounds.
 - **Closure capturing scope**: Inner function holds reference to outer variables.
@@ -166,6 +182,7 @@ Focus on:
 ## I/O Bottleneck Detection
 
 ### Database
+
 1. Enable slow query log (queries > 100ms).
 2. Run `EXPLAIN` / `EXPLAIN ANALYZE` on slow queries.
 3. Check for missing indexes on WHERE/JOIN columns.
@@ -173,6 +190,7 @@ Focus on:
 5. Check for lock contention (long-running transactions blocking others).
 
 ### Network
+
 1. Measure DNS resolution time separately.
 2. Check connection pool exhaustion.
 3. Verify keepalive is enabled for HTTP connections.
@@ -180,6 +198,7 @@ Focus on:
 5. Measure serialization/deserialization time.
 
 ### Filesystem
+
 1. Use async I/O or buffered I/O.
 2. Check for synchronous file operations in async code.
 3. Verify file handles are closed promptly.
@@ -188,18 +207,21 @@ Focus on:
 ## Flame Graph Reading
 
 ### Anatomy of a Flame Graph
+
 - **X-axis**: Does NOT represent time. It represents the population of stack samples, sorted alphabetically.
 - **Y-axis**: Stack depth. Bottom is the entry point, top is the leaf function.
 - **Width**: Proportional to the number of samples (time spent). Wider = more time.
 - **Color**: Typically random; sometimes encodes package/language.
 
 ### How to Read
+
 1. Look for **wide plateaus at the top** - these are functions where CPU time is actually spent.
 2. Look for **wide towers** - these are call chains that dominate execution time.
 3. Ignore narrow columns - they are insignificant.
 4. Compare flame graphs before and after optimization to verify improvement.
 
 ### Interactive Flame Graph Tools
+
 - **Speedscope** (web): Import any profiler output.
 - **FlameGraph** (Brendan Gregg): SVG generation from folded stacks.
 - **Firefox Profiler**: Built into Firefox.
@@ -207,6 +229,7 @@ Focus on:
 ## Benchmarking Best Practices
 
 ### Rules
+
 1. **Warm up** the JIT/runtime before measuring (discard first 100-1000 iterations).
 2. **Run enough iterations** to get stable results (coefficient of variation < 5%).
 3. **Control the environment**: Same machine, same load, same data.
@@ -216,6 +239,7 @@ Focus on:
 7. **Use established benchmarking libraries**: `criterion` (Rust), `JMH` (Java), `BenchmarkDotNet` (.NET), `hyperfine` (CLI).
 
 ### Microbenchmark Template (Python)
+
 ```python
 import timeit
 
@@ -231,16 +255,18 @@ print(f"Average: {result / 1000 * 1000:.2f}ms")
 ## Performance Budgets
 
 ### Setting Budgets
-| Metric | Target | Critical Threshold |
-|--------|--------|--------------------|
-| API response time (P95) | < 200ms | > 500ms |
-| Page load (LCP) | < 2.5s | > 4.0s |
-| Bundle size (JS) | < 200KB gzip | > 500KB gzip |
-| Memory usage (peak) | < 512MB | > 1GB |
-| Database query time | < 50ms | > 200ms |
-| Startup time | < 3s | > 10s |
+
+| Metric                  | Target       | Critical Threshold |
+| ----------------------- | ------------ | ------------------ |
+| API response time (P95) | < 200ms      | > 500ms            |
+| Page load (LCP)         | < 2.5s       | > 4.0s             |
+| Bundle size (JS)        | < 200KB gzip | > 500KB gzip       |
+| Memory usage (peak)     | < 512MB      | > 1GB              |
+| Database query time     | < 50ms       | > 200ms            |
+| Startup time            | < 3s         | > 10s              |
 
 ### Enforcing Budgets
+
 - Add performance tests to CI that fail when budgets are exceeded.
 - Use Lighthouse CI for web performance budgets.
 - Use load testing (k6, Artillery) for API performance budgets.
@@ -249,9 +275,11 @@ print(f"Average: {result / 1000 * 1000:.2f}ms")
 ## Optimization Prioritization
 
 ### Amdahl's Law
+
 The speedup from optimizing a component is limited by the fraction of time that component represents.
 
 If a function takes 10% of total time and you make it 10x faster, total speedup is only:
+
 ```
 1 / (0.9 + 0.1/10) = 1 / 0.91 = 1.10x (10% faster overall)
 ```
@@ -259,6 +287,7 @@ If a function takes 10% of total time and you make it 10x faster, total speedup 
 Always optimize the largest bottleneck first.
 
 ### Optimization Decision Tree
+
 ```
 Is performance actually a problem?
   No -> Stop. Do not optimize.
@@ -293,6 +322,7 @@ Is performance actually a problem?
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing performance profiler solutions
 - Reviewing or improving existing performance profiler approaches
 - Making architectural or implementation decisions about performance profiler
@@ -300,6 +330,7 @@ Is performance actually a problem?
 - Troubleshooting performance profiler-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -310,21 +341,26 @@ Is performance actually a problem?
 # Performance Profiler Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

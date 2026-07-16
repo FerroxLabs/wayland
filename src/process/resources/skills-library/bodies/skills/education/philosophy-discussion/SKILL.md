@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tutoring teaching step-by-step research"
-  category: "education"
-  subcategory: "tutoring"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tutoring teaching step-by-step research'
+  category: 'education'
+  subcategory: 'tutoring'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Philosophy Discussion
 
 ## When to Use
@@ -345,6 +346,7 @@ After a long Socratic dialogue, students sometimes ask directly: "But what do yo
 ### Argument Map
 
 **Original Argument (as reconstructed)**
+
 - P1: If a being can suffer, then causing it unnecessary suffering is morally wrong.
 - P2: Animals can suffer.
 - C: Therefore, causing animals unnecessary suffering (e.g., through factory farming) is morally wrong.
@@ -352,10 +354,12 @@ After a long Socratic dialogue, students sometimes ask directly: "But what do yo
 **Validity assessment:** Valid -- the conclusion follows from P1 and P2.
 
 **Key terms requiring definition:**
+
 - "Suffer": Student's implicit definition: experience of pain → Refined after examination: sentient experience with negative valence -- including not just pain but distress, fear, deprivation of natural behavior
 - "Unnecessary": Undefined in original argument → Critical term: "not required for survival or compelling need" -- this is where much of the argument's force lives
 
 **Hidden premises identified:**
+
 - The capacity to suffer is sufficient for basic moral consideration (not just a minor factor).
 - Humans are not obligated to eat animals specifically -- plant-based alternatives exist (making the suffering "unnecessary").
 
@@ -447,22 +451,22 @@ After a long Socratic dialogue, students sometimes ask directly: "But what do yo
 
 ### Fallacies and Errors Identified
 
-| Error | Where It Occurred | Correct Move |
-|-------|------------------|--------------|
-| Naturalistic fallacy | Friend's claim that "suffering in nature is fine" | Distinguish descriptive facts about nature from normative conclusions about human action |
-| Undefined key term | "Unnecessary" suffering not initially defined | Specify: suffering that could be avoided given feasible alternatives for the agent in question |
-| False binary (initial version) | Treating the wrongness of causing suffering as all-or-nothing | Introduce scalar moral obligation proportional to severity and capacity for suffering |
+| Error                          | Where It Occurred                                             | Correct Move                                                                                   |
+| ------------------------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Naturalistic fallacy           | Friend's claim that "suffering in nature is fine"             | Distinguish descriptive facts about nature from normative conclusions about human action       |
+| Undefined key term             | "Unnecessary" suffering not initially defined                 | Specify: suffering that could be avoided given feasible alternatives for the agent in question |
+| False binary (initial version) | Treating the wrongness of causing suffering as all-or-nothing | Introduce scalar moral obligation proportional to severity and capacity for suffering          |
 
 ---
 
 ### Philosophical Landscape Summary
 
-| Position | Advocate | Core Claim | Relation to Student's View |
-|----------|----------|------------|---------------------------|
-| Preference utilitarianism | Peter Singer | Interests of all sentient creatures must be equally considered, weighted by capacity | Strongly supports; provides systematic foundation |
-| Kantian ethics | Christine Korsgaard (in Fellow Creatures) | Animals have a good of their own that we must respect | Partially supports from a non-consequentialist direction |
-| Contractarianism | Peter Carruthers | Direct moral obligations only to rational agents; animals protected only indirectly | Conflicts; requires student to respond with marginal cases argument |
-| Virtue ethics | Rosalind Hursthouse | Cruelty to animals reflects a vicious character regardless of animal moral status | Supports conclusion through a different route |
+| Position                  | Advocate                                  | Core Claim                                                                           | Relation to Student's View                                          |
+| ------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| Preference utilitarianism | Peter Singer                              | Interests of all sentient creatures must be equally considered, weighted by capacity | Strongly supports; provides systematic foundation                   |
+| Kantian ethics            | Christine Korsgaard (in Fellow Creatures) | Animals have a good of their own that we must respect                                | Partially supports from a non-consequentialist direction            |
+| Contractarianism          | Peter Carruthers                          | Direct moral obligations only to rational agents; animals protected only indirectly  | Conflicts; requires student to respond with marginal cases argument |
+| Virtue ethics             | Rosalind Hursthouse                       | Cruelty to animals reflects a vicious character regardless of animal moral status    | Supports conclusion through a different route                       |
 
 ---
 

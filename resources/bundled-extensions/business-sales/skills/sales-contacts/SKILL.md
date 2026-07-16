@@ -13,7 +13,7 @@ metadata:
 prerequisites:
   python_packages: []
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 ---
 
 > **Templates and analytical tools only - not legal, marketing-compliance, or data-protection advice.** Contact mapping touches LinkedIn ToS §8.2 (no scraping), GDPR Art. 14 (indirect-collection notice for EU/UK persons), CCPA/CPRA (CA persons), and CAN-SPAM / CASL / UWG §7 / ePrivacy on any downstream outreach. Never fabricate mutual connections, impersonate referrals, or claim shared experience that is not factually verifiable.
@@ -33,10 +33,12 @@ Do NOT use for: full prospect qualification across all dimensions (`sales-prospe
 This skill is **dual-mode**.
 
 **Standalone mode** (`/sales-contacts <url>`)
+
 - User passes a URL or company name. Skill fetches team / about / contact / press / leadership pages, runs LinkedIn searches, classifies the buying committee, and writes a Markdown report.
 - Default output path: `build_report_path("business-sales", instruction)` - typically `.wayland/business-sales/<timestamp>-<slug>.md`. Caller may override via `out_path`.
 
 **Subagent mode** (invoked by `sales-prospect` via `delegate_task(tasks=[...])`)
+
 - Parent pre-fetches team / about / contact pages and passes them in `context.pages` so the child does not re-fetch.
 - Child receives a fully self-contained `context` payload - no parent context leaks otherwise.
 - Child may still run targeted `web_search` queries for LinkedIn discovery (children have `web` in their toolset). Toolset is `[terminal, file, web]` - `execute_code` is blocked.
@@ -54,14 +56,14 @@ Subagent `context`: `company_name`, `company_url`, `pages` (e.g. `{team, about, 
 
 **1.1 Team page analysis.** Fetch (standalone via `web_extract`, falling back to `terminal` + `curl --max-filesize 200000` for large pages) or read from `context.pages` (subagent):
 
-| Page | Common URLs | Data to Extract |
-|------|-------------|-----------------|
-| **Team page** | /team, /about/team, /leadership, /people, /our-team | Names, titles, photos, bios, social links |
-| **About page** | /about, /company, /about-us | Founders, leadership mentions, team size |
-| **Contact page** | /contact, /get-in-touch | Individual contact emails, department contacts |
-| **Press page** | /press, /news, /newsroom | Spokesperson names, quoted executives |
-| **Board page** | /investors, /board, /advisors | Board members, advisors, investors |
-| **Careers page** | /careers, /jobs | Hiring manager names, team structure clues |
+| Page             | Common URLs                                         | Data to Extract                                |
+| ---------------- | --------------------------------------------------- | ---------------------------------------------- |
+| **Team page**    | /team, /about/team, /leadership, /people, /our-team | Names, titles, photos, bios, social links      |
+| **About page**   | /about, /company, /about-us                         | Founders, leadership mentions, team size       |
+| **Contact page** | /contact, /get-in-touch                             | Individual contact emails, department contacts |
+| **Press page**   | /press, /news, /newsroom                            | Spokesperson names, quoted executives          |
+| **Board page**   | /investors, /board, /advisors                       | Board members, advisors, investors             |
+| **Careers page** | /careers, /jobs                                     | Hiring manager names, team structure clues     |
 
 For each page: identify all person names + titles, capture LinkedIn profile links, capture bio text for personalization, note email patterns, record whether profile photos are present.
 
@@ -103,13 +105,13 @@ Use "[Unknown - likely exists]" for roles that almost certainly exist but where 
 
 **1.4 Email pattern detection.**
 
-| Pattern | Example |
-|---------|---------|
-| firstname@company.com | john@acme.com |
-| firstname.lastname@company.com | john.smith@acme.com |
-| firstinitial.lastname@company.com | j.smith@acme.com |
-| firstname.lastinitial@company.com | john.s@acme.com |
-| firstinitiallastname@company.com | jsmith@acme.com |
+| Pattern                           | Example             |
+| --------------------------------- | ------------------- |
+| firstname@company.com             | john@acme.com       |
+| firstname.lastname@company.com    | john.smith@acme.com |
+| firstinitial.lastname@company.com | j.smith@acme.com    |
+| firstname.lastinitial@company.com | john.s@acme.com     |
+| firstinitiallastname@company.com  | jsmith@acme.com     |
 
 Detect via emails on contact page, author emails on blog posts, mailto links, press release PR contacts, signatures in case studies.
 
@@ -131,11 +133,12 @@ Classify each contact into one or more of the 6 roles:
 
 **Role assignment matrix.**
 
-| Contact Name | Title | Primary Role | Secondary Role | Confidence |
-|-------------|-------|--------------|----------------|------------|
-| [name] | [title] | [Economic Buyer/Champion/...] | [optional second role] | [High/Medium/Low] |
+| Contact Name | Title   | Primary Role                  | Secondary Role         | Confidence        |
+| ------------ | ------- | ----------------------------- | ---------------------- | ----------------- |
+| [name]       | [title] | [Economic Buyer/Champion/...] | [optional second role] | [High/Medium/Low] |
 
 **Role-mapping by company size:**
+
 - One person can fill multiple roles (especially in smaller companies).
 - Under 20 people: the CEO often fills Economic Buyer + Champion + Technical Evaluator.
 - Under 50 people: expect 2-3 people in the buying committee.
@@ -148,11 +151,11 @@ For each priority contact (top 3-5), research: **Recent LinkedIn Activity**, **C
 
 Rate each anchor:
 
-| Rating | Definition | Example |
-|--------|-----------|---------|
-| **Strong** | Specific, recent, directly relevant - can carry an entire email opener | Contact posted about the exact problem you solve 2 weeks ago |
-| **Moderate** | Somewhat specific - requires a bridge to the outreach | Contact recently changed jobs (trigger event, but not directly related) |
-| **Weak** | Generic or old - better than nothing but no compelling hook | Contact attended a well-known university |
+| Rating       | Definition                                                             | Example                                                                 |
+| ------------ | ---------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| **Strong**   | Specific, recent, directly relevant - can carry an entire email opener | Contact posted about the exact problem you solve 2 weeks ago            |
+| **Moderate** | Somewhat specific - requires a bridge to the outreach                  | Contact recently changed jobs (trigger event, but not directly related) |
+| **Weak**     | Generic or old - better than nothing but no compelling hook            | Contact attended a well-known university                                |
 
 **Minimum standard:** every outreach email must contain at least one Strong anchor or two Moderate anchors. If only Weak anchors exist, flag as a limitation and recommend additional research.
 
@@ -160,14 +163,15 @@ Rate each anchor:
 
 Multi-threading means engaging multiple stakeholders in parallel or sequence. Deals with 3+ engaged contacts are 2-3x more likely to close than single-threaded deals.
 
-| Company Size | Recommended Threads | Approach |
-|-------------|---------------------|----------|
-| **1-20 employees** | 1-2 contacts | Founder/CEO + one other key person. Keep it simple. |
-| **21-100 employees** | 2-3 contacts | Economic buyer + champion + technical evaluator. Stagger outreach by 2-3 days. |
-| **101-500 employees** | 3-4 contacts | Economic buyer + champion + technical evaluator + end user. Use different channels per role. |
-| **500+ employees** | 4-6 contacts | Full buying committee coverage. Different messaging angle per role. Coordinate timing. |
+| Company Size          | Recommended Threads | Approach                                                                                     |
+| --------------------- | ------------------- | -------------------------------------------------------------------------------------------- |
+| **1-20 employees**    | 1-2 contacts        | Founder/CEO + one other key person. Keep it simple.                                          |
+| **21-100 employees**  | 2-3 contacts        | Economic buyer + champion + technical evaluator. Stagger outreach by 2-3 days.               |
+| **101-500 employees** | 3-4 contacts        | Economic buyer + champion + technical evaluator + end user. Use different channels per role. |
+| **500+ employees**    | 4-6 contacts        | Full buying committee coverage. Different messaging angle per role. Coordinate timing.       |
 
 **Sequence:**
+
 - **Day 0-1: Engage the Champion.** Start with the person most likely to feel the pain. Most personalized message. Goal: get a response and establish dialogue.
 - **Day 2-3: Connect with the Economic Buyer.** LinkedIn connection request with custom note; separate email thread (not CC'd with champion). Goal: get on their radar with a strategic message.
 - **Day 5-7: Engage the Technical Evaluator.** Technical content or case study; mention integrations and security. Goal: pre-empt technical objections.
@@ -197,35 +201,45 @@ Write to the resolved `out_path` via `file_tools.write`:
 
 ```markdown
 # Decision Maker Intelligence: <Company>
+
 **URL:** <url> | **Date:** <YYYY-MM-DD>
 **Contact Access Score: X/100** | **Buying Committee Size:** <N>
 **Email Pattern:** <pattern or "Unknown">
 
 ## Executive Summary
+
 <2-3 paragraphs: who the key decision makers are, contact access quality,
 recommended engagement approach, multi-threading strategy>
 
 ## Buying Committee Map
+
 <table: Name | Title | Buying Role | Personalization Anchor | Approach | Priority>
 
 ## Org Chart
+
 <ASCII tree>
 
 ## Top 3 Priority Contacts
+
 ### Priority 1: <Name> - <Title>
+
 <dossier: tenure, previous company, LinkedIn, estimated email,
 personalization anchors w/ strength, career background, recommended approach,
 suggested opening message>
+
 ### Priority 2 / Priority 3 - same format
 
 ## Multi-Threading Strategy
+
 <engagement sequence table: Day | Contact | Channel | Action | Goal>
 <messaging by role table: Role | Primary Message | Content to Share | CTA>
 
 ## Contact Access Score: X/100
+
 <sub-dimension breakdown table>
 
 ## Recommended Outreach Order
+
 <numbered list with rationale>
 ```
 
@@ -240,24 +254,31 @@ Return JSON matching `context.output_schema` (parent's contract - typical shape)
   "dimension": "contacts",
   "dimension_score": 74,
   "subscores": {
-    "decision_makers_identified": {"score": 80, "rationale": "<one-line>"},
-    "contact_info_quality":       {"score": 70, "rationale": "<one-line>"},
-    "personalization_depth":      {"score": 70, "rationale": "<one-line>"},
-    "warm_paths":                 {"score": 60, "rationale": "<one-line>"},
-    "multi_threading_potential":  {"score": 80, "rationale": "<one-line>"}
+    "decision_makers_identified": { "score": 80, "rationale": "<one-line>" },
+    "contact_info_quality": { "score": 70, "rationale": "<one-line>" },
+    "personalization_depth": { "score": 70, "rationale": "<one-line>" },
+    "warm_paths": { "score": 60, "rationale": "<one-line>" },
+    "multi_threading_potential": { "score": 80, "rationale": "<one-line>" }
   },
   "key_findings": ["<one-line>", "..."],
-  "buying_committee": [
-    {"role": "Economic Buyer", "name": "...", "title": "...", "confidence": "High"}
-  ],
+  "buying_committee": [{ "role": "Economic Buyer", "name": "...", "title": "...", "confidence": "High" }],
   "priority_contacts": [
-    {"name": "...", "title": "...", "buying_role": "...", "anchors": [{"text": "...", "strength": "Strong"}], "opening_angle": "..."}
+    {
+      "name": "...",
+      "title": "...",
+      "buying_role": "...",
+      "anchors": [{ "text": "...", "strength": "Strong" }],
+      "opening_angle": "..."
+    }
   ],
-  "warm_paths_detail": [
-    {"path_type": "...", "detail": "...", "feasibility": "Easy", "strength": "Strong"}
-  ],
+  "warm_paths_detail": [{ "path_type": "...", "detail": "...", "feasibility": "Easy", "strength": "Strong" }],
   "recommendations": [
-    {"tier": "immediate|short_term|long_term", "title": "...", "impact": "high|medium|low", "effort": "low|medium|high"}
+    {
+      "tier": "immediate|short_term|long_term",
+      "title": "...",
+      "impact": "high|medium|low",
+      "effort": "low|medium|high"
+    }
   ],
   "gaps": ["<missing role or data point>"],
   "report_path": "<absolute out_path>"
@@ -265,6 +286,7 @@ Return JSON matching `context.output_schema` (parent's contract - typical shape)
 ```
 
 **Scale conversion.** The Contact Access rubric grades each of the 5 sub-dimensions on a 0-10 band. For the canonical JSON above:
+
 - `subscores.<bucket>.score = rubric_value * 10` to land on the 0-100 scale.
 - Top-level `dimension_score = round(mean(subscores.*.score))` - equivalent to the historical Contact Access Score (sum / 5 × 10). Both yield the same 0-100 integer.
 

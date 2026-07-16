@@ -98,8 +98,8 @@ describe('DingTalkPlugin - R11 HIGH H2 timestamp-skew rejection', () => {
     ).handleRobotMessage(data, 'stream-1');
 
     expect(messageHandler).not.toHaveBeenCalled();
-    const stalenessLog = warnSpy.mock.calls.find((args) =>
-      typeof args[0] === 'string' && args[0].includes('out-of-range timestamp')
+    const stalenessLog = warnSpy.mock.calls.find(
+      (args) => typeof args[0] === 'string' && args[0].includes('out-of-range timestamp')
     );
     expect(stalenessLog).toBeDefined();
   });
@@ -122,8 +122,8 @@ describe('DingTalkPlugin - R11 HIGH H2 timestamp-skew rejection', () => {
     ).handleRobotMessage(data, 'stream-future-1');
 
     expect(messageHandler).not.toHaveBeenCalled();
-    const skewLog = warnSpy.mock.calls.find((args) =>
-      typeof args[0] === 'string' && args[0].includes('out-of-range timestamp')
+    const skewLog = warnSpy.mock.calls.find(
+      (args) => typeof args[0] === 'string' && args[0].includes('out-of-range timestamp')
     );
     expect(skewLog).toBeDefined();
   });
@@ -143,8 +143,8 @@ describe('DingTalkPlugin - R11 HIGH H2 timestamp-skew rejection', () => {
       }
     ).handleRobotMessage(data, 'stream-2');
 
-    const stalenessLog = warnSpy.mock.calls.find((args) =>
-      typeof args[0] === 'string' && args[0].includes('out-of-range timestamp')
+    const stalenessLog = warnSpy.mock.calls.find(
+      (args) => typeof args[0] === 'string' && args[0].includes('out-of-range timestamp')
     );
     expect(stalenessLog).toBeUndefined();
   });
@@ -163,8 +163,8 @@ describe('DingTalkPlugin - R11 HIGH H2 timestamp-skew rejection', () => {
       }
     ).handleRobotMessage(data, 'stream-3');
 
-    const missingTsLog = warnSpy.mock.calls.find((args) =>
-      typeof args[0] === 'string' && args[0].includes('missing createAt')
+    const missingTsLog = warnSpy.mock.calls.find(
+      (args) => typeof args[0] === 'string' && args[0].includes('missing createAt')
     );
     expect(missingTsLog).toBeDefined();
   });

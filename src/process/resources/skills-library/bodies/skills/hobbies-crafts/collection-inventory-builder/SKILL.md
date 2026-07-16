@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "checklist template planning guide"
-  category: "hobbies-crafts"
-  subcategory: "collecting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'checklist template planning guide'
+  category: 'hobbies-crafts'
+  subcategory: 'collecting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Collection Inventory Builder
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cataloguing or organizing a collection
 - User wants to build a database or spreadsheet for tracking collectible items
 - User needs a system for documenting item condition, provenance, or storage
@@ -29,6 +30,7 @@ metadata:
 - User asks about condition grading for collectibles
 
 **Do NOT use when:**
+
 - User asks about the monetary value of items (use `collection-valuation-guide`)
 - User needs authentication or fraud detection (use `collectible-authentication-guide`)
 - User needs an insurance appraisal or legal documentation of value
@@ -217,48 +219,52 @@ metadata:
 ## Collection Inventory System: Vinyl Records
 
 ### Collection Profile
-| Parameter            | Value                                  |
-|----------------------|----------------------------------------|
-| Collection type      | Vinyl records (LP, 45s, and other formats) |
-| Estimated items      | ~150 records                           |
-| Primary goal         | Personal tracking and improved storage |
-| Storage location     | Closet (to be reorganized)             |
+
+| Parameter        | Value                                      |
+| ---------------- | ------------------------------------------ |
+| Collection type  | Vinyl records (LP, 45s, and other formats) |
+| Estimated items  | ~150 records                               |
+| Primary goal     | Personal tracking and improved storage     |
+| Storage location | Closet (to be reorganized)                 |
 
 ### Database Schema
-| Field              | Type     | Required | Notes                              |
-|--------------------|----------|----------|------------------------------------|
-| item_id            | Text     | Yes      | Format: VNL-0001, VNL-0002, etc.  |
-| artist             | Text     | Yes      | Primary artist or band name        |
-| album_title        | Text     | Yes      | Full album title                   |
-| label              | Text     | Yes      | Record label name                  |
-| catalog_number     | Text     | Yes      | Label catalog number (on spine/label) |
-| year               | Number   | Yes      | Year of this pressing              |
-| format             | Text     | Yes      | LP, 2xLP, 45, 12-inch single, 10-inch, 78 |
-| pressing_country   | Text     | No       | Country of pressing (US, UK, Japan, etc.) |
-| matrix_number      | Text     | No       | Dead wax inscription (identifies pressing) |
-| disc_condition     | Text     | Yes      | Goldmine grading scale             |
-| sleeve_condition   | Text     | Yes      | Goldmine grading scale (separate)  |
-| storage_location   | Text     | Yes      | Shelf/crate/position number        |
-| date_acquired      | Date     | Yes      | When you got it                    |
-| acquisition_source | Text     | Yes      | Store, online, gift, thrift, etc.  |
-| acquisition_cost   | Currency | Yes      | What you paid (0 if gift)          |
-| photo_ref          | Text     | No       | Photo filename (cover + label)     |
+
+| Field              | Type     | Required | Notes                                           |
+| ------------------ | -------- | -------- | ----------------------------------------------- |
+| item_id            | Text     | Yes      | Format: VNL-0001, VNL-0002, etc.                |
+| artist             | Text     | Yes      | Primary artist or band name                     |
+| album_title        | Text     | Yes      | Full album title                                |
+| label              | Text     | Yes      | Record label name                               |
+| catalog_number     | Text     | Yes      | Label catalog number (on spine/label)           |
+| year               | Number   | Yes      | Year of this pressing                           |
+| format             | Text     | Yes      | LP, 2xLP, 45, 12-inch single, 10-inch, 78       |
+| pressing_country   | Text     | No       | Country of pressing (US, UK, Japan, etc.)       |
+| matrix_number      | Text     | No       | Dead wax inscription (identifies pressing)      |
+| disc_condition     | Text     | Yes      | Goldmine grading scale                          |
+| sleeve_condition   | Text     | Yes      | Goldmine grading scale (separate)               |
+| storage_location   | Text     | Yes      | Shelf/crate/position number                     |
+| date_acquired      | Date     | Yes      | When you got it                                 |
+| acquisition_source | Text     | Yes      | Store, online, gift, thrift, etc.               |
+| acquisition_cost   | Currency | Yes      | What you paid (0 if gift)                       |
+| photo_ref          | Text     | No       | Photo filename (cover + label)                  |
 | notes              | Text     | No       | Special pressings, colored vinyl, inserts, etc. |
 
 ### Condition Grading Scale (Goldmine Standard for Vinyl)
-| Grade              | Code | Disc Description                              | Sleeve Description                        |
-|--------------------|------|-----------------------------------------------|-------------------------------------------|
-| Mint               | M    | Unplayed, factory-sealed. No marks whatsoever  | No wear, creases, or writing. As-new       |
-| Near Mint          | NM   | Nearly flawless. May have been played but shows no wear | Minimal handling. No splits, ring wear, or writing |
-| Very Good Plus     | VG+  | Light surface marks visible. Plays with very minor noise | Light wear at edges. No splits. Minor ring wear acceptable |
-| Very Good          | VG   | Audible surface noise, light scratches. Still enjoyable to play | Obvious wear: ring wear, minor seam splits, light writing |
-| Good               | G    | Significant surface noise and scratches. Plays through without skipping | Heavy wear: seam splits, writing, tape, missing pieces |
-| Fair               | F    | Plays but with skips or repeating grooves | Major damage: tears, water damage, missing panels |
-| Poor               | P    | May not play. Cracked, warped, or deeply scratched | Barely holding together or missing entirely |
+
+| Grade          | Code | Disc Description                                                        | Sleeve Description                                         |
+| -------------- | ---- | ----------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Mint           | M    | Unplayed, factory-sealed. No marks whatsoever                           | No wear, creases, or writing. As-new                       |
+| Near Mint      | NM   | Nearly flawless. May have been played but shows no wear                 | Minimal handling. No splits, ring wear, or writing         |
+| Very Good Plus | VG+  | Light surface marks visible. Plays with very minor noise                | Light wear at edges. No splits. Minor ring wear acceptable |
+| Very Good      | VG   | Audible surface noise, light scratches. Still enjoyable to play         | Obvious wear: ring wear, minor seam splits, light writing  |
+| Good           | G    | Significant surface noise and scratches. Plays through without skipping | Heavy wear: seam splits, writing, tape, missing pieces     |
+| Fair           | F    | Plays but with skips or repeating grooves                               | Major damage: tears, water damage, missing panels          |
+| Poor           | P    | May not play. Cracked, warped, or deeply scratched                      | Barely holding together or missing entirely                |
 
 **Important:** Disc and sleeve are graded separately. A VG+ disc in a G sleeve is common for older records.
 
 ### Cataloguing Workflow for Vinyl Records
+
 1. [ ] Photograph the front cover, back cover, and record labels (both sides)
 2. [ ] Record the catalog number from the spine or label
 3. [ ] Check the dead wax (the smooth area near the label) for matrix numbers
@@ -270,21 +276,24 @@ metadata:
 9. [ ] Update the storage_location field with the final position
 
 ### Storage Map
-| Location Code | Description                    | Capacity | Climate Notes              |
-|---------------|--------------------------------|----------|----------------------------|
-| CLO-A         | Closet, shelf 1, crate A       | 40-50 LPs | Room temperature, no direct sun |
-| CLO-B         | Closet, shelf 1, crate B       | 40-50 LPs | Room temperature, no direct sun |
-| CLO-C         | Closet, shelf 2, crate C       | 40-50 LPs | Room temperature, no direct sun |
-| CLO-D         | Closet, shelf 2, overflow       | 20-30 LPs | Room temperature             |
+
+| Location Code | Description               | Capacity  | Climate Notes                   |
+| ------------- | ------------------------- | --------- | ------------------------------- |
+| CLO-A         | Closet, shelf 1, crate A  | 40-50 LPs | Room temperature, no direct sun |
+| CLO-B         | Closet, shelf 1, crate B  | 40-50 LPs | Room temperature, no direct sun |
+| CLO-C         | Closet, shelf 2, crate C  | 40-50 LPs | Room temperature, no direct sun |
+| CLO-D         | Closet, shelf 2, overflow | 20-30 LPs | Room temperature                |
 
 ### Protective Housing
-| Material                     | Use For           | Replace When                          |
-|------------------------------|-------------------|---------------------------------------|
-| HDPE inner sleeves           | All discs         | When torn or creased                  |
-| Polypropylene outer sleeves  | All cover jackets | When cloudy or torn                   |
-| Acid-free cardboard dividers | Alphabetical tabs | When bent or damaged                  |
+
+| Material                     | Use For           | Replace When         |
+| ---------------------------- | ----------------- | -------------------- |
+| HDPE inner sleeves           | All discs         | When torn or creased |
+| Polypropylene outer sleeves  | All cover jackets | When cloudy or torn  |
+| Acid-free cardboard dividers | Alphabetical tabs | When bent or damaged |
 
 **Storage rules for vinyl:**
+
 - Store vertically, never stacked flat (stacking causes warping)
 - Maintain 65-72F temperature (avoid attics, garages, and basements with moisture)
 - Keep humidity at 40-55% -- vinyl and cardboard both suffer in high humidity
@@ -292,8 +301,9 @@ metadata:
 - Do not overstuff crates -- records should slide in and out without friction
 
 ### Maintenance Schedule
-| Frequency  | Task                                              | Next Due |
-|------------|---------------------------------------------------|----------|
+
+| Frequency  | Task                                               | Next Due |
+| ---------- | -------------------------------------------------- | -------- |
 | Monthly    | Backup inventory spreadsheet to cloud              | 1 month  |
 | Quarterly  | Spot-check 15 records against inventory            | 3 months |
 | Annually   | Full inventory audit: verify all 150 records match | 1 year   |
@@ -301,10 +311,11 @@ metadata:
 | On acquire | Catalogue within 7 days using the workflow above   | Ongoing  |
 
 ### Getting Started: Batch Cataloguing Plan
+
 With 150 records, plan to catalogue 15 records per session, 2-3 sessions per week. At that pace, the full inventory will be complete in approximately 4-5 weeks.
 
 | Week | Sessions | Records Catalogued | Running Total |
-|------|----------|--------------------|---------------|
+| ---- | -------- | ------------------ | ------------- |
 | 1    | 3        | 45                 | 45            |
 | 2    | 3        | 45                 | 90            |
 | 3    | 3        | 45                 | 135           |

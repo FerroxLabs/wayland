@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis research strategy planning decision-making"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis research strategy planning decision-making'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # A/B Test Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to design a controlled experiment before shipping a product change -- including UI changes, copy changes, pricing changes, onboarding flow changes, algorithm changes, or notification strategies
 - A user needs to validate a product hypothesis with statistical rigor before committing engineering resources to a full rollout
 - A user asks about sample size calculation, test duration estimation, or minimum detectable effect selection for a split test
@@ -28,6 +30,7 @@ metadata:
 - A user wants to run a holdout test, a switchback test, or a geo-based experiment and needs guidance on the appropriate variant of experimentation methodology
 
 **Do NOT use this skill when:**
+
 - The user wants to analyze results from a test that has already run -- use a statistical analysis skill instead (t-tests, chi-squared, Mann-Whitney U, Bayesian posterior analysis)
 - The user needs to design a survey to collect attitudinal or qualitative data -- use `employee-survey` or `user-research-plan`
 - The user wants to rank or prioritize a backlog of features without testing -- use `prioritization-framework`
@@ -124,6 +127,7 @@ Metric selection is a design choice with major consequences. Getting this wrong 
 This is the most technically demanding step. Walk through it explicitly -- do not skip or estimate loosely.
 
 **Inputs required:**
+
 - **Baseline metric value (p):** The current control conversion rate or metric value from the last 14-30 days of production data. Do not use the all-time average -- use recent data because baselines drift.
 - **Minimum Detectable Effect (MDE):** The smallest effect size worth detecting. Expressed as relative change (10% relative lift on a 4% baseline = 0.4 percentage points absolute) or absolute change. Smaller MDE = larger required sample. The MDE should be grounded in business impact: "A 5% relative lift would generate $240K in additional ARR and is therefore worth detecting."
 - **Significance level (alpha):** 0.05 is standard (5% false positive rate). For tests with major business consequences or irreversible decisions, use 0.01.
@@ -139,29 +143,36 @@ n = (z_alpha/2 + z_beta)^2 * (p1*(1-p1) + p2*(1-p2)) / (p1 - p2)^2
 ```
 
 Where:
+
 - z_alpha/2 = 1.96 (for alpha=0.05, two-tailed)
 - z_beta = 0.84 (for power=0.80)
 - p1 = baseline rate (control)
 - p2 = expected rate under variant (p1 + MDE_absolute)
 
 **Practical approximation for proportions:**
+
 ```
 n ≈ 16 * p * (1-p) / d^2
 ```
+
 Where d = absolute MDE in proportion terms. This approximation is valid when p is between 0.05 and 0.50.
 
 **For continuous metrics (revenue per user, session length):**
+
 ```
 n = 2 * (z_alpha/2 + z_beta)^2 * sigma^2 / d^2
 ```
+
 Where sigma is the standard deviation of the metric and d is the absolute MDE. This requires historical standard deviation data, not just a mean.
 
 **Duration calculation:**
+
 ```
 Duration (days) = n_per_variant / (daily_eligible_traffic * allocation_fraction)
 ```
 
 **Duration constraints:**
+
 - **Minimum: 7 days (1 full business week).** Day-of-week effects are real. A test that runs Monday-Wednesday will have biased results.
 - **Preferred minimum: 14 days (2 full weeks).** Captures two full business cycles and reduces novelty effect contamination.
 - **Maximum: 28-42 days.** Beyond 6 weeks, external factors (competitor launches, seasonality, media coverage) increasingly contaminate results. Users who joined partway through the test had different experiences. The experimental population shifts.
@@ -421,8 +432,8 @@ When daily eligible traffic is below 1,000 users, standard frequentist A/B testi
 Revenue per user, order value, and lifetime value metrics have highly skewed distributions (a small number of high-value users drive disproportionate variance). This has major implications.
 
 - **Standard t-test assumptions are often violated.** Use a Mann-Whitney U test (rank-based, non-parametric) or apply log-transformation to the revenue metric before analysis.
-- **Sample size requirements are 3-10x higher than for conversion rate tests.** Calculate the required sample using: n = 2 * (z_alpha/2 + z_beta)^2 * sigma^2 / d^2, where sigma is the empirical standard deviation of revenue per user from historical data. If sigma is large relative to the mean, the required N will be very large.
-- **Apply CUPED.** If pre-experiment revenue data exists for each user, CUPED can reduce the variance term (sigma^2) by using the pre-experiment revenue as a covariate. CUPED variance reduction formula: sigma^2_cuped = sigma^2 * (1 - rho^2), where rho is the correlation between pre- and post-experiment revenue. For products with persistent revenue behavior, rho often ranges from 0.4 to 0.7, reducing required sample size by 16-49%.
+- **Sample size requirements are 3-10x higher than for conversion rate tests.** Calculate the required sample using: n = 2 _ (z_alpha/2 + z_beta)^2 _ sigma^2 / d^2, where sigma is the empirical standard deviation of revenue per user from historical data. If sigma is large relative to the mean, the required N will be very large.
+- **Apply CUPED.** If pre-experiment revenue data exists for each user, CUPED can reduce the variance term (sigma^2) by using the pre-experiment revenue as a covariate. CUPED variance reduction formula: sigma^2_cuped = sigma^2 \* (1 - rho^2), where rho is the correlation between pre- and post-experiment revenue. For products with persistent revenue behavior, rho often ranges from 0.4 to 0.7, reducing required sample size by 16-49%.
 - **Consider a conversion-then-revenue analysis.** Split the analysis: (1) Test conversion rate as primary (adequate power). (2) Among converters only, test average order value as a secondary metric with the caveat that this sub-population may be selected (average order value among converters is biased if conversion rate changes).
 
 ### Tests Involving Network Effects (Social Products, Marketplace Products)
@@ -484,17 +495,17 @@ For features that are shipped and expected to have compounding long-term effects
 
 ### Test Overview
 
-| Field                  | Value                                                           |
-|------------------------|----------------------------------------------------------------|
-| Test name              | Onboarding Empty State -- Template Gallery vs. Blank CTA       |
-| Experiment ID          | EXP-2024-047                                                    |
-| Owner                  | Product Manager, Onboarding Squad                              |
-| Status                 | Draft                                                          |
-| Target launch date     | [Date TBD pending engineering verification]                    |
-| Results read date      | Launch date + 28 days                                          |
-| Estimated duration     | 4 weeks                                                        |
-| Platform               | Web (logged-in new users, first session post-signup)           |
-| Eligible audience      | New registered users (account age <= 24 hours) on first dashboard visit |
+| Field              | Value                                                                   |
+| ------------------ | ----------------------------------------------------------------------- |
+| Test name          | Onboarding Empty State -- Template Gallery vs. Blank CTA                |
+| Experiment ID      | EXP-2024-047                                                            |
+| Owner              | Product Manager, Onboarding Squad                                       |
+| Status             | Draft                                                                   |
+| Target launch date | [Date TBD pending engineering verification]                             |
+| Results read date  | Launch date + 28 days                                                   |
+| Estimated duration | 4 weeks                                                                 |
+| Platform           | Web (logged-in new users, first session post-signup)                    |
+| Eligible audience  | New registered users (account age <= 24 hours) on first dashboard visit |
 
 ---
 
@@ -517,10 +528,10 @@ New user activation is the primary growth lever for the product: users who creat
 
 ### Variants
 
-| Variant        | Description                                                                                                          | Implementation Notes                                           |
-|----------------|----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-| Control (A)    | Current empty state: blank dashboard area with single "Create your first project" button (primary button, center-aligned, blue) | No changes required. Production state as of [date].           |
-| Variant (B)    | Template gallery empty state: header text "Start with a template or build from scratch," 3 template preview cards (Marketing Campaign, Product Roadmap, Sprint Planning), each card shows template name, 3-line description, and "Use this template" button. Below the gallery: "Or start from scratch" text link. | New component: `<TemplateGallery />`. Cards link to pre-populated project creation flow. "Start from scratch" link replicates current CTA behavior. |
+| Variant     | Description                                                                                                                                                                                                                                                                                                        | Implementation Notes                                                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Control (A) | Current empty state: blank dashboard area with single "Create your first project" button (primary button, center-aligned, blue)                                                                                                                                                                                    | No changes required. Production state as of [date].                                                                                                 |
+| Variant (B) | Template gallery empty state: header text "Start with a template or build from scratch," 3 template preview cards (Marketing Campaign, Product Roadmap, Sprint Planning), each card shows template name, 3-line description, and "Use this template" button. Below the gallery: "Or start from scratch" text link. | New component: `<TemplateGallery />`. Cards link to pre-populated project creation flow. "Start from scratch" link replicates current CTA behavior. |
 
 **Single variable changed:** The empty state component on the new user dashboard (first visit only).
 
@@ -530,37 +541,37 @@ New user activation is the primary growth lever for the product: users who creat
 
 ### Metrics
 
-| Type        | Metric Name                                | Measurement Method                                                           | Baseline Value | Target / Threshold                       |
-|-------------|-------------------------------------------|-----------------------------------------------------------------------------|----------------|------------------------------------------|
-| PRIMARY     | 7-day first-project-creation rate         | % of new users (cohorted by signup date) who create >= 1 project within 7 days of first login | 22.0%          | >= 25.3% (+15% relative / +3.3pp absolute) |
-| Secondary   | 3-day first-project-creation rate         | % of cohort who create >= 1 project within 3 days                           | 14.5% (est.)   | Directional increase                     |
-| Secondary   | Template adoption rate (Variant B only)   | % of Variant B users who click "Use this template" (vs. "start from scratch") | N/A            | Informational -- expected 40-60%         |
-| Secondary   | Day-14 retention rate                     | % of cohort who log in at least once during days 8-14                        | 31.0% (est.)   | Directional increase                     |
-| GUARDRAIL   | Time-to-first-project (among activators)  | Median minutes from first dashboard view to first project created            | 8.2 min        | Must not increase by more than 50% (threshold: 12.3 min) |
-| GUARDRAIL   | Dashboard page error rate                 | HTTP 5xx errors on dashboard page route                                      | 0.3%           | Must not exceed 1.0%                     |
-| GUARDRAIL   | 30-day trial-to-paid conversion rate      | % of new trial users who convert to paid by day 30                          | 11.5%          | Must not decrease by more than 2pp (threshold: 9.5%) |
+| Type      | Metric Name                              | Measurement Method                                                                            | Baseline Value | Target / Threshold                                       |
+| --------- | ---------------------------------------- | --------------------------------------------------------------------------------------------- | -------------- | -------------------------------------------------------- |
+| PRIMARY   | 7-day first-project-creation rate        | % of new users (cohorted by signup date) who create >= 1 project within 7 days of first login | 22.0%          | >= 25.3% (+15% relative / +3.3pp absolute)               |
+| Secondary | 3-day first-project-creation rate        | % of cohort who create >= 1 project within 3 days                                             | 14.5% (est.)   | Directional increase                                     |
+| Secondary | Template adoption rate (Variant B only)  | % of Variant B users who click "Use this template" (vs. "start from scratch")                 | N/A            | Informational -- expected 40-60%                         |
+| Secondary | Day-14 retention rate                    | % of cohort who log in at least once during days 8-14                                         | 31.0% (est.)   | Directional increase                                     |
+| GUARDRAIL | Time-to-first-project (among activators) | Median minutes from first dashboard view to first project created                             | 8.2 min        | Must not increase by more than 50% (threshold: 12.3 min) |
+| GUARDRAIL | Dashboard page error rate                | HTTP 5xx errors on dashboard page route                                                       | 0.3%           | Must not exceed 1.0%                                     |
+| GUARDRAIL | 30-day trial-to-paid conversion rate     | % of new trial users who convert to paid by day 30                                            | 11.5%          | Must not decrease by more than 2pp (threshold: 9.5%)     |
 
 ---
 
 ### Sample Size and Duration Calculation
 
-| Parameter                          | Value                                                      |
-|-----------------------------------|------------------------------------------------------------|
-| Baseline conversion rate           | 22.0% (0.220)                                             |
-| Minimum detectable effect          | 15% relative = 3.3 percentage points absolute             |
-| Expected variant rate              | 25.3% (0.253)                                             |
-| Significance level (alpha)         | 0.05 (two-tailed)                                         |
-| Statistical power                  | 0.80                                                      |
-| z_alpha/2                          | 1.96                                                      |
-| z_beta                             | 0.842                                                      |
-| Required sample per variant        | n = (1.96 + 0.842)^2 * (0.220*0.780 + 0.253*0.747) / (0.033)^2 = **~1,620 users** |
-| Total required sample              | ~3,240 users                                              |
-| Daily eligible traffic             | 800 new signups/day                                       |
-| Traffic allocation per variant     | 50% = 400 new users/day per variant                       |
-| Raw duration                       | 1,620 / 400 = 4.05 days (minimum sample) + 7-day metric window = 11 days minimum |
-| **Adjusted duration**              | **28 days (4 full weeks)** -- extended to capture 4 full business cycles and the full 7-day metric observation window for the final cohort |
-| Test start date                    | [Date]                                                    |
-| First valid analysis date          | Start date + 28 days                                      |
+| Parameter                      | Value                                                                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Baseline conversion rate       | 22.0% (0.220)                                                                                                                              |
+| Minimum detectable effect      | 15% relative = 3.3 percentage points absolute                                                                                              |
+| Expected variant rate          | 25.3% (0.253)                                                                                                                              |
+| Significance level (alpha)     | 0.05 (two-tailed)                                                                                                                          |
+| Statistical power              | 0.80                                                                                                                                       |
+| z_alpha/2                      | 1.96                                                                                                                                       |
+| z_beta                         | 0.842                                                                                                                                      |
+| Required sample per variant    | n = (1.96 + 0.842)^2 * (0.220*0.780 + 0.253\*0.747) / (0.033)^2 = **~1,620 users**                                                         |
+| Total required sample          | ~3,240 users                                                                                                                               |
+| Daily eligible traffic         | 800 new signups/day                                                                                                                        |
+| Traffic allocation per variant | 50% = 400 new users/day per variant                                                                                                        |
+| Raw duration                   | 1,620 / 400 = 4.05 days (minimum sample) + 7-day metric window = 11 days minimum                                                           |
+| **Adjusted duration**          | **28 days (4 full weeks)** -- extended to capture 4 full business cycles and the full 7-day metric observation window for the final cohort |
+| Test start date                | [Date]                                                                                                                                     |
+| First valid analysis date      | Start date + 28 days                                                                                                                       |
 
 **Important duration note:** Although the minimum sample size is reached in approximately 4 days of exposure, the primary metric (7-day first-project-creation rate) requires a 7-day observation window after each user's first visit. Users who are assigned on day 21 of the test will not have their 7-day window complete until day 28. Therefore, the minimum valid analysis date is day 28 regardless of when the sample target is reached.
 
@@ -571,11 +582,12 @@ New user activation is the primary growth lever for the product: users who creat
 
 ### Traffic Allocation
 
-| Setting                  | Value                                                                |
-|--------------------------|----------------------------------------------------------------------|
-| Allocation method         | User ID hash: `variant = SHA256(user_id + "EXP-2024-047") % 100 < 50` → Control; else Variant |
-| Traffic split             | 50% Control (A) / 50% Variant (B)                                   |
-| Sticky assignment         | Yes -- assignment computed deterministically from user ID, stable across sessions |
-| Ramp-up plan              | Ramp: 10% variant (vs. 90% control) for first 48 hours post-launch while monitoring dashboard error rate and guardrail metrics. If error rate < 1% and no guardrail violations at 48h, ramp to 50/50. Data from ramp period (first 48h) excluded from final analysis. |
-| Exclusions                | Internal employees (email domain @[company].com), QA automation accounts (tagged in user table), users who signed up via SSO enterprise provisioning flow (different activation path), bot accounts (session duration < 5 seconds on first visit) |
+| Setting           | Value                                                                                                                                                                                                                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Allocation method | User ID hash: `variant = SHA256(user_id + "EXP-2024-047") % 100 < 50` → Control; else Variant                                                                                                                                                                         |
+| Traffic split     | 50% Control (A) / 50% Variant (B)                                                                                                                                                                                                                                     |
+| Sticky assignment | Yes -- assignment computed deterministically from user ID, stable across sessions                                                                                                                                                                                     |
+| Ramp-up plan      | Ramp: 10% variant (vs. 90% control) for first 48 hours post-launch while monitoring dashboard error rate and guardrail metrics. If error rate < 1% and no guardrail violations at 48h, ramp to 50/50. Data from ramp period (first 48h) excluded from final analysis. |
+| Exclusions        | Internal employees (email domain @[company].com), QA automation accounts (tagged in user table), users who signed up via SSO enterprise provisioning flow (different activation path), bot accounts (session duration < 5 seconds on first visit)                     |
+
 | Mutual

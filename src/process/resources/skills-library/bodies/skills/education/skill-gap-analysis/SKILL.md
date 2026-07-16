@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills step-by-step"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills step-by-step'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Skill Gap Analysis
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when a professional asks to assess their current competencies against a target role, project, or career milestone and needs an actionable development plan.
 
 **Trigger scenarios:**
+
 - A professional says "I want to move into a data engineering role -- what skills do I need to build?" and has an existing technical background to assess
 - A manager needs to prepare for a promotion to senior director and wants to know what leadership competencies they are missing
 - A team lead is assigned to a new technology stack (e.g., moving from on-premise infrastructure to cloud-native architecture) and needs to understand their readiness gaps
@@ -29,6 +31,7 @@ Use this skill when a professional asks to assess their current competencies aga
 - A consultant or freelancer wants to expand their service offerings into a new domain and needs to assess readiness before pitching clients
 
 **Do NOT use when:**
+
 - The user is a student mapping learning objectives to a course or curriculum -- use `learning-objectives` instead
 - The user wants to change careers entirely and needs to evaluate multiple role options -- use career development planning skills, which address role fit scoring and labor market alignment
 - The user is preparing for a specific certification exam (e.g., PMP, AWS Solutions Architect) -- use `certification-prep`, which structures study around exam blueprints and item domains
@@ -326,6 +329,7 @@ This occurs frequently when a professional is being evaluated for a promotion or
 **Output:**
 
 ## Skill Gap Analysis: Engineering Manager Readiness
+
 **Date:** Current
 **Current Role:** Software Engineer (Backend), 4 years experience
 **Target State:** Engineering Manager -- same company, existing IC-to-management track
@@ -336,13 +340,14 @@ This occurs frequently when a professional is being evaluated for a promotion or
 
 ### Competency Domain Map
 
-| Domain | # of Competencies Assessed |
-|--------|:--------------------------:|
-| Technical Leadership and Architecture | 4 |
-| People Management | 5 |
-| Execution and Delivery Management | 4 |
-| Communication and Influence | 4 |
-| Business and Strategic Acumen | 3 |
+| Domain                                | # of Competencies Assessed |
+| ------------------------------------- | :------------------------: |
+| Technical Leadership and Architecture |             4              |
+| People Management                     |             5              |
+| Execution and Delivery Management     |             4              |
+| Communication and Influence           |             4              |
+| Business and Strategic Acumen         |             3              |
+
 **Total competencies assessed:** 20
 
 ---
@@ -350,36 +355,38 @@ This occurs frequently when a professional is being evaluated for a promotion or
 ### Skills Matrix
 
 **Rating Scale:**
+
 - 1 = No exposure
 - 2 = Foundational awareness (needs close guidance)
 - 3 = Independent practitioner (routine situations)
 - 4 = Advanced practitioner (complex situations, can coach others)
 - 5 = Expert/thought leader (innovates, sets standards)
 
-| Domain | Competency | Current Level | Target Level | Gap | Criticality | Priority |
-|--------|------------|:---:|:---:|:---:|:-----------:|:--------:|
-| Technical Leadership | Conducts code reviews and sets code quality standards for a team | 4 | 4 | 0 | High | LOW (met) |
-| Technical Leadership | Diagnoses and leads resolution of production incidents with cross-team impact | 4 | 3 | -1 | High | LOW (overqualified) |
-| Technical Leadership | Translates business requirements into technical architecture decisions | 3 | 4 | +1 | High | MEDIUM |
-| Technical Leadership | Evaluates technical tradeoffs and communicates them to non-technical stakeholders | 3 | 4 | +1 | High | MEDIUM |
-| People Management | Conducts structured 1:1s that develop direct reports' skills and career growth | 2 | 4 | +2 | High | CRITICAL |
-| People Management | Delivers performance feedback -- both reinforcing and developmental -- in formal review cycles | 1 | 3 | +2 | High | CRITICAL |
-| People Management | Manages underperformance through documented improvement plans and escalation | 1 | 3 | +2 | High | HIGH |
-| People Management | Conducts structured interviews and makes hiring recommendations | 1 | 3 | +2 | Medium | HIGH |
-| People Management | Onboards new team members with 30-60-90 day plans | 2 | 3 | +1 | Medium | MEDIUM |
-| Execution and Delivery | Runs sprint planning and backlog grooming for a team of 4--8 engineers | 2 | 4 | +2 | High | CRITICAL |
-| Execution and Delivery | Tracks team velocity and identifies systemic delivery impediments | 2 | 3 | +1 | High | HIGH |
-| Execution and Delivery | Manages project risk and communicates status to engineering leadership | 2 | 4 | +2 | High | HIGH |
-| Execution and Delivery | Coordinates dependencies across multiple engineering teams | 2 | 3 | +1 | Medium | MEDIUM |
-| Communication and Influence | Runs effective team ceremonies (standups, retrospectives, planning) | 3 | 4 | +1 | High | MEDIUM |
-| Communication and Influence | Writes and presents engineering team status updates to directors and VPs | 2 | 4 | +2 | High | HIGH |
-| Communication and Influence | Negotiates scope and timeline with product managers on behalf of the team | 2 | 4 | +2 | High | HIGH |
-| Communication and Influence | Advocates for team resourcing and tooling decisions in engineering leadership forums | 1 | 3 | +2 | Medium | MEDIUM |
-| Business and Strategic Acumen | Contributes to quarterly and annual engineering roadmap planning | 1 | 3 | +2 | High | HIGH |
-| Business and Strategic Acumen | Understands business unit KPIs and connects team work to business outcomes | 2 | 3 | +1 | High | MEDIUM |
-| Business and Strategic Acumen | Builds headcount justification and resource allocation cases | 1 | 3 | +2 | Low | LOW |
+| Domain                        | Competency                                                                                     | Current Level | Target Level | Gap | Criticality |      Priority       |
+| ----------------------------- | ---------------------------------------------------------------------------------------------- | :-----------: | :----------: | :-: | :---------: | :-----------------: |
+| Technical Leadership          | Conducts code reviews and sets code quality standards for a team                               |       4       |      4       |  0  |    High     |      LOW (met)      |
+| Technical Leadership          | Diagnoses and leads resolution of production incidents with cross-team impact                  |       4       |      3       | -1  |    High     | LOW (overqualified) |
+| Technical Leadership          | Translates business requirements into technical architecture decisions                         |       3       |      4       | +1  |    High     |       MEDIUM        |
+| Technical Leadership          | Evaluates technical tradeoffs and communicates them to non-technical stakeholders              |       3       |      4       | +1  |    High     |       MEDIUM        |
+| People Management             | Conducts structured 1:1s that develop direct reports' skills and career growth                 |       2       |      4       | +2  |    High     |      CRITICAL       |
+| People Management             | Delivers performance feedback -- both reinforcing and developmental -- in formal review cycles |       1       |      3       | +2  |    High     |      CRITICAL       |
+| People Management             | Manages underperformance through documented improvement plans and escalation                   |       1       |      3       | +2  |    High     |        HIGH         |
+| People Management             | Conducts structured interviews and makes hiring recommendations                                |       1       |      3       | +2  |   Medium    |        HIGH         |
+| People Management             | Onboards new team members with 30-60-90 day plans                                              |       2       |      3       | +1  |   Medium    |       MEDIUM        |
+| Execution and Delivery        | Runs sprint planning and backlog grooming for a team of 4--8 engineers                         |       2       |      4       | +2  |    High     |      CRITICAL       |
+| Execution and Delivery        | Tracks team velocity and identifies systemic delivery impediments                              |       2       |      3       | +1  |    High     |        HIGH         |
+| Execution and Delivery        | Manages project risk and communicates status to engineering leadership                         |       2       |      4       | +2  |    High     |        HIGH         |
+| Execution and Delivery        | Coordinates dependencies across multiple engineering teams                                     |       2       |      3       | +1  |   Medium    |       MEDIUM        |
+| Communication and Influence   | Runs effective team ceremonies (standups, retrospectives, planning)                            |       3       |      4       | +1  |    High     |       MEDIUM        |
+| Communication and Influence   | Writes and presents engineering team status updates to directors and VPs                       |       2       |      4       | +2  |    High     |        HIGH         |
+| Communication and Influence   | Negotiates scope and timeline with product managers on behalf of the team                      |       2       |      4       | +2  |    High     |        HIGH         |
+| Communication and Influence   | Advocates for team resourcing and tooling decisions in engineering leadership forums           |       1       |      3       | +2  |   Medium    |       MEDIUM        |
+| Business and Strategic Acumen | Contributes to quarterly and annual engineering roadmap planning                               |       1       |      3       | +2  |    High     |        HIGH         |
+| Business and Strategic Acumen | Understands business unit KPIs and connects team work to business outcomes                     |       2       |      3       | +1  |    High     |       MEDIUM        |
+| Business and Strategic Acumen | Builds headcount justification and resource allocation cases                                   |       1       |      3       | +2  |     Low     |         LOW         |
 
 **Priority Summary:**
+
 - CRITICAL: 3 competencies (1:1 development, performance feedback delivery, sprint planning and delivery)
 - HIGH: 7 competencies
 - MEDIUM: 7 competencies
@@ -406,49 +413,52 @@ This occurs frequently when a professional is being evaluated for a promotion or
 ### Development Plan
 
 #### Phase 1: Months 1--6 -- Critical Gap Resolution
-*Active development focus: Structured 1:1s, Performance feedback delivery, Sprint planning ownership*
 
-| Competency | Gap | Modality | Specific Resource or Action | Hours/Week | Success Milestone | Validator |
-|------------|:---:|:--------:|----------------------------|:----------:|-------------------|-----------|
-| Structured 1:1s that develop direct reports | +2 | Experiential (70%) | Request to formally co-own 1:1s for 2 junior devs you already mentor -- shift from ad hoc check-ins to structured agenda with growth tracking | 1.5 | Run 8 consecutive weekly 1:1s with documented growth notes; junior devs report finding them valuable | Junior dev feedback + manager observation |
-| Structured 1:1s | +2 | Social (20%) | Find an engineering manager mentor (internal or via local tech meetup) who will debrief your 1:1 approaches monthly | 0.5 | Complete 4 mentor debriefs with documented takeaways applied in subsequent 1:1s | Self-documented learning log |
-| Structured 1:1s | +2 | Formal (10%) | Read "The Manager's Path" (Chapters 1--4) and "Radical Candor" (Part 1) -- focus specifically on 1:1 structure and feedback language | 0.5 | Apply at least 3 specific techniques from reading within 30 days and document what changed | Self-assessment + mentor review |
-| Performance feedback delivery | +2 | Experiential (70%) | Ask your manager to include you as an observer in one mid-year and one year-end review cycle; debrief afterward. Separately, deliver a written developmental feedback note to a junior dev you mentor after each sprint | 1.0 | Deliver 6 written developmental feedback instances; draft a sample performance review for a junior dev that your manager reviews and rates as "ready to deliver" | Manager review of written feedback drafts |
-| Performance feedback delivery | +2 | Social (20%) | Role-play a difficult feedback conversation (underperformance scenario) with your mentor each month | 0.25 | Complete 4 role-play sessions; mentor rates your delivery as "clear, specific, and non-defensive" | Mentor assessment |
-| Sprint planning and delivery ownership | +2 | Experiential (70%) | Negotiate with your manager to take primary ownership of sprint planning facilitation for your team's next 6 sprints -- your manager moves to observer/backup role | 1.0 | Facilitate 6 sprints; team velocity variance under 15%; zero sprint planning meetings running over 90 minutes | Manager observation + sprint metrics |
-| Sprint planning and delivery ownership | +2 | Social (20%) | Shadow a senior engineering manager's planning session once before taking ownership; debrief their facilitation choices | 0.25 | Complete shadow session + written debrief of 5 techniques observed | Self-documented debrief |
-| Sprint planning and delivery ownership | +2 | Formal (10%) | Complete JIRA Software or Linear project management training (whichever your org uses) -- focus on backlog grooming workflows and sprint metrics | 0.5 | Configure a team velocity dashboard; manager confirms it is production-quality | Dashboard artifact |
+_Active development focus: Structured 1:1s, Performance feedback delivery, Sprint planning ownership_
+
+| Competency                                  | Gap |      Modality      | Specific Resource or Action                                                                                                                                                                                             | Hours/Week | Success Milestone                                                                                                                                                | Validator                                 |
+| ------------------------------------------- | :-: | :----------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Structured 1:1s that develop direct reports | +2  | Experiential (70%) | Request to formally co-own 1:1s for 2 junior devs you already mentor -- shift from ad hoc check-ins to structured agenda with growth tracking                                                                           |    1.5     | Run 8 consecutive weekly 1:1s with documented growth notes; junior devs report finding them valuable                                                             | Junior dev feedback + manager observation |
+| Structured 1:1s                             | +2  |    Social (20%)    | Find an engineering manager mentor (internal or via local tech meetup) who will debrief your 1:1 approaches monthly                                                                                                     |    0.5     | Complete 4 mentor debriefs with documented takeaways applied in subsequent 1:1s                                                                                  | Self-documented learning log              |
+| Structured 1:1s                             | +2  |    Formal (10%)    | Read "The Manager's Path" (Chapters 1--4) and "Radical Candor" (Part 1) -- focus specifically on 1:1 structure and feedback language                                                                                    |    0.5     | Apply at least 3 specific techniques from reading within 30 days and document what changed                                                                       | Self-assessment + mentor review           |
+| Performance feedback delivery               | +2  | Experiential (70%) | Ask your manager to include you as an observer in one mid-year and one year-end review cycle; debrief afterward. Separately, deliver a written developmental feedback note to a junior dev you mentor after each sprint |    1.0     | Deliver 6 written developmental feedback instances; draft a sample performance review for a junior dev that your manager reviews and rates as "ready to deliver" | Manager review of written feedback drafts |
+| Performance feedback delivery               | +2  |    Social (20%)    | Role-play a difficult feedback conversation (underperformance scenario) with your mentor each month                                                                                                                     |    0.25    | Complete 4 role-play sessions; mentor rates your delivery as "clear, specific, and non-defensive"                                                                | Mentor assessment                         |
+| Sprint planning and delivery ownership      | +2  | Experiential (70%) | Negotiate with your manager to take primary ownership of sprint planning facilitation for your team's next 6 sprints -- your manager moves to observer/backup role                                                      |    1.0     | Facilitate 6 sprints; team velocity variance under 15%; zero sprint planning meetings running over 90 minutes                                                    | Manager observation + sprint metrics      |
+| Sprint planning and delivery ownership      | +2  |    Social (20%)    | Shadow a senior engineering manager's planning session once before taking ownership; debrief their facilitation choices                                                                                                 |    0.25    | Complete shadow session + written debrief of 5 techniques observed                                                                                               | Self-documented debrief                   |
+| Sprint planning and delivery ownership      | +2  |    Formal (10%)    | Complete JIRA Software or Linear project management training (whichever your org uses) -- focus on backlog grooming workflows and sprint metrics                                                                        |    0.5     | Configure a team velocity dashboard; manager confirms it is production-quality                                                                                   | Dashboard artifact                        |
 
 **Phase 1 Total: ~5.5 hours/week** -- slightly over the 5-hour constraint. Recommend reducing the formal reading time to every other week and combining the mentor debrief sessions. This brings it to ~4.75 hours/week.
 
 ---
 
 #### Phase 2: Months 7--12 -- High Priority Development
-*Active development focus: Performance management (underperformance), Delivery risk communication, Scope negotiation with product*
 
-| Competency | Gap | Modality | Specific Resource or Action | Hours/Week | Success Milestone | Validator |
-|------------|:---:|:--------:|----------------------------|:----------:|-------------------|-----------|
-| Managing underperformance through PIPs | +2 | Social (20%) | Study 2 real PIP cases with your HR business partner (anonymized); understand your company's legal and documentation requirements | 0.5 | Draft a hypothetical PIP scenario for a role you manage; HR or manager reviews for completeness and compliance | HR/manager review |
-| Managing underperformance | +2 | Formal (10%) | Read "First, Break All the Rules" (Chapters on talent and fit) and your company's HR performance management policy documentation | 0.5 | Pass an internal HR training on performance management if available; otherwise document your company-specific process | Self-documented process map |
-| Project risk communication to leadership | +2 | Experiential (70%) | Take ownership of writing the weekly engineering status update email to your director for 3 months -- your manager reviews before it sends initially, then transitions to spot-check | 1.0 | Director responds to at least 2 of your status updates with follow-up questions, demonstrating engagement; your manager rates them as "ready to send without review" by Week 10 | Director engagement + manager sign-off |
-| Scope negotiation with product managers | +2 | Experiential (70%) | Lead scope discussion in at least 3 sprint planning meetings where product has requested more than team capacity allows -- document the negotiation outcome | 0.75 | Successfully negotiate a scope reduction that protects team capacity in at least 2 out of 3 attempts; product manager rates the conversation as "collaborative, not combative" | Product manager feedback |
-| Scope negotiation | +2 | Social (20%) | Debrief each negotiation session with your mentor; review what worked and what created friction | 0.25 | Complete 3 debriefs with documented adjustments applied in subsequent sessions | Mentor assessment |
-| Structured interviewing | +2 | Experiential (70%) | Request to join 2--3 interview panels as a non-primary interviewer; then request to lead 1 interview as the primary interviewer with your manager as backup | 0.5 | Complete 3 panel interviews; submit a written hiring recommendation for at least 1 candidate that your manager agrees with | Manager concurrence on recommendation |
-| Roadmap planning contribution | +2 | Experiential (70%) | Request inclusion in the Q3 or Q4 roadmap planning process as a technical contributor; prepare a 1-pager on one technical initiative with business case | 0.75 | Present a technical initiative 1-pager to engineering director; 1-pager is incorporated into roadmap discussion | Director feedback + roadmap inclusion |
+_Active development focus: Performance management (underperformance), Delivery risk communication, Scope negotiation with product_
+
+| Competency                               | Gap |      Modality      | Specific Resource or Action                                                                                                                                                          | Hours/Week | Success Milestone                                                                                                                                                               | Validator                              |
+| ---------------------------------------- | :-: | :----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :--------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| Managing underperformance through PIPs   | +2  |    Social (20%)    | Study 2 real PIP cases with your HR business partner (anonymized); understand your company's legal and documentation requirements                                                    |    0.5     | Draft a hypothetical PIP scenario for a role you manage; HR or manager reviews for completeness and compliance                                                                  | HR/manager review                      |
+| Managing underperformance                | +2  |    Formal (10%)    | Read "First, Break All the Rules" (Chapters on talent and fit) and your company's HR performance management policy documentation                                                     |    0.5     | Pass an internal HR training on performance management if available; otherwise document your company-specific process                                                           | Self-documented process map            |
+| Project risk communication to leadership | +2  | Experiential (70%) | Take ownership of writing the weekly engineering status update email to your director for 3 months -- your manager reviews before it sends initially, then transitions to spot-check |    1.0     | Director responds to at least 2 of your status updates with follow-up questions, demonstrating engagement; your manager rates them as "ready to send without review" by Week 10 | Director engagement + manager sign-off |
+| Scope negotiation with product managers  | +2  | Experiential (70%) | Lead scope discussion in at least 3 sprint planning meetings where product has requested more than team capacity allows -- document the negotiation outcome                          |    0.75    | Successfully negotiate a scope reduction that protects team capacity in at least 2 out of 3 attempts; product manager rates the conversation as "collaborative, not combative"  | Product manager feedback               |
+| Scope negotiation                        | +2  |    Social (20%)    | Debrief each negotiation session with your mentor; review what worked and what created friction                                                                                      |    0.25    | Complete 3 debriefs with documented adjustments applied in subsequent sessions                                                                                                  | Mentor assessment                      |
+| Structured interviewing                  | +2  | Experiential (70%) | Request to join 2--3 interview panels as a non-primary interviewer; then request to lead 1 interview as the primary interviewer with your manager as backup                          |    0.5     | Complete 3 panel interviews; submit a written hiring recommendation for at least 1 candidate that your manager agrees with                                                      | Manager concurrence on recommendation  |
+| Roadmap planning contribution            | +2  | Experiential (70%) | Request inclusion in the Q3 or Q4 roadmap planning process as a technical contributor; prepare a 1-pager on one technical initiative with business case                              |    0.75    | Present a technical initiative 1-pager to engineering director; 1-pager is incorporated into roadmap discussion                                                                 | Director feedback + roadmap inclusion  |
 
 **Phase 2 Total: ~4.25 hours/week** -- sustainable within the 5-hour constraint, leaving buffer for Phase 1 maintenance activities.
 
 ---
 
 #### Phase 3: Months 13--18 -- Sustained Development and Readiness Validation
-*Active development focus: Selected MEDIUM competencies, full integration, and promotion readiness demonstration*
 
-| Competency | Gap | Modality | Specific Resource or Action | Hours/Week | Success Milestone | Validator |
-|------------|:---:|:--------:|----------------------------|:----------:|-------------------|-----------|
-| Technical-to-business translation | +1 | Experiential (70%) | Lead a technical tradeoff discussion with product and design stakeholders for a major architectural decision -- document the options, tradeoffs, and recommendation | 0.75 | Stakeholders report that the recommendation was clear, well-justified, and helped them make a faster decision | Stakeholder feedback |
-| Cross-team dependency coordination | +1 | Experiential (70%) | Volunteer to be the coordinating engineer on a project with at least one external team dependency; own the dependency tracking | 0.5 | Project completes with dependency-related delays under 1 sprint; external team lead rates coordination as "smooth" | External team lead feedback |
-| Headcount justification | +2 | Formal/Social | Work with your manager to build the headcount case for your team's next hire -- own the draft; manager reviews | 0.5 | Draft is accepted by engineering director with minor revisions | Director approval |
-| Full readiness demonstration | N/A | Experiential | Request a formal "acting manager" period of 4--8 weeks while your manager is on leave, at a conference, or on a stretch assignment | Variable | Team delivers on sprint commitments; no escalated people issues; manager returns to a team that rates the experience positively | Manager + team assessment |
+_Active development focus: Selected MEDIUM competencies, full integration, and promotion readiness demonstration_
+
+| Competency                         | Gap |      Modality      | Specific Resource or Action                                                                                                                                         | Hours/Week | Success Milestone                                                                                                               | Validator                   |
+| ---------------------------------- | :-: | :----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------: | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| Technical-to-business translation  | +1  | Experiential (70%) | Lead a technical tradeoff discussion with product and design stakeholders for a major architectural decision -- document the options, tradeoffs, and recommendation |    0.75    | Stakeholders report that the recommendation was clear, well-justified, and helped them make a faster decision                   | Stakeholder feedback        |
+| Cross-team dependency coordination | +1  | Experiential (70%) | Volunteer to be the coordinating engineer on a project with at least one external team dependency; own the dependency tracking                                      |    0.5     | Project completes with dependency-related delays under 1 sprint; external team lead rates coordination as "smooth"              | External team lead feedback |
+| Headcount justification            | +2  |   Formal/Social    | Work with your manager to build the headcount case for your team's next hire -- own the draft; manager reviews                                                      |    0.5     | Draft is accepted by engineering director with minor revisions                                                                  | Director approval           |
+| Full readiness demonstration       | N/A |    Experiential    | Request a formal "acting manager" period of 4--8 weeks while your manager is on leave, at a conference, or on a stretch assignment                                  |  Variable  | Team delivers on sprint commitments; no escalated people issues; manager returns to a team that rates the experience positively | Manager + team assessment   |
 
 **Phase 3 Total: ~2.0 hours/week structured development** -- the majority of development at this stage is embedded in daily work through the acting manager opportunity and ongoing ownership of delivery, communication, and 1:1s.
 
@@ -456,11 +466,11 @@ This occurs frequently when a professional is being evaluated for a promotion or
 
 ### Weekly Investment Summary
 
-| Phase | Total Hours/Week | CRITICAL Active | HIGH Active | MEDIUM Active |
-|-------|:----------------:|:---------------:|:-----------:|:-------------:|
-| Phase 1 (Months 1--6) | ~4.75 | 3 | 0 | 0 |
-| Phase 2 (Months 7--12) | ~4.25 | Wrap-up/maintain | 4--5 | 0 |
-| Phase 3 (Months 13--18) | ~2.0 embedded | Complete | Completing | 3 |
+| Phase                   | Total Hours/Week | CRITICAL Active  | HIGH Active | MEDIUM Active |
+| ----------------------- | :--------------: | :--------------: | :---------: | :-----------: |
+| Phase 1 (Months 1--6)   |      ~4.75       |        3         |      0      |       0       |
+| Phase 2 (Months 7--12)  |      ~4.25       | Wrap-up/maintain |    4--5     |       0       |
+| Phase 3 (Months 13--18) |  ~2.0 embedded   |     Complete     | Completing  |       3       |
 
 ---
 

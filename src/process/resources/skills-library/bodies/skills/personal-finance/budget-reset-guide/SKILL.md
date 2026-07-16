@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart personal-finance budgeting template guide automation planning freelancing"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'quickstart personal-finance budgeting template guide automation planning freelancing'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
 
 # Budget Reset Guide
@@ -22,15 +22,16 @@ metadata:
 
 You are a practical financial coach who helps people regain control of their money quickly. No shame, no lectures about the latte they bought last Tuesday. You meet people where they are, get the numbers on paper, and build a budget that is realistic enough to actually follow. You understand that budgets fail when they are too restrictive, not when they are too generous.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about budget reset guide techniques or best practices
 - User needs guidance on budget reset guide concepts
 - User wants to implement or improve their approach to budget reset guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of budget reset guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -132,6 +133,7 @@ Go through your last month's bank statement line by line. Highlight:
 
 **Subscriptions you skipped about:**
 Many people have $50-200/month in subscriptions they do not actively use. Check for:
+
 - Streaming services you do not watch
 - App subscriptions you do not use
 - Gym membership you do not attend
@@ -139,19 +141,20 @@ Many people have $50-200/month in subscriptions they do not actively use. Check 
 - Recurring donations you did not intend
 
 **The "I didn't realize" spending:**
+
 - How much are you actually spending on dining out/delivery?
 - What are the small daily purchases (coffee, snacks, impulse buys) totaling?
 - Are there fees you are paying that you could avoid (overdraft, late fees, ATM fees)?
 
 ### The Category Reality Check
 
-| Category | What You Thought | What You Actually Spent | Difference |
-|----------|-----------------|----------------------|------------|
-| Groceries | $ | $ | $ |
-| Dining out | $ | $ | $ |
-| Entertainment | $ | $ | $ |
-| Shopping | $ | $ | $ |
-| Subscriptions | $ | $ | $ |
+| Category      | What You Thought | What You Actually Spent | Difference |
+| ------------- | ---------------- | ----------------------- | ---------- |
+| Groceries     | $                | $                       | $          |
+| Dining out    | $                | $                       | $          |
+| Entertainment | $                | $                       | $          |
+| Shopping      | $                | $                       | $          |
+| Subscriptions | $                | $                       | $          |
 
 Most people underestimate their spending by 20-40%. The data does not lie.
 
@@ -159,11 +162,11 @@ Most people underestimate their spending by 20-40%. The data does not lie.
 
 ### The 50/30/20 Framework (Starting Point)
 
-| Category | Percentage | Your Target Amount |
-|----------|------------|-------------------|
-| Needs (housing, food, insurance, minimum payments, utilities) | 50% | $ |
-| Wants (dining out, entertainment, hobbies, shopping, subscriptions) | 30% | $ |
-| Savings and extra debt payment | 20% | $ |
+| Category                                                            | Percentage | Your Target Amount |
+| ------------------------------------------------------------------- | ---------- | ------------------ |
+| Needs (housing, food, insurance, minimum payments, utilities)       | 50%        | $                  |
+| Wants (dining out, entertainment, hobbies, shopping, subscriptions) | 30%        | $                  |
+| Savings and extra debt payment                                      | 20%        | $                  |
 
 **If you cannot hit 50/30/20:** That is okay. Start with where you are and work toward it. Even 60/30/10 is better than 100/0/0.
 
@@ -208,6 +211,7 @@ TOTAL ALLOCATED:                $________
 ### If You Have Debt
 
 **Priority order:**
+
 1. Minimum payments on everything (non-negotiable)
 2. Emergency fund: save $1,000 as fast as possible (prevents new debt)
 3. Attack highest-interest debt first (avalanche method) OR smallest balance first (snowball method for psychological wins)
@@ -215,10 +219,10 @@ TOTAL ALLOCATED:                $________
 
 **Avalanche vs. Snowball:**
 
-| Method | Approach | Best For |
-|--------|----------|----------|
+| Method    | Approach                            | Best For                            |
+| --------- | ----------------------------------- | ----------------------------------- |
 | Avalanche | Pay off highest interest rate first | Saves the most money mathematically |
-| Snowball | Pay off smallest balance first | Creates quick wins and momentum |
+| Snowball  | Pay off smallest balance first      | Creates quick wins and momentum     |
 
 Both work. The best method is the one you will stick with.
 
@@ -240,24 +244,24 @@ PAYDAY
 
 ### Which Bills to Autopay
 
-| Autopay | Do Not Autopay |
-|---------|---------------|
-| Rent/mortgage | Variable bills you want to review (medical) |
-| Utilities | Bills with frequent errors |
-| Insurance | Subscriptions you might want to cancel |
-| Phone/internet | |
-| Minimum debt payments | |
-| Savings transfer | |
+| Autopay               | Do Not Autopay                              |
+| --------------------- | ------------------------------------------- |
+| Rent/mortgage         | Variable bills you want to review (medical) |
+| Utilities             | Bills with frequent errors                  |
+| Insurance             | Subscriptions you might want to cancel      |
+| Phone/internet        |                                             |
+| Minimum debt payments |                                             |
+| Savings transfer      |                                             |
 
 ### Tools for Tracking
 
-| Tool | Cost | Best For |
-|------|------|----------|
+| Tool                     | Cost      | Best For                                 |
+| ------------------------ | --------- | ---------------------------------------- |
 | YNAB (You Need a Budget) | $15/month | Proactive budgeting, zero-based approach |
-| Mint/Credit Karma | Free | Automatic tracking, spending summaries |
-| Spreadsheet | Free | Full control, privacy |
-| Pen and paper | Free | Simplicity, no login required |
-| Cash envelope system | Free | Overspenders who need physical limits |
+| Mint/Credit Karma        | Free      | Automatic tracking, spending summaries   |
+| Spreadsheet              | Free      | Full control, privacy                    |
+| Pen and paper            | Free      | Simplicity, no login required            |
+| Cash envelope system     | Free      | Overspenders who need physical limits    |
 
 **For beginners:** Start with a simple spreadsheet or Mint. Upgrade to YNAB if you want to get serious.
 
@@ -334,28 +338,27 @@ Current total debt: $__________
 
 ## Common Budget Failures and Fixes
 
-| Failure | Root Cause | Fix |
-|---------|-----------|-----|
-| "I always overspend on food" | Unrealistic food budget OR no meal planning | Track actual food spending for a month, then budget realistically. Meal plan on Sundays. |
-| "I can't stick to it for more than 2 weeks" | Too restrictive, no fun money | Build in a "blow money" category - guilt-free spending |
-| "Unexpected expenses keep breaking my budget" | No sinking funds | Budget monthly for annual/irregular expenses (car repair, holidays, medical) |
-| "I skip to track spending" | Too many steps | Automate tracking or do one weekly 10-minute review instead of daily |
-| "My partner and I fight about money" | Different money values, no shared plan | Monthly money meeting, personal spending allowances for each person |
-| "I make good money but have nothing to show for it" | Lifestyle inflation, no automation | Automate savings FIRST, then live on the rest |
+| Failure                                             | Root Cause                                  | Fix                                                                                      |
+| --------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| "I always overspend on food"                        | Unrealistic food budget OR no meal planning | Track actual food spending for a month, then budget realistically. Meal plan on Sundays. |
+| "I can't stick to it for more than 2 weeks"         | Too restrictive, no fun money               | Build in a "blow money" category - guilt-free spending                                   |
+| "Unexpected expenses keep breaking my budget"       | No sinking funds                            | Budget monthly for annual/irregular expenses (car repair, holidays, medical)             |
+| "I skip to track spending"                          | Too many steps                              | Automate tracking or do one weekly 10-minute review instead of daily                     |
+| "My partner and I fight about money"                | Different money values, no shared plan      | Monthly money meeting, personal spending allowances for each person                      |
+| "I make good money but have nothing to show for it" | Lifestyle inflation, no automation          | Automate savings FIRST, then live on the rest                                            |
 
 ## The Emergency Fund Priority
 
 If you have no emergency fund, this is priority number one. An emergency fund prevents a flat tire from becoming credit card debt.
 
-| Stage | Amount | Timeline |
-|-------|--------|----------|
-| Starter | $1,000 | ASAP (sell something, cut temporarily, side hustle) |
-| Basic | 1 month of expenses | 3-6 months |
-| Solid | 3 months of expenses | 6-12 months |
-| Strong | 6 months of expenses | 1-2 years |
+| Stage   | Amount               | Timeline                                            |
+| ------- | -------------------- | --------------------------------------------------- |
+| Starter | $1,000               | ASAP (sell something, cut temporarily, side hustle) |
+| Basic   | 1 month of expenses  | 3-6 months                                          |
+| Solid   | 3 months of expenses | 6-12 months                                         |
+| Strong  | 6 months of expenses | 1-2 years                                           |
 
 Start with $1,000. It will cover most minor emergencies and reduce financial anxiety significantly.
-
 
 ## Process
 
@@ -364,7 +367,6 @@ Start with $1,000. It will cover most minor emergencies and reduce financial anx
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -385,14 +387,12 @@ Start with $1,000. It will cover most minor emergencies and reduce financial anx
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

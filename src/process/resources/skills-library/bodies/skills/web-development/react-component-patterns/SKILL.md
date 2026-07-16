@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript typescript frontend design-patterns"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript typescript frontend design-patterns'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # React Component Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to structure React components -- choosing between presentational vs. container, compound components, render props, hooks-based composition, or higher-order components
 - A user is refactoring a component that has grown beyond ~200 lines and needs to be decomposed into a maintainable pattern
 - A user wants to share logic across components without duplicating state management or side-effect code
@@ -30,6 +32,7 @@ metadata:
 - A user is implementing features like modals, forms, data tables, or wizard flows that have well-established component pattern solutions
 
 **Do NOT use this skill when:**
+
 - The user needs state management architecture beyond component scope -- refer to a Redux, Zustand, or Jotai skill instead
 - The user's question is about React performance optimization at the rendering level (memoization strategies, profiling, virtualization) -- those are distinct concerns
 - The user needs Next.js or Remix routing patterns, server components, or SSR architecture -- refer to the framework-specific skill
@@ -84,23 +87,27 @@ A well-typed component API prevents misuse better than documentation:
 Follow these conventions for each major pattern:
 
 **Custom Hook:**
+
 - Name starts with `use`, returns a stable object (wrap with `useMemo` if the object identity matters to consumers).
 - Accept an optional `options` parameter for configuration rather than multiple positional arguments.
 - Handle cleanup in `useEffect` return -- never leave subscriptions, timers, or event listeners open.
 - Example structure: `const { data, isLoading, error, refetch } = useAsyncData(fetchFn, options)`.
 
 **Compound Component:**
+
 - Create a private Context to pass internal state between parent and children.
 - Attach child components as static properties: `Tabs.Panel`, `Tabs.Header`, `Tabs.Trigger`.
 - Add `displayName` to all sub-components for React DevTools readability.
 - Guard against consumer misuse: throw a descriptive error if a child component is used outside its parent context.
 
 **Render Props / Function as Child:**
+
 - The render function receives a typed bag of state and handlers: `children: (state: { isOpen: boolean; toggle: () => void }) => ReactNode`.
 - Memoize the state bag or individual functions to avoid unnecessary re-renders in consumers.
 - Document the shape of the state bag in the TypeScript interface, not in comments.
 
 **Higher-Order Component:**
+
 - Name the HOC `withX` (e.g., `withAuth`, `withErrorBoundary`).
 - Always forward refs using `React.forwardRef` inside the HOC.
 - Copy static properties from the wrapped component using `hoistNonReactStatics` from the `hoist-non-react-statics` package.
@@ -108,6 +115,7 @@ Follow these conventions for each major pattern:
 - Prefer HOCs only for cross-cutting concerns; prefer hooks for logic reuse.
 
 **Controlled / Uncontrolled Input:**
+
 - Support both modes: check `if (value !== undefined)` to detect controlled mode.
 - In controlled mode, call `onChange` synchronously on every user interaction.
 - In uncontrolled mode, use `useRef` to expose a `getValue()` imperative API via `forwardRef` and `useImperativeHandle`.
@@ -289,14 +297,14 @@ A custom hook that captures a callback in a `useEffect` without including it in 
 
 ## Decision Matrix
 
-| Criteria                  | Compound Component | Render Props | Custom Hook | HOC   |
-|---------------------------|-------------------|--------------|-------------|-------|
-| Logic reuse               | Partial           | No           | Yes         | Yes   |
-| Render flexibility        | Yes               | Yes          | No          | No    |
-| TypeScript ergonomics     | Good              | Moderate     | Excellent   | Poor  |
-| Debuggability             | Good              | Moderate     | Excellent   | Poor  |
-| Boilerplate overhead      | High              | Low          | Low         | High  |
-| Best for                  | UI composition    | Headless UI  | Logic reuse | X-cutting |
+| Criteria              | Compound Component | Render Props | Custom Hook | HOC       |
+| --------------------- | ------------------ | ------------ | ----------- | --------- |
+| Logic reuse           | Partial            | No           | Yes         | Yes       |
+| Render flexibility    | Yes                | Yes          | No          | No        |
+| TypeScript ergonomics | Good               | Moderate     | Excellent   | Poor      |
+| Debuggability         | Good               | Moderate     | Excellent   | Poor      |
+| Boilerplate overhead  | High               | Low          | Low         | High      |
+| Best for              | UI composition     | Headless UI  | Logic reuse | X-cutting |
 
 **Recommended for this case:** Compound Component + Custom Hook -- the wizard needs both render flexibility (consumers compose steps) and shared state (current step, validation) accessible to navigation controls and step indicators simultaneously.
 
@@ -448,7 +456,7 @@ export function useWizardContext(): WizardContextValue {
   if (!ctx) {
     throw new Error(
       'useWizardContext must be used inside a <Wizard> component. ' +
-      'Ensure Wizard.Step and Wizard.Navigation are rendered as children of Wizard.'
+        'Ensure Wizard.Step and Wizard.Navigation are rendered as children of Wizard.'
     );
   }
   return ctx;
@@ -594,13 +602,7 @@ export const Wizard = Object.assign(WizardRoot, {
 ```typescript
 export { Wizard } from './Wizard';
 export { useWizardContext } from './WizardContext';
-export type {
-  WizardProps,
-  WizardStepProps,
-  WizardNavigationProps,
-  StepConfig,
-  StepStatus,
-} from './Wizard.types';
+export type { WizardProps, WizardStepProps, WizardNavigationProps, StepConfig, StepStatus } from './Wizard.types';
 ```
 
 ---
@@ -625,30 +627,26 @@ export function OnboardingWizard(): JSX.Element {
     <Wizard onComplete={handleComplete}>
       <Wizard.Progress />
 
-      <Wizard.Step stepId="personal-info" validate={validatePersonalInfo}>
+      <Wizard.Step stepId='personal-info' validate={validatePersonalInfo}>
         <h2>Personal Information</h2>
-        <input type="text" placeholder="First name" aria-label="First name" />
-        <input type="text" placeholder="Last name" aria-label="Last name" />
+        <input type='text' placeholder='First name' aria-label='First name' />
+        <input type='text' placeholder='Last name' aria-label='Last name' />
       </Wizard.Step>
 
-      <Wizard.Step stepId="contact-details">
+      <Wizard.Step stepId='contact-details'>
         <h2>Contact Details</h2>
-        <input type="email" placeholder="Email address" aria-label="Email address" />
+        <input type='email' placeholder='Email address' aria-label='Email address' />
       </Wizard.Step>
 
-      <Wizard.Step stepId="preferences">
+      <Wizard.Step stepId='preferences'>
         <h2>Preferences</h2>
         <label>
-          <input type="checkbox" />
+          <input type='checkbox' />
           Receive email notifications
         </label>
       </Wizard.Step>
 
-      <Wizard.Navigation
-        nextLabel="Continue"
-        prevLabel="Go Back"
-        completeLabel="Create Account"
-      />
+      <Wizard.Navigation nextLabel='Continue' prevLabel='Go Back' completeLabel='Create Account' />
     </Wizard>
   );
 }

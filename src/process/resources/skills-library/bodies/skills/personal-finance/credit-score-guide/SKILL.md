@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance guide step-by-step"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance guide step-by-step'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
 
 # Credit Score Guide
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to understand how credit scores work
 - User needs a plan to improve their credit score
 - User has questions about specific credit score factors
 - User wants to know how an action (closing a card, applying for credit) will affect their score
 
 **Do NOT use this skill when:**
+
 - User needs debt repayment strategy -- use debt-strategist skill
 - User needs help disputing errors on credit report -- partially overlaps but use consumer-advocate for disputes
 - User needs loan or mortgage comparison -- use specific financial planning skills
@@ -87,6 +89,7 @@ New Credit / Inquiries     | 10%    | __________  | __________
 - Late payments stay on your report for 7 years but impact fades over time
 
 **Action items:**
+
 - Set up autopay for at least the minimum on every account
 - Set calendar reminders 5 days before due dates
 - If you miss a payment, pay it immediately -- if under 30 days late, it may not be reported
@@ -118,6 +121,7 @@ TARGETS:
 ```
 
 **Optimization strategies:**
+
 1. Pay down balances (obviously)
 2. Request credit limit increases (increases denominator)
 3. Make payments before statement closing date (balance reported is statement balance)
@@ -135,6 +139,7 @@ TARGETS:
 ### 4. Credit Mix (10%)
 
 Lenders want to see you can handle different types of credit:
+
 - Revolving credit (credit cards)
 - Installment loans (car loans, student loans, personal loans)
 - Mortgage
@@ -201,17 +206,20 @@ Month 18-24:
 ### Authorized User Strategy
 
 Being added as an authorized user on someone else's credit card can:
+
 - Add their account history to your report (including its age)
 - Provide an immediate utilization improvement (their high limit, their low balance)
 - Build your credit without needing your own approval
 
 **Requirements for this to work:**
+
 - The primary cardholder has excellent payment history on that card
 - The card has low utilization
 - The card issuer reports authorized users to the bureaus (most major issuers do)
 - You do NOT need to use the card or even have the physical card
 
 **Risks:**
+
 - If the primary holder misses payments, it can hurt YOUR score too
 - Only use this strategy with someone you trust completely
 
@@ -246,11 +254,13 @@ Dispute method:
 ### Step 3: File the Dispute
 
 **Online:** Each bureau has an online dispute portal
+
 - Equifax: equifax.com/personal/disputes
 - Experian: experian.com/disputes
 - TransUnion: transunion.com/disputes
 
 **By mail (recommended for complex disputes):**
+
 - Include: your name, address, SSN (last 4), date of birth
 - Identify each disputed item with account number
 - Explain why the information is incorrect
@@ -269,12 +279,14 @@ Dispute method:
 ## Credit Monitoring
 
 ### Free Monitoring Options
+
 - **Credit Karma:** Free VantageScore from TransUnion and Equifax, weekly updates
 - **Discover Credit Scorecard:** Free FICO score, available to non-customers
 - **Most banks/cards:** Many now provide free FICO scores on statements or apps
 - **Experian:** Free Experian FICO score through their app
 
 ### What to Monitor
+
 - Score changes (positive and negative)
 - New accounts opened in your name
 - Hard inquiries you didn't authorize
@@ -283,6 +295,7 @@ Dispute method:
 - Public records
 
 ### Fraud Alerts and Freezes
+
 - **Fraud alert (free):** Requires lenders to verify your identity before opening new accounts; lasts 1 year (7 years for identity theft victims)
 - **Credit freeze (free):** Completely blocks new credit applications; you must temporarily lift to apply for credit; strongest protection
 - **Recommended:** Freeze your credit at all three bureaus and only unfreeze when you need to apply for credit
@@ -327,6 +340,7 @@ Multiple hard inquiries in 30 days      | -15 to -40      | 2 years
 ## Avoiding Credit Damage
 
 ### Do NOT:
+
 1. Close old credit cards (kills history length and utilization)
 2. Apply for multiple cards in a short period (unless doing a strategic "garden" plan)
 3. Miss a payment -- ever (set up autopay for minimums immediately)
@@ -394,29 +408,35 @@ When delivering credit guidance, provide:
 **Estimated timeline:** 8-14 months
 
 ### FICO Factor Analysis
-| Factor | Weight | Your Status | Impact |
-|--------|--------|-------------|--------|
-| Payment history | 35% | 1 missed payment | Negative (improving with time) |
-| Credit utilization | 30% | Near 100% | Severely negative |
-| Length of history | 15% | Depends on card age | Neutral |
-| Credit mix | 10% | Cards only | Slightly negative |
-| New inquiries | 10% | Unknown | Likely neutral |
+
+| Factor             | Weight | Your Status         | Impact                         |
+| ------------------ | ------ | ------------------- | ------------------------------ |
+| Payment history    | 35%    | 1 missed payment    | Negative (improving with time) |
+| Credit utilization | 30%    | Near 100%           | Severely negative              |
+| Length of history  | 15%    | Depends on card age | Neutral                        |
+| Credit mix         | 10%    | Cards only          | Slightly negative              |
+| New inquiries      | 10%    | Unknown             | Likely neutral                 |
 
 ### Priority Actions (Highest Impact First)
+
 **Month 1-3: Attack utilization (biggest quick win)**
+
 - Pay down Card 1 to below 30% of limit, then Card 2
 - Target: both cards under 30% utilization
 - Expected score impact: +40 to +60 points
 
 **Month 4-6: Build payment streak**
+
 - Set up autopay for minimums on every account (never miss again)
 - The missed payment hurts less each month -- by month 18 its impact drops significantly
 
 **Month 7-12: Optimize and maintain**
+
 - Keep utilization under 10% for maximum score benefit
 - Do NOT close old cards (length of history helps)
 
 ### What NOT to Do
+
 - Do NOT apply for new credit cards right now (hard inquiries lower score short-term)
 - Do NOT close your oldest card even if you stop using it
 - Do NOT pay for credit repair services -- everything they do, you can do yourself

@@ -44,17 +44,10 @@ export const WorkflowClarifyCard: React.FC<WorkflowClarifyCardProps> = ({
         <strong className={styles.title}>
           {t('workflow.clarify.title', 'Set up {{title}}', { title: workflowTitle })}
         </strong>
-        <span className={styles.subtitle}>
-          {t('workflow.clarify.subtitle', 'A couple of things before I begin.')}
-        </span>
+        <span className={styles.subtitle}>{t('workflow.clarify.subtitle', 'A couple of things before I begin.')}</span>
       </div>
       <div className={styles.modeRow}>
-        <Radio.Group
-          type='button'
-          size='small'
-          value={mode}
-          onChange={(v) => onSetMode(v as WorkflowInteractivity)}
-        >
+        <Radio.Group type='button' size='small' value={mode} onChange={(v) => onSetMode(v as WorkflowInteractivity)}>
           <Radio value='step'>{t('workflow.header.stepMode', 'Step-by-step')}</Radio>
           <Radio value='auto'>{t('workflow.header.autoMode', 'Auto-run')}</Radio>
         </Radio.Group>
@@ -70,12 +63,7 @@ export const WorkflowClarifyCard: React.FC<WorkflowClarifyCardProps> = ({
         autoSize={{ minRows: 2, maxRows: 5 }}
       />
       <div className={styles.actions}>
-        <Button
-          type='primary'
-          size='small'
-          onClick={() => onStart(note)}
-          data-testid='workflow-clarify-start'
-        >
+        <Button type='primary' size='small' onClick={() => onStart(note)} data-testid='workflow-clarify-start'>
           {t('workflow.clarify.start', 'Start')}
         </Button>
       </div>

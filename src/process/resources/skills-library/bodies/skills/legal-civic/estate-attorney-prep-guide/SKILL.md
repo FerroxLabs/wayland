@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy checklist guide"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy checklist guide'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
 
 # Estate Attorney Prep Guide
@@ -28,6 +28,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User is planning to meet with an estate attorney for the first time
 - User asks what questions to bring to an estate planning consultation
 - User asks how to find or evaluate an estate planning attorney
@@ -36,6 +37,7 @@ metadata:
 - User is overwhelmed by estate planning and does not know where to start
 
 **Do NOT use when:**
+
 - User asks for a recommendation of a specific attorney or law firm
 - User asks for legal advice about their estate plan (refer to their attorney)
 - User is already working with an attorney and has specific legal questions about their plan
@@ -259,21 +261,24 @@ You are at an excellent starting point -- many families do not begin estate plan
 ### Finding an Estate Attorney
 
 **Where to look:**
+
 - Ask your mortgage lender, financial advisor, or CPA for referrals
 - Search your state bar association's lawyer referral service for "estate planning"
 - Ask friends or coworkers who have recently done estate planning
 
 ### Attorney Evaluation Checklist
-| Criterion                  | Attorney 1 | Attorney 2 |
-|---------------------------|------------|------------|
-| Estate planning focus (%)  | [ask: what % of your practice?] | |
-| Years of EP experience     | [ask]      | |
-| Free initial consultation? | [ask]      | |
-| Fee structure              | [flat fee packages are common] | |
-| Licensed in your state?    | [verify]   | |
-| Handles full estate plan?  | [will + trust + POA + directive?] | |
+
+| Criterion                  | Attorney 1                        | Attorney 2 |
+| -------------------------- | --------------------------------- | ---------- |
+| Estate planning focus (%)  | [ask: what % of your practice?]   |            |
+| Years of EP experience     | [ask]                             |            |
+| Free initial consultation? | [ask]                             |            |
+| Fee structure              | [flat fee packages are common]    |            |
+| Licensed in your state?    | [verify]                          |            |
+| Handles full estate plan?  | [will + trust + POA + directive?] |            |
 
 ### Documents to Bring
+
 - [ ] Photo IDs for both spouses
 - [ ] Recent bank statements (all accounts)
 - [ ] Recent retirement account statements (401k, IRA for both spouses)
@@ -285,48 +290,42 @@ You are at an excellent starting point -- many families do not begin estate plan
 - [ ] Your child's birth certificate (for guardianship documentation)
 
 ### Information to Have Ready
-| Topic              | Your Answer                |
-|--------------------|---------------------------|
-| Marital status     | Married                   |
-| Children           | [child's name], age [toddler age] |
-| Approximate home value | $[amount]             |
-| Combined retirement accounts | $[approximate total] |
-| Other significant assets | [list any]           |
-| Life insurance     | [have it? how much? or none?] |
-| State of residence | [your state]              |
-| Existing documents | None                      |
+
+| Topic                        | Your Answer                       |
+| ---------------------------- | --------------------------------- |
+| Marital status               | Married                           |
+| Children                     | [child's name], age [toddler age] |
+| Approximate home value       | $[amount]                         |
+| Combined retirement accounts | $[approximate total]              |
+| Other significant assets     | [list any]                        |
+| Life insurance               | [have it? how much? or none?]     |
+| State of residence           | [your state]                      |
+| Existing documents           | None                              |
 
 ### Questions for Your Attorney
 
 **About your estate plan:**
+
 1. We have no existing documents -- what do you recommend we create? (At minimum, most attorneys recommend: wills, financial POAs, healthcare POAs, healthcare directives for both spouses)
 2. Do we need a trust, or are wills sufficient for our situation?
 3. How do we set up guardianship for our child in our wills?
 4. At what age should our child receive their inheritance if something happens to both of us? (Common options: 18, 21, 25, or staggered)
 
-**About your child specifically:**
-5. Should we create a testamentary trust within our wills to manage our child's inheritance?
-6. How do we ensure life insurance proceeds are managed for our child rather than given as a lump sum to the guardian?
-7. What if we want different guardians for personal care vs. financial management?
+**About your child specifically:** 5. Should we create a testamentary trust within our wills to manage our child's inheritance? 6. How do we ensure life insurance proceeds are managed for our child rather than given as a lump sum to the guardian? 7. What if we want different guardians for personal care vs. financial management?
 
-**About coordination:**
-8. Should our retirement account beneficiary designations be updated as part of this process?
-9. How does our house ownership (title) affect our estate plan?
-10. Do we need more life insurance given that we have a young child? (The attorney may refer you to an insurance advisor)
+**About coordination:** 8. Should our retirement account beneficiary designations be updated as part of this process? 9. How does our house ownership (title) affect our estate plan? 10. Do we need more life insurance given that we have a young child? (The attorney may refer you to an insurance advisor)
 
-**About cost and process:**
-11. What is the total cost for the full package of documents?
-12. How many meetings will this require?
-13. How long until we have signed documents?
-14. How do we update documents as our family grows or circumstances change?
+**About cost and process:** 11. What is the total cost for the full package of documents? 12. How many meetings will this require? 13. How long until we have signed documents? 14. How do we update documents as our family grows or circumstances change?
 
 ### Decisions to Discuss With Your Spouse Before the Meeting
+
 1. **Guardian for your child:** If both of you died, who would raise your child? Who is the backup? Have you asked them?
 2. **Executor:** Who should handle your estate? Consider: a sibling, a trusted friend, or each other with a backup
 3. **Healthcare agent:** Who makes medical decisions if one of you is incapacitated? (Often each other, with a backup)
 4. **Distribution:** If something happens to both of you, how should assets be managed for your child until adulthood?
 
 ### What to Expect
+
 1. The meeting will take 60-90 minutes
 2. Both of you should attend together
 3. The attorney will ask about your family, assets, and wishes in detail
@@ -336,6 +335,7 @@ You are at an excellent starting point -- many families do not begin estate plan
 7. Total process: usually 3-6 weeks from first meeting to signed documents
 
 ### Next Steps
+
 - [ ] Identify 2-3 estate planning attorneys and schedule consultations
 - [ ] Gather all documents on the checklist above
 - [ ] Have the guardian conversation with your spouse

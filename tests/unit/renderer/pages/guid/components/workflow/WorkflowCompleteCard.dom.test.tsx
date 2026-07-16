@@ -108,11 +108,7 @@ describe('WorkflowCompleteCard', () => {
 
   it('drops the tokens and cost segments when not provided', () => {
     const { container } = render(
-      <WorkflowCompleteCard
-        session={baseSession()}
-        onRunAgain={vi.fn()}
-        onLaunchNext={vi.fn()}
-      />
+      <WorkflowCompleteCard session={baseSession()} onRunAgain={vi.fn()} onLaunchNext={vi.fn()} />
     );
 
     const stats = container.querySelector('[data-testid="workflow-complete-stats"]');
@@ -156,13 +152,7 @@ describe('WorkflowCompleteCard', () => {
   });
 
   it('omits the "What this produced" section when keyOutputs is empty', () => {
-    render(
-      <WorkflowCompleteCard
-        session={baseSession()}
-        onRunAgain={vi.fn()}
-        onLaunchNext={vi.fn()}
-      />
-    );
+    render(<WorkflowCompleteCard session={baseSession()} onRunAgain={vi.fn()} onLaunchNext={vi.fn()} />);
 
     expect(screen.queryByText(/What this produced/i)).toBeNull();
   });
@@ -186,13 +176,7 @@ describe('WorkflowCompleteCard', () => {
   });
 
   it('omits the "Up next" section when suggestedNext is empty', () => {
-    render(
-      <WorkflowCompleteCard
-        session={baseSession()}
-        onRunAgain={vi.fn()}
-        onLaunchNext={vi.fn()}
-      />
-    );
+    render(<WorkflowCompleteCard session={baseSession()} onRunAgain={vi.fn()} onLaunchNext={vi.fn()} />);
 
     expect(screen.queryByText(/Up next/i)).toBeNull();
   });
@@ -219,26 +203,14 @@ describe('WorkflowCompleteCard', () => {
   });
 
   it('no longer renders the dead "Save this run" CTA (#82)', () => {
-    render(
-      <WorkflowCompleteCard
-        session={baseSession()}
-        onRunAgain={vi.fn()}
-        onLaunchNext={vi.fn()}
-      />
-    );
+    render(<WorkflowCompleteCard session={baseSession()} onRunAgain={vi.fn()} onLaunchNext={vi.fn()} />);
 
     expect(screen.queryByRole('button', { name: /Save this run/i })).toBeNull();
   });
 
   it('fires onRunAgain when "Run again" is clicked', () => {
     const onRunAgain = vi.fn();
-    render(
-      <WorkflowCompleteCard
-        session={baseSession()}
-        onRunAgain={onRunAgain}
-        onLaunchNext={vi.fn()}
-      />
-    );
+    render(<WorkflowCompleteCard session={baseSession()} onRunAgain={onRunAgain} onLaunchNext={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Run again/i }));
     expect(onRunAgain).toHaveBeenCalledTimes(1);

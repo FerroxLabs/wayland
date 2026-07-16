@@ -34,6 +34,7 @@ Before adding a new worker to W-2 payroll, confirm proper classification (NOT 10
 ## Form 941 - Quarterly Federal Employer Tax Return
 
 Filed quarterly to report:
+
 - Wages paid
 - Federal income tax withheld
 - Social Security tax (12.4% combined - 6.2% employee + 6.2% employer up to wage base for `{filing_year}`)
@@ -42,14 +43,15 @@ Filed quarterly to report:
 
 Filing deadlines (re-verify for `{filing_year}`):
 
-| Quarter | Period | Form 941 due |
-|---|---|---|
-| Q1 | Jan–Mar | April 30 |
-| Q2 | Apr–Jun | July 31 |
-| Q3 | Jul–Sep | October 31 |
-| Q4 | Oct–Dec | January 31 (following year) |
+| Quarter | Period  | Form 941 due                |
+| ------- | ------- | --------------------------- |
+| Q1      | Jan–Mar | April 30                    |
+| Q2      | Apr–Jun | July 31                     |
+| Q3      | Jul–Sep | October 31                  |
+| Q4      | Oct–Dec | January 31 (following year) |
 
 Deposit schedule:
+
 - **Monthly depositors** (lookback period total ≤ $50,000) - deposit by 15th of following month.
 - **Semi-weekly depositors** (lookback total > $50,000) - Wed–Fri payroll → following Wed; Sat–Tue payroll → following Fri.
 - **$100,000 next-day deposit rule** - any single payday accumulating $100K+ undeposited tax must be deposited by next banking day, regardless of schedule.
@@ -60,6 +62,7 @@ Penalties for late deposits: 2% (1–5 days late) → 5% (6–15) → 10% (16+) 
 ## Form 940 - Annual Federal Unemployment (FUTA)
 
 Filed annually:
+
 - FUTA tax: 6.0% on first $7,000 of each employee's wages
 - State UI credit: up to 5.4% (effective FUTA rate ~0.6% in non-credit-reduction states)
 - **Credit-reduction states** - if a state has not repaid federal UI loans, employers in that state pay a higher effective FUTA rate. Verify Form 940 Schedule A current credit-reduction states for `{filing_year}`.
@@ -69,20 +72,24 @@ Filed annually:
 ## State UI / WC matrix (per-state work - verify each)
 
 State Unemployment Insurance (SUI):
+
 - Each state assigns a base + experience-rated rate (typically 0.5%–6.0%+ of taxable wage base)
 - Taxable wage base varies by state (e.g., WA, HI > $50K base; many states $7K–15K)
 - New employer rate applied for first 2–3 years until experience rating develops
 
 State Workers' Compensation (WC):
+
 - Required in nearly all states (TX optional, sole prop with no employees often exempt)
 - Class-code-based rates (clerical 0.2%, construction 5–10%+)
 - Self-insurance, state fund, or private carrier - varies by state
 
 State withholding (income tax):
+
 - Most states with income tax require employer withholding + quarterly / monthly returns
 - 9 states with no income tax (AK, FL, NV, NH-on-wages, SD, TN, TX, WA, WY) - verify current list
 
 City / local payroll tax:
+
 - NYC, Philadelphia, San Francisco (Payroll Expense Tax / Gross Receipts Tax), some PA / OH / MI / KY local taxes - verify by location
 
 ## New-hire reporting
@@ -90,6 +97,7 @@ City / local payroll tax:
 Federal law (PRWORA, 1996) requires employers to report each new hire to the state directory of new hires within **20 days** of hire (some states shorter - CA 20 days, NY 20 days, etc.). Includes name, address, SSN, employer name, EIN, address. Used for child-support enforcement.
 
 Onboarding checklist:
+
 - [ ] Form **I-9** Section 1 completed by employee on or before first day
 - [ ] Form **I-9** Section 2 completed by employer within 3 business days of start
 - [ ] Form **W-4** federal (and state W-4 / DE-4 / etc. as applicable)
@@ -103,6 +111,7 @@ Onboarding checklist:
 > ⚠️ S-corp distributions to owner-employees are **not** subject to FICA, but the IRS requires owner-employees to take a **reasonable salary** as a W-2 employee before distributions. Failure → reclassification + back FICA + penalties + interest.
 
 ### Case-law factors (Watson v. Commissioner, 8th Cir. 2012; Glass Blocks Unlimited, T.C. 2013; Fleischer, T.C. 2016; Davis, T.C. 2011)
+
 1. Training and experience of the owner-employee
 2. Duties and responsibilities (functions performed)
 3. Time and effort devoted to the business
@@ -113,6 +122,7 @@ Onboarding checklist:
 8. Use of formula or independent valuation
 
 ### Reasonable salary documentation file (build per owner-employee per year)
+
 - Job description and duties analysis
 - Hours-per-week study (calendar or time-tracking pull)
 - Comparable-compensation report (RC Reports, BLS OES, salary surveys)
@@ -121,6 +131,7 @@ Onboarding checklist:
 - Board / single-member resolution setting compensation
 
 Risk indicators (IRS audit triggers):
+
 - $0 or token salary while taking large distributions
 - Salary << industry benchmark for the role
 - Distributions > salary by large multiples without documentation
@@ -129,16 +140,16 @@ Risk indicators (IRS audit triggers):
 
 Common fringe benefits and tax treatment (verify each for `{filing_year}` against IRS Pub 15-B):
 
-| Benefit | Tax treatment |
-|---|---|
-| Group health insurance | Generally pre-tax (excluded from Box 1, 3, 5); >2% S-corp shareholders include in W-2 Box 1, deduct on 1040 |
-| HSA / HDHP | Employer contributions excluded; check annual contribution limits |
-| Retirement match (401(k), SIMPLE, SEP) | Pre-tax up to limits |
-| Group term life > $50K | Imputed income (Table I) added to W-2 Box 1, 3, 5 (IRS Pub 15-B) |
-| Personal use of company vehicle | Imputed income via Annual Lease Value or cents-per-mile method |
-| Employee education assistance | Up to `[§127 limit for {filing_year}]` excluded if qualified plan |
-| Bonuses | Supplemental wages - withhold at 22% federal flat (or aggregate method) up to $1M; 37% above |
-| Gift cards / cash equivalents | Always taxable, fully includible in wages |
+| Benefit                                | Tax treatment                                                                                               |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Group health insurance                 | Generally pre-tax (excluded from Box 1, 3, 5); >2% S-corp shareholders include in W-2 Box 1, deduct on 1040 |
+| HSA / HDHP                             | Employer contributions excluded; check annual contribution limits                                           |
+| Retirement match (401(k), SIMPLE, SEP) | Pre-tax up to limits                                                                                        |
+| Group term life > $50K                 | Imputed income (Table I) added to W-2 Box 1, 3, 5 (IRS Pub 15-B)                                            |
+| Personal use of company vehicle        | Imputed income via Annual Lease Value or cents-per-mile method                                              |
+| Employee education assistance          | Up to `[§127 limit for {filing_year}]` excluded if qualified plan                                           |
+| Bonuses                                | Supplemental wages - withhold at 22% federal flat (or aggregate method) up to $1M; 37% above                |
+| Gift cards / cash equivalents          | Always taxable, fully includible in wages                                                                   |
 
 ## W-2 / W-3 / W-2c reminders
 

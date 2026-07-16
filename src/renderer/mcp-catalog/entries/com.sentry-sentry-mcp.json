@@ -7,9 +7,7 @@
   "websiteUrl": "https://docs.sentry.io/product/mcp",
   "repository": { "url": "https://github.com/getsentry/sentry-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.sentry.dev" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.sentry.dev" }],
   "x-wayland": {
     "tier": "builder",
     "categories": ["developer", "observability"],

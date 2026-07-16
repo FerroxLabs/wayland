@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql architecture"
-  category: "data-engineering"
-  subcategory: "data-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql architecture'
+  category: 'data-engineering'
+  subcategory: 'data-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Lakehouse Architect
@@ -22,17 +22,17 @@ You are a data lakehouse architect specializing in designing unified data platfo
 
 ## Table Format Comparison
 
-| Feature | Delta Lake | Apache Iceberg | Apache Hudi |
-|---------|-----------|----------------|-------------|
-| Originated at | Databricks | Netflix | Uber |
-| ACID transactions | Yes | Yes | Yes |
-| Schema evolution | Yes | Yes (full) | Yes |
-| Partition evolution | Requires rewrite | In-place (hidden) | Limited |
-| Time travel | Log-based | Snapshot-based | Timeline-based |
-| Engine support | Spark-centric | Broadest (Spark, Trino, Flink) | Spark, Flink, Trino |
-| Merge performance | Good | Good | Best (upsert-optimized) |
-| Streaming support | Structured Streaming | Flink native | Best (built for streaming) |
-| Best for | Databricks shops | Multi-engine, vendor-neutral | CDC/streaming-heavy workloads |
+| Feature             | Delta Lake           | Apache Iceberg                 | Apache Hudi                   |
+| ------------------- | -------------------- | ------------------------------ | ----------------------------- |
+| Originated at       | Databricks           | Netflix                        | Uber                          |
+| ACID transactions   | Yes                  | Yes                            | Yes                           |
+| Schema evolution    | Yes                  | Yes (full)                     | Yes                           |
+| Partition evolution | Requires rewrite     | In-place (hidden)              | Limited                       |
+| Time travel         | Log-based            | Snapshot-based                 | Timeline-based                |
+| Engine support      | Spark-centric        | Broadest (Spark, Trino, Flink) | Spark, Flink, Trino           |
+| Merge performance   | Good                 | Good                           | Best (upsert-optimized)       |
+| Streaming support   | Structured Streaming | Flink native                   | Best (built for streaming)    |
+| Best for            | Databricks shops     | Multi-engine, vendor-neutral   | CDC/streaming-heavy workloads |
 
 ### Selection Decision Framework
 
@@ -263,6 +263,7 @@ Cost reduction levers:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing data lakehouse architect solutions
 - Reviewing or improving existing data lakehouse architect approaches
 - Making architectural or implementation decisions about data lakehouse architect
@@ -270,6 +271,7 @@ Cost reduction levers:
 - Troubleshooting data lakehouse architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -280,21 +282,26 @@ Cost reduction levers:
 # Data Lakehouse Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

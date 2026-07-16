@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research academic-writing study-skills step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research academic-writing study-skills step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Research Question
 
 ## When to Use
 
 **Use this skill when a learner:**
+
 - Presents a broad topic and wants help narrowing it to something researchable (e.g., "I want to research climate change" or "I'm studying poverty and education")
 - Has a draft research question that feels too vague, too broad, or unanswerable within a realistic scope and needs diagnostic feedback
 - Is stuck between two or three possible questions and wants a framework to evaluate which is strongest
@@ -29,6 +31,7 @@ metadata:
 - Has a thesis or dissertation proposal due and needs to articulate a researchable, defensible question
 
 **Do NOT use this skill when:**
+
 - The user already has a solid research question and wants to choose a methodology to answer it -- use `research-methodology` instead
 - The user wants to search databases or identify sources for their question -- use `literature-search` instead
 - The user wants to write a thesis statement or argument for a paper (a thesis statement is a claim; a research question is an open inquiry) -- use writing category skills
@@ -65,6 +68,7 @@ Most learners start too broad. Use a structured three-stage funnel before applyi
 Match the framework to the discipline and research design rather than defaulting to PICO for everything.
 
 **PICO** -- best for clinical health sciences, evidence-based practice, intervention studies, and systematic reviews
+
 - P (Population/Patient): Who is being studied, defined with specific characteristics
 - I (Intervention/Exposure): The treatment, program, or exposure being evaluated
 - C (Comparison): The control condition, alternative treatment, or baseline
@@ -73,6 +77,7 @@ Match the framework to the discipline and research design rather than defaulting
 **PICO-T** -- extends PICO by adding T (Timeframe): how long until the outcome is measured; essential for longitudinal studies
 
 **SPIDER** -- better suited for qualitative and mixed-methods research in social and health sciences
+
 - S (Sample): Who are the participants?
 - PI (Phenomenon of Interest): What experience, behavior, or process is being explored?
 - D (Design): What research method is used (interview, ethnography, survey)?
@@ -80,6 +85,7 @@ Match the framework to the discipline and research design rather than defaulting
 - R (Research type): Qualitative, quantitative, or mixed?
 
 **FINER Criteria** -- not a question-building framework but a quality-evaluation checklist; apply it AFTER building the question using PICO or SPIDER to verify it is worth pursuing:
+
 - F (Feasible): Can this be done given realistic time, budget, sample size, and expertise?
 - I (Interesting): Is there genuine intellectual or practical curiosity driving this?
 - N (Novel): Does this question add something -- a new population, a new context, a new comparison, or a new outcome measure?
@@ -341,11 +347,11 @@ If preliminary discussion reveals that the question the user wants to ask has a 
 
 ### Narrowing Funnel
 
-| Stage | Statement |
-|-------|-----------|
-| Broad topic | "Smartphone apps and mental health" |
-| Focused topic | "Smartphone-based CBT apps and depression symptom reduction in young adults with mild-to-moderate depression" |
-| Research question (draft) | "Do CBT-based smartphone apps reduce depression symptoms in young adults?" |
+| Stage                       | Statement                                                                                                                                                                                                                                                 |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Broad topic                 | "Smartphone apps and mental health"                                                                                                                                                                                                                       |
+| Focused topic               | "Smartphone-based CBT apps and depression symptom reduction in young adults with mild-to-moderate depression"                                                                                                                                             |
+| Research question (draft)   | "Do CBT-based smartphone apps reduce depression symptoms in young adults?"                                                                                                                                                                                |
 | Research question (refined) | "Among adults aged 18-35 with mild-to-moderate depression (PHQ-9 score 5-19), does 8 weeks of daily use of a structured CBT-based smartphone app reduce PHQ-9 scores by a clinically meaningful margin (≥5 points) compared to a waitlist control group?" |
 
 ---
@@ -354,13 +360,13 @@ If preliminary discussion reveals that the question the user wants to ask has a 
 
 #### PICO-T Components
 
-| Component | Label | Your Content | Notes / Refinements |
-|-----------|-------|-------------|---------------------|
-| P | Population | Adults aged 18-35 with mild-to-moderate depression (PHQ-9 score 5-19) | "Young adults" is too vague; age 18-35 is a common and accessible cohort; PHQ-9 cutoffs give clinical specificity |
-| I | Intervention | 8 weeks of daily structured CBT-based smartphone app use (≥15 minutes/day) | Specifying CBT-based excludes unstructured mood-tracking apps; the dose (≥15 min/day) matters for intervention fidelity |
-| C | Comparison | Waitlist control group (no app intervention during the study period) | Waitlist control is more ethically acceptable than no-treatment control for a depression study; it also avoids withholding potentially helpful treatment indefinitely |
-| O | Outcome | PHQ-9 score change from baseline; clinically meaningful improvement defined as ≥5-point reduction | PHQ-9 is a validated, widely-used 9-item instrument; a ≥5-point change is the established MCID (Minimal Clinically Important Difference) in the literature |
-| T | Timeframe | 8-week intervention period; outcomes measured at baseline, week 4, and week 8 | 8 weeks is standard in CBT app efficacy trials; two interim measurement points allow dropout and trajectory analysis |
+| Component | Label        | Your Content                                                                                      | Notes / Refinements                                                                                                                                                   |
+| --------- | ------------ | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P         | Population   | Adults aged 18-35 with mild-to-moderate depression (PHQ-9 score 5-19)                             | "Young adults" is too vague; age 18-35 is a common and accessible cohort; PHQ-9 cutoffs give clinical specificity                                                     |
+| I         | Intervention | 8 weeks of daily structured CBT-based smartphone app use (≥15 minutes/day)                        | Specifying CBT-based excludes unstructured mood-tracking apps; the dose (≥15 min/day) matters for intervention fidelity                                               |
+| C         | Comparison   | Waitlist control group (no app intervention during the study period)                              | Waitlist control is more ethically acceptable than no-treatment control for a depression study; it also avoids withholding potentially helpful treatment indefinitely |
+| O         | Outcome      | PHQ-9 score change from baseline; clinically meaningful improvement defined as ≥5-point reduction | PHQ-9 is a validated, widely-used 9-item instrument; a ≥5-point change is the established MCID (Minimal Clinically Important Difference) in the literature            |
+| T         | Timeframe    | 8-week intervention period; outcomes measured at baseline, week 4, and week 8                     | 8 weeks is standard in CBT app efficacy trials; two interim measurement points allow dropout and trajectory analysis                                                  |
 
 ---
 
@@ -372,13 +378,13 @@ If preliminary discussion reveals that the question the user wants to ask has a 
 
 ### FINER Quality Assessment
 
-| Criterion | Status | Evidence | Action Required |
-|-----------|--------|----------|-----------------|
-| Feasible | ⚠️ | Running a true RCT with a clinical population in 8 months is extremely tight -- recruitment, IRB approval, 8-week data collection, and analysis must all fit in the window | Consider shifting to a secondary data analysis using an existing app trial dataset, OR conduct a single-arm pre-post pilot study without a control group and reframe the question accordingly |
-| Interesting | ✅ | Digital mental health is a high-priority research area; app effectiveness is actively debated given a 2019 meta-analysis (Linardon et al.) showing highly variable effect sizes | Strong interest; connects to telehealth expansion and mental health access gaps |
-| Novel | ✅ | The specific combination of PHQ-9 as primary outcome, CBT-specific app design, and the 18-35 age cohort with defined severity thresholds adds specificity that much existing literature lacks | Verify novelty by searching PubMed and PsycINFO for systematic reviews in this area before finalizing |
-| Ethical | ⚠️ | Recruiting individuals with active depression requires careful informed consent, crisis referral protocols, and mental health support provisions; IRB will require full review, not expedited | Plan for 6-10 weeks of IRB processing time; ensure crisis response protocol is built into study design; consult your IRB office immediately |
-| Relevant | ✅ | Directly relevant to public health practice: if apps are effective, they can dramatically reduce cost and access barriers for mental health care in underserved populations | Connect to WHO digital health strategy and US Surgeon General's 2021 mental health crisis advisory for policy relevance framing |
+| Criterion   | Status | Evidence                                                                                                                                                                                      | Action Required                                                                                                                                                                               |
+| ----------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Feasible    | ⚠️     | Running a true RCT with a clinical population in 8 months is extremely tight -- recruitment, IRB approval, 8-week data collection, and analysis must all fit in the window                    | Consider shifting to a secondary data analysis using an existing app trial dataset, OR conduct a single-arm pre-post pilot study without a control group and reframe the question accordingly |
+| Interesting | ✅     | Digital mental health is a high-priority research area; app effectiveness is actively debated given a 2019 meta-analysis (Linardon et al.) showing highly variable effect sizes               | Strong interest; connects to telehealth expansion and mental health access gaps                                                                                                               |
+| Novel       | ✅     | The specific combination of PHQ-9 as primary outcome, CBT-specific app design, and the 18-35 age cohort with defined severity thresholds adds specificity that much existing literature lacks | Verify novelty by searching PubMed and PsycINFO for systematic reviews in this area before finalizing                                                                                         |
+| Ethical     | ⚠️     | Recruiting individuals with active depression requires careful informed consent, crisis referral protocols, and mental health support provisions; IRB will require full review, not expedited | Plan for 6-10 weeks of IRB processing time; ensure crisis response protocol is built into study design; consult your IRB office immediately                                                   |
+| Relevant    | ✅     | Directly relevant to public health practice: if apps are effective, they can dramatically reduce cost and access barriers for mental health care in underserved populations                   | Connect to WHO digital health strategy and US Surgeon General's 2021 mental health crisis advisory for policy relevance framing                                                               |
 
 **Overall FINER verdict:** ⚠️ Revise and re-check -- the question is intellectually sound but two operational concerns (feasibility timeline and IRB process) require immediate attention before proceeding. Two redesign paths are offered below.
 
@@ -397,6 +403,7 @@ Reframe as a systematic review and meta-analysis of existing CBT app RCTs with P
 ### Scope Boundaries (for Path A -- Primary Study)
 
 **Included:**
+
 - Population: Adults aged 18-35, English-speaking, with PHQ-9 baseline score of 5-19 (mild-to-moderate range)
 - Setting: University or community recruitment in a single metropolitan area
 - Timeframe: 8-week intervention window, with follow-up measurement at week 4 and week 8
@@ -404,6 +411,7 @@ Reframe as a systematic review and meta-analysis of existing CBT app RCTs with P
 - App type: Structured CBT-based apps with lesson/module delivery (e.g., apps built on CBT principles with psychoeducation and behavioral activation components)
 
 **Explicitly Excluded:**
+
 - Individuals with PHQ-9 scores ≥20 (severe depression) -- excluded because this population requires clinical treatment, not a self-guided app, and poses higher ethical risk in a waitlist design
 - Apps that are primarily mood-tracking or journaling tools without a structured CBT curriculum -- excluded to maintain intervention consistency and avoid a heterogeneous treatment condition
 - Participants currently receiving psychotherapy or taking psychotropic medications -- excluded to isolate the app's effect; this should be a study eligibility criterion
@@ -417,24 +425,24 @@ Reframe as a systematic review and meta-analysis of existing CBT app RCTs with P
 
 ### Question Type Classification
 
-| Dimension | Classification |
-|-----------|---------------|
-| Question type | Causal -- assessing whether the intervention produces the outcome |
-| Research paradigm | Positivist -- hypothesis-testing, quantitative, generalizable findings |
-| Data type implied | Quantitative (PHQ-9 scores; pre-post with control) |
-| Level of evidence targeted | Level II -- RCT (or Level I if redesigned as meta-analysis) |
+| Dimension                  | Classification                                                         |
+| -------------------------- | ---------------------------------------------------------------------- |
+| Question type              | Causal -- assessing whether the intervention produces the outcome      |
+| Research paradigm          | Positivist -- hypothesis-testing, quantitative, generalizable findings |
+| Data type implied          | Quantitative (PHQ-9 scores; pre-post with control)                     |
+| Level of evidence targeted | Level II -- RCT (or Level I if redesigned as meta-analysis)            |
 
 ---
 
 ### From Broad Topic to This Question -- What Changed and Why
 
-| Original phrase | Problem | Resolution |
-|----------------|---------|-----------|
-| "Smartphone apps" | Includes mood trackers, crisis lines, meditation apps, CBT tools -- far too heterogeneous to study as a single intervention | Narrowed to "CBT-based smartphone apps" -- a theoretically coherent category with existing efficacy literature |
-| "Mental health" | Encompasses depression, anxiety, PTSD, psychosis, eating disorders, and more | Narrowed to "mild-to-moderate depression" with a validated threshold (PHQ-9 5-19) |
-| "Young adults" | No agreed definition; could mean 16-40 depending on the source | Specified as 18-35 -- a cohort with high smartphone adoption, high depression prevalence, and realistic recruitment accessibility |
-| "Do apps help?" | A yes/no question with no specification of help for whom, by how much, compared to what, or over what period | Replaced with a fully specified question including population, intervention, comparison, outcome, and timeframe |
-| "What's the best app?" | A consumer recommendation question, not a research question -- unanswerable in a single study | Reframed as a comparative effectiveness question across CBT-based app designs -- a valid research direction but a different study entirely |
+| Original phrase        | Problem                                                                                                                     | Resolution                                                                                                                                 |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| "Smartphone apps"      | Includes mood trackers, crisis lines, meditation apps, CBT tools -- far too heterogeneous to study as a single intervention | Narrowed to "CBT-based smartphone apps" -- a theoretically coherent category with existing efficacy literature                             |
+| "Mental health"        | Encompasses depression, anxiety, PTSD, psychosis, eating disorders, and more                                                | Narrowed to "mild-to-moderate depression" with a validated threshold (PHQ-9 5-19)                                                          |
+| "Young adults"         | No agreed definition; could mean 16-40 depending on the source                                                              | Specified as 18-35 -- a cohort with high smartphone adoption, high depression prevalence, and realistic recruitment accessibility          |
+| "Do apps help?"        | A yes/no question with no specification of help for whom, by how much, compared to what, or over what period                | Replaced with a fully specified question including population, intervention, comparison, outcome, and timeframe                            |
+| "What's the best app?" | A consumer recommendation question, not a research question -- unanswerable in a single study                               | Reframed as a comparative effectiveness question across CBT-based app designs -- a valid research direction but a different study entirely |
 
 ---
 
@@ -446,5 +454,6 @@ Reframe as a systematic review and meta-analysis of existing CBT app RCTs with P
 4. **Advisor consultation:** Share this question package with your thesis advisor before proceeding to methodology -- advisors often have existing IRB protocols, participant pools, or dataset access that could dramatically shift the feasibility picture
 
 **Connect to these skills next:**
+
 - `literature-search` -- run the PubMed/PsycINFO search to verify novelty, identify the key systematic reviews, and begin mapping the gap your research fills
 - `research-methodology` -- once the question is locked (and IRB path is confirmed), use this to select and justify your research design, sampling strategy, and analysis plan

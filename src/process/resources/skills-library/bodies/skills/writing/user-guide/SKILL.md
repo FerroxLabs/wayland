@@ -9,14 +9,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation step-by-step"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation step-by-step'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # User Guide Writing
 
 ## When to Use
@@ -97,6 +98,7 @@ Every task in the guide follows the same structure without exception. Consistenc
 **Prerequisites (bulleted list):** Lists every condition that must be true before the user begins the first step. Each prerequisite links to where the user can meet that condition if they have not yet done so. A missing prerequisite that surfaces mid-procedure is the number-one cause of user abandonment.
 
 **Steps (numbered list):** Follow these rules for every step:
+
 - One action per step. If a step contains "and then" or "and", split it into two steps. The threshold: can a user perform this action with a single gesture, click, or keyboard entry? If yes, one step. If no, split.
 - Lead with the UI element acted upon, then the action: "Select **Export** from the **File** menu" not "From the File menu, Export is where you click."
 - Bold every UI element name using the exact label that appears on screen. Capitalization and punctuation must match the interface exactly. "Save Changes" and "Save changes" are different things to a user scanning the screen.
@@ -165,8 +167,8 @@ Before delivering the guide, run it through these specific checks. Do not rely o
 ```markdown
 # [Product Name] User Guide
 
-*Version: [Product version this guide was verified against]*
-*Last verified: [Month Year]*
+_Version: [Product version this guide was verified against]_
+_Last verified: [Month Year]_
 
 ---
 
@@ -174,12 +176,12 @@ Before delivering the guide, run it through these specific checks. Do not rely o
 
 ### System Requirements
 
-| Requirement | Minimum |
-|-------------|---------|
-| Browser | [Specific browser names and versions] |
-| Operating System | [OS and version if applicable] |
-| Network | [Connectivity requirements] |
-| Screen resolution | [Minimum if relevant] |
+| Requirement       | Minimum                               |
+| ----------------- | ------------------------------------- |
+| Browser           | [Specific browser names and versions] |
+| Operating System  | [OS and version if applicable]        |
+| Network           | [Connectivity requirements]           |
+| Screen resolution | [Minimum if relevant]                 |
 
 ### Required Permissions
 
@@ -214,6 +216,7 @@ For [excluded topic], see [where to find it].
 **Goal:** [One sentence: what the user will have accomplished after completing this task.]
 
 **Prerequisites:**
+
 - [Condition 1. Link to where user can meet this condition if needed.]
 - [Condition 2]
 - [Condition 3 if applicable]
@@ -254,11 +257,11 @@ For [excluded topic], see [where to find it].
 
 **Troubleshooting:**
 
-| Problem | Cause | Fix |
-|---------|-------|-----|
+| Problem                                              | Cause                  | Fix               |
+| ---------------------------------------------------- | ---------------------- | ----------------- |
 | [Exact error message or symptom as the user sees it] | [Plain-language cause] | [Exact fix steps] |
-| [Symptom] | [Cause] | [Fix] |
-| [Symptom] | [Cause] | [Fix] |
+| [Symptom]                                            | [Cause]                | [Fix]             |
+| [Symptom]                                            | [Cause]                | [Fix]             |
 
 ---
 
@@ -282,8 +285,8 @@ For [excluded topic], see [where to find it].
 
 ### Quick Reference
 
-| I see this... | Try this first |
-|---------------|----------------|
+| I see this...              | Try this first              |
+| -------------------------- | --------------------------- |
 | [Error message or symptom] | [Single-sentence first fix] |
 | [Error message or symptom] | [Single-sentence first fix] |
 | [Error message or symptom] | [Single-sentence first fix] |
@@ -308,12 +311,12 @@ For [excluded topic], see [where to find it].
 
 ## Getting Help
 
-| Type of help | Where to get it | Response time |
-|--------------|-----------------|---------------|
-| [General support] | [Channel] | [SLA or typical time] |
-| [Urgent issues] | [Channel] | [SLA] |
-| [Community questions] | [Forum or community] | [Varies] |
-| [Service status] | [Status page] | [Real-time] |
+| Type of help          | Where to get it      | Response time         |
+| --------------------- | -------------------- | --------------------- |
+| [General support]     | [Channel]            | [SLA or typical time] |
+| [Urgent issues]       | [Channel]            | [SLA]                 |
+| [Community questions] | [Forum or community] | [Varies]              |
+| [Service status]      | [Status page]        | [Real-time]           |
 
 [If contacting support, include your account email and the error code shown in the error message. This reduces resolution time.]
 ```
@@ -384,10 +387,10 @@ Consider adding a "Recent changes" section at the front of the guide that notes 
 
 When users are migrating from a previous product or older version, include a "Migrating from [Previous Product/Version]" section either as a standalone chapter or as a sidebar per task. Use a two-column format:
 
-| In [Old Product/Version], you... | In [New Product/Version], you... |
-|----------------------------------|----------------------------------|
+| In [Old Product/Version], you...             | In [New Product/Version], you...         |
+| -------------------------------------------- | ---------------------------------------- |
 | Clicked **New Invoice** from the home screen | Click **Create** then select **Invoice** |
-| Exported CSV from **Reports > Downloads** | Click **Export** on any report page |
+| Exported CSV from **Reports > Downloads**    | Click **Export** on any report page      |
 
 Keep migration guidance time-limited. Once the majority of users have migrated, remove or archive migration content -- it becomes noise for users who were never on the old system.
 
@@ -421,7 +424,7 @@ If accessibility callouts are required (for screen reader users or users with vi
 
 # Fieldwork User Guide
 
-*This chapter was last verified against Fieldwork version 4.2, released March 2025.*
+_This chapter was last verified against Fieldwork version 4.2, released March 2025._
 
 ---
 
@@ -429,11 +432,11 @@ If accessibility callouts are required (for screen reader users or users with vi
 
 ### System Requirements
 
-| Requirement | Minimum |
-|-------------|---------|
-| Browser | Chrome 110+, Firefox 115+, Safari 16+, Edge 110+ |
-| Network | Active internet connection required for all features |
-| Screen resolution | 1280 x 720 recommended |
+| Requirement       | Minimum                                              |
+| ----------------- | ---------------------------------------------------- |
+| Browser           | Chrome 110+, Firefox 115+, Safari 16+, Edge 110+     |
+| Network           | Active internet connection required for all features |
+| Screen resolution | 1280 x 720 recommended                               |
 
 ### Required Permissions
 
@@ -468,6 +471,7 @@ Operations managers use projects in Fieldwork to organize all work related to a 
 **Goal:** Create a new project in Fieldwork so your team has a shared workspace for a job site, with the correct details and settings configured before you invite members.
 
 **Prerequisites:**
+
 - You have the **Project Creator** or **Account Owner** role. (See Before You Start > Required Permissions to check.)
 - You have the project name, job site address, and approximate start date available.
 - If this project is associated with a client, the client must already exist in Fieldwork. (See **Add a Client Record** in Chapter 4: Clients if you need to create one first.)
@@ -510,12 +514,12 @@ Operations managers use projects in Fieldwork to organize all work related to a 
 
 **Troubleshooting:**
 
-| Problem | Cause | Fix |
-|---------|-------|-----|
-| **+ New Project** button is grayed out and unclickable | Your account role does not have Project Creator permissions | Contact your Fieldwork Account Owner to request the Project Creator role, or ask them to create the project for you |
-| "A project with this name already exists" error appears after clicking **Create Project** | Another project in your workspace uses the same name | Modify the project name to make it unique -- adding a date, phase number, or contract number is a common approach |
-| The site address does not appear in the auto-suggest dropdown | The address is too new to appear in Google Maps, or the street name is misspelled | Type as much of the address as possible, select the closest match, and then manually drag the map pin to the correct location on the map that appears after project creation |
-| The project does not appear in the Projects dashboard after creation | Browser cache issue | Refresh the page using Ctrl+R (Windows) or Cmd+R (Mac). If the project still does not appear, log out and log back in. |
+| Problem                                                                                   | Cause                                                                             | Fix                                                                                                                                                                          |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **+ New Project** button is grayed out and unclickable                                    | Your account role does not have Project Creator permissions                       | Contact your Fieldwork Account Owner to request the Project Creator role, or ask them to create the project for you                                                          |
+| "A project with this name already exists" error appears after clicking **Create Project** | Another project in your workspace uses the same name                              | Modify the project name to make it unique -- adding a date, phase number, or contract number is a common approach                                                            |
+| The site address does not appear in the auto-suggest dropdown                             | The address is too new to appear in Google Maps, or the street name is misspelled | Type as much of the address as possible, select the closest match, and then manually drag the map pin to the correct location on the map that appears after project creation |
+| The project does not appear in the Projects dashboard after creation                      | Browser cache issue                                                               | Refresh the page using Ctrl+R (Windows) or Cmd+R (Mac). If the project still does not appear, log out and log back in.                                                       |
 
 ---
 
@@ -524,6 +528,7 @@ Operations managers use projects in Fieldwork to organize all work related to a 
 **Goal:** Invite team members -- employees or subcontractors -- to your project and assign them the correct project roles so they can access the information they need.
 
 **Prerequisites:**
+
 - A project exists in Fieldwork and you have Owner or Manager project-level access to it. If you just created the project, you automatically have Owner access.
 - You have the email addresses of the people you want to invite.
 - For subcontractors being added as external members: they will receive an invitation email and must create a free Fieldwork account if they do not already have one. Inform subcontractors to expect the email before you send invitations to reduce confusion.
@@ -551,13 +556,12 @@ Operations managers use projects in Fieldwork to organize all work related to a 
 
    Use this table to select the correct role:
 
-   | Project Role | What they can do |
-   |--------------|-----------------|
-   | Owner | Full access: edit all settings, add/remove members, delete project |
-   | Manager | Edit schedules, upload files, manage tasks, view billing |
-   | Member | View schedules, upload files assigned to them, complete tasks |
-   | Viewer | Read-only access to schedule and files -- cannot edit anything |
-
+   | Project Role | What they can do                                                   |
+   | ------------ | ------------------------------------------------------------------ |
+   | Owner        | Full access: edit all settings, add/remove members, delete project |
+   | Manager      | Edit schedules, upload files, manage tasks, view billing           |
+   | Member       | View schedules, upload files assigned to them, complete tasks      |
+   | Viewer       | Read-only access to schedule and files -- cannot edit anything     |
    - Assign **Viewer** to clients or inspectors who need to see progress but should not make changes.
    - Assign **Manager** to site supervisors who need to update schedules and upload inspection documents.
    - **Warning:** The **Owner** role allows the user to delete the project and remove other owners. Assign it only to people who need administrative control of the project.
@@ -579,12 +583,12 @@ Operations managers use projects in Fieldwork to organize all work related to a 
 
 **Troubleshooting:**
 
-| Problem | Cause | Fix |
-|---------|-------|-----|
-| The team member says they did not receive the invitation email | Email went to spam, or was blocked by their company email filter | Ask them to check their spam folder for an email from noreply@fieldworkapp.com. If not found, return to the **Team** tab, find their name with the **Pending** badge, click the three-dot menu next to their name, and select **Resend Invitation** |
-| "This email is already a member of this project" error | The person was added to the project previously, possibly under a different role | Scroll the Team list to find their existing entry. To change their role, click the three-dot menu next to their name and select **Edit Role** |
-| The **+ Add Member** button does not appear on the Team tab | Your project role is **Member** or **Viewer** -- only Owners and Managers can add team members | Contact the project Owner to add the team member, or ask the Owner to upgrade your project role to Manager |
-| A subcontractor says they cannot access the project after accepting the invitation | Their invitation link may have expired (links expire after 7 days) | Go to **Team**, find their **Pending** entry, click the three-dot menu, and select **Resend Invitation** to generate a new link |
+| Problem                                                                            | Cause                                                                                          | Fix                                                                                                                                                                                                                                                 |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The team member says they did not receive the invitation email                     | Email went to spam, or was blocked by their company email filter                               | Ask them to check their spam folder for an email from noreply@fieldworkapp.com. If not found, return to the **Team** tab, find their name with the **Pending** badge, click the three-dot menu next to their name, and select **Resend Invitation** |
+| "This email is already a member of this project" error                             | The person was added to the project previously, possibly under a different role                | Scroll the Team list to find their existing entry. To change their role, click the three-dot menu next to their name and select **Edit Role**                                                                                                       |
+| The **+ Add Member** button does not appear on the Team tab                        | Your project role is **Member** or **Viewer** -- only Owners and Managers can add team members | Contact the project Owner to add the team member, or ask the Owner to upgrade your project role to Manager                                                                                                                                          |
+| A subcontractor says they cannot access the project after accepting the invitation | Their invitation link may have expired (links expire after 7 days)                             | Go to **Team**, find their **Pending** entry, click the three-dot menu, and select **Resend Invitation** to generate a new link                                                                                                                     |
 
 ---
 
@@ -592,23 +596,23 @@ Operations managers use projects in Fieldwork to organize all work related to a 
 
 ### Quick Reference
 
-| I see this... | Try this first |
-|---------------|----------------|
-| "You don't have permission to perform this action" | Check your account role in **Settings > Team & Permissions** -- you may need elevated permissions |
-| Project is missing from the Projects dashboard | Use the search bar to find it by name -- it may be archived. Or confirm with the project Owner that you have been added to the project. |
-| "Session expired" message | Log out and log back in. Your work auto-saves every 30 seconds in most forms -- check for a Draft before re-entering data. |
-| Invitation email not received | Check spam for email from noreply@fieldworkapp.com. If not found, ask the project Owner to resend from the Team tab. |
-| Page loads but content is blank or incomplete | Hard-refresh the browser: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac) to bypass cached content. |
+| I see this...                                      | Try this first                                                                                                                          |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| "You don't have permission to perform this action" | Check your account role in **Settings > Team & Permissions** -- you may need elevated permissions                                       |
+| Project is missing from the Projects dashboard     | Use the search bar to find it by name -- it may be archived. Or confirm with the project Owner that you have been added to the project. |
+| "Session expired" message                          | Log out and log back in. Your work auto-saves every 30 seconds in most forms -- check for a Draft before re-entering data.              |
+| Invitation email not received                      | Check spam for email from noreply@fieldworkapp.com. If not found, ask the project Owner to resend from the Team tab.                    |
+| Page loads but content is blank or incomplete      | Hard-refresh the browser: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac) to bypass cached content.                                         |
 
 ---
 
 ## Getting Help
 
-| Type of help | Where to get it | Response time |
-|--------------|-----------------|---------------|
-| General questions and how-to help | Fieldwork Help Center (accessible from the **?** icon in the bottom-left of any Fieldwork page) | Self-service, available 24/7 |
-| Account or billing issues | Email support at the address listed in **Settings > Help & Support** | 1 business day |
-| Urgent issues affecting your entire team | Phone support number listed in **Settings > Help & Support** | Same business day |
-| Feature requests and peer advice | Fieldwork Community Forum (linked from the Help Center) | Varies |
+| Type of help                             | Where to get it                                                                                 | Response time                |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------- |
+| General questions and how-to help        | Fieldwork Help Center (accessible from the **?** icon in the bottom-left of any Fieldwork page) | Self-service, available 24/7 |
+| Account or billing issues                | Email support at the address listed in **Settings > Help & Support**                            | 1 business day               |
+| Urgent issues affecting your entire team | Phone support number listed in **Settings > Help & Support**                                    | Same business day            |
+| Feature requests and peer advice         | Fieldwork Community Forum (linked from the Help Center)                                         | Varies                       |
 
 When contacting support about a technical error, include: your account email address, the project name, the exact error message you saw, and the date and time the issue occurred. This information allows the support team to locate your account records and resolve the issue faster.

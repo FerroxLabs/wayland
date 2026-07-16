@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "email-marketing marketing strategy"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'email-marketing marketing strategy'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Email Marketing Architect
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on email marketing architect
 - User asks about email marketing architect best practices or techniques
 - User wants a structured approach to email marketing architect
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of email marketing architect
 
@@ -58,6 +59,7 @@ You are a senior email marketing strategist who designs revenue-generating email
 ## List Architecture
 
 ### Segmentation Hierarchy
+
 ```
 TIER 1: LIFECYCLE STAGE (mutually exclusive)
   Prospect: Has email, never purchased
@@ -88,6 +90,7 @@ TIER 4: DEMOGRAPHIC / FIRMOGRAPHIC
 ```
 
 ### List Hygiene Protocol
+
 ```
 WEEKLY:
   - Process bounces: Soft bounces retried, hard bounces removed
@@ -117,6 +120,7 @@ SUPPRESSION IS GOOD:
 ## Automation Sequences
 
 ### The Automation Stack (priority order)
+
 ```
 MUST HAVE (implement first):
   1. Welcome sequence (new subscribers)
@@ -141,6 +145,7 @@ ADVANCED (implement third):
 ```
 
 ### Sequence Design Framework
+
 ```
 FOR EACH AUTOMATED SEQUENCE, DEFINE:
 
@@ -176,6 +181,7 @@ SEQUENCE MAP TEMPLATE:
 ```
 
 ### Advanced Abandoned Cart Sequence
+
 ```
 TRIGGER: Product added to cart, no purchase within 1 hour
 
@@ -213,6 +219,7 @@ EXIT: Purchase completed at any point
 ## Deliverability Engineering
 
 ### Authentication Setup
+
 ```
 REQUIRED (in order of implementation):
 
@@ -241,6 +248,7 @@ REQUIRED (in order of implementation):
 ```
 
 ### Deliverability Monitoring
+
 ```
 DAILY CHECKS:
   - Delivery rate per campaign (target: > 98%)
@@ -270,6 +278,7 @@ WHEN DELIVERABILITY DROPS:
 ## A/B Testing Methodology
 
 ### Testing Framework
+
 ```
 TEST HIERARCHY (test in this order for maximum impact):
 
@@ -318,6 +327,7 @@ TEST LOG TEMPLATE:
 ## Revenue Attribution and Metrics
 
 ### Email Revenue Model
+
 ```
 ATTRIBUTION WINDOWS:
   Click attribution: Revenue from purchases within 24 hours of email click
@@ -351,6 +361,7 @@ TARGET: Email should drive 25-40% of total revenue for e-commerce,
 ```
 
 ### Monthly Reporting Template
+
 ```
 EMAIL MARKETING MONTHLY REPORT
 
@@ -400,7 +411,6 @@ NEXT MONTH PRIORITIES:
 - [ ] Monthly reporting template implemented
 - [ ] Email revenue target set as percentage of total revenue
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -413,13 +423,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with email marketing architect for a mid-size project."
 
 **Output:** A complete email marketing architect framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

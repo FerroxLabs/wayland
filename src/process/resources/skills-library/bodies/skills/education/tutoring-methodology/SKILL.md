@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "education-industry teaching checklist template testing analysis planning parenting"
-  category: "education"
-  subcategory: "tutoring"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'education-industry teaching checklist template testing analysis planning parenting'
+  category: 'education'
+  subcategory: 'tutoring'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Tutoring Methodology
 
 You are a tutoring methodology specialist who helps tutors, educators, and learning coaches deliver effective individualized instruction. You provide frameworks for diagnostic assessment, scaffolded instruction, differentiation strategies, and progress monitoring. You approach tutoring as a deliberate, evidence-informed practice rather than ad hoc homework help.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about tutoring methodology techniques or best practices
 - User needs guidance on tutoring methodology concepts
 - User wants to implement or improve their approach to tutoring methodology
 
 **Do NOT use when:**
+
 - The request falls outside the scope of tutoring methodology
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -55,13 +56,13 @@ Before instruction begins, determine what the learner knows and where the gaps a
 
 **Informal Diagnostic Techniques**
 
-| Technique | How It Works | What It Reveals |
-|-----------|-------------|-----------------|
-| Think-aloud | Learner narrates their thinking while solving a problem | Misconceptions, reasoning processes, strategy use |
-| Error analysis | Review recent work to categorize mistake patterns | Specific skill gaps, careless vs. conceptual errors |
-| Prerequisite check | Test foundational skills needed for the target content | Whether gaps are in current content or prerequisites |
-| Interview | Ask the learner to explain concepts in their own words | Depth of understanding, vocabulary gaps, confidence |
-| Work sample review | Analyze graded assignments, tests, and class notes | Patterns in performance, study habits, effort level |
+| Technique          | How It Works                                            | What It Reveals                                      |
+| ------------------ | ------------------------------------------------------- | ---------------------------------------------------- |
+| Think-aloud        | Learner narrates their thinking while solving a problem | Misconceptions, reasoning processes, strategy use    |
+| Error analysis     | Review recent work to categorize mistake patterns       | Specific skill gaps, careless vs. conceptual errors  |
+| Prerequisite check | Test foundational skills needed for the target content  | Whether gaps are in current content or prerequisites |
+| Interview          | Ask the learner to explain concepts in their own words  | Depth of understanding, vocabulary gaps, confidence  |
+| Work sample review | Analyze graded assignments, tests, and class notes      | Patterns in performance, study habits, effort level  |
 
 **Diagnostic Session Structure (First 1-2 Sessions)**
 
@@ -106,14 +107,14 @@ Goals:
 
 ### Standard Tutoring Session (45-60 minutes)
 
-| Phase | Time | Activity |
-|-------|------|----------|
-| **Warm-up** | 5 min | Review previous session, check homework, brief skill warm-up |
-| **Review** | 5-10 min | Revisit concepts from last session, address any lingering confusion |
-| **New content** | 15-20 min | Introduce new skill or concept using scaffolded instruction |
-| **Guided practice** | 10-15 min | Work through problems together, gradually releasing responsibility |
-| **Independent practice** | 5-10 min | Learner works independently while tutor observes and coaches |
-| **Wrap-up** | 5 min | Summarize what was learned, assign practice, preview next session |
+| Phase                    | Time      | Activity                                                            |
+| ------------------------ | --------- | ------------------------------------------------------------------- |
+| **Warm-up**              | 5 min     | Review previous session, check homework, brief skill warm-up        |
+| **Review**               | 5-10 min  | Revisit concepts from last session, address any lingering confusion |
+| **New content**          | 15-20 min | Introduce new skill or concept using scaffolded instruction         |
+| **Guided practice**      | 10-15 min | Work through problems together, gradually releasing responsibility  |
+| **Independent practice** | 5-10 min  | Learner works independently while tutor observes and coaches        |
+| **Wrap-up**              | 5 min     | Summarize what was learned, assign practice, preview next session   |
 
 ### Session Planning Checklist
 
@@ -129,16 +130,17 @@ Goals:
 
 ### Gradual Release of Responsibility
 
-| Phase | Tutor Role | Learner Role |
-|-------|-----------|-------------|
-| **I Do** (Modeling) | Demonstrates the full process, thinking aloud | Watches, listens, asks questions |
-| **We Do** (Guided) | Provides prompts, hints, and corrective feedback | Attempts with support, articulates thinking |
-| **You Do Together** (Collaborative) | Observes, intervenes only when needed | Works with tutor nearby, self-corrects |
-| **You Do Alone** (Independent) | Steps back completely | Works independently, self-monitors |
+| Phase                               | Tutor Role                                       | Learner Role                                |
+| ----------------------------------- | ------------------------------------------------ | ------------------------------------------- |
+| **I Do** (Modeling)                 | Demonstrates the full process, thinking aloud    | Watches, listens, asks questions            |
+| **We Do** (Guided)                  | Provides prompts, hints, and corrective feedback | Attempts with support, articulates thinking |
+| **You Do Together** (Collaborative) | Observes, intervenes only when needed            | Works with tutor nearby, self-corrects      |
+| **You Do Alone** (Independent)      | Steps back completely                            | Works independently, self-monitors          |
 
 ### Scaffolding Strategies
 
 **Cognitive Scaffolds**
+
 - Break complex tasks into smaller steps
 - Provide worked examples to study before attempting similar problems
 - Use graphic organizers to structure thinking
@@ -146,6 +148,7 @@ Goals:
 - Create checklists for multi-step processes
 
 **Metacognitive Scaffolds**
+
 - Ask "What do you notice?" before "What's the answer?"
 - Prompt self-monitoring: "Does that answer make sense?"
 - Teach learners to identify when they are stuck and what to do
@@ -153,6 +156,7 @@ Goals:
 - Encourage reflection: "What was the tricky part? What helped you get past it?"
 
 **Emotional Scaffolds**
+
 - Normalize mistakes: "Errors are data, not failures"
 - Celebrate effort and strategy, not just correct answers
 - Adjust difficulty to maintain a success rate of roughly 70-80% during practice
@@ -162,6 +166,7 @@ Goals:
 ### When to Remove Scaffolds
 
 Signs the learner is ready for less support:
+
 - Completes tasks accurately without prompting
 - Can explain their reasoning clearly
 - Self-corrects errors without being told
@@ -169,6 +174,7 @@ Signs the learner is ready for less support:
 - Expresses confidence in the topic
 
 Signs more scaffolding is still needed:
+
 - Correct answers but cannot explain why
 - Frequent errors of the same type
 - Needs repeated reminders of steps
@@ -179,16 +185,16 @@ Signs more scaffolding is still needed:
 
 ### Adjusting for Different Learner Needs
 
-| Learner Profile | Differentiation Approach |
-|----------------|------------------------|
-| Below grade level | Start with prerequisite skills, use concrete manipulatives, increase scaffolding, slow the pace |
-| At grade level but struggling | Focus on specific gap areas, provide additional practice, teach study strategies |
-| At grade level seeking enrichment | Introduce depth and complexity, pose open-ended problems, encourage teaching back |
-| Gifted or advanced | Compact curriculum, accelerate pace, provide challenge problems, explore applications |
-| English language learner | Pre-teach vocabulary, use visuals and realia, allow extra processing time, check for language vs. content gaps |
-| Learner with attention challenges | Shorter activity segments, movement breaks, high-engagement formats, minimize distractions, use timers |
-| Learner with reading difficulties | Read problems aloud, use audio resources, focus on comprehension strategies, reduce text density |
-| Anxious or low-confidence learner | Start with achievable tasks, build incrementally, use low-stakes practice, provide frequent encouragement |
+| Learner Profile                   | Differentiation Approach                                                                                       |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Below grade level                 | Start with prerequisite skills, use concrete manipulatives, increase scaffolding, slow the pace                |
+| At grade level but struggling     | Focus on specific gap areas, provide additional practice, teach study strategies                               |
+| At grade level seeking enrichment | Introduce depth and complexity, pose open-ended problems, encourage teaching back                              |
+| Gifted or advanced                | Compact curriculum, accelerate pace, provide challenge problems, explore applications                          |
+| English language learner          | Pre-teach vocabulary, use visuals and realia, allow extra processing time, check for language vs. content gaps |
+| Learner with attention challenges | Shorter activity segments, movement breaks, high-engagement formats, minimize distractions, use timers         |
+| Learner with reading difficulties | Read problems aloud, use audio resources, focus on comprehension strategies, reduce text density               |
+| Anxious or low-confidence learner | Start with achievable tasks, build incrementally, use low-stakes practice, provide frequent encouragement      |
 
 ### Small Group Tutoring Adaptations
 
@@ -205,15 +211,15 @@ When tutoring 2-4 students simultaneously:
 
 ### Data Collection Methods
 
-| Method | Frequency | What It Measures |
-|--------|-----------|-----------------|
-| Session notes | Every session | Topics covered, strategies used, observations |
-| Skill checklist | Weekly | Mastery status of specific skills |
-| Timed fluency probes | Weekly or bi-weekly | Speed and accuracy on foundational skills |
-| Pre/post mini-assessments | Per unit or skill set | Growth on targeted skills |
-| Error tracking log | Every session | Frequency and type of errors over time |
-| Student self-rating | Weekly | Confidence and perceived understanding |
-| Grade or test score tracking | Per grading period | Impact on classroom performance |
+| Method                       | Frequency             | What It Measures                              |
+| ---------------------------- | --------------------- | --------------------------------------------- |
+| Session notes                | Every session         | Topics covered, strategies used, observations |
+| Skill checklist              | Weekly                | Mastery status of specific skills             |
+| Timed fluency probes         | Weekly or bi-weekly   | Speed and accuracy on foundational skills     |
+| Pre/post mini-assessments    | Per unit or skill set | Growth on targeted skills                     |
+| Error tracking log           | Every session         | Frequency and type of errors over time        |
+| Student self-rating          | Weekly                | Confidence and perceived understanding        |
+| Grade or test score tracking | Per grading period    | Impact on classroom performance               |
 
 ### Progress Monitoring Template
 
@@ -245,13 +251,13 @@ Communication:
 
 ### Adjusting the Plan Based on Data
 
-| Data Pattern | Action |
-|-------------|--------|
-| Steady progress toward goal | Continue current approach, begin reducing scaffolds |
-| Plateau (no progress for 2+ weeks) | Change strategy, reassess for underlying gaps, increase engagement |
-| Regression (skills declining) | Check for external factors, revisit prerequisites, reduce cognitive load |
-| Rapid mastery | Accelerate pace, introduce more complex applications, consider transitioning to enrichment |
-| Inconsistent performance | Investigate patterns (time of day, topic, fatigue), focus on metacognitive strategies |
+| Data Pattern                       | Action                                                                                     |
+| ---------------------------------- | ------------------------------------------------------------------------------------------ |
+| Steady progress toward goal        | Continue current approach, begin reducing scaffolds                                        |
+| Plateau (no progress for 2+ weeks) | Change strategy, reassess for underlying gaps, increase engagement                         |
+| Regression (skills declining)      | Check for external factors, revisit prerequisites, reduce cognitive load                   |
+| Rapid mastery                      | Accelerate pace, introduce more complex applications, consider transitioning to enrichment |
+| Inconsistent performance           | Investigate patterns (time of day, topic, fatigue), focus on metacognitive strategies      |
 
 ## Building the Tutor-Learner Relationship
 
@@ -285,7 +291,6 @@ The goal of tutoring is to make itself unnecessary. Actively work toward indepen
 - **No communication with classroom teacher**: Alignment with classroom instruction multiplies tutoring impact.
 - **Not tracking progress**: Without data, you cannot know if your approach is working.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -293,7 +298,6 @@ The goal of tutoring is to make itself unnecessary. Actively work toward indepen
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -314,14 +318,12 @@ The goal of tutoring is to make itself unnecessary. Actively work toward indepen
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

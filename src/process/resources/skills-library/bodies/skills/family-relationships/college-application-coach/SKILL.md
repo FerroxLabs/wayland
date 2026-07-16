@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events teaching planning"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events teaching planning'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # College Application Coach
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on college application coach
 - User asks about college application coach best practices or techniques
 - User wants a structured approach to college application coach
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of college application coach
 
@@ -76,6 +77,7 @@ TIER DISTRIBUTION:
 ```
 
 ### School Research Framework
+
 ```
 For each school on your list, research:
 
@@ -111,7 +113,9 @@ FINANCIAL:
 ```
 
 ### Demonstrated Interest
+
 Some schools track your engagement. Where it matters:
+
 - Sign up for mailing lists
 - Attend virtual and in-person info sessions
 - Visit campus if possible (sign in at admissions office)
@@ -124,6 +128,7 @@ Note: Highly selective schools (Ivy League, Stanford, MIT) generally do NOT cons
 ## Application Timeline
 
 ### Junior Year
+
 ```
 FALL:
   [ ] Take challenging courses appropriate for your level
@@ -153,6 +158,7 @@ SUMMER BEFORE SENIOR YEAR:
 ```
 
 ### Senior Year
+
 ```
 AUGUST-SEPTEMBER:
   [ ] Finalize Common App personal essay
@@ -203,6 +209,7 @@ MAY 1:
 ### The Personal Essay (Common App, 650 words)
 
 **What admissions officers want to see:**
+
 - Your authentic voice and personality
 - Self-reflection and growth
 - How you think, not just what you have done
@@ -210,6 +217,7 @@ MAY 1:
 - Strong writing ability
 
 **What to avoid:**
+
 - Summarizing your resume in essay form
 - Writing what you think they want to hear
 - Tragedy without reflection (the "sad story" that ends abruptly)
@@ -219,6 +227,7 @@ MAY 1:
 - Having an adult's voice replace your own
 
 ### Essay Brainstorming Framework
+
 ```
 APPROACH 1 - THE SPECIFIC MOMENT
   Think of a single, specific moment that changed how you see
@@ -246,6 +255,7 @@ APPROACH 5 - THE EVOLUTION
 ```
 
 ### Essay Writing Process
+
 1. **Brainstorm freely** (20+ potential topics, no filtering)
 2. **Select 2-3 topics** to draft (do not commit to one immediately)
 3. **Write a rough draft** without editing (get the story down)
@@ -258,6 +268,7 @@ APPROACH 5 - THE EVOLUTION
 10. **Do NOT over-revise**: The essay should still sound like a 17-year-old, not a committee
 
 ### Supplemental Essay Types
+
 ```
 "WHY US?" ESSAY:
   - Mention specific programs, professors, courses, opportunities
@@ -290,6 +301,7 @@ SHORT ANSWER (100-250 words):
 ## Activities List Optimization
 
 ### Presentation Strategy
+
 ```
 ACTIVITIES SECTION (Common App allows 10):
 
@@ -312,6 +324,7 @@ ACTIVITIES SECTION (Common App allows 10):
 ```
 
 ### Activity Quality Framework
+
 ```
 TIER 1 (Rare, high impact):
   - National/international recognition in your field
@@ -340,12 +353,14 @@ TIER 4 (Common, minimal distinction):
 ## Recommendation Letter Strategy
 
 ### Who to Ask
+
 - **Academic recommenders**: Choose teachers who know you well from junior or senior year
 - Best: Teacher in a subject relevant to your intended major who can speak to your intellectual curiosity, participation, growth, and character
 - Ideally one STEM and one humanities teacher (shows range)
 - **Counselor recommendation**: Meet with your counselor early and often so they know your story
 
 ### How to Ask
+
 ```
 RECOMMENDATION REQUEST PACKET:
 Give each recommender:
@@ -364,6 +379,7 @@ Give each recommender:
 ## Financial Aid
 
 ### FAFSA (Free Application for Federal Student Aid)
+
 ```
 OPENS: October 1 each year
 REQUIRED FOR: Federal grants, loans, work-study, and most state aid
@@ -378,6 +394,7 @@ KEY OUTPUT: Expected Family Contribution (EFC) / Student Aid Index (SAI)
 ```
 
 ### CSS Profile
+
 ```
 REQUIRED BY: ~250 mostly private colleges
 MORE DETAILED: Considers home equity, non-custodial parent, etc.
@@ -386,6 +403,7 @@ SUBMIT: As early as October 1
 ```
 
 ### Understanding Your Aid Package
+
 ```
 FREE MONEY (does not need repayment):
   - Grants (need-based)
@@ -406,6 +424,7 @@ COMPARE PACKAGES BY:
 ```
 
 ### Negotiating Financial Aid
+
 - If another comparable school offered a better package, share it
 - Write a professional appeal letter to the financial aid office
 - Explain any special circumstances (job loss, medical expenses, divorce)
@@ -415,6 +434,7 @@ COMPARE PACKAGES BY:
 ## Interview Preparation
 
 ### Common Questions and Approach
+
 ```
 "TELL ME ABOUT YOURSELF"
   - 2-minute overview: academic interests, key activities, why this school
@@ -443,6 +463,7 @@ YOUR QUESTIONS FOR THEM:
 ```
 
 ### Interview Tips
+
 - Dress one step above casual (business casual)
 - Arrive 10 minutes early
 - Bring a copy of your resume (just in case)
@@ -460,7 +481,6 @@ YOUR QUESTIONS FOR THEM:
 
 The goal is not to get into the "best" school. The goal is to find the school where you will learn, grow, and thrive.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -473,13 +493,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with college application coach for a mid-size project."
 
 **Output:** A complete college application coach framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

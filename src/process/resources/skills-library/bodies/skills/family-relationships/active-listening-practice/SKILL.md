@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships teaching planning"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'relationships teaching planning'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Active Listening Practice
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user explicitly says their partner, parent, child, or friend has complained that they do not feel listened to or understood
 - A user identifies one of the classic failure patterns in themselves: interrupting, jumping to solutions, redirecting to their own experience, mentally drafting their response, or dismissing emotions with minimizing language
 - A user asks for specific exercises, scripts, or techniques to become a better listener in personal relationships
@@ -29,6 +31,7 @@ metadata:
 - A user working on their relationship through self-improvement, couples work, or parenting asks about the communication skill side of it
 
 **Do NOT use when:**
+
 - The user describes a clinical communication disorder such as auditory processing disorder, aphasia, or selective mutism -- recommend evaluation by a speech-language pathologist
 - The user is asking about listening skills in professional, managerial, or negotiation contexts -- use a business communication or leadership skill instead
 - The user wants techniques for extracting information, detecting deception, or gaining the upper hand in a conversation -- this is manipulation, not listening
@@ -78,9 +81,10 @@ Following is the use of minimal encouragers, brief questions, and strategic sile
 
 **Component 3 -- Reflecting (Mirroring Content and Feeling)**
 This is the most important and most often taught incorrectly. Reflecting has two layers that must BOTH be present:
+
 - Content reflection: mirroring back the factual substance of what was said ("So what happened was that your manager presented your work without crediting you.")
 - Feeling reflection: naming the emotional experience behind the content ("That sounds humiliating -- or maybe more like being erased?")
-Reflecting ONLY content is journalistic and feels cold. Reflecting ONLY feeling without grounding it in the situation feels like a therapy parody. Both together, in one statement, is the target. The formula: "It sounds like you felt [feeling word] when [situation]." Offer the feeling word tentatively -- use "sounds like" or "I might be wrong but" -- because incorrectly labeling someone's emotion and asserting it confidently is worse than not labeling it at all.
+  Reflecting ONLY content is journalistic and feels cold. Reflecting ONLY feeling without grounding it in the situation feels like a therapy parody. Both together, in one statement, is the target. The formula: "It sounds like you felt [feeling word] when [situation]." Offer the feeling word tentatively -- use "sounds like" or "I might be wrong but" -- because incorrectly labeling someone's emotion and asserting it confidently is worse than not labeling it at all.
 
 **Component 4 -- Clarifying (Deepening Understanding, Not Interrogating)**
 Clarifying questions serve understanding, not information gathering. The distinction: "What exactly happened?" (information gathering) versus "When you said it felt like he ignored you, what does that look like?" (deepening understanding of their experience). Clarifying questions should be open-ended, focused on the speaker's experience rather than the external facts, and sparing -- two or three maximum per conversation, not a rapid-fire questionnaire.
@@ -120,6 +124,7 @@ For each exercise, specify: name, tier, duration, frequency for a one-week pract
 Progress indicators must be externally observable -- behaviors the user can see in the other person or catch in themselves. Internal states ("I feel like I'm listening better") are not reliable indicators at early stages. Frame indicators in terms of what will change in the other person's behavior, because their response is the actual evidence of listening.
 
 The five most reliable early progress indicators:
+
 1. The speaker starts elaborating more without being asked -- they talk longer per turn
 2. The speaker stops saying "let me finish" or "you're not listening"
 3. The speaker begins conversations with "I need to tell you something" rather than waiting to be asked
@@ -138,6 +143,7 @@ Active listening is cognitively expensive. It requires deliberate effort that, o
 ### Step 8: Deliver the Output and Invite Iteration
 
 Deliver the full practice plan in the structured format below. Then invite the user to return after practicing for 3 to 5 days. Progress check questions for follow-up:
+
 - Which exercise did they do, and what happened?
 - Did they catch themselves in their old pattern? What triggered it?
 - How did the other person respond differently, if at all?
@@ -319,6 +325,7 @@ Sometimes a user returns having genuinely practiced and improved, but the other 
 ## Active Listening Practice Plan
 
 ### Your Listening Profile
+
 - **Primary failure mode:** The Fixer -- and possibly The Interrogator (advice-giving and rapid questioning)
 - **Relationship context:** Your teenage daughter, specifically in conversations about her social life, experiences, and feelings
 - **How it shows up:** When she shares something, you shift into solution mode or information-gathering mode -- giving advice before she asked for it, or asking a sequence of questions that she experiences as an interview rather than a conversation
@@ -328,24 +335,27 @@ Sometimes a user returns having genuinely practiced and improved, but the other 
 ---
 
 ### The Five Components in Your Situation
-| Component | What This Looks Like With Your Daughter | The Mistake You're Probably Making |
-|-----------|----------------------------------------|------------------------------------|
-| Attending | Sit with her, not across from her. Side-by-side (on a couch, in a car) often works better with teenagers than face-to-face -- it feels less evaluative. Phone out of sight. | Being in the same room but checking your phone, or trying to talk while also watching something |
-| Following | "Hm." "Yeah." "Then what happened?" Long pauses -- she needs them. | Asking three questions in a row, which feels like a quiz |
-| Reflecting | "That sounds really uncomfortable." "It sounds like you felt left out, not just annoyed." | Jumping to "Well, what did you say to her?" before she finishes |
-| Clarifying | "When you say your friend was being weird -- what does that look like?" | "Why didn't you just...?" (Why questions almost always land as criticism with teenagers) |
-| Summarizing | "So what I'm hearing is that the whole lunch was awkward and you didn't feel like anyone really noticed. That sounds lonely." | Summarizing the events but missing the feeling, which makes her feel like you understood the story but not her |
+
+| Component   | What This Looks Like With Your Daughter                                                                                                                                     | The Mistake You're Probably Making                                                                             |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Attending   | Sit with her, not across from her. Side-by-side (on a couch, in a car) often works better with teenagers than face-to-face -- it feels less evaluative. Phone out of sight. | Being in the same room but checking your phone, or trying to talk while also watching something                |
+| Following   | "Hm." "Yeah." "Then what happened?" Long pauses -- she needs them.                                                                                                          | Asking three questions in a row, which feels like a quiz                                                       |
+| Reflecting  | "That sounds really uncomfortable." "It sounds like you felt left out, not just annoyed."                                                                                   | Jumping to "Well, what did you say to her?" before she finishes                                                |
+| Clarifying  | "When you say your friend was being weird -- what does that look like?"                                                                                                     | "Why didn't you just...?" (Why questions almost always land as criticism with teenagers)                       |
+| Summarizing | "So what I'm hearing is that the whole lunch was awkward and you didn't feel like anyone really noticed. That sounds lonely."                                               | Summarizing the events but missing the feeling, which makes her feel like you understood the story but not her |
 
 ---
 
 ### Phrase Bank (Adapted for Talking with Your Daughter)
 
 **Attending -- creating a physical environment where she might talk:**
+
 > Sit next to her, not across. Car rides are often the best conversations with teenagers -- no eye contact required.
 > Turn your phone face-down and leave it there. No exceptions.
 > Don't initiate with "We need to talk" -- that phrase closes teenagers down. Come alongside her during something she's already doing.
 
 **Following encouragers (keep them brief -- teenagers do not want to be prompted extensively):**
+
 > "Yeah."
 > "Hm."
 > "That's rough."
@@ -353,26 +363,31 @@ Sometimes a user returns having genuinely practiced and improved, but the other 
 > [Silence -- this is the most important tool. Count to 5 before you speak. She will often fill that silence with the real thing.]
 
 **Reflecting (content + feeling together):**
+
 > "That sounds really frustrating -- like you did everything right and it still went wrong."
 > "It sounds like you felt kind of invisible in the whole thing."
 > "That's a lot to deal with. Sounds exhausting."
 > "I might be getting this wrong -- but it sounds like it wasn't really about [the event], it was more about feeling like [feeling]."
 
 **Clarifying (use sparingly -- one or two per conversation):**
+
 > "When you say things are weird with her -- what does that feel like?"
 > "What was the part that bothered you most?"
 > Avoid "Why didn't you..." -- replace with "What was going through your head when...?"
 
 **Summarizing:**
+
 > "Okay, let me make sure I got it. [Brief content]. And it sounds like the worst part was feeling [emotion]. Is that right?"
 > "So the main thing is [what mattered to her most], and that's been sitting with you. That makes sense."
 
 **The permission question:**
+
 > "Do you want to think through what to do, or do you just need to say it out loud?"
 > With teenagers, also fine: "I have some thoughts if you want them -- do you want them?"
 > If she says no: say "Okay." Full stop. No "But just hear me out..."
 
 **What NOT to say:**
+
 > "When I was your age..." (redirect -- this will end the conversation)
 > "You should..." / "You need to..." / "Have you tried..." (before she asks)
 > "It's not that bad." / "At least..." (dismissing)
@@ -384,29 +399,30 @@ Sometimes a user returns having genuinely practiced and improved, but the other 
 
 **Tier 1 -- Solo Practice**
 
-| Exercise | Duration | Frequency | Instructions | What Success Looks Like |
-|----------|----------|-----------|--------------|------------------------|
-| Feelings Vocabulary Expansion | 5 min | Daily | Study 10 feeling words. Practice using them in sentences you might actually say: "That sounds invisible" / "That sounds humiliating" / "That sounds exhausting." Focus especially on teen-relevant feelings: invisible, embarrassed, excluded, overwhelmed, disconnected, misunderstood, exposed. | You can name a feeling other than "upset" or "frustrated" without it feeling foreign |
-| Podcast Reflection | 10 min | 3x this week | Listen to an interview with a young person or anyone talking about a difficult experience. At the 5-minute mark, pause. Say aloud: what happened (content) and what does this person seem to be feeling (emotion)? Resume and check. | You name an emotion and can connect it to a specific moment in what was shared |
+| Exercise                      | Duration | Frequency    | Instructions                                                                                                                                                                                                                                                                                      | What Success Looks Like                                                              |
+| ----------------------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Feelings Vocabulary Expansion | 5 min    | Daily        | Study 10 feeling words. Practice using them in sentences you might actually say: "That sounds invisible" / "That sounds humiliating" / "That sounds exhausting." Focus especially on teen-relevant feelings: invisible, embarrassed, excluded, overwhelmed, disconnected, misunderstood, exposed. | You can name a feeling other than "upset" or "frustrated" without it feeling foreign |
+| Podcast Reflection            | 10 min   | 3x this week | Listen to an interview with a young person or anyone talking about a difficult experience. At the 5-minute mark, pause. Say aloud: what happened (content) and what does this person seem to be feeling (emotion)? Resume and check.                                                              | You name an emotion and can connect it to a specific moment in what was shared       |
 
 **Tier 2 -- Low-Stakes Conversation Practice**
 
-| Exercise | Duration | Frequency | Instructions | What Success Looks Like |
-|----------|----------|-----------|--------------|------------------------|
-| The 5-Second Pause | Ongoing | All conversations this week | Every time someone stops talking, count silently to 5 before speaking. With your daughter, make it 7. | You consistently wait. You notice what people add in those extra seconds -- often it is the important thing. |
-| One Question Maximum | Per conversation | Daily | In any conversation this week, practice asking only one clarifying question per topic. Not zero questions, but never more than one in sequence. | You feel the urge to ask the second question and choose not to. |
+| Exercise             | Duration         | Frequency                   | Instructions                                                                                                                                    | What Success Looks Like                                                                                      |
+| -------------------- | ---------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| The 5-Second Pause   | Ongoing          | All conversations this week | Every time someone stops talking, count silently to 5 before speaking. With your daughter, make it 7.                                           | You consistently wait. You notice what people add in those extra seconds -- often it is the important thing. |
+| One Question Maximum | Per conversation | Daily                       | In any conversation this week, practice asking only one clarifying question per topic. Not zero questions, but never more than one in sequence. | You feel the urge to ask the second question and choose not to.                                              |
 
 **Tier 3 -- Practice With Your Daughter**
 
-| Exercise | Duration | Frequency | Instructions | What Success Looks Like |
-|----------|----------|-----------|--------------|------------------------|
-| The Car Ride Conversation | However long the ride is | Any car ride this week | Teenagers often open up in cars. No eye contact required. Drive somewhere low-pressure. Do not ask about school. Ask something open: "What's been the weirdest part of this week?" Then: follow, reflect, do not advise. | She talks for more than two sentences without shutting down |
-| No-Advice Debrief | 10-15 min | 1x this week | Ask: "What was something hard this week?" Then apply the full sequence: attend, follow, reflect (content + feeling), one clarifying question maximum, summarize. Ask the permission question before any advice. If she says "just listen," honor it completely. | The conversation does not end abruptly. She doesn't say "never mind." |
-| The Repair Practice | 60 sec | As needed | The moment you give advice before she asked, or ask your third question in a row, say: "Wait -- I went into advice mode. I'm sorry. You were saying..." and let her continue. | She continues instead of shutting down. The repair matters more to her than the lapse did. |
+| Exercise                  | Duration                 | Frequency              | Instructions                                                                                                                                                                                                                                                    | What Success Looks Like                                                                    |
+| ------------------------- | ------------------------ | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| The Car Ride Conversation | However long the ride is | Any car ride this week | Teenagers often open up in cars. No eye contact required. Drive somewhere low-pressure. Do not ask about school. Ask something open: "What's been the weirdest part of this week?" Then: follow, reflect, do not advise.                                        | She talks for more than two sentences without shutting down                                |
+| No-Advice Debrief         | 10-15 min                | 1x this week           | Ask: "What was something hard this week?" Then apply the full sequence: attend, follow, reflect (content + feeling), one clarifying question maximum, summarize. Ask the permission question before any advice. If she says "just listen," honor it completely. | The conversation does not end abruptly. She doesn't say "never mind."                      |
+| The Repair Practice       | 60 sec                   | As needed              | The moment you give advice before she asked, or ask your third question in a row, say: "Wait -- I went into advice mode. I'm sorry. You were saying..." and let her continue.                                                                                   | She continues instead of shutting down. The repair matters more to her than the lapse did. |
 
 ---
 
 ### Feelings Vocabulary Reference (Teen-Relevant Edition)
+
 **Start here:** frustrated, embarrassed, ignored, left out, anxious, tired, hurt, confused
 **Add next:** dismissed, invisible, overwhelmed, misunderstood, excluded, exposed, disconnected, unimportant
 **Eventually:** ambivalent, resigned, hypervigilant, hollow, raw, unmoored, depleted, undermined
@@ -414,6 +430,7 @@ Sometimes a user returns having genuinely practiced and improved, but the other 
 ---
 
 ### Progress Indicators (Observable)
+
 - [ ] She gives answers longer than one or two words when you ask how she is
 - [ ] She initiates a conversation with you, rather than only responding when you ask
 - [ ] She does not shut down mid-conversation or say "never mind" or "forget it"

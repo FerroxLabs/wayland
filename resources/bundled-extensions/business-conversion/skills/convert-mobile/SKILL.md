@@ -34,7 +34,7 @@ attribution:
 
 # Convert Mobile - Mobile-First Compression of the Donahoe Method
 
-> *"60%+ of web traffic is mobile. The Method must hold there or it doesn't hold."* - Wayland conversion playbook
+> _"60%+ of web traffic is mobile. The Method must hold there or it doesn't hold."_ - Wayland conversion playbook
 
 Mobile is not "the desktop page, but smaller." Mobile is a different reading device, a different interaction surface, a different physical posture. This skill takes any direct-response asset built with The Donahoe Method and engineers the mobile rendering so that every Method layer survives the 375px squeeze.
 
@@ -43,12 +43,14 @@ Mobile is not "the desktop page, but smaller." Mobile is a different reading dev
 Trigger phrases: "mobile sales page", "mobile conversion", "mobile thumb zone", "thumb reachable cta", "mobile-first design", "small screen sales page", "donahoe mobile", "mobile compression", `/convert mobile <product>`.
 
 Use when:
+
 - Designing or rebuilding the mobile rendering of a long-form sales page, VSL page, squeeze, OTO, or lead-magnet page
 - The desktop page exists but mobile feels broken, slow, or under-converting
 - A net-new page where mobile is the primary or sole device
 - Diagnosing why the mobile bounce rate is high and desktop is fine
 
 Do NOT use for:
+
 - Native iOS or Android app design (this is web-only)
 - Desktop-only spec - use `/convert above-fold` + `/convert scroll-rhythm`
 - Auditing a live URL - use `/market landing <url>`
@@ -64,36 +66,36 @@ So: design the mobile version first. Then expand for tablet and desktop. Every M
 
 ### Constraint 1 - The viewport
 
-| Device class | Width | Design baseline |
-|--------------|-------|-----------------|
-| Smallest still-shipping | 320px | iPhone SE 1st gen - design must not break |
-| Modern compact | 375px | iPhone SE 2/3, iPhone 12/13 mini - design baseline |
-| Modern standard | 390-430px | iPhone 14/15, most Android - abundant space |
-| Large mobile | 430px+ | iPhone Pro Max, large Android - extra space, treat as standard |
+| Device class            | Width     | Design baseline                                                |
+| ----------------------- | --------- | -------------------------------------------------------------- |
+| Smallest still-shipping | 320px     | iPhone SE 1st gen - design must not break                      |
+| Modern compact          | 375px     | iPhone SE 2/3, iPhone 12/13 mini - design baseline             |
+| Modern standard         | 390-430px | iPhone 14/15, most Android - abundant space                    |
+| Large mobile            | 430px+    | iPhone Pro Max, large Android - extra space, treat as standard |
 
 Design and test at **375px**. Verify nothing breaks at 320px.
 
 ### Constraint 2 - Fitts's law (1954) - touch target sizing
 
-*Fitts's law (Paul Fitts, 1954): the time required to acquire a target = function of the distance to the target and the size of the target.*
+_Fitts's law (Paul Fitts, 1954): the time required to acquire a target = function of the distance to the target and the size of the target._
 
 Translation for mobile: bigger CTAs that are closer to the thumb get clicked. Specifications:
 
-| Element | Minimum | Method-grade |
-|---------|---------|--------------|
-| Primary CTA height | 44pt (Apple HIG) | 56-64px |
-| Primary CTA tap area | 44×44pt | 56×280px+ (full-width on mobile) |
-| Secondary CTA / link | 44×44pt | 48×120px+ |
-| Form input height | 40px | 48-56px |
-| Tap-target spacing | 8px gap | 12-16px gap |
-| Body text size | 16px (anti-zoom) | 17-18px (comfortable read) |
-| Line height (body) | 1.4 | 1.5-1.6 |
+| Element              | Minimum          | Method-grade                     |
+| -------------------- | ---------------- | -------------------------------- |
+| Primary CTA height   | 44pt (Apple HIG) | 56-64px                          |
+| Primary CTA tap area | 44×44pt          | 56×280px+ (full-width on mobile) |
+| Secondary CTA / link | 44×44pt          | 48×120px+                        |
+| Form input height    | 40px             | 48-56px                          |
+| Tap-target spacing   | 8px gap          | 12-16px gap                      |
+| Body text size       | 16px (anti-zoom) | 17-18px (comfortable read)       |
+| Line height (body)   | 1.4              | 1.5-1.6                          |
 
 Anything below the minimums creates rage-taps and abandonment. Method-grade is what we ship.
 
 ### Constraint 3 - The thumb zone (Hoober, 2013)
 
-*Steven Hoober's research ("How Do Users Really Hold Mobile Devices?", UXmatters, 2013, replicated since) maps mobile reachability into three zones based on one-handed grip.*
+_Steven Hoober's research ("How Do Users Really Hold Mobile Devices?", UXmatters, 2013, replicated since) maps mobile reachability into three zones based on one-handed grip._
 
 ```
 +--------------------+
@@ -109,22 +111,25 @@ Anything below the minimums creates rage-taps and abandonment. Method-grade is w
 ```
 
 Application rules:
+
 - **Primary CTAs in the EASY zone.** Sticky bottom CTA on long pages = +10-25% conversions vs top-fixed (varies, folklore-leaning).
 - **Hamburger menus in the HARD zone are standard but ergonomically poor.** Accept the convention (Jakob's Law); don't reinvent.
 - **Long-press destructive actions stay in the HARD zone** - friction is a feature there.
 
 ### Constraint 4 - Single-column composition
 
-No multi-column layouts on mobile. The three-thirds of the desktop scroll-rhythm collapse to a single vertical column. Section ordering becomes the *only* visual hierarchy. Sub-heads do more work.
+No multi-column layouts on mobile. The three-thirds of the desktop scroll-rhythm collapse to a single vertical column. Section ordering becomes the _only_ visual hierarchy. Sub-heads do more work.
 
 ### Constraint 5 - Speed budget
 
 Mobile loads on cellular. Web Vitals targets:
+
 - **LCP** (Largest Contentful Paint) <2.5s; >4s is failure
 - **CLS** (Cumulative Layout Shift) <0.1; layout shifts cause accidental taps
 - **INP** (Interaction to Next Paint, replaces FID 2024) <200ms
 
 Practical implications for Method assets:
+
 - Hero image: WebP, <100KB, lazy-load below-fold images
 - Hero video: poster-image preview only; lazy-load video chunk on user gesture
 - No render-blocking JS in the hero
@@ -133,11 +138,13 @@ Practical implications for Method assets:
 ## Inputs
 
 Required:
+
 1. **Asset type** - long-form sales page / VSL page / squeeze / OTO / lead-magnet / bridge
 2. **Method skills that have run** - outputs from `convert-open`, `convert-three-locks`, `convert-bullets`, `convert-proof`, `convert-close`
 3. **Desktop spec (if exists)** - output from `convert-above-fold` and/or `convert-scroll-rhythm`
 
 Optional:
+
 - **Brand visual constraints** - colors, typography, image style
 - **Existing mobile rendering** - for porting / compression
 - **Primary device target** - if the audience skews iOS or Android (rarely matters; Hoober applies)
@@ -149,7 +156,7 @@ Every Method layer must survive. Six compression rules:
 
 ### Rule 1 - Open compression (Four-Layer Open)
 
-Desktop hero shows Layer 1 (headline) + Layer 2 (subhead). Mobile shows the *same two*, just smaller type. Layers 3-4 unspool below in the body - same as desktop.
+Desktop hero shows Layer 1 (headline) + Layer 2 (subhead). Mobile shows the _same two_, just smaller type. Layers 3-4 unspool below in the body - same as desktop.
 
 NEVER strip Layer 2 from mobile to fit the CTA. If the CTA doesn't fit, shrink the headline. The Open is sacred.
 
@@ -188,6 +195,7 @@ If `convert-above-fold` and `convert-scroll-rhythm` have run, lift their outputs
 ### Step 2 - Map the section order to a vertical column
 
 Take the section list from `convert-scroll-rhythm` (14-18 sections). For each section, define:
+
 - Which mobile pattern it uses (full-width text, scannable bullet block, image+text card, video poster, etc.)
 - Its compressed type sizes
 - Its CTA presence (inline button or rely on sticky bar)
@@ -230,6 +238,7 @@ Above the fold at 375px must contain: headline + subhead + CTA + microcopy. Trus
 ```
 
 Specifications:
+
 - Appears once scrollY > [end of Section 5 / Trust zone entry]
 - Disappears when in viewport with the inline CTA (avoids double-CTA visual clash)
 - Background: solid color with 12-16px top padding for thumb safety
@@ -250,16 +259,16 @@ For each of the 14-18 sections from the desktop scroll-rhythm:
 
 ### Step 6 - Form mobile audit (if forms exist)
 
-| Element | Method-grade mobile spec |
-|---------|----------------------------|
-| Field count | 3-5 max for lead-capture; one-per-screen for multi-step |
-| Field height | 48-56px |
-| Label | Floating or above-field; never placeholder-only |
-| Input mode | `type="email"`, `type="tel"`, `type="url"` for native keyboards |
-| Autofill | `autocomplete` attributes set correctly |
-| Submit button | Full-width, 56px+, value-loaded copy |
-| Error inline | Specific message; never wipe the form on submit error |
-| Multi-step | Progress indicator at top |
+| Element       | Method-grade mobile spec                                        |
+| ------------- | --------------------------------------------------------------- |
+| Field count   | 3-5 max for lead-capture; one-per-screen for multi-step         |
+| Field height  | 48-56px                                                         |
+| Label         | Floating or above-field; never placeholder-only                 |
+| Input mode    | `type="email"`, `type="tel"`, `type="url"` for native keyboards |
+| Autofill      | `autocomplete` attributes set correctly                         |
+| Submit button | Full-width, 56px+, value-loaded copy                            |
+| Error inline  | Specific message; never wipe the form on submit error           |
+| Multi-step    | Progress indicator at top                                       |
 
 ### Step 7 - Speed audit checklist
 
@@ -280,7 +289,7 @@ Final check: pull up the page on an actual mobile device. Read out loud. Scroll 
 
 ## Output Template
 
-```markdown
+````markdown
 # Mobile Spec: <Product>
 
 **Asset:** <long-form sales page / VSL / squeeze / OTO / lead-magnet>
@@ -294,6 +303,7 @@ Final check: pull up the page on an actual mobile device. Read out loud. Scroll 
 [Wireframe - same as Step 3 above]
 
 **Type spec:**
+
 - Headline: <quoted> - clamp(28px, 8vw, 44px) / 800 / lh 1.05
 - Subhead: <quoted> - clamp(15px, 4vw, 18px) / 500 / lh 1.5 / opacity 0.8
 - CTA: <quoted> - 56-64px tall, full-width, accent color, white text
@@ -302,13 +312,13 @@ Final check: pull up the page on an actual mobile device. Read out loud. Scroll 
 
 ## Vertical section list (mobile)
 
-| # | Section | Pattern | Type | Inline CTA | Notes |
-|---|---------|---------|------|------------|-------|
-| 1 | Hero | Stacked | h1 + p + button | Yes | (above) |
-| 2 | Open body | Full-width text | p (17-18px) | - | F-pattern; bold key phrases |
-| 3 | Pain agitate | Full-width text | p + h3 sub-heads | - | Aggressive sub-head spacing |
-| 4 | Vision paint | Image + text card | img + p | - | Image first; text below; never side-by-side |
-| ... | ... | ... | ... | ... | ... |
+| #   | Section      | Pattern           | Type             | Inline CTA | Notes                                       |
+| --- | ------------ | ----------------- | ---------------- | ---------- | ------------------------------------------- |
+| 1   | Hero         | Stacked           | h1 + p + button  | Yes        | (above)                                     |
+| 2   | Open body    | Full-width text   | p (17-18px)      | -          | F-pattern; bold key phrases                 |
+| 3   | Pain agitate | Full-width text   | p + h3 sub-heads | -          | Aggressive sub-head spacing                 |
+| 4   | Vision paint | Image + text card | img + p          | -          | Image first; text below; never side-by-side |
+| ... | ...          | ...               | ...              | ...        | ...                                         |
 
 ## Sticky bottom CTA bar
 
@@ -338,10 +348,12 @@ Final check: pull up the page on an actual mobile device. Read out loud. Scroll 
   --hairline: rgba(17, 17, 17, 0.08);
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   font-size: 17px;
   line-height: 1.6;
   color: var(--text);
@@ -351,7 +363,9 @@ body {
 }
 
 /* Hero */
-.hero { padding: 32px 24px 48px; }
+.hero {
+  padding: 32px 24px 48px;
+}
 .hero h1 {
   font-size: clamp(28px, 8vw, 44px);
   font-weight: 800;
@@ -387,7 +401,9 @@ body {
 }
 
 /* Sections */
-.section { padding: 48px 24px; }
+.section {
+  padding: 48px 24px;
+}
 .section h2 {
   font-size: clamp(24px, 6vw, 32px);
   line-height: 1.15;
@@ -398,8 +414,12 @@ body {
   line-height: 1.25;
   margin: 28px 0 12px;
 }
-.section p { margin: 0 0 16px; }
-.section + .section { border-top: 1px solid var(--hairline); }
+.section p {
+  margin: 0 0 16px;
+}
+.section + .section {
+  border-top: 1px solid var(--hairline);
+}
 
 /* Inline CTA */
 .cta-inline {
@@ -420,7 +440,9 @@ body {
 /* Sticky bottom CTA */
 .sticky-cta {
   position: fixed;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 12px 16px env(safe-area-inset-bottom, 12px);
   background: var(--bg);
   border-top: 1px solid var(--hairline);
@@ -447,7 +469,11 @@ body {
 }
 
 /* Bullets */
-.bullets { list-style: none; padding: 0; margin: 24px 0; }
+.bullets {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
 .bullets li {
   position: relative;
   padding: 12px 0 12px 32px;
@@ -456,18 +482,32 @@ body {
   line-height: 1.5;
 }
 .bullets li::before {
-  content: "✓";
-  position: absolute; left: 0; top: 14px;
-  font-weight: 800; color: var(--accent);
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  font-weight: 800;
+  color: var(--accent);
 }
 
 /* Tablet up */
 @media (min-width: 768px) {
-  .hero { padding: 64px 32px 80px; max-width: 720px; margin: 0 auto; }
-  .section { max-width: 720px; margin: 0 auto; padding: 80px 32px; }
-  .sticky-cta { display: none; } /* desktop has anchored CTAs in flow */
+  .hero {
+    padding: 64px 32px 80px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .section {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 32px;
+  }
+  .sticky-cta {
+    display: none;
+  } /* desktop has anchored CTAs in flow */
 }
 ```
+````
 
 ## Read-aloud test note
 
@@ -482,6 +522,7 @@ Pull the rendered page on a phone. Read it. Scroll with one thumb. Each CTA must
 3. Pair with `/convert sales-page` to write the actual content into the mobile-first frame.
 4. Run `/convert audit` on the rendered page once content is in.
 5. Run real-device check at 320px (smallest), 375px (baseline), 414px (typical).
+
 ```
 
 ## Pitfalls
@@ -512,3 +553,4 @@ Pull the rendered page on a phone. Read it. Scroll with one thumb. Each CTA must
 - Read-aloud test on an actual phone - not a desktop emulator - is the only real verification.
 - The Method's density (proof every 2-3 sentences, mixed bullet types, multi-layer Cascade Close) holds on mobile if compressed thoughtfully. The mobile compression rules above protect each layer.
 - This skill composes with `convert-above-fold` (hero spec, mobile-first), `convert-scroll-rhythm` (section order, zone proportions), `convert-proof-stack` (proof block mobile patterns), `convert-sales-page` (content into the frame), and `convert-audit` (verifies Method survival post-compression).
+```

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "api-design backend design-patterns"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'api-design backend design-patterns'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # GraphQL Schema Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is designing a new GraphQL API from scratch and needs schema structure guidance -- type definitions, query/mutation/subscription organization, and naming conventions
 - User is migrating a REST API to GraphQL and needs to understand how to translate resource-based endpoints into a graph-based type system
 - User is experiencing N+1 query problems, over-fetching, or under-fetching in an existing GraphQL schema and needs structural redesign
@@ -30,6 +32,7 @@ metadata:
 - User is designing a schema for pagination, filtering, and sorting at scale and needs a consistent, extensible pattern
 
 **Do NOT use this skill when:**
+
 - User needs GraphQL resolver implementation guidance -- this skill covers schema structure, not resolver logic or DataLoader setup
 - User needs GraphQL authentication/authorization middleware configuration -- check the backend-security skills
 - User needs GraphQL client-side query writing or fragment composition -- this skill is server-schema design only
@@ -260,6 +263,7 @@ When a schema grows beyond 50 types, tooling and process become as important as 
 ## GraphQL Schema Design Review -- E-Commerce Platform
 
 ### Domain Model Summary
+
 - **Core entities:** User, Product, ProductVariant, Cart, CartItem, Order, OrderLineItem, Address, Category
 - **Key relationships:**
   - User → [Address] (one-to-many, user owns addresses)
@@ -284,13 +288,13 @@ When a schema grows beyond 50 types, tooling and process become as important as 
 
 ### Schema Design Decisions
 
-| Decision | Choice | Rationale | Trade-offs |
-|----------|--------|-----------|------------|
-| Pagination style | Cursor (Relay spec) | Product and order lists can be large; real-time inventory changes make offset pagination unreliable | Slightly more complex client code vs. offset |
-| Error handling | Payload type with `errors: [UserError!]!` | Checkout and cart operations have rich domain errors (out of stock, invalid coupon) needing typed responses | Clients must check both `errors` and the entity field |
-| Nullability policy | Strict non-null on reliable data; nullable on computed/external-dependent fields | Reduces client null-checking burden on core fields | Server must guarantee non-null fields -- requires careful resolver implementation |
-| ID strategy | Global ID implementing Node interface | Both web and mobile clients use Apollo Client; global IDs enable cache normalization without configuration | Base64 encoding adds minor overhead; local IDs exposed via separate `legacyId` field for REST migration |
-| Naming convention | Standard GraphQL conventions: camelCase fields, PascalCase types, SCREAMING_SNAKE_CASE enums | Consistent with client SDK generation tools and GraphQL community norms | No trade-off for new projects |
+| Decision           | Choice                                                                                       | Rationale                                                                                                   | Trade-offs                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Pagination style   | Cursor (Relay spec)                                                                          | Product and order lists can be large; real-time inventory changes make offset pagination unreliable         | Slightly more complex client code vs. offset                                                            |
+| Error handling     | Payload type with `errors: [UserError!]!`                                                    | Checkout and cart operations have rich domain errors (out of stock, invalid coupon) needing typed responses | Clients must check both `errors` and the entity field                                                   |
+| Nullability policy | Strict non-null on reliable data; nullable on computed/external-dependent fields             | Reduces client null-checking burden on core fields                                                          | Server must guarantee non-null fields -- requires careful resolver implementation                       |
+| ID strategy        | Global ID implementing Node interface                                                        | Both web and mobile clients use Apollo Client; global IDs enable cache normalization without configuration  | Base64 encoding adds minor overhead; local IDs exposed via separate `legacyId` field for REST migration |
+| Naming convention  | Standard GraphQL conventions: camelCase fields, PascalCase types, SCREAMING_SNAKE_CASE enums | Consistent with client SDK generation tools and GraphQL community norms                                     | No trade-off for new projects                                                                           |
 
 ### Schema Structure
 
@@ -328,9 +332,9 @@ enum OrderStatus {
 
 enum CartItemStatus {
   AVAILABLE
-  LOW_STOCK    # fewer than 5 units remaining
+  LOW_STOCK # fewer than 5 units remaining
   OUT_OF_STOCK
-  PRICE_CHANGED  # price changed since item was added
+  PRICE_CHANGED # price changed since item was added
 }
 
 enum AddressType {
@@ -364,7 +368,7 @@ interface UserError {
 type ValidationError implements UserError {
   message: String!
   code: String!
-  field: String!          # which input field caused the error
+  field: String! # which input field caused the error
 }
 
 type NotFoundError implements UserError {
@@ -396,20 +400,16 @@ type User implements Node {
   email: String!
   firstName: String!
   lastName: String!
-  """Computed display name combining firstName and lastName."""
+  """
+  Computed display name combining firstName and lastName.
+  """
   displayName: String!
   isEmailVerified: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
   addresses(type: AddressType): [Address!]!
   defaultShippingAddress: Address
-  orders(
-    filter: OrderFilterInput
-    first: Int
-    after: String
-    last: Int
-    before: String
-  ): OrderConnection!
+  orders(filter: OrderFilterInput, first: Int, after: String, last: Int, before: String): OrderConnection!
 }
 
 type Address implements Node {
@@ -422,7 +422,7 @@ type Address implements Node {
   city: String!
   stateOrProvince: String!
   postalCode: String!
-  country: String!   # ISO 3166-1 alpha-2
+  country: String! # ISO 3166-1 alpha-2
   isDefault: Boolean!
 }
 
@@ -435,7 +435,9 @@ type Product implements Node {
   name: String!
   slug: String!
   description: String!
-  """Short description for listing cards, max 160 characters."""
+  """
+  Short description for listing cards, max 160 characters.
+  """
   shortDescription: String!
   thumbnailUrl: URL
   imageUrls: [URL!]!
@@ -460,14 +462,16 @@ type ProductVariant implements Node {
   product: Product!
   sku: String!
   """
-  Open-ended attribute map. Keys depend on product type: 
+  Open-ended attribute map. Keys depend on product type:
   e.g., {"size": "L", "color": "Red"} or {"material": "Cotton", "fit": "Slim"}.
   """
   attributes: JSON!
-  """Human-readable variant label, e.g., 'Large / Red'."""
+  """
+  Human-readable variant label, e.g., 'Large / Red'.
+  """
   label: String!
   price: Decimal!
-  compareAtPrice: Decimal   # original price for sale display
+  compareAtPrice: Decimal # original price for sale display
   inventoryQuantity: Int!
   isAvailable: Boolean!
   imageUrl: URL
@@ -479,18 +483,15 @@ type Category implements Node {
   slug: String!
   description: String
   parentCategory: Category
-  """Direct children only. Use depth argument for subtree traversal."""
+  """
+  Direct children only. Use depth argument for subtree traversal.
+  """
   childCategories(depth: Int = 1): [Category!]!
-  products(
-    filter: ProductFilterInput
-    orderBy: ProductOrderByInput
-    first: Int
-    after: String
-  ): ProductConnection!
+  products(filter: ProductFilterInput, orderBy: ProductOrderByInput, first: Int, after: String): ProductConnection!
 }
 
 """
-The current user's shopping cart. 
+The current user's shopping cart.
 Anonymous carts are identified by a cartToken stored client-side.
 """
 type Cart implements Node {
@@ -502,7 +503,7 @@ type Cart implements Node {
   estimatedTotal: Decimal!
   appliedCouponCode: String
   """
-  Any items with status OUT_OF_STOCK or PRICE_CHANGED require 
+  Any items with status OUT_OF_STOCK or PRICE_CHANGED require
   user acknowledgment before checkout can proceed.
   """
   hasIssues: Boolean!
@@ -513,9 +514,9 @@ type CartItem implements Node {
   id: ID!
   productVariant: ProductVariant!
   quantity: Int!
-  unitPrice: Decimal!        # price at time of adding to cart
-  currentPrice: Decimal!     # current live price
-  lineTotal: Decimal!        # quantity × currentPrice
+  unitPrice: Decimal! # price at time of adding to cart
+  currentPrice: Decimal! # current live price
+  lineTotal: Decimal! # quantity × currentPrice
   status: CartItemStatus!
 }
 
@@ -524,7 +525,7 @@ A completed or in-progress purchase. Line items are immutable snapshots.
 """
 type Order implements Node {
   id: ID!
-  orderNumber: String!       # human-readable, e.g., "ORD-20240315-4821"
+  orderNumber: String! # human-readable, e.g., "ORD-20240315-4821"
   status: OrderStatus!
   lineItems: [OrderLineItem!]!
   shippingAddress: Address!
@@ -535,9 +536,13 @@ type Order implements Node {
   shippingAmount: Decimal!
   total: Decimal!
   appliedCouponCode: String
-  """Null until order ships."""
+  """
+  Null until order ships.
+  """
   trackingNumber: String
-  """Null until order ships."""
+  """
+  Null until order ships.
+  """
   estimatedDeliveryAt: DateTime
   placedAt: DateTime!
   updatedAt: DateTime!
@@ -554,7 +559,7 @@ type OrderLineItem implements Node {
   Always use the snapshot fields (snapshotName, snapshotPrice) for display.
   """
   productVariant: ProductVariant
-  snapshotName: String!      # "Blue Widget - Large / Red"
+  snapshotName: String! # "Blue Widget - Large / Red"
   snapshotSku: String!
   snapshotPrice: Decimal!
   quantity: Int!
@@ -618,7 +623,7 @@ input AddCartItemInput {
 
 input UpdateCartItemInput {
   cartItemId: ID!
-  quantity: Int!   # set to 0 to remove
+  quantity: Int! # set to 0 to remove
 }
 
 input ApplyCouponInput {
@@ -695,7 +700,7 @@ type CancelOrderPayload {
 
 # ─── Viewer Type (authenticated context) ─────────────────────────────────
 """
-The authenticated user's session context. 
+The authenticated user's session context.
 Use viewer-scoped queries instead of passing userId arguments.
 """
 type Viewer {
@@ -705,26 +710,27 @@ type Viewer {
 
 # ─── Query Root ──────────────────────────────────────────────────────────
 type Query {
-  """Fetch any entity by its global Node ID."""
+  """
+  Fetch any entity by its global Node ID.
+  """
   node(id: ID!): Node
 
-  """The authenticated user's session. Returns null for unauthenticated requests."""
+  """
+  The authenticated user's session. Returns null for unauthenticated requests.
+  """
   viewer: Viewer
 
   product(id: ID!): Product
   productBySlug(slug: String!): Product
 
-  products(
-    filter: ProductFilterInput
-    orderBy: ProductOrderByInput
-    first: Int = 20
-    after: String
-  ): ProductConnection!
+  products(filter: ProductFilterInput, orderBy: ProductOrderByInput, first: Int = 20, after: String): ProductConnection!
 
   category(id: ID!): Category
   categoryBySlug(slug: String!): Category
 
-  """Top-level categories only. Use Category.childCategories for subtrees."""
+  """
+  Top-level categories only. Use Category.childCategories for subtrees.
+  """
   rootCategories: [Category!]!
 
   """
@@ -749,34 +755,35 @@ type Mutation {
 
 #### Relationship Map
 
-| From | Field | To | Cardinality | Paginated |
-|------|-------|----|-------------|-----------|
-| User | addresses | Address | 1→many | No (bounded by address book size ~10) |
-| User | orders | OrderConnection | 1→many | Yes (cursor) |
-| Viewer | cart | Cart | 1→1 | No |
-| Product | variants | [ProductVariant] | 1→many | No (bounded ~50) |
-| Product | categories | [Category] | many→many | No (bounded ~5 per product) |
-| Category | products | ProductConnection | many→many | Yes (cursor) |
-| Category | childCategories | [Category] | 1→many | No (depth argument limits scope) |
-| Cart | items | [CartItem] | 1→many | No (bounded by cart max ~100 items) |
-| CartItem | productVariant | ProductVariant | many→1 | No |
-| Order | lineItems | [OrderLineItem] | 1→many | No (bounded at checkout time) |
-| OrderLineItem | productVariant | ProductVariant | many→1 | No (nullable -- variant may be deleted) |
+| From          | Field           | To                | Cardinality | Paginated                               |
+| ------------- | --------------- | ----------------- | ----------- | --------------------------------------- |
+| User          | addresses       | Address           | 1→many      | No (bounded by address book size ~10)   |
+| User          | orders          | OrderConnection   | 1→many      | Yes (cursor)                            |
+| Viewer        | cart            | Cart              | 1→1         | No                                      |
+| Product       | variants        | [ProductVariant]  | 1→many      | No (bounded ~50)                        |
+| Product       | categories      | [Category]        | many→many   | No (bounded ~5 per product)             |
+| Category      | products        | ProductConnection | many→many   | Yes (cursor)                            |
+| Category      | childCategories | [Category]        | 1→many      | No (depth argument limits scope)        |
+| Cart          | items           | [CartItem]        | 1→many      | No (bounded by cart max ~100 items)     |
+| CartItem      | productVariant  | ProductVariant    | many→1      | No                                      |
+| Order         | lineItems       | [OrderLineItem]   | 1→many      | No (bounded at checkout time)           |
+| OrderLineItem | productVariant  | ProductVariant    | many→1      | No (nullable -- variant may be deleted) |
 
 ### Validation Results
 
-| Check | Status | Notes |
-|-------|--------|-------|
-| Naming conventions | ✅ | All types PascalCase, fields camelCase, enums SCREAMING_SNAKE_CASE |
-| All mutations have payload types | ✅ | All 7 mutations return `XxxPayload` with `errors: [UserError!]!` |
-| All large collections paginated | ✅ | `products`, `category.products`, `user.orders` use cursor connections |
-| Bounded collections not paginated | ✅ | `cart.items`, `order.lineItems`, `product.variants` are bounded by domain |
-| N+1 risks documented | ⚠️ | `CartItem.productVariant`, `OrderLineItem.productVariant`, `Product.categories` all require DataLoader batching in resolvers |
-| Node interface coverage | ✅ | User, Product, ProductVariant, Cart, CartItem, Order, OrderLineItem, Address, Category all implement Node |
-| Breaking change baseline | ✅ | Initial schema -- establish as v0 baseline in schema registry before first deploy |
-| Description coverage | ✅ | All types described; non-obvious fields have inline documentation |
+| Check                             | Status | Notes                                                                                                                        |
+| --------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Naming conventions                | ✅     | All types PascalCase, fields camelCase, enums SCREAMING_SNAKE_CASE                                                           |
+| All mutations have payload types  | ✅     | All 7 mutations return `XxxPayload` with `errors: [UserError!]!`                                                             |
+| All large collections paginated   | ✅     | `products`, `category.products`, `user.orders` use cursor connections                                                        |
+| Bounded collections not paginated | ✅     | `cart.items`, `order.lineItems`, `product.variants` are bounded by domain                                                    |
+| N+1 risks documented              | ⚠️     | `CartItem.productVariant`, `OrderLineItem.productVariant`, `Product.categories` all require DataLoader batching in resolvers |
+| Node interface coverage           | ✅     | User, Product, ProductVariant, Cart, CartItem, Order, OrderLineItem, Address, Category all implement Node                    |
+| Breaking change baseline          | ✅     | Initial schema -- establish as v0 baseline in schema registry before first deploy                                            |
+| Description coverage              | ✅     | All types described; non-obvious fields have inline documentation                                                            |
 
 ### Evolution Notes
+
 - **Planned additions (non-breaking):** `Product.reviews: ReviewConnection`, `Order.refunds: [Refund!]!`, `User.wishlist: ProductConnection!`
 - **Known N+1 risks requiring DataLoader:** `CartItem.productVariant` (batched by variantId), `Product.categories` (batched by productId), `OrderLineItem.productVariant` (batched by variantId)
 - **Future consideration:** When adding a loyalty/rewards system, add `User.rewardPoints: Int!` and `CheckoutInput.rewardPointsToApply: Int` -- the payload pattern means no breaking changes to the checkout mutation signature

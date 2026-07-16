@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting web-development"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation shell-scripting web-development'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Web Scraper
@@ -77,28 +77,32 @@ def parse_product_page(html: str) -> dict:
 import * as cheerio from 'cheerio';
 
 async function scrapeProductPage(url) {
-    const response = await get(url, {
-        headers: {
-            'User-Agent': 'MyBot/1.0 (+[reference URL])',
-            'Accept': 'text/html',
-        },
-    });
+  const response = await get(url, {
+    headers: {
+      'User-Agent': 'MyBot/1.0 (+[reference URL])',
+      Accept: 'text/html',
+    },
+  });
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
 
-    const html = await response.text();
-    const $ = cheerio.load(html);
+  const html = await response.text();
+  const $ = cheerio.load(html);
 
-    return {
-        title: $('h1.product-title').text().trim(),
-        price: $('[data-testid="price"]').text().trim(),
-        description: $('.product-description').text().trim(),
-        images: $('img.product-image').map((_, el) => $(el).attr('src')).get(),
-        specs: $('table.specs tr').map((_, row) => ({
-            key: $(row).find('th').text().trim(),
-            value: $(row).find('td').text().trim(),
-        })).get(),
-    };
+  return {
+    title: $('h1.product-title').text().trim(),
+    price: $('[data-testid="price"]').text().trim(),
+    description: $('.product-description').text().trim(),
+    images: $('img.product-image')
+      .map((_, el) => $(el).attr('src'))
+      .get(),
+    specs: $('table.specs tr')
+      .map((_, row) => ({
+        key: $(row).find('th').text().trim(),
+        value: $(row).find('td').text().trim(),
+      }))
+      .get(),
+  };
 }
 ```
 
@@ -146,19 +150,21 @@ def extract_structured_data(html: str) -> dict:
 import * as cheerio from 'cheerio';
 
 function parseListingPage(html) {
-    const $ = cheerio.load(html);
+  const $ = cheerio.load(html);
 
-    return $('.product-card').map((_, card) => {
-        const $card = $(card);
-        return {
-            name: $card.find('.product-name').text().trim(),
-            price: $card.find('.price').text().trim(),
-            url: $card.find('a.product-link').attr('href'),
-            rating: parseFloat($card.find('[data-rating]').attr('data-rating') || '0'),
-            inStock: !$card.hasClass('out-of-stock'),
-            reviews: parseInt($card.find('.review-count').text().replace(/,/g, '') || '0'),
-        };
-    }).get();
+  return $('.product-card')
+    .map((_, card) => {
+      const $card = $(card);
+      return {
+        name: $card.find('.product-name').text().trim(),
+        price: $card.find('.price').text().trim(),
+        url: $card.find('a.product-link').attr('href'),
+        rating: parseFloat($card.find('[data-rating]').attr('data-rating') || '0'),
+        inStock: !$card.hasClass('out-of-stock'),
+        reviews: parseInt($card.find('.review-count').text().replace(/,/g, '') || '0'),
+      };
+    })
+    .get();
 }
 ```
 
@@ -505,6 +511,7 @@ async def fetch_with_retry(client: httpx.AsyncClient, url: str) -> str:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing web scraper solutions
 - Reviewing or improving existing web scraper approaches
 - Making architectural or implementation decisions about web scraper
@@ -512,6 +519,7 @@ async def fetch_with_retry(client: httpx.AsyncClient, url: str) -> str:
 - Troubleshooting web scraper-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -522,21 +530,26 @@ async def fetch_with_retry(client: httpx.AsyncClient, url: str) -> str:
 # Web Scraper Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

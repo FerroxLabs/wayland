@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql automation"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql automation'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Pipeline Orchestrator
@@ -414,13 +414,13 @@ class LineageTracker:
 
 ### Key Pipeline Metrics
 
-| Metric | Alert Threshold | Action |
-|--------|----------------|--------|
-| Pipeline duration | >2x historical p95 | Investigate resource contention or data growth |
-| Task failure rate | >0% for critical paths | Page on-call engineer |
-| Data freshness | >SLA target | Escalate to pipeline owner |
-| Row count deviation | >20% from historical | Investigate source system changes |
-| Schema drift | Any unexpected column | Block pipeline, notify data owner |
+| Metric              | Alert Threshold        | Action                                         |
+| ------------------- | ---------------------- | ---------------------------------------------- |
+| Pipeline duration   | >2x historical p95     | Investigate resource contention or data growth |
+| Task failure rate   | >0% for critical paths | Page on-call engineer                          |
+| Data freshness      | >SLA target            | Escalate to pipeline owner                     |
+| Row count deviation | >20% from historical   | Investigate source system changes              |
+| Schema drift        | Any unexpected column  | Block pipeline, notify data owner              |
 
 ### Alerting Configuration
 
@@ -463,6 +463,7 @@ def on_failure_callback(context):
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing data pipeline solutions
 - Reviewing or improving existing data pipeline approaches
 - Making architectural or implementation decisions about data pipeline
@@ -470,6 +471,7 @@ def on_failure_callback(context):
 - Troubleshooting data pipeline-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -480,21 +482,26 @@ def on_failure_callback(context):
 # Data Pipeline Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

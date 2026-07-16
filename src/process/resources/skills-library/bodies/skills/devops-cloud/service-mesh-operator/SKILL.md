@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud security"
-  category: "devops-cloud"
-  subcategory: "containers-orchestration"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'devops cloud security'
+  category: 'devops-cloud'
+  subcategory: 'containers-orchestration'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Service Mesh Operator
@@ -71,7 +71,7 @@ spec:
   http:
     - match:
         - headers:
-            x-canary: { exact: "true" }
+            x-canary: { exact: 'true' }
       route:
         - destination: { host: user-service, subset: canary }
     - route:
@@ -182,11 +182,11 @@ spec:
   rules:
     - from:
         - source:
-            principals: ["cluster.local/ns/production/sa/order-service"]
+            principals: ['cluster.local/ns/production/sa/order-service']
       to:
         - operation:
-            methods: ["GET"]
-            paths: ["/api/v1/users/*"]
+            methods: ['GET']
+            paths: ['/api/v1/users/*']
 ```
 
 ## Canary Deployments with Flagger
@@ -204,9 +204,9 @@ spec:
   service: { port: 8080 }
   analysis:
     interval: 1m
-    threshold: 5                   # Max failed checks before rollback
+    threshold: 5 # Max failed checks before rollback
     maxWeight: 50
-    stepWeight: 10                 # Increase canary 10% per step
+    stepWeight: 10 # Increase canary 10% per step
     metrics:
       - name: request-success-rate
         thresholdRange: { min: 99 }
@@ -321,6 +321,7 @@ OBSERVABILITY:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing service mesh operator solutions
 - Reviewing or improving existing service mesh operator approaches
 - Making architectural or implementation decisions about service mesh operator
@@ -328,6 +329,7 @@ OBSERVABILITY:
 - Troubleshooting service mesh operator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -338,21 +340,26 @@ OBSERVABILITY:
 # Service Mesh Operator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

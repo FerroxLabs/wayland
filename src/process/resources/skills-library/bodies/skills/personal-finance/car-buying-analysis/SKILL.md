@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance analysis planning budgeting"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance analysis planning budgeting'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Car Buying Analysis
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about buying vs. leasing a vehicle
 - User wants to calculate the total cost of owning a car
 - User is comparing financing options for a vehicle purchase
@@ -36,6 +37,7 @@ metadata:
 - User wants to understand all the costs beyond the sticker price
 
 **Do NOT use this skill when:**
+
 - User wants a general buy-or-wait framework for any purchase (use `major-purchase-decision`)
 - User wants to compare insurance quotes specifically (use `insurance-comparison`)
 - User wants to compare loan terms in general (use `loan-comparison`)
@@ -61,15 +63,17 @@ metadata:
    - Trade-in credit (reduces out-of-pocket)
 
    **Financing Costs (if financed):**
+
    ```
    Monthly payment = Loan amount * [r(1+r)^n] / [(1+r)^n - 1]
    Total interest = (Monthly payment * n) - Loan amount
    ```
+
    Where r = monthly rate, n = number of months
 
    **Ongoing Costs (annual, multiplied by ownership years):**
    - Insurance premiums (get a quote for the specific vehicle)
-   - Fuel costs: Annual miles / fuel efficiency * price per unit
+   - Fuel costs: Annual miles / fuel efficiency \* price per unit
    - Maintenance: Scheduled maintenance + estimated repairs (increases with age)
    - Registration renewal [JURISDICTION: verify annual cost]
 
@@ -81,12 +85,12 @@ metadata:
 3. **Calculate lease costs (Lease option).** Break down the total cost:
 
    **Lease Payments:**
-   - Monthly payment * lease term months
+   - Monthly payment \* lease term months
    - Down payment / drive-off amount
    - Acquisition fee (often rolled into payment)
 
    **Additional Lease Costs:**
-   - Excess mileage charges: (Expected miles - Allowed miles) * per-mile charge [if applicable]
+   - Excess mileage charges: (Expected miles - Allowed miles) \* per-mile charge [if applicable]
    - Wear and tear charges at turn-in (estimate)
    - Disposition fee at lease end [JURISDICTION: verify if typical]
    - Insurance requirements may be higher for leased vehicles
@@ -125,15 +129,15 @@ metadata:
 
 6. **Present the decision factors beyond cost.** Cost is not the only consideration:
 
-   | Factor | Buy (New) | Buy (Used) | Lease |
-   |--------|-----------|-----------|-------|
-   | Equity | Builds equity | Builds equity | No equity |
-   | Customization | Full freedom | Full freedom | Restricted |
-   | Mileage | No limit | No limit | Limited by contract |
-   | Maintenance | Owner's responsibility | Owner's responsibility | Often under warranty |
-   | Commitment | Long-term | Long-term | Term-based, can switch |
-   | Monthly payment | Typically highest | Lower than new | Often lowest |
-   | End of term | Own the vehicle | Own the vehicle | Return or purchase |
+   | Factor          | Buy (New)              | Buy (Used)             | Lease                  |
+   | --------------- | ---------------------- | ---------------------- | ---------------------- |
+   | Equity          | Builds equity          | Builds equity          | No equity              |
+   | Customization   | Full freedom           | Full freedom           | Restricted             |
+   | Mileage         | No limit               | No limit               | Limited by contract    |
+   | Maintenance     | Owner's responsibility | Owner's responsibility | Often under warranty   |
+   | Commitment      | Long-term              | Long-term              | Term-based, can switch |
+   | Monthly payment | Typically highest      | Lower than new         | Often lowest           |
+   | End of term     | Own the vehicle        | Own the vehicle        | Return or purchase     |
 
 7. **Produce the comparison summary.**
 
@@ -241,13 +245,13 @@ Based on the numbers you provided:
 
 ### Options Being Compared (5-Year Comparison Period)
 
-| Detail | Option A: Buy (Finance) | Option B: Lease (3 years) |
-|--------|------------------------|--------------------------|
-| Vehicle price / payment | $35,000 | $399/month |
-| Down payment | $3,000 (assumed) | $2,000 |
-| Term | 60 months (5 years) | 36 months (3 years) |
-| Interest rate | 5.9% | Included in payment |
-| Annual mileage | 12,000 (no limit) | 12,000 (verify limit) |
+| Detail                  | Option A: Buy (Finance) | Option B: Lease (3 years) |
+| ----------------------- | ----------------------- | ------------------------- |
+| Vehicle price / payment | $35,000                 | $399/month                |
+| Down payment            | $3,000 (assumed)        | $2,000                    |
+| Term                    | 60 months (5 years)     | 36 months (3 years)       |
+| Interest rate           | 5.9%                    | Included in payment       |
+| Annual mileage          | 12,000 (no limit)       | 12,000 (verify limit)     |
 
 Note: For a fair comparison over 5 years, Option B requires estimating what happens in years 4-5 (new lease, buy, or other vehicle).
 
@@ -255,49 +259,51 @@ Note: For a fair comparison over 5 years, Option B requires estimating what happ
 
 **Option A: Buy and Own for 5 Years**
 
-| Cost Category | Amount |
-|---------------|-------:|
-| Purchase price | $35,000 |
-| Sales tax | [JURISDICTION: verify rate] * $35,000 |
-| Registration (5 years) | [JURISDICTION: verify annual cost] * 5 |
-| Loan interest (60 months at 5.9%) | $5,236 |
-| Insurance (5 years, estimated) | $[get quote] * 5 |
-| Fuel (60,000 miles at user's efficiency) | $[calculate] |
-| Maintenance (5 years) | $[estimate based on vehicle] |
-| **Subtotal costs** | **$[total]** |
-| Less: Resale value at year 5 | -$[estimate -- typically 40-50% of purchase price for a 5-year-old vehicle] |
-| **Net cost** | **$[total]** |
+| Cost Category                            |                                                                      Amount |
+| ---------------------------------------- | --------------------------------------------------------------------------: |
+| Purchase price                           |                                                                     $35,000 |
+| Sales tax                                |                                      [JURISDICTION: verify rate] \* $35,000 |
+| Registration (5 years)                   |                                     [JURISDICTION: verify annual cost] \* 5 |
+| Loan interest (60 months at 5.9%)        |                                                                      $5,236 |
+| Insurance (5 years, estimated)           |                                                           $[get quote] \* 5 |
+| Fuel (60,000 miles at user's efficiency) |                                                                $[calculate] |
+| Maintenance (5 years)                    |                                                $[estimate based on vehicle] |
+| **Subtotal costs**                       |                                                                **$[total]** |
+| Less: Resale value at year 5             | -$[estimate -- typically 40-50% of purchase price for a 5-year-old vehicle] |
+| **Net cost**                             |                                                                **$[total]** |
 
 Monthly loan payment: $35,000 financed at 5.9% for 60 months = **$676/month**
 
 **Option B: Lease for 3 Years + Estimate Years 4-5**
 
-| Cost Category | Years 1-3 (Lease) | Years 4-5 (Estimate) | Total |
-|---------------|------------------:|--------------------:|------:|
-| Lease payments (36 * $399) | $14,364 | -- | $14,364 |
-| Down payment | $2,000 | -- | $2,000 |
-| Disposition fee | $[verify with dealer] | -- | $[amount] |
-| New lease or purchase (years 4-5) | -- | $[estimate] | $[amount] |
-| Insurance (5 years) | $[amount] | $[amount] | $[total] |
-| Fuel (60,000 miles) | $[calculate] | $[calculate] | $[total] |
-| Maintenance (covered by warranty + years 4-5) | $[minimal] | $[estimate] | $[total] |
-| **Net cost** | | | **$[total]** |
+| Cost Category                                 |     Years 1-3 (Lease) | Years 4-5 (Estimate) |        Total |
+| --------------------------------------------- | --------------------: | -------------------: | -----------: |
+| Lease payments (36 \* $399)                   |               $14,364 |                   -- |      $14,364 |
+| Down payment                                  |                $2,000 |                   -- |       $2,000 |
+| Disposition fee                               | $[verify with dealer] |                   -- |    $[amount] |
+| New lease or purchase (years 4-5)             |                    -- |          $[estimate] |    $[amount] |
+| Insurance (5 years)                           |             $[amount] |            $[amount] |     $[total] |
+| Fuel (60,000 miles)                           |          $[calculate] |         $[calculate] |     $[total] |
+| Maintenance (covered by warranty + years 4-5) |            $[minimal] |          $[estimate] |     $[total] |
+| **Net cost**                                  |                       |                      | **$[total]** |
 
 ### Cost Metrics
 
-| Metric | Buy | Lease (5-year estimate) |
-|--------|----:|----------------------:|
-| Monthly cost equivalent | $[amount] | $[amount] |
-| Cost per mile (60,000 miles) | $[amount] | $[amount] |
-| Equity at year 5 | $[resale value] | $0 |
+| Metric                       |             Buy | Lease (5-year estimate) |
+| ---------------------------- | --------------: | ----------------------: |
+| Monthly cost equivalent      |       $[amount] |               $[amount] |
+| Cost per mile (60,000 miles) |       $[amount] |               $[amount] |
+| Equity at year 5             | $[resale value] |                      $0 |
 
 ### Key Observations
+
 - Monthly payment: Lease ($399) is lower than loan ($676) during their respective terms
 - But the lease resets at month 37 -- you start paying again with no equity
 - After 5 years of buying, the car is paid off and you own a vehicle worth approximately $[estimate]
 - After 5 years of leasing, you have paid $[total] and own nothing
 
 ### Next Steps
+
 - [ ] Get insurance quotes for this specific vehicle
 - [ ] Verify the lease mileage limit (12,000/year is common but confirm)
 - [ ] Calculate excess mileage charges if you might exceed the limit

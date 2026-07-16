@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "blog-post writing seo editing step-by-step"
-  category: "content-creation"
-  depends: "content-brief blog-post-writing seo-blog-post proofreading editorial-calendar"
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'blog-post writing seo editing step-by-step'
+  category: 'content-creation'
+  depends: 'content-brief blog-post-writing seo-blog-post proofreading editorial-calendar'
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Publish a Blog Post
@@ -177,6 +177,7 @@ When this workflow is complete, the user will have:
 ## Blog Post Publishing Pipeline: Reducing Customer Churn
 
 ### Content Brief
+
 - **Working Title:** How We Reduced Churn 23% by Fixing Our Onboarding Emails
 - **Target Audience:** SaaS founders and product managers
 - **Differentiated Angle:** Specific case study on email-driven churn reduction with real metrics, not generic churn advice
@@ -189,22 +190,26 @@ When this workflow is complete, the user will have:
 - **Word Count Target:** 1,800 words
 
 ### Draft Status
+
 - **Actual Word Count:** 1,820
 - **Sections:** 4 H2 sections plus introduction and conclusion
 - **Evidence Types Used:** Internal data, before/after email screenshots, cohort analysis chart
 
 ### SEO Optimization
+
 - **Target Keyword:** reduce SaaS churn
 - **Keyword Placements:** Title, meta description, H2 heading "Why Onboarding Emails Reduce SaaS Churn," introduction paragraph
 - **Internal Links:** 3 links (customer success guide, email marketing basics, product onboarding checklist)
 - **Readability Score:** 68/100 (Flesch-Kincaid) -- above 60 threshold
 
 ### Proofread Results
+
 - **Errors Corrected:** 2 grammatical, 1 formatting inconsistency
 - **Facts Verified:** 4 data points checked against source spreadsheet
 - **Quality Assessment:** Pass -- CTA refined from generic to specific template offer
 
 ### Publication Plan
+
 - **Publish Date:** Tuesday at 10:00 AM (peak B2B SaaS engagement window)
 - **Platform:** Company blog (WordPress)
 - **Distribution Checklist:**

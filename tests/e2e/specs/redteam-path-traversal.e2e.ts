@@ -132,7 +132,10 @@ test.describe('Red-team: wayland-asset:// path traversal (commit f0923bdc9 H2 + 
     } catch (err) {
       // On some Windows CI runners symlink creation requires elevated
       // privileges; skip the probe rather than fail spuriously.
-      test.skip(true, `symlink creation unsupported in this environment: ${err instanceof Error ? err.message : String(err)}`);
+      test.skip(
+        true,
+        `symlink creation unsupported in this environment: ${err instanceof Error ? err.message : String(err)}`
+      );
       return;
     }
 

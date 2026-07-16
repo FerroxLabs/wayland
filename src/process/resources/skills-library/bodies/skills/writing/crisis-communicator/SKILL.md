@@ -5,14 +5,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "business-writing writing strategy"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'business-writing writing strategy'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Crisis Communicator
 
 ## When to Use
@@ -28,6 +29,7 @@ Use this skill when a user needs expert guidance on managing a reputational, ope
 - **Social media crisis escalation:** A hashtag campaign, viral video, or influencer pile-on is threatening brand reputation and requires platform-specific triage and response protocols.
 
 **Do NOT use this skill when:**
+
 - The user needs general PR strategy, brand positioning, or marketing communications unrelated to a crisis -- use a brand strategy or PR planning skill instead.
 - The request is primarily about legal liability, insurance claims, or regulatory compliance filings -- refer to legal advisory skills and flag the need for actual legal counsel.
 - The situation is an internal HR conflict without public exposure -- use an HR communication or conflict resolution skill unless it has escalated to public visibility.
@@ -115,11 +117,11 @@ An apology is a precision instrument, not a reflex. Applied incorrectly, it eith
 
 - **Determine whether apology is warranted:** Apology is appropriate when the organization bears direct responsibility for harm, when facts are confirmed, when legal counsel has approved the language, and when the apology will be accompanied by concrete remedy. Apology is not appropriate when the organization is not at fault, when facts are still disputed, or when "apology" would be mistaken for admission of legal liability in a live litigation context.
 - **Five elements of an effective apology** (all five must be present for the apology to land):
-  - *Acknowledgment:* Name the specific harm. "We exposed your personal financial data" not "there was a data incident."
-  - *Responsibility:* Own it without deflection. "This happened because our security protocols were inadequate" not "sophisticated attackers exploited a vulnerability."
-  - *Empathy:* Demonstrate you understand the human impact. "The anxiety of not knowing whether your identity has been compromised is real and serious" not "we understand this may have caused inconvenience."
-  - *Remedy:* Commit to specific, tangible reparation. "Two years of complimentary identity theft monitoring through [service category], a $500 credit to your account, and a personal call from our security team if requested" not "we are reviewing ways to support affected customers."
-  - *Commitment:* Promise specific structural change. "We have hired a new Chief Information Security Officer reporting directly to the CEO, and we will publish a third-party security audit by [date]" not "we are committed to doing better."
+  - _Acknowledgment:_ Name the specific harm. "We exposed your personal financial data" not "there was a data incident."
+  - _Responsibility:_ Own it without deflection. "This happened because our security protocols were inadequate" not "sophisticated attackers exploited a vulnerability."
+  - _Empathy:_ Demonstrate you understand the human impact. "The anxiety of not knowing whether your identity has been compromised is real and serious" not "we understand this may have caused inconvenience."
+  - _Remedy:_ Commit to specific, tangible reparation. "Two years of complimentary identity theft monitoring through [service category], a $500 credit to your account, and a personal call from our security team if requested" not "we are reviewing ways to support affected customers."
+  - _Commitment:_ Promise specific structural change. "We have hired a new Chief Information Security Officer reporting directly to the CEO, and we will publish a third-party security audit by [date]" not "we are committed to doing better."
 - **Anti-patterns to eliminate from any draft:**
   - "We're sorry if anyone was offended" -- conditional empathy shifts blame to the audience.
   - "Mistakes were made" -- passive voice erases accountability.
@@ -161,15 +163,15 @@ When delivering crisis communication support, structure output using the followi
 
 ### IMMEDIATE ACTION CHECKLIST (First 60 Minutes)
 
-| Time Window | Action | Owner | Status |
-|---|---|---|---|
-| 0-15 min | Confirm facts and activate crisis team | [Role] | [ ] |
-| 0-15 min | Freeze all external communications and scheduled posts | [Role] | [ ] |
-| 15-30 min | Draft holding statement | [Role] | [ ] |
-| 15-30 min | Brief board/executive team | [Role] | [ ] |
-| 30-60 min | Approve and publish holding statement | [Role] | [ ] |
-| 30-60 min | Begin substantive response draft | [Role] | [ ] |
-| 60 min | Internal employee communication | [Role] | [ ] |
+| Time Window | Action                                                 | Owner  | Status |
+| ----------- | ------------------------------------------------------ | ------ | ------ |
+| 0-15 min    | Confirm facts and activate crisis team                 | [Role] | [ ]    |
+| 0-15 min    | Freeze all external communications and scheduled posts | [Role] | [ ]    |
+| 15-30 min   | Draft holding statement                                | [Role] | [ ]    |
+| 15-30 min   | Brief board/executive team                             | [Role] | [ ]    |
+| 30-60 min   | Approve and publish holding statement                  | [Role] | [ ]    |
+| 30-60 min   | Begin substantive response draft                       | [Role] | [ ]    |
+| 60 min      | Internal employee communication                        | [Role] | [ ]    |
 
 ---
 
@@ -181,6 +183,7 @@ When delivering crisis communication support, structure output using the followi
 > [Draft holding statement text -- 3 to 5 sentences following the 5-element structure]
 
 **Elements present:**
+
 - [ ] Acknowledgment
 - [ ] Immediate action taken
 - [ ] Values anchor
@@ -200,6 +203,7 @@ When delivering crisis communication support, structure output using the followi
 [Paragraph 1 -- What happened and current status, confirmed facts only]
 
 [Paragraph 2 -- Specific remediation actions with numbers and dates]
+
 - Action 1 (completed): [Specific measure taken]
 - Action 2 (in progress): [Specific measure with completion date]
 - Action 3 (committed): [Specific measure with timeline and accountable party]
@@ -208,6 +212,7 @@ When delivering crisis communication support, structure output using the followi
 "[Quote]," said [Name], [Title].
 
 [Paragraph 4 -- What affected parties should do: numbered steps]
+
 1. [Specific step]
 2. [Specific step]
 3. [Resource or support available -- phone number, URL, email category]
@@ -222,37 +227,39 @@ When delivering crisis communication support, structure output using the followi
 
 ### STAKEHOLDER COMMUNICATION MATRIX
 
-| Stakeholder Group | Priority | Channel | Timing | Key Message Emphasis | Owner |
-|---|---|---|---|---|---|
-| Directly harmed individuals | 1 | Personal phone/email | Immediate | Impact to them + specific remedy | [Role] |
-| Board / C-suite | 1 | Phone call | Within 1 hour | Facts, exposure level, response plan | CEO/CCO |
-| Employees | 1 | All-hands email + FAQ | Within 2 hours | What happened, what to say/not say, next update | HR + Comms |
-| Regulators | 1 | Formal filing | Per legal counsel | Compliance language, disclosure requirements | Legal |
-| Media (inquiring) | 2 | Press release + on-record | 1-4 hours | Approved statements only | Comms lead |
-| Key enterprise clients | 2 | Personal outreach | 2-4 hours | Impact on them + dedicated support contact | Account lead |
-| Business partners | 2 | Direct email | Within 4 hours | Operational impact + coordination | Operations |
-| General public | 2 | Website + social | 1-4 hours | Accessible summary + action steps | Comms |
-| Industry/peers | 3 | Professional channels | 24-48 hours | Lessons (only when appropriate) | Executive |
+| Stakeholder Group           | Priority | Channel                   | Timing            | Key Message Emphasis                            | Owner        |
+| --------------------------- | -------- | ------------------------- | ----------------- | ----------------------------------------------- | ------------ |
+| Directly harmed individuals | 1        | Personal phone/email      | Immediate         | Impact to them + specific remedy                | [Role]       |
+| Board / C-suite             | 1        | Phone call                | Within 1 hour     | Facts, exposure level, response plan            | CEO/CCO      |
+| Employees                   | 1        | All-hands email + FAQ     | Within 2 hours    | What happened, what to say/not say, next update | HR + Comms   |
+| Regulators                  | 1        | Formal filing             | Per legal counsel | Compliance language, disclosure requirements    | Legal        |
+| Media (inquiring)           | 2        | Press release + on-record | 1-4 hours         | Approved statements only                        | Comms lead   |
+| Key enterprise clients      | 2        | Personal outreach         | 2-4 hours         | Impact on them + dedicated support contact      | Account lead |
+| Business partners           | 2        | Direct email              | Within 4 hours    | Operational impact + coordination               | Operations   |
+| General public              | 2        | Website + social          | 1-4 hours         | Accessible summary + action steps               | Comms        |
+| Industry/peers              | 3        | Professional channels     | 24-48 hours       | Lessons (only when appropriate)                 | Executive    |
 
 ---
 
 ### SOCIAL MEDIA RESPONSE PROTOCOL
 
 **Immediate actions:**
+
 - [ ] Pause all scheduled content in [platform names]
 - [ ] Pin holding statement on [list primary channels]
 - [ ] Activate monitoring dashboard for [brand name + incident keywords]
 
 **Response triage:**
 
-| Tier | Criteria | Response Time | Template |
-|---|---|---|---|
-| T1 -- Immediate | Direct harm reported, media, misinformation causing harm, large amplifiers | Within 15 minutes | [See template below] |
-| T2 -- Urgent | Affected individuals seeking help, specific answerable questions | Within 1 hour | [See template below] |
-| T3 -- Standard | General concern, update requests, expressions of anger | Within 4 hours | [See template below] |
-| T4 -- No response | Bad-faith trolling, political opportunists, unanswerable speculation | N/A | Do not engage |
+| Tier              | Criteria                                                                   | Response Time     | Template             |
+| ----------------- | -------------------------------------------------------------------------- | ----------------- | -------------------- |
+| T1 -- Immediate   | Direct harm reported, media, misinformation causing harm, large amplifiers | Within 15 minutes | [See template below] |
+| T2 -- Urgent      | Affected individuals seeking help, specific answerable questions           | Within 1 hour     | [See template below] |
+| T3 -- Standard    | General concern, update requests, expressions of anger                     | Within 4 hours    | [See template below] |
+| T4 -- No response | Bad-faith trolling, political opportunists, unanswerable speculation       | N/A               | Do not engage        |
 
 **Response Templates:**
+
 - **T1 (Reported harm):** "We are so sorry to hear this happened to you. Please DM us your contact information -- our team will reach you directly within [time]. This is exactly what we are working to address."
 - **T2 (Information request):** "We hear you. Our full update is available at [link]. We will post the next update by [specific time]. If you have a specific concern, please DM us."
 - **T3 (General concern):** "Thank you for raising this. We are taking it seriously. Official updates will continue at [channel/link]."
@@ -280,16 +287,17 @@ When delivering crisis communication support, structure output using the followi
 ### SPOKESPERSON BRIEFING SHEET
 
 **Key messages (maximum 3):**
+
 1. [Message 1 -- What happened / what we know]
 2. [Message 2 -- What we are doing about it]
 3. [Message 3 -- Our commitment going forward]
 
 **Anticipated hard questions and approved responses:**
 
-| Question | Bridging approach | Approved response points |
-|---|---|---|
-| [Hardest question] | "What I can tell you is..." | [Key message anchor] |
-| [Second hardest] | "The most important thing to know is..." | [Key message anchor] |
+| Question             | Bridging approach                                                              | Approved response points        |
+| -------------------- | ------------------------------------------------------------------------------ | ------------------------------- |
+| [Hardest question]   | "What I can tell you is..."                                                    | [Key message anchor]            |
+| [Second hardest]     | "The most important thing to know is..."                                       | [Key message anchor]            |
 | [Liability question] | "I can't speak to [that specific] because [reason]. What I can tell you is..." | [Redirect to facts and actions] |
 
 **Do not say list:** [Specific words, phrases, numbers, names that are off-limits]
@@ -299,15 +307,15 @@ When delivering crisis communication support, structure output using the followi
 
 ### TRUST REBUILDING TIMELINE
 
-| Milestone | Action | Owner | Target Date |
-|---|---|---|---|
-| 2 weeks post-crisis | Internal post-crisis analysis complete | Comms lead | [Date] |
-| 30 days | First external progress report published | CCO | [Date] |
-| 30 days | [Specific committed action] completion | [Role] | [Date] |
-| 60 days | Second progress report | CCO | [Date] |
-| 60 days | Third-party audit findings published | [Role] | [Date] |
-| 90 days | Final progress report + policy update | CCO | [Date] |
-| 90 days | Updated crisis playbook + next drill scheduled | Comms lead | [Date] |
+| Milestone           | Action                                         | Owner      | Target Date |
+| ------------------- | ---------------------------------------------- | ---------- | ----------- |
+| 2 weeks post-crisis | Internal post-crisis analysis complete         | Comms lead | [Date]      |
+| 30 days             | First external progress report published       | CCO        | [Date]      |
+| 30 days             | [Specific committed action] completion         | [Role]     | [Date]      |
+| 60 days             | Second progress report                         | CCO        | [Date]      |
+| 60 days             | Third-party audit findings published           | [Role]     | [Date]      |
+| 90 days             | Final progress report + policy update          | CCO        | [Date]      |
+| 90 days             | Updated crisis playbook + next drill scheduled | Comms lead | [Date]      |
 
 ---
 
@@ -338,41 +346,49 @@ When delivering crisis communication support, structure output using the followi
 ## Edge Cases
 
 ### 1. The Slow Leak -- Incident Discovered Through Journalism, Not Internal Systems
+
 A reporter calls your communications team with detailed information about an incident you were unaware of -- a safety issue, financial irregularity, or executive behavior. You have 30 minutes before their story publishes.
 
 **Handling:** Do not confirm, deny, or provide detail until you have verified the claim internally -- but you cannot take hours to do so. Your response to the journalist is: "We have just become aware of this allegation and are taking it with the utmost seriousness. We will respond on the record by [time, maximum 30-60 minutes]." Simultaneously: emergency call with legal, operations, and executive leadership to verify. If the allegation is confirmed: issue the holding statement before the story runs if possible. If unconfirmed: tell the reporter on record that you cannot confirm the allegation but are investigating urgently, and provide your holding statement once verified. Never let a reporter's deadline force an unreviewed public statement.
 
 ### 2. Third-Party Fault -- Your Vendor, Supplier, or Partner Caused the Crisis
+
 A cloud service provider's outage took your platform down for eight hours. A logistics partner lost customer shipments. A contractor's employee committed misconduct on your premises. The fault is not yours, but your customers experienced harm through your relationship.
 
 **Handling:** Legally the distinction between vendor fault and organizational fault matters -- operationally and reputationally, your customers don't care. Your communications must acknowledge customer impact (which is real and yours to address) without assigning public blame to the third party during the acute phase. "Our service was disrupted due to an issue with a critical infrastructure partner. We are working directly with them to restore service and prevent recurrence." Once the immediate crisis is resolved, factual attribution is appropriate in the post-crisis analysis. Privately, your legal team is already in contact with the vendor. Publicly blaming your vendor during the crisis reads as deflection and makes you look operationally negligent for having chosen them.
 
 ### 3. The Executive Is the Crisis -- Internal Misconduct at the Leadership Level
+
 The CEO, board chair, or senior executive is accused of sexual harassment, financial fraud, discrimination, or public misconduct. The organization's crisis is inseparable from the person who would normally lead the crisis response.
 
 **Handling:** The named executive must be removed from all crisis communications immediately -- they cannot be spokesperson or approver for their own misconduct crisis. Identify the next most senior executive (typically COO or Board Chair) to lead response. Holding statement must come from the organization, not the individual. The board of directors activates immediately -- this is a governance crisis as much as a communications crisis. Language must be definitive about action taken (administrative leave at minimum, termination if appropriate and legally defensible) and about the investigation (independent, not internal HR). The named individual should not issue a personal statement without separate personal legal counsel -- and their personal statement, if any, must not contradict the organizational statement. Companies that attempt to stand behind an accused senior executive while "investigating" typically face a second, larger crisis when the investigation confirms what was reported.
 
 ### 4. A False or Substantially Inaccurate Report Goes Viral
+
 A journalist, influencer, or former employee publishes a claim about your organization that is factually wrong in material ways -- not merely unflattering but demonstrably incorrect. It is spreading rapidly.
 
 **Handling:** Speed matters because viral misinformation compounds. Your response must be rapid (within two hours) but surgical. Issue a fact-specific correction, not a defensive screed. Format: "We want accurate information available. Here are the facts we can confirm: [numbered list of specific factual corrections with supporting evidence where available]. We take [genuine underlying concern, if any] seriously and [any relevant action]." Do not use the word "false" or "lie" in your initial correction -- it escalates conflict and positions this as a fight. If the core underlying concern has any validity even if the specific claim is exaggerated, acknowledge the validity before correcting the specifics. If the claim is entirely fabricated with no basis in fact, you may consider a formal demand for correction through media channels, but your legal team must advise on this -- public threats of legal action against press typically create worse coverage than a factual correction.
 
 ### 5. Crisis Occurs During a News Blackout Window -- Holiday Weekend, Major Breaking News Event
+
 Your crisis breaks on Christmas Eve, during a major election, or while a natural disaster dominates news cycles. Your normal media contacts are unavailable and public attention is elsewhere.
 
 **Handling:** Two competing dynamics operate here. On one hand, media capacity is reduced and public attention is diverted -- a poorly timed crisis may receive less initial coverage. On the other hand, attempting to "bury" a crisis in a news blackout has become itself a news story and reads as cynical and deliberate. The correct approach: proceed with all crisis communications exactly as you would in normal circumstances. Issue holding statement within 60 minutes. Internal communications within two hours. Full statement within four. The benefit is that you have more time to get communications right before journalist responses arrive. The risk is that if coverage does break later, "they disclosed this on Christmas Eve" becomes part of the narrative. Proactively brief your most important journalist relationships when they return, so you control the framing rather than letting them discover it cold in an archived press release.
 
 ### 6. Crisis Escalates After Initial Response -- New Information Makes Initial Statement Incorrect
+
 You issue a holding statement that 2,000 customer accounts were affected. Forty-eight hours into the investigation, the actual number is 280,000. Your initial statement is now public and wrong.
 
 **Handling:** This is one of the most damaging scenarios in crisis communications because it creates a "cover-up" narrative regardless of intent. The only path through is proactive, voluntary correction before journalists discover the discrepancy. Issue a correction statement immediately upon confirming the new information. The correction must: acknowledge the discrepancy explicitly, explain why the initial information was incorrect (investigation was ongoing, not deliberate misstatement), provide the correct information, and add additional remediation commensurate with the larger scope. The statement: "As our investigation has progressed, we have determined that the scope of this incident is significantly larger than our initial assessment indicated. We are providing this correction immediately upon confirmation. We now know that [correct information]..." A correction issued by you is bad. A correction issued by a journalist who discovered your initial statement was wrong is a catastrophe. Issue corrections the moment you have confirmed new information, without waiting for a scheduled update.
 
 ### 7. Regulatory Disclosure Requirements Conflict With Communications Strategy
+
 Your legal team identifies that a data breach triggers mandatory disclosure timelines under GDPR (72 hours), HIPAA, SEC material event disclosure, or state breach notification laws. The communications team's ideal response sequence doesn't align with regulatory deadlines.
 
 **Handling:** Regulatory disclosure is non-negotiable and takes precedence over communications strategy. The 72-hour GDPR notification clock does not care about your messaging readiness. Immediately confirm with legal counsel what specific regulations apply, which regulatory bodies require notification and when, and whether the regulatory notification is public or confidential to the regulator only. In most cases, mandatory regulatory disclosures are to the regulator, not the public -- public communications can then be coordinated to align with regulatory timelines. Where public disclosure is legally required (SEC material events, for example), legal and communications must work in parallel under tight timelines, not in sequence. Never instruct communications teams to delay a legally required disclosure in order to develop better messaging -- this is the definition of a cover-up and creates criminal exposure for individuals involved.
 
 ### 8. Social Media Pile-On Without a Clear Factual Claim -- Sentiment Crisis
+
 No specific incident has occurred, but a hashtag campaign, viral tweet thread, or TikTok video accumulates massive negative sentiment about your organization based on a general grievance, cultural moment, or comparison to a competitor. There is no discrete event to address.
 
 **Handling:** This is a reputational crisis rather than an incident crisis, and the response strategy differs significantly. Do not issue a "crisis" statement -- this validates and amplifies the narrative. First: listen without responding for 2-4 hours to understand whether sentiment is driven by a specific grievable issue, a cultural moment, competitive trolling, or genuine pattern of customer experience. Identify whether there is any factual basis to the sentiment -- if yes, address the underlying issue substantively, not just the social media noise. If the sentiment is driven by a genuine pattern, the communications response must be paired with operational changes -- otherwise the response reads as hollow. If the sentiment is manufactured or substantially bad-faith, consider: (a) prominent genuine customer voices and third-party supporters who can speak on your behalf, (b) factual content that demonstrates the counter-narrative through evidence, (c) no direct engagement with the hashtag or campaign itself, which would amplify it algorithmically. Resist the pressure to issue a statement for the sake of saying something -- a thoughtful response 24 hours later is better than a reactive statement in four hours that becomes a new target.
@@ -382,6 +398,7 @@ No specific incident has occurred, but a hashtag campaign, viral tweet thread, o
 ## Example
 
 ### Input:
+
 "We are a healthcare technology company with about 800 employees. We just found out an hour ago that one of our cloud storage buckets was misconfigured, and patient health records were exposed publicly for approximately three weeks. We believe about 47,000 patient records were affected. These are records from hospital clients who use our platform. Our CEO just learned about it. We have not yet contacted our hospital clients, the patients, the media, or regulators. Our legal team is coming online now. What do we do?"
 
 ---
@@ -404,20 +421,20 @@ No specific incident has occurred, but a hashtag campaign, viral tweet thread, o
 
 ## IMMEDIATE ACTION CHECKLIST -- NEXT 60 MINUTES
 
-| Time | Action | Owner | Status |
-|---|---|---|---|
-| RIGHT NOW | Confirm cloud bucket is sealed/reconfigured -- remediation before anything else | Engineering lead | [ ] |
-| RIGHT NOW | Confirm exact record count with engineering (47,000 is preliminary) | Engineering / CISO | [ ] |
-| 0-15 min | Brief CEO with facts: scope, timeline, remediation status, regulatory exposure | CCO / Legal | [ ] |
-| 0-15 min | Activate crisis team: CEO, CCO, General Counsel, CISO, COO, Head of Client Relations | CCO | [ ] |
-| 0-15 min | Freeze all external communications and pause all scheduled content | Marketing | [ ] |
-| 0-15 min | Brief Legal on HIPAA 60-day notification clock and HHS reporting requirements | General Counsel | [ ] |
-| 15-30 min | Draft holding statement for hospital clients (NOT yet for media or public) | CCO | [ ] |
-| 15-30 min | Identify all affected hospital clients -- which institutions, how many patients per institution | Client Relations | [ ] |
-| 30-60 min | Personal phone calls to C-suite contacts at each affected hospital client | CEO + Account leads | [ ] |
-| 30-60 min | Approve and send holding statement to hospital clients | CEO / Legal | [ ] |
-| 60-90 min | Employee communication -- all staff | HR + CCO | [ ] |
-| By Day 3 | HHS breach notification (HIPAA requires notification if breach affects >500 individuals in a state; full HHS report within 60 days; individual patient notification within 60 days) | Legal | [ ] |
+| Time      | Action                                                                                                                                                                              | Owner               | Status |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------ |
+| RIGHT NOW | Confirm cloud bucket is sealed/reconfigured -- remediation before anything else                                                                                                     | Engineering lead    | [ ]    |
+| RIGHT NOW | Confirm exact record count with engineering (47,000 is preliminary)                                                                                                                 | Engineering / CISO  | [ ]    |
+| 0-15 min  | Brief CEO with facts: scope, timeline, remediation status, regulatory exposure                                                                                                      | CCO / Legal         | [ ]    |
+| 0-15 min  | Activate crisis team: CEO, CCO, General Counsel, CISO, COO, Head of Client Relations                                                                                                | CCO                 | [ ]    |
+| 0-15 min  | Freeze all external communications and pause all scheduled content                                                                                                                  | Marketing           | [ ]    |
+| 0-15 min  | Brief Legal on HIPAA 60-day notification clock and HHS reporting requirements                                                                                                       | General Counsel     | [ ]    |
+| 15-30 min | Draft holding statement for hospital clients (NOT yet for media or public)                                                                                                          | CCO                 | [ ]    |
+| 15-30 min | Identify all affected hospital clients -- which institutions, how many patients per institution                                                                                     | Client Relations    | [ ]    |
+| 30-60 min | Personal phone calls to C-suite contacts at each affected hospital client                                                                                                           | CEO + Account leads | [ ]    |
+| 30-60 min | Approve and send holding statement to hospital clients                                                                                                                              | CEO / Legal         | [ ]    |
+| 60-90 min | Employee communication -- all staff                                                                                                                                                 | HR + CCO            | [ ]    |
+| By Day 3  | HHS breach notification (HIPAA requires notification if breach affects >500 individuals in a state; full HHS report within 60 days; individual patient notification within 60 days) | Legal               | [ ]    |
 
 **Critical note on HIPAA timing:** Under HIPAA and HITECH, your hospital clients (as covered entities) must notify affected patients within 60 days of discovery. Your company, as a Business Associate, must notify your covered entity clients "without unreasonable delay and no later than 60 days" after discovery of a breach. That 60-day clock started the moment this was discovered -- approximately one hour ago. Do not confuse "60 days" with "we have 60 days to decide whether to tell anyone" -- legal must be in the loop now, today.
 
@@ -491,6 +508,7 @@ This communication goes to your hospital client contacts after the forensic inve
 On [discovery date], [Company Name] identified that a cloud storage environment used to process patient data was misconfigured, allowing unauthorized external access between [start date] and [discovery date] -- a period of approximately [X] days. The misconfiguration has been corrected. The affected storage environment contained records from [number] patients associated with [hospital name].
 
 **What we have confirmed:**
+
 - Records exposed: [specific categories -- name, date of birth, diagnosis codes, treatment information, etc. -- be specific, do not generalize]
 - Record count for your institution: [number -- institution-specific breakdown]
 - Exposure window: [specific dates]
@@ -498,6 +516,7 @@ On [discovery date], [Company Name] identified that a cloud storage environment 
 - No other storage environments were affected.
 
 **What we have done:**
+
 1. Immediately sealed the misconfigured storage environment upon discovery [date/time].
 2. Engaged [forensic firm category] to conduct a complete forensic investigation -- findings delivered by [date].
 3. Completed an audit of all storage configurations across our entire platform -- results: [findings].
@@ -505,6 +524,7 @@ On [discovery date], [Company Name] identified that a cloud storage environment 
 5. Engaged external legal counsel specializing in HIPAA compliance to support your institution's notification obligations.
 
 **What we are doing next:**
+
 1. Deliver a patient-level record manifest to your HIPAA Privacy Officer by [date] so you have the complete affected patient list for your notification process.
 2. Provide a dedicated compliance support contact for your legal team at no charge.
 3. Commission an independent third-party security audit of our complete infrastructure, with results to be published by [date].
@@ -526,19 +546,20 @@ This failure was ours. A misconfiguration of this type should have been caught b
 ## SPOKESPERSON BRIEFING SHEET -- CEO
 
 **Key messages (these three form every external response):**
+
 1. We identified this immediately upon discovery and sealed it. We are conducting a full forensic investigation and will share complete findings.
 2. We have notified our hospital clients directly, are providing them full support for patient notification, and are taking complete responsibility.
 3. We have made structural changes to prevent this -- including [specific named actions] -- and will publish a third-party audit of our entire security infrastructure.
 
 **Hard questions and bridging approaches:**
 
-| Anticipated question | Bridge phrase | Approved response |
-|---|---|---|
-| "Why did it take three weeks to discover this?" | "The most important thing for me to tell you is..." | "We identified this through [internal audit / monitoring process]. We are investigating why our detection timeline was not faster and have [specific detection enhancement] now in place. Complete forensic findings will be published by [date]." |
-| "Did anyone access the records?" | "What we know from our forensic investigation so far is..." | "We are conducting a complete forensic review of access logs. We will share what that investigation confirms. We are treating this as a breach that requires full patient notification regardless of what the access logs show, because that is the right thing to do." |
-| "Are you facing HIPAA fines?" | "I can't speak to regulatory outcomes..." | "I'm not in a position to predict regulatory outcomes. What I can tell you is that we are cooperating fully with all relevant oversight and that our hospital clients have our complete support in meeting their notification obligations." |
-| "Is this grounds for clients to terminate their contracts?" | "What I know is..." | "That is a decision for our clients. What I am focused on is doing everything in our power to support them through this situation and demonstrating through our actions why they can trust us going forward." |
-| "How many patients were affected?" | "Our investigation has confirmed..." | "[Number] patient records from [number] hospital clients were in the affected storage environment. We are providing each institution with an institution-specific patient manifest." |
+| Anticipated question                                        | Bridge phrase                                               | Approved response                                                                                                                                                                                                                                                       |
+| ----------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Why did it take three weeks to discover this?"             | "The most important thing for me to tell you is..."         | "We identified this through [internal audit / monitoring process]. We are investigating why our detection timeline was not faster and have [specific detection enhancement] now in place. Complete forensic findings will be published by [date]."                      |
+| "Did anyone access the records?"                            | "What we know from our forensic investigation so far is..." | "We are conducting a complete forensic review of access logs. We will share what that investigation confirms. We are treating this as a breach that requires full patient notification regardless of what the access logs show, because that is the right thing to do." |
+| "Are you facing HIPAA fines?"                               | "I can't speak to regulatory outcomes..."                   | "I'm not in a position to predict regulatory outcomes. What I can tell you is that we are cooperating fully with all relevant oversight and that our hospital clients have our complete support in meeting their notification obligations."                             |
+| "Is this grounds for clients to terminate their contracts?" | "What I know is..."                                         | "That is a decision for our clients. What I am focused on is doing everything in our power to support them through this situation and demonstrating through our actions why they can trust us going forward."                                                           |
+| "How many patients were affected?"                          | "Our investigation has confirmed..."                        | "[Number] patient records from [number] hospital clients were in the affected storage environment. We are providing each institution with an institution-specific patient manifest."                                                                                    |
 
 **Do not say:** specific dollar figures for remediation costs, names of forensic firms (unless approved by those firms), speculation about who accessed the data or why, characterizations of intent ("we never intended," "this was an honest mistake" -- too dismissive), the phrase "at this time" (signals there is a different answer coming later), "we take privacy seriously" without immediately following with specific actions that prove it.
 

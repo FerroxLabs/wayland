@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices debugging guide"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices debugging guide'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Error Handler
@@ -65,6 +65,7 @@ ApplicationError (base)
 ```
 
 ### Implementation Pattern (TypeScript)
+
 ```typescript
 class ApplicationError extends Error {
   public readonly code: string;
@@ -91,24 +92,19 @@ class ApplicationError extends Error {
 
 class ValidationError extends ApplicationError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, "VALIDATION_ERROR", 400, true, context);
+    super(message, 'VALIDATION_ERROR', 400, true, context);
   }
 }
 
 class NotFoundError extends ApplicationError {
   constructor(resource: string, id: string) {
-    super(
-      `${resource} not found: ${id}`,
-      "NOT_FOUND",
-      404,
-      true,
-      { resource, id }
-    );
+    super(`${resource} not found: ${id}`, 'NOT_FOUND', 404, true, { resource, id });
   }
 }
 ```
 
 ### Implementation Pattern (Python)
+
 ```python
 class ApplicationError(Exception):
     def __init__(self, message, code, status_code=500, is_operational=True, context=None):
@@ -134,18 +130,21 @@ class NotFoundError(ApplicationError):
 ## Error Codes vs Exceptions
 
 ### When to Use Exceptions
+
 - Language idiom supports it (Python, Java, JavaScript, C#).
 - The error is truly exceptional (not a normal control flow path).
 - The error needs to propagate up multiple call stack frames.
 - You need a stack trace for debugging.
 
 ### When to Use Error Codes / Result Types
+
 - Language idiom prefers it (Go, Rust, C).
 - Performance is critical (exceptions are expensive in some runtimes).
 - The "error" is an expected outcome (e.g., item not found in a search).
 - You want exhaustive error handling enforced by the compiler.
 
 ### Go Error Pattern
+
 ```go
 func GetUser(id string) (*User, error) {
     user, err := db.FindUser(id)
@@ -160,6 +159,7 @@ func GetUser(id string) (*User, error) {
 ```
 
 ### Rust Result Pattern
+
 ```rust
 fn parse_config(path: &str) -> Result<Config, ConfigError> {
     let content = fs::read_to_string(path)
@@ -245,19 +245,20 @@ class CircuitBreaker:
 
 ### Retry Decision Matrix
 
-| Error Type | Retry? | Strategy |
-|-----------|--------|----------|
-| Network timeout | Yes | Exponential backoff |
-| 429 Too Many Requests | Yes | Respect Retry-After header |
-| 500 Internal Server Error | Yes (cautiously) | Exponential backoff, max 3 |
-| 502/503/504 | Yes | Exponential backoff |
-| 400 Bad Request | No | Fix the request |
-| 401 Unauthorized | No | Re-authenticate, then retry once |
-| 404 Not Found | No | The resource does not exist |
-| 409 Conflict | Maybe | Re-read state, resolve, retry |
-| Connection refused | Yes | Backoff, check if service is up |
+| Error Type                | Retry?           | Strategy                         |
+| ------------------------- | ---------------- | -------------------------------- |
+| Network timeout           | Yes              | Exponential backoff              |
+| 429 Too Many Requests     | Yes              | Respect Retry-After header       |
+| 500 Internal Server Error | Yes (cautiously) | Exponential backoff, max 3       |
+| 502/503/504               | Yes              | Exponential backoff              |
+| 400 Bad Request           | No               | Fix the request                  |
+| 401 Unauthorized          | No               | Re-authenticate, then retry once |
+| 404 Not Found             | No               | The resource does not exist      |
+| 409 Conflict              | Maybe            | Re-read state, resolve, retry    |
+| Connection refused        | Yes              | Backoff, check if service is up  |
 
 ### What Should NOT Be Retried
+
 - Non-idempotent operations without idempotency keys (POST creating duplicate records).
 - Validation errors (will fail the same way every time).
 - Authentication failures (unless token refresh is possible).
@@ -267,25 +268,26 @@ class CircuitBreaker:
 
 ### Degradation Strategies
 
-| Failure | Degradation |
-|---------|-------------|
-| Recommendation service down | Show popular items instead |
-| Search service slow | Show cached results with staleness warning |
-| Payment service down | Allow cart building, queue payment for later |
-| Analytics service down | Drop analytics events silently |
-| Image CDN down | Show placeholder images |
+| Failure                     | Degradation                                  |
+| --------------------------- | -------------------------------------------- |
+| Recommendation service down | Show popular items instead                   |
+| Search service slow         | Show cached results with staleness warning   |
+| Payment service down        | Allow cart building, queue payment for later |
+| Analytics service down      | Drop analytics events silently               |
+| Image CDN down              | Show placeholder images                      |
 
 ### Implementation Pattern
+
 ```typescript
 async function getRecommendations(userId: string): Promise<Product[]> {
   try {
     return await recommendationService.getPersonalized(userId);
   } catch (error) {
-    logger.warn("Recommendation service failed, falling back to popular items", {
+    logger.warn('Recommendation service failed, falling back to popular items', {
       error: error.message,
       userId,
     });
-    metrics.increment("recommendations.fallback");
+    metrics.increment('recommendations.fallback');
     return await productService.getPopular({ limit: 10 });
   }
 }
@@ -294,8 +296,9 @@ async function getRecommendations(userId: string): Promise<Product[]> {
 ## Error Logging Best Practices
 
 ### What to Log
+
 ```typescript
-logger.error("Failed to process payment", {
+logger.error('Failed to process payment', {
   error: {
     name: error.name,
     message: error.message,
@@ -306,7 +309,7 @@ logger.error("Failed to process payment", {
     orderId: order.id,
     userId: order.userId,
     amount: order.total,
-    paymentMethod: order.paymentMethod,  // NOT the card number
+    paymentMethod: order.paymentMethod, // NOT the card number
     attemptNumber: retryCount,
   },
   request: {
@@ -318,27 +321,30 @@ logger.error("Failed to process payment", {
 ```
 
 ### What NOT to Log
+
 - Passwords, tokens, API keys, secrets.
 - Credit card numbers, SSNs, personal health information.
 - Full request bodies (may contain PII).
 - User-generated content that may contain sensitive data.
 
 ### Structured Error Logging
+
 Always use structured logging for errors. Key fields:
 
-| Field | Purpose |
-|-------|---------|
-| `error.name` | Error class/type |
-| `error.code` | Machine-readable error code |
-| `error.message` | Human-readable description |
-| `error.stack` | Stack trace (development/staging only) |
-| `request.id` | Correlation ID for tracing |
-| `context.*` | Business-specific diagnostic data |
-| `severity` | ERROR, WARN, FATAL |
+| Field           | Purpose                                |
+| --------------- | -------------------------------------- |
+| `error.name`    | Error class/type                       |
+| `error.code`    | Machine-readable error code            |
+| `error.message` | Human-readable description             |
+| `error.stack`   | Stack trace (development/staging only) |
+| `request.id`    | Correlation ID for tracing             |
+| `context.*`     | Business-specific diagnostic data      |
+| `severity`      | ERROR, WARN, FATAL                     |
 
 ## User-Facing Error Messages
 
 ### Rules for User Messages
+
 1. **Never expose technical details** (stack traces, SQL errors, file paths).
 2. **Be specific about what went wrong** ("Your email address is invalid" not "Validation error").
 3. **Suggest what the user can do** ("Please check your email and try again").
@@ -347,15 +353,16 @@ Always use structured logging for errors. Key fields:
 
 ### Error Message Templates
 
-| Scenario | Bad | Good |
-|----------|-----|------|
-| Invalid input | `ValidationError: field "email" failed regex` | `Please enter a valid email address (e.g., name@example.com)` |
-| Not found | `404 Resource not found` | `We could not find what you were looking for. It may have been moved or deleted.` |
-| Server error | `NullPointerException at line 42` | `Something went wrong on our end. Please try again in a few minutes. If the problem continues, contact support.` |
-| Rate limit | `429 Too Many Requests` | `You are making requests too quickly. Please wait a moment and try again.` |
-| Auth expired | `JWT token expired` | `Your session has expired. Please sign in again.` |
+| Scenario      | Bad                                           | Good                                                                                                             |
+| ------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Invalid input | `ValidationError: field "email" failed regex` | `Please enter a valid email address (e.g., name@example.com)`                                                    |
+| Not found     | `404 Resource not found`                      | `We could not find what you were looking for. It may have been moved or deleted.`                                |
+| Server error  | `NullPointerException at line 42`             | `Something went wrong on our end. Please try again in a few minutes. If the problem continues, contact support.` |
+| Rate limit    | `429 Too Many Requests`                       | `You are making requests too quickly. Please wait a moment and try again.`                                       |
+| Auth expired  | `JWT token expired`                           | `Your session has expired. Please sign in again.`                                                                |
 
 ### API Error Response Format
+
 ```json
 {
   "error": {
@@ -381,6 +388,7 @@ Always use structured logging for errors. Key fields:
 ## Error Boundary Patterns
 
 ### React Error Boundaries
+
 ```tsx
 class ErrorBoundary extends React.Component<Props, State> {
   state = { hasError: false, error: null };
@@ -404,37 +412,38 @@ class ErrorBoundary extends React.Component<Props, State> {
 // Usage: Wrap sections of UI, not the entire app
 <ErrorBoundary fallback={<OrderErrorFallback />}>
   <OrderDetails orderId={id} />
-</ErrorBoundary>
+</ErrorBoundary>;
 ```
 
 ### Global Exception Handler (Express)
+
 ```typescript
 // Error handling middleware (must have 4 parameters)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof ApplicationError && err.isOperational) {
-    logger.warn("Operational error", { error: err, requestId: req.id });
+    logger.warn('Operational error', { error: err, requestId: req.id });
     return res.status(err.statusCode).json({
-      error: { code: err.code, message: err.message, requestId: req.id }
+      error: { code: err.code, message: err.message, requestId: req.id },
     });
   }
 
   // Programmer error: log and return generic 500
-  logger.error("Unexpected error", { error: err, requestId: req.id });
+  logger.error('Unexpected error', { error: err, requestId: req.id });
   return res.status(500).json({
-    error: { code: "INTERNAL_ERROR", message: "An unexpected error occurred.", requestId: req.id }
+    error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.', requestId: req.id },
   });
 });
 ```
 
 ### Operational vs Programmer Errors
 
-| Operational (Expected) | Programmer (Bug) |
-|----------------------|------------------|
-| Invalid user input | TypeError, ReferenceError |
-| Network timeout | Null dereference |
-| File not found | Out of bounds access |
-| Rate limited | Assertion failure |
-| Disk full | Uncaught exception |
+| Operational (Expected) | Programmer (Bug)          |
+| ---------------------- | ------------------------- |
+| Invalid user input     | TypeError, ReferenceError |
+| Network timeout        | Null dereference          |
+| File not found         | Out of bounds access      |
+| Rate limited           | Assertion failure         |
+| Disk full              | Uncaught exception        |
 
 **Operational errors**: Handle gracefully. Return appropriate status code. Log at WARN level.
 
@@ -453,6 +462,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing error handler solutions
 - Reviewing or improving existing error handler approaches
 - Making architectural or implementation decisions about error handler
@@ -460,6 +470,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 - Troubleshooting error handler-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -470,21 +481,26 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 # Error Handler Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design teaching guide"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design teaching guide'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Educational Game Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to design a game with specific learning objectives and measurable educational outcomes
 - The user needs help integrating Bloom's taxonomy or stealth assessment into gameplay
 - The user is building a game for classroom use and needs teacher tools, session design, or curriculum alignment
@@ -26,6 +27,7 @@ metadata:
 - The user needs age-appropriate design guidance for educational content (early childhood through adult)
 
 **Do NOT use this skill when:**
+
 - The user is designing a game primarily for entertainment without learning objectives (use video-game-designer instead)
 - The user needs help with general puzzle design outside an educational context (use game-puzzle-designer instead)
 - The user is creating curriculum or lesson plans without a game component
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on educational game designer
 - User asks about educational game designer best practices or techniques
 - User wants a structured approach to educational game designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of educational game designer
 
@@ -504,23 +508,28 @@ STEP 7: VALIDATE LEARNING OUTCOMES
 ## Practice Exercises
 
 ### Exercise 1: Objective Alignment
+
 Take a learning objective from any curriculum. Design a game mechanic where the ONLY way to succeed is to demonstrate that skill. Verify: if you removed the educational content, would the game break?
 
 ### Exercise 2: Bloom's Level Up
+
 Take a topic (e.g., photosynthesis). Design one game activity for each level of Bloom's taxonomy (Remember through Create). How does the game design change at each level?
 
 ### Exercise 3: Chocolate-Covered Broccoli Audit
+
 Play 3 educational games. For each, determine: is the learning intrinsically integrated or decoratively attached? What would make the integration tighter?
 
 ### Exercise 4: Age Adaptation
+
 Take one game concept and adapt it for three age groups: 5-year-olds, 10-year-olds, and 15-year-olds. What changes in mechanics, presentation, and complexity?
 
 ### Exercise 5: Stealth Assessment Design
+
 Choose a learning objective. Design a game level where every player action generates assessment data. Map: action -> evidence -> competency judgment.
 
 ### Exercise 6: Teacher Integration Plan
-Design a 45-minute classroom lesson that uses a game as the central activity. Include: pre-game setup (5 min), gameplay (25 min), debrief discussion (10 min), assessment connection (5 min).
 
+Design a 45-minute classroom lesson that uses a game as the central activity. Include: pre-game setup (5 min), gameplay (25 min), debrief discussion (10 min), assessment connection (5 min).
 
 ## Output Format
 
@@ -534,13 +543,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with educational game designer for a mid-size project."
 
 **Output:** A complete educational game designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

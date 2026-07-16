@@ -58,19 +58,13 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
   const handleTestAndEnable = async () => {
     if (!serverUrl.trim() || serverUrl.trim() === 'https://') {
       Message.warning(
-        t(
-          'settings.channels.mattermost.credentials.serverUrl.required',
-          'Please enter the Mattermost server URL',
-        ),
+        t('settings.channels.mattermost.credentials.serverUrl.required', 'Please enter the Mattermost server URL')
       );
       return;
     }
     if (!accessToken.trim()) {
       Message.warning(
-        t(
-          'settings.channels.mattermost.credentials.accessToken.required',
-          'Please enter a personal access token',
-        ),
+        t('settings.channels.mattermost.credentials.accessToken.required', 'Please enter a personal access token')
       );
       return;
     }
@@ -91,15 +85,12 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
 
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
-          testResult.data?.error ??
-            t('settings.channels.mattermost.connectionFailed', 'Mattermost connection failed'),
+          testResult.data?.error ?? t('settings.channels.mattermost.connectionFailed', 'Mattermost connection failed')
         );
         return;
       }
 
-      Message.success(
-        t('settings.channels.mattermost.connectionSuccess', 'Mattermost connected'),
-      );
+      Message.success(t('settings.channels.mattermost.connectionSuccess', 'Mattermost connected'));
 
       const enableResult = await channel.enablePlugin.invoke({
         pluginId: 'mattermost_default',
@@ -112,19 +103,14 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
       });
 
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.mattermost.pluginEnabled', 'Mattermost plugin enabled'),
-        );
+        Message.success(t('settings.channels.mattermost.pluginEnabled', 'Mattermost plugin enabled'));
         const statusResult = await channel.getPluginStatus.invoke();
         if (statusResult.success && statusResult.data) {
-          onStatusChange(
-            statusResult.data.find((p) => p.type === 'mattermost') ?? null,
-          );
+          onStatusChange(statusResult.data.find((p) => p.type === 'mattermost') ?? null);
         }
       } else {
         Message.error(
-          enableResult.msg ??
-            t('settings.channels.mattermost.enableFailed', 'Failed to enable Mattermost plugin'),
+          enableResult.msg ?? t('settings.channels.mattermost.enableFailed', 'Failed to enable Mattermost plugin')
         );
       }
     } catch (error) {
@@ -142,20 +128,17 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
           <span className='text-12px'>
             {t(
               'settings.channels.mattermost.replaceWarning',
-              'Connecting a new Mattermost account will replace your existing one.',
+              'Connecting a new Mattermost account will replace your existing one.'
             )}
           </span>
         </div>
       )}
 
       <PreferenceRow
-        label={t(
-          'settings.channels.mattermost.credentials.serverUrl.label',
-          'Server URL',
-        )}
+        label={t('settings.channels.mattermost.credentials.serverUrl.label', 'Server URL')}
         description={t(
           'settings.channels.mattermost.credentials.serverUrl.help',
-          'Full HTTPS base URL of your Mattermost server, e.g. https://mattermost.example.com',
+          'Full HTTPS base URL of your Mattermost server, e.g. https://mattermost.example.com'
         )}
       >
         <Input
@@ -167,13 +150,10 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.mattermost.credentials.accessToken.label',
-          'Personal Access Token',
-        )}
+        label={t('settings.channels.mattermost.credentials.accessToken.label', 'Personal Access Token')}
         description={t(
           'settings.channels.mattermost.credentials.accessToken.help',
-          'Create a Personal Access Token in Mattermost under Account Settings → Security → Personal Access Tokens. NOTE: A System Admin must first enable Integrations → Integration Management → Enable Personal Access Tokens in the System Console - if you don\'t see the menu, ask your admin to enable it.',
+          "Create a Personal Access Token in Mattermost under Account Settings → Security → Personal Access Tokens. NOTE: A System Admin must first enable Integrations → Integration Management → Enable Personal Access Tokens in the System Console - if you don't see the menu, ask your admin to enable it."
         )}
       >
         <Input.Password
@@ -182,10 +162,7 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
           placeholder={
             hasExisting
               ? '••••••••••••••••'
-              : t(
-                  'settings.channels.mattermost.credentials.accessToken.placeholder',
-                  'your-personal-access-token',
-                )
+              : t('settings.channels.mattermost.credentials.accessToken.placeholder', 'your-personal-access-token')
           }
           style={{ width: 280 }}
           visibilityToggle
@@ -193,22 +170,16 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.mattermost.credentials.teamId.label',
-          'Team ID (optional)',
-        )}
+        label={t('settings.channels.mattermost.credentials.teamId.label', 'Team ID (optional)')}
         description={t(
           'settings.channels.mattermost.credentials.teamId.help',
-          'Scope the bot to a specific team - inbound events from other teams are dropped (direct messages still pass through). Leave blank to receive events from all teams.',
+          'Scope the bot to a specific team - inbound events from other teams are dropped (direct messages still pass through). Leave blank to receive events from all teams.'
         )}
       >
         <Input
           value={teamId}
           onChange={setTeamId}
-          placeholder={t(
-            'settings.channels.mattermost.credentials.teamId.placeholder',
-            'team-id or leave blank',
-          )}
+          placeholder={t('settings.channels.mattermost.credentials.teamId.placeholder', 'team-id or leave blank')}
           style={{ width: 280 }}
         />
       </PreferenceRow>
@@ -216,17 +187,14 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
       <PreferenceRow
         label={t(
           'settings.channels.mattermost.credentials.blockPrivateNetwork.label',
-          'Block private-network destinations (advanced)',
+          'Block private-network destinations (advanced)'
         )}
         description={t(
           'settings.channels.mattermost.credentials.blockPrivateNetwork.help',
-          'Default OFF - Mattermost is overwhelmingly self-hosted on LAN/private IPs, so private addresses are allowed. Turn ON only for managed SaaS Mattermost; this blocks DNS-rebinding/SSRF pivots but will break LAN servers.',
+          'Default OFF - Mattermost is overwhelmingly self-hosted on LAN/private IPs, so private addresses are allowed. Turn ON only for managed SaaS Mattermost; this blocks DNS-rebinding/SSRF pivots but will break LAN servers.'
         )}
       >
-        <Switch
-          checked={blockPrivateNetwork}
-          onChange={setBlockPrivateNetwork}
-        />
+        <Switch checked={blockPrivateNetwork} onChange={setBlockPrivateNetwork} />
       </PreferenceRow>
 
       <div className='flex justify-end pt-8px'>
@@ -235,7 +203,6 @@ const MattermostConfigForm: React.FC<MattermostConfigFormProps> = ({
         </Button>
       </div>
       <ChannelAgentModelSelector platform='mattermost' modelSelection={modelSelection} />
-
     </div>
   );
 };

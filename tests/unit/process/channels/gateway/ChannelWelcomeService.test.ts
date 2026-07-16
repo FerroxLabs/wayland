@@ -89,10 +89,10 @@ describe('ChannelWelcomeService', () => {
   it('rearm clears the marker so the next connect re-sends (re-pair)', async () => {
     const send = vi.fn(async () => 'msg-1');
     await svc.welcomeOnConnect('whatsapp', 'jid-old', 'jid-old', send);
-    expect((await svc.hasWelcomed('whatsapp', 'jid-old'))).toBe(true);
+    expect(await svc.hasWelcomed('whatsapp', 'jid-old')).toBe(true);
 
     await svc.rearm('whatsapp', 'jid-old');
-    expect((await svc.hasWelcomed('whatsapp', 'jid-old'))).toBe(false);
+    expect(await svc.hasWelcomed('whatsapp', 'jid-old')).toBe(false);
 
     send.mockClear();
     const resent = await svc.welcomeOnConnect('whatsapp', 'jid-old', 'jid-old', send);

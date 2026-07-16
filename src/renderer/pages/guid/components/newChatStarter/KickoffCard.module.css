@@ -11,7 +11,9 @@
   border-radius: 14px;
   background-color: var(--bg-elevated);
   border: 1px solid var(--border-light);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.02),
+    0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
 .dismissBtn {
@@ -29,7 +31,9 @@
   color: var(--text-muted);
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .dismissBtn:hover,
@@ -61,7 +65,9 @@
   font-size: 13px;
   cursor: pointer;
   border-radius: 6px;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .redirectBtn:hover,

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot budgeting guide python automation networking sleep"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced iot budgeting guide python automation networking sleep'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # IoT Sensor Network
 
 You are an expert IoT sensor network architect. You guide developers through mesh networking topologies, data collection pipelines, power management strategies, communication protocol selection, and scalable fleet management for distributed sensor deployments.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about iot sensor network techniques or best practices
 - User needs guidance on iot sensor network concepts
 - User wants to implement or improve their approach to iot sensor network
 
 **Do NOT use when:**
+
 - The request falls outside the scope of iot sensor network
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,24 +38,24 @@ You are an expert IoT sensor network architect. You guide developers through mes
 
 ### Topology Comparison
 
-| Topology | Range | Scalability | Power | Complexity | Reliability | Best For |
-|----------|-------|-------------|-------|------------|-------------|----------|
-| Star | Short | Low (<20) | Low | Simple | Single point failure | Small indoor |
-| Mesh | Extended | High (100+) | Medium | Complex | Self-healing | Large area |
-| Tree | Medium | Medium | Medium | Medium | Branch failure | Hierarchical |
-| Star-of-Stars | Extended | High | Low-Med | Medium | Gateway redundancy | Multi-room |
+| Topology      | Range    | Scalability | Power   | Complexity | Reliability          | Best For     |
+| ------------- | -------- | ----------- | ------- | ---------- | -------------------- | ------------ |
+| Star          | Short    | Low (<20)   | Low     | Simple     | Single point failure | Small indoor |
+| Mesh          | Extended | High (100+) | Medium  | Complex    | Self-healing         | Large area   |
+| Tree          | Medium   | Medium      | Medium  | Medium     | Branch failure       | Hierarchical |
+| Star-of-Stars | Extended | High        | Low-Med | Medium     | Gateway redundancy   | Multi-room   |
 
 ### Protocol Selection Matrix
 
-| Protocol | Range | Data Rate | Power | Topology | License | Nodes |
-|----------|-------|-----------|-------|----------|---------|-------|
-| WiFi | 50m | 54+ Mbps | High | Star | ISM | ~32 |
-| BLE Mesh | 30m | 2 Mbps | Very Low | Mesh | ISM | 32K |
-| Zigbee | 100m | 250 kbps | Low | Mesh/Star | ISM | 65K |
-| Z-Wave | 100m | 100 kbps | Low | Mesh | Licensed | 232 |
-| LoRa | 15km | 50 kbps | Very Low | Star | ISM | 1000s |
-| Thread | 30m | 250 kbps | Low | Mesh | ISM | 250+ |
-| ESP-NOW | 200m | 1 Mbps | Low | Star/Mesh | ISM | 20 |
+| Protocol | Range | Data Rate | Power    | Topology  | License  | Nodes |
+| -------- | ----- | --------- | -------- | --------- | -------- | ----- |
+| WiFi     | 50m   | 54+ Mbps  | High     | Star      | ISM      | ~32   |
+| BLE Mesh | 30m   | 2 Mbps    | Very Low | Mesh      | ISM      | 32K   |
+| Zigbee   | 100m  | 250 kbps  | Low      | Mesh/Star | ISM      | 65K   |
+| Z-Wave   | 100m  | 100 kbps  | Low      | Mesh      | Licensed | 232   |
+| LoRa     | 15km  | 50 kbps   | Very Low | Star      | ISM      | 1000s |
+| Thread   | 30m   | 250 kbps  | Low      | Mesh      | ISM      | 250+  |
+| ESP-NOW  | 200m  | 1 Mbps    | Low      | Star/Mesh | ISM      | 20    |
 
 ## ESP-NOW Mesh Network
 
@@ -236,13 +237,13 @@ class SensorGateway:
 
 ### Power Budget Calculator
 
-| Component | Active | Sleep | Duty Cycle | Average |
-|-----------|--------|-------|------------|---------|
-| ESP32 (WiFi TX) | 240 mA | 10 uA | 0.1% | 0.25 mA |
-| BME280 sensor | 1 mA | 0.1 uA | 0.1% | 0.001 mA |
-| Voltage regulator | 5 mA | 5 mA | 100% | 5 mA |
-| **Total** | | | | **~5.25 mA** |
-| **18650 (3000mAh)** | | | | **~24 days** |
+| Component           | Active | Sleep  | Duty Cycle | Average      |
+| ------------------- | ------ | ------ | ---------- | ------------ |
+| ESP32 (WiFi TX)     | 240 mA | 10 uA  | 0.1%       | 0.25 mA      |
+| BME280 sensor       | 1 mA   | 0.1 uA | 0.1%       | 0.001 mA     |
+| Voltage regulator   | 5 mA   | 5 mA   | 100%       | 5 mA         |
+| **Total**           |        |        |            | **~5.25 mA** |
+| **18650 (3000mAh)** |        |        |            | **~24 days** |
 
 ### Deep Sleep Optimization (ESP32)
 
@@ -465,15 +466,15 @@ class FleetManager:
 
 ## Common Pitfalls
 
-| Mistake | Impact | Solution |
-|---------|--------|----------|
-| No packet sequencing | Undetected data loss | Include sequence numbers |
-| WiFi for battery nodes | Days instead of months | Use ESP-NOW, BLE, or LoRa |
-| No local buffering | Data loss on connectivity gaps | NVS/flash ring buffer |
-| Fixed sample rates | Wasted power on stable data | Adaptive sampling |
-| No OTA update path | Manual firmware updates forever | Plan OTA from day one |
-| Ignoring clock drift | Misaligned time-series data | NTP sync at gateway, relative timestamps at nodes |
-| No encryption | Data interception, spoofing | AES-128 at minimum for ESP-NOW |
+| Mistake                | Impact                          | Solution                                          |
+| ---------------------- | ------------------------------- | ------------------------------------------------- |
+| No packet sequencing   | Undetected data loss            | Include sequence numbers                          |
+| WiFi for battery nodes | Days instead of months          | Use ESP-NOW, BLE, or LoRa                         |
+| No local buffering     | Data loss on connectivity gaps  | NVS/flash ring buffer                             |
+| Fixed sample rates     | Wasted power on stable data     | Adaptive sampling                                 |
+| No OTA update path     | Manual firmware updates forever | Plan OTA from day one                             |
+| Ignoring clock drift   | Misaligned time-series data     | NTP sync at gateway, relative timestamps at nodes |
+| No encryption          | Data interception, spoofing     | AES-128 at minimum for ESP-NOW                    |
 
 ## Exercises
 
@@ -483,7 +484,6 @@ class FleetManager:
 4. **Fleet Dashboard**: Build a web dashboard showing real-time status, battery levels, and alerts for 5+ simulated nodes
 5. **Resilient Pipeline**: Add NVS buffering to sensor nodes so data survives gateway outages, with automatic catch-up on reconnection
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -491,7 +491,6 @@ class FleetManager:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -512,14 +511,12 @@ class FleetManager:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -14,12 +14,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy proposal planning step-by-step"
-  category: "business-operations"
-  depends: "financial-model-structure sales-pitch-deck competitive-analysis burn-rate-runway cap-table-basics fundraising-narrative investor-update-email"
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy proposal planning step-by-step'
+  category: 'business-operations'
+  depends: 'financial-model-structure sales-pitch-deck competitive-analysis burn-rate-runway cap-table-basics fundraising-narrative investor-update-email'
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Prepare for Fundraising
@@ -215,54 +215,61 @@ When this workflow is complete, the user will have:
 ## Fundraising Preparation: CartFlow -- Seed Round
 
 ### Financial Model Summary
+
 - **Revenue (trailing 12 months):** $120K ARR ($15K MRR current, grown from $3K MRR 12 months ago)
 - **Monthly Burn Rate:** $45K
 - **Current Runway:** 12 months ($540K in bank)
 - **Target Raise:** $2M
 - **Use of Funds:**
-  | Category          | Allocation | Timeline     |
+  | Category | Allocation | Timeline |
   |-------------------|------------|--------------|
-  | Engineering (3 hires) | $960K  | Q1-Q4        |
-  | Sales (2 hires)   | $480K      | Q2-Q4        |
-  | Marketing         | $360K      | Q2-Q4        |
-  | G&A + buffer      | $200K      | Q1-Q4        |
+  | Engineering (3 hires) | $960K | Q1-Q4 |
+  | Sales (2 hires) | $480K | Q2-Q4 |
+  | Marketing | $360K | Q2-Q4 |
+  | G&A + buffer | $200K | Q1-Q4 |
 - **Key Assumptions:** (1) Net revenue retention stays above 120% (sensitivity: 100-140%), (2) Paid CAC stays below $2,500 (sensitivity: $1,800-$3,200), (3) Sales cycle remains under 30 days (sensitivity: 21-45 days)
 
 ### Pitch Deck
+
 - **Slides:** 12 main + 5 appendix
 - **Narrative Arc:** E-commerce checkout abandonment problem ($18B annually) > CartFlow reduces abandonment 23% > $120K ARR growing 5x YoY > 40 paying customers with 120% NRR > Founded by ex-Shopify engineers > $2M to reach $1M ARR and Series A readiness
 - **Ask Slide:** $2M at $10M pre-money for 18-month runway to $1M ARR
 
 ### Competitive Landscape
+
 - **Direct Competitors:** 4 profiled (Bolt, Fast, ThriveCart, SamCart)
 - **Positioning:** X-axis: SMB vs Enterprise, Y-axis: Checkout-only vs Full-stack commerce. CartFlow positioned in SMB + full-stack quadrant (underserved by existing players)
 - **Defensibility:** Integration depth (40+ e-commerce platform integrations built over 18 months; competitor average is 12)
 
 ### Due Diligence Readiness
+
 - **Data Room:** Complete -- 47 documents organized in 8 categories
 - **Cap Table:** 3 founders (equal 30% each = 90% total), 10% ESOP
 - **Corporate Docs:** All current (Delaware C-Corp, IP assignments signed, employment agreements executed)
 
 ### Term Sheet Preparation
+
 - **Target Valuation Range:** $8M-$12M pre-money
 - **Dilution at Target:** 16.7% at $10M pre-money ($2M raise)
 - **Red Flag Terms Identified:** 2 (participating preferred, super pro-rata rights)
 - **Negotiation Priorities:** (1) Non-participating preferred, (2) Single-trigger acceleration for founders, (3) Board composition (2 founders + 1 investor + 2 independents)
 
 ### Fundraising Narrative
+
 - **Elevator Pitch:** "E-commerce stores lose $18 billion annually to checkout abandonment. CartFlow reduces abandonment by 23% for Shopify and WooCommerce stores. We have 40 paying customers, $15K MRR growing 5x year-over-year, and 120% net revenue retention. We are raising $2M to build the sales team and reach $1M ARR."
 - **Why Now:** E-commerce platforms are opening checkout APIs that were previously closed. CartFlow is the first to integrate with all 40+ platforms through these new APIs.
 - **Why Us:** All 3 founders spent 4+ years at Shopify building checkout infrastructure. We know this problem domain better than anyone in the market.
 - **FAQ Prepared:** 15 questions with data-backed answers (churn, CAC payback, competitive response, international expansion, team scaling)
 
 ### Investor Pipeline
+
 - **Target Investors:** 55 (25 Tier 1 seed funds, 20 Tier 2, 10 angels)
 - **Pipeline Status:**
-  | Stage              | Count |
+  | Stage | Count |
   |-------------------|-------|
-  | Identified         | 55    |
-  | Contacted          | 32    |
-  | Meeting Scheduled  | 18    |
-  | Meeting Completed  | 12    |
-  | Partner Meeting    | 4     |
-  | Term Sheet         | 1     |
+  | Identified | 55 |
+  | Contacted | 32 |
+  | Meeting Scheduled | 18 |
+  | Meeting Completed | 12 |
+  | Partner Meeting | 4 |
+  | Term Sheet | 1 |

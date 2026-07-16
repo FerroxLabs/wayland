@@ -12,14 +12,15 @@ description: >-
   use the single-post blog workflow instead.
 license: Apache-2.0
 type: workflow
-skills: "content-audit content-blog content-humanize content-repurpose"
+skills: 'content-audit content-blog content-humanize content-repurpose'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing content batch repurpose deterministic automation
   category: marketing
-  depends: "content-audit content-blog content-humanize content-repurpose"
+  depends: 'content-audit content-blog content-humanize content-repurpose'
 ---
+
 # Content Brief Batch Processor
 
 **Estimated time:** 5-10 minutes per brief

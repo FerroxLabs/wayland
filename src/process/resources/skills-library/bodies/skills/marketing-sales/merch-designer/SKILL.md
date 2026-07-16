@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design marketing entrepreneurship"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design marketing entrepreneurship'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Merch Designer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on merch designer
 - User asks about merch designer best practices or techniques
 - User wants a structured approach to merch designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of merch designer
 
@@ -59,13 +60,13 @@ Before designing any merchandise, clarify:
 
 ### Print-on-Demand Comparison
 
-| Platform | Best For | Base Tee Cost | Quality | Global Fulfillment |
-|----------|---------|--------------|---------|-------------------|
-| Printful | Quality-focused creators | $9-13 | High | US, EU, AU, JP |
-| Printify | Budget-conscious sellers | $6-12 | Varies by provider | 90+ providers |
-| Spring | Social media creators | $8-12 | Good | US, EU |
-| Redbubble | Passive income artists | Marketplace sets | Good | US, EU, AU |
-| Merch by Amazon | Amazon traffic seekers | $7-10 | Good | Amazon fulfillment |
+| Platform        | Best For                 | Base Tee Cost    | Quality            | Global Fulfillment |
+| --------------- | ------------------------ | ---------------- | ------------------ | ------------------ |
+| Printful        | Quality-focused creators | $9-13            | High               | US, EU, AU, JP     |
+| Printify        | Budget-conscious sellers | $6-12            | Varies by provider | 90+ providers      |
+| Spring          | Social media creators    | $8-12            | Good               | US, EU             |
+| Redbubble       | Passive income artists   | Marketplace sets | Good               | US, EU, AU         |
+| Merch by Amazon | Amazon traffic seekers   | $7-10            | Good               | Amazon fulfillment |
 
 ### Decision Framework
 
@@ -272,7 +273,6 @@ OPERATIONS: Missing or inaccurate size charts | No return policy
   Ignoring international shipping demand | Not tracking which designs sell
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -285,13 +285,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with merch designer for a mid-size project."
 
 **Output:** A complete merch designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

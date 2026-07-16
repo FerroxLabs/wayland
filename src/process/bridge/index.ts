@@ -18,6 +18,7 @@ import { initConversationBridge } from './conversationBridge';
 import { initCronBridge } from './cronBridge';
 import { initConciergeConfigBridge } from './conciergeConfigBridge';
 import { initProjectBridge } from './projectBridge';
+import { initDevActionsBridge } from './devActionsBridge';
 import { initDatabaseBridge } from './databaseBridge';
 import { initDialogBridge } from './dialogBridge';
 import { initDocumentBridge } from './documentBridge';
@@ -38,6 +39,7 @@ import { initVoiceAssetBridge } from './voiceAssetBridge';
 import { initVoiceSynthBridge } from './voiceSynthBridge';
 import { initSkillsBridge } from './skillsBridge';
 import { initTaskBridge } from './taskBridge';
+import { initAutopilotBridge } from './autopilotBridge';
 import { initUpdateBridge } from './updateBridge';
 import { initWebuiBridge } from './webuiBridge';
 import { initConstitutionBridge } from './constitutionBridge';
@@ -119,6 +121,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initCronBridge();
   initConciergeConfigBridge();
   initProjectBridge();
+  initDevActionsBridge();
   initKickoffBridge();
   initSystemSettingsBridge();
   initTerminalBridge();
@@ -143,6 +146,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
     findWorkflowByConversationId: (id) => getWorkflowSessionService()?.findByConversationId(id) ?? null,
   });
   initTaskBridge(deps.workerTaskManager);
+  initAutopilotBridge();
   initStarOfficeBridge();
   initSpeechToTextBridge();
   initVoiceAssetBridge();

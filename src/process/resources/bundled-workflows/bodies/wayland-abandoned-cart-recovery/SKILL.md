@@ -12,14 +12,15 @@ description: >-
   skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "commerce-abandoned-cart"
+skills: 'commerce-abandoned-cart'
 metadata:
   author: wayland
   version: 1.0.0
   tags: commerce ecommerce email retention cart-recovery step-by-step
   category: marketing
-  depends: "commerce-abandoned-cart"
+  depends: 'commerce-abandoned-cart'
 ---
+
 # Abandoned Cart Recovery
 
 **Estimated time:** 15-25 minutes

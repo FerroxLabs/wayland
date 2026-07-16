@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts tenant-rights checklist"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts tenant-rights checklist'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Lease Agreement Reviewer
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand lease agreements and tenant protections. It does NOT constitute legal advice, create an attorney-client relationship, or represent you in any legal matter. Landlord-tenant law varies significantly by state, county, and city, and changes over time. Always consult a qualified attorney licensed in your jurisdiction or a certified tenant rights organization before making decisions about signing or disputing a lease.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user has received a residential lease or rental agreement (apartment, house, condo, townhouse, room rental, mobile home pad) and wants to understand what they are agreeing to before signing
 - A user wants a structured clause-by-clause analysis identifying which provisions are standard, which are unusual, and which are potentially harmful
 - A user is preparing questions for a tenant rights organization, legal aid clinic, or housing attorney consultation and wants to arrive informed
@@ -33,6 +35,7 @@ metadata:
 - A user wants to understand what tenant protections standard leases in their region typically include, so they can identify gaps in the document they received
 
 **Do NOT use when:**
+
 - The user wants to review a commercial, retail, industrial, or office lease -- commercial leases operate under entirely different legal frameworks with far fewer consumer protections, require a different skill
 - The user wants to draft, write, or redline a lease agreement -- generating lease language constitutes legal drafting and is outside this skill's scope
 - The user wants a definitive legal opinion on whether to sign a specific lease or whether a specific clause is enforceable -- that is legal advice requiring a licensed attorney
@@ -65,11 +68,13 @@ Before evaluating individual clauses, systematically catalog what the lease cont
 Work through the following inventory categories in order:
 
 **Identity and Parties**
+
 - Confirm the landlord's legal name, not just a DBA or property management company name. The legal entity that owns the property (LLC, trust, individual) is who the tenant has legal recourse against. If only a property management company is named, flag this.
 - Confirm all adult occupants who will be living in the unit are listed by name as tenants. Unnamed occupants can be at legal risk in eviction scenarios and may not have standing to assert tenant rights.
 - Verify the exact property address including unit number. Ambiguous property descriptions are a red flag in leases.
 
 **Financial Terms**
+
 - Rent amount and due date
 - Grace period in days (if any -- note that grace periods are legally required in some states, e.g., Georgia requires a 5-day grace period; most do not mandate one)
 - Late fee amount and trigger date -- in many states, late fees are capped: California caps late fees at a "reasonable" amount (courts have interpreted this as 5-10% of monthly rent); Texas caps fees at 12% of monthly rent for properties with fewer than 4 units and 10% for larger properties
@@ -86,11 +91,13 @@ Work through the following inventory categories in order:
 - Move-in fees distinct from security deposit (some states limit these)
 
 **Lease Duration and Renewal**
+
 - Fixed end date vs. month-to-month
 - Automatic renewal clause: Does the lease automatically renew for another 12 months if the tenant does not provide advance notice? If so, how many days of notice are required to prevent auto-renewal? (60-90 days is common; some leases require as much as 120 days -- this is a serious trap)
 - Holdover provisions: What happens if the tenant stays past the end date without signing a new lease? (Most leases convert to month-to-month; some impose penalty rent at 150-200% of the monthly rate during holdover)
 
 **Entry and Privacy**
+
 - Required notice period before landlord entry. State minimums:
   - California, Florida, New York: 24 hours
   - Texas: "Reasonable" notice (no defined statutory minimum, but case law suggests 24 hours)
@@ -101,6 +108,7 @@ Work through the following inventory categories in order:
 - Smart lock, lockbox, or key fob retention by the landlord or property management company -- this enables de facto unannounced entry and should be flagged
 
 **Maintenance and Repairs**
+
 - Landlord's affirmative duty to maintain habitable conditions -- the implied warranty of habitability exists in all U.S. states and cannot be waived by contract, so any clause purporting to waive it is unenforceable (note jurisdiction caveat)
 - Tenant's repair obligations: Standard leases hold tenants responsible for damage beyond normal wear and tear. Flag any clause making tenants responsible for HVAC systems, structural repairs, roof, plumbing, or electrical systems -- these are landlord obligations in all U.S. jurisdictions
 - Repair-and-deduct rights: Many states allow tenants to pay for essential repairs and deduct from rent under defined circumstances. The lease may or may not address this; absence means state law default applies
@@ -108,6 +116,7 @@ Work through the following inventory categories in order:
 - Who handles pest control -- many states (including California) place pest control obligations on landlords; leases shifting this to tenants should be flagged
 
 **Termination and Move-Out**
+
 - Tenant's required notice to vacate (typically 30-60 days for fixed-term leases; for month-to-month, often equal to the rent period)
 - Early termination clause: Permitted basis, notice required, and penalty or fee
   - Legitimate early termination rights in many states include active military deployment (federal Servicemembers Civil Relief Act -- SCRA -- preempts state law), domestic violence situations, and uninhabitable conditions
@@ -117,6 +126,7 @@ Work through the following inventory categories in order:
 - Move-out inspection rights: Many states grant tenants the right to attend a pre-move-out inspection and receive a written list of intended deductions -- California Civil Code § 1950.5 is the strongest model; not all states have this
 
 **Prohibited or Restricted Activities**
+
 - Pet policy: Distinguish between no-pets (absolute restriction), pets-with-permission, and breed/weight restrictions. Note that service animals and emotional support animals are NOT pets under federal law (Fair Housing Act / ADA) and pet deposits or pet fees generally cannot be charged for them -- any lease clause attempting to charge for a service/support animal is potentially unlawful
 - Guest policy: Some leases limit overnight guests to a certain number of consecutive nights (7-14 days is common). Overly restrictive guest policies can implicate Fair Housing concerns in some contexts
 - Subletting and assignment: Most leases prohibit subletting without landlord consent. Some jurisdictions limit how landlords can withhold consent
@@ -124,6 +134,7 @@ Work through the following inventory categories in order:
 - Business operation prohibitions: These are usually standard but can conflict with work-from-home arrangements -- clarify whether running a home-based business that generates no client traffic or external business activity is prohibited
 
 **Dispute Resolution**
+
 - Mandatory binding arbitration clauses: Flag these. They waive the right to court proceedings and class actions, and while generally enforceable in residential leases, they can disadvantage tenants who have fewer resources than institutional landlords
 - Attorney's fees provisions: A one-sided attorney's fees clause (landlord recovers fees if they prevail, tenant does not) is a red flag. Many states have "prevailing party" statutes that make attorney's fees reciprocal by operation of law regardless of what the lease says
 - Jury trial waiver: Flag prominently. Courts in some jurisdictions have enforced these in residential leases; others have not. A tenant should understand what they may be waiving
@@ -136,6 +147,7 @@ Work through the following inventory categories in order:
 After cataloging provisions, apply a severity rating to each concern. Use this framework:
 
 **High Concern (advise user to discuss specifically with an attorney or tenant organization before signing):**
+
 - Entry notice below 24 hours
 - Landlord retains right to change lease terms unilaterally during the lease term
 - Tenant waives right to habitable conditions
@@ -147,6 +159,7 @@ After cataloging provisions, apply a severity rating to each concern. Use this f
 - Any clause the user flags as confusing that, upon analysis, appears to significantly restrict tenant rights
 
 **Medium Concern (note as unfavorable or uncommon; recommend clarification before signing):**
+
 - No grace period for rent where state law does not require one
 - Late fees above 5-10% of monthly rent
 - Lease is silent on security deposit return timeline (state law default will apply -- verify it)
@@ -157,6 +170,7 @@ After cataloging provisions, apply a severity rating to each concern. Use this f
 - Landlord retains a spare key or lockbox access without defined access restrictions
 
 **Low Concern (note for awareness; standard in many markets):**
+
 - No smoking (virtually universal and reasonable)
 - Tenant responsible for renter's insurance
 - Parking fees charged separately
@@ -183,6 +197,7 @@ When the lease is silent on a topic, the applicable state landlord-tenant statut
 Present the user with a clear financial picture. Tenants frequently underestimate total move-in costs and total risk exposure.
 
 **Move-In Cost Calculation:**
+
 - First month's rent: $X
 - Last month's rent (if required): $X
 - Security deposit: $X
@@ -193,11 +208,13 @@ Present the user with a clear financial picture. Tenants frequently underestimat
 - **Total due at move-in: $X**
 
 **Maximum Early Termination Exposure:**
+
 - If the lease charges $Y per remaining month and the tenant leaves after Month 1 of a 12-month lease: 11 months × $Y = $Z
 - If the lease charges a flat early termination fee: $Z
 - Note: In states requiring landlord mitigation, actual liability may be lower
 
 **Worst-Case Security Deposit Non-Return:**
+
 - If the full deposit is withheld in bad faith and the user must pursue legal action, note that many states provide for double or triple damages plus attorney's fees for wrongful withholding (California: 2x; Massachusetts: up to 3x; New York: up to 2x under HSTPA)
 
 ---
@@ -207,6 +224,7 @@ Present the user with a clear financial picture. Tenants frequently underestimat
 After analysis, generate specific questions tailored to the lease's actual provisions and the user's stated jurisdiction. These questions are for the user to take to a tenant rights organization or attorney -- not generic questions but targeted ones based on what the lease actually says.
 
 Structure questions in three categories:
+
 1. **Verify before signing** -- questions that should be answered before the user commits
 2. **Negotiate if possible** -- provisions the user might ask to change (entry notice, late fee, early termination)
 3. **Know your rights regardless** -- statutory rights that exist whether or not the lease mentions them
@@ -239,7 +257,7 @@ Present findings in the structured output format below. Lead with the most urgen
 ## Lease Review: [Property Address]
 
 > **Important:** This is an educational review to help you understand your lease.
-> It does not constitute legal advice. Laws vary by jurisdiction. Consult a 
+> It does not constitute legal advice. Laws vary by jurisdiction. Consult a
 > licensed attorney or tenant rights organization before signing.
 
 ---
@@ -310,7 +328,7 @@ Present findings in the structured output format below. Lead with the most urgen
 ### Red Flags (High and Medium Concern Items)
 
 | Priority | Provision | What the Lease Says | Why It's Concerning | What Is Typical |
-|----------|-----------|---------------------|--------------------|-----------------| 
+|----------|-----------|---------------------|--------------------|-----------------|
 | HIGH | [Provision] | [Exact or paraphrased language] | [Clear explanation of the risk] | [What standard leases say] |
 | MEDIUM | [Provision] | [Language] | [Explanation] | [Standard] |
 
@@ -467,63 +485,63 @@ Note the parol evidence rule: in most jurisdictions, courts will not allow parti
 
 ### Lease Snapshot
 
-| Term | Detail | Notes |
-|------|--------|-------|
-| Property address | [Austin, TX -- unit address not specified] | Confirm exact unit number appears in lease |
-| Lease type | Fixed-term, 12 months | Converts to 12-month auto-renewal |
-| Monthly rent | $1,850 | |
-| Grace period | Not stated | Texas does not require a grace period by statute; verify lease |
-| Late fee | Not stated | Texas caps late fees at 12% (buildings <4 units) or 10% (4+ units) of monthly rent |
-| Security deposit | $3,700 (2x monthly rent) | Texas has no statutory cap; 2 months is common |
-| Pet deposit | $500 (refundable) | |
-| Pet rent | $65/month | Recurring; $780/year |
-| Non-refundable admin fee | $250 | Not a security deposit; confirm in writing |
-| Total move-in cost | $6,300 | First month + deposit + pet deposit + admin fee |
-| Max early termination exposure | $5,200 | Flat fee $1,500 + $3,700 deposit forfeiture |
+| Term                           | Detail                                     | Notes                                                                              |
+| ------------------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Property address               | [Austin, TX -- unit address not specified] | Confirm exact unit number appears in lease                                         |
+| Lease type                     | Fixed-term, 12 months                      | Converts to 12-month auto-renewal                                                  |
+| Monthly rent                   | $1,850                                     |                                                                                    |
+| Grace period                   | Not stated                                 | Texas does not require a grace period by statute; verify lease                     |
+| Late fee                       | Not stated                                 | Texas caps late fees at 12% (buildings <4 units) or 10% (4+ units) of monthly rent |
+| Security deposit               | $3,700 (2x monthly rent)                   | Texas has no statutory cap; 2 months is common                                     |
+| Pet deposit                    | $500 (refundable)                          |                                                                                    |
+| Pet rent                       | $65/month                                  | Recurring; $780/year                                                               |
+| Non-refundable admin fee       | $250                                       | Not a security deposit; confirm in writing                                         |
+| Total move-in cost             | $6,300                                     | First month + deposit + pet deposit + admin fee                                    |
+| Max early termination exposure | $5,200                                     | Flat fee $1,500 + $3,700 deposit forfeiture                                        |
 
 ---
 
 ### Clause-by-Clause Review
 
-| Provision | What the Lease Says | Standard? | Concern Level | Notes |
-|-----------|---------------------|-----------|---------------|-------|
-| Landlord entry notice | "Reasonable notice, not less than 12 hours" | Below typical | **HIGH** | Texas Property Code has no stated minimum, but 24 hours is the widely applied professional standard |
-| HVAC maintenance | Tenant responsible for HVAC "good working order" | Non-standard | **HIGH** | HVAC is a habitability system; landlord obligation under Texas Property Code § 92.153 |
-| Jury trial waiver + mandatory arbitration | Both present, each party bears own costs | Varies | **HIGH** | Eliminates tenant's court options; arbitration costs can be prohibitive |
-| Auto-renewal | 12-month auto-renewal, 60 days notice to cancel | Notice period above typical | **MEDIUM** | 60 days requires a reminder calendar entry; missing it locks you in for another year |
-| Early termination | $1,500 flat fee + security deposit forfeiture | Punitive | **HIGH** | Total exposure: $5,200. Texas requires landlord to attempt mitigation; consult attorney |
-| Security deposit | $3,700 (2 months) | Permissible | None | No Texas statutory cap; amount is within market norms |
-| Pet deposit | $500 refundable | Standard | None | Confirm "refundable" is explicit in lease text |
-| Pet rent | $65/month | Common | Low | Recurring cost; $780/year effective rent increase |
-| Non-refundable admin fee | $250 | Common in Austin market | Low | Confirm this is explicitly labeled non-refundable and separate from security deposit |
-| Deposit return timeline | Not stated | Missing | Medium | Texas Property Code § 92.103 requires return within 30 days; this is the statutory default |
-| House rules document | Referenced but not provided | Red flag | **HIGH** | Incorporated documents are binding; you have not seen what you are agreeing to |
-| Service animal policy | Not analyzed -- need pet clause language | Check | **Check** | Verify pet clause does not apply to service/support animals |
+| Provision                                 | What the Lease Says                              | Standard?                   | Concern Level | Notes                                                                                               |
+| ----------------------------------------- | ------------------------------------------------ | --------------------------- | ------------- | --------------------------------------------------------------------------------------------------- |
+| Landlord entry notice                     | "Reasonable notice, not less than 12 hours"      | Below typical               | **HIGH**      | Texas Property Code has no stated minimum, but 24 hours is the widely applied professional standard |
+| HVAC maintenance                          | Tenant responsible for HVAC "good working order" | Non-standard                | **HIGH**      | HVAC is a habitability system; landlord obligation under Texas Property Code § 92.153               |
+| Jury trial waiver + mandatory arbitration | Both present, each party bears own costs         | Varies                      | **HIGH**      | Eliminates tenant's court options; arbitration costs can be prohibitive                             |
+| Auto-renewal                              | 12-month auto-renewal, 60 days notice to cancel  | Notice period above typical | **MEDIUM**    | 60 days requires a reminder calendar entry; missing it locks you in for another year                |
+| Early termination                         | $1,500 flat fee + security deposit forfeiture    | Punitive                    | **HIGH**      | Total exposure: $5,200. Texas requires landlord to attempt mitigation; consult attorney             |
+| Security deposit                          | $3,700 (2 months)                                | Permissible                 | None          | No Texas statutory cap; amount is within market norms                                               |
+| Pet deposit                               | $500 refundable                                  | Standard                    | None          | Confirm "refundable" is explicit in lease text                                                      |
+| Pet rent                                  | $65/month                                        | Common                      | Low           | Recurring cost; $780/year effective rent increase                                                   |
+| Non-refundable admin fee                  | $250                                             | Common in Austin market     | Low           | Confirm this is explicitly labeled non-refundable and separate from security deposit                |
+| Deposit return timeline                   | Not stated                                       | Missing                     | Medium        | Texas Property Code § 92.103 requires return within 30 days; this is the statutory default          |
+| House rules document                      | Referenced but not provided                      | Red flag                    | **HIGH**      | Incorporated documents are binding; you have not seen what you are agreeing to                      |
+| Service animal policy                     | Not analyzed -- need pet clause language         | Check                       | **Check**     | Verify pet clause does not apply to service/support animals                                         |
 
 ---
 
 ### Red Flags
 
-| Priority | Provision | What the Lease Says | Why It's Concerning | What Is Typical |
-|----------|-----------|---------------------|---------------------|-----------------|
-| HIGH | HVAC maintenance | Tenant responsible for HVAC "in good working order" | HVAC is a core habitability system. Under Texas Property Code § 92.153, landlords must repair conditions materially affecting health/safety -- including heating and cooling in Texas heat. This clause attempts to shift that cost to the tenant and may conflict with Texas law | Landlord maintains all HVAC systems; tenant reports failures promptly |
-| HIGH | Entry notice | 12 hours | Texas Property Code does not set a specific minimum notice period, but 12 hours is below the 24-hour standard applied by most Texas courts and professional property managers. Could result in disruptive or intrusive entries | 24 hours written notice is the widely used professional standard in Texas |
-| HIGH | Jury trial waiver + mandatory arbitration + own-costs | Both waivers present; each party pays arbitration costs | Arbitration filing fees can reach $1,500-$3,000 for small claims that would cost $75 in county court. The combination of both waivers with own-costs makes it economically difficult for tenants to pursue legitimate claims | Prevailing party arbitration cost sharing, or no arbitration clause in tenant-friendly leases |
-| HIGH | Early termination: deposit forfeiture | Flat $1,500 + full $3,700 deposit forfeit | Total exit cost of $5,200 if you leave any time during the lease. Texas courts have held that landlords must attempt to mitigate damages by re-renting -- the actual enforceable amount may be lower, but the lease is written to extract maximum penalty | Flat fee equivalent to 1-2 months' rent with no additional deposit forfeiture; or formula-based fee declining over time |
-| HIGH | House rules not provided | Incorporated by reference into lease | You are being asked to agree to terms you have not read. The house rules document could contain significant restrictions on guests, noise, parking, storage, alterations, or pet policies that contradict verbal representations | All incorporated documents provided to tenant before signing |
-| MEDIUM | Auto-renewal notice period | 60 days | 60 days requires you to decide in Month 10 whether you will renew -- before you likely know your situation. Missing the deadline locks you into another 12 months at potentially higher rent | 30 days is more tenant-friendly; 60 days is enforceable in Texas but should be calendared immediately upon signing |
+| Priority | Provision                                             | What the Lease Says                                     | Why It's Concerning                                                                                                                                                                                                                                                               | What Is Typical                                                                                                         |
+| -------- | ----------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| HIGH     | HVAC maintenance                                      | Tenant responsible for HVAC "in good working order"     | HVAC is a core habitability system. Under Texas Property Code § 92.153, landlords must repair conditions materially affecting health/safety -- including heating and cooling in Texas heat. This clause attempts to shift that cost to the tenant and may conflict with Texas law | Landlord maintains all HVAC systems; tenant reports failures promptly                                                   |
+| HIGH     | Entry notice                                          | 12 hours                                                | Texas Property Code does not set a specific minimum notice period, but 12 hours is below the 24-hour standard applied by most Texas courts and professional property managers. Could result in disruptive or intrusive entries                                                    | 24 hours written notice is the widely used professional standard in Texas                                               |
+| HIGH     | Jury trial waiver + mandatory arbitration + own-costs | Both waivers present; each party pays arbitration costs | Arbitration filing fees can reach $1,500-$3,000 for small claims that would cost $75 in county court. The combination of both waivers with own-costs makes it economically difficult for tenants to pursue legitimate claims                                                      | Prevailing party arbitration cost sharing, or no arbitration clause in tenant-friendly leases                           |
+| HIGH     | Early termination: deposit forfeiture                 | Flat $1,500 + full $3,700 deposit forfeit               | Total exit cost of $5,200 if you leave any time during the lease. Texas courts have held that landlords must attempt to mitigate damages by re-renting -- the actual enforceable amount may be lower, but the lease is written to extract maximum penalty                         | Flat fee equivalent to 1-2 months' rent with no additional deposit forfeiture; or formula-based fee declining over time |
+| HIGH     | House rules not provided                              | Incorporated by reference into lease                    | You are being asked to agree to terms you have not read. The house rules document could contain significant restrictions on guests, noise, parking, storage, alterations, or pet policies that contradict verbal representations                                                  | All incorporated documents provided to tenant before signing                                                            |
+| MEDIUM   | Auto-renewal notice period                            | 60 days                                                 | 60 days requires you to decide in Month 10 whether you will renew -- before you likely know your situation. Missing the deadline locks you into another 12 months at potentially higher rent                                                                                      | 30 days is more tenant-friendly; 60 days is enforceable in Texas but should be calendared immediately upon signing      |
 
 ---
 
 ### Missing Protections
 
-| Missing Item | Why It Matters | Texas Law Default | Recommended Action |
-|-------------|----------------|-------------------|--------------------|
-| Deposit return timeline | Tenants need to know when to expect funds back | Texas Property Code § 92.103: 30 days from move-out (extended to avoid fraudulent itemizations) | Confirm the 30-day default applies; Texas also requires itemized written explanation for deductions |
-| Emergency repair contact | Needed for HVAC failure, flooding, gas leaks | No statutory default for contact information | Request before signing |
-| Move-in condition report form | Primary defense against wrongful deposit deductions | Texas does not require a specific form, but tenants have the right to document condition | Create your own written report with photos on Day 1; email to landlord |
-| Landlord's duty to repair timeline | You need to know how quickly to expect repairs | Texas Property Code § 92.056: reasonable time, generally interpreted as 7-14 days for non-emergency; sooner for habitability emergencies | Request explicit repair response timeline be added as addendum |
-| Grace period | Protects against late fees during minor payment delays | Not required under Texas law | Negotiate for a 3-5 day grace period if possible |
+| Missing Item                       | Why It Matters                                         | Texas Law Default                                                                                                                        | Recommended Action                                                                                  |
+| ---------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Deposit return timeline            | Tenants need to know when to expect funds back         | Texas Property Code § 92.103: 30 days from move-out (extended to avoid fraudulent itemizations)                                          | Confirm the 30-day default applies; Texas also requires itemized written explanation for deductions |
+| Emergency repair contact           | Needed for HVAC failure, flooding, gas leaks           | No statutory default for contact information                                                                                             | Request before signing                                                                              |
+| Move-in condition report form      | Primary defense against wrongful deposit deductions    | Texas does not require a specific form, but tenants have the right to document condition                                                 | Create your own written report with photos on Day 1; email to landlord                              |
+| Landlord's duty to repair timeline | You need to know how quickly to expect repairs         | Texas Property Code § 92.056: reasonable time, generally interpreted as 7-14 days for non-emergency; sooner for habitability emergencies | Request explicit repair response timeline be added as addendum                                      |
+| Grace period                       | Protects against late fees during minor payment delays | Not required under Texas law                                                                                                             | Negotiate for a 3-5 day grace period if possible                                                    |
 
 ---
 
@@ -556,17 +574,20 @@ Note the parol evidence rule: in most jurisdictions, courts will not allow parti
 ### Questions to Address Before Signing
 
 **Verify Before Signing**
+
 1. Will the landlord provide the complete house rules document before you sign? You cannot agree to terms you have not read -- this is a non-negotiable ask.
 2. Is the HVAC maintenance clause intended to mean you are responsible for filter changes and basic upkeep only, or does it include system repairs and replacements? Request written clarification or a lease addendum limiting your HVAC obligation to filter replacement.
 3. Can you confirm in writing that the $500 pet deposit is refundable and distinct from the non-refundable admin fee?
 
 **Consider Negotiating**
+
 1. Can the entry notice be amended to 24 hours minimum to match professional management standards?
 2. Is the early termination fee negotiable? $5,200 total exposure is substantially higher than a standard 1-2 month penalty. Would the landlord accept removing the deposit forfeiture component and keeping the flat fee?
 3. Would the landlord agree to add a 3-5 day rent grace period?
 4. Can the arbitration provision be modified so that arbitration costs are split based on who prevails, rather than each party bearing their own costs?
 
 **Know Your Rights Regardless**
+
 1. Under Texas Property Code § 92.153, your landlord is required to repair conditions materially affecting health and safety -- including heating and air conditioning in Texas summers. The lease clause making you responsible for HVAC likely conflicts with this statute for major repairs (not routine maintenance). Consult a Texas tenant rights attorney about enforceability.
 2. Your security deposit must be returned within 30 days of move-out under Texas Property Code § 92.103, with a written itemization of any deductions. If the landlord wrongfully retains the deposit, you may be entitled to three times the deposit amount plus $100 and attorney's fees under § 92.109.
 3. Your cat may qualify your apartment under Fair Housing Act considerations if you or a household member has a disability requiring the animal as an emotional support animal. In that case, pet rent and deposits generally cannot be charged. This applies independently of any lease language.
@@ -601,6 +622,7 @@ This review applies **Texas landlord-tenant law**, primarily Texas Property Code
 - **Late fees:** Capped at 10-12% of monthly rent depending on building size (§ 92.019)
 
 **Recommended Texas resources:**
+
 - Texas Attorney General's Tenant Rights guide (Texas AG website)
 - Texas RioGrande Legal Aid (serves Central Texas including Austin)
 - Austin Tenants Council -- specifically serves Austin renters and can review your specific lease

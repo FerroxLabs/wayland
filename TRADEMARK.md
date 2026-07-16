@@ -15,13 +15,13 @@ thing.
   integrations, consulting). The license, not the name, is what governs the code.
 - **Refer to Wayland by name truthfully** - "works with Wayland", "compatible with
   Wayland", "built on Wayland", "a Wayland fork", "for Wayland". This is
-  *nominative use* and it's always allowed. You never need our blessing to tell
+  _nominative use_ and it's always allowed. You never need our blessing to tell
   people, accurately, what your thing does.
 
 ## What needs our permission
 
 - **Branding a fork, product, app, or hosted service with the "Wayland" name or
-  logo** in a way that suggests it *is* Wayland or is officially endorsed by us.
+  logo** in a way that suggests it _is_ Wayland or is officially endorsed by us.
 - **Implying official affiliation, partnership, or endorsement** where none exists.
 - **Using the logo** as the mark of your own product.
 

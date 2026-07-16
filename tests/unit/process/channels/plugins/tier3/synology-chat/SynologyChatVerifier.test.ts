@@ -9,10 +9,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import {
-  synologyChatVerifier,
-  verifySynologyChatToken,
-} from '@process/channels/webhook/verifiers/synology-chat';
+import { synologyChatVerifier, verifySynologyChatToken } from '@process/channels/webhook/verifiers/synology-chat';
 
 const SECRET = 'my-secret-token';
 
@@ -20,11 +17,7 @@ function makeBody(inner: object): Buffer {
   return Buffer.from(`payload=${encodeURIComponent(JSON.stringify(inner))}`, 'utf8');
 }
 
-function makeInput(overrides: {
-  token?: string;
-  body?: Buffer;
-  query?: Record<string, string | undefined>;
-}) {
+function makeInput(overrides: { token?: string; body?: Buffer; query?: Record<string, string | undefined> }) {
   return {
     headers: {} as Record<string, string | string[] | undefined>,
     rawBody: overrides.body ?? makeBody({ user_id: '1', text: 'hi', timestamp: '1700000000' }),
@@ -71,10 +64,7 @@ describe('synologyChatVerifier - token checks', () => {
 describe('synologyChatVerifier - body parsing', () => {
   it('returns the parsed payload object on success', () => {
     const inner = { user_id: '42', username: 'alice', text: 'hello', channel_id: '10' };
-    const result = synologyChatVerifier(
-      makeInput({ body: makeBody(inner) }),
-      SECRET,
-    );
+    const result = synologyChatVerifier(makeInput({ body: makeBody(inner) }), SECRET);
     expect(result.ok).toBe(true);
     if (result.ok) {
       const p = result.payload as typeof inner;
@@ -84,10 +74,7 @@ describe('synologyChatVerifier - body parsing', () => {
   });
 
   it('rejects when body has no payload field', () => {
-    const result = synologyChatVerifier(
-      makeInput({ body: Buffer.from('foo=bar', 'utf8') }),
-      SECRET,
-    );
+    const result = synologyChatVerifier(makeInput({ body: Buffer.from('foo=bar', 'utf8') }), SECRET);
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reason).toBe('invalid-payload');
@@ -96,10 +83,7 @@ describe('synologyChatVerifier - body parsing', () => {
   });
 
   it('rejects when payload JSON is malformed', () => {
-    const result = synologyChatVerifier(
-      makeInput({ body: Buffer.from('payload=not-valid-json', 'utf8') }),
-      SECRET,
-    );
+    const result = synologyChatVerifier(makeInput({ body: Buffer.from('payload=not-valid-json', 'utf8') }), SECRET);
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.status).toBe(400);
@@ -107,10 +91,7 @@ describe('synologyChatVerifier - body parsing', () => {
   });
 
   it('rejects an empty body', () => {
-    const result = synologyChatVerifier(
-      makeInput({ body: Buffer.alloc(0) }),
-      SECRET,
-    );
+    const result = synologyChatVerifier(makeInput({ body: Buffer.alloc(0) }), SECRET);
     expect(result.ok).toBe(false);
   });
 });
@@ -124,10 +105,7 @@ describe('synologyChatVerifier - body parsing', () => {
 
 describe('synologyChatVerifier - non-object payload rejection (MED)', () => {
   it('rejects when payload JSON-parses to null', () => {
-    const result = synologyChatVerifier(
-      makeInput({ body: Buffer.from('payload=null', 'utf8') }),
-      SECRET,
-    );
+    const result = synologyChatVerifier(makeInput({ body: Buffer.from('payload=null', 'utf8') }), SECRET);
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reason).toBe('invalid-payload');
@@ -138,7 +116,7 @@ describe('synologyChatVerifier - non-object payload rejection (MED)', () => {
   it('rejects when payload JSON-parses to a string', () => {
     const result = synologyChatVerifier(
       makeInput({ body: Buffer.from(`payload=${encodeURIComponent('"just a string"')}`, 'utf8') }),
-      SECRET,
+      SECRET
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -149,7 +127,7 @@ describe('synologyChatVerifier - non-object payload rejection (MED)', () => {
   it('rejects when payload JSON-parses to an array', () => {
     const result = synologyChatVerifier(
       makeInput({ body: Buffer.from(`payload=${encodeURIComponent('[]')}`, 'utf8') }),
-      SECRET,
+      SECRET
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -158,10 +136,7 @@ describe('synologyChatVerifier - non-object payload rejection (MED)', () => {
   });
 
   it('rejects when payload JSON-parses to a number', () => {
-    const result = synologyChatVerifier(
-      makeInput({ body: Buffer.from('payload=42', 'utf8') }),
-      SECRET,
-    );
+    const result = synologyChatVerifier(makeInput({ body: Buffer.from('payload=42', 'utf8') }), SECRET);
     expect(result.ok).toBe(false);
   });
 });
@@ -172,7 +147,7 @@ describe('synologyChatVerifier - eventId', () => {
   it('produces eventId from user_id + timestamp when both present', () => {
     const result = synologyChatVerifier(
       makeInput({ body: makeBody({ user_id: '7', text: 'hi', timestamp: '1700000001' }) }),
-      SECRET,
+      SECRET
     );
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -181,10 +156,7 @@ describe('synologyChatVerifier - eventId', () => {
   });
 
   it('omits eventId when timestamp is absent', () => {
-    const result = synologyChatVerifier(
-      makeInput({ body: makeBody({ user_id: '7', text: 'hi' }) }),
-      SECRET,
-    );
+    const result = synologyChatVerifier(makeInput({ body: makeBody({ user_id: '7', text: 'hi' }) }), SECRET);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.eventId).toBeUndefined();
@@ -192,10 +164,7 @@ describe('synologyChatVerifier - eventId', () => {
   });
 
   it('omits eventId when user_id is absent', () => {
-    const result = synologyChatVerifier(
-      makeInput({ body: makeBody({ text: 'hi', timestamp: '1700000001' }) }),
-      SECRET,
-    );
+    const result = synologyChatVerifier(makeInput({ body: makeBody({ text: 'hi', timestamp: '1700000001' }) }), SECRET);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.eventId).toBeUndefined();

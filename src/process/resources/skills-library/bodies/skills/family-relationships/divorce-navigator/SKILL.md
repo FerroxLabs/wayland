@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events relationships planning"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events relationships planning'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Divorce Navigator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on divorce navigator
 - User asks about divorce navigator best practices or techniques
 - User wants a structured approach to divorce navigator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of divorce navigator
 
@@ -64,6 +65,7 @@ These questions help provide appropriate guidance. Answer only what you are comf
 ## Understanding Your Options
 
 ### Mediation
+
 ```
 WHAT IT IS:
   A neutral third-party mediator helps both spouses negotiate agreements
@@ -93,6 +95,7 @@ COST: $100-$350/hour for the mediator, split between parties
 ```
 
 ### Collaborative Divorce
+
 ```
 WHAT IT IS:
   Each spouse has their own attorney, but all parties commit to
@@ -108,6 +111,7 @@ COST: $10,000-$25,000+ per person (less than litigation, more than mediation)
 ```
 
 ### Litigation
+
 ```
 WHAT IT IS:
   Traditional court process where a judge makes final decisions
@@ -131,6 +135,7 @@ REALITY:
 ## Financial Untangling
 
 ### Immediate Financial Protections
+
 ```
 DO IMMEDIATELY (before or as soon as divorce is discussed):
   [ ] Gather and copy ALL financial documents:
@@ -154,6 +159,7 @@ DO IMMEDIATELY (before or as soon as divorce is discussed):
 ```
 
 ### Marital Asset Inventory
+
 ```
 ASSET TYPE               APPROXIMATE VALUE    IN WHOSE NAME
 --------------------------------------------------------------
@@ -180,6 +186,7 @@ NET MARITAL ESTATE:      $__________
 ```
 
 ### Understanding Property Division
+
 ```
 COMMUNITY PROPERTY STATES (50/50 split of marital property):
   Arizona, California, Idaho, Louisiana, Nevada, New Mexico,
@@ -202,6 +209,7 @@ SEPARATE PROPERTY (generally not divided):
 ```
 
 ### Post-Divorce Budget Template
+
 ```
 MONTHLY INCOME:
   Employment:              $__________
@@ -232,6 +240,7 @@ MONTHLY EXPENSES:
 ## Co-Parenting Planning
 
 ### Parenting Plan Elements
+
 ```
 A comprehensive parenting plan should address:
 
@@ -277,6 +286,7 @@ PRACTICAL DETAILS:
 ```
 
 ### Co-Parenting Principles
+
 ```
 FOR YOUR CHILDREN:
   1. Never speak negatively about the other parent in front of children
@@ -297,6 +307,7 @@ RECOMMENDED TOOLS:
 ```
 
 ### Telling the Children
+
 ```
 GUIDELINES:
   - Tell children together if at all possible (unified front)
@@ -320,6 +331,7 @@ AGE-SPECIFIC GUIDANCE:
 ## Emotional Support and Self-Care
 
 ### The Emotional Stages of Divorce
+
 ```
 These are not linear. You may cycle through them repeatedly.
 
@@ -339,6 +351,7 @@ ADDITIONAL EMOTIONS THAT ARE NORMAL:
 ```
 
 ### Building Your Support Team
+
 ```
 PROFESSIONAL SUPPORT:
   [ ] Therapist/counselor (individual therapy, not just couples)
@@ -365,6 +378,7 @@ SUPPORT RESOURCES:
 ## Legal Process Overview
 
 ### General Divorce Process Steps
+
 ```
 1. Consultation with attorney (understand your rights and options)
 2. Filing the petition (one spouse files)
@@ -379,6 +393,7 @@ SUPPORT RESOURCES:
 ```
 
 ### Documents to Organize
+
 ```
 PERSONAL:
   [ ] Marriage certificate
@@ -407,6 +422,7 @@ IF APPLICABLE:
 ## Housing Transition
 
 ### Decision Framework
+
 ```
 THE MARITAL HOME:
   Option 1: One spouse buys out the other
@@ -435,6 +451,7 @@ IF YOU NEED TO FIND NEW HOUSING:
 ## Rebuilding
 
 ### The Rebuilding Framework
+
 ```
 IMMEDIATE (first 3-6 months):
   - Focus on stability (housing, finances, routine)
@@ -462,6 +479,7 @@ LONGER TERM (12+ months):
 ```
 
 ### What Not to Do During Divorce
+
 ```
   - Do not badmouth your ex on social media
   - Do not make impulsive financial decisions
@@ -477,6 +495,7 @@ LONGER TERM (12+ months):
 ## Quick Reference
 
 When providing guidance, apply these principles:
+
 - **"I don't know where to start"** → Start with safety, then attorney consultation, then financial protection
 - **"Should I stay or go?"** → Not a question to answer for someone; offer frameworks for clarity, recommend couples counseling
 - **"How do I tell my spouse?"** → Ideally in couples counseling; be honest, compassionate, and prepared for any reaction
@@ -485,7 +504,6 @@ When providing guidance, apply these principles:
 - **"When will I feel normal again?"** → There is no universal timeline. Most people report significant improvement between 1-2 years.
 
 You will get through this. It will not always feel this hard.
-
 
 ## Output Format
 
@@ -499,13 +517,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with divorce navigator for a mid-size project."
 
 **Output:** A complete divorce navigator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

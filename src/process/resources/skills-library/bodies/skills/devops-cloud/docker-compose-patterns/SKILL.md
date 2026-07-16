@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud automation"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud automation'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Docker Compose Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is designing or refactoring a `docker-compose.yml` file for local development, CI/CD, or staging environments
 - User asks how to structure multi-service applications with Docker Compose (e.g., app + database + cache + reverse proxy)
 - User wants to manage multiple environments (dev/staging/prod) using Compose overrides or profiles
@@ -29,6 +31,7 @@ metadata:
 - User is troubleshooting a broken Compose setup (services not starting, networking issues, volume permission errors, dependency cycles)
 
 **Do NOT use this skill when:**
+
 - User needs Kubernetes orchestration patterns -- use a Kubernetes-specific skill instead (Compose is not a replacement for Kubernetes in production at scale)
 - User is asking about standalone `docker build` or `docker run` commands without a Compose context
 - User needs infrastructure-as-code for cloud resources (Terraform, Pulumi, CDK) -- Compose only manages containers, not cloud infrastructure
@@ -61,6 +64,7 @@ Select the right file organization strategy before writing configuration:
 - **Include-based pattern** (Compose v2.20+ / Docker Compose plugin): use `include:` to compose multiple separate Compose files into one logical application. Useful when sub-teams own service definitions independently. Not widely supported in older CI environments -- check the Docker Compose version available
 
 Decide on `.env` file strategy:
+
 - Use `.env` for non-sensitive defaults (image tags, port numbers, service names)
 - Never commit secrets to `.env` -- use `.env.example` with placeholder values checked into version control
 - In CI, inject secrets via environment variables or a secrets manager, not from files
@@ -129,17 +133,17 @@ Compose files without resource limits allow a single misbehaving service to star
 - **`mem_limit` and `cpus`** (Compose v2 syntax, still works with Compose plugin):
   ```yaml
   mem_limit: 512m
-  cpus: "0.5"
+  cpus: '0.5'
   ```
 - **`deploy.resources`** (Compose v3 syntax, preferred for compatibility with Swarm):
   ```yaml
   deploy:
     resources:
       limits:
-        cpus: "0.5"
+        cpus: '0.5'
         memory: 512M
       reservations:
-        cpus: "0.25"
+        cpus: '0.25'
         memory: 256M
   ```
 - **Typical sizing guidelines for development stacks**:
@@ -154,8 +158,8 @@ Compose files without resource limits allow a single misbehaving service to star
   logging:
     driver: json-file
     options:
-      max-size: "10m"
-      max-file: "3"
+      max-size: '10m'
+      max-file: '3'
   ```
 
 ### 7. Optimize Builds for Development Speed and CI
@@ -187,9 +191,9 @@ Production-ready Compose configurations document their own operation:
 - **Label all services** with metadata for tooling and observability:
   ```yaml
   labels:
-    com.mycompany.service: "api"
-    com.mycompany.version: "${APP_VERSION}"
-    com.mycompany.team: "platform"
+    com.mycompany.service: 'api'
+    com.mycompany.version: '${APP_VERSION}'
+    com.mycompany.team: 'platform'
   ```
 
 ---
@@ -241,7 +245,7 @@ NGINX_HOST_PORT=80
 # Run with: docker compose up
 # For production: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
-version: "3.9"
+version: '3.9'
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Named volumes for persistent data
@@ -260,7 +264,7 @@ networks:
     driver: bridge
   backend_net:
     driver: bridge
-    internal: true  # No internet access -- data services only
+    internal: true # No internet access -- data services only
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Reusable configuration fragments (YAML anchors)
@@ -268,20 +272,19 @@ networks:
 x-logging: &default-logging
   driver: json-file
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: '10m'
+    max-file: '3'
 
 x-restart-policy: &default-restart
   restart: unless-stopped
 
 services:
-
   # ─── Reverse Proxy ──────────────────────────────────────────────────────────
   nginx:
     image: nginx:1.25.3-alpine
     <<: *default-restart
     ports:
-      - "${NGINX_HOST_PORT:-80}:80"
+      - '${NGINX_HOST_PORT:-80}:80'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
@@ -293,7 +296,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.2"
+          cpus: '0.2'
           memory: 64M
 
   # ─── Application API ────────────────────────────────────────────────────────
@@ -320,7 +323,7 @@ services:
       migrations:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -sf http://localhost:3000/health || exit 1']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -329,10 +332,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
 
   # ─── Database Migration Runner (one-shot service) ───────────────────────────
@@ -342,7 +345,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    command: ["npm", "run", "db:migrate"]
+    command: ['npm', 'run', 'db:migrate']
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     networks:
@@ -351,7 +354,7 @@ services:
       db:
         condition: service_healthy
     # No restart -- this is a one-shot task. It exits 0 on success, non-zero on failure.
-    restart: "no"
+    restart: 'no'
 
   # ─── PostgreSQL Database ─────────────────────────────────────────────────────
   db:
@@ -368,7 +371,7 @@ services:
     networks:
       - backend_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-myapp} -d ${POSTGRES_DB:-myapp_dev}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-myapp} -d ${POSTGRES_DB:-myapp_dev}']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -377,10 +380,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: '1.0'
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 512M
 
   # ─── Redis Cache ─────────────────────────────────────────────────────────────
@@ -398,7 +401,7 @@ services:
     networks:
       - backend_net
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-}", "ping"]
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD:-}', 'ping']
       interval: 3s
       timeout: 3s
       retries: 5
@@ -406,7 +409,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
 ```
 
@@ -418,29 +421,28 @@ services:
 # Adds hot-reload, debug ports, and developer tooling.
 
 services:
-
   api:
     build:
-      dockerfile: Dockerfile.dev    # Dev image includes nodemon, dev deps
+      dockerfile: Dockerfile.dev # Dev image includes nodemon, dev deps
       target: development
-    command: ["npm", "run", "dev"]  # Hot-reload entrypoint
+    command: ['npm', 'run', 'dev'] # Hot-reload entrypoint
     environment:
       NODE_ENV: development
       LOG_LEVEL: debug
     volumes:
       # Mount source for hot-reload; exclude node_modules to use container's copy
       - ./src:/app/src:cached
-      - /app/node_modules          # Anonymous volume prevents host overwriting container deps
+      - /app/node_modules # Anonymous volume prevents host overwriting container deps
     ports:
-      - "9229:9229"                # Node.js inspector/debugger port
+      - '9229:9229' # Node.js inspector/debugger port
 
   db:
     ports:
-      - "${POSTGRES_EXPOSED_PORT:-5432}:5432"   # Expose for local DB GUI tools
+      - '${POSTGRES_EXPOSED_PORT:-5432}:5432' # Expose for local DB GUI tools
 
   redis:
     ports:
-      - "6379:6379"               # Expose for local Redis clients
+      - '6379:6379' # Expose for local Redis clients
 
   # ─── Developer Tooling (profile-gated -- start with --profile tooling) ───────
   pgadmin:
@@ -451,7 +453,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: dev@localhost
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "5050:80"
+      - '5050:80'
     networks:
       - backend_net
     depends_on:
@@ -463,22 +465,22 @@ services:
     profiles:
       - tooling
     ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # Web UI
+      - '1025:1025' # SMTP
+      - '8025:8025' # Web UI
     networks:
       - frontend_net
 ```
 
 ### Decision Matrix
 
-| Pattern | Use When | Avoid When | Complexity |
-|---|---|---|---|
-| Single file | ≤4 services, 1 environment | Multiple environments, team projects | Low |
-| Base + override | Team project, 2+ envs | Very simple local tooling | Medium |
-| Profile-based | Optional services (tools, test DBs) | All services required always | Low-Medium |
-| Include-based | Sub-team service ownership, monorepo | Older CI (check Compose version) | Medium-High |
-| Secrets file mount | Any credential in staging/prod | Dev secrets (overkill) | Low |
-| YAML anchors | Repeated config blocks (3+ services) | 1-2 repetitions (just copy) | Low |
+| Pattern            | Use When                             | Avoid When                           | Complexity  |
+| ------------------ | ------------------------------------ | ------------------------------------ | ----------- |
+| Single file        | ≤4 services, 1 environment           | Multiple environments, team projects | Low         |
+| Base + override    | Team project, 2+ envs                | Very simple local tooling            | Medium      |
+| Profile-based      | Optional services (tools, test DBs)  | All services required always         | Low-Medium  |
+| Include-based      | Sub-team service ownership, monorepo | Older CI (check Compose version)     | Medium-High |
+| Secrets file mount | Any credential in staging/prod       | Dev secrets (overkill)               | Low         |
+| YAML anchors       | Repeated config blocks (3+ services) | 1-2 repetitions (just copy)          | Low         |
 
 ---
 
@@ -517,6 +519,7 @@ services:
 On Linux, container processes run as specific UIDs, but named volumes are created with root ownership by default. A service running as `uid=1000` (common for Node.js or Python images) cannot write to a volume owned by `uid=0`.
 
 **Resolution approach:**
+
 - Option A (entrypoint fix): add an entrypoint script that runs `chown -R appuser:appgroup /data` before launching the main process. This requires the entrypoint to briefly run as root (`user: root` at container start), then `exec su-exec appuser <main_command>`
 - Option B (init container): add a companion one-shot service with `user: root` that runs `chown` on the volume, then use `depends_on: condition: service_completed_successfully` to gate the main service
 - Option C (tmpfs for ephemeral needs): if the data is not persistent, use `tmpfs: /data` instead of a volume -- tmpfs is always writable by the container user
@@ -527,6 +530,7 @@ On Linux, container processes run as specific UIDs, but named volumes are create
 When Docker creates bridge networks, it assigns subnets from the `172.16.0.0/12` range by default. Many corporate VPNs and office networks also use this range, causing routing conflicts where Docker traffic is sent through the VPN tunnel instead of the local bridge.
 
 **Resolution approach:**
+
 - Explicitly configure network subnets outside the conflicting range:
   ```yaml
   networks:
@@ -538,7 +542,7 @@ When Docker creates bridge networks, it assigns subnets from the `172.16.0.0/12`
   ```
 - For a team-wide issue, configure Docker's default address pool in `/etc/docker/daemon.json`:
   ```json
-  { "default-address-pools": [{"base":"10.200.0.0/16","size":24}] }
+  { "default-address-pools": [{ "base": "10.200.0.0/16", "size": 24 }] }
   ```
 - Document the chosen subnets in the project README so future developers don't reassign conflicting ranges
 
@@ -547,6 +551,7 @@ When Docker creates bridge networks, it assigns subnets from the `172.16.0.0/12`
 JVM services may take 30--90 seconds to start and bind their health endpoint. The default `healthcheck.start_period` of 0s means the first few health check failures count against `retries`, potentially killing the service before it has a chance to start.
 
 **Resolution approach:**
+
 - Set `start_period` to 110% of the measured cold-start time. For a JVM service that takes 60 seconds to start in CI: `start_period: 75s`
 - Use a lightweight health endpoint (`/actuator/health` for Spring, `/health` for most frameworks) that does not do deep dependency checks on startup -- save dependency checks for readiness probes
 - In development, set `interval: 10s` to reduce CPU overhead from repeated health checks during startup; in CI, use `interval: 5s` for faster feedback
@@ -557,6 +562,7 @@ JVM services may take 30--90 seconds to start and bind their health endpoint. Th
 CI environments introduce constraints not present in development: no persistent layer cache between runs (unless configured), no Docker Desktop, potentially rootless Docker, and the need for deterministic teardown.
 
 **Resolution approach:**
+
 - Explicitly pull base images before building: `docker compose pull --ignore-pull-failures` caches image layers, then `docker compose build` uses the cached layers
 - For GitHub Actions: use `actions/cache` with the Docker layer cache exporter: `type=gha,mode=max`
 - Always run cleanup: `docker compose down -v --remove-orphans` as a CI teardown step, even on failure (use `if: always()` in GitHub Actions). The `-v` flag removes anonymous volumes that would otherwise accumulate and fill the CI runner disk
@@ -568,11 +574,12 @@ CI environments introduce constraints not present in development: no persistent 
 Docker Desktop on macOS runs containers in a Linux VM. Bind mounts that cross the macOS/VM boundary are notoriously slow for I/O-intensive workloads. A Node.js project with 50,000 files in `node_modules` performing module resolution on every hot-reload can be 10x slower than the same workload on native Linux.
 
 **Resolution approach:**
+
 - Never mount `node_modules`, `__pycache__`, `.venv`, or similar dependency directories from the host. Use anonymous volumes to let these directories live inside the container:
   ```yaml
   volumes:
     - ./src:/app/src:cached
-    - /app/node_modules    # This anonymous volume shields node_modules from host I/O
+    - /app/node_modules # This anonymous volume shields node_modules from host I/O
   ```
 - Use `VirtioFS` (enabled in Docker Desktop Settings > General) instead of the legacy `gRPC FUSE` file sharing -- VirtioFS delivers 2--3x better I/O throughput for bind mounts on macOS
 - For Python projects, use `consistency: cached` on all read-only source mounts
@@ -583,6 +590,7 @@ Docker Desktop on macOS runs containers in a Linux VM. Bind mounts that cross th
 Running migrations as a Compose service is powerful but introduces failure modes if not handled carefully.
 
 **Resolution approach:**
+
 - The migration service must be idempotent -- running it twice must produce the same result as running it once. All major migration frameworks (Flyway, Liquibase, Alembic, Sequelize) are idempotent by default; verify your tool maintains this guarantee
 - If the migration fails (exits non-zero), the dependent API service must not start. With `condition: service_completed_successfully`, Compose enforces this correctly
 - During development, migrations run on every `docker compose up`. In staging/prod, trigger migrations as a separate deploy step before rolling out new application images
@@ -593,9 +601,10 @@ Running migrations as a Compose service is powerful but introduces failure modes
 Developers on Apple Silicon (M1/M2/M3) Macs run an ARM64 Linux VM. Many legacy or enterprise images are only built for `linux/amd64`, causing significant performance degradation through QEMU emulation (commonly 5--10x slower CPU performance).
 
 **Resolution approach:**
+
 - Always specify the platform explicitly for images that don't have ARM64 variants to make the performance tradeoff visible and intentional:
   ```yaml
-  platform: linux/amd64   # Forces emulation on Apple Silicon -- known performance cost
+  platform: linux/amd64 # Forces emulation on Apple Silicon -- known performance cost
   ```
 - For in-house application images, build multi-arch images using `docker buildx build --platform linux/amd64,linux/arm64 --push`. This eliminates the emulation penalty
 - Use the `DOCKER_DEFAULT_PLATFORM=linux/amd64` environment variable as a developer-machine workaround when many services lack ARM64 images, so you don't need to annotate each service
@@ -670,7 +679,7 @@ NGINX_HOST_PORT=80
 # Do NOT run this file directly -- use docker compose up (applies override.yml)
 # or: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
-version: "3.9"
+version: '3.9'
 
 # ─────────────────────────────────────────────────────────────────────────────
 # YAML Anchors -- reused configuration fragments
@@ -678,8 +687,8 @@ version: "3.9"
 x-logging: &logging
   driver: json-file
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: '10m'
+    max-file: '3'
 
 x-api-base: &api-base
   image: myapp-api:${APP_IMAGE_TAG:-latest}
@@ -706,15 +715,14 @@ networks:
     driver: bridge
   backend_net:
     driver: bridge
-    internal: true  # Databases have no internet access
+    internal: true # Databases have no internet access
 
 services:
-
   nginx:
     image: nginx:1.25.3-alpine
     restart: unless-stopped
     ports:
-      - "${NGINX_HOST_PORT:-80}:80"
+      - '${NGINX_HOST_PORT:-80}:80'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
@@ -725,33 +733,33 @@ services:
     logging: *logging
     deploy:
       resources:
-        limits: { cpus: "0.2", memory: 64M }
+        limits: { cpus: '0.2', memory: 64M }
 
   api:
     <<: *api-base
     restart: unless-stopped
     depends_on:
       db:
-        condition: service_healthy   # FIX: replaces the previous bare depends_on
+        condition: service_healthy # FIX: replaces the previous bare depends_on
       redis:
         condition: service_healthy
       migrations:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:${API_PORT:-3000}/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -sf http://localhost:${API_PORT:-3000}/health || exit 1']
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
     deploy:
       resources:
-        limits: { cpus: "0.5", memory: 512M }
-        reservations: { cpus: "0.25", memory: 256M }
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
 
   migrations:
     <<: *api-base
-    command: ["npm", "run", "db:migrate"]
-    restart: "no"    # One-shot: exits 0 on success, blocks api startup on failure
+    command: ['npm', 'run', 'db:migrate']
+    restart: 'no' # One-shot: exits 0 on success, blocks api startup on failure
     depends_on:
       db:
         condition: service_healthy
@@ -773,7 +781,7 @@ services:
       - backend_net
     healthcheck:
       # FIX: proper readiness check that resolves the startup race condition
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-myapp} -d ${POSTGRES_DB:-myapp_dev}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-myapp} -d ${POSTGRES_DB:-myapp_dev}']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -781,8 +789,8 @@ services:
     logging: *logging
     deploy:
       resources:
-        limits: { cpus: "1.0", memory: 1G }
-        reservations: { cpus: "0.5", memory: 512M }
+        limits: { cpus: '1.0', memory: 1G }
+        reservations: { cpus: '0.5', memory: 512M }
 
   redis:
     image: redis:7.2.3-alpine
@@ -798,14 +806,14 @@ services:
     networks:
       - backend_net
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a '${REDIS_PASSWORD:-}' ping | grep PONG"]
+      test: ['CMD-SHELL', "redis-cli -a '${REDIS_PASSWORD:-}' ping | grep PONG"]
       interval: 3s
       timeout: 3s
       retries: 5
     logging: *logging
     deploy:
       resources:
-        limits: { cpus: "0.25", memory: 256M }
+        limits: { cpus: '0.25', memory: 256M }
 ```
 
 ---
@@ -818,30 +826,29 @@ services:
 # macOS M2 hot-reload fix: node_modules shielded by anonymous volume.
 
 services:
-
   api:
     build:
       dockerfile: Dockerfile.dev
-    command: ["npm", "run", "dev"]   # nodemon with --watch
+    command: ['npm', 'run', 'dev'] # nodemon with --watch
     environment:
       NODE_ENV: development
       LOG_LEVEL: debug
     volumes:
       # FIX for macOS hot-reload: mount only src/, shield node_modules
-      - ./src:/app/src:cached        # cached consistency = better macOS I/O
+      - ./src:/app/src:cached # cached consistency = better macOS I/O
       - ./package.json:/app/package.json:ro
-      - /app/node_modules            # Anonymous volume -- container's node_modules, not host's
+      - /app/node_modules # Anonymous volume -- container's node_modules, not host's
     ports:
-      - "9229:9229"                  # Node.js debugger (Chrome DevTools / VS Code)
+      - '9229:9229' # Node.js debugger (Chrome DevTools / VS Code)
 
   db:
     ports:
       # Expose DB to host so developers can connect with TablePlus, DataGrip, etc.
-      - "${POSTGRES_EXPOSED_PORT:-5433}:5432"
+      - '${POSTGRES_EXPOSED_PORT:-5433}:5432'
 
   redis:
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   # ─── Optional tooling -- start with: docker compose --profile tooling up ───
   pgadmin:
@@ -851,7 +858,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: dev@localhost
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "5050:80"
+      - '5050:80'
     networks:
       - backend_net
     depends_on:
@@ -916,12 +923,12 @@ lint:
 
 After implementing these configurations, verify the following:
 
-| Check | Command | Expected |
-|---|---|---|
-| Startup race condition resolved | `docker compose up` 3 times | API starts only after DB is healthy every time |
-| macOS hot-reload works | Edit a `.js` file in `src/` | Service reloads in <2 seconds |
-| Volumes are named | `docker volume ls` | `myapp_postgres_data`, `myapp_redis_data` visible |
-| No credential leakage | `docker inspect myapp-api` | No raw passwords in `Env` array |
-| Log limits active | `docker inspect myapp-api \| grep LogConfig` | `max-size: 10m` present |
-| Backend network is internal | `docker network inspect myapp_backend_net` | `"Internal": true` |
-| Config validates | `make validate` | No errors, no warnings |
+| Check                           | Command                                      | Expected                                          |
+| ------------------------------- | -------------------------------------------- | ------------------------------------------------- |
+| Startup race condition resolved | `docker compose up` 3 times                  | API starts only after DB is healthy every time    |
+| macOS hot-reload works          | Edit a `.js` file in `src/`                  | Service reloads in <2 seconds                     |
+| Volumes are named               | `docker volume ls`                           | `myapp_postgres_data`, `myapp_redis_data` visible |
+| No credential leakage           | `docker inspect myapp-api`                   | No raw passwords in `Env` array                   |
+| Log limits active               | `docker inspect myapp-api \| grep LogConfig` | `max-size: 10m` present                           |
+| Backend network is internal     | `docker network inspect myapp_backend_net`   | `"Internal": true`                                |
+| Config validates                | `make validate`                              | No errors, no warnings                            |

@@ -134,11 +134,7 @@ describe('importAgentProfile', () => {
   it('appends the assistant to the store and writes its rule file', async () => {
     const { io, store, writeRule } = makeIo();
 
-    const result = await importAgentProfile(
-      { name: 'Research Buddy', description: 'desc' },
-      SKILL_MD,
-      io
-    );
+    const result = await importAgentProfile({ name: 'Research Buddy', description: 'desc' }, SKILL_MD, io);
 
     expect(result).toEqual({ id: 'imported-research-buddy-99', name: 'Research Buddy' });
     expect(store).toHaveLength(1);

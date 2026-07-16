@@ -70,17 +70,17 @@ const IMessageSetup: React.FC = () => {
       helpText={
         t(
           'settings.channels.imessage.help',
-          'macOS-only. Polls chat.db (requires Full Disk Access) and sends via AppleScript (requires Automation consent for Messages.app - accept the OS prompt when it appears, or grant in System Settings → Privacy & Security → Automation).',
+          'macOS-only. Polls chat.db (requires Full Disk Access) and sends via AppleScript (requires Automation consent for Messages.app - accept the OS prompt when it appears, or grant in System Settings → Privacy & Security → Automation).'
         ) +
         ' ' +
         t(
           'settings.channels.imessage.fdaRelaunchHelp',
-          'IMPORTANT: After granting Full Disk Access for the first time, you MUST fully quit and relaunch the app - macOS only re-reads FDA on app launch, so without a relaunch you will loop on "chat.db not readable" errors.',
+          'IMPORTANT: After granting Full Disk Access for the first time, you MUST fully quit and relaunch the app - macOS only re-reads FDA on app launch, so without a relaunch you will loop on "chat.db not readable" errors.'
         ) +
         ' ' +
         t(
           'settings.channels.imessage.attachmentsHelp',
-          'Text-only - image, video, and audio attachments are dropped silently on inbound and not supported on outbound.',
+          'Text-only - image, video, and audio attachments are dropped silently on inbound and not supported on outbound.'
         )
       }
     >
@@ -92,7 +92,11 @@ const IMessageSetup: React.FC = () => {
           {t('settings.channels.imessage.relaunchApp', 'Relaunch app (after granting FDA)')}
         </Button>
       </div>
-      <IMessageConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+      <IMessageConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

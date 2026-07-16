@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "swift best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'swift best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Swift Project Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is initializing a new Swift package, iOS app, macOS app, or server-side Swift service and needs a production-ready project structure
 - User wants to configure Swift Package Manager (SPM) with multiple targets, products, and dependencies
 - User is migrating from CocoaPods or Carthage to SPM and needs guidance on the Package.swift manifest
@@ -29,6 +31,7 @@ metadata:
 - User is setting up a Swift project with mixed targets -- for example, a library with both iOS and macOS deployment targets, plus a command-line test harness
 
 **Do NOT use this skill when:**
+
 - User is asking about Objective-C project setup -- this skill is Swift-only; defer to language-migration guidance if bridging is involved
 - User needs Xcode workspace or scheme configuration for a complex multi-app monorepo -- that is a separate CI/CD and workspace management concern
 - User is asking about SwiftUI architecture patterns (MVVM, TCA, MV) -- check the swift-architecture-patterns skill
@@ -53,6 +56,7 @@ Before recommending any structure, collect the following information:
 - **Concurrency model:** Determine whether the project will use async/await throughout, or must support iOS 14/15 compatibility requiring `@available` guards or Combine bridging
 
 Produce a checklist before proceeding:
+
 - [ ] Platform targets and minimum deployment versions confirmed
 - [ ] Project type (app, library, CLI, server) confirmed
 - [ ] SPM vs. Xcode project vs. hybrid approach decided
@@ -176,6 +180,7 @@ let sharedSwiftSettings: [SwiftSetting] = [
 ```
 
 Key rules for the manifest:
+
 - Use `let sharedSwiftSettings` at the top of the file to apply consistent compiler flags across all targets -- do not copy-paste settings per target
 - Separate `products` (public-facing API surface) from `targets` (build graph nodes) -- a target is an implementation detail; a product is a contract
 - Use `.package(path: "../SharedDomain")` for local package dependencies within a monorepo -- never use file URLs pointing outside the repository root
@@ -208,6 +213,7 @@ Create `.swiftformat` in the project root. Key settings for a consistent codebas
 ```
 
 Run SwiftFormat as a pre-commit hook via `.git/hooks/pre-commit` or through a Makefile target:
+
 ```
 make format  # runs: swiftformat . --config .swiftformat
 ```
@@ -225,7 +231,7 @@ excluded:
   - DerivedData
 
 disabled_rules:
-  - trailing_whitespace  # handled by SwiftFormat
+  - trailing_whitespace # handled by SwiftFormat
 
 opt_in_rules:
   - array_init
@@ -308,6 +314,7 @@ args:
 Establish a strict dependency rule before writing any code -- once violated, it becomes expensive to fix.
 
 **Layered Architecture for Apps:**
+
 ```
 App Target (entry point, no business logic)
     └── FeatureModules (UI + feature-specific state)
@@ -316,6 +323,7 @@ App Target (entry point, no business logic)
 ```
 
 Rules for the dependency graph:
+
 - `DomainModels` must have zero external dependencies and zero Apple framework imports except Foundation. This keeps it testable without any simulator and compilable on Linux for server-side use.
 - `NetworkingKit` depends on `DomainModels` for request/response types but never on any feature module -- this prevents circular dependencies
 - Feature modules may depend on sibling feature modules only if the dependency is downward in the feature hierarchy -- never upward or lateral. If two feature modules need to share something, extract it to `DomainModels` or a shared `SharedFeatureKit` module
@@ -330,6 +338,7 @@ Enforce the dependency graph via SPM -- since SPM only builds what is declared, 
 Apply per-target Swift settings to incrementally adopt Swift 6 strict concurrency:
 
 **For new Swift 5.9/5.10 projects (pre-Swift 6):**
+
 ```swift
 swiftSettings: [
     .enableExperimentalFeature("StrictConcurrency"),
@@ -339,6 +348,7 @@ swiftSettings: [
 ```
 
 **For Swift 6 projects:**
+
 ```swift
 swiftSettings: [
     .swiftLanguageVersion(.v6)
@@ -346,6 +356,7 @@ swiftSettings: [
 ```
 
 Actor isolation decisions:
+
 - Use `@MainActor` on all View Models (ObservableObject subclasses or `@Observable` types) that own UI state -- this eliminates the most common data race in iOS apps
 - Mark networking and persistence types as `actor` when they maintain mutable state accessed from multiple concurrency domains
 - Use `nonisolated` explicitly on computed properties and methods of actors that do not access actor-isolated state -- this avoids unnecessary hop to the actor's executor
@@ -359,6 +370,7 @@ Actor isolation decisions:
 A production Swift project must build and test in CI from day one. Provide a minimal but complete CI setup:
 
 **GitHub Actions (`.github/workflows/swift.yml`):**
+
 ```yaml
 name: Swift CI
 
@@ -374,7 +386,7 @@ concurrency:
 
 jobs:
   build-and-test:
-    runs-on: macos-14  # Xcode 15.x
+    runs-on: macos-14 # Xcode 15.x
     steps:
       - uses: actions/checkout@v4
       - name: Select Xcode
@@ -402,6 +414,7 @@ jobs:
 ```
 
 Key CI decisions:
+
 - Run `--parallel` on `swift test` to exercise concurrency code and reduce build time -- this typically cuts test time by 40-60% on multi-core CI machines
 - The Linux build job catches accidental Apple-framework imports in `DomainModels` and other platform-agnostic modules
 - Use `cancel-in-progress: true` to avoid wasting CI minutes on outdated PR pushes
@@ -422,6 +435,7 @@ ADR/
 ```
 
 Minimum ADR content:
+
 1. **Status:** Accepted / Superseded by / Deprecated
 2. **Context:** What forced this decision
 3. **Decision:** What was decided
@@ -523,7 +537,9 @@ When responding to a Swift project setup request, structure the output as follow
 ## Edge Cases
 
 ### Migrating from CocoaPods to SPM
+
 CocoaPods and SPM can coexist during migration, but they conflict when both manage the same dependency. Use this approach:
+
 1. Identify all Pods that have official SPM support (check the repository for a `Package.swift` file at the root)
 2. Migrate one pod at a time, starting with leaf dependencies (those with no other pod dependencies)
 3. Remove the pod from `Podfile`, add the SPM equivalent to `Package.swift`, then run `pod install` followed by `swift package resolve`
@@ -532,7 +548,9 @@ CocoaPods and SPM can coexist during migration, but they conflict when both mana
 6. Some pods use Objective-C and require bridging headers -- these cannot be migrated to SPM modules cleanly without wrapping the Objective-C in a `clang` module map inside a `.xcframework`
 
 ### Swift Macros (Swift 5.9+)
+
 Macro targets require a special setup that many developers overlook:
+
 - Macro implementation targets must use `import SwiftSyntax` and `import SwiftSyntaxMacros` -- add `swift-syntax` as a package dependency (version `509.0.0` for Swift 5.9, `510.0.0` for Swift 5.10, `600.0.0` for Swift 6.0)
 - Macro implementation targets must have `compilerPluginTarget` or be declared as `.macro` target type
 - Macros must be in a separate target from their clients -- you cannot define and use a macro in the same target
@@ -540,14 +558,18 @@ Macro targets require a special setup that many developers overlook:
 - Macro compilation is slow on first build -- `swift build` times increase by 30-120 seconds depending on the macro complexity. Add `#warning("Macros slow first build -- this is expected")` in the macro target for new team members
 
 ### Xcode Cloud vs. GitHub Actions
+
 When a project uses Xcode Cloud (Apple's CI):
+
 - The `ci_scripts/` directory must be at the Xcode project root (not the SPM package root if they differ)
 - `ci_pre_xcodebuild.sh` is the right place for SwiftLint and SwiftFormat checks -- not a build phase, which would re-run on every incremental build
 - Xcode Cloud does not support custom Docker containers -- all tools (SwiftLint, SwiftFormat) must be installed via Homebrew in `ci_post_clone.sh`
 - Test plans (`.xctestplan` files) must be committed to version control for Xcode Cloud to pick them up; ad-hoc scheme test configurations are not picked up automatically
 
 ### Sharing Code Between iOS App and Server-Side Swift
+
 When a `DomainModels` target must compile on both Darwin and Linux:
+
 - Audit every import -- `Foundation` is available on Linux but many of its APIs behave differently (e.g., `DateFormatter` locale handling, `JSONDecoder` key decoding behavior on Linux vs. Darwin)
 - `Codable` works cross-platform but `NSCoding` does not -- avoid `NSCoding` in shared modules
 - `UUID`, `Date`, and `Decimal` are all available cross-platform via Foundation
@@ -555,7 +577,9 @@ When a `DomainModels` target must compile on both Darwin and Linux:
 - Use the Linux CI job (see Process Step 7) as the enforcing mechanism -- it will fail to compile if you accidentally import an Apple-only framework
 
 ### Large Teams (10+ Engineers) and Module Explosion
+
 Projects with 10+ engineers often over-modularize, creating 30-50 modules where 10 would suffice. This causes:
+
 - Incremental build times that are worse than a single-module project because SPM module rebuild tracking overhead exceeds the compilation savings
 - Complex `Package.swift` files that are difficult to reason about
 - Excessive `public` API surface scattered across many modules
@@ -563,14 +587,18 @@ Projects with 10+ engineers often over-modularize, creating 30-50 modules where 
 Counter this with the "pizza rule": each module should be maintainable by a team that can be fed with two pizzas (5-8 engineers). If a module has one primary owner and fewer than 3000 lines of code, it may be too granular -- consider merging it with its closest sibling.
 
 ### Offline and Air-Gapped Development Environments
+
 In environments with no internet access (government, banking):
+
 - Mirror all SPM dependencies to an internal Git server and update all `Package.swift` files to point to internal URLs
 - Use `--disable-automatic-resolution` flag with `swift package resolve` to prevent unexpected network calls during builds
 - Consider using `.package(path:)` with vendored source copies instead of URL-based dependencies for the most sensitive environments
 - Never use SPM's `revision:` pinning in production -- it bypasses semantic versioning guarantees and makes auditing dependency versions difficult
 
 ### Transitioning from Swift 5.x to Swift 6 Strict Concurrency
+
 This is the single most disruptive change in Swift's history for existing codebases:
+
 1. Start by adding `.enableExperimentalFeature("StrictConcurrency")` per target in Swift 5.9 and fixing all warnings before moving to Swift 6
 2. The biggest sources of warnings are: delegate patterns (use `@MainActor` on delegate protocol methods), global mutable state (convert to actors or `nonisolated(unsafe)` with explicit documentation), and Objective-C interop types not marked `@Sendable`
 3. Use `SWIFT_STRICT_CONCURRENCY = targeted` as an intermediate setting that catches the most common issues without requiring full actor isolation of the entire module
@@ -588,14 +616,15 @@ This is the single most disruptive change in Swift's history for existing codeba
 ## Swift Project Setup Plan: Meridian
 
 ### Project Profile
-| Dimension          | Value                                          |
-|--------------------|------------------------------------------------|
-| Project Type       | iOS Application with Local Package modules     |
-| Swift Version      | 5.9                                            |
-| Minimum Deployment | iOS 16.0                                       |
-| Module Count       | 5 modules (see dependency graph below)         |
-| Layout Strategy    | B: iOS App Target + Local SPM Package          |
-| Concurrency Mode   | StrictConcurrency experimental (Swift 5.9)     |
+
+| Dimension          | Value                                      |
+| ------------------ | ------------------------------------------ |
+| Project Type       | iOS Application with Local Package modules |
+| Swift Version      | 5.9                                        |
+| Minimum Deployment | iOS 16.0                                   |
+| Module Count       | 5 modules (see dependency graph below)     |
+| Layout Strategy    | B: iOS App Target + Local SPM Package      |
+| Concurrency Mode   | StrictConcurrency experimental (Swift 5.9) |
 
 ---
 
@@ -897,14 +926,14 @@ jobs:
 
 ### Key Decisions and Rationale
 
-| Decision                        | Chosen Approach                        | Rationale                                                                 |
-|---------------------------------|----------------------------------------|---------------------------------------------------------------------------|
-| Package manager                 | SPM only                               | No legacy Objective-C pods; SPM has first-class Xcode 15 integration      |
-| Modularization                  | 5-module local package inside Xcode project | 4-engineer team benefits from compile-time module boundaries; too few to justify monorepo |
-| Persistence                     | SwiftData (iOS 16+)                    | Targets iOS 16+ so SwiftData is available; avoids CoreData boilerplate |
-| Swift version                   | 5.9 with StrictConcurrency experimental | Team not yet on Xcode 16; builds foundation for Swift 6 migration          |
-| Design system as module         | Yes, separate DesignSystem target      | Enables consistent UI tokens; enforces no business logic in design layer   |
-| Logging                         | swift-log (structured logging)         | Abstracts log backend; can swap to OSLog or custom handler without source changes |
+| Decision                | Chosen Approach                             | Rationale                                                                                 |
+| ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Package manager         | SPM only                                    | No legacy Objective-C pods; SPM has first-class Xcode 15 integration                      |
+| Modularization          | 5-module local package inside Xcode project | 4-engineer team benefits from compile-time module boundaries; too few to justify monorepo |
+| Persistence             | SwiftData (iOS 16+)                         | Targets iOS 16+ so SwiftData is available; avoids CoreData boilerplate                    |
+| Swift version           | 5.9 with StrictConcurrency experimental     | Team not yet on Xcode 16; builds foundation for Swift 6 migration                         |
+| Design system as module | Yes, separate DesignSystem target           | Enables consistent UI tokens; enforces no business logic in design layer                  |
+| Logging                 | swift-log (structured logging)              | Abstracts log backend; can swap to OSLog or custom handler without source changes         |
 
 ---
 

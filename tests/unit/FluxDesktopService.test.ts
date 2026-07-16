@@ -34,7 +34,7 @@ describe('FluxDesktopService.detect', () => {
     fs.writeFileSync(path.join(tmpDir, 'socket-token'), '  bearer-tok-123  \n');
     fs.writeFileSync(
       path.join(tmpDir, 'manifest.json'),
-      JSON.stringify({ schema: 1, default_tier: 'balanced', tool_tier_overrides: {}, tools: {} }),
+      JSON.stringify({ schema: 1, default_tier: 'balanced', tool_tier_overrides: {}, tools: {} })
     );
 
     const fetchImpl = vi.fn(async (url: string | URL, init?: RequestInit) => {
@@ -163,11 +163,7 @@ describe('FluxDesktopService.detect', () => {
 
 describe('FluxDesktopService.start', () => {
   it('emits on first detect and again only when state changes', async () => {
-    const states: FluxDesktopState[] = [
-      { kind: 'NONE' },
-      { kind: 'NONE' },
-      { kind: 'KEY_ONLY' },
-    ];
+    const states: FluxDesktopState[] = [{ kind: 'NONE' }, { kind: 'NONE' }, { kind: 'KEY_ONLY' }];
     let call = 0;
 
     const svc = new FluxDesktopService({ fluxDir: tmpDir });

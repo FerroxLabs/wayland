@@ -18,10 +18,7 @@
       "transport": {
         "type": "stdio"
       },
-      "runtimeArguments": [
-        "--services",
-        "apps,databases,droplets,kubernetes,networking,monitoring"
-      ],
+      "runtimeArguments": ["--services", "apps,databases,droplets,kubernetes,networking,monitoring"],
       "environmentVariables": [
         {
           "name": "DIGITALOCEAN_API_TOKEN",
@@ -35,15 +32,8 @@
   "remotes": [],
   "x-wayland": {
     "tier": "builder",
-    "categories": [
-      "infrastructure",
-      "devops"
-    ],
-    "tags": [
-      "digitalocean",
-      "cloud",
-      "hosting"
-    ],
+    "categories": ["infrastructure", "devops"],
+    "tags": ["digitalocean", "cloud", "hosting"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-06-13",
@@ -65,11 +55,7 @@
       "estimatedMinutes": 4,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }
