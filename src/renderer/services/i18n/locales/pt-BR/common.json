@@ -26,6 +26,16 @@
   "copyFailed": "Falha ao copiar",
   "download": "Baixar",
   "close": "Fechar",
+  "shellRecovery": {
+    "preview": "Prévia do Cockpit",
+    "title": "O Cockpit não pôde ser aberto com segurança.",
+    "sessionBody": "O Classic está ativo nesta sessão. Seus chats, projetos, configurações, estado do agente e rota atual não foram movidos.",
+    "useClassicDefault": "Usar o Classic como padrão",
+    "savingDefault": "Salvando o Classic como padrão…",
+    "savedDefault": "O Classic será usado como padrão.",
+    "saveFailed": "O Classic continua ativo nesta sessão, mas não foi possível salvar o padrão.",
+    "retrySave": "Tentar salvar novamente"
+  },
   "retry": "Tentar novamente",
   "reload": "Recarregar",
   "technical_details": "Detalhes técnicos",

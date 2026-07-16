@@ -26,6 +26,16 @@
   "copyFailed": "コピーに失敗しました",
   "download": "ダウンロード",
   "close": "閉じる",
+  "shellRecovery": {
+    "preview": "Cockpit プレビュー",
+    "title": "Cockpit を安全に開けませんでした。",
+    "sessionBody": "このセッションでは Classic が有効です。チャット、プロジェクト、設定、エージェントの状態、現在のルートは移動されていません。",
+    "useClassicDefault": "Classic をデフォルトにする",
+    "savingDefault": "Classic をデフォルトとして保存中…",
+    "savedDefault": "Classic がデフォルトとして使用されます。",
+    "saveFailed": "このセッションでは Classic が引き続き有効ですが、デフォルト設定を保存できませんでした。",
+    "retrySave": "保存を再試行"
+  },
   "retry": "再試行",
   "reload": "再読み込み",
   "technical_details": "技術詳細",

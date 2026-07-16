@@ -26,6 +26,16 @@
   "copyFailed": "複製失敗",
   "download": "下載",
   "close": "Close",
+  "shellRecovery": {
+    "preview": "Cockpit 預覽",
+    "title": "無法安全開啟 Cockpit。",
+    "sessionBody": "本次工作階段已啟用 Classic。您的聊天、專案、設定、代理程式狀態和目前路由均未移動。",
+    "useClassicDefault": "預設使用 Classic",
+    "savingDefault": "正在將 Classic 儲存為預設值…",
+    "savedDefault": "之後將預設使用 Classic。",
+    "saveFailed": "本次工作階段仍在使用 Classic，但無法儲存預設設定。",
+    "retrySave": "重試儲存"
+  },
   "retry": "重試",
   "reload": "重新載入",
   "technical_details": "技術詳情",

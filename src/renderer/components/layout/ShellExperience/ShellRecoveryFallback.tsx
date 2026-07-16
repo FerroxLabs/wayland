@@ -8,17 +8,28 @@ import React from 'react';
 import { Button } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 
-export type ShellRecoveryPersistenceState = 'saving' | 'saved' | 'failed';
+export type ShellRecoveryPersistenceState = 'idle' | 'saving' | 'saved' | 'failed';
 
 type ShellRecoveryFallbackProps = Readonly<{
   error: Error;
   persistenceState: ShellRecoveryPersistenceState;
-  onRetry: () => void;
+  onSaveDefault: () => void;
   onClose: () => void;
 }>;
 
-const ShellRecoveryFallback: React.FC<ShellRecoveryFallbackProps> = ({ error, persistenceState, onRetry, onClose }) => {
+const ShellRecoveryFallback: React.FC<ShellRecoveryFallbackProps> = ({
+  error,
+  persistenceState,
+  onSaveDefault,
+  onClose,
+}) => {
   const { t } = useTranslation();
+  const actionLabel =
+    persistenceState === 'failed'
+      ? t('common.shellRecovery.retrySave')
+      : persistenceState === 'saving'
+        ? t('common.shellRecovery.savingDefault')
+        : t('common.shellRecovery.useClassicDefault');
 
   return (
     <aside
@@ -28,15 +39,19 @@ const ShellRecoveryFallback: React.FC<ShellRecoveryFallbackProps> = ({ error, pe
       aria-live='polite'
     >
       <section>
-        <p className='m-0 text-12px font-semibold uppercase tracking-0.08em text-t-secondary'>Cockpit preview</p>
-        <h1 className='mt-8px mb-8px text-22px text-t-primary'>This view could not open safely.</h1>
-        <p className='m-0 mb-20px text-14px leading-22px text-t-secondary'>
-          Classic is active for this session. Your chats, Projects, settings, agent state, and current route have not
-          moved.
+        <p className='m-0 text-12px font-semibold uppercase tracking-0.08em text-t-secondary'>
+          {t('common.shellRecovery.preview')}
         </p>
+        <h1 className='mt-8px mb-8px text-22px text-t-primary'>{t('common.shellRecovery.title')}</h1>
+        <p className='m-0 mb-20px text-14px leading-22px text-t-secondary'>{t('common.shellRecovery.sessionBody')}</p>
+        {persistenceState === 'saved' && (
+          <p className='m-0 mb-12px text-14px text-success' role='status'>
+            {t('common.shellRecovery.savedDefault')}
+          </p>
+        )}
         {persistenceState === 'failed' && (
           <p className='m-0 mb-12px text-14px text-status-error' role='alert'>
-            {t('common.saveFailed')}
+            {t('common.shellRecovery.saveFailed')}
           </p>
         )}
         {process.env.NODE_ENV === 'development' && (
@@ -50,10 +65,11 @@ const ShellRecoveryFallback: React.FC<ShellRecoveryFallbackProps> = ({ error, pe
             <Button
               type='primary'
               loading={persistenceState === 'saving'}
-              onClick={onRetry}
-              data-testid='shell-recovery-retry'
+              disabled={persistenceState === 'saving'}
+              onClick={onSaveDefault}
+              data-testid='shell-recovery-save-default'
             >
-              {t('common.retry')}
+              {actionLabel}
             </Button>
           )}
         </div>

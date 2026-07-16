@@ -26,6 +26,16 @@
   "copyFailed": "Kopieren fehlgeschlagen",
   "download": "Herunterladen",
   "close": "Schließen",
+  "shellRecovery": {
+    "preview": "Cockpit-Vorschau",
+    "title": "Cockpit konnte nicht sicher geöffnet werden.",
+    "sessionBody": "Classic ist für diese Sitzung aktiv. Deine Chats, Projekte, Einstellungen, der Agentenstatus und die aktuelle Route wurden nicht verschoben.",
+    "useClassicDefault": "Classic als Standard verwenden",
+    "savingDefault": "Classic wird als Standard gespeichert…",
+    "savedDefault": "Classic wird standardmäßig verwendet.",
+    "saveFailed": "Classic bleibt für diese Sitzung aktiv, aber der Standard konnte nicht gespeichert werden.",
+    "retrySave": "Speichern erneut versuchen"
+  },
   "retry": "Erneut versuchen",
   "reload": "Neu laden",
   "technical_details": "Technische Details",

@@ -26,6 +26,16 @@
   "copyFailed": "복사 실패",
   "download": "다운로드",
   "close": "닫기",
+  "shellRecovery": {
+    "preview": "Cockpit 미리보기",
+    "title": "Cockpit을 안전하게 열 수 없습니다.",
+    "sessionBody": "이 세션에서는 Classic이 활성화되었습니다. 채팅, 프로젝트, 설정, 에이전트 상태 및 현재 경로는 이동되지 않았습니다.",
+    "useClassicDefault": "Classic을 기본값으로 사용",
+    "savingDefault": "Classic을 기본값으로 저장 중…",
+    "savedDefault": "Classic이 기본값으로 사용됩니다.",
+    "saveFailed": "이 세션에서는 Classic이 계속 활성화되지만 기본 설정을 저장하지 못했습니다.",
+    "retrySave": "저장 다시 시도"
+  },
   "retry": "재시도",
   "reload": "새로고침",
   "technical_details": "기술적 세부사항",
