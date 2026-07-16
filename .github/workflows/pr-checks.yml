@@ -186,6 +186,13 @@ jobs:
       - name: Run unit tests (vitest shard)
         run: bunx vitest run --shard=${{ matrix.shard }}/4
 
+      # Bun-native suites import bun:test and cannot be collected by Vitest.
+      # Run the complete deterministic corpus once per OS; the required unit
+      # test aggregator below therefore fails if either runner is red.
+      - name: Run Bun-native tests
+        if: matrix.shard == 1
+        run: bun run test:bun
+
   # Aggregator jobs preserve the required-check names "Unit Tests (<os>)".
   # Each waits on the full sharded matrix and fails if any shard (on any OS)
   # failed, so a single failing unit test anywhere blocks the merge. GitHub's
