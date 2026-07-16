@@ -90,6 +90,18 @@ function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
   return { promise, resolve };
 }
 
+const present = (content: string, revision = 'rev:main:00000001') => ({
+  state: 'present' as const,
+  content,
+  revision,
+});
+
+const committed = (revision = 'rev:main:00000002') => ({
+  ok: true as const,
+  revision,
+  receiptId: 'receipt:main:00000001',
+});
+
 describe('Hosted ConstitutionSettings journey', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -101,10 +113,12 @@ describe('Hosted ConstitutionSettings journey', () => {
   afterEach(() => vi.useRealTimers());
 
   it('waits for an in-flight autosave before reset and then renders the reset content', async () => {
-    const write = deferred<{ ok: true }>();
-    mockRead.mockResolvedValueOnce('# current').mockResolvedValueOnce('# default');
+    const write = deferred<ReturnType<typeof committed>>();
+    mockRead
+      .mockResolvedValueOnce(present('# current'))
+      .mockResolvedValueOnce(present('# default', 'rev:main:00000003'));
     mockWrite.mockReturnValue(write.promise);
-    mockReset.mockResolvedValue({ ok: true });
+    mockReset.mockResolvedValue(committed('rev:main:00000003'));
 
     render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
@@ -114,16 +128,16 @@ describe('Hosted ConstitutionSettings journey', () => {
     const editor = screen.getByRole('textbox', { name: 'constitution-editor' }) as HTMLTextAreaElement;
     fireEvent.change(editor, { target: { value: '# dirty before reset' } });
     await act(async () => vi.advanceTimersByTime(500));
-    expect(mockWrite).toHaveBeenCalledWith('# dirty before reset', 'opaque-grant');
+    expect(mockWrite).toHaveBeenCalledWith('# dirty before reset', 'rev:main:00000001', 'opaque-grant');
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
     fireEvent.change(screen.getByPlaceholderText('WebUI password'), { target: { value: 'correct-password' } });
     fireEvent.click(screen.getAllByRole('button', { name: 'Reset' })[1]);
     expect(mockReset).not.toHaveBeenCalled();
 
-    await act(async () => write.resolve({ ok: true }));
+    await act(async () => write.resolve(committed()));
     await act(async () => Promise.resolve());
-    expect(mockReset).toHaveBeenCalledWith('correct-password');
+    expect(mockReset).toHaveBeenCalledWith('correct-password', 'rev:main:00000002');
     expect(mockRead).toHaveBeenCalledTimes(2);
     expect((screen.getByRole('textbox', { name: 'constitution-editor' }) as HTMLTextAreaElement).value).toBe(
       '# default'
@@ -131,8 +145,8 @@ describe('Hosted ConstitutionSettings journey', () => {
   });
 
   it('recovers an unsaved edit after route unmount and resumes it only after a fresh unlock', async () => {
-    mockRead.mockResolvedValue('# canonical server copy');
-    mockWrite.mockResolvedValue({ ok: true });
+    mockRead.mockResolvedValue(present('# canonical server copy'));
+    mockWrite.mockResolvedValue(committed());
 
     const first = render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
@@ -153,14 +167,14 @@ describe('Hosted ConstitutionSettings journey', () => {
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Unlock editing' })[0]);
     await act(async () => Promise.resolve());
-    expect(mockWrite).toHaveBeenCalledWith('# unsaved route draft', 'opaque-grant');
+    expect(mockWrite).toHaveBeenCalledWith('# unsaved route draft', 'rev:main:00000001', 'opaque-grant');
   });
 
   it('preserves the visible dirty buffer across grant expiry and saves it after re-unlock', async () => {
-    mockRead.mockResolvedValue('# canonical server copy');
+    mockRead.mockResolvedValue(present('# canonical server copy'));
     mockWrite
       .mockResolvedValueOnce({ ok: false, reason: 'authorization_required', status: 401 })
-      .mockResolvedValueOnce({ ok: true });
+      .mockResolvedValueOnce(committed());
     render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
     await act(async () => vi.advanceTimersByTime(50));
@@ -177,13 +191,13 @@ describe('Hosted ConstitutionSettings journey', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Unlock editing' })[0]);
     await act(async () => Promise.resolve());
     expect(mockWrite).toHaveBeenCalledTimes(2);
-    expect(mockWrite).toHaveBeenLastCalledWith('# grant expired but keep me', 'opaque-grant');
+    expect(mockWrite).toHaveBeenLastCalledWith('# grant expired but keep me', 'rev:main:00000001', 'opaque-grant');
   });
 
   it('serializes overlapping component edits and sends only the latest queued value next', async () => {
-    const firstWrite = deferred<{ ok: true }>();
-    mockRead.mockResolvedValue('# canonical server copy');
-    mockWrite.mockReturnValueOnce(firstWrite.promise).mockResolvedValueOnce({ ok: true });
+    const firstWrite = deferred<ReturnType<typeof committed>>();
+    mockRead.mockResolvedValue(present('# canonical server copy'));
+    mockWrite.mockReturnValueOnce(firstWrite.promise).mockResolvedValueOnce(committed('rev:main:00000003'));
     render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
     await act(async () => vi.advanceTimersByTime(50));
@@ -197,8 +211,67 @@ describe('Hosted ConstitutionSettings journey', () => {
     await act(async () => vi.advanceTimersByTime(500));
     expect(mockWrite).toHaveBeenCalledTimes(1);
 
-    await act(async () => firstWrite.resolve({ ok: true }));
+    await act(async () => firstWrite.resolve(committed()));
     expect(mockWrite).toHaveBeenCalledTimes(2);
-    expect(mockWrite).toHaveBeenLastCalledWith('# latest wins', 'opaque-grant');
+    expect(mockWrite).toHaveBeenLastCalledWith('# latest wins', 'rev:main:00000002', 'opaque-grant');
+  });
+
+  it('keeps an empty file distinct from an absent file and never creates on read', async () => {
+    mockRead.mockResolvedValueOnce(present(''));
+    const first = render(<ConstitutionSettings />);
+    await act(async () => Promise.resolve());
+    expect(screen.getByRole('textbox', { name: 'constitution-editor' })).toHaveValue('');
+    expect(screen.queryByText('No Constitution exists yet')).not.toBeInTheDocument();
+    expect(mockReset).not.toHaveBeenCalled();
+    first.unmount();
+
+    mockRead.mockResolvedValueOnce({ state: 'absent', revision: null });
+    render(<ConstitutionSettings />);
+    await act(async () => Promise.resolve());
+    expect(screen.getByText('No Constitution exists yet')).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'constitution-editor' })).not.toBeInTheDocument();
+    expect(mockReset).not.toHaveBeenCalled();
+  });
+
+  it('renders a retryable read error without exposing an editor or destructive reset', async () => {
+    mockRead.mockRejectedValueOnce(new Error('service offline')).mockResolvedValueOnce(present('# recovered'));
+    render(<ConstitutionSettings />);
+    await act(async () => Promise.resolve());
+
+    expect(screen.getByText('Constitution unavailable')).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'constitution-editor' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Reset' })).not.toBeInTheDocument();
+    expect(mockWrite).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retry load' }));
+    await act(async () => Promise.resolve());
+    expect(screen.getByRole('textbox', { name: 'constitution-editor' })).toHaveValue('# recovered');
+  });
+
+  it('preserves a dirty draft on conflict and retries with the freshly read revision', async () => {
+    mockRead
+      .mockResolvedValueOnce(present('# original'))
+      .mockResolvedValueOnce(present('# someone else', 'rev:main:00000002'));
+    mockWrite
+      .mockResolvedValueOnce({ ok: false, reason: 'conflict', status: 409 })
+      .mockResolvedValueOnce(committed('rev:main:00000003'));
+    render(<ConstitutionSettings />);
+    await act(async () => Promise.resolve());
+    await act(async () => vi.advanceTimersByTime(50));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Unlock editing' })[0]);
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'constitution-editor' }), {
+      target: { value: '# keep my draft' },
+    });
+    await act(async () => vi.advanceTimersByTime(500));
+    expect(screen.getByText(/server copy changed/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reload and compare' }));
+    await act(async () => Promise.resolve());
+    await act(async () => vi.advanceTimersByTime(50));
+    expect(screen.getByRole('textbox', { name: 'constitution-editor' })).toHaveValue('# keep my draft');
+    fireEvent.click(screen.getByRole('button', { name: 'Retry save' }));
+    await act(async () => Promise.resolve());
+    expect(mockWrite).toHaveBeenLastCalledWith('# keep my draft', 'rev:main:00000002', 'opaque-grant');
   });
 });

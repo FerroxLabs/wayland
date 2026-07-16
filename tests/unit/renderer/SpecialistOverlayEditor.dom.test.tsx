@@ -2,11 +2,12 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockWrite } = vi.hoisted(() => ({ mockWrite: vi.fn() }));
+const { mockRead, mockWrite } = vi.hoisted(() => ({ mockRead: vi.fn(), mockWrite: vi.fn() }));
 
 vi.mock('@renderer/utils/platform', () => ({ isElectronDesktop: () => false }));
 vi.mock('@/renderer/hooks/context/AuthContext', () => ({ useAuth: () => ({ user: { id: 'user-1' } }) }));
 vi.mock('@renderer/services/ConstitutionService', () => ({
+  readConstitutionSpecialistHttp: mockRead,
   writeConstitutionSpecialistHttp: mockWrite,
 }));
 vi.mock('react-i18next', () => ({
@@ -50,11 +51,23 @@ function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
   return { promise, resolve };
 }
 
+const committed = (revision = 'rev:copy:00000002') => ({
+  ok: true as const,
+  revision,
+  receiptId: 'receipt:copy:00000001',
+});
+
 describe('Hosted SpecialistOverlayEditor', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    mockRead.mockReset();
+    mockRead.mockResolvedValue({
+      state: 'present',
+      content: '# existing copy rules',
+      revision: 'rev:copy:00000001',
+    });
     mockWrite.mockReset();
-    mockWrite.mockResolvedValue({ ok: true });
+    mockWrite.mockResolvedValue(committed());
   });
 
   afterEach(() => {
@@ -70,6 +83,7 @@ describe('Hosted SpecialistOverlayEditor', () => {
     onDirtyChange: ReturnType<typeof vi.fn>;
   }> {
     render(<SpecialistOverlayEditor id='copy' onClose={onClose} onDirtyChange={onDirtyChange} />);
+    await act(async () => Promise.resolve());
     await act(async () => vi.advanceTimersByTime(50));
     fireEvent.click(screen.getByRole('button', { name: 'Unlock editing' }));
     const editor = screen.getByRole('textbox', { name: 'specialist-editor' }) as HTMLTextAreaElement;
@@ -77,16 +91,17 @@ describe('Hosted SpecialistOverlayEditor', () => {
     return { editor, onClose, onDirtyChange };
   }
 
-  it('leaves hydration and autosaves a hosted edit with the exact specialist scope grant', async () => {
+  it('hydrates the existing hosted overlay and autosaves with its exact revision and grant', async () => {
     const { editor } = await unlockEditor();
+    expect(editor.value).toBe('# existing copy rules');
     fireEvent.change(editor, { target: { value: '# hosted copy rules' } });
     await act(async () => vi.advanceTimersByTime(500));
-    expect(mockWrite).toHaveBeenCalledWith('copy', '# hosted copy rules', 'opaque-grant');
+    expect(mockWrite).toHaveBeenCalledWith('copy', '# hosted copy rules', 'rev:copy:00000001', 'opaque-grant');
   });
 
   it('prevents close while dirty and exposes retry after a failed save', async () => {
     const first = deferred<{ ok: false; reason: 'request_failed'; status: number }>();
-    mockWrite.mockReturnValueOnce(first.promise).mockResolvedValueOnce({ ok: true });
+    mockWrite.mockReturnValueOnce(first.promise).mockResolvedValueOnce(committed());
     const onClose = vi.fn();
     const { editor, onDirtyChange } = await unlockEditor(onClose);
 
@@ -105,5 +120,57 @@ describe('Hosted SpecialistOverlayEditor', () => {
     expect(mockWrite).toHaveBeenCalledTimes(2);
     expect(close).not.toBeDisabled();
     expect(onDirtyChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it('shows explicit absent and retryable read-error states without exposing a blank editor', async () => {
+    mockRead.mockResolvedValueOnce({ state: 'absent', revision: null });
+    const first = render(<SpecialistOverlayEditor id='copy' onClose={vi.fn()} />);
+    await act(async () => Promise.resolve());
+    expect(screen.getByText(/overlay no longer exists/i)).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'specialist-editor' })).not.toBeInTheDocument();
+    first.unmount();
+
+    mockRead.mockRejectedValueOnce(new Error('inventory unavailable')).mockResolvedValueOnce({
+      state: 'present',
+      content: '# recovered overlay',
+      revision: 'rev:copy:00000009',
+    });
+    render(<SpecialistOverlayEditor id='copy' onClose={vi.fn()} />);
+    await act(async () => Promise.resolve());
+    expect(screen.getByText('inventory unavailable')).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'specialist-editor' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry load' }));
+    await act(async () => Promise.resolve());
+    await act(async () => vi.advanceTimersByTime(50));
+    expect(screen.getByRole('textbox', { name: 'specialist-editor' })).toHaveValue('# recovered overlay');
+  });
+
+  it('preserves a specialist draft on conflict and retries against the refreshed revision', async () => {
+    mockRead
+      .mockResolvedValueOnce({
+        state: 'present',
+        content: '# original',
+        revision: 'rev:copy:00000001',
+      })
+      .mockResolvedValueOnce({
+        state: 'present',
+        content: '# changed elsewhere',
+        revision: 'rev:copy:00000002',
+      });
+    mockWrite
+      .mockResolvedValueOnce({ ok: false, reason: 'conflict', status: 409 })
+      .mockResolvedValueOnce(committed('rev:copy:00000003'));
+    const { editor } = await unlockEditor();
+    fireEvent.change(editor, { target: { value: '# keep specialist draft' } });
+    await act(async () => vi.advanceTimersByTime(500));
+    expect(screen.getByText(/server copy changed/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reload and compare' }));
+    await act(async () => Promise.resolve());
+    await act(async () => vi.advanceTimersByTime(50));
+    expect(screen.getByRole('textbox', { name: 'specialist-editor' })).toHaveValue('# keep specialist draft');
+    fireEvent.click(screen.getByRole('button', { name: 'Retry save' }));
+    await act(async () => Promise.resolve());
+    expect(mockWrite).toHaveBeenLastCalledWith('copy', '# keep specialist draft', 'rev:copy:00000002', 'opaque-grant');
   });
 });

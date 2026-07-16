@@ -17,6 +17,7 @@ import {
   writeConstitutionHttp,
   type ConstitutionEditGrant,
   type ConstitutionMutationResult,
+  type ConstitutionReadResult,
 } from '@renderer/services/ConstitutionService';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
@@ -76,7 +77,11 @@ const ConstitutionSettings: React.FC = () => {
   const draftKey = constitutionAutosaveDraftKey('main', isDesktop, user?.id);
 
   const [value, setValue] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [loadState, setLoadState] = useState<'loading' | 'present' | 'absent' | 'error'>('loading');
+  const [readError, setReadError] = useState<string | null>(null);
+  const revision = useRef<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [conflict, setConflict] = useState(false);
   const [editGrant, setEditGrant] = useState<ConstitutionEditGrant | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetPassword, setResetPassword] = useState('');
@@ -91,43 +96,61 @@ const ConstitutionSettings: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const api = window.electronAPI;
-      let text: string;
-      if (isDesktop && api?.readConstitution && api?.resetConstitution) {
-        text = await api.readConstitution();
-        if (!text) {
-          // First-install seed: materialize the default Constitution to disk
-          // so the editor isn't blank on a brand-new install.
-          text = await api.resetConstitution();
+      setLoadState('loading');
+      setReadError(null);
+      hydrating.current = true;
+      try {
+        const api = window.electronAPI;
+        let read: ConstitutionReadResult;
+        if (isDesktop && api?.readConstitution && api?.resetConstitution) {
+          let text = await api.readConstitution();
+          if (!text) {
+            // The existing desktop IPC is string-only. The native filesystem
+            // cutover replaces this compatibility seed with typed read truth.
+            text = await api.resetConstitution();
+          }
+          read = { state: 'present', content: text, revision: 'desktop-compatibility' };
+        } else {
+          read = await readConstitutionHttp();
         }
-      } else {
-        // Headless WebUI: never infer absence from an empty/error-shaped read
-        // and never auto-reset. Explicit present/absent/error rendering is
-        // completed when the anchored non-creating filesystem read lands.
-        text = await readConstitutionHttp();
+        if (cancelled) return;
+        if (read.state === 'absent') {
+          setValue('');
+          revision.current = null;
+          setLoadState('absent');
+          return;
+        }
+        revision.current = read.revision;
+        setConflict(false);
+        setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? read.content);
+        setLoadState('present');
+        // Allow one tick for TipTap to settle its mount before we start
+        // treating onChange events as user edits.
+        window.setTimeout(() => {
+          hydrating.current = false;
+        }, 50);
+      } catch (error) {
+        if (cancelled) return;
+        setReadError(error instanceof Error ? error.message : 'The Constitution could not be loaded.');
+        setLoadState('error');
       }
-      if (cancelled) return;
-      setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? text);
-      setLoading(false);
-      // Allow one tick for TipTap to settle its mount before we start
-      // treating onChange events as user edits.
-      window.setTimeout(() => {
-        hydrating.current = false;
-      }, 50);
     })();
     return () => {
       cancelled = true;
     };
-  }, [draftKey, isDesktop]);
+  }, [draftKey, isDesktop, reloadToken]);
 
   const saveConstitution = useCallback(
     async (md: string): Promise<ConstitutionMutationResult> => {
       if (isDesktop) {
         const ok = (await window.electronAPI?.writeConstitution?.(md)) ?? false;
-        return ok ? { ok: true } : { ok: false, reason: 'request_failed', status: 0 };
+        return ok
+          ? { ok: true, revision: revision.current, receiptId: 'desktop-compatibility' }
+          : { ok: false, reason: 'request_failed', status: 0 };
       }
       if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
-      return writeConstitutionHttp(md, editGrant.token);
+      if (!revision.current) return { ok: false, reason: 'conflict', status: 409 };
+      return writeConstitutionHttp(md, revision.current, editGrant.token);
     },
     [editGrant, isDesktop]
   );
@@ -138,6 +161,11 @@ const ConstitutionSettings: React.FC = () => {
     savedFlashMs: SAVED_FLASH_MS,
     save: saveConstitution,
     onAuthorizationRequired: () => setEditGrant(null),
+    onConflict: () => setConflict(true),
+    onCommitted: (result) => {
+      if (typeof result.revision === 'string') revision.current = result.revision;
+      setConflict(false);
+    },
     draftKey: draftKey ?? undefined,
   });
 
@@ -160,13 +188,23 @@ const ConstitutionSettings: React.FC = () => {
         if (isDesktop) {
           next = await window.electronAPI?.resetConstitution?.();
         } else {
-          const result = await resetConstitutionHttp(resetPassword);
-          if (!result.ok) return { committed: false, value: undefined };
+          const result = await resetConstitutionHttp(resetPassword, revision.current);
+          if (result.ok === false) {
+            if (result.reason === 'conflict') setConflict(true);
+            return { committed: false, value: undefined };
+          }
           // Reset returns status only; re-read the restored prose over the GET.
-          next = await readConstitutionHttp();
+          const reread = await readConstitutionHttp();
+          if (reread.state !== 'present') return { committed: false, value: undefined };
+          revision.current = reread.revision;
+          next = reread.content;
         }
         return { committed: typeof next === 'string', value: next };
       });
+    } catch (error) {
+      setReadError(error instanceof Error ? error.message : 'The restored Constitution could not be read.');
+      setLoadState('error');
+      reset = { committed: false, value: undefined };
     } finally {
       setResetting(false);
     }
@@ -176,6 +214,8 @@ const ConstitutionSettings: React.FC = () => {
       return;
     }
     setValue(next);
+    setLoadState('present');
+    setReadError(null);
     setEditorKey((k) => k + 1);
     setShowResetConfirm(false);
     setResetPassword('');
@@ -241,10 +281,10 @@ const ConstitutionSettings: React.FC = () => {
     <SettingsPageShell
       title={t('settings.sider.constitution', 'Constitution')}
       subtitle={t('settings.constitutionPage.subtitle', FALLBACK_SUBTITLE)}
-      actions={resetAction}
+      actions={loadState === 'present' ? resetAction : null}
       savedIndicator={saveState}
     >
-      {showResetConfirm && (
+      {showResetConfirm && loadState !== 'loading' && loadState !== 'error' && (
         <div className='border border-solid border-[var(--color-border-2)] rd-12px p-12px flex flex-col gap-8px bg-[var(--color-bg-2)]'>
           <div className='text-14px text-t-primary font-medium'>
             {t('settings.constitutionPage.resetConfirmTitle', 'Reset Constitution?')}
@@ -281,8 +321,35 @@ const ConstitutionSettings: React.FC = () => {
         </div>
       )}
 
-      {loading ? (
+      {loadState === 'loading' ? (
         <div className='text-t-secondary p-16px'>{t('settings.constitutionPage.loading', 'Loading…')}</div>
+      ) : loadState === 'error' ? (
+        <div className='rd-10px border border-solid border-[var(--color-danger-light-4)] bg-[var(--color-danger-light-1)] p-16px flex flex-col items-start gap-10px'>
+          <div className='text-14px font-medium text-t-primary'>
+            {t('settings.constitutionPage.readErrorTitle', 'Constitution unavailable')}
+          </div>
+          <div className='text-12px text-t-secondary'>
+            {readError ?? t('settings.constitutionPage.readErrorBody', 'The existing file was not changed.')}
+          </div>
+          <Button type='secondary' size='small' onClick={() => setReloadToken((value) => value + 1)}>
+            {t('settings.constitutionPage.retryRead', 'Retry load')}
+          </Button>
+        </div>
+      ) : loadState === 'absent' ? (
+        <div className='rd-10px border border-solid border-[var(--color-border-2)] bg-fill-1 p-16px flex flex-col items-start gap-10px'>
+          <div className='text-14px font-medium text-t-primary'>
+            {t('settings.constitutionPage.absentTitle', 'No Constitution exists yet')}
+          </div>
+          <div className='text-12px text-t-secondary'>
+            {t(
+              'settings.constitutionPage.absentBody',
+              'Nothing was created automatically. Initialize the default only when you are ready.'
+            )}
+          </div>
+          <Button type='primary' size='small' onClick={() => setShowResetConfirm(true)}>
+            {t('settings.constitutionPage.initializeDefault', 'Initialize default')}
+          </Button>
+        </div>
       ) : (
         <div className={isMobile ? 'flex flex-col gap-16px items-stretch' : 'flex gap-16px items-start'}>
           <div className='flex-1 min-w-0 flex flex-col gap-8px'>
@@ -295,6 +362,19 @@ const ConstitutionSettings: React.FC = () => {
                   )}
                 </span>
                 <HostedEditAuthorization scopes={['constitution.write']} onGranted={setEditGrant} compact />
+              </div>
+            )}
+            {conflict && (
+              <div className='flex items-center justify-between gap-12px rd-8px bg-[var(--color-warning-light-1)] px-12px py-10px'>
+                <span className='text-12px text-t-secondary'>
+                  {t(
+                    'settings.constitutionPage.conflict',
+                    'The server copy changed. Your draft is preserved; reload the latest revision before saving again.'
+                  )}
+                </span>
+                <Button type='secondary' size='small' onClick={() => setReloadToken((value) => value + 1)}>
+                  {t('settings.constitutionPage.reloadForConflict', 'Reload and compare')}
+                </Button>
               </div>
             )}
             <div className='flex flex-col gap-2px'>
@@ -370,7 +450,7 @@ const ConstitutionSettings: React.FC = () => {
         </div>
       )}
 
-      {!loading && <SpecialistOverlays />}
+      {loadState !== 'loading' && <SpecialistOverlays />}
     </SettingsPageShell>
   );
 };

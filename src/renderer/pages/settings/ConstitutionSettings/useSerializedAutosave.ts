@@ -14,6 +14,8 @@ type Options = {
   savedFlashMs: number;
   save: (value: string) => Promise<ConstitutionMutationResult>;
   onAuthorizationRequired?: () => void;
+  onConflict?: () => void;
+  onCommitted?: (result: Extract<ConstitutionMutationResult, { ok: true }>) => void;
   /** Stable, non-secret identifier used to recover a dirty buffer after route unmount/reload. */
   draftKey?: string;
 };
@@ -116,6 +118,8 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
   const enabled = useRef(options.enabled);
   const save = useRef(options.save);
   const onAuthorizationRequired = useRef(options.onAuthorizationRequired);
+  const onConflict = useRef(options.onConflict);
+  const onCommitted = useRef(options.onCommitted);
   const pending = useRef<string | null>(recoveredDraft);
   const latestDirty = useRef<string | null>(recoveredDraft);
   const inFlight = useRef(false);
@@ -128,6 +132,8 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
   enabled.current = options.enabled;
   save.current = options.save;
   onAuthorizationRequired.current = options.onAuthorizationRequired;
+  onConflict.current = options.onConflict;
+  onCommitted.current = options.onCommitted;
 
   const drain = useCallback(async (): Promise<void> => {
     if (!mounted.current || !enabled.current || destructive.current || inFlight.current || pending.current === null)
@@ -156,8 +162,11 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
         setIsDirty(true);
         setSaveState('error');
         if (result.reason === 'authorization_required') onAuthorizationRequired.current?.();
+        if (result.reason === 'conflict') onConflict.current?.();
         return;
       }
+
+      onCommitted.current?.(result);
 
       if (pending.current !== null) {
         void drain();
@@ -218,12 +227,16 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
     async <T>(action: () => Promise<{ committed: boolean; value: T }>): Promise<{ committed: boolean; value: T }> => {
       const preservedDirty = latestDirty.current;
       destructive.current = true;
-      generation.current += 1;
       pending.current = null;
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       if (flashTimer.current) clearTimeout(flashTimer.current);
       const active = inFlightPromise.current;
       if (active) await active;
+      // Let an already-sent successful write publish its returned revision
+      // before the destructive CAS begins. Nothing new can drain while the
+      // destructive flag is set; bumping the generation afterwards invalidates
+      // any obsolete queued work without hiding the committed revision.
+      generation.current += 1;
 
       let result: { committed: boolean; value: T };
       try {

@@ -12,6 +12,7 @@ import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   deleteConstitutionSpecialistHttp,
+  listConstitutionSpecialistsHttp,
   writeConstitutionSpecialistHttp,
   type ConstitutionEditGrant,
 } from '@renderer/services/ConstitutionService';
@@ -22,7 +23,7 @@ import { constitutionAutosaveDraftKey, discardSerializedAutosaveDraft } from './
 /** Client-side mirror of the bridge's ASSISTANT_ID_PATTERN. */
 const ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
-type SpecialistEntry = { id: string; bytes: number };
+type SpecialistEntry = { id: string; bytes: number; revision?: string };
 
 /**
  * Constitution settings section that manages per-specialist overlay files
@@ -36,27 +37,37 @@ const SpecialistOverlays: React.FC = () => {
 
   const [items, setItems] = useState<SpecialistEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   /** Assistant id of the overlay whose inline editor is open (one at a time). */
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingDirty, setEditingDirty] = useState(false);
   /** Assistant id awaiting a delete confirmation. */
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   /** Whether the inline add form is visible. */
   const [adding, setAdding] = useState(false);
   const [newId, setNewId] = useState('');
   const [addError, setAddError] = useState<string | null>(null);
 
   const refresh = useCallback(async (): Promise<void> => {
-    const api = window.electronAPI;
-    if (!api?.listConstitutionSpecialists) {
+    setLoadError(null);
+    try {
+      if (!isDesktop) {
+        setItems(await listConstitutionSpecialistsHttp());
+        return;
+      }
+      const api = window.electronAPI;
+      if (!api?.listConstitutionSpecialists) {
+        throw new Error('Specialist inventory is unavailable.');
+      }
+      setItems(await api.listConstitutionSpecialists());
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'Specialist overlays could not be loaded.');
+    } finally {
       setLoaded(true);
-      return;
     }
-    const list = await api.listConstitutionSpecialists();
-    setItems(list);
-    setLoaded(true);
-  }, []);
+  }, [isDesktop]);
 
   useEffect(() => {
     void refresh();
@@ -75,31 +86,52 @@ const SpecialistOverlays: React.FC = () => {
         setAddError(t('settings.constitutionSpecialists.idDuplicate', 'An overlay with that ID already exists.'));
         return;
       }
-      const result = isElectronDesktop()
+      const result = isDesktop
         ? { ok: (await window.electronAPI?.writeConstitutionSpecialist?.(id, '')) ?? false }
         : hostedGrant
-          ? await writeConstitutionSpecialistHttp(id, '', hostedGrant.token)
+          ? await writeConstitutionSpecialistHttp(id, '', null, hostedGrant.token)
           : { ok: false };
-      const ok = result.ok;
-      if (!ok) return;
+      if (!result.ok) {
+        setAddError(
+          'reason' in result && result.reason === 'conflict'
+            ? t(
+                'settings.constitutionSpecialists.createConflict',
+                'The overlay inventory changed. Refresh and try again.'
+              )
+            : t('settings.constitutionSpecialists.createFailed', 'The overlay could not be created. Try again.')
+        );
+        return;
+      }
       setAdding(false);
       setNewId('');
       setAddError(null);
       await refresh();
       setEditingId(id);
     },
-    [newId, items, refresh, t]
+    [isDesktop, items, newId, refresh, t]
   );
 
   const handleDelete = useCallback(
-    async (id: string): Promise<void> => {
+    async (id: string, expectedRevision?: string): Promise<void> => {
       const result = isElectronDesktop()
         ? { ok: (await window.electronAPI?.deleteConstitutionSpecialist?.(id)) ?? false }
-        : await deleteConstitutionSpecialistHttp(id, deletePassword);
-      const ok = result.ok;
-      if (!ok) return;
+        : expectedRevision
+          ? await deleteConstitutionSpecialistHttp(id, deletePassword, expectedRevision)
+          : { ok: false };
+      if (!result.ok) {
+        setDeleteError(
+          'reason' in result && result.reason === 'conflict'
+            ? t(
+                'settings.constitutionSpecialists.deleteConflict',
+                'The overlay changed before deletion. Refresh the inventory and review it again.'
+              )
+            : t('settings.constitutionSpecialists.deleteFailed', 'The overlay could not be deleted. Try again.')
+        );
+        return;
+      }
       setConfirmDeleteId(null);
       setDeletePassword('');
+      setDeleteError(null);
       const draftKey = constitutionAutosaveDraftKey(`specialist:${id}`, isDesktop, user?.id);
       if (draftKey) discardSerializedAutosaveDraft(draftKey);
       if (editingId === id) {
@@ -108,7 +140,7 @@ const SpecialistOverlays: React.FC = () => {
       }
       await refresh();
     },
-    [deletePassword, editingId, isDesktop, refresh, user?.id]
+    [deletePassword, editingId, isDesktop, refresh, t, user?.id]
   );
 
   if (!loaded) return null;
@@ -140,6 +172,15 @@ const SpecialistOverlays: React.FC = () => {
         </Button>
       </div>
 
+      {loadError && (
+        <div className='rd-8px border border-solid border-[var(--color-danger-light-4)] bg-[var(--color-danger-light-1)] p-12px flex items-center justify-between gap-12px'>
+          <span className='text-12px text-t-secondary'>{loadError}</span>
+          <Button type='secondary' size='small' onClick={() => void refresh()}>
+            {t('settings.constitutionPage.retryRead', 'Retry load')}
+          </Button>
+        </div>
+      )}
+
       {adding && (
         <div className='b-1 b-color-border-2 rd-8px p-12px flex flex-col gap-8px'>
           <span className='text-12px font-medium text-t-secondary'>
@@ -155,7 +196,7 @@ const SpecialistOverlays: React.FC = () => {
               placeholder={t('settings.constitutionSpecialists.idPlaceholder', 'e.g. copy, spark, humanizer')}
               onPressEnter={() => void handleCreate()}
             />
-            {isElectronDesktop() ? (
+            {isDesktop ? (
               <Button type='primary' size='default' onClick={() => void handleCreate()}>
                 {t('settings.constitutionSpecialists.create', 'Create')}
               </Button>
@@ -184,7 +225,7 @@ const SpecialistOverlays: React.FC = () => {
         </div>
       )}
 
-      {items.length === 0 && !adding ? (
+      {!loadError && items.length === 0 && !adding ? (
         <div className='text-12px text-t-tertiary py-8px'>
           {t(
             'settings.constitutionSpecialists.empty',
@@ -231,7 +272,10 @@ const SpecialistOverlays: React.FC = () => {
                     status='danger'
                     disabled={editingDirty && editingId === entry.id}
                     icon={<Trash2 size={14} />}
-                    onClick={() => setConfirmDeleteId(entry.id)}
+                    onClick={() => {
+                      setConfirmDeleteId(entry.id);
+                      setDeleteError(null);
+                    }}
                   >
                     {t('settings.constitutionSpecialists.delete', 'Delete')}
                   </Button>
@@ -251,7 +295,7 @@ const SpecialistOverlays: React.FC = () => {
                     )}
                   </div>
                   <div className='flex gap-8px justify-end'>
-                    {!isElectronDesktop() && (
+                    {!isDesktop && (
                       <Input.Password
                         value={deletePassword}
                         onChange={setDeletePassword}
@@ -264,6 +308,7 @@ const SpecialistOverlays: React.FC = () => {
                       onClick={() => {
                         setConfirmDeleteId(null);
                         setDeletePassword('');
+                        setDeleteError(null);
                       }}
                     >
                       {t('settings.constitutionSpecialists.cancel', 'Cancel')}
@@ -272,12 +317,13 @@ const SpecialistOverlays: React.FC = () => {
                       size='small'
                       type='primary'
                       status='danger'
-                      disabled={!isElectronDesktop() && !deletePassword}
-                      onClick={() => void handleDelete(entry.id)}
+                      disabled={!isDesktop && !deletePassword}
+                      onClick={() => void handleDelete(entry.id, entry.revision)}
                     >
                       {t('settings.constitutionSpecialists.delete', 'Delete')}
                     </Button>
                   </div>
+                  {deleteError && <span className='text-11px text-danger'>{deleteError}</span>}
                 </div>
               )}
 

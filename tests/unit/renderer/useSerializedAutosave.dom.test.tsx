@@ -16,6 +16,12 @@ function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
   return { promise, resolve };
 }
 
+const committed = (revision = 'rev:main:00000002'): ConstitutionMutationResult => ({
+  ok: true,
+  revision,
+  receiptId: 'receipt:main:00000001',
+});
+
 describe('useSerializedAutosave', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
@@ -40,10 +46,10 @@ describe('useSerializedAutosave', () => {
     await act(async () => vi.advanceTimersByTime(50));
     expect(save).toHaveBeenCalledTimes(1);
 
-    await act(async () => first.resolve({ ok: true }));
+    await act(async () => first.resolve(committed()));
     expect(save).toHaveBeenCalledTimes(2);
     expect(save).toHaveBeenLastCalledWith('latest');
-    await act(async () => second.resolve({ ok: true }));
+    await act(async () => second.resolve(committed('rev:main:00000003')));
     expect(result.current.saveState).toBe('saved');
   });
 
@@ -52,7 +58,7 @@ describe('useSerializedAutosave', () => {
     const save = vi
       .fn()
       .mockResolvedValueOnce({ ok: false, reason: 'authorization_required', status: 401 })
-      .mockResolvedValueOnce({ ok: true });
+      .mockResolvedValueOnce(committed());
     const { result, rerender } = renderHook(
       ({ enabled }) =>
         useSerializedAutosave({
@@ -97,7 +103,7 @@ describe('useSerializedAutosave', () => {
     });
     expect(destructive).not.toHaveBeenCalled();
 
-    await act(async () => write.resolve({ ok: true }));
+    await act(async () => write.resolve(committed()));
     expect(destructive).toHaveBeenCalledTimes(1);
     await act(async () => destructivePromise);
     expect(result.current.isDirty).toBe(false);
@@ -105,7 +111,7 @@ describe('useSerializedAutosave', () => {
   });
 
   it('restores the dirty buffer when a destructive action fails and exposes retry', async () => {
-    const save = vi.fn().mockResolvedValue({ ok: true });
+    const save = vi.fn().mockResolvedValue(committed());
     const { result } = renderHook(() =>
       useSerializedAutosave({ enabled: true, debounceMs: 50, savedFlashMs: 100, save })
     );
@@ -125,7 +131,7 @@ describe('useSerializedAutosave', () => {
   it('recovers a dirty buffer after route unmount and drains it after reauthorization', async () => {
     const draftKey = 'test-route-recovery';
     discardSerializedAutosaveDraft(draftKey);
-    const save = vi.fn().mockResolvedValue({ ok: true });
+    const save = vi.fn().mockResolvedValue(committed());
     const first = renderHook(() =>
       useSerializedAutosave({ enabled: false, debounceMs: 50, savedFlashMs: 100, save, draftKey })
     );

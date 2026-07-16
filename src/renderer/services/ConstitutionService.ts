@@ -28,37 +28,129 @@ const EDIT_GRANT_HEADER = 'x-wayland-constitution-edit-grant';
 
 export type ConstitutionEditScope = 'constitution.write' | `specialist.write:${string}`;
 export type ConstitutionEditGrant = { token: string; expiresAt: number };
+export type ConstitutionReadResult =
+  { state: 'present'; content: string; revision: string } | { state: 'absent'; revision: null };
+export type ConstitutionSpecialistEntry = { id: string; bytes: number; revision: string };
 export type ConstitutionMutationResult =
-  | { ok: true }
-  | { ok: false; reason: 'authorization_required' | 'request_failed'; status: number; message?: string };
+  | { ok: true; revision: string | null; receiptId: string }
+  | {
+      ok: false;
+      reason: 'authorization_required' | 'conflict' | 'request_failed';
+      status: number;
+      message?: string;
+    };
+
+const SPECIALIST_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
+const OPAQUE_ID_PATTERN = /^[A-Za-z0-9._:-]{8,256}$/;
+
+export class ConstitutionReadError extends Error {
+  constructor(
+    readonly code: 'network_error' | 'http_error' | 'malformed_response',
+    readonly status: number
+  ) {
+    super(
+      code === 'network_error'
+        ? 'The Constitution service could not be reached.'
+        : code === 'malformed_response'
+          ? 'The Constitution service returned an invalid response.'
+          : `The Constitution service rejected the read (${status}).`
+    );
+    this.name = 'ConstitutionReadError';
+  }
+}
+
+async function getConstitutionData(path: string): Promise<unknown> {
+  let res: Response;
+  try {
+    res = await fetch(path, { method: 'GET', credentials: 'include' });
+  } catch {
+    throw new ConstitutionReadError('network_error', 0);
+  }
+
+  let json: unknown;
+  try {
+    json = await res.json();
+  } catch {
+    throw new ConstitutionReadError('malformed_response', res.status);
+  }
+  if (!res.ok) throw new ConstitutionReadError('http_error', res.status);
+  if (!json || typeof json !== 'object' || Array.isArray(json)) {
+    throw new ConstitutionReadError('malformed_response', res.status);
+  }
+  const envelope = json as { success?: unknown; data?: unknown };
+  if (envelope.success !== true) throw new ConstitutionReadError('malformed_response', res.status);
+  return envelope.data;
+}
+
+function parseReadResult(data: unknown, status = 200): ConstitutionReadResult {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new ConstitutionReadError('malformed_response', status);
+  }
+  const result = data as { state?: unknown; content?: unknown };
+  const revision = (data as { revision?: unknown }).revision;
+  if (result.state === 'absent' && result.content === undefined && revision === null) {
+    return { state: 'absent', revision: null };
+  }
+  if (result.state === 'present' && typeof result.content === 'string' && isOpaqueId(revision)) {
+    return { state: 'present', content: result.content, revision };
+  }
+  throw new ConstitutionReadError('malformed_response', status);
+}
+
+function isOpaqueId(value: unknown): value is string {
+  return typeof value === 'string' && OPAQUE_ID_PATTERN.test(value);
+}
 
 async function postConstitution(
   path: string,
   body: Record<string, unknown>,
-  editGrant?: string
+  editGrant?: string,
+  revisionExpectation: 'present' | 'absent' | 'none' = 'present'
 ): Promise<ConstitutionMutationResult> {
   const csrf = getCsrfToken();
-  const res = await fetch(path, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...csrfHeaders(),
-      ...(editGrant ? { [EDIT_GRANT_HEADER]: editGrant } : {}),
-    },
-    body: JSON.stringify({ ...body, _csrf: csrf }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(path, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...csrfHeaders(),
+        ...(editGrant ? { [EDIT_GRANT_HEADER]: editGrant } : {}),
+      },
+      body: JSON.stringify({ ...body, _csrf: csrf }),
+    });
+  } catch {
+    return { ok: false, reason: 'request_failed', status: 0 };
+  }
 
   const json = (await res.json().catch(() => ({}))) as {
     success?: boolean;
     code?: string;
     msg?: string;
-    data?: { ok?: boolean };
+    data?: { ok?: boolean; revision?: unknown; receiptId?: unknown };
   };
 
-  if (res.ok && json.success) return { ok: true };
+  if (res.ok && json.success) {
+    if (revisionExpectation === 'none') return { ok: true, revision: null, receiptId: 'status-only' };
+    const revision = json.data?.revision;
+    const receiptId = json.data?.receiptId;
+    if (json.data?.ok !== true || !isOpaqueId(receiptId)) {
+      return { ok: false, reason: 'request_failed', status: res.status };
+    }
+    if (revisionExpectation === 'absent' && revision === null) {
+      return { ok: true, revision: null, receiptId };
+    }
+    if (revisionExpectation === 'present' && isOpaqueId(revision)) {
+      return { ok: true, revision, receiptId };
+    }
+    return { ok: false, reason: 'request_failed', status: res.status };
+  }
   if (res.status === 401 && json.code === 'CONSTITUTION_EDIT_AUTHORIZATION_REQUIRED') {
     return { ok: false, reason: 'authorization_required', status: res.status, message: json.msg };
+  }
+  if (res.status === 409 && json.code === 'CONSTITUTION_REVISION_CONFLICT') {
+    return { ok: false, reason: 'conflict', status: res.status, message: json.msg };
   }
   return { ok: false, reason: 'request_failed', status: res.status, message: json.msg };
 }
@@ -91,20 +183,49 @@ export async function requestConstitutionEditGrantHttp(
 
 /** Revoke a hosted edit grant; callers should clear their in-memory copy regardless. */
 export async function revokeConstitutionEditGrantHttp(grant: string): Promise<void> {
-  await postConstitution('/api/constitution/edit-grant/revoke', {}, grant);
+  await postConstitution('/api/constitution/edit-grant/revoke', {}, grant, 'none');
 }
 
 /**
- * Read the current Constitution prose from the remote WebUI. Returns the text,
- * or `''` when the read fails. Not a secret - the editor needs it to load.
+ * Read the current Constitution prose from the remote WebUI without collapsing
+ * an absent file, an intentionally empty file, or a failed read into one value.
  */
-export async function readConstitutionHttp(): Promise<string> {
-  const res = await fetch('/api/constitution', { method: 'GET', credentials: 'include' });
-  const json = (await res.json().catch(() => ({}))) as {
-    success?: boolean;
-    data?: { content?: string };
-  };
-  return res.ok && json.success ? (json.data?.content ?? '') : '';
+export async function readConstitutionHttp(): Promise<ConstitutionReadResult> {
+  return parseReadResult(await getConstitutionData('/api/constitution'));
+}
+
+/** List hosted specialist overlays through the same authenticated read boundary. */
+export async function listConstitutionSpecialistsHttp(): Promise<ConstitutionSpecialistEntry[]> {
+  const data = await getConstitutionData('/api/constitution/specialists');
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new ConstitutionReadError('malformed_response', 200);
+  }
+  const items = (data as { items?: unknown }).items;
+  if (
+    !Array.isArray(items) ||
+    items.some(
+      (item) =>
+        !item ||
+        typeof item !== 'object' ||
+        Array.isArray(item) ||
+        typeof (item as { id?: unknown }).id !== 'string' ||
+        !SPECIALIST_ID_PATTERN.test((item as { id: string }).id) ||
+        !Number.isSafeInteger((item as { bytes?: unknown }).bytes) ||
+        ((item as { bytes: number }).bytes ?? -1) < 0 ||
+        !isOpaqueId((item as { revision?: unknown }).revision)
+    )
+  ) {
+    throw new ConstitutionReadError('malformed_response', 200);
+  }
+  return (items as ConstitutionSpecialistEntry[])
+    .map((item) => ({ id: item.id, bytes: item.bytes, revision: item.revision }))
+    .toSorted((left, right) => left.id.localeCompare(right.id));
+}
+
+/** Read one hosted specialist overlay with explicit present/absent truth. */
+export async function readConstitutionSpecialistHttp(id: string): Promise<ConstitutionReadResult> {
+  if (!SPECIALIST_ID_PATTERN.test(id)) throw new ConstitutionReadError('malformed_response', 0);
+  return parseReadResult(await getConstitutionData(`/api/constitution/specialist?id=${encodeURIComponent(id)}`));
 }
 
 /**
@@ -112,8 +233,12 @@ export async function readConstitutionHttp(): Promise<string> {
  * The response is structured so the editor can distinguish expired authority
  * from an ordinary request failure. The body is never echoed back.
  */
-export function writeConstitutionHttp(content: string, editGrant: string): Promise<ConstitutionMutationResult> {
-  return postConstitution('/api/constitution/write', { content }, editGrant);
+export function writeConstitutionHttp(
+  content: string,
+  expectedRevision: string,
+  editGrant: string
+): Promise<ConstitutionMutationResult> {
+  return postConstitution('/api/constitution/write', { content, expectedRevision }, editGrant);
 }
 
 /**
@@ -121,8 +246,11 @@ export function writeConstitutionHttp(content: string, editGrant: string): Promi
  * password step-up. The default body is never echoed back; the caller re-reads
  * it via `readConstitutionHttp`.
  */
-export function resetConstitutionHttp(password: string): Promise<ConstitutionMutationResult> {
-  return postConstitution('/api/constitution/reset', { password });
+export function resetConstitutionHttp(
+  password: string,
+  expectedRevision: string | null
+): Promise<ConstitutionMutationResult> {
+  return postConstitution('/api/constitution/reset', { password, expectedRevision });
 }
 
 /**
@@ -132,15 +260,25 @@ export function resetConstitutionHttp(password: string): Promise<ConstitutionMut
 export function writeConstitutionSpecialistHttp(
   id: string,
   content: string,
+  expectedRevision: string | null,
   editGrant: string
 ): Promise<ConstitutionMutationResult> {
-  return postConstitution('/api/constitution/write-specialist', { id, content }, editGrant);
+  return postConstitution('/api/constitution/write-specialist', { id, content, expectedRevision }, editGrant);
 }
 
 /**
  * Remove a specialist overlay from the remote WebUI after a fresh password
  * step-up.
  */
-export function deleteConstitutionSpecialistHttp(id: string, password: string): Promise<ConstitutionMutationResult> {
-  return postConstitution('/api/constitution/delete-specialist', { id, password });
+export function deleteConstitutionSpecialistHttp(
+  id: string,
+  password: string,
+  expectedRevision: string
+): Promise<ConstitutionMutationResult> {
+  return postConstitution(
+    '/api/constitution/delete-specialist',
+    { id, password, expectedRevision },
+    undefined,
+    'absent'
+  );
 }

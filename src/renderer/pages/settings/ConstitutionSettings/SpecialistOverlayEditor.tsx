@@ -10,7 +10,10 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import { isElectronDesktop } from '@renderer/utils/platform';
-import { writeConstitutionSpecialistHttp } from '@renderer/services/ConstitutionService';
+import {
+  readConstitutionSpecialistHttp,
+  writeConstitutionSpecialistHttp,
+} from '@renderer/services/ConstitutionService';
 import type { ConstitutionEditGrant, ConstitutionMutationResult } from '@renderer/services/ConstitutionService';
 import SavedIndicator from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
@@ -44,7 +47,11 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({ id, o
   const { user } = useAuth();
 
   const [value, setValue] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [loadState, setLoadState] = useState<'loading' | 'present' | 'absent' | 'error'>('loading');
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+  const revision = useRef<string | null>(null);
+  const [conflict, setConflict] = useState(false);
   const [editGrant, setEditGrant] = useState<ConstitutionEditGrant | null>(null);
 
   /** While true, onChange events from the editor are ignored (initial hydrate). */
@@ -54,39 +61,59 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({ id, o
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const api = window.electronAPI;
-      if (!isDesktop || !api?.readConstitutionSpecialist) {
-        if (!cancelled) {
-          setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? '');
-          setLoading(false);
-          window.setTimeout(() => {
-            hydrating.current = false;
-          }, 50);
+      setLoadState('loading');
+      setLoadError(null);
+      hydrating.current = true;
+      try {
+        let text: string;
+        if (isDesktop) {
+          const api = window.electronAPI;
+          if (!api?.readConstitutionSpecialist) throw new Error('Specialist reading is unavailable.');
+          text = await api.readConstitutionSpecialist(id);
+          if (cancelled) return;
+          revision.current = 'desktop-compatibility';
+        } else {
+          const read = await readConstitutionSpecialistHttp(id);
+          if (read.state === 'absent') {
+            if (!cancelled) {
+              revision.current = null;
+              setLoadState('absent');
+            }
+            return;
+          }
+          text = read.content;
+          if (cancelled) return;
+          revision.current = read.revision;
         }
-        return;
+        setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? text);
+        setLoadState('present');
+        setConflict(false);
+        // Allow one tick for TipTap to settle before treating onChange as edits.
+        window.setTimeout(() => {
+          hydrating.current = false;
+        }, 50);
+      } catch (error) {
+        if (cancelled) return;
+        setLoadError(error instanceof Error ? error.message : 'The specialist overlay could not be loaded.');
+        setLoadState('error');
       }
-      const text = await api.readConstitutionSpecialist(id);
-      if (cancelled) return;
-      setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? text);
-      setLoading(false);
-      // Allow one tick for TipTap to settle before treating onChange as edits.
-      window.setTimeout(() => {
-        hydrating.current = false;
-      }, 50);
     })();
     return () => {
       cancelled = true;
     };
-  }, [draftKey, id, isDesktop]);
+  }, [draftKey, id, isDesktop, reloadToken]);
 
   const saveOverlay = useCallback(
     async (md: string): Promise<ConstitutionMutationResult> => {
       if (isDesktop) {
         const ok = (await window.electronAPI?.writeConstitutionSpecialist?.(id, md)) ?? false;
-        return ok ? { ok: true } : { ok: false, reason: 'request_failed', status: 0 };
+        return ok
+          ? { ok: true, revision: revision.current, receiptId: 'desktop-compatibility' }
+          : { ok: false, reason: 'request_failed', status: 0 };
       }
       if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
-      return writeConstitutionSpecialistHttp(id, md, editGrant.token);
+      if (!revision.current) return { ok: false, reason: 'conflict', status: 409 };
+      return writeConstitutionSpecialistHttp(id, md, revision.current, editGrant.token);
     },
     [editGrant, id, isDesktop]
   );
@@ -97,6 +124,11 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({ id, o
     savedFlashMs: SAVED_FLASH_MS,
     save: saveOverlay,
     onAuthorizationRequired: () => setEditGrant(null),
+    onConflict: () => setConflict(true),
+    onCommitted: (result) => {
+      if (typeof result.revision === 'string') revision.current = result.revision;
+      setConflict(false);
+    },
     draftKey: draftKey ?? undefined,
   });
 
@@ -150,10 +182,36 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({ id, o
           </Button>
         </div>
       </div>
-      {loading ? (
+      {loadState === 'loading' ? (
         <div className='text-12px text-t-secondary py-8px'>{t('settings.constitutionPage.loading', 'Loading…')}</div>
+      ) : loadState === 'error' ? (
+        <div className='rd-8px bg-[var(--color-danger-light-1)] p-10px flex items-center justify-between gap-12px'>
+          <span className='text-12px text-t-secondary'>{loadError}</span>
+          <Button type='secondary' size='small' onClick={() => setReloadToken((value) => value + 1)}>
+            {t('settings.constitutionPage.retryRead', 'Retry load')}
+          </Button>
+        </div>
+      ) : loadState === 'absent' ? (
+        <div className='text-12px text-t-secondary py-8px'>
+          {t('settings.constitutionSpecialists.absent', 'This overlay no longer exists. Refresh the inventory.')}
+        </div>
       ) : (
-        <TipTapMarkdownEditor value={value} onChange={handleChange} readOnly={!isDesktop && !editGrant} />
+        <>
+          {conflict && (
+            <div className='rd-8px bg-[var(--color-warning-light-1)] p-10px flex items-center justify-between gap-12px'>
+              <span className='text-12px text-t-secondary'>
+                {t(
+                  'settings.constitutionSpecialists.conflict',
+                  'The server copy changed. Your draft is preserved; reload before saving again.'
+                )}
+              </span>
+              <Button type='secondary' size='small' onClick={() => setReloadToken((value) => value + 1)}>
+                {t('settings.constitutionPage.reloadForConflict', 'Reload and compare')}
+              </Button>
+            </div>
+          )}
+          <TipTapMarkdownEditor value={value} onChange={handleChange} readOnly={!isDesktop && !editGrant} />
+        </>
       )}
     </div>
   );
