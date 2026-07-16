@@ -3,16 +3,29 @@ import type { Express, Request, RequestHandler, Response } from 'express';
 
 // The route calls the shared in-process constitution helpers. Hoist stateful
 // stubs so we can assert against them.
-const { mockWrite, mockReset, mockWriteSpecialist, mockDeleteSpecialist, mockRead, mockAppendAudit, mockRequireDestructive } =
-  vi.hoisted(() => ({
-    mockWrite: vi.fn((content: string) => content.length <= 100),
-    mockReset: vi.fn(() => '# Default Constitution\n'),
-    mockWriteSpecialist: vi.fn((id: string, _content: string) => id !== 'bad-id'),
-    mockDeleteSpecialist: vi.fn((id: string) => id !== 'missing'),
-    mockRead: vi.fn(() => '# Current Constitution\n'),
-    mockAppendAudit: vi.fn(),
-    mockRequireDestructive: vi.fn(),
-  }));
+const {
+  mockWrite,
+  mockReset,
+  mockWriteSpecialist,
+  mockDeleteSpecialist,
+  mockRead,
+  mockAppendAudit,
+  mockRequireDestructive,
+  mockAuthorizeGrant,
+  mockIssueGrant,
+  mockRevokeGrant,
+} = vi.hoisted(() => ({
+  mockWrite: vi.fn((content: string) => content.length <= 100),
+  mockReset: vi.fn(() => '# Default Constitution\n'),
+  mockWriteSpecialist: vi.fn((id: string, _content: string) => id !== 'bad-id'),
+  mockDeleteSpecialist: vi.fn((id: string) => id !== 'missing'),
+  mockRead: vi.fn(() => '# Current Constitution\n'),
+  mockAppendAudit: vi.fn(),
+  mockRequireDestructive: vi.fn(),
+  mockAuthorizeGrant: vi.fn(),
+  mockIssueGrant: vi.fn(),
+  mockRevokeGrant: vi.fn(),
+}));
 
 vi.mock('@process/bridge/constitutionBridge', () => ({
   writeConstitution: mockWrite,
@@ -30,6 +43,14 @@ vi.mock('@process/webserver/routes/configWriteGuards', async (importOriginal) =>
   const actual = (await importOriginal()) as Record<string, unknown>;
   return { ...actual, requireDestructive: mockRequireDestructive };
 });
+vi.mock('@process/webserver/routes/constitutionEditGrant', () => ({
+  CONSTITUTION_EDIT_GRANT_HEADER: 'x-wayland-constitution-edit-grant',
+  authorizeConstitutionEditGrant: mockAuthorizeGrant,
+  issueConstitutionEditGrant: mockIssueGrant,
+  revokeConstitutionEditGrant: mockRevokeGrant,
+  isConstitutionEditScope: (scope: unknown) =>
+    scope === 'constitution.write' || (typeof scope === 'string' && /^specialist\.write:[A-Za-z0-9_-]+$/.test(scope)),
+}));
 vi.mock('../../../src/process/webserver/audit/auditLog', () => ({
   appendAudit: mockAppendAudit,
 }));
@@ -58,18 +79,30 @@ function captureHandlers(): { get: Record<string, CapturedHandler>; post: Record
   return { get, post };
 }
 
-type ReqOpts = { body?: Record<string, unknown>; peer?: string; secure?: boolean; userId?: string };
-function makeReq({ body, peer, secure, userId }: ReqOpts): Request {
+type ReqOpts = {
+  body?: Record<string, unknown>;
+  headers?: Record<string, string>;
+  peer?: string;
+  secure?: boolean;
+  userId?: string;
+};
+function makeReq({ body, headers, peer, secure, userId }: ReqOpts): Request {
   return {
     body: body ?? {},
+    headers: headers ?? {},
     hostname: 'box.example.com',
     secure: secure ?? false,
     socket: { remoteAddress: peer ?? '127.0.0.1' },
     user: userId ? { id: userId, username: 'admin' } : undefined,
   } as unknown as Request;
 }
-function makeRes(): Response & { _status?: number; _json?: unknown } {
+function makeRes(): Response & { _status?: number; _json?: unknown; _headers?: Record<string, string> } {
   const res = {
+    _headers: {} as Record<string, string>,
+    set(name: string, value: string) {
+      res._headers[name] = value;
+      return res;
+    },
     setHeader() {
       return res;
     },
@@ -81,7 +114,7 @@ function makeRes(): Response & { _status?: number; _json?: unknown } {
       (res as { _json?: unknown })._json = body;
       return res;
     },
-  } as unknown as Response & { _status?: number; _json?: unknown };
+  } as unknown as Response & { _status?: number; _json?: unknown; _headers?: Record<string, string> };
   return res;
 }
 
@@ -98,6 +131,12 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     // deny tests override with a refusal that writes the 403/401 itself.
     mockRequireDestructive.mockReset();
     mockRequireDestructive.mockResolvedValue(true);
+    mockAuthorizeGrant.mockReset();
+    mockAuthorizeGrant.mockReturnValue({ authorized: true, expiresAt: Date.now() + 60_000 });
+    mockIssueGrant.mockReset();
+    mockIssueGrant.mockReturnValue({ token: 'A'.repeat(43), expiresAt: Date.now() + 60_000 });
+    mockRevokeGrant.mockReset();
+    mockRevokeGrant.mockReturnValue(true);
     delete process.env.WAYLAND_HTTPS;
     delete process.env.SERVER_BASE_URL;
     process.env.NODE_ENV = 'test';
@@ -121,6 +160,53 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     expect(JSON.stringify(res._json)).not.toContain('My rules');
   });
 
+  it('issues a digest-backed scoped edit grant only after destructive step-up', async () => {
+    const res = makeRes();
+    await captureHandlers().post['/api/constitution/edit-grant'](
+      makeReq({
+        body: { password: 'hunter2', scopes: ['constitution.write', 'specialist.write:copy'] },
+        userId: 'u1',
+      }),
+      res
+    );
+    expect(mockRequireDestructive).toHaveBeenCalledTimes(1);
+    expect(mockRequireDestructive.mock.calls[0][2]).toBe('hunter2');
+    expect(mockIssueGrant).toHaveBeenCalledWith(expect.anything(), ['constitution.write', 'specialist.write:copy']);
+    expect(res._json).toMatchObject({
+      success: true,
+      data: { grant: 'A'.repeat(43), expiresAt: expect.any(Number) },
+    });
+    expect(res._headers).toMatchObject({ 'Cache-Control': 'no-store', Pragma: 'no-cache' });
+    expect(JSON.stringify(mockAppendAudit.mock.calls)).not.toContain('hunter2');
+    expect(JSON.stringify(mockAppendAudit.mock.calls)).not.toContain('A'.repeat(43));
+  });
+
+  it('rejects destructive or malformed grant scopes before step-up', async () => {
+    const responses = await Promise.all(
+      [[], ['constitution.reset'], ['specialist.write:../copy']].map(async (scopes) => {
+        const res = makeRes();
+        await captureHandlers().post['/api/constitution/edit-grant'](
+          makeReq({ body: { password: 'hunter2', scopes }, userId: 'u1' }),
+          res
+        );
+        return res;
+      })
+    );
+    expect(responses.every((res) => res._status === 400)).toBe(true);
+    expect(mockRequireDestructive).not.toHaveBeenCalled();
+    expect(mockIssueGrant).not.toHaveBeenCalled();
+  });
+
+  it('revokes an edit grant idempotently without exposing grant state', () => {
+    const res = makeRes();
+    captureHandlers().post['/api/constitution/edit-grant/revoke'](
+      makeReq({ headers: { 'x-wayland-constitution-edit-grant': 'A'.repeat(43) }, userId: 'u1' }),
+      res
+    );
+    expect(mockRevokeGrant).toHaveBeenCalledWith(expect.anything(), 'A'.repeat(43));
+    expect(res._json).toEqual({ success: true, data: { ok: true } });
+  });
+
   it('write audits with action/target/ip/reachedVia', async () => {
     await captureHandlers().post['/api/constitution/write'](
       makeReq({ body: { content: '# rules' }, userId: 'u1', peer: '100.64.0.9' }),
@@ -133,33 +219,33 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
       target: null,
       ip: '100.64.0.9',
       reachedVia: 'tailscale',
+      result: 'success',
     });
   });
 
-  it('write is DESTRUCTIVE: when the gate refuses (non-operator / no step-up), nothing is written', async () => {
-    // The Constitution rewrites the agent's brain, so it is gated at the
-    // destructive bar - a stolen public-internet session must not reach it.
-    mockRequireDestructive.mockImplementation(async (_req: Request, res: Response) => {
-      (res as unknown as { status: (c: number) => Response }).status(403);
-      (res as unknown as { json: (b: unknown) => Response }).json({ success: false, msg: 'trusted local network required' });
-      return false;
-    });
+  it('write fails closed when its exact edit grant is missing or invalid', async () => {
+    mockAuthorizeGrant.mockReturnValue({ authorized: false, reason: 'missing' });
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write'](
       makeReq({ body: { content: '# rules' }, peer: '203.0.113.5', secure: true }),
       res
     );
-    expect(res._status).toBe(403);
+    expect(res._status).toBe(401);
+    expect(res._json).toMatchObject({ code: 'CONSTITUTION_EDIT_AUTHORIZATION_REQUIRED' });
     expect(mockWrite).not.toHaveBeenCalled();
   });
 
-  it('write passes the step-up password through to the destructive gate', async () => {
+  it('write requires the Constitution scope and passes the opaque header to the grant verifier', async () => {
     await captureHandlers().post['/api/constitution/write'](
-      makeReq({ body: { content: '# rules', password: 'hunter2' }, userId: 'u1' }),
+      makeReq({
+        body: { content: '# rules' },
+        headers: { 'x-wayland-constitution-edit-grant': 'A'.repeat(43) },
+        userId: 'u1',
+      }),
       makeRes()
     );
-    expect(mockRequireDestructive).toHaveBeenCalledTimes(1);
-    expect(mockRequireDestructive.mock.calls[0][2]).toBe('hunter2');
+    expect(mockAuthorizeGrant).toHaveBeenCalledWith(expect.anything(), 'A'.repeat(43), 'constitution.write');
+    expect(mockRequireDestructive).not.toHaveBeenCalled();
   });
 
   it('write rejects a missing content (400) without persisting', async () => {
@@ -173,6 +259,7 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write'](makeReq({ body: { content: 'x'.repeat(200) } }), res);
     expect(res._status).toBe(400);
+    expect(mockAppendAudit).toHaveBeenCalledWith(expect.objectContaining({ result: 'failure' }));
   });
 
   it('write redacts any secret in an unexpected thrown error (500)', async () => {
@@ -188,14 +275,22 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
 
   it('reset restores the default and returns { ok } only - never the default body', async () => {
     const res = makeRes();
-    await captureHandlers().post['/api/constitution/reset'](makeReq({ userId: 'u1' }), res);
+    await captureHandlers().post['/api/constitution/reset'](
+      makeReq({ body: { password: 'hunter2' }, userId: 'u1' }),
+      res
+    );
+    expect(mockRequireDestructive.mock.calls[0][2]).toBe('hunter2');
     expect(mockReset).toHaveBeenCalled();
     expect(res._json).toEqual({ success: true, data: { ok: true } });
     expect(JSON.stringify(res._json)).not.toContain('Default Constitution');
-    expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({ action: 'constitution.reset' });
+    expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({ action: 'constitution.reset', result: 'success' });
   });
 
   it('reset refuses a plain-HTTP write from the public internet (403)', async () => {
+    mockRequireDestructive.mockImplementation(async (_req: Request, res: Response) => {
+      res.status(403).json({ success: false, msg: 'trusted local network required' });
+      return false;
+    });
     const res = makeRes();
     await captureHandlers().post['/api/constitution/reset'](makeReq({ peer: '203.0.113.5', secure: false }), res);
     expect(res._status).toBe(403);
@@ -209,8 +304,13 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
       res
     );
     expect(mockWriteSpecialist).toHaveBeenCalledWith('copy', '# copy rules');
+    expect(mockAuthorizeGrant).toHaveBeenCalledWith(expect.anything(), '', 'specialist.write:copy');
     expect(res._json).toEqual({ success: true, data: { ok: true } });
-    expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({ action: 'constitution.writeSpecialist', target: 'copy' });
+    expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({
+      action: 'constitution.writeSpecialist',
+      target: 'copy',
+      result: 'success',
+    });
   });
 
   it('write-specialist rejects a missing id (400) without persisting', async () => {
@@ -227,6 +327,7 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
       res
     );
     expect(res._status).toBe(400);
+    expect(mockAppendAudit).toHaveBeenCalledWith(expect.objectContaining({ result: 'failure' }));
   });
 
   it('delete-specialist removes and returns { ok } only', async () => {
@@ -237,7 +338,11 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     );
     expect(mockDeleteSpecialist).toHaveBeenCalledWith('copy');
     expect(res._json).toEqual({ success: true, data: { ok: true } });
-    expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({ action: 'constitution.deleteSpecialist', target: 'copy' });
+    expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({
+      action: 'constitution.deleteSpecialist',
+      target: 'copy',
+      result: 'success',
+    });
   });
 
   it('delete-specialist is DESTRUCTIVE: when the gate refuses, nothing is deleted', async () => {

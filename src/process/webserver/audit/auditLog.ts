@@ -31,6 +31,8 @@ export type AuditEntry = {
   ip?: string | null;
   /** Network provenance from detectNetworkContext at action time. */
   reachedVia?: ReachedVia | null;
+  /** Explicit mutation outcome. Legacy callers default to unknown. */
+  result?: 'success' | 'failure' | 'denied' | 'unknown';
 };
 
 /**
@@ -42,8 +44,8 @@ export async function appendAudit(entry: AuditEntry): Promise<boolean> {
     const db = await getDatabase();
     db.getDriver()
       .prepare(
-        `INSERT INTO audit_log (user_id, action, target, ip, reached_via, created_at)
-         VALUES (?, ?, ?, ?, ?, ?)`
+        `INSERT INTO audit_log (user_id, action, target, ip, reached_via, result, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         entry.userId,
@@ -51,6 +53,7 @@ export async function appendAudit(entry: AuditEntry): Promise<boolean> {
         entry.target ?? null,
         entry.ip ?? null,
         entry.reachedVia ?? null,
+        entry.result ?? 'unknown',
         Date.now()
       );
     return true;

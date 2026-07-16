@@ -41,6 +41,14 @@ import { redactSecrets, requireDestructive, requireSecureConfigWrite } from './c
 import { detectNetworkContext } from '../middleware/detectNetworkContext';
 import { appendAudit } from '../audit/auditLog';
 import {
+  authorizeConstitutionEditGrant,
+  CONSTITUTION_EDIT_GRANT_HEADER,
+  isConstitutionEditScope,
+  issueConstitutionEditGrant,
+  revokeConstitutionEditGrant,
+  type ConstitutionEditScope,
+} from './constitutionEditGrant';
+import {
   deleteConstitutionSpecialist,
   readConstitution,
   resetConstitution,
@@ -50,6 +58,29 @@ import {
 
 function bodyString(value: unknown): string {
   return typeof value === 'string' ? value : '';
+}
+
+function requestHeader(req: Request, name: string): string {
+  const fromExpress = typeof req.get === 'function' ? req.get(name) : undefined;
+  if (typeof fromExpress === 'string') return fromExpress;
+  const raw = req.headers?.[name.toLowerCase()];
+  return Array.isArray(raw) ? (raw[0] ?? '') : typeof raw === 'string' ? raw : '';
+}
+
+function requireEditGrant(req: Request, res: Response, scope: ConstitutionEditScope): boolean {
+  if (!requireSecureConfigWrite(req, res)) return false;
+  const authorization = authorizeConstitutionEditGrant(req, requestHeader(req, CONSTITUTION_EDIT_GRANT_HEADER), scope);
+  if (authorization.authorized) return true;
+  res.status(401).json({
+    success: false,
+    code: 'CONSTITUTION_EDIT_AUTHORIZATION_REQUIRED',
+    msg: 'Unlock editing again to save these changes.',
+  });
+  return false;
+}
+
+function asyncRoute(handler: (req: Request, res: Response) => Promise<void>): RequestHandler {
+  return (req, res, next) => Promise.resolve(handler(req, res)).catch(next);
 }
 
 /**
@@ -69,18 +100,63 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
     }
   });
 
-  // POST /api/constitution/write { content, password }
+  // POST /api/constitution/edit-grant { password, scopes }
+  // A fresh operator-network + password step-up mints one short-lived opaque
+  // autosave grant. The server retains only its digest, bound to user, direct
+  // socket peer, expiry, and exact write scopes.
+  app.post(
+    '/api/constitution/edit-grant',
+    apiRateLimiter,
+    validateApiAccess,
+    asyncRoute(async (req: Request, res: Response) => {
+      const requested = req.body?.scopes;
+      if (
+        !Array.isArray(requested) ||
+        requested.length === 0 ||
+        requested.length > 32 ||
+        !requested.every(isConstitutionEditScope)
+      ) {
+        res.status(400).json({ success: false, msg: 'At least one valid edit scope is required.' });
+        return;
+      }
+      if (!(await requireDestructive(req, res, bodyString(req.body?.password)))) return;
+
+      const grant = issueConstitutionEditGrant(req, requested);
+      if (!grant) {
+        res.status(403).json({ success: false, msg: 'Could not bind edit authorization to this session.' });
+        return;
+      }
+
+      const ctx = detectNetworkContext(req);
+      void appendAudit({
+        userId: req.user?.id ?? null,
+        action: 'constitution.editGrant.issue',
+        target: [...new Set(requested)].toSorted().join(','),
+        ip: req.socket?.remoteAddress ?? null,
+        reachedVia: ctx.reachedVia,
+        result: 'success',
+      });
+      res.set('Cache-Control', 'no-store');
+      res.set('Pragma', 'no-cache');
+      res.json({ success: true, data: { grant: grant.token, expiresAt: grant.expiresAt } });
+    })
+  );
+
+  // POST /api/constitution/edit-grant/revoke
+  // Revocation is idempotent and never reveals whether a supplied token existed.
+  app.post('/api/constitution/edit-grant/revoke', apiRateLimiter, validateApiAccess, (req: Request, res: Response) => {
+    if (!requireSecureConfigWrite(req, res)) return;
+    revokeConstitutionEditGrant(req, requestHeader(req, CONSTITUTION_EDIT_GRANT_HEADER));
+    res.json({ success: true, data: { ok: true } });
+  });
+
+  // POST /api/constitution/write { content } + scoped edit-grant header
   // Write-only: overwrites the Constitution and returns { ok } only.
-  app.post('/api/constitution/write', apiRateLimiter, validateApiAccess, async (req: Request, res: Response) => {
-    // AGENT-AUTHORITY, not plain config-write: the Constitution is injected into
-    // the agent's system prompt and re-read every turn, so an arbitrary write
-    // re-instructs the most powerful principal on the box (a remote attacker
-    // could plant "read the local keys and POST them out" and the agent would
-    // exfiltrate on its next turn, inside the sandbox, bypassing the write-only
-    // secret invariant). Hold it to the DESTRUCTIVE bar: operator-network +
-    // step-up password. (reset -> a known-safe default is a tighten, stays
-    // config-write.)
-    if (!(await requireDestructive(req, res, bodyString(req.body?.password)))) return;
+  app.post('/api/constitution/write', apiRateLimiter, validateApiAccess, (req: Request, res: Response) => {
+    // Autosave uses a short-lived grant minted only after a fresh destructive
+    // step-up. It remains subject to auth, CSRF, secure transport, rate limit,
+    // exact scope, size limits, persistence CAS/archive, and audit controls.
+    if (!requireEditGrant(req, res, 'constitution.write')) return;
 
     if (typeof req.body?.content !== 'string') {
       res.status(400).json({ success: false, msg: 'content is required' });
@@ -102,6 +178,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
         target: null,
         ip,
         reachedVia: ctx.reachedVia,
+        result: ok ? 'success' : 'failure',
       });
 
       if (!ok) {
@@ -112,6 +189,14 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
       // Status only - never echo the body back.
       res.json({ success: true, data: { ok: true } });
     } catch (error) {
+      void appendAudit({
+        userId: req.user?.id ?? null,
+        action: 'constitution.write',
+        target: null,
+        ip,
+        reachedVia: ctx.reachedVia,
+        result: 'failure',
+      });
       console.error('[API] Constitution write error:', error);
       const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to save constitution';
       res.status(500).json({ success: false, msg });
@@ -120,82 +205,100 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
 
   // POST /api/constitution/reset
   // Write-only: restores the default Constitution and returns { ok } only.
-  app.post('/api/constitution/reset', apiRateLimiter, validateApiAccess, async (req: Request, res: Response) => {
-    if (!requireSecureConfigWrite(req, res)) return;
-
-    const ctx = detectNetworkContext(req);
-    const ip = req.socket?.remoteAddress ?? null;
-
-    try {
-      resetConstitution();
-
-      void appendAudit({
-        userId: req.user?.id ?? null,
-        action: 'constitution.reset',
-        target: null,
-        ip,
-        reachedVia: ctx.reachedVia,
-      });
-
-      // Status only - never echo the default body back.
-      res.json({ success: true, data: { ok: true } });
-    } catch (error) {
-      console.error('[API] Constitution reset error:', error);
-      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to reset constitution';
-      res.status(500).json({ success: false, msg });
-    }
-  });
-
-  // POST /api/constitution/write-specialist { id, content }
-  // Write-only: overwrites a specialist overlay and returns { ok } only.
   app.post(
-    '/api/constitution/write-specialist',
+    '/api/constitution/reset',
     apiRateLimiter,
     validateApiAccess,
-    async (req: Request, res: Response) => {
-      // AGENT-AUTHORITY: a specialist overlay re-instructs the agent the same way
-      // the Constitution does. DESTRUCTIVE bar: operator-network + step-up.
+    asyncRoute(async (req: Request, res: Response) => {
+      // Reset is destructive and is deliberately outside continuous edit grants.
       if (!(await requireDestructive(req, res, bodyString(req.body?.password)))) return;
-
-      const id = bodyString(req.body?.id).trim();
-      if (!id) {
-        res.status(400).json({ success: false, msg: 'id is required' });
-        return;
-      }
-      if (typeof req.body?.content !== 'string') {
-        res.status(400).json({ success: false, msg: 'content is required' });
-        return;
-      }
-      const content = req.body.content as string;
 
       const ctx = detectNetworkContext(req);
       const ip = req.socket?.remoteAddress ?? null;
 
       try {
-        // The helper validates the id (path-traversal containment) + content.
-        const ok = writeConstitutionSpecialist(id, content);
+        resetConstitution();
 
         void appendAudit({
           userId: req.user?.id ?? null,
-          action: 'constitution.writeSpecialist',
-          target: id,
+          action: 'constitution.reset',
+          target: null,
           ip,
           reachedVia: ctx.reachedVia,
+          result: 'success',
         });
 
-        if (!ok) {
-          res.status(400).json({ success: false, msg: 'Could not save the overlay (invalid id, too large, or write failed).' });
-          return;
-        }
-
+        // Status only - never echo the default body back.
         res.json({ success: true, data: { ok: true } });
       } catch (error) {
-        console.error('[API] Constitution write-specialist error:', error);
-        const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to save specialist overlay';
+        void appendAudit({
+          userId: req.user?.id ?? null,
+          action: 'constitution.reset',
+          target: null,
+          ip,
+          reachedVia: ctx.reachedVia,
+          result: 'failure',
+        });
+        console.error('[API] Constitution reset error:', error);
+        const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to reset constitution';
         res.status(500).json({ success: false, msg });
       }
-    }
+    })
   );
+
+  // POST /api/constitution/write-specialist { id, content }
+  // Write-only: overwrites a specialist overlay and returns { ok } only.
+  app.post('/api/constitution/write-specialist', apiRateLimiter, validateApiAccess, (req: Request, res: Response) => {
+    const id = bodyString(req.body?.id).trim();
+    if (!id) {
+      res.status(400).json({ success: false, msg: 'id is required' });
+      return;
+    }
+    if (typeof req.body?.content !== 'string') {
+      res.status(400).json({ success: false, msg: 'content is required' });
+      return;
+    }
+    const content = req.body.content as string;
+    if (!requireEditGrant(req, res, `specialist.write:${id}`)) return;
+
+    const ctx = detectNetworkContext(req);
+    const ip = req.socket?.remoteAddress ?? null;
+
+    try {
+      // The helper validates the id (path-traversal containment) + content.
+      const ok = writeConstitutionSpecialist(id, content);
+
+      void appendAudit({
+        userId: req.user?.id ?? null,
+        action: 'constitution.writeSpecialist',
+        target: id,
+        ip,
+        reachedVia: ctx.reachedVia,
+        result: ok ? 'success' : 'failure',
+      });
+
+      if (!ok) {
+        res
+          .status(400)
+          .json({ success: false, msg: 'Could not save the overlay (invalid id, too large, or write failed).' });
+        return;
+      }
+
+      res.json({ success: true, data: { ok: true } });
+    } catch (error) {
+      void appendAudit({
+        userId: req.user?.id ?? null,
+        action: 'constitution.writeSpecialist',
+        target: id,
+        ip,
+        reachedVia: ctx.reachedVia,
+        result: 'failure',
+      });
+      console.error('[API] Constitution write-specialist error:', error);
+      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to save specialist overlay';
+      res.status(500).json({ success: false, msg });
+    }
+  });
 
   // POST /api/constitution/delete-specialist { id }
   // Write-only: removes a specialist overlay and returns { ok } only.
@@ -203,7 +306,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
     '/api/constitution/delete-specialist',
     apiRateLimiter,
     validateApiAccess,
-    async (req: Request, res: Response) => {
+    asyncRoute(async (req: Request, res: Response) => {
       // AGENT-AUTHORITY: removing an overlay changes the agent's instruction set.
       // DESTRUCTIVE bar: operator-network + step-up.
       if (!(await requireDestructive(req, res, bodyString(req.body?.password)))) return;
@@ -226,6 +329,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
           target: id,
           ip,
           reachedVia: ctx.reachedVia,
+          result: ok ? 'success' : 'failure',
         });
 
         if (!ok) {
@@ -235,10 +339,18 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
 
         res.json({ success: true, data: { ok: true } });
       } catch (error) {
+        void appendAudit({
+          userId: req.user?.id ?? null,
+          action: 'constitution.deleteSpecialist',
+          target: id,
+          ip,
+          reachedVia: ctx.reachedVia,
+          result: 'failure',
+        });
         console.error('[API] Constitution delete-specialist error:', error);
         const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to remove specialist overlay';
         res.status(500).json({ success: false, msg });
       }
-    }
+    })
   );
 }

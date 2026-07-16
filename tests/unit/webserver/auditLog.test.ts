@@ -30,6 +30,7 @@ describe('appendAudit', () => {
       target: 'openai',
       ip: '100.64.0.1',
       reachedVia: 'tailscale',
+      result: 'success',
     });
     expect(ok).toBe(true);
     expect(mockPrepare).toHaveBeenCalledTimes(1);
@@ -39,7 +40,8 @@ describe('appendAudit', () => {
     expect(args[2]).toBe('openai');
     expect(args[3]).toBe('100.64.0.1');
     expect(args[4]).toBe('tailscale');
-    expect(typeof args[5]).toBe('number'); // created_at epoch ms
+    expect(args[5]).toBe('success');
+    expect(typeof args[6]).toBe('number'); // created_at epoch ms
   });
 
   it('coerces missing optional fields to null', async () => {
@@ -50,6 +52,7 @@ describe('appendAudit', () => {
     expect(args[2]).toBeNull(); // target
     expect(args[3]).toBeNull(); // ip
     expect(args[4]).toBeNull(); // reachedVia
+    expect(args[5]).toBe('unknown');
   });
 
   it('never throws and returns false on a store failure', async () => {

@@ -2365,6 +2365,24 @@ const migration_v53: IMigration = {
   },
 };
 
+/** Migration v53 -> v54: record the outcome of audited mutations. */
+const migration_v54: IMigration = {
+  version: 54,
+  name: 'Add result to audit_log',
+  up: (db) => {
+    const columns = db.pragma('table_info(audit_log)') as Array<{ name: string }>;
+    if (!columns.some((column) => column.name === 'result')) {
+      db.exec(`ALTER TABLE audit_log ADD COLUMN result TEXT NOT NULL DEFAULT 'unknown'
+        CHECK (result IN ('success', 'failure', 'denied', 'unknown'))`);
+    }
+    console.log('[Migration v54] Added audit_log result');
+  },
+  down: () => {
+    // Existing audit outcomes are forensic evidence and are not destructively
+    // rewritten during downgrade. Older readers already select named columns.
+  },
+};
+
 /**
  * All migrations in order
  */
@@ -2379,7 +2397,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
-  migration_v53,
+  migration_v53, migration_v54,
 ];
 
 /**

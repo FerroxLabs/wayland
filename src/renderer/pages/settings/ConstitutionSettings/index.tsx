@@ -4,21 +4,29 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Button } from '@arco-design/web-react';
+import { Button, Input } from '@arco-design/web-react';
 import { RotateCcw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
+import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   readConstitutionHttp,
   resetConstitutionHttp,
   writeConstitutionHttp,
+  type ConstitutionEditGrant,
+  type ConstitutionMutationResult,
 } from '@renderer/services/ConstitutionService';
-import type { SaveState } from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
+import HostedEditAuthorization from './HostedEditAuthorization';
 import SpecialistOverlays from './SpecialistOverlays';
+import {
+  constitutionAutosaveDraftKey,
+  readSerializedAutosaveDraft,
+  useSerializedAutosave,
+} from './useSerializedAutosave';
 
 type TocEntry = { id: string; text: string; level: number };
 
@@ -63,16 +71,19 @@ const parseToc = (markdown: string): TocEntry[] => {
 const ConstitutionSettings: React.FC = () => {
   const { t } = useTranslation();
   const isMobile = useLayoutContext()?.isMobile ?? false;
+  const isDesktop = isElectronDesktop();
+  const { user } = useAuth();
+  const draftKey = constitutionAutosaveDraftKey('main', isDesktop, user?.id);
 
   const [value, setValue] = useState<string>('');
   const [loading, setLoading] = useState(true);
-  const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [editGrant, setEditGrant] = useState<ConstitutionEditGrant | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetting, setResetting] = useState(false);
   /** Bumped on Reset to force the TipTap editor to remount with new content. */
   const [editorKey, setEditorKey] = useState(0);
 
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const savedFlashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** While true, onChange events from the editor are ignored (initial hydrate / reset). */
   const hydrating = useRef(true);
   const editorRoot = useRef<HTMLDivElement>(null);
@@ -82,7 +93,7 @@ const ConstitutionSettings: React.FC = () => {
     void (async () => {
       const api = window.electronAPI;
       let text: string;
-      if (isElectronDesktop() && api?.readConstitution && api?.resetConstitution) {
+      if (isDesktop && api?.readConstitution && api?.resetConstitution) {
         text = await api.readConstitution();
         if (!text) {
           // First-install seed: materialize the default Constitution to disk
@@ -90,16 +101,13 @@ const ConstitutionSettings: React.FC = () => {
           text = await api.resetConstitution();
         }
       } else {
-        // Headless WebUI: the constitution is not a secret, so read it over the
-        // token-authed GET. Seed the default on first install via reset, then
-        // re-read since reset returns status only (never the body).
+        // Headless WebUI: never infer absence from an empty/error-shaped read
+        // and never auto-reset. Explicit present/absent/error rendering is
+        // completed when the anchored non-creating filesystem read lands.
         text = await readConstitutionHttp();
-        if (!text && (await resetConstitutionHttp())) {
-          text = await readConstitutionHttp();
-        }
       }
       if (cancelled) return;
-      setValue(text);
+      setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? text);
       setLoading(false);
       // Allow one tick for TipTap to settle its mount before we start
       // treating onChange events as user edits.
@@ -109,49 +117,72 @@ const ConstitutionSettings: React.FC = () => {
     })();
     return () => {
       cancelled = true;
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
     };
-  }, []);
+  }, [draftKey, isDesktop]);
 
-  const handleChange = useCallback((md: string): void => {
-    setValue(md);
-    if (hydrating.current) return;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    setSaveState('saving');
-    saveTimer.current = setTimeout(async () => {
-      const ok = isElectronDesktop()
-        ? ((await window.electronAPI?.writeConstitution?.(md)) ?? false)
-        : await writeConstitutionHttp(md);
-      setSaveState(ok ? 'saved' : 'error');
-      if (ok) {
-        if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
-        savedFlashTimer.current = setTimeout(() => setSaveState('idle'), SAVED_FLASH_MS);
+  const saveConstitution = useCallback(
+    async (md: string): Promise<ConstitutionMutationResult> => {
+      if (isDesktop) {
+        const ok = (await window.electronAPI?.writeConstitution?.(md)) ?? false;
+        return ok ? { ok: true } : { ok: false, reason: 'request_failed', status: 0 };
       }
-    }, SAVE_DEBOUNCE_MS);
-  }, []);
+      if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
+      return writeConstitutionHttp(md, editGrant.token);
+    },
+    [editGrant, isDesktop]
+  );
+
+  const { saveState, isDirty, queueSave, retry, runExclusiveDestructive } = useSerializedAutosave({
+    enabled: isDesktop || editGrant !== null,
+    debounceMs: SAVE_DEBOUNCE_MS,
+    savedFlashMs: SAVED_FLASH_MS,
+    save: saveConstitution,
+    onAuthorizationRequired: () => setEditGrant(null),
+    draftKey: draftKey ?? undefined,
+  });
+
+  const handleChange = useCallback(
+    (md: string): void => {
+      setValue(md);
+      if (hydrating.current) return;
+      queueSave(md);
+    },
+    [queueSave]
+  );
 
   const handleReset = useCallback(async (): Promise<void> => {
-    let next: string | undefined;
-    if (isElectronDesktop()) {
-      next = await window.electronAPI?.resetConstitution?.();
-    } else if (await resetConstitutionHttp()) {
-      // Reset returns status only; re-read the restored prose over the GET.
-      next = await readConstitutionHttp();
-    }
-    if (typeof next !== 'string') return;
     hydrating.current = true;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
+    setResetting(true);
+    let reset: { committed: boolean; value: string | undefined };
+    try {
+      reset = await runExclusiveDestructive(async () => {
+        let next: string | undefined;
+        if (isDesktop) {
+          next = await window.electronAPI?.resetConstitution?.();
+        } else {
+          const result = await resetConstitutionHttp(resetPassword);
+          if (!result.ok) return { committed: false, value: undefined };
+          // Reset returns status only; re-read the restored prose over the GET.
+          next = await readConstitutionHttp();
+        }
+        return { committed: typeof next === 'string', value: next };
+      });
+    } finally {
+      setResetting(false);
+    }
+    const next = reset.value;
+    if (!reset.committed || typeof next !== 'string') {
+      hydrating.current = false;
+      return;
+    }
     setValue(next);
     setEditorKey((k) => k + 1);
     setShowResetConfirm(false);
-    setSaveState('saved');
-    if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
-    savedFlashTimer.current = setTimeout(() => {
+    setResetPassword('');
+    window.setTimeout(() => {
       hydrating.current = false;
-      setSaveState('idle');
     }, SAVED_FLASH_MS);
-  }, []);
+  }, [isDesktop, resetPassword, runExclusiveDestructive]);
 
   const toc = useMemo(() => parseToc(value), [value]);
 
@@ -161,11 +192,7 @@ const ConstitutionSettings: React.FC = () => {
   const tokenLevel: 'ok' | 'warning' | 'error' =
     approxTokens >= 3000 ? 'error' : approxTokens >= 2000 ? 'warning' : 'ok';
   const tokenCountClass =
-    tokenLevel === 'error'
-      ? 'text-danger'
-      : tokenLevel === 'warning'
-        ? 'text-warning'
-        : 'text-t-tertiary';
+    tokenLevel === 'error' ? 'text-danger' : tokenLevel === 'warning' ? 'text-warning' : 'text-t-tertiary';
 
   const scrollToHeading = useCallback((id: string, text: string): void => {
     const root = editorRoot.current;
@@ -189,15 +216,25 @@ const ConstitutionSettings: React.FC = () => {
   }, []);
 
   const resetAction = (
-    <Button
-      type='secondary'
-      size='small'
-      icon={<RotateCcw size={14} />}
-      onClick={() => setShowResetConfirm(true)}
-      title={t('settings.constitutionPage.resetTooltip', 'Reset to the default Constitution')}
-    >
-      {t('settings.constitutionPage.reset', 'Reset')}
-    </Button>
+    <div className='flex items-center gap-8px'>
+      {!isDesktop && !editGrant && (
+        <HostedEditAuthorization scopes={['constitution.write']} onGranted={setEditGrant} compact />
+      )}
+      {saveState === 'error' && (
+        <Button type='secondary' size='small' onClick={retry}>
+          {t('settings.constitutionPage.retrySave', 'Retry save')}
+        </Button>
+      )}
+      <Button
+        type='secondary'
+        size='small'
+        icon={<RotateCcw size={14} />}
+        onClick={() => setShowResetConfirm(true)}
+        title={t('settings.constitutionPage.resetTooltip', 'Reset to the default Constitution')}
+      >
+        {t('settings.constitutionPage.reset', 'Reset')}
+      </Button>
+    </div>
   );
 
   return (
@@ -218,11 +255,26 @@ const ConstitutionSettings: React.FC = () => {
               'Your current edits will be lost. The default Constitution will be restored.'
             )}
           </div>
+          {!isDesktop && (
+            <Input.Password
+              value={resetPassword}
+              onChange={setResetPassword}
+              placeholder={t('settings.constitutionPage.passwordPlaceholder', 'WebUI password')}
+              autoComplete='current-password'
+            />
+          )}
           <div className='flex gap-8px justify-end'>
             <Button size='small' onClick={() => setShowResetConfirm(false)}>
               {t('settings.constitutionPage.resetCancel', 'Cancel')}
             </Button>
-            <Button size='small' type='primary' status='danger' onClick={handleReset}>
+            <Button
+              size='small'
+              type='primary'
+              status='danger'
+              disabled={resetting || (!isDesktop && !resetPassword)}
+              loading={resetting}
+              onClick={handleReset}
+            >
               {t('settings.constitutionPage.reset', 'Reset')}
             </Button>
           </div>
@@ -230,12 +282,21 @@ const ConstitutionSettings: React.FC = () => {
       )}
 
       {loading ? (
-        <div className='text-t-secondary p-16px'>
-          {t('settings.constitutionPage.loading', 'Loading…')}
-        </div>
+        <div className='text-t-secondary p-16px'>{t('settings.constitutionPage.loading', 'Loading…')}</div>
       ) : (
         <div className={isMobile ? 'flex flex-col gap-16px items-stretch' : 'flex gap-16px items-start'}>
           <div className='flex-1 min-w-0 flex flex-col gap-8px'>
+            {!isDesktop && !editGrant && (
+              <div className='flex items-center justify-between gap-12px rd-8px bg-fill-2 px-12px py-10px'>
+                <span className='text-12px text-t-secondary'>
+                  {t(
+                    'settings.constitutionPage.authorizationRequired',
+                    'Editing is locked. Unlock once to enable short-lived, scoped autosave.'
+                  )}
+                </span>
+                <HostedEditAuthorization scopes={['constitution.write']} onGranted={setEditGrant} compact />
+              </div>
+            )}
             <div className='flex flex-col gap-2px'>
               <span className={`text-12px font-medium ${tokenCountClass}`}>
                 {t('settings.constitutionPage.tokenCount', '{{value}} tokens', {
@@ -260,7 +321,12 @@ const ConstitutionSettings: React.FC = () => {
               )}
             </div>
             <div ref={editorRoot}>
-              <TipTapMarkdownEditor key={editorKey} value={value} onChange={handleChange} />
+              <TipTapMarkdownEditor
+                key={editorKey}
+                value={value}
+                onChange={handleChange}
+                readOnly={resetting || (!isDesktop && !editGrant) || (showResetConfirm && isDirty)}
+              />
             </div>
           </div>
           <aside

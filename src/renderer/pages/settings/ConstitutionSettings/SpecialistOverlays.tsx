@@ -8,12 +8,16 @@ import { Button, Input } from '@arco-design/web-react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   deleteConstitutionSpecialistHttp,
   writeConstitutionSpecialistHttp,
+  type ConstitutionEditGrant,
 } from '@renderer/services/ConstitutionService';
+import HostedEditAuthorization from './HostedEditAuthorization';
 import SpecialistOverlayEditor from './SpecialistOverlayEditor';
+import { constitutionAutosaveDraftKey, discardSerializedAutosaveDraft } from './useSerializedAutosave';
 
 /** Client-side mirror of the bridge's ASSISTANT_ID_PATTERN. */
 const ID_PATTERN = /^[A-Za-z0-9_-]+$/;
@@ -27,13 +31,17 @@ type SpecialistEntry = { id: string; bytes: number };
  */
 const SpecialistOverlays: React.FC = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isDesktop = isElectronDesktop();
 
   const [items, setItems] = useState<SpecialistEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   /** Assistant id of the overlay whose inline editor is open (one at a time). */
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingDirty, setEditingDirty] = useState(false);
   /** Assistant id awaiting a delete confirmation. */
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
   /** Whether the inline add form is visible. */
   const [adding, setAdding] = useState(false);
   const [newId, setNewId] = useState('');
@@ -54,48 +62,53 @@ const SpecialistOverlays: React.FC = () => {
     void refresh();
   }, [refresh]);
 
-  const handleCreate = useCallback(async (): Promise<void> => {
-    const id = newId.trim();
-    if (!ID_PATTERN.test(id)) {
-      setAddError(
-        t(
-          'settings.constitutionSpecialists.idInvalid',
-          'Use only letters, numbers, hyphens, and underscores.'
-        )
-      );
-      return;
-    }
-    if (items.some((entry) => entry.id === id)) {
-      setAddError(
-        t(
-          'settings.constitutionSpecialists.idDuplicate',
-          'An overlay with that ID already exists.'
-        )
-      );
-      return;
-    }
-    const ok = isElectronDesktop()
-      ? ((await window.electronAPI?.writeConstitutionSpecialist?.(id, '')) ?? false)
-      : await writeConstitutionSpecialistHttp(id, '');
-    if (!ok) return;
-    setAdding(false);
-    setNewId('');
-    setAddError(null);
-    await refresh();
-    setEditingId(id);
-  }, [newId, items, refresh, t]);
+  const handleCreate = useCallback(
+    async (hostedGrant?: ConstitutionEditGrant): Promise<void> => {
+      const id = newId.trim();
+      if (!ID_PATTERN.test(id)) {
+        setAddError(
+          t('settings.constitutionSpecialists.idInvalid', 'Use only letters, numbers, hyphens, and underscores.')
+        );
+        return;
+      }
+      if (items.some((entry) => entry.id === id)) {
+        setAddError(t('settings.constitutionSpecialists.idDuplicate', 'An overlay with that ID already exists.'));
+        return;
+      }
+      const result = isElectronDesktop()
+        ? { ok: (await window.electronAPI?.writeConstitutionSpecialist?.(id, '')) ?? false }
+        : hostedGrant
+          ? await writeConstitutionSpecialistHttp(id, '', hostedGrant.token)
+          : { ok: false };
+      const ok = result.ok;
+      if (!ok) return;
+      setAdding(false);
+      setNewId('');
+      setAddError(null);
+      await refresh();
+      setEditingId(id);
+    },
+    [newId, items, refresh, t]
+  );
 
   const handleDelete = useCallback(
     async (id: string): Promise<void> => {
-      const ok = isElectronDesktop()
-        ? ((await window.electronAPI?.deleteConstitutionSpecialist?.(id)) ?? false)
-        : await deleteConstitutionSpecialistHttp(id);
+      const result = isElectronDesktop()
+        ? { ok: (await window.electronAPI?.deleteConstitutionSpecialist?.(id)) ?? false }
+        : await deleteConstitutionSpecialistHttp(id, deletePassword);
+      const ok = result.ok;
       if (!ok) return;
       setConfirmDeleteId(null);
-      if (editingId === id) setEditingId(null);
+      setDeletePassword('');
+      const draftKey = constitutionAutosaveDraftKey(`specialist:${id}`, isDesktop, user?.id);
+      if (draftKey) discardSerializedAutosaveDraft(draftKey);
+      if (editingId === id) {
+        setEditingId(null);
+        setEditingDirty(false);
+      }
       await refresh();
     },
-    [editingId, refresh]
+    [deletePassword, editingId, isDesktop, refresh, user?.id]
   );
 
   if (!loaded) return null;
@@ -139,15 +152,23 @@ const SpecialistOverlays: React.FC = () => {
                 setNewId(v);
                 setAddError(null);
               }}
-              placeholder={t(
-                'settings.constitutionSpecialists.idPlaceholder',
-                'e.g. copy, spark, humanizer'
-              )}
+              placeholder={t('settings.constitutionSpecialists.idPlaceholder', 'e.g. copy, spark, humanizer')}
               onPressEnter={() => void handleCreate()}
             />
-            <Button type='primary' size='default' onClick={() => void handleCreate()}>
-              {t('settings.constitutionSpecialists.create', 'Create')}
-            </Button>
+            {isElectronDesktop() ? (
+              <Button type='primary' size='default' onClick={() => void handleCreate()}>
+                {t('settings.constitutionSpecialists.create', 'Create')}
+              </Button>
+            ) : ID_PATTERN.test(newId.trim()) && !items.some((entry) => entry.id === newId.trim()) ? (
+              <HostedEditAuthorization
+                scopes={[`specialist.write:${newId.trim()}`]}
+                onGranted={(grant) => void handleCreate(grant)}
+              />
+            ) : (
+              <Button type='primary' size='default' onClick={() => void handleCreate()}>
+                {t('settings.constitutionSpecialists.create', 'Create')}
+              </Button>
+            )}
             <Button
               size='default'
               onClick={() => {
@@ -188,7 +209,19 @@ const SpecialistOverlays: React.FC = () => {
                     type='secondary'
                     size='small'
                     icon={<Pencil size={14} />}
-                    onClick={() => setEditingId(editingId === entry.id ? null : entry.id)}
+                    disabled={editingDirty}
+                    title={
+                      editingDirty
+                        ? t(
+                            'settings.constitutionSpecialists.switchDirty',
+                            'Save or discard the open overlay before switching'
+                          )
+                        : undefined
+                    }
+                    onClick={() => {
+                      setEditingId(editingId === entry.id ? null : entry.id);
+                      setEditingDirty(false);
+                    }}
                   >
                     {t('settings.constitutionSpecialists.edit', 'Edit')}
                   </Button>
@@ -196,6 +229,7 @@ const SpecialistOverlays: React.FC = () => {
                     type='secondary'
                     size='small'
                     status='danger'
+                    disabled={editingDirty && editingId === entry.id}
                     icon={<Trash2 size={14} />}
                     onClick={() => setConfirmDeleteId(entry.id)}
                   >
@@ -217,13 +251,28 @@ const SpecialistOverlays: React.FC = () => {
                     )}
                   </div>
                   <div className='flex gap-8px justify-end'>
-                    <Button size='small' onClick={() => setConfirmDeleteId(null)}>
+                    {!isElectronDesktop() && (
+                      <Input.Password
+                        value={deletePassword}
+                        onChange={setDeletePassword}
+                        placeholder={t('settings.constitutionPage.passwordPlaceholder', 'WebUI password')}
+                        autoComplete='current-password'
+                      />
+                    )}
+                    <Button
+                      size='small'
+                      onClick={() => {
+                        setConfirmDeleteId(null);
+                        setDeletePassword('');
+                      }}
+                    >
                       {t('settings.constitutionSpecialists.cancel', 'Cancel')}
                     </Button>
                     <Button
                       size='small'
                       type='primary'
                       status='danger'
+                      disabled={!isElectronDesktop() && !deletePassword}
                       onClick={() => void handleDelete(entry.id)}
                     >
                       {t('settings.constitutionSpecialists.delete', 'Delete')}
@@ -233,7 +282,14 @@ const SpecialistOverlays: React.FC = () => {
               )}
 
               {editingId === entry.id && (
-                <SpecialistOverlayEditor id={entry.id} onClose={() => setEditingId(null)} />
+                <SpecialistOverlayEditor
+                  id={entry.id}
+                  onDirtyChange={setEditingDirty}
+                  onClose={() => {
+                    setEditingId(null);
+                    setEditingDirty(false);
+                  }}
+                />
               )}
             </div>
           ))}
