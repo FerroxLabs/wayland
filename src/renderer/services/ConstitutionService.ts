@@ -29,10 +29,10 @@ const EDIT_GRANT_HEADER = 'x-wayland-constitution-edit-grant';
 export type ConstitutionEditScope = 'constitution.write' | `specialist.write:${string}`;
 export type ConstitutionEditGrant = { token: string; expiresAt: number };
 export type ConstitutionReadResult =
-  { state: 'present'; content: string; revision: string } | { state: 'absent'; revision: null };
+  { state: 'present'; content: string; revision: string } | { state: 'absent'; revision: string };
 export type ConstitutionSpecialistEntry = { id: string; bytes: number; revision: string };
 export type ConstitutionMutationResult =
-  | { ok: true; revision: string | null; receiptId: string }
+  | { ok: true; revision: string; receiptId: string }
   | {
       ok: false;
       reason: 'authorization_required' | 'conflict' | 'request_failed';
@@ -42,6 +42,12 @@ export type ConstitutionMutationResult =
 
 const SPECIALIST_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 const OPAQUE_ID_PATTERN = /^[A-Za-z0-9._:-]{8,256}$/;
+
+function hasExactKeys(value: object, keys: readonly string[]): boolean {
+  const actual = Object.keys(value).toSorted();
+  const expected = [...keys].toSorted();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+}
 
 export class ConstitutionReadError extends Error {
   constructor(
@@ -71,10 +77,10 @@ async function getConstitutionData(path: string): Promise<unknown> {
   try {
     json = await res.json();
   } catch {
-    throw new ConstitutionReadError('malformed_response', res.status);
+    throw new ConstitutionReadError(res.ok ? 'malformed_response' : 'http_error', res.status);
   }
   if (!res.ok) throw new ConstitutionReadError('http_error', res.status);
-  if (!json || typeof json !== 'object' || Array.isArray(json)) {
+  if (!json || typeof json !== 'object' || Array.isArray(json) || !hasExactKeys(json, ['success', 'data'])) {
     throw new ConstitutionReadError('malformed_response', res.status);
   }
   const envelope = json as { success?: unknown; data?: unknown };
@@ -88,10 +94,15 @@ function parseReadResult(data: unknown, status = 200): ConstitutionReadResult {
   }
   const result = data as { state?: unknown; content?: unknown };
   const revision = (data as { revision?: unknown }).revision;
-  if (result.state === 'absent' && result.content === undefined && revision === null) {
-    return { state: 'absent', revision: null };
+  if (result.state === 'absent' && hasExactKeys(data, ['state', 'revision']) && isOpaqueId(revision)) {
+    return { state: 'absent', revision };
   }
-  if (result.state === 'present' && typeof result.content === 'string' && isOpaqueId(revision)) {
+  if (
+    result.state === 'present' &&
+    hasExactKeys(data, ['state', 'content', 'revision']) &&
+    typeof result.content === 'string' &&
+    isOpaqueId(revision)
+  ) {
     return { state: 'present', content: result.content, revision };
   }
   throw new ConstitutionReadError('malformed_response', status);
@@ -104,8 +115,7 @@ function isOpaqueId(value: unknown): value is string {
 async function postConstitution(
   path: string,
   body: Record<string, unknown>,
-  editGrant?: string,
-  revisionExpectation: 'present' | 'absent' | 'none' = 'present'
+  editGrant?: string
 ): Promise<ConstitutionMutationResult> {
   const csrf = getCsrfToken();
   let res: Response;
@@ -132,19 +142,19 @@ async function postConstitution(
   };
 
   if (res.ok && json.success) {
-    if (revisionExpectation === 'none') return { ok: true, revision: null, receiptId: 'status-only' };
-    const revision = json.data?.revision;
-    const receiptId = json.data?.receiptId;
-    if (json.data?.ok !== true || !isOpaqueId(receiptId)) {
+    if (
+      !hasExactKeys(json, ['success', 'data']) ||
+      !json.data ||
+      !hasExactKeys(json.data, ['ok', 'revision', 'receiptId'])
+    ) {
       return { ok: false, reason: 'request_failed', status: res.status };
     }
-    if (revisionExpectation === 'absent' && revision === null) {
-      return { ok: true, revision: null, receiptId };
+    const revision = json.data?.revision;
+    const receiptId = json.data?.receiptId;
+    if (json.data.ok !== true || !isOpaqueId(revision) || !isOpaqueId(receiptId)) {
+      return { ok: false, reason: 'request_failed', status: res.status };
     }
-    if (revisionExpectation === 'present' && isOpaqueId(revision)) {
-      return { ok: true, revision, receiptId };
-    }
-    return { ok: false, reason: 'request_failed', status: res.status };
+    return { ok: true, revision, receiptId };
   }
   if (res.status === 401 && json.code === 'CONSTITUTION_EDIT_AUTHORIZATION_REQUIRED') {
     return { ok: false, reason: 'authorization_required', status: res.status, message: json.msg };
@@ -174,7 +184,17 @@ export async function requestConstitutionEditGrantHttp(
     };
     const grant = json.data?.grant;
     const expiresAt = json.data?.expiresAt;
-    if (!res.ok || !json.success || typeof grant !== 'string' || !Number.isSafeInteger(expiresAt)) return null;
+    if (
+      !res.ok ||
+      !json.success ||
+      !hasExactKeys(json, ['success', 'data']) ||
+      !json.data ||
+      !hasExactKeys(json.data, ['grant', 'expiresAt']) ||
+      !isOpaqueId(grant) ||
+      !Number.isSafeInteger(expiresAt) ||
+      (expiresAt as number) <= Date.now()
+    )
+      return null;
     return { token: grant, expiresAt: expiresAt as number };
   } catch {
     return null;
@@ -183,7 +203,17 @@ export async function requestConstitutionEditGrantHttp(
 
 /** Revoke a hosted edit grant; callers should clear their in-memory copy regardless. */
 export async function revokeConstitutionEditGrantHttp(grant: string): Promise<void> {
-  await postConstitution('/api/constitution/edit-grant/revoke', {}, grant, 'none');
+  const csrf = getCsrfToken();
+  await fetch('/api/constitution/edit-grant/revoke', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...csrfHeaders(),
+      [EDIT_GRANT_HEADER]: grant,
+    },
+    body: JSON.stringify({ _csrf: csrf }),
+  }).catch((): undefined => undefined);
 }
 
 /**
@@ -200,6 +230,7 @@ export async function listConstitutionSpecialistsHttp(): Promise<ConstitutionSpe
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     throw new ConstitutionReadError('malformed_response', 200);
   }
+  if (!hasExactKeys(data, ['items'])) throw new ConstitutionReadError('malformed_response', 200);
   const items = (data as { items?: unknown }).items;
   if (
     !Array.isArray(items) ||
@@ -212,10 +243,16 @@ export async function listConstitutionSpecialistsHttp(): Promise<ConstitutionSpe
         !SPECIALIST_ID_PATTERN.test((item as { id: string }).id) ||
         !Number.isSafeInteger((item as { bytes?: unknown }).bytes) ||
         ((item as { bytes: number }).bytes ?? -1) < 0 ||
+        !hasExactKeys(item as object, ['id', 'bytes', 'revision']) ||
         !isOpaqueId((item as { revision?: unknown }).revision)
     )
   ) {
     throw new ConstitutionReadError('malformed_response', 200);
+  }
+  const duplicateIds = new Set<string>();
+  for (const item of items as ConstitutionSpecialistEntry[]) {
+    if (duplicateIds.has(item.id)) throw new ConstitutionReadError('malformed_response', 200);
+    duplicateIds.add(item.id);
   }
   return (items as ConstitutionSpecialistEntry[])
     .map((item) => ({ id: item.id, bytes: item.bytes, revision: item.revision }))
@@ -246,10 +283,7 @@ export function writeConstitutionHttp(
  * password step-up. The default body is never echoed back; the caller re-reads
  * it via `readConstitutionHttp`.
  */
-export function resetConstitutionHttp(
-  password: string,
-  expectedRevision: string | null
-): Promise<ConstitutionMutationResult> {
+export function resetConstitutionHttp(password: string, expectedRevision: string): Promise<ConstitutionMutationResult> {
   return postConstitution('/api/constitution/reset', { password, expectedRevision });
 }
 
@@ -260,7 +294,7 @@ export function resetConstitutionHttp(
 export function writeConstitutionSpecialistHttp(
   id: string,
   content: string,
-  expectedRevision: string | null,
+  expectedRevision: string,
   editGrant: string
 ): Promise<ConstitutionMutationResult> {
   return postConstitution('/api/constitution/write-specialist', { id, content, expectedRevision }, editGrant);
@@ -275,10 +309,5 @@ export function deleteConstitutionSpecialistHttp(
   password: string,
   expectedRevision: string
 ): Promise<ConstitutionMutationResult> {
-  return postConstitution(
-    '/api/constitution/delete-specialist',
-    { id, password, expectedRevision },
-    undefined,
-    'absent'
-  );
+  return postConstitution('/api/constitution/delete-specialist', { id, password, expectedRevision });
 }

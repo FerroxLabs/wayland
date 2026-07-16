@@ -37,14 +37,16 @@ describe('hosted Constitution service', () => {
       .mockResolvedValueOnce(
         response(200, { success: true, data: { state: 'present', content: '', revision: 'rev:main:00000001' } })
       )
-      .mockResolvedValueOnce(response(200, { success: true, data: { state: 'absent', revision: null } }));
+      .mockResolvedValueOnce(
+        response(200, { success: true, data: { state: 'absent', revision: 'rev:main:absent001' } })
+      );
 
     await expect(readConstitutionHttp()).resolves.toEqual({
       state: 'present',
       content: '',
       revision: 'rev:main:00000001',
     });
-    await expect(readConstitutionHttp()).resolves.toEqual({ state: 'absent', revision: null });
+    await expect(readConstitutionHttp()).resolves.toEqual({ state: 'absent', revision: 'rev:main:absent001' });
   });
 
   it.each([401, 403, 429, 500])('keeps HTTP %i as an error instead of an empty document', async (status) => {
@@ -58,6 +60,15 @@ describe('hosted Constitution service', () => {
 
     fetchMock.mockResolvedValueOnce(response(200, { success: true, data: { content: '' } }));
     await expect(readConstitutionHttp()).rejects.toMatchObject({ code: 'malformed_response' });
+  });
+
+  it('classifies a non-JSON rejected read as HTTP failure, not malformed success', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 502,
+      json: vi.fn().mockRejectedValue(new Error('not json')),
+    } as unknown as Response);
+    await expect(readConstitutionHttp()).rejects.toMatchObject({ code: 'http_error', status: 502 });
   });
 
   it('validates hosted specialist inventory and single-item read truth', async () => {
@@ -86,13 +97,40 @@ describe('hosted Constitution service', () => {
     expect(fetchMock.mock.calls[1][0]).toBe('/api/constitution/specialist?id=copy');
   });
 
+  it('rejects duplicate specialist IDs and extra response fields', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        response(200, {
+          success: true,
+          data: {
+            items: [
+              { id: 'copy', bytes: 12, revision: 'rev:copy:00000001' },
+              { id: 'copy', bytes: 13, revision: 'rev:copy:00000002' },
+            ],
+          },
+        })
+      )
+      .mockResolvedValueOnce(
+        response(200, {
+          success: true,
+          data: { state: 'present', content: '# Copy', revision: 'rev:copy:00000001', ignored: true },
+        })
+      );
+
+    await expect(listConstitutionSpecialistsHttp()).rejects.toMatchObject({ code: 'malformed_response' });
+    await expect(readConstitutionSpecialistHttp('copy')).rejects.toMatchObject({ code: 'malformed_response' });
+  });
+
   it('exchanges a password once for a short-lived scoped grant', async () => {
     fetchMock.mockResolvedValueOnce(
-      response(200, { success: true, data: { grant: 'opaque-grant', expiresAt: 123_456 } })
+      response(200, { success: true, data: { grant: 'opaque-grant', expiresAt: Date.now() + 60_000 } })
     );
-    await expect(
-      requestConstitutionEditGrantHttp('password-once', ['constitution.write', 'specialist.write:copy'])
-    ).resolves.toEqual({ token: 'opaque-grant', expiresAt: 123_456 });
+    const grant = await requestConstitutionEditGrantHttp('password-once', [
+      'constitution.write',
+      'specialist.write:copy',
+    ]);
+    expect(grant).toMatchObject({ token: 'opaque-grant' });
+    expect(grant?.expiresAt).toBeGreaterThan(Date.now());
 
     const [path, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(path).toBe('/api/constitution/edit-grant');
@@ -213,7 +251,10 @@ describe('hosted Constitution service', () => {
         })
       )
       .mockResolvedValueOnce(
-        response(200, { success: true, data: { ok: true, revision: null, receiptId: 'receipt:copy:00000002' } })
+        response(200, {
+          success: true,
+          data: { ok: true, revision: 'rev:copy:absent002', receiptId: 'receipt:copy:00000002' },
+        })
       );
     await resetConstitutionHttp('reset-password', 'rev:main:00000001');
     await deleteConstitutionSpecialistHttp('copy', 'delete-password', 'rev:copy:00000001');

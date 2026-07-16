@@ -123,7 +123,7 @@ describe('Hosted SpecialistOverlayEditor', () => {
   });
 
   it('shows explicit absent and retryable read-error states without exposing a blank editor', async () => {
-    mockRead.mockResolvedValueOnce({ state: 'absent', revision: null });
+    mockRead.mockResolvedValueOnce({ state: 'absent', revision: 'rev:copy:absent001' });
     const first = render(<SpecialistOverlayEditor id='copy' onClose={vi.fn()} />);
     await act(async () => Promise.resolve());
     expect(screen.getByText(/overlay no longer exists/i)).toBeInTheDocument();
@@ -145,7 +145,7 @@ describe('Hosted SpecialistOverlayEditor', () => {
     expect(screen.getByRole('textbox', { name: 'specialist-editor' })).toHaveValue('# recovered overlay');
   });
 
-  it('preserves a specialist draft on conflict and retries against the refreshed revision', async () => {
+  it('shows a three-way specialist comparison and overwrites only after explicit choice', async () => {
     mockRead
       .mockResolvedValueOnce({
         state: 'present',
@@ -165,12 +165,33 @@ describe('Hosted SpecialistOverlayEditor', () => {
     await act(async () => vi.advanceTimersByTime(500));
     expect(screen.getByText(/server copy changed/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Reload and compare' }));
+    expect((screen.getByRole('textbox', { name: 'specialist-editor' }) as HTMLTextAreaElement).readOnly).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Load comparison' }));
     await act(async () => Promise.resolve());
-    await act(async () => vi.advanceTimersByTime(50));
     expect(screen.getByRole('textbox', { name: 'specialist-editor' })).toHaveValue('# keep specialist draft');
-    fireEvent.click(screen.getByRole('button', { name: 'Retry save' }));
+    expect(screen.getByText('Previous base')).toBeInTheDocument();
+    expect(screen.getByText('Your draft')).toBeInTheDocument();
+    expect(screen.getByText('Current server')).toBeInTheDocument();
+    expect(mockWrite).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Overwrite with my draft' }));
     await act(async () => Promise.resolve());
     expect(mockWrite).toHaveBeenLastCalledWith('copy', '# keep specialist draft', 'rev:copy:00000002', 'opaque-grant');
+  });
+
+  it('publishes the committed revision and byte count before dirty state clears', async () => {
+    const onCommitted = vi.fn();
+    render(<SpecialistOverlayEditor id='copy' onClose={vi.fn()} onDirtyChange={vi.fn()} onCommitted={onCommitted} />);
+    await act(async () => Promise.resolve());
+    await act(async () => vi.advanceTimersByTime(50));
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock editing' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'specialist-editor' }), {
+      target: { value: '# saved revision' },
+    });
+    await act(async () => vi.advanceTimersByTime(500));
+    expect(onCommitted).toHaveBeenCalledWith({
+      revision: 'rev:copy:00000002',
+      bytes: new TextEncoder().encode('# saved revision').byteLength,
+    });
   });
 });

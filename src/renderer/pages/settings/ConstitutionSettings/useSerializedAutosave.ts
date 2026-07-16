@@ -15,7 +15,7 @@ type Options = {
   save: (value: string) => Promise<ConstitutionMutationResult>;
   onAuthorizationRequired?: () => void;
   onConflict?: () => void;
-  onCommitted?: (result: Extract<ConstitutionMutationResult, { ok: true }>) => void;
+  onCommitted?: (result: Extract<ConstitutionMutationResult, { ok: true }>, value: string) => void;
   /** Stable, non-secret identifier used to recover a dirty buffer after route unmount/reload. */
   draftKey?: string;
 };
@@ -166,7 +166,7 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
         return;
       }
 
-      onCommitted.current?.(result);
+      onCommitted.current?.(result, value);
 
       if (pending.current !== null) {
         void drain();

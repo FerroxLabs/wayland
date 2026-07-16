@@ -13,6 +13,7 @@ import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   deleteConstitutionSpecialistHttp,
   listConstitutionSpecialistsHttp,
+  readConstitutionSpecialistHttp,
   writeConstitutionSpecialistHttp,
   type ConstitutionEditGrant,
 } from '@renderer/services/ConstitutionService';
@@ -86,11 +87,22 @@ const SpecialistOverlays: React.FC = () => {
         setAddError(t('settings.constitutionSpecialists.idDuplicate', 'An overlay with that ID already exists.'));
         return;
       }
-      const result = isDesktop
-        ? { ok: (await window.electronAPI?.writeConstitutionSpecialist?.(id, '')) ?? false }
-        : hostedGrant
-          ? await writeConstitutionSpecialistHttp(id, '', null, hostedGrant.token)
-          : { ok: false };
+      let result: Awaited<ReturnType<typeof writeConstitutionSpecialistHttp>> | { ok: boolean; reason?: 'conflict' };
+      if (isDesktop) {
+        result = { ok: (await window.electronAPI?.writeConstitutionSpecialist?.(id, '')) ?? false };
+      } else if (hostedGrant) {
+        try {
+          const read = await readConstitutionSpecialistHttp(id);
+          result =
+            read.state === 'absent'
+              ? await writeConstitutionSpecialistHttp(id, '', read.revision, hostedGrant.token)
+              : { ok: false, reason: 'conflict' };
+        } catch {
+          result = { ok: false };
+        }
+      } else {
+        result = { ok: false };
+      }
       if (!result.ok) {
         setAddError(
           'reason' in result && result.reason === 'conflict'
@@ -317,7 +329,7 @@ const SpecialistOverlays: React.FC = () => {
                       size='small'
                       type='primary'
                       status='danger'
-                      disabled={!isDesktop && !deletePassword}
+                      disabled={(editingDirty && editingId === entry.id) || (!isDesktop && !deletePassword)}
                       onClick={() => void handleDelete(entry.id, entry.revision)}
                     >
                       {t('settings.constitutionSpecialists.delete', 'Delete')}
@@ -331,6 +343,11 @@ const SpecialistOverlays: React.FC = () => {
                 <SpecialistOverlayEditor
                   id={entry.id}
                   onDirtyChange={setEditingDirty}
+                  onCommitted={({ revision, bytes }) =>
+                    setItems((current) =>
+                      current.map((item) => (item.id === entry.id ? { ...item, revision, bytes } : item))
+                    )
+                  }
                   onClose={() => {
                     setEditingId(null);
                     setEditingDirty(false);

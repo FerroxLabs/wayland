@@ -30,6 +30,16 @@ import {
 } from './useSerializedAutosave';
 
 type TocEntry = { id: string; text: string; level: number };
+type ConflictSnapshot = {
+  baseContent: string | null;
+  localDraft: string;
+  remote: ConstitutionReadResult;
+};
+type ResetOutcome = {
+  content?: string;
+  revision: string;
+  reloadError?: string;
+};
 
 const SAVE_DEBOUNCE_MS = 500;
 const SAVED_FLASH_MS = 1500;
@@ -80,8 +90,12 @@ const ConstitutionSettings: React.FC = () => {
   const [loadState, setLoadState] = useState<'loading' | 'present' | 'absent' | 'error'>('loading');
   const [readError, setReadError] = useState<string | null>(null);
   const revision = useRef<string | null>(null);
+  const baseContent = useRef<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
   const [conflict, setConflict] = useState(false);
+  const [conflictSnapshot, setConflictSnapshot] = useState<ConflictSnapshot | null>(null);
+  const [conflictBusy, setConflictBusy] = useState(false);
+  const [conflictError, setConflictError] = useState<string | null>(null);
   const [editGrant, setEditGrant] = useState<ConstitutionEditGrant | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetPassword, setResetPassword] = useState('');
@@ -116,12 +130,17 @@ const ConstitutionSettings: React.FC = () => {
         if (cancelled) return;
         if (read.state === 'absent') {
           setValue('');
-          revision.current = null;
+          revision.current = read.revision;
+          baseContent.current = null;
+          setConflict(false);
+          setConflictSnapshot(null);
           setLoadState('absent');
           return;
         }
         revision.current = read.revision;
+        baseContent.current = read.content;
         setConflict(false);
+        setConflictSnapshot(null);
         setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? read.content);
         setLoadState('present');
         // Allow one tick for TipTap to settle its mount before we start
@@ -145,7 +164,7 @@ const ConstitutionSettings: React.FC = () => {
       if (isDesktop) {
         const ok = (await window.electronAPI?.writeConstitution?.(md)) ?? false;
         return ok
-          ? { ok: true, revision: revision.current, receiptId: 'desktop-compatibility' }
+          ? { ok: true, revision: revision.current ?? 'desktop-compatibility', receiptId: 'desktop-compatibility' }
           : { ok: false, reason: 'request_failed', status: 0 };
       }
       if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
@@ -155,16 +174,18 @@ const ConstitutionSettings: React.FC = () => {
     [editGrant, isDesktop]
   );
 
-  const { saveState, isDirty, queueSave, retry, runExclusiveDestructive } = useSerializedAutosave({
+  const { saveState, isDirty, queueSave, retry, clear, runExclusiveDestructive } = useSerializedAutosave({
     enabled: isDesktop || editGrant !== null,
     debounceMs: SAVE_DEBOUNCE_MS,
     savedFlashMs: SAVED_FLASH_MS,
     save: saveConstitution,
     onAuthorizationRequired: () => setEditGrant(null),
     onConflict: () => setConflict(true),
-    onCommitted: (result) => {
-      if (typeof result.revision === 'string') revision.current = result.revision;
+    onCommitted: (result, savedValue) => {
+      revision.current = result.revision;
+      baseContent.current = savedValue;
       setConflict(false);
+      setConflictSnapshot(null);
     },
     draftKey: draftKey ?? undefined,
   });
@@ -178,28 +199,129 @@ const ConstitutionSettings: React.FC = () => {
     [queueSave]
   );
 
+  const loadConflictComparison = useCallback(async (): Promise<void> => {
+    setConflictBusy(true);
+    setConflictError(null);
+    try {
+      const remote = await readConstitutionHttp();
+      setConflictSnapshot({ baseContent: baseContent.current, localDraft: value, remote });
+    } catch (error) {
+      setConflictError(error instanceof Error ? error.message : 'The server copy could not be loaded.');
+    } finally {
+      setConflictBusy(false);
+    }
+  }, [value]);
+
+  const useServerCopy = useCallback((): void => {
+    if (!conflictSnapshot) return;
+    hydrating.current = true;
+    clear();
+    revision.current = conflictSnapshot.remote.revision;
+    if (conflictSnapshot.remote.state === 'present') {
+      baseContent.current = conflictSnapshot.remote.content;
+      setValue(conflictSnapshot.remote.content);
+      setLoadState('present');
+    } else {
+      baseContent.current = null;
+      setValue('');
+      setLoadState('absent');
+    }
+    setConflict(false);
+    setConflictSnapshot(null);
+    setConflictError(null);
+    setEditorKey((key) => key + 1);
+    window.setTimeout(() => {
+      hydrating.current = false;
+    }, 50);
+  }, [clear, conflictSnapshot]);
+
+  const overwriteServerCopy = useCallback(async (): Promise<void> => {
+    if (!conflictSnapshot || !editGrant) return;
+    setConflictBusy(true);
+    setConflictError(null);
+    try {
+      const result = await runExclusiveDestructive(async () => {
+        const mutation = await writeConstitutionHttp(
+          conflictSnapshot.localDraft,
+          conflictSnapshot.remote.revision,
+          editGrant.token
+        );
+        return { committed: mutation.ok, value: mutation };
+      });
+      if (result.value.ok === false) {
+        if (result.value.reason === 'authorization_required') setEditGrant(null);
+        if (result.value.reason === 'conflict') setConflictSnapshot(null);
+        setConflictError(
+          result.value.reason === 'conflict'
+            ? 'The server changed again. Load a fresh comparison before choosing an overwrite.'
+            : 'The overwrite was not committed. Your draft is still preserved.'
+        );
+        return;
+      }
+      revision.current = result.value.revision;
+      baseContent.current = conflictSnapshot.localDraft;
+      setValue(conflictSnapshot.localDraft);
+      setConflict(false);
+      setConflictSnapshot(null);
+      setConflictError(null);
+      setLoadState('present');
+    } catch (error) {
+      setConflictError(error instanceof Error ? error.message : 'The overwrite could not be completed.');
+    } finally {
+      setConflictBusy(false);
+    }
+  }, [conflictSnapshot, editGrant, runExclusiveDestructive]);
+
   const handleReset = useCallback(async (): Promise<void> => {
     hydrating.current = true;
     setResetting(true);
-    let reset: { committed: boolean; value: string | undefined };
+    let reset: { committed: boolean; value: ResetOutcome | undefined };
     try {
-      reset = await runExclusiveDestructive(async () => {
+      reset = await runExclusiveDestructive<ResetOutcome | undefined>(async () => {
         let next: string | undefined;
         if (isDesktop) {
           next = await window.electronAPI?.resetConstitution?.();
+          return {
+            committed: typeof next === 'string',
+            value:
+              typeof next === 'string'
+                ? { content: next, revision: revision.current ?? 'desktop-compatibility' }
+                : undefined,
+          };
         } else {
+          if (!revision.current) return { committed: false, value: undefined };
           const result = await resetConstitutionHttp(resetPassword, revision.current);
           if (result.ok === false) {
             if (result.reason === 'conflict') setConflict(true);
             return { committed: false, value: undefined };
           }
-          // Reset returns status only; re-read the restored prose over the GET.
-          const reread = await readConstitutionHttp();
-          if (reread.state !== 'present') return { committed: false, value: undefined };
-          revision.current = reread.revision;
-          next = reread.content;
+          // The receipt proves the reset committed. A failed follow-up read must
+          // never resurrect the pre-reset dirty draft and overwrite that commit.
+          try {
+            const reread = await readConstitutionHttp();
+            if (reread.state === 'present') {
+              return { committed: true, value: { content: reread.content, revision: reread.revision } };
+            }
+            return {
+              committed: true,
+              value: {
+                revision: reread.revision,
+                reloadError: 'Reset committed, but the restored content is not available yet. Retry load.',
+              },
+            };
+          } catch (error) {
+            return {
+              committed: true,
+              value: {
+                revision: result.revision,
+                reloadError:
+                  error instanceof Error
+                    ? `Reset committed, but content reload failed: ${error.message}`
+                    : 'Reset committed, but content reload failed. Retry load.',
+              },
+            };
+          }
         }
-        return { committed: typeof next === 'string', value: next };
       });
     } catch (error) {
       setReadError(error instanceof Error ? error.message : 'The restored Constitution could not be read.');
@@ -208,15 +330,17 @@ const ConstitutionSettings: React.FC = () => {
     } finally {
       setResetting(false);
     }
-    const next = reset.value;
-    if (!reset.committed || typeof next !== 'string') {
+    const outcome = reset.value;
+    if (!reset.committed || !outcome) {
       hydrating.current = false;
       return;
     }
-    setValue(next);
-    setLoadState('present');
-    setReadError(null);
-    setEditorKey((k) => k + 1);
+    revision.current = outcome.revision;
+    baseContent.current = outcome.content ?? null;
+    setValue(outcome.content ?? '');
+    setLoadState(outcome.reloadError ? 'error' : 'present');
+    setReadError(outcome.reloadError ?? null);
+    if (!outcome.reloadError) setEditorKey((k) => k + 1);
     setShowResetConfirm(false);
     setResetPassword('');
     window.setTimeout(() => {
@@ -365,16 +489,61 @@ const ConstitutionSettings: React.FC = () => {
               </div>
             )}
             {conflict && (
-              <div className='flex items-center justify-between gap-12px rd-8px bg-[var(--color-warning-light-1)] px-12px py-10px'>
-                <span className='text-12px text-t-secondary'>
-                  {t(
-                    'settings.constitutionPage.conflict',
-                    'The server copy changed. Your draft is preserved; reload the latest revision before saving again.'
+              <div className='flex flex-col gap-10px rd-8px bg-[var(--color-warning-light-1)] px-12px py-10px'>
+                <div className='flex items-center justify-between gap-12px'>
+                  <span className='text-12px text-t-secondary'>
+                    {t(
+                      'settings.constitutionPage.conflict',
+                      'The server copy changed. Your draft is preserved until you explicitly choose which copy wins.'
+                    )}
+                  </span>
+                  {!conflictSnapshot && (
+                    <Button
+                      type='secondary'
+                      size='small'
+                      loading={conflictBusy}
+                      onClick={() => void loadConflictComparison()}
+                    >
+                      {t('settings.constitutionPage.reloadForConflict', 'Load comparison')}
+                    </Button>
                   )}
-                </span>
-                <Button type='secondary' size='small' onClick={() => setReloadToken((value) => value + 1)}>
-                  {t('settings.constitutionPage.reloadForConflict', 'Reload and compare')}
-                </Button>
+                </div>
+                {conflictError && <div className='text-11px text-danger'>{conflictError}</div>}
+                {conflictSnapshot && (
+                  <div className='flex flex-col gap-10px'>
+                    <div className={isMobile ? 'grid grid-cols-1 gap-8px' : 'grid grid-cols-3 gap-8px'}>
+                      {[
+                        ['Previous base', conflictSnapshot.baseContent ?? '(no file)'],
+                        ['Your draft', conflictSnapshot.localDraft],
+                        [
+                          'Current server',
+                          conflictSnapshot.remote.state === 'present' ? conflictSnapshot.remote.content : '(no file)',
+                        ],
+                      ].map(([label, content]) => (
+                        <div key={label} className='rd-8px bg-[var(--color-bg-2)] p-8px min-w-0'>
+                          <div className='text-11px font-medium text-t-primary mb-4px'>{label}</div>
+                          <pre className='m-0 max-h-160px overflow-auto whitespace-pre-wrap break-words text-11px text-t-secondary font-mono'>
+                            {content}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                    <div className='flex justify-end gap-8px'>
+                      <Button type='secondary' size='small' disabled={conflictBusy} onClick={useServerCopy}>
+                        {t('settings.constitutionPage.useServerCopy', 'Use server copy')}
+                      </Button>
+                      <Button
+                        type='primary'
+                        size='small'
+                        disabled={conflictBusy || !editGrant}
+                        loading={conflictBusy}
+                        onClick={() => void overwriteServerCopy()}
+                      >
+                        {t('settings.constitutionPage.overwriteServerCopy', 'Overwrite with my draft')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             <div className='flex flex-col gap-2px'>
@@ -405,7 +574,7 @@ const ConstitutionSettings: React.FC = () => {
                 key={editorKey}
                 value={value}
                 onChange={handleChange}
-                readOnly={resetting || (!isDesktop && !editGrant) || (showResetConfirm && isDirty)}
+                readOnly={conflict || resetting || (!isDesktop && !editGrant) || (showResetConfirm && isDirty)}
               />
             </div>
           </div>
