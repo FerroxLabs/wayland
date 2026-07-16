@@ -279,7 +279,7 @@ export class ConstitutionFsService {
     target: ConstitutionFsTarget,
     content: string | null,
     expectedRevision: string,
-    requestId = randomUUID()
+    requestId: string = randomUUID()
   ): ConstitutionMutationResult {
     if (content !== null && Buffer.byteLength(content, 'utf8') > MAX_WRITE_BYTES) {
       throw new ConstitutionFsTransactionError(

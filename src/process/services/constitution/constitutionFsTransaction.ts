@@ -685,6 +685,7 @@ export function inventoryPendingConstitutionFsTransactionDetails(
       'Pending inventory response is malformed.'
     );
   }
+  const pendingTransactions = value.pendingTransactions as string[];
   const details = value.pendingTransactionDetails.map((candidate, index) => {
     if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
       throw new ConstitutionFsTransactionError(
@@ -709,7 +710,7 @@ export function inventoryPendingConstitutionFsTransactionDetails(
     const optionalUuid = (value: unknown) => value == null || (typeof value === 'string' && UUID_PATTERN.test(value));
     if (
       !exactKeys(detail, ['reconcileFacts', 'transactionId']) ||
-      detail.transactionId !== value.pendingTransactions[index] ||
+      detail.transactionId !== pendingTransactions[index] ||
       !facts ||
       !exactKeys(facts, [
         'archiveId',

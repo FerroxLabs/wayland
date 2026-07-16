@@ -14,6 +14,7 @@ import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   readConstitutionHttp,
   resetConstitutionHttp,
+  runDesktopConstitutionMutation,
   writeConstitutionHttp,
   type ConstitutionEditGrant,
   type ConstitutionMutationResult,
@@ -25,6 +26,7 @@ import HostedEditAuthorization from './HostedEditAuthorization';
 import SpecialistOverlays from './SpecialistOverlays';
 import {
   constitutionAutosaveDraftKey,
+  createConstitutionMutationRequestId,
   readSerializedAutosaveDraft,
   useSerializedAutosave,
 } from './useSerializedAutosave';
@@ -107,6 +109,13 @@ const ConstitutionSettings: React.FC = () => {
   const hydrating = useRef(true);
   const editorRoot = useRef<HTMLDivElement>(null);
 
+  const readCurrentConstitution = useCallback(async (): Promise<ConstitutionReadResult> => {
+    if (!isDesktop) return readConstitutionHttp();
+    const api = window.electronAPI;
+    if (!api?.readConstitution) throw new Error('Constitution reading is unavailable.');
+    return api.readConstitution();
+  }, [isDesktop]);
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -114,19 +123,7 @@ const ConstitutionSettings: React.FC = () => {
       setReadError(null);
       hydrating.current = true;
       try {
-        const api = window.electronAPI;
-        let read: ConstitutionReadResult;
-        if (isDesktop && api?.readConstitution && api?.resetConstitution) {
-          let text = await api.readConstitution();
-          if (!text) {
-            // The existing desktop IPC is string-only. The native filesystem
-            // cutover replaces this compatibility seed with typed read truth.
-            text = await api.resetConstitution();
-          }
-          read = { state: 'present', content: text, revision: 'desktop-compatibility' };
-        } else {
-          read = await readConstitutionHttp();
-        }
+        const read = await readCurrentConstitution();
         if (cancelled) return;
         if (read.state === 'absent') {
           setValue('');
@@ -157,19 +154,18 @@ const ConstitutionSettings: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [draftKey, isDesktop, reloadToken]);
+  }, [draftKey, readCurrentConstitution, reloadToken]);
 
   const saveConstitution = useCallback(
-    async (md: string): Promise<ConstitutionMutationResult> => {
+    async (md: string, requestId: string): Promise<ConstitutionMutationResult> => {
+      if (!revision.current) return { ok: false, reason: 'conflict', status: 409 };
       if (isDesktop) {
-        const ok = (await window.electronAPI?.writeConstitution?.(md)) ?? false;
-        return ok
-          ? { ok: true, revision: revision.current ?? 'desktop-compatibility', receiptId: 'desktop-compatibility' }
-          : { ok: false, reason: 'request_failed', status: 0 };
+        const api = window.electronAPI;
+        if (!api?.writeConstitution) return { ok: false, reason: 'request_failed', status: 0 };
+        return runDesktopConstitutionMutation(() => api.writeConstitution!(md, revision.current!, requestId));
       }
       if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
-      if (!revision.current) return { ok: false, reason: 'conflict', status: 409 };
-      return writeConstitutionHttp(md, revision.current, editGrant.token);
+      return writeConstitutionHttp(md, revision.current, editGrant.token, requestId);
     },
     [editGrant, isDesktop]
   );
@@ -203,14 +199,14 @@ const ConstitutionSettings: React.FC = () => {
     setConflictBusy(true);
     setConflictError(null);
     try {
-      const remote = await readConstitutionHttp();
+      const remote = await readCurrentConstitution();
       setConflictSnapshot({ baseContent: baseContent.current, localDraft: value, remote });
     } catch (error) {
       setConflictError(error instanceof Error ? error.message : 'The server copy could not be loaded.');
     } finally {
       setConflictBusy(false);
     }
-  }, [value]);
+  }, [readCurrentConstitution, value]);
 
   const useServerCopy = useCallback((): void => {
     if (!conflictSnapshot) return;
@@ -236,16 +232,28 @@ const ConstitutionSettings: React.FC = () => {
   }, [clear, conflictSnapshot]);
 
   const overwriteServerCopy = useCallback(async (): Promise<void> => {
-    if (!conflictSnapshot || !editGrant) return;
+    if (!conflictSnapshot || (!isDesktop && !editGrant)) return;
     setConflictBusy(true);
     setConflictError(null);
     try {
       const result = await runExclusiveDestructive(async () => {
-        const mutation = await writeConstitutionHttp(
-          conflictSnapshot.localDraft,
-          conflictSnapshot.remote.revision,
-          editGrant.token
-        );
+        const requestId = createConstitutionMutationRequestId();
+        const mutation = isDesktop
+          ? window.electronAPI?.writeConstitution
+            ? await runDesktopConstitutionMutation(() =>
+                window.electronAPI!.writeConstitution!(
+                  conflictSnapshot.localDraft,
+                  conflictSnapshot.remote.revision,
+                  requestId
+                )
+              )
+            : ({ ok: false, reason: 'request_failed', status: 0 } as const)
+          : await writeConstitutionHttp(
+              conflictSnapshot.localDraft,
+              conflictSnapshot.remote.revision,
+              editGrant!.token,
+              requestId
+            );
         return { committed: mutation.ok, value: mutation };
       });
       if (result.value.ok === false) {
@@ -270,7 +278,7 @@ const ConstitutionSettings: React.FC = () => {
     } finally {
       setConflictBusy(false);
     }
-  }, [conflictSnapshot, editGrant, runExclusiveDestructive]);
+  }, [conflictSnapshot, editGrant, isDesktop, runExclusiveDestructive]);
 
   const handleReset = useCallback(async (): Promise<void> => {
     hydrating.current = true;
@@ -278,49 +286,46 @@ const ConstitutionSettings: React.FC = () => {
     let reset: { committed: boolean; value: ResetOutcome | undefined };
     try {
       reset = await runExclusiveDestructive<ResetOutcome | undefined>(async () => {
-        let next: string | undefined;
+        if (!revision.current) return { committed: false, value: undefined };
+        const requestId = createConstitutionMutationRequestId();
+        let result: ConstitutionMutationResult;
         if (isDesktop) {
-          next = await window.electronAPI?.resetConstitution?.();
-          return {
-            committed: typeof next === 'string',
-            value:
-              typeof next === 'string'
-                ? { content: next, revision: revision.current ?? 'desktop-compatibility' }
-                : undefined,
-          };
+          const api = window.electronAPI;
+          result = api?.resetConstitution
+            ? await runDesktopConstitutionMutation(() => api.resetConstitution!(revision.current!, requestId))
+            : { ok: false, reason: 'request_failed', status: 0 };
         } else {
-          if (!revision.current) return { committed: false, value: undefined };
-          const result = await resetConstitutionHttp(resetPassword, revision.current);
-          if (result.ok === false) {
-            if (result.reason === 'conflict') setConflict(true);
-            return { committed: false, value: undefined };
+          result = await resetConstitutionHttp(resetPassword, revision.current, requestId);
+        }
+        if (result.ok === false) {
+          if (result.reason === 'conflict') setConflict(true);
+          return { committed: false, value: undefined };
+        }
+        // The receipt proves the reset committed. A failed follow-up read must
+        // never resurrect the pre-reset dirty draft and overwrite that commit.
+        try {
+          const reread = await readCurrentConstitution();
+          if (reread.state === 'present') {
+            return { committed: true, value: { content: reread.content, revision: reread.revision } };
           }
-          // The receipt proves the reset committed. A failed follow-up read must
-          // never resurrect the pre-reset dirty draft and overwrite that commit.
-          try {
-            const reread = await readConstitutionHttp();
-            if (reread.state === 'present') {
-              return { committed: true, value: { content: reread.content, revision: reread.revision } };
-            }
-            return {
-              committed: true,
-              value: {
-                revision: reread.revision,
-                reloadError: 'Reset committed, but the restored content is not available yet. Retry load.',
-              },
-            };
-          } catch (error) {
-            return {
-              committed: true,
-              value: {
-                revision: result.revision,
-                reloadError:
-                  error instanceof Error
-                    ? `Reset committed, but content reload failed: ${error.message}`
-                    : 'Reset committed, but content reload failed. Retry load.',
-              },
-            };
-          }
+          return {
+            committed: true,
+            value: {
+              revision: reread.revision,
+              reloadError: 'Reset committed, but the restored content is not available yet. Retry load.',
+            },
+          };
+        } catch (error) {
+          return {
+            committed: true,
+            value: {
+              revision: result.revision,
+              reloadError:
+                error instanceof Error
+                  ? `Reset committed, but content reload failed: ${error.message}`
+                  : 'Reset committed, but content reload failed. Retry load.',
+            },
+          };
         }
       });
     } catch (error) {
@@ -346,7 +351,7 @@ const ConstitutionSettings: React.FC = () => {
     window.setTimeout(() => {
       hydrating.current = false;
     }, SAVED_FLASH_MS);
-  }, [isDesktop, resetPassword, runExclusiveDestructive]);
+  }, [isDesktop, readCurrentConstitution, resetPassword, runExclusiveDestructive]);
 
   const toc = useMemo(() => parseToc(value), [value]);
 
@@ -535,7 +540,7 @@ const ConstitutionSettings: React.FC = () => {
                       <Button
                         type='primary'
                         size='small'
-                        disabled={conflictBusy || !editGrant}
+                        disabled={conflictBusy || (!isDesktop && !editGrant)}
                         loading={conflictBusy}
                         onClick={() => void overwriteServerCopy()}
                       >

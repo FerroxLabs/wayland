@@ -12,14 +12,20 @@ import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   readConstitutionSpecialistHttp,
+  runDesktopConstitutionMutation,
   writeConstitutionSpecialistHttp,
 } from '@renderer/services/ConstitutionService';
-import type { ConstitutionEditGrant, ConstitutionMutationResult } from '@renderer/services/ConstitutionService';
+import type {
+  ConstitutionEditGrant,
+  ConstitutionMutationResult,
+  ConstitutionReadResult,
+} from '@renderer/services/ConstitutionService';
 import SavedIndicator from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
 import HostedEditAuthorization from './HostedEditAuthorization';
 import {
   constitutionAutosaveDraftKey,
+  createConstitutionMutationRequestId,
   readSerializedAutosaveDraft,
   useSerializedAutosave,
 } from './useSerializedAutosave';
@@ -43,7 +49,7 @@ type SpecialistOverlayEditorProps = {
 type ConflictSnapshot = {
   baseContent: string | null;
   localDraft: string;
-  remote: Awaited<ReturnType<typeof readConstitutionSpecialistHttp>>;
+  remote: ConstitutionReadResult;
 };
 
 /**
@@ -78,6 +84,13 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
   const hydrating = useRef(true);
   const draftKey = constitutionAutosaveDraftKey(`specialist:${id}`, isDesktop, user?.id);
 
+  const readCurrentOverlay = useCallback(async (): Promise<ConstitutionReadResult> => {
+    if (!isDesktop) return readConstitutionSpecialistHttp(id);
+    const api = window.electronAPI;
+    if (!api?.readConstitutionSpecialist) throw new Error('Specialist reading is unavailable.');
+    return api.readConstitutionSpecialist(id);
+  }, [id, isDesktop]);
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -85,29 +98,19 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
       setLoadError(null);
       hydrating.current = true;
       try {
-        let text: string;
-        if (isDesktop) {
-          const api = window.electronAPI;
-          if (!api?.readConstitutionSpecialist) throw new Error('Specialist reading is unavailable.');
-          text = await api.readConstitutionSpecialist(id);
-          if (cancelled) return;
-          revision.current = 'desktop-compatibility';
-        } else {
-          const read = await readConstitutionSpecialistHttp(id);
-          if (read.state === 'absent') {
-            if (!cancelled) {
-              revision.current = read.revision;
-              baseContent.current = null;
-              setLoadState('absent');
-            }
-            return;
+        const read = await readCurrentOverlay();
+        if (read.state === 'absent') {
+          if (!cancelled) {
+            revision.current = read.revision;
+            baseContent.current = null;
+            setLoadState('absent');
           }
-          text = read.content;
-          if (cancelled) return;
-          revision.current = read.revision;
-          baseContent.current = read.content;
+          return;
         }
-        setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? text);
+        if (cancelled) return;
+        revision.current = read.revision;
+        baseContent.current = read.content;
+        setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? read.content);
         setLoadState('present');
         setConflict(false);
         setConflictSnapshot(null);
@@ -124,19 +127,20 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [draftKey, id, isDesktop, reloadToken]);
+  }, [draftKey, readCurrentOverlay, reloadToken]);
 
   const saveOverlay = useCallback(
-    async (md: string): Promise<ConstitutionMutationResult> => {
+    async (md: string, requestId: string): Promise<ConstitutionMutationResult> => {
+      if (!revision.current) return { ok: false, reason: 'conflict', status: 409 };
       if (isDesktop) {
-        const ok = (await window.electronAPI?.writeConstitutionSpecialist?.(id, md)) ?? false;
-        return ok
-          ? { ok: true, revision: revision.current ?? 'desktop-compatibility', receiptId: 'desktop-compatibility' }
-          : { ok: false, reason: 'request_failed', status: 0 };
+        const api = window.electronAPI;
+        if (!api?.writeConstitutionSpecialist) return { ok: false, reason: 'request_failed', status: 0 };
+        return runDesktopConstitutionMutation(() =>
+          api.writeConstitutionSpecialist!(id, md, revision.current!, requestId)
+        );
       }
       if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
-      if (!revision.current) return { ok: false, reason: 'conflict', status: 409 };
-      return writeConstitutionSpecialistHttp(id, md, revision.current, editGrant.token);
+      return writeConstitutionSpecialistHttp(id, md, revision.current, editGrant.token, requestId);
     },
     [editGrant, id, isDesktop]
   );
@@ -174,14 +178,14 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
     setConflictBusy(true);
     setConflictError(null);
     try {
-      const remote = await readConstitutionSpecialistHttp(id);
+      const remote = await readCurrentOverlay();
       setConflictSnapshot({ baseContent: baseContent.current, localDraft: value, remote });
     } catch (error) {
       setConflictError(error instanceof Error ? error.message : 'The server copy could not be loaded.');
     } finally {
       setConflictBusy(false);
     }
-  }, [id, value]);
+  }, [readCurrentOverlay, value]);
 
   const useServerCopy = useCallback((): void => {
     if (!conflictSnapshot) return;
@@ -210,17 +214,30 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
   }, [clear, conflictSnapshot, onCommitted]);
 
   const overwriteServerCopy = useCallback(async (): Promise<void> => {
-    if (!conflictSnapshot || !editGrant) return;
+    if (!conflictSnapshot || (!isDesktop && !editGrant)) return;
     setConflictBusy(true);
     setConflictError(null);
     try {
       const result = await runExclusiveDestructive(async () => {
-        const mutation = await writeConstitutionSpecialistHttp(
-          id,
-          conflictSnapshot.localDraft,
-          conflictSnapshot.remote.revision,
-          editGrant.token
-        );
+        const requestId = createConstitutionMutationRequestId();
+        const mutation = isDesktop
+          ? window.electronAPI?.writeConstitutionSpecialist
+            ? await runDesktopConstitutionMutation(() =>
+                window.electronAPI!.writeConstitutionSpecialist!(
+                  id,
+                  conflictSnapshot.localDraft,
+                  conflictSnapshot.remote.revision,
+                  requestId
+                )
+              )
+            : ({ ok: false, reason: 'request_failed', status: 0 } as const)
+          : await writeConstitutionSpecialistHttp(
+              id,
+              conflictSnapshot.localDraft,
+              conflictSnapshot.remote.revision,
+              editGrant!.token,
+              requestId
+            );
         return { committed: mutation.ok, value: mutation };
       });
       if (result.value.ok === false) {
@@ -248,7 +265,7 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
     } finally {
       setConflictBusy(false);
     }
-  }, [conflictSnapshot, editGrant, id, onCommitted, runExclusiveDestructive]);
+  }, [conflictSnapshot, editGrant, id, isDesktop, onCommitted, runExclusiveDestructive]);
 
   const approxTokens = Math.ceil(value.length / 4);
 
@@ -351,7 +368,7 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
                     <Button
                       type='primary'
                       size='small'
-                      disabled={conflictBusy || !editGrant}
+                      disabled={conflictBusy || (!isDesktop && !editGrant)}
                       loading={conflictBusy}
                       onClick={() => void overwriteServerCopy()}
                     >

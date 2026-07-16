@@ -128,7 +128,12 @@ describe('Hosted ConstitutionSettings journey', () => {
     const editor = screen.getByRole('textbox', { name: 'constitution-editor' }) as HTMLTextAreaElement;
     fireEvent.change(editor, { target: { value: '# dirty before reset' } });
     await act(async () => vi.advanceTimersByTime(500));
-    expect(mockWrite).toHaveBeenCalledWith('# dirty before reset', 'rev:main:00000001', 'opaque-grant');
+    expect(mockWrite).toHaveBeenCalledWith(
+      '# dirty before reset',
+      'rev:main:00000001',
+      'opaque-grant',
+      expect.any(String)
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
     fireEvent.change(screen.getByPlaceholderText('WebUI password'), { target: { value: 'correct-password' } });
@@ -137,7 +142,7 @@ describe('Hosted ConstitutionSettings journey', () => {
 
     await act(async () => write.resolve(committed()));
     await act(async () => Promise.resolve());
-    expect(mockReset).toHaveBeenCalledWith('correct-password', 'rev:main:00000002');
+    expect(mockReset).toHaveBeenCalledWith('correct-password', 'rev:main:00000002', expect.any(String));
     expect(mockRead).toHaveBeenCalledTimes(2);
     expect((screen.getByRole('textbox', { name: 'constitution-editor' }) as HTMLTextAreaElement).value).toBe(
       '# default'
@@ -167,7 +172,12 @@ describe('Hosted ConstitutionSettings journey', () => {
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Unlock editing' })[0]);
     await act(async () => Promise.resolve());
-    expect(mockWrite).toHaveBeenCalledWith('# unsaved route draft', 'rev:main:00000001', 'opaque-grant');
+    expect(mockWrite).toHaveBeenCalledWith(
+      '# unsaved route draft',
+      'rev:main:00000001',
+      'opaque-grant',
+      expect.any(String)
+    );
   });
 
   it('preserves the visible dirty buffer across grant expiry and saves it after re-unlock', async () => {
@@ -191,7 +201,12 @@ describe('Hosted ConstitutionSettings journey', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Unlock editing' })[0]);
     await act(async () => Promise.resolve());
     expect(mockWrite).toHaveBeenCalledTimes(2);
-    expect(mockWrite).toHaveBeenLastCalledWith('# grant expired but keep me', 'rev:main:00000001', 'opaque-grant');
+    expect(mockWrite).toHaveBeenLastCalledWith(
+      '# grant expired but keep me',
+      'rev:main:00000001',
+      'opaque-grant',
+      expect.any(String)
+    );
   });
 
   it('serializes overlapping component edits and sends only the latest queued value next', async () => {
@@ -213,7 +228,12 @@ describe('Hosted ConstitutionSettings journey', () => {
 
     await act(async () => firstWrite.resolve(committed()));
     expect(mockWrite).toHaveBeenCalledTimes(2);
-    expect(mockWrite).toHaveBeenLastCalledWith('# latest wins', 'rev:main:00000002', 'opaque-grant');
+    expect(mockWrite).toHaveBeenLastCalledWith(
+      '# latest wins',
+      'rev:main:00000002',
+      'opaque-grant',
+      expect.any(String)
+    );
   });
 
   it('keeps an empty file distinct from an absent file and never creates on read', async () => {
@@ -278,7 +298,12 @@ describe('Hosted ConstitutionSettings journey', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Overwrite with my draft' }));
     await act(async () => Promise.resolve());
-    expect(mockWrite).toHaveBeenLastCalledWith('# keep my draft', 'rev:main:00000002', 'opaque-grant');
+    expect(mockWrite).toHaveBeenLastCalledWith(
+      '# keep my draft',
+      'rev:main:00000002',
+      'opaque-grant',
+      expect.any(String)
+    );
   });
 
   it('adopts the server copy only after an explicit conflict choice', async () => {
@@ -330,6 +355,11 @@ describe('Hosted ConstitutionSettings journey', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Retry load' }));
     await act(async () => Promise.resolve());
     expect(screen.getByRole('textbox', { name: 'constitution-editor' })).toHaveValue('# default');
-    expect(mockWrite).not.toHaveBeenCalledWith('# must not return after reset', expect.anything(), expect.anything());
+    expect(mockWrite).not.toHaveBeenCalledWith(
+      '# must not return after reset',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
+    );
   });
 });

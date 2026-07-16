@@ -29,7 +29,8 @@ const EDIT_GRANT_HEADER = 'x-wayland-constitution-edit-grant';
 export type ConstitutionEditScope = 'constitution.write' | `specialist.write:${string}`;
 export type ConstitutionEditGrant = { token: string; expiresAt: number };
 export type ConstitutionReadResult =
-  { state: 'present'; content: string; revision: string } | { state: 'absent'; revision: string };
+  | { state: 'present'; content: string; revision: string }
+  | { state: 'absent'; revision: string };
 export type ConstitutionSpecialistEntry = { id: string; bytes: number; revision: string };
 export type ConstitutionMutationResult =
   | { ok: true; revision: string; receiptId: string }
@@ -40,8 +41,40 @@ export type ConstitutionMutationResult =
       message?: string;
     };
 
+/** Convert the Electron bridge's rejected conflict into the same result used by the hosted client. */
+export async function runDesktopConstitutionMutation(
+  mutation: () => Promise<unknown>
+): Promise<ConstitutionMutationResult> {
+  try {
+    const result = await mutation();
+    if (
+      !result ||
+      typeof result !== 'object' ||
+      Array.isArray(result) ||
+      !hasExactKeys(result, ['ok', 'revision', 'receiptId']) ||
+      (result as { ok?: unknown }).ok !== true ||
+      !isOpaqueId((result as { revision?: unknown }).revision) ||
+      !isOpaqueId((result as { receiptId?: unknown }).receiptId)
+    ) {
+      return { ok: false, reason: 'request_failed', status: 0, message: 'Desktop returned an invalid receipt.' };
+    }
+    return result as Extract<ConstitutionMutationResult, { ok: true }>;
+  } catch (error) {
+    const code =
+      error && typeof error === 'object' && typeof (error as { code?: unknown }).code === 'string'
+        ? (error as { code: string }).code
+        : '';
+    const message = error instanceof Error ? error.message : undefined;
+    if (code === 'CONSTITUTION_FS_CONFLICT' || message?.includes('CONSTITUTION_FS_CONFLICT')) {
+      return { ok: false, reason: 'conflict', status: 409, message };
+    }
+    return { ok: false, reason: 'request_failed', status: 0, message };
+  }
+}
+
 const SPECIALIST_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 const OPAQUE_ID_PATTERN = /^[A-Za-z0-9._:-]{8,256}$/;
+const MUTATION_REQUEST_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function hasExactKeys(value: object, keys: readonly string[]): boolean {
   const actual = Object.keys(value).toSorted();
@@ -117,6 +150,9 @@ async function postConstitution(
   body: Record<string, unknown>,
   editGrant?: string
 ): Promise<ConstitutionMutationResult> {
+  if (typeof body.requestId !== 'string' || !MUTATION_REQUEST_ID_PATTERN.test(body.requestId)) {
+    return { ok: false, reason: 'request_failed', status: 0, message: 'Mutation request identity is invalid.' };
+  }
   const csrf = getCsrfToken();
   let res: Response;
   try {
@@ -273,9 +309,10 @@ export async function readConstitutionSpecialistHttp(id: string): Promise<Consti
 export function writeConstitutionHttp(
   content: string,
   expectedRevision: string,
-  editGrant: string
+  editGrant: string,
+  requestId: string
 ): Promise<ConstitutionMutationResult> {
-  return postConstitution('/api/constitution/write', { content, expectedRevision }, editGrant);
+  return postConstitution('/api/constitution/write', { content, expectedRevision, requestId }, editGrant);
 }
 
 /**
@@ -283,8 +320,12 @@ export function writeConstitutionHttp(
  * password step-up. The default body is never echoed back; the caller re-reads
  * it via `readConstitutionHttp`.
  */
-export function resetConstitutionHttp(password: string, expectedRevision: string): Promise<ConstitutionMutationResult> {
-  return postConstitution('/api/constitution/reset', { password, expectedRevision });
+export function resetConstitutionHttp(
+  password: string,
+  expectedRevision: string,
+  requestId: string
+): Promise<ConstitutionMutationResult> {
+  return postConstitution('/api/constitution/reset', { password, expectedRevision, requestId });
 }
 
 /**
@@ -295,9 +336,14 @@ export function writeConstitutionSpecialistHttp(
   id: string,
   content: string,
   expectedRevision: string,
-  editGrant: string
+  editGrant: string,
+  requestId: string
 ): Promise<ConstitutionMutationResult> {
-  return postConstitution('/api/constitution/write-specialist', { id, content, expectedRevision }, editGrant);
+  return postConstitution(
+    '/api/constitution/write-specialist',
+    { id, content, expectedRevision, requestId },
+    editGrant
+  );
 }
 
 /**
@@ -307,7 +353,8 @@ export function writeConstitutionSpecialistHttp(
 export function deleteConstitutionSpecialistHttp(
   id: string,
   password: string,
-  expectedRevision: string
+  expectedRevision: string,
+  requestId: string
 ): Promise<ConstitutionMutationResult> {
-  return postConstitution('/api/constitution/delete-specialist', { id, password, expectedRevision });
+  return postConstitution('/api/constitution/delete-specialist', { id, password, expectedRevision, requestId });
 }

@@ -37,7 +37,8 @@ describe('useSerializedAutosave', () => {
     act(() => result.current.queueSave('first'));
     await act(async () => vi.advanceTimersByTime(50));
     expect(save).toHaveBeenCalledTimes(1);
-    expect(save).toHaveBeenLastCalledWith('first');
+    expect(save).toHaveBeenLastCalledWith('first', expect.any(String));
+    const firstRequestId = save.mock.calls[0][1];
 
     act(() => {
       result.current.queueSave('second');
@@ -48,9 +49,61 @@ describe('useSerializedAutosave', () => {
 
     await act(async () => first.resolve(committed()));
     expect(save).toHaveBeenCalledTimes(2);
-    expect(save).toHaveBeenLastCalledWith('latest');
+    expect(save).toHaveBeenLastCalledWith('latest', expect.any(String));
+    expect(save.mock.calls[1][1]).not.toBe(firstRequestId);
     await act(async () => second.resolve(committed('rev:main:00000003')));
     expect(result.current.saveState).toBe('saved');
+  });
+
+  it('replays an uncertain committed operation before a newer queued buffer, including after remount', async () => {
+    const draftKey = 'test-response-loss-ordering';
+    discardSerializedAutosaveDraft(draftKey);
+    const lostResponse = deferred<ConstitutionMutationResult>();
+    const replayResponse = deferred<ConstitutionMutationResult>();
+    const latestResponse = deferred<ConstitutionMutationResult>();
+    const save = vi
+      .fn()
+      .mockReturnValueOnce(lostResponse.promise)
+      .mockReturnValueOnce(replayResponse.promise)
+      .mockReturnValueOnce(latestResponse.promise);
+
+    const first = renderHook(() =>
+      useSerializedAutosave({ enabled: true, debounceMs: 50, savedFlashMs: 100, save, draftKey })
+    );
+    act(() => first.result.current.queueSave('# operation A'));
+    await act(async () => vi.advanceTimersByTime(50));
+    const operationARequestId = save.mock.calls[0][1];
+    act(() => first.result.current.queueSave('# operation B'));
+    await act(async () => lostResponse.resolve({ ok: false, reason: 'request_failed', status: 0 }));
+    first.unmount();
+
+    const committedOrder: string[] = [];
+    const second = renderHook(
+      ({ enabled }) =>
+        useSerializedAutosave({
+          enabled,
+          debounceMs: 50,
+          savedFlashMs: 100,
+          save,
+          draftKey,
+          onCommitted: (_result, value) => committedOrder.push(value),
+        }),
+      { initialProps: { enabled: false } }
+    );
+    expect(second.result.current.recoveredDraft).toBe('# operation B');
+    second.rerender({ enabled: true });
+    await act(async () => Promise.resolve());
+    expect(save).toHaveBeenCalledTimes(2);
+    expect(save).toHaveBeenLastCalledWith('# operation A', operationARequestId);
+
+    await act(async () => replayResponse.resolve(committed('rev:main:00000002')));
+    expect(save).toHaveBeenCalledTimes(3);
+    expect(save).toHaveBeenLastCalledWith('# operation B', expect.any(String));
+    expect(save.mock.calls[2][1]).not.toBe(operationARequestId);
+    await act(async () => latestResponse.resolve(committed('rev:main:00000003')));
+    expect(committedOrder).toEqual(['# operation A', '# operation B']);
+    expect(second.result.current.isDirty).toBe(false);
+    expect(readSerializedAutosaveDraft(draftKey)).toBeNull();
   });
 
   it('retains a failed buffer across grant expiry and retries it after reauthorization', async () => {
@@ -73,6 +126,7 @@ describe('useSerializedAutosave', () => {
 
     act(() => result.current.queueSave('dirty-unsaved'));
     await act(async () => vi.advanceTimersByTime(50));
+    const failedRequestId = save.mock.calls[0][1];
     expect(onAuthorizationRequired).toHaveBeenCalledTimes(1);
     expect(result.current.saveState).toBe('error');
 
@@ -81,7 +135,7 @@ describe('useSerializedAutosave', () => {
     rerender({ enabled: true });
     await act(async () => Promise.resolve());
     expect(save).toHaveBeenCalledTimes(2);
-    expect(save).toHaveBeenLastCalledWith('dirty-unsaved');
+    expect(save).toHaveBeenLastCalledWith('dirty-unsaved', failedRequestId);
     expect(result.current.saveState).toBe('saved');
   });
 
@@ -124,7 +178,7 @@ describe('useSerializedAutosave', () => {
     expect(result.current.saveState).toBe('error');
 
     await act(async () => result.current.retry());
-    expect(save).toHaveBeenCalledWith('# preserve me');
+    expect(save).toHaveBeenCalledWith('# preserve me', expect.any(String));
     expect(result.current.isDirty).toBe(false);
   });
 
@@ -153,7 +207,7 @@ describe('useSerializedAutosave', () => {
 
     second.rerender({ enabled: true });
     await act(async () => Promise.resolve());
-    expect(save).toHaveBeenCalledWith('# survive navigation');
+    expect(save).toHaveBeenCalledWith('# survive navigation', expect.any(String));
     expect(second.result.current.isDirty).toBe(false);
     expect(readSerializedAutosaveDraft(draftKey)).toBeNull();
     discardSerializedAutosaveDraft(draftKey);

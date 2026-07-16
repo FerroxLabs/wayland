@@ -139,7 +139,13 @@ describe('Hosted SpecialistOverlays journey', () => {
     await act(async () => Promise.resolve());
 
     expect(mockRead).toHaveBeenCalledWith('research');
-    expect(mockWrite).toHaveBeenCalledWith('research', '', 'rev:research:absent001', 'opaque-grant');
+    expect(mockWrite).toHaveBeenCalledWith(
+      'research',
+      '',
+      'rev:research:absent001',
+      'opaque-grant',
+      expect.any(String)
+    );
     expect(mockList).toHaveBeenCalledTimes(2);
     expect(screen.getByText('Editor research')).toBeInTheDocument();
   });
@@ -153,7 +159,7 @@ describe('Hosted SpecialistOverlays journey', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
     await act(async () => Promise.resolve());
 
-    expect(mockDelete).toHaveBeenCalledWith('copy', 'fresh-password', 'rev:copy:00000001');
+    expect(mockDelete).toHaveBeenCalledWith('copy', 'fresh-password', 'rev:copy:00000001', expect.any(String));
     expect(screen.getByText(/No specialist overlays yet/)).toBeInTheDocument();
   });
 
@@ -175,7 +181,7 @@ describe('Hosted SpecialistOverlays journey', () => {
     expect(screen.getAllByRole('button', { name: 'Delete' })[1]).not.toBeDisabled();
     fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
     await act(async () => Promise.resolve());
-    expect(mockDelete).toHaveBeenCalledWith('copy', 'fresh-password', 'rev:copy:00000009');
+    expect(mockDelete).toHaveBeenCalledWith('copy', 'fresh-password', 'rev:copy:00000009', expect.any(String));
   });
 
   it('locks editing and duplicate submission for the full in-flight delete', async () => {

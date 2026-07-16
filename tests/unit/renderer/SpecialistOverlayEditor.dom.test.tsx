@@ -96,7 +96,13 @@ describe('Hosted SpecialistOverlayEditor', () => {
     expect(editor.value).toBe('# existing copy rules');
     fireEvent.change(editor, { target: { value: '# hosted copy rules' } });
     await act(async () => vi.advanceTimersByTime(500));
-    expect(mockWrite).toHaveBeenCalledWith('copy', '# hosted copy rules', 'rev:copy:00000001', 'opaque-grant');
+    expect(mockWrite).toHaveBeenCalledWith(
+      'copy',
+      '# hosted copy rules',
+      'rev:copy:00000001',
+      'opaque-grant',
+      expect.any(String)
+    );
   });
 
   it('prevents close while dirty and exposes retry after a failed save', async () => {
@@ -176,7 +182,13 @@ describe('Hosted SpecialistOverlayEditor', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Overwrite with my draft' }));
     await act(async () => Promise.resolve());
-    expect(mockWrite).toHaveBeenLastCalledWith('copy', '# keep specialist draft', 'rev:copy:00000002', 'opaque-grant');
+    expect(mockWrite).toHaveBeenLastCalledWith(
+      'copy',
+      '# keep specialist draft',
+      'rev:copy:00000002',
+      'opaque-grant',
+      expect.any(String)
+    );
   });
 
   it('publishes the committed revision and byte count before dirty state clears', async () => {

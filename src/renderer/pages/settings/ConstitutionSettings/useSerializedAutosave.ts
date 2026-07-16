@@ -8,11 +8,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SaveState } from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import type { ConstitutionMutationResult } from '@renderer/services/ConstitutionService';
 
+type PendingOperation = { value: string; requestId: string };
+type PersistedDraftState = { latest: PendingOperation; uncertain?: PendingOperation };
+
 type Options = {
   enabled: boolean;
   debounceMs: number;
   savedFlashMs: number;
-  save: (value: string) => Promise<ConstitutionMutationResult>;
+  save: (value: string, requestId: string) => Promise<ConstitutionMutationResult>;
   onAuthorizationRequired?: () => void;
   onConflict?: () => void;
   onCommitted?: (result: Extract<ConstitutionMutationResult, { ok: true }>, value: string) => void;
@@ -33,8 +36,17 @@ type SerializedAutosave = {
 };
 
 const DRAFT_STORAGE_PREFIX = 'wayland:constitution-draft:';
-const inMemoryDrafts = new Map<string, string>();
+const DRAFT_RECORD_PREFIX = 'wayland-autosave-v2:';
+const LEGACY_DRAFT_RECORD_PREFIX = 'wayland-autosave-v1:';
+const inMemoryDrafts = new Map<string, PersistedDraftState>();
 let persistentDirtyGuardInstalled = false;
+
+export function createConstitutionMutationRequestId(): string {
+  if (typeof globalThis.crypto?.randomUUID !== 'function') {
+    throw new Error('Secure mutation identifiers are unavailable in this renderer.');
+  }
+  return globalThis.crypto.randomUUID();
+}
 
 function persistentDirtyGuard(event: BeforeUnloadEvent): void {
   if (inMemoryDrafts.size === 0) return;
@@ -66,29 +78,65 @@ function storageKey(draftKey: string): string {
 }
 
 export function readSerializedAutosaveDraft(draftKey: string): string | null {
+  return readSerializedAutosaveState(draftKey)?.latest.value ?? null;
+}
+
+function validOperation(value: unknown): value is PendingOperation {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    typeof (value as { value?: unknown }).value === 'string' &&
+    typeof (value as { requestId?: unknown }).requestId === 'string'
+  );
+}
+
+function readSerializedAutosaveState(draftKey: string): PersistedDraftState | null {
   const memoryDraft = inMemoryDrafts.get(draftKey);
   if (memoryDraft !== undefined) return memoryDraft;
   try {
     const stored = window.localStorage.getItem(storageKey(draftKey));
     if (stored !== null) {
-      inMemoryDrafts.set(draftKey, stored);
+      let state: PersistedDraftState;
+      if (stored.startsWith(DRAFT_RECORD_PREFIX)) {
+        const parsed = JSON.parse(stored.slice(DRAFT_RECORD_PREFIX.length)) as {
+          latest?: unknown;
+          uncertain?: unknown;
+        };
+        if (!validOperation(parsed.latest) || (parsed.uncertain !== undefined && !validOperation(parsed.uncertain))) {
+          return null;
+        }
+        state =
+          parsed.uncertain === undefined
+            ? { latest: parsed.latest }
+            : { latest: parsed.latest, uncertain: parsed.uncertain as PendingOperation };
+      } else if (stored.startsWith(LEGACY_DRAFT_RECORD_PREFIX)) {
+        const parsed = JSON.parse(stored.slice(LEGACY_DRAFT_RECORD_PREFIX.length)) as unknown;
+        if (!validOperation(parsed)) return null;
+        state = { latest: parsed };
+      } else {
+        // Migrate the pre-idempotency draft format on its next persistence.
+        state = { latest: { value: stored, requestId: createConstitutionMutationRequestId() } };
+      }
+      inMemoryDrafts.set(draftKey, state);
       syncPersistentDirtyGuard();
+      return state;
     }
-    return stored;
+    return null;
   } catch {
     return null;
   }
 }
 
-function persistSerializedAutosaveDraft(draftKey: string, value: string): void {
+function persistSerializedAutosaveDraft(draftKey: string, state: PersistedDraftState): void {
   // The module-level copy survives every SPA unmount even if browser storage is
   // disabled. localStorage adds renderer/app-restart recovery. Keys include the
   // authenticated principal, so a later login cannot inherit another user's
   // dirty Constitution prose.
-  inMemoryDrafts.set(draftKey, value);
+  inMemoryDrafts.set(draftKey, state);
   syncPersistentDirtyGuard();
   try {
-    window.localStorage.setItem(storageKey(draftKey), value);
+    window.localStorage.setItem(storageKey(draftKey), `${DRAFT_RECORD_PREFIX}${JSON.stringify(state)}`);
   } catch {
     // beforeunload remains armed while dirty, so a failed durable mirror cannot
     // turn a reload/window close into silent data loss.
@@ -111,17 +159,22 @@ export function discardSerializedAutosaveDraft(draftKey: string): void {
  * for explicit unlock/retry instead of silently discarding it.
  */
 export function useSerializedAutosave(options: Options): SerializedAutosave {
-  const recoveredDraft = useRef(options.draftKey ? readSerializedAutosaveDraft(options.draftKey) : null).current;
-  const [saveState, setSaveState] = useState<SaveState>(recoveredDraft === null ? 'idle' : 'error');
-  const [isDirty, setIsDirty] = useState(recoveredDraft !== null);
+  const recoveredState = useRef(options.draftKey ? readSerializedAutosaveState(options.draftKey) : null).current;
+  const recoveredDraft = recoveredState?.latest.value ?? null;
+  const [saveState, setSaveState] = useState<SaveState>(recoveredState === null ? 'idle' : 'error');
+  const [isDirty, setIsDirty] = useState(recoveredState !== null);
   const mounted = useRef(true);
   const enabled = useRef(options.enabled);
   const save = useRef(options.save);
   const onAuthorizationRequired = useRef(options.onAuthorizationRequired);
   const onConflict = useRef(options.onConflict);
   const onCommitted = useRef(options.onCommitted);
-  const pending = useRef<string | null>(recoveredDraft);
-  const latestDirty = useRef<string | null>(recoveredDraft);
+  const recoveredUncertain = recoveredState?.uncertain ?? null;
+  const pending = useRef<PendingOperation | null>(
+    recoveredUncertain?.requestId === recoveredState?.latest.requestId ? null : (recoveredState?.latest ?? null)
+  );
+  const uncertain = useRef<PendingOperation | null>(recoveredUncertain);
+  const latestDirty = useRef<PendingOperation | null>(recoveredState?.latest ?? null);
   const inFlight = useRef(false);
   const inFlightPromise = useRef<Promise<void> | null>(null);
   const generation = useRef(0);
@@ -135,20 +188,31 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
   onConflict.current = options.onConflict;
   onCommitted.current = options.onCommitted;
 
-  const drain = useCallback(async (): Promise<void> => {
-    if (!mounted.current || !enabled.current || destructive.current || inFlight.current || pending.current === null)
-      return;
+  const persistOutstanding = useCallback((): void => {
+    if (!options.draftKey || !latestDirty.current) return;
+    persistSerializedAutosaveDraft(options.draftKey, {
+      latest: latestDirty.current,
+      ...(uncertain.current ? { uncertain: uncertain.current } : {}),
+    });
+  }, [options.draftKey]);
 
-    const value = pending.current;
+  const drain = useCallback(async (): Promise<void> => {
+    if (!mounted.current || !enabled.current || destructive.current || inFlight.current) return;
+
+    const replayingUncertain = uncertain.current !== null;
+    const pendingOperation = uncertain.current ?? pending.current;
+    if (!pendingOperation) return;
+    const { value, requestId } = pendingOperation;
     const operationGeneration = generation.current;
-    pending.current = null;
+    if (replayingUncertain) uncertain.current = null;
+    else pending.current = null;
     inFlight.current = true;
     setSaveState('saving');
 
     const operation = (async (): Promise<void> => {
       let result: ConstitutionMutationResult;
       try {
-        result = await save.current(value);
+        result = await save.current(value, requestId);
       } catch {
         result = { ok: false, reason: 'request_failed', status: 0 };
       }
@@ -156,9 +220,12 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
       if (!mounted.current || operationGeneration !== generation.current) return;
 
       if (result.ok === false) {
-        // Preserve a newer buffer if one arrived while this request was in flight;
-        // otherwise retain the failed value for unlock/retry.
-        if (pending.current === null) pending.current = value;
+        // A transport failure may hide a committed write. Replay this exact
+        // operation identity before allowing a newer coalesced buffer to advance.
+        // Authorization and CAS failures are definitive non-commits.
+        if (result.reason === 'request_failed') uncertain.current = pendingOperation;
+        else if (pending.current === null) pending.current = pendingOperation;
+        persistOutstanding();
         setIsDirty(true);
         setSaveState('error');
         if (result.reason === 'authorization_required') onAuthorizationRequired.current?.();
@@ -168,7 +235,8 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
 
       onCommitted.current?.(result, value);
 
-      if (pending.current !== null) {
+      if (pending.current !== null || uncertain.current !== null) {
+        persistOutstanding();
         void drain();
         return;
       }
@@ -179,27 +247,29 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
       setSaveState('saved');
       if (flashTimer.current) clearTimeout(flashTimer.current);
       flashTimer.current = setTimeout(() => {
-        if (mounted.current && pending.current === null && !inFlight.current) setSaveState('idle');
+        if (mounted.current && pending.current === null && uncertain.current === null && !inFlight.current)
+          setSaveState('idle');
       }, options.savedFlashMs);
     })();
 
     inFlightPromise.current = operation;
     await operation;
     if (inFlightPromise.current === operation) inFlightPromise.current = null;
-  }, [options.draftKey, options.savedFlashMs]);
+  }, [options.draftKey, options.savedFlashMs, persistOutstanding]);
 
   const queueSave = useCallback(
     (value: string): void => {
       if (destructive.current) return;
-      pending.current = value;
-      latestDirty.current = value;
-      if (options.draftKey) persistSerializedAutosaveDraft(options.draftKey, value);
+      const operation = { value, requestId: createConstitutionMutationRequestId() };
+      pending.current = operation;
+      latestDirty.current = operation;
+      persistOutstanding();
       setIsDirty(true);
       setSaveState('saving');
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => void drain(), options.debounceMs);
     },
-    [drain, options.debounceMs, options.draftKey]
+    [drain, options.debounceMs, persistOutstanding]
   );
 
   const retry = useCallback((): void => {
@@ -210,6 +280,7 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
   const clear = useCallback((): void => {
     generation.current += 1;
     pending.current = null;
+    uncertain.current = null;
     latestDirty.current = null;
     if (options.draftKey) discardSerializedAutosaveDraft(options.draftKey);
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -232,6 +303,16 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
       if (flashTimer.current) clearTimeout(flashTimer.current);
       const active = inFlightPromise.current;
       if (active) await active;
+      if (uncertain.current) {
+        destructive.current = false;
+        pending.current = preservedDirty?.requestId === uncertain.current.requestId ? null : preservedDirty;
+        persistOutstanding();
+        if (mounted.current) {
+          setIsDirty(true);
+          setSaveState('error');
+        }
+        throw new Error('The previous save outcome is uncertain. Retry the save before a destructive action.');
+      }
       // Let an already-sent successful write publish its returned revision
       // before the destructive CAS begins. Nothing new can drain while the
       // destructive flag is set; bumping the generation afterwards invalidates
@@ -271,11 +352,11 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
       }
       return result;
     },
-    [options.draftKey]
+    [options.draftKey, persistOutstanding]
   );
 
   useEffect(() => {
-    if (options.enabled && pending.current !== null) void drain();
+    if (options.enabled && (pending.current !== null || uncertain.current !== null)) void drain();
   }, [drain, options.enabled]);
 
   useEffect(() => {

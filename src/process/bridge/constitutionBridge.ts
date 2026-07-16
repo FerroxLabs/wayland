@@ -22,7 +22,7 @@ import type {
   ConstitutionMutationResult as ServiceMutationResult,
   ConstitutionReadResult as ServiceReadResult,
 } from '@process/services/constitution/constitutionFsService';
-import type { ConstitutionMutationResult, ConstitutionReadResult } from '@common/types/constitution';
+import type { ConstitutionMutationResult, ConstitutionReadResult } from '@/common/types/constitution';
 
 function wireRead(result: ServiceReadResult): ConstitutionReadResult {
   return result.status === 'present'

@@ -12,9 +12,12 @@ import {
   requestConstitutionEditGrantHttp,
   resetConstitutionHttp,
   revokeConstitutionEditGrantHttp,
+  runDesktopConstitutionMutation,
   writeConstitutionHttp,
   writeConstitutionSpecialistHttp,
 } from '@renderer/services/ConstitutionService';
+
+const REQUEST_ID = '19ec5caf-d10c-420c-a4e4-5b34bb8dd122';
 
 function response(status: number, body: unknown): Response {
   return {
@@ -166,7 +169,9 @@ describe('hosted Constitution service', () => {
         msg: 'reload',
       })
     );
-    await expect(writeConstitutionHttp('# dirty buffer', 'rev:main:00000001', 'opaque-grant')).resolves.toEqual({
+    await expect(
+      writeConstitutionHttp('# dirty buffer', 'rev:main:00000001', 'opaque-grant', REQUEST_ID)
+    ).resolves.toEqual({
       ok: false,
       reason: 'conflict',
       status: 409,
@@ -180,6 +185,7 @@ describe('hosted Constitution service', () => {
     expect(JSON.parse(init.body as string)).toEqual({
       content: '# dirty buffer',
       expectedRevision: 'rev:main:00000001',
+      requestId: REQUEST_ID,
       _csrf: 'csrf-token',
     });
   });
@@ -192,7 +198,7 @@ describe('hosted Constitution service', () => {
       })
     );
     await expect(
-      writeConstitutionSpecialistHttp('copy', '# rules', 'rev:copy:00000001', 'copy-grant')
+      writeConstitutionSpecialistHttp('copy', '# rules', 'rev:copy:00000001', 'copy-grant', REQUEST_ID)
     ).resolves.toEqual({
       ok: true,
       revision: 'rev:copy:00000002',
@@ -204,6 +210,7 @@ describe('hosted Constitution service', () => {
       id: 'copy',
       content: '# rules',
       expectedRevision: 'rev:copy:00000001',
+      requestId: REQUEST_ID,
       _csrf: 'csrf-token',
     });
   });
@@ -229,15 +236,21 @@ describe('hosted Constitution service', () => {
         })
       );
 
-    await expect(writeConstitutionHttp('# one', 'rev:main:00000001', 'opaque-grant')).resolves.toMatchObject({
+    await expect(
+      writeConstitutionHttp('# one', 'rev:main:00000001', 'opaque-grant', REQUEST_ID)
+    ).resolves.toMatchObject({
       ok: false,
       reason: 'request_failed',
     });
-    await expect(writeConstitutionHttp('# two', 'rev:main:00000001', 'opaque-grant')).resolves.toMatchObject({
+    await expect(
+      writeConstitutionHttp('# two', 'rev:main:00000001', 'opaque-grant', REQUEST_ID)
+    ).resolves.toMatchObject({
       ok: false,
       reason: 'request_failed',
     });
-    await expect(writeConstitutionHttp('# three', 'rev:main:00000001', 'opaque-grant')).resolves.toMatchObject({
+    await expect(
+      writeConstitutionHttp('# three', 'rev:main:00000001', 'opaque-grant', REQUEST_ID)
+    ).resolves.toMatchObject({
       ok: false,
       reason: 'request_failed',
     });
@@ -250,7 +263,7 @@ describe('hosted Constitution service', () => {
         data: { ok: true, revision: 'rev:main:00000002', receiptId: 'receipt:main:00000001' },
       })
     );
-    await expect(writeConstitutionHttp('# dirty', 'rev:main:00000001', 'opaque-grant')).resolves.toEqual({
+    await expect(writeConstitutionHttp('# dirty', 'rev:main:00000001', 'opaque-grant', REQUEST_ID)).resolves.toEqual({
       ok: false,
       reason: 'request_failed',
       status: 200,
@@ -259,7 +272,7 @@ describe('hosted Constitution service', () => {
 
   it('turns mutation transport failure into an explicit retryable result', async () => {
     fetchMock.mockRejectedValueOnce(new Error('offline'));
-    await expect(writeConstitutionHttp('# dirty', 'rev:main:00000001', 'opaque-grant')).resolves.toEqual({
+    await expect(writeConstitutionHttp('# dirty', 'rev:main:00000001', 'opaque-grant', REQUEST_ID)).resolves.toEqual({
       ok: false,
       reason: 'request_failed',
       status: 0,
@@ -280,19 +293,45 @@ describe('hosted Constitution service', () => {
           data: { ok: true, revision: 'rev:copy:absent002', receiptId: 'receipt:copy:00000002' },
         })
       );
-    await resetConstitutionHttp('reset-password', 'rev:main:00000001');
-    await deleteConstitutionSpecialistHttp('copy', 'delete-password', 'rev:copy:00000001');
+    await resetConstitutionHttp('reset-password', 'rev:main:00000001', REQUEST_ID);
+    await deleteConstitutionSpecialistHttp('copy', 'delete-password', 'rev:copy:00000001', REQUEST_ID);
 
     const resetInit = fetchMock.mock.calls[0][1] as RequestInit;
     const deleteInit = fetchMock.mock.calls[1][1] as RequestInit;
     expect(resetInit.headers).not.toHaveProperty('x-wayland-constitution-edit-grant');
     expect(deleteInit.headers).not.toHaveProperty('x-wayland-constitution-edit-grant');
-    expect(JSON.parse(resetInit.body as string)).toMatchObject({ password: 'reset-password' });
+    expect(JSON.parse(resetInit.body as string)).toMatchObject({ password: 'reset-password', requestId: REQUEST_ID });
     expect(JSON.parse(resetInit.body as string)).toMatchObject({ expectedRevision: 'rev:main:00000001' });
     expect(JSON.parse(deleteInit.body as string)).toMatchObject({
       id: 'copy',
       password: 'delete-password',
       expectedRevision: 'rev:copy:00000001',
+      requestId: REQUEST_ID,
+    });
+  });
+
+  it('fails closed on malformed resolved Electron mutation receipts', async () => {
+    await expect(
+      runDesktopConstitutionMutation(async () => ({
+        ok: true,
+        revision: 'rev:main:00000002',
+        receiptId: 'receipt:main:00000001',
+        ignored: true,
+      }))
+    ).resolves.toMatchObject({ ok: false, reason: 'request_failed' });
+    await expect(
+      runDesktopConstitutionMutation(async () => ({ ok: true, revision: '', receiptId: 'receipt:main:00000001' }))
+    ).resolves.toMatchObject({ ok: false, reason: 'request_failed' });
+    await expect(
+      runDesktopConstitutionMutation(async () => ({
+        ok: true,
+        revision: 'rev:main:00000002',
+        receiptId: 'receipt:main:00000001',
+      }))
+    ).resolves.toEqual({
+      ok: true,
+      revision: 'rev:main:00000002',
+      receiptId: 'receipt:main:00000001',
     });
   });
 
