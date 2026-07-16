@@ -32,7 +32,14 @@ export default defineConfig({
             'tests/integration/**/*.test.ts',
             'tests/regression/**/*.test.ts',
           ],
-          exclude: ['tests/unit/**/*.dom.test.ts', 'tests/unit/**/*.dom.test.tsx'],
+          exclude: [
+            'tests/unit/**/*.dom.test.ts',
+            'tests/unit/**/*.dom.test.tsx',
+            // Bun-native suites import bun:test and run through `bun test`.
+            // Collecting them in Vitest produces a loader failure before any
+            // test can execute.
+            'tests/**/*.bun.test.ts',
+          ],
           setupFiles: ['./tests/vitest.setup.ts'],
         },
       },

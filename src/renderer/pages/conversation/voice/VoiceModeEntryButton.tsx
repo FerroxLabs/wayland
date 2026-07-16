@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Button, Tooltip } from '@arco-design/web-react';
+import { Button } from '@arco-design/web-react';
 import { AudioWaveform } from 'lucide-react';
 import React from 'react';
 import { openVoiceMode } from './voiceTurnBridge';
@@ -38,18 +38,17 @@ const VoiceModeEntryButton: React.FC<VoiceModeEntryButtonProps> = ({
   }
 
   return (
-    <Tooltip content='Voice conversation · same chat, spoken aloud' mini>
-      <Button
-        type='text'
-        size='small'
-        shape='circle'
-        className='voice-mode-composer-entry'
-        disabled={disabled}
-        onClick={() => openVoiceMode(conversationId)}
-        aria-label={label}
-        icon={<AudioWaveform size={18} aria-hidden='true' />}
-      />
-    </Tooltip>
+    <Button
+      type='text'
+      size='small'
+      shape='circle'
+      className='voice-mode-composer-entry'
+      disabled={disabled}
+      onClick={() => openVoiceMode(conversationId)}
+      aria-label={label}
+      title='Voice conversation · same chat, spoken aloud'
+      icon={<AudioWaveform size={18} aria-hidden='true' />}
+    />
   );
 };
 

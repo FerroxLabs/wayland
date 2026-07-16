@@ -29,6 +29,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 let drawerThrows = true;
 let mockSelectedId: string | null = 'entry-A';
 
+function MockLucideIcon(): React.ReactElement {
+  return <span />;
+}
+
 // --- Mocks -------------------------------------------------------------------
 vi.mock('@/common', () => ({
   ipcBridge: { shell: { openFile: { invoke: vi.fn() } } },
@@ -68,15 +72,15 @@ vi.mock('@arco-design/web-react', () => ({
 }));
 
 vi.mock('lucide-react', () => {
-  const Icon = () => <span />;
   return {
-    Archive: Icon,
-    Search: Icon,
-    Import: Icon,
-    Settings2: Icon,
-    Plus: Icon,
-    ChevronDown: Icon,
-    ChevronRight: Icon,
+    Archive: MockLucideIcon,
+    ArchiveRestore: MockLucideIcon,
+    Search: MockLucideIcon,
+    Import: MockLucideIcon,
+    Settings2: MockLucideIcon,
+    Plus: MockLucideIcon,
+    ChevronDown: MockLucideIcon,
+    ChevronRight: MockLucideIcon,
   };
 });
 
@@ -124,6 +128,7 @@ vi.mock('@renderer/pages/memory/components/MemoryStatusBar', () => ({ default: (
 vi.mock('@renderer/pages/memory/components/ImportDrawer', () => ({ default: () => <div /> }));
 vi.mock('@renderer/pages/memory/components/ComposerModal', () => ({ default: () => <div /> }));
 vi.mock('@renderer/pages/memory/components/EntryEditorModal', () => ({ default: () => <div /> }));
+vi.mock('@renderer/pages/memory/components/ArchivedMemoryModal', () => ({ default: () => null }));
 vi.mock('@/renderer/pages/settings/components/IjfwSetupStatus', () => ({ default: () => <div /> }));
 
 import FullPanelShell from '@renderer/pages/memory/state-branches/FullPanelShell';
