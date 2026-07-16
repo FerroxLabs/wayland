@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { readFileSync, existsSync, writeFileSync } from 'fs';
-import { join } from 'path';
-import { homedir } from 'os';
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
@@ -149,6 +146,7 @@ export class QwenMcpAgent extends AbstractMcpAgent {
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
     const installOperation = async () => {
       try {
+        const failures: string[] = [];
         for (const server of mcpServers) {
           if (server.transport.type === 'stdio') {
             // Use Qwen CLI to add an MCP server
@@ -173,6 +171,7 @@ export class QwenMcpAgent extends AbstractMcpAgent {
               await safeExecFile('qwen', args, { timeout: 5000, ...getExecEnv() });
             } catch (error) {
               console.warn(`Failed to add MCP ${server.name} to Qwen Code:`, error);
+              failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
             }
           } else if (
             server.transport.type === 'sse' ||
@@ -199,10 +198,15 @@ export class QwenMcpAgent extends AbstractMcpAgent {
               await safeExecFile('qwen', args, { timeout: 5000, ...getExecEnv() });
             } catch (error) {
               console.warn(`Failed to add MCP ${server.name} to Qwen Code:`, error);
+              failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
             }
+          } else {
+            failures.push(
+              `${server.name}: Qwen Code does not support ${(server.transport as { type: string }).type} transport type`
+            );
           }
         }
-        return { success: true };
+        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) };
       }
@@ -255,24 +259,19 @@ export class QwenMcpAgent extends AbstractMcpAgent {
               return { success: true };
             }
           } catch (projectError) {
-            // CLI commands all failed; fall back to direct config-file manipulation
-            const configPath = join(homedir(), '.qwen', 'client_config.json');
-
-            if (!existsSync(configPath)) {
-              return { success: true }; // Config file missing; consider it already removed
-            }
-
-            try {
-              const config = JSON.parse(readFileSync(configPath, 'utf-8'));
-              if (config.mcpServers && config.mcpServers[mcpServerName]) {
-                delete config.mcpServers[mcpServerName];
-                writeFileSync(configPath, JSON.stringify(config, null, 2));
-              }
-              return { success: true };
-            } catch (fileError) {
-              console.warn(`Failed to update config file ${configPath}:`, fileError);
-              return { success: true }; // If config-file write fails, still treat as success
-            }
+            // Never rewrite Qwen's user-owned config file behind the CLI's back.
+            // The prior fallback used a non-atomic write and even returned
+            // success when parsing/writing failed, allowing Wayland to erase its
+            // only connector definition while Qwen still retained stale tools.
+            // An explicit "not found" result is idempotent; every other failure
+            // must remain visible so the archive transaction retains the active
+            // definition and can be retried safely.
+            const userMessage = userError instanceof Error ? userError.message : String(userError);
+            const projectMessage = projectError instanceof Error ? projectError.message : String(projectError);
+            const bothNotFound = userMessage.includes('not found') && projectMessage.includes('not found');
+            return bothNotFound
+              ? { success: true }
+              : { success: false, error: `user: ${userMessage}; project: ${projectMessage}` };
           }
         }
       } catch (error) {

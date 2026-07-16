@@ -7,6 +7,10 @@
 import { ipcBridge } from '@/common';
 import type { IProvider } from '@/common/config/storage';
 import { ConfigStorage } from '@/common/config/storage';
+import {
+  DEFAULT_PRESET_AGENT_TYPE,
+  resolvePresetAgentType as resolveConfiguredPresetAgentType,
+} from '@/common/config/presets/assistantDefaults';
 import type { AcpBackendAll, AcpSessionConfigOption } from '@/common/types/acpTypes';
 import type { AcpBackend, AcpBackendConfig, AcpModelInfo, AvailableAgent, EffectiveAgentInfo } from '../types';
 import { DETECTED_AGENTS_SWR_KEY, fetchDetectedAgents } from '@/renderer/utils/model/agentTypes';
@@ -192,7 +196,7 @@ export const useGuidAgentSelection = ({
         return {
           // #380: an assistant with no preset type runs on the bundled WCore
           // engine, not Gemini CLI.
-          backend: assistant.presetAgentType || 'wcore',
+          backend: resolveConfiguredPresetAgentType(assistant.presetAgentType),
           name: assistant.name,
           customAgentId: assistant.id,
           isPreset: true,
@@ -209,12 +213,12 @@ export const useGuidAgentSelection = ({
       // persona (this memo re-runs when availableAgents/customAgents arrive).
       if ((availableAgents?.length ?? 0) > 0 || customAgents.length > 0) {
         return {
-          backend: 'wcore',
+          backend: DEFAULT_PRESET_AGENT_TYPE,
           name: stripped,
           customAgentId,
           isPreset: true,
           context: '',
-          presetAgentType: 'wcore',
+          presetAgentType: DEFAULT_PRESET_AGENT_TYPE,
         };
       }
     }
@@ -422,8 +426,7 @@ export const useGuidAgentSelection = ({
         const config = await ConfigStorage.get('acp.config');
         if (cancelled) return;
         const preferred = (config?.[backend as AcpBackendAll] as Record<string, unknown>)?.preferredModelId as
-          | string
-          | undefined;
+          string | undefined;
         if (preferred) {
           _setSelectedAcpModel(preferred);
           return;
@@ -595,7 +598,7 @@ export const useGuidAgentSelection = ({
   const selectPresetAssistant = useCallback(
     (preset: { id: string; presetAgentType?: string }) => {
       // #380: default a typeless preset onto the bundled WCore engine, not Gemini.
-      const backend = (preset.presetAgentType ?? 'wcore') as AcpBackend;
+      const backend = resolveConfiguredPresetAgentType(preset.presetAgentType) as AcpBackend;
       const key = getAgentKey({ backend, customAgentId: preset.id });
       setSelectedAgentKey(key);
     },

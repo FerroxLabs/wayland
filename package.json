@@ -33,14 +33,17 @@
     "dist:win": "node scripts/build-with-builder.js auto --win",
     "predist:linux": "bun run bundle:modelsdev && bun run build:skill-pack",
     "dist:linux": "node scripts/build-with-builder.js auto --linux",
-    "build-mac": "node scripts/build-with-builder.js auto --mac --arm64 --x64",
+    "dist:preview:mac": "cross-env WAYLAND_RELEASE_TRACK=preview node scripts/build-with-builder.js auto --mac",
+    "dist:preview:win": "cross-env WAYLAND_RELEASE_TRACK=preview node scripts/build-with-builder.js auto --win",
+    "dist:preview:linux": "cross-env WAYLAND_RELEASE_TRACK=preview node scripts/build-with-builder.js auto --linux",
+    "build-mac": "node scripts/build-with-builder.js arm64 --mac --arm64 && node scripts/build-with-builder.js x64 --mac --x64",
     "build-win": "node scripts/build-with-builder.js auto --win",
     "build-deb": "node scripts/build-with-builder.js auto --linux",
     "build-mac:arm64": "node scripts/build-with-builder.js arm64 --mac --arm64",
     "build-mac:x64": "node scripts/build-with-builder.js x64 --mac --x64",
     "build-win:arm64": "node scripts/build-with-builder.js arm64 --win --arm64",
     "build-win:x64": "node scripts/build-with-builder.js x64 --win --x64",
-    "build": "node scripts/build-with-builder.js auto --mac --arm64 --x64",
+    "build": "bun run build-mac",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
@@ -64,6 +67,8 @@
     "debug:mcp": "bunx tsx scripts/debug-mcp.ts",
     "debug:mcp:list": "bunx tsx scripts/debug-mcp.ts list",
     "debug:mcp:validate": "bunx tsx scripts/debug-mcp.ts validate",
+    "debug:mcp:probe": "bunx tsx scripts/debug-mcp.ts probe",
+    "debug:mcp:doctor": "bunx tsx scripts/debug-mcp.ts doctor",
     "debug:custom-agent": "bunx tsx scripts/debug-custom-agent.ts",
     "test:e2e": "playwright test --config playwright.config.ts",
     "test:e2e:conv:acp": "playwright test --config playwright.config.ts tests/e2e/features/conversations/acp --reporter=list",
@@ -86,6 +91,7 @@
     "build:server": "node scripts/build-server.mjs"
   },
   "dependencies": {
+    "7zip-bin": "5.2.0",
     "@agentclientprotocol/sdk": "^0.18.2",
     "@anthropic-ai/sdk": "^0.96.0",
     "@arco-design/web-react": "^2.66.1",
@@ -181,7 +187,6 @@
     "multer": "^2.1.1",
     "nodemailer": "^6.9.16",
     "nostr-tools": "^2.23.3",
-    "officecli": "^0.2.79",
     "officeparser": "^7.0.2",
     "openai": "^5.12.2",
     "opusscript": "^0.1.1",
@@ -350,7 +355,6 @@
   },
   "productName": "Wayland",
   "trustedDependencies": [
-    "officecli",
     "better-sqlite3",
     "electron"
   ]

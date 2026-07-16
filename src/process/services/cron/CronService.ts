@@ -19,7 +19,16 @@ import type { CronJob, CronSchedule } from './CronStore';
 import type { ICronRepository } from './ICronRepository';
 import type { ICronEventEmitter } from './ICronEventEmitter';
 import type { ICronJobExecutor } from './ICronJobExecutor';
-import { deleteCronSkillFile } from './cronSkillFile';
+import {
+  archiveCronJob,
+  listArchivedCronJobs,
+  markCronArchiveAborted,
+  markCronArchiveRestored,
+  preserveRemovedCronSkill,
+  restoreCronSkillFromArchive,
+  rollbackRestoredCronSkill,
+  type ArchivedCronJob,
+} from './cronArchive';
 
 /**
  * Parameters for creating a new cron job
@@ -65,6 +74,8 @@ export class CronService {
   private retryCounts: Map<string, number> = new Map();
   /** #163: job ids with a run currently executing, for the overlap guard. */
   private readonly runningJobs = new Set<string>();
+  /** Serialize archive/restore mutations so a schedule cannot be removed and restored concurrently. */
+  private cronMutationTail: Promise<void> = Promise.resolve();
   private initialized = false;
   private powerSaveBlockerId: number | null = null;
 
@@ -135,20 +146,27 @@ export class CronService {
             continue;
           }
           console.log(
-            `[CronService] Removing orphan job "${job.name}" (${job.id}): conversation ${job.metadata.conversationId} not found`
+            `[CronService] Archiving orphan job "${job.name}" (${job.id}): conversation ${job.metadata.conversationId} not found`
           );
-          this.stopTimer(job.id);
-          await this.repo.delete(job.id);
-          try {
-            await deleteCronSkillFile(job.id);
-          } catch {
-            // Ignore cleanup errors
-          }
-          this.emitter.emitJobRemoved(job.id);
+          await this.archiveAndRemoveJob(job, { detachConversations: false, restartTimerOnFailure: false });
         }
       }
     } catch (error) {
       console.warn('[CronService] Failed to cleanup orphan jobs:', error);
+    }
+  }
+
+  private async withCronMutation<T>(operation: () => Promise<T>): Promise<T> {
+    const previous = this.cronMutationTail;
+    let release: () => void = () => undefined;
+    this.cronMutationTail = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      release();
     }
   }
 
@@ -364,65 +382,165 @@ export class CronService {
     return updated;
   }
 
-  /**
-   * Remove a cron job
-   */
-  async removeJob(jobId: string): Promise<void> {
-    // Get job before deletion to access conversationId
-    const job = await this.repo.getById(jobId);
-
-    // Stop timer
-    this.stopTimer(jobId);
-
-    // Delete from database
-    await this.repo.delete(jobId);
-
-    // Clean up SKILL.md file
+  private async detachArchivedJobConversations(job: CronJob): Promise<void> {
     try {
-      await deleteCronSkillFile(jobId);
+      if (job.target.executionMode === 'new_conversation') {
+        // Preserve every completed child run and its workspace. Remove the
+        // live grouping key so it returns to ordinary chat history, while
+        // retaining immutable provenance for future output/receipt indexing.
+        const childConversations = await this.conversationRepo.getConversationsByCronJob(job.id);
+        for (const conv of childConversations) {
+          const existingExtra = { ...conv.extra } as Record<string, unknown>;
+          delete existingExtra.cronJobId;
+          existingExtra.archivedCronOrigin = {
+            id: job.id,
+            name: job.name,
+            detachedAt: Date.now(),
+          };
+          await this.conversationRepo.updateConversation(conv.id, {
+            extra: existingExtra as TChatConversation['extra'],
+          });
+          ipcBridge.conversation.listChanged.emit({
+            conversationId: conv.id,
+            action: 'updated',
+            source: 'schedule-detached',
+          });
+        }
+        if (childConversations.length > 0) {
+          console.log(
+            `[CronService] Preserved and detached ${childConversations.length} child conversations for job ${job.id}`
+          );
+        }
+      } else if (job.metadata.conversationId) {
+        // Remove cronJobId from the associated conversation's extra
+        const conv = await this.conversationRepo.getConversation(job.metadata.conversationId);
+        if (conv) {
+          const existingExtra = (conv.extra ?? {}) as Record<string, unknown>;
+          delete existingExtra.cronJobId;
+          await this.conversationRepo.updateConversation(job.metadata.conversationId, {
+            extra: existingExtra as TChatConversation['extra'],
+          });
+        }
+      }
     } catch (err) {
-      console.warn('[CronService] Failed to delete SKILL.md:', err);
+      console.warn('[CronService] Failed to detach conversations for archived job:', err);
+    }
+  }
+
+  private async archiveAndRemoveJob(
+    job: CronJob,
+    options: { detachConversations: boolean; restartTimerOnFailure: boolean }
+  ): Promise<ArchivedCronJob> {
+    this.stopTimer(job.id);
+    let archived: ArchivedCronJob;
+    try {
+      archived = await archiveCronJob(job);
+    } catch (error) {
+      if (options.restartTimerOnFailure && job.enabled) await this.startTimer(job);
+      throw error;
     }
 
-    // Clean up associated conversations.
-    // Note: deleteConversation relies on SQLite ON DELETE CASCADE to remove
-    // related messages rows - see migration v1 foreign key definition.
-    if (job) {
-      try {
-        if (job.target.executionMode === 'new_conversation') {
-          // Delete all child conversations created by this cron job
-          const childConversations = await this.conversationRepo.getConversationsByCronJob(jobId);
-          for (const conv of childConversations) {
-            await this.conversationRepo.deleteConversation(conv.id);
-            ipcBridge.conversation.listChanged.emit({
-              conversationId: conv.id,
-              action: 'deleted',
-              source: conv.source || 'wayland',
-            });
-          }
-          if (childConversations.length > 0) {
-            console.log(`[CronService] Deleted ${childConversations.length} child conversations for job ${jobId}`);
-          }
-        } else if (job.metadata.conversationId) {
-          // Remove cronJobId from the associated conversation's extra
-          const conv = await this.conversationRepo.getConversation(job.metadata.conversationId);
-          if (conv) {
-            const existingExtra = (conv.extra ?? {}) as Record<string, unknown>;
-            delete existingExtra.cronJobId;
-            await this.conversationRepo.updateConversation(job.metadata.conversationId, {
-              extra: existingExtra as TChatConversation['extra'],
-            });
-          }
-        }
-      } catch (err) {
-        console.warn('[CronService] Failed to clean up conversations for job:', err);
-      }
+    try {
+      await this.repo.delete(job.id);
+    } catch (error) {
+      await markCronArchiveAborted(archived.archiveId).catch((archiveError) => {
+        console.warn('[CronService] Failed to mark unsuccessful archive attempt:', archiveError);
+      });
+      if (options.restartTimerOnFailure && job.enabled) await this.startTimer(job);
+      throw error;
     }
+
+    // Move the original directory into the published archive. The verified
+    // recovery copy already exists, so a move failure cannot lose user bytes;
+    // it only leaves an inert duplicate under the active skills root.
+    await preserveRemovedCronSkill(archived.archiveId, job.id).catch((error) => {
+      console.warn('[CronService] Failed to relocate original cron skill directory:', error);
+    });
+
+    if (options.detachConversations) await this.detachArchivedJobConversations(job);
 
     await this.updatePowerBlocker();
+    this.emitter.emitJobRemoved(job.id);
+    return archived;
+  }
 
-    // Emit event to notify frontend
-    this.emitter.emitJobRemoved(jobId);
+  /**
+   * Archive a cron job. Future runs stop, while its definition, complete skill
+   * directory, completed chats, reports, and workspaces remain recoverable.
+   */
+  async removeJob(jobId: string): Promise<ArchivedCronJob> {
+    return this.withCronMutation(async () => {
+      const job = await this.repo.getById(jobId);
+      if (!job) throw new Error(`Job not found: ${jobId}`);
+      return this.archiveAndRemoveJob(job, { detachConversations: true, restartTimerOnFailure: true });
+    });
+  }
+
+  async listArchivedJobs(): Promise<ArchivedCronJob[]> {
+    const archives = await listArchivedCronJobs();
+    const visible: ArchivedCronJob[] = [];
+    for (const archive of archives) {
+      // A retained archive from a failed database mutation is not a user-visible
+      // deletion while its authoritative live row still exists.
+      if (!(await this.repo.getById(archive.job.id))) visible.push(archive);
+    }
+    return visible;
+  }
+
+  async restoreArchivedJob(archiveId: string): Promise<CronJob> {
+    return this.withCronMutation(async () => {
+      const archiveSummary = (await listArchivedCronJobs()).find((entry) => entry.archiveId === archiveId);
+      if (!archiveSummary) throw new Error(`Archived job not found: ${archiveId}`);
+      if (await this.repo.getById(archiveSummary.job.id)) {
+        throw new Error(`A schedule with id ${archiveSummary.job.id} already exists`);
+      }
+
+      const restoredSkill = await restoreCronSkillFromArchive(archiveId);
+      const restoredJob: CronJob = {
+        ...restoredSkill.archive.job,
+        enabled: false,
+        metadata: {
+          ...restoredSkill.archive.job.metadata,
+          updatedAt: Date.now(),
+        },
+        state: {
+          ...restoredSkill.archive.job.state,
+          nextRunAtMs: undefined,
+        },
+      };
+
+      try {
+        await this.repo.insert(restoredJob);
+      } catch (error) {
+        if (restoredSkill.skillRestored) {
+          await rollbackRestoredCronSkill(archiveId, restoredJob.id).catch((rollbackError) => {
+            console.warn('[CronService] Failed to preserve failed cron skill restore:', rollbackError);
+          });
+        }
+        throw error;
+      }
+
+      if (restoredJob.target.executionMode !== 'new_conversation' && restoredJob.metadata.conversationId) {
+        try {
+          const conversation = await this.conversationRepo.getConversation(restoredJob.metadata.conversationId);
+          if (conversation) {
+            const extra = { ...conversation.extra, cronJobId: restoredJob.id } as TChatConversation['extra'];
+            await this.conversationRepo.updateConversation(restoredJob.metadata.conversationId, { extra });
+          }
+        } catch (error) {
+          console.warn('[CronService] Restored schedule but could not reattach its source conversation:', error);
+        }
+      }
+
+      await markCronArchiveRestored(archiveId).catch((error) => {
+        // The live row and skill are authoritative now. Leaving the verified
+        // archive in place is safe; listArchivedJobs hides it by active job id.
+        console.warn('[CronService] Restored schedule but could not retire its archive record:', error);
+      });
+      await this.updatePowerBlocker();
+      this.emitter.emitJobCreated(restoredJob);
+      return restoredJob;
+    });
   }
 
   /**

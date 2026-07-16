@@ -1,0 +1,153 @@
+{
+  "correlation": {
+    "backend_spawn_id": "spawn-retry",
+    "correlation_id": "corr-retry",
+    "desktop_task_id": "dt_retry",
+    "desktop_turn_id": "turn-retry",
+    "request_id": "req-retry"
+  },
+  "events": [
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-retry",
+        "correlation_id": "corr-retry",
+        "desktop_task_id": "dt_retry",
+        "desktop_turn_id": "turn-retry",
+        "request_id": "req-retry"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-retry-0",
+      "event_type": "route.selected",
+      "evidence": {
+        "flux_involved": true,
+        "precedence": "flux_auto",
+        "provider": "provider-a",
+        "requested_model": "flux-auto",
+        "reroute_allowed": true,
+        "route_mode": "flux_auto",
+        "selected_model": "routed-model-a"
+      },
+      "sequence": 0
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-retry",
+        "correlation_id": "corr-retry",
+        "desktop_task_id": "dt_retry",
+        "desktop_turn_id": "turn-retry",
+        "request_id": "req-retry"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-retry-1",
+      "event_type": "provider.attempt_started",
+      "evidence": {
+        "attempt_id": "attempt-retry-1",
+        "model": "routed-model-a",
+        "provider": "provider-a"
+      },
+      "sequence": 1
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-retry",
+        "correlation_id": "corr-retry",
+        "desktop_task_id": "dt_retry",
+        "desktop_turn_id": "turn-retry",
+        "request_id": "req-retry"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-retry-2",
+      "event_type": "provider.attempt_failed",
+      "evidence": {
+        "attempt_id": "attempt-retry-1",
+        "reason_code": "provider_timeout",
+        "retryable": true
+      },
+      "sequence": 2
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-retry",
+        "correlation_id": "corr-retry",
+        "desktop_task_id": "dt_retry",
+        "desktop_turn_id": "turn-retry",
+        "request_id": "req-retry"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-retry-3",
+      "event_type": "provider.retry_scheduled",
+      "evidence": {
+        "after_attempt_id": "attempt-retry-1",
+        "backoff_ms": 100,
+        "retry_number": 1
+      },
+      "sequence": 3
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-retry",
+        "correlation_id": "corr-retry",
+        "desktop_task_id": "dt_retry",
+        "desktop_turn_id": "turn-retry",
+        "request_id": "req-retry"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-retry-4",
+      "event_type": "provider.attempt_started",
+      "evidence": {
+        "attempt_id": "attempt-retry-2",
+        "model": "routed-model-a",
+        "provider": "provider-a"
+      },
+      "sequence": 4
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-retry",
+        "correlation_id": "corr-retry",
+        "desktop_task_id": "dt_retry",
+        "desktop_turn_id": "turn-retry",
+        "request_id": "req-retry"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-retry-5",
+      "event_type": "request.cost_observed",
+      "evidence": {
+        "attempt_id": "attempt-retry-2",
+        "cost_microusd": 611,
+        "currency": "USD",
+        "latency_ms": 904,
+        "price_status": "priced"
+      },
+      "sequence": 5
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-retry",
+        "correlation_id": "corr-retry",
+        "desktop_task_id": "dt_retry",
+        "desktop_turn_id": "turn-retry",
+        "request_id": "req-retry"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-retry-6",
+      "event_type": "request.terminal",
+      "evidence": {
+        "attempt_id": "attempt-retry-2",
+        "outcome": "success",
+        "reason_code": "completed_after_retry"
+      },
+      "sequence": 6
+    }
+  ],
+  "expected_profile": "flux",
+  "fixture_version": 1,
+  "scenario": "retry"
+}

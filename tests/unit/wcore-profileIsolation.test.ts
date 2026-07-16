@@ -20,9 +20,12 @@
  */
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { ProfileIsolationError } from '@process/agent/wcore/profilePaths';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const spawnMock = vi.fn();
 vi.mock('node:child_process', async (orig) => {
@@ -98,14 +101,24 @@ function spawnedEnv(): Record<string, string | undefined> {
 }
 
 function newAgent(): WCoreAgent {
-  return new WCoreAgent({ workspace: '/tmp/ws', model: MODEL });
+  const workspace = mkdtempSync(join(tmpdir(), 'wcore-profile-isolation-'));
+  testWorkspaces.push(workspace);
+  return new WCoreAgent({ workspace, model: MODEL });
 }
+
+const testWorkspaces: string[] = [];
 
 describe('#278: the engine spawn must never bind a named profile to the default home', () => {
   beforeEach(() => {
     spawnMock.mockReset();
     spawnMock.mockImplementation(() => makeFakeChild());
     resolveActiveConfigDirMock.mockReset();
+  });
+
+  afterEach(() => {
+    for (const workspace of testWorkspaces.splice(0)) {
+      rmSync(workspace, { recursive: true, force: true });
+    }
   });
 
   it('CONTROL: stamps the active profile dir onto WAYLAND_HOME', async () => {
@@ -124,6 +137,23 @@ describe('#278: the engine spawn must never bind a named profile to the default 
       .catch(() => {});
     await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
     expect(spawnedEnv().WAYLAND_HOME).toBe(NATIVE_DIR);
+  });
+
+  it('uses the manager-captured profile home without re-resolving a switched marker', async () => {
+    resolveActiveConfigDirMock.mockRejectedValue(new ProfileIsolationError('switched-after-publication', 'EACCES'));
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-pinned-profile-'));
+    testWorkspaces.push(workspace);
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      waylandHome: PROFILE_DIR,
+      onStreamEvent: () => {},
+    });
+
+    void agent.start().catch(() => {});
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
+    expect(resolveActiveConfigDirMock).not.toHaveBeenCalled();
+    expect(spawnedEnv().WAYLAND_HOME).toBe(PROFILE_DIR);
   });
 
   it('REGRESSION: an unresolvable NAMED profile must ABORT the spawn, not fall back to the default home', async () => {
@@ -157,5 +187,27 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     // Spawned, and with WAYLAND_HOME absent — the engine falls back to the same
     // default home it would have used before this change. Behaviour preserved.
     expect(spawnedEnv().WAYLAND_HOME).toBeUndefined();
+  });
+
+  it('passes the reserved profile and exact MCP allowlist on a Desktop-managed launch', async () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-mcp-profile-'));
+    resolveActiveConfigDirMock.mockResolvedValue(NATIVE_DIR);
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      mcpServerNames: ['tavily', 'firecrawl'],
+      onStreamEvent: () => {},
+    });
+
+    void agent.start().catch(() => {});
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
+    const args = spawnMock.mock.calls[0]?.[1] as string[];
+    expect(args).toContain('--profile');
+    expect(args[args.indexOf('--profile') + 1]).toBe('__wayland_desktop_session');
+    const projectConfig = readFileSync(join(workspace, '.wcore.toml'), 'utf-8');
+    expect(projectConfig).toContain('[profiles.__wayland_desktop_session]');
+    expect(projectConfig).toContain('"firecrawl"');
+    expect(projectConfig).toContain('"tavily"');
+    rmSync(workspace, { recursive: true, force: true });
   });
 });

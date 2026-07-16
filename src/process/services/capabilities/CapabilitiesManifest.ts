@@ -30,12 +30,17 @@
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { getProviderCatalog } from '@process/providers/ipc/modelRegistryIpc';
 import { ProcessConfig } from '@process/utils/initStorage';
+import {
+  probeOfficeCliAuthoringCapability,
+  type OfficeCliAuthoringCapability,
+} from '@process/services/capabilities/OfficeCliAuthoringCapability';
 import type { IProvider } from '@/common/config/storage';
 
 export type CapabilitiesManifestOptions = {
   includeSkills?: boolean;
   includeWorkflows?: boolean;
   includeModels?: boolean;
+  includeOfficeAuthoring?: boolean;
   agentKey?: string;
 };
 
@@ -194,6 +199,20 @@ async function buildModelsLine(providers: IProvider[]): Promise<string | null> {
   }
 }
 
+function buildOfficeAuthoringLine(capability: OfficeCliAuthoringCapability): string {
+  const version = capability.version ? ` ${sanitizeToken(capability.version)}` : '';
+  if (capability.state === 'ready') {
+    return `- Native Office authoring: ready with officecli${version}; low-level contract verified.`;
+  }
+  if (capability.state === 'incompatible' && capability.executionMode === 'hosted-credits') {
+    return `- Native Office authoring: unavailable; officecli${version} offers an incompatible hosted-credit contract. Do not invoke it. Wayland does not expose hosted generation as an automatic fallback.`;
+  }
+  if (capability.state === 'missing') {
+    return '- Native Office authoring: unavailable; officecli was not found. Document preview is a separate capability.';
+  }
+  return `- Native Office authoring: unavailable; officecli${version} did not expose the required low-level contract. Do not guess commands.`;
+}
+
 /**
  * Build the compact capabilities manifest from live install state.
  *
@@ -204,6 +223,7 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
   const includeSkills = opts?.includeSkills ?? true;
   const includeWorkflows = opts?.includeWorkflows ?? true;
   const includeModels = opts?.includeModels ?? true;
+  const includeOfficeAuthoring = opts?.includeOfficeAuthoring ?? false;
   // `agentKey` is reserved for future per-agent model curation; it does NOT
   // currently affect output, so it is deliberately EXCLUDED from the cache key
   // (otherwise distinct backends would thrash the single-slot cache).
@@ -216,6 +236,7 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
     // degrades (omits the signal) instead of propagating.
     const workflowCount = includeWorkflows ? await readWorkflowCount() : null;
     const providers = includeModels ? await readConnectedProviders() : [];
+    const officeAuthoring = includeOfficeAuthoring ? await probeOfficeCliAuthoringCapability() : null;
 
     // Provider IDENTITY (name + model set), not just count, so swapping provider
     // A for B at equal count - or adding/removing a model inside a provider -
@@ -229,7 +250,8 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
       s: skillTotal ?? -1,
       w: workflowCount ?? -1,
       p: providerSig,
-      o: { includeSkills, includeWorkflows, includeModels },
+      o: { includeSkills, includeWorkflows, includeModels, includeOfficeAuthoring },
+      office: officeAuthoring,
     });
     if (cache && cache.key === key) return cache.value;
 
@@ -247,6 +269,7 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
       const modelsLine = await buildModelsLine(providers);
       if (modelsLine) lines.push(modelsLine);
     }
+    if (officeAuthoring) lines.push(buildOfficeAuthoringLine(officeAuthoring));
     lines.push(`- Features: ${HEADLINE_FEATURES}.`);
 
     const rendered = lines.join('\n');

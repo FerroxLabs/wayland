@@ -9,6 +9,7 @@ let speechInputRecordingDurationMs = 0;
 let speechInputRecordingLevels = [0.12, 0.18, 0.24, 0.16];
 
 const mockClearError = vi.fn();
+const mockCancelRecording = vi.fn();
 const mockStartRecording = vi.fn();
 const mockStopRecording = vi.fn();
 const mockTranscribeFile = vi.fn();
@@ -33,6 +34,7 @@ vi.mock('@/common/config/storage', () => ({
 vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({
   useSpeechInput: () => ({
     availability: speechInputAvailability,
+    cancelRecording: mockCancelRecording,
     clearError: mockClearError,
     errorCode: speechInputErrorCode,
     errorMessage: speechInputErrorMessage,

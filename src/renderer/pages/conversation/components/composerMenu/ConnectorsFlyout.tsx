@@ -10,6 +10,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { iconColors } from '@/renderer/styles/colors';
 import type { IMcpServer } from '@/common/config/storage';
+import type { McpSessionReceipt, McpSessionState } from '@/common/mcp/sessionReceipt';
+import { configSafeMcpServerName } from '@/common/mcp';
 import styles from './ComposerAddMenu.module.css';
 import { countEnabledMcpTools, nextActiveSelection, toolBudgetStatus } from './toolBudget';
 
@@ -27,8 +29,8 @@ type Props = {
   /** Open the MCP Library to manage connectors. */
   onManageConnectors: () => void;
   /**
-   * The target model's tool-array cap (#348). When provided and the live tool
-   * count is near/over it, a count-vs-cap nudge is shown so the user can scope
+   * The target model's tool-array cap (#348). When provided and the probe-based
+   * inventory estimate is near/over it, a count-vs-cap nudge is shown so the user can scope
    * servers or switch models. Absent (no known cap / staged composer) hides it.
    */
   modelCap?: number;
@@ -43,6 +45,8 @@ type Props = {
   onScopeChange?: (ids: string[] | undefined) => void;
   /** Current per-conversation selection (undefined = all enabled active). */
   activeServerIds?: string[];
+  /** Runtime receipts for this exact Core launch; Library probe state is never substituted. */
+  sessionState?: McpSessionState;
 };
 
 const ConnectorRow: React.FC<{
@@ -50,19 +54,42 @@ const ConnectorRow: React.FC<{
   checked: boolean;
   onChange: (on: boolean) => void;
   toolsLabel: string;
-}> = ({ server, checked, onChange, toolsLabel }) => {
-  const connected = server.status === 'connected';
+  receipt?: McpSessionReceipt;
+  expectedInSession: boolean;
+  globalToggleLocked: boolean;
+}> = ({ server, checked, onChange, toolsLabel, receipt, expectedInSession, globalToggleLocked }) => {
+  const sessionReceipt = expectedInSession ? receipt : undefined;
+  const verifiedWithTools = sessionReceipt?.status === 'ready' && sessionReceipt.tools.length > 0;
+  const failed =
+    sessionReceipt?.status === 'failed' || (sessionReceipt?.status === 'ready' && sessionReceipt.tools.length === 0);
+  const runtimeLabel = sessionReceipt
+    ? sessionReceipt.status === 'failed'
+      ? `Unavailable in this chat · ${sessionReceipt.reason}`
+      : sessionReceipt.tools.length > 0
+        ? `${sessionReceipt.tools.length} tools verified in this chat`
+        : 'Loaded, but no tools were registered'
+    : expectedInSession
+      ? 'Waiting for this chat to report its tools'
+      : toolsLabel;
   return (
     <div className={styles.row}>
       <div className={styles.tile}>{(server.name || '?').charAt(0)}</div>
       <div className={styles.meta}>
         <div className={styles.name}>
-          {connected && <span className={styles.statusDot} />}
+          {verifiedWithTools && <span className={styles.statusDot} title='Tools verified in this chat' />}
+          {failed && <span className={styles.statusDotError} title='Connector unavailable in this chat' />}
           {server.name}
         </div>
-        <div className={styles.desc}>{server.description || toolsLabel}</div>
+        <div className={styles.desc}>{runtimeLabel || server.description}</div>
       </div>
-      <Switch size='small' checked={checked} onChange={onChange} aria-label={server.name} />
+      <Switch
+        size='small'
+        checked={checked}
+        disabled={globalToggleLocked}
+        onChange={onChange}
+        aria-label={server.name}
+        title={globalToggleLocked ? 'Managed by its extension; scope it after this chat starts' : undefined}
+      />
     </div>
   );
 };
@@ -76,11 +103,12 @@ const ConnectorsFlyout: React.FC<Props> = ({
   modelLabel,
   onScopeChange,
   activeServerIds,
+  sessionState,
 }) => {
   const { t } = useTranslation();
 
-  // Count-vs-cap nudge (#348): only when a cap is known and the live tool count
-  // is approaching/over it. `ok` stays silent to avoid noise.
+  // Count-vs-cap nudge (#348): based on the latest probe inventory, not a live
+  // session receipt. `ok` stays silent to avoid noise.
   const toolCount = countEnabledMcpTools(servers);
   const budget = modelCap ? toolBudgetStatus(toolCount, modelCap) : 'ok';
   const showNudge = modelCap !== undefined && budget !== 'ok';
@@ -107,7 +135,7 @@ const ConnectorsFlyout: React.FC<Props> = ({
         </div>
         <div className={styles.flyoutSub}>
           {t('conversation.composerMenu.connectorsSub', {
-            defaultValue: 'Turn a connected MCP server on or off.',
+            defaultValue: 'Choose connectors for this chat. Changes apply when its next agent session starts.',
           })}
         </div>
       </div>
@@ -143,8 +171,8 @@ const ConnectorsFlyout: React.FC<Props> = ({
           <>
             <div className={styles.sectionLabel}>
               {scoping
-                ? t('conversation.composerMenu.connectorsForChat', { defaultValue: 'Active in this chat' })
-                : t('conversation.composerMenu.connectorsConnected', { defaultValue: 'Connected' })}
+                ? t('conversation.composerMenu.connectorsForChat', { defaultValue: 'Selected for this chat' })
+                : t('conversation.composerMenu.connectorsConfigured', { defaultValue: 'Configured' })}
             </div>
             {candidates.map((server) => (
               <ConnectorRow
@@ -152,13 +180,20 @@ const ConnectorsFlyout: React.FC<Props> = ({
                 server={server}
                 checked={rowChecked(server)}
                 onChange={rowOnChange(server)}
+                receipt={sessionState?.receipts[configSafeMcpServerName(server.name)]}
+                expectedInSession={
+                  sessionState?.expectedServerNames.includes(configSafeMcpServerName(server.name)) === true
+                }
+                globalToggleLocked={!scoping && (server as { _source?: string })._source === 'extension'}
                 toolsLabel={
                   server.tools && server.tools.length > 0
                     ? t('conversation.composerMenu.toolCount', {
-                        defaultValue: '{{count}} tools',
+                        defaultValue: 'Probe reported {{count}} tools · chat not verified',
                         count: server.tools.length,
                       })
-                    : ''
+                    : t('conversation.composerMenu.chatNotVerified', {
+                        defaultValue: 'Chat has not verified this connector',
+                      })
                 }
               />
             ))}

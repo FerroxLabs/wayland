@@ -15,6 +15,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'path';
 
 const mocks = vi.hoisted(() => ({
@@ -78,6 +80,38 @@ describe('mergePaths', () => {
   });
 });
 
+describe('resolveBundledOfficeCliDir', () => {
+  it('accepts only a runtime containing both the native binary and manifest', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-path-'));
+    const runtime = path.join(root, 'bundled-officecli', 'darwin-arm64');
+    fs.mkdirSync(runtime, { recursive: true });
+
+    const { resolveBundledOfficeCliDir } = await import('@process/utils/shellEnv');
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+
+    fs.writeFileSync(path.join(runtime, 'officecli'), 'binary');
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+
+    fs.writeFileSync(path.join(runtime, 'manifest.json'), '{}');
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBe(runtime);
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('requires the exe suffix for Windows', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-win-path-'));
+    const runtime = path.join(root, 'bundled-officecli', 'win32-x64');
+    fs.mkdirSync(runtime, { recursive: true });
+    fs.writeFileSync(path.join(runtime, 'manifest.json'), '{}');
+    fs.writeFileSync(path.join(runtime, 'officecli'), 'wrong-name');
+
+    const { resolveBundledOfficeCliDir } = await import('@process/utils/shellEnv');
+    expect(resolveBundledOfficeCliDir(root, 'win32', 'x64')).toBeNull();
+    fs.writeFileSync(path.join(runtime, 'officecli.exe'), 'binary');
+    expect(resolveBundledOfficeCliDir(root, 'win32', 'x64')).toBe(runtime);
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+});
+
 // -------------------------------------------------------------------
 // 2. getEnhancedEnv – verify it always includes process.env.PATH
 //    (This is the core requirement for the worker fix)
@@ -114,6 +148,18 @@ describe('getEnhancedEnv', () => {
 
     expect(result.PATH).toContain(SENTINEL_PATH);
     process.env.PATH = originalPath;
+  });
+
+  it('disables OfficeCLI background updates even when a caller tries to override the release pin', async () => {
+    vi.doMock('child_process', () => ({
+      execFileSync: vi.fn().mockImplementation(() => {
+        throw new Error('shell not available');
+      }),
+      execFile: vi.fn(),
+    }));
+
+    const { getEnhancedEnv } = await import('@process/utils/shellEnv');
+    expect(getEnhancedEnv({ OFFICECLI_SKIP_UPDATE: '0' }).OFFICECLI_SKIP_UPDATE).toBe('1');
   });
 
   it('merges shell PATH with process.env.PATH (macOS/Linux, shell returns extra path)', async () => {

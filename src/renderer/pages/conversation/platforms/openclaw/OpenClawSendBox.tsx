@@ -35,6 +35,7 @@ import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
 import { Message, Tag } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 const normalizeRuntimeValue = (value?: string | null): string => (value || '').trim();
 
@@ -490,6 +491,8 @@ const OpenClawSendBox: React.FC<{ conversation_id: string }> = ({ conversation_i
 
     await executeCommand({ input: message, files: filePaths });
   };
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler);
 
   const handleEditQueuedCommand = useCallback(
     (item: ConversationCommandQueueItem) => {

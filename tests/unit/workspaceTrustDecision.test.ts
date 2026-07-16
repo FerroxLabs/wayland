@@ -6,15 +6,15 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  coerceWorkspaceTrustLevel,
-  DEFAULT_WORKSPACE_TRUST_LEVEL,
+  coerceWorkspaceAccessLevel,
+  DEFAULT_WORKSPACE_ACCESS_LEVEL,
   trustedWorkspaceAutoApprovesAcpKind,
   trustedWorkspaceAutoApprovesConfirmationType,
 } from '@/common/security/workspaceTrust';
 
 /**
  * #671 — the single decision the whole trust axis hangs on: what a trusted
- * ("cowork") workspace auto-approves. The contract is "auto-approve read/edit,
+ * trusted-edits workspace auto-approves. The contract is "auto-approve read/edit,
  * STILL prompt on exec + network" — so these tests assert the LITERAL safe set,
  * not "not X", because network + destructive kinds riding an auto-approve is the
  * exact failure mode this feature must never have.
@@ -66,15 +66,20 @@ describe('trustedWorkspaceAutoApprovesConfirmationType — Gemini/WCore type gat
   });
 });
 
-describe('coerceWorkspaceTrustLevel — fail-safe normalization', () => {
-  it('only the literal "cowork" is trusted; everything else is the gated default', () => {
-    expect(coerceWorkspaceTrustLevel('cowork')).toBe('cowork');
-    expect(coerceWorkspaceTrustLevel('chat')).toBe('chat');
-    expect(coerceWorkspaceTrustLevel(undefined)).toBe('chat');
-    expect(coerceWorkspaceTrustLevel(null)).toBe('chat');
-    expect(coerceWorkspaceTrustLevel('trusted')).toBe('chat'); // a tampered/legacy value never reads as trusted
-    expect(coerceWorkspaceTrustLevel(1)).toBe('chat');
-    expect(coerceWorkspaceTrustLevel({})).toBe('chat');
-    expect(DEFAULT_WORKSPACE_TRUST_LEVEL).toBe('chat');
+describe('coerceWorkspaceAccessLevel — fail-safe normalization', () => {
+  it('accepts canonical access levels and maps legacy serialized values', () => {
+    expect(coerceWorkspaceAccessLevel('trusted-edits')).toBe('trusted-edits');
+    expect(coerceWorkspaceAccessLevel('ask')).toBe('ask');
+    expect(coerceWorkspaceAccessLevel('cowork')).toBe('trusted-edits');
+    expect(coerceWorkspaceAccessLevel('chat')).toBe('ask');
+  });
+
+  it('maps every unknown value to the gated default', () => {
+    expect(coerceWorkspaceAccessLevel(undefined)).toBe('ask');
+    expect(coerceWorkspaceAccessLevel(null)).toBe('ask');
+    expect(coerceWorkspaceAccessLevel('trusted')).toBe('ask');
+    expect(coerceWorkspaceAccessLevel(1)).toBe('ask');
+    expect(coerceWorkspaceAccessLevel({})).toBe('ask');
+    expect(DEFAULT_WORKSPACE_ACCESS_LEVEL).toBe('ask');
   });
 });

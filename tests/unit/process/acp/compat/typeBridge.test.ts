@@ -8,9 +8,7 @@ import {
   toResponseMessage,
   type OldAcpAgentConfig,
 } from '@process/acp/compat/typeBridge';
-import type { AgentConfig, ModelSnapshot, ConfigOption } from '@process/acp/types';
-import type { AcpModelInfo, AcpSessionConfigOption } from '@/common/types/acpTypes';
-import type { IResponseMessage } from '@/common/adapter/ipcBridge';
+import type { ModelSnapshot, ConfigOption } from '@process/acp/types';
 import type { TMessage } from '@/common/chat/chatLib';
 
 describe('typeBridge', () => {
@@ -86,6 +84,21 @@ describe('typeBridge', () => {
       const result = toAgentConfig(oldConfig);
 
       expect(result.yoloMode).toBe(true);
+    });
+
+    it('preserves the per-conversation MCP authority selection', () => {
+      const oldConfig: OldAcpAgentConfig = {
+        id: 'scoped-agent',
+        backend: 'claude',
+        workingDir: '/workspace',
+        onStreamEvent: () => {},
+        extra: {
+          backend: 'claude',
+          activeMcpServers: ['tavily'],
+        },
+      };
+
+      expect(toAgentConfig(oldConfig).activeMcpServers).toEqual(['tavily']);
     });
 
     it('should convert resumeSessionId from acpSessionId', () => {

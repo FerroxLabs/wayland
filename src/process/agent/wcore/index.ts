@@ -5,7 +5,7 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process';
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { Writable } from 'node:stream';
@@ -20,6 +20,8 @@ import { resolveWCoreBinary } from './binaryResolver';
 import {
   buildEngineSpawnEnv,
   buildSpawnConfig,
+  appendDesktopMcpProfile,
+  WCORE_DESKTOP_MCP_PROFILE,
   engineInheritsShellKey,
   isOpenAIFamilyModelId,
   MissingApiKeyError,
@@ -37,6 +39,14 @@ import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
 import { parseQuestionTool } from './questionTool';
 import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { handleHostSendMessageRequest, defaultHostSendDeps } from './hostSendMessage';
+import { DesktopCoreContractError, DesktopCoreV1Consumer } from './desktopContractV1';
+import { AnvilPersistentMutationWatcher } from './anvilMutationWatcher';
+import { withWCoreProjectConfigLease } from './projectConfigLease';
+import {
+  ProjectConfigTransaction,
+  readProjectConfigNoFollow,
+  recoverProjectConfigTransaction,
+} from './projectConfigTransaction';
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
 
@@ -119,16 +129,28 @@ function sanitizeProjectConfig(
   delete userObject.providers;
 
   // App-owned keys (including `providers`) win over anything user-authored.
-  const merged = { ...userObject, ...appObject };
+  // Profiles are the one nested merge: Desktop owns only its reserved launch
+  // profile, not the user's other project profiles. Preserve those while still
+  // letting the reserved key win over a pre-placed collision.
+  const userProfiles =
+    userObject.profiles && typeof userObject.profiles === 'object'
+      ? (userObject.profiles as Record<string, unknown>)
+      : undefined;
+  const appProfiles =
+    appObject.profiles && typeof appObject.profiles === 'object'
+      ? (appObject.profiles as Record<string, unknown>)
+      : undefined;
+  const mergedProfiles = appProfiles ? { ...userProfiles, ...appProfiles } : userProfiles;
+  const merged = { ...userObject, ...appObject, ...(mergedProfiles ? { profiles: mergedProfiles } : {}) };
   return { written: `${stringify(merged).trim()}\n`, strippedProviders, parsed: true };
 }
 
 /**
- * A stdio-transport MCP server to inject into the wcore session. Each entry
- * is forwarded verbatim as an `add_mcp_server` command. `awaitReady` flags
- * that the server performs a ready handshake (e.g. team coordination MCP
- * waits for TEAM_AGENT_SLOT_ID registration); leave it false for fire-and-
- * forget servers like the team-guide bridge.
+ * A legacy stdio MCP declaration for the wcore session. Current Core rejects
+ * untrusted wire-added stdio processes, so user connectors must be published
+ * into trusted startup config before spawn. The remaining team bridge users of
+ * this type are tracked by M1M until Core pins a host-declaration contract.
+ * `awaitReady` requires a terminal receipt for this exact server name.
  */
 export type StdioMcpOption = {
   name: string;
@@ -157,11 +179,18 @@ export type WCoreAgentOptions = {
    */
   rawEngineMode?: boolean;
   /**
-   * Stdio MCP servers to register with the wcore session after start.
-   * Caller decides which MCPs belong here (team coordination, team-guide,
-   * future project MCPs, etc.) - WCoreAgent just forwards them.
+   * Legacy stdio MCP declarations sent after Core startup. Do not add user
+   * connectors here; publish them into trusted startup config instead.
    */
   stdioMcpServers?: StdioMcpOption[];
+  /** Exact trusted-config MCP names allowed into this Desktop-managed session. */
+  mcpServerNames?: string[];
+  /**
+   * Active profile directory captured by the manager before MCP publication.
+   * Pinning the launch to the same directory prevents a profile switch between
+   * config publication and spawn from silently dropping or crossing connectors.
+   */
+  waylandHome?: string;
   onStreamEvent: StreamEventHandler;
   onProcessExit?: (code: number | null, activeMsgId: string) => void;
   onPong?: () => void;
@@ -229,9 +258,11 @@ export class WCoreAgent {
    * never outlive its tool call.
    */
   private stallPauseReasons = new Set<string>();
-  private configBackup: { path: string; content: string | null; written: string | null } | null = null;
-  private mcpReadyPromise: Promise<void>;
-  private mcpReadyResolve!: () => void;
+  private projectConfigTransaction: ProjectConfigTransaction | null = null;
+  private readonly mcpWaiters = new Map<
+    string,
+    { resolve: () => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
+  >();
   public sessionId?: string;
   public capabilities?: WCoreCapabilities;
   /**
@@ -252,9 +283,22 @@ export class WCoreAgent {
    * opaque exit code (#484).
    */
   private stderrTail = '';
+  private readonly desktopContract = new DesktopCoreV1Consumer();
+  private readonly anvilMutationWatcher: AnvilPersistentMutationWatcher;
 
   constructor(options: WCoreAgentOptions) {
     this.options = options;
+    this.anvilMutationWatcher = new AnvilPersistentMutationWatcher(options.workspace, (reason) => {
+      const revoked = this.desktopContract.markWorkspaceMutated();
+      if (revoked.length > 0) {
+        console.warn('[WCoreAgent] publication-bound Anvil trust revoked', { reason, receiptIds: revoked });
+        this.onStreamEvent({
+          type: 'anvil_trust_changed',
+          data: { receipt_ids: revoked, status: 'historical', reason, requires_fresh_core_validation: true },
+          msg_id: '',
+        });
+      }
+    });
     this.stallTimer = new PromptTimer(resolveTurnStallTimeoutMs(), () => this.handleTurnStall());
     this.onStreamEvent = options.onStreamEvent;
     this._onProcessExit = options.onProcessExit;
@@ -262,9 +306,6 @@ export class WCoreAgent {
     this.readyPromise = new Promise((resolve, reject) => {
       this.readyResolve = resolve;
       this.readyReject = reject;
-    });
-    this.mcpReadyPromise = new Promise((resolve) => {
-      this.mcpReadyResolve = resolve;
     });
   }
 
@@ -289,6 +330,23 @@ export class WCoreAgent {
   }
 
   async start(): Promise<void> {
+    if (this.options.rawEngineMode) {
+      return this.startWithProjectConfigLease();
+    }
+
+    return withWCoreProjectConfigLease(this.options.workspace, async (canonicalWorkspace) => {
+      try {
+        await this.startWithProjectConfigLease(canonicalWorkspace);
+      } finally {
+        // Core's ready event proves startup config has been consumed. Restore
+        // before releasing the workspace lease so a sibling launch can never
+        // observe or inherit this chat's provider/MCP profile.
+        this.restoreProjectConfig();
+      }
+    });
+  }
+
+  private async startWithProjectConfigLease(workspace = this.options.workspace): Promise<void> {
     const binaryPath = resolveWCoreBinary();
     if (!binaryPath) {
       throw new Error('wcore binary not found');
@@ -360,7 +418,7 @@ export class WCoreAgent {
     const { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar } = buildSpawnConfig(
       spawnModel,
       {
-        workspace: this.options.workspace,
+        workspace,
         maxTokens: this.options.maxTokens,
         maxTurns: this.options.maxTurns,
         autoApprove: this.options.yoloMode,
@@ -390,8 +448,15 @@ export class WCoreAgent {
     this.resolvedMaxTokens = resolvedMaxTokens;
 
     // Write temporary .wcore.toml for provider compat overrides
-    if (projectConfig) {
-      this.writeProjectConfig(projectConfig);
+    const effectiveProjectConfig =
+      !this.options.rawEngineMode && this.options.mcpServerNames !== undefined
+        ? appendDesktopMcpProfile(projectConfig, this.options.mcpServerNames)
+        : projectConfig;
+    if (!this.options.rawEngineMode && this.options.mcpServerNames !== undefined) {
+      args.push('--profile', WCORE_DESKTOP_MCP_PROFILE);
+    }
+    if (effectiveProjectConfig) {
+      this.writeProjectConfig(effectiveProjectConfig, workspace);
     }
 
     // SEC-1: spawn with an allowlisted env (provider auth creds + forwarded
@@ -421,12 +486,14 @@ export class WCoreAgent {
     // have used anyway, so behaviour is unchanged from before this fix.
     //
     // The narrowing is what makes fail-closed structurally unable to brick `default`.
-    let waylandHome: string | undefined;
-    try {
-      waylandHome = await resolveActiveConfigDir();
-    } catch (err) {
-      if (err instanceof ProfileIsolationError) throw err;
-      console.warn('[WCoreAgent] Failed to resolve active profile config dir:', err);
+    let waylandHome = this.options.waylandHome;
+    if (!waylandHome) {
+      try {
+        waylandHome = await resolveActiveConfigDir();
+      } catch (err) {
+        if (err instanceof ProfileIsolationError) throw err;
+        console.warn('[WCoreAgent] Failed to resolve active profile config dir:', err);
+      }
     }
     // #710: hand the engine the profile's vault passphrase so it encrypts its
     // credential store (WAYLAND_HOME spawns otherwise fall back to a warned
@@ -446,7 +513,7 @@ export class WCoreAgent {
     this.childProcess = spawn(binaryPath, args, {
       env: buildEngineSpawnEnv({ providerEnv: env, toolKeys, waylandHome, vaultPassphraseEnv: vaultDelivery?.env }),
       stdio: vaultDelivery?.stdio ?? ['pipe', 'pipe', 'pipe'],
-      cwd: this.options.workspace,
+      cwd: workspace,
     });
     if (vaultDelivery?.mode === 'fd') {
       // Write the passphrase into the extra pipe and close our end so the
@@ -464,14 +531,46 @@ export class WCoreAgent {
     // on exit / graceful kill).
     trackAgentChild(this.childProcess);
 
-    // Parse stdout JSON Lines
-    const rl = createInterface({ input: this.childProcess.stdout! });
-    rl.on('line', (line) => {
+    // Parse stdout as bounded, fatal-UTF-8 JSON Lines. Node's readline layer
+    // replaces malformed UTF-8 and can retain an unbounded partial line, both
+    // of which violate the Desktop v1 producer contract.
+    const failDesktopContract = (error: unknown): void => {
+      const detail = error instanceof Error ? error.message : String(error);
+      const code = error instanceof DesktopCoreContractError ? error.code : 'unexpected_consumer_error';
+      console.error('[WCoreAgent] Desktop contract failed closed', { code, detail });
+      this.stopStallWatchdog();
+      if (!this.ready) this.readyReject(new Error(`wcore Desktop contract rejected ready: ${detail}`));
+      else {
+        this.onStreamEvent({
+          type: 'error',
+          data: `Wayland Core protocol safety check failed: ${detail}`,
+          msg_id: this.activeMsgId ?? '',
+        });
+      }
+      const child = this.childProcess;
+      if (child) void killChild(child, false).catch(() => {});
+    };
+    this.childProcess.stdout!.on('data', (chunk: Buffer | string) => {
       try {
-        const event = JSON.parse(line) as WCoreEvent;
-        this.handleEvent(event);
-      } catch {
-        console.error('[WCoreAgent] Failed to parse event:', line);
+        for (const result of this.desktopContract.consumeChunk(chunk)) {
+          if (result.kind === 'drop') {
+            console.warn('[WCoreAgent] Desktop contract dropped event', { reason: result.reason });
+            continue;
+          }
+          if (result.contract === 'v1' && result.event.type === 'anvil_receipt') {
+            this.anvilMutationWatcher.start();
+          }
+          this.handleEvent(result.event);
+        }
+      } catch (error) {
+        failDesktopContract(error);
+      }
+    });
+    this.childProcess.stdout!.on('end', () => {
+      try {
+        this.desktopContract.finishInput();
+      } catch (error) {
+        failDesktopContract(error);
       }
     });
 
@@ -493,6 +592,20 @@ export class WCoreAgent {
 
     // Handle process exit
     this.childProcess.on('exit', (code) => {
+      this.anvilMutationWatcher.stop();
+      const disconnectedReceipts = this.desktopContract.markDisconnected();
+      if (disconnectedReceipts.length > 0) {
+        this.onStreamEvent({
+          type: 'anvil_trust_changed',
+          data: {
+            receipt_ids: disconnectedReceipts,
+            status: 'historical',
+            reason: 'disconnected',
+            requires_fresh_core_validation: true,
+          },
+          msg_id: '',
+        });
+      }
       // #746: the engine is gone — disarm the watchdog rather than leave a timer armed
       // against a turn nothing can finish. (activeMsgId is nulled below too, so
       // handleTurnStall would early-return anyway; this just doesn't leak the timer.)
@@ -546,12 +659,12 @@ export class WCoreAgent {
         // next failure surfaces only its own output (#484 audit).
         const staleChild = this.childProcess;
         if (staleChild) {
-          rl.close();
           staleChild.removeAllListeners();
           staleChild.stdout?.removeAllListeners();
           staleChild.stderr?.removeAllListeners();
-          void killChild(staleChild, false).catch(() => {});
+          await killChild(staleChild, false).catch(() => {});
         }
+        this.restoreProjectConfig();
         this.childProcess = null;
         this.stderrTail = '';
         this.options = { ...this.options, resume: undefined, sessionId: this.options.resume };
@@ -560,16 +673,21 @@ export class WCoreAgent {
           this.readyResolve = resolve;
           this.readyReject = reject;
         });
-        return this.start();
+        return this.startWithProjectConfigLease(workspace);
       }
       throw err;
     }
 
-    // Inject stdio MCP servers (must happen before first message). Each entry
-    // is forwarded as `add_mcp_server`; if any entry has `awaitReady: true`,
-    // wait on the handshake before continuing.
+    // Register legacy host MCP declarations before the first message. Waiters
+    // are keyed by server name and installed BEFORE commands are written, so a
+    // fast receipt cannot race registration. Every awaited server must reach a
+    // terminal event; one unrelated `mcp_ready` can no longer release them all.
     const stdioMcpServers = this.options.stdioMcpServers ?? [];
-    let awaitAnyReady = false;
+    const awaitedReceipts = new Map(
+      stdioMcpServers
+        .filter((server) => server.awaitReady)
+        .map((server) => [server.name, this.waitForMcpTerminal(server.name)] as const)
+    );
     for (const server of stdioMcpServers) {
       const envRecord: Record<string, string> = {};
       for (const { name: k, value: v } of server.env) {
@@ -583,14 +701,10 @@ export class WCoreAgent {
         args: server.args,
         env: envRecord,
       });
-      if (server.awaitReady) awaitAnyReady = true;
     }
 
-    if (awaitAnyReady) {
-      await Promise.race([
-        this.mcpReadyPromise,
-        new Promise<void>((_resolve, reject) => setTimeout(() => reject(new Error('MCP ready timeout (30s)')), 30000)),
-      ]).catch((err) => {
+    if (awaitedReceipts.size > 0) {
+      await Promise.all(awaitedReceipts.values()).catch((err) => {
         console.warn('[WCoreAgent] MCP setup warning:', err);
       });
     }
@@ -602,6 +716,34 @@ export class WCoreAgent {
         text: `[Assistant System Rules]\n${this.options.presetRules}`,
       });
     }
+  }
+
+  private waitForMcpTerminal(name: string): Promise<void> {
+    const prior = this.mcpWaiters.get(name);
+    if (prior) {
+      clearTimeout(prior.timer);
+      prior.reject(new Error(`MCP readiness waiter replaced for "${name}"`));
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.mcpWaiters.delete(name);
+        reject(new Error(`MCP server "${name}" ready timeout (30s)`));
+      }, 30_000);
+      this.mcpWaiters.set(name, {
+        timer,
+        resolve: () => {
+          clearTimeout(timer);
+          this.mcpWaiters.delete(name);
+          resolve();
+        },
+        reject: (error) => {
+          clearTimeout(timer);
+          this.mcpWaiters.delete(name);
+          reject(error);
+        },
+      });
+    });
   }
 
   // ─── #746: turn stall watchdog ────────────────────────────────
@@ -823,8 +965,32 @@ export class WCoreAgent {
         });
         break;
 
+      // Contract-v1 authority/evidence is reduced before this switch. Forward
+      // the accepted snapshot/evidence as typed stream data for Cockpit
+      // consumers; no UI may infer or manufacture these values.
+      case 'execution_policy':
+      case 'workflow_started':
+      case 'workflow_node_event':
+      case 'workflow_finished':
+      case 'anvil_receipt_invalidated':
+        this.onStreamEvent({ type: event.type, data: event, msg_id: '' });
+        break;
+
+      case 'anvil_receipt':
+        this.onStreamEvent({
+          type: event.type,
+          data: { ...event, desktop_trust_status: this.desktopContract.anvilStatus(event.receipt_id) },
+          msg_id: '',
+        });
+        break;
+
       case 'mcp_ready':
-        this.mcpReadyResolve();
+        this.mcpWaiters.get(event.name)?.resolve();
+        this.onStreamEvent({
+          type: 'mcp_ready',
+          data: { name: event.name, tools: event.tools },
+          msg_id: '',
+        });
         break;
 
       // ── #713: MCP server connection failure ────────────────────────
@@ -836,6 +1002,12 @@ export class WCoreAgent {
       // were invisible outside the log file.
       case 'mcp_failed':
         console.warn('[WCoreAgent] mcp_failed', { name: event.name, reason: event.reason });
+        this.mcpWaiters.get(event.name)?.reject(new Error(`MCP server "${event.name}" failed: ${event.reason}`));
+        this.onStreamEvent({
+          type: 'mcp_failed',
+          data: { name: event.name, reason: event.reason },
+          msg_id: '',
+        });
         this.onStreamEvent({
           type: 'info',
           data: `MCP server "${event.name}" failed to connect: ${event.reason}`,
@@ -1225,7 +1397,8 @@ export class WCoreAgent {
 
   sendCommand(cmd: WCoreCommand): void {
     if (!this.childProcess?.stdin?.writable) return;
-    this.childProcess.stdin.write(JSON.stringify(cmd) + '\n');
+    const validated = this.desktopContract.validateOutboundCommand(cmd);
+    this.childProcess.stdin.write(JSON.stringify(validated) + '\n');
   }
 
   async send(content: string, msgId: string, files?: string[]): Promise<void> {
@@ -1296,7 +1469,20 @@ export class WCoreAgent {
     // dead agent and emit a bogus stall error for a turn nobody is running.
     this.stopStallWatchdog();
     this.activeMsgId = null;
-    this.restoreProjectConfig();
+    this.anvilMutationWatcher.stop();
+    const disconnectedReceipts = this.desktopContract.markDisconnected();
+    if (disconnectedReceipts.length > 0) {
+      this.onStreamEvent({
+        type: 'anvil_trust_changed',
+        data: {
+          receipt_ids: disconnectedReceipts,
+          status: 'historical',
+          reason: 'disconnected',
+          requires_fresh_core_validation: true,
+        },
+        msg_id: '',
+      });
+    }
     if (this.childProcess) {
       // wayland-core spawns its own child tree (MCP servers, tool subprocesses).
       // A bare SIGTERM is a no-op on Windows and never reaches the tree, leaving
@@ -1306,6 +1492,9 @@ export class WCoreAgent {
       this.childProcess = null;
       await killChild(child, false);
     }
+    // Keep the launch-specific config in place until the child is gone; an
+    // engine still booting must never fall through to a sibling/user config.
+    this.restoreProjectConfig();
   }
 
   /**
@@ -1324,9 +1513,11 @@ export class WCoreAgent {
    * settings are preserved. If the existing file is unparseable, we fail closed
    * and write only the app's known-good config.
    */
-  private writeProjectConfig(content: string): void {
-    const configPath = join(this.options.workspace, WCORE_PROJECT_CONFIG);
-    const existing = existsSync(configPath) ? readFileSync(configPath, 'utf-8') : null;
+  private writeProjectConfig(content: string, workspace = this.options.workspace): void {
+    const configPath = join(workspace, WCORE_PROJECT_CONFIG);
+    recoverProjectConfigTransaction(configPath);
+    const existingBytes = readProjectConfigNoFollow(configPath);
+    const existing = existingBytes?.toString('utf-8') ?? null;
 
     let written: string;
     if (existing) {
@@ -1341,16 +1532,14 @@ export class WCoreAgent {
           `[WCoreAgent] Stripped untrusted [providers.*] override(s) from existing ${WCORE_PROJECT_CONFIG}; app-owned provider config wins.`
         );
       }
-      writeFileSync(configPath, written, 'utf-8');
     } else {
       written = content;
-      writeFileSync(configPath, written, 'utf-8');
     }
 
-    // Track the exact bytes this agent left on disk so restore can detect
-    // whether a sibling agent (same workspace, concurrent chat) has since
-    // overwritten the file - see restoreProjectConfig for the TOCTOU guard.
-    this.configBackup = { path: configPath, content: existing, written };
+    // Journal original bytes durably before atomically publishing the temporary
+    // launch config. A later launch heals a process-death interruption before it
+    // reads or writes the project file.
+    this.projectConfigTransaction = ProjectConfigTransaction.begin(configPath, written);
   }
 
   /**
@@ -1363,24 +1552,16 @@ export class WCoreAgent {
    * responsible for its own restore.
    */
   private restoreProjectConfig(): void {
-    if (!this.configBackup) return;
-    const { path, content, written } = this.configBackup;
-    this.configBackup = null;
+    const transaction = this.projectConfigTransaction;
+    this.projectConfigTransaction = null;
+    if (!transaction) return;
 
     try {
-      const current = existsSync(path) ? readFileSync(path, 'utf-8') : null;
-      // A sibling agent has rewritten the file since we wrote it; leave it
-      // alone so we don't delete/clobber config another live agent depends on.
-      if (current !== written) {
-        return;
-      }
-      if (content === null) {
-        unlinkSync(path);
-      } else {
-        writeFileSync(path, content, 'utf-8');
-      }
-    } catch {
-      // Best-effort cleanup; file may already be removed
+      transaction.restore();
+    } catch (error) {
+      // Keep the durable journal for the next launch to heal. Never delete the
+      // only recovery evidence after a failed restore.
+      console.error('[WCoreAgent] Failed to restore project config transaction', error);
     }
   }
 }

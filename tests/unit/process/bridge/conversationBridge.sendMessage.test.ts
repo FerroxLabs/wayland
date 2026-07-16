@@ -59,6 +59,9 @@ vi.mock('@process/utils/initStorage', () => ({
   getSkillsDir: vi.fn(() => '/mock/skills'),
   getBuiltinSkillsCopyDir: vi.fn(() => '/mock/builtin-skills'),
   getSystemDir: vi.fn(() => ({ cacheDir: '/mock/cache' })),
+  ProcessConfig: {
+    get: vi.fn().mockImplementation(async (key: string) => (key === 'language' ? 'en-US' : [])),
+  },
   ProcessChat: { conversations: [] },
 }));
 
@@ -112,6 +115,7 @@ describe('conversationBridge.sendMessage', () => {
     getConversation: vi.fn(),
     remove: vi.fn(),
     update: vi.fn(),
+    updateConversation: vi.fn(async () => {}),
     getAll: vi.fn(),
     reset: vi.fn(),
     list: vi.fn(),

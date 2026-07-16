@@ -8,13 +8,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import type { IProvider } from '@/common/config/storage';
 
-const { mockStats, mockList, getInstance, mockGetProviderCatalog, mockProcessConfigGet } = vi.hoisted(() => ({
-  mockStats: vi.fn(),
-  mockList: vi.fn(),
-  getInstance: vi.fn(),
-  mockGetProviderCatalog: vi.fn(),
-  mockProcessConfigGet: vi.fn(),
-}));
+const { mockStats, mockList, getInstance, mockGetProviderCatalog, mockProcessConfigGet, mockOfficeAuthoringProbe } =
+  vi.hoisted(() => ({
+    mockStats: vi.fn(),
+    mockList: vi.fn(),
+    getInstance: vi.fn(),
+    mockGetProviderCatalog: vi.fn(),
+    mockProcessConfigGet: vi.fn(),
+    mockOfficeAuthoringProbe: vi.fn(),
+  }));
 
 vi.mock('@process/services/skills/SkillLibrary', () => ({
   SkillLibrary: { getInstance },
@@ -26,6 +28,10 @@ vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
 
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: mockProcessConfigGet },
+}));
+
+vi.mock('@process/services/capabilities/OfficeCliAuthoringCapability', () => ({
+  probeOfficeCliAuthoringCapability: mockOfficeAuthoringProbe,
 }));
 
 import {
@@ -86,6 +92,13 @@ function primeHappyPath(): void {
 beforeEach(() => {
   vi.clearAllMocks();
   invalidateCapabilitiesManifestCache();
+  mockOfficeAuthoringProbe.mockResolvedValue({
+    state: 'ready',
+    version: '1.0.63',
+    executionMode: 'local-binary',
+    missingCommands: [],
+    reason: 'ready',
+  });
 });
 
 describe('buildCapabilitiesManifest', () => {
@@ -211,6 +224,35 @@ describe('buildCapabilitiesManifest', () => {
     expect(out).toContain('Features:');
     // model.config must not be read when models are excluded.
     expect(mockProcessConfigGet).not.toHaveBeenCalled();
+    expect(mockOfficeAuthoringProbe).not.toHaveBeenCalled();
+  });
+
+  it('omits Office authoring by default and does not run its probe', async () => {
+    primeHappyPath();
+    const out = await buildCapabilitiesManifest();
+
+    expect(out).not.toContain('Native Office authoring:');
+    expect(mockOfficeAuthoringProbe).not.toHaveBeenCalled();
+  });
+
+  it('reports the incompatible hosted-credit contract honestly when requested', async () => {
+    primeHappyPath();
+    mockOfficeAuthoringProbe.mockResolvedValue({
+      state: 'incompatible',
+      version: '0.2.79',
+      executionMode: 'hosted-credits',
+      missingCommands: ['create', 'open'],
+      reason: 'wrong contract',
+    });
+
+    const out = await buildCapabilitiesManifest({ includeOfficeAuthoring: true });
+
+    expect(out).toContain('Native Office authoring: unavailable');
+    expect(out).toContain('officecli 0.2.79');
+    expect(out).toContain('incompatible hosted-credit contract');
+    expect(out).toContain('Do not invoke it');
+    expect(out).toContain('does not expose hosted generation as an automatic fallback');
+    expect(mockOfficeAuthoringProbe).toHaveBeenCalledOnce();
   });
 
   it('counts ONLY skills in the headline and matches the skill-only categories (B3)', async () => {

@@ -43,6 +43,7 @@ import { getClaudeModelSlot } from './utils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability.ts';
 import { waitForMcpReady } from '@process/team/mcpReadiness';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
 
 // InitializeResult removed - replaced by AcpInitializeResult from acpTypes.ts
 
@@ -1636,7 +1637,10 @@ export class AcpAgent {
           if (mcpServers.length === 0) {
             emitMcpStatus?.('degraded');
           } else {
-            emitMcpStatus?.('session_ready', { serverCount: mcpServers.length });
+            // The ACP backend accepted the session configuration. This does not
+            // prove that its MCP tools are registered or callable; the later
+            // mcp_tools_ready phase owns that stronger claim.
+            emitMcpStatus?.('session_accepted', { serverCount: mcpServers.length });
           }
 
           if (response.sessionId && response.sessionId !== resumeSessionId) {
@@ -1658,7 +1662,9 @@ export class AcpAgent {
       if (mcpServers.length === 0) {
         emitMcpStatus?.('degraded');
       } else {
-        emitMcpStatus?.('session_ready', { serverCount: mcpServers.length });
+        // Session creation only proves configuration acceptance. Tool readiness
+        // is emitted separately after waitForMcpReady succeeds.
+        emitMcpStatus?.('session_accepted', { serverCount: mcpServers.length });
       }
 
       if (response.sessionId) {
@@ -1690,17 +1696,17 @@ export class AcpAgent {
 
   private async loadBuiltinSessionMcpServers(): Promise<AcpSessionMcpServer[]> {
     try {
-      const mcpConfig = await ProcessConfig.get('mcp.config');
+      const mcpConfig = await loadRuntimeMcpServers();
       const servers: AcpSessionMcpServer[] = [];
 
-      if (Array.isArray(mcpConfig) && mcpConfig.length > 0) {
+      if (mcpConfig.length > 0) {
         const mcpCaps = this.connection.getAgentCapabilities()?.mcpCapabilities;
         if (mcpCaps) {
           // Per-conversation scoping (#348): only inject the MCP servers active
           // for this chat (undefined ⇒ all). Builtins always pass.
           servers.push(
             ...buildAcpSessionMcpServers(
-              mcpConfig as IMcpServer[],
+              mcpConfig,
               mcpCaps,
               this.extra.activeMcpServers,
               this.extra.allowConciergeDiag === true

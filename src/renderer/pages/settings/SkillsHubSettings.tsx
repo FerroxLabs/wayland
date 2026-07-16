@@ -550,18 +550,18 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
                         className='p-8px hover:bg-danger-1 hover:text-danger-6 text-t-tertiary rd-6px outline-none flex items-center justify-center border border-transparent cursor-pointer transition-colors shadow-sm bg-base sm:bg-transparent sm:shadow-none'
                         onClick={() => {
                           Modal.confirm({
-                            title: t('settings.skillsHub.deleteConfirmTitle', { defaultValue: 'Delete Skill' }),
+                            title: t('settings.skillsHub.deleteConfirmTitle', { defaultValue: 'Move Skill to Trash' }),
                             content: t('settings.skillsHub.deleteConfirmContent', {
                               name: skill.name,
-                              defaultValue: `Are you sure you want to delete "${skill.name}"?`,
+                              defaultValue: `Move Wayland's copy of "${skill.name}" to system Trash? You can restore it from there.`,
                             }),
-                            okText: t('common.delete', { defaultValue: 'Delete' }),
+                            okText: t('settings.skillsHub.moveToTrash', { defaultValue: 'Move to Trash' }),
                             cancelText: t('common.cancel', { defaultValue: 'Cancel' }),
                             okButtonProps: { status: 'danger' },
                             onOk: () => void handleDelete(skill.name),
                           });
                         }}
-                        title={t('common.delete', { defaultValue: 'Delete' })}
+                        title={t('settings.skillsHub.moveToTrash', { defaultValue: 'Move to Trash' })}
                       >
                         <Trash2 size={16} />
                       </button>

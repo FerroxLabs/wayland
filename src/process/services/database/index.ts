@@ -10,7 +10,7 @@ import { createDriver } from './drivers/createDriver';
 import fs from 'fs';
 import path from 'path';
 import { runMigrations as executeMigrations } from './migrations';
-import { CURRENT_DB_VERSION, getDatabaseVersion, initSchema, setDatabaseVersion } from './schema';
+import { CURRENT_DB_VERSION, initSchema, setDatabaseVersion } from './schema';
 import type {
   IConversationRow,
   IMessageRow,
@@ -44,6 +44,12 @@ import {
   encryptString,
   decryptString,
 } from '@process/channels/utils/credentialCrypto';
+import {
+  DatabaseSchemaCompatibilityError,
+  isDatabaseCorruptionError,
+  isNativeModuleLoadError,
+  readDatabaseSchemaVersionStrict,
+} from '../recovery/startupCompatibility';
 
 type IConversationMessageSearchRow = IConversationRow & {
   message_id: string;
@@ -53,26 +59,6 @@ type IConversationMessageSearchRow = IConversationRow & {
 };
 
 const escapeLikePattern = (value: string): string => value.replace(/[\\%_]/g, (match) => `\\${match}`);
-
-const NATIVE_MODULE_LOAD_ERROR_PATTERNS = ['NODE_MODULE_VERSION', 'was compiled against', 'dlopen'];
-
-const DATABASE_CORRUPTION_PATTERNS = [
-  'SQLITE_CORRUPT',
-  'SQLITE_NOTADB',
-  'database disk image is malformed',
-  'file is not a database',
-  'malformed database schema',
-  'unsupported file format',
-];
-
-const isNativeModuleLoadError = (message: string): boolean => {
-  return NATIVE_MODULE_LOAD_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
-};
-
-const isDatabaseCorruptionError = (message: string): boolean => {
-  const normalizedMessage = message.toLowerCase();
-  return DATABASE_CORRUPTION_PATTERNS.some((pattern) => normalizedMessage.includes(pattern.toLowerCase()));
-};
 
 const extractSearchPreviewText = (rawContent: string): string => {
   const collectStrings = (value: unknown, bucket: string[]): void => {
@@ -114,7 +100,10 @@ export class WaylandUIDatabase {
   private readonly defaultUserId = 'system_default_user';
   private readonly systemPasswordPlaceholder = '';
 
-  private constructor(db: ISqliteDriver) {
+  private constructor(
+    db: ISqliteDriver,
+    private readonly dbPath: string
+  ) {
     this.db = db;
   }
 
@@ -131,7 +120,7 @@ export class WaylandUIDatabase {
     try {
       const driver = await createDriver(dbPath);
       failedDriver = driver;
-      const instance = new WaylandUIDatabase(driver);
+      const instance = new WaylandUIDatabase(driver, dbPath);
       instance.initialize();
       return instance;
     } catch (error) {
@@ -164,53 +153,65 @@ export class WaylandUIDatabase {
       console.error('[Database] Failed to initialize due to corruption, attempting recovery...', error);
     }
 
-    // Recovery: backup corrupted file and start fresh.
-    // IMPORTANT: also remove the WAL (-wal) and shared-memory (-shm) sidecar files.
-    // If they are left behind, SQLite will try to apply the stale WAL to the new
-    // empty database on the next open, which causes another initialization failure
-    // and triggers an infinite recovery loop.
+    // Recovery: quarantine the complete SQLite file set before starting fresh.
+    // The WAL can contain committed user work that has not reached the main DB,
+    // so deleting sidecars is data loss. Move DB/WAL/SHM as one rollback-safe
+    // transaction and fail closed if any member cannot be preserved.
     if (fs.existsSync(dbPath)) {
-      const backupPath = `${dbPath}.backup.${Date.now()}`;
+      const quarantineBase = `${dbPath}.corrupt.${Date.now()}`;
+      const moved: Array<{ source: string; quarantine: string }> = [];
       try {
-        fs.renameSync(dbPath, backupPath);
-        console.log(`[Database] Backed up corrupted database to: ${backupPath}`);
-      } catch {
-        try {
-          fs.unlinkSync(dbPath);
-          console.log('[Database] Deleted corrupted database file');
-        } catch (e2) {
-          throw new Error('Database is corrupted and cannot be recovered. Please manually delete: ' + dbPath, {
-            cause: e2,
-          });
+        for (const suffix of ['', '-wal', '-shm']) {
+          const source = dbPath + suffix;
+          if (!fs.existsSync(source)) continue;
+          const quarantine = quarantineBase + suffix;
+          fs.renameSync(source, quarantine);
+          moved.push({ source, quarantine });
         }
-      }
-    }
-    // Remove stale WAL sidecar files so SQLite starts with a clean slate
-    for (const suffix of ['-wal', '-shm']) {
-      const sidecar = dbPath + suffix;
-      if (fs.existsSync(sidecar)) {
-        try {
-          fs.unlinkSync(sidecar);
-          console.log(`[Database] Removed stale WAL sidecar: ${sidecar}`);
-        } catch (e) {
-          console.warn(`[Database] Could not remove sidecar ${sidecar}:`, e);
+        console.log(`[Database] Quarantined corrupted SQLite files at: ${quarantineBase}`);
+      } catch (error) {
+        const rollbackErrors: string[] = [];
+        for (const entry of moved.reverse()) {
+          try {
+            fs.renameSync(entry.quarantine, entry.source);
+          } catch (rollbackError) {
+            rollbackErrors.push(rollbackError instanceof Error ? rollbackError.message : String(rollbackError));
+          }
         }
+        const rollbackNote =
+          rollbackErrors.length === 0
+            ? 'Original files remain in place.'
+            : `Manual recovery is required; rollback also failed: ${rollbackErrors.join('; ')}`;
+        throw new Error(`Database is corrupted and could not be quarantined safely. ${rollbackNote}`, {
+          cause: error,
+        });
       }
     }
 
     // Retry with fresh file
     const driver = await createDriver(dbPath);
-    const instance = new WaylandUIDatabase(driver);
+    const instance = new WaylandUIDatabase(driver, dbPath);
     instance.initialize();
     return instance;
   }
 
   private initialize(): void {
     try {
+      // Read compatibility before initSchema performs any CREATE/ALTER work.
+      // Older binaries must never mutate a database written by a newer build.
+      const currentVersion = readDatabaseSchemaVersionStrict(this.db);
+      if (currentVersion > CURRENT_DB_VERSION) {
+        throw new DatabaseSchemaCompatibilityError({
+          status: 'future-schema',
+          currentVersion,
+          supportedVersion: CURRENT_DB_VERSION,
+          databasePath: this.dbPath,
+        });
+      }
+
       initSchema(this.db);
 
       // Check and run migrations if needed
-      const currentVersion = getDatabaseVersion(this.db);
       if (currentVersion < CURRENT_DB_VERSION) {
         this.runMigrations(currentVersion, CURRENT_DB_VERSION);
         setDatabaseVersion(this.db, CURRENT_DB_VERSION);
@@ -275,6 +276,11 @@ export class WaylandUIDatabase {
    */
   getDriver(): ISqliteDriver {
     return this.db;
+  }
+
+  /** Capture committed database state without closing the live connection. */
+  backupTo(destinationPath: string): Promise<void> {
+    return this.db.backup(destinationPath);
   }
 
   /**

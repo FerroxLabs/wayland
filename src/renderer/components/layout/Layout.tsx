@@ -9,6 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { TEAM_MODE_ENABLED } from '@/common/config/constants';
 import { ConfigStorage, type ICssTheme } from '@/common/config/storage';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
+import type { ShellExperience } from '@/common/shellExperience';
 import PwaPullToRefresh from '@/renderer/components/layout/PwaPullToRefresh';
 import Titlebar from '@/renderer/components/layout/Titlebar';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
@@ -42,6 +44,8 @@ import {
   setExtensionThemesCache,
 } from '@renderer/utils/theme/themeCssSync';
 import '@renderer/styles/layout.css';
+
+const OPEN_COMMAND_PALETTE_EVENT = 'wayland:open-command-palette';
 
 // DevTools escape hatch: the only way to open Chrome DevTools in a packaged
 // production build. Gated behind a modifier so a plain logo click never
@@ -111,7 +115,8 @@ const detectMobileViewportOrTouch = (): boolean => {
 const Layout: React.FC<{
   sider: React.ReactNode;
   onSessionClick?: () => void;
-}> = ({ sider, onSessionClick: _onSessionClick }) => {
+  shellExperience?: ShellExperience;
+}> = ({ sider, onSessionClick: _onSessionClick, shellExperience = 'classic' }) => {
   const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -187,6 +192,12 @@ const Layout: React.FC<{
 
   const handlePaletteClose = useCallback(() => setPaletteOpen(false), []);
 
+  useEffect(() => {
+    const openPalette = () => setPaletteOpen(true);
+    window.addEventListener(OPEN_COMMAND_PALETTE_EVENT, openPalette);
+    return () => window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, openPalette);
+  }, []);
+
   // Launch a chat with the selected preset assistant. Persists the agent
   // key to ConfigStorage under the same key `useGuidAgentSelection` reads
   // on mount (and on every locationKey change), then navigates to /guid.
@@ -195,7 +206,7 @@ const Layout: React.FC<{
   // path - which means the Phase 1 Rory rule applies automatically.
   const handleLaunchPreset = useCallback(
     (preset: PaletteAssistant) => {
-      const backend = (preset.presetAgentType ?? 'gemini') as AcpBackend;
+      const backend = resolvePresetAgentType(preset.presetAgentType) as AcpBackend;
       const agentKey = getAgentKey({ backend, customAgentId: preset.id });
       ConfigStorage.set('guid.lastSelectedAgent', agentKey)
         .catch((error) => console.error('Failed to persist palette-selected agent:', error))
@@ -569,10 +580,20 @@ const Layout: React.FC<{
     // Titlebar suppresses its sider toggle and keeps macOS traffic-light spacing.
     return (
       <LayoutContext.Provider
-        value={{ isMobile, isNarrow, isTouch, siderCollapsed: true, setSiderCollapsed: noopSetSiderCollapsed }}
+        value={{
+          isMobile,
+          isNarrow,
+          isTouch,
+          shellExperience,
+          siderCollapsed: true,
+          setSiderCollapsed: noopSetSiderCollapsed,
+        }}
       >
         <NavigationHistoryProvider>
-          <div className='app-shell app-shell--popout flex flex-col size-full min-h-0'>
+          <div
+            className='app-shell app-shell--popout flex flex-col size-full min-h-0'
+            data-shell-experience={shellExperience}
+          >
             <Titlebar workspaceAvailable={workspaceAvailable} />
             <div className='bg-1 layout-content flex flex-col flex-1 min-h-0'>
               <Outlet />
@@ -587,10 +608,17 @@ const Layout: React.FC<{
 
   return (
     <LayoutContext.Provider
-      value={{ isMobile, isNarrow, isTouch, siderCollapsed: collapsed, setSiderCollapsed: setCollapsed }}
+      value={{
+        isMobile,
+        isNarrow,
+        isTouch,
+        shellExperience,
+        siderCollapsed: collapsed,
+        setSiderCollapsed: setCollapsed,
+      }}
     >
       <NavigationHistoryProvider>
-        <div className='app-shell flex flex-col size-full min-h-0'>
+        <div className='app-shell flex flex-col size-full min-h-0' data-shell-experience={shellExperience}>
           <Titlebar workspaceAvailable={workspaceAvailable} />
           {/* Mobile left sider backdrop */}
           {isMobile && !collapsed && (

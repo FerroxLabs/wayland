@@ -404,6 +404,26 @@ export class MissingApiKeyError extends Error {
   }
 }
 
+export const WCORE_DESKTOP_MCP_PROFILE = '__wayland_desktop_session';
+
+/**
+ * Add a launch-local Core profile that narrows the globally published MCP
+ * table to the exact connector names selected for this Desktop chat.
+ */
+export function appendDesktopMcpProfile(
+  projectConfig: string | null | undefined,
+  serverNames: readonly string[]
+): string {
+  const base = projectConfig?.trimEnd() ?? '';
+  const uniqueNames = [...new Set(serverNames)].sort();
+  const profile = [
+    `[profiles.${WCORE_DESKTOP_MCP_PROFILE}]`,
+    `mcp_servers = [${uniqueNames.map((name) => JSON.stringify(name)).join(', ')}]`,
+    '',
+  ].join('\n');
+  return base ? `${base}\n\n${profile}` : profile;
+}
+
 /**
  * Provider-key env vars the engine can read straight from the user's SHELL - the
  * allowlisted subset of {@link ENGINE_ENV_ALLOWLIST} that carries a real key. A

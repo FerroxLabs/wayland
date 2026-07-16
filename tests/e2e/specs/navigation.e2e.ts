@@ -41,20 +41,35 @@ test.describe('Guid Page', () => {
 
 test.describe('Settings Pages', () => {
   const tabs: { tab: SettingsTab; name: string }[] = [
-    { tab: 'gemini', name: 'Gemini Settings' },
-    { tab: 'model', name: 'Model Settings' },
-    { tab: 'agent', name: 'Agent/ACP Settings' },
-    { tab: 'tools', name: 'Tools/MCP Settings' },
-    { tab: 'display', name: 'Display Settings' },
+    { tab: 'assistants', name: 'Assistants Settings' },
+    { tab: 'skills', name: 'Skills & Tools Settings' },
+    { tab: 'commands', name: 'Slash Commands Settings' },
+    { tab: 'constitution', name: 'Constitution Settings' },
+    { tab: 'models', name: 'Models Settings' },
+    { tab: 'agents', name: 'Agents Settings' },
+    { tab: 'images', name: 'Image Generation Settings' },
+    { tab: 'voice', name: 'Voice Settings' },
+    { tab: 'wcore', name: 'Wayland Core Settings' },
     { tab: 'webui', name: 'WebUI Settings' },
-    { tab: 'system', name: 'System Settings' },
+    { tab: 'channels', name: 'Channels Settings' },
+    { tab: 'mcp-library', name: 'MCP Library' },
+    { tab: 'extensions', name: 'Extensions Settings' },
+    { tab: 'migrate', name: 'Migration Settings' },
+    { tab: 'theme', name: 'Theme & Display Settings' },
+    { tab: 'editor', name: 'Editor Settings' },
+    { tab: 'navigation', name: 'Navigation Settings' },
+    { tab: 'general', name: 'General Settings' },
+    { tab: 'notifications', name: 'Notifications Settings' },
+    { tab: 'storage', name: 'Storage Settings' },
+    { tab: 'ijfw', name: 'IJFW Memory Settings' },
+    { tab: 'doctor', name: 'Doctor Settings' },
     { tab: 'about', name: 'About Page' },
   ];
 
   for (const { tab, name } of tabs) {
     test(`${name} loads`, async ({ page }) => {
       await goToSettings(page, tab);
-      await expectUrlContains(page, tab);
+      await expectUrlContains(page, ROUTES.settings[tab].slice(1));
       const body = await page.locator('body').textContent();
       expect(body!.length).toBeGreaterThan(10);
     });

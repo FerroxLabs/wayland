@@ -29,7 +29,13 @@ export function useTeamList() {
 
   const removeTeam = useCallback(
     async (id: string) => {
-      await ipcBridge.team.remove.invoke({ id });
+      const result = (await ipcBridge.team.remove.invoke({ id })) as void | {
+        __bridgeError?: boolean;
+        message?: string;
+      };
+      if (result && typeof result === 'object' && result.__bridgeError) {
+        throw new Error(result.message || 'Team deletion was refused');
+      }
       localStorage.removeItem(`team-active-slot-${id}`);
       await mutate();
     },

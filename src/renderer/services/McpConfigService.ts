@@ -20,6 +20,17 @@ import { getCsrfToken } from '@process/webserver/middleware/csrfClient';
 
 type McpAgentResult = { agent: string; success: boolean; error?: string };
 type McpSyncResponse = { success: boolean; data?: { results: McpAgentResult[] }; msg?: string };
+export type ArchivedMcpConnector = {
+  archiveId: string;
+  archivedAt: number;
+  serverId: string;
+  name: string;
+  description?: string;
+  transportType: 'stdio' | 'sse' | 'http' | 'streamable_http';
+  source?: 'library' | 'custom';
+};
+type McpArchiveResponse = { success: boolean; data?: ArchivedMcpConnector; msg?: string };
+type McpArchiveListResponse = { success: boolean; data?: ArchivedMcpConnector[]; msg?: string };
 
 function csrfHeaders(): Record<string, string> {
   const token = getCsrfToken();
@@ -41,6 +52,25 @@ async function postMcpConfig(path: string, body: Record<string, unknown>): Promi
     data: json.data,
     msg: json.msg,
   };
+}
+
+async function postMcpArchive(path: string, body: Record<string, unknown>): Promise<McpArchiveResponse> {
+  const response = await postMcpConfig(path, body);
+  return response as unknown as McpArchiveResponse;
+}
+
+export async function listArchivedMcpServersHttp(): Promise<McpArchiveListResponse> {
+  const res = await fetch('/api/mcp/archived-servers', { credentials: 'include' });
+  const json = (await res.json().catch(() => ({}))) as McpArchiveListResponse;
+  return { success: Boolean(res.ok && json.success), data: json.data, msg: json.msg };
+}
+
+export function archiveConfiguredMcpServerHttp(serverId: string): Promise<McpArchiveResponse> {
+  return postMcpArchive('/api/mcp/archive-configured-server', { serverId });
+}
+
+export function restoreArchivedMcpServerHttp(archiveId: string): Promise<McpArchiveResponse> {
+  return postMcpArchive('/api/mcp/restore-archived-server', { archiveId });
 }
 
 /**

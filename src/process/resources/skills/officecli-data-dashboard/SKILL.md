@@ -7,14 +7,9 @@ description: "Use this skill to build a multi-element Excel dashboard - Dashboar
 
 A dashboard is not "a spreadsheet with charts". It is a composition: **one Dashboard sheet the user lands on** with formula-driven KPI cards, cell-range-linked charts, sparklines, and semantic conditional formatting. Everything else (raw data, aggregations) is upstream infrastructure the user should never need to open. This skill teaches the composition pattern. Everything about the xlsx engine - cells, formulas, batch JSON, shell quoting, validate, HTML preview - comes from `officecli-xlsx` and is not re-taught here.
 
-## Setup
+## Runtime contract
 
-If `officecli` is missing:
-
-- **macOS / Linux**: `curl -fsSL https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.sh | bash`
-- **Windows (PowerShell)**: `irm https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.ps1 | iex`
-
-Verify with `officecli --version` (open a new terminal if PATH hasn't picked up). If install fails, download a binary from https://github.com/iOfficeAI/OfficeCLI/releases.
+Wayland Desktop supplies a checksum-pinned native `officecli` runtime. Do not install, update, download, or replace it from this skill. Native authoring requires the exact verified `1.0.136` version. If `officecli --version` or the required `officecli --help` surface fails, stop and use Wayland's reinstall/update recovery path; never bootstrap mutable code or silently switch to hosted-credit generation.
 
 ## ⚠️ Help-First Rule
 

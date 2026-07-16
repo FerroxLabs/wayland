@@ -180,6 +180,7 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
     const installOperation = async () => {
       try {
+        const failures: string[] = [];
         for (const server of mcpServers) {
           try {
             if (server.transport.type === 'stdio') {
@@ -219,13 +220,17 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
                 timeout: 5000,
                 env: { ...process.env, NODE_OPTIONS: '', TERM: 'dumb', NO_COLOR: '1' },
               });
+            } else {
+              failures.push(`${server.name}: CodeBuddy does not support ${server.transport.type} transport type`);
+              continue;
             }
             console.log(`[CodebuddyMcpAgent] Added MCP server: ${server.name}`);
           } catch (error) {
             console.warn(`Failed to add MCP ${server.name} to CodeBuddy:`, error);
+            failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
           }
         }
-        return { success: true };
+        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) };
       }
@@ -242,6 +247,7 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
     const removeOperation = async () => {
       try {
         const scopes = ['user', 'local', 'project'] as const;
+        const failures: string[] = [];
 
         for (const scope of scopes) {
           try {
@@ -260,9 +266,11 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
               continue;
             }
             console.warn(`[CodebuddyMcpAgent] Failed to remove from ${scope} scope:`, errorMessage);
+            failures.push(`${scope}: ${errorMessage}`);
           }
         }
 
+        if (failures.length > 0) return { success: false, error: failures.join('; ') };
         console.log(`[CodebuddyMcpAgent] MCP server ${mcpServerName} not found in any scope (may already be removed)`);
         return { success: true };
       } catch (error) {

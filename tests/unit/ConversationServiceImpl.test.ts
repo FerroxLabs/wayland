@@ -155,7 +155,10 @@ describe('ConversationServiceImpl.updateConversation', () => {
 });
 
 describe('ConversationServiceImpl.createWithMigration', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockCronService.listJobsByConversation.mockResolvedValue([]);
+  });
 
   it('creates conversation in repo', async () => {
     const repo = makeRepo({
@@ -184,11 +187,11 @@ describe('ConversationServiceImpl.createWithMigration', () => {
     const targetConv = makeConversation({ id: 'target-conv', name: 'Target' });
     const job1 = makeCronJob({
       id: 'job-1',
-      metadata: { conversationId: 'source-conv', conversationTitle: 'Source' } as any,
+      metadata: { ...makeCronJob().metadata, conversationId: 'source-conv', conversationTitle: 'Source' },
     });
     const job2 = makeCronJob({
       id: 'job-2',
-      metadata: { conversationId: 'source-conv', conversationTitle: 'Source' } as any,
+      metadata: { ...makeCronJob().metadata, conversationId: 'source-conv', conversationTitle: 'Source' },
     });
 
     const repo = makeRepo({
@@ -225,7 +228,7 @@ describe('ConversationServiceImpl.createWithMigration', () => {
     expect(mockCronService.removeJob).not.toHaveBeenCalled();
   });
 
-  it('deletes cron jobs when migrateCron is false', async () => {
+  it('refuses migration instead of deleting schedules when migrateCron is false', async () => {
     const targetConv = makeConversation({ id: 'target-conv', name: 'Target' });
     const job1 = makeCronJob({ id: 'job-1', metadata: { conversationId: 'source-conv' } as any });
     const job2 = makeCronJob({ id: 'job-2', metadata: { conversationId: 'source-conv' } as any });
@@ -240,18 +243,21 @@ describe('ConversationServiceImpl.createWithMigration', () => {
     mockCronService.listJobsByConversation.mockResolvedValue([job1, job2]);
 
     const svc = new ConversationServiceImpl(repo);
-    await svc.createWithMigration({
-      conversation: targetConv,
-      sourceConversationId: 'source-conv',
-      migrateCron: false,
-    });
+    await expect(
+      svc.createWithMigration({
+        conversation: targetConv,
+        sourceConversationId: 'source-conv',
+        migrateCron: false,
+      })
+    ).rejects.toThrow('Scheduled tasks must move with the conversation');
 
-    expect(mockCronService.removeJob).toHaveBeenCalledWith('job-1');
-    expect(mockCronService.removeJob).toHaveBeenCalledWith('job-2');
+    expect(repo.createConversation).not.toHaveBeenCalled();
+    expect(mockCronService.removeJob).not.toHaveBeenCalled();
     expect(mockCronService.updateJob).not.toHaveBeenCalled();
+    expect(repo.deleteConversation).not.toHaveBeenCalled();
   });
 
-  it('continues migration even if cron handling fails', async () => {
+  it('fails closed before creating or deleting conversations when schedule authority fails', async () => {
     const targetConv = makeConversation({ id: 'target-conv', name: 'Target' });
 
     const repo = makeRepo({
@@ -265,14 +271,47 @@ describe('ConversationServiceImpl.createWithMigration', () => {
 
     const svc = new ConversationServiceImpl(repo);
 
-    // Should not throw
-    await svc.createWithMigration({
-      conversation: targetConv,
-      sourceConversationId: 'source-conv',
-      migrateCron: true,
-    });
+    await expect(
+      svc.createWithMigration({
+        conversation: targetConv,
+        sourceConversationId: 'source-conv',
+        migrateCron: true,
+      })
+    ).rejects.toThrow('Cron error');
 
-    expect(repo.deleteConversation).toHaveBeenCalledWith('source-conv');
+    expect(repo.createConversation).not.toHaveBeenCalled();
+    expect(repo.deleteConversation).not.toHaveBeenCalled();
+  });
+
+  it('restores already-moved schedules when a later schedule update fails', async () => {
+    const targetConv = makeConversation({ id: 'target-conv', name: 'Target' });
+    const job1 = makeCronJob({
+      id: 'job-1',
+      metadata: { ...makeCronJob().metadata, conversationId: 'source-conv', conversationTitle: 'Source' },
+    });
+    const job2 = makeCronJob({
+      id: 'job-2',
+      metadata: { ...makeCronJob().metadata, conversationId: 'source-conv', conversationTitle: 'Source' },
+    });
+    const repo = makeRepo();
+    mockCronService.listJobsByConversation.mockResolvedValue([job1, job2]);
+    mockCronService.updateJob
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('second schedule update failed'))
+      .mockResolvedValueOnce(undefined);
+
+    const svc = new ConversationServiceImpl(repo);
+    await expect(
+      svc.createWithMigration({
+        conversation: targetConv,
+        sourceConversationId: 'source-conv',
+        migrateCron: true,
+      })
+    ).rejects.toThrow('second schedule update failed');
+
+    expect(mockCronService.updateJob).toHaveBeenLastCalledWith('job-1', { metadata: job1.metadata });
+    expect(mockCronService.removeJob).not.toHaveBeenCalled();
+    expect(repo.deleteConversation).not.toHaveBeenCalled();
   });
 
   it('deletes source conversation only when message count matches', async () => {
@@ -309,10 +348,12 @@ describe('ConversationServiceImpl.createWithMigration', () => {
     mockCronService.listJobsByConversation.mockResolvedValue([]);
 
     const svc = new ConversationServiceImpl(repo);
-    await svc.createWithMigration({
-      conversation: targetConv,
-      sourceConversationId: 'source-conv',
-    });
+    await expect(
+      svc.createWithMigration({
+        conversation: targetConv,
+        sourceConversationId: 'source-conv',
+      })
+    ).rejects.toThrow('Migration integrity check failed');
 
     expect(repo.deleteConversation).not.toHaveBeenCalled();
   });

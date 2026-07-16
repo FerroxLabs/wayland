@@ -33,6 +33,7 @@ import {
 import { Layout as ArcoLayout } from '@arco-design/web-react';
 import React from 'react';
 import useSWR from 'swr';
+import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
 import './chat-layout.css';
 
 // headerExtra allows injecting custom actions (e.g., model picker) into the header's right area
@@ -249,6 +250,13 @@ const ChatLayout: React.FC<{
           {(hasTabs || layout?.isMobile) && <ConversationTitleMinimap conversationId={conversationId} hideTrigger />}
         </FlexFullContainer>
         <div className='flex items-center gap-12px shrink-0'>
+          {conversationId && (
+            <VoiceConversationMode
+              conversationId={conversationId}
+              conversationTitle={props.title}
+              actorLabel={displayName || 'Wayland'}
+            />
+          )}
           {isPopout && isElectronDesktop() && (
             <button
               type='button'
@@ -289,9 +297,11 @@ const ChatLayout: React.FC<{
   return (
     <ArcoLayout
       className='size-full'
-      style={{
-        // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
-      }}
+      style={
+        {
+          // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
+        }
+      }
     >
       <div ref={containerRef} className='flex flex-1 relative w-full overflow-hidden'>
         {isPreviewOpen && isDesktop ? (

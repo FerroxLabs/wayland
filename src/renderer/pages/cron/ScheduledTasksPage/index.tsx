@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Clock, Plus } from 'lucide-react';
+import { Archive, Clock, Plus } from 'lucide-react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,7 @@ import { getAgentLogo } from '@renderer/utils/model/agentLogo';
 import PageShell from '@/renderer/components/layout/PageShell';
 import CronStatusTag from './CronStatusTag';
 import CreateTaskDialog from './CreateTaskDialog';
+import ArchivedSchedulesModal from './ArchivedSchedulesModal';
 
 function normalizeAgentBackend(agent: string | undefined): AcpBackendAll | undefined {
   if (!agent) return undefined;
@@ -47,8 +48,9 @@ const ScheduledTasksPage: React.FC = () => {
   // remounts this page) and on window focus / tab-visible via useAllCronJobs,
   // so a chat-created task surfaces even when its one-shot onJobCreated event
   // was lost because this page was unmounted or the window was blurred.
-  const { jobs, loading, pauseJob, resumeJob } = useAllCronJobs();
+  const { jobs, loading, pauseJob, resumeJob, refetch } = useAllCronJobs();
   const [createDialogVisible, setCreateDialogVisible] = useState(false);
+  const [archivesVisible, setArchivesVisible] = useState(false);
   const [createInitialWorkflowSlug, setCreateInitialWorkflowSlug] = useState<string | undefined>(undefined);
   const [keepAwake, setKeepAwake] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -114,14 +116,24 @@ const ScheduledTasksPage: React.FC = () => {
       subtitle={t('cron.page.description')}
       width='full'
       actions={
-        <Button
-          type='primary'
-          className='shrink-0'
-          icon={<Plus size={14} />}
-          onClick={() => setCreateDialogVisible(true)}
-        >
-          {t('cron.page.newTask')}
-        </Button>
+        <div className='flex items-center gap-8px'>
+          <Button
+            className='shrink-0'
+            icon={<Archive size={14} />}
+            onClick={() => setArchivesVisible(true)}
+            data-testid='open-archived-schedules'
+          >
+            {t('cron.archive.open')}
+          </Button>
+          <Button
+            type='primary'
+            className='shrink-0'
+            icon={<Plus size={14} />}
+            onClick={() => setCreateDialogVisible(true)}
+          >
+            {t('cron.page.newTask')}
+          </Button>
+        </div>
       }
     >
       <div className={classNames('flex w-full box-border flex-col', isMobile ? 'gap-14px' : 'gap-16px')}>
@@ -263,6 +275,11 @@ const ScheduledTasksPage: React.FC = () => {
             setCreateInitialWorkflowSlug(undefined);
           }}
           initialWorkflowSlug={createInitialWorkflowSlug}
+        />
+        <ArchivedSchedulesModal
+          open={archivesVisible}
+          onClose={() => setArchivesVisible(false)}
+          onRestored={() => void refetch({ silent: true })}
         />
       </div>
     </PageShell>

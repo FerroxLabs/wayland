@@ -193,7 +193,7 @@ const RuntimePane: React.FC = () => {
               <div className={styles.lrDesc}>
                 {t('settings.wcoreConfig.runtime.rawEngineDesc', {
                   defaultValue:
-                    'Run the embedded engine on its own config, without overriding with Desktop’s model & skills.',
+                    'Use Core’s standalone config instead of the active Desktop-managed profile. Desktop model, skills, specialists, and selected MCP connectors will not be injected.',
                 })}
               </div>
             </div>

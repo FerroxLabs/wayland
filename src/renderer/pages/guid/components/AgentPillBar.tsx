@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Bot, ChevronDown, Plus } from 'lucide-react';
+import { Bot, ChevronDown, Plus, Search } from 'lucide-react';
 import { agentLogoDarkFilter, resolveAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
@@ -21,6 +21,8 @@ type AgentPillBarProps = {
   selectedAgentKey: string;
   getAgentKey: (agent: { backend: AcpBackend; customAgentId?: string }) => string;
   onSelectAgent: (key: string) => void;
+  /** Cockpit progressively discloses the complete roster behind one compact control. */
+  compact?: boolean;
   suppressSelectionAnimation?: boolean;
 };
 
@@ -60,53 +62,109 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
   selectedAgentKey,
   getAgentKey,
   onSelectAgent,
+  compact = false,
   suppressSelectionAnimation = false,
 }) => {
   const layout = useLayoutContext();
   const isMobile = layout?.isMobile ?? false;
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [agentQuery, setAgentQuery] = React.useState('');
 
   const selectableAgents = availableAgents.filter((agent) => !agent.isPreset);
+  const normalizedAgentQuery = agentQuery.trim().toLocaleLowerCase();
+  const filteredAgents = normalizedAgentQuery
+    ? selectableAgents.filter((agent) =>
+        [agent.name, agent.backend, agent.customAgentId]
+          .filter(Boolean)
+          .some((value) => value!.toLocaleLowerCase().includes(normalizedAgentQuery))
+      )
+    : selectableAgents;
 
-  // Mobile: the inline icon strip overflows and gets clipped. Collapse it into a
-  // single dropdown showing the selected agent, opening the full list on tap.
-  if (isMobile) {
+  // Mobile cannot fit the icon strip. Cockpit deliberately uses the same
+  // selected-first control on desktop: the current choice stays visible and the
+  // entire provider-agnostic roster remains one click away.
+  if (isMobile || compact) {
     const selected = selectableAgents.find((agent) => getAgentKey(agent) === selectedAgentKey) ?? selectableAgents[0];
     const droplist = (
-      <Menu
-        selectedKeys={selected ? [getAgentKey(selected)] : []}
-        onClickMenuItem={(key) => {
-          if (key === DISCOVER_AGENTS_KEY) {
-            navigate('/settings/agent?tab=local');
-            return;
-          }
-          onSelectAgent(key);
-        }}
-      >
-        {selectableAgents.map((agent) => (
-          <Menu.Item key={getAgentKey(agent)}>
-            <span className='flex items-center gap-8px'>
-              {renderAgentIcon(agent, 18)}
-              <span className='truncate'>{agent.name}</span>
-            </span>
-          </Menu.Item>
-        ))}
-        <Menu.Item key={DISCOVER_AGENTS_KEY}>
-          <span className='flex items-center gap-8px'>
-            <Plus size={18} className='shrink-0' />
-            <span>{t('settings.agentManagement.discoverMoreAgents', { defaultValue: 'Discover more agents' })}</span>
-          </span>
-        </Menu.Item>
-      </Menu>
+      <div style={{ minWidth: 280 }}>
+        <div className='p-8px' style={{ borderBottom: '1px solid var(--color-border-1)' }}>
+          <label
+            className='flex items-center gap-8px px-10px py-7px rd-8px'
+            style={{ backgroundColor: 'var(--color-fill-2)', color: 'var(--color-text-3)' }}
+          >
+            <Search size={15} aria-hidden='true' />
+            <input
+              type='search'
+              value={agentQuery}
+              onChange={(event) => setAgentQuery(event.target.value)}
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={(event) => {
+                if (event.key !== 'Escape') event.stopPropagation();
+              }}
+              aria-label={t('guid.agentPicker.search', { defaultValue: 'Find an agent' })}
+              placeholder={t('guid.agentPicker.search', { defaultValue: 'Find an agent' })}
+              className='min-w-0 flex-1 bg-transparent b-none outline-none text-13px text-[var(--color-text-1)]'
+            />
+          </label>
+        </div>
+        <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+          <Menu
+            selectedKeys={selected ? [getAgentKey(selected)] : []}
+            onClickMenuItem={(key) => {
+              setAgentQuery('');
+              if (key === DISCOVER_AGENTS_KEY) {
+                navigate('/settings/agent?tab=local');
+                return;
+              }
+              onSelectAgent(key);
+            }}
+          >
+            {filteredAgents.map((agent) => (
+              <Menu.Item key={getAgentKey(agent)}>
+                <span className='flex items-center gap-8px'>
+                  {renderAgentIcon(agent, 18)}
+                  <span className='truncate'>{agent.name}</span>
+                </span>
+              </Menu.Item>
+            ))}
+            {filteredAgents.length === 0 ? (
+              <Menu.Item key='__no_agents__' disabled>
+                <span style={{ color: 'var(--color-text-3)' }}>
+                  {t('guid.agentPicker.empty', { defaultValue: 'No matching agents' })}
+                </span>
+              </Menu.Item>
+            ) : null}
+            <Menu.Item key={DISCOVER_AGENTS_KEY}>
+              <span className='flex items-center gap-8px'>
+                <Plus size={18} className='shrink-0' />
+                <span>
+                  {t('settings.agentManagement.discoverMoreAgents', { defaultValue: 'Discover more agents' })}
+                </span>
+              </span>
+            </Menu.Item>
+          </Menu>
+        </div>
+      </div>
     );
 
     return (
       <div className='w-full flex justify-center' style={{ marginBottom: 20 }}>
-        <Dropdown droplist={droplist} trigger='click' position='bl'>
-          <div
+        <Dropdown
+          droplist={droplist}
+          trigger='click'
+          position='bl'
+          onVisibleChange={(visible) => {
+            if (!visible) setAgentQuery('');
+          }}
+        >
+          <button
+            type='button'
             data-agent-pill='true'
             data-agent-key={selected ? getAgentKey(selected) : ''}
+            data-agent-picker-mode={compact ? 'compact' : 'mobile'}
+            aria-label={t('guid.agentPicker.open', { defaultValue: 'Choose agent' })}
+            aria-haspopup='menu'
             className='flex items-center gap-8px cursor-pointer'
             style={{
               padding: '8px 14px',
@@ -115,12 +173,24 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
               border: '1px solid var(--color-border-1)',
               maxWidth: '100%',
               color: 'var(--text-primary)',
+              appearance: 'none',
             }}
           >
             {selected ? renderAgentIcon(selected, 20) : <Bot size={20} style={{ flexShrink: 0 }} />}
             <span className='font-semibold text-14px truncate'>{selected?.name ?? ''}</span>
+            {compact ? (
+              <>
+                <span className='w-1px h-16px shrink-0' style={{ backgroundColor: 'var(--color-border-2)' }} />
+                <span className='text-12px whitespace-nowrap' style={{ color: 'var(--color-text-3)' }}>
+                  {t('guid.agentPicker.availableCount', {
+                    count: selectableAgents.length,
+                    defaultValue: '{{count}} agents',
+                  })}
+                </span>
+              </>
+            ) : null}
             <ChevronDown size={16} className='shrink-0 opacity-60' />
-          </div>
+          </button>
         </Dropdown>
       </div>
     );
@@ -162,17 +232,16 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
             // Remote agents use emoji avatars - not image URLs
             const emojiAvatar =
               !LucideIconComponent && agent.backend === 'remote' && agent.avatar ? agent.avatar : undefined;
-            const logoSrc =
-              LucideIconComponent
-                ? undefined
-                : extensionAvatar ||
-                  (!emojiAvatar
-                    ? resolveAgentLogo({
-                        backend: agent.backend,
-                        customAgentId: agent.customAgentId,
-                        isExtension: agent.isExtension,
-                      })
-                    : undefined);
+            const logoSrc = LucideIconComponent
+              ? undefined
+              : extensionAvatar ||
+                (!emojiAvatar
+                  ? resolveAgentLogo({
+                      backend: agent.backend,
+                      customAgentId: agent.customAgentId,
+                      isExtension: agent.isExtension,
+                    })
+                  : undefined);
 
             return (
               <React.Fragment key={getAgentKey(agent)}>
@@ -225,7 +294,10 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
               </React.Fragment>
             );
           })}
-        <div className='w-1px h-16px mx-4px self-center' style={{ backgroundColor: 'var(--color-border-2)', opacity: 0.5 }} />
+        <div
+          className='w-1px h-16px mx-4px self-center'
+          style={{ backgroundColor: 'var(--color-border-2)', opacity: 0.5 }}
+        />
         <Tooltip content={t('settings.agentManagement.discoverMoreAgents', { defaultValue: 'Discover more agents' })}>
           <div
             className='flex items-center justify-center cursor-pointer p-4px opacity-60 hover:opacity-100 self-center'

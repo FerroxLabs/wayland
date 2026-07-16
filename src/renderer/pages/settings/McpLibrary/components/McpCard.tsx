@@ -41,8 +41,8 @@ const MAINTAINER_LABEL_DEFAULT: Record<CatalogIndexEntry['maintainerType'], stri
  * Browse-grid card on the on-brand recipe. The footer carries at most three
  * elements - maintainer tag + one state-driven affordance (+ kebab when
  * installed) - so it never overflows at the grid's tightest column width. The
- * orange Switch is the "connected" signal for a healthy installed server, which
- * is why no redundant status chip rides along.
+ * orange Switch is an enablement control, not proof that an active chat loaded
+ * the connector. Live-session evidence is rendered only in the conversation.
  */
 export function McpCard({ entry, installed, status, featured = false, onClick }: Props) {
   const { t } = useTranslation();
@@ -52,9 +52,6 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
   // An installed connector that is broken or wants a sign-in is surfaced right
   // on the card so the user can spot it at a glance instead of hunting Installed.
   const attention = installed && status !== undefined && needsAttention(status);
-  // Connected + active (enabled + reachable). Gets a persistent green outline so
-  // a live connector reads as "connected" at a glance, matching the Channels grid.
-  const connected = installed && status === 'running';
 
   const maintainerTag = (
     <span className={styles.cardTag}>
@@ -158,7 +155,8 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
       </>
     );
   } else if (server) {
-    // Installed + healthy: the orange Switch IS the connected signal (grey = off).
+    // Installed: the switch changes publication intent. It is not a chat-ready
+    // signal; the current-session receipt owns that claim.
     footerRight = (
       <>
         <span
@@ -189,7 +187,6 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
       className={classNames(
         styles.card,
         featured && styles.cardFeatured,
-        connected && styles.cardConnected,
       )}
       onClick={onClick}
       role="button"

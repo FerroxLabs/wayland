@@ -78,7 +78,7 @@ const DeleteTeamConfirmModal: React.FC<Props> = ({
           {t('team.sider.deleteConfirmBody', {
             teamName,
             defaultValue:
-              'This will permanently delete {{teamName}} and its conversation history. Type "delete" below to confirm.',
+              'This permanently deletes {{teamName}}, its agent chats, task board, mailbox, and team ritual schedules. Workspace files, reports, and user-created schedules are kept; user schedules must be moved or removed first. Type "delete" below to confirm.',
           })}
         </p>
         <Input

@@ -114,13 +114,21 @@ export function activeMarkerPath(): string {
   return join(profilesRoot(), ACTIVE_MARKER);
 }
 
-/** Read the active profile name from the marker, defaulting to `default`. */
+/** Read the active profile name. Only an absent marker means `default`. */
 export async function getActiveProfile(): Promise<string> {
   try {
     const raw = (await readFile(activeMarkerPath(), 'utf-8')).trim();
-    return PROFILE_NAME_RE.test(raw) ? raw : DEFAULT_PROFILE;
-  } catch {
-    return DEFAULT_PROFILE;
+    if (!PROFILE_NAME_RE.test(raw)) {
+      throw new ProfileIsolationError(raw || '<empty-marker>', 'active-profile marker is invalid');
+    }
+    return raw;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return DEFAULT_PROFILE;
+    if (error instanceof ProfileIsolationError) throw error;
+    throw new ProfileIsolationError(
+      '<unreadable-marker>',
+      error instanceof Error ? error.message : String(error)
+    );
   }
 }
 

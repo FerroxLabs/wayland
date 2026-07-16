@@ -11,6 +11,15 @@
 
 export { WaylandUIDatabase, getDatabase, closeDatabase } from './index';
 export {
+  assertDatabaseSchemaCompatible,
+  DatabaseSchemaCompatibilityError,
+  inspectDatabaseSchemaCompatibility,
+  preflightDesktopState,
+  readDatabaseSchemaVersionStrict,
+  resolvePhysicalDesktopDatabasePath,
+} from '../recovery/startupCompatibility';
+export type { DatabaseSchemaCompatibility, DatabaseSchemaCompatibilityStatus } from '../recovery/startupCompatibility';
+export {
   runMigrations,
   rollbackMigrations,
   getMigrationHistory,

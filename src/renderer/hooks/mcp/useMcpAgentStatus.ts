@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { ConfigStorage } from '@/common/config/storage';
 import { acpConversation, mcpService } from '@/common/adapter/ipcBridge';
 import type { IMcpServer } from '@/common/config/storage';
-import { canonicalMcpServerName } from '@/common/mcp';
+import { mcpServerCollisionKey } from '@/common/mcp';
 
 /**
  * MCP Agent install-status management hook.
@@ -57,7 +57,7 @@ export const useMcpAgentStatus = () => {
 
       serversToProcess.forEach((server) => {
         if (server.enabled) {
-          serverMap.set(canonicalMcpServerName(server.name), server);
+          serverMap.set(mcpServerCollisionKey(server.name), server);
           installStatus[server.name] = [];
         } else {
           // If the target server is disabled, also remove it from status
@@ -69,7 +69,7 @@ export const useMcpAgentStatus = () => {
       agentConfigs.forEach((agentConfig) => {
         agentConfig.servers.forEach((agentServer) => {
           // Resolve the agent's (rewritten) name back to the stored server.
-          const localServer = serverMap.get(canonicalMcpServerName(agentServer.name));
+          const localServer = serverMap.get(mcpServerCollisionKey(agentServer.name));
           // Only show install status when the local server exists and is enabled.
           // De-dupe sources: a stale slash-named duplicate alongside the sanitized
           // entry would otherwise list the same agent twice.
@@ -142,7 +142,7 @@ export const useMcpAgentStatus = () => {
 
         // Process config data
         processAgentConfigs(servers, mcpConfigsResponse.data, targetServerName);
-      } catch (error) {
+      } catch {
         // On error, keep current state to avoid flicker
       } finally {
         // Clear loading state
@@ -192,13 +192,11 @@ export const useMcpAgentStatus = () => {
 
       // Only inspect the install status of the specified server
       const installedAgents: string[] = [];
-      const targetCanonical = canonicalMcpServerName(serverName);
+      const targetCanonical = mcpServerCollisionKey(serverName);
       mcpConfigsResponse.data.forEach((agentConfig) => {
         // Each agent stores the server under its own rewritten name (slash/dot ->
         // dash); match by canonical form, not raw equality.
-        const hasServer = agentConfig.servers.some(
-          (server) => canonicalMcpServerName(server.name) === targetCanonical,
-        );
+        const hasServer = agentConfig.servers.some((server) => mcpServerCollisionKey(server.name) === targetCanonical);
         if (hasServer) {
           installedAgents.push(agentConfig.source);
         }
@@ -220,7 +218,7 @@ export const useMcpAgentStatus = () => {
 
         return updated;
       });
-    } catch (error) {
+    } catch {
       // Silently handle check failures
     } finally {
       // Clear loading state

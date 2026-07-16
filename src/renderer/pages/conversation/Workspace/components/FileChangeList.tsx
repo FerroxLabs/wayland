@@ -49,6 +49,12 @@ type DiffState = {
   deletions: number;
 };
 
+const recoveryActionLabel = (t: TFunction, operation: FileChangeInfo['operation']): string => {
+  if (operation === 'create') return t('conversation.workspace.changes.recoverCreate');
+  if (operation === 'modify') return t('conversation.workspace.changes.recoverModify');
+  return t('conversation.workspace.changes.recoverDelete');
+};
+
 const createDiffStats = (diffContent: string): { additions: number; deletions: number } => {
   let additions = 0;
   let deletions = 0;
@@ -281,7 +287,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
               renderActions: (change: FileChangeInfo) => (
                 <>
                   <ActionBtn
-                    tooltip={t('conversation.workspace.changes.discard')}
+                    tooltip={recoveryActionLabel(t, change.operation)}
                     icon={<Redo2 size={14} />}
                     onClick={() => onDiscardFile(change.relativePath, change.operation)}
                   />
@@ -326,7 +332,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
               headerAction: undefined,
               renderActions: (change: FileChangeInfo) => (
                 <ActionBtn
-                  tooltip={t('conversation.workspace.changes.reset')}
+                  tooltip={recoveryActionLabel(t, change.operation)}
                   icon={<Redo2 size={14} />}
                   onClick={() => onResetFile(change.relativePath, change.operation)}
                 />

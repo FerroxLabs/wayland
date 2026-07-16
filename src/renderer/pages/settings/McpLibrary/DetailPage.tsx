@@ -124,7 +124,7 @@ export function DetailPage() {
   const library = useMcpLibrary();
 
   const [message, contextHolder] = Message.useMessage();
-  const { mcpServers, saveMcpServers } = useMcpServers();
+  const { mcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
   const { agentInstallStatus, setAgentInstallStatus, checkSingleServerInstallStatus } = useMcpAgentStatus();
   const { syncMcpToAgents, removeMcpFromAgents } = useMcpOperations(mcpServers, message);
   const { login, cancel: cancelMcpOAuthIpc, loggingIn, oauthStatus, setByoCredentials } = useMcpOAuth();
@@ -134,7 +134,8 @@ export function DetailPage() {
     syncMcpToAgents,
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
-    setAgentInstallStatus
+    setAgentInstallStatus,
+    refreshMcpServers
   );
   const conn = useMcpConnection(mcpServers, saveMcpServers, message);
 
@@ -244,17 +245,18 @@ export function DetailPage() {
    * Finish the OAuth flow once login() returns success:
    *  - flip the server.enabled bit (the consent IS the affirmative action,
    *    no second click required)
-   *  - toast a "Connected to <vendor>" success message
+   *  - report authentication success without claiming live-session readiness
    */
   const finishOAuthSuccess = async (server: IMcpServer) => {
     if (!server.enabled) {
-      try {
-        await crud.handleToggleMcpServer(server.id, true);
-      } catch (err) {
-        console.error('[mcp-library] auto-enable after OAuth failed:', err);
-      }
+      const published = await crud.handleToggleMcpServer(server.id, true);
+      if (!published) return;
     }
-    message.success(t('mcpLibrary.install.oauthSuccess', 'Connected to {{name}}.', { name: entry.title }));
+    message.success(
+      t('mcpLibrary.install.oauthAuthorized', 'Signed in to {{name}}. New chats will verify its tools.', {
+        name: entry.title,
+      })
+    );
   };
 
   /**
@@ -297,9 +299,26 @@ export function DetailPage() {
         if (server.enabled) await crud.handleToggleMcpServer(server.id, false).catch(() => {});
         return;
       }
-      if (!server.enabled) await crud.handleToggleMcpServer(server.id, true);
+      const probedAt = Date.now();
+      const probedServer: IMcpServer = {
+        ...server,
+        status: 'connected',
+        tools: res.data?.tools?.map((tool) => ({
+          name: tool.name,
+          description: tool.description,
+          ...(tool._meta ? { _meta: tool._meta } : {}),
+        })),
+        lastConnected: probedAt,
+        lastError: undefined,
+        updatedAt: probedAt,
+      };
+      await saveMcpServers((prev) => prev.map((candidate) => (candidate.id === server.id ? probedServer : candidate)));
+      if (!server.enabled) {
+        const published = await crud.handleToggleMcpServer(server.id, true);
+        if (!published) return;
+      }
       message.success(
-        t('mcpLibrary.install.connected', 'Connected to {{name}} ({{count}} tools).', {
+        t('mcpLibrary.install.probeSucceeded', '{{name}} responded to the probe ({{count}} tools). New chats will verify availability.', {
           name: entry.title,
           count: res.data?.tools?.length ?? 0,
         })
@@ -452,18 +471,18 @@ export function DetailPage() {
     void cancelMcpOAuthIpc(server);
   };
 
-  // "Connected and ready" must reflect a real connection, not just an install.
-  // OAuth + api-key both require an affirmative, tested enable; only keyless
-  // ('none') servers are ready on install alone.
+  // This is standalone server readiness only. It deliberately requires an
+  // affirmative probe for every auth model, including keyless connectors; an
+  // install record alone is never ready. Live-chat readiness is a separate
+  // session receipt introduced by M1M and is not inferred here.
   const isOauth = w.auth.method === 'oauth2-byo';
   const isApiKey = w.auth.method === 'api-key';
-  const isReady =
+  const isProbeReachable =
     installed &&
-    (isOauth
-      ? installedServer?.enabled === true && oauthStatus[installedServer.id]?.needsLogin !== true
-      : isApiKey
-        ? installedServer?.enabled === true
-        : true);
+    installedServer?.enabled === true &&
+    installedServer.status === 'connected' &&
+    typeof installedServer.lastConnected === 'number' &&
+    (!isOauth || oauthStatus[installedServer.id]?.needsLogin !== true);
 
   const oauthInFlight = installedServer ? !!loggingIn[installedServer.id] : false;
   const reconnecting = installedServer ? !!conn.testingServers[installedServer.id] : false;
@@ -478,7 +497,7 @@ export function DetailPage() {
   // Setup tab so the steps/sign-in are the first thing the user sees - not
   // buried behind Overview. Once connected, default to Overview. A manual tab
   // click (setTab) always wins.
-  const activeTab: Tab = tab ?? (!isReady && guide ? 'setup-guide' : 'overview');
+  const activeTab: Tab = tab ?? (!isProbeReachable && guide ? 'setup-guide' : 'overview');
 
   // The connect action(s) the guide already exposes via a step button. Many
   // catalog guides forgot it (21 entries ship a token input with no save
@@ -491,13 +510,13 @@ export function DetailPage() {
   // Synthesized save button rendered DIRECTLY UNDER a token input whose guide
   // step forgot its own primaryAction. This is the "if there's a key box, there's
   // a save button" guarantee - it works whether the connector is freshly
-  // installed OR already connected (so the key can be updated in place;
+  // installed OR already probe-reachable (so the key can be updated in place;
   // handleAddMcpServer matches by name and re-tests). OAuth connectors are
   // excluded: their connect button is the sign-in card/bar, not a token field.
   const stepFallbackAction = !isOauth
     ? {
         action: 'api-key-save',
-        label: isReady
+        label: isProbeReachable
           ? t('mcpLibrary.detail.updateKey', 'Update key')
           : t('mcpLibrary.detail.saveConnect', 'Save & connect'),
         pending: installing,
@@ -509,11 +528,11 @@ export function DetailPage() {
   // inline button: OAuth sign-in, and keyless api-key (e.g. Context7). The
   // api-key/local-credentials WITH inputs case is handled in-step above.
   const showFallbackConnect =
-    !isReady &&
+    !isProbeReachable &&
     ((isOauth && !guideActions.includes('oauth-flow')) ||
       (isApiKey && !hasTokenInputs && !guideActions.includes('api-key-save')));
 
-  // Live UI status (running / warn / error / stopped) drives the 3 action-card
+  // Standalone status (reachable / warn / error / stopped) drives the action-card
   // states. "stopped" splits further: a disabled server reads as "Off".
   const uiStatus: UIStatus | null = installedServer
     ? deriveStatus(installedServer, oauthStatus[installedServer.id])
@@ -615,7 +634,9 @@ export function DetailPage() {
             type='button'
             className={styles.btnPrimary}
             onClick={() =>
-              w.auth.method === 'none' ? void install() : void onPrimary(isApiKey ? 'api-key-save' : 'oauth-flow')
+              w.auth.method === 'none'
+                ? void saveAndConnect()
+                : void onPrimary(isApiKey ? 'api-key-save' : 'oauth-flow')
             }
             disabled={installing || oauthInFlight}
           >
@@ -738,7 +759,8 @@ export function DetailPage() {
       );
     }
 
-    // STATE 2: Connected / healthy (running or disabled-but-installed).
+    // STATE 2: Stored, probed, or published. No wording here claims the active
+    // chat has registered the tools; only a session receipt may do that.
     return (
       <div className={`${styles.action} ${disabled ? '' : styles.actionConnected}`}>
         {disabled ? (
@@ -746,11 +768,18 @@ export function DetailPage() {
             <span className={`${styles.dot} ${styles.dotOff}`} />
             {t('mcpLibrary.detail.off', 'Off')}
           </div>
+        ) : uiStatus === 'reachable' ? (
+          <StatusChip status='reachable' />
         ) : (
-          <StatusChip status='running' />
+          <div className={styles.statusLine}>
+            <span className={`${styles.dot} ${styles.dotOff}`} />
+            {t('mcpLibrary.detail.enabledUnverified', 'Enabled · chat not verified')}
+          </div>
         )}
         <div className={styles.statusMeta} style={{ marginTop: 8 }}>
-          {t('mcpLibrary.detail.connectedMeta', '{{count}} tools', { count: toolCount })}
+          {uiStatus === 'reachable'
+            ? t('mcpLibrary.detail.reachableMeta', '{{count}} tools reported by the server probe', { count: toolCount })
+            : t('mcpLibrary.detail.publishedMeta', 'Published configuration; open a new chat to verify its tools.')}
           {syncedAt ? ` · ${t('mcpLibrary.detail.lastSynced', 'synced {{time}}', { time: syncedAt })}` : ''}
         </div>
         <div className={styles.ctrlRow}>
@@ -811,7 +840,7 @@ export function DetailPage() {
     },
     {
       icon: <Clock size={13} />,
-      key: t('mcpLibrary.detail.lastConnected', 'Last connected'),
+      key: t('mcpLibrary.detail.lastProbed', 'Last probed'),
       value: syncedAt ?? '—',
     },
   ];
@@ -943,11 +972,11 @@ export function DetailPage() {
           {activeTab === 'setup-guide' && (
             <>
               <h2 className={styles.hSec}>{t('mcpLibrary.detail.setupHeading', 'Setup guide')}</h2>
-              {isReady && (
+              {isProbeReachable && (
                 <div className={styles.setupSuccess} role='status'>
                   <Check size={16} />
                   <span>
-                    {t('mcpLibrary.install.setupComplete', '{{name}} is connected and ready. Ask any chat to use it.', {
+                    {t('mcpLibrary.install.probeComplete', '{{name}} passed its server probe and is enabled. A new chat will verify its tools.', {
                       name: entry.title,
                     })}
                   </span>
@@ -1040,7 +1069,7 @@ export function DetailPage() {
 
           {installed && (
             <div className={styles.panel}>
-              <h3>{t('mcpLibrary.detail.availableTo', 'Available to')}</h3>
+              <h3>{t('mcpLibrary.detail.publishedTo', 'Published to agent configs')}</h3>
               {syncedAgents.length > 0 ? (
                 <div className={styles.agentBadges}>
                   {syncedAgents.map((source) => {
@@ -1055,11 +1084,14 @@ export function DetailPage() {
                 </div>
               ) : (
                 <p className={styles.availableEmpty}>
-                  {t('mcpLibrary.detail.availableEmpty', 'Not synced to any agent yet.')}
+                  {t('mcpLibrary.detail.availableEmpty', 'Not published to any agent config yet.')}
                 </p>
               )}
               <p className={styles.availableNote}>
-                {t('mcpLibrary.detail.availableNote', 'Connectors are available to all your agents while enabled.')}
+                {t(
+                  'mcpLibrary.detail.availableNote',
+                  'Publication does not prove an open chat has loaded the tools. Start a new chat to verify availability.'
+                )}
               </p>
             </div>
           )}

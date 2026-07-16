@@ -82,7 +82,7 @@ describe('loadPresetAssistantResources', () => {
 
     const result = await loadPresetAssistantResources(
       {
-        customAgentId: 'builtin-cowork',
+        customAgentId: 'builtin-moltbook',
         localeKey: 'zh-CN',
         fallbackRules: 'fallback rules',
       },
@@ -98,5 +98,31 @@ describe('loadPresetAssistantResources', () => {
     expect(deps.readBuiltinRule).toHaveBeenCalledOnce();
     expect(deps.readBuiltinSkill).toHaveBeenCalledOnce();
     expect(deps.warn).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not revive Cowork legacy skill-file instructions', async () => {
+    const deps = createDeps({
+      readBuiltinRule: vi.fn(async () => 'cowork rules'),
+      readBuiltinSkill: vi.fn(async () => 'obsolete cowork skills'),
+      getEnabledSkills: vi.fn(async () => ['officecli-docx', 'pdf']),
+    });
+
+    await expect(
+      loadPresetAssistantResources(
+        {
+          customAgentId: 'builtin-cowork',
+          localeKey: 'en-US',
+          fallbackRules: 'fallback rules',
+        },
+        deps
+      )
+    ).resolves.toEqual({
+      rules: 'cowork rules',
+      skills: '',
+      enabledSkills: ['officecli-docx', 'pdf'],
+      disabledBuiltinSkills: undefined,
+    });
+    expect(deps.readBuiltinRule).toHaveBeenCalledOnce();
+    expect(deps.readBuiltinSkill).not.toHaveBeenCalled();
   });
 });

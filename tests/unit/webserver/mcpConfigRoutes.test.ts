@@ -4,7 +4,17 @@ import type { Express, Request, RequestHandler, Response } from 'express';
 // The route reads the stored server record + detected agents server-side and
 // delegates persistence to mcpService / persistMcpByoOAuthCredentials, so each
 // of those is hoisted to a stateful stub we can assert against.
-const { mockSync, mockRemove, mockPersistByo, mockGet, mockDetected, mockAppendAudit } = vi.hoisted(() => ({
+const {
+  mockSync,
+  mockRemove,
+  mockArchive,
+  mockListArchives,
+  mockRestore,
+  mockPersistByo,
+  mockGet,
+  mockDetected,
+  mockAppendAudit,
+} = vi.hoisted(() => ({
   mockSync: vi.fn(async () => ({
     success: true,
     results: [{ agent: 'claude', success: true }],
@@ -12,6 +22,29 @@ const { mockSync, mockRemove, mockPersistByo, mockGet, mockDetected, mockAppendA
   mockRemove: vi.fn(async () => ({
     success: true,
     results: [{ agent: 'claude', success: true }],
+  })),
+  mockArchive: vi.fn(async () => ({
+    archiveId: 'archive-1',
+    serverId: 'srv-1',
+    name: 'raindrop',
+    archivedAt: '2026-07-16T00:00:00.000Z',
+    transport: 'stdio',
+  })),
+  mockListArchives: vi.fn(async () => [
+    {
+      archiveId: 'archive-1',
+      serverId: 'srv-1',
+      name: 'raindrop',
+      archivedAt: '2026-07-16T00:00:00.000Z',
+      transport: 'stdio',
+    },
+  ]),
+  mockRestore: vi.fn(async () => ({
+    archiveId: 'archive-1',
+    serverId: 'srv-1',
+    name: 'raindrop',
+    archivedAt: '2026-07-16T00:00:00.000Z',
+    transport: 'stdio',
   })),
   mockPersistByo: vi.fn(async ({ serverId }: { serverId: string }) =>
     serverId === 'missing' ? { ok: false, msg: 'MCP server not found: missing' } : { ok: true }
@@ -29,6 +62,11 @@ vi.mock('@process/agent/AgentRegistry', () => ({
 }));
 vi.mock('@process/bridge/mcpBridge', () => ({
   persistMcpByoOAuthCredentials: mockPersistByo,
+  mcpConnectorLifecycle: {
+    archiveConfiguredServer: mockArchive,
+    listArchivedServers: mockListArchives,
+    restoreArchivedServer: mockRestore,
+  },
 }));
 // #283/#397 regression guard: findServerById must read through ProcessConfig
 // (direct main-process accessor), never the renderer-facing ConfigStorage, which
@@ -52,6 +90,9 @@ const passAuth: RequestHandler = (_req, _res, next) => next();
 function captureHandlers(): Record<string, CapturedHandler> {
   const handlers: Record<string, CapturedHandler> = {};
   const app = {
+    get(path: string, ...middleware: CapturedHandler[]) {
+      handlers[path] = middleware[middleware.length - 1];
+    },
     post(path: string, ...middleware: CapturedHandler[]) {
       handlers[path] = middleware[middleware.length - 1];
     },
@@ -91,6 +132,9 @@ describe('mcp config routes (W3.D write-only MCP config)', () => {
   beforeEach(() => {
     mockSync.mockClear();
     mockRemove.mockClear();
+    mockArchive.mockClear();
+    mockListArchives.mockClear();
+    mockRestore.mockClear();
     mockPersistByo.mockClear();
     mockGet.mockClear();
     mockGet.mockResolvedValue([{ id: 'srv-1', name: 'raindrop', enabled: true }]);
@@ -100,6 +144,118 @@ describe('mcp config routes (W3.D write-only MCP config)', () => {
     delete process.env.WAYLAND_HTTPS;
     delete process.env.SERVER_BASE_URL;
     process.env.NODE_ENV = 'test';
+  });
+
+  // ---- archive lifecycle ----
+
+  it('lists only secret-free archived connector summaries', async () => {
+    const res = makeRes();
+    await captureHandlers()['/api/mcp/archived-servers'](makeReq({}), res);
+
+    expect(mockListArchives).toHaveBeenCalledTimes(1);
+    expect(res._json).toEqual({
+      success: true,
+      data: [
+        {
+          archiveId: 'archive-1',
+          serverId: 'srv-1',
+          name: 'raindrop',
+          archivedAt: '2026-07-16T00:00:00.000Z',
+          transport: 'stdio',
+        },
+      ],
+    });
+    expect(JSON.stringify(res._json)).not.toMatch(/command|args|headers|environment|secret/i);
+  });
+
+  it('archives by stored id, resolves detected agents server-side, and audits the mutation', async () => {
+    const res = makeRes();
+    await captureHandlers()['/api/mcp/archive-configured-server'](
+      makeReq({ body: { serverId: 'srv-1' }, userId: 'u1', peer: '100.64.0.9' }),
+      res
+    );
+
+    expect(mockArchive).toHaveBeenCalledWith('srv-1', [
+      { backend: 'claude', name: 'Claude', cliPath: '/usr/bin/claude' },
+    ]);
+    expect(res._json).toMatchObject({ success: true, data: { archiveId: 'archive-1', serverId: 'srv-1' } });
+    expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({
+      userId: 'u1',
+      action: 'mcp.archive',
+      target: 'srv-1',
+      ip: '100.64.0.9',
+      reachedVia: 'tailscale',
+    });
+  });
+
+  it('archive rejects an insecure public write and a missing server id', async () => {
+    const insecure = makeRes();
+    await captureHandlers()['/api/mcp/archive-configured-server'](
+      makeReq({ body: { serverId: 'srv-1' }, peer: '203.0.113.5', secure: false }),
+      insecure
+    );
+    expect(insecure._status).toBe(403);
+
+    const missing = makeRes();
+    await captureHandlers()['/api/mcp/archive-configured-server'](makeReq({ body: {} }), missing);
+    expect(missing._status).toBe(400);
+    expect(mockArchive).not.toHaveBeenCalled();
+  });
+
+  it('restores by opaque archive id, remains secret-free, and audits the mutation', async () => {
+    const res = makeRes();
+    await captureHandlers()['/api/mcp/restore-archived-server'](
+      makeReq({ body: { archiveId: 'archive-1' }, userId: 'u1' }),
+      res
+    );
+
+    expect(mockRestore).toHaveBeenCalledWith('archive-1');
+    expect(res._json).toMatchObject({ success: true, data: { archiveId: 'archive-1', serverId: 'srv-1' } });
+    expect(JSON.stringify(res._json)).not.toMatch(/command|args|headers|environment|secret/i);
+    expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({
+      action: 'mcp.restore',
+      target: 'archive-1',
+    });
+  });
+
+  it('restore rejects an insecure public write and a missing archive id', async () => {
+    const insecure = makeRes();
+    await captureHandlers()['/api/mcp/restore-archived-server'](
+      makeReq({ body: { archiveId: 'archive-1' }, peer: '203.0.113.5', secure: false }),
+      insecure
+    );
+    expect(insecure._status).toBe(403);
+
+    const missing = makeRes();
+    await captureHandlers()['/api/mcp/restore-archived-server'](makeReq({ body: {} }), missing);
+    expect(missing._status).toBe(400);
+    expect(mockRestore).not.toHaveBeenCalled();
+  });
+
+  it('redacts secrets from archive inventory and mutation errors', async () => {
+    mockListArchives.mockRejectedValueOnce(new Error('inventory sk-live-SECRET123456 failed'));
+    const listRes = makeRes();
+    await captureHandlers()['/api/mcp/archived-servers'](makeReq({}), listRes);
+    expect(listRes._status).toBe(500);
+    expect(JSON.stringify(listRes._json)).not.toContain('SECRET123456');
+
+    mockArchive.mockRejectedValueOnce(new Error('archive sk-live-SECRET123456 failed'));
+    const archiveRes = makeRes();
+    await captureHandlers()['/api/mcp/archive-configured-server'](
+      makeReq({ body: { serverId: 'srv-1' } }),
+      archiveRes
+    );
+    expect(archiveRes._status).toBe(500);
+    expect(JSON.stringify(archiveRes._json)).not.toContain('SECRET123456');
+
+    mockRestore.mockRejectedValueOnce(new Error('restore sk-live-SECRET123456 failed'));
+    const restoreRes = makeRes();
+    await captureHandlers()['/api/mcp/restore-archived-server'](
+      makeReq({ body: { archiveId: 'archive-1' } }),
+      restoreRes
+    );
+    expect(restoreRes._status).toBe(500);
+    expect(JSON.stringify(restoreRes._json)).not.toContain('SECRET123456');
   });
 
   // ---- sync-to-agents ----

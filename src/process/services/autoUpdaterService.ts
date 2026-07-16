@@ -15,6 +15,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { writeFileSyncAtomic } from '@process/utils/atomicWrite';
 import type { AutoUpdateInstallFailedReason } from '@/common/update/updateTypes';
+import { getReleaseTrack, getReleaseUpdateChannel, type WaylandReleaseTrack } from '@/common/releaseTrack';
 
 /**
  * Redact the user's home-directory prefix from a path/string so diagnostic logs
@@ -101,9 +102,10 @@ export function buildShipItDiagnostics(io: ShipItDiagIO): string[] {
  * Returns the appropriate update channel name based on the current platform and architecture.
  * Returns undefined for the default channel (Windows x64 / Linux x64).
  */
-export function getUpdateChannel(): string | undefined {
-  const { platform, arch } = process;
-
+export function getUpdateChannel(
+  track: WaylandReleaseTrack = getReleaseTrack(),
+  runtime: Pick<NodeJS.Process, 'platform' | 'arch'> = process
+): string | undefined {
   // electron-updater appends a platform suffix to the channel name:
   //   macOS  → "-mac"       (e.g. "latest" → "latest-mac.yml")
   //   Linux  → "-linux"     (+ arch suffix for non-x64, e.g. "latest-linux-arm64.yml")
@@ -112,19 +114,7 @@ export function getUpdateChannel(): string | undefined {
   // Linux arm64 is handled natively by electron-updater (appends "-linux-arm64"),
   // so only Windows arm64 and macOS arm64 need a custom channel.
 
-  if (platform === 'win32' && arch === 'arm64') {
-    // "latest-win-arm64" + "" → "latest-win-arm64.yml"
-    return 'latest-win-arm64';
-  }
-  if (platform === 'darwin' && arch === 'arm64') {
-    // "latest-arm64" + "-mac" → "latest-arm64-mac.yml"
-    return 'latest-arm64';
-  }
-  // macOS x64  → default "latest" + "-mac"         → "latest-mac.yml"
-  // Linux x64  → default "latest" + "-linux"       → "latest-linux.yml"
-  // Linux arm64→ default "latest" + "-linux-arm64"  → "latest-linux-arm64.yml"
-  // Win x64    → default "latest" + ""             → "latest.yml"
-  return undefined;
+  return getReleaseUpdateChannel(track, runtime);
 }
 
 export interface AutoUpdateStatus {

@@ -10,6 +10,9 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { PassThrough } from 'node:stream';
 
 const spawnMock = vi.hoisted(() => vi.fn());
@@ -72,22 +75,28 @@ function makeChild(): FakeChild {
 
 /** Spin the microtask queue until start() has actually spawned the child (so its
  *  stderr/exit listeners are attached), without guessing the await count. */
-async function flushUntilSpawned(): Promise<void> {
-  for (let i = 0; i < 100 && spawnMock.mock.calls.length === 0; i++) {
-    await Promise.resolve();
+async function flushUntilSpawned(child: FakeChild, expectedSpawnCount = 1): Promise<void> {
+  for (let i = 0; i < 100; i++) {
+    if (spawnMock.mock.calls.length >= expectedSpawnCount && child.listenerCount('exit') >= 2) return;
+    if (vi.isFakeTimers()) await vi.advanceTimersByTimeAsync(0);
+    else await new Promise((resolve) => setImmediate(resolve));
   }
+  throw new Error(`WCore child ${expectedSpawnCount} did not finish attaching its production listeners`);
 }
 
 function baseOptions(): WCoreAgentOptions {
   return {
-    workspace: '/ws',
+    workspace: testWorkspace,
     model: { name: 'test', useModel: 'test-model', platform: 'openai', baseUrl: '' } as WCoreAgentOptions['model'],
     onStreamEvent: vi.fn(),
   };
 }
 
+let testWorkspace = '';
+
 describe('WCoreAgent init-failure surfacing (#484)', () => {
   beforeEach(() => {
+    testWorkspace = mkdtempSync(path.join(tmpdir(), 'wcore-stderr-'));
     spawnMock.mockReset();
     killChildMock.mockClear();
   });
@@ -95,6 +104,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.clearAllMocks();
+    rmSync(testWorkspace, { recursive: true, force: true });
   });
 
   it('includes the engine stderr tail in the exit rejection', async () => {
@@ -105,7 +115,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     const result = agent.start().catch((e: unknown) => e);
 
     // Let start() reach the point where it has wired the stderr/exit listeners.
-    await flushUntilSpawned();
+    await flushUntilSpawned(child);
 
     child.stderr.write('error: no API key configured for provider "openai"\n');
     await Promise.resolve();
@@ -124,7 +134,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     const agent = new WCoreAgent(baseOptions());
     const result = agent.start().catch((e: unknown) => e);
 
-    await flushUntilSpawned();
+    await flushUntilSpawned(child);
     child.emit('exit', 127);
 
     const err = (await result) as Error;
@@ -139,8 +149,9 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     const agent = new WCoreAgent(baseOptions());
     const result = agent.start().catch((e: unknown) => e);
 
-    // Flush the async setup (mocked awaits) so listeners are attached.
-    await vi.advanceTimersByTimeAsync(0);
+    // Flush the async setup (including the real canonical-workspace lookup) so
+    // listeners are attached before stderr/timeout events are injected.
+    await flushUntilSpawned(child);
     child.stderr.write('waiting for provider handshake...\n');
     await vi.advanceTimersByTimeAsync(0);
 
@@ -162,14 +173,14 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     const result = agent.start().catch((e: unknown) => e);
 
     // First (resume) attempt spawns, logs stderr, then never becomes ready.
-    await vi.advanceTimersByTimeAsync(0);
+    await flushUntilSpawned(first);
     first.stderr.write('attempt 1: resume session not found\n');
     await vi.advanceTimersByTimeAsync(0);
 
     // The 30s ready-timeout fires → resume fallback: the stale (still-alive)
     // child must be killed and its listeners detached before the retry spawns.
     await vi.advanceTimersByTimeAsync(30_000);
-    await vi.advanceTimersByTimeAsync(0);
+    await flushUntilSpawned(second, 2);
 
     expect(killChildMock).toHaveBeenCalledWith(first, false);
     expect(spawnMock).toHaveBeenCalledTimes(2);
@@ -197,7 +208,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     const agent = new WCoreAgent(baseOptions());
     const result = agent.start().catch((e: unknown) => e);
 
-    await flushUntilSpawned();
+    await flushUntilSpawned(child);
     child.stderr.write('auth failed with key sk-abcdef0123456789ABCDEF for provider openai\n');
     await Promise.resolve();
     child.emit('exit', 1);
@@ -207,5 +218,51 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(err.message).toContain('auth failed');
     expect(err.message).toContain('[redacted]');
     expect(err.message).not.toContain('sk-abcdef0123456789ABCDEF');
+  });
+
+  it('replays the pinned v1 ready and ordinary lifecycle through the production raw stdout boundary', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const onStreamEvent = vi.fn();
+    const agent = new WCoreAgent({ ...baseOptions(), onStreamEvent });
+    const started = agent.start();
+
+    await flushUntilSpawned(child);
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+
+    child.stdout.write(
+      [
+        { type: 'stream_start', msg_id: 'wire-msg-1' },
+        { type: 'text_delta', msg_id: 'wire-msg-1', text: 'wire-ok' },
+        { type: 'stream_end', msg_id: 'wire-msg-1', finish_reason: 'stop' },
+      ]
+        .map((event) => JSON.stringify(event))
+        .join('\n') + '\n'
+    );
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(onStreamEvent).toHaveBeenCalledWith({ type: 'start', data: '', msg_id: 'wire-msg-1' });
+    expect(onStreamEvent).toHaveBeenCalledWith({ type: 'content', data: 'wire-ok', msg_id: 'wire-msg-1' });
+    expect(onStreamEvent).toHaveBeenCalledWith({
+      type: 'finish',
+      data: { finish_reason: 'stop' },
+      msg_id: 'wire-msg-1',
+    });
+    await agent.kill();
+  });
+
+  it('kills the producer when the production raw stdout boundary receives invalid UTF-8', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const agent = new WCoreAgent(baseOptions());
+    void agent.start().catch(() => {});
+
+    await flushUntilSpawned(child);
+    child.stdout.write(Buffer.from([0xc3, 0x28, 0x0a]));
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
   });
 });

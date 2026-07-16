@@ -6,9 +6,6 @@
 
 import type { ConversionResult, ExcelWorkbookData, PPTJsonData } from '@/common/types/conversion';
 import { DOMParser } from '@xmldom/xmldom';
-import { Document as DocxDocument, Packer, Paragraph, TextRun } from 'docx';
-import type { BrowserWindow } from 'electron';
-import { electronBrowserWindow as BrowserWindowCtor } from '@/common/electronSafe';
 import fs from 'fs/promises';
 import mammoth from 'mammoth';
 // Vendored from npm pptx2json@0.0.10 (abandoned) - see M22 and src/vendor/pptx2json/.
@@ -47,43 +44,6 @@ class ConversionService {
   }
 
   /**
-   * Markdown -> Word (.docx)
-   * Note: This is a basic implementation. For complex markdown, we might need a better parser.
-   */
-  public async markdownToWord(markdown: string, targetPath: string): Promise<ConversionResult<void>> {
-    try {
-      // Simple implementation: split by newlines and create paragraphs
-      // TODO: Use a proper Markdown parser to generate Docx structure
-      const lines = markdown.split('\n');
-      const children = lines.map(
-        (line) =>
-          new Paragraph({
-            children: [new TextRun(line)],
-          })
-      );
-
-      const doc = new DocxDocument({
-        sections: [
-          {
-            properties: {},
-            children: children,
-          },
-        ],
-      });
-
-      const buffer = await Packer.toBuffer(doc);
-      await fs.writeFile(targetPath, buffer);
-      return { success: true };
-    } catch (error) {
-      console.error('[ConversionService] markdownToWord failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  }
-
-  /**
    * Excel (.xlsx) -> JSON
    */
   public async excelToJson(filePath: string): Promise<ConversionResult<ExcelWorkbookData>> {
@@ -106,33 +66,6 @@ class ConversionService {
       return { success: true, data: { sheets } };
     } catch (error) {
       console.error('[ConversionService] excelToJson failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  }
-
-  /**
-   * JSON -> Excel (.xlsx)
-   */
-  public async jsonToExcel(data: ExcelWorkbookData, targetPath: string): Promise<ConversionResult<void>> {
-    try {
-      const workbook = XLSX.utils.book_new();
-
-      data.sheets.forEach((sheetData) => {
-        const worksheet = XLSX.utils.aoa_to_sheet(sheetData.data);
-        if (sheetData.merges) {
-          worksheet['!merges'] = sheetData.merges;
-        }
-        XLSX.utils.book_append_sheet(workbook, worksheet, sheetData.name);
-      });
-
-      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-      await fs.writeFile(targetPath, buffer);
-      return { success: true };
-    } catch (error) {
-      console.error('[ConversionService] jsonToExcel failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -537,101 +470,6 @@ class ConversionService {
 
   private static readonly DRAWING_REL_TYPE =
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing';
-
-  /**
-   * HTML -> PDF
-   * Uses a hidden BrowserWindow to render and print
-   */
-  public async htmlToPdf(html: string, targetPath: string): Promise<ConversionResult<void>> {
-    if (!BrowserWindowCtor) {
-      return {
-        success: false,
-        error: 'PDF export is not available in standalone mode',
-      };
-    }
-    let win: BrowserWindow | null = null;
-    try {
-      win = new BrowserWindowCtor({
-        show: false,
-        webPreferences: {
-          nodeIntegration: false,
-          contextIsolation: true,
-        },
-      });
-
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <style>
-            body { font-family: system-ui, sans-serif; padding: 20px; }
-            img { max-width: 100%; }
-          </style>
-        </head>
-        <body>
-          ${html}
-        </body>
-        </html>
-      `;
-
-      await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
-
-      const data = await win.webContents.printToPDF({
-        printBackground: true,
-        pageSize: 'A4',
-      });
-
-      await fs.writeFile(targetPath, data);
-      return { success: true };
-    } catch (error) {
-      console.error('[ConversionService] htmlToPdf failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    } finally {
-      if (win) {
-        win.close();
-      }
-    }
-  }
-
-  /**
-   * Markdown -> PDF
-   */
-  public async markdownToPdf(markdown: string, targetPath: string): Promise<ConversionResult<void>> {
-    try {
-      // Simple conversion using marked or similar would be better,
-      // but for now we can use a basic wrapper or rely on the renderer to send HTML.
-      // Since we are in main process, we don't have 'marked' installed by default unless we add it.
-      // But we have 'mammoth' which is for Word.
-      // Let's assume we receive HTML for PDF generation usually, but if we must support MD->PDF here:
-
-      // For now, let's wrap markdown in a pre tag if we don't have a parser,
-      // OR better, let's rely on the renderer to convert MD to HTML and call htmlToPdf.
-      // But the interface says markdownToPdf.
-      // Let's use a simple replacement for headers/bold to make it look decent,
-      // or just treat it as plain text if no parser is available.
-      // Actually, 'turndown' is HTML->MD. We need MD->HTML.
-      // We can use 'showdown' or 'marked' if installed.
-      // Checking package.json... 'react-markdown' is in dependencies but that's for React.
-      // 'diff2html' is there.
-
-      // Let's fallback to simple text wrapping for now, or ask user to install 'marked'.
-      // Given the constraints, I'll implement a very basic text-to-html wrapper.
-      // Simple conversion: currently wraps content in a <pre> tag; integrating marked or similar is recommended later
-
-      const html = `<pre style="white-space: pre-wrap; font-family: monospace;">${markdown}</pre>`;
-      return await this.htmlToPdf(html, targetPath);
-    } catch (error) {
-      console.error('[ConversionService] markdownToPdf failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  }
 }
 
 export const conversionService = new ConversionService();

@@ -33,9 +33,9 @@ test.describe('MCP stdio bridge', () => {
   // dance against the configured transport. If the SDK is wired correctly,
   // the response data should carry our mock's single tool.
   test('mcp.test-connection against a local stdio server reports tools/list', async ({ page }) => {
-    // bun is available in the dev/CI env (engines.bun pin) and can execute
-    // the TS mock directly without a compile step. We fall back to ts-node
-    // via the npx loader if bun isn't on PATH inside the Electron child env.
+    // Bun is a pinned development/CI prerequisite and executes the TypeScript
+    // fixture directly. Use the binary itself: `bunx --bun <file>` treats the
+    // file as a package name and can false-fail before MCP even starts.
     const server = {
       id: 'e2e-mock-mcp',
       name: 'e2e-mock-mcp',
@@ -43,8 +43,8 @@ test.describe('MCP stdio bridge', () => {
       enabled: true,
       transport: {
         type: 'stdio' as const,
-        command: 'bunx',
-        args: ['--bun', mockServerPath],
+        command: 'bun',
+        args: [mockServerPath],
         env: {},
       },
       status: 'disconnected' as const,
@@ -58,28 +58,19 @@ test.describe('MCP stdio bridge', () => {
     expect(typeof resp.success, 'success is boolean').toBe('boolean');
 
     if (!resp.success) {
-      // The mock spawn may fail in restricted CI sandboxes - surface the
-      // failure but don't hard-fail the SDK-shape check. Record diagnostically.
-      expect(typeof resp.msg, 'failure envelope carries msg').toBe('string');
-      // eslint-disable-next-line no-console
-      console.warn(`[mcp.e2e] test-connection rejected: ${resp.msg}`);
-      return;
+      throw new Error(`mcp.test-connection rejected the deterministic local fixture: ${resp.msg}`);
     }
 
     expect(typeof resp.data, 'data envelope is object').toBe('object');
     // SDK 1.29 shape: { success: boolean, tools?: Tool[], error?: string }
     expect(typeof resp.data.success, 'inner.success is boolean').toBe('boolean');
-    if (resp.data.success) {
-      expect(Array.isArray(resp.data.tools), 'tools is an array').toBe(true);
-      const names = (resp.data.tools ?? []).map((t) => t.name);
-      // Our mock advertises exactly one tool named `echo`.
-      expect(names, 'mock advertises the echo tool').toContain('echo');
-    } else {
-      // Spawn-failure surface: connection refused, command-not-found, etc.
-      expect(typeof resp.data.error, 'error string present on inner failure').toBe('string');
-      // eslint-disable-next-line no-console
-      console.warn(`[mcp.e2e] inner.success=false: ${resp.data.error}`);
+    if (!resp.data.success) {
+      throw new Error(`local MCP fixture failed initialize/tools-list: ${resp.data.error ?? 'unknown error'}`);
     }
+    expect(Array.isArray(resp.data.tools), 'tools is an array').toBe(true);
+    const names = (resp.data.tools ?? []).map((t) => t.name);
+    // Our mock advertises exactly one tool named `echo`.
+    expect(names, 'mock advertises the echo tool').toContain('echo');
   });
 
   // ── Authenticated-servers list returns the documented envelope ────────────
@@ -100,10 +91,4 @@ test.describe('MCP stdio bridge', () => {
       expect(typeof resp.msg, 'failure carries msg').toBe('string');
     }
   });
-
-  // ── Tool round-trip via the agent layer requires an agent CLI ─────────────
-  test.skip(
-    'tools/call round-trip via syncMcpToAgents requires a real backend agent CLI on PATH - skip in headless CI',
-    () => {}
-  );
 });

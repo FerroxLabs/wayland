@@ -7,6 +7,7 @@
 import type { AcpBackend, AcpBackendAll, AcpBackendConfig } from '@/common/types/acpTypes';
 import type { SpeechToTextConfig } from '@/common/types/speech';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
+import type { McpSessionState } from '@/common/mcp/sessionReceipt';
 // C1: route through wrapped buildStorage so every namespace's storage.{get,set,clear,remove}
 // wire key is recorded in the bridge allowlist. The raw `storage.buildStorage` from
 // @office-ai/platform bypasses the allowlist and causes "Bridge event not allowed"
@@ -155,15 +156,16 @@ export interface IConfigStorageRefer {
    */
   'acp.workspaceApprovals'?: Record<string, Record<string, string>>;
   /**
-   * #671: per-workspace trust level (desktop half of #657). Keyed by the
-   * normalized workspace cwd → 'chat' | 'cowork'. A 'cowork' workspace
-   * auto-approves read/edit tools while still prompting on exec/network across
-   * every backend; 'chat' (the default, and any absent key) prompts on
-   * everything. Persisted so the posture survives restart; main-process only —
-   * written exclusively through the workspaceTrust IPC (never renderer
-   * ConfigStorage) so the in-memory gate cache stays coherent.
+   * #671: per-workspace access level (desktop half of #657). Keyed by the
+   * normalized workspace cwd → `ask` | `trusted-edits`. Trusted edits
+   * auto-approves the same bounded read/edit safe set while still prompting on
+   * exec/network across every backend; `ask` is the fail-safe default.
+   *
+   * The legacy key and legacy serialized `chat` / `cowork` values remain
+   * readable for upgrade compatibility. The process store canonicalizes them;
+   * product selection never writes this security posture.
    */
-  'workspace.trustLevel'?: Record<string, import('@/common/security/workspaceTrust').WorkspaceTrustLevel>;
+  'workspace.trustLevel'?: Record<string, import('@/common/security/workspaceTrust').WorkspaceAccessInput>;
   // Cached model lists per ACP backend for Guid page pre-selection
   'acp.cachedModels'?: Record<string, import('@/common/types/acpTypes').AcpModelInfo>;
   // Cached config options per ACP backend for Guid page pre-selection
@@ -172,6 +174,8 @@ export interface IConfigStorageRefer {
   'acp.cachedModes'?: Record<string, import('@/common/types/acpTypes').AcpSessionModes>;
   'model.config': IProvider[];
   'mcp.config': IMcpServer[];
+  /** Secret-safe hash of the MCP fields that change what an agent session can use. */
+  'mcp.runtimeFingerprint'?: string;
   'mcp.agentInstallStatus': Record<string, string[]>;
   language: string;
   theme: string;
@@ -197,6 +201,8 @@ export interface IConfigStorageRefer {
   'ijfw.skipSetup'?: boolean;
   /** Persisted app-wide UI zoom factor for Display settings */
   'ui.zoomFactor'?: number;
+  /** Presentation-only shell selection. Missing or unknown values resolve to Classic. */
+  'ui.shell'?: import('@/common/shellExperience').ShellExperience;
   /** Auto-enable WebUI in desktop mode */
   'webui.desktop.enabled'?: boolean;
   /** Allow remote access in desktop mode */
@@ -721,6 +727,8 @@ export type TChatConversation =
         enabledSkills?: string[];
         /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
         activeMcpServers?: string[];
+        /** Named tools/failure receipts from this exact Desktop-managed Core launch. */
+        mcpSessionState?: McpSessionState;
         /** Snapshot of actually loaded skills */
         loadedSkills?: Array<{ name: string; description: string }>;
         /** Preset assistant ID */
@@ -879,10 +887,7 @@ export interface IMcpServerTransportStreamableHTTP {
 }
 
 export type IMcpServerTransport =
-  | IMcpServerTransportStdio
-  | IMcpServerTransportSSE
-  | IMcpServerTransportHTTP
-  | IMcpServerTransportStreamableHTTP;
+  IMcpServerTransportStdio | IMcpServerTransportSSE | IMcpServerTransportHTTP | IMcpServerTransportStreamableHTTP;
 
 /**
  * MCP server provenance. Used by the MCP Library UI to group servers into
@@ -897,8 +902,16 @@ export interface IMcpServer {
   description?: string;
   enabled: boolean; // Whether it is installed to CLI agents (controls the Switch state)
   transport: IMcpServerTransport;
+  /** Tool inventory returned by the latest standalone server probe. It is not
+   * evidence that an active agent session published or can invoke the tools. */
   tools?: IMcpTool[];
-  status?: 'connected' | 'disconnected' | 'error' | 'testing'; // Connection status (also indicates service availability)
+  /**
+   * Persisted compatibility state for the standalone probe. The legacy value
+   * `connected` means probe-reachable only; user-facing code must not translate
+   * it into active-chat readiness. Per-session receipts own that claim.
+   */
+  status?: 'connected' | 'disconnected' | 'error' | 'testing';
+  /** Timestamp of the latest successful standalone probe (legacy field name). */
   lastConnected?: number;
   /**
    * Human-readable reason the last connection attempt failed (set when

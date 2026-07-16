@@ -41,7 +41,7 @@ import { appendAudit } from '../audit/auditLog';
 import type { IMcpServer } from '@/common/config/storage';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { agentRegistry } from '@process/agent/AgentRegistry';
-import { persistMcpByoOAuthCredentials } from '@process/bridge/mcpBridge';
+import { mcpConnectorLifecycle, persistMcpByoOAuthCredentials } from '@process/bridge/mcpBridge';
 
 function bodyString(value: unknown): string {
   return typeof value === 'string' ? value : '';
@@ -73,6 +73,88 @@ async function findServerById(serverId: string): Promise<IMcpServer | undefined>
  * Register the write-only MCP config routes for the remote WebUI (W3.D).
  */
 export function registerMcpConfigRoutes(app: Express, validateApiAccess: RequestHandler): void {
+  // GET /api/mcp/archived-servers
+  // Read-only, secret-free summaries. Full connector definitions never cross
+  // the wire; restore is server-side by opaque archive id.
+  app.get('/api/mcp/archived-servers', apiRateLimiter, validateApiAccess, async (req: Request, res: Response) => {
+    try {
+      const data = await mcpConnectorLifecycle.listArchivedServers();
+      res.json({ success: true, data });
+    } catch (error) {
+      console.error('[API] MCP archive inventory error:', error);
+      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to list archived MCP connectors';
+      res.status(500).json({ success: false, msg });
+    }
+  });
+
+  // POST /api/mcp/archive-configured-server { serverId }
+  // The complete definition is resolved and archived on the host before agent
+  // config revocation. The browser receives only a secret-free summary.
+  app.post(
+    '/api/mcp/archive-configured-server',
+    apiRateLimiter,
+    validateApiAccess,
+    async (req: Request, res: Response) => {
+      if (!requireSecureConfigWrite(req, res)) return;
+      const serverId = bodyString(req.body?.serverId).trim();
+      if (!serverId) {
+        res.status(400).json({ success: false, msg: 'serverId is required' });
+        return;
+      }
+      const ctx = detectNetworkContext(req);
+      const ip = req.socket?.remoteAddress ?? null;
+      try {
+        const data = await mcpConnectorLifecycle.archiveConfiguredServer(serverId, detectedAgents());
+        void appendAudit({
+          userId: req.user?.id ?? null,
+          action: 'mcp.archive',
+          target: serverId,
+          ip,
+          reachedVia: ctx.reachedVia,
+        });
+        res.json({ success: true, data });
+      } catch (error) {
+        console.error('[API] MCP archive error:', error);
+        const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to archive MCP connector';
+        res.status(500).json({ success: false, msg });
+      }
+    }
+  );
+
+  // POST /api/mcp/restore-archived-server { archiveId }
+  // Restore is deliberately disconnected; a separate explicit connect action
+  // is required before any agent receives the definition.
+  app.post(
+    '/api/mcp/restore-archived-server',
+    apiRateLimiter,
+    validateApiAccess,
+    async (req: Request, res: Response) => {
+      if (!requireSecureConfigWrite(req, res)) return;
+      const archiveId = bodyString(req.body?.archiveId).trim();
+      if (!archiveId) {
+        res.status(400).json({ success: false, msg: 'archiveId is required' });
+        return;
+      }
+      const ctx = detectNetworkContext(req);
+      const ip = req.socket?.remoteAddress ?? null;
+      try {
+        const data = await mcpConnectorLifecycle.restoreArchivedServer(archiveId);
+        void appendAudit({
+          userId: req.user?.id ?? null,
+          action: 'mcp.restore',
+          target: archiveId,
+          ip,
+          reachedVia: ctx.reachedVia,
+        });
+        res.json({ success: true, data });
+      } catch (error) {
+        console.error('[API] MCP restore error:', error);
+        const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to restore MCP connector';
+        res.status(500).json({ success: false, msg });
+      }
+    }
+  );
+
   // POST /api/mcp/sync-to-agents { serverId }
   // Write-only: installs the stored server into every detected agent CLI and
   // returns the per-agent results (no credentials).

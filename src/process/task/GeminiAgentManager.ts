@@ -11,7 +11,6 @@ import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { IMcpServer, TProviderWithModel } from '@/common/config/storage';
 import { ProcessConfig, getSkillsDir } from '@process/utils/initStorage';
-import { ExtensionRegistry } from '@process/extensions';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import {
   buildSystemInstructionsWithSkillsIndex,
@@ -37,7 +36,7 @@ import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher'
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
-import { shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
+import { isServerActiveForSession, shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
 import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 import BaseAgentManager from './BaseAgentManager';
 import { IpcAgentEventEmitter } from './IpcAgentEventEmitter';
@@ -48,6 +47,9 @@ import { extractTextFromMessage, processCronInMessage } from './MessageMiddlewar
 import { stripThinkTags, extractAndStripThinkTags } from './ThinkTagDetector';
 import { teamEventBus } from '@process/team/teamEventBus';
 import * as fs from 'node:fs';
+import { createHash } from 'node:crypto';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import { isMcpSessionTruthPreviewEnabled } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 // Gemini agent manager class
 export type UiMcpServerConfig = {
@@ -63,9 +65,9 @@ export type UiMcpServerConfig = {
 /**
  * Build the aioncli-core stdio MCP entry for a stored server, resolving its
  * runtime hint exactly like every other session-injection path (#827). This
- * in-process Gemini fork runtime is the 5th injection consumer: a bare `npx`
- * won't spawn on Windows (`npx.cmd` isn't found for a shell:false spawn), so it
- * is rewritten to the bundled Bun runtime on win32. Exported for parity tests.
+ * in-process Gemini fork runtime is the 5th injection consumer and must use the
+ * exact bundled-Bun tuple exercised by the Library probe. Exported for parity
+ * tests.
  */
 export function buildGeminiStdioMcpConfig(
   transport: Extract<IMcpServer['transport'], { type: 'stdio' }>,
@@ -73,6 +75,63 @@ export function buildGeminiStdioMcpConfig(
 ): UiMcpServerConfig {
   const { command, args } = resolveMcpStdioSpawn(transport.command, transport.args || []);
   return { command, args, env: transport.env || {}, description };
+}
+
+const sortedRecord = (value?: Record<string, string>): Array<[string, string]> =>
+  Object.entries(value ?? {}).toSorted(([left], [right]) => left.localeCompare(right));
+
+/**
+ * Secret-safe runtime-definition fingerprint. Credentials participate in
+ * change detection, but only the digest is logged; raw env/header values never
+ * enter diagnostics. The per-chat selection is part of the same identity.
+ */
+export function computeGeminiMcpFingerprint(
+  mcpServers: IMcpServer[] | undefined | null,
+  activeServerIds?: readonly string[]
+): string {
+  const entries = (Array.isArray(mcpServers) ? mcpServers : [])
+    .map((server) => ({
+      id: server.id,
+      name: server.name,
+      enabled: server.enabled,
+      status: server.status,
+      builtin: server.builtin === true,
+      allowedTools: server.allowedTools ? [...server.allowedTools].toSorted() : undefined,
+      transport:
+        server.transport.type === 'stdio'
+          ? {
+              type: server.transport.type,
+              command: server.transport.command,
+              args: server.transport.args ?? [],
+              env: sortedRecord(server.transport.env),
+            }
+          : {
+              type: server.transport.type,
+              url: server.transport.url,
+              headers: sortedRecord(server.transport.headers),
+            },
+    }))
+    .toSorted((left, right) => left.id.localeCompare(right.id));
+  const selection = activeServerIds === undefined ? null : [...activeServerIds].toSorted();
+  return createHash('sha256').update(JSON.stringify({ entries, selection })).digest('hex');
+}
+
+export function computePreviewGeminiMcpFingerprint(
+  mcpServers: IMcpServer[] | undefined | null,
+  activeServerIds?: readonly string[],
+  env: NodeJS.ProcessEnv = process.env
+): string {
+  return isMcpSessionTruthPreviewEnabled(env) ? computeGeminiMcpFingerprint(mcpServers, activeServerIds) : '';
+}
+
+export async function replaceGeminiMcpWorker(
+  stop: () => Promise<void>,
+  initialize: () => void,
+  start: () => Promise<void>
+): Promise<void> {
+  await stop();
+  initialize();
+  await start();
 }
 
 export class GeminiAgentManager extends BaseAgentManager<
@@ -123,7 +182,7 @@ export class GeminiAgentManager extends BaseAgentManager<
       if (text) {
         await this.postMessagePromise('init.history', { text });
       }
-    } catch (e) {
+    } catch {
       // ignore history injection errors
     }
   }
@@ -172,6 +231,8 @@ export class GeminiAgentManager extends BaseAgentManager<
     args: string[];
     env: Array<{ name: string; value: string }>;
   };
+  /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
+  private activeMcpServers?: string[];
 
   constructor(
     data: {
@@ -199,6 +260,8 @@ export class GeminiAgentManager extends BaseAgentManager<
       excludeBuiltinSkills?: string[];
       /** Preset assistant id backing this conversation - used to label Leader in team guide prompt */
       presetAssistantId?: string;
+      /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
+      activeMcpServers?: string[];
     },
     model: TProviderWithModel
   ) {
@@ -215,6 +278,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     this.currentMode = data.sessionMode || 'default';
     this.webSearchEngine = data.webSearchEngine;
     this.teamMcpStdioConfig = data.teamMcpStdioConfig;
+    this.activeMcpServers = data.activeMcpServers;
     mainLog(
       '[GeminiAgentManager]',
       'constructor teamMcpStdioConfig:',
@@ -341,52 +405,16 @@ export class GeminiAgentManager extends BaseAgentManager<
    * any add / remove / toggle / reconnect / config-change is detected -
    * even when a server is deleted and re-added with the same name.
    */
-  private static computeMcpFingerprint(mcpServers: IMcpServer[] | undefined | null): string {
-    if (!mcpServers || !Array.isArray(mcpServers)) return '[]';
-    const entries = mcpServers
-      .map((s: IMcpServer) => {
-        // Include transport identity so config changes (e.g. different command/url) are detected
-        const transportKey =
-          s.transport.type === 'stdio'
-            ? `${s.transport.command}|${(s.transport.args || []).join(',')}`
-            : 'url' in s.transport
-              ? s.transport.url
-              : '';
-        return { n: s.name, e: s.enabled, st: s.status, t: transportKey };
-      })
-      .toSorted((a, b) => a.n.localeCompare(b.n));
-    return JSON.stringify(entries);
+  private static computeMcpFingerprint(
+    mcpServers: IMcpServer[] | undefined | null,
+    activeServerIds?: readonly string[]
+  ): string {
+    return computePreviewGeminiMcpFingerprint(mcpServers, activeServerIds);
   }
 
   private async getMcpServers(): Promise<Record<string, UiMcpServerConfig>> {
     try {
-      const mcpServers = await ProcessConfig.get('mcp.config');
-      const allServers: IMcpServer[] = Array.isArray(mcpServers) ? mcpServers : [];
-
-      // Merge extension-contributed MCP servers
-      try {
-        const registry = ExtensionRegistry.getInstance();
-        const extServers = registry.getMcpServers();
-        for (const extServer of extServers) {
-          const transport = extServer.transport as IMcpServer['transport'];
-          if (!transport) continue;
-          // Only include enabled extension servers (they don't have status since they're declarative)
-          if (extServer.enabled === false) continue;
-          allServers.push({
-            id: String(extServer.id || ''),
-            name: String(extServer.name || ''),
-            description: extServer.description as string | undefined,
-            enabled: true,
-            transport,
-            status: 'connected', // Extension MCP servers are treated as available
-            createdAt: (extServer.createdAt as number) || Date.now(),
-            updatedAt: (extServer.updatedAt as number) || Date.now(),
-            originalJson: String(extServer.originalJson || '{}'),
-          });
-        }
-      } catch (extError) {
-        console.warn('[GeminiAgentManager] Failed to load extension MCP servers:', extError);
-      }
+      const allServers = await loadRuntimeMcpServers();
 
       // Only skip when we have NOTHING to inject: no user MCP, no team MCP, and no
       // aion team-guide MCP. Previously this shortcut fired whenever the user had
@@ -394,21 +422,22 @@ export class GeminiAgentManager extends BaseAgentManager<
       // (aion_create_team / aion_list_models) for every plain preset-assistant chat.
       const hasAionGuide = !this.teamMcpStdioConfig?.command && Boolean(getTeamGuideStdioConfig()?.command);
       if (allServers.length === 0 && !this.teamMcpStdioConfig?.command && !hasAionGuide) {
-        this.mcpFingerprint = '[]';
+        this.mcpFingerprint = GeminiAgentManager.computeMcpFingerprint(allServers, this.activeMcpServers);
         return {};
       }
 
       // Store fingerprint for later change detection
-      this.mcpFingerprint = GeminiAgentManager.computeMcpFingerprint(allServers);
+      this.mcpFingerprint = GeminiAgentManager.computeMcpFingerprint(allServers, this.activeMcpServers);
 
       // Convert into the format aioncli-core expects
       // MCPServerConfig supports: stdio (command/args/env), sse/http (url/type/headers)
       const mcpConfig: Record<string, UiMcpServerConfig> = {};
-      allServers
+      let selectedServers = allServers
         // Builtin servers (image gen, skill search) are seeded with status
         // undefined and never connection-tested; accept them on undefined to
         // match the ACP session path. User servers still require connected.
         .filter(shouldInjectSessionMcpServer)
+        .filter((server) => isServerActiveForSession(server, this.activeMcpServers))
         // The read-only concierge diagnostics server is Concierge-only: exposing
         // it to every assistant would bloat unrelated tool lists (and surface a
         // diagnostics tool where it doesn't belong). Gate it to the Concierge
@@ -416,25 +445,35 @@ export class GeminiAgentManager extends BaseAgentManager<
         .filter(
           (server: IMcpServer) =>
             server.id !== BUILTIN_CONCIERGE_DIAG_ID || isConciergeAssistant(this.presetAssistantId)
-        )
-        .forEach((server: IMcpServer) => {
-          if (server.transport.type === 'stdio') {
-            mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description);
-          } else if (
-            server.transport.type === 'sse' ||
-            server.transport.type === 'http' ||
-            server.transport.type === 'streamable_http'
-          ) {
-            // aioncli-core MCPServerConfig.type only accepts "sse" | "http"
-            const type = server.transport.type === 'streamable_http' ? 'http' : server.transport.type;
-            mcpConfig[server.name] = {
-              url: server.transport.url,
-              type,
-              headers: server.transport.headers || {},
-              description: server.description,
-            };
-          }
-        });
+        );
+
+      // Match the ACP/Core launch paths: hosted OAuth connectors must enter the
+      // worker with a current bearer, not the stale header saved at install.
+      try {
+        const { mcpService } = await import('@process/services/mcpServices/McpService');
+        selectedServers = await mcpService.attachOAuthTokens(selectedServers);
+      } catch (error) {
+        mainWarn('[GeminiAgentManager]', 'OAuth refresh failed; using stored MCP headers', error);
+      }
+
+      selectedServers.forEach((server: IMcpServer) => {
+        if (server.transport.type === 'stdio') {
+          mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description);
+        } else if (
+          server.transport.type === 'sse' ||
+          server.transport.type === 'http' ||
+          server.transport.type === 'streamable_http'
+        ) {
+          // aioncli-core MCPServerConfig.type only accepts "sse" | "http"
+          const type = server.transport.type === 'streamable_http' ? 'http' : server.transport.type;
+          mcpConfig[server.name] = {
+            url: server.transport.url,
+            type,
+            headers: server.transport.headers || {},
+            description: server.description,
+          };
+        }
+      });
 
       // Inject team MCP server if this agent belongs to a team (stdio mode)
       if (this.teamMcpStdioConfig && this.teamMcpStdioConfig.command) {
@@ -474,7 +513,8 @@ export class GeminiAgentManager extends BaseAgentManager<
 
       return mcpConfig;
     } catch (error) {
-      this.mcpFingerprint = '[]';
+      this.mcpFingerprint = GeminiAgentManager.computeMcpFingerprint([], this.activeMcpServers);
+      mainWarn('[GeminiAgentManager]', 'Failed to construct MCP session config', error);
       return {};
     }
   }
@@ -602,22 +642,34 @@ export class GeminiAgentManager extends BaseAgentManager<
    * This ensures deleted/disabled MCP servers are no longer callable.
    */
   private async refreshWorkerIfMcpChanged(): Promise<void> {
+    if (!isMcpSessionTruthPreviewEnabled()) return;
     try {
-      const mcpServers = await ProcessConfig.get('mcp.config');
-      const currentFingerprint = GeminiAgentManager.computeMcpFingerprint(mcpServers);
+      const mcpServers = await loadRuntimeMcpServers();
+      const conversationResult = (await getDatabase()).getConversation(this.conversation_id);
+      const nextActiveMcpServers =
+        conversationResult.success && conversationResult.data?.type === 'gemini'
+          ? conversationResult.data.extra.activeMcpServers
+          : this.activeMcpServers;
+      this.activeMcpServers = nextActiveMcpServers;
+      const currentFingerprint = GeminiAgentManager.computeMcpFingerprint(mcpServers, nextActiveMcpServers);
 
       if (currentFingerprint !== this.mcpFingerprint) {
         mainLog(
           '[GeminiAgentManager]',
           `MCP config changed (${this.mcpFingerprint} -> ${currentFingerprint}), re-bootstrapping worker...`
         );
-        // Kill old worker process and its child processes (MCP server connections).
-        // kill() is async (AUDIT-05 F20 / M18) but we don't need to wait here -
-        // re-bootstrap below spawns a fresh worker independent of the old one's exit.
-        void this.kill();
-        // Re-bootstrap with fresh config (getMcpServers will update the fingerprint)
-        this.bootstrap = this.createBootstrap();
-        await this.bootstrap;
+        // Fully stop the old worker and its MCP children before replacement.
+        // Overlap can duplicate tool calls and leaves two credential-bearing
+        // connector processes alive for one conversation.
+        await replaceGeminiMcpWorker(
+          () => this.kill(),
+          () => this.init(),
+          async () => {
+            // Re-bootstrap with fresh config (getMcpServers updates the fingerprint).
+            this.bootstrap = this.createBootstrap();
+            await this.bootstrap;
+          }
+        );
         mainLog('[GeminiAgentManager]', 'Worker re-bootstrapped with updated MCP config');
       }
     } catch (error) {
@@ -628,7 +680,7 @@ export class GeminiAgentManager extends BaseAgentManager<
 
   private getConfirmationButtons = (
     confirmationDetails: IMessageToolGroup['content'][number]['confirmationDetails'],
-    t: (key: string, options?: any) => string
+    t: (key: string, options?: Record<string, unknown>) => string
   ) => {
     if (!confirmationDetails) return {};
     let question: string;
@@ -790,7 +842,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         return true;
       }
     }
-    // #671: trusted ("cowork") workspace auto-approves edits while still
+    // #671: a trusted-edits workspace auto-approves edits while still
     // prompting on exec/network. Unlike the autoEdit MODE above, trust does NOT
     // auto-approve the 'info' catch-all: on Gemini/WCore 'info' is an
     // engine-assigned bucket that can include network/URL-fetch confirmations,
@@ -1060,8 +1112,8 @@ export class GeminiAgentManager extends BaseAgentManager<
    */
   private async checkCronCommandsOnFinish(afterTimestamp: number): Promise<boolean> {
     try {
-      const { getDatabase } = await import('@process/services/database');
-      const db = await getDatabase();
+      const { getDatabase: loadDatabase } = await import('@process/services/database');
+      const db = await loadDatabase();
       const result = db.getConversationMessages(this.conversation_id, 0, 20, 'DESC');
 
       if (!result.data || result.data.length === 0) {

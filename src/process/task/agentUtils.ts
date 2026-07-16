@@ -21,6 +21,12 @@ import { buildCapabilitiesManifest } from '@process/services/capabilities/Capabi
 
 /** Runtime id of the built-in Concierge assistant (preset id `concierge`). */
 export const BUILTIN_CONCIERGE_ASSISTANT_ID = 'builtin-concierge';
+/** Runtime id of the built-in Cowork assistant (preset id `cowork`). */
+export const BUILTIN_COWORK_ASSISTANT_ID = 'builtin-cowork';
+
+function carriesPersistentCapabilitiesManifest(assistantId?: string | null): boolean {
+  return assistantId === BUILTIN_CONCIERGE_ASSISTANT_ID || assistantId === BUILTIN_COWORK_ASSISTANT_ID;
+}
 
 /**
  * Single source of truth for "is this conversation the built-in Concierge?".
@@ -99,9 +105,10 @@ async function capabilityInjectionEnabled(): Promise<boolean> {
 
 /**
  * Resolve the live capabilities manifest for a first-message system prompt.
- * Built for Concierge ALWAYS; for other assistants only when the first user
- * message is a capability intent. Returns undefined when not applicable or on
- * any failure (never throws into prompt assembly).
+ * Built for Concierge and Cowork ALWAYS; for other assistants only when the
+ * first user message is a capability intent. Cowork requests the Office
+ * authoring readiness line so its document promises match the installed CLI.
+ * Returns undefined when not applicable or on any failure.
  */
 export async function resolveCapabilitiesManifest(opts: {
   presetAssistantId?: string;
@@ -109,10 +116,13 @@ export async function resolveCapabilitiesManifest(opts: {
   agentKey?: string;
 }): Promise<string | undefined> {
   if (!(await capabilityInjectionEnabled())) return undefined;
-  const isConcierge = opts.presetAssistantId === BUILTIN_CONCIERGE_ASSISTANT_ID;
-  if (!isConcierge && !(opts.userText && isCapabilityIntent(opts.userText))) return undefined;
+  const persistent = carriesPersistentCapabilitiesManifest(opts.presetAssistantId);
+  if (!persistent && !(opts.userText && isCapabilityIntent(opts.userText))) return undefined;
   try {
-    const manifest = await buildCapabilitiesManifest({ agentKey: opts.agentKey });
+    const manifest = await buildCapabilitiesManifest({
+      agentKey: opts.agentKey,
+      includeOfficeAuthoring: opts.presetAssistantId === BUILTIN_COWORK_ASSISTANT_ID,
+    });
     return manifest && manifest.trim().length > 0 ? manifest : undefined;
   } catch {
     return undefined;
@@ -120,16 +130,15 @@ export async function resolveCapabilitiesManifest(opts: {
 }
 
 /**
- * For NON-Concierge assistants, surface the live capabilities manifest on a
- * capability-intent turn (Concierge already carries it in its system prompt, so
- * skip to avoid duplication). Returns '' when not a capability turn / not
- * applicable / on failure.
+ * For assistants without a persistent manifest, surface it on a capability
+ * intent turn. Concierge and Cowork already carry it in their system prompt,
+ * so skip them to avoid duplication.
  */
 async function resolveTurnCapabilityAdvert(
   userText: string,
   opts?: { alwaysOnNames?: string[]; assistantId?: string; agentKey?: string }
 ): Promise<string> {
-  if (opts?.assistantId === BUILTIN_CONCIERGE_ASSISTANT_ID) return '';
+  if (carriesPersistentCapabilitiesManifest(opts?.assistantId)) return '';
   if (!isCapabilityIntent(userText ?? '')) return '';
   if (!(await capabilityInjectionEnabled())) return '';
   try {

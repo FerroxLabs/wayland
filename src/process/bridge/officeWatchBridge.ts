@@ -258,18 +258,15 @@ async function startWatch(
       console.error(`[officeWatch] spawn error (${docType}):`, err.message);
       sessions.delete(sessionKey);
       if ((err as NodeJS.ErrnoException).code === 'ENOENT' && !retry) {
-        // officecli not found (bundled binary unresolvable) - offer a
-        // consent-gated, pinned, checksum-verified install, then retry once.
-        // settle() without error: defuses the current promise machinery
-        // (clears timeout, prevents double-settle) while the install + recursive
-        // retry below chains its own resolve/reject to the outer promise.
+        // A missing verified bundle is a release defect. The recovery boundary
+        // fails closed (no moving runtime download) and reports a repair path.
         settle();
         installOfficecli(emitStatus)
           .then((installed) => {
             if (installed) {
               startWatch(filePath, docType, emitStatus, true).then(resolve, reject);
             } else {
-              reject(new Error('officecli is not installed and auto-install was declined or failed'));
+              reject(new Error('The verified OfficeCLI runtime is missing; reinstall or update Wayland'));
             }
           })
           .catch(reject);

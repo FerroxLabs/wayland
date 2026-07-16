@@ -100,7 +100,7 @@ describe('ConnectorsFlyout per-conversation scoping (#348)', () => {
 
   it('in live mode (onScopeChange) all enabled servers show as active by default', () => {
     renderFlyout({ servers: [a, b], onScopeChange: noop, activeServerIds: undefined });
-    expect(screen.getByText('Active in this chat')).toBeInTheDocument();
+    expect(screen.getByText('Selected for this chat')).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: 'alpha' }).getAttribute('aria-checked')).toBe('true');
     expect(screen.getByRole('switch', { name: 'beta' }).getAttribute('aria-checked')).toBe('true');
   });
@@ -129,8 +129,119 @@ describe('ConnectorsFlyout per-conversation scoping (#348)', () => {
   it('falls back to the global toggle in staged mode (no onScopeChange)', () => {
     const onToggle = vi.fn();
     renderFlyout({ servers: [a], onToggle });
-    expect(screen.getByText('Connected')).toBeInTheDocument();
+    expect(screen.getByText('Configured')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('switch', { name: 'alpha' }));
     expect(onToggle).toHaveBeenCalledWith('a', false);
+  });
+
+  it('shows extension connectors but keeps their global switch read-only in staged mode', () => {
+    const onToggle = vi.fn();
+    const extension = srv(1, {
+      id: 'ext-research-tavily',
+      name: 'Tavily extension',
+      status: undefined,
+      ...({ _source: 'extension' } as Partial<IMcpServer>),
+    });
+    renderFlyout({ servers: [extension], onToggle });
+
+    const toggle = screen.getByRole('switch', { name: 'Tavily extension' });
+    expect(toggle).toBeDisabled();
+    fireEvent.click(toggle);
+    expect(onToggle).not.toHaveBeenCalled();
+  });
+
+  it('allows an extension connector to be scoped per chat in live mode', () => {
+    const onScopeChange = vi.fn();
+    const extension = srv(1, {
+      id: 'ext-research-tavily',
+      name: 'Tavily extension',
+      status: undefined,
+      ...({ _source: 'extension' } as Partial<IMcpServer>),
+    });
+    renderFlyout({ servers: [extension], onScopeChange });
+
+    const toggle = screen.getByRole('switch', { name: 'Tavily extension' });
+    expect(toggle).not.toBeDisabled();
+    fireEvent.click(toggle);
+    expect(onScopeChange).toHaveBeenCalledWith([]);
+  });
+});
+
+describe('ConnectorsFlyout active-session MCP truth', () => {
+  const tavily = srv(2, { id: 'tavily', name: 'tavily' });
+
+  it('does not present a successful Library probe as chat readiness', () => {
+    renderFlyout({ servers: [tavily], onScopeChange: noop });
+    expect(screen.getByText('Probe reported 2 tools · chat not verified')).toBeInTheDocument();
+    expect(screen.queryByTitle('Tools verified in this chat')).not.toBeInTheDocument();
+  });
+
+  it('shows green only after this launch reports named tools', () => {
+    renderFlyout({
+      servers: [tavily],
+      onScopeChange: noop,
+      sessionState: {
+        generation: 'launch-1',
+        expectedServerNames: ['tavily'],
+        startedAt: 1,
+        receipts: {
+          tavily: {
+            status: 'ready',
+            serverName: 'tavily',
+            tools: ['tavily_search', 'tavily_extract'],
+            observedAt: 2,
+            source: 'wcore',
+          },
+        },
+      },
+    });
+    expect(screen.getByText('2 tools verified in this chat')).toBeInTheDocument();
+    expect(screen.getByTitle('Tools verified in this chat')).toBeInTheDocument();
+  });
+
+  it('surfaces the exact runtime failure instead of a connected badge', () => {
+    renderFlyout({
+      servers: [tavily],
+      onScopeChange: noop,
+      sessionState: {
+        generation: 'launch-1',
+        expectedServerNames: ['tavily'],
+        startedAt: 1,
+        receipts: {
+          tavily: {
+            status: 'failed',
+            serverName: 'tavily',
+            reason: 'credential rejected',
+            observedAt: 2,
+            source: 'wcore',
+          },
+        },
+      },
+    });
+    expect(screen.getByText('Unavailable in this chat · credential rejected')).toBeInTheDocument();
+    expect(screen.getByTitle('Connector unavailable in this chat')).toBeInTheDocument();
+  });
+
+  it('does not promote a receipt when the connector was not expected in this launch', () => {
+    renderFlyout({
+      servers: [tavily],
+      onScopeChange: noop,
+      sessionState: {
+        generation: 'launch-1',
+        expectedServerNames: [],
+        startedAt: 1,
+        receipts: {
+          tavily: {
+            status: 'ready',
+            serverName: 'tavily',
+            tools: ['tavily_search'],
+            observedAt: 2,
+            source: 'wcore',
+          },
+        },
+      },
+    });
+    expect(screen.queryByText('1 tools verified in this chat')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Tools verified in this chat')).not.toBeInTheDocument();
   });
 });

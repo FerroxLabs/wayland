@@ -5,6 +5,8 @@
  */
 
 import { ipcBridge } from '@/common';
+import * as os from 'node:os';
+import { join } from 'node:path';
 import type { IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
 import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
@@ -12,8 +14,18 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import type { IMcpServer, TProviderWithModel } from '@/common/config/storage';
-import { buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
-import { readWCoreConfigMcpServerNames } from '@process/agent/wcore/configMcpServers';
+import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgent';
+import { mcpService } from '@process/services/mcpServices/McpService';
+import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
+import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
+import {
+  createMcpSessionState,
+  recordDesktopMcpSessionFailure,
+  reduceMcpSessionTerminal,
+  type McpSessionState,
+  type McpSessionTerminalEvent,
+} from '@/common/mcp/sessionReceipt';
 import { type OutputBudget, resolveFixedBudget } from '@/common/config/outputBudget';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
@@ -21,6 +33,7 @@ import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
+import { resolveActiveConfigDir } from '@process/agent/wcore/profilePaths';
 import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
 import {
   buildSystemInstructionsWithSkillsIndex,
@@ -48,6 +61,8 @@ import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher'
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { getBudgetController } from '@process/services/cost/BudgetController';
 import { RunawayMonitor } from '@process/services/runaway/RunawayMonitor';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import { isMcpSessionTruthPreviewEnabled } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -270,6 +285,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     { message: Extract<TMessage, { type: 'text' }>; timer: ReturnType<typeof setTimeout> }
   >();
 
+  /** Session-scoped MCP truth. Serialized so simultaneous Core receipts cannot clobber each other in DB. */
+  private readonly mcpSessionGeneration = uuid();
+  private mcpSessionState: McpSessionState = createMcpSessionState(this.mcpSessionGeneration, []);
+  private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
+
   constructor(data: WCoreManagerData, model: TProviderWithModel) {
     super('wcore', { ...data, model }, new IpcAgentEventEmitter(), false);
     this.workspace = data.workspace;
@@ -335,34 +355,58 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // spawned from a channel (a pure main-process path with no renderer in the
     // loop), wedging every channel-triggered turn. `.catch` cannot save a hang.
     const rawEngineMode = (await ProcessConfig.get('wcore.rawEngineMode').catch(() => false)) === true;
+    // Capture profile authority once for both persistent MCP publication and
+    // the engine spawn. A profile switch after this point applies to the next
+    // conversation; it cannot split this launch across two credential/config
+    // homes.
+    const launchWaylandHome = rawEngineMode ? undefined : await resolveActiveConfigDir();
 
-    // Inject the user's enabled stdio MCP connectors (mcp.config) so an
-    // app-enabled connector reaches the engine WITHOUT a separate settings
-    // toggle - mirroring the ACP session-injection path. wcore otherwise depends
-    // entirely on the [mcp.servers] table written by WCoreMcpAgent (settings-time
-    // only), which left every connector invisible in a fresh wcore chat. Uses the
-    // shared predicate + per-conversation scoping (#348); builtins and hosted
-    // (http/sse) connectors are handled elsewhere (see buildWCoreUserStdioMcpServers).
-    // #478 dedup: skip any connector already in the active config.toml
-    // [mcp.servers] table (WCoreMcpAgent settings-time write) - the engine loads
-    // those at startup, so re-adding at runtime would register the server twice.
-    // Skipped entirely in raw-engine mode (above). Best-effort: a config read
-    // failure must never block the spawn.
+    // Publish selected connectors into Core's trusted startup config BEFORE
+    // spawning it. Current Core deliberately rejects untrusted wire-added stdio
+    // processes, so the former add_mcp_server path produced a green Library row
+    // but no chat tools. The launch-local Core profile below then narrows the
+    // global config to exactly this conversation's selection (all transports).
+    let sessionMcpServerNames: string[] | undefined;
+    let expectedSessionMcpNames: string[] = [];
     if (!rawEngineMode) {
       try {
-        const mcpConfig = await ProcessConfig.get('mcp.config');
-        const alreadyInConfig = await readWCoreConfigMcpServerNames();
-        const userServers = buildWCoreUserStdioMcpServers(
-          mcpConfig as IMcpServer[] | undefined,
-          mergedData.activeMcpServers,
-          alreadyInConfig
+        const mcpConfig = await loadRuntimeMcpServers();
+        const selectedServers = buildWCoreSessionMcpServers(
+          mcpConfig,
+          mergedData.activeMcpServers
         );
-        for (const server of userServers) {
-          stdioMcpServers.push({ name: server.name, command: server.command, args: server.args, env: server.env });
+        expectedSessionMcpNames = selectedServers.map((server) => server.name);
+        this.beginMcpSession(expectedSessionMcpNames);
+
+        if (selectedServers.length === 0) {
+          sessionMcpServerNames = [];
+        } else {
+          const normalizedServers = selectedServers.map((server) => normalizeMcpServerForSpawn(server, os.homedir()));
+          for (const server of normalizedServers) validateMcpServer(server);
+          const authedServers = await mcpService.attachOAuthTokens(normalizedServers);
+          const publication = await new WCoreMcpAgent(join(launchWaylandHome!, 'config.toml')).installMcpServers(
+            authedServers
+          );
+          if (publication.success) {
+            sessionMcpServerNames = expectedSessionMcpNames;
+          } else {
+            sessionMcpServerNames = [];
+            const reason = publication.error || 'Desktop could not publish connector into trusted Core startup config';
+            for (const name of expectedSessionMcpNames) this.failMcpSessionServer(name, reason);
+          }
         }
       } catch (err) {
-        mainWarn('[WCoreManager]', 'failed to load user MCP connectors for injection', err);
+        sessionMcpServerNames = [];
+        // Keep the exact requested connector set visible and terminal. Erasing
+        // it here made OAuth/validation/config-write failures look like a chat
+        // that requested no connectors at all.
+        this.beginMcpSession(expectedSessionMcpNames);
+        const reason = err instanceof Error ? err.message : String(err);
+        for (const name of expectedSessionMcpNames) this.failMcpSessionServer(name, reason);
+        mainWarn('[WCoreManager]', 'failed to publish trusted Core MCP startup config', err);
       }
+    } else {
+      this.beginMcpSession([]);
     }
 
     // #468: Output-budget override. When the user picked a Fixed budget, pass it
@@ -411,6 +455,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       sessionId: mergedData.sessionId,
       resume: mergedData.resume,
       stdioMcpServers,
+      mcpServerNames: sessionMcpServerNames,
+      waylandHome: launchWaylandHome,
       onStreamEvent: (event) => this.emit('wcore.message', event),
       onProcessExit: (code, activeMsgId) => this.handleProcessExit(code, activeMsgId),
       onPong: () => this.handlePong(),
@@ -615,7 +661,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         return true;
       }
     }
-    // #671: trusted ("cowork") workspace auto-approves edits, still prompts on
+    // #671: a trusted-edits workspace auto-approves edits, still prompts on
     // exec/network. Only 'edit' - NOT the 'info' catch-all (which the engine also
     // uses for unclassified/network confirmations) - so a persisted always-on
     // posture stays stricter than the user-chosen auto_edit mode. Persisted
@@ -1111,6 +1157,55 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     this.agent?.ping();
   }
 
+  private beginMcpSession(expectedServerNames: readonly string[]): void {
+    if (!isMcpSessionTruthPreviewEnabled()) return;
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, expectedServerNames);
+    this.publishMcpSessionState();
+  }
+
+  private failMcpSessionServer(serverName: string, reason: string): void {
+    if (!isMcpSessionTruthPreviewEnabled()) return;
+    this.mcpSessionState = recordDesktopMcpSessionFailure(this.mcpSessionState, serverName, reason);
+    this.publishMcpSessionState();
+  }
+
+  private acceptMcpSessionTerminal(event: McpSessionTerminalEvent): void {
+    if (!isMcpSessionTruthPreviewEnabled()) return;
+    this.mcpSessionState = reduceMcpSessionTerminal(this.mcpSessionState, event);
+    this.publishMcpSessionState();
+  }
+
+  /** Persist and broadcast the whole immutable snapshot; queued DB writes prevent lost concurrent receipts. */
+  private publishMcpSessionState(): void {
+    if (!isMcpSessionTruthPreviewEnabled()) return;
+    const snapshot: McpSessionState = {
+      ...this.mcpSessionState,
+      expectedServerNames: [...this.mcpSessionState.expectedServerNames],
+      receipts: { ...this.mcpSessionState.receipts },
+    };
+
+    ipcBridge.conversation.responseStream.emit({
+      type: 'mcp_session_state',
+      conversation_id: this.conversation_id,
+      msg_id: '',
+      data: snapshot,
+    });
+
+    this.mcpSessionPersistQueue = this.mcpSessionPersistQueue
+      .then(async () => {
+        const db = await getDatabase();
+        const result = db.getConversation(this.conversation_id);
+        if (!result.success || !result.data || result.data.type !== 'wcore') return;
+        const conversation = result.data;
+        db.updateConversation(this.conversation_id, {
+          extra: { ...conversation.extra, mcpSessionState: snapshot },
+        } as Partial<typeof conversation>);
+      })
+      .catch((err) => {
+        mainWarn('[WCoreManager]', 'failed to persist MCP session receipt state', err);
+      });
+  }
+
   init() {
     this.on('wcore.message', (data) => {
       // Store capabilities from config_changed events
@@ -1144,6 +1239,35 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       if (data.type === 'sub_agent_event') {
         ipcBridge.conversation.responseStream.emit({
           type: 'sub_agent_event',
+          conversation_id: this.conversation_id,
+          msg_id: '',
+          data: data.data,
+        });
+        return;
+      }
+
+      // Core Desktop contract v1 authority/evidence is session-level and
+      // intentionally carries no turn msg_id. It has already passed the pinned
+      // schema and semantic reducer in WCoreAgent; forward it before the generic
+      // empty-msg_id guard so Cockpit consumers see only accepted evidence.
+      if (
+        [
+          'execution_policy',
+          'workflow_started',
+          'workflow_node_event',
+          'workflow_finished',
+          'anvil_receipt',
+          'anvil_receipt_invalidated',
+          'anvil_trust_changed',
+          'mcp_ready',
+          'mcp_failed',
+        ].includes(data.type)
+      ) {
+        if (data.type === 'mcp_ready' || data.type === 'mcp_failed') {
+          this.acceptMcpSessionTerminal(data as McpSessionTerminalEvent);
+        }
+        ipcBridge.conversation.responseStream.emit({
+          type: data.type,
           conversation_id: this.conversation_id,
           msg_id: '',
           data: data.data,

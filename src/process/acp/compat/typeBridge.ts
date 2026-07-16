@@ -46,6 +46,8 @@ export type OldAcpAgentConfig = {
       env: Array<{ name: string; value: string }>;
     };
     pendingConfigOptions?: Record<string, string>;
+    /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
+    activeMcpServers?: string[];
   };
   onStreamEvent: (data: unknown) => void;
   onSignalEvent?: (data: unknown) => void;
@@ -102,6 +104,7 @@ export function toAgentConfig(old: OldAcpAgentConfig): AgentConfig {
     args: old.extra?.customArgs ?? old.customArgs,
     env: old.extra?.customEnv ?? old.customEnv,
     cwd: old.workingDir,
+    activeMcpServers: old.extra?.activeMcpServers,
 
     teamMcpConfig: teamMcpConfig,
 

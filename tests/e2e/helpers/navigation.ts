@@ -6,27 +6,20 @@
  */
 import type { Page } from '@playwright/test';
 import { channelItemById, webuiTabByKey } from './selectors';
+import { SETTINGS_ROUTE_PATHS, type SettingsNavigationId } from '../../../src/common/navigation';
 
 // ── Route constants ──────────────────────────────────────────────────────────
 
 export const ROUTES = {
   guid: '#/guid',
-  settings: {
-    gemini: '#/settings/gemini',
-    model: '#/settings/model',
-    agent: '#/settings/agent',
-    assistants: '#/settings/assistants',
-    capabilities: '#/settings/capabilities',
-    display: '#/settings/display',
-    webui: '#/settings/webui',
-    system: '#/settings/system',
-    about: '#/settings/about',
-  },
+  settings: Object.fromEntries(
+    Object.entries(SETTINGS_ROUTE_PATHS).map(([id, routePath]) => [id, `#/settings/${routePath}`])
+  ) as Record<SettingsNavigationId, `#/settings/${string}`>,
   /** Dynamic extension settings tab route */
   extensionSettings: (tabId: string) => `#/settings/ext/${tabId}`,
 } as const;
 
-export type SettingsTab = keyof typeof ROUTES.settings;
+export type SettingsTab = SettingsNavigationId;
 
 // ── Navigation helpers ───────────────────────────────────────────────────────
 
@@ -46,14 +39,7 @@ function isAlreadyAt(page: Page, hash: string): boolean {
   }
 }
 
-/**
- * Navigate to a hash route via UI clicks.
- *
- * This app uses HashRouter with ProtectedLayout, so programmatic
- * `window.location.assign` is unreliable when React Router hasn't
- * initialised yet. Instead we click the Sider footer button and
- * settings sider nav items - exactly like a user would.
- */
+/** Navigate directly through HashRouter for route-level smoke tests. */
 export async function navigateTo(page: Page, hash: string): Promise<void> {
   if (page.isClosed()) {
     throw new Error('Cannot navigate: page is already closed.');
@@ -63,62 +49,26 @@ export async function navigateTo(page: Page, hash: string): Promise<void> {
     return;
   }
 
-  const currentHash = await page.evaluate(() => window.location.hash);
-  const isOnSettings = currentHash.includes('/settings/');
-  const targetIsSettings = hash.includes('/settings/');
-
-  if (!targetIsSettings) {
-    // Target is non-settings (guid, conversation, etc.)
-    if (isOnSettings) {
-      // Click the sider back button to leave settings
-      const siderBtn = page.locator('.sider-footer div').first();
-      await siderBtn.waitFor({ state: 'visible', timeout: 10_000 });
-      await siderBtn.click();
-      // Wait for hash to change away from settings
-      await page
-        .waitForFunction(() => !window.location.hash.includes('/settings/'), { timeout: 10_000 })
-        .catch(() => {});
-    }
-    // Programmatic navigation for non-settings targets.
-    // Always navigate when not already at the target (e.g. conversation → guid).
-    if (!isAlreadyAt(page, hash)) {
-      await page.evaluate((h) => window.location.assign(h), hash);
-      try {
-        await page.waitForFunction((h) => window.location.hash === h, hash, { timeout: 10_000 });
-      } catch {
-        /* best-effort */
-      }
-    }
-  } else {
-    // Target is a settings sub-page
-    if (!isOnSettings) {
-      // Click sider settings button to enter settings
-      const siderBtn = page.locator('.sider-footer div').first();
-      await siderBtn.waitFor({ state: 'visible', timeout: 10_000 });
-      await siderBtn.click();
-      await page
-        .waitForFunction(() => window.location.hash.includes('/settings/'), { timeout: 10_000 })
-        .catch(() => {});
-    }
-
-    // Extract the settings path segment (e.g. "assistants" from "#/settings/assistants")
-    const settingsPath = hash.replace(/^#\/settings\//, '');
-    if (!isAlreadyAt(page, hash)) {
-      const navItem = page.locator(`[data-settings-path="${settingsPath}"]`);
-      await navItem.waitFor({ state: 'visible', timeout: 10_000 });
-      await navItem.click();
-      await page
-        .waitForFunction((h) => window.location.hash.includes(h), `/settings/${settingsPath}`, { timeout: 10_000 })
-        .catch(() => {});
-    }
-  }
-
-  // Wait for body to have meaningful content
+  await page.evaluate((targetHash) => {
+    window.location.hash = targetHash;
+  }, hash);
   try {
-    await page.waitForFunction(() => (document.body.textContent?.length ?? 0) > 50, { timeout: 10_000 });
-  } catch {
-    /* best-effort */
+    await page.waitForFunction((targetHash) => window.location.hash === targetHash, hash, { timeout: 10_000 });
+  } catch (error) {
+    const state = await page
+      .evaluate(() => ({
+        url: window.location.href,
+        hash: window.location.hash,
+        hasElectronApi: typeof (window as { electronAPI?: unknown }).electronAPI !== 'undefined',
+        body: document.body.textContent?.trim().slice(0, 240) ?? '',
+      }))
+      .catch(() => null);
+    throw new Error(`HashRouter did not settle on ${hash}. Current renderer state: ${JSON.stringify(state)}`, {
+      cause: error,
+    });
   }
+
+  await page.waitForFunction(() => (document.body.textContent?.length ?? 0) > 50, { timeout: 10_000 });
 }
 
 async function navigateWithRetry(page: Page, hash: string): Promise<void> {

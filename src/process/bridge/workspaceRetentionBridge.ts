@@ -1,0 +1,29 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { ipcBridge } from '@/common';
+import {
+  collectDesktopManagedWorkspaceInventory,
+  type DesktopManagedWorkspaceAuthoritySources,
+} from '@process/services/desktopManagedWorkspaceInventory';
+
+export type WorkspaceRetentionBridgeDependencies = {
+  getWorkDir: () => string;
+  sources: DesktopManagedWorkspaceAuthoritySources;
+};
+
+/**
+ * Register the local-human dry-run provider. This bridge deliberately exposes
+ * no quarantine, delete, rename, or mutation provider.
+ */
+export function initWorkspaceRetentionBridge(deps: WorkspaceRetentionBridgeDependencies): void {
+  ipcBridge.workspaceRetention.preview.provider(async () => {
+    return collectDesktopManagedWorkspaceInventory({
+      workDir: deps.getWorkDir(),
+      sources: deps.sources,
+    });
+  });
+}

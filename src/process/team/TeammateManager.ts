@@ -10,6 +10,7 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { LEASE_TTL_MS } from './types';
 import type { TeamAgent, TeammateStatus } from './types';
 import { isTeamCapableBackend } from '@/common/types/teamTypes';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { EventLogger } from './EventLogger';
 import type { Mailbox } from './Mailbox';
@@ -68,30 +69,25 @@ type TeammateManagerParams = {
   taskRepo?: ITaskRepository;
 };
 
-/** One reading of the ACP cumulative usage gauge for an agent session. */
+/** One reading of ACP context occupancy plus its cumulative USD cost gauge. */
 export type UsageSnapshot = { used: number; cost: number };
 
 /**
- * DESK-1 - per-event spend delta between two CUMULATIVE usage snapshots.
+ * DESK-1 - per-event cost delta between two ACP usage snapshots.
  *
- * ACP's `acp_context_usage` gauge is a running session total, so summing raw
- * snapshots N-counts. The meter must sum deltas instead:
- *   - no previous snapshot (genuinely fresh session) -> delta = full `next`
- *     (a fresh session's first snapshot is real new spend);
- *   - gauge grew  -> delta = next - prev;
- *   - gauge dropped (compaction / session reset) -> delta = 0. The spend that
- *     produced the drop is unknowable; undercounting is safer than
- *     overcounting. The caller then tracks `next` as the new baseline so
- *     growth from the lower value is counted again.
- * Token and cost gauges are clamped independently.
+ * ACP defines `used` as tokens currently occupying the context window. It is
+ * not cumulative processed or billable token usage, so it must never create a
+ * token-spend delta. Only ACP's cumulative session cost gauge can be differenced
+ * for this meter. A cost decrease means reset/replacement and contributes zero;
+ * the caller still records the new baseline.
  */
 export function computeUsageDelta(
   prev: UsageSnapshot | undefined,
   next: UsageSnapshot
 ): { tokensDelta: number; costDelta: number } {
-  if (!prev) return { tokensDelta: next.used, costDelta: next.cost };
+  if (!prev) return { tokensDelta: 0, costDelta: next.cost };
   return {
-    tokensDelta: next.used >= prev.used ? next.used - prev.used : 0,
+    tokensDelta: 0,
     costDelta: next.cost >= prev.cost ? next.cost - prev.cost : 0,
   };
 }
@@ -434,7 +430,7 @@ export class TeammateManager extends EventEmitter {
             .map((a) => ({
               customAgentId: a.id as string,
               name: a.name as string,
-              backend: (a.presetAgentType as string) || 'gemini',
+              backend: resolvePresetAgentType(a.presetAgentType as string | undefined),
             }))
             .filter((a) => isTeamCapableBackend(a.backend, cachedInitResults));
         }
@@ -608,36 +604,28 @@ export class TeammateManager extends EventEmitter {
     const agent = this.agents.find((a) => a.conversationId === msg.conversation_id);
     if (!agent) return;
 
-    // W1e/DESK-1: token-usage events flow through the response stream as
-    // `acp_context_usage`. ACP emits `used`/`cost` as a per-conversation
-    // CUMULATIVE session gauge re-sent on every update (acpTypes: "total
-    // tokens currently in context"), so summing raw rows N-counts. Each
-    // `token_usage` row therefore carries BOTH the raw snapshot fields
-    // (prompt_tokens / total_tokens / cost_estimate_usd - the original W1e
-    // shape, kept for back-compat) AND the per-event spend deltas
-    // (`tokens_delta` / `cost_delta`) computed against the previous snapshot
-    // for this agent session ({@link computeUsageDelta}). The W2d cost meter
-    // sums ONLY the delta fields. The baseline tracks the LATEST snapshot
-    // (not a high-water mark): after a compaction/reset drop the gauge
-    // legitimately grows again from the lower value, and that growth is real
-    // new spend that must be counted. ACP gives a `used` total only (no
-    // prompt/completion split), so completion_tokens stays 0.
+    // W1e/DESK-1: ACP `used` means current context occupancy, not cumulative
+    // processed or billable tokens. Preserve it only as context telemetry and
+    // never place it in token-spend fields. ACP cost is a cumulative session
+    // gauge, so only a finite non-negative USD cost may produce a cost delta.
     if (msg.type === 'acp_context_usage') {
       const usage = msg.data as { used?: number; size?: number; cost?: { amount?: number; currency?: string } } | null;
-      if (usage && typeof usage.used === 'number') {
-        const cumulativeUsed = usage.used;
-        const costAmount = typeof usage.cost?.amount === 'number' ? usage.cost.amount : 0;
+      if (usage) {
+        const contextUsed =
+          typeof usage.used === 'number' && Number.isFinite(usage.used) && usage.used >= 0 ? usage.used : 0;
+        const costAmount =
+          typeof usage.cost?.amount === 'number' && Number.isFinite(usage.cost.amount) && usage.cost.amount >= 0
+            ? usage.cost.amount
+            : 0;
         const currency = usage.cost?.currency ?? 'USD';
-        // Only USD cost estimates are meaningful for the W2d meter; other
-        // currencies are recorded but normalized to 0 in cost_estimate_usd.
         const cumulativeCostUsd = currency === 'USD' ? costAmount : 0;
 
         const prev = this.tokenUsageBaselines.get(msg.conversation_id);
-        const next: UsageSnapshot = { used: cumulativeUsed, cost: cumulativeCostUsd };
+        const next: UsageSnapshot = { used: contextUsed, cost: cumulativeCostUsd };
         const { tokensDelta, costDelta } = computeUsageDelta(prev, next);
         this.tokenUsageBaselines.set(msg.conversation_id, next);
 
-        if (this.eventLogger && (tokensDelta > 0 || costDelta > 0)) {
+        if (this.eventLogger && costDelta > 0) {
           void this.eventLogger.append({
             teamId: this.teamId,
             eventType: 'token_usage',
@@ -645,12 +633,13 @@ export class TeammateManager extends EventEmitter {
             payload: {
               slot_id: agent.slotId,
               backend: agent.agentType,
-              // Raw cumulative session snapshot (back-compat W1e shape).
-              prompt_tokens: cumulativeUsed,
+              // ACP does not report billable processed-token totals here.
+              prompt_tokens: 0,
               completion_tokens: 0,
-              total_tokens: cumulativeUsed,
+              total_tokens: 0,
               cost_estimate_usd: cumulativeCostUsd,
-              // Per-event spend deltas - the ONLY fields the meter sums.
+              context_tokens_used: contextUsed,
+              usage_semantics: 'acp_context_occupancy',
               tokens_delta: tokensDelta,
               cost_delta: costDelta,
               currency,

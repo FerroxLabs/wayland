@@ -132,6 +132,19 @@ export const useMcpOperations = (
             })
           : await removeMcpFromAgentsHttp(serverName);
         await handleMcpOperationResult(removeResponse, 'remove', successMessage, true); // Skip re-detection
+        const failedRemovals = removeResponse.success
+          ? (removeResponse.data?.results.filter((result) => !result.success) ?? [])
+          : [];
+        if (!removeResponse.success || failedRemovals.length > 0) {
+          throw new Error(
+            removeResponse.msg ||
+              failedRemovals.map((result) => `${result.agent}: ${result.error || 'removal failed'}`).join(', ') ||
+              t('settings.mcpRemoveFailed')
+          );
+        }
+        return removeResponse.data?.results ?? [];
+      } else {
+        throw new Error(agentsResponse.msg || t('settings.mcpSyncFailedNoAgents'));
       }
     },
     [message, t, handleMcpOperationResult]
@@ -162,12 +175,20 @@ export const useMcpOperations = (
           : await syncMcpToAgentsHttp(server.id);
 
         await handleMcpOperationResult(syncResponse, 'sync', undefined, skipRecheck);
+        const successfulPublications = syncResponse.success
+          ? (syncResponse.data?.results.filter((result) => result.success).length ?? 0)
+          : 0;
+        if (successfulPublications === 0) {
+          throw new Error(syncResponse.msg || t('settings.mcpSyncFailedNoAgents'));
+        }
+        return syncResponse.data?.results ?? [];
       } else {
         // Fix: Handle case when no agents are available, show user-friendly error message
         console.error('[useMcpOperations] Failed to get available agents:', agentsResponse.msg);
         await globalMessageQueue.add(() => {
           message.error(t('settings.mcpSyncFailedNoAgents'));
         });
+        throw new Error(agentsResponse.msg || t('settings.mcpSyncFailedNoAgents'));
       }
     },
     [message, t, handleMcpOperationResult]

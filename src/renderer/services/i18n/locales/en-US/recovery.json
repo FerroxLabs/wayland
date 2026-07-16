@@ -1,0 +1,7 @@
+{
+  "startupCompatibility": {
+    "title": "Wayland needs a compatible version",
+    "futureSchema": "This Wayland build supports database schema v{{supportedVersion}}, but your data was written with v{{currentVersion}}. Nothing was changed. Reopen Wayland with the newer compatible version or use a verified recovery point.",
+    "unreadable": "Wayland could not safely inspect its database, so startup was stopped before your data was changed. Check the logs or use a verified recovery point.\n\nReason: {{reason}}"
+  }
+}

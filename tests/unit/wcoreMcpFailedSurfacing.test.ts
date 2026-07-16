@@ -75,8 +75,8 @@ describe('WCoreAgent mcp_failed surfacing (#713)', () => {
       'Add it under `[security] egress_allow = [..]` in your config.';
     dispatch(agent, { type: 'mcp_failed', name: 'ai.fal-fal-mcp', reason });
 
-    expect(onStreamEvent).toHaveBeenCalledTimes(1);
-    const streamed = onStreamEvent.mock.calls[0][0];
+    const streamed = onStreamEvent.mock.calls.map(([event]) => event).find((event) => event.type === 'info');
+    expect(streamed).toBeDefined();
     expect(streamed.type).toBe('info');
     expect(streamed.data).toContain('ai.fal-fal-mcp');
     expect(streamed.data).toContain('failed to connect');
@@ -103,13 +103,52 @@ describe('WCoreAgent mcp_failed surfacing (#713)', () => {
 
     // Session start: no active turn yet -> system-level (empty msg_id) info.
     dispatch(agent, { type: 'mcp_failed', name: 'srv', reason: 'boom' });
-    expect(onStreamEvent.mock.calls[0][0].msg_id).toBe('');
+    expect(onStreamEvent.mock.calls.map(([event]) => event).find((event) => event.type === 'info')?.msg_id).toBe('');
 
     // Mid-turn failure attaches to the in-flight turn (mirrors budget_exceeded).
     dispatch(agent, { type: 'stream_start', msg_id: 'msg-42' });
     onStreamEvent.mockClear();
     dispatch(agent, { type: 'mcp_failed', name: 'srv', reason: 'boom' });
-    expect(onStreamEvent.mock.calls[0][0].msg_id).toBe('msg-42');
+    expect(onStreamEvent.mock.calls.map(([event]) => event).find((event) => event.type === 'info')?.msg_id).toBe(
+      'msg-42'
+    );
+  });
+
+  it('forwards structured per-server ready and failed receipts for the session reducer', () => {
+    const onStreamEvent = vi.fn<(event: StreamEvent) => void>();
+    const agent = makeAgent(onStreamEvent);
+
+    dispatch(agent, { type: 'mcp_ready', name: 'tavily', tools: ['tavily_search', 'tavily_extract'] });
+    dispatch(agent, { type: 'mcp_failed', name: 'firecrawl', reason: 'credential rejected' });
+
+    expect(onStreamEvent).toHaveBeenCalledWith({
+      type: 'mcp_ready',
+      data: { name: 'tavily', tools: ['tavily_search', 'tavily_extract'] },
+      msg_id: '',
+    });
+    expect(onStreamEvent).toHaveBeenCalledWith({
+      type: 'mcp_failed',
+      data: { name: 'firecrawl', reason: 'credential rejected' },
+      msg_id: '',
+    });
+  });
+
+  it('waits for each named server instead of treating any ready event as global readiness', async () => {
+    const agent = makeAgent(vi.fn());
+    const wait = agent as unknown as { waitForMcpTerminal: (name: string) => Promise<void> };
+    let firecrawlSettled = false;
+    const tavily = wait.waitForMcpTerminal('tavily');
+    const firecrawl = wait.waitForMcpTerminal('firecrawl').finally(() => {
+      firecrawlSettled = true;
+    });
+
+    dispatch(agent, { type: 'mcp_ready', name: 'tavily', tools: ['search'] });
+    await expect(tavily).resolves.toBeUndefined();
+    expect(firecrawlSettled).toBe(false);
+
+    const failed = expect(firecrawl).rejects.toThrow('credential rejected');
+    dispatch(agent, { type: 'mcp_failed', name: 'firecrawl', reason: 'credential rejected' });
+    await failed;
   });
 
   it('control: a genuinely unknown event type still warn-drops without a stream event', () => {

@@ -171,7 +171,7 @@ export type TeamMcpPhase =
   | 'tcp_ready'
   | 'tcp_error'
   | 'session_injecting'
-  | 'session_ready'
+  | 'session_accepted'
   | 'session_error'
   | 'load_failed'
   | 'degraded'

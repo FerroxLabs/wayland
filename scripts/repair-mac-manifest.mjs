@@ -28,9 +28,10 @@ import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 
 function parseArgs(argv) {
-  const out = { dir: '' };
+  const out = { dir: '', channel: 'latest' };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--dir') out.dir = argv[++i];
+    else if (argv[i] === '--channel') out.channel = argv[++i];
   }
   return out;
 }
@@ -107,14 +108,18 @@ function repairManifest(ymlPath) {
 }
 
 function main() {
-  const { dir } = parseArgs(process.argv.slice(2));
+  const { dir, channel } = parseArgs(process.argv.slice(2));
+  if (!/^[a-z0-9-]+$/.test(channel)) {
+    console.error(`FAIL: invalid update channel: ${channel}`);
+    process.exit(1);
+  }
   if (!dir || !existsSync(dir)) {
     console.error(`FAIL: pass an existing --dir (got ${dir || '<none>'}).`);
     process.exit(1);
   }
-  const manifests = readdirSync(dir).filter((f) => /^latest.*mac.*\.yml$/.test(f));
+  const manifests = readdirSync(dir).filter((f) => f.startsWith(channel) && f.includes('mac') && f.endsWith('.yml'));
   if (manifests.length === 0) {
-    console.error(`FAIL: no latest*mac*.yml in ${dir}.`);
+    console.error(`FAIL: no ${channel}*mac*.yml in ${dir}.`);
     process.exit(1);
   }
 

@@ -11,8 +11,10 @@ interface JsonImportModalProps {
   visible: boolean;
   server?: IMcpServer;
   onCancel: () => void;
-  onSubmit: (server: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onBatchImport?: (servers: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>[]) => void;
+  onSubmit: (server: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => void | Promise<unknown>;
+  onBatchImport?: (
+    servers: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>[]
+  ) => void | Promise<unknown>;
 }
 
 interface ValidationResult {
@@ -28,6 +30,7 @@ const JsonImportModal: React.FC<JsonImportModalProps> = ({ visible, server, onCa
   const [jsonInput, setJsonInput] = useState('');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [validation, setValidation] = useState<ValidationResult>({ isValid: true });
+  const [submitting, setSubmitting] = useState(false);
 
   /**
    * JSON syntax validation
@@ -174,7 +177,7 @@ const JsonImportModal: React.FC<JsonImportModalProps> = ({ visible, server, onCa
     return rawServers as Record<string, JsonServerConfig>;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Re-validate at submit time to guard against race between useEffect validation and click
     let config: Record<string, any>;
     try {
@@ -215,8 +218,15 @@ const JsonImportModal: React.FC<JsonImportModalProps> = ({ visible, server, onCa
         };
       });
 
-      onBatchImport(serversToImport);
-      onCancel();
+      setSubmitting(true);
+      try {
+        await onBatchImport(serversToImport);
+        onCancel();
+      } catch (error) {
+        setValidation({ isValid: false, errorMessage: error instanceof Error ? error.message : String(error) });
+      } finally {
+        setSubmitting(false);
+      }
       return;
     }
 
@@ -224,16 +234,23 @@ const JsonImportModal: React.FC<JsonImportModalProps> = ({ visible, server, onCa
     const firstServerKey = serverKeys[0];
     const serverConfig = mcpServers[firstServerKey];
 
-    onSubmit({
-      name: firstServerKey,
-      description: serverConfig.description || 'Imported from JSON',
-      enabled: true,
-      transport: parseTransport(serverConfig),
-      status: 'disconnected',
-      tools: [] as IMcpTool[], // Initialize as empty array on JSON import; populated later via connection test
-      originalJson: jsonInput,
-    });
-    onCancel();
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        name: firstServerKey,
+        description: serverConfig.description || 'Imported from JSON',
+        enabled: true,
+        transport: parseTransport(serverConfig),
+        status: 'disconnected',
+        tools: [] as IMcpTool[], // Initialize as empty array on JSON import; populated later via connection test
+        originalJson: jsonInput,
+      });
+      onCancel();
+    } catch (error) {
+      setValidation({ isValid: false, errorMessage: error instanceof Error ? error.message : String(error) });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!visible) return null;
@@ -242,8 +259,8 @@ const JsonImportModal: React.FC<JsonImportModalProps> = ({ visible, server, onCa
     <WaylandModal
       visible={visible}
       onCancel={onCancel}
-      onOk={handleSubmit}
-      okButtonProps={{ disabled: !validation.isValid }}
+      onOk={() => void handleSubmit()}
+      okButtonProps={{ disabled: !validation.isValid, loading: submitting }}
       header={{ title: server ? t('settings.mcpEditServer') : t('settings.mcpImportFromJSON'), showClose: true }}
       style={{ width: 600, height: 450 }}
       contentStyle={{

@@ -435,18 +435,18 @@ describe('Step 8: Task #3 IPC mcpStatus events', () => {
     expect(mockMcpStatusEmit).not.toHaveBeenCalled();
   });
 
-  it('emits session_injecting then session_ready for fresh session with team config', async () => {
+  it('emits session_injecting then session_accepted for fresh session with team config', async () => {
     const agent = createCodexAgent({ teamMcpStdioConfig: TEAM_MCP_CONFIG });
     await callCreateOrResume(agent);
 
     const phases = mockMcpStatusEmit.mock.calls.map((c) => c[0].phase);
     expect(phases).toContain('session_injecting');
-    expect(phases).toContain('session_ready');
-    // session_injecting must come before session_ready
-    expect(phases.indexOf('session_injecting')).toBeLessThan(phases.indexOf('session_ready'));
+    expect(phases).toContain('session_accepted');
+    // Session acceptance precedes the independent MCP tool-readiness proof.
+    expect(phases.indexOf('session_injecting')).toBeLessThan(phases.indexOf('session_accepted'));
   });
 
-  it('emits session_injecting then session_ready for Codex resume path', async () => {
+  it('emits session_injecting then session_accepted for Codex resume path', async () => {
     const agent = createCodexAgent({
       acpSessionId: 'session-abc',
       acpSessionConversationId: 'conv-test-1',
@@ -456,7 +456,7 @@ describe('Step 8: Task #3 IPC mcpStatus events', () => {
 
     const phases = mockMcpStatusEmit.mock.calls.map((c) => c[0].phase);
     expect(phases).toContain('session_injecting');
-    expect(phases).toContain('session_ready');
+    expect(phases).toContain('session_accepted');
   });
 
   it('emits session_error when loadSession throws', async () => {
@@ -504,9 +504,9 @@ describe('Step 8: Task #3 IPC mcpStatus events', () => {
     const agent = createCodexAgent({ teamMcpStdioConfig: TEAM_MCP_CONFIG });
     await callCreateOrResume(agent);
 
-    const readyCalls = mockMcpStatusEmit.mock.calls.filter((c) => c[0].phase === 'session_ready');
-    expect(readyCalls.length).toBeGreaterThan(0);
-    const payload = readyCalls[0][0];
+    const acceptedCalls = mockMcpStatusEmit.mock.calls.filter((c) => c[0].phase === 'session_accepted');
+    expect(acceptedCalls.length).toBeGreaterThan(0);
+    const payload = acceptedCalls[0][0];
     // teamId extracted from 'wayland-team-abc' → 'abc'
     expect(payload.teamId).toBe('abc');
   });
@@ -521,12 +521,12 @@ describe('Step 8: Task #3 IPC mcpStatus events', () => {
     expect(payload.slotId).toBe('conv-test-1');
   });
 
-  it('session_ready payload includes serverCount', async () => {
+  it('session_accepted payload includes serverCount without claiming tool readiness', async () => {
     const agent = createCodexAgent({ teamMcpStdioConfig: TEAM_MCP_CONFIG });
     await callCreateOrResume(agent);
 
-    const readyCalls = mockMcpStatusEmit.mock.calls.filter((c) => c[0].phase === 'session_ready');
-    expect(readyCalls[0][0].serverCount).toBe(1);
+    const acceptedCalls = mockMcpStatusEmit.mock.calls.filter((c) => c[0].phase === 'session_accepted');
+    expect(acceptedCalls[0][0].serverCount).toBe(1);
   });
 });
 
@@ -542,8 +542,9 @@ describe('Step 8: Task #3 IPC mcpStatus events', () => {
 //      Expected sequence per agent:
 //        tcp_ready  { teamId, port }
 //        session_injecting  { teamId, slotId, serverCount: 1 }
-//        session_ready      { teamId, slotId, serverCount: 1 }
-//   4. Frontend team agent bubble should show MCP status indicator = ready
+//        session_accepted   { teamId, slotId, serverCount: 1 }
+//        mcp_tools_ready    { teamId, slotId, serverCount: 1 }
+//   4. Frontend team agent bubble must not show ready until mcp_tools_ready
 //
 // FAILURE INJECTION (prove falsifiability):
 //   A. Rename scripts/team-mcp-stdio.mjs → force tcp_error
@@ -572,6 +573,6 @@ describe('Step 8: Task #3 IPC mcpStatus events', () => {
 // placeholders, which would rot as perpetual "pending" noise) because the
 // unit-observable half of every item is already asserted in "Step 8: Task #3
 // IPC mcpStatus events" above: event ordering (session_injecting before
-// session_ready), session_error carrying a non-empty error string, the degraded
+// session_accepted), session_error carrying a non-empty error string, the degraded
 // phase on empty command, and serverCount/teamId/slotId payloads.
 // ─────────────────────────────────────────────────────────────────────────────

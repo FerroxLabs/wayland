@@ -16,6 +16,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { getPackagedReleaseIdentity, getReleaseProtocolScheme } from '../../src/common/releaseTrack';
 
 const ROOT = path.resolve(__dirname, '../..');
 const NSH_FILES = ['resources/windows-installer-x64.nsh', 'resources/windows-installer-arm64.nsh'];
@@ -37,10 +38,13 @@ describe('#490 Windows uninstaller registry cleanup', () => {
   });
 
   // Line-anchored (multiline) so a commented-out `; DeleteReg...` cannot false-pass.
-  it.each(bodies)('$rel removes the wayland:// protocol handler key', ({ body }) => {
-    // DeleteRegKey removes the whole HKCU\Software\Classes\wayland tree
-    // (URL Protocol value + shell\open\command) written every launch.
+  it.each(bodies)('$rel removes the stable and Preview protocol keys only in their matching branch', ({ body }) => {
+    // DeleteRegKey removes the selected URL Protocol value plus its
+    // shell\open\command tree. The product-name branch prevents cross-track
+    // uninstall damage when Stable and Preview are installed side by side.
+    expect(body).toContain('${If} "${PRODUCT_NAME}" == "Wayland Preview"');
     expect(body).toMatch(/^\s*DeleteRegKey\s+HKCU\s+"Software\\Classes\\wayland"/m);
+    expect(body).toMatch(/^\s*DeleteRegKey\s+HKCU\s+"Software\\Classes\\wayland-preview"/m);
   });
 
   it.each(bodies)('$rel removes the start-on-boot Run value + StartupApproved marker', ({ body }) => {
@@ -69,13 +73,17 @@ describe('#490 Windows uninstaller registry cleanup', () => {
     expect(x64).toBe(arm64);
   });
 
-  it('the cleaned protocol scheme matches PROTOCOL_SCHEME in source (rename guard)', () => {
-    const deepLink = fs.readFileSync(path.join(ROOT, 'src/process/utils/deepLink.ts'), 'utf-8');
-    const scheme = deepLink.match(/PROTOCOL_SCHEME\s*=\s*'([^']+)'/)?.[1];
-    expect(scheme).toBe('wayland');
-    // If the scheme is ever renamed, the .nsh DeleteRegKey below must move with it.
+  it('the cleaned identities match both release-track contracts (rename guard)', () => {
+    const stableScheme = getReleaseProtocolScheme('stable');
+    const previewScheme = getReleaseProtocolScheme('preview');
+    const stableName = getPackagedReleaseIdentity('stable').appName;
+    const previewName = getPackagedReleaseIdentity('preview').appName;
+
     for (const { body } of bodies) {
-      expect(body).toContain(`Software\\Classes\\${scheme}`);
+      expect(body).toContain(`Software\\Classes\\${stableScheme}`);
+      expect(body).toContain(`Software\\Classes\\${previewScheme}`);
+      expect(body).toContain(`electron.app.${stableName}`);
+      expect(body).toContain(`electron.app.${previewName}`);
     }
   });
 });

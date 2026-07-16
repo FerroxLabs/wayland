@@ -92,11 +92,11 @@ describe('WorkerTaskManager', () => {
 
   // --- kill ---
 
-  it('kill removes task from list and calls task.kill()', () => {
+  it('kill removes task from list synchronously and resolves after task.kill()', async () => {
     const agent = makeAgent();
     const mgr = newManager(makeFactory(agent) as any, repo);
     mgr.addTask('c1', agent as any);
-    mgr.kill('c1');
+    await mgr.kill('c1');
     expect(mgr.getTask('c1')).toBeUndefined();
     expect(agent.kill).toHaveBeenCalled();
   });
@@ -121,9 +121,9 @@ describe('WorkerTaskManager', () => {
     expect(mgr.getTask('c1')).toBeUndefined();
   });
 
-  it('kill is a no-op for unknown id', () => {
+  it('kill is a no-op for unknown id', async () => {
     const mgr = newManager(makeFactory() as any, repo);
-    expect(() => mgr.kill('nonexistent')).not.toThrow();
+    await expect(mgr.kill('nonexistent')).resolves.toBeUndefined();
   });
 
   // --- clear ---

@@ -604,7 +604,7 @@ describe('officeWatchBridge', () => {
   });
 
   describe('auto-install on ENOENT', () => {
-    it('attempts consent-gated auto-install on ENOENT for word and retries once', async () => {
+    it('delegates ENOENT to the recovery boundary and retries only when recovery succeeds', async () => {
       initOfficeWatchBridge();
 
       const child1 = createMockChildProcess();
@@ -613,7 +613,7 @@ describe('officeWatchBridge', () => {
       const child2 = createMockChildProcess();
       spawnMock.mockReturnValueOnce(child2);
 
-      // Install succeeds (consent granted, checksum verified).
+      // Model a future verified repair path succeeding.
       installOfficecliMock.mockResolvedValue(true);
 
       const promise = wordStartHandler.fn!({ filePath: F('file.docx') });
@@ -648,7 +648,7 @@ describe('officeWatchBridge', () => {
       const result = await promise;
       expect(result).toEqual({
         url: '',
-        error: 'officecli is not installed and auto-install was declined or failed',
+        error: 'The verified OfficeCLI runtime is missing; reinstall or update Wayland',
       });
     });
   });

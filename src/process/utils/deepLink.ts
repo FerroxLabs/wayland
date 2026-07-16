@@ -6,8 +6,9 @@
 
 import type { BrowserWindow } from 'electron';
 import { ipcBridge } from '@/common';
+import { getReleaseProtocolScheme, getReleaseTrack } from '@/common/releaseTrack';
 
-export const PROTOCOL_SCHEME = 'wayland';
+export const PROTOCOL_SCHEME = getReleaseProtocolScheme(getReleaseTrack());
 
 /**
  * Parse an wayland:// URL into action and params.

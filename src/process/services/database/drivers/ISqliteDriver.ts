@@ -11,5 +11,10 @@ export interface ISqliteDriver {
   exec(sql: string): void;
   pragma(sql: string, options?: { simple?: boolean }): unknown;
   transaction<T>(fn: (...args: unknown[]) => T): (...args: unknown[]) => T;
+  /**
+   * Produce an application-consistent snapshot without replacing an existing
+   * destination. Implementations must include committed WAL state.
+   */
+  backup(destinationPath: string): Promise<void>;
   close(): void;
 }

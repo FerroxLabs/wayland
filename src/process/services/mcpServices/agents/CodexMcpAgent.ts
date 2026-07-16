@@ -7,6 +7,7 @@
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
+import { codexMcpBearerEnvVar } from '@/common/mcp';
 import {
   BUILTIN_IMAGE_GEN_LEGACY_NAMES,
   BUILTIN_IMAGE_GEN_NAME,
@@ -127,7 +128,7 @@ export function parseCodexMcpListOutput(result: string): IMcpServer[] {
  * at agent-spawn time (where the live token is injected into the scoped env).
  */
 export function codexBearerEnvVar(serverName: string): string {
-  return `WAYLAND_MCP_BEARER_${cliSafeMcpServerName(serverName).replace(/[^A-Za-z0-9]/g, '_').toUpperCase()}`;
+  return codexMcpBearerEnvVar(serverName);
 }
 
 /**
@@ -143,6 +144,26 @@ export function codexBearerToken(server: IMcpServer): string | null {
   if (!auth) return null;
   const match = /^Bearer\s+(.+)$/i.exec(auth.trim());
   return match ? match[1] : null;
+}
+
+/**
+ * The `codex mcp add --url` command can represent only bearer-token auth. It
+ * has no argv form for arbitrary HTTP headers. Wayland's per-conversation
+ * CODEX_HOME materializer supports those headers through `env_http_headers`,
+ * but the global CLI registration path must not claim it published a connector
+ * whose credentials it silently dropped.
+ */
+export function codexGlobalPublicationUnsupportedReason(server: IMcpServer): string | null {
+  if (server.transport.type !== 'http' && server.transport.type !== 'streamable_http') return null;
+  const headers = 'headers' in server.transport ? (server.transport.headers ?? {}) : {};
+  const unsupportedHeaders = Object.entries(headers)
+    .filter(([name, value]) => {
+      if (name.toLowerCase() !== 'authorization') return true;
+      return !/^Bearer\s+\S+/i.test(value.trim());
+    })
+    .map(([name]) => name);
+  if (unsupportedHeaders.length === 0) return null;
+  return `Codex CLI global MCP registration cannot represent HTTP header(s): ${unsupportedHeaders.join(', ')}; Wayland will inject them only into selected chat sessions`;
 }
 
 export function buildCodexAddArgs(server: IMcpServer): string[] | null {
@@ -242,10 +263,17 @@ export class CodexMcpAgent extends AbstractMcpAgent {
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
     const installOperation = async () => {
       try {
+        const failures: string[] = [];
         for (const server of mcpServers) {
+          const unsupportedReason = codexGlobalPublicationUnsupportedReason(server);
+          if (unsupportedReason) {
+            failures.push(`${server.name}: ${unsupportedReason}`);
+            continue;
+          }
+
           const args = buildCodexAddArgs(server);
           if (!args) {
-            console.warn(`Skipping ${server.name}: Codex CLI does not support ${server.transport.type} transport type`);
+            failures.push(`${server.name}: Codex CLI does not support ${server.transport.type} transport type`);
             continue;
           }
 
@@ -263,10 +291,12 @@ export class CodexMcpAgent extends AbstractMcpAgent {
             await safeExecFile('codex', args, { timeout: 5000, ...execOptions });
             console.log(`[CodexMcpAgent] Added MCP server: ${server.name}`);
           } catch (error) {
-            console.warn(`Failed to add MCP ${server.name} to Codex: ${execErrorDetail(error)}`);
+            const detail = execErrorDetail(error);
+            console.warn(`Failed to add MCP ${server.name} to Codex: ${detail}`);
+            failures.push(`${server.name}: ${detail}`);
           }
         }
-        return { success: true };
+        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) };
       }

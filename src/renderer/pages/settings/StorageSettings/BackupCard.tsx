@@ -43,7 +43,18 @@ const BackupCard: React.FC = () => {
   const handleRestoreClick = () => {
     if (isDesktop) {
       setImporting(true);
-      void storage.importBackup.invoke({}).finally(() => setImporting(false));
+      void storage.importBackup
+        .invoke({})
+        .then((result) => {
+          if (!result.ok) return;
+          Message.success(
+            result.safetyBackupPath
+              ? t('settings.storagePage.restoreSuccessWithSafety', { path: result.safetyBackupPath })
+              : t('settings.storagePage.restoreSuccess')
+          );
+        })
+        .catch(() => Message.error(t('settings.storagePage.restoreFailed')))
+        .finally(() => setImporting(false));
       return;
     }
     setRestoreOpen(true);
@@ -60,12 +71,16 @@ const BackupCard: React.FC = () => {
     if (!restoreFile || !restorePassword) return;
     setRestoring(true);
     try {
-      await restoreBackupHttp({
+      const result = await restoreBackupHttp({
         file: restoreFile,
         password: restorePassword,
         passphrase: restorePassphrase || undefined,
       });
-      Message.success(t('settings.storagePage.restoreSuccess'));
+      Message.success(
+        result.safetyBackupPath
+          ? t('settings.storagePage.restoreSuccessWithSafety', { path: result.safetyBackupPath })
+          : t('settings.storagePage.restoreSuccess')
+      );
       closeRestore();
     } catch (error) {
       const code = error instanceof Error ? error.message : '';
@@ -85,6 +100,10 @@ const BackupCard: React.FC = () => {
 
   return (
     <Card title={t('settings.storagePage.backupTitle')} titleIcon={Archive}>
+      <div className='mb-12px rounded-8px bg-fill-2 px-12px py-10px text-12px text-t-secondary leading-relaxed'>
+        {t('settings.storagePage.backupScopeWarning')}
+      </div>
+
       <PreferenceRow label={t('settings.storagePage.exportIncludeKeys')}>
         <Checkbox checked={includeKeys} onChange={setIncludeKeys} />
       </PreferenceRow>
@@ -152,7 +171,9 @@ const BackupCard: React.FC = () => {
             </div>
 
             <div>
-              <div className='text-12px text-t-secondary mb-4px'>{t('settings.storagePage.restorePassphraseLabel')}</div>
+              <div className='text-12px text-t-secondary mb-4px'>
+                {t('settings.storagePage.restorePassphraseLabel')}
+              </div>
               <Input
                 type='password'
                 value={restorePassphrase}

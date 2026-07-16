@@ -11,6 +11,7 @@ import { getPlatformServices } from '@/common/platform';
 import { application } from '@/common/adapter/ipcBridge';
 import type { TMessage } from '@/common/chat/chatLib';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+import { resolvePersistedPresetAgentType, resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
 import type { ConciergeDiagDeps } from '@process/resources/builtinMcp/conciergeDiagServer';
 import type {
@@ -32,14 +33,18 @@ import {
   getTempPath,
   hasElectronAppPath,
   pruneDirectoryToMatch,
-  verifyDirectoryFiles,
+  migrateDirectoryWithRecovery,
 } from './utils';
 import { writeFileAtomic } from './atomicWrite';
 import { planPresetLocaleFileCopies } from './presetLocaleFiles';
 import { getOsUserName } from './osUserName';
 import { resolveFluxImageDefault } from './fluxImageDefault';
 import { readConnectedFluxKey } from '../connectors/fluxKey';
-import { getDatabase } from '../services/database/export';
+import {
+  assertDatabaseSchemaCompatible,
+  DatabaseSchemaCompatibilityError,
+  getDatabase,
+} from '../services/database/export';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { migrateFromElectronConfig, importConfigFromFile } from './configMigration';
 import {
@@ -110,27 +115,12 @@ const migrateLegacyData = async () => {
       // Create destination directory
       mkdirSync(newDir);
 
-      // Copy all files and directories
-      await copyDirectoryRecursively(oldDir, newDir);
-
-      // Verify migration succeeded
-      const isVerified = await verifyDirectoryFiles(oldDir, newDir);
-      if (isVerified) {
-        // Make sure we don't delete the same directory
-        if (path.resolve(oldDir) !== path.resolve(newDir)) {
-          try {
-            await fs.rm(oldDir, { recursive: true });
-          } catch (cleanupError) {
-            console.warn(
-              '[Wayland] Failed to clean up original directory, please delete manually:',
-              oldDir,
-              cleanupError
-            );
-          }
-        }
+      const recoveryRoot = path.join(path.dirname(newDir), 'recovery', 'legacy-temp-migrations');
+      const result = await migrateDirectoryWithRecovery(oldDir, newDir, recoveryRoot);
+      if (result.migrated && result.recoveryPath) {
+        console.info('[Wayland] Legacy data migrated with recovery copy:', result.recoveryPath);
       }
-
-      return true;
+      return result.migrated;
     }
   } catch (error) {
     console.error('[Wayland] Data migration failed:', error);
@@ -645,7 +635,7 @@ const getBuiltinAssistants = (): AcpBackendConfig[] => {
       enabled: enabledByDefault,
       isPreset: true,
       isBuiltin: true,
-      presetAgentType: preset.presetAgentType || 'gemini',
+      presetAgentType: resolvePresetAgentType(preset.presetAgentType),
       // Cowork enables all builtin skills by default
       enabledSkills: defaultEnabledSkills,
       // Copy quick prompts
@@ -1148,6 +1138,12 @@ const initStorage = async () => {
   const mark = (label: string) => console.log(`[Wayland:init] ${label} +${Math.round(performance.now() - t0)}ms`);
   mark('start');
 
+  // Refuse a database written by a newer Wayland build before legacy/config
+  // migrations or default seeding can mutate adjacent application state.
+  const physicalDatabasePath = path.join(getPlatformServices().paths.getDataDir(), 'wayland', 'wayland.db');
+  await assertDatabaseSchemaCompatible(physicalDatabasePath);
+  mark('0 database compatibility preflight');
+
   // 1. Run data migration first (before any directory is created)
   await migrateLegacyData();
   mark('1. migrateLegacyData');
@@ -1264,8 +1260,7 @@ const initStorage = async () => {
     if (!splitMigrationDone) {
       const legacyCustomAgents =
         ((await configFile.get('acp.customAgents').catch((): undefined => undefined)) as
-          | AcpBackendConfig[]
-          | undefined) || [];
+          AcpBackendConfig[] | undefined) || [];
       const currentAssistants =
         ((await configFile.get('assistants').catch((): undefined => undefined)) as AcpBackendConfig[] | undefined) ||
         [];
@@ -1380,7 +1375,10 @@ const initStorage = async () => {
         const resolvedEnabled = needsEnabledFix ? builtin.enabled : existing.enabled;
         // presetAgentType is user-controlled; fall back to the builtin default when unset
         // presetAgentType is user-controlled, use builtin default if not set
-        const resolvedPresetAgentType = existing.presetAgentType ?? builtin.presetAgentType;
+        const resolvedPresetAgentType = resolvePersistedPresetAgentType(
+          existing.presetAgentType,
+          builtin.presetAgentType
+        );
 
         // For builtin assistants with defaultEnabledSkills, add default skills (only on migration, when user has not set enabledSkills)
         // Add default enabled skills for builtin assistants with defaultEnabledSkills (only during migration and if user hasn't set enabledSkills)
@@ -1458,6 +1456,11 @@ const initStorage = async () => {
     await getDatabase();
     await cleanupOrphanedHealthCheckConversations();
   } catch (error) {
+    // A future schema is a compatibility stop, never a file-storage fallback.
+    // Re-throw in case the file changed between preflight and database open.
+    if (error instanceof DatabaseSchemaCompatibilityError) {
+      throw error;
+    }
     console.error('[InitStorage] Database initialization failed, falling back to file-based storage:', error);
   }
   mark('6. database');

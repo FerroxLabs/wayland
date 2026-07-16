@@ -21,7 +21,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Tag, Tooltip } from '@arco-design/web-react';
-import { Close, Copy, LinkOne, FileCode, Help, Edit, Delete } from '@icon-park/react';
+import { Close, Copy, LinkOne, FileCode, Help, Edit, Inbox } from '@icon-park/react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import type { MemoryEntry, MemoryType } from '@/common/types/memory';
@@ -51,8 +51,8 @@ export type RightDrawerProps = {
   onCopy?: (text: string) => void;
   /** Open the editor for this entry (#414). */
   onEdit?: (entry: ExtendedEntry) => void;
-  /** Delete this entry after confirmation (#414). */
-  onDelete?: (entry: ExtendedEntry) => void;
+  /** Archive this entry after confirmation (#414). */
+  onArchive?: (entry: ExtendedEntry) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -228,7 +228,7 @@ const RightDrawer: React.FC<RightDrawerProps> = ({
   onOpenSource,
   onCopy,
   onEdit,
-  onDelete,
+  onArchive,
 }) => {
   const { t } = useTranslation('memory');
 
@@ -358,12 +358,11 @@ const RightDrawer: React.FC<RightDrawerProps> = ({
             <Button
               type='text'
               size='small'
-              status='danger'
-              icon={<Delete theme='outline' size='13' />}
-              onClick={() => onDelete?.(entry)}
-              data-testid='drawer-delete-btn'
+              icon={<Inbox theme='outline' size='13' />}
+              onClick={() => onArchive?.(entry)}
+              data-testid='drawer-archive-btn'
             >
-              {t('archive.drawer.delete', 'Delete')}
+              {t('archive.drawer.delete', 'Archive')}
             </Button>
           </div>
 

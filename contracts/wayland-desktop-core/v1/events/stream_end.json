@@ -1,0 +1,1 @@
+{"agent_run_id":"agent-run-001","finish_reason":"stop","msg_id":"msg-001","type":"stream_end","usage":{"active_window_percent":37,"cache_read_tokens":16,"cache_write_tokens":8,"input_tokens":120,"output_tokens":40},"usage_delta":{"active_window_percent":37,"cache_read_tokens":16,"cache_write_tokens":8,"input_tokens":120,"output_tokens":40}}

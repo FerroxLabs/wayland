@@ -15,6 +15,7 @@ import { computeUsage, invalidateUsageCache } from '@process/storage/computeUsag
 import { clearStorageDir, getLogsDir, getStorageDirs } from '@process/storage/storageLocations';
 import { backupExport } from '@process/storage/backupExport';
 import { backupImport } from '@process/storage/backupImport';
+import { createLegacySafetyExport } from '@process/storage/legacySafetyExport';
 
 /** Largest backup zip accepted for restore upload (1 GiB - matches the import zip-bomb total cap). */
 const MAX_RESTORE_ZIP_BYTES = 1024 * 1024 * 1024;
@@ -145,10 +146,9 @@ export function registerStorageRoutes(app: Express, validateApiAccess: RequestHa
         const userData = getStorageDirs().workspace;
         const passphrase = bodyString(req.body?.passphrase) || undefined;
 
-        // Pre-restore safety backup so a bad restore is recoverable.
-        const safetyDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'wl-safety-'));
-        const safetyPath = path.join(safetyDir, `pre-restore-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.zip`);
-        await backupExport({ userData, destPath: safetyPath, includeKeys: Boolean(passphrase), passphrase });
+        // Persist the matching file-only rollback artifact before changing live
+        // state. Temporary storage would make the UI's recovery promise false.
+        const safetyPath = await createLegacySafetyExport({ userData, passphrase });
 
         // Apply the restore (core enforces zip-slip containment, dir allowlist,
         // zip-bomb caps, and skips encrypted keys when no passphrase is given).

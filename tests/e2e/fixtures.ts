@@ -28,6 +28,42 @@ let app: ElectronApplication | null = null;
 let mainPage: Page | null = null;
 const e2eStateSandboxDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-e2e-state-'));
 const e2eStateFile = path.join(e2eStateSandboxDir, 'extension-states.json');
+const e2eUserDataSandboxRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-e2e-user-data-'));
+const e2eMainUserDataDir = path.join(e2eUserDataSandboxRoot, 'main');
+const e2eAmbientUserDataDir = path.join(e2eUserDataSandboxRoot, 'ambient');
+
+export function seedCompletedOnboarding(userDataDir: string): void {
+  const configDir = path.join(userDataDir, 'config');
+  const configFile = path.join(configDir, 'wayland-config.txt');
+  if (fs.existsSync(configFile)) return;
+
+  fs.mkdirSync(configDir, { recursive: true });
+  const json = JSON.stringify({ onboardingCompleted: true });
+  const encoded = Buffer.from(encodeURIComponent(json), 'utf8').toString('base64');
+  fs.writeFileSync(configFile, encoded, { mode: 0o600, flag: 'wx' });
+}
+
+async function assertE2EUserDataPath(electronApp: ElectronApplication, expectedPath: string): Promise<void> {
+  const deadline = Date.now() + 5_000;
+  let actualPath: string | null = null;
+  let lastError: unknown;
+  while (Date.now() < deadline && actualPath === null) {
+    try {
+      actualPath = await electronApp.evaluate(({ app: electronApp }) => electronApp.getPath('userData'));
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+  if (actualPath === null) {
+    await electronApp.close().catch(() => undefined);
+    throw new Error('E2E profile isolation could not read Electron userData path', { cause: lastError });
+  }
+  if (path.resolve(actualPath) !== path.resolve(expectedPath)) {
+    await electronApp.close().catch(() => undefined);
+    throw new Error(`E2E profile isolation failed: expected ${expectedPath}, received ${actualPath}`);
+  }
+}
 
 function isDevToolsWindow(page: Page): boolean {
   return page.url().startsWith('devtools://');
@@ -202,6 +238,18 @@ export async function launchAppWithEnv(extraEnv: Record<string, string> = {}): P
     extensionPaths.push(path.join(projectRoot, 'examples'));
     extensionPaths.push(wrapperDir);
   }
+  const defaultUserDataDir = extraEnv.WAYLAND_AMBIENT === '1' ? e2eAmbientUserDataDir : e2eMainUserDataDir;
+  const explicitUserDataDir = extraEnv.WAYLAND_E2E_USER_DATA_DIR?.trim();
+  if (explicitUserDataDir && !path.isAbsolute(explicitUserDataDir)) {
+    throw new Error(`WAYLAND_E2E_USER_DATA_DIR must be absolute: ${explicitUserDataDir}`);
+  }
+  const expectedUserDataDir = explicitUserDataDir || defaultUserDataDir;
+  // Generic route/feature specs historically ran against an already-onboarded
+  // developer profile. Preserve that contract inside the disposable profile;
+  // dedicated first-run specs pass their own profile and keep onboarding intact.
+  if (!explicitUserDataDir) {
+    seedCompletedOnboarding(expectedUserDataDir);
+  }
   const commonEnv = {
     ...process.env,
     WAYLAND_EXTENSIONS_PATH: extensionPaths.join(PATH_SEP),
@@ -209,6 +257,11 @@ export async function launchAppWithEnv(extraEnv: Record<string, string> = {}): P
     WAYLAND_DISABLE_AUTO_UPDATE: '1',
     WAYLAND_DISABLE_DEVTOOLS: '1',
     WAYLAND_E2E_TEST: '1',
+    // Never let an E2E launch read or mutate a developer's real Wayland
+    // profile. Main and ambient processes need distinct profiles so Electron's
+    // single-instance lock does not make one process steal the other's window.
+    // A spec may still provide a more specific absolute profile path.
+    WAYLAND_E2E_USER_DATA_DIR: expectedUserDataDir,
     WAYLAND_CDP_PORT: '0',
     ...extraEnv,
   };
@@ -242,6 +295,8 @@ export async function launchAppWithEnv(extraEnv: Record<string, string> = {}): P
       timeout: 60_000,
     });
 
+    await assertE2EUserDataPath(electronApp, expectedUserDataDir);
+
     const expectAmbient = commonEnv.WAYLAND_AMBIENT === '1';
     await waitForExpectedWindow(electronApp, expectAmbient, 8_000).catch(() => {
       /* best-effort */
@@ -266,6 +321,8 @@ export async function launchAppWithEnv(extraEnv: Record<string, string> = {}): P
     },
     timeout: 60_000,
   });
+
+  await assertE2EUserDataPath(electronApp, expectedUserDataDir);
 
   // Playwright's `electron.launch` returns right after the Electron `ready`
   // event, but before our own `app.whenReady()` callback has finished
@@ -433,12 +490,14 @@ function registerCleanup(): void {
       mainPage = null;
     }
     fs.rmSync(e2eStateSandboxDir, { recursive: true, force: true });
+    fs.rmSync(e2eUserDataSandboxRoot, { recursive: true, force: true });
   });
 
   // Synchronous fallback for abrupt termination
   process.on('exit', () => {
     try {
       fs.rmSync(e2eStateSandboxDir, { recursive: true, force: true });
+      fs.rmSync(e2eUserDataSandboxRoot, { recursive: true, force: true });
     } catch {
       // best-effort
     }

@@ -1,0 +1,100 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { afterEach, describe, expect, it } from 'vitest';
+import { evaluateRecoveryDryRun, type RecoveryCaptureCapabilities } from '@process/services/recovery/recoveryDryRun';
+import { inventoryRecoveryAuthorities } from '@process/services/recovery/stateAuthorityInventory';
+
+const allCapabilities: RecoveryCaptureCapabilities = {
+  sqliteOnlineBackup: true,
+  desktopQuiescence: true,
+  coreQuiescence: true,
+  mutationEpoch: true,
+  sealedSensitiveCopies: true,
+};
+
+describe('recovery capture dry run', () => {
+  const roots: string[] = [];
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  async function fixture() {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-dry-run-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const coreDefaultProfileRoot = path.join(root, 'core-default');
+    const coreNamedProfilesRoot = path.join(root, 'core-profiles');
+    const workspace = path.join(root, 'workspace');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(coreDefaultProfileRoot, { recursive: true });
+    fs.mkdirSync(coreNamedProfilesRoot, { recursive: true });
+    fs.mkdirSync(workspace, { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'wayland-config.txt'), 'config');
+    fs.writeFileSync(path.join(userDataRoot, 'webui.config.json'), '{}');
+    fs.writeFileSync(path.join(coreDefaultProfileRoot, 'config.toml'), 'model = "local"');
+
+    return inventoryRecoveryAuthorities({
+      userDataRoot,
+      coreDefaultProfileRoot,
+      coreNamedProfilesRoot,
+      externalWorkspaces: [{ projectId: 'project-1', path: workspace }],
+      sourceReleaseTrack: 'preview',
+    });
+  }
+
+  it('becomes ready only when every consistency and sealing primitive is available', async () => {
+    const dryRun = evaluateRecoveryDryRun(await fixture(), allCapabilities);
+
+    expect(dryRun).toMatchObject({ dryRunOnly: true, readyToCapture: true, sourceReleaseTrack: 'preview' });
+    expect(dryRun.blockers).toEqual([]);
+    expect(dryRun.warnings.map(({ code }) => code)).toContain('OS_KEYCHAIN_EXTERNAL');
+    expect(dryRun.authorities.find(({ id }) => id === 'desktop.database')?.coverage).toBe('encrypted-copy');
+  });
+
+  it('fails closed when online backup, epochs, quiescence, or sealing are unavailable', async () => {
+    const dryRun = evaluateRecoveryDryRun(await fixture(), {
+      sqliteOnlineBackup: false,
+      desktopQuiescence: false,
+      coreQuiescence: false,
+      mutationEpoch: false,
+      sealedSensitiveCopies: false,
+    });
+
+    expect(dryRun.readyToCapture).toBe(false);
+    expect(dryRun.blockers.map(({ code }) => code)).toEqual(
+      expect.arrayContaining([
+        'SQLITE_ONLINE_BACKUP_UNAVAILABLE',
+        'DESKTOP_QUIESCENCE_UNAVAILABLE',
+        'CORE_QUIESCENCE_UNAVAILABLE',
+        'MUTATION_EPOCH_UNAVAILABLE',
+        'SEALED_COPY_UNAVAILABLE',
+      ])
+    );
+  });
+
+  it('rejects truncated copied authorities and unmapped logical state', async () => {
+    const inventory = await fixture();
+    inventory.authorities.find(({ id }) => id === 'desktop.config')!.evidence[0].truncated = true;
+    inventory.logicalState = inventory.logicalState.filter(({ id }) => id !== 'desktop.webui');
+
+    const dryRun = evaluateRecoveryDryRun(inventory, allCapabilities);
+    expect(dryRun.readyToCapture).toBe(false);
+    expect(dryRun.blockers.map(({ code }) => code)).toEqual(
+      expect.arrayContaining(['AUTHORITY_INVENTORY_TRUNCATED', 'LOGICAL_STATE_UNMAPPED'])
+    );
+  });
+
+  it('warns when a configured external reference is absent', async () => {
+    const inventory = await fixture();
+    inventory.authorities.find(({ id }) => id === 'external.workspaces')!.evidence[0].state = 'absent';
+
+    const dryRun = evaluateRecoveryDryRun(inventory, allCapabilities);
+    expect(dryRun.warnings).toEqual(
+      expect.arrayContaining([expect.objectContaining({ code: 'EXTERNAL_REFERENCE_UNSAFE' })])
+    );
+  });
+});

@@ -1,0 +1,635 @@
+#!/usr/bin/env node
+
+/**
+ * Prepare the native, provider-neutral OfficeCLI authoring binary for Desktop.
+ *
+ * This deliberately does not run OfficeCLI's install script: even a script
+ * fetched from a tagged tree currently resolves the moving `latest` release.
+ * Desktop instead downloads one exact release asset and verifies its pinned
+ * SHA-256 before copying, executing, or packaging it.
+ *
+ * Output:
+ *   resources/bundled-officecli/{platform}-{arch}/officecli[.exe]
+ */
+
+'use strict';
+
+const { execFileSync, spawnSync } = require('node:child_process');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+
+const GITHUB_REPO = 'iOfficeAI/OfficeCLI';
+const DEFAULT_OFFICECLI_VERSION = 'v1.0.136';
+const SHASUMS_FILE = path.resolve(__dirname, 'bundled-officecli-shasums.json');
+const OUTPUT_ROOT = path.resolve(__dirname, '../resources/bundled-officecli');
+const CONTRACT_FILE = path.resolve(__dirname, '../contracts/officecli/v1/contract.json');
+const DARWIN_PUBLISHER_TEAM_ID = '52JQX2HUSC';
+const DARWIN_ALLOWED_ENTITLEMENTS = ['com.apple.security.cs.allow-jit'];
+
+function getAssetName(platform, arch, libc = 'gnu') {
+  if (!['x64', 'arm64'].includes(arch)) {
+    throw new Error(`Unsupported OfficeCLI architecture: ${arch}`);
+  }
+
+  if (platform === 'darwin') return `officecli-mac-${arch}`;
+  if (platform === 'win32') return `officecli-win-${arch}.exe`;
+  if (platform === 'linux') {
+    return libc === 'musl' ? `officecli-linux-alpine-${arch}` : `officecli-linux-${arch}`;
+  }
+  throw new Error(`Unsupported OfficeCLI platform: ${platform}`);
+}
+
+function getBinaryName(platform) {
+  return platform === 'win32' ? 'officecli.exe' : 'officecli';
+}
+
+function normalizeSha(raw, assetName, version) {
+  const sha = String(raw || '')
+    .replace(/^sha256:/i, '')
+    .trim()
+    .toLowerCase();
+  if (!/^[0-9a-f]{64}$/.test(sha)) {
+    throw new Error(`Missing or malformed SHA-256 for ${assetName} at ${version}`);
+  }
+  return sha;
+}
+
+function loadExpectedSha(version, assetName) {
+  const manifest = JSON.parse(fs.readFileSync(SHASUMS_FILE, 'utf8'));
+  return normalizeSha(manifest?.[version]?.[assetName], assetName, version);
+}
+
+function computeSha256(filePath) {
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
+function verifyFile(filePath, expectedSha, assetName, version) {
+  const actualSha = computeSha256(filePath);
+  if (actualSha !== expectedSha) {
+    throw new Error(
+      `OfficeCLI checksum mismatch for ${assetName} at ${version}: expected ${expectedSha}, got ${actualSha}`
+    );
+  }
+  return actualSha;
+}
+
+function assertDarwinPublisherSignature(details, entitlements) {
+  if (!details.includes(`TeamIdentifier=${DARWIN_PUBLISHER_TEAM_ID}`)) {
+    throw new Error(`OfficeCLI macOS publisher TeamIdentifier must be ${DARWIN_PUBLISHER_TEAM_ID}`);
+  }
+  if (!/^Authority=Developer ID Application:/m.test(details)) {
+    throw new Error('OfficeCLI macOS binary is not signed by a Developer ID Application identity');
+  }
+  if (!/^CodeDirectory .*flags=.*\(runtime\)/m.test(details)) {
+    throw new Error('OfficeCLI macOS binary is not protected by the hardened runtime');
+  }
+  if (!/^Timestamp=.+/m.test(details)) {
+    throw new Error('OfficeCLI macOS publisher signature is missing a secure timestamp');
+  }
+
+  const enabledEntitlements = [...String(entitlements).matchAll(/<key>([^<]+)<\/key>\s*<true\s*\/>/g)]
+    .map((match) => match[1])
+    .sort();
+  if (JSON.stringify(enabledEntitlements) !== JSON.stringify(DARWIN_ALLOWED_ENTITLEMENTS)) {
+    throw new Error(
+      `OfficeCLI macOS entitlements must be exactly ${DARWIN_ALLOWED_ENTITLEMENTS.join(', ')}; got ${
+        enabledEntitlements.join(', ') || '<none>'
+      }`
+    );
+  }
+
+  return {
+    contract: 'apple-developer-id/1.0',
+    teamIdentifier: DARWIN_PUBLISHER_TEAM_ID,
+    hardenedRuntime: true,
+    secureTimestamp: true,
+    entitlements: enabledEntitlements,
+  };
+}
+
+function runCodesign(args, label) {
+  const result = spawnSync('/usr/bin/codesign', args, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (result.error || result.status !== 0) {
+    const detail = [result.stderr, result.stdout, result.error?.message].filter(Boolean).join('\n').trim();
+    throw new Error(`OfficeCLI macOS ${label} failed${detail ? `: ${detail}` : ''}`);
+  }
+  return `${result.stdout || ''}${result.stderr || ''}`;
+}
+
+function verifyDarwinPublisherSignature(binaryPath) {
+  runCodesign(['--verify', '--strict', '--verbose=4', binaryPath], 'publisher signature verification');
+  const details = runCodesign(['--display', '--verbose=4', binaryPath], 'publisher signature inspection');
+  const entitlements = runCodesign(
+    ['--display', '--entitlements', ':-', binaryPath],
+    'publisher entitlement inspection'
+  );
+  return assertDarwinPublisherSignature(details, entitlements);
+}
+
+function loadContract() {
+  return JSON.parse(fs.readFileSync(CONTRACT_FILE, 'utf8'));
+}
+
+function assertContractOutputs(versionOutput, topLevelHelp, formatHelp, watchHelp, contract = loadContract()) {
+  const reportedVersion = String(versionOutput).trim().replace(/^v/i, '');
+  const expectedVersion = String(contract.release).replace(/^v/i, '');
+  if (reportedVersion !== expectedVersion) {
+    throw new Error(`OfficeCLI contract version mismatch: expected ${expectedVersion}, got ${reportedVersion}`);
+  }
+
+  for (const command of contract.requiredCommands) {
+    const commandRow = new RegExp(`^\\s{2}${command}(?=\\s|$)`, 'm');
+    if (!commandRow.test(topLevelHelp)) throw new Error(`OfficeCLI contract is missing command: ${command}`);
+  }
+
+  for (const [format, requiredElements] of Object.entries(contract.requiredElements)) {
+    const help = String(formatHelp[format] || '');
+    for (const element of requiredElements) {
+      const elementRow = new RegExp(`^\\s+${element}(?=\\s|$)`, 'im');
+      if (!elementRow.test(help)) throw new Error(`OfficeCLI ${format} contract is missing element: ${element}`);
+    }
+  }
+
+  if (!new RegExp(`officecli\\s+${contract.previewCommand}\\s+<file>`, 'i').test(watchHelp)) {
+    throw new Error(`OfficeCLI preview contract is missing: ${contract.previewCommand}`);
+  }
+  return { contract: `${contract.contract}/${contract.major}.${contract.minor}`, release: contract.release };
+}
+
+function verifyExecutableContract(binaryPath) {
+  const contract = loadContract();
+  const run = (args) =>
+    execFileSync(binaryPath, args, {
+      encoding: 'utf8',
+      timeout: 10_000,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  const formatHelp = Object.fromEntries(
+    Object.keys(contract.requiredElements).map((format) => [format, run(['help', format])])
+  );
+  return assertContractOutputs(run(['--version']), run(['--help']), formatHelp, run(['watch', '--help']), contract);
+}
+
+function verifyExecutableSmoke(binaryPath) {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-smoke-'));
+  const files = {
+    docx: path.join(tempDir, 'proof.docx'),
+    xlsx: path.join(tempDir, 'proof.xlsx'),
+    pptx: path.join(tempDir, 'proof.pptx'),
+  };
+  const run = (args) =>
+    execFileSync(binaryPath, args, {
+      encoding: 'utf8',
+      timeout: 15_000,
+      maxBuffer: 2 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+  try {
+    run(['create', files.docx, '--force', '--json']);
+    run(['add', files.docx, '/body', '--type', 'paragraph', '--prop', 'text=Wayland', '--json']);
+    if (!run(['query', files.docx, 'paragraph', '--json']).includes('Wayland')) {
+      throw new Error('OfficeCLI DOCX smoke query did not return the inserted paragraph');
+    }
+    run([
+      'add',
+      files.docx,
+      '/body',
+      '--type',
+      'sdt',
+      '--prop',
+      'type=text',
+      '--prop',
+      'alias=Employee Name',
+      '--prop',
+      'tag=employee_name',
+      '--prop',
+      'text=Enter name',
+      '--prop',
+      'lock=sdtLocked',
+      '--json',
+    ]);
+    run([
+      'add',
+      files.docx,
+      '/body',
+      '--type',
+      'formfield',
+      '--prop',
+      'type=checkbox',
+      '--prop',
+      'name=agree_terms',
+      '--prop',
+      'checked=false',
+      '--json',
+    ]);
+    run(['set', files.docx, '/', '--prop', 'protection=forms', '--json']);
+    const controls = run(['query', files.docx, 'sdt', '--json']);
+    if (!controls.includes('Employee Name') || !controls.includes('employee_name') || !controls.includes('sdtLocked')) {
+      throw new Error('OfficeCLI DOCX specialist smoke did not preserve the structured content control');
+    }
+    const formFields = run(['query', files.docx, 'formfield', '--json']);
+    if (!formFields.includes('agree_terms') || !formFields.includes('checkbox')) {
+      throw new Error('OfficeCLI DOCX specialist smoke did not preserve the legacy checkbox field');
+    }
+    const formsView = run(['view', files.docx, 'forms']);
+    if (!formsView.includes('Document Protection: forms (enforced)') || !formsView.includes('Editable Fields (2)')) {
+      throw new Error('OfficeCLI DOCX specialist smoke did not render the protected editable-field inventory');
+    }
+    run(['validate', files.docx, '--json']);
+    if (!run(['view', files.docx, 'text']).includes('Wayland')) {
+      throw new Error('OfficeCLI DOCX smoke view did not render the inserted paragraph');
+    }
+
+    run(['create', files.xlsx, '--force', '--json']);
+    run(['set', files.xlsx, '/Sheet1/A1', '--prop', 'value=Wayland', '--prop', 'bold=true', '--json']);
+    if (!run(['query', files.xlsx, 'cell', '--json']).includes('Wayland')) {
+      throw new Error('OfficeCLI XLSX smoke query did not return the inserted cell');
+    }
+
+    // Prove the specialist financial-model/data-dashboard recipes against the
+    // executable, not only the presence of their schema element names.
+    run(['set', files.xlsx, '/Sheet1/A2', '--prop', 'value=Month', '--prop', 'bold=true', '--json']);
+    run(['set', files.xlsx, '/Sheet1/B2', '--prop', 'value=Revenue', '--prop', 'bold=true', '--json']);
+    run(['set', files.xlsx, '/Sheet1/C2', '--prop', 'value=Margin', '--prop', 'bold=true', '--json']);
+    run(['set', files.xlsx, '/Sheet1/A3', '--prop', 'value=Jan', '--json']);
+    run(['set', files.xlsx, '/Sheet1/B3', '--prop', 'value=100', '--json']);
+    run(['set', files.xlsx, '/Sheet1/C3', '--prop', 'formula=B3/200', '--prop', 'numberformat=0%', '--json']);
+    run([
+      'add',
+      files.xlsx,
+      '/',
+      '--type',
+      'namedrange',
+      '--prop',
+      'name=Revenue',
+      '--prop',
+      'ref=Sheet1!$B$3',
+      '--json',
+    ]);
+    run([
+      'add',
+      files.xlsx,
+      '/Sheet1',
+      '--type',
+      'validation',
+      '--prop',
+      'type=whole',
+      '--prop',
+      'ref=B3:B12',
+      '--prop',
+      'operator=greaterThanOrEqual',
+      '--prop',
+      'formula1=0',
+      '--json',
+    ]);
+    run([
+      'add',
+      files.xlsx,
+      '/Sheet1',
+      '--type',
+      'conditionalformatting',
+      '--prop',
+      'type=cellIs',
+      '--prop',
+      'ref=B3:B12',
+      '--prop',
+      'operator=greaterThan',
+      '--prop',
+      'value=50',
+      '--prop',
+      'fill=63BE7B',
+      '--json',
+    ]);
+    run([
+      'add',
+      files.xlsx,
+      '/Sheet1',
+      '--type',
+      'chart',
+      '--prop',
+      'chartType=column',
+      '--prop',
+      'dataRange=Sheet1!B2:B3',
+      '--prop',
+      'categories=Sheet1!A2:A3',
+      '--prop',
+      'title=Revenue',
+      '--prop',
+      'anchor=E2:K15',
+      '--json',
+    ]);
+
+    const cells = run(['query', files.xlsx, 'cell', '--json']);
+    if (!cells.includes('formula') || !cells.includes('B3/200') || !cells.includes('computedValue')) {
+      throw new Error('OfficeCLI XLSX specialist smoke did not preserve and evaluate the financial formula');
+    }
+    if (!run(['query', files.xlsx, 'namedrange', '--json']).includes('Revenue')) {
+      throw new Error('OfficeCLI XLSX specialist smoke did not preserve the named range');
+    }
+    if (!run(['query', files.xlsx, 'validation', '--json']).includes('B3:B12')) {
+      throw new Error('OfficeCLI XLSX specialist smoke did not preserve data validation');
+    }
+    if (!run(['query', files.xlsx, 'conditionalformatting', '--json']).includes('B3:B12')) {
+      throw new Error('OfficeCLI XLSX specialist smoke did not preserve conditional formatting');
+    }
+    const charts = run(['query', files.xlsx, 'chart', '--json']);
+    if (!charts.includes('column') || !charts.includes('Revenue') || !charts.includes('seriesCount')) {
+      throw new Error('OfficeCLI XLSX specialist smoke did not preserve the dashboard chart');
+    }
+    run(['validate', files.xlsx, '--json']);
+    if (!run(['view', files.xlsx, 'text']).includes('A1=Wayland')) {
+      throw new Error('OfficeCLI XLSX smoke view did not render the inserted cell');
+    }
+
+    run(['create', files.pptx, '--force', '--json']);
+    run(['add', files.pptx, '/', '--type', 'slide', '--json']);
+    run([
+      'add',
+      files.pptx,
+      '/slide[1]',
+      '--type',
+      'shape',
+      '--prop',
+      'text=Wayland',
+      '--prop',
+      'name=BoxA',
+      '--prop',
+      'x=1in',
+      '--prop',
+      'y=1in',
+      '--prop',
+      'width=4in',
+      '--prop',
+      'height=1in',
+      '--json',
+    ]);
+    run([
+      'add',
+      files.pptx,
+      '/slide[1]',
+      '--type',
+      'shape',
+      '--prop',
+      'text=Act',
+      '--prop',
+      'name=BoxB',
+      '--prop',
+      'x=4in',
+      '--prop',
+      'y=1in',
+      '--prop',
+      'width=2in',
+      '--prop',
+      'height=1in',
+      '--json',
+    ]);
+    run([
+      'add',
+      files.pptx,
+      '/slide[1]',
+      '--type',
+      'connector',
+      '--prop',
+      'from=/slide[1]/shape[@name=BoxA]',
+      '--prop',
+      'to=/slide[1]/shape[@name=BoxB]',
+      '--prop',
+      'tailEnd=triangle',
+      '--prop',
+      'name=Flow',
+      '--json',
+    ]);
+    run([
+      'add',
+      files.pptx,
+      '/slide[1]',
+      '--type',
+      'notes',
+      '--prop',
+      'text=Explain the evidence before the action.',
+      '--json',
+    ]);
+    run([
+      'add',
+      files.pptx,
+      '/slide[1]',
+      '--type',
+      'chart',
+      '--prop',
+      'chartType=column',
+      '--prop',
+      'categories=Q1,Q2,Q3',
+      '--prop',
+      'series1=Revenue:10,20,30',
+      '--prop',
+      'title=Traction',
+      '--prop',
+      'x=1in',
+      '--prop',
+      'y=3in',
+      '--prop',
+      'width=6in',
+      '--prop',
+      'height=3in',
+      '--json',
+    ]);
+    if (!run(['query', files.pptx, 'shape', '--json']).includes('Wayland')) {
+      throw new Error('OfficeCLI PPTX smoke query did not return the inserted shape');
+    }
+    const connectors = run(['query', files.pptx, 'connector', '--json']);
+    if (!connectors.includes('Flow') || !connectors.includes('triangle') || !connectors.includes('startShape')) {
+      throw new Error('OfficeCLI PPTX specialist smoke did not preserve the connected narrative flow');
+    }
+    if (!run(['query', files.pptx, 'notes', '--json']).includes('Explain the evidence before the action.')) {
+      throw new Error('OfficeCLI PPTX specialist smoke did not preserve speaker notes');
+    }
+    const deckCharts = run(['query', files.pptx, 'chart', '--json']);
+    if (!deckCharts.includes('Traction') || !deckCharts.includes('Revenue:10,20,30')) {
+      throw new Error('OfficeCLI PPTX specialist smoke did not preserve the embedded traction chart');
+    }
+    run(['validate', files.pptx, '--json']);
+    if (!run(['view', files.pptx, 'text']).includes('Wayland')) {
+      throw new Error('OfficeCLI PPTX smoke view did not render the inserted shape');
+    }
+
+    return {
+      formats: ['docx', 'xlsx', 'pptx'],
+      operations: ['create', 'mutate', 'query', 'validate', 'view'],
+      specialistPacks: [
+        'officecli-financial-model',
+        'officecli-data-dashboard',
+        'officecli-word-form',
+        'officecli-pitch-deck',
+      ],
+      specialistPrimitives: [
+        'formula-evaluation',
+        'named-range',
+        'data-validation',
+        'conditional-formatting',
+        'xlsx-chart',
+        'structured-content-control',
+        'legacy-form-field',
+        'document-protection',
+        'connected-shapes',
+        'speaker-notes',
+        'pptx-embedded-chart',
+      ],
+    };
+  } finally {
+    for (const filePath of Object.values(files)) {
+      try {
+        run(['close', filePath, '--json']);
+      } catch {
+        // Best-effort resident cleanup after either success or a failed smoke.
+      }
+    }
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+function downloadReleaseAsset(version, assetName, outputPath) {
+  const outputDir = path.dirname(outputPath);
+  fs.mkdirSync(outputDir, { recursive: true });
+
+  try {
+    execFileSync(
+      'gh',
+      ['release', 'download', version, '--repo', GITHUB_REPO, '--pattern', assetName, '--dir', outputDir, '--clobber'],
+      { stdio: 'pipe', timeout: 120_000 }
+    );
+    const ghOutput = path.join(outputDir, assetName);
+    if (ghOutput !== outputPath) fs.renameSync(ghOutput, outputPath);
+    return;
+  } catch {
+    // Public-release fallback for environments without gh or GitHub auth.
+  }
+
+  const url = `https://github.com/${GITHUB_REPO}/releases/download/${version}/${assetName}`;
+  execFileSync('curl', ['-fL', '--retry', '3', '--output', outputPath, url], {
+    stdio: 'inherit',
+    timeout: 120_000,
+  });
+}
+
+function writeManifest(targetDir, manifest) {
+  fs.writeFileSync(path.join(targetDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+}
+
+function prepareOfficeCli(options = {}) {
+  const platform = options.platform || process.env.OFFICECLI_TARGET_PLATFORM || process.platform;
+  const arch = options.arch || process.env.OFFICECLI_TARGET_ARCH || process.arch;
+  const libc = options.libc || process.env.OFFICECLI_TARGET_LIBC || 'gnu';
+  const version = options.version || process.env.OFFICECLI_VERSION || DEFAULT_OFFICECLI_VERSION;
+  const assetName = getAssetName(platform, arch, libc);
+  const binaryName = getBinaryName(platform);
+  const expectedSha = loadExpectedSha(version, assetName);
+  const runtimeKey = `${platform}-${arch}`;
+  const targetDir = path.join(OUTPUT_ROOT, runtimeKey);
+  const targetBinary = path.join(targetDir, binaryName);
+
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  if (fs.existsSync(targetBinary) && !options.forceDownload) {
+    verifyFile(targetBinary, expectedSha, assetName, version);
+    if (platform !== 'win32') fs.chmodSync(targetBinary, 0o755);
+    const publisherSignatureProof =
+      platform === 'darwin' && process.platform === 'darwin'
+        ? verifyDarwinPublisherSignature(targetBinary)
+        : { contract: 'not-verifiable-on-build-host', reason: 'not-macos-build-host' };
+    const executableOnBuildHost = platform === process.platform && arch === process.arch;
+    const contractProof = executableOnBuildHost
+      ? verifyExecutableContract(targetBinary)
+      : { contract: 'not-executable-on-build-host', release: version };
+    const smokeProof = executableOnBuildHost
+      ? verifyExecutableSmoke(targetBinary)
+      : { formats: [], operations: [], reason: 'not-executable-on-build-host' };
+    writeManifest(targetDir, {
+      contract: 'iofficeai-officecli-native',
+      version,
+      platform,
+      arch,
+      libc: platform === 'linux' ? libc : undefined,
+      asset: assetName,
+      binary: binaryName,
+      sha256: `sha256:${expectedSha}`,
+      source: 'verified-cache',
+      publisherSignatureProof,
+      contractProof,
+      smokeProof,
+    });
+    console.log(`  Bundled OfficeCLI already verified: ${runtimeKey}/${binaryName}`);
+    return { prepared: true, dir: targetDir, binary: targetBinary, sha256: expectedSha, source: 'verified-cache' };
+  }
+
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-'));
+  const downloadedBinary = path.join(tempDir, assetName);
+  try {
+    downloadReleaseAsset(version, assetName, downloadedBinary);
+    verifyFile(downloadedBinary, expectedSha, assetName, version);
+
+    fs.copyFileSync(downloadedBinary, targetBinary);
+    if (platform !== 'win32') fs.chmodSync(targetBinary, 0o755);
+
+    const publisherSignatureProof =
+      platform === 'darwin' && process.platform === 'darwin'
+        ? verifyDarwinPublisherSignature(targetBinary)
+        : { contract: 'not-verifiable-on-build-host', reason: 'not-macos-build-host' };
+
+    let reportedVersion = version;
+    let contractProof = { contract: 'not-executable-on-build-host', release: version };
+    let smokeProof = { formats: [], operations: [], reason: 'not-executable-on-build-host' };
+    if (platform === process.platform && arch === process.arch) {
+      contractProof = verifyExecutableContract(targetBinary);
+      smokeProof = verifyExecutableSmoke(targetBinary);
+      reportedVersion = contractProof.release.replace(/^v/i, '');
+    }
+
+    writeManifest(targetDir, {
+      contract: 'iofficeai-officecli-native',
+      version,
+      reportedVersion,
+      platform,
+      arch,
+      libc: platform === 'linux' ? libc : undefined,
+      asset: assetName,
+      binary: binaryName,
+      sha256: `sha256:${expectedSha}`,
+      source: `https://github.com/${GITHUB_REPO}/releases/download/${version}/${assetName}`,
+      publisherSignatureProof,
+      contractProof,
+      smokeProof,
+    });
+    console.log(`  Bundled native OfficeCLI prepared: ${runtimeKey}/${binaryName} (${reportedVersion})`);
+    return { prepared: true, dir: targetDir, binary: targetBinary, sha256: expectedSha, source: 'release' };
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+module.exports = prepareOfficeCli;
+module.exports.DEFAULT_OFFICECLI_VERSION = DEFAULT_OFFICECLI_VERSION;
+module.exports.getAssetName = getAssetName;
+module.exports.getBinaryName = getBinaryName;
+module.exports.loadExpectedSha = loadExpectedSha;
+module.exports.verifyFile = verifyFile;
+module.exports.assertDarwinPublisherSignature = assertDarwinPublisherSignature;
+module.exports.verifyDarwinPublisherSignature = verifyDarwinPublisherSignature;
+module.exports.loadContract = loadContract;
+module.exports.assertContractOutputs = assertContractOutputs;
+module.exports.verifyExecutableContract = verifyExecutableContract;
+module.exports.verifyExecutableSmoke = verifyExecutableSmoke;
+
+if (require.main === module) {
+  try {
+    prepareOfficeCli();
+  } catch (error) {
+    console.error(`prepareOfficeCli failed: ${error.message}`);
+    process.exit(1);
+  }
+}

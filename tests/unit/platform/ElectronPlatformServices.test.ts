@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { afterEach, describe, it, expect, vi, beforeEach } from 'vitest';
 import path from 'path';
 
 const mockGetPath = vi.fn();
@@ -83,5 +83,55 @@ describe('ElectronPlatformServices.worker.fork env propagation', () => {
     const env = mockFork.mock.calls[0]![2].env as Record<string, string>;
     expect(env.IS_PACKAGED).toBe('false');
     expect(env.EXTRA).toBe('x');
+  });
+});
+
+describe('ElectronPlatformServices worker termination proof', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('resolves only after the utility process emits exit', async () => {
+    let exit!: () => void;
+    mockFork.mockReturnValueOnce({
+      on: vi.fn(),
+      once: vi.fn((_event: string, handler: () => void) => {
+        exit = handler;
+      }),
+      postMessage: vi.fn(),
+      kill: vi.fn(() => true),
+    });
+    const { ElectronPlatformServices } = await import('../../../src/common/platform/ElectronPlatformServices');
+    const worker = new ElectronPlatformServices().worker.fork('/worker.js', [], {});
+    const termination = worker.kill();
+
+    let resolved = false;
+    void termination.then(() => {
+      resolved = true;
+    });
+    await Promise.resolve();
+    expect(resolved).toBe(false);
+    exit();
+    await expect(termination).resolves.toBeUndefined();
+  });
+
+  it('rejects replacement authority when exit is not confirmed', async () => {
+    mockFork.mockReturnValueOnce({
+      on: vi.fn(),
+      once: vi.fn(),
+      postMessage: vi.fn(),
+      kill: vi.fn(() => true),
+    });
+    const { ElectronPlatformServices } = await import('../../../src/common/platform/ElectronPlatformServices');
+    const worker = new ElectronPlatformServices().worker.fork('/worker.js', [], {});
+    const termination = worker.kill();
+    const assertion = expect(termination).rejects.toThrow(/did not confirm exit/i);
+
+    await vi.advanceTimersByTimeAsync(2000);
+    await assertion;
   });
 });

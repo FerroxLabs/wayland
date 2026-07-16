@@ -1,0 +1,1 @@
+{"error_kind":"access denied","message":"tools permission was not granted","plugin_name":"wayland-example","surface":"tools","type":"plugin_registration_failed"}

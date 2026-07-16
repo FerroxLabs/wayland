@@ -4,6 +4,7 @@ import { ipcBridge } from '@/common';
 import { computeUsage, invalidateUsageCache } from './computeUsage';
 import { backupExport } from './backupExport';
 import { backupImport } from './backupImport';
+import { createLegacySafetyExport } from './legacySafetyExport';
 import { resetAll } from './resetAll';
 import { clearStorageDir, getLogsDir, getStorageDirs, getUserDataDir } from './storageLocations';
 
@@ -38,11 +39,12 @@ export function initStorageBridge(): void {
     return result.canceled ? null : result.filePaths[0];
   });
 
-  // Export all data to a zip file
+  // Legacy file-only export. This is deliberately not described as a full
+  // backup: authoritative DB/Core/workspace state is outside its scope.
   ipcBridge.storage.exportAll.provider(async (opts) => {
     const result = await dialog.showSaveDialog({
-      title: 'Export Wayland data',
-      defaultPath: `wayland-backup-${new Date().toISOString().slice(0, 10)}.zip`,
+      title: 'Export legacy Wayland files',
+      defaultPath: `wayland-legacy-files-${new Date().toISOString().slice(0, 10)}.zip`,
       filters: [{ name: 'ZIP archive', extensions: ['zip'] }],
     });
     if (result.canceled || !result.filePath) return { ok: false };
@@ -55,21 +57,25 @@ export function initStorageBridge(): void {
     return { ok: true, path: result.filePath };
   });
 
-  // Import from a backup zip
+  // Import a legacy file-only export.
   ipcBridge.storage.importBackup.provider(async (opts) => {
     const result = await dialog.showOpenDialog({
-      title: 'Restore Wayland backup',
+      title: 'Restore legacy Wayland files',
       filters: [{ name: 'ZIP archive', extensions: ['zip'] }],
       properties: ['openFile'],
     });
     if (result.canceled || !result.filePaths[0]) return { ok: false };
+    const safetyBackupPath = await createLegacySafetyExport({
+      userData: getUserData(),
+      passphrase: opts.passphrase,
+    });
     await backupImport({
       userData: getUserData(),
       srcPath: result.filePaths[0],
       passphrase: opts.passphrase,
     });
     invalidateUsageCache();
-    return { ok: true };
+    return { ok: true, safetyBackupPath };
   });
 
   // Full data reset (renderer must enforce double-confirm before calling)

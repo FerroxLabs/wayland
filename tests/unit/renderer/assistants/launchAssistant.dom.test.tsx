@@ -39,7 +39,7 @@ describe('launchAssistant', () => {
     expect(navigate).toHaveBeenCalledWith('/guid', { state: { launchAssistant: true } });
   });
 
-  it('defaults backend to gemini when presetAgentType is missing', async () => {
+  it('defaults a typeless preset to the bundled Core engine', async () => {
     const navigate = vi.fn();
     setMock.mockClear();
 

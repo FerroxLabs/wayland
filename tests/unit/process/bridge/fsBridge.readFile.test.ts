@@ -2,6 +2,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import os from 'os';
 import path from 'path';
 
+const { mockTrashItem } = vi.hoisted(() => ({
+  mockTrashItem: vi.fn(),
+}));
+
+vi.mock('electron', () => ({
+  shell: {
+    trashItem: mockTrashItem,
+  },
+}));
+
 // Capture provider callbacks registered during initFsBridge()
 const providerCallbacks: Record<string, (...args: unknown[]) => unknown> = {};
 
@@ -98,6 +108,9 @@ vi.mock('@/common', () => {
 // Mock fs/promises to control readFile behavior
 const mockReadFile = vi.fn();
 const mockStat = vi.fn();
+const mockLstat = vi.fn();
+const mockRm = vi.fn();
+const mockUnlink = vi.fn();
 vi.mock('fs/promises', async (importOriginal) => {
   const actual = await importOriginal<typeof import('fs/promises')>();
   return {
@@ -109,7 +122,7 @@ vi.mock('fs/promises', async (importOriginal) => {
       readdir: vi.fn(),
       mkdir: vi.fn(),
       writeFile: vi.fn(),
-      rm: vi.fn(),
+      rm: mockRm,
       rename: vi.fn(),
       // Identity realpath so path confinement's symlink-collapse pass is a no-op
       // for these in-memory fixtures (no real symlinks to resolve).
@@ -117,8 +130,8 @@ vi.mock('fs/promises', async (importOriginal) => {
       copyFile: vi.fn(),
       symlink: vi.fn(),
       access: vi.fn(),
-      unlink: vi.fn(),
-      lstat: vi.fn(),
+      unlink: mockUnlink,
+      lstat: mockLstat,
     },
   };
 });
@@ -141,6 +154,10 @@ describe('fsBridge readFile/readFileBuffer EBUSY handling', () => {
     // reset the fs mocks explicitly so leftover one-shot values do not bleed across tests.
     mockReadFile.mockReset();
     mockStat.mockReset();
+    mockLstat.mockReset();
+    mockTrashItem.mockReset();
+    mockRm.mockReset();
+    mockUnlink.mockReset();
     // Re-import and initialize to capture provider callbacks
     vi.resetModules();
     // vi.resetModules() resets the platform-services singleton in the freshly
@@ -161,6 +178,22 @@ describe('fsBridge readFile/readFileBuffer EBUSY handling', () => {
 
     const result = await readFileCb({ path: path.join(FIXTURE_ROOT, 'file.pptx') });
     expect(result).toBeNull();
+  });
+
+  it('moves a workspace item to recoverable OS Trash without unlinking it', async () => {
+    await setupProviders();
+    const removeEntryCb = providerCallbacks['removeEntry'] as (args: {
+      path: string;
+    }) => Promise<{ success: boolean; msg?: string }>;
+    const filePath = path.join(FIXTURE_ROOT, 'report.docx');
+    mockLstat.mockResolvedValueOnce({ isDirectory: () => false });
+    mockTrashItem.mockResolvedValueOnce(undefined);
+
+    await expect(removeEntryCb({ path: filePath })).resolves.toEqual({ success: true });
+
+    expect(mockTrashItem).toHaveBeenCalledWith(filePath);
+    expect(mockRm).not.toHaveBeenCalled();
+    expect(mockUnlink).not.toHaveBeenCalled();
   });
 
   it('readFile returns null for ENOENT (missing file)', async () => {

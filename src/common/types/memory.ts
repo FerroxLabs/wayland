@@ -26,6 +26,14 @@ export type MemoryEntry = {
   promotionScore: number;
 };
 
+/** A memory entry removed from the active index but retained for restoration. */
+export type ArchivedMemoryEntry = {
+  archiveId: string;
+  summary: string;
+  archivedAt: number;
+  sourcePath: string;
+};
+
 export type ListFilter = {
   project?: 'this' | 'all' | 'global' | string;
   types?: MemoryType[];
@@ -134,19 +142,11 @@ export type PromotionCandidates = {
  * Discriminated union result for memory.get-stats IPC call.
  * Using a wrapper so the renderer can safely distinguish success from failure.
  */
-export type GetStatsResult =
-  | { ok: true; stats: MemoryStats }
-  | { ok: false; error: string };
+export type GetStatsResult = { ok: true; stats: MemoryStats } | { ok: false; error: string };
 
 // ==================== Wiki types (v0.6.4) ====================
 
-export type WikiTopicTag =
-  | 'Architecture'
-  | 'Design'
-  | 'Decisions'
-  | 'Process'
-  | 'Patterns'
-  | 'Brand';
+export type WikiTopicTag = 'Architecture' | 'Design' | 'Decisions' | 'Process' | 'Patterns' | 'Brand';
 
 export type WikiFreshness = 'fresh' | 'stale' | 'never_reviewed';
 

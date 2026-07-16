@@ -18,6 +18,7 @@ import { isTeamCapableBackend, getTeamCapableBackends } from '@/common/types/tea
 import { ProcessConfig } from '@process/utils/initStorage.ts';
 import { agentRegistry } from '@process/agent/AgentRegistry';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import { resolveLocaleKey } from '@/common/utils';
 import { handleListModels } from '../modelListHandler.ts';
 import { notifyMcpReady } from '../../mcpReadiness.ts';
@@ -450,7 +451,7 @@ export class TeamMcpServer {
       if (preset.enabled === false) {
         throw new Error(`Preset assistant "${customAgentId}" is disabled. Enable it before spawning.`);
       }
-      const presetBackend = preset.presetAgentType || 'gemini';
+      const presetBackend = resolvePresetAgentType(preset.presetAgentType);
       if (agentType && agentType !== presetBackend) {
         console.warn(
           `[TeamMcpServer] handleSpawnAgent: agent_type "${agentType}" overridden by preset "${customAgentId}" backend "${presetBackend}".`
@@ -669,7 +670,7 @@ export class TeamMcpServer {
 
     const name = pickLocalized(builtin?.nameI18n) || assistant.name || customAgentId;
     const description = pickLocalized(builtin?.descriptionI18n) || assistant.description || '';
-    const backend = assistant.presetAgentType || builtin?.presetAgentType || 'gemini';
+    const backend = resolvePresetAgentType(assistant.presetAgentType || builtin?.presetAgentType);
     const skills = assistant.enabledSkills && assistant.enabledSkills.length > 0 ? assistant.enabledSkills : [];
     const examples = pickLocalizedList(builtin?.promptsI18n);
 

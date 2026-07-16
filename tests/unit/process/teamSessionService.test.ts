@@ -10,9 +10,14 @@ import type { IConversationService } from '../../../src/process/services/IConver
 import type { ITeamRepository } from '../../../src/process/team/repository/ITeamRepository';
 import type { TTeam, TeamAgent } from '../../../src/common/types/teamTypes';
 
-const { mockConfigGet, mockReadFile } = vi.hoisted(() => ({
+const { mockConfigGet, mockReadFile, mockInspectConversationDeletionSchedules } = vi.hoisted(() => ({
   mockConfigGet: vi.fn(),
   mockReadFile: vi.fn(),
+  mockInspectConversationDeletionSchedules: vi.fn(),
+}));
+
+vi.mock('@process/services/conversationDeletionSafety', () => ({
+  inspectConversationDeletionSchedules: mockInspectConversationDeletionSchedules,
 }));
 
 vi.mock('../../../src/process/utils/initStorage', () => ({
@@ -74,6 +79,7 @@ function makeConversationService(overrides: Partial<IConversationService> = {}):
 function makeWorkerTaskManager() {
   return {
     getOrBuildTask: vi.fn(),
+    kill: vi.fn(),
   };
 }
 
@@ -104,9 +110,45 @@ function makeAgent(overrides: Partial<TeamAgent> = {}): TeamAgent {
   };
 }
 
+function makeTeam(overrides: Partial<TTeam> = {}): TTeam {
+  return {
+    id: 'team-delete',
+    userId: 'user-1',
+    name: 'Retention Team',
+    workspace: '/workspace/reports',
+    workspaceMode: 'shared',
+    leaderAgentId: 'slot-lead',
+    agents: [
+      makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        status: 'idle',
+      }),
+    ],
+    createdAt: 1,
+    updatedAt: 1,
+    ...overrides,
+  };
+}
+
+function makeSchedule(kind: 'ritual' | 'user', id = `job-${kind}`) {
+  return {
+    id,
+    metadata: {
+      createdBy: kind === 'ritual' ? 'agent' : 'user',
+      agentConfig: kind === 'ritual' ? { configOptions: { kind: 'ritual' } } : undefined,
+    },
+  } as never;
+}
+
 describe('TeamSessionService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockInspectConversationDeletionSchedules.mockResolvedValue({
+      jobs: [],
+      ritualJobs: [],
+      blockingJobs: [],
+    });
   });
 
   it('resolves a real gemini model instead of an empty placeholder', async () => {
@@ -506,5 +548,136 @@ describe('TeamSessionService', () => {
         updatedAt: expect.any(Number),
       })
     );
+  });
+
+  describe('deleteTeam retention safety', () => {
+    it('refuses deletion before any mutation when a user-created schedule uses a team chat', async () => {
+      const team = makeTeam();
+      const userSchedule = makeSchedule('user');
+      mockInspectConversationDeletionSchedules.mockResolvedValue({
+        jobs: [userSchedule],
+        ritualJobs: [],
+        blockingJobs: [userSchedule],
+      });
+      const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
+      const workerTaskManager = makeWorkerTaskManager();
+      const conversationService = makeConversationService();
+      const ritualScheduler = {
+        installRituals: vi.fn(),
+        uninstallRituals: vi.fn(),
+      };
+      const service = newService(
+        repo,
+        workerTaskManager as never,
+        conversationService,
+        ritualScheduler
+      );
+
+      await expect(service.deleteTeam(team.id)).rejects.toThrow(/user-created scheduled task/);
+
+      expect(ritualScheduler.uninstallRituals).not.toHaveBeenCalled();
+      expect(workerTaskManager.kill).not.toHaveBeenCalled();
+      expect(conversationService.deleteConversation).not.toHaveBeenCalled();
+      expect(repo.deleteTasksByTeam).not.toHaveBeenCalled();
+      expect(repo.deleteMailboxByTeam).not.toHaveBeenCalled();
+      expect(repo.delete).not.toHaveBeenCalled();
+    });
+
+    it('removes owned rituals, rechecks schedule authority, then deletes team data but not workspace files', async () => {
+      const team = makeTeam();
+      const ritualSchedule = makeSchedule('ritual');
+      mockInspectConversationDeletionSchedules
+        .mockResolvedValueOnce({
+          jobs: [ritualSchedule],
+          ritualJobs: [ritualSchedule],
+          blockingJobs: [],
+        })
+        .mockResolvedValueOnce({ jobs: [], ritualJobs: [], blockingJobs: [] });
+      const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
+      const workerTaskManager = makeWorkerTaskManager();
+      const conversationService = makeConversationService();
+      const ritualScheduler = {
+        installRituals: vi.fn(),
+        uninstallRituals: vi.fn().mockResolvedValue(undefined),
+      };
+      const service = newService(
+        repo,
+        workerTaskManager as never,
+        conversationService,
+        ritualScheduler
+      );
+
+      await service.deleteTeam(team.id);
+
+      expect(mockInspectConversationDeletionSchedules).toHaveBeenNthCalledWith(1, 'conv-lead');
+      expect(ritualScheduler.uninstallRituals).toHaveBeenCalledWith(team);
+      expect(mockInspectConversationDeletionSchedules).toHaveBeenNthCalledWith(2, 'conv-lead');
+      expect(workerTaskManager.kill).toHaveBeenCalledWith('conv-lead', 'team_deleted');
+      expect(conversationService.deleteConversation).toHaveBeenCalledWith('conv-lead');
+      expect(repo.deleteMailboxByTeam).toHaveBeenCalledWith(team.id);
+      expect(repo.deleteTasksByTeam).toHaveBeenCalledWith(team.id);
+      expect(repo.delete).toHaveBeenCalledWith(team.id);
+    });
+
+    it('fails closed when schedule authority is unavailable', async () => {
+      const team = makeTeam();
+      mockInspectConversationDeletionSchedules.mockRejectedValue(new Error('cron database unavailable'));
+      const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
+      const workerTaskManager = makeWorkerTaskManager();
+      const conversationService = makeConversationService();
+      const service = newService(repo, workerTaskManager as never, conversationService);
+
+      await expect(service.deleteTeam(team.id)).rejects.toThrow('cron database unavailable');
+
+      expect(workerTaskManager.kill).not.toHaveBeenCalled();
+      expect(conversationService.deleteConversation).not.toHaveBeenCalled();
+      expect(repo.delete).not.toHaveBeenCalled();
+    });
+
+    it('refuses deletion when a ritual remains after uninstall', async () => {
+      const team = makeTeam();
+      const ritualSchedule = makeSchedule('ritual');
+      mockInspectConversationDeletionSchedules.mockResolvedValue({
+        jobs: [ritualSchedule],
+        ritualJobs: [ritualSchedule],
+        blockingJobs: [],
+      });
+      const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
+      const workerTaskManager = makeWorkerTaskManager();
+      const conversationService = makeConversationService();
+      const ritualScheduler = {
+        installRituals: vi.fn(),
+        uninstallRituals: vi.fn().mockResolvedValue(undefined),
+      };
+      const service = newService(
+        repo,
+        workerTaskManager as never,
+        conversationService,
+        ritualScheduler
+      );
+
+      await expect(service.deleteTeam(team.id)).rejects.toThrow(/still use its chats/);
+
+      expect(ritualScheduler.uninstallRituals).toHaveBeenCalledWith(team);
+      expect(workerTaskManager.kill).not.toHaveBeenCalled();
+      expect(conversationService.deleteConversation).not.toHaveBeenCalled();
+      expect(repo.delete).not.toHaveBeenCalled();
+    });
+
+    it('preserves the team record when any owned conversation deletion fails', async () => {
+      const team = makeTeam();
+      const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
+      const workerTaskManager = makeWorkerTaskManager();
+      const conversationService = makeConversationService({
+        deleteConversation: vi.fn().mockRejectedValue(new Error('database busy')),
+      });
+      const service = newService(repo, workerTaskManager as never, conversationService);
+
+      await expect(service.deleteTeam(team.id)).rejects.toThrow(/team record was preserved/i);
+
+      expect(repo.deleteMailboxByTeam).not.toHaveBeenCalled();
+      expect(repo.deleteTasksByTeam).not.toHaveBeenCalled();
+      expect(repo.delete).not.toHaveBeenCalled();
+    });
   });
 });

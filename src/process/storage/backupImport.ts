@@ -61,54 +61,131 @@ function writeFile(filePath: string, data: Buffer): void {
   fs.writeFileSync(filePath, data);
 }
 
+function validateLegacyManifest(value: unknown): void {
+  if (!value || typeof value !== 'object') throw new Error('Backup manifest is missing or invalid.');
+  const manifest = value as {
+    version?: unknown;
+    format?: unknown;
+    authoritative?: unknown;
+    includedPaths?: unknown;
+    excludedAuthorities?: unknown;
+  };
+  // v1 was always the same limited file export, before its scope was named.
+  if (manifest.version === 1) return;
+  if (
+    manifest.version !== 2 ||
+    manifest.format !== 'wayland-legacy-file-export' ||
+    manifest.authoritative !== false ||
+    !Array.isArray(manifest.includedPaths) ||
+    !Array.isArray(manifest.excludedAuthorities)
+  ) {
+    throw new Error('Unsupported or malformed legacy file-export manifest.');
+  }
+}
+
+function replaceFromStaging(root: string, stagingRoot: string): void {
+  const parent = path.dirname(root);
+  const rollbackRoot = fs.mkdtempSync(path.join(parent, '.wayland-legacy-rollback-'));
+  const relativeTargets = ['conversations', 'attachments', 'config', 'keys.json'];
+  const installed: string[] = [];
+  const displaced: string[] = [];
+
+  try {
+    for (const relativePath of relativeTargets) {
+      const staged = path.join(stagingRoot, relativePath);
+      if (!fs.existsSync(staged)) continue;
+      const target = path.join(root, relativePath);
+      const rollback = path.join(rollbackRoot, relativePath);
+      if (fs.existsSync(target)) {
+        fs.mkdirSync(path.dirname(rollback), { recursive: true });
+        fs.renameSync(target, rollback);
+        displaced.push(relativePath);
+      }
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.renameSync(staged, target);
+      installed.push(relativePath);
+    }
+  } catch (error) {
+    for (const relativePath of installed.reverse()) {
+      fs.rmSync(path.join(root, relativePath), { recursive: true, force: true });
+    }
+    for (const relativePath of displaced.reverse()) {
+      const rollback = path.join(rollbackRoot, relativePath);
+      const target = path.join(root, relativePath);
+      if (fs.existsSync(rollback)) {
+        fs.mkdirSync(path.dirname(target), { recursive: true });
+        fs.renameSync(rollback, target);
+      }
+    }
+    throw error;
+  } finally {
+    fs.rmSync(rollbackRoot, { recursive: true, force: true });
+  }
+}
+
 export async function backupImport(opts: ImportOptions): Promise<void> {
   const raw = fs.readFileSync(opts.srcPath);
   const zip = await JSZip.loadAsync(raw);
 
+  const manifestFile = zip.file('manifest.json');
+  if (!manifestFile) throw new Error('Backup manifest is missing.');
+  let manifest: unknown;
+  try {
+    manifest = JSON.parse(await manifestFile.async('string'));
+  } catch {
+    throw new Error('Backup manifest is not valid JSON.');
+  }
+  validateLegacyManifest(manifest);
+
   const restoreDirs = new Set(['conversations', 'attachments', 'config']);
   const root = path.resolve(opts.userData);
+  fs.mkdirSync(path.dirname(root), { recursive: true });
+  const stagingRoot = fs.mkdtempSync(path.join(path.dirname(root), '.wayland-legacy-restore-'));
 
   // Running total of decompressed bytes to bound zip-bomb amplification.
   let totalBytes = 0;
-  const accountBytes = (len: number): boolean => {
-    if (len > MAX_ENTRY_BYTES) return false;
+  const accountBytes = (len: number): void => {
+    if (len > MAX_ENTRY_BYTES) throw new Error('Backup entry exceeds the decompression limit.');
     totalBytes += len;
-    return totalBytes <= MAX_TOTAL_BYTES;
+    if (totalBytes > MAX_TOTAL_BYTES) throw new Error('Backup exceeds the total decompression limit.');
   };
 
-  await Promise.all(
-    Object.entries(zip.files).map(async ([zipPath, file]) => {
-      if (file.dir) return;
+  try {
+    for (const [zipPath, file] of Object.entries(zip.files)) {
+      if (file.dir) continue;
 
       // Handle encrypted keys. Containment still applies even though the
       // destination is fixed - the same hardening must guard every write.
       if (zipPath === 'keys.json.enc') {
-        if (!opts.passphrase) return;
+        if (!opts.passphrase) continue;
         const encoded = await file.async('string');
         const decrypted = decryptBuffer(encoded, opts.passphrase);
-        if (!accountBytes(decrypted.length)) return;
-        const keysDest = resolveContained(root, 'keys.json');
-        if (keysDest === null) return;
+        accountBytes(decrypted.length);
+        const keysDest = resolveContained(stagingRoot, 'keys.json');
+        if (keysDest === null) continue;
         writeFile(keysDest, decrypted);
-        return;
+        continue;
       }
 
       // Skip manifest
-      if (zipPath === 'manifest.json') return;
+      if (zipPath === 'manifest.json') continue;
 
       // Normalize separators BEFORE the top-dir gate so a mixed-separator
       // entry cannot slip a foreign top directory past the allowlist.
       const normalized = zipPath.replace(/\\/g, '/');
       const topDir = normalized.split('/')[0];
-      if (!restoreDirs.has(topDir)) return;
+      if (!restoreDirs.has(topDir)) continue;
 
       // Restore files under known dirs, enforcing path containment.
-      const destFull = resolveContained(root, zipPath);
-      if (destFull === null) return;
+      const destFull = resolveContained(stagingRoot, zipPath);
+      if (destFull === null) continue;
 
       const data = await file.async('nodebuffer');
-      if (!accountBytes(data.length)) return;
+      accountBytes(data.length);
       writeFile(destFull, data);
-    })
-  );
+    }
+    replaceFromStaging(root, stagingRoot);
+  } finally {
+    fs.rmSync(stagingRoot, { recursive: true, force: true });
+  }
 }

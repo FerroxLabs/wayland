@@ -16,7 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 interface CronJobActionsResult {
   pauseJob: (jobId: string) => Promise<void>;
   resumeJob: (jobId: string) => Promise<void>;
-  deleteJob: (jobId: string) => Promise<void>;
+  archiveJob: (jobId: string) => Promise<void>;
   updateJob: (jobId: string, updates: Partial<ICronJob>) => Promise<ICronJob>;
 }
 
@@ -25,7 +25,7 @@ interface CronJobActionsResult {
  */
 function useCronJobActions(
   onJobUpdated?: (jobId: string, job: ICronJob) => void,
-  onJobDeleted?: (jobId: string) => void
+  onJobArchived?: (jobId: string) => void
 ): CronJobActionsResult {
   const pauseJob = useCallback(
     async (jobId: string) => {
@@ -43,12 +43,12 @@ function useCronJobActions(
     [onJobUpdated]
   );
 
-  const deleteJob = useCallback(
+  const archiveJob = useCallback(
     async (jobId: string) => {
       await ipcBridge.cron.removeJob.invoke({ jobId });
-      onJobDeleted?.(jobId);
+      onJobArchived?.(jobId);
     },
-    [onJobDeleted]
+    [onJobArchived]
   );
 
   const updateJob = useCallback(
@@ -60,7 +60,7 @@ function useCronJobActions(
     [onJobUpdated]
   );
 
-  return { pauseJob, resumeJob, deleteJob, updateJob };
+  return { pauseJob, resumeJob, archiveJob, updateJob };
 }
 
 /**

@@ -1135,7 +1135,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           for (const provider of repo.listRegistryProviders()) {
             const curated = curatedWithCustom(provider.providerId);
             for (const model of curated) {
-              const dedupKey = `${model.providerId} ${model.id}`;
+              const dedupKey = `${model.providerId}\u0000${model.id}`;
               if (seen.has(dedupKey)) continue;
               seen.add(dedupKey);
               all.push(model);

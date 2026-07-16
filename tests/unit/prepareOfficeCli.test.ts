@@ -1,0 +1,203 @@
+import { createRequire } from 'node:module';
+import fs from 'node:fs';
+import { load as parseYaml } from 'js-yaml';
+import os from 'node:os';
+import path from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+const require = createRequire(import.meta.url);
+const prepareOfficeCli = require('../../scripts/prepareOfficeCli') as {
+  DEFAULT_OFFICECLI_VERSION: string;
+  getAssetName(platform: string, arch: string, libc?: string): string;
+  loadExpectedSha(version: string, asset: string): string;
+  verifyFile(filePath: string, expectedSha: string, asset: string, version: string): string;
+  assertDarwinPublisherSignature(
+    details: string,
+    entitlements: string
+  ): {
+    contract: string;
+    teamIdentifier: string;
+    hardenedRuntime: boolean;
+    secureTimestamp: boolean;
+    entitlements: string[];
+  };
+  loadContract(): {
+    contract: string;
+    major: number;
+    minor: number;
+    release: string;
+    requiredCommands: string[];
+    requiredElements: Record<string, string[]>;
+    previewCommand: string;
+  };
+  assertContractOutputs(
+    version: string,
+    topLevelHelp: string,
+    formatHelp: Record<string, string>,
+    watchHelp: string
+  ): { contract: string; release: string };
+};
+
+function collectSkillFiles(directory: string): string[] {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const target = path.join(directory, entry.name);
+    if (entry.isDirectory()) return collectSkillFiles(target);
+    return entry.name === 'SKILL.md' ? [target] : [];
+  });
+}
+
+describe('prepareOfficeCli supply-chain contract', () => {
+  it('pins v1.0.136 and maps every supported package target to an immutable asset', () => {
+    expect(prepareOfficeCli.DEFAULT_OFFICECLI_VERSION).toBe('v1.0.136');
+    expect(prepareOfficeCli.getAssetName('darwin', 'arm64')).toBe('officecli-mac-arm64');
+    expect(prepareOfficeCli.getAssetName('darwin', 'x64')).toBe('officecli-mac-x64');
+    expect(prepareOfficeCli.getAssetName('linux', 'arm64')).toBe('officecli-linux-arm64');
+    expect(prepareOfficeCli.getAssetName('linux', 'x64', 'musl')).toBe('officecli-linux-alpine-x64');
+    expect(prepareOfficeCli.getAssetName('win32', 'x64')).toBe('officecli-win-x64.exe');
+    expect(prepareOfficeCli.getAssetName('win32', 'arm64')).toBe('officecli-win-arm64.exe');
+  });
+
+  it('loads canonical 64-hex checksums and rejects unsupported targets', () => {
+    const sha = prepareOfficeCli.loadExpectedSha('v1.0.136', 'officecli-mac-arm64');
+    expect(sha).toBe('b8582853cc464fa0bdb2fabc2803821472c9449c38b365a7be79fcb53d6356e7');
+    expect(() => prepareOfficeCli.getAssetName('darwin', 'ia32')).toThrow('Unsupported OfficeCLI architecture');
+    expect(() => prepareOfficeCli.getAssetName('freebsd', 'x64')).toThrow('Unsupported OfficeCLI platform');
+  });
+
+  it('fails closed when commands or format elements drift from the versioned skill contract', () => {
+    const contract = prepareOfficeCli.loadContract();
+    const topLevelHelp = contract.requiredCommands.map((command) => `  ${command} <file>`).join('\n');
+    const formatHelp = Object.fromEntries(
+      Object.entries(contract.requiredElements).map(([format, elements]) => [
+        format,
+        `Elements for ${format}:\n${elements.map((element) => `  ${element}`).join('\n')}`,
+      ])
+    );
+    const watchHelp = 'Usage:\n  officecli watch <file> [command] [options]';
+
+    expect(prepareOfficeCli.assertContractOutputs('1.0.136', topLevelHelp, formatHelp, watchHelp)).toEqual({
+      contract: 'wayland-officecli-authoring/1.0',
+      release: 'v1.0.136',
+    });
+    expect(() =>
+      prepareOfficeCli.assertContractOutputs(
+        '1.0.136',
+        topLevelHelp.replace('  query <file>\n', ''),
+        formatHelp,
+        watchHelp
+      )
+    ).toThrow('missing command: query');
+    expect(() =>
+      prepareOfficeCli.assertContractOutputs(
+        '1.0.136',
+        topLevelHelp,
+        { ...formatHelp, pptx: formatHelp.pptx.replace('  notes\n', '') },
+        watchHelp
+      )
+    ).toThrow('pptx contract is missing element: notes');
+  });
+
+  it('covers every concrete OfficeCLI help element referenced by bundled skills', () => {
+    const contract = prepareOfficeCli.loadContract();
+    const skillRoot = path.resolve(process.cwd(), 'src/process/resources/skills');
+    const referenced = new Map<string, Set<string>>();
+    for (const skillPath of collectSkillFiles(skillRoot)) {
+      const body = fs.readFileSync(skillPath, 'utf8');
+      for (const match of body.matchAll(
+        /officecli help (docx|xlsx|pptx) (?:(?:add|set|get|query|remove|validate|raw-set) )?([a-z][a-z0-9_-]*)/gi
+      )) {
+        const format = match[1].toLowerCase();
+        const element = match[2].toLowerCase();
+        if (!referenced.has(format)) referenced.set(format, new Set());
+        referenced.get(format)?.add(element);
+      }
+    }
+
+    for (const [format, elements] of referenced) {
+      expect(contract.requiredElements[format], `${format} is missing from the contract`).toBeDefined();
+      for (const element of elements) {
+        expect(contract.requiredElements[format], `${format} contract does not cover ${element}`).toContain(element);
+      }
+    }
+  });
+
+  it('fails closed when downloaded bytes do not match the pinned checksum', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-sha-'));
+    const file = path.join(dir, 'officecli');
+    fs.writeFileSync(file, 'tampered');
+    expect(() => prepareOfficeCli.verifyFile(file, '0'.repeat(64), 'officecli-mac-arm64', 'v1.0.136')).toThrow(
+      'OfficeCLI checksum mismatch'
+    );
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('accepts only the pinned hardened macOS publisher with minimal entitlements', () => {
+    const details = [
+      'CodeDirectory v=20500 size=65695 flags=0x10000(runtime) hashes=2042+7 location=embedded',
+      'Authority=Developer ID Application: AionUi Inc. (52JQX2HUSC)',
+      'Timestamp=14 Jul 2026 at 10:53:32',
+      'TeamIdentifier=52JQX2HUSC',
+    ].join('\n');
+    const minimalEntitlements = '<plist><dict><key>com.apple.security.cs.allow-jit</key><true/></dict></plist>';
+
+    expect(prepareOfficeCli.assertDarwinPublisherSignature(details, minimalEntitlements)).toEqual({
+      contract: 'apple-developer-id/1.0',
+      teamIdentifier: '52JQX2HUSC',
+      hardenedRuntime: true,
+      secureTimestamp: true,
+      entitlements: ['com.apple.security.cs.allow-jit'],
+    });
+    expect(() =>
+      prepareOfficeCli.assertDarwinPublisherSignature(
+        details.replace('TeamIdentifier=52JQX2HUSC', 'TeamIdentifier=ATTACKER00'),
+        minimalEntitlements
+      )
+    ).toThrow('publisher TeamIdentifier');
+    expect(() =>
+      prepareOfficeCli.assertDarwinPublisherSignature(
+        details,
+        minimalEntitlements.replace(
+          '</dict>',
+          '<key>com.apple.security.cs.disable-library-validation</key><true/></dict>'
+        )
+      )
+    ).toThrow('entitlements must be exactly');
+  });
+
+  it('is mandatory in the build, package, and post-package release gates', () => {
+    const packageJson = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf8')) as {
+      dependencies: Record<string, string>;
+    };
+    const buildScript = fs.readFileSync(path.resolve('scripts/build-with-builder.js'), 'utf8');
+    const builderConfig = fs.readFileSync(path.resolve('electron-builder.yml'), 'utf8');
+    const packageVerifier = fs.readFileSync(path.resolve('scripts/verify-packaged-resources.js'), 'utf8');
+
+    expect(packageJson.dependencies.officecli).toBeUndefined();
+    expect(packageJson.trustedDependencies).not.toContain('officecli');
+    expect(buildScript).toContain("const prepareOfficeCli = require('./prepareOfficeCli')");
+    expect(buildScript).toContain('prepareOfficeCli({ platform, arch })');
+    expect(builderConfig).toContain('from: resources/bundled-officecli');
+    expect(builderConfig).not.toContain('node_modules/officecli');
+    expect(packageVerifier).toContain("{ rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' }");
+  });
+
+  it('preserves the pinned publisher signature instead of applying Electron helper entitlements', () => {
+    const builderConfig = parseYaml(fs.readFileSync(path.resolve('electron-builder.yml'), 'utf8')) as {
+      mac?: { signIgnore?: string[] };
+    };
+    const signIgnore = builderConfig.mac?.signIgnore;
+
+    expect(signIgnore).toEqual([
+      '/Contents/Resources/bundled-officecli/[^/]+/officecli$',
+      '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$',
+    ]);
+    const officeCliPath = '/tmp/Wayland.app/Contents/Resources/bundled-officecli/darwin-arm64/officecli';
+    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(officeCliPath))).toBe(true);
+    expect(signIgnore?.some((pattern) => new RegExp(pattern).test('/tmp/Wayland.app/Contents/MacOS/Wayland'))).toBe(
+      false
+    );
+    expect(
+      signIgnore?.some((pattern) => new RegExp(pattern).test('/tmp/Wayland.app/Contents/Frameworks/Wayland Helper.app'))
+    ).toBe(false);
+  });
+});

@@ -5,11 +5,9 @@
  */
 
 import type { TextToSpeechAudio, TextToSpeechConfig } from '@/common/types/ttsTypes';
-import { acquireBinary } from '@process/services/voice/voiceBinaryManifest';
+import { resolveVoiceAsset } from '@process/services/voice/voiceAssetRegistry';
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { homedir } from 'node:os';
-import path from 'node:path';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -24,21 +22,6 @@ export class KokoroLocalUnavailableError extends Error {
     this.name = 'KokoroLocalUnavailableError';
   }
 }
-
-/**
- * On-disk locations for the local Kokoro runtime. Task D2 (runtime binary
- * acquisition) downloads the binary and models into these exact paths.
- */
-export const KOKORO_BIN_DIR = path.join(
-  homedir(),
-  '.wayland',
-  'voice',
-  'bin',
-  `${process.platform}-${process.arch}`,
-);
-export const KOKORO_MODEL_DIR = path.join(homedir(), '.wayland', 'voice', 'kokoro-models');
-
-const KOKORO_BINARY_NAME = process.platform === 'win32' ? 'kokoro-cli.exe' : 'kokoro-cli';
 
 /**
  * Injectable runtime seam. Production wires it to the filesystem and a real
@@ -63,14 +46,14 @@ export type KokoroLocalRuntime = {
 };
 
 export const defaultKokoroLocalRuntime: KokoroLocalRuntime = {
-  resolveBinary: () => {
-    const binaryPath = path.join(KOKORO_BIN_DIR, KOKORO_BINARY_NAME);
-    return existsSync(binaryPath) ? binaryPath : null;
-  },
-  acquireBinary: () => acquireBinary('onnx-runtime'),
-  resolveModel: (voice) => {
-    const modelPath = path.join(KOKORO_MODEL_DIR, `${voice}.onnx`);
-    return existsSync(modelPath) ? modelPath : null;
+  // The upstream Kokoro-ONNX project publishes a Python library plus model
+  // files, not a standalone `kokoro-cli`. Previous code downloaded Microsoft's
+  // onnxruntime artifact and attempted to execute it with invented Kokoro CLI
+  // flags. Fail closed until Wayland owns a real, packaged synthesis adapter.
+  resolveBinary: () => null,
+  resolveModel: () => {
+    const asset = resolveVoiceAsset({ id: 'kokoro-onnx-model', url: '', destPath: '', sha256: '' });
+    return asset.destPath && existsSync(asset.destPath) ? asset.destPath : null;
   },
   run: async (binary, args) => {
     const { stdout } = await execFileAsync(binary, args, {
@@ -90,7 +73,7 @@ export class KokoroLocal {
   static async synthesize(
     text: string,
     config: TextToSpeechConfig,
-    runtime: KokoroLocalRuntime = defaultKokoroLocalRuntime,
+    runtime: KokoroLocalRuntime = defaultKokoroLocalRuntime
   ): Promise<TextToSpeechAudio> {
     let binary = runtime.resolveBinary();
     if (!binary) {
@@ -99,14 +82,12 @@ export class KokoroLocal {
           binary = await runtime.acquireBinary();
         } catch {
           throw new KokoroLocalUnavailableError(
-            'TTS_KOKORO_LOCAL_UNAVAILABLE: kokoro-cli binary could not be acquired',
+            'TTS_KOKORO_LOCAL_UNAVAILABLE: kokoro-cli binary could not be acquired'
           );
         }
       }
       if (!binary) {
-        throw new KokoroLocalUnavailableError(
-          'TTS_KOKORO_LOCAL_UNAVAILABLE: kokoro-cli binary is not installed',
-        );
+        throw new KokoroLocalUnavailableError('TTS_KOKORO_LOCAL_UNAVAILABLE: kokoro-cli binary is not installed');
       }
     }
 
@@ -114,7 +95,7 @@ export class KokoroLocal {
     const modelPath = runtime.resolveModel(voice);
     if (!modelPath) {
       throw new KokoroLocalUnavailableError(
-        `TTS_KOKORO_LOCAL_UNAVAILABLE: Kokoro voice model "${voice}" is not installed`,
+        `TTS_KOKORO_LOCAL_UNAVAILABLE: Kokoro voice model "${voice}" is not installed`
       );
     }
 

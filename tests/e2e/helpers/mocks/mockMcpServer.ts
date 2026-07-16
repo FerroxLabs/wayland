@@ -7,7 +7,7 @@
  * the standard `initialize` / `tools/list` / `tools/call` lifecycle.
  *
  * Boot via:
- *   node tests/e2e/helpers/mocks/mockMcpServer.ts
+ *   bun tests/e2e/helpers/mocks/mockMcpServer.ts
  *
  * The script is intentionally dependency-free: it speaks the JSON-RPC line
  * protocol over stdio directly so we don't have to bundle the SDK into the

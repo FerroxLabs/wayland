@@ -125,13 +125,14 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     }
   }
 
-  kill(id: string, reason?: AgentKillReason): void {
+  kill(id: string, reason?: AgentKillReason): Promise<void> {
     const index = this.taskList.findIndex((item) => item.id === id);
-    if (index === -1) return;
-    // kill() is async (AUDIT-05 F20 / M18); fire-and-forget here. Callers that
-    // need to wait for the child to die (e.g. before-quit) go through clear().
-    void this.taskList[index]?.task.kill(reason);
-    this.taskList.splice(index, 1);
+    if (index === -1) return Promise.resolve();
+    // Evict synchronously so no caller can retrieve the stale task while its
+    // process is shutting down. The returned promise lets authority-changing
+    // callers wait before spawning the replacement.
+    const [removed] = this.taskList.splice(index, 1);
+    return removed?.task.kill(reason) ?? Promise.resolve();
   }
 
   async clear(): Promise<void> {

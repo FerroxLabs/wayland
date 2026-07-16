@@ -11,7 +11,7 @@ import WaylandModal from '@/renderer/components/base/WaylandModal';
 interface OneClickImportModalProps {
   visible: boolean;
   onCancel: () => void;
-  onBatchImport?: (servers: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>[]) => void;
+  onBatchImport?: (servers: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>[]) => void | Promise<unknown>;
 }
 
 const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCancel, onBatchImport }) => {
@@ -20,6 +20,8 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
   const [selectedAgent, setSelectedAgent] = useState<string>('');
   const [importableServers, setImportableServers] = useState<IMcpServer[]>([]);
   const [loadingImport, setLoadingImport] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [importError, setImportError] = useState('');
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   useEffect(() => {
@@ -29,6 +31,8 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
       setSelectedAgent('');
       setImportableServers([]);
       setLoadingImport(false);
+      setPublishing(false);
+      setImportError('');
 
       // Detect available agents during initialization
       const loadAgents = async () => {
@@ -38,7 +42,7 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
             const agents = response.data.map((agent) => ({ backend: agent.backend, name: agent.name }));
             setDetectedAgents(agents);
             // Set first agent as the default value
-            if (agents.length > 1) {
+            if (agents.length > 0) {
               setSelectedAgent(agents[0].backend);
             }
           }
@@ -58,8 +62,16 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
       await handleImportFromCLI();
     } else if (currentStep === 2) {
       // Step 2 -> Step 3: perform import, show success page
-      handleBatchImport();
-      setCurrentStep(3);
+      setPublishing(true);
+      setImportError('');
+      try {
+        await handleBatchImport();
+        setCurrentStep(3);
+      } catch (error) {
+        setImportError(error instanceof Error ? error.message : String(error));
+      } finally {
+        setPublishing(false);
+      }
     }
   };
 
@@ -104,42 +116,46 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
     }
   };
 
-  const handleBatchImport = () => {
-    if (onBatchImport && importableServers.length > 0) {
-      const serversToImport = importableServers.map((server) => {
-        // Generate standard JSON format for CLI-imported servers
-        const serverConfig: Record<string, string | string[] | Record<string, string>> = {
-          description: server.description,
-        };
-
-        if (server.transport.type === 'stdio') {
-          serverConfig.command = server.transport.command;
-          if (server.transport.args?.length) {
-            serverConfig.args = server.transport.args;
-          }
-          if (server.transport.env && Object.keys(server.transport.env).length) {
-            serverConfig.env = server.transport.env;
-          }
-        } else {
-          serverConfig.type = server.transport.type;
-          serverConfig.url = server.transport.url;
-          if (server.transport.headers && Object.keys(server.transport.headers).length) {
-            serverConfig.headers = server.transport.headers;
-          }
-        }
-
-        return {
-          name: server.name,
-          description: server.description,
-          enabled: server.enabled,
-          transport: server.transport,
-          status: server.status as IMcpServer['status'],
-          tools: (server.tools || []) as IMcpTool[], // Preserve original tools info
-          originalJson: JSON.stringify({ mcpServers: { [server.name]: serverConfig } }, null, 2),
-        };
-      });
-      onBatchImport(serversToImport);
+  const handleBatchImport = async () => {
+    if (importableServers.length === 0) {
+      throw new Error(t('settings.mcpNoServersFound'));
     }
+    if (!onBatchImport) {
+      throw new Error(t('settings.mcpImportFailed'));
+    }
+    const serversToImport = importableServers.map((server) => {
+      // Generate standard JSON format for CLI-imported servers
+      const serverConfig: Record<string, string | string[] | Record<string, string>> = {
+        description: server.description,
+      };
+
+      if (server.transport.type === 'stdio') {
+        serverConfig.command = server.transport.command;
+        if (server.transport.args?.length) {
+          serverConfig.args = server.transport.args;
+        }
+        if (server.transport.env && Object.keys(server.transport.env).length) {
+          serverConfig.env = server.transport.env;
+        }
+      } else {
+        serverConfig.type = server.transport.type;
+        serverConfig.url = server.transport.url;
+        if (server.transport.headers && Object.keys(server.transport.headers).length) {
+          serverConfig.headers = server.transport.headers;
+        }
+      }
+
+      return {
+        name: server.name,
+        description: server.description,
+        enabled: server.enabled,
+        transport: server.transport,
+        status: server.status as IMcpServer['status'],
+        tools: (server.tools || []) as IMcpTool[], // Preserve original tools info
+        originalJson: JSON.stringify({ mcpServers: { [server.name]: serverConfig } }, null, 2),
+      };
+    });
+    await onBatchImport(serversToImport);
   };
 
   // Render step 1: select Agent
@@ -182,7 +198,9 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
               <div
                 key={index}
                 className='p-3'
-                style={index < importableServers.length - 1 ? { borderBottom: '1px solid var(--color-border-1)' } : undefined}
+                style={
+                  index < importableServers.length - 1 ? { borderBottom: '1px solid var(--color-border-1)' } : undefined
+                }
               >
                 <div className='font-medium text-t-primary'>{server.name}</div>
                 {server.description && <div className='text-sm text-t-secondary mt-1'>{server.description}</div>}
@@ -212,7 +230,9 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
               <div
                 key={index}
                 className='p-3'
-                style={index < importableServers.length - 1 ? { borderBottom: '1px solid var(--color-border-1)' } : undefined}
+                style={
+                  index < importableServers.length - 1 ? { borderBottom: '1px solid var(--color-border-1)' } : undefined
+                }
               >
                 <div className='font-medium text-t-primary'>{server.name}</div>
                 {server.description && <div className='text-sm text-t-secondary mt-1'>{server.description}</div>}
@@ -253,8 +273,9 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
           </Button>
           <Button
             type='primary'
-            onClick={handleNextStep}
-            disabled={loadingImport || importableServers.length === 0}
+            onClick={() => void handleNextStep()}
+            loading={publishing}
+            disabled={loadingImport || publishing || importableServers.length === 0}
             className='min-w-120px'
             style={{ borderRadius: 8 }}
           >
@@ -287,6 +308,8 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
     >
       <div className='flex flex-col h-275px mt-20px'>
         <div className='mb-6 text-t-secondary text-sm'>{t('settings.mcpImportDescription')}</div>
+
+        {importError && <div className='mb-4 text-sm text-danger'>{importError}</div>}
 
         <div className='mb-6'>
           <WaylandSteps current={currentStep} size='small'>

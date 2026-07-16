@@ -1,0 +1,29 @@
+{
+  "available": true,
+  "contract_version": "1.0.0",
+  "degraded_profile": {
+    "activation": "on_capability_failure",
+    "cost_claims": false,
+    "profile": "no_flux",
+    "provider_attempts": false,
+    "reason": "capability_unavailable",
+    "route_explanations": false
+  },
+  "features": {
+    "cost": "authoritative_when_priced",
+    "explicit_native_passthrough": true,
+    "fallbacks": true,
+    "latency": "producer_observed_ms",
+    "provider_attempts": true,
+    "routing_evidence": true
+  },
+  "generated_at": "2026-07-15T00:00:00Z",
+  "generator_version": "1.0.1",
+  "producer": {
+    "baseline_commit": "6eda360c8497b4dab0e26003ad7bad03d0aa9c6f",
+    "name": "flux-router"
+  },
+  "reason": null,
+  "ttl_seconds": 300,
+  "type": "routing.capabilities"
+}

@@ -7,23 +7,9 @@ description: Create, analyze, proofread, and modify Office documents (.docx, .xl
 
 AI-friendly CLI for .docx, .xlsx, .pptx. Single binary, no dependencies, no Office installation needed.
 
-## Install
+## Runtime contract
 
-If `officecli` is not installed:
-
-```bash
-# Recommended (all platforms - requires node/npm):
-npm i -g officecli
-
-# macOS / Linux fallback (binary installer):
-curl -fsSL https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.sh | bash
-
-# Windows (PowerShell) fallback:
-irm https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.ps1 | iex
-```
-
-Verify with `officecli --version`. If still not found after install, open a new terminal.
-NOTE: Wayland ships officecli pre-installed in newer builds; this section only applies on legacy installs or stripped environments.
+Wayland Desktop supplies a checksum-pinned native `officecli` runtime. Do not install, update, download, or replace it from this skill. Run `officecli --version`; native authoring requires the exact verified `1.0.136` version and the relevant top-level/help surface. If the runtime is missing or incompatible, stop and use Wayland's reinstall/update recovery path. Never bootstrap mutable code or silently switch to hosted-credit generation.
 
 ---
 

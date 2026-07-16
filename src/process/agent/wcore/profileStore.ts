@@ -31,8 +31,9 @@
  * NOT hot-yank a live engine's config mid-turn).
  */
 
-import { cp, mkdir, readdir, rename, stat, writeFile } from 'node:fs/promises';
+import { cp, mkdir, open, readdir, rename, stat, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { ipcBridge } from '@/common';
 import type { IWcoreProfile } from '@/common/adapter/ipcBridge';
 import { readConfig } from './configBridge';
@@ -49,6 +50,37 @@ import {
 
 /** Stats subset of {@link IWcoreProfile} read from a profile's own config tree. */
 type ProfileStats = Pick<IWcoreProfile, 'model' | 'tools' | 'skills' | 'updatedAt' | 'dir'>;
+
+/** Atomically and durably publish the active-profile marker. */
+async function writeActiveProfileMarker(name: string): Promise<void> {
+  const root = profilesRoot();
+  await mkdir(root, { recursive: true });
+  const target = activeMarkerPath();
+  const temp = join(root, `.active.${process.pid}.${randomUUID()}.tmp`);
+  const handle = await open(temp, 'wx', 0o600);
+  try {
+    await handle.writeFile(`${name}\n`, 'utf-8');
+    await handle.sync();
+    await handle.close();
+    await rename(temp, target);
+
+    // Persist the rename ordering. Windows cannot open a directory through
+    // Node without backup-semantics flags, so flush the renamed file there;
+    // NTFS journals the directory mutation.
+    const syncHandle = await open(process.platform === 'win32' ? target : root, 'r');
+    try {
+      await syncHandle.sync();
+    } finally {
+      await syncHandle.close();
+    }
+  } catch (error) {
+    await handle.close().catch(() => {});
+    await unlink(temp).catch((cleanupError: NodeJS.ErrnoException) => {
+      if (cleanupError.code !== 'ENOENT') throw cleanupError;
+    });
+    throw error;
+  }
+}
 
 /**
  * Best-effort per-profile stats from the profile's OWN config tree
@@ -167,7 +199,7 @@ export async function cloneProfile(from: string, to: string): Promise<void> {
 export async function activateProfile(name: string): Promise<void> {
   const dir = await resolveProfileDir(name);
   await mkdir(dir, { recursive: true });
-  await writeFile(activeMarkerPath(), `${name}\n`, 'utf-8');
+  await writeActiveProfileMarker(name);
 }
 
 /**
@@ -187,7 +219,7 @@ export async function removeProfile(name: string): Promise<void> {
   await rename(dir, dest);
   // If the deleted profile was active, fall back to default.
   if ((await getActiveProfile()) === name) {
-    await writeFile(activeMarkerPath(), `${DEFAULT_PROFILE}\n`, 'utf-8');
+    await writeActiveProfileMarker(DEFAULT_PROFILE);
   }
 }
 

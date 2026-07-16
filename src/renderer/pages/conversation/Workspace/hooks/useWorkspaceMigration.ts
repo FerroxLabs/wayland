@@ -156,11 +156,14 @@ export function useWorkspaceMigration({
             },
           } as typeof currentConversation;
 
-          await ipcBridge.conversation.createWithConversation.invoke({
+          const migratedConversation = await ipcBridge.conversation.createWithConversation.invoke({
             conversation: newConversation,
             sourceConversationId: conversation_id,
             migrateCron,
           });
+          if (!migratedConversation) {
+            throw new Error('Workspace migration was not committed');
+          }
 
           // Close modal and reset state
           setShowMigrationModal(false);

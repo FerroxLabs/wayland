@@ -92,10 +92,9 @@ describe('resolveActiveConfigDir - the default<->named fork', () => {
     expect(path.endsWith(join('profiles', 'research', 'config.toml'))).toBe(true);
   });
 
-  it('a corrupt/invalid marker falls back to default (native dir)', async () => {
-    await setActive('../../etc'); // fails the name regex => getActiveProfile => default
-    const dir = await resolveActiveConfigDir();
-    expect(dir).toBe(nativeConfigDir());
+  it('a corrupt/invalid marker fails closed instead of selecting the default profile', async () => {
+    await setActive('../../etc');
+    await expect(resolveActiveConfigDir()).rejects.toBeInstanceOf(ProfileIsolationError);
   });
 });
 
@@ -119,9 +118,9 @@ describe('#278: the profile boundary fails closed, never silently to the default
     await expect(resolveActiveConfigDir()).resolves.toBe(nativeConfigDir());
   });
 
-  it('INVARIANT: `default` is throw-free even when the marker is garbage', async () => {
+  it('a garbage marker is classifiable and never falls through to default', async () => {
     await setActive('../../etc');
-    await expect(resolveActiveConfigDir()).resolves.toBe(nativeConfigDir());
+    await expect(resolveActiveConfigDir()).rejects.toMatchObject({ code: 'PROFILE_ISOLATION' });
   });
 
   it('a named profile whose dir cannot be resolved THROWS, and does not resolve to the default dir', async () => {

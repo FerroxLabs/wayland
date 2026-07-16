@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// configureChromium sets app name (dev isolation) and Chromium flags - must run before
-// ANY module that calls app.getPath('userData'), because Electron caches the path on first call.
-import './process/utils/configureChromium';
 // Force IPv4-first DNS in the main process (side-effect import). Keeps outbound
 // connects fast/reliable; fixes the IMAP email channel hanging on a slow IPv6 path.
 import './process/utils/dnsOrder';
@@ -83,6 +80,7 @@ import { attachContextMenu } from './process/utils/contextMenu';
 import { startWebServer } from './process/webserver';
 import { initializeZoomFactor, setupZoomForWindow } from './process/utils/zoom';
 import { getOrCreateAnalyticsId } from './process/utils/analyticsId';
+import { resolveMainBundlePath } from './process/utils/mainBundlePath';
 import {
   clearPendingDeepLinkUrl,
   getPendingDeepLinkUrl,
@@ -197,22 +195,6 @@ void logEnvironmentDiagnostics();
 if (electronSquirrelStartup) {
   app.quit();
 }
-
-// ============ Custom Asset Protocol ============
-// Register wayland-asset:// as a privileged scheme BEFORE app.whenReady().
-// This protocol serves local extension assets (icons, covers) bypassing
-// the browser security policy that blocks file:// URLs from http://localhost.
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: AION_ASSET_PROTOCOL,
-    privileges: {
-      standard: true,
-      secure: true,
-      supportFetchAPI: true,
-      corsEnabled: true,
-    },
-  },
-]);
 
 // SEC-ELEC-03: centrally harden every web-contents the app creates, especially
 // guest <webview>s. The main window binds setWindowOpenHandler + a will-navigate
@@ -489,7 +471,7 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
         }
       : { frame: false }),
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: resolveMainBundlePath('../preload/index.js'),
       // C6: explicit hardening. Match ambient window pattern; preload + contextBridge
       // is the supported renderer surface, so node access must stay disabled.
       sandbox: true,
@@ -695,7 +677,7 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
 
   // Load the renderer: dev server URL in development, built HTML file in production
   const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
-  const fallbackFile = path.join(__dirname, '../renderer/index.html');
+  const fallbackFile = resolveMainBundlePath('../renderer/index.html');
 
   if (!app.isPackaged && rendererUrl) {
     console.log(`[Wayland] Loading renderer URL: ${rendererUrl}`);

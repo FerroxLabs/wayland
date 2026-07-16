@@ -4,33 +4,33 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import './configureAppIdentity';
 import { app } from 'electron';
 import http from 'http';
 import * as fs from 'fs';
 import * as path from 'path';
 import os from 'os';
-import { getDevAppName, getDevProfileDir } from '@/common/platform';
 import { writeFileSyncAtomic } from './atomicWrite';
-
-// ============ Environment Separation ============
-// Set app name before any getPath() call so userData is isolated from production.
-// Note: getPlatformServices() auto-registration also applies this as a safety net
-// in case Rollup loads initStorage's chunk before this module runs.
-if (!app.isPackaged) {
-  const devAppName = getDevAppName();
-  app.setName(devAppName);
-  // In Electron 28+, setName alone no longer updates userData path on macOS.
-  // Explicitly override userData to the dev directory. The userData dir can be
-  // isolated per instance (WAYLAND_DEV_PROFILE) while the app NAME stays on the
-  // base profile so safeStorage-encrypted credentials still decrypt.
-  const appSupportDir = path.dirname(app.getPath('userData'));
-  app.setPath('userData', path.join(appSupportDir, getDevProfileDir()));
-}
 
 // Configure Chromium command-line flags for WebUI and CLI modes
 
 const isWebUI = process.argv.some((arg) => arg === '--webui');
 const isResetPassword = process.argv.includes('--resetpass');
+// External recovery commands are intentionally dependency-light and isolated.
+// They must never expose a debugging port or read/write the live per-user CDP
+// config and instance registry before verification/preparation has completed.
+const isRecoveryCommand =
+  process.argv.includes('--create-recovery-snapshot') ||
+  process.argv.includes('--download-classic-recovery-release') ||
+  process.argv.includes('--prepare-classic-recovery-binary') ||
+  process.argv.includes('--verify-recovery-snapshot') ||
+  process.argv.includes('--materialize-recovery-snapshot') ||
+  process.argv.includes('--launch-classic-recovery-snapshot') ||
+  process.argv.includes('--launch-classic-recovery') ||
+  process.argv.includes('--classic-binary') ||
+  process.argv.includes('--classic-binary-sha256') ||
+  process.argv.includes('--use-pinned-classic-release') ||
+  process.argv.includes('--recovery-destination');
 
 // Only configure flags for WebUI and --resetpass modes
 if (isWebUI || isResetPassword) {
@@ -262,6 +262,8 @@ function resolveCdpPortFromEnv(): number | null | undefined {
  * Priority: env variable > config file > default (dev mode: true, production: false)
  */
 function shouldEnableCdp(config: CdpConfig): boolean {
+  if (isRecoveryCommand) return false;
+
   const envVal = process.env.WAYLAND_CDP_PORT;
   if (envVal === '0' || envVal === 'false') return false;
   if (envVal) return true;
@@ -303,7 +305,7 @@ export let cdpPort: number | null = null;
 export let cdpStartupEnabled: boolean = false;
 
 // Load config and initialize CDP at startup
-const cdpConfig = loadCdpConfig();
+const cdpConfig = isRecoveryCommand ? {} : loadCdpConfig();
 cdpStartupEnabled = shouldEnableCdp(cdpConfig);
 
 if (cdpStartupEnabled) {
@@ -328,7 +330,7 @@ if (cdpStartupEnabled) {
   if (process.platform === 'win32') {
     process.on('SIGBREAK', cleanup);
   }
-} else {
+} else if (!isRecoveryCommand) {
   console.log('[CDP] Chrome DevTools Protocol disabled');
 }
 

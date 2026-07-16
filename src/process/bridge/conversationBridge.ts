@@ -34,6 +34,9 @@ import path from 'path';
 import { migrateConversationToDatabase } from './migrationUtils';
 import { ConversationSideQuestionService } from './services/ConversationSideQuestionService';
 import { getDatabase } from '@process/services/database';
+import { mcpRuntimeFingerprint, mcpSessionFingerprint } from '@/common/mcp';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import { isMcpSessionTruthPreviewEnabled } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 const refreshTrayMenuSafely = async (): Promise<void> => {
   try {
@@ -52,6 +55,18 @@ const VALID_CONVERSATION_TYPES = new Set<TChatConversation['type']>([
   'remote',
   'wcore',
 ]);
+
+const MCP_SESSION_TASK_TYPES = new Set(['gemini', 'acp', 'codex', 'wcore']);
+
+export function shouldRebuildForMcpFingerprint(
+  taskType: string | undefined,
+  appliedFingerprint: string | undefined,
+  currentFingerprint: string | undefined
+): boolean {
+  return Boolean(
+    taskType && MCP_SESSION_TASK_TYPES.has(taskType) && currentFingerprint && appliedFingerprint !== currentFingerprint
+  );
+}
 
 export function initConversationBridge(
   conversationService: IConversationService,
@@ -266,7 +281,7 @@ export function initConversationBridge(
         return result;
       } catch (error) {
         console.error('[conversationBridge] Failed to create conversation with conversation:', error);
-        return Promise.resolve(conversation);
+        return null;
       }
     }
   );
@@ -276,6 +291,29 @@ export function initConversationBridge(
       // Get conversation source before deletion (for channel cleanup)
       const conversation = await conversationService.getConversation(id);
       const source = conversation?.source;
+
+      // A chat and its schedules are separate durable user objects. Never
+      // cascade-delete schedules as a side effect of removing chat history.
+      // Fail closed if schedule authority cannot prove that the chat is clear;
+      // the user can manage the schedules explicitly in Automations and retry.
+      try {
+        const { inspectConversationDeletionSchedules } = await import(
+          '@process/services/conversationDeletionSafety'
+        );
+        const inspection = await inspectConversationDeletionSchedules(id);
+        if (inspection.jobs.length > 0) {
+          console.warn(
+            `[conversationBridge] Refusing to remove conversation ${id}: ${inspection.jobs.length} scheduled task(s) remain`
+          );
+          return false;
+        }
+      } catch (scheduleAuthorityError) {
+        console.warn(
+          `[conversationBridge] Refusing to remove conversation ${id}: schedule authority is unavailable`,
+          scheduleAuthorityError
+        );
+        return false;
+      }
 
       // Kill the running task if exists
       workerTaskManager.kill(id);
@@ -293,28 +331,6 @@ export function initConversationBridge(
           console.warn('[conversationBridge] Failed to cleanup channel resources:', cleanupError);
           // Continue with deletion even if cleanup fails
         }
-      }
-
-      // v0.6.2.6.1 (Gemini G-R-03 fix) - cascade-clean cron jobs bound to
-      // this conversation BEFORE deleting it. Without this, cron_jobs rows
-      // referencing a deleted conversation continue firing, fail to load
-      // the conversation, and burn retries forever. Best-effort: log but
-      // don't block the delete if cron cleanup throws.
-      try {
-        const { cronService } = await import('@process/services/cron/cronServiceSingleton');
-        const orphanedJobs = await cronService.listJobsByConversation(id);
-        for (const job of orphanedJobs) {
-          try {
-            await cronService.removeJob(job.id);
-          } catch (jobErr) {
-            console.warn(
-              `[conversationBridge] Failed to remove cron job ${job.id} during conversation delete:`,
-              jobErr
-            );
-          }
-        }
-      } catch (cronCleanupErr) {
-        console.warn('[conversationBridge] Failed to enumerate cron jobs for conversation delete:', cronCleanupErr);
       }
 
       await conversationService.deleteConversation(id);
@@ -561,6 +577,33 @@ export function initConversationBridge(
     }
     const { conversation_id, files, ...other } = params;
     let task: IAgentManager | undefined;
+    const preSendConversation = await conversationService
+      .getConversation(conversation_id)
+      .catch((): undefined => undefined);
+    let currentMcpFingerprint: string | undefined;
+    let appliedMcpFingerprint: string | undefined;
+    if (isMcpSessionTruthPreviewEnabled()) {
+      // Preview only: M0A/M1 must seal the authority/replay contract before
+      // Desktop may restart a user's live session based on connector drift.
+      const runtimeMcpConfig = await loadRuntimeMcpServers();
+      let runtimeMcpAuthority = runtimeMcpConfig;
+      try {
+        const { mcpService } = await import('@process/services/mcpServices/McpService');
+        runtimeMcpAuthority = await mcpService.attachOAuthTokens(runtimeMcpConfig);
+      } catch (error) {
+        console.warn('[conversationBridge] Failed to resolve current MCP OAuth authority:', error);
+      }
+      currentMcpFingerprint = mcpSessionFingerprint(
+        mcpRuntimeFingerprint(runtimeMcpAuthority),
+        (preSendConversation?.extra as { activeMcpServers?: string[] } | undefined)?.activeMcpServers
+      );
+      appliedMcpFingerprint = (preSendConversation?.extra as { mcpRuntimeFingerprint?: string } | undefined)
+        ?.mcpRuntimeFingerprint;
+      const existingTask = workerTaskManager.getTask(conversation_id);
+      if (shouldRebuildForMcpFingerprint(existingTask?.type, appliedMcpFingerprint, currentMcpFingerprint)) {
+        await workerTaskManager.kill(conversation_id);
+      }
+    }
     try {
       task = await workerTaskManager.getOrBuildTask(conversation_id);
     } catch (err) {
@@ -573,6 +616,18 @@ export function initConversationBridge(
 
     if (!task) {
       return { success: false, msg: 'conversation not found' };
+    }
+
+    if (isMcpSessionTruthPreviewEnabled() && currentMcpFingerprint && appliedMcpFingerprint !== currentMcpFingerprint) {
+      await conversationService
+        .updateConversation(
+          conversation_id,
+          { extra: { mcpRuntimeFingerprint: currentMcpFingerprint } } as Partial<TChatConversation>,
+          true
+        )
+        .catch((error) => {
+          console.warn('[conversationBridge] Failed to persist applied MCP fingerprint:', error);
+        });
     }
 
     // Handle file paths based on agent type
@@ -622,9 +677,7 @@ export function initConversationBridge(
     // can both (a) prepend the per-turn WORKFLOW_STEP_CONTEXT block to the user
     // channel (SPEC §7.2) and (b) wire it through to prepareFirstMessage so the
     // static WORKFLOW_PROTOCOL system block (SPEC §7.1 / W4.3) is injected too.
-    const sendMessageConversation = await conversationService
-      .getConversation(conversation_id)
-      .catch((): undefined => undefined);
+    const sendMessageConversation = preSendConversation;
     const sendMessageExtra = sendMessageConversation?.extra as unknown as { workflowSessionId?: string } | undefined;
     const workflowSessionId = sendMessageExtra?.workflowSessionId;
     if (workflowSessionId) {

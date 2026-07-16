@@ -11,11 +11,10 @@
  * against a real OS process - the cleanest reproduction at the spawn boundary
  * is a real OS process whose binary we control, not a function intercept.
  *
- * The helper is unused by the agent-*.e2e.ts specs in this commit (they run
- * end-to-end through the Electron app, which spawns its own subprocesses, and
- * we can't reroute its `spawn()` calls from a Playwright test). It exists so
- * a follow-up slice that exercises `AcpConnection` directly (e.g. a vitest
- * unit-level integration test) has the canned-binary primitive available.
+ * The helper is also used by the deterministic MCP agent-consumption
+ * integration test. In that mode it accepts the exact `session/new.mcpServers`
+ * payload, starts the selected stdio MCP, lists `echo`, calls it, and streams
+ * the result back through ACP — proving the probe and chat seams separately.
  */
 import { execFileSync } from 'child_process';
 import fs from 'fs';
@@ -43,6 +42,8 @@ export interface MockBinaryOptions {
   responses?: MockBinaryResponse[];
   /** Inject a startup error and exit non-zero before reading stdin. */
   failOnStartup?: { code: number; stderr: string };
+  /** Consume a session/new stdio MCP declaration and echo through its tool. */
+  mcpEcho?: { serverName: string; text: string };
 }
 
 let tmpRoot: string | null = null;
@@ -77,6 +78,7 @@ export function createMockAgentBinary(options: MockBinaryOptions): string {
   const root = ensureTmpRoot();
   const responses = options.responses ?? [{ type: 'text', chunks: ['ok'] }];
   const failOnStartup = options.failOnStartup ?? null;
+  const mcpEcho = options.mcpEcho ?? null;
 
   const scriptName = `mock-${options.binary}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}.cjs`;
   const scriptPath = path.join(root, scriptName);
@@ -90,6 +92,8 @@ export function createMockAgentBinary(options: MockBinaryOptions): string {
 const RESPONSES = ${JSON.stringify(responses)};
 const FAIL = ${JSON.stringify(failOnStartup)};
 const BINARY = ${JSON.stringify(options.binary)};
+const MCP_ECHO = ${JSON.stringify(mcpEcho)};
+const { spawn } = require('child_process');
 
 if (FAIL) {
   process.stderr.write(String(FAIL.stderr));
@@ -99,6 +103,7 @@ if (FAIL) {
 let responseIndex = 0;
 let buffer = '';
 let aborted = false;
+let sessionMcpServers = [];
 
 function send(obj) {
   try {
@@ -108,7 +113,65 @@ function send(obj) {
   }
 }
 
-function handleRequest(req) {
+async function callMcpEcho(server, text) {
+  if (!server || server.type === 'http' || server.type === 'sse') {
+    throw new Error('mock agent requires a stdio MCP declaration');
+  }
+  const env = Object.fromEntries((server.env || []).map((item) => [item.name, item.value]));
+  const child = spawn(server.command, server.args || [], {
+    env: { ...process.env, ...env },
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  let nextId = 1;
+  let mcpBuffer = '';
+  const pending = new Map();
+  child.stdout.setEncoding('utf8');
+  child.stdout.on('data', (chunk) => {
+    mcpBuffer += chunk;
+    let index;
+    while ((index = mcpBuffer.indexOf('\\n')) !== -1) {
+      const line = mcpBuffer.slice(0, index).trim();
+      mcpBuffer = mcpBuffer.slice(index + 1);
+      if (!line) continue;
+      const response = JSON.parse(line);
+      const waiter = pending.get(response.id);
+      if (waiter) {
+        pending.delete(response.id);
+        response.error ? waiter.reject(new Error(response.error.message)) : waiter.resolve(response.result);
+      }
+    }
+  });
+  const request = (method, params) => new Promise((resolve, reject) => {
+    const id = nextId++;
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      reject(new Error('MCP fixture timeout: ' + method));
+    }, 5000);
+    pending.set(id, {
+      resolve: (value) => { clearTimeout(timer); resolve(value); },
+      reject: (error) => { clearTimeout(timer); reject(error); },
+    });
+    child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\\n');
+  });
+  try {
+    await request('initialize', {
+      protocolVersion: '2024-11-05',
+      capabilities: {},
+      clientInfo: { name: 'wayland-mock-acp-agent', version: '1' },
+    });
+    child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\\n');
+    const listed = await request('tools/list', {});
+    if (!listed.tools || !listed.tools.some((tool) => tool.name === 'echo')) {
+      throw new Error('echo tool not exposed to mock agent');
+    }
+    const called = await request('tools/call', { name: 'echo', arguments: { text } });
+    return called.content && called.content[0] ? called.content[0].text : '';
+  } finally {
+    child.kill();
+  }
+}
+
+async function handleRequest(req) {
   if (!req || typeof req !== 'object') return;
   const method = req.method;
   const id = req.id;
@@ -125,10 +188,25 @@ function handleRequest(req) {
     return;
   }
   if (method === 'session/new') {
+    sessionMcpServers = (req.params && req.params.mcpServers) || [];
     send({ jsonrpc: '2.0', id, result: { sessionId: 'mock-' + BINARY + '-session-1' } });
     return;
   }
   if (method === 'session/prompt') {
+    if (MCP_ECHO) {
+      const server = sessionMcpServers.find((candidate) => candidate.name === MCP_ECHO.serverName);
+      const echoed = await callMcpEcho(server, MCP_ECHO.text);
+      send({
+        jsonrpc: '2.0',
+        method: 'session/update',
+        params: {
+          sessionId: 'mock-' + BINARY + '-session-1',
+          update: { sessionUpdate: 'agent_message_chunk', content: { type: 'text', text: echoed } },
+        },
+      });
+      send({ jsonrpc: '2.0', id, result: { stopReason: 'end_turn' } });
+      return;
+    }
     const next = RESPONSES[responseIndex] || { type: 'text', chunks: ['ok'] };
     responseIndex++;
     if (next.type === 'text') {
@@ -185,7 +263,11 @@ process.stdin.on('data', (chunk) => {
     if (!line) continue;
     try {
       const parsed = JSON.parse(line);
-      handleRequest(parsed);
+      void handleRequest(parsed).catch((error) => {
+        if (typeof parsed.id !== 'undefined') {
+          send({ jsonrpc: '2.0', id: parsed.id, error: { code: -32000, message: String(error.message || error) } });
+        }
+      });
     } catch (_err) {
       // ignore non-JSON lines
     }

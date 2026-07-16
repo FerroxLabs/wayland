@@ -110,8 +110,8 @@ export function buildAcpSessionMcpServers(
         switch (server.transport.type) {
           case 'stdio': {
             if (!capabilities.stdio) return null;
-            // #827: resolve `npx`→bundled Bun so the injected session command is
-            // actually spawnable (green-but-no-tools on Windows otherwise).
+            // Use the same bundled-Bun tuple as the Library probe so a green
+            // connection test cannot depend on a different PATH/runtime.
             const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
             return {
               type: 'stdio',
@@ -199,6 +199,24 @@ export function buildWCoreUserStdioMcpServers(
       };
     })
     .filter((server) => !excludeNames?.has(server.name));
+}
+
+/**
+ * Select and normalize the user connectors that belong to one Desktop-managed
+ * Core launch. Core loads these from trusted startup config; the companion
+ * per-session profile allowlist prevents globally-published connectors that are
+ * off for this chat from leaking into the session.
+ */
+export function buildWCoreSessionMcpServers(
+  mcpServers: IMcpServer[] | undefined | null,
+  activeServerIds?: readonly string[]
+): IMcpServer[] {
+  if (!Array.isArray(mcpServers)) return [];
+  return mcpServers
+    .filter(shouldInjectSessionMcpServer)
+    .filter((server) => server.builtin !== true)
+    .filter((server) => isServerActiveForSession(server, activeServerIds))
+    .map((server) => ({ ...server, name: sanitizeMcpServerName(server.name) }));
 }
 
 /** Config shape passed from TeamSessionService to AgentManagers */

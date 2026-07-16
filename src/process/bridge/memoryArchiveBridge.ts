@@ -60,6 +60,7 @@ const updateEntrySchema = z.object({
 });
 
 const deleteEntrySchema = z.object({ id: z.string().min(1).max(64) });
+const restoreArchivedEntrySchema = z.object({ archiveId: z.string().uuid() });
 
 const readSourceContextSchema = z.object({
   path: z.string().min(1),
@@ -251,6 +252,26 @@ export function initMemoryArchiveBridge(): void {
       return await svc.deleteEntry(parsed.data.id);
     } catch (err) {
       log.error('[memory-archive] deleteEntry failed', { err });
+      return { ok: false, error: (err as Error).message };
+    }
+  });
+
+  ipcBridge.memory.listArchivedEntries.provider(async () => {
+    try {
+      return await svc.listArchivedEntries();
+    } catch (err) {
+      log.error('[memory-archive] listArchivedEntries failed', { err });
+      return [];
+    }
+  });
+
+  ipcBridge.memory.restoreArchivedEntry.provider(async (args) => {
+    const parsed = restoreArchivedEntrySchema.safeParse(args);
+    if (!parsed.success) return { ok: false, error: 'invalid id' };
+    try {
+      return await svc.restoreArchivedEntry(parsed.data.archiveId);
+    } catch (err) {
+      log.error('[memory-archive] restoreArchivedEntry failed', { err });
       return { ok: false, error: (err as Error).message };
     }
   });

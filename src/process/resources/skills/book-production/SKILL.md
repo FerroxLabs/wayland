@@ -15,7 +15,7 @@ The coordination rules are in `../../assistant/book-publisher/HANDOFF-CONTRACT.m
 
 - **Gate first.** Production assembles only chapters in state `final`. If any chapter is not `final`, STOP and report exactly which ones block the gate, by number and title.
 - **STATUS order, not filesystem order.** The chapter table in `book/STATUS.md` is the authority for which chapters exist and in what order. Do not list `book/manuscript/` to decide.
-- **Reuse officecli-docx for documents.** Do not hand-roll DOCX. Do not use `_builtin/office-cli`. officecli is install-on-demand: pre-check it and guide install if missing.
+- **Reuse officecli-docx for documents.** Do not hand-roll DOCX. Do not use `_builtin/office-cli`. OfficeCLI is a Wayland-managed runtime: pre-check it and stop with the app recovery path if it is missing or incompatible.
 - **Non-fiction needs an index and a bibliography.** A non-fiction book without both is not publish-ready. Build them from the sources register in `book/bible.md`.
 - **Read STATUS first, write STATUS last.** Set the phase to `done` only after the package is built.
 
@@ -31,7 +31,7 @@ Walk the chapter table. Every row's state must be `final`. If any row is not, ST
 
 Do not produce a partial book. Only continue when every chapter is `final`.
 
-### 2. Pre-check officecli-docx; guide install if missing
+### 2. Pre-check the managed officecli-docx runtime
 
 The DOCX (and ePub and PDF) build is gated on `officecli`. Check it before the formatting step:
 
@@ -39,12 +39,7 @@ The DOCX (and ePub and PDF) build is gated on `officecli`. Check it before the f
 officecli --version
 ```
 
-If that fails, officecli is not installed. Do not skip the manuscript and do not fail silently. Guide the user to install it (from the `officecli-docx` skill's Setup section):
-
-- **macOS / Linux**: `curl -fsSL https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.sh | bash`
-- **Windows (PowerShell)**: `irm https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.ps1 | iex`
-
-Open a new terminal so PATH picks it up, then re-run `officecli --version`. Until it answers, you can still do steps 3, 5, 6, and 7 in Markdown. Only step 4 (the binary render) is blocked. Pick the DOCX build back up here once officecli is available.
+Native authoring requires the exact verified `1.0.136` version. If the check fails or reports an incompatible version, do not skip the manuscript and do not install or download runtime code. Stop the DOCX step and direct the user to Wayland's reinstall/update recovery path. You may still do steps 3, 5, 6, and 7 in Markdown, but step 4 remains blocked until the managed runtime is healthy.
 
 When you do build the DOCX, follow the `officecli-docx` skill end to end: its Requirements for Outputs, its Common Workflow, its Delivery Gate, and its QA cycle are authoritative for what a good document looks like. Do not reinvent any of that here.
 

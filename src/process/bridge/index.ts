@@ -77,6 +77,11 @@ import { initWcoreConfigBridge } from './wcoreConfigBridge';
 import { initWcoreUpdateBridge } from './wcoreUpdateBridge';
 import { initPendingSendBridge } from './pendingSendBridge';
 import { initDoctorBridge } from './doctorBridge';
+import { initDesktopFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
+import { initWorkspaceRetentionBridge } from './workspaceRetentionBridge';
+import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
+import { cronService } from '@process/services/cron/cronServiceSingleton';
+import { getSystemDir } from '@process/utils/initStorage';
 
 export interface BridgeDependencies {
   conversationService: IConversationService;
@@ -90,6 +95,10 @@ export interface BridgeDependencies {
  * Initialize all IPC bridge modules
  */
 export function initAllBridges(deps: BridgeDependencies): void {
+  // Flux #888 publishes replay semantics but no live transport. Register the
+  // Desktop boundary in explicit no_flux state; a future trusted producer feed
+  // must negotiate capability + complete correlation before enabling claims.
+  initDesktopFluxRoutingEvidenceAdapter();
   initDialogBridge();
   initShellBridge();
   initCuaPermissionBridge();
@@ -165,6 +174,19 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initWcoreUpdateBridge();
   initPendingSendBridge();
   initStorageBridge();
+  initWorkspaceRetentionBridge({
+    getWorkDir: () => getSystemDir().workDir,
+    sources: {
+      listConversations: () => deps.conversationRepo.listAllConversations(),
+      listProjects: () => projectServiceSingleton.listProjects(),
+      listSchedules: () => cronService.listJobs(),
+      listActiveProcesses: () =>
+        deps.workerTaskManager.listTasks().map(({ id }) => ({
+          id,
+          workspace: deps.workerTaskManager.getTask(id)?.workspace,
+        })),
+    },
+  });
   initNicknamesBridge();
   initSyncIpc();
   initConstitutionBridge();

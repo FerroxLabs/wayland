@@ -23,7 +23,7 @@ const PAGE = 24;
 export function BrowsePage() {
   const { t } = useTranslation();
   const library = useMcpLibrary();
-  const { mcpServers, saveMcpServers } = useMcpServers();
+  const { mcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
   const navigate = useNavigate();
 
   const [message, contextHolder] = Message.useMessage();
@@ -37,20 +37,21 @@ export function BrowsePage() {
     syncMcpToAgents,
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
-    setAgentInstallStatus
+    setAgentInstallStatus,
+    refreshMcpServers
   );
   const conn = useMcpConnection(mcpServers, saveMcpServers, message);
 
   const handleAddSubmit = useCallback(
     (serverData: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => {
-      void crud.handleAddMcpServer(serverData);
+      return crud.handleAddMcpServer(serverData);
     },
     [crud]
   );
 
   const handleAddBatch = useCallback(
     (servers: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>[]) => {
-      void crud.handleBatchImportMcpServers(servers);
+      return crud.handleBatchImportMcpServers(servers);
     },
     [crud]
   );
@@ -234,7 +235,7 @@ export function BrowsePage() {
   const actions = (
     <>
       <Button icon={<Activity size={14} />} onClick={() => navigate('/settings/mcp-library/connected')}>
-        {t('mcpLibrary.browse.connected', 'Connected MCPs')}
+        {t('mcpLibrary.browse.connected', 'MCP connections')}
       </Button>
       <Button type='primary' onClick={() => setShowAddModal(true)}>
         {t('mcpLibrary.browse.addCustom', 'Add custom server')}

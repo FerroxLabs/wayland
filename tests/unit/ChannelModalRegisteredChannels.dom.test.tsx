@@ -20,7 +20,8 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
-import { render, act, cleanup, screen } from '@testing-library/react';
+import { render, cleanup, screen } from '@testing-library/react';
+import ChannelModalContent from '@/renderer/components/settings/SettingsModal/contents/channels/ChannelModalContent';
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -53,8 +54,10 @@ vi.mock('@arco-design/web-react', async (importOriginal) => {
   };
 });
 
-const mockConfigStorageGet = vi.fn();
-const mockConfigStorageSet = vi.fn();
+const { mockConfigStorageGet, mockConfigStorageSet } = vi.hoisted(() => ({
+  mockConfigStorageGet: vi.fn(),
+  mockConfigStorageSet: vi.fn(),
+}));
 vi.mock('@/common/config/storage', () => ({
   ConfigStorage: {
     get: (...args: unknown[]) => mockConfigStorageGet(...args),
@@ -143,23 +146,15 @@ describe('ChannelModalContent registered channel roster (S17)', () => {
     mockConfigStorageGet.mockResolvedValue(null);
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     cleanup();
-    await act(async () => {
-      for (let i = 0; i < 10; i++) await Promise.resolve();
-    });
   });
 
   it('surfaces Slack and Discord as real (not coming_soon, not disabled) channels', async () => {
-    const { default: ChannelModalContent } =
-      await import('@/renderer/components/settings/SettingsModal/contents/channels/ChannelModalContent');
+    render(<ChannelModalContent />);
 
-    await act(async () => {
-      render(<ChannelModalContent />);
-    });
-
-    const slack = screen.getByTestId('channel-slack');
-    const discord = screen.getByTestId('channel-discord');
+    const slack = await screen.findByTestId('channel-slack');
+    const discord = await screen.findByTestId('channel-discord');
 
     // The core of the bug: these were `coming_soon` + disabled despite being wired.
     expect(slack.getAttribute('data-status')).not.toBe('coming_soon');
@@ -169,16 +164,11 @@ describe('ChannelModalContent registered channel roster (S17)', () => {
   });
 
   it('surfaces the wider registered roster, not just 5 + Slack/Discord', async () => {
-    const { default: ChannelModalContent } =
-      await import('@/renderer/components/settings/SettingsModal/contents/channels/ChannelModalContent');
-
-    await act(async () => {
-      render(<ChannelModalContent />);
-    });
+    render(<ChannelModalContent />);
 
     // A sampling of channels that were entirely missing before the fix.
     for (const id of ['whatsapp', 'signal', 'matrix', 'webhook', 'line']) {
-      expect(screen.getByTestId(`channel-${id}`)).toBeTruthy();
+      expect(await screen.findByTestId(`channel-${id}`)).toBeTruthy();
     }
 
     // Far more than the old 5 built-ins + 2 hardcoded entries.

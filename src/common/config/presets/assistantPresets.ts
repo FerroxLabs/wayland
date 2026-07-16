@@ -692,17 +692,11 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   {
     id: 'cowork',
     avatar: 'cowork.svg',
-    presetAgentType: 'gemini',
     category: 'general',
     resourceDir: 'src/process/resources/assistant/cowork',
     ruleFiles: {
       'en-US': 'cowork.md',
       'zh-CN': 'cowork.md', // Use same file, content is simplified
-    },
-    skillFiles: {
-      'en-US': 'cowork-skills.md',
-      'zh-CN': 'cowork-skills.zh-CN.md',
-      'ru-RU': 'cowork-skills.ru-RU.md',
     },
     defaultEnabledSkills: ['skill-creator', 'officecli-pptx', 'officecli-docx', 'pdf', 'officecli-xlsx'],
     nameI18n: {
@@ -712,7 +706,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
       'uk-UA': 'Cowork',
     },
     descriptionI18n: {
-      'en-US': 'Autonomous task execution with file operations, document processing, and multi-step workflow planning.',
+      'en-US': 'Turn sources and goals into editable, cited, verified work with clear progress and control.',
       'zh-CN': '具有文件操作、文档处理和多步骤工作流规划的自主任务执行助手。',
       'ru-RU':
         'Автономный помощник для выполнения задач с работой с файлами, обработкой документов и многошаговым планированием.',
@@ -721,9 +715,9 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
     },
     promptsI18n: {
       'en-US': [
-        'Analyze the current project structure and suggest improvements',
-        'Automate the build and deployment process',
-        'Extract and summarize key information from all PDF files',
+        'Turn these source files into a cited executive brief',
+        'Analyze this workbook, preserve its formulas, and explain the key decisions',
+        'Build a presentation from this Project and validate it against the supplied template',
       ],
       'zh-CN': ['分析当前项目结构并建议改进方案', '自动化构建和部署流程', '提取并总结所有 PDF 文件的关键信息'],
       'ru-RU': [

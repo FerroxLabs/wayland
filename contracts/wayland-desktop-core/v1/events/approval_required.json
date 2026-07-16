@@ -1,0 +1,1 @@
+{"call_id":"call-tool-001","context":"Bash: cargo test","correlation_id":"resume-001","reason":"Execution requires approval","resume_token":"resume-001","type":"approval_required"}

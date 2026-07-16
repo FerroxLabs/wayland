@@ -30,40 +30,10 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tooltip } from '@arco-design/web-react';
 import { getSiderTooltipProps } from '@/renderer/utils/ui/siderTooltip';
+import { SETTINGS_NAVIGATION_IDS, SETTINGS_ROUTE_PATHS } from '@/common/navigation';
 
 /** Builtin settings tab IDs in display order (must match router paths). */
-export const BUILTIN_TAB_IDS = [
-  // WORKSPACE
-  'assistants',
-  'skills',
-  'commands',
-  'constitution',
-  // AI MODELS
-  'models',
-  'agents',
-  'images',
-  'voice',
-  // ENGINE
-  'wcore',
-  // INTEGRATIONS
-  'webui',
-  'channels',
-  'mcp-library',
-  'extensions',
-  'migrate',
-  // APPEARANCE
-  'theme',
-  'editor',
-  'navigation',
-  // SYSTEM
-  'general',
-  'notifications',
-  'storage',
-  'ijfw',
-  'doctor',
-  // ABOUT
-  'about',
-] as const;
+export const BUILTIN_TAB_IDS = SETTINGS_NAVIGATION_IDS;
 
 /**
  * Legacy anchor IDs that have been merged into other tabs.
@@ -277,7 +247,10 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
       },
     };
 
-    const result: SiderItem[] = BUILTIN_TAB_IDS.map((id) => builtinMap[id]);
+    const result: SiderItem[] = BUILTIN_TAB_IDS.map((id) => ({
+      ...builtinMap[id],
+      path: SETTINGS_ROUTE_PATHS[id],
+    }));
 
     // Compute group header render positions
     const headerAt = new Map<number, string>();

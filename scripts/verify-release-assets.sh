@@ -3,9 +3,15 @@
 set -euo pipefail
 
 OUTPUT_DIR="${1:-release-assets}"
+CHANNEL="${WAYLAND_UPDATE_CHANNEL:-latest}"
 ERRORS=0
 
-for f in latest.yml latest-mac.yml latest-linux.yml latest-linux-arm64.yml; do
+if [[ ! "$CHANNEL" =~ ^[a-z0-9-]+$ ]]; then
+  echo "FAIL: invalid WAYLAND_UPDATE_CHANNEL: $CHANNEL"
+  exit 1
+fi
+
+for f in "$CHANNEL.yml" "$CHANNEL-mac.yml" "$CHANNEL-linux.yml" "$CHANNEL-linux-arm64.yml"; do
   if [ ! -f "$OUTPUT_DIR/$f" ]; then
     echo "FAIL: missing canonical metadata: $f"
     ERRORS=$((ERRORS + 1))
@@ -51,12 +57,12 @@ assert_metadata_points_to_existing_file() {
   echo "PASS: $metadata_name -> $ref_file"
 }
 
-assert_metadata_points_to_existing_file "latest.yml" "(win-x64|win32-x64|x64)"
-assert_metadata_points_to_existing_file "latest-mac.yml" "(mac-x64|darwin-x64|x64)"
-assert_metadata_points_to_existing_file "latest-linux.yml" "(linux|AppImage|deb)"
-assert_metadata_points_to_existing_file "latest-linux-arm64.yml" "(arm64|aarch64)"
+assert_metadata_points_to_existing_file "$CHANNEL.yml" "(win-x64|win32-x64|x64)"
+assert_metadata_points_to_existing_file "$CHANNEL-mac.yml" "(mac-x64|darwin-x64|x64)"
+assert_metadata_points_to_existing_file "$CHANNEL-linux.yml" "(linux|AppImage|deb)"
+assert_metadata_points_to_existing_file "$CHANNEL-linux-arm64.yml" "(arm64|aarch64)"
 
-for f in latest-win-arm64.yml latest-arm64-mac.yml; do
+for f in "$CHANNEL-win-arm64.yml" "$CHANNEL-arm64-mac.yml"; do
   if [ ! -f "$OUTPUT_DIR/$f" ]; then
     echo "FAIL: missing arch-specific updater metadata: $f"
     ERRORS=$((ERRORS + 1))

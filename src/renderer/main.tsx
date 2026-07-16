@@ -83,7 +83,10 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import Layout from './components/layout/Layout';
 import Router from './components/layout/Router';
 import Sider from './components/layout/Sider';
+import ShellRecoveryFallback from './components/layout/ShellRecoveryFallback';
+import CockpitSider from './components/layout/CockpitSider';
 import { useAuth } from './hooks/context/AuthContext';
+import { useShellExperience } from './hooks/ui/useShellExperience';
 import { ConversationHistoryProvider } from './hooks/context/ConversationHistoryContext';
 import HOC from './utils/ui/HOC';
 import { canonicalizeWebUiRoute } from './utils/canonicalizeRoute';
@@ -139,8 +142,9 @@ const Config: React.FC<PropsWithChildren> = ({ children }) => {
 
 const Main = () => {
   const { ready } = useAuth();
+  const { shell, loading: shellLoading } = useShellExperience();
 
-  if (!ready) {
+  if (!ready || shellLoading) {
     return null;
   }
 
@@ -148,7 +152,9 @@ const Main = () => {
     <Router
       layout={
         <ConversationHistoryProvider>
-          <Layout sider={<Sider />} />
+          <ErrorBoundary resetKeys={[shell]} fallback={(error) => <ShellRecoveryFallback error={error} />}>
+            <Layout shellExperience={shell} sider={shell === 'cockpit' ? <CockpitSider /> : <Sider />} />
+          </ErrorBoundary>
         </ConversationHistoryProvider>
       }
     />

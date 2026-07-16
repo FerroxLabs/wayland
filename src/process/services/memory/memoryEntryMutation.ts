@@ -35,8 +35,7 @@ export type MemoryBlockPatch = {
 export type MutationError = 'not_found' | 'ambiguous' | 'summary_collision';
 
 export type MutationResult =
-  | { ok: true; content: string; remainingBlocks: number }
-  | { ok: false; error: MutationError };
+  { ok: true; content: string; remainingBlocks: number; removedBlock?: string } | { ok: false; error: MutationError };
 
 /**
  * Serialize a frontmatter scalar so it round-trips through the reader's
@@ -129,7 +128,7 @@ function blockEnd(shape: FileShape, i: number): number {
 
 /** Raw text of block i (used only to derive its summary). */
 function rawBlock(shape: FileShape, i: number): string {
-  return shape.lines.slice(shape.starts[i], blockEnd(shape, i)).join('\n');
+  return shape.lines.slice(shape.starts[i], blockEnd(shape, i)).join(shape.crlf ? '\r\n' : '\n');
 }
 
 /**
@@ -175,6 +174,10 @@ export function applyDelete(content: string, summary: string): MutationResult {
     ok: true,
     content: joinFile(kept, shape.trailingNewline, shape.crlf),
     remainingBlocks: shape.starts.length - 1,
+    // Preserve the complete target block (including its original line-ending
+    // style and separator whitespace) so the caller can durably archive it
+    // before changing the active source file.
+    removedBlock: rawBlock(shape, idx),
   };
 }
 

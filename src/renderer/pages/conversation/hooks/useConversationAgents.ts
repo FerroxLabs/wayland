@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import useSWR from 'swr';
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { DETECTED_AGENTS_SWR_KEY, fetchDetectedAgents } from '@/renderer/utils/model/agentTypes';
 import type { AvailableAgent } from '@/renderer/utils/model/agentTypes';
@@ -31,7 +32,7 @@ export type UseConversationAgentsResult = {
  */
 function configToAvailableAgent(config: AcpBackendConfig): AvailableAgent {
   return {
-    backend: config.presetAgentType || 'gemini',
+    backend: resolvePresetAgentType(config.presetAgentType),
     name: config.name,
     customAgentId: config.id,
     isPreset: true,
@@ -52,7 +53,7 @@ function extensionAssistantToAvailableAgent(ext: Record<string, unknown>): Avail
   const context = typeof ext.context === 'string' ? ext.context : undefined;
   const avatar = typeof ext.avatar === 'string' ? ext.avatar : undefined;
   return {
-    backend: presetAgentType || 'gemini',
+    backend: resolvePresetAgentType(presetAgentType),
     name: String(ext.name ?? ''),
     customAgentId: String(ext.id ?? ''),
     isPreset: true,
@@ -85,9 +86,8 @@ export const useConversationAgents = (): UseConversationAgentsResult => {
   });
 
   // Extension-contributed assistants (shared SWR key with useAssistantList / usePresetAssistantInfo)
-  const { data: extensionAssistants, isLoading: isLoadingExtensionAssistants } = useSWR(
-    'extensions.assistants',
-    () => ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
+  const { data: extensionAssistants, isLoading: isLoadingExtensionAssistants } = useSWR('extensions.assistants', () =>
+    ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
   );
 
   // Agent keys the user hid on the Agents settings page (shared SWR cache).

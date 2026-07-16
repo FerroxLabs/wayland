@@ -477,22 +477,22 @@ describe('TaskDetailPage', () => {
     });
   });
 
-  it('deletes job when delete button is clicked', async () => {
+  it('archives job when archive button is clicked', async () => {
     render(<TaskDetailPage />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('icon-Trash2')).toBeInTheDocument();
+      expect(screen.getByTestId('icon-Archive')).toBeInTheDocument();
     });
 
-    const deleteButton = screen.getByTestId('icon-Trash2').closest('button')!;
-    fireEvent.click(deleteButton);
+    const archiveButton = screen.getByTestId('icon-Archive').closest('button')!;
+    fireEvent.click(archiveButton);
 
     await waitFor(() => {
       expect(mockRemoveJob).toHaveBeenCalledWith({ jobId: 'job-123' });
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('/scheduled');
-    expect(mockMessageSuccess).toHaveBeenCalledWith('cron.deleteSuccess');
+    expect(mockMessageSuccess).toHaveBeenCalledWith('cron.archiveSuccess');
   });
 
   it('handles missing jobId gracefully', async () => {

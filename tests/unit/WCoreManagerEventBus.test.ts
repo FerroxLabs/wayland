@@ -658,6 +658,28 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
   // ── ipcBridge still receives all events (no regression) ─────────
 
   describe('Regression: ipcBridge still receives all events', () => {
+    it('forwards every accepted Desktop v1 session-level authority event before the empty-msg-id guard', () => {
+      for (const type of [
+        'execution_policy',
+        'workflow_started',
+        'workflow_node_event',
+        'workflow_finished',
+        'anvil_receipt',
+        'anvil_receipt_invalidated',
+        'anvil_trust_changed',
+        'mcp_ready',
+        'mcp_failed',
+      ]) {
+        emitEvent(manager, { type, data: { evidence: type }, msg_id: '' });
+        expect(findIpcEmissions(type)).toContainEqual({
+          type,
+          conversation_id: CONV_ID,
+          msg_id: '',
+          data: { evidence: type },
+        });
+      }
+    });
+
     it('content events still go to ipcBridge', () => {
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'content', data: 'hello', msg_id: 'msg-1' });

@@ -13,7 +13,8 @@ export interface IWorkerTaskManager {
   getTask(id: string): IAgentManager | undefined;
   getOrBuildTask(id: string, options?: BuildConversationOptions): Promise<IAgentManager>;
   addTask(id: string, task: IAgentManager): void;
-  kill(id: string, reason?: AgentKillReason): void;
+  /** Evict synchronously, then resolve once the underlying agent has exited. */
+  kill(id: string, reason?: AgentKillReason): Promise<void>;
   clear(): Promise<void>;
   listTasks(): Array<{ id: string; type: AgentType }>;
 }

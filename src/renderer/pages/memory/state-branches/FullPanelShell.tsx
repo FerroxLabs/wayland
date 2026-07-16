@@ -30,7 +30,16 @@
 import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Input, Message, Modal } from '@arco-design/web-react';
 import type { RefInputType } from '@arco-design/web-react/es/Input/interface';
-import { Archive, Search, Import as ImportIcon, Settings2, Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  Archive,
+  ArchiveRestore,
+  Search,
+  Import as ImportIcon,
+  Settings2,
+  Plus,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { formatModifierShortcut } from '@/renderer/utils/platform';
 import { memory as memoryBridge, ijfw as ijfwBridge } from '@/common/adapter/ipcBridge';
@@ -51,6 +60,7 @@ import MemoryStatusBar from '../components/MemoryStatusBar';
 import ImportDrawer from '../components/ImportDrawer';
 import ComposerModal from '../components/ComposerModal';
 import EntryEditorModal from '../components/EntryEditorModal';
+import ArchivedMemoryModal from '../components/ArchivedMemoryModal';
 import { useMemoryIndex } from '../hooks/useMemoryIndex';
 import { useSelectedEntry } from '../hooks/useSelectedEntry';
 import type { TimeWindow } from '../components/TimeDropdown';
@@ -64,11 +74,9 @@ type PromotionThresholdModalModule = { default: React.ComponentType<{ onClose: (
 
 const PromotionThresholdModalLazy = lazy(
   () =>
-    import('../components/PromotionThresholdModal').catch(
-      (): PromotionThresholdModalModule => ({
-        default: () => null,
-      })
-    ) as Promise<PromotionThresholdModalModule>
+    import('../components/PromotionThresholdModal').catch((): PromotionThresholdModalModule => ({
+      default: () => null,
+    })) as Promise<PromotionThresholdModalModule>
 );
 
 // ---------------------------------------------------------------------------
@@ -140,6 +148,7 @@ const FullPanelShell: React.FC = () => {
   const [importOpen, setImportOpen] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<(MemoryEntry & { body: string }) | null>(null);
+  const [archivedOpen, setArchivedOpen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
   const searchRef = useRef<RefInputType>(null);
@@ -320,26 +329,27 @@ const FullPanelShell: React.FC = () => {
     [reload, selectEntry]
   );
 
-  // Delete an entry (#414) behind a confirm that states it cannot be undone.
-  const handleDelete = useCallback(
+  // Archive an entry (#414). The service persists the original block before
+  // removing it from the active file, and the recovery modal restores it.
+  const handleArchive = useCallback(
     (entry: MemoryEntry & { body: string }) => {
       Modal.confirm({
-        title: t('archive.delete.confirmTitle', 'Delete this memory?'),
+        title: t('archive.delete.confirmTitle', 'Archive this memory?'),
         content: t(
           'archive.delete.confirmContent',
-          'This permanently removes the memory from its file. It cannot be undone from the app.'
+          'This removes the memory from active use but keeps a recovery copy you can restore anytime.'
         ),
-        okText: t('archive.delete.confirmOk', 'Delete'),
+        okText: t('archive.delete.confirmOk', 'Archive'),
         cancelText: t('archive.delete.confirmCancel', 'Cancel'),
-        okButtonProps: { status: 'danger' },
         onOk: async () => {
           const result = await memoryBridge.deleteEntry.invoke({ id: entry.id });
           if (result.ok) {
-            Message.success(t('archive.delete.toastDeleted', 'Memory deleted'));
+            Message.success(t('archive.delete.toastDeleted', 'Memory archived. Restore it anytime from Archived.'));
             clearSelection();
             reload();
+            setArchivedOpen(true);
           } else {
-            Message.error(t('archive.delete.toastError', 'Could not delete memory'));
+            Message.error(t('archive.delete.toastError', 'Could not archive memory'));
           }
         },
       });
@@ -492,6 +502,15 @@ const FullPanelShell: React.FC = () => {
         </div>
 
         <div className={styles.topbarActions}>
+          <Button
+            type='text'
+            size='small'
+            icon={<ArchiveRestore size={15} aria-hidden />}
+            onClick={() => setArchivedOpen(true)}
+            data-testid='memory-btn-archived'
+          >
+            {t('archive.topbar.archived', 'Archived')}
+          </Button>
           {/* Import button */}
           <Button
             type='text'
@@ -621,7 +640,7 @@ const FullPanelShell: React.FC = () => {
                 onOpenSource={handleOpenSource}
                 onCopy={handleCopy}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onArchive={handleArchive}
               />
             </ErrorBoundary>
           </>
@@ -644,6 +663,8 @@ const FullPanelShell: React.FC = () => {
         onClose={() => setEditTarget(null)}
         onSaved={handleEditorSaved}
       />
+
+      <ArchivedMemoryModal open={archivedOpen} onClose={() => setArchivedOpen(false)} onRestored={reload} />
 
       {/* ---- Threshold modal ---- */}
       {showThresholdModal && (

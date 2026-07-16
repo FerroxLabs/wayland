@@ -148,8 +148,12 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // no per-call remote signal, so the guarantee is enforced here at the wire by
   // name — a remote peer can never spawn or attach a PTY (acceptance §8.6).
   'terminal.',
-  // #671 Per-workspace trust axis. workspaceTrust.set switches a workspace into
-  // "cowork" (auto-approve read/edit unattended); workspaceTrust.get discloses
+  // Document conversion accepts an arbitrary local file path and returns the
+  // extracted Word/Excel/PowerPoint contents. A paired remote browser must not
+  // turn that local-only utility into a filesystem read primitive.
+  'document.',
+  // #671 Per-workspace access axis. workspaceTrust.set can switch a workspace to
+  // trusted-edits (auto-approve bounded read/edit); workspaceTrust.get discloses
   // the security posture. A paired-device WS token proves a remote browser, NOT
   // the local trusted user, so the ENTIRE workspaceTrust.* namespace is denied to
   // remote callers — a remote peer must never arm or read local trust.
@@ -224,6 +228,10 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   // Also deny the read: it discloses the engine's security/tools posture to a
   // paired WebUI client (no secret values, but defence-in-depth — SEC review F2).
   'wcoreConfig.getSection',
+  // The workspace retention preview is read-only but carries canonical local
+  // paths plus conversation/project/schedule identifiers. Keep that diagnostic
+  // inventory on the trusted local renderer only.
+  'workspaceRetention.preview',
   // --- Cron write/exec surface. A cron job carries `agentConfig.mode`, which the
   //     executor applies via `task.setMode()` at run time. With the bundled
   //     engine now honoring a wire `set_mode` (WAYLAND_ALLOW_WIRE_FORCE, #495), a
@@ -238,8 +246,10 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     plant arbitrary agent instructions that the next scheduled fire runs
   //     with exec capability — deny it too; confirm-proposal accepts a pending
   //     cron proposal (creates a real job) and leaks its edit payload. The
-  //     read-only views (cron.list-jobs / list-jobs-by-conversation / get-job /
-  //     has-skill) and cron.remove-job stay allowed for the paired UI. Tradeoff:
+  //     restore-archived-job recreates a local schedule plus its executable
+  //     skill instructions, so it is denied too. Read-only views (cron.list-jobs /
+  //     list-archived-jobs / list-jobs-by-conversation / get-job / has-skill)
+  //     and cron.remove-job stay allowed for the paired UI. Tradeoff:
   //     remote devices can no longer create/update, plant skills for, accept
   //     proposals for, or manually trigger cron jobs; scheduled jobs still fire
   //     and local creation is unaffected. ---
@@ -248,6 +258,7 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'cron.run-now',
   'cron.save-skill',
   'cron.confirm-proposal',
+  'cron.restore-archived-job',
   // --- In-app engine updater. `install` downloads + stages a native binary the
   //     next engine spawn executes; a remote caller reaching it is an RCE chain.
   //     `check` hits the network + discloses the engine version. HUMAN-only. ---
@@ -351,6 +362,8 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   // --- MCP mutation (agent install/remove, OAuth login/logout, credential set) ---
   'mcp.sync-to-agents',
   'mcp.remove-from-agents',
+  'mcp.archive-configured-server',
+  'mcp.restore-archived-server',
   'mcp.login-oauth',
   'mcp.cancel-oauth',
   'mcp.logout-oauth',
@@ -365,6 +378,7 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     denied to remote. (Local Electron IPC never passes through this gate.)
   'memory.update-entry',
   'memory.delete-entry',
+  'memory.restore-archived-entry',
   // --- Project knowledge draft (reads arbitrary filePaths to feed the model) ---
   'project.generate-knowledge-draft',
   // --- Storage destructive / disk operations ---
@@ -457,8 +471,8 @@ const CONFIG_STORAGE_SET_KEY = 'agent.config.storage.set';
  * denying only the dedicated `workspaceTrust.set` provider (which we do) leaves
  * a side door: a paired peer could write `workspace.trustLevel` via the generic
  * config setter, and `hydrateWorkspaceTrust` would load it into the gate cache on
- * the next launch — arming Cowork (unattended read/edit auto-approve) with no
- * local user ever toggling it. Guard the persisted key here too.
+ * the next launch — arming trusted-edits with no local user action. Guard the
+ * persisted key here too. Selecting the Cowork assistant is a separate axis.
  */
 const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = ['webui.desktop.', 'workspace.trustLevel'];
 

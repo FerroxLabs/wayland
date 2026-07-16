@@ -42,23 +42,6 @@ export interface PPTJsonData {
   raw?: any; // Raw PPTX JSON (optional, usually not needed in frontend)
 }
 
-export interface ConversionServiceApi {
-  // Word
-  wordToMarkdown: (filePath: string) => Promise<ConversionResult<string>>;
-  markdownToWord: (markdown: string, targetPath: string) => Promise<ConversionResult<void>>;
-
-  // Excel
-  excelToJson: (filePath: string) => Promise<ConversionResult<ExcelWorkbookData>>;
-  jsonToExcel: (data: ExcelWorkbookData, targetPath: string) => Promise<ConversionResult<void>>;
-
-  // PowerPoint
-  pptToJson: (filePath: string) => Promise<ConversionResult<PPTJsonData>>;
-
-  // PDF
-  markdownToPdf: (markdown: string, targetPath: string) => Promise<ConversionResult<void>>;
-  htmlToPdf: (html: string, targetPath: string) => Promise<ConversionResult<void>>;
-}
-
 // Supported document conversion targets
 export type DocumentConversionTarget = 'markdown' | 'excel-json' | 'ppt-json';
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 // Mock window.matchMedia for Arco Design responsive observer
 Object.defineProperty(window, 'matchMedia', {
@@ -131,6 +131,48 @@ describe('JsonImportModal', () => {
           transport: expect.objectContaining({ type: 'stdio', command: 'uv' }),
         })
       );
+    });
+
+    it('does not close until the publication transaction resolves', async () => {
+      let release!: () => void;
+      const publishing = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const onSubmit = vi.fn().mockReturnValue(publishing);
+      const onCancel = vi.fn();
+      render(<JsonImportModal {...defaultProps} onSubmit={onSubmit} onCancel={onCancel} />);
+
+      fireEvent.change(screen.getByTestId('json-input'), {
+        target: {
+          value: JSON.stringify({
+            mcpServers: { tavily: { type: 'http', url: 'https://mcp.tavily.com/mcp/' } },
+          }),
+        },
+      });
+      fireEvent.click(screen.getByTestId('ok-button'));
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      expect(onCancel).not.toHaveBeenCalled();
+      release();
+      await waitFor(() => expect(onCancel).toHaveBeenCalledTimes(1));
+    });
+
+    it('stays open and renders the publication error when the transaction rejects', async () => {
+      const onSubmit = vi.fn().mockRejectedValue(new Error('No compatible agent accepted Tavily'));
+      const onCancel = vi.fn();
+      render(<JsonImportModal {...defaultProps} onSubmit={onSubmit} onCancel={onCancel} />);
+
+      fireEvent.change(screen.getByTestId('json-input'), {
+        target: {
+          value: JSON.stringify({
+            mcpServers: { tavily: { type: 'http', url: 'https://mcp.tavily.com/mcp/' } },
+          }),
+        },
+      });
+      fireEvent.click(screen.getByTestId('ok-button'));
+
+      expect(await screen.findByText('No compatible agent accepted Tavily')).toBeInTheDocument();
+      expect(onCancel).not.toHaveBeenCalled();
     });
 
     it('supports array-based MCP server import format', async () => {

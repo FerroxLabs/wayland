@@ -131,6 +131,43 @@ describe('useTeamCostMeter', () => {
     expect(result.current.totalUsd).toBeCloseTo(0.04 + 0.01, 5);
   });
 
+  it('does not count legacy ACP context occupancy as token spend', async () => {
+    listEventsInvoke.mockResolvedValue([
+      makeTokenEvent({
+        id: 'a',
+        createdAt: 1000,
+        actorSlotId: 'slot-acp',
+        payload: {
+          prompt_tokens: 1200,
+          completion_tokens: 0,
+          total_tokens: 1200,
+          cost_estimate_usd: 0.12,
+          context_window: 200000,
+        },
+      }),
+      makeTokenEvent({
+        id: 'b',
+        createdAt: 2000,
+        actorSlotId: 'slot-acp',
+        payload: {
+          prompt_tokens: 4800,
+          completion_tokens: 0,
+          total_tokens: 4800,
+          cost_estimate_usd: 0.2,
+          context_window: 200000,
+        },
+      }),
+    ]);
+
+    const { result } = renderHook(() => useTeamCostMeter('team-1', { pollIntervalMs: 10_000 }));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+    expect(result.current.totalTokens).toBe(0);
+    expect(result.current.totalUsd).toBeCloseTo(0.2, 5);
+  });
+
   it('combines delta-aware rows (summed) with legacy snapshot rows (newest per actor)', async () => {
     const events: TeamEvent[] = [
       makeTokenEvent({ id: 'a', createdAt: 1000, payload: { tokens_delta: 100, cost_delta: 0.01 } }),

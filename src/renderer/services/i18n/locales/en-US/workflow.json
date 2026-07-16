@@ -41,6 +41,17 @@
     "modeStepMeta": "Step-by-step",
     "modeAutoMeta": "Auto-run"
   },
+  "delete": {
+    "title": "Stop workflow?",
+    "confirm": "This stops the workflow and removes it from the active list. Its plan, chat, outputs, and files are kept.",
+    "stop": "Stop workflow",
+    "success": "Workflow stopped. History was kept.",
+    "failed": "Failed to stop workflow."
+  },
+  "menu": {
+    "open": "Open",
+    "stop": "Stop"
+  },
   "review": {
     "title": "Happy with this step?",
     "subtitle": "Accept to continue, revise this step, or go back.",

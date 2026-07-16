@@ -32,7 +32,7 @@ const ConnectedMcpRow: React.FC<ConnectedMcpRowProps> = ({ row, onReconnect, onD
   // Extension-contributed servers carry a runtime `_source` tag (set in useMcpServers)
   // that isn't part of the persisted IMcpServer shape.
   const isExtension = (server as { _source?: string })._source === 'extension';
-  const isRunning = status === 'running';
+  const isReachable = status === 'reachable';
 
   return (
     <div className={styles.row} data-testid={`connected-mcp-${server.id}`}>
@@ -43,14 +43,21 @@ const ConnectedMcpRow: React.FC<ConnectedMcpRowProps> = ({ row, onReconnect, onD
           {isExtension && <span className={styles.extBadge}>{t('mcpLibrary.connected.extension', 'Extension')}</span>}
         </div>
         <div className={styles.meta}>
-          <span className={styles.metaItem}>
-            <Wrench size={12} />
-            {t('mcpLibrary.connected.toolCount', '{{count}} tools', { count: toolCount })}
-          </span>
+          {isExtension && status !== 'reachable' ? (
+            <span className={styles.metaItem}>
+              <Wrench size={12} />
+              {t('mcpLibrary.connected.extensionUnverified', 'Declared by extension · tools verified per chat')}
+            </span>
+          ) : (
+            <span className={styles.metaItem}>
+              <Wrench size={12} />
+              {t('mcpLibrary.connected.probeToolCount', 'Probe reported {{count}} tools', { count: toolCount })}
+            </span>
+          )}
           {agents.length > 0 && (
             <span className={styles.metaItem}>
               <Cpu size={12} />
-              {t('mcpLibrary.connected.agentReach', 'Available to {{count}} agents', { count: agents.length })}
+              {t('mcpLibrary.connected.agentReach', 'Published to {{count}} agent configs', { count: agents.length })}
             </span>
           )}
         </div>
@@ -59,9 +66,9 @@ const ConnectedMcpRow: React.FC<ConnectedMcpRowProps> = ({ row, onReconnect, onD
 
       {!isExtension && (
         <div className={styles.actions}>
-          {isRunning ? (
+          {isReachable ? (
             <Button size='small' icon={<Plug size={ICON} />} onClick={onDisconnect}>
-              {t('mcpLibrary.connected.disconnect', 'Disconnect')}
+              {t('mcpLibrary.connected.disable', 'Disable')}
             </Button>
           ) : (
             <Button size='small' loading={testing} icon={<RefreshCw size={ICON} />} onClick={onReconnect}>

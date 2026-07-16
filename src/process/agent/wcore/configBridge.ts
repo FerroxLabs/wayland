@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { mkdir, open, readFile, rename } from 'node:fs/promises';
+import { mkdir, open, readFile, rename, unlink } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { parse, stringify } from 'smol-toml';
@@ -128,14 +128,39 @@ async function atomicWriteToml(target: string, config: Record<string, unknown>):
   // collisions between concurrent processes sharing the directory.
   const tempPath = join(dir, `.config.toml.${process.pid}.${randomUUID()}.tmp`);
 
-  const handle = await open(tempPath, 'w');
+  const handle = await open(tempPath, 'wx', 0o600);
   try {
     await handle.writeFile(body, 'utf-8');
     await handle.sync();
-  } finally {
     await handle.close();
+    await rename(tempPath, target);
+  } catch (error) {
+    await handle.close().catch(() => {});
+    await unlink(tempPath).catch((cleanupError: NodeJS.ErrnoException) => {
+      if (cleanupError.code !== 'ENOENT') throw cleanupError;
+    });
+    throw error;
   }
-  await rename(tempPath, target);
+}
+
+export type ConfigMutation<T> = { value: T; changed: boolean };
+
+/**
+ * Run a whole-file mutation under the one process-wide config lock and publish
+ * it atomically. Every writer of the active profile's config.toml must use this
+ * seam; separate per-feature locks still permit lost updates.
+ */
+export function mutateConfig<T>(
+  mutator: (config: Record<string, unknown>) => ConfigMutation<T> | Promise<ConfigMutation<T>>,
+  path?: string
+): Promise<T> {
+  return withWriteLock(async () => {
+    const target = path ?? (await resolveActiveConfigPath());
+    const config = await readConfig(target);
+    const mutation = await mutator(config);
+    if (mutation.changed) await atomicWriteToml(target, config);
+    return mutation.value;
+  });
 }
 
 /**
@@ -151,14 +176,10 @@ async function atomicWriteToml(target: string, config: Record<string, unknown>):
  * @param path    Optional override (tests / non-default homes).
  */
 export function setSection(section: string, value: Record<string, unknown>, path?: string): Promise<void> {
-  return withWriteLock(async () => {
-    // Resolve the active profile INSIDE the lock so a concurrent profile switch
-    // can't split a read-modify-write across two different config files.
-    const target = path ?? (await resolveActiveConfigPath());
-    const config = await readConfig(target);
+  return mutateConfig((config) => {
     config[section] = value;
-    await atomicWriteToml(target, config);
-  });
+    return { value: undefined, changed: true };
+  }, path);
 }
 
 // ── Typed section convenience accessors (used by WS-2) ────────────────────

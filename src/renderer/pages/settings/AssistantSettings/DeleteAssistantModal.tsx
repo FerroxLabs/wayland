@@ -1,5 +1,5 @@
 /**
- * DeleteAssistantModal - Confirmation modal for deleting an assistant.
+ * DeleteAssistantModal - Compatibility-named modal for archiving an assistant.
  */
 import type { AssistantListItem } from './types';
 import AssistantAvatar from './AssistantAvatar';
@@ -26,18 +26,17 @@ const DeleteAssistantModal: React.FC<DeleteAssistantModalProps> = ({
 
   return (
     <Modal
-      title={t('settings.deleteAssistantTitle', { defaultValue: 'Delete Assistant' })}
+      title={t('settings.deleteAssistantTitle', { defaultValue: 'Archive Assistant' })}
       visible={visible}
       onCancel={onCancel}
       onOk={onConfirm}
       okButtonProps={{
-        status: 'danger',
         className: '',
       }}
       cancelButtonProps={{ style: { borderRadius: 8 }, className: 'px-16px' }}
       wrapClassName='delete-assistant-modal'
       data-testid='modal-delete-assistant'
-      okText={t('common.delete', { defaultValue: 'Delete' })}
+      okText={t('settings.archiveAssistant', { defaultValue: 'Archive' })}
       cancelText={t('common.cancel', { defaultValue: 'Cancel' })}
       className='w-[90vw] md:w-[400px]'
       wrapStyle={{ zIndex: 10000 }}
@@ -45,7 +44,8 @@ const DeleteAssistantModal: React.FC<DeleteAssistantModalProps> = ({
     >
       <p>
         {t('settings.deleteAssistantConfirm', {
-          defaultValue: 'Are you sure you want to delete this assistant? This action cannot be undone.',
+          defaultValue:
+            'Archive this assistant? Its configuration and files stay intact, and you can restore it from Disabled.',
         })}
       </p>
       {activeAssistant && (

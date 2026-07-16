@@ -5,6 +5,7 @@
     "": {
       "name": "AionUi",
       "dependencies": {
+        "7zip-bin": "5.2.0",
         "@agentclientprotocol/sdk": "^0.18.2",
         "@anthropic-ai/sdk": "^0.96.0",
         "@arco-design/web-react": "^2.66.1",
@@ -100,7 +101,6 @@
         "multer": "^2.1.1",
         "nodemailer": "^6.9.16",
         "nostr-tools": "^2.23.3",
-        "officecli": "^0.2.79",
         "officeparser": "^7.0.2",
         "openai": "^5.12.2",
         "opusscript": "^0.1.1",
@@ -203,7 +203,6 @@
   "trustedDependencies": [
     "electron",
     "better-sqlite3",
-    "officecli",
   ],
   "patchedDependencies": {
     "@office-ai/aioncli-core@0.30.6": "patches/@office-ai%2Faioncli-core@0.30.6.patch",
@@ -3391,8 +3390,6 @@
     "obug": ["obug@2.1.1", "", {}, "sha512-uTqF9MuPraAQ+IsnPf366RG4cP9RtUi7MLO1N3KEc+wb0a6yKpeL0lmk2IB1jY5KHPAlTc6T/JRdC/YqxHNwkQ=="],
 
     "ofetch": ["ofetch@1.5.1", "", { "dependencies": { "destr": "^2.0.5", "node-fetch-native": "^1.6.7", "ufo": "^1.6.1" } }, "sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA=="],
-
-    "officecli": ["officecli@0.2.79", "", { "os": [ "linux", "win32", "darwin", ], "cpu": [ "x64", "arm64", ], "bin": { "officecli": "bin/officecli.js", "officecli-dev": "bin/officecli-dev.js" } }, "sha512-0yUdjxgpUsCD7WkxMD5IGW9uU01a9VjolKkZ62qZ1VIOVbzR4oXzRsK5ynVhOW0+Mhe6wfapMSSowaZ4MPQqSg=="],
 
     "officeparser": ["officeparser@7.0.2", "", { "dependencies": { "@xmldom/xmldom": "^0.9.10", "fflate": "^0.8.2", "file-type": "^22.0.1", "pdfjs-dist": "5.6.205", "tesseract.js": "^7.0.0" }, "bin": { "officeparser": "dist/cli.js" } }, "sha512-VgsixyIE8oBVXBoImBlXaRtKuZ/KEoZbJVygYAL05hxI0bUfD69JPa24rOy2SFovq59BhCpkt1gOLE9tqmxyqA=="],
 

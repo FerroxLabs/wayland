@@ -5,11 +5,11 @@
  */
 
 import { ForkTask } from '@process/worker/fork/ForkTask';
-import path from 'path';
 import type { IConfirmation } from '@/common/chat/chatLib';
 import type { AgentType, AgentStatus } from './agentTypes';
 import type { IAgentEventEmitter } from './IAgentEventEmitter';
 import type { IAgentManager } from './IAgentManager';
+import { resolveMainBundlePath } from '@process/utils/mainBundlePath';
 
 /**
  * @description Base class for agent tasks
@@ -40,7 +40,7 @@ class BaseAgentManager<Data, ConfirmationOption extends any = any>
 
   constructor(type: AgentType, data: Data, emitter: IAgentEventEmitter, enableFork = true) {
     super(
-      path.resolve(__dirname, type + '.js'),
+      resolveMainBundlePath(type + '.js'),
       {
         type: type,
         data: data,

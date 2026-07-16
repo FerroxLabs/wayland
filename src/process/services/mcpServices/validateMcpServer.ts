@@ -5,7 +5,8 @@
  */
 
 import type { IMcpServer } from '@/common/config/storage';
-import { canonicalMcpServerName } from '@/common/mcp';
+import { canonicalMcpServerName, configSafeMcpServerName } from '@/common/mcp';
+import { classifyMcpHttpUrl } from '@/common/mcp/mcpUrlSafety';
 
 /**
  * MCP server names that are interpolated into per-CLI agent commands must be a
@@ -29,7 +30,7 @@ const SAFE_MCP_NAME = /^[A-Za-z0-9_.-]+$/;
  * SAFE_MCP_NAME for any non-empty input.
  */
 export function sanitizeMcpServerName(name: string): string {
-  return name.replace(/[^A-Za-z0-9_.-]/g, '-');
+  return configSafeMcpServerName(name);
 }
 
 /**
@@ -59,16 +60,6 @@ export function cliSafeMcpServerName(name: string): string {
 const SAFE_ENV_KEY = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 /**
- * Cloud-metadata / internal-discovery hostnames that must never be reachable
- * via a renderer-supplied MCP URL. Covers AWS / GCP / Azure metadata services.
- * Compared case-insensitively against the parsed URL hostname.
- *
- * Mirrors (deliberately, not imported) the metadata-only blocklist used by the
- * modelBridge base_url SSRF guard so the two stay consistent without coupling.
- */
-const BLOCKED_METADATA_HOSTNAMES = new Set(['metadata.google.internal', 'metadata.goog', 'metadata']);
-
-/**
  * Return true if the string contains any C0 control char (0x00-0x1f), DEL
  * (0x7f), or a C1 control char (0x80-0x9f). Implemented via char codes rather
  * than a control-char regex literal so the source carries no raw control bytes.
@@ -81,64 +72,6 @@ function hasControlChar(value: string): boolean {
     }
   }
   return false;
-}
-
-/**
- * Strip IPv6 zone id and surrounding brackets so the address can be inspected.
- * `[fe80::1%25eth0]` -> `fe80::1`.
- */
-function normalizeIpv6Host(hostname: string): string {
-  let host = hostname;
-  if (host.startsWith('[') && host.endsWith(']')) {
-    host = host.slice(1, -1);
-  }
-  const zoneIdx = host.indexOf('%');
-  if (zoneIdx !== -1) {
-    host = host.slice(0, zoneIdx);
-  }
-  return host.toLowerCase();
-}
-
-/**
- * Return true if a bare IPv4 dotted-quad is in the blocked link-local /
- * metadata range `169.254.0.0/16` (incl. `169.254.169.254`). Loopback,
- * RFC1918/LAN and public addresses are intentionally NOT blocked so local MCP
- * servers keep working.
- */
-function isBlockedIpv4(addr: string): boolean {
-  return /^169\.254\.\d{1,3}\.\d{1,3}$/.test(addr);
-}
-
-/**
- * Decode an IPv4 address embedded in an IPv4-mapped / NAT64 IPv6 literal, if
- * present. Node's URL parser normalizes the dotted-quad tail to hex
- * (`[::ffff:169.254.169.254]` -> `::ffff:a9fe:a9fe`), so we accept both forms.
- *
- * @returns the embedded IPv4 dotted-quad, the `'mapped'` marker if a mapping
- *   prefix was present but the tail couldn't be decoded, or `null` otherwise.
- */
-function decodeEmbeddedIpv4(ipv6: string): string | 'mapped' | null {
-  let tail: string | null = null;
-  if (ipv6.startsWith('::ffff:')) {
-    tail = ipv6.slice('::ffff:'.length);
-  } else if (ipv6.startsWith('64:ff9b:1::')) {
-    tail = ipv6.slice('64:ff9b:1::'.length);
-  } else if (ipv6.startsWith('64:ff9b::')) {
-    tail = ipv6.slice('64:ff9b::'.length);
-  } else {
-    return null;
-  }
-
-  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(tail)) {
-    return tail;
-  }
-  const hextets = tail.split(':');
-  if (hextets.length === 2 && hextets.every((h) => /^[0-9a-f]{1,4}$/.test(h))) {
-    const hi = parseInt(hextets[0], 16);
-    const lo = parseInt(hextets[1], 16);
-    return `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
-  }
-  return 'mapped';
 }
 
 /**
@@ -157,45 +90,8 @@ function decodeEmbeddedIpv4(ipv6: string): string | 'mapped' | null {
  * @throws {Error} when the URL host is a blocked metadata / link-local target.
  */
 function assertSafeMcpUrl(serverName: string, url: URL): void {
-  const hostname = url.hostname.toLowerCase();
-
-  if (BLOCKED_METADATA_HOSTNAMES.has(hostname)) {
-    throw new Error(
-      `Invalid MCP server URL for "${serverName}": host "${url.hostname}" is a blocked metadata endpoint`
-    );
-  }
-
-  if (isBlockedIpv4(hostname)) {
-    throw new Error(
-      `Invalid MCP server URL for "${serverName}": host "${url.hostname}" is in the blocked link-local metadata range`
-    );
-  }
-
-  const ipv6 = normalizeIpv6Host(url.hostname);
-  if (ipv6.includes(':')) {
-    const firstHextet = ipv6.split(':')[0];
-    if (/^fe[89ab][0-9a-f]$/.test(firstHextet)) {
-      throw new Error(
-        `Invalid MCP server URL for "${serverName}": host "${url.hostname}" is an IPv6 link-local address`
-      );
-    }
-    if (ipv6 === 'fd00:ec2::254') {
-      throw new Error(
-        `Invalid MCP server URL for "${serverName}": host "${url.hostname}" is an IPv6 metadata endpoint`
-      );
-    }
-    const embedded = decodeEmbeddedIpv4(ipv6);
-    if (embedded !== null) {
-      if (embedded !== 'mapped' && isBlockedIpv4(embedded)) {
-        throw new Error(
-          `Invalid MCP server URL for "${serverName}": host "${url.hostname}" maps to blocked metadata address ${embedded}`
-        );
-      }
-      throw new Error(
-        `Invalid MCP server URL for "${serverName}": host "${url.hostname}" is an IPv4-mapped/translated IPv6 address`
-      );
-    }
-  }
+  const result = classifyMcpHttpUrl(url.toString());
+  if (result.safe === false) throw new Error(`Invalid MCP server URL for "${serverName}": ${result.detail}`);
 }
 
 /**

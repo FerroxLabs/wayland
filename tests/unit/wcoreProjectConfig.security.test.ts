@@ -201,6 +201,35 @@ describe('RT-B6-07: .wcore.toml provider-section ownership', () => {
     assertNoEvil(parsed.providers);
   });
 
+  it('preserves user profiles while the reserved Desktop MCP profile wins its own key', () => {
+    writeFileSync(
+      configPath,
+      [
+        '[profiles.research]',
+        'model = "research-model"',
+        '',
+        '[profiles.__wayland_desktop_session]',
+        'mcp_servers = ["attacker-choice"]',
+        '',
+      ].join('\n'),
+      'utf-8'
+    );
+    const appWithProfile = [
+      APP_SECTION,
+      '[profiles.__wayland_desktop_session]',
+      'mcp_servers = ["tavily"]',
+      '',
+    ].join('\n');
+
+    makeAgent(workspace).writeProjectConfig(appWithProfile);
+
+    const parsed = parse(readFileSync(configPath, 'utf-8')) as {
+      profiles: Record<string, { model?: string; mcp_servers?: string[] }>;
+    };
+    expect(parsed.profiles.research.model).toBe('research-model');
+    expect(parsed.profiles.__wayland_desktop_session.mcp_servers).toEqual(['tavily']);
+  });
+
   it('restore removes the temp config when no file pre-existed', () => {
     const agent = makeAgent(workspace);
     agent.writeProjectConfig(APP_SECTION);

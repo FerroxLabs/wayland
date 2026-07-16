@@ -23,6 +23,10 @@ export function initCronBridge(): void {
     return cronService.listJobs();
   });
 
+  ipcBridge.cron.listArchivedJobs.provider(async () => {
+    return cronService.listArchivedJobs();
+  });
+
   ipcBridge.cron.listJobsByConversation.provider(async ({ conversationId }) => {
     return cronService.listJobsByConversation(conversationId);
   });
@@ -41,7 +45,11 @@ export function initCronBridge(): void {
   });
 
   ipcBridge.cron.removeJob.provider(async ({ jobId }) => {
-    await cronService.removeJob(jobId);
+    return cronService.removeJob(jobId);
+  });
+
+  ipcBridge.cron.restoreArchivedJob.provider(async ({ archiveId }) => {
+    return cronService.restoreArchivedJob(archiveId);
   });
 
   ipcBridge.cron.runNow.provider(async ({ jobId }) => {

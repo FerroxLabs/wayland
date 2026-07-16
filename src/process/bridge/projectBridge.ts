@@ -14,6 +14,8 @@ import {
   listProjectReference,
   addProjectReference,
   removeProjectReference,
+  listArchivedProjectReferences,
+  restoreProjectReference,
   readProjectSummaries,
   writeProjectSummary,
   appendProjectDecision,
@@ -194,6 +196,16 @@ export function initProjectBridge(): void {
   ipcBridge.project.removeReference.provider(async ({ id, name }) => {
     const workspace = await requireWorkspace(id);
     return removeProjectReference(workspace, name);
+  });
+
+  ipcBridge.project.listArchivedReference.provider(async ({ id }) => {
+    const workspace = await requireWorkspace(id);
+    return listArchivedProjectReferences(workspace);
+  });
+
+  ipcBridge.project.restoreReference.provider(async ({ id, archiveId }) => {
+    const workspace = await requireWorkspace(id);
+    return restoreProjectReference(workspace, archiveId);
   });
 
   ipcBridge.project.readSummaries.provider(async ({ id }) => {

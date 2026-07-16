@@ -40,7 +40,7 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { spawn } from 'node:child_process';
 import { McpConfig } from '../session/McpConfig';
-import type { IMcpServer } from '@/common/config/storage';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
 
 /**
  * Temporary: backend-specific CLI login arguments.
@@ -213,29 +213,28 @@ export class AcpAgentV2 {
     // Load user-configured (builtin) MCP servers from settings, filtered by
     // cached agent MCP capabilities. Mirrors AcpAgent.loadBuiltinSessionMcpServers().
 
-    const rawMcpServers = await ProcessConfig.get('mcp.config');
-    if (Array.isArray(rawMcpServers) && rawMcpServers.length > 0) {
+    const rawMcpServers = await loadRuntimeMcpServers();
+    if (rawMcpServers.length > 0) {
       const cachedInit = await ProcessConfig.get('acp.cachedInitializeResult');
       const rawCaps = cachedInit?.[this.agentConfig.agentBackend]?.capabilities?.mcpCapabilities;
-      // Enable http/sse so hosted OAuth connectors (e.g. Notion) reach the
-      // session - agents advertise http:false by default, which dropped every
-      // hosted MCP and left it uncallable in chat. An agent that can't use an
-      // http session server simply ignores it.
-      const caps = { stdio: rawCaps?.stdio ?? true, http: true, sse: true };
+      // Honor the initialized agent's transport contract. ACP HTTP/SSE are
+      // opt-in; forcing them true creates configured-but-undiscoverable tools
+      // on agents that support only mandatory stdio.
+      const caps = McpConfig.resolveCapabilities(rawCaps);
       // Attach the CURRENT (refreshed) OAuth bearer so the session connects with
       // a live token rather than the stale one baked into the CLI/engine config
       // at sync time (the "401 invalid token" / silently-dropped-connector cause).
       // Dynamic import: pulling McpService at module-init would create an OAuth
       // init cycle (HybridTokenStorage TDZ); deferring it to call-time avoids that.
       // On failure fall back to the stored headers (no worse than before).
-      let freshened = rawMcpServers as IMcpServer[];
+      let freshened = rawMcpServers;
       try {
         const { mcpService } = await import('@process/services/mcpServices/McpService');
         freshened = await mcpService.attachOAuthTokens(freshened);
       } catch (err) {
         console.warn('[AcpAgentV2] attachOAuthTokens failed; using stored MCP headers:', err);
       }
-      const userServers = McpConfig.fromStorageConfig(freshened, caps);
+      const userServers = McpConfig.fromStorageConfig(freshened, caps, this.agentConfig.activeMcpServers);
       if (userServers.length > 0) {
         (this.agentConfig as { mcpServers?: McpServer[] }).mcpServers = [
           ...(this.agentConfig.mcpServers || []),

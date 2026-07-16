@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '@/common/types/preview';
+import { writeFileAtomic } from '../utils/atomicWrite';
 import { getSystemDir } from '../utils/initStorage';
 
 interface StoredSnapshot extends PreviewSnapshotInfo {
@@ -22,7 +23,6 @@ interface PreviewHistoryIndex {
 
 const HISTORY_FOLDER_NAME = 'preview-history';
 const INDEX_FILE_NAME = 'index.json';
-const MAX_VERSIONS_PER_TARGET = 50;
 
 // Manage preview panel snapshots: persistence, indexing and retrieval
 class PreviewHistoryService {
@@ -32,30 +32,9 @@ class PreviewHistoryService {
 
   // Ensure history directory exists
   private async ensureDir(targetDir: string): Promise<void> {
-    try {
-      await fs.mkdir(targetDir, { recursive: true });
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOTDIR') {
-        // A parent segment is a regular file blocking directory creation.
-        // Walk upward to find and remove the blocking file, then retry.
-        let current = targetDir;
-        while (current !== path.dirname(current)) {
-          try {
-            const stat = await fs.lstat(current);
-            if (stat.isFile()) {
-              await fs.unlink(current);
-              break;
-            }
-          } catch {
-            // Path doesn't exist, keep walking up
-          }
-          current = path.dirname(current);
-        }
-        await fs.mkdir(targetDir, { recursive: true });
-      } else {
-        throw error;
-      }
-    }
+    // A file blocking the cache directory is ambiguous state, not deletion
+    // authority. Fail closed and leave it untouched for diagnostics/recovery.
+    await fs.mkdir(targetDir, { recursive: true });
   }
 
   // Build stable identity & digest for indexing
@@ -87,12 +66,23 @@ class PreviewHistoryService {
     try {
       const content = await fs.readFile(indexPath, 'utf-8');
       const parsed = JSON.parse(content) as PreviewHistoryIndex;
-      // Backward compatibility for future schema changes
-      if (!Array.isArray(parsed.versions)) {
-        parsed.versions = [];
+      if (parsed.identity !== identity || !Array.isArray(parsed.versions)) {
+        throw new Error('PREVIEW_HISTORY_INDEX_INVALID');
+      }
+
+      for (const version of parsed.versions) {
+        if (!version || typeof version.id !== 'string' || typeof version.storagePath !== 'string') {
+          throw new Error('PREVIEW_HISTORY_INDEX_INVALID');
+        }
+        const resolved = path.resolve(this.getBaseDir(), version.storagePath);
+        const relative = path.relative(targetDir, resolved);
+        if (!relative || relative.startsWith('..') || path.isAbsolute(relative) || path.extname(resolved) !== '.md') {
+          throw new Error('PREVIEW_HISTORY_INDEX_PATH_INVALID');
+        }
       }
       return parsed;
     } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
       return {
         identity,
         target,
@@ -104,7 +94,7 @@ class PreviewHistoryService {
   // Persist in-memory index to disk
   private async writeIndex(targetDir: string, index: PreviewHistoryIndex): Promise<void> {
     const indexPath = path.join(targetDir, INDEX_FILE_NAME);
-    await fs.writeFile(indexPath, JSON.stringify(index, null, 2), 'utf-8');
+    await writeFileAtomic(indexPath, JSON.stringify(index, null, 2), 'utf-8');
   }
 
   private getSnapshotFileName(snapshotId: string): string {
@@ -145,7 +135,8 @@ class PreviewHistoryService {
     return index.versions.map((item) => this.normalizeSnapshot(item));
   }
 
-  // Save snapshot file and maintain bounded index
+  // Save snapshot file. History is user-visible and is never auto-pruned;
+  // storage management requires a separate visible quarantine/restore journey.
   public async save(target: PreviewHistoryTarget, content: string): Promise<PreviewSnapshotInfo> {
     const { identity, digest } = this.buildIdentity(target);
     const baseDir = this.getBaseDir();
@@ -170,15 +161,6 @@ class PreviewHistoryService {
     });
 
     index.versions.unshift(storedSnapshot);
-
-    // Limit number of snapshots per target
-    while (index.versions.length > MAX_VERSIONS_PER_TARGET) {
-      const removed = index.versions.pop();
-      if (removed) {
-        const obsoletePath = path.join(this.getBaseDir(), removed.storagePath);
-        void fs.rm(obsoletePath, { force: true }).catch((): void => undefined);
-      }
-    }
 
     await this.writeIndex(targetDir, index);
     return this.normalizeSnapshot(storedSnapshot);

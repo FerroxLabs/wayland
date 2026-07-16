@@ -147,7 +147,7 @@ class OpenClawAgentManager extends BaseAgentManager<OpenClawAgentManagerData> {
         options: Array<{ optionId: string; name: string; kind: string }>;
       };
 
-      // #671: trusted ("cowork") workspace auto-approves read/edit tools while
+      // #671: a trusted-edits workspace auto-approves read/edit tools while
       // still prompting on exec/network. Only the non-destructive, non-network raw
       // kinds read/search/edit auto-approve; everything else surfaces a
       // confirmation. Persisted per-workspace; keeps trust uniform across every

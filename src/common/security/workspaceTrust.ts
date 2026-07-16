@@ -5,31 +5,35 @@
  */
 
 /**
- * Per-workspace trust axis (#671, desktop half of #657).
+ * Per-workspace access axis (#671, desktop half of #657).
  *
- * A workspace is either 'chat' (gated — prompt on every tool) or 'cowork'
- * (trusted — auto-approve read/edit tools, STILL prompt on exec + network).
- * Persisted per workspace (survives restart). The composer Chat<->Cowork toggle
- * is the UI surface. This is an axis ORTHOGONAL to the per-agent permission mode
- * (default/acceptEdits/autopilot), not a new mode value.
+ * A workspace is either `ask` (prompt on every gated tool) or `trusted-edits`
+ * (auto-approve read/edit tools, STILL prompt on exec + network). This axis is
+ * orthogonal to the Cowork assistant and to per-agent permission modes.
  *
  * This module holds ONLY the pure decision logic + the level type, so both the
- * renderer (toggle) and every process-side approval gate share one source of
- * truth for what "trusted" means on each backend. The persisted store lives in
+ * renderer and every process-side approval gate share one source of truth for
+ * what "trusted edits" means on each backend. The persisted store lives in
  * the main process (`@process/permissions/workspaceTrust`).
+ *
+ * `chat` / `cowork` are accepted only as legacy serialized inputs. They must
+ * never be used as product-facing authority labels: selecting Cowork does not
+ * and must not widen workspace access.
  */
 
-export type WorkspaceTrustLevel = 'chat' | 'cowork';
+export type WorkspaceAccessLevel = 'ask' | 'trusted-edits';
+export type LegacyWorkspaceTrustLevel = 'chat' | 'cowork';
+export type WorkspaceAccessInput = WorkspaceAccessLevel | LegacyWorkspaceTrustLevel;
 
-export const DEFAULT_WORKSPACE_TRUST_LEVEL: WorkspaceTrustLevel = 'chat';
+export const DEFAULT_WORKSPACE_ACCESS_LEVEL: WorkspaceAccessLevel = 'ask';
 
 /**
  * Normalize an undefined/unknown persisted value to the fail-safe default.
- * An empty/uninitialized store therefore reads as 'chat' (prompt), never as
+ * An empty/uninitialized store therefore reads as `ask` (prompt), never as
  * trusted — the failure direction is always "prompt more", never "auto-approve".
  */
-export function coerceWorkspaceTrustLevel(value: unknown): WorkspaceTrustLevel {
-  return value === 'cowork' ? 'cowork' : DEFAULT_WORKSPACE_TRUST_LEVEL;
+export function coerceWorkspaceAccessLevel(value: unknown): WorkspaceAccessLevel {
+  return value === 'trusted-edits' || value === 'cowork' ? 'trusted-edits' : DEFAULT_WORKSPACE_ACCESS_LEVEL;
 }
 
 /**
@@ -50,7 +54,7 @@ export function coerceWorkspaceTrustLevel(value: unknown): WorkspaceTrustLevel {
 const TRUSTED_AUTO_APPROVE_ACP_KINDS: ReadonlySet<string> = new Set(['read', 'search', 'edit']);
 
 /**
- * True when a trusted (cowork) workspace should auto-approve this raw ACP tool
+ * True when a trusted-edits workspace should auto-approve this raw ACP tool
  * kind. Used by the ACP + OpenClaw manager gates.
  */
 export function trustedWorkspaceAutoApprovesAcpKind(kind: string | undefined | null): boolean {
@@ -58,7 +62,7 @@ export function trustedWorkspaceAutoApprovesAcpKind(kind: string | undefined | n
 }
 
 /**
- * True when a trusted (cowork) workspace should auto-approve this Gemini/WCore
+ * True when a trusted-edits workspace should auto-approve this Gemini/WCore
  * confirmation `type`. ONLY `'edit'` is auto-approved on these backends.
  *
  * `'info'` is deliberately NOT auto-approved: unlike the ACP `read` kind, the

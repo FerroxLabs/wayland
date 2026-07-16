@@ -9,7 +9,6 @@
  *
  * Null-safe Electron shim. Import ONLY from:
  *   - src/process/utils/tray.ts
- *   - src/process/services/conversionService.ts
  *   - src/common/platform/ElectronPlatformServices.ts (imports 'electron' directly, not this file)
  *
  * All other modules must use getPlatformServices() from '@/common/platform' instead.

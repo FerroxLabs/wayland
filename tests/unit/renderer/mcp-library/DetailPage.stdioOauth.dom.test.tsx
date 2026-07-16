@@ -26,7 +26,7 @@ const { handleAddMcpServer, handleToggleMcpServer, login, messageSuccess, messag
   vi.hoisted(() => ({
     handleAddMcpServer:
       vi.fn<(data: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IMcpServer | null>>(),
-    handleToggleMcpServer: vi.fn<(id: string, enabled: boolean) => Promise<void>>(),
+    handleToggleMcpServer: vi.fn<(id: string, enabled: boolean) => Promise<boolean>>(),
     login: vi.fn<(server: IMcpServer) => Promise<{ success: boolean; error?: string; code?: string }>>(),
     messageSuccess: vi.fn<(msg: string) => void>(),
     messageError: vi.fn<(msg: string) => void>(),
@@ -145,7 +145,7 @@ function renderDetail(entryId: string) {
 beforeEach(() => {
   hookState.mcpServers = [];
   handleAddMcpServer.mockReset();
-  handleToggleMcpServer.mockReset().mockResolvedValue(undefined);
+  handleToggleMcpServer.mockReset().mockResolvedValue(true);
   login.mockReset().mockResolvedValue({ success: true });
   messageSuccess.mockReset();
   messageError.mockReset();
@@ -208,7 +208,7 @@ test('stdio oauth2-byo: "Sign in" installs + connection-tests and NEVER calls lo
   );
   expect(testMcpConnection).toHaveBeenCalledTimes(1);
   expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_gws', true);
-  expect(messageSuccess).toHaveBeenCalled();
+  await waitFor(() => expect(messageSuccess).toHaveBeenCalled());
 });
 
 test('stdio oauth2-byo: a failed connection test does NOT enable the server and surfaces the error', async () => {
@@ -302,5 +302,5 @@ test('#438 apple FDA: "Done - verify access" installs + connection-tests (no lon
   expect(login).not.toHaveBeenCalled();
   expect(testMcpConnection).toHaveBeenCalledTimes(1);
   expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_apple', true);
-  expect(messageSuccess).toHaveBeenCalled();
+  await waitFor(() => expect(messageSuccess).toHaveBeenCalled());
 });

@@ -1,0 +1,94 @@
+{
+  "correlation": {
+    "backend_spawn_id": "spawn-terminal-failure",
+    "correlation_id": "corr-terminal-failure",
+    "desktop_task_id": "dt_terminal-failure",
+    "desktop_turn_id": "turn-terminal-failure",
+    "request_id": "req-terminal-failure"
+  },
+  "events": [
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-terminal-failure",
+        "correlation_id": "corr-terminal-failure",
+        "desktop_task_id": "dt_terminal-failure",
+        "desktop_turn_id": "turn-terminal-failure",
+        "request_id": "req-terminal-failure"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-terminal-failure-0",
+      "event_type": "route.selected",
+      "evidence": {
+        "flux_involved": true,
+        "precedence": "flux_auto",
+        "provider": "provider-a",
+        "requested_model": "flux-auto",
+        "reroute_allowed": true,
+        "route_mode": "flux_auto",
+        "selected_model": "routed-model-a"
+      },
+      "sequence": 0
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-terminal-failure",
+        "correlation_id": "corr-terminal-failure",
+        "desktop_task_id": "dt_terminal-failure",
+        "desktop_turn_id": "turn-terminal-failure",
+        "request_id": "req-terminal-failure"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-terminal-failure-1",
+      "event_type": "provider.attempt_started",
+      "evidence": {
+        "attempt_id": "attempt-failure-1",
+        "model": "routed-model-a",
+        "provider": "provider-a"
+      },
+      "sequence": 1
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-terminal-failure",
+        "correlation_id": "corr-terminal-failure",
+        "desktop_task_id": "dt_terminal-failure",
+        "desktop_turn_id": "turn-terminal-failure",
+        "request_id": "req-terminal-failure"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-terminal-failure-2",
+      "event_type": "provider.attempt_failed",
+      "evidence": {
+        "attempt_id": "attempt-failure-1",
+        "reason_code": "provider_5xx",
+        "retryable": false
+      },
+      "sequence": 2
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-terminal-failure",
+        "correlation_id": "corr-terminal-failure",
+        "desktop_task_id": "dt_terminal-failure",
+        "desktop_turn_id": "turn-terminal-failure",
+        "request_id": "req-terminal-failure"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-terminal-failure-3",
+      "event_type": "request.terminal",
+      "evidence": {
+        "attempt_id": "attempt-failure-1",
+        "outcome": "failure",
+        "reason_code": "attempts_exhausted"
+      },
+      "sequence": 3
+    }
+  ],
+  "expected_profile": "flux",
+  "fixture_version": 1,
+  "scenario": "terminal-failure"
+}

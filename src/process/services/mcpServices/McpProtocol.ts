@@ -12,7 +12,8 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import { getEnhancedEnv, normalizeNpxArgsForBundledBun, resolveNpxPath } from '@/process/utils/shellEnv';
+import { getEnhancedEnv, resolveNpxPath } from '@/process/utils/shellEnv';
+import { resolveMcpStdioSpawn } from './mcpStdioSpawn';
 import { getMcpScriptPath } from '@/process/utils/mcpScriptDir';
 import { resolveJsRuntime } from '@/process/utils/jsRuntime';
 import { isBuiltinWaylandMcpArg } from '@/process/resources/builtinMcp/constants';
@@ -231,17 +232,20 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
         ...(builtinRuntime ? builtinRuntime.env : {}),
       };
 
-      command = builtinRuntime
-        ? builtinRuntime.command
-        : transport.command === 'npx'
-          ? resolveNpxPath(enhancedEnv)
-          : transport.command;
+      // The probe and the live-session serializers MUST use the same runtime
+      // tuple. A previous local npx branch here diverged from session injection
+      // on macOS/Linux, allowing the Library to report green for bundled Bun
+      // while the chat later attempted a bare host `npx` from a different PATH.
+      const resolvedSpawn = resolveMcpStdioSpawn(
+        transport.command,
+        rawArgs,
+        () => resolveNpxPath(enhancedEnv)
+      );
 
+      command = builtinRuntime ? builtinRuntime.command : resolvedSpawn.command;
       args = isBuiltinWaylandMcp
         ? [getMcpScriptPath(rawArgs[0]), ...rawArgs.slice(1)]
-        : transport.command === 'npx'
-          ? ['x', '--bun', ...normalizeNpxArgsForBundledBun(rawArgs)]
-          : rawArgs;
+        : resolvedSpawn.args;
 
       const stdioTransport = new StdioClientTransport({
         command,

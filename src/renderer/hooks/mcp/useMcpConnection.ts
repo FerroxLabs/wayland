@@ -15,8 +15,9 @@ const truncateErrorMessage = (message: string, maxLength: number = 150): string 
 };
 
 /**
- * MCP connection-test management hook.
- * Handles MCP server connection tests and status updates.
+ * MCP standalone-probe management hook.
+ * A successful probe proves server reachability and tool discovery only. It
+ * never proves that an active chat session received or can invoke those tools.
  */
 export const useMcpConnection = (
   mcpServers: IMcpServer[],
@@ -70,7 +71,8 @@ export const useMcpConnection = (
           }
 
           if (result.success) {
-            // Update server status to connected and save fetched tool info.
+            // Persist the legacy `connected` value as probe-reachable and save
+            // the probe-reported inventory. Session receipts own chat readiness.
             // On success, do not modify the enabled field - let the user decide whether to install
             await updateServerStatus('connected', {
               tools: result.tools?.map((tool) => ({
@@ -82,10 +84,12 @@ export const useMcpConnection = (
               lastError: undefined,
             });
             await globalMessageQueue.add(() => {
-              message.success(`${server.name}: ${t('settings.mcpTestConnectionSuccess')}`);
+              message.success(
+                `${server.name}: ${t('settings.mcpProbeSuccess', 'Server probe succeeded; a new chat will verify its tools')}`
+              );
             });
 
-            // Connection test succeeded; no extra actions to perform
+            // Standalone probe succeeded; no session-readiness claim is made.
           } else {
             // Update server status to error and disable install.
             // On failure, automatically set enabled=false to avoid installing a broken service
@@ -127,10 +131,12 @@ export const useMcpConnection = (
   );
 
   // Passive, non-destructive status refresh. Probes the given ENABLED servers
-  // concurrently to populate live status + tool counts, then writes all results
+  // concurrently to populate probe status + probe-reported tool counts, then
+  // writes all results
   // in a SINGLE save. Unlike handleTestMcpConnection it does NOT toast and does
   // NOT auto-disable a server on failure (a transient probe must never silently
-  // turn off the user's MCP). Servers already `connected` and probed within
+  // turn off the user's MCP). Servers in the legacy `connected`
+  // (probe-reachable) state and probed within
   // STALE_MS are skipped unless `force` is set, so visiting the page does not
   // re-spawn every stdio server on each render.
   const refreshServerStatuses = useCallback(

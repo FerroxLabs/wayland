@@ -11,8 +11,8 @@
  * messages arrive as 'email.message' events.
  */
 
-import path from 'path';
 import { ForkTask } from '@process/worker/fork/ForkTask';
+import { resolveMainBundlePath } from '@process/utils/mainBundlePath';
 import type { IUnifiedIncomingMessage, IUnifiedOutgoingMessage } from '../../../types';
 import type { ResolvedCredentials } from './EmailImapShared';
 
@@ -20,9 +20,9 @@ type TestResult = { success: boolean; botUsername?: string; error?: string };
 
 export class EmailImapWorkerClient extends ForkTask<Record<string, never>> {
   constructor() {
-    // Worker entry is emitted alongside the main bundle in out/main/ (vite
-    // rollup input `emailImap`); __dirname resolves there at runtime.
-    super(path.resolve(__dirname, 'emailImap.js'), {}, true);
+    // Worker entry is emitted beside the main entry in out/main/. The caller
+    // itself may execute from out/main/chunks after bootstrap code splitting.
+    super(resolveMainBundlePath('emailImap.js'), {}, true);
   }
 
   /** Subscribe to inbound messages pushed up from the worker. */

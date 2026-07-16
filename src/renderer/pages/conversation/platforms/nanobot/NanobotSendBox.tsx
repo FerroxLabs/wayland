@@ -35,6 +35,7 @@ import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
 import { Tag } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 interface NanobotDraftData {
   _type: 'nanobot';
@@ -309,6 +310,8 @@ const NanobotSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id
 
     await executeCommand({ input: message, files: filePaths });
   };
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler);
 
   const handleEditQueuedCommand = useCallback(
     (item: ConversationCommandQueueItem) => {

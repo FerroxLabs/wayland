@@ -5,7 +5,7 @@
  *
  * Asserts the locked footer recipe:
  *   - not installed         -> Install affordance, no switch
- *   - installed + running   -> Switch (role=switch), no Install
+ *   - installed + reachable -> Switch (role=switch), no Install
  *   - installed + warn      -> Sign in affordance, no switch
  *   - installed + error     -> Reconnect affordance -> onReconnect(server)
  */
@@ -67,7 +67,7 @@ function makeActions(server: IMcpServer | undefined): McpCardActions {
 
 function renderCard(props: {
   installed: boolean;
-  status?: 'running' | 'warn' | 'error' | 'stopped';
+  status?: 'reachable' | 'warn' | 'error' | 'stopped';
   server?: IMcpServer;
   actions?: McpCardActions;
   onClick?: () => void;
@@ -97,8 +97,8 @@ test('not installed -> Install affordance present, no switch', () => {
   expect(screen.queryByRole('switch')).not.toBeInTheDocument();
 });
 
-test('installed + running -> switch present, no Install', () => {
-  renderCard({ installed: true, status: 'running', server: makeServer({ enabled: true }) });
+test('installed + reachable -> switch present, no Install', () => {
+  renderCard({ installed: true, status: 'reachable', server: makeServer({ enabled: true }) });
   expect(screen.getByRole('switch')).toBeInTheDocument();
   expect(screen.queryByText('Install')).not.toBeInTheDocument();
 });

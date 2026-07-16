@@ -6,6 +6,13 @@
 
 import { isCodexNoSandboxMode } from '@/common/types/codex/codexModes';
 import { FLUX_AUTO_MODEL, FLUX_MODEL_DISPLAY, FLUX_MODEL_IDS, FLUX_SURFACE } from '@/common/config/flux';
+import type { IMcpServer } from '@/common/config/storage';
+import {
+  canonicalMcpServerName,
+  codexMcpBearerEnvVar,
+  codexMcpHeaderEnvVar,
+  mcpServerCollisionKey,
+} from '@/common/mcp';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import { access, copyFile, mkdir, readFile, rm, symlink, writeFile } from 'fs/promises';
 import { homedir } from 'os';
@@ -22,6 +29,67 @@ async function pathExists(path: string): Promise<boolean> {
 }
 
 export type CodexSandboxMode = 'read-only' | 'workspace-write' | 'danger-full-access';
+
+export interface CodexMcpMaterializationOptions {
+  /** Stable conversation id; isolates simultaneous chats from config races. */
+  sessionId?: string;
+  /** Exact Wayland connector set authorized for this chat. */
+  selectedServers?: readonly IMcpServer[];
+  /** Every Wayland-managed connector name, including disabled/unselected ones. */
+  managedServerNames?: readonly string[];
+  /** Preserve native Codex MCP entries Wayland does not manage. */
+  preserveUnmanagedUserServers?: boolean;
+}
+
+function scopedCodexHome(userDataDir: string, legacyName: string, sessionId?: string): string {
+  if (!sessionId) return join(userDataDir, legacyName);
+  const safeSessionId = sessionId.replace(/[^A-Za-z0-9_-]/g, '-').slice(0, 128) || 'unknown-session';
+  return join(userDataDir, `${legacyName}s`, safeSessionId);
+}
+
+function bearerFromHeaders(headers?: Record<string, string>): string | null {
+  const authorization = Object.entries(headers ?? {}).find(([name]) => name.toLowerCase() === 'authorization')?.[1];
+  if (!authorization) return null;
+  const match = /^Bearer\s+(.+)$/i.exec(authorization.trim());
+  return match ? match[1] : null;
+}
+
+/** Translate a Wayland connector declaration into Codex's config.toml shape. */
+export function buildCodexMcpServerTable(servers: readonly IMcpServer[]): Record<string, Record<string, unknown>> {
+  const table: Record<string, Record<string, unknown>> = {};
+  for (const server of servers) {
+    const name = canonicalMcpServerName(server.name);
+    const transport = server.transport;
+    let entry: Record<string, unknown> | null = null;
+
+    if (transport.type === 'stdio') {
+      entry = {
+        command: transport.command,
+        ...(transport.args?.length ? { args: transport.args } : {}),
+        ...(transport.env && Object.keys(transport.env).length > 0 ? { env: transport.env } : {}),
+      };
+    } else if (transport.type === 'http' || transport.type === 'streamable_http') {
+      const bearer = bearerFromHeaders(transport.headers);
+      const envHttpHeaders = Object.fromEntries(
+        Object.keys(transport.headers ?? {})
+          .filter((header) => !(header.toLowerCase() === 'authorization' && bearer))
+          .map((header) => [header, codexMcpHeaderEnvVar(server.name, header)])
+      );
+      entry = {
+        url: transport.url,
+        ...(bearer ? { bearer_token_env_var: codexMcpBearerEnvVar(server.name) } : {}),
+        ...(Object.keys(envHttpHeaders).length > 0 ? { env_http_headers: envHttpHeaders } : {}),
+      };
+    }
+
+    // Codex has no native SSE declaration. Fail closed by omitting it rather
+    // than writing a config that appears installed but cannot start.
+    if (!entry) continue;
+    if (server.allowedTools !== undefined) entry.enabled_tools = [...server.allowedTools];
+    table[name] = entry;
+  }
+  return table;
+}
 
 const isWindowsStylePath = (value: string): boolean => /^[a-zA-Z]:[\\/]/.test(value) || value.startsWith('\\\\');
 
@@ -144,9 +212,10 @@ export async function materializeNativeCodexHome(
   userDataDir: string,
   sandboxMode: CodexSandboxMode = 'read-only',
   userConfigPath: string = getCodexConfigPath(),
-  userAuthPath: string = getUserCodexAuthPath()
+  userAuthPath: string = getUserCodexAuthPath(),
+  mcpOptions?: CodexMcpMaterializationOptions
 ): Promise<string> {
-  const codexHomeDir = join(userDataDir, 'codex-home');
+  const codexHomeDir = scopedCodexHome(userDataDir, 'codex-home', mcpOptions?.sessionId);
   const configPath = join(codexHomeDir, 'config.toml');
   const authPath = join(codexHomeDir, 'auth.json');
 
@@ -159,7 +228,25 @@ export async function materializeNativeCodexHome(
     userConfig = '';
   }
 
-  const content = setSandboxModeInConfig(userConfig, sandboxMode);
+  let content = setSandboxModeInConfig(userConfig, sandboxMode);
+  if (mcpOptions) {
+    const scopedMcpServers = await buildScopedCodexMcpTable(userConfigPath, mcpOptions);
+    try {
+      const parsed = (userConfig.trim() ? parseToml(userConfig) : {}) as Record<string, unknown>;
+      parsed.sandbox_mode = sandboxMode;
+      delete parsed.mcp_servers;
+      if (Object.keys(scopedMcpServers).length > 0) parsed.mcp_servers = scopedMcpServers;
+      content = stringifyToml(parsed);
+    } catch {
+      // An invalid user config should not cause Wayland to manufacture a
+      // partially-valid clone containing stale/global connectors. Start from
+      // the least-privileged minimal config and add only this chat's table.
+      content = `sandbox_mode = "${sandboxMode}"\n`;
+      if (Object.keys(scopedMcpServers).length > 0) {
+        content += `\n${stringifyToml({ mcp_servers: scopedMcpServers })}`;
+      }
+    }
+  }
 
   await mkdir(codexHomeDir, { recursive: true });
   await writeFile(configPath, content, 'utf8');
@@ -230,6 +317,18 @@ async function readUserCodexMcpServers(userConfigPath: string): Promise<Record<s
   return {};
 }
 
+async function buildScopedCodexMcpTable(
+  userConfigPath: string,
+  options: CodexMcpMaterializationOptions
+): Promise<Record<string, unknown>> {
+  const managedNames = new Set((options.managedServerNames ?? []).map(mcpServerCollisionKey));
+  const inherited = options.preserveUnmanagedUserServers ? await readUserCodexMcpServers(userConfigPath) : {};
+  const unmanaged = Object.fromEntries(
+    Object.entries(inherited).filter(([name]) => !managedNames.has(mcpServerCollisionKey(name)))
+  );
+  return { ...unmanaged, ...buildCodexMcpServerTable(options.selectedServers ?? []) };
+}
+
 const FLUX_CONTEXT_WINDOW = 200000;
 const FLUX_AUTO_COMPACT_TOKEN_LIMIT = 180000;
 
@@ -292,9 +391,10 @@ export async function materializeFluxCodexHome(
   baseURL: string = FLUX_SURFACE.responses,
   userConfigPath: string = getCodexConfigPath(),
   /** Per-conversation reasoning effort. When set, written as `model_reasoning_effort`. */
-  effort?: 'low' | 'medium' | 'high'
+  effort?: 'low' | 'medium' | 'high',
+  mcpOptions?: CodexMcpMaterializationOptions
 ): Promise<string> {
-  const codexHomeDir = join(userDataDir, 'flux-codex-home');
+  const codexHomeDir = scopedCodexHome(userDataDir, 'flux-codex-home', mcpOptions?.sessionId);
   const configPath = join(codexHomeDir, 'config.toml');
   const catalogPath = join(codexHomeDir, 'flux-model-catalog.json');
   let content = [
@@ -325,7 +425,9 @@ export async function materializeFluxCodexHome(
   // #56: carry the user's MCP servers into the scoped home so flux-routed codex
   // keeps its tools. Appended (the flux block above is byte-identical to before),
   // library-serialized from the user's own table - so Flux routing cannot regress.
-  const mcpServers = await readUserCodexMcpServers(userConfigPath);
+  const mcpServers = mcpOptions
+    ? await buildScopedCodexMcpTable(userConfigPath, mcpOptions)
+    : await readUserCodexMcpServers(userConfigPath);
   if (Object.keys(mcpServers).length > 0) {
     content += `${stringifyToml({ mcp_servers: mcpServers })}\n`;
   }

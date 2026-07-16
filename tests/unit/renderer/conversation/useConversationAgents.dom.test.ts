@@ -151,7 +151,7 @@ describe('useConversationAgents', () => {
       expect(result.current.presetAssistants[0].backend).toBe('claude');
     });
 
-    it('defaults backend to "gemini" when presetAgentType is undefined', async () => {
+    it('defaults backend to bundled Core when presetAgentType is undefined', async () => {
       setupMocks([makePresetConfig({ id: 'p2', name: 'Default Backend' })]);
 
       const { result } = renderHook(() => useConversationAgents());
@@ -160,10 +160,10 @@ describe('useConversationAgents', () => {
         expect(result.current.presetAssistants.length).toBe(1);
       });
 
-      expect(result.current.presetAssistants[0].backend).toBe('gemini');
+      expect(result.current.presetAssistants[0].backend).toBe('wcore');
     });
 
-    it('defaults backend to "gemini" when presetAgentType is empty string', async () => {
+    it('defaults backend to bundled Core when presetAgentType is empty string', async () => {
       setupMocks([makePresetConfig({ id: 'p3', name: 'Empty Type', presetAgentType: '' })]);
 
       const { result } = renderHook(() => useConversationAgents());
@@ -172,8 +172,8 @@ describe('useConversationAgents', () => {
         expect(result.current.presetAssistants.length).toBe(1);
       });
 
-      // Empty string is falsy, so fallback to 'gemini'
-      expect(result.current.presetAssistants[0].backend).toBe('gemini');
+      // Empty strings are not provider choices, so use the shared first-use default.
+      expect(result.current.presetAssistants[0].backend).toBe('wcore');
     });
 
     it('sets isPreset to true for all preset assistants', async () => {

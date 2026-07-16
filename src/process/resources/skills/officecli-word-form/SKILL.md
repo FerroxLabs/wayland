@@ -7,31 +7,9 @@ description: "Use this skill to create fillable Word forms (.docx) with real Con
 
 **This skill is INDEPENDENT, not a scene layer on docx.** A form's payload - `<w:sdt>` controls, `<w:ffData>` legacy fields, `<w:fldChar>` mail-merge, `documentProtection` - is a distinct element class from docx's paragraph/heading/style primitives. Its QA is different too: docx's Delivery Gate cares about visual layout and live PAGE fields, this skill's cares about data plumbing (protection enforced / alias+tag / items injected / name ≤ 20 / no underscore anti-pattern). **Reverse handoff:** if the user's document has no fillable fields (report, letter, memo, thesis, proposal), route to `officecli-docx` or a docx scene skill - don't use this one.
 
-## BEFORE YOU START (CRITICAL)
+## Runtime contract (critical)
 
-**If `officecli` is not installed:**
-
-`macOS / Linux`
-
-```bash
-if ! command -v officecli >/dev/null 2>&1; then
-    curl -fsSL https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.sh | bash
-fi
-```
-
-`Windows (PowerShell)`
-
-```powershell
-if (-not (Get-Command officecli -ErrorAction SilentlyContinue)) {
-    irm https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.ps1 | iex
-}
-```
-
-Verify: `officecli --version`
-
-If `officecli` is still not found after first install, open a new terminal and run the verify command again.
-
-If the install command above fails (e.g. blocked by security policy, no network access, or insufficient permissions), install manually - download the binary for your platform from https://github.com/iOfficeAI/OfficeCLI/releases - then re-run the verify command.
+Wayland Desktop supplies a checksum-pinned native `officecli` runtime. Do not install, update, download, or replace it from this skill. Run `officecli --version`; native authoring requires the exact verified `1.0.136` version. Verify the required form elements with `officecli help docx`. If either check fails, stop and use Wayland's reinstall/update recovery path. Never bootstrap mutable code or silently switch to hosted-credit generation.
 
 ## Help-First Rule
 

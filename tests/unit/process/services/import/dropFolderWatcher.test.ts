@@ -51,7 +51,7 @@ describe('runDropFolderProcess', () => {
     expect(fs.existsSync(memDir)).toBe(true);
   });
 
-  it('ingests .md files and removes originals', async () => {
+  it('ingests .md files and archives the exact original under .processed', async () => {
     const dropFolder = makeTmp();
     tmpDirs.push(dropFolder);
     const memDir = makeTmp();
@@ -68,8 +68,14 @@ describe('runDropFolderProcess', () => {
     expect(result.count).toBe(1);
     expect(result.errors).toHaveLength(0);
 
-    // Original should be removed.
+    // The inbox name is cleared, but the exact source remains recoverable.
     expect(fs.existsSync(path.join(dropFolder, 'note.md'))).toBe(false);
+    const processedFiles = fs.readdirSync(path.join(dropFolder, '.processed'));
+    expect(processedFiles).toHaveLength(1);
+    expect(processedFiles[0]).toMatch(/-note\.md$/);
+    expect(fs.readFileSync(path.join(dropFolder, '.processed', processedFiles[0]), 'utf8')).toBe(
+      '# Dropped Note\nSome content.'
+    );
 
     // A file should appear in memory dir.
     const memFiles = fs.readdirSync(memDir);
@@ -191,7 +197,9 @@ describe('startDropFolderWatcher', () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(ingested).toContain('watch-note.md');
-    // Original should have been consumed.
+    // Inbox name is consumed while the original remains in the processed archive.
     expect(fs.existsSync(path.join(dropFolder, 'watch-note.md'))).toBe(false);
+    const processedFiles = fs.readdirSync(path.join(dropFolder, '.processed'));
+    expect(processedFiles.some((name) => name.endsWith('-watch-note.md'))).toBe(true);
   }, 10000);
 });

@@ -3,6 +3,7 @@ import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
 import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
+import { isServerActiveForSession } from '@process/agent/acp/mcpSessionConfig';
 
 type MergeParams = {
   userServers?: McpServer[];
@@ -25,6 +26,19 @@ function toNameValueArray(source?: Record<string, string>): Array<{ name: string
 
 // eslint-disable-next-line typescript-eslint/no-extraneous-class -- Static utility class matches project pattern
 export class McpConfig {
+  /**
+   * Resolve the transport contract advertised by an initialized ACP agent.
+   * Stdio is the ACP baseline; HTTP and SSE are opt-in capabilities and must
+   * never be manufactured by the Desktop host.
+   */
+  static resolveCapabilities(capabilities?: AcpMcpCapabilities): AcpMcpCapabilities {
+    return {
+      stdio: capabilities?.stdio ?? true,
+      http: capabilities?.http ?? false,
+      sse: capabilities?.sse ?? false,
+    };
+  }
+
   static merge(params: MergeParams): McpServer[] {
     const { userServers = [], presetServers = [], teamServer } = params;
     const merged = new Map<string, McpServer>();
@@ -46,7 +60,11 @@ export class McpConfig {
    * @param capabilities  Agent MCP capabilities (from cached init result).
    *                      Defaults to stdio-only when not available.
    */
-  static fromStorageConfig(servers: IMcpServer[], capabilities?: AcpMcpCapabilities): McpServer[] {
+  static fromStorageConfig(
+    servers: IMcpServer[],
+    capabilities?: AcpMcpCapabilities,
+    activeServerIds?: readonly string[]
+  ): McpServer[] {
     const caps = capabilities ?? DEFAULT_MCP_CAPABILITIES;
 
     return servers
@@ -62,12 +80,15 @@ export class McpConfig {
           s.enabled &&
           (s.status === undefined || s.status === 'connected')
       )
+      // This is an authority boundary, not a display preference. Builtins stay
+      // available; user connectors must match this conversation's selection.
+      .filter((server) => isServerActiveForSession(server, activeServerIds))
       .map((server): McpServer | null => {
         switch (server.transport.type) {
           case 'stdio': {
             if (!caps.stdio) return null;
-            // #827: resolve `npx`→bundled Bun so the ACP agent CLI spawns a
-            // real command in the live session (green-but-no-tools on Windows).
+            // Use the same bundled-Bun tuple as the Library probe so the live
+            // ACP session does not reintroduce a host `npx`/PATH dependency.
             const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
             return {
               name: server.name,

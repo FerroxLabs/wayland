@@ -1,0 +1,51 @@
+{
+  "correlation": {
+    "backend_spawn_id": "spawn-disconnected",
+    "correlation_id": "corr-disconnected",
+    "desktop_task_id": "dt_disconnected",
+    "desktop_turn_id": "turn-disconnected",
+    "request_id": "req-disconnected"
+  },
+  "events": [
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-disconnected",
+        "correlation_id": "corr-disconnected",
+        "desktop_task_id": "dt_disconnected",
+        "desktop_turn_id": "turn-disconnected",
+        "request_id": "req-disconnected"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-disconnected-0",
+      "event_type": "connection.unavailable",
+      "evidence": {
+        "credential_state": "unknown",
+        "reason_code": "disconnected"
+      },
+      "sequence": 0
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-disconnected",
+        "correlation_id": "corr-disconnected",
+        "desktop_task_id": "dt_disconnected",
+        "desktop_turn_id": "turn-disconnected",
+        "request_id": "req-disconnected"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-disconnected-1",
+      "event_type": "request.terminal",
+      "evidence": {
+        "attempt_id": null,
+        "outcome": "failure",
+        "reason_code": "disconnected"
+      },
+      "sequence": 1
+    }
+  ],
+  "expected_profile": "no_flux",
+  "fixture_version": 1,
+  "scenario": "disconnected"
+}

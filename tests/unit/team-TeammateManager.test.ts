@@ -1022,21 +1022,21 @@ describe('TeammateManager', () => {
   });
 
   // -------------------------------------------------------------------------
-  // token_usage snapshot-diff accounting (DESK-1, supersedes R1 N-count fix)
+  // ACP cost accounting without manufacturing token spend (DESK-1)
   // -------------------------------------------------------------------------
 
-  describe('acp_context_usage token_usage delta', () => {
+  describe('acp_context_usage cost delta', () => {
     type TokenRow = { eventType?: string; payload: Record<string, unknown> };
     const tokenRowsOf = (append: ReturnType<typeof vi.fn>): TokenRow[] =>
       append.mock.calls.map((c) => c[0] as TokenRow).filter((e) => e.eventType === 'token_usage');
 
-    it('writes the raw cumulative snapshot AND per-event tokens_delta on each row', () => {
+    it('does not convert changing context occupancy into token usage rows', () => {
       const append = vi.fn().mockResolvedValue(undefined);
       const eventLogger = { append } as unknown;
       const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
       const { mgr } = makeTeammateManager([agent], { eventLogger });
 
-      // ACP re-emits a CUMULATIVE gauge: 100, then 250, then 400.
+      // ACP `used` is current context occupancy, not processed-token spend.
       for (const used of [100, 250, 400]) {
         teamEventBus.emit('responseStream', {
           type: 'acp_context_usage',
@@ -1046,20 +1046,46 @@ describe('TeammateManager', () => {
         });
       }
 
-      const tokenRows = tokenRowsOf(append);
-      // Raw snapshot fields stay cumulative (back-compat W1e shape) ...
-      expect(tokenRows.map((r) => r.payload.total_tokens)).toEqual([100, 250, 400]);
-      expect(tokenRows.map((r) => r.payload.prompt_tokens)).toEqual([100, 250, 400]);
-      // ... while the deltas are per-event spend: 100, 150, 150 - the ONLY
-      // fields the meter sums (total 400, NOT the N-counted 750).
-      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([100, 150, 150]);
-      const summed = tokenRows.reduce((acc, r) => acc + (r.payload.tokens_delta as number), 0);
-      expect(summed).toBe(400);
+      expect(tokenRowsOf(append)).toEqual([]);
 
       mgr.dispose();
     });
 
-    it('keeps per-conversation baselines independent and clamps a dropped gauge to a 0 delta', () => {
+    it('records only cumulative USD cost deltas and preserves occupancy as context telemetry', () => {
+      const append = vi.fn().mockResolvedValue(undefined);
+      const eventLogger = { append } as unknown;
+      const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
+      const { mgr } = makeTeammateManager([agent], { eventLogger });
+
+      for (const [used, cost] of [
+        [100, 0.1],
+        [250, 0.25],
+        [400, 0.4],
+      ]) {
+        teamEventBus.emit('responseStream', {
+          type: 'acp_context_usage',
+          conversation_id: 'conv-1',
+          msg_id: 'm',
+          data: { used, size: 200000, cost: { amount: cost, currency: 'USD' } },
+        });
+      }
+
+      const tokenRows = tokenRowsOf(append);
+      expect(tokenRows.map((r) => r.payload.context_tokens_used)).toEqual([100, 250, 400]);
+      expect(tokenRows.map((r) => r.payload.total_tokens)).toEqual([0, 0, 0]);
+      expect(tokenRows.map((r) => r.payload.prompt_tokens)).toEqual([0, 0, 0]);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([0, 0, 0]);
+      expect(tokenRows.map((r) => r.payload.cost_delta as number)).toEqual([
+        0.1,
+        0.15,
+        0.15000000000000002,
+      ]);
+      expect(tokenRows.every((r) => r.payload.usage_semantics === 'acp_context_occupancy')).toBe(true);
+
+      mgr.dispose();
+    });
+
+    it('keeps cumulative cost baselines independent per conversation', () => {
       const append = vi.fn().mockResolvedValue(undefined);
       const eventLogger = { append } as unknown;
       const agents = [
@@ -1072,55 +1098,57 @@ describe('TeammateManager', () => {
         type: 'acp_context_usage',
         conversation_id: 'conv-1',
         msg_id: 'm',
-        data: { used: 500 },
+        data: { used: 500, cost: { amount: 0.5, currency: 'USD' } },
       });
-      // conv-2 is tracked on its own baseline (delta 300, not 300-500).
+      // conv-2 is tracked on its own baseline (0.3, not 0.3-0.5).
       teamEventBus.emit('responseStream', {
         type: 'acp_context_usage',
         conversation_id: 'conv-2',
         msg_id: 'm',
-        data: { used: 300 },
+        data: { used: 300, cost: { amount: 0.3, currency: 'USD' } },
       });
-      // A dropped gauge on conv-1 (compaction/reset) clamps to a 0 delta and
-      // therefore writes no row.
+      // A reset cost gauge contributes zero and writes no additional row.
       teamEventBus.emit('responseStream', {
         type: 'acp_context_usage',
         conversation_id: 'conv-1',
         msg_id: 'm',
-        data: { used: 200 },
+        data: { used: 200, cost: { amount: 0.1, currency: 'USD' } },
       });
 
       const tokenRows = tokenRowsOf(append);
-      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 300]);
+      expect(tokenRows.map((r) => r.payload.cost_delta)).toEqual([0.5, 0.3]);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([0, 0]);
 
       mgr.dispose();
     });
 
-    it('counts growth after a compaction drop from the new lower baseline', () => {
+    it('tracks cost growth after a reset from the new lower baseline', () => {
       const append = vi.fn().mockResolvedValue(undefined);
       const eventLogger = { append } as unknown;
       const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
       const { mgr } = makeTeammateManager([agent], { eventLogger });
 
-      // 500 -> compaction drop to 200 (delta 0, no row) -> grow to 350.
-      // The post-drop growth (150) is real new spend and must be counted - a
-      // high-water baseline would wrongly swallow it until 500 was passed.
-      for (const used of [500, 200, 350]) {
+      for (const [used, cost] of [
+        [500, 0.5],
+        [200, 0.2],
+        [350, 0.35],
+      ]) {
         teamEventBus.emit('responseStream', {
           type: 'acp_context_usage',
           conversation_id: 'conv-1',
           msg_id: 'm',
-          data: { used },
+          data: { used, cost: { amount: cost, currency: 'USD' } },
         });
       }
 
       const tokenRows = tokenRowsOf(append);
-      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 150]);
+      expect(tokenRows.map((r) => r.payload.cost_delta as number)).toEqual([0.5, 0.14999999999999997]);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([0, 0]);
 
       mgr.dispose();
     });
 
-    it('resets the baseline when the agent process is killed so a fresh session counts fully', () => {
+    it('resets the cost baseline when the agent process is killed', () => {
       const append = vi.fn().mockResolvedValue(undefined);
       const eventLogger = { append } as unknown;
       const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
@@ -1130,42 +1158,67 @@ describe('TeammateManager', () => {
         type: 'acp_context_usage',
         conversation_id: 'conv-1',
         msg_id: 'm',
-        data: { used: 500 },
+        data: { used: 500, cost: { amount: 0.5, currency: 'USD' } },
       });
 
-      // Session restart reuses the conversationId; without the reset the new
-      // session's first snapshot (300) would be misread as a drop (delta 0).
+      // Session restart reuses the conversationId; its new cumulative cost
+      // gauge must start from zero rather than inherit the previous process.
       mgr.killAgentProcess('slot-1');
 
       teamEventBus.emit('responseStream', {
         type: 'acp_context_usage',
         conversation_id: 'conv-1',
         msg_id: 'm',
-        data: { used: 300 },
+        data: { used: 300, cost: { amount: 0.3, currency: 'USD' } },
       });
 
       const tokenRows = tokenRowsOf(append);
-      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 300]);
+      expect(tokenRows.map((r) => r.payload.cost_delta)).toEqual([0.5, 0.3]);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([0, 0]);
+
+      mgr.dispose();
+    });
+
+    it('rejects non-USD and invalid cost values without inventing spend', () => {
+      const append = vi.fn().mockResolvedValue(undefined);
+      const eventLogger = { append } as unknown;
+      const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
+      const { mgr } = makeTeammateManager([agent], { eventLogger });
+
+      for (const cost of [
+        { amount: 4, currency: 'EUR' },
+        { amount: Number.NaN, currency: 'USD' },
+        { amount: -1, currency: 'USD' },
+      ]) {
+        teamEventBus.emit('responseStream', {
+          type: 'acp_context_usage',
+          conversation_id: 'conv-1',
+          msg_id: 'm',
+          data: { used: 100, cost },
+        });
+      }
+
+      expect(tokenRowsOf(append)).toEqual([]);
 
       mgr.dispose();
     });
   });
 
   // -------------------------------------------------------------------------
-  // computeUsageDelta - pure snapshot-diff semantics (DESK-1)
+  // computeUsageDelta - ACP context occupancy never becomes token spend
   // -------------------------------------------------------------------------
 
   describe('computeUsageDelta', () => {
-    it('counts the full snapshot when there is no previous snapshot (fresh session)', () => {
+    it('counts first cumulative cost but never context occupancy as tokens', () => {
       expect(computeUsageDelta(undefined, { used: 1234, cost: 0.5 })).toEqual({
-        tokensDelta: 1234,
+        tokensDelta: 0,
         costDelta: 0.5,
       });
     });
 
-    it('returns the growth when the gauge grew', () => {
+    it('returns cost growth while ignoring occupancy growth', () => {
       const delta = computeUsageDelta({ used: 100, cost: 0.1 }, { used: 250, cost: 0.35 });
-      expect(delta.tokensDelta).toBe(150);
+      expect(delta.tokensDelta).toBe(0);
       expect(delta.costDelta).toBeCloseTo(0.25, 10);
     });
 

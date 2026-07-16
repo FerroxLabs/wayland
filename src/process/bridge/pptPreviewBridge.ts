@@ -223,10 +223,8 @@ async function startWatch(filePath: string, retry = false): Promise<string> {
       console.error('[pptPreview] spawn error:', err.message);
       sessions.delete(sessionKey);
       if ((err as NodeJS.ErrnoException).code === 'ENOENT' && !retry) {
-        // officecli not found (bundled binary unresolvable) - offer a
-        // consent-gated, pinned, checksum-verified install, then retry once.
-        // Clear the timeout before the potentially long install + retry; the
-        // install path drives its own resolve/reject on the outer promise.
+        // A missing verified bundle is a release defect. The recovery boundary
+        // fails closed (no moving runtime download) and reports a repair path.
         clearTimeout(timeout);
         settled = true;
         installOfficecli((payload) => ipcBridge.pptPreview.status.emit(payload))
@@ -234,7 +232,7 @@ async function startWatch(filePath: string, retry = false): Promise<string> {
             if (installed) {
               startWatch(filePath, true).then(resolve, reject);
             } else {
-              reject(new Error('officecli is not installed and auto-install was declined or failed'));
+              reject(new Error('The verified OfficeCLI runtime is missing; reinstall or update Wayland'));
             }
           })
           .catch(reject);

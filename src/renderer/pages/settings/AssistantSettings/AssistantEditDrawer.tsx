@@ -3,7 +3,6 @@
  * Contains name/avatar fields, agent selector, rules editor, and skills section.
  */
 import { Bot, Plus, Trash2, X } from 'lucide-react';
-import type { AssistantListItem, BuiltinAutoSkill, SkillInfo } from './types';
 import type {
   AvailableBackend,
   UseAssistantEditorReturn,
@@ -206,13 +205,11 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
           </div>
           {!isCreating && !activeAssistant?.isBuiltin && !isExtensionAssistant(activeAssistant) && (
             <Button
-              status='danger'
               onClick={handleDeleteClick}
               data-testid='btn-delete-assistant'
               className='rounded-[100px]'
-              style={{ backgroundColor: 'rgb(var(--danger-1))' }}
             >
-              {t('common.delete', { defaultValue: 'Delete' })}
+              {t('settings.archiveAssistant', { defaultValue: 'Archive' })}
             </Button>
           )}
         </div>

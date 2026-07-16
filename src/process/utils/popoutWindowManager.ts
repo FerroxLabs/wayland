@@ -38,6 +38,7 @@ import fs from 'node:fs';
 import { app, BrowserWindow, screen } from 'electron';
 import { ipcBridge } from '@/common';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { resolveMainBundlePath } from '@process/utils/mainBundlePath';
 import { initMainAdapterWithWindow } from '@/common/adapter/main';
 import { resolvePopoutAction, resolvePopoutBounds, type PopoutBounds } from '@process/utils/popoutBounds';
 import {
@@ -203,7 +204,7 @@ async function openPopout(opts: {
       ? { titleBarStyle: 'hidden' as const, trafficLightPosition: { x: 10, y: 13 } }
       : { frame: false }),
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: resolveMainBundlePath('../preload/index.js'),
       sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
@@ -275,7 +276,7 @@ function loadPopoutContent(win: BrowserWindow, deepLink: string, loadFileHash: s
       console.error('[Popout] loadURL failed:', error);
     });
   } else {
-    const fallbackFile = path.join(__dirname, '../renderer/index.html');
+    const fallbackFile = resolveMainBundlePath('../renderer/index.html');
     win.loadFile(fallbackFile, { hash: loadFileHash }).catch((error) => {
       console.error('[Popout] loadFile failed:', error);
     });

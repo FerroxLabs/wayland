@@ -4,11 +4,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const { mockCronService, mockWriteRawCronSkillFile, mockHasCronSkillFile } = vi.hoisted(() => ({
   mockCronService: {
     listJobs: vi.fn(),
+    listArchivedJobs: vi.fn(),
     listJobsByConversation: vi.fn(),
     getJob: vi.fn(),
     addJob: vi.fn(),
     updateJob: vi.fn(),
     removeJob: vi.fn(),
+    restoreArchivedJob: vi.fn(),
     runNow: vi.fn(),
   },
   mockWriteRawCronSkillFile: vi.fn(),
@@ -104,6 +106,17 @@ describe('cronBridge', () => {
       const result = await handler!();
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('listArchivedJobs', () => {
+    it('should delegate to cronService.listArchivedJobs', async () => {
+      const archives = [{ archiveId: 'archive-1' }];
+      mockCronService.listArchivedJobs.mockResolvedValue(archives);
+
+      const handler = providerMap.get('cron.listArchivedJobs');
+      expect(await handler!()).toEqual(archives);
+      expect(mockCronService.listArchivedJobs).toHaveBeenCalled();
     });
   });
 
@@ -247,12 +260,27 @@ describe('cronBridge', () => {
 
   describe('removeJob', () => {
     it('should delegate to cronService.removeJob with jobId', async () => {
-      mockCronService.removeJob.mockResolvedValue(undefined);
+      const archive = { archiveId: 'archive-1' };
+      mockCronService.removeJob.mockResolvedValue(archive);
 
       const handler = providerMap.get('cron.removeJob');
-      await handler!({ jobId: 'job-1' });
+      const result = await handler!({ jobId: 'job-1' });
 
       expect(mockCronService.removeJob).toHaveBeenCalledWith('job-1');
+      expect(result).toEqual(archive);
+    });
+  });
+
+  describe('restoreArchivedJob', () => {
+    it('should delegate to cronService.restoreArchivedJob with archiveId', async () => {
+      const restored = { id: 'job-1', enabled: false };
+      mockCronService.restoreArchivedJob.mockResolvedValue(restored);
+
+      const handler = providerMap.get('cron.restoreArchivedJob');
+      const result = await handler!({ archiveId: 'archive-1' });
+
+      expect(mockCronService.restoreArchivedJob).toHaveBeenCalledWith('archive-1');
+      expect(result).toEqual(restored);
     });
   });
 
@@ -322,11 +350,13 @@ describe('cronBridge', () => {
     it('should register all expected IPC providers', () => {
       const expectedProviders = [
         'cron.listJobs',
+        'cron.listArchivedJobs',
         'cron.listJobsByConversation',
         'cron.getJob',
         'cron.addJob',
         'cron.updateJob',
         'cron.removeJob',
+        'cron.restoreArchivedJob',
         'cron.runNow',
         'cron.saveSkill',
         'cron.hasSkill',

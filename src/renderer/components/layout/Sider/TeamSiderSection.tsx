@@ -101,7 +101,7 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
       setDeleteTarget(null);
     } catch (err) {
       console.error('Failed to delete team:', err);
-      Message.error(t('team.sider.delete'));
+      Message.error(err instanceof Error ? err.message : t('team.sider.delete'));
     } finally {
       setDeleteLoading(false);
     }

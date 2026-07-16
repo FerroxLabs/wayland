@@ -110,6 +110,10 @@ files:
 extraResources:
   - from: public
     to: .
+  # Redistribution notices for bundled Apache/MIT components, including the
+  # pinned native OfficeCLI runtime.
+  - from: notices
+    to: notices
   - from: resources/app.png
     to: app.png
   - from: resources/bundled-bun
@@ -117,6 +121,18 @@ extraResources:
   # aionrs binary (pre-compiled per platform/arch)
   - from: resources/bundled-wayland-core
     to: bundled-wayland-core
+  # Native OfficeCLI v1 authoring runtime. Prepared from an exact release asset
+  # and SHA-256 verified before packaging. No hosted npm fallback is bundled.
+  - from: resources/bundled-officecli
+    to: bundled-officecli
+  # Exact Windows NSIS extractors used only to materialize the separately
+  # SHA-256-pinned Classic v0.11.8 recovery executable. Runtime verifies these
+  # bytes again before use; both architectures are bundled on every target so
+  # post-pack verification cannot silently skip a recovery dependency.
+  - from: node_modules/7zip-bin/win/arm64/7za.exe
+    to: classic-recovery-tools/win/arm64/7za.exe
+  - from: node_modules/7zip-bin/win/x64/7za.exe
+    to: classic-recovery-tools/win/x64/7za.exe
   - from: resources/hub
     to: hub
   # Skills library + Wayland built-in workflows: shipped as real on-disk
@@ -214,6 +230,15 @@ mac:
   gatekeeperAssess: false
   entitlements: entitlements.plist
   entitlementsInherit: entitlements.plist
+  # Preserve the exact independently pinned nested executable bytes. OfficeCLI
+  # is already Developer ID signed by its publisher. The released wayland-core
+  # binary is linker-signed. Re-signing either with Electron helper entitlements
+  # changes its pinned digest and grants a much broader authority surface than
+  # the standalone tool was built with; the post-package gate rechecks the exact
+  # bytes from Contents/Resources.
+  signIgnore:
+    - '/Contents/Resources/bundled-officecli/[^/]+/officecli$'
+    - '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$'
   # #466: Computer-Use uses Screen Recording (screenshots) + Apple Events (to
   # control other apps). NSAppleEventsUsageDescription IS an Apple-honored TCC
   # purpose string - macOS shows it on the automation consent prompt.
@@ -327,14 +352,6 @@ asarUnpack:
   # (Contents/Resources/{skills-library,bundled-workflows}); the old asarUnpack
   # entries here matched nothing (source is under src/process/resources, never
   # in the asar) so they were removed.
-  # officecli (Office document generator used by Word/PPT/Excel/Morph/Academic
-  # assistants). The runtime/ folder holds the real platform binary that
-  # shellEnv.ts prepends to PATH for spawned subprocesses. Without unpacking,
-  # `which officecli` from a Claude-spawned bash never finds the binary.
-  # Cross-platform packaging (downloading the correct host binary on first run)
-  # is tracked as #234.
-  - '**/node_modules/officecli/**/*'
-
 # Compression level: normal for faster builds, maximum for smallest size
 # Note: electron-builder doesn't support YAML template syntax for env vars
 # The build script sets ELECTRON_BUILDER_COMPRESSION_LEVEL env var which takes precedence

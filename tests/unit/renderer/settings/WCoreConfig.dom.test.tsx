@@ -8,11 +8,22 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // --- Hoist mocks ---
-const { mockNavigate, mockGetAvailableAgents, mockProviders, mockMcpServers } = vi.hoisted(() => ({
+const {
+  mockNavigate,
+  mockGetAvailableAgents,
+  mockProviders,
+  mockMcpServers,
+  mockGetWcoreSection,
+  mockSetWcoreSection,
+  mockWcoreProfiles,
+} = vi.hoisted(() => ({
   mockNavigate: vi.fn(),
   mockGetAvailableAgents: vi.fn(),
   mockProviders: { value: [] as Array<{ providerId: string }> },
   mockMcpServers: { value: [] as Array<{ name: string; enabled?: boolean }> },
+  mockGetWcoreSection: vi.fn(() => Promise.resolve(undefined)),
+  mockSetWcoreSection: vi.fn(() => Promise.resolve({ ok: true })),
+  mockWcoreProfiles: vi.fn(),
 }));
 
 vi.mock('react-router-dom', () => ({
@@ -45,8 +56,8 @@ vi.mock('../../../../src/common', () => ({
     },
     // Engine config.toml read/write (Tools / Security / Memory / Runtime panes).
     wcoreConfig: {
-      getSection: { invoke: () => Promise.resolve(undefined) },
-      setSection: { invoke: () => Promise.resolve({ ok: true }) },
+      getSection: { invoke: (params: unknown) => mockGetWcoreSection(params) },
+      setSection: { invoke: (params: unknown) => mockSetWcoreSection(params) },
     },
     // Tool-backend key presence (Services & Keys pane).
     wcoreToolKeys: {
@@ -56,7 +67,7 @@ vi.mock('../../../../src/common', () => ({
     },
     // Profile fs (Profiles pane).
     wcoreProfiles: {
-      list: { invoke: () => Promise.resolve([]) },
+      list: { invoke: () => mockWcoreProfiles() },
       create: { invoke: () => Promise.resolve({ ok: true }) },
       clone: { invoke: () => Promise.resolve({ ok: true }) },
       activate: { invoke: () => Promise.resolve({ ok: true }) },
@@ -91,6 +102,15 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     vi.clearAllMocks();
     mockProviders.value = [];
     mockMcpServers.value = [];
+    mockGetWcoreSection.mockResolvedValue(undefined);
+    mockSetWcoreSection.mockResolvedValue({ ok: true });
+    mockWcoreProfiles.mockResolvedValue([
+      {
+        name: 'default',
+        active: true,
+        dir: '/Users/test/Library/Application Support/wayland-core',
+      },
+    ]);
     mockGetAvailableAgents.mockResolvedValue({
       success: true,
       data: [{ backend: 'wcore', name: 'Wayland Core', cliPath: '/usr/local/bin/wcore' }],
@@ -122,7 +142,7 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(screen.getAllByText('Manage in Desktop Settings').length).toBeGreaterThan(0);
   });
 
-  it('renders the three engine status stat cards', () => {
+  it('renders the three engine status stat cards with the producer-resolved active profile path', async () => {
     render(<WCoreConfig />);
     // "Engine" also appears as the rail group label, so assert the unique
     // stat-card meta strings instead of the ambiguous labels.
@@ -130,7 +150,18 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(screen.getByText('embedded · spawned in-process')).toBeTruthy();
     expect(screen.getByText('wayland-core · pinned')).toBeTruthy();
     expect(screen.getByText('Active Profile')).toBeTruthy();
-    expect(screen.getByText('~/.wayland/profiles/default')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText('/Users/test/Library/Application Support/wayland-core')).toBeTruthy();
+    });
+    expect(screen.queryByText('~/.wayland/profiles/default')).toBeNull();
+    expect(screen.queryByText('~/.wayland-core/config.toml')).toBeNull();
+  });
+
+  it('fails closed instead of fabricating an active Core profile path', async () => {
+    mockWcoreProfiles.mockResolvedValue([{ name: 'default', active: true }]);
+    render(<WCoreConfig />);
+    await waitFor(() => expect(screen.getByText('Path unavailable')).toBeTruthy());
+    expect(screen.queryByText('~/.wayland/profiles/default')).toBeNull();
   });
 
   it('renders the smart-defaults "configured in the engine" strip', () => {
@@ -176,6 +207,33 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(
       screen.getByText(
         'Every tool is always available to the engine. These switches set whether a tool auto-runs or asks for approval first - they do not turn tools off. Script and RepoMap are the only real on/off gates. Tools that need a credential link straight to where you set it.'
+      )
+    ).toBeTruthy();
+  });
+
+  it('keeps unsupported Core security settings read-only instead of persisting false controls', () => {
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="security"]')!);
+
+    expect(screen.getByText('Managed in Tools')).toBeTruthy();
+    expect(screen.getByText('Environment passthrough is unavailable here')).toBeTruthy();
+    expect(screen.getByText('Core egress protection remains enabled')).toBeTruthy();
+    expect(screen.getByText('Private and local Browser targets are blocked')).toBeTruthy();
+    expect(
+      screen.getByText(/There is currently no supported Wayland setting that allows localhost Browser access/)
+    ).toBeTruthy();
+    expect(screen.queryByText('Ask every time')).toBeNull();
+    expect(screen.queryByText('Turn off firewall')).toBeNull();
+    expect(mockSetWcoreSection).not.toHaveBeenCalled();
+  });
+
+  it('discloses every Desktop overlay bypassed by Raw engine mode', () => {
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="runtime"]')!);
+
+    expect(
+      screen.getByText(
+        'Use Core’s standalone config instead of the active Desktop-managed profile. Desktop model, skills, specialists, and selected MCP connectors will not be injected.'
       )
     ).toBeTruthy();
   });

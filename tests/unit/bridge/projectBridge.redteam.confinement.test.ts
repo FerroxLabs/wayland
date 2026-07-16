@@ -37,6 +37,8 @@ vi.mock('@process/services/projectKnowledge/knowledge', () => ({
   listProjectReference: vi.fn(),
   addProjectReference: vi.fn(),
   removeProjectReference: vi.fn(),
+  listArchivedProjectReferences: vi.fn(),
+  restoreProjectReference: vi.fn(),
   readProjectSummaries: vi.fn(),
   writeProjectSummary: vi.fn(),
   appendProjectDecision: vi.fn(),

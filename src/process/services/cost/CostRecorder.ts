@@ -21,6 +21,17 @@ export interface ModelPricing {
 export type CostSource = 'engine' | 'computed' | 'unknown';
 
 /**
+ * Accept an ACP cumulative cost only when it is a finite, non-negative USD
+ * amount. The local ledger is USD-denominated; silently treating another or
+ * missing currency as USD would fabricate financial data.
+ */
+export function extractAcpCumulativeUsd(cost: { amount?: number; currency?: string } | undefined): number | undefined {
+  const amount = cost?.amount;
+  if (typeof amount !== 'number' || !Number.isFinite(amount) || amount < 0) return undefined;
+  return cost?.currency?.trim().toUpperCase() === 'USD' ? amount : undefined;
+}
+
+/**
  * Input to recordTurnFinish. Exactly ONE cost_event row is written per call.
  * Pinned in VERIFIED-ANCHORS.md - WS-C calls this at each backend finish.
  */
@@ -29,9 +40,14 @@ export type TurnFinish = {
   backend: string;
   modelId?: string;
   costSource: CostSource;
-  /** engine path (ACP): per-conversation CUMULATIVE high-water marks. */
+  /** engine path (ACP): cumulative high-water marks for one backend meter. */
   cumulativeUsd?: number;
   cumulativeTokens?: number;
+  /**
+   * Identity of the cumulative meter (normally an ACP session id). A new
+   * session must not inherit the prior session's high-water mark.
+   */
+  meterId?: string;
   /** computed path (wcore/gemini): per-turn split. */
   inputTokens?: number;
   outputTokens?: number;
@@ -47,11 +63,12 @@ type Baseline = { usd: number; tokens: number };
  * Main-process singleton. Converts a backend finish signal into exactly one
  * cost_event row, applying the R1 delta logic for the engine path.
  *
- *  - 'engine'   delta = cumulative - per-conversation baseline, clamped >= 0,
+ *  - 'engine'   delta = cumulative - per-meter baseline, clamped >= 0,
  *               then the baseline advances to the new cumulative. This is the
- *               whole point: acp usage_update.cost/used are a cumulative gauge,
- *               so pricing per event would N-count. We record one delta at
- *               turn finish.
+ *               whole point: ACP usage_update.cost is a cumulative session
+ *               gauge, so pricing per event would N-count. Context used is not
+ *               cumulative billable usage and callers must not pass it as
+ *               cumulativeTokens. We record one delta at turn finish.
  *  - 'computed' price input/output via ModelPricing (per-turn, no baseline).
  *               If pricing is undefined, downgrade to cost_source='unknown'
  *               with cost_usd=0 (tokens still recorded).
@@ -103,15 +120,19 @@ export class CostRecorder {
     }
   }
 
-  /** Drop a conversation's baseline on close/reset so it restarts at zero. */
+  /** Drop every meter baseline for a conversation on close/reset. */
   resetBaseline(conversationId: string): void {
-    this.baselines.delete(conversationId);
+    const prefix = conversationId + String.fromCharCode(31);
+    for (const key of this.baselines.keys()) {
+      if (key.startsWith(prefix)) this.baselines.delete(key);
+    }
   }
 
   private recordEngine(e: TurnFinish): void {
     const cumulativeUsd = e.cumulativeUsd ?? 0;
     const cumulativeTokens = e.cumulativeTokens ?? 0;
-    const baseline = this.baselines.get(e.conversationId) ?? { usd: 0, tokens: 0 };
+    const baselineKey = [e.conversationId, e.backend, e.meterId ?? 'legacy'].join(String.fromCharCode(31));
+    const baseline = this.baselines.get(baselineKey) ?? { usd: 0, tokens: 0 };
 
     // Clamp negatives to 0 to survive session resets / compaction where the
     // cumulative gauge drops below the prior high-water mark.
@@ -119,7 +140,7 @@ export class CostRecorder {
     const deltaTokens = Math.max(0, cumulativeTokens - baseline.tokens);
 
     // Advance the baseline to the new high-water mark (never regress).
-    this.baselines.set(e.conversationId, {
+    this.baselines.set(baselineKey, {
       usd: Math.max(baseline.usd, cumulativeUsd),
       tokens: Math.max(baseline.tokens, cumulativeTokens),
     });

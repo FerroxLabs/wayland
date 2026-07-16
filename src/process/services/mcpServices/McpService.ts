@@ -320,7 +320,8 @@ export class McpService {
             console.warn(`[McpService] Skipping MCP sync for unsupported backend: ${agent.backend}`);
             return {
               agent: agent.name,
-              success: true,
+              success: false,
+              error: `MCP publication is not supported for backend "${agent.backend}"`,
             };
           }
 
@@ -433,7 +434,8 @@ export class McpService {
             console.warn(`[McpService] Skipping MCP removal for unsupported backend: ${agent.backend}`);
             return {
               agent: `${agent.backend}:${agent.name}`,
-              success: true,
+              success: false,
+              error: `MCP removal is not supported for backend "${agent.backend}"`,
             };
           }
 

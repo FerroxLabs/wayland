@@ -204,6 +204,14 @@
   flex-shrink: 0;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
 }
+.statusDotError {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger-6, #f53f3f);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger-6, #f53f3f) 18%, transparent);
+}
 
 /* Search field */
 .searchBox {

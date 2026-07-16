@@ -8,9 +8,9 @@ import { describe, expect, it } from 'vitest';
 import { isAllowedForRemote, isRemoteDeniedConfigWrite } from '@/common/adapter/bridgeAllowlist';
 
 /**
- * #671 — the per-workspace trust axis is a LOCAL desktop control. A paired-device
+ * #671 — the per-workspace access axis is a LOCAL desktop control. A paired-device
  * WebSocket peer proves a remote browser, NOT the local trusted user, so it must
- * never be able to ARM cowork (workspaceTrust.set → unattended read/edit
+ * never be able to ARM trusted-edits (workspaceTrust.set → bounded read/edit
  * auto-approve) or READ the posture (workspaceTrust.get). Both are denied via the
  * `workspaceTrust.` prefix. The dispatcher receives each wire key as
  * `subscribe-<key>`. The allowlist is a DENYLIST (default-allow), so a missing or
@@ -42,15 +42,15 @@ describe('isAllowedForRemote — workspaceTrust.* denied to remote callers (#671
  * via the generic `agent.config.storage.set` wire key (which stays allowed for
  * the config writes the paired WebUI legitimately needs). `hydrateWorkspaceTrust`
  * would then load the tampered value into the gate cache on the next launch,
- * arming Cowork with no local toggle. The value-level guard must cover it (mirrors
- * the #819 webui.desktop.* fix).
+ * arming trusted-edits with no local action. The value-level guard must cover it
+ * (mirrors the #819 webui.desktop.* fix).
  */
 describe('isRemoteDeniedConfigWrite — workspace.trustLevel write denied to remote callers (#671)', () => {
   const set = (key: string, value: unknown) => ({ id: 'x', data: { key, data: value } });
   const NAME = 'subscribe-agent.config.storage.set';
 
-  it('denies a remote write to workspace.trustLevel (the arming payload)', () => {
-    expect(isRemoteDeniedConfigWrite(NAME, set('workspace.trustLevel', { '/victim/cwd': 'cowork' }))).toBe(true);
+  it.each(['trusted-edits', 'cowork'])('denies the canonical and legacy arming payload: %s', (level) => {
+    expect(isRemoteDeniedConfigWrite(NAME, set('workspace.trustLevel', { '/victim/cwd': level }))).toBe(true);
   });
 
   it('does not over-deny unrelated config keys the paired WebUI needs', () => {

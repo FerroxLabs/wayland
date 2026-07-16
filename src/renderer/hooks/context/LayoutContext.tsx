@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import React from 'react';
+import type { ShellExperience } from '@/common/shellExperience';
 
 export interface LayoutContextValue {
   /** Legacy composite (narrow OR small-screen touch). Prefer the two below. */
@@ -12,6 +13,8 @@ export interface LayoutContextValue {
   isNarrow: boolean;
   /** Touch / coarse pointer primary input - use for INTERACTION decisions (#47). */
   isTouch: boolean;
+  /** Active presentation shell. Omitted by legacy/test providers and treated as Classic. */
+  shellExperience?: ShellExperience;
   siderCollapsed: boolean;
   setSiderCollapsed: (value: boolean) => void;
 }

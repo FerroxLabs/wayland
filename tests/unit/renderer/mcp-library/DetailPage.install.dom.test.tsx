@@ -207,7 +207,8 @@ test('Install click calls handleAddMcpServer with library source + libraryEntryI
     })
   );
 
-  expect(messageSuccess).toHaveBeenCalledTimes(1);
+  // Publication/readiness messaging is covered by the transaction tests. This
+  // test owns the catalog-to-declaration contract only.
 });
 
 test('shows the installed lifecycle (Remove, no Install CTA) when already in mcpServers', async () => {

@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { acpConversation, mcpService } from '@/common/adapter/ipcBridge';
-import { canonicalMcpServerName } from '@/common/mcp';
+import { mcpServerCollisionKey } from '@/common/mcp';
 import type { IMcpServer } from '@/common/config/storage';
 import { useMcpServers, useMcpAgentStatus, useMcpOperations, useMcpServerCRUD, useMcpOAuth } from '@renderer/hooks/mcp';
 import { useMcpConnection } from '@renderer/hooks/mcp/useMcpConnection';
@@ -59,13 +59,13 @@ export function findStaleServers(
 
 /**
  * Lane 1 — composes the existing MCP lifecycle primitives into the data + actions
- * the global "Connected MCPs" overview needs: every configured + live server with
- * status and tool count, the disconnect/reconnect/remove actions, and detection +
+ * the global MCP connections overview needs: every configured server with
+ * standalone-probe status and tool count, the disconnect/reconnect/remove actions, and detection +
  * removal of stale leftover servers. Touches connection-status/teardown only; it
  * never writes per-tool `allowed_tools` (Lane 2) or `configBridge.allow_list` (Lane 3).
  */
 export function useConnectedMcps(message: ReturnType<typeof import('@arco-design/web-react').Message.useMessage>[0]) {
-  const { mcpServers, allMcpServers, saveMcpServers } = useMcpServers();
+  const { mcpServers, allMcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
   const { agentInstallStatus, setAgentInstallStatus, checkSingleServerInstallStatus, checkAgentInstallStatus } =
     useMcpAgentStatus();
   const { removeMcpFromAgents, syncMcpToAgents } = useMcpOperations(mcpServers, message);
@@ -76,7 +76,8 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     syncMcpToAgents,
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
-    setAgentInstallStatus
+    setAgentInstallStatus,
+    refreshMcpServers
   );
   const conn = useMcpConnection(mcpServers, saveMcpServers, message);
 
@@ -98,15 +99,16 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
         setStale([]);
         return;
       }
-      const configured = new Set(mcpServers.map((s) => canonicalMcpServerName(s.name)));
-      setStale(findStaleServers(configured, cfgRes.data, canonicalMcpServerName));
+      const configured = new Set(mcpServers.map((s) => mcpServerCollisionKey(s.name)));
+      setStale(findStaleServers(configured, cfgRes.data, mcpServerCollisionKey));
     } catch {
       // Stale detection is best-effort; a probe failure must not break the page.
       setStale([]);
     }
   }, [mcpServers]);
 
-  // On mount + whenever the configured set changes: probe live status/tool counts
+  // On mount + whenever the configured set changes: refresh standalone probe
+  // status/tool inventory. This is not active-chat readiness.
   // (non-destructive), refresh per-agent install status, and recompute leftovers.
   useEffect(() => {
     if (mcpServers.length === 0) {
@@ -146,13 +148,16 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     [allMcpServers, oauthStatus, agentInstallStatus, conn.testingServers]
   );
 
-  // Disconnect = disable + tear the config out of every agent (no live socket to
+  // Disable = disable + tear the config out of every agent (no live socket to
   // close; agents reconnect lazily). Reconnect = enable + re-probe. Remove =
   // delete from config + agents.
   const disconnect = useCallback((serverId: string): void => void crud.handleToggleMcpServer(serverId, false), [crud]);
   const reconnect = useCallback(
     async (server: IMcpServer) => {
-      if (!server.enabled) await crud.handleToggleMcpServer(server.id, true);
+      if (!server.enabled) {
+        const published = await crud.handleToggleMcpServer(server.id, true);
+        if (!published) return;
+      }
       await conn.handleTestMcpConnection(server);
     },
     [crud, conn]
@@ -166,5 +171,5 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     [removeMcpFromAgents, computeStale]
   );
 
-  return { rows, stale, refreshing, refresh, disconnect, reconnect, remove, removeStale };
+  return { rows, stale, refreshing, refresh, refreshMcpServers, disconnect, reconnect, remove, removeStale };
 }

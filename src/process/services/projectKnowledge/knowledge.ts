@@ -5,6 +5,7 @@
  */
 
 import fs from 'fs/promises';
+import type { Dirent } from 'fs';
 import os from 'os';
 import path from 'path';
 import { WAYLAND_KNOWLEDGE_DIR } from './bootstrap';
@@ -44,6 +45,9 @@ const INJECT_LABEL: Record<KnowledgeKind, string> = {
 };
 
 const REFERENCE_DIR = 'reference';
+const REFERENCE_ARCHIVE_DIR = '.archive';
+const REFERENCE_ARCHIVE_CONTENT = 'content';
+const REFERENCE_ARCHIVE_METADATA = 'metadata.json';
 const SUMMARY_FILE = 'summaries.json';
 
 export type KnowledgeSummaries = Partial<Record<KnowledgeKind, string>>;
@@ -58,6 +62,13 @@ export type ReferenceFile = {
   name: string;
   path: string;
   size: number;
+};
+
+export type ArchivedReferenceFile = {
+  id: string;
+  name: string;
+  size: number;
+  archivedAt: number;
 };
 
 const knowledgeRoot = (workspace: string): string => path.join(workspace, WAYLAND_KNOWLEDGE_DIR);
@@ -496,16 +507,120 @@ export async function saveProjectReferenceUploads(
   return listProjectReference(workspace);
 }
 
-/** Remove one reference file by its basename (path-traversal guarded). */
+/**
+ * Archive one reference file by its basename (path-traversal guarded).
+ *
+ * The file is moved, never unlinked. Metadata is written before the atomic
+ * same-filesystem rename so a crash cannot strand user bytes without their
+ * original name. The archive is deliberately inside the project workspace so
+ * Desktop and hosted/cloud runtimes share the same recoverable behavior.
+ */
 export async function removeProjectReference(workspace: string, name: string): Promise<ReferenceFile[]> {
   if (!workspace || !workspace.trim()) throw new Error('Project has no workspace folder');
   const safe = path.basename(name); // never escape the reference dir
   const dir = path.join(knowledgeRoot(workspace), REFERENCE_DIR);
-  try {
-    await fs.unlink(path.join(dir, safe));
-  } catch (err) {
-    console.warn('[projectKnowledge] failed to remove reference file:', safe, err);
+  const source = path.join(dir, safe);
+  const stat = await fs.lstat(source);
+  if (!stat.isFile() || stat.isSymbolicLink()) {
+    throw new Error('Only regular project reference files can be archived');
   }
+
+  const archiveRoot = path.join(dir, REFERENCE_ARCHIVE_DIR);
+  await fs.mkdir(archiveRoot, { recursive: true });
+  const entryDir = await fs.mkdtemp(path.join(archiveRoot, `${Date.now()}-`));
+  const archivedAt = Date.now();
+  try {
+    await fs.writeFile(
+      path.join(entryDir, REFERENCE_ARCHIVE_METADATA),
+      JSON.stringify({ name: safe, archivedAt }),
+      'utf-8'
+    );
+    await fs.rename(source, path.join(entryDir, REFERENCE_ARCHIVE_CONTENT));
+  } catch (error) {
+    try {
+      await fs.rm(entryDir, { recursive: true, force: true });
+    } catch {
+      // Preserve the original archive failure; an incomplete entry is ignored
+      // by the reader and never treated as safe cleanup authority.
+    }
+    throw error;
+  }
+  return listProjectReference(workspace);
+}
+
+/** List complete archived references; incomplete/crashed entries stay hidden and untouched. */
+export async function listArchivedProjectReferences(workspace: string): Promise<ArchivedReferenceFile[]> {
+  if (!workspace || !workspace.trim()) return [];
+  const archiveRoot = path.join(knowledgeRoot(workspace), REFERENCE_DIR, REFERENCE_ARCHIVE_DIR);
+  let entries: Dirent<string>[];
+  try {
+    entries = await fs.readdir(archiveRoot, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  const archived = await Promise.all(
+    entries.map(async (entry): Promise<ArchivedReferenceFile | null> => {
+      if (!entry.isDirectory() || entry.isSymbolicLink()) return null;
+      const entryDir = path.join(archiveRoot, entry.name);
+      try {
+        const metadata = JSON.parse(
+          await fs.readFile(path.join(entryDir, REFERENCE_ARCHIVE_METADATA), 'utf-8')
+        ) as { name?: unknown; archivedAt?: unknown };
+        const contentStat = await fs.lstat(path.join(entryDir, REFERENCE_ARCHIVE_CONTENT));
+        if (
+          typeof metadata.name !== 'string' ||
+          path.basename(metadata.name) !== metadata.name ||
+          typeof metadata.archivedAt !== 'number' ||
+          !Number.isFinite(metadata.archivedAt) ||
+          !contentStat.isFile() ||
+          contentStat.isSymbolicLink()
+        ) {
+          return null;
+        }
+        return {
+          id: entry.name,
+          name: metadata.name,
+          size: contentStat.size,
+          archivedAt: metadata.archivedAt,
+        };
+      } catch {
+        // Fail closed: never infer ownership or remove an incomplete entry.
+        return null;
+      }
+    })
+  );
+
+  return archived
+    .filter((entry): entry is ArchivedReferenceFile => entry !== null)
+    .toSorted((a, b) => b.archivedAt - a.archivedAt);
+}
+
+/** Restore one archived reference to a collision-safe name in the live reference set. */
+export async function restoreProjectReference(workspace: string, archiveId: string): Promise<ReferenceFile[]> {
+  if (!workspace || !workspace.trim()) throw new Error('Project has no workspace folder');
+  if (!archiveId || path.basename(archiveId) !== archiveId || archiveId === '.' || archiveId === '..') {
+    throw new Error('Invalid archived reference identifier');
+  }
+
+  const dir = path.join(knowledgeRoot(workspace), REFERENCE_DIR);
+  const entryDir = path.join(dir, REFERENCE_ARCHIVE_DIR, archiveId);
+  const metadata = JSON.parse(
+    await fs.readFile(path.join(entryDir, REFERENCE_ARCHIVE_METADATA), 'utf-8')
+  ) as { name?: unknown };
+  if (typeof metadata.name !== 'string' || path.basename(metadata.name) !== metadata.name) {
+    throw new Error('Archived reference metadata is invalid');
+  }
+
+  const contentPath = path.join(entryDir, REFERENCE_ARCHIVE_CONTENT);
+  const contentStat = await fs.lstat(contentPath);
+  if (!contentStat.isFile() || contentStat.isSymbolicLink()) {
+    throw new Error('Archived reference content is invalid');
+  }
+
+  const destination = await uniqueDest(dir, metadata.name);
+  await fs.rename(contentPath, destination);
+  await fs.rm(entryDir, { recursive: true, force: true });
   return listProjectReference(workspace);
 }
 

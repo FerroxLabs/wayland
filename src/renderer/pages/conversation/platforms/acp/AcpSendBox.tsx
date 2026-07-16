@@ -39,6 +39,7 @@ import { useTranslation } from 'react-i18next';
 import { classifyAcpAuthFailure } from './acpAuthFailure';
 import { useAcpInitialMessage } from './useAcpInitialMessage';
 import { useAcpMessage } from './useAcpMessage';
+import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 const useAcpSendBoxDraft = getSendBoxDraftHook('acp', {
   _type: 'acp',
@@ -321,6 +322,8 @@ Please check your local CLI tool authentication status`,
 
     await executeCommand({ input: message, files: allFiles });
   };
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler);
 
   const handleEditQueuedCommand = useCallback(
     (item: ConversationCommandQueueItem) => {

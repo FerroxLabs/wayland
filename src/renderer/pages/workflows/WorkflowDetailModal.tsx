@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import type { TProviderWithModel } from '@/common/config/storage';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import type { WorkflowSession } from '@/common/types/workflowTypes';
@@ -134,7 +135,7 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
   const loadModelOptionsForAgent = async (agentKey: string, agents: AvailableAgent[]): Promise<void> => {
     const agent = agents.find((a) => getAgentKey(a) === agentKey);
     const isPreset = Boolean(agent?.isPreset);
-    const backend = isPreset ? (agent?.presetAgentType ?? 'gemini') : (agent?.backend ?? agentKey);
+    const backend = isPreset ? resolvePresetAgentType(agent?.presetAgentType) : (agent?.backend ?? agentKey);
 
     try {
       const [cachedModels, acpConfig] = await Promise.all([
@@ -270,7 +271,7 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
     }
 
     const isPreset = Boolean(agent.isPreset);
-    const backend = isPreset ? (agent.presetAgentType ?? 'gemini') : agent.backend;
+    const backend = isPreset ? resolvePresetAgentType(agent.presetAgentType) : agent.backend;
     const cliPath = agent.cliPath;
 
     // Resolve the model id. Race-safe re-resolution: if the picker hasn't

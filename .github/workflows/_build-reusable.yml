@@ -489,7 +489,13 @@ jobs:
         id: macos-build
         shell: bash
         run: |
-          set +e  # Handle errors manually
+          set +e  # Preserve the real build exit code through tee.
+
+          # A previous attempt's artifact is never evidence for this attempt.
+          # The build script's notarization hooks already degrade Apple service
+          # stalls to warnings, so any non-zero command exit is a real build or
+          # post-package verification failure and must remain fatal.
+          rm -f out/*.dmg
 
           # Run build command
           ${{ matrix.command }} 2>&1 | tee "${RUNNER_TEMP}/build.log"
@@ -509,28 +515,12 @@ jobs:
             exit 0
           fi
 
-          # Build failed - check if it's just notarization failure
-          if [ "$DMG_EXISTS" = true ]; then
-            # DMG exists but build failed - likely notarization issue
-            if grep -qiE "notariz|staple" "${RUNNER_TEMP}/build.log"; then
-              echo "⚠️ DMG created but notarization failed"
-              echo "notarization_status=failed" >> $GITHUB_OUTPUT
-              echo "::warning title=Notarization Failed::DMG was built and signed successfully, but **notarization failed**."
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "## ⚠️ Notarization Warning" >> $GITHUB_STEP_SUMMARY
-              echo "DMG was built and signed successfully, but **notarization failed**." >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "Users may see Gatekeeper warnings when opening the app for the first time." >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "To fix: Right-click the app → Open → Open" >> $GITHUB_STEP_SUMMARY
-              exit 0  # Allow CI to continue
-            fi
-          fi
-
-          # DMG doesn't exist or other fatal error - fail CI
-          echo "❌ Build failed - DMG was not created"
+          # Notarization hooks are non-fatal by contract. Therefore a non-zero
+          # command here cannot be reclassified from log text or artifact
+          # presence: provenance/resource verifier failures must fail closed.
+          echo "❌ Build or post-package verification failed (exit ${BUILD_EXIT_CODE})"
           echo "notarization_status=build_failed" >> $GITHUB_OUTPUT
-          exit 1
+          exit $BUILD_EXIT_CODE
         env:
           NODE_OPTIONS: '--max-old-space-size=8192'
           npm_config_arch: ${{ matrix.arch }}

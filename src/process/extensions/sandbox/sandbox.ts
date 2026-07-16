@@ -5,9 +5,9 @@
  */
 
 import { Worker } from 'worker_threads';
-import * as path from 'path';
 import { getSandboxPermissionDeniedError, type ExtPermissions } from './permissions';
 import { extensionEventBus } from '../lifecycle/ExtensionEventBus';
+import { resolveMainBundlePath } from '@process/utils/mainBundlePath';
 
 /**
  * Extension Sandbox - Worker Thread isolation for extension code execution.
@@ -115,7 +115,7 @@ export class SandboxHost {
   async start(): Promise<void> {
     if (this._running) return;
 
-    const workerScript = path.join(__dirname, 'sandboxWorker.js');
+    const workerScript = resolveMainBundlePath('sandboxWorker.js');
 
     return new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => {

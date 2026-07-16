@@ -279,12 +279,15 @@ describe('checkMcpServers', () => {
     expect(result.detail).toContain('needs-login');
   });
 
-  it('passes when every enabled server connects', async () => {
+  it('does not promote a successful standalone probe to active-chat readiness', async () => {
     const result = await checkMcpServers({
       listServers: async () => [mcpServer({ name: 'a' }), mcpServer({ name: 'b', id: 'b' })],
       testConnection: async () => ({ success: true, tools: [{ name: 't' }] }),
     });
-    expect(result.status).toBe('pass');
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('reachable in a standalone probe');
+    expect(result.detail).toContain('active-chat tools are not verified');
+    expect(result.remediation).toContain('fresh chat');
   });
 
   it('names the hung server and still reports the rest, instead of one generic timeout (#273)', async () => {

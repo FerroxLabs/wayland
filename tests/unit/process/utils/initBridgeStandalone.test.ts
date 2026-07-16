@@ -27,6 +27,11 @@ const mocks = vi.hoisted(() => ({
   initStarOfficeBridge: vi.fn(),
   initSpeechToTextBridge: vi.fn(),
   initHubBridge: vi.fn(),
+  initProjectBridge: vi.fn(),
+  initTeamBridge: vi.fn(),
+  initSkillsBridge: vi.fn(),
+  initWebCloudFluxRoutingEvidenceAdapter: vi.fn(),
+  initModelRegistryIpc: vi.fn(async () => {}),
   initializeRegistry: vi.fn(async () => {}),
   loggerConfig: vi.fn(),
 }));
@@ -157,6 +162,27 @@ vi.mock('@process/bridge/speechToTextBridge', () => ({
 vi.mock('@process/bridge/hubBridge', () => ({
   initHubBridge: (...args: unknown[]) => mocks.initHubBridge(...args),
 }));
+vi.mock('@process/bridge/projectBridge', () => ({
+  initProjectBridge: (...args: unknown[]) => mocks.initProjectBridge(...args),
+}));
+vi.mock('@process/bridge/teamBridge', () => ({
+  initTeamBridge: (...args: unknown[]) => mocks.initTeamBridge(...args),
+}));
+vi.mock('@process/bridge/skillsBridge', () => ({
+  initSkillsBridge: (...args: unknown[]) => mocks.initSkillsBridge(...args),
+}));
+vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
+  initModelRegistryIpc: (...args: unknown[]) => mocks.initModelRegistryIpc(...args),
+}));
+vi.mock('@process/team/repository/SqliteTeamRepository', () => ({
+  SqliteTeamRepository: vi.fn(),
+}));
+vi.mock('@process/team/TeamSessionService', () => ({
+  TeamSessionService: vi.fn(),
+}));
+vi.mock('@process/flux/FluxRoutingEvidenceAdapter', () => ({
+  initWebCloudFluxRoutingEvidenceAdapter: (...args: unknown[]) => mocks.initWebCloudFluxRoutingEvidenceAdapter(...args),
+}));
 
 describe('initBridgeStandalone', () => {
   beforeEach(() => {
@@ -169,6 +195,8 @@ describe('initBridgeStandalone', () => {
     await mod.initBridgeStandalone();
 
     expect(mocks.initHubBridge).toHaveBeenCalledTimes(1);
+    expect(mocks.initWebCloudFluxRoutingEvidenceAdapter).toHaveBeenCalledTimes(1);
+    expect(mocks.initModelRegistryIpc).toHaveBeenCalledTimes(1);
     expect(mocks.initializeRegistry).toHaveBeenCalledTimes(1);
   });
 });

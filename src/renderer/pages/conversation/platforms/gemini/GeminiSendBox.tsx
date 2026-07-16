@@ -39,6 +39,7 @@ import { useGeminiInitialMessage } from './useGeminiInitialMessage';
 import { useGeminiMessage } from './useGeminiMessage';
 import type { GeminiModelSelection } from './useGeminiModelSelection';
 import { useGeminiQuotaFallback } from './useGeminiQuotaFallback';
+import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 const useGeminiSendBoxDraft = getSendBoxDraftHook('gemini', {
   _type: 'gemini',
@@ -354,6 +355,8 @@ const GeminiSendBox: React.FC<{
 
     await executeCommand({ input: message, files: filesToSend });
   };
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler);
 
   const handleEditQueuedCommand = useCallback(
     (item: ConversationCommandQueueItem) => {

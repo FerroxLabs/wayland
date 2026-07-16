@@ -135,9 +135,11 @@ const { mockMemory, mockShell, mockIjfw, mockModalConfirm } = vi.hoisted(() => {
       getPromotionCandidates: { invoke: vi.fn() },
       promote: { invoke: vi.fn() },
       setQuickAdd: { invoke: vi.fn() },
-      // #414 edit/delete mutations (used by the drawer actions).
+      // #414 edit/archive mutations (used by the drawer actions).
       updateEntry: { invoke: vi.fn() },
       deleteEntry: { invoke: vi.fn() },
+      listArchivedEntries: { invoke: vi.fn() },
+      restoreArchivedEntry: { invoke: vi.fn() },
       setPromotionThreshold: { invoke: vi.fn() },
       onIndexChanged: mockIndexChangedEmitter,
       import: {
@@ -161,7 +163,7 @@ const { mockMemory, mockShell, mockIjfw, mockModalConfirm } = vi.hoisted(() => {
       // Used by the embedded IjfwSetupStatus (#414 health strip) on expand.
       brainInvoke: { invoke: vi.fn() },
     },
-    // Captures the config passed to Modal.confirm so the delete-gate test can
+    // Captures the config passed to Modal.confirm so the archive-gate test can
     // assert deleteEntry fires ONLY from the confirm dialog's onOk.
     mockModalConfirm: vi.fn((_cfg: unknown) => ({ close: vi.fn() })),
   };
@@ -214,7 +216,7 @@ vi.mock('@icon-park/react', () => ({
   Copy: (p: Record<string, unknown>) => <span data-testid='icon-copy' {...p} />,
   LinkOne: (p: Record<string, unknown>) => <span data-testid='icon-link' {...p} />,
   Edit: (p: Record<string, unknown>) => <span data-testid='icon-edit' {...p} />,
-  Delete: (p: Record<string, unknown>) => <span data-testid='icon-delete' {...p} />,
+  Inbox: (p: Record<string, unknown>) => <span data-testid='icon-inbox' {...p} />,
   FileCode: (p: Record<string, unknown>) => <span data-testid='icon-file-code' {...p} />,
   Help: (p: Record<string, unknown>) => <span data-testid='icon-help' {...p} />,
   // Used by the embedded IjfwSetupStatus (#414 health strip) when expanded.
@@ -276,6 +278,8 @@ beforeEach(() => {
   mockMemory.promote.invoke.mockResolvedValue({ ok: true });
   mockMemory.setQuickAdd.invoke.mockResolvedValue({ ok: true });
   mockMemory.deleteEntry.invoke.mockResolvedValue({ ok: true });
+  mockMemory.listArchivedEntries.invoke.mockResolvedValue([]);
+  mockMemory.restoreArchivedEntry.invoke.mockResolvedValue({ ok: true });
   mockMemory.updateEntry.invoke.mockResolvedValue({ ok: true });
   mockMemory.import.scanDevDir.invoke.mockResolvedValue({ count: 0, projectsFound: 0, errors: [] });
   mockShell.openFile.invoke.mockResolvedValue(undefined);
@@ -472,13 +476,11 @@ describe('FullPanelShell setup-status strip (#414)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// #414 - Delete is gated behind the confirm dialog (cannot-be-undone). The
-// destructive deleteEntry mutation must fire ONLY from the dialog's onOk, never
-// on the bare button click. Automated coverage so a refactor can't silently
-// weaken the gate the #414 ruling mandates.
+// #414 - Archive is gated behind confirmation. The legacy-named deleteEntry IPC
+// now performs a durable archive and must fire only from the dialog's onOk.
 // ---------------------------------------------------------------------------
 
-describe('FullPanelShell delete confirm gate (#414)', () => {
+describe('FullPanelShell archive confirm gate (#414)', () => {
   it('does not call deleteEntry on button click; only the confirm onOk fires it', async () => {
     await act(async () => {
       renderShell(['/memory?entry=entry-001']);
@@ -487,29 +489,57 @@ describe('FullPanelShell delete confirm gate (#414)', () => {
       await new Promise((r) => setTimeout(r, 30));
     });
 
-    // Drawer is open with the selected entry; the Delete action is present.
-    const deleteBtn = screen.getByTestId('drawer-delete-btn');
-    expect(deleteBtn).toBeTruthy();
+    // Drawer is open with the selected entry; the Archive action is present.
+    const archiveBtn = screen.getByTestId('drawer-archive-btn');
+    expect(archiveBtn).toBeTruthy();
 
-    // Click Delete: the confirm dialog is requested, but NOTHING is deleted yet.
+    // Click Archive: the confirm dialog is requested, but nothing changes yet.
     await act(async () => {
-      fireEvent.click(deleteBtn);
+      fireEvent.click(archiveBtn);
     });
     expect(mockModalConfirm).toHaveBeenCalledTimes(1);
     expect(mockMemory.deleteEntry.invoke).not.toHaveBeenCalled();
 
-    // The confirm copy states the action cannot be undone (the #414 ruling).
+    // The confirm copy promises retained, restorable recovery rather than deletion.
     const cfg = mockModalConfirm.mock.calls[0]![0] as {
       content?: string;
       onOk?: () => Promise<void> | void;
     };
-    expect(String(cfg.content)).toContain('cannot be undone');
+    expect(String(cfg.content)).toContain('restore anytime');
 
-    // Only firing the dialog's onOk performs the real, hard delete.
+    // Only firing the dialog's onOk performs the durable archive.
     await act(async () => {
       await cfg.onOk?.();
     });
     expect(mockMemory.deleteEntry.invoke).toHaveBeenCalledTimes(1);
     expect(mockMemory.deleteEntry.invoke).toHaveBeenCalledWith({ id: 'entry-001' });
+  });
+
+  it('lists durable archives from the top bar and restores one in-app', async () => {
+    mockMemory.listArchivedEntries.invoke.mockResolvedValue([
+      {
+        archiveId: '11111111-1111-4111-8111-111111111111',
+        summary: 'Archived customer memory',
+        archivedAt: Date.now(),
+        sourcePath: '/dev/wayland/.ijfw/memory/knowledge.md',
+      },
+    ]);
+
+    await act(async () => {
+      renderShell();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('memory-btn-archived'));
+      await new Promise((r) => setTimeout(r, 30));
+    });
+
+    expect(screen.getByText('Archived customer memory')).toBeTruthy();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('restore-memory-11111111-1111-4111-8111-111111111111'));
+      await new Promise((r) => setTimeout(r, 30));
+    });
+    expect(mockMemory.restoreArchivedEntry.invoke).toHaveBeenCalledWith({
+      archiveId: '11111111-1111-4111-8111-111111111111',
+    });
   });
 });

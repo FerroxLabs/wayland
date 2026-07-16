@@ -747,6 +747,21 @@ describe('WorkflowSessionService.endSession()', () => {
     // We do not require any specific telemetry here; just that the row updated.
     expect(parts.repo.update).toHaveBeenCalled();
   });
+
+  it('keeps the session row when an older renderer invokes deleteSession', async () => {
+    const parts = buildService();
+    parts.skillMap.set('demo', {
+      entry: skillEntry({ name: 'demo', type: 'workflow' }),
+      body: TWO_STEP_BODY,
+    });
+    const { sessionId } = await parts.service.start({ workflow_name: 'demo' });
+
+    await parts.service.deleteSession(sessionId);
+
+    expect(parts.repo.delete).not.toHaveBeenCalled();
+    expect(parts.repo.findById(sessionId)).toMatchObject({ status: 'ended' });
+    expect(sessionChangedEmitMock).toHaveBeenCalledWith({ session_id: sessionId, action: 'complete' });
+  });
 });
 
 describe('WorkflowSessionService.markBeginSent()', () => {

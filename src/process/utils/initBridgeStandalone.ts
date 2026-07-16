@@ -49,10 +49,13 @@ import { initTeamBridge } from '@process/bridge/teamBridge';
 import { initSkillsBridge } from '@process/bridge/skillsBridge';
 import { SqliteTeamRepository } from '@process/team/repository/SqliteTeamRepository';
 import { TeamSessionService } from '@process/team/TeamSessionService';
+import { initWebCloudFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
 
 logger.config({ print: true });
 
 export async function initBridgeStandalone(): Promise<void> {
+  // Mirror Electron's fail-closed Flux evidence boundary in Web/Cloud mode.
+  initWebCloudFluxRoutingEvidenceAdapter();
   const repo = new SqliteConversationRepository();
   const conversationService = new ConversationServiceImpl(repo);
   const channelRepo = new SqliteChannelRepository();

@@ -111,7 +111,7 @@ const _AddNewConversation: React.FC<{ conversation: TChatConversation }> = ({ co
             // Fetch latest conversation from DB to ensure sessionMode is current
             const latest = await ipcBridge.conversation.get.invoke({ id: conversation.id }).catch((): null => null);
             const source = latest || conversation;
-            await ipcBridge.conversation.createWithConversation.invoke({
+            const created = await ipcBridge.conversation.createWithConversation.invoke({
               conversation: {
                 ...source,
                 id,
@@ -124,6 +124,7 @@ const _AddNewConversation: React.FC<{ conversation: TChatConversation }> = ({ co
                     : source.extra,
               } as TChatConversation,
             });
+            if (!created) throw new Error('Conversation was not created');
             void navigate(`/conversation/${id}`);
             emitter.emit('chat.history.refresh');
           } catch (error) {

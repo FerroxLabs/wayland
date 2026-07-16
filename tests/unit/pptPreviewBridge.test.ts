@@ -252,7 +252,7 @@ describe('pptPreviewBridge', () => {
       expect(result).toEqual({ url: '', error: 'officecli exited with signal SIGKILL' });
     });
 
-    it('attempts consent-gated auto-install on ENOENT and retries once', async () => {
+    it('delegates ENOENT to the recovery boundary and retries only when recovery succeeds', async () => {
       initPptPreviewBridge();
 
       const child1 = createMockChildProcess();
@@ -261,7 +261,7 @@ describe('pptPreviewBridge', () => {
       const child2 = createMockChildProcess();
       spawnMock.mockReturnValueOnce(child2);
 
-      // Install succeeds (consent granted, checksum verified).
+      // Model a future verified repair path succeeding.
       installOfficecliMock.mockResolvedValue(true);
 
       const promise = startHandler.fn!({ filePath: F('file.pptx') });
@@ -296,7 +296,7 @@ describe('pptPreviewBridge', () => {
       const result = await promise;
       expect(result).toEqual({
         url: '',
-        error: 'officecli is not installed and auto-install was declined or failed',
+        error: 'The verified OfficeCLI runtime is missing; reinstall or update Wayland',
       });
     });
 
@@ -321,7 +321,7 @@ describe('pptPreviewBridge', () => {
 
       const result = await promise;
       expect(result.url).toBe('');
-      expect(result.error).toContain('officecli is not installed');
+      expect(result.error).toContain('verified OfficeCLI runtime is missing');
 
       // Allow microtask queue to flush for unhandled rejection detection
       await flush();

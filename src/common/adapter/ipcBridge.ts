@@ -16,7 +16,7 @@ import type { MicPermissionStatus } from '../../process/services/macPermissions/
 import type { DoctorReport } from '../../process/doctor/types';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
-import type { WorkspaceTrustLevel } from '../security/workspaceTrust';
+import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/workspaceTrust';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
@@ -78,6 +78,7 @@ import type {
   ConnectError,
 } from '../../process/providers/types';
 import type { CatalogProviderEntry } from '../../process/providers/catalog/catalogProvider';
+import type { TextToSpeechBridgeResult } from '../types/ttsTypes';
 
 export type SkillStats = {
   total: number;
@@ -137,7 +138,7 @@ export const mic = {
 export const conversation = {
   create: buildProvider<TChatConversation, ICreateConversationParams>('create-conversation'), // Create conversation
   createWithConversation: buildProvider<
-    TChatConversation,
+    TChatConversation | null,
     { conversation: TChatConversation; sourceConversationId?: string; migrateCron?: boolean }
   >('create-conversation-with-conversation'), // Create new conversation from history (supports migration)
   get: buildProvider<TChatConversation, { id: string }>('get-conversation'), // Get conversation info
@@ -422,7 +423,7 @@ export const fs = {
     // file outside the static roots (still guarded against secrets/traversal).
     { filePaths: string[]; workspace: string; sourceRoot?: string; allowExternalSource?: boolean }
   >('copy-files-to-workspace'), // Copy files into workspace
-  removeEntry: buildProvider<IBridgeResponse, { path: string }>('remove-entry'), // Delete file or folder
+  removeEntry: buildProvider<IBridgeResponse, { path: string }>('remove-entry'), // Move workspace entry to recoverable Trash
   renameEntry: buildProvider<IBridgeResponse<{ newPath: string }>, { path: string; newName: string }>('rename-entry'), // Rename file or folder
   moveEntry: buildProvider<IBridgeResponse<{ newPath: string }>, { sourcePath: string; targetDir: string }>(
     'move-entry'
@@ -504,7 +505,7 @@ export const speechToText = {
 };
 
 export const voiceSynth = {
-  speak: buildProvider<{ data: number[]; mimeType: string }, { text: string }>('voice-synth.speak'),
+  speak: buildProvider<TextToSpeechBridgeResult, { text: string }>('voice-synth.speak'),
   stop: buildProvider<Record<string, never>, void>('voice-synth.stop'),
 };
 
@@ -993,6 +994,44 @@ export const mcpService = {
     IBridgeResponse<{ success: boolean; results: Array<{ agent: string; success: boolean; error?: string }> }>,
     { mcpServerName: string; agents: Array<{ backend: string; name: string; cliPath?: string }> }
   >('mcp.remove-from-agents'),
+  archiveConfiguredServer: buildProvider<
+    IBridgeResponse<{
+      archiveId: string;
+      archivedAt: number;
+      serverId: string;
+      name: string;
+      description?: string;
+      transportType: IMcpServer['transport']['type'];
+      source?: IMcpServer['source'];
+    }>,
+    { serverId: string; agents: Array<{ backend: string; name: string; cliPath?: string }> }
+  >('mcp.archive-configured-server'),
+  listArchivedServers: buildProvider<
+    IBridgeResponse<
+      Array<{
+        archiveId: string;
+        archivedAt: number;
+        serverId: string;
+        name: string;
+        description?: string;
+        transportType: IMcpServer['transport']['type'];
+        source?: IMcpServer['source'];
+      }>
+    >,
+    void
+  >('mcp.list-archived-servers'),
+  restoreArchivedServer: buildProvider<
+    IBridgeResponse<{
+      archiveId: string;
+      archivedAt: number;
+      serverId: string;
+      name: string;
+      description?: string;
+      transportType: IMcpServer['transport']['type'];
+      source?: IMcpServer['source'];
+    }>,
+    { archiveId: string }
+  >('mcp.restore-archived-server'),
   // OAuth-related interfaces
   checkOAuthStatus: buildProvider<
     IBridgeResponse<{ isAuthenticated: boolean; needsLogin: boolean; error?: string }>,
@@ -1354,6 +1393,7 @@ export const webui = {
 export const cron = {
   // Query
   listJobs: buildProvider<ICronJob[], void>('cron.list-jobs'),
+  listArchivedJobs: buildProvider<IArchivedCronJob[], void>('cron.list-archived-jobs'),
   listJobsByConversation: buildProvider<ICronJob[], { conversationId: string }>('cron.list-jobs-by-conversation'),
   getJob: buildProvider<ICronJob | null, { jobId: string }>('cron.get-job'),
   // CRUD
@@ -1361,7 +1401,8 @@ export const cron = {
   updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }>(
     'cron.update-job'
   ),
-  removeJob: buildProvider<void, { jobId: string }>('cron.remove-job'),
+  removeJob: buildProvider<IArchivedCronJob, { jobId: string }>('cron.remove-job'),
+  restoreArchivedJob: buildProvider<ICronJob, { archiveId: string }>('cron.restore-archived-job'),
   runNow: buildProvider<{ conversationId: string }, { jobId: string }>('cron.run-now'),
   saveSkill: buildProvider<void, { jobId: string; content: string }>('cron.save-skill'),
   hasSkill: buildProvider<boolean, { jobId: string }>('cron.has-skill'),
@@ -1452,6 +1493,13 @@ export interface ICronJob {
     retryCount: number;
     maxRetries: number;
   };
+}
+
+export interface IArchivedCronJob {
+  archiveId: string;
+  archivedAt: number;
+  job: ICronJob;
+  skillPresent: boolean;
 }
 
 export interface ICronAgentConfig {
@@ -1638,13 +1686,7 @@ export interface IConversationTurnCompletedEvent {
   sessionId: string;
   status: 'pending' | 'running' | 'finished';
   state:
-    | 'ai_generating'
-    | 'ai_waiting_input'
-    | 'ai_waiting_confirmation'
-    | 'initializing'
-    | 'stopped'
-    | 'error'
-    | 'unknown';
+    'ai_generating' | 'ai_waiting_input' | 'ai_waiting_confirmation' | 'initializing' | 'stopped' | 'error' | 'unknown';
   detail: string;
   canSendMessage: boolean;
   runtime: {
@@ -2120,8 +2162,7 @@ export const ijfw = {
 export type IjfwDropEntry = { name: string; size: number; mtimeMs: number };
 
 export type IjfwDropIngestResult =
-  | { ok: true; name: string }
-  | { ok: false; error: string; errorReason: IjfwErrorReason };
+  { ok: true; name: string } | { ok: false; error: string; errorReason: IjfwErrorReason };
 
 // --- Models & Providers redesign (Wave 0 contract) ------------------------
 // New two-tier model registry. Distinct from the legacy `providers` namespace
@@ -2622,8 +2663,21 @@ export const storage = {
   exportAll: buildProvider<{ ok: boolean; path?: string }, { includeKeys: boolean; passphrase?: string }>(
     'storage:exportAll'
   ),
-  importBackup: buildProvider<{ ok: boolean }, { passphrase?: string }>('storage:importBackup'),
+  importBackup: buildProvider<{ ok: boolean; safetyBackupPath?: string }, { passphrase?: string }>(
+    'storage:importBackup'
+  ),
   resetAll: buildProvider<void, void>('storage:resetAll'),
+};
+
+/**
+ * Human-only, read-only projection of app-managed temporary workspaces.
+ * Local paths and authority identifiers make this unsuitable for paired WebUI
+ * callers, so the provider is remote-denied in bridgeAllowlist.ts.
+ */
+export const workspaceRetention = {
+  preview: buildProvider<import('@process/services/managedWorkspaceInventory').ManagedWorkspaceInventoryReport, void>(
+    'workspaceRetention.preview'
+  ),
 };
 
 // v0.4.7 - Kickoff suggestion engine. Yes-bias card surfaced on new-chat
@@ -2893,6 +2947,7 @@ import type {
   WikiState,
   WikiTopicTag,
   WikiFreshness,
+  ArchivedMemoryEntry,
 } from '@/common/types/memory';
 
 export const memory = {
@@ -2928,8 +2983,16 @@ export const memory = {
     { ok: boolean; error?: string; newId?: string },
     { id: string; summary?: string; type?: string; tags?: string[]; body?: string }
   >('memory.update-entry'),
-  /** Hard-delete a single memory entry from its source file (#414). */
-  deleteEntry: buildProvider<{ ok: boolean; error?: string }, { id: string }>('memory.delete-entry'),
+  /** Archive a memory entry and return the durable archive id (#414). */
+  deleteEntry: buildProvider<{ ok: boolean; error?: string; archiveId?: string }, { id: string }>(
+    'memory.delete-entry'
+  ),
+  /** List memory entries retained in the durable recovery archive. */
+  listArchivedEntries: buildProvider<ArchivedMemoryEntry[], void>('memory.list-archived-entries'),
+  /** Restore a retained memory entry to its original source file. */
+  restoreArchivedEntry: buildProvider<{ ok: boolean; error?: string }, { archiveId: string }>(
+    'memory.restore-archived-entry'
+  ),
   /** Trigger an immediate promotion sweep (added W3). */
   forceSweep: buildProvider<void, void>('memory.force-sweep'),
   /** Read a windowed slice of a source file centred on `line` for inline display. */
@@ -3047,10 +3110,20 @@ export const project = {
   addReference: buildProvider<Array<{ name: string; path: string; size: number }>, { id: string; filePaths: string[] }>(
     'project.add-reference'
   ),
-  /** Remove one reference file by name; returns the updated list. */
+  /** Archive one reference file by name; returns the updated live list. */
   removeReference: buildProvider<Array<{ name: string; path: string; size: number }>, { id: string; name: string }>(
     'project.remove-reference'
   ),
+  /** List recoverable references archived inside the project workspace. */
+  listArchivedReference: buildProvider<
+    Array<{ id: string; name: string; size: number; archivedAt: number }>,
+    { id: string }
+  >('project.list-archived-reference'),
+  /** Restore one archived reference with collision-safe naming. */
+  restoreReference: buildProvider<
+    Array<{ name: string; path: string; size: number }>,
+    { id: string; archiveId: string }
+  >('project.restore-reference'),
   /** Read the editable one-line summaries for each knowledge doc. */
   readSummaries: buildProvider<{ context?: string; rules?: string; decisions?: string }, { id: string }>(
     'project.read-summaries'
@@ -3140,11 +3213,12 @@ export const terminal = {
 };
 
 /**
- * #671 Per-workspace trust axis — the composer Chat<->Cowork toggle.
+ * #671 Per-workspace access axis. The wire namespace stays `workspaceTrust.*`
+ * for backward compatibility and remote-denial protection.
  *
- * A 'cowork' workspace auto-approves read/edit tools across every local backend
- * while STILL prompting on exec/network; 'chat' prompts on everything. Persisted
- * per workspace (keyed by cwd) in the main process.
+ * `trusted-edits` auto-approves read/edit tools across local backends while
+ * STILL prompting on exec/network; `ask` prompts on every gated tool. Legacy
+ * `chat` / `cowork` set payloads remain accepted during migration.
  *
  * SECURITY: both keys are namespaced `workspaceTrust.*` so bridgeAllowlist's
  * `workspaceTrust.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket peer
@@ -3153,8 +3227,8 @@ export const terminal = {
  * security posture. This is a LOCAL desktop control only.
  */
 export const workspaceTrust = {
-  /** Read the persisted trust level for a workspace cwd. */
-  get: buildProvider<WorkspaceTrustLevel, { workspace: string }>('workspaceTrust.get'),
-  /** Set + persist the trust level for a workspace cwd. */
-  set: buildProvider<void, { workspace: string; level: WorkspaceTrustLevel }>('workspaceTrust.set'),
+  /** Read the canonical access level for a workspace cwd. */
+  get: buildProvider<WorkspaceAccessLevel, { workspace: string }>('workspaceTrust.get'),
+  /** Set + persist access; legacy values are normalized by the main process. */
+  set: buildProvider<void, { workspace: string; level: WorkspaceAccessInput }>('workspaceTrust.set'),
 };

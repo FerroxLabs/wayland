@@ -76,4 +76,19 @@ describe('McpService.removeMcpFromAgents (S12)', () => {
 
     expect(result.success).toBe(false);
   });
+
+  it('fails closed when a backend has no MCP removal adapter', async () => {
+    const result = await service.removeMcpFromAgents('test-server', [
+      { backend: 'unknown-backend', name: 'Unknown' },
+    ]);
+
+    expect(result.success).toBe(false);
+    expect(result.results).toEqual([
+      {
+        agent: 'unknown-backend:Unknown',
+        success: false,
+        error: 'MCP removal is not supported for backend "unknown-backend"',
+      },
+    ]);
+  });
 });
