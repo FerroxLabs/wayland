@@ -35,7 +35,12 @@ import { getAgentKey } from '@renderer/pages/guid/hooks/agentSelectionUtils';
 import type { AcpBackend } from '@/common/types/acpTypes';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { useIsPopoutMode } from '@renderer/hooks/system/useIsPopoutMode';
-import { computeCssSyncDecision, resolveCssByActiveTheme } from '@renderer/utils/theme/themeCssSync';
+import { useForegroundConversationReporter } from '@renderer/hooks/system/useForegroundConversationReporter';
+import {
+  computeCssSyncDecision,
+  resolveCssByActiveTheme,
+  setExtensionThemesCache,
+} from '@renderer/utils/theme/themeCssSync';
 import '@renderer/styles/layout.css';
 
 // DevTools escape hatch: the only way to open Chrome DevTools in a packaged
@@ -125,6 +130,10 @@ const Layout: React.FC<{
   // onboarding, no command palette) - just the custom titlebar + the routed
   // conversation. Fixed for the window's lifetime.
   const isPopout = useIsPopoutMode();
+
+  // #579: report the on-screen conversation to the main process so completion
+  // notifications stay quiet only for the chat actually in view.
+  useForegroundConversationReporter();
 
   // #47: expose the orthogonal signals alongside the legacy `isMobile` composite
   // (which is left untouched above) so consumers can pick LAYOUT (isNarrow) vs
@@ -225,11 +234,17 @@ const Layout: React.FC<{
 
   const loadAndHealCustomCss = useCallback(async () => {
     try {
-      const [savedCssRaw, activeThemeId, savedThemes] = await Promise.all([
+      const [savedCssRaw, activeThemeId, savedThemes, extensionThemes] = await Promise.all([
         ConfigStorage.get('customCss'),
         ConfigStorage.get('css.activeThemeId'),
         ConfigStorage.get('css.themes'),
+        ipcBridge.extensions.getThemes.invoke().catch((error) => {
+          console.warn('Failed to load extension themes:', error);
+          return [] as ICssTheme[];
+        }),
       ]);
+
+      setExtensionThemesCache(Array.isArray(extensionThemes) ? extensionThemes : []);
 
       const decision = computeCssSyncDecision({
         savedCss: savedCssRaw || '',
@@ -293,10 +308,14 @@ const Layout: React.FC<{
 
     window.addEventListener('custom-css-updated', handleCssUpdate as EventListener);
     window.addEventListener('storage', handleStorageChange);
+    const unsubscribeExtensions = ipcBridge.extensions.stateChanged.on(() => {
+      void loadAndHealCustomCss();
+    });
 
     return () => {
       window.removeEventListener('custom-css-updated', handleCssUpdate as EventListener);
       window.removeEventListener('storage', handleStorageChange);
+      unsubscribeExtensions();
     };
   }, [loadAndHealCustomCss]);
 

@@ -69,7 +69,14 @@ export class ElectronPlatformServices implements IPlatformServices {
           cwd: opts.cwd,
           // Propagate DATA_DIR so utility processes can use NodePlatformServices
           // without needing access to app.getPath (unavailable in utility process).
-          env: { DATA_DIR: app.getPath('userData'), ...opts.env },
+          //
+          // #706: also propagate IS_PACKAGED. Utility processes fall back to
+          // NodePlatformServices, whose isPackaged() reads this env var. Without
+          // it, a forked worker in a PACKAGED build reports isPackaged=false and
+          // resolveJsRuntime() would pick the app binary as Node — but the
+          // RunAsNode fuse is blown for the whole binary, so that crash-loops.
+          // (The main/browser process is unaffected: it uses app.isPackaged.)
+          env: { DATA_DIR: app.getPath('userData'), IS_PACKAGED: String(app.isPackaged), ...opts.env },
         })
       ),
   };
@@ -83,8 +90,10 @@ export class ElectronPlatformServices implements IPlatformServices {
   };
 
   notification = {
-    send: ({ title, body }: { title: string; body: string; icon?: string }): void => {
-      new Notification({ title, body }).show();
+    // `icon` was accepted and then dropped on the floor: notificationBridge resolves
+    // an app-icon path and passed it in, but it never reached the Notification.
+    send: ({ title, body, icon, silent }: { title: string; body: string; icon?: string; silent?: boolean }): void => {
+      new Notification({ title, body, icon, silent }).show();
     },
   };
 

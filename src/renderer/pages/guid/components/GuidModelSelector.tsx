@@ -21,6 +21,7 @@ import { resolveAgentScope } from '@/renderer/pages/settings/AgentSettings/agent
 import { iconColors } from '@/renderer/styles/colors';
 import FluxRouterMark from '@/renderer/components/icons/FluxRouterMark';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
+import { sortModelsNewestFirst } from '@/renderer/utils/model/modelOrder';
 import { formatAcpModelDisplayLabel, getAcpModelSourceLabel } from '@/renderer/utils/model/modelSource';
 import type { AcpModelInfo } from '../types';
 import React from 'react';
@@ -417,21 +418,31 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   // identically to a cached entry. This is what kills the cold-start dead-end.
   const acpModels = React.useMemo<AcpModelInfo['availableModels']>(() => {
     if (currentAcpCachedModelInfo?.availableModels?.length) {
-      return currentAcpCachedModelInfo.availableModels;
+      return sortModelsNewestFirst(currentAcpCachedModelInfo.availableModels);
     }
-    return (curated ?? []).map((m) => ({ id: m.id, label: m.displayName }));
+    // Sort the curated rows (which carry releaseDate) newest-first BEFORE mapping
+    // to `{id,label}`, so the picker shows e.g. GPT-5.6 above 5.5 above 5.4
+    // instead of the catalog store's ascending alphabetical order.
+    return sortModelsNewestFirst(curated ?? []).map((m) => ({ id: m.id, label: m.displayName }));
   }, [currentAcpCachedModelInfo?.availableModels, curated]);
 
   const acpSelectedLabel = React.useMemo(() => {
     if (isFluxModelId(selectedAcpModel)) return FLUX_MODEL_DISPLAY[selectedAcpModel as FluxModelId];
+    // Resolve the label from the SAME unified list the dropdown renders
+    // (`acpModels` = live session cache when present, else the curated catalog).
+    // On a brand-new chat there is no spawned session yet, so
+    // `currentAcpCachedModelInfo` is null; looking only there left the button
+    // stuck on "Default Model" after picking e.g. gpt-5.6-sol for Codex, making
+    // the selection look like it did nothing. `acpModels` carries the curated
+    // rows, so the freshly-picked model resolves to its real label immediately.
     return (
-      currentAcpCachedModelInfo?.availableModels?.find((m) => m.id === selectedAcpModel)?.label ||
+      acpModels.find((m) => m.id === selectedAcpModel)?.label ||
       currentAcpCachedModelInfo?.currentModelLabel ||
       currentAcpCachedModelInfo?.currentModelId ||
       ''
     );
   }, [
-    currentAcpCachedModelInfo?.availableModels,
+    acpModels,
     currentAcpCachedModelInfo?.currentModelId,
     currentAcpCachedModelInfo?.currentModelLabel,
     selectedAcpModel,

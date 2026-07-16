@@ -28,24 +28,36 @@ const ContextUsageIndicator: React.FC<ContextUsageIndicatorProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { percentage, displayTotal, displayLimit, isWarning, isDanger } = useMemo(() => {
+  const { percentage, rawPercentage, displayTotal, displayLimit, isWarning, isDanger } = useMemo(() => {
     if (!tokenUsage) {
       return {
         percentage: 0,
+        rawPercentage: 0,
         displayTotal: '0',
-        displayLimit: formatTokenCount(contextLimit, true),
+        displayLimit: formatTokenCount(contextLimit > 0 ? contextLimit : DEFAULT_CONTEXT_LIMIT, true),
         isWarning: false,
         isDanger: false,
       };
     }
 
-    const total = tokenUsage.totalTokens;
-    const pct = (total / contextLimit) * 100;
+    // Guard a non-finite/negative usage figure: `NaN` would sail through a bare
+    // `typeof === 'number'` check upstream and paint stroke-dashoffset="NaN".
+    const total = Number.isFinite(tokenUsage.totalTokens) ? Math.max(0, tokenUsage.totalTokens) : 0;
+    // Guard a non-positive limit: an agent that reports usage with no window
+    // would otherwise divide by zero here and drive the ring to Infinity/NaN.
+    const safeLimit = contextLimit > 0 ? contextLimit : DEFAULT_CONTEXT_LIMIT;
+    const pct = (total / safeLimit) * 100;
 
     return {
-      percentage: pct,
+      // The RING is clamped to [0,100]: a usage figure that exceeds the window
+      // (e.g. the "3M / 200K" in #733, where a cumulative counter is rendered
+      // against a per-turn window) drove strokeDashoffset negative and painted
+      // a corrupt arc. The TEXT below stays unclamped and honest - it still
+      // reports the real numbers and the real (>100%) percentage.
+      percentage: Math.min(100, Math.max(0, pct)),
+      rawPercentage: pct,
       displayTotal: formatTokenCount(total),
-      displayLimit: formatTokenCount(contextLimit, true),
+      displayLimit: formatTokenCount(safeLimit, true),
       isWarning: pct > 70,
       isDanger: pct > 90,
     };
@@ -77,7 +89,7 @@ const ContextUsageIndicator: React.FC<ContextUsageIndicatorProps> = ({
   const popoverContent = (
     <div className='p-8px min-w-160px'>
       <div className='text-14px font-medium text-t-primary'>
-        {percentage.toFixed(1)}% · {displayTotal} / {displayLimit}{' '}
+        {rawPercentage.toFixed(1)}% · {displayTotal} / {displayLimit}{' '}
         {t('conversation.contextUsage.contextUsed', 'context used')}
       </div>
     </div>

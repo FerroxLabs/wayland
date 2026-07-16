@@ -152,6 +152,23 @@ export interface IConfigStorageRefer {
   'assistant.presetAgentTypeOverrides'?: Record<string, string>;
   // Cached initialize results per ACP backend (persisted across sessions)
   'acp.cachedInitializeResult'?: Record<string, import('@/common/types/acpTypes').AcpInitializeResult>;
+  /**
+   * #672: durable, per-workspace "allow always" ACP approval decisions. Keyed by
+   * workspace cwd → serialized approval key → optionId. The live PermissionResolver
+   * cache is otherwise in-memory/session-scoped, so an "allow always" was lost on
+   * restart and re-prompted. Rehydrated on session start; main-process only.
+   */
+  'acp.workspaceApprovals'?: Record<string, Record<string, string>>;
+  /**
+   * #671: per-workspace trust level (desktop half of #657). Keyed by the
+   * normalized workspace cwd → 'chat' | 'cowork'. A 'cowork' workspace
+   * auto-approves read/edit tools while still prompting on exec/network across
+   * every backend; 'chat' (the default, and any absent key) prompts on
+   * everything. Persisted so the posture survives restart; main-process only —
+   * written exclusively through the workspaceTrust IPC (never renderer
+   * ConfigStorage) so the in-memory gate cache stays coherent.
+   */
+  'workspace.trustLevel'?: Record<string, import('@/common/security/workspaceTrust').WorkspaceTrustLevel>;
   // Cached model lists per ACP backend for Guid page pre-selection
   'acp.cachedModels'?: Record<string, import('@/common/types/acpTypes').AcpModelInfo>;
   // Cached config options per ACP backend for Guid page pre-selection

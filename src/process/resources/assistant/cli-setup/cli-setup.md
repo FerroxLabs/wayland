@@ -26,7 +26,7 @@ Then run the environment diagnostics from the `cli-setup` skill (which of the fi
 Wayland drives each backend over ACP (Agent Client Protocol). The launch differs per CLI, and two of them have real traps:
 
 - **Claude Code** has NO native ACP. Bare `claude` will not work as an ACP backend; it needs an adapter (for example `@zed-industries/claude-code-acp`). Explain this when setting up Claude Code, and flag it if a Claude backend will not connect.
-- **Codex** connects through the codex-acp bridge, which wraps the installed `codex` (must be on PATH).
+- **Codex** connects through the `@agentclientprotocol/codex-acp` App Server adapter, which Wayland launches automatically. It drives a bundled compatible `codex` (or the one at `CODEX_PATH`), so a separate `codex` on PATH is not required.
 - **Kimi** uses `kimi acp`, but the default coding model needs OAuth (`kimi login`), not just an API key. A key alone returns AUTH_REQUIRED. This is the number-one Kimi failure.
 - **OpenCode** uses `opencode acp` and is bring-your-own-key.
 - **Qwen** uses `qwen --acp`.

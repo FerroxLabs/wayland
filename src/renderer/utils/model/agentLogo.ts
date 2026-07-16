@@ -93,8 +93,14 @@ export function getAgentLogo(agent: string | undefined | null): string | null {
  * them to a clean white silhouette on dark. Colored brand logos (claude, gemini,
  * codebuddy, hermes, nanobot, openclaw, vibe) are deliberately excluded so their
  * brand colour is never flattened.
+ *
+ * `codex` is intentionally NOT in this set: its asset is a two-tone mark (a white
+ * disc with a black `>_` glyph + ring), not a single-color silhouette. Flattening
+ * it with `brightness(0)` collapses the disc and glyph to one black shape, which
+ * `invert(1)` then turns into a featureless solid-white circle. The native asset
+ * already reads on dark (white disc carries its own contrast), so it needs no filter.
  */
-const MONOCHROME_DARK_AGENT_LOGOS = new Set(['codex', 'copilot', 'goose', 'auggie', 'kimi', 'grok']);
+const MONOCHROME_DARK_AGENT_LOGOS = new Set(['copilot', 'goose', 'auggie', 'kimi', 'grok']);
 
 /**
  * On the dark theme, whether this agent's logo needs forcing to a white

@@ -684,7 +684,7 @@ export class TeammateManager extends EventEmitter {
 
     // Detect terminal stream messages and trigger turn completion.
     if (msg.type === 'finish' || msg.type === 'error') {
-      void this.finalizeTurn(msg.conversation_id);
+      void this.finalizeTurn(msg.conversation_id, msg.turnId);
       return;
     }
 
@@ -787,12 +787,24 @@ export class TeammateManager extends EventEmitter {
    * All agent coordination (send_message, task_create, etc.) is handled via MCP tool calls
    * in TeamMcpServer - this method only needs to manage lifecycle.
    */
-  private async finalizeTurn(conversationId: string): Promise<void> {
+  private async finalizeTurn(conversationId: string, turnId?: string | number): Promise<void> {
+    // #787: dedup per (conversation, turn). A late duplicate of a prior turn's
+    // finish that arrives AFTER the agent was re-woken must still be suppressed,
+    // yet the re-wake's own fresh turn must be free to finalize. Keying by
+    // conversation alone can't distinguish them: `wake()` clears the entry so
+    // the new turn isn't wrongly deduped, which simultaneously un-dedups the old
+    // turn's straggler → a duplicate idle_notification. A per-turn key fixes
+    // both: the straggler (turnId=A) stays deduped while the re-wake (turnId=B)
+    // uses a distinct key. Non-ACP / signal-channel finishes carry no turnId and
+    // fall back to conversation-only keying (unchanged behaviour) — and note
+    // `wake()`'s bare-`conversationId` delete only removes that fallback key, so
+    // it never disturbs a live `${conv}#${turnId}` entry.
+    const dedupKey = turnId === undefined ? conversationId : `${conversationId}#${turnId}`;
     // Dedup: skip if this turn was already finalized
-    if (this.finalizedTurns.has(conversationId)) return;
-    this.finalizedTurns.add(conversationId);
+    if (this.finalizedTurns.has(dedupKey)) return;
+    this.finalizedTurns.add(dedupKey);
     // Clean up the dedup entry after a short delay so future turns can be processed
-    setTimeout(() => this.finalizedTurns.delete(conversationId), 5000);
+    setTimeout(() => this.finalizedTurns.delete(dedupKey), 5000);
 
     const agent = this.agents.find((a) => a.conversationId === conversationId);
     if (!agent) return;
@@ -868,6 +880,36 @@ export class TeammateManager extends EventEmitter {
       } catch (err) {
         console.warn(
           `[TeammateManager] finalizeTurn(${agent.slotId}) unread-mailbox check failed:`,
+          err instanceof Error ? err.message : String(err)
+        );
+      }
+    } else {
+      // #786: the leader has the SAME mid-wake delivery race as members - a
+      // message written to the leader's mailbox while its wake is in flight is
+      // skipped by the activeWakes guard (e.g. a user follow-up sent during the
+      // leader's long first-spawn turn). The member drain above intentionally
+      // excludes the leader because an unconditional re-wake would re-introduce
+      // the notification-per-turn churn that maybeWakeLeaderWhenAllIdle exists to
+      // prevent. So drain the leader's own unread mailbox here, but re-wake ONLY
+      // when it holds real content (a user follow-up or a member report) - never
+      // for idle_notifications alone. Otherwise a leader message can rot when no
+      // member finishes a turn afterward (or there are no members at all) to
+      // trip maybeWakeLeaderWhenAllIdle. wake() drains ALL unread atomically
+      // (readUnreadAndMark), so any idle_notifications ride along on that wake.
+      try {
+        const pending = await this.mailbox.peekUnread(this.teamId, agent.slotId);
+        const actionable = pending.filter((m) => m.type !== 'idle_notification');
+        if (actionable.length > 0) {
+          console.log(
+            `[TeammateManager] finalizeTurn(leader ${agent.agentName}): ${actionable.length} actionable unread message(s) arrived mid-turn, re-waking`
+          );
+          void this.wake(agent.slotId).catch((err) => {
+            console.error(`[TeammateManager] finalizeTurn leader re-wake(${agent.slotId}) failed:`, err);
+          });
+        }
+      } catch (err) {
+        console.warn(
+          `[TeammateManager] finalizeTurn(leader ${agent.slotId}) unread-mailbox check failed:`,
           err instanceof Error ? err.message : String(err)
         );
       }

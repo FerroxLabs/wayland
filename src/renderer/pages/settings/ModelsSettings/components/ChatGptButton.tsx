@@ -20,6 +20,7 @@ const ERROR_KEY: Record<Exclude<ChatGptOAuthResult, { ok: true }>['error'], stri
   offline: 'chatgptOffline',
   cancelled: 'chatgptCancelled',
   timeout: 'chatgptFailed',
+  headless: 'chatgptHeadless',
   unknown: 'chatgptFailed',
 };
 

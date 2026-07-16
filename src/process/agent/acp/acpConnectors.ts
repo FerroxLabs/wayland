@@ -80,75 +80,6 @@ function parseWindowsCliPath(cliPath: string): { command: string; inlineArgs: st
   return { command: parts[0] ?? '', inlineArgs: parts.slice(1) };
 }
 
-function resolveCodexAcpPlatformPackage(): string | null {
-  if (process.platform === 'win32') {
-    if (process.arch === 'x64') {
-      return '@zed-industries/codex-acp-win32-x64';
-    }
-
-    if (process.arch === 'arm64') {
-      return '@zed-industries/codex-acp-win32-arm64';
-    }
-  }
-
-  if (process.platform === 'linux') {
-    if (process.arch === 'x64') {
-      return '@zed-industries/codex-acp-linux-x64';
-    }
-
-    if (process.arch === 'arm64') {
-      return '@zed-industries/codex-acp-linux-arm64';
-    }
-  }
-
-  if (process.platform === 'darwin') {
-    if (process.arch === 'x64') {
-      return '@zed-industries/codex-acp-darwin-x64';
-    }
-
-    if (process.arch === 'arm64') {
-      return '@zed-industries/codex-acp-darwin-arm64';
-    }
-  }
-
-  return null;
-}
-
-function resolveCodexAcpPlatformPackageSpecifier(packageName: string): string {
-  return `${packageName}@${CODEX_ACP_BRIDGE_VERSION}`;
-}
-
-function resolvePreferredCodexAcpPlatformPackage(): string | null {
-  const packageName = resolveCodexAcpPlatformPackage();
-  return packageName ? resolveCodexAcpPlatformPackageSpecifier(packageName) : null;
-}
-
-function shouldPreferDirectCodexAcpPackage(): boolean {
-  return process.platform === 'win32' || process.platform === 'linux';
-}
-
-function extractCodexPlatformPackageFromError(errorMessage: string): string | null {
-  const packageMatch = errorMessage.match(/Cannot find package '(@zed-industries\/codex-acp-[^']+)'/i);
-  if (packageMatch) {
-    return packageMatch[1];
-  }
-
-  const binaryMatch = errorMessage.match(/Failed to locate (@zed-industries\/codex-acp-[^\s]+) binary/i);
-  if (binaryMatch) {
-    return binaryMatch[1];
-  }
-
-  return null;
-}
-
-function isCodexMetaPackageOptionalDependencyError(errorMessage: string): boolean {
-  return (
-    errorMessage.includes('optional dependency was not installed') ||
-    (errorMessage.includes('@zed-industries/codex-acp') &&
-      /ERR_MODULE_NOT_FOUND|Cannot find package|Failed to locate .* binary/i.test(errorMessage))
-  );
-}
-
 // ── Environment helpers ─────────────────────────────────────────────
 
 /**
@@ -261,15 +192,16 @@ export function ensureMinNodeVersion(
       const sep = isWindows ? ';' : ':';
       cleanEnv.PATH = suitableBinDir + sep + (cleanEnv.PATH || '');
 
-      // Verify the corrected PATH actually resolves to a good node (npx uses the same PATH)
+      // Verify the corrected PATH actually resolves to a good node (npx uses the
+      // same PATH). We only care that this does not throw — the version output
+      // itself is unused, so it is not captured.
       try {
-        const correctedVersion = execFileSync(isWindows ? 'node.exe' : 'node', ['--version'], {
+        execFileSync(isWindows ? 'node.exe' : 'node', ['--version'], {
           env: cleanEnv,
           encoding: 'utf-8',
           timeout: 5000,
           stdio: ['pipe', 'pipe', 'pipe'],
-        }).trim();
-        // Version auto-corrected silently
+        });
       } catch {
         console.warn(`[ACP] PATH corrected with ${suitableBinDir} but node verification failed - proceeding anyway`);
       }
@@ -625,6 +557,40 @@ async function prepareCodebuddy(): Promise<NpxPrepareResult> {
  * when Electron's inherited env resolves to an old Node version.
  * Safe for native binaries too - they ignore NODE_OPTIONS and Node version checks.
  */
+/**
+ * #756: per-backend env hardening for headless stdio ACP spawns. Pure so the
+ * choice is unit-testable without spawning anything.
+ *
+ * Hermes is a Python CLI driven over a headless stdio pipe. Two documented
+ * (hermes-setup/SKILL.md) failure modes were never actually defended against in
+ * the spawn path, so a Hermes session would open and then STALL INDEFINITELY —
+ * disproportionately on Windows (fresh installs hit first-run hooks, and Windows
+ * anonymous-pipe buffering is harsher):
+ *   - a first-run interactive "hook" prompt blocks forever waiting on stdin that
+ *     the JSON-RPC driver never answers  → HERMES_ACCEPT_HOOKS=1 auto-accepts it;
+ *   - Python block-buffers stdout when it is not a TTY, so JSON-RPC replies can
+ *     sit unflushed in the pipe buffer     → PYTHONUNBUFFERED=1 forces line flush.
+ * Returned as DEFAULTS (applied before customEnv) so an explicit user/flux value
+ * still wins.
+ */
+/** ACP CLIs installed as Python packages (pip/uv). They block-buffer stdout off
+ *  a TTY, so their JSON-RPC replies stall in the pipe buffer — worst on Windows. */
+const PYTHON_ACP_BACKENDS = new Set(['hermes', 'kimi']);
+
+export function backendSpawnEnvHardening(backend: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  // Force line-buffered stdout for every Python-based backend, not just Hermes.
+  if (PYTHON_ACP_BACKENDS.has(backend)) {
+    out['PYTHONUNBUFFERED'] = '1';
+  }
+  // Hermes-specific: auto-accept its first-run interactive hook prompt, which
+  // otherwise blocks the headless spawn forever on stdin nobody answers.
+  if (backend === 'hermes') {
+    out['HERMES_ACCEPT_HOOKS'] = '1';
+  }
+  return out;
+}
+
 export async function spawnGenericBackend(
   backend: string,
   cliPath: string,
@@ -639,6 +605,8 @@ export async function spawnGenericBackend(
   }
 
   const cleanEnv = await prepareCleanEnv();
+  // #756: apply backend hardening as DEFAULTS, then let customEnv override.
+  Object.assign(cleanEnv, backendSpawnEnvHardening(backend));
   if (customEnv) {
     Object.assign(cleanEnv, customEnv);
   }
@@ -791,72 +759,20 @@ export function connectCodex(
   customEnv?: Record<string, string>
 ): Promise<void> {
   return (async () => {
-    const codexPlatformPackage = resolvePreferredCodexAcpPlatformPackage();
-    // Resolve the latest published codex-acp at spawn time (fallback to the
-    // pinned CODEX_ACP_NPX_PACKAGE offline).
+    // @agentclientprotocol/codex-acp is a single pure-JS stdio ACP agent (no
+    // per-platform binary sub-packages like the retired Zed bridge had), so we
+    // resolve the latest published version once and launch it via npx — no
+    // platform-package candidate list or optional-dependency retry dance.
+    // Fallback to the pinned CODEX_ACP_NPX_PACKAGE when the registry is offline.
     const codexAcpPackage = await resolveBridgePackage(CODEX_ACP_NPX_PACKAGE);
-    const preferDirectPackage = codexPlatformPackage !== null && shouldPreferDirectCodexAcpPackage();
-    const codexPackageCandidates = preferDirectPackage
-      ? [codexPlatformPackage, codexAcpPackage]
-      : [codexAcpPackage, ...(codexPlatformPackage ? [codexPlatformPackage] : [])];
-
-    let lastError: Error | null = null;
-
-    for (const [index, npxPackage] of codexPackageCandidates.entries()) {
-      try {
-        await connectNpxBackend({
-          backend: 'codex',
-          npxPackage,
-          prepareFn: () => prepareCodex(npxPackage),
-          workingDir,
-          ...hooks,
-          customEnv,
-        });
-        return;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-
-        const fallbackPackageName = extractCodexPlatformPackageFromError(lastError.message);
-        const fallbackPackage = fallbackPackageName
-          ? resolveCodexAcpPlatformPackageSpecifier(fallbackPackageName)
-          : null;
-        const canRetryWithPlatformPackage =
-          index === 0 &&
-          !preferDirectPackage &&
-          codexPlatformPackage !== null &&
-          npxPackage === codexAcpPackage &&
-          isCodexMetaPackageOptionalDependencyError(lastError.message);
-        const hasRemainingCandidates = index < codexPackageCandidates.length - 1;
-
-        await hooks.cleanup();
-
-        if (canRetryWithPlatformPackage) {
-          if (fallbackPackage && !codexPackageCandidates.includes(fallbackPackage)) {
-            codexPackageCandidates.push(fallbackPackage);
-          }
-
-          mainWarn(
-            '[ACP codex]',
-            `Meta bridge package failed to install its platform binary, retrying with direct package: ${codexPlatformPackage}`,
-            lastError.message
-          );
-          continue;
-        }
-
-        if (hasRemainingCandidates) {
-          mainWarn(
-            '[ACP codex]',
-            `Bridge package failed, retrying alternate package: ${npxPackage}`,
-            lastError.message
-          );
-          continue;
-        }
-
-        throw lastError;
-      }
-    }
-
-    throw lastError ?? new Error('Failed to start codex ACP bridge');
+    await connectNpxBackend({
+      backend: 'codex',
+      npxPackage: codexAcpPackage,
+      prepareFn: () => prepareCodex(codexAcpPackage),
+      workingDir,
+      ...hooks,
+      customEnv,
+    });
   })();
 }
 

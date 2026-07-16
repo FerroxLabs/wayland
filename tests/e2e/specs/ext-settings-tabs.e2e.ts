@@ -1,13 +1,6 @@
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
-import {
-  goToSettings,
-  goToExtensionSettings,
-  waitForSettle,
-  takeScreenshot,
-  SETTINGS_SIDER_ITEM,
-  settingsSiderItemById,
-} from '../helpers';
+import { goToSettings, goToExtensionSettings, waitForSettle, takeScreenshot, SETTINGS_SIDER_ITEM } from '../helpers';
 
 const EXT_E2E_SETTINGS_ID = 'ext-e2e-full-extension-e2e-settings';
 const EXT_E2E_BEFORE_ABOUT_ID = 'ext-e2e-full-extension-e2e-before-about';
@@ -22,90 +15,28 @@ async function getSiderItemIds(page: Page): Promise<string[]> {
   return ids;
 }
 
-async function waitForExtensionSettingsTabs(page: Page, timeout = 10_000): Promise<string[]> {
-  await expect
-    .poll(
-      async () => {
-        const counts = await Promise.all(
-          KNOWN_EXTENSION_TAB_IDS.map((id) => page.locator(settingsSiderItemById(id)).count())
-        );
-        return counts.some((count) => count > 0);
-      },
-      {
-        timeout,
-        message: 'Expected extension settings tabs to appear in the sidebar',
-      }
-    )
-    .toBeTruthy();
-
-  return getSiderItemIds(page);
-}
-
 test.describe('Extension: Settings Tabs Discovery', () => {
-  test('extension settings tabs appear in the sidebar', async ({ page }) => {
+  test('extension settings tabs stay out of the main settings sidebar', async ({ page }) => {
     await goToSettings(page, 'gemini');
+    await waitForSettle(page);
 
-    const siderItemIds = await waitForExtensionSettingsTabs(page);
+    const siderItemIds = await getSiderItemIds(page);
 
     expect(
       siderItemIds.some((id) => KNOWN_EXTENSION_TAB_IDS.includes(id as (typeof KNOWN_EXTENSION_TAB_IDS)[number]))
-    ).toBeTruthy();
+    ).toBeFalsy();
+    expect(siderItemIds).toContain('extensions');
   });
 
-  test('multiple extension tabs from different extensions appear', async ({ page }) => {
-    await goToSettings(page, 'gemini');
+  for (const tabId of KNOWN_EXTENSION_TAB_IDS) {
+    test(`extension settings route ${tabId} still opens directly`, async ({ page }) => {
+      await goToExtensionSettings(page, tabId);
+      await waitForSettle(page);
 
-    const siderItemIds = await waitForExtensionSettingsTabs(page);
-
-    const hasE2eTab = siderItemIds.includes(EXT_E2E_SETTINGS_ID) || siderItemIds.includes(EXT_E2E_BEFORE_ABOUT_ID);
-    const hasHelloTab = siderItemIds.includes(EXT_HELLO_SETTINGS_ID);
-
-    expect(hasE2eTab && hasHelloTab).toBeTruthy();
-  });
-});
-
-test.describe('Extension: Settings Tabs Position Anchoring', () => {
-  test('tab with anchor "capabilities/after" appears after Capabilities in sidebar', async ({ page }) => {
-    await goToSettings(page, 'capabilities');
-    await waitForExtensionSettingsTabs(page);
-
-    const siderItemIds = await getSiderItemIds(page);
-
-    const capabilitiesIdx = siderItemIds.indexOf('capabilities');
-    const e2eIdx = siderItemIds.indexOf(EXT_E2E_SETTINGS_ID);
-
-    expect(capabilitiesIdx).toBeGreaterThanOrEqual(0);
-    expect(e2eIdx).toBeGreaterThanOrEqual(0);
-    expect(e2eIdx).toBeGreaterThan(capabilitiesIdx);
-  });
-
-  test('tab with anchor "about/before" appears before About in sidebar', async ({ page }) => {
-    await goToSettings(page, 'about');
-    await waitForExtensionSettingsTabs(page);
-
-    const siderItemIds = await getSiderItemIds(page);
-
-    const aboutIdx = siderItemIds.indexOf('about');
-    const beforeAboutIdx = siderItemIds.indexOf(EXT_E2E_BEFORE_ABOUT_ID);
-
-    expect(aboutIdx).toBeGreaterThanOrEqual(0);
-    expect(beforeAboutIdx).toBeGreaterThanOrEqual(0);
-    expect(beforeAboutIdx).toBeLessThan(aboutIdx);
-  });
-
-  test('tab with anchor "display/after" appears after Display in sidebar', async ({ page }) => {
-    await goToSettings(page, 'display');
-    await waitForExtensionSettingsTabs(page);
-
-    const siderItemIds = await getSiderItemIds(page);
-
-    const displayIdx = siderItemIds.indexOf('display');
-    const helloIdx = siderItemIds.indexOf(EXT_HELLO_SETTINGS_ID);
-
-    expect(displayIdx).toBeGreaterThanOrEqual(0);
-    expect(helloIdx).toBeGreaterThanOrEqual(0);
-    expect(helloIdx).toBeGreaterThan(displayIdx);
-  });
+      const body = await page.locator('body').textContent();
+      expect(body!.length).toBeGreaterThan(30);
+    });
+  }
 });
 
 test.describe('Extension: Settings Tabs Navigation', () => {
@@ -152,11 +83,11 @@ test.describe('Extension: Settings Tabs Navigation', () => {
 
 test.describe('Extension: Settings Tabs $file: Resolution', () => {
   test('e2e-full-extension with $file: settingsTabs resolves correctly', async ({ page }) => {
-    await goToSettings(page, 'gemini');
+    await goToExtensionSettings(page, EXT_E2E_SETTINGS_ID);
+    await waitForSettle(page);
 
-    const siderItemIds = await waitForExtensionSettingsTabs(page);
-
-    expect(siderItemIds.includes(EXT_E2E_SETTINGS_ID)).toBeTruthy();
+    const body = await page.locator('body').textContent();
+    expect(body!.length).toBeGreaterThan(30);
   });
 });
 

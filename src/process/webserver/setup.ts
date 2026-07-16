@@ -11,7 +11,11 @@ import cookieParser from 'cookie-parser';
 import csrf from 'tiny-csrf';
 import crypto from 'crypto';
 import { AuthMiddleware } from '@process/webserver/auth/middleware/AuthMiddleware';
-import { classifyClientTrust } from '@process/webserver/middleware/networkTrust';
+import {
+  classifyClientTrust,
+  isLoopbackAddress,
+  trustedProxyDeclared,
+} from '@process/webserver/middleware/networkTrust';
 import { errorHandler } from './middleware/errorHandler';
 import { attachCsrfToken } from './middleware/security';
 
@@ -204,7 +208,9 @@ function singleForwardedValue(header: string | string[] | undefined): string | u
  * on a cross-origin credentialed request (the preflight OPTIONS never carries it).
  */
 export function deriveTrustedProxyOrigin(req: Request): string | null {
-  if (classifyClientTrust(req.socket?.remoteAddress) !== 'operator') {
+  // localAddress rides along so a CGNAT peer is only trusted when the connection
+  // actually ARRIVED over the tailnet, not merely because this host is on one (#529).
+  if (classifyClientTrust(req.socket?.remoteAddress, req.socket?.localAddress) !== 'operator') {
     return null;
   }
 
@@ -213,7 +219,37 @@ export function deriveTrustedProxyOrigin(req: Request): string | null {
 
   const proto = singleForwardedValue(req.headers['x-forwarded-proto'])?.toLowerCase();
   const scheme = proto === 'http' || proto === 'https' ? proto : req.protocol || 'https';
-  return normalizeOrigin(`${scheme}://${host}`);
+  const origin = normalizeOrigin(`${scheme}://${host}`);
+
+  if (origin) warnUndeclaredProxyOnce(req.socket?.remoteAddress, origin);
+  return origin;
+}
+
+/**
+ * #830 - a same-host reverse proxy forwards public traffic as a loopback peer. When it
+ * does AND the operator has NOT declared `WAYLAND_TRUSTED_PROXY`, loopback still
+ * auto-grants `operator` (the #808 exposure), and this very function has just believed
+ * an attacker-influencable `X-Forwarded-Host`. That is the strongest available signal a
+ * fronting proxy exists, so warn ONCE per process (guarded so it can't spam the log).
+ * A tailnet/CIDR operator peer deriving an origin is a genuine trusted proxy, not this
+ * hole, so the warning is scoped to a LOOPBACK peer only.
+ */
+let warnedUndeclaredProxy = false;
+function warnUndeclaredProxyOnce(peer: string | undefined, origin: string): void {
+  if (warnedUndeclaredProxy) return;
+  if (trustedProxyDeclared()) return; // operator declared the proxy - loopback already demoted
+  if (!isLoopbackAddress(peer)) return; // genuine tailnet/CIDR proxy, not the loopback hole
+  warnedUndeclaredProxy = true;
+  console.warn(
+    `[security] Trusted X-Forwarded-Host "${origin}" from a loopback peer, but ` +
+      'WAYLAND_TRUSTED_PROXY is not set. If a same-host reverse proxy fronts this app, set ' +
+      'WAYLAND_TRUSTED_PROXY=1 so forwarded requests are not treated as local operator (#808).'
+  );
+}
+
+/** Test seam: reset the once-per-process proxy-exposure warning. */
+export function _resetProxyExposureWarningForTests(): void {
+  warnedUndeclaredProxy = false;
 }
 
 /**

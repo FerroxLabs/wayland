@@ -129,7 +129,7 @@ export class AcpConnection {
   public onPermissionRequest: (data: AcpPermissionRequest) => Promise<{
     optionId: string;
   }> = () => Promise.resolve({ optionId: 'allow' }); // Returns a resolved Promise for interface consistency
-  public onEndTurn: () => void = () => {}; // Handler for end_turn messages
+  public onEndTurn: (turnId?: string) => void = () => {}; // Handler for end_turn messages
   public onPromptUsage: (usage: AcpPromptResponseUsage) => void = () => {}; // Handler for PromptResponse.usage (per-turn token data)
   public onFileOperation: (operation: { method: string; path: string; content?: string; sessionId: string }) => void =
     () => {};
@@ -628,7 +628,11 @@ export class AcpConnection {
           if (message.result && typeof message.result === 'object') {
             const promptResult = message.result as Record<string, unknown>;
             if (promptResult.stopReason === 'end_turn') {
-              this.onEndTurn();
+              // #787: wayland-core stamps a per-turn `turn_id` (uuid) on the ACP
+              // terminal frame. `promptResult` is an untyped record so the field
+              // survives deserialization; forward it so the finish carries turn
+              // identity for TeammateManager's per-turn dedup.
+              this.onEndTurn(typeof promptResult.turn_id === 'string' ? promptResult.turn_id : undefined);
             }
             // Extract PromptResponse.usage (per-turn token data from codex-acp / PR #167)
             if (promptResult.usage && typeof promptResult.usage === 'object') {

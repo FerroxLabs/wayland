@@ -34,6 +34,7 @@ import type { CatalogSource } from '../sources/CatalogSource';
 import type { ModelsDevModel, ModelsDevRegistry } from '../enrichment/modelsDevSchema';
 import type { CatalogModel, ModelKind, ProviderId, RawModel, UsageTag } from '../types';
 import { ModelDisplayNames } from './ModelDisplayNames';
+import { looksLikeEmbeddingModelId } from './modelCapabilityRules';
 
 /**
  * Maps our `ProviderId` to the provider key models.dev uses in its registry.
@@ -123,14 +124,15 @@ export class CatalogAssembler {
 
     if (!match) {
       // Unmatched - humanized name, id-derived family, safe text default.
+      const kind = deriveUnenrichedKind(raw.id);
       return {
         id: raw.id,
         providerId: raw.providerId,
         displayName: this.displayNames.humanise(raw.id, raw.providerId),
         family: deriveFamily(raw.id),
-        kind: 'text',
+        kind,
         enriched: false,
-        tags: [],
+        tags: deriveUnenrichedTags(kind),
       };
     }
 
@@ -190,7 +192,15 @@ function deriveKind(model: ModelsDevModel): ModelKind {
 /** True when a model's name/family/id reads like an embedding model. */
 function looksLikeEmbedding(model: ModelsDevModel): boolean {
   const haystack = `${model.family ?? ''} ${model.id}`.toLowerCase();
-  return haystack.includes('embed');
+  return looksLikeEmbeddingModelId(haystack);
+}
+
+function deriveUnenrichedKind(modelId: string): ModelKind {
+  return looksLikeEmbeddingModelId(modelId) ? 'embedding' : 'text';
+}
+
+function deriveUnenrichedTags(kind: ModelKind): UsageTag[] {
+  return kind === 'embedding' ? ['embeddings'] : [];
 }
 
 /**

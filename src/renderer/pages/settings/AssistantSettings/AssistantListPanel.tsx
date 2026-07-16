@@ -12,7 +12,8 @@ import {
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import type { AssistantListItem } from './types';
 import AssistantAvatar from './AssistantAvatar';
-import { Button, Input, Switch, Tabs, Tag } from '@arco-design/web-react';
+import { Button, Input, Switch, Tabs, Tag, Message } from '@arco-design/web-react';
+import { ipcBridge } from '@/common';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -159,6 +160,27 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
           className='flex items-center gap-10px text-t-secondary ml-12px flex-shrink-0'
           onClick={(e) => e.stopPropagation()}
         >
+          <span
+            className='invisible group-hover:visible text-12px text-primary cursor-pointer hover:underline transition-all'
+            data-testid={`btn-export-${assistant.id}`}
+            onClick={() => {
+              void ipcBridge.dataExport.assistant.invoke({ id: assistant.id }).then((r) => {
+                if (!r.ok) {
+                  Message.error(r.error || t('settings.exportFailed', { defaultValue: 'Export failed' }));
+                } else if (!r.canceled) {
+                  Message.success(
+                    r.redacted
+                      ? t('settings.exportRedacted', {
+                          defaultValue: 'Exported. A possible secret was masked — review before sharing.',
+                        })
+                      : t('settings.exportOk', { defaultValue: 'Exported' })
+                  );
+                }
+              });
+            }}
+          >
+            {t('settings.exportButton', { defaultValue: 'Export' })}
+          </span>
           <span
             className='invisible group-hover:visible text-12px text-primary cursor-pointer hover:underline transition-all'
             data-testid={`btn-duplicate-${assistant.id}`}

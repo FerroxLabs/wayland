@@ -28,7 +28,7 @@ describe('agentLogo', () => {
 
     it('forces monochrome/currentColor logos to a white silhouette on dark theme', () => {
       setTheme('dark');
-      for (const b of ['codex', 'copilot', 'goose', 'auggie', 'kimi']) {
+      for (const b of ['copilot', 'goose', 'auggie', 'kimi', 'grok']) {
         expect(agentLogoDarkFilter(b)).toBe('brightness(0) invert(1)');
       }
     });
@@ -40,6 +40,13 @@ describe('agentLogo', () => {
       }
     });
 
+    it('does not filter the two-tone codex mark on dark (its white disc self-contrasts)', () => {
+      // codex.svg is a white disc + black `>_` glyph, not a single-color
+      // silhouette; brightness(0) invert(1) would flatten it to a white circle.
+      setTheme('dark');
+      expect(agentLogoDarkFilter('codex')).toBeUndefined();
+    });
+
     it('applies no filter on the light theme (monochrome logos are visible)', () => {
       setTheme('light');
       expect(agentLogoDarkFilter('codex')).toBeUndefined();
@@ -48,7 +55,7 @@ describe('agentLogo', () => {
 
     it('is case-insensitive and safe for unknown/empty input', () => {
       setTheme('dark');
-      expect(agentLogoDarkFilter('Codex')).toBe('brightness(0) invert(1)');
+      expect(agentLogoDarkFilter('Copilot')).toBe('brightness(0) invert(1)');
       expect(agentLogoDarkFilter('unknown')).toBeUndefined();
       expect(agentLogoDarkFilter(undefined)).toBeUndefined();
     });

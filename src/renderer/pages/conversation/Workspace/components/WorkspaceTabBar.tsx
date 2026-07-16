@@ -183,28 +183,30 @@ const WorkspaceTabBar: React.FC<WorkspaceTabBarProps> = ({
     ) : null;
 
   return (
-    <Tabs
-      activeTab={activeTab}
-      onChange={(key) => onTabChange(key as WorkspaceTab)}
-      type='line'
-      size='small'
-      className='px-12px [&_.arco-tabs-nav]:border-b-0'
-      extra={branchDropdown}
-    >
-      <Tabs.TabPane key='files' title={t('conversation.workspace.changes.filesTab')} />
-      <Tabs.TabPane key='changes' title={changesTitle} />
-      {showTerminal && (
-        <Tabs.TabPane
-          key='terminal'
-          title={
-            <span className='flex items-center gap-4px'>
-              <TerminalSquare size={13} className='shrink-0' />
-              {t('conversation.workspace.terminal.tab')}
-            </span>
-          }
-        />
-      )}
-    </Tabs>
+    <div data-appearance-role='workspace-tabs'>
+      <Tabs
+        activeTab={activeTab}
+        onChange={(key) => onTabChange(key as WorkspaceTab)}
+        type='line'
+        size='small'
+        className='px-12px [&_.arco-tabs-nav]:border-b-0'
+        extra={branchDropdown}
+      >
+        <Tabs.TabPane key='files' title={t('conversation.workspace.changes.filesTab')} />
+        <Tabs.TabPane key='changes' title={changesTitle} />
+        {showTerminal && (
+          <Tabs.TabPane
+            key='terminal'
+            title={
+              <span className='flex items-center gap-4px'>
+                <TerminalSquare size={13} className='shrink-0' />
+                {t('conversation.workspace.terminal.tab')}
+              </span>
+            }
+          />
+        )}
+      </Tabs>
+    </div>
   );
 };
 

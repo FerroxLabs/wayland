@@ -77,8 +77,11 @@ export function parseFrontmatter(content: string): ParsedFrontmatter | null {
 
   // Parse name - required; reject if absent or blank.
   // Use [ \t]* (not \s*) so the match cannot consume the newline and bleed
-  // into the next frontmatter line.
-  const nameMatch = frontmatter.match(/^name:[ \t]*['"]?([^'"\n]+?)['"]?[ \t]*$/m);
+  // into the next frontmatter line. The value is `.+?` (not `[^'"\n]+?`) so a
+  // name with an embedded apostrophe/quote - e.g. `Sam's Assistant`, which
+  // js-yaml emits unquoted - parses in full instead of truncating at the quote
+  // (`.` never matches `\n`, so the no-line-bleed property holds). #512.
+  const nameMatch = frontmatter.match(/^name:[ \t]*['"]?(.+?)['"]?[ \t]*$/m);
   const name = nameMatch ? nameMatch[1].trim() : '';
   if (!name) return null;
 

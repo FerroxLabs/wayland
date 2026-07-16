@@ -118,7 +118,11 @@ export const useGuidMention = ({
     [stripMentionToken, setSelectedAgentKey, setInput]
   );
 
-  const selectedAgentLabel = selectedAgentInfo?.name || selectedAgentKey;
+  // Only ever surface a resolved agent's display name. Falling back to the raw `selectedAgentKey`
+  // leaked internal ids into the UI (e.g. an unresolved onboarding demo-team key like
+  // `ext-quiet-money-council` showing up in the input placeholder). Empty string => callers render
+  // their clean default (welcome title / bare placeholder) instead.
+  const selectedAgentLabel = selectedAgentInfo?.name || '';
   const mentionMenuActiveOption = filteredMentionOptions[mentionActiveIndex] || filteredMentionOptions[0];
   const mentionMenuSelectedKey =
     mentionOpen || mentionSelectorOpen ? mentionMenuActiveOption?.key || selectedAgentKey : selectedAgentKey;

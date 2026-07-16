@@ -416,6 +416,53 @@ export const ExtSettingsTabSchema = z.object({
   order: z.number().default(100),
 });
 
+// ============ Native UI Hook Schemas ============
+
+export const ExtAcronymSchema = z.object({
+  acronym: z.string().min(1, 'Acronym is required').max(32, 'Acronym must be at most 32 characters'),
+  expansion: z.string().min(1, 'Acronym expansion is required'),
+  description: z.string().optional(),
+  enabled: z.boolean().default(true),
+});
+
+export const ExtWorkspacePanelSchema = z.object({
+  id: z.string().min(1, 'Workspace panel id is required'),
+  name: z.string().min(1, 'Workspace panel name is required'),
+  icon: z.string().optional(),
+  entryPoint: z.string().min(1, 'entryPoint is required'),
+  order: z.number().default(100),
+});
+
+export const ExtFilePreviewActionSchema = z.object({
+  id: z.string().min(1, 'File preview action id is required'),
+  name: z.string().min(1, 'File preview action name is required'),
+  description: z.string().optional(),
+  icon: z.string().optional(),
+  matchExtensions: z.array(z.string().min(1)).optional(),
+  promptTemplate: z.string().optional(),
+  entryPoint: z.string().optional(),
+  order: z.number().default(100),
+});
+
+export const ExtScheduledTaskTemplateSchema = z.object({
+  id: z.string().min(1, 'Scheduled task template id is required'),
+  name: z.string().min(1, 'Scheduled task template name is required'),
+  description: z.string().optional(),
+  promptTemplate: z.string().min(1, 'promptTemplate is required'),
+  scheduleHint: z.string().optional(),
+  order: z.number().default(100),
+});
+
+export const ExtWorkflowTemplateSchema = z.object({
+  id: z.string().min(1, 'Workflow template id is required'),
+  name: z.string().min(1, 'Workflow template name is required'),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  promptTemplate: z.string().optional(),
+  steps: z.array(z.string().min(1)).optional(),
+  order: z.number().default(100),
+});
+
 // ============ Contributes Schema ============
 
 function validateContributeIds(contributes: z.infer<typeof ExtContributesSchemaBase>): string | true {
@@ -483,6 +530,41 @@ function validateContributeIds(contributes: z.infer<typeof ExtContributesSchemaB
       return `Duplicate settings tab IDs: ${[...new Set(duplicates)].join(', ')}`;
     }
   }
+  if (contributes.acronyms) {
+    const acronyms = contributes.acronyms.map((a) => a.acronym.toLowerCase());
+    const duplicates = acronyms.filter((id, idx) => acronyms.indexOf(id) !== idx);
+    if (duplicates.length > 0) {
+      return `Duplicate acronym entries: ${[...new Set(duplicates)].join(', ')}`;
+    }
+  }
+  if (contributes.workspacePanels) {
+    const ids = contributes.workspacePanels.map((p) => p.id);
+    const duplicates = ids.filter((id, idx) => ids.indexOf(id) !== idx);
+    if (duplicates.length > 0) {
+      return `Duplicate workspace panel IDs: ${[...new Set(duplicates)].join(', ')}`;
+    }
+  }
+  if (contributes.filePreviewActions) {
+    const ids = contributes.filePreviewActions.map((a) => a.id);
+    const duplicates = ids.filter((id, idx) => ids.indexOf(id) !== idx);
+    if (duplicates.length > 0) {
+      return `Duplicate file preview action IDs: ${[...new Set(duplicates)].join(', ')}`;
+    }
+  }
+  if (contributes.scheduledTaskTemplates) {
+    const ids = contributes.scheduledTaskTemplates.map((t) => t.id);
+    const duplicates = ids.filter((id, idx) => ids.indexOf(id) !== idx);
+    if (duplicates.length > 0) {
+      return `Duplicate scheduled task template IDs: ${[...new Set(duplicates)].join(', ')}`;
+    }
+  }
+  if (contributes.workflowTemplates) {
+    const ids = contributes.workflowTemplates.map((t) => t.id);
+    const duplicates = ids.filter((id, idx) => ids.indexOf(id) !== idx);
+    if (duplicates.length > 0) {
+      return `Duplicate workflow template IDs: ${[...new Set(duplicates)].join(', ')}`;
+    }
+  }
   if (contributes.webui?.apiRoutes) {
     const paths = contributes.webui.apiRoutes.map((r) => r.path);
     const duplicates = paths.filter((p, idx) => paths.indexOf(p) !== idx);
@@ -527,6 +609,16 @@ const ExtContributesSchemaBase = z.object({
   settingsTabs: z.array(ExtSettingsTabSchema).optional(),
   /** Model providers contributed by this extension */
   modelProviders: z.array(ExtModelProviderSchema).optional(),
+  /** Native composer acronym expansions */
+  acronyms: z.array(ExtAcronymSchema).optional(),
+  /** Native workspace side panel entries */
+  workspacePanels: z.array(ExtWorkspacePanelSchema).optional(),
+  /** Native file preview actions */
+  filePreviewActions: z.array(ExtFilePreviewActionSchema).optional(),
+  /** Native scheduled-task create/edit templates */
+  scheduledTaskTemplates: z.array(ExtScheduledTaskTemplateSchema).optional(),
+  /** Native workflow builder templates/import recipes */
+  workflowTemplates: z.array(ExtWorkflowTemplateSchema).optional(),
 });
 
 export const ExtContributesSchema = ExtContributesSchemaBase.refine(validateContributeIds, {
@@ -554,6 +646,11 @@ export type ExtTheme = z.infer<typeof ExtThemeSchema>;
 export type ExtWebui = z.infer<typeof ExtWebuiSchema>;
 export type ExtSettingsTab = z.infer<typeof ExtSettingsTabSchema>;
 export type ExtModelProvider = z.infer<typeof ExtModelProviderSchema>;
+export type ExtAcronym = z.infer<typeof ExtAcronymSchema>;
+export type ExtWorkspacePanel = z.infer<typeof ExtWorkspacePanelSchema>;
+export type ExtFilePreviewAction = z.infer<typeof ExtFilePreviewActionSchema>;
+export type ExtScheduledTaskTemplate = z.infer<typeof ExtScheduledTaskTemplateSchema>;
+export type ExtWorkflowTemplate = z.infer<typeof ExtWorkflowTemplateSchema>;
 
 export type ExtensionSource = 'local' | 'appdata' | 'env' | 'bundled';
 
@@ -567,6 +664,11 @@ export type ExtensionState = {
   enabled: boolean;
   disabledAt?: Date;
   disabledReason?: string;
+  permissionReview?: {
+    approvedAt: Date;
+    approvedRiskLevel: 'safe' | 'moderate' | 'dangerous';
+    approvedPermissions: string[];
+  };
   /** Whether onInstall hook has been run */
   installed?: boolean;
   /** Last known version - used for upgrade detection */

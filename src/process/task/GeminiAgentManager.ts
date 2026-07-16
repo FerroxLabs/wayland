@@ -28,6 +28,8 @@ import { getProviderAuthType } from '@/common/utils/platformAuthType';
 import { AuthType, getOauthInfoWithCache, Storage } from '@office-ai/aioncli-core';
 import { GeminiApprovalStore } from '../agent/gemini/GeminiApprovalStore';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
+import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
+import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { getDatabase } from '@process/services/database';
 import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/utils/message';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
@@ -36,6 +38,7 @@ import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
 import { shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
+import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 import BaseAgentManager from './BaseAgentManager';
 import { IpcAgentEventEmitter } from './IpcAgentEventEmitter';
 import { mainLog, mainWarn, mainError } from '@process/utils/mainLogger';
@@ -47,7 +50,7 @@ import { teamEventBus } from '@process/team/teamEventBus';
 import * as fs from 'node:fs';
 
 // Gemini agent manager class
-type UiMcpServerConfig = {
+export type UiMcpServerConfig = {
   command?: string;
   args?: string[];
   env?: Record<string, string>;
@@ -56,6 +59,21 @@ type UiMcpServerConfig = {
   headers?: Record<string, string>;
   description?: string;
 };
+
+/**
+ * Build the aioncli-core stdio MCP entry for a stored server, resolving its
+ * runtime hint exactly like every other session-injection path (#827). This
+ * in-process Gemini fork runtime is the 5th injection consumer: a bare `npx`
+ * won't spawn on Windows (`npx.cmd` isn't found for a shell:false spawn), so it
+ * is rewritten to the bundled Bun runtime on win32. Exported for parity tests.
+ */
+export function buildGeminiStdioMcpConfig(
+  transport: Extract<IMcpServer['transport'], { type: 'stdio' }>,
+  description?: string
+): UiMcpServerConfig {
+  const { command, args } = resolveMcpStdioSpawn(transport.command, transport.args || []);
+  return { command, args, env: transport.env || {}, description };
+}
 
 export class GeminiAgentManager extends BaseAgentManager<
   {
@@ -401,12 +419,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         )
         .forEach((server: IMcpServer) => {
           if (server.transport.type === 'stdio') {
-            mcpConfig[server.name] = {
-              command: server.transport.command,
-              args: server.transport.args || [],
-              env: server.transport.env || {},
-              description: server.description,
-            };
+            mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description);
           } else if (
             server.transport.type === 'sse' ||
             server.transport.type === 'http' ||
@@ -776,6 +789,17 @@ export class GeminiAgentManager extends BaseAgentManager<
         void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
         return true;
       }
+    }
+    // #671: trusted ("cowork") workspace auto-approves edits while still
+    // prompting on exec/network. Unlike the autoEdit MODE above, trust does NOT
+    // auto-approve the 'info' catch-all: on Gemini/WCore 'info' is an
+    // engine-assigned bucket that can include network/URL-fetch confirmations,
+    // so a persisted always-on posture must stay stricter than the user-chosen
+    // mode and only auto-approve concrete file edits. Persisted per-workspace.
+    if (isWorkspaceTrusted(this.workspace) && trustedWorkspaceAutoApprovesConfirmationType(type)) {
+      console.log(`[GeminiAgentManager] Trusted-workspace auto-approving ${type}: callId=${content.callId}`);
+      void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+      return true;
     }
     return false;
   }

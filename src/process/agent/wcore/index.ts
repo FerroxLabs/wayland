@@ -12,18 +12,25 @@ import type { Writable } from 'node:stream';
 import { parse, stringify } from 'smol-toml';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { VAULT_PASSPHRASE_CHILD_FD, resolveSpawnVaultPassphrase } from '@process/secrets';
+// #746: reuse the ACP turn timer rather than clone it — it is a dependency-free
+// start/reset/pause/resume/stop timer and is already the proven watchdog behind
+// AcpSession's prompt timeout.
+import { PromptTimer } from '@process/acp/session/PromptTimer';
 import { resolveWCoreBinary } from './binaryResolver';
 import {
   buildEngineSpawnEnv,
   buildSpawnConfig,
   engineInheritsShellKey,
+  isOpenAIFamilyModelId,
   MissingApiKeyError,
   planVaultPassphraseDelivery,
   type VaultPassphraseDelivery,
 } from './envBuilder';
-import { resolveActiveConfigDir } from './profilePaths';
+import { ProfileIsolationError, resolveActiveConfigDir } from './profilePaths';
+import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
-import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
+import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/providers/ipc/modelRegistryIpc';
+import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
 import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
@@ -173,6 +180,32 @@ export type WCoreAgentOptions = {
   onPong?: () => void;
 };
 
+/**
+ * #746: idle ceiling for a single wcore turn.
+ *
+ * The engine can stop emitting frames mid-turn — no `stream_end`, no `error` — and
+ * the desktop had NO turn watchdog at all (only *startup* timeouts existed), so the
+ * chat span "working" forever; the report is a 24h+ silent spin on a read-only task.
+ *
+ * This bounds only IDLE time, never total turn time:
+ *   - every turn-scoped frame RESETS it (so a long but active turn is never cut), and
+ *   - it is PAUSED for the whole tool request→result window (so a legitimately long
+ *     build, or a human taking their time over an approval, is never falsely cancelled).
+ * Engine heartbeats (`pong`) carry no msg_id and so can NOT keep a stalled turn alive.
+ *
+ * Env-overridable for support/debugging; floored so it can't be set uselessly low and
+ * clamped to the 32-bit setTimeout ceiling (a larger value fires immediately).
+ */
+const DEFAULT_TURN_STALL_TIMEOUT_MS = 600_000; // 10 min with zero agent progress
+const MIN_TURN_STALL_TIMEOUT_MS = 60_000;
+const MAX_TIMER_MS = 2_147_483_647;
+
+export function resolveTurnStallTimeoutMs(env: NodeJS.ProcessEnv = process.env): number {
+  const parsed = Number(env.WAYLAND_WCORE_TURN_STALL_TIMEOUT_MS);
+  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_TURN_STALL_TIMEOUT_MS;
+  return Math.min(Math.max(parsed, MIN_TURN_STALL_TIMEOUT_MS), MAX_TIMER_MS);
+}
+
 export class WCoreAgent {
   private childProcess: ChildProcess | null = null;
   private ready = false;
@@ -194,6 +227,21 @@ export class WCoreAgent {
   // request-time description per callId and re-attach it to the running/result
   // frames so the command stays visible for the whole tool lifecycle.
   private toolDescriptionByCallId = new Map<string, string>();
+  /**
+   * #746: turn stall watchdog. Started on send(), reset by every turn frame,
+   * stopped on the terminal frame (stream_end / error) — see
+   * {@link resolveTurnStallTimeoutMs}.
+   */
+  private stallTimer: PromptTimer;
+  /**
+   * Pause sources for {@link stallTimer}, keyed by tool call_id. PromptTimer's
+   * pause()/resume() is NOT re-entrant, and tool windows can overlap (parallel
+   * tool calls), so we only pause on the 0→1 edge and only resume on the 1→0 edge.
+   * The lifecycle is deliberately identical to `toolDescriptionByCallId` (added on
+   * `tool_request`, dropped on `tool_result` / `tool_cancelled`) so a pause can
+   * never outlive its tool call.
+   */
+  private stallPauseReasons = new Set<string>();
   private configBackup: { path: string; content: string | null; written: string | null } | null = null;
   private mcpReadyPromise: Promise<void>;
   private mcpReadyResolve!: () => void;
@@ -220,6 +268,7 @@ export class WCoreAgent {
 
   constructor(options: WCoreAgentOptions) {
     this.options = options;
+    this.stallTimer = new PromptTimer(resolveTurnStallTimeoutMs(), () => this.handleTurnStall());
     this.onStreamEvent = options.onStreamEvent;
     this._onProcessExit = options.onProcessExit;
     this._onPong = options.onPong;
@@ -266,6 +315,61 @@ export class WCoreAgent {
     // (it uses the engine's own config.toml), so skip the lookup there.
     const spawnModel = this.options.rawEngineMode ? this.options.model : await hydrateModelForSpawn(this.options.model);
 
+    // Auth-aware surface selection (#865 follow-up): an OpenAI-family model that
+    // would wrongly inherit the Anthropic surface can be served keyless via the
+    // engine's `openai-chatgpt` provider when a ChatGPT subscription is connected,
+    // so a sub-only user (no OpenAI API key) is never dead-ended on "No API key
+    // found". We detect a live subscription by the presence of a ChatGPT OAuth
+    // token in `~/.codex/auth.json` - the SAME store the engine reads for that
+    // provider, so this signal is authoritative for "the keyless spawn will work".
+    // Skipped in raw-engine mode (which ignores the model entirely). The read is
+    // best-effort and must NEVER abort the spawn: on any failure we fall back to
+    // false (the API-key surface), so a transient/unavailable auth store degrades
+    // to unchanged behavior rather than breaking init.
+    let chatGptSubscriptionAvailable = false;
+    if (!this.options.rawEngineMode) {
+      try {
+        chatGptSubscriptionAvailable = (await readCodexAuthFile()) !== null;
+      } catch {
+        chatGptSubscriptionAvailable = false;
+      }
+    }
+
+    // #866 follow-up (reliable-surface preference): an OpenAI-family model rebound
+    // off the Anthropic surface (envBuilder's guard) is served RELIABLY only on the
+    // API-key `openai` surface (api.openai.com serves every gpt-5.6-*); the keyless
+    // ChatGPT-OAuth surface serves a model ONLY if the account is entitled to it
+    // (gpt-5.6-sol/luna 400/404 on many real subs). So prefer the key surface
+    // whenever the user has a configured OpenAI provider key. The catalog-only
+    // model's OWN `apiKey` is the ANTHROPIC key, NOT an OpenAI key, so we source the
+    // connected `openai` provider's key HERE and thread its value in, and the env
+    // builder injects OPENAI_API_KEY from it (never from `model.apiKey`).
+    //
+    // Gated to exactly the case the guard can fire (`platform: 'anthropic'` +
+    // OpenAI-family id) so no provider-store read happens on an ordinary spawn, and
+    // skipped in raw-engine mode (which ignores the model). Best-effort and never
+    // fatal: any resolution failure yields no key, so the guard degrades to the
+    // keyless OAuth fallback (or a recoverable missing-key) rather than aborting
+    // init - the same fail-safe posture as the ChatGPT-sub read above.
+    let openAiApiKey: string | undefined;
+    if (
+      !this.options.rawEngineMode &&
+      spawnModel.platform === 'anthropic' &&
+      isOpenAIFamilyModelId(spawnModel.useModel)
+    ) {
+      try {
+        const secrets = await resolveModelSecretsForSpawn({
+          providerId: 'openai',
+          accountId: spawnModel.accountId ?? DEFAULT_ACCOUNT_ID,
+          modelId: spawnModel.useModel,
+        });
+        const key = secrets?.apiKey?.trim();
+        if (key) openAiApiKey = key;
+      } catch {
+        openAiApiKey = undefined;
+      }
+    }
+
     const { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar } = buildSpawnConfig(
       spawnModel,
       {
@@ -276,6 +380,8 @@ export class WCoreAgent {
         sessionId: this.options.sessionId,
         resume: this.options.resume,
         rawEngine: this.options.rawEngineMode,
+        chatGptSubscriptionAvailable,
+        openAiApiKey,
       }
     );
 
@@ -308,12 +414,31 @@ export class WCoreAgent {
     // Design B (directory-isolated profiles): point the engine's config root at
     // the active profile's dir so it reads that profile's own config.toml +
     // memory.db + skills. Resolves to the native dir for the `default` profile
-    // (backward-compatible). Best-effort - a resolution failure falls back to
-    // the engine's own default config dir rather than blocking the spawn.
+    // (backward-compatible).
+    //
+    // #278: FAIL CLOSED, but ONLY on the failure that actually means "a named
+    // profile is live and we cannot resolve its dir" - i.e. ProfileIsolationError.
+    //
+    // Spawning with WAYLAND_HOME unset tells the engine to use its DEFAULT home. Do
+    // that while a NAMED profile is active and you bind that profile's session to
+    // the default profile's config.toml / memory.db / credentials - the cross-account
+    // bleed this contract exists to prevent. So that case refuses the spawn (same
+    // posture as the #629 MissingApiKeyError guard above).
+    //
+    // Every OTHER failure is on the `default` branch - notably os.homedir(), which
+    // nativeConfigDir() calls unguarded and which throws ERR_SYSTEM_ERROR when
+    // uv_os_homedir fails. That fault has nothing to do with profiles, and refusing
+    // the spawn for it would brick ordinary default-profile users (today: everyone,
+    // since no profile UI ships yet) over a non-profile problem. Those keep the old
+    // warn-and-continue: the engine falls back to the same default home it would
+    // have used anyway, so behaviour is unchanged from before this fix.
+    //
+    // The narrowing is what makes fail-closed structurally unable to brick `default`.
     let waylandHome: string | undefined;
     try {
       waylandHome = await resolveActiveConfigDir();
     } catch (err) {
+      if (err instanceof ProfileIsolationError) throw err;
       console.warn('[WCoreAgent] Failed to resolve active profile config dir:', err);
     }
     // #710: hand the engine the profile's vault passphrase so it encrypts its
@@ -381,6 +506,10 @@ export class WCoreAgent {
 
     // Handle process exit
     this.childProcess.on('exit', (code) => {
+      // #746: the engine is gone — disarm the watchdog rather than leave a timer armed
+      // against a turn nothing can finish. (activeMsgId is nulled below too, so
+      // handleTurnStall would early-return anyway; this just doesn't leak the timer.)
+      this.stopStallWatchdog();
       this.restoreProjectConfig();
       if (!this.ready) {
         // Surface the engine's real bail reason (its last stderr) alongside the
@@ -495,7 +624,72 @@ export class WCoreAgent {
     }
   }
 
+  // ─── #746: turn stall watchdog ────────────────────────────────
+
+  private startStallWatchdog(): void {
+    this.stallPauseReasons.clear();
+    this.stallTimer.start();
+  }
+
+  private stopStallWatchdog(): void {
+    this.stallPauseReasons.clear();
+    this.stallTimer.stop();
+  }
+
+  /** Pause on the 0→1 edge only (overlapping tool calls must not double-pause). */
+  private pauseStallWatchdog(reason: string): void {
+    const wasIdle = this.stallPauseReasons.size === 0;
+    this.stallPauseReasons.add(reason);
+    if (wasIdle) this.stallTimer.pause();
+  }
+
+  /** Resume on the 1→0 edge only. Unknown reasons are ignored (no spurious resume). */
+  private resumeStallWatchdog(reason: string): void {
+    if (!this.stallPauseReasons.delete(reason)) return;
+    if (this.stallPauseReasons.size === 0) this.stallTimer.resume();
+  }
+
+  /**
+   * The turn made no progress for the whole idle window. Halt it honestly instead
+   * of spinning forever (#746): tell the engine to stop (so it stops burning), then
+   * emit a terminal `error` frame — the renderer treats an error frame as the end of
+   * the turn and clears every running contributor, so the chat becomes usable again
+   * rather than stuck on a "working" spinner with no way to send.
+   */
+  private handleTurnStall(): void {
+    const msgId = this.activeMsgId;
+    if (!msgId) return; // no turn in flight — nothing to halt
+
+    const minutes = Math.round(resolveTurnStallTimeoutMs() / 60_000);
+    console.error(`[WCoreAgent] turn ${msgId} stalled: no progress for ${minutes}m — halting (#746)`);
+
+    this.stopStallWatchdog();
+    this.activeMsgId = null;
+    // Best-effort: stop the engine-side turn. Never let a failure here swallow the
+    // user-facing notification below.
+    try {
+      this.stop();
+    } catch {
+      /* best effort */
+    }
+
+    this.onStreamEvent({
+      type: 'error',
+      data:
+        `The agent stopped making progress (no activity for ${minutes} minutes), so the turn was halted. ` +
+        `Nothing was lost — send a message to pick the task back up.`,
+      msg_id: msgId,
+    });
+  }
+
   private handleEvent(event: WCoreEvent): void {
+    // #746: any turn-scoped frame is progress — push the stall deadline out. Keyed on
+    // msg_id so engine-level frames that are NOT turn progress (pong / ready /
+    // mcp_ready / config_changed carry no msg_id) can't keep a stalled turn alive.
+    // reset() is a no-op unless the timer is running, so a paused tool/approval
+    // window stays paused.
+    if ('msg_id' in event) this.stallTimer.reset();
+
     switch (event.type) {
       case 'ready':
         this.ready = true;
@@ -521,6 +715,10 @@ export class WCoreAgent {
         // #520: remember the request-time command so the later running/result
         // frames (which the wire sends without it) can re-surface it.
         this.toolDescriptionByCallId.set(event.call_id, event.tool.description);
+        // #746: the agent is now waiting — first on the human (this frame renders an
+        // approve/deny card) and then on the tool itself. Neither is agent inactivity,
+        // so pause the stall watchdog for this call's whole request→result window.
+        this.pauseStallWatchdog(`tool:${event.call_id}`);
         this.onStreamEvent({
           type: 'tool_group',
           data: [
@@ -576,6 +774,8 @@ export class WCoreAgent {
         });
         // #520: the tool is terminal - drop its cached command.
         this.toolDescriptionByCallId.delete(event.call_id);
+        // #746: tool window closed — the agent owes us progress again.
+        this.resumeStallWatchdog(`tool:${event.call_id}`);
         break;
 
       case 'tool_cancelled':
@@ -594,6 +794,8 @@ export class WCoreAgent {
         });
         // #520: terminal - drop its cached command.
         this.toolDescriptionByCallId.delete(event.call_id);
+        // #746: tool window closed — the agent owes us progress again.
+        this.resumeStallWatchdog(`tool:${event.call_id}`);
         break;
 
       case 'stream_end': {
@@ -603,16 +805,26 @@ export class WCoreAgent {
         const payload = Object.keys(finishPayload).length > 0 ? finishPayload : '';
         this.onStreamEvent({ type: 'finish', data: payload, msg_id: event.msg_id });
         this.activeMsgId = null;
+        this.stopStallWatchdog(); // #746: turn is over
         break;
       }
 
-      case 'error':
+      case 'error': {
+        const errMsgId = event.msg_id ?? this.activeMsgId ?? '';
         this.onStreamEvent({
           type: 'error',
           data: event.error.message,
-          msg_id: event.msg_id ?? this.activeMsgId ?? '',
+          msg_id: errMsgId,
         });
+        // #746/#774: an error frame ENDS the turn (the renderer terminalizes it and
+        // clears every running contributor). The turn state was previously left
+        // dangling here — activeMsgId stayed set and, once the watchdog existed, a
+        // dead turn would keep a timer armed and could later "stall-halt" a turn that
+        // had already failed. Terminalize the agent side too.
+        this.activeMsgId = null;
+        this.stopStallWatchdog();
         break;
+      }
 
       case 'info':
         this.onStreamEvent({
@@ -813,6 +1025,23 @@ export class WCoreAgent {
           callId: event.call_id,
           reason: event.reason,
         });
+        // #746: pause ONLY for a genuine HITL escalation — i.e. one that carries a
+        // resume_token. That path (WCoreManager's #264 wedge: the engine's own
+        // --auto-approve self-resolve failed) does NOT go through
+        // tool_request/tool_result and carries no msg_id, so without an explicit pause
+        // the watchdog would keep ticking and stall-kill the turn while the human is
+        // still deciding.
+        //
+        // A token-LESS approval_required is a different animal: in interactive mode the
+        // engine emits it as a parallel *signal* on every ordinary exec/mcp approval
+        // (see WCoreManager #390 — "a normal exec/mcp approval legitimately carries no
+        // resume token"), and that wait is already paused by this call's
+        // `tool:${call_id}` reason and released by its tool_result. Pausing on it here
+        // would add an `approval:undefined` reason that NOTHING ever resumes — the user's
+        // answer goes back via approveTool()/tool_approve, not approval_resume — wedging
+        // the watchdog paused for the rest of the turn and silently restoring the very
+        // #746 hang this fix exists to kill.
+        if (event.resume_token) this.pauseStallWatchdog(`approval:${event.resume_token}`);
         this.onStreamEvent({
           type: 'approval_required',
           data: {
@@ -827,6 +1056,10 @@ export class WCoreAgent {
         break;
 
       case 'suspend':
+        // #746: engine suspended awaiting an out-of-band resume — not agent inactivity.
+        // Same token guard as approval_required: a reason we can never resume would wedge
+        // the watchdog paused for the rest of the turn.
+        if (event.resume_token) this.pauseStallWatchdog(`approval:${event.resume_token}`);
         this.onStreamEvent({
           type: 'suspend',
           data: { reason: event.reason, resumeToken: event.resume_token },
@@ -835,6 +1068,9 @@ export class WCoreAgent {
         break;
 
       case 'approval_resume':
+        // #746: the human answered (or the engine self-resolved) — the agent owes us
+        // progress again. Keyed on resume_token, matching the pause above.
+        this.resumeStallWatchdog(`approval:${event.resume_token}`);
         this.onStreamEvent({
           type: 'approval_resume',
           data: { resumeToken: event.resume_token, approved: event.approved },
@@ -1014,6 +1250,11 @@ export class WCoreAgent {
 
   async send(content: string, msgId: string, files?: string[]): Promise<void> {
     await this.readyPromise;
+    // #746: arm the stall watchdog for this turn. Armed at SEND (not at stream_start)
+    // so a turn that never even starts streaming — the engine going silent on the
+    // request itself — is still bounded.
+    this.activeMsgId = msgId;
+    this.startStallWatchdog();
     this.sendCommand({
       type: 'message',
       msg_id: msgId,
@@ -1028,6 +1269,9 @@ export class WCoreAgent {
   }
 
   stop(): void {
+    // #746: the turn is being cancelled — disarm the watchdog so it can't later fire
+    // against a turn that is already over. Idempotent (handleTurnStall stops it first).
+    this.stopStallWatchdog();
     this.sendCommand({ type: 'stop' });
   }
 
@@ -1068,6 +1312,10 @@ export class WCoreAgent {
   }
 
   async kill(): Promise<void> {
+    // #746: the agent is going away — a still-armed watchdog would otherwise fire on a
+    // dead agent and emit a bogus stall error for a turn nobody is running.
+    this.stopStallWatchdog();
+    this.activeMsgId = null;
     this.restoreProjectConfig();
     if (this.childProcess) {
       // wayland-core spawns its own child tree (MCP servers, tool subprocesses).

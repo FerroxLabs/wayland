@@ -478,6 +478,101 @@ describe('AcpAgentV2 - Lifecycle Methods', () => {
       expect(mockSessionMethods.cancelPrompt).toHaveBeenCalledOnce();
     });
   });
+
+  // #676: a corrupt bunx adapter install made the session start crash; the start
+  // retry loop (maxStartRetries) respawned the adapter repeatedly, and because
+  // every error signal used a unique `signal_${Date.now()}` msg_id, the renderer
+  // (which upserts stream messages by msg_id) appended a NEW "process exited
+  // unexpectedly" banner per attempt — a storm. These lock in the collapse.
+  describe('error/crash banner collapse (#676)', () => {
+    const CRASH = 'process exited unexpectedly (code: 1, signal: none)';
+
+    /** Started agent whose signal sink is a spy we can inspect. */
+    async function startedAgentWithSignalSink(): Promise<{
+      agent: AcpAgentV2;
+      onSignalEvent: ReturnType<typeof vi.fn>;
+    }> {
+      const onSignalEvent = vi.fn();
+      const agent = createAgent({ onSignalEvent });
+      mockSessionMethods.start.mockImplementation(() => {
+        setTimeout(() => capturedCallbacks.onStatusChange('active'), 0);
+      });
+      await agent.start();
+      mockSessionMethods.start.mockReset();
+      onSignalEvent.mockClear(); // drop the start-up traffic; keep only what the test drives
+      return { agent, onSignalEvent };
+    }
+
+    const errorBannerIds = (spy: ReturnType<typeof vi.fn>): string[] =>
+      spy.mock.calls
+        .map((c) => c[0])
+        .filter((m) => m?.type === 'error')
+        .map((m) => m.msg_id as string);
+
+    it('collapses a burst of crash banners into a single upserted msg_id', async () => {
+      const { onSignalEvent } = await startedAgentWithSignalSink();
+
+      // Three consecutive crash signals — one per failed start retry.
+      capturedCallbacks.onSignal({ type: 'error', message: CRASH, recoverable: true });
+      capturedCallbacks.onSignal({ type: 'error', message: CRASH, recoverable: true });
+      capturedCallbacks.onSignal({ type: 'error', message: CRASH, recoverable: true });
+
+      const ids = errorBannerIds(onSignalEvent);
+      expect(ids).toHaveLength(3);
+      // The storm fix: all three reuse ONE id (renderer upserts → one banner).
+      expect(new Set(ids).size).toBe(1);
+      // And it must NOT be the old per-emission unique id.
+      expect(ids[0]).not.toMatch(/^signal_/);
+    });
+
+    it('lets the terminal error overwrite the collapsed crash banner (ends on one row)', async () => {
+      const { onSignalEvent } = await startedAgentWithSignalSink();
+
+      capturedCallbacks.onSignal({ type: 'error', message: CRASH, recoverable: true });
+      // Terminal failure after retries are exhausted (enterError path).
+      capturedCallbacks.onSignal({
+        type: 'error',
+        message: "Agent exited before initialize completed (code: 1)\nCannot find module 'zod/v4'",
+        recoverable: false,
+      });
+
+      const ids = errorBannerIds(onSignalEvent);
+      expect(ids).toHaveLength(2);
+      // Same id → the actionable terminal message replaces the crash banner.
+      expect(new Set(ids).size).toBe(1);
+    });
+
+    it('gives an UNRELATED later error its own banner after the session recovers', async () => {
+      const { onSignalEvent } = await startedAgentWithSignalSink();
+
+      capturedCallbacks.onSignal({ type: 'error', message: CRASH, recoverable: true });
+      const burstId = errorBannerIds(onSignalEvent)[0];
+
+      // Forward progress ends the episode.
+      capturedCallbacks.onStatusChange('active');
+      capturedCallbacks.onSignal({ type: 'error', message: 'Rate limited (429)', recoverable: true });
+
+      const ids = errorBannerIds(onSignalEvent);
+      const laterId = ids[ids.length - 1];
+      expect(laterId).not.toBe(burstId); // distinct row, not an overwrite of the old one
+    });
+
+    it('starts a fresh error episode on a new user turn', async () => {
+      const { agent, onSignalEvent } = await startedAgentWithSignalSink();
+
+      capturedCallbacks.onSignal({ type: 'error', message: CRASH, recoverable: true });
+      const firstTurnId = errorBannerIds(onSignalEvent)[0];
+
+      // A new user turn must not reuse the previous turn's error banner id.
+      capturedCallbacks.onStatusChange('active');
+      mockSessionMethods.sendMessage.mockResolvedValue(undefined);
+      await agent.sendMessage({ content: 'hi again' });
+      capturedCallbacks.onSignal({ type: 'error', message: CRASH, recoverable: true });
+
+      const ids = errorBannerIds(onSignalEvent);
+      expect(ids[ids.length - 1]).not.toBe(firstTurnId);
+    });
+  });
 });
 
 describe('AcpAgentV2 - Messaging + Permission Methods', () => {

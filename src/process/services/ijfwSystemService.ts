@@ -33,6 +33,7 @@ import type { IjfwErrorReason } from '@/common/types/ijfw';
 import { buildChildEnv } from '@process/services/ijfw/envAllowlist';
 import { safeSpawn } from '@process/services/ijfw/safeSpawn';
 import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
+import { resolveJsRuntime } from '@process/utils/jsRuntime';
 import { writeAtomic, moveWithExdevFallback, ijfwCacheKey } from '@process/services/ijfw/atomicFile';
 import { acquireLock, releaseLock, type LockMetadata } from '@process/services/ijfw/installLock';
 import {
@@ -575,6 +576,20 @@ async function retryOnEbusy<T>(op: () => Promise<T>, attempts = 5): Promise<T> {
   throw lastErr instanceof Error ? lastErr : new Error('EBUSY retry exhausted');
 }
 
+const DEFAULT_SPAWN_TEST_TIMEOUT_MS = 5000;
+let spawnTestTimeoutMs = DEFAULT_SPAWN_TEST_TIMEOUT_MS;
+
+/**
+ * Shorten the spawn-test's settle timeout so a test can drive the real timer
+ * instead of faking the clock (#806). The previous test faked only setTimeout
+ * while the child still emitted over the real macrotask queue, then hand-
+ * interleaved the two — a race that hung the turn outright on sharded runners.
+ */
+export function _setSpawnTestTimeoutForTests(ms?: number): void {
+  // `=== undefined`, not `??`: 0 is a legitimate value to ask for, not a reset.
+  spawnTestTimeoutMs = ms === undefined ? DEFAULT_SPAWN_TEST_TIMEOUT_MS : ms;
+}
+
 /** SEC-003: full JSON-RPC envelope verify with exit-before-success = fail. */
 async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
   let entry: string;
@@ -592,10 +607,13 @@ async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
       // server can never treat an inherited cwd (e.g. app.asar.unpacked in a
       // worker) as a writable project root and write into the signed bundle.
       const safeCwd = resolveSafeSpawnCwd();
-      child = spawn(process.execPath, [entry], {
+      // #706: packaged (fused) builds ignore ELECTRON_RUN_AS_NODE — resolve a
+      // real JS runtime (bundled Bun) so the probe runs as Node, not the app.
+      const runtime = resolveJsRuntime();
+      child = spawn(runtime.command, [entry], {
         cwd: safeCwd,
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: buildChildEnv({ ELECTRON_RUN_AS_NODE: '1', IJFW_PROJECT_DIR: safeCwd }),
+        env: buildChildEnv({ ...runtime.env, IJFW_PROJECT_DIR: safeCwd }),
       });
     } catch (err) {
       log.warn('[ijfw] spawnTestVerify - spawn threw', { err });
@@ -616,7 +634,7 @@ async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
       resolve(value);
     };
 
-    const timeout = setTimeout(() => settle(false), 5000);
+    const timeout = setTimeout(() => settle(false), spawnTestTimeoutMs);
     let buf: Buffer = Buffer.alloc(0);
 
     child.stdout?.on('data', (chunk: Buffer) => {

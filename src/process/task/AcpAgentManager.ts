@@ -7,6 +7,8 @@ import type { CronMessageMeta, TMessage } from '@/common/chat/chatLib';
 import { isCodexAutoApproveMode } from '@/common/types/codex/codexModes';
 import { isAutoGuardedMode, shouldAutoApproveAcpEdit } from '@/common/types/agentModes';
 import { classifyDestructiveToolCall } from '@/common/security/destructiveCommand';
+import { trustedWorkspaceAutoApprovesAcpKind } from '@/common/security/workspaceTrust';
+import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import type { SlashCommandItem } from '@/common/chat/slash/types';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IConfigStorageRefer } from '@/common/config/storage';
@@ -359,14 +361,14 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
         data: null,
       },
       this.options.backend,
-      { trackActiveTurn: false }
+      { trackActiveTurn: false, turnId }
     );
   }
 
   private async handleFinishSignal(
     message: IResponseMessage,
     backend: AcpBackend,
-    options: { trackActiveTurn?: boolean } = {}
+    options: { trackActiveTurn?: boolean; turnId?: number } = {}
   ): Promise<void> {
     if (options.trackActiveTurn !== false) {
       this.markActiveTurnFinished();
@@ -424,6 +426,13 @@ ${collectedResponses.join('\n')}`;
     const finishMessage: IResponseMessage = {
       ...(message as IResponseMessage),
       conversation_id: this.conversation_id,
+      // #787: carry the producing turn so TeammateManager keys its dedup by
+      // (conversation, turn). The real signal finish already carries the
+      // engine's per-turn `turn_id` on `message` (spread above, wired from
+      // AcpConnection via handleEndTurn — this now covers the signal path that
+      // core PR #219 unblocked); the synthesized-finish fallbacks have no id on
+      // `message` and pass it explicitly via `options.turnId`.
+      ...(options.turnId !== undefined ? { turnId: options.turnId } : {}),
     };
     ipcBridge.acpConversation.responseStream.emit(finishMessage);
     teamEventBus.emit('responseStream', finishMessage);
@@ -487,7 +496,7 @@ ${collectedResponses.join('\n')}`;
               data: null,
             },
             this.options.backend,
-            { trackActiveTurn: false }
+            { trackActiveTurn: false, turnId }
           );
         }
         return result;
@@ -518,7 +527,7 @@ ${collectedResponses.join('\n')}`;
           data: null,
         },
         this.options.backend,
-        { trackActiveTurn: false }
+        { trackActiveTurn: false, turnId }
       );
       return result;
     } catch (error) {
@@ -694,7 +703,14 @@ ${collectedResponses.join('\n')}`;
       // config pins model.provider=custom at the Flux openai surface + flux-auto
       // (reading FLUX_API_KEY at request time), so the user's real ~/.hermes
       // config (and active profile) stays native for non-flux model picks.
-      if (data.backend === 'hermes') {
+      //
+      // Opt profile presets out: a HERMES_PROFILE-bearing spawn resolves its
+      // persona from <HERMES_HOME>/profiles/<name>, which the flux-scoped home
+      // does NOT contain - repointing HERMES_HOME would lose the profile. Keep
+      // the native home so the profile still resolves (its model picks stay
+      // native rather than flux-routed, which is the correct trade for a
+      // profile the user explicitly selected).
+      if (data.backend === 'hermes' && !mergedEnv.HERMES_PROFILE) {
         try {
           // hermes ignores FLUX_API_KEY for a custom provider, so the connector
           // writes the connected flux key inline into the scoped config.
@@ -840,13 +856,47 @@ ${collectedResponses.join('\n')}`;
   private async computeFluxRouting(backend: string, selectedModelId: string | undefined): Promise<FluxRoutingResult> {
     const fluxKey = await this.readFluxKey();
     const routeThroughFlux = (await ProcessConfig.get('system.routeThroughFlux')) ?? false;
+    // Belt-and-suspenders for team + workflow spawns: they frequently arrive with
+    // NO explicit model (team_spawn_agent is usually called with no model), so the
+    // spawn's `currentModelId` is undefined. Without a resolved model, the global
+    // routeThroughFlux toggle would default the spawn to Flux and 400 a backend
+    // that natively runs the customer's model (codex on gpt-5.6-sol via an OpenAI
+    // key OR a ChatGPT subscription). Fall back to the model this backend itself
+    // resolved (its cached CLI model / configured preferred id) so the routing
+    // decision honors the native model instead of blindly routing to Flux.
+    const resolvedModelId = selectedModelId ? undefined : await this.resolveBackendModelId(backend);
     return resolveFluxRouting({
       backend,
       selectedModelId,
+      resolvedModelId,
       fluxConnected: Boolean(fluxKey),
       fluxKey,
       routeThroughFlux: Boolean(routeThroughFlux),
     });
+  }
+
+  /**
+   * The model id this backend resolved from its OWN provider identity when a
+   * spawn carries no explicit pick: the CLI's last-cached model, else the
+   * configured preferred model. Mirrors TeamSessionService.resolvePreferredAcpModelId
+   * (preferred first, then cached) so the routing choke point sees the same native
+   * model the spawn path would thread. Best-effort: any read failure yields
+   * undefined and the caller falls back to the routeThroughFlux default.
+   */
+  private async resolveBackendModelId(backend: string): Promise<string | undefined> {
+    try {
+      const acpConfig = await ProcessConfig.get('acp.config');
+      const preferred = (acpConfig as Record<string, { preferredModelId?: string } | undefined> | undefined)?.[backend]
+        ?.preferredModelId;
+      if (typeof preferred === 'string' && preferred.trim().length > 0) return preferred.trim();
+
+      const cachedModels = await ProcessConfig.get('acp.cachedModels');
+      const cached = cachedModels?.[backend]?.currentModelId;
+      if (typeof cached === 'string' && cached.trim().length > 0) return cached.trim();
+    } catch (err) {
+      mainWarn('[AcpAgentManager]', 'resolveBackendModelId failed', err);
+    }
+    return undefined;
   }
 
   /** The connected flux-router key, or undefined when not connected (R13 safety gate). */
@@ -900,7 +950,17 @@ ${collectedResponses.join('\n')}`;
     }
 
     if (!customAgentConfig?.defaultCliPath) {
-      return { cliPath: data.cliPath };
+      // The matched row has no launch override: it's a "thin" specialist that
+      // just delegates to its backend's CLI (e.g. the builtin claude specialists,
+      // which carry a presetAgentType but no defaultCliPath). Resolve it exactly
+      // like a non-custom spawn so it still gets a real cliPath, the backend's
+      // acpArgs, and mode/yolo handling - instead of the bare, cliPath-less early
+      // return that would throw "No CLI path configured". This matters because a
+      // 1:1/Team preset now reaches here via the customAgentId||presetAssistantId
+      // fallback; only rows that DO carry defaultCliPath (a Hermes profile) take
+      // the custom path below that forwards their env. resolveBuiltinBackendConfig
+      // already prefers an explicit data.cliPath, so custom agents keep theirs.
+      return this.resolveBuiltinBackendConfig(data);
     }
 
     return {
@@ -1293,6 +1353,25 @@ ${collectedResponses.join('\n')}`;
         return;
       }
 
+      // #671: trusted ("cowork") workspace auto-approves read/edit tools while
+      // STILL prompting on exec/network. Independent of the per-agent mode above
+      // and persisted per-workspace. Only the non-destructive, non-network raw
+      // kinds read/search/edit are auto-approved (see workspaceTrust.ts); execute,
+      // fetch (network), delete, move, and MCP kinds are NOT in that set and fall
+      // through to a confirmation - so exec/network/destructive always prompt
+      // without needing a separate command classifier here.
+      if (
+        isWorkspaceTrusted(this.workspace) &&
+        trustedWorkspaceAutoApprovesAcpKind(toolCall.kind) &&
+        options.length > 0
+      ) {
+        const allowOption = options.find((option) => !option.kind.startsWith('reject')) ?? options[0];
+        setTimeout(() => {
+          void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, allowOption);
+        }, 50);
+        return;
+      }
+
       // Autopilot guardrail. In guarded-auto mode (workflows / Autopilot run the
       // bridge in 'default' so it escalates risky tool calls) the run proceeds
       // unattended, so auto-approve every escalated request EXCEPT a catastrophic
@@ -1377,12 +1456,20 @@ ${collectedResponses.join('\n')}`;
       // so DO NOT clear it as "unavailable" and DO NOT re-send it via set_model
       // (the claude bridge rejects an unlisted id). The env already selected it.
       const isFluxOnFluxBackend = isFluxModelId(this.persistedModelId) && Boolean(getFluxCompat(this.options.backend));
+      // Codex's session capabilities enumerate a narrower model list than the
+      // account can actually use: gpt-5.6-sol/luna/terra come from the live
+      // codex/models catalog the picker reads, but the codex-acp session/new
+      // response drops them. Silently clearing the user's pick then stranded the
+      // header on "Select Model" and ran the default model. Treat the backend as
+      // the source of truth for codex — attempt the switch and let set_model
+      // succeed or surface an honest "falling back" error (handled below).
+      const trustBackendModel = this.options.backend === 'codex';
       if (isFluxOnFluxBackend) {
         // Keep persistedModelId as-is; the env carries the route.
-      } else if (!isModelAvailable) {
+      } else if (!isModelAvailable && !trustBackendModel) {
         mainWarn('[AcpAgentManager]', `Persisted model ${this.persistedModelId} is not in available models, clearing`);
         this.persistedModelId = null;
-      } else if (currentInfo?.currentModelId !== this.persistedModelId) {
+      } else if (!isModelAvailable || currentInfo?.currentModelId !== this.persistedModelId) {
         try {
           await this.agent.setModelByConfigOption(this.persistedModelId);
         } catch (error) {
@@ -2046,14 +2133,32 @@ ${collectedResponses.join('\n')}`;
    * cheap in-place path.
    */
   async setModel(modelId: string): Promise<AcpModelInfo | null> {
+    // Durable-first for codex and the generic ACP CLIs: persist the user's
+    // REQUESTED model id to the conversation record BEFORE the live init /
+    // set_model round-trip, so the pick survives a disconnected or unspawnable
+    // agent instead of silently snapping back (the codex "Select Model" revert).
+    // Claude is excluded — its pick is a cc-switch / native slot that is
+    // normalized and persisted by respawnForRoutingChange below, and writing the
+    // raw registry id here would fight that. Flux ids are carried by the spawn
+    // env and persisted by their own branch below, so they skip the early write.
+    const earlyPersistEligible = this.options.backend !== 'claude' && !isFluxModelId(modelId);
+    if (earlyPersistEligible) {
+      this.persistedModelId = modelId;
+      this.options.currentModelId = modelId;
+      await this.saveModelId(modelId);
+    }
+
     if (!this.agent) {
       try {
         await this.initAgent(this.options);
       } catch {
-        return null;
+        // Spawn failed, but for an early-persisted backend the pick is already
+        // durable on the record — report it back (persisted-model info) instead
+        // of null so the picker reflects the selection rather than reverting.
+        return earlyPersistEligible ? this.getModelInfo() : null;
       }
     }
-    if (!this.agent) return null;
+    if (!this.agent) return earlyPersistEligible ? this.getModelInfo() : null;
 
     // Detect a routing-boundary crossing: does the NEW model route differently
     // than what is currently live? `this.lastRouting` was set by the spawn that
@@ -2089,17 +2194,23 @@ ${collectedResponses.join('\n')}`;
 
     const result = await this.agent.setModelByConfigOption(modelId);
     if (result) {
-      this.persistedModelId = result.currentModelId;
+      // The bridge echoes the live model. On success `result.currentModelId`
+      // equals the requested id; on a 10s timeout setModelByConfigOption falls
+      // back to the agent's CACHED (default) info, whose currentModelId is NOT
+      // the user's pick. For an early-persisted backend, that stale echo must not
+      // clobber the requested id we already persisted — keep the requested id.
+      const confirmedId = earlyPersistEligible && result.currentModelId !== modelId ? modelId : result.currentModelId;
+      this.persistedModelId = confirmedId;
       // S6: await (was fire-and-forget) so a persist failure can't surface as an
       // unhandled rejection and the selected model is actually persisted before
       // returning (matters for resume).
-      await this.saveModelId(result.currentModelId);
+      await this.saveModelId(confirmedId);
       // Update cached models so Guid page defaults to the newly selected model
       if (result.availableModels?.length > 0) {
         void this.cacheModelList(result);
       }
     }
-    return result;
+    return result ?? (earlyPersistEligible ? this.getModelInfo() : null);
   }
 
   /**
@@ -2307,6 +2418,49 @@ ${collectedResponses.join('\n')}`;
     } catch (error) {
       mainWarn('[AcpAgentManager]', 'Failed to save model ID', error);
     }
+
+    // The DB row is the AUTHORITATIVE model id and the renderer seeds the context
+    // meter from it on load (#733) - but only on load. A mid-chat switch wrote the
+    // row and told nobody, so the meter kept sizing itself from the PREVIOUS model:
+    // switching opus (1M) -> haiku (200K) left a 1M denominator on a 200K window,
+    // i.e. the meter reported ~5x the headroom that actually existed and the user
+    // hit the ceiling with no warning. Push the new id to the live renderer. (#801)
+    this.emitModelInfoUpdate(modelId);
+  }
+
+  /**
+   * Tell the renderer the active model changed, so anything sized from the model's
+   * context window (the ACP context meter) re-sizes immediately instead of at the
+   * next conversation load.
+   *
+   * MERGES onto the agent's current info rather than emitting a fresh payload: an
+   * `acp_model_info` whose `availableModels` is EMPTY reverts the in-chat picker to
+   * "Select Model" (#184 - AcpAgentV2.onModelUpdate guards the same hazard for the
+   * bridge's own empty snapshots). Spreading `info` means this emit can only ever
+   * change `currentModelId`/`currentModelLabel`; it can never shrink the model list.
+   */
+  private emitModelInfoUpdate(modelId: string): void {
+    const info = this.getModelInfo();
+    // Nothing authoritative to merge onto -> stay silent. An EMPTY availableModels
+    // is not merely useless, it is destructive: the renderer's selector adopts an
+    // incoming acp_model_info unconditionally, so an empty list reverts the in-chat
+    // picker to "Select Model" (#184). Two reachable states produce a non-null but
+    // EMPTY info - the no-agent/persisted-id branch of getModelInfo(), and a
+    // non-claude bridge whose first snapshot (or 10s timeout fallback) was empty -
+    // so guarding on `!info` alone is not enough. The renderer still seeds the
+    // model id from the conversation row on its next load (#733).
+    if (!info || info.availableModels.length === 0) return;
+
+    ipcBridge.acpConversation.responseStream.emit({
+      type: 'acp_model_info',
+      conversation_id: this.conversation_id,
+      msg_id: uuid(),
+      data: {
+        ...info,
+        currentModelId: modelId,
+        currentModelLabel: info.availableModels.find((m) => m.id === modelId)?.label ?? modelId,
+      },
+    });
   }
 
   /**

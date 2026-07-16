@@ -184,11 +184,52 @@ function isChatGptSubscription(model: TProviderWithModel): boolean {
 }
 
 /**
+ * True when `modelId` is unmistakably an OpenAI-family model id — the GPT line
+ * (`gpt-*`, which includes the brand-new catalog-only `gpt-5.6-sol` /
+ * `gpt-5.6-luna` / `gpt-5.6-terra`), the o-series reasoning models
+ * (`o1`/`o3`/`o4`…), or a ChatGPT alias (`chatgpt-*`). These are served by
+ * OpenAI (`api.openai.com`) or the ChatGPT backend — NEVER by the native
+ * Anthropic surface (`api.anthropic.com`, which only speaks `claude-*`).
+ *
+ * Used purely as a defense-in-depth guard in {@link mapProvider}: a genuine
+ * Anthropic model id (`claude-*`, `claude-opus-*`, …) never matches this test,
+ * so real Anthropic routing is untouched.
+ */
+export function isOpenAIFamilyModelId(modelId: string | undefined): boolean {
+  if (!modelId) return false;
+  return /^(?:gpt-|chatgpt-|o\d)/i.test(modelId.trim());
+}
+
+/**
+ * Auth-availability signals consumed ONLY by {@link mapProvider}'s
+ * OpenAI-family-off-Anthropic guard. Both default to false (the API-key
+ * behavior); every other routing arm ignores them.
+ *
+ *  - `openAiApiKeyAvailable` - a real OpenAI provider API key was sourced by the
+ *    caller AND will be injected as `OPENAI_API_KEY` by {@link buildSpawnConfig}
+ *    (see the rebind block). It is NEVER just "the model carries some key":
+ *    a catalog-only OpenAI-family model's own `apiKey` is the ANTHROPIC key.
+ *  - `chatGptSubscriptionAvailable` - a ChatGPT-subscription OAuth token is
+ *    present in `~/.codex/auth.json` (the store the engine reads for
+ *    `--provider openai-chatgpt`), so the keyless surface will authenticate.
+ */
+type OpenAiFamilyAuthSignals = {
+  chatGptSubscriptionAvailable: boolean;
+  openAiApiKeyAvailable: boolean;
+};
+
+/**
  * Map provider name to wcore provider name.
  *
  * Platform values: 'custom' | 'new-api' | 'gemini' | 'gemini-vertex-ai' | 'anthropic' | 'bedrock'
+ *
+ * `auth` carries the two availability signals ({@link OpenAiFamilyAuthSignals})
+ * that ONLY influence the OpenAI-family-off-Anthropic guard below: they choose
+ * between the reliable API-key `openai` surface and the keyless `openai-chatgpt`
+ * surface for a model that would otherwise wrongly hit Anthropic. Every other
+ * routing arm is unaffected.
  */
-function mapProvider(model: TProviderWithModel): WCoreProvider {
+function mapProvider(model: TProviderWithModel, auth: OpenAiFamilyAuthSignals): WCoreProvider {
   // ChatGPT subscription (OAuth): route to the engine's native slug so it drives
   // the ChatGPT backend + reads the token from ~/.codex/auth.json, instead of
   // collapsing to `--provider openai` against api.openai.com (#243).
@@ -229,7 +270,48 @@ function mapProvider(model: TProviderWithModel): WCoreProvider {
     custom: 'openai',
     'new-api': 'openai',
   };
-  return mapping[model.platform] ?? 'openai';
+  const mapped = mapping[model.platform] ?? 'openai';
+
+  // Defense-in-depth: the native Anthropic surface (`api.anthropic.com`) can
+  // only serve Anthropic `claude-*` models. A brand-new OpenAI-family model
+  // that exists only in the models.dev catalog cache (e.g. `gpt-5.6-sol`) is
+  // NOT owned by any configured OpenAI provider, so on selection it inherits
+  // the agent's current/default `platform` — which is `'anthropic'` for a
+  // Claude-default agent (normal chat, and equally in Teams/Workflows, since
+  // every wcore spawn funnels through here). Routing it to `--provider anthropic`
+  // yields the reported `400 invalid_request_error` with an Anthropic-shaped
+  // error envelope ("The 'gpt-5.6-sol' model does not exist"). Re-bind such an
+  // OpenAI-family id to an OpenAI-compatible surface. This runs AFTER the ChatGPT-
+  // subscription / catalog / engine-native / openai-chatgpt precedence above,
+  // so those correct routings are never overridden; a real `claude-*` id never
+  // matches {@link isOpenAIFamilyModelId}, so genuine Anthropic routing stands.
+  //
+  // AUTH-AWARE fallback: the engine serves these models on BOTH the API-key
+  // `openai` surface (api.openai.com, needs OPENAI_API_KEY) AND the keyless
+  // `openai-chatgpt` ChatGPT-OAuth surface (Codex backend, token from
+  // ~/.codex/auth.json). PREFER the API-key surface whenever an OpenAI key is
+  // available: api.openai.com serves every gpt-5.6-* verbatim, whereas the Codex
+  // backend serves a given gpt-5.6-* ONLY if the ChatGPT account is entitled to it
+  // (verified live: gpt-5.6-sol -> HTTP 400 "not supported ... with a ChatGPT
+  // account", gpt-5.6-luna -> HTTP 404 on real sub accounts; terra works). Routing
+  // a user who has BOTH a sub and a working key to the sub backend (the prior #866
+  // preference) dead-ends them on an unentitled model even though their key would
+  // have worked - violating "usable no matter what the customer has" - so the key
+  // surface must win. The keyless surface is now only the fallback for a sub-only
+  // user (no OpenAI key). With NEITHER signal we still return `openai`;
+  // buildSpawnConfig then flags a recoverable missing-key (never a doomed spawn).
+  //
+  // INVARIANT: `openAiApiKeyAvailable` means a real OpenAI key was sourced AND will
+  // be injected as OPENAI_API_KEY by buildSpawnConfig's rebind block. Never return
+  // `'openai'` for this catalog-only model expecting `model.apiKey` to carry the
+  // key - it is the ANTHROPIC key (or empty), so injecting it would be a WORSE
+  // regression (wrong/empty key -> the engine bails "No API key found").
+  if (mapped === 'anthropic' && isOpenAIFamilyModelId(model.useModel)) {
+    if (auth.openAiApiKeyAvailable) return 'openai';
+    if (auth.chatGptSubscriptionAvailable) return CHATGPT_SUBSCRIPTION_ENGINE_PROVIDER;
+    return 'openai';
+  }
+  return mapped;
 }
 
 const GEMINI_OPENAI_COMPAT_PATH = '/v1beta/openai';
@@ -376,6 +458,30 @@ export function buildSpawnConfig(
      * standalone CLI would for that session id. The `model` argument is ignored.
      */
     rawEngine?: boolean;
+    /**
+     * True when a ChatGPT subscription's OAuth is available for keyless inference
+     * (the caller resolved it from `~/.codex/auth.json` - the same store the
+     * engine reads for `--provider openai-chatgpt`). Consumed ONLY by
+     * {@link mapProvider}'s OpenAI-family-off-Anthropic guard: an OpenAI-family
+     * model that would wrongly hit the Anthropic surface routes to the keyless
+     * `openai-chatgpt` surface when this is true (so a sub-only user needs no
+     * OpenAI API key), and to the API-key `openai` surface otherwise. Every other
+     * routing arm ignores this flag. Defaults to false (API-key behavior).
+     */
+    chatGptSubscriptionAvailable?: boolean;
+    /**
+     * The user's configured OpenAI provider API key (the connected `openai`
+     * provider's OWN key), resolved by the caller (`WCoreAgent.start` via
+     * `resolveModelSecretsForSpawn`). Consumed ONLY by the OpenAI-family-off-
+     * Anthropic path: when present it makes {@link mapProvider} prefer the
+     * reliable API-key `openai` surface, and this exact value is injected as
+     * `OPENAI_API_KEY` for that catalog-only model - whose OWN `model.apiKey` is
+     * the ANTHROPIC key and must NEVER be presented to api.openai.com. Absent /
+     * empty means "no OpenAI key available": the guard then falls back to the
+     * keyless `openai-chatgpt` surface (if a sub is connected) or flags a
+     * recoverable missing-key. Every other routing arm ignores it.
+     */
+    openAiApiKey?: string;
   }
 ): {
   args: string[];
@@ -424,7 +530,13 @@ export function buildSpawnConfig(
     return { args, env: {}, projectConfig: '', resolvedMaxTokens: undefined, missingRequiredApiKey: false };
   }
 
-  const provider = mapProvider(model);
+  // A real OpenAI key to inject for a catalog-only OpenAI-family rebind (empty /
+  // whitespace collapses to undefined so "available" is strictly "a usable key").
+  const openAiApiKey = options.openAiApiKey?.trim() || undefined;
+  const provider = mapProvider(model, {
+    chatGptSubscriptionAvailable: options.chatGptSubscriptionAvailable ?? false,
+    openAiApiKeyAvailable: !!openAiApiKey,
+  });
   const env: Record<string, string> = {};
   const args: string[] = ['--json-stream', '--provider', provider, '--model', model.useModel];
 
@@ -497,6 +609,37 @@ export function buildSpawnConfig(
     const projectConfig = buildProjectConfig(model, provider);
     // OAuth backend (token from ~/.codex/auth.json) - no `model.apiKey` needed.
     return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey: false };
+  }
+
+  // OpenAI-family model rebound off the Anthropic surface to the API-key `openai`
+  // surface by mapProvider's guard: a catalog-only gpt-5.6-* selected under a
+  // Claude-default agent inherits `platform: 'anthropic'`, so its OWN `model.apiKey`
+  // is the ANTHROPIC key (or empty) and `model.baseUrl` is Anthropic's - NEITHER is
+  // valid for api.openai.com. Sourcing OPENAI_API_KEY from `model.apiKey` (the
+  // generic openai `case` below) would present the Anthropic key to api.openai.com
+  // or bail "No API key found" - a worse regression than the original wrong-surface
+  // bug. So inject the SEPARATELY-SOURCED OpenAI provider key (`openAiApiKey`,
+  // resolved by WCoreAgent.start from the connected `openai` provider) and emit NO
+  // `--base-url` (the engine's default api.openai.com is the reliable surface).
+  //
+  // mapProvider only returns `'openai'` for this catalog-only case when
+  // `openAiApiKeyAvailable` was true (its invariant), so `openAiApiKey` is normally
+  // present here. If it is somehow absent (belt-and-braces) we DO NOT inject the
+  // Anthropic key nor a placeholder - we flag a recoverable missing-key so the
+  // caller routes to the credential-recovery card instead of spawning a doomed
+  // engine (#629). This is the only path that emits `--provider openai` for a
+  // `platform: 'anthropic'` model, so `model.apiKey` can never reach OPENAI_API_KEY.
+  if (provider === 'openai' && model.platform === 'anthropic' && isOpenAIFamilyModelId(model.useModel)) {
+    if (openAiApiKey) env.OPENAI_API_KEY = openAiApiKey;
+    const projectConfig = buildProjectConfig(model, provider);
+    return {
+      args,
+      env,
+      projectConfig,
+      resolvedMaxTokens,
+      missingRequiredApiKey: !openAiApiKey,
+      requiredKeyEnvVar: 'OPENAI_API_KEY',
+    };
   }
 
   // Set for the key-based `switch` providers below (anthropic + cloud openai);

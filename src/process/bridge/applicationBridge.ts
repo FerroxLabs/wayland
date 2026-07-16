@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { BrowserWindow } from 'electron';
-import { app } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -159,6 +158,32 @@ export function setApplicationMainWindow(win: BrowserWindow): void {
   mainWindowRef = win;
 }
 
+/**
+ * Does ANY app window currently have focus? Used by the #579 completion notifier
+ * to stay quiet while the user is already watching.
+ *
+ * Deliberately NOT `mainWindowRef.isFocused()`: a conversation can be popped out
+ * into its own BrowserWindow, and someone watching a popped-out chat would have
+ * an unfocused MAIN window — so we would notify them about the very turn they are
+ * staring at.
+ *
+ * A minimised or background app reports false, which is what we want: those are
+ * exactly the users who need telling.
+ */
+export function isApplicationWindowFocused(): boolean {
+  return BrowserWindow.getFocusedWindow() !== null;
+}
+
+// The conversation the user is currently looking at, reported by the renderer.
+// Null when no chat is in the foreground (list view, settings, blurred window).
+// Used by the #579 completion notifier to distinguish "watching THIS chat" from
+// "app focused, but on a different chat" (the multitask case).
+let foregroundConversationId: string | null = null;
+
+export function getForegroundConversationId(): string | null {
+  return foregroundConversationId;
+}
+
 export function initApplicationBridge(workerTaskManager: IWorkerTaskManager): void {
   // Platform-agnostic handlers: systemInfo, updateSystemInfo, getPath
   initApplicationBridgeCore();
@@ -219,6 +244,12 @@ export function initApplicationBridge(workerTaskManager: IWorkerTaskManager): vo
     } catch (e) {
       return { success: false, msg: e instanceof Error ? e.message : String(e) };
     }
+  });
+
+  // The renderer reports which conversation is on screen (or null) so the #579
+  // completion notifier can tell "watching this chat" from "on another chat".
+  ipcBridge.application.setForegroundConversation.provider(async ({ conversationId }) => {
+    foregroundConversationId = conversationId;
   });
 
   ipcBridge.application.getZoomFactor.provider(() => Promise.resolve(getZoomFactor()));

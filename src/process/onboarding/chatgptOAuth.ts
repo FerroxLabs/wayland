@@ -59,6 +59,7 @@ import {
   CHATGPT_SCOPES,
   CHATGPT_TOKEN_URL,
   createPkce,
+  isHeadlessEnvironment,
   isPinnedOpenAiAuthHttps,
   isTokenExpired,
   parseTokenResponse,
@@ -93,6 +94,14 @@ export async function chatgptOAuthLogin(): Promise<ChatGptOAuthResult> {
     // of xAI's `~/.grok/auth.json` reuse.
     const reused = await tryReuseCodexCli();
     if (reused) return reused;
+
+    // #525: a headless/remote host can't complete the browser PKCE flow (no
+    // local browser, and the loopback callback is unreachable from the user's
+    // own machine). Skip the doomed 3-minute timeout and return actionable
+    // guidance — the renderer explains the SSH port-forward + Codex-CLI reuse.
+    if (isHeadlessEnvironment()) {
+      return { ok: false, error: 'headless' };
+    }
 
     const pkce = createPkce();
     const clientId = resolveClientId();

@@ -98,7 +98,7 @@
     "panel_title": "IJFW Memory (Ferrox Labs)",
     "skip_label": "Пропустити автоматичне налаштування IJFW",
     "skip_description": "Коли увімкнено, Wayland не встановлюватиме і не оновлюватиме IJFW. Ви зможете встановити вручну пізніше через сторінку Пам'яті.",
-    "manual_install_hint": "Для встановлення вручну виконайте в терміналі: `npx -y @ijfw/install@latest`",
+    "manual_install_hint": "Для встановлення вручну виконайте в терміналі: `npx -y --package @ijfw/install@latest ijfw-install --yes`",
     "about_title": "IJFW Memory",
     "about_body": "Відкритий рушій постійної пам'яті від Ferrox Labs.",
     "setup_status_title": "Стан налаштування",

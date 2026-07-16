@@ -38,6 +38,7 @@ describe('applicationBridge start-on-boot helpers', () => {
           openDevTools: { provider: vi.fn() },
           getZoomFactor: { provider: vi.fn() },
           setZoomFactor: { provider: vi.fn() },
+          setForegroundConversation: { provider: vi.fn() },
           getCdpStatus: { provider: vi.fn() },
           updateCdpConfig: { provider: vi.fn() },
           getStartOnBootStatus: { provider: vi.fn() },
@@ -248,6 +249,7 @@ describe('applicationBridge start-on-boot helpers', () => {
           openDevTools: { provider: vi.fn() },
           getZoomFactor: { provider: vi.fn() },
           setZoomFactor: { provider: vi.fn() },
+          setForegroundConversation: { provider: vi.fn() },
           getCdpStatus: { provider: vi.fn() },
           updateCdpConfig: { provider: vi.fn() },
           getStartOnBootStatus: {
@@ -337,6 +339,7 @@ describe('applicationBridge start-on-boot helpers', () => {
           openDevTools: { provider: vi.fn() },
           getZoomFactor: { provider: vi.fn() },
           setZoomFactor: { provider: vi.fn() },
+          setForegroundConversation: { provider: vi.fn() },
           getCdpStatus: { provider: vi.fn() },
           updateCdpConfig: { provider: vi.fn() },
           getStartOnBootStatus: { provider: vi.fn() },

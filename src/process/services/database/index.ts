@@ -1138,6 +1138,39 @@ export class WaylandUIDatabase {
     }
   }
 
+  /**
+   * Reconcile chat messages left in a non-terminal state by a crash, kill, or
+   * power loss (#665). A streaming assistant turn persists its message with
+   * status 'work'/'pending' and only finalizes it to 'finish' on completion; if
+   * the app dies mid-turn, that row is frozen non-terminal and the chat view
+   * keeps showing it as still-responding — a lie, since nothing is running.
+   *
+   * At startup NOTHING can legitimately be generating yet, so any 'work'/
+   * 'pending' message is a stale interrupted turn. Flip it to 'error' (its
+   * partial content is preserved) so the UI shows it as interrupted instead of
+   * perpetually active. Returns the number of rows reconciled.
+   */
+  reconcileInterruptedMessages(): IQueryResult<number> {
+    try {
+      const stmt = this.db.prepare(`
+        UPDATE messages
+        SET status = 'error'
+        WHERE status IN ('work', 'pending')
+      `);
+      const result = stmt.run();
+
+      return {
+        success: true,
+        data: result.changes,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
   deleteMessage(messageId: string): IQueryResult<boolean> {
     try {
       const stmt = this.db.prepare('DELETE FROM messages WHERE id = ?');

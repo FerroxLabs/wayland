@@ -47,6 +47,7 @@ const GeminiSettings = React.lazy(() => import('@renderer/pages/settings/GeminiS
 const SystemSettings = React.lazy(() => import('@renderer/pages/settings/SystemSettings'));
 const VoiceSettings = React.lazy(() => import('@renderer/pages/settings/VoiceSettings'));
 const WebuiSettings = React.lazy(() => import('@renderer/pages/settings/WebuiSettings'));
+const ExtensionsSettings = React.lazy(() => import('@renderer/pages/settings/ExtensionsSettings'));
 const ExtensionSettingsPage = React.lazy(() => import('@renderer/pages/settings/ExtensionSettingsPage'));
 const LoginPage = React.lazy(() => import('@renderer/pages/login'));
 const ComponentsShowcase = React.lazy(() => import('@renderer/pages/TestShowcase'));
@@ -151,6 +152,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
               path='/settings/mcp-library/installed'
               element={<Navigate to='/settings/mcp-library/browse' replace />}
             />
+            <Route path='/settings/extensions' element={withRouteFallback(ExtensionsSettings)} />
             <Route path='/settings/mcp-library/:entryId' element={withRouteFallback(McpLibraryDetailPage)} />
             {/* Legacy redirect - old `/settings/tools/mcp` route now lands on Browse. */}
             <Route path='/settings/tools/mcp' element={<Navigate to='/settings/mcp-library/browse' replace />} />
@@ -206,7 +208,10 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/projects' element={withRouteFallback(ProjectsListPage)} />
             <Route path='/conversations' element={withRouteFallback(ConversationsListPage)} />
             <Route path='/project/:projectId' element={withRouteFallback(ProjectWorkspacePage)} />
-            <Route path='/memory' element={withRouteFallback(MemoryPage)} />
+            {/* #792: a render error in the memory subtree must not bubble to the
+              app-root boundary and blank the whole app. Mirror /conversation's
+              route-level boundary so a memory crash is contained to the page. */}
+            <Route path='/memory' element={<ErrorBoundary>{withRouteFallback(MemoryPage)}</ErrorBoundary>} />
             <Route path='/wiki' element={withRouteFallback(WikiHomePage)} />
             <Route path='/wiki/:slug' element={withRouteFallback(WikiDetailPage)} />
           </Route>

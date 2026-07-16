@@ -59,6 +59,9 @@ import { initWebAdapter } from '@process/webserver/adapter';
 // denylist (the #684 trigger); `conversation.get-list-684-test` is not.
 buildProvider('project.generate-knowledge-draft');
 buildProvider('conversation.get-list-684-test');
+// #819: the shared config setter — wire-allowed (the paired WebUI writes config),
+// value-gated so a remote peer cannot write `webui.desktop.*` and arm LAN exposure.
+buildProvider('agent.config.storage.set');
 
 function makeWs(): { send: ReturnType<typeof vi.fn> } {
   return { send: vi.fn() };
@@ -131,6 +134,50 @@ describe('webserver adapter - rejected bridge invocations settle the caller (#68
     capturedHandler.fn!('subscribe-conversation.get-list-684-test', message, ws);
 
     expect(registryMocks.emitter.emit).toHaveBeenCalledWith('subscribe-conversation.get-list-684-test', message);
+    expect(ws.send).not.toHaveBeenCalled();
+  });
+});
+
+describe('webserver adapter - remote peer cannot arm LAN exposure via a config write (#819)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    capturedHandler.fn = null;
+    initWebAdapter({} as never);
+    expect(capturedHandler.fn).toBeTypeOf('function');
+  });
+
+  const NAME = 'subscribe-agent.config.storage.set';
+
+  it('blocks a remote webui.desktop.allowRemote write and settles the caller', () => {
+    const ws = makeWs();
+    const id = 'agent.config.storage.setdeadbeef';
+    capturedHandler.fn!(NAME, { id, data: { key: 'webui.desktop.allowRemote', data: true } }, ws);
+
+    // The write never reaches the store — no auto-bind on the next launch.
+    expect(registryMocks.emitter.emit).not.toHaveBeenCalled();
+    // The caller's invoke() settles instead of hanging (#684 contract).
+    expect(ws.send).toHaveBeenCalledTimes(1);
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.name).toBe(`subscribe.callback-agent.config.storage.set${id}`);
+    expect(payload.data).toEqual({ error: 'failed', detail: 'remote-forbidden' });
+  });
+
+  it('also blocks the enabled half of a from-cold auto-bind', () => {
+    const ws = makeWs();
+    capturedHandler.fn!(
+      NAME,
+      { id: 'agent.config.storage.setcafebabe', data: { key: 'webui.desktop.enabled', data: true } },
+      ws
+    );
+    expect(registryMocks.emitter.emit).not.toHaveBeenCalled();
+  });
+
+  it('still dispatches a legitimate config write the paired WebUI needs', () => {
+    const ws = makeWs();
+    const message = { id: 'agent.config.storage.setfeedface', data: { key: 'theme', data: 'dark' } };
+    capturedHandler.fn!(NAME, message, ws);
+
+    expect(registryMocks.emitter.emit).toHaveBeenCalledWith(NAME, message);
     expect(ws.send).not.toHaveBeenCalled();
   });
 });

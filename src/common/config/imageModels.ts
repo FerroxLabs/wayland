@@ -48,6 +48,33 @@ export function isImageModelName(name: string): boolean {
   );
 }
 
+/**
+ * True when `name` looks like an audio / voice model id (text-to-speech,
+ * speech-to-text, transcription, voice synthesis). Case-insensitive. Like
+ * {@link isImageModelName} this exists because a new audio model too fresh for
+ * models.dev lands UNENRICHED with the default `kind: 'text'` and would slip
+ * through the Curator into the chat pickers (e.g. Flux Router's "Flux Voice"
+ * arms). Audio models belong to voice tooling, never the chat model dropdown.
+ */
+export function isAudioModelName(name: string): boolean {
+  const n = name.toLowerCase();
+  return (
+    n.includes('voice') ||
+    n.includes('audio') ||
+    n.includes('whisper') ||
+    n.includes('speech') ||
+    n.includes('transcri') || // transcribe / transcription
+    n.includes('elevenlabs') ||
+    n.includes('deepgram') ||
+    /\b(tts|stt)\b/.test(n)
+  );
+}
+
+/** True when a model id is a non-chat (image or audio) model by name. */
+export function isNonTextModelName(name: string): boolean {
+  return isImageModelName(name) || isAudioModelName(name);
+}
+
 /** A curated-floor rule: providers matching `test` get `models` as a baseline. */
 type CuratedRule = {
   /** Match on the legacy provider `platform` + `baseUrl` (host already lowered). */
