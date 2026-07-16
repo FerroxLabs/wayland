@@ -148,6 +148,16 @@ describe('hosted Constitution service', () => {
     await expect(requestConstitutionEditGrantHttp('password-once', ['constitution.write'])).resolves.toBeNull();
   });
 
+  it('rejects truthy non-boolean grant success discriminators', async () => {
+    fetchMock.mockResolvedValueOnce(
+      response(200, {
+        success: 'false',
+        data: { grant: 'opaque-grant', expiresAt: Date.now() + 60_000 },
+      })
+    );
+    await expect(requestConstitutionEditGrantHttp('password-once', ['constitution.write'])).resolves.toBeNull();
+  });
+
   it('sends only the opaque grant for autosave and preserves authorization-required truth', async () => {
     fetchMock.mockResolvedValueOnce(
       response(409, {
@@ -230,6 +240,20 @@ describe('hosted Constitution service', () => {
     await expect(writeConstitutionHttp('# three', 'rev:main:00000001', 'opaque-grant')).resolves.toMatchObject({
       ok: false,
       reason: 'request_failed',
+    });
+  });
+
+  it('rejects truthy non-boolean mutation success discriminators', async () => {
+    fetchMock.mockResolvedValueOnce(
+      response(200, {
+        success: 'false',
+        data: { ok: true, revision: 'rev:main:00000002', receiptId: 'receipt:main:00000001' },
+      })
+    );
+    await expect(writeConstitutionHttp('# dirty', 'rev:main:00000001', 'opaque-grant')).resolves.toEqual({
+      ok: false,
+      reason: 'request_failed',
+      status: 200,
     });
   });
 

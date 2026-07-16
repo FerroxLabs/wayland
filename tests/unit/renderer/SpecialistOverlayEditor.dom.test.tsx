@@ -194,4 +194,21 @@ describe('Hosted SpecialistOverlayEditor', () => {
       bytes: new TextEncoder().encode('# saved revision').byteLength,
     });
   });
+
+  it('blocks new editor work while the parent owns an in-flight delete', async () => {
+    const onClose = vi.fn();
+    const view = render(<SpecialistOverlayEditor id='copy' onClose={onClose} locked={false} />);
+    await act(async () => Promise.resolve());
+    await act(async () => vi.advanceTimersByTime(50));
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock editing' }));
+    view.rerender(<SpecialistOverlayEditor id='copy' onClose={onClose} locked />);
+
+    const editor = screen.getByRole('textbox', { name: 'specialist-editor' }) as HTMLTextAreaElement;
+    expect(editor.readOnly).toBe(true);
+    expect(screen.getByRole('button', { name: 'Close' })).toBeDisabled();
+    fireEvent.change(editor, { target: { value: '# must not queue' } });
+    await act(async () => vi.advanceTimersByTime(500));
+    expect(mockWrite).not.toHaveBeenCalled();
+    expect(editor.value).toBe('# existing copy rules');
+  });
 });

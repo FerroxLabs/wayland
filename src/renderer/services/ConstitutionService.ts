@@ -141,7 +141,7 @@ async function postConstitution(
     data?: { ok?: boolean; revision?: unknown; receiptId?: unknown };
   };
 
-  if (res.ok && json.success) {
+  if (res.ok && json.success === true) {
     if (
       !hasExactKeys(json, ['success', 'data']) ||
       !json.data ||
@@ -186,7 +186,7 @@ export async function requestConstitutionEditGrantHttp(
     const expiresAt = json.data?.expiresAt;
     if (
       !res.ok ||
-      !json.success ||
+      json.success !== true ||
       !hasExactKeys(json, ['success', 'data']) ||
       !json.data ||
       !hasExactKeys(json.data, ['grant', 'expiresAt']) ||

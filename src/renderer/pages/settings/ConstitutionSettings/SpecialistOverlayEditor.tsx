@@ -36,6 +36,8 @@ type SpecialistOverlayEditorProps = {
   onDirtyChange?: (dirty: boolean) => void;
   /** Publishes the authoritative revision before parent delete controls re-enable. */
   onCommitted?: (result: { revision: string; bytes: number }) => void;
+  /** Freezes every editor action while the parent owns an in-flight delete. */
+  locked?: boolean;
 };
 
 type ConflictSnapshot = {
@@ -54,6 +56,7 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
   onClose,
   onDirtyChange,
   onCommitted,
+  locked = false,
 }) => {
   const { t } = useTranslation();
   const isDesktop = isElectronDesktop();
@@ -139,7 +142,7 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
   );
 
   const { saveState, isDirty, queueSave, retry, clear, runExclusiveDestructive } = useSerializedAutosave({
-    enabled: isDesktop || editGrant !== null,
+    enabled: !locked && (isDesktop || editGrant !== null),
     debounceMs: SAVE_DEBOUNCE_MS,
     savedFlashMs: SAVED_FLASH_MS,
     save: saveOverlay,
@@ -159,11 +162,12 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
 
   const handleChange = useCallback(
     (md: string): void => {
+      if (locked) return;
       setValue(md);
       if (hydrating.current) return;
       queueSave(md);
     },
-    [queueSave]
+    [locked, queueSave]
   );
 
   const loadConflictComparison = useCallback(async (): Promise<void> => {
@@ -262,18 +266,18 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
         <div className='flex items-center gap-8px'>
           <SavedIndicator state={saveState} />
           {saveState === 'error' && (
-            <Button type='secondary' size='small' onClick={retry}>
+            <Button type='secondary' size='small' disabled={locked} onClick={retry}>
               {t('settings.constitutionPage.retrySave', 'Retry save')}
             </Button>
           )}
-          {!isDesktop && !editGrant && (
+          {!locked && !isDesktop && !editGrant && (
             <HostedEditAuthorization scopes={[`specialist.write:${id}`]} onGranted={setEditGrant} compact />
           )}
           <Button
             type='secondary'
             size='small'
             icon={<ChevronDown size={14} />}
-            disabled={isDirty}
+            disabled={locked || isDirty}
             title={
               isDirty
                 ? t('settings.constitutionSpecialists.closeDirty', 'Save or discard changes before closing')
@@ -361,7 +365,7 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
           <TipTapMarkdownEditor
             value={value}
             onChange={handleChange}
-            readOnly={conflict || (!isDesktop && !editGrant)}
+            readOnly={locked || conflict || (!isDesktop && !editGrant)}
           />
         </>
       )}

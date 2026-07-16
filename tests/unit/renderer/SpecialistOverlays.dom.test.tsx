@@ -38,14 +38,16 @@ vi.mock('@renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor',
     id,
     onDirtyChange,
     onCommitted,
+    locked,
   }: {
     id: string;
     onDirtyChange?: (dirty: boolean) => void;
     onCommitted?: (result: { revision: string; bytes: number }) => void;
+    locked?: boolean;
   }) => (
     <div>
       Editor {id}
-      <button type='button' onClick={() => onDirtyChange?.(true)}>
+      <button type='button' disabled={locked} onClick={() => onDirtyChange?.(true)}>
         Simulate dirty
       </button>
       <button
@@ -65,11 +67,20 @@ vi.mock('@arco-design/web-react', () => {
     value,
     onChange,
     placeholder,
+    disabled,
   }: {
     value: string;
     onChange: (value: string) => void;
     placeholder: string;
-  }) => <input value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />;
+    disabled?: boolean;
+  }) => (
+    <input
+      value={value}
+      placeholder={placeholder}
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.value)}
+    />
+  );
   Input.Password = Input;
   return {
     Button: ({ children, onClick, disabled }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
@@ -89,6 +100,14 @@ const committed = (revision: string) => ({
   revision,
   receiptId: 'receipt:specialist:00000001',
 });
+
+function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
 
 describe('Hosted SpecialistOverlays journey', () => {
   beforeEach(() => {
@@ -157,6 +176,30 @@ describe('Hosted SpecialistOverlays journey', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
     await act(async () => Promise.resolve());
     expect(mockDelete).toHaveBeenCalledWith('copy', 'fresh-password', 'rev:copy:00000009');
+  });
+
+  it('locks editing and duplicate submission for the full in-flight delete', async () => {
+    const deletion = deferred<ReturnType<typeof committed>>();
+    mockDelete.mockReturnValueOnce(deletion.promise);
+    mockList.mockResolvedValueOnce([copyEntry]).mockResolvedValueOnce([]);
+    render(<SpecialistOverlays />);
+    await act(async () => Promise.resolve());
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.change(screen.getByPlaceholderText('WebUI password'), { target: { value: 'fresh-password' } });
+    const confirmedDelete = screen.getAllByRole('button', { name: 'Delete' })[1];
+    fireEvent.click(confirmedDelete);
+
+    expect(mockDelete).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Simulate dirty' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    expect(screen.getAllByRole('button', { name: 'Delete' })[0]).toBeDisabled();
+    expect(screen.getAllByRole('button', { name: 'Delete' })[1]).toBeDisabled();
+    fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
+    expect(mockDelete).toHaveBeenCalledTimes(1);
+
+    await act(async () => deletion.resolve(committed('rev:copy:absent002')));
+    expect(screen.getByText(/No specialist overlays yet/)).toBeInTheDocument();
   });
 
   it('shows inventory failure without a false empty state and recovers on retry', async () => {

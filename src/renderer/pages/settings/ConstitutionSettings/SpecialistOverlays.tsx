@@ -6,7 +6,7 @@
 
 import { Button, Input } from '@arco-design/web-react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import { isElectronDesktop } from '@renderer/utils/platform';
@@ -46,6 +46,8 @@ const SpecialistOverlays: React.FC = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const deletingIdRef = useRef<string | null>(null);
   /** Whether the inline add form is visible. */
   const [adding, setAdding] = useState(false);
   const [newId, setNewId] = useState('');
@@ -125,32 +127,46 @@ const SpecialistOverlays: React.FC = () => {
 
   const handleDelete = useCallback(
     async (id: string, expectedRevision?: string): Promise<void> => {
-      const result = isElectronDesktop()
-        ? { ok: (await window.electronAPI?.deleteConstitutionSpecialist?.(id)) ?? false }
-        : expectedRevision
-          ? await deleteConstitutionSpecialistHttp(id, deletePassword, expectedRevision)
-          : { ok: false };
-      if (!result.ok) {
+      // The ref closes the same-render double-click window before React can
+      // publish the visual lock. Only one delete owns this target at a time.
+      if (deletingIdRef.current !== null) return;
+      deletingIdRef.current = id;
+      setDeletingId(id);
+      try {
+        const result = isElectronDesktop()
+          ? { ok: (await window.electronAPI?.deleteConstitutionSpecialist?.(id)) ?? false }
+          : expectedRevision
+            ? await deleteConstitutionSpecialistHttp(id, deletePassword, expectedRevision)
+            : { ok: false };
+        if (!result.ok) {
+          setDeleteError(
+            'reason' in result && result.reason === 'conflict'
+              ? t(
+                  'settings.constitutionSpecialists.deleteConflict',
+                  'The overlay changed before deletion. Refresh the inventory and review it again.'
+                )
+              : t('settings.constitutionSpecialists.deleteFailed', 'The overlay could not be deleted. Try again.')
+          );
+          return;
+        }
+        setConfirmDeleteId(null);
+        setDeletePassword('');
+        setDeleteError(null);
+        const draftKey = constitutionAutosaveDraftKey(`specialist:${id}`, isDesktop, user?.id);
+        if (draftKey) discardSerializedAutosaveDraft(draftKey);
+        if (editingId === id) {
+          setEditingId(null);
+          setEditingDirty(false);
+        }
+        await refresh();
+      } catch {
         setDeleteError(
-          'reason' in result && result.reason === 'conflict'
-            ? t(
-                'settings.constitutionSpecialists.deleteConflict',
-                'The overlay changed before deletion. Refresh the inventory and review it again.'
-              )
-            : t('settings.constitutionSpecialists.deleteFailed', 'The overlay could not be deleted. Try again.')
+          t('settings.constitutionSpecialists.deleteFailed', 'The overlay could not be deleted. Try again.')
         );
-        return;
+      } finally {
+        deletingIdRef.current = null;
+        setDeletingId(null);
       }
-      setConfirmDeleteId(null);
-      setDeletePassword('');
-      setDeleteError(null);
-      const draftKey = constitutionAutosaveDraftKey(`specialist:${id}`, isDesktop, user?.id);
-      if (draftKey) discardSerializedAutosaveDraft(draftKey);
-      if (editingId === id) {
-        setEditingId(null);
-        setEditingDirty(false);
-      }
-      await refresh();
     },
     [deletePassword, editingId, isDesktop, refresh, t, user?.id]
   );
@@ -262,7 +278,7 @@ const SpecialistOverlays: React.FC = () => {
                     type='secondary'
                     size='small'
                     icon={<Pencil size={14} />}
-                    disabled={editingDirty}
+                    disabled={deletingId === entry.id || editingDirty}
                     title={
                       editingDirty
                         ? t(
@@ -282,7 +298,7 @@ const SpecialistOverlays: React.FC = () => {
                     type='secondary'
                     size='small'
                     status='danger'
-                    disabled={editingDirty && editingId === entry.id}
+                    disabled={deletingId === entry.id || (editingDirty && editingId === entry.id)}
                     icon={<Trash2 size={14} />}
                     onClick={() => {
                       setConfirmDeleteId(entry.id);
@@ -311,12 +327,14 @@ const SpecialistOverlays: React.FC = () => {
                       <Input.Password
                         value={deletePassword}
                         onChange={setDeletePassword}
+                        disabled={deletingId === entry.id}
                         placeholder={t('settings.constitutionPage.passwordPlaceholder', 'WebUI password')}
                         autoComplete='current-password'
                       />
                     )}
                     <Button
                       size='small'
+                      disabled={deletingId === entry.id}
                       onClick={() => {
                         setConfirmDeleteId(null);
                         setDeletePassword('');
@@ -329,7 +347,12 @@ const SpecialistOverlays: React.FC = () => {
                       size='small'
                       type='primary'
                       status='danger'
-                      disabled={(editingDirty && editingId === entry.id) || (!isDesktop && !deletePassword)}
+                      disabled={
+                        deletingId === entry.id ||
+                        (editingDirty && editingId === entry.id) ||
+                        (!isDesktop && !deletePassword)
+                      }
+                      loading={deletingId === entry.id}
                       onClick={() => void handleDelete(entry.id, entry.revision)}
                     >
                       {t('settings.constitutionSpecialists.delete', 'Delete')}
@@ -342,6 +365,7 @@ const SpecialistOverlays: React.FC = () => {
               {editingId === entry.id && (
                 <SpecialistOverlayEditor
                   id={entry.id}
+                  locked={deletingId === entry.id}
                   onDirtyChange={setEditingDirty}
                   onCommitted={({ revision, bytes }) =>
                     setItems((current) =>
