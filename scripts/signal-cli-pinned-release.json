@@ -1,0 +1,11 @@
+{
+  "releaseTag": "v0.14.6",
+  "releaseId": 352964308,
+  "platform": "linux",
+  "arch": "x64",
+  "assetId": 475170652,
+  "asset": "signal-cli-0.14.6-Linux-native.tar.gz",
+  "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.6/signal-cli-0.14.6-Linux-native.tar.gz",
+  "archiveSha256": "c78639c2d3c14cd004872a99ecf129bd7d7c26ee7d9844d50c2b0afdafefea68",
+  "binarySha256": "0f9850154f51a0ef0ffcb7a52a38c8aa794ec92a4ab6f76210e726c544c01798"
+}

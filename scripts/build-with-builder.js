@@ -10,13 +10,20 @@
  * - Packaging only: use --pack-only to skip electron-builder distributable creation
  */
 
-const { execSync, spawnSync } = require('child_process');
+const { execFileSync, execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareOfficeCli = require('./prepareOfficeCli');
+const {
+  VOICE_MODEL_FILES,
+  resolvePackagedTarget,
+  snapshotPackagedTargets,
+  verifyModelsSnapshot,
+  verifySourceMirror,
+} = require('./verify-packaged-resources');
 
 // Raise the V8 old-space ceiling for the bundling step. electron-vite transforms
 // ~13k modules in a single process; on machines with the default ~2 GB heap the
@@ -176,26 +183,29 @@ function cleanupDiskImages() {
   }
 }
 
-// Find the .app directory from electron-builder output
-function findAppDir(outDir) {
-  const candidates = ['mac', 'mac-arm64', 'mac-x64', 'mac-universal'];
-  for (const dir of candidates) {
-    const fullPath = path.join(outDir, dir);
-    if (fs.existsSync(fullPath)) {
-      const hasApp = fs.readdirSync(fullPath).some((f) => f.endsWith('.app'));
-      if (hasApp) return fullPath;
-    }
+function snapshotDmgArtifacts(outDir) {
+  const snapshot = new Map();
+  if (!fs.existsSync(outDir)) return snapshot;
+  for (const file of fs.readdirSync(outDir)) {
+    if (!file.endsWith('.dmg')) continue;
+    const stat = fs.statSync(path.join(outDir, file));
+    snapshot.set(file, `${stat.size}:${stat.mtimeMs}`);
   }
-  return null;
+  return snapshot;
 }
 
-// Check if DMG exists in output directory
-function dmgExists(outDir) {
-  try {
-    return fs.readdirSync(outDir).some((f) => f.endsWith('.dmg'));
-  } catch {
-    return false;
-  }
+function hasFreshTargetDmg(outDir, targetArch, previousSnapshot) {
+  if (!fs.existsSync(outDir)) return false;
+  return fs.readdirSync(outDir).some((file) => {
+    if (!file.endsWith('.dmg')) return false;
+    const lower = file.toLowerCase();
+    const explicitArm = /(?:^|[-_])(?:arm64|aarch64)(?:[-_.]|$)/.test(lower);
+    const explicitX64 = /(?:^|[-_])(?:x64|x86_64|amd64)(?:[-_.]|$)/.test(lower);
+    if (targetArch === 'arm64' ? !explicitArm : explicitArm || (!explicitX64 && lower.includes('universal')))
+      return false;
+    const stat = fs.statSync(path.join(outDir, file));
+    return previousSnapshot.get(file) !== `${stat.size}:${stat.mtimeMs}`;
+  });
 }
 
 function tryRemoveDir(targetDir) {
@@ -255,7 +265,13 @@ function createDmgWithPrepackaged(appDir, targetArch) {
   );
 }
 
-function buildWithDmgRetry(cmd, targetArch) {
+function resolveDmgRetryTarget(outDir, targetPlatform, targetArch, previousPackages) {
+  return resolvePackagedTarget(outDir, targetPlatform, targetArch, {
+    previousSnapshot: previousPackages,
+  });
+}
+
+function buildWithDmgRetry(cmd, targetPlatform, targetArch, previousPackages, previousDmgs) {
   const isMac = process.platform === 'darwin';
   const outDir = BUILDER_OUTPUT_DIR;
 
@@ -264,8 +280,14 @@ function buildWithDmgRetry(cmd, targetArch) {
     return;
   } catch (error) {
     // On non-macOS or if .app doesn't exist, just throw
-    const appDir = isMac ? findAppDir(outDir) : null;
-    if (!appDir || dmgExists(outDir)) throw error;
+    let packagedTarget = null;
+    if (isMac) {
+      try {
+        packagedTarget = resolveDmgRetryTarget(outDir, targetPlatform, targetArch, previousPackages);
+      } catch {}
+    }
+    if (!packagedTarget || hasFreshTargetDmg(outDir, targetArch, previousDmgs)) throw error;
+    const appDir = path.dirname(packagedTarget.appDir);
 
     // .app exists but no .dmg → DMG creation failed
     console.log('\n🔄 Build failed during DMG creation (.app exists, .dmg missing)');
@@ -290,6 +312,53 @@ function buildWithDmgRetry(cmd, targetArch) {
       }
     }
   }
+}
+
+function prepareOptionalHubResources(options = {}) {
+  const hubDir = options.hubDir || path.resolve(__dirname, '..', 'resources', 'hub');
+  fs.rmSync(hubDir, { recursive: true, force: true });
+  // There is currently no published FerroxLabs/waylandHub repository from
+  // which an immutable tag, index digest, and archive digests can be compiled.
+  // Never activate the legacy mutable dist-latest/WAYLAND_HUB_TAG downloader.
+  // Honest omission is safer than shipping self-attested extension archives.
+  return { available: false, reason: 'trusted-hub-authority-unavailable' };
+}
+
+function prepareWhatsAppBridgeResources(options = {}) {
+  const bridgeDir = options.bridgeDir || path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
+  const nodeModules = path.join(bridgeDir, 'node_modules');
+  const run = options.run || execFileSync;
+  const validate = options.validate || (() => verifySourceMirror(bridgeDir, bridgeDir));
+  fs.rmSync(nodeModules, { recursive: true, force: true });
+  try {
+    run('bun', ['install', '--frozen-lockfile'], { cwd: bridgeDir, stdio: 'inherit', env: process.env });
+    if (!validate()) throw new Error('WhatsApp bridge clean frozen-lock input failed source/dependency validation');
+  } catch (error) {
+    fs.rmSync(nodeModules, { recursive: true, force: true });
+    throw error;
+  }
+  return { available: true, bridgeDir };
+}
+
+function cleanGeneratedResourceRoots(options = {}) {
+  const voiceDir = options.voiceDir || path.resolve(__dirname, '..', 'resources', 'voice-models', 'whisper-tiny');
+  const skillPackDir = options.skillPackDir || path.resolve(__dirname, '..', '.skill-pack');
+  const expectedVoiceFiles = new Set(VOICE_MODEL_FILES);
+  const cleanVoiceDir = (current) => {
+    if (!fs.existsSync(current)) return;
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const target = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        cleanVoiceDir(target);
+        if (fs.readdirSync(target).length === 0) fs.rmSync(target, { recursive: true, force: true });
+        continue;
+      }
+      const relative = path.relative(voiceDir, target).replace(/\\/g, '/');
+      if (!entry.isFile() || !expectedVoiceFiles.has(relative)) fs.rmSync(target, { recursive: true, force: true });
+    }
+  };
+  cleanVoiceDir(voiceDir);
+  fs.rmSync(skillPackDir, { recursive: true, force: true });
 }
 
 // Clean stale Windows packaging outputs from previous runs
@@ -319,6 +388,19 @@ function cleanupWindowsPackOutput() {
   if (removed.length > 0) {
     console.log(`🧹 Cleaned stale Windows outputs: ${removed.join(', ')}`);
   }
+}
+
+if (require.main !== module) {
+  module.exports = {
+    buildWithDmgRetry,
+    cleanGeneratedResourceRoots,
+    hasFreshTargetDmg,
+    prepareOptionalHubResources,
+    prepareWhatsAppBridgeResources,
+    resolveDmgRetryTarget,
+    snapshotDmgArtifacts,
+  };
+  return;
 }
 
 // Parse command line arguments
@@ -375,7 +457,9 @@ const unsupportedArchArg = args.find((arg) => {
   return electronBuilderArchNames.includes(arch) && !archList.includes(arch);
 });
 if (unsupportedArchArg) {
-  console.error(`❌ Unsupported package architecture ${unsupportedArchArg}. Bundled native runtimes support arm64 and x64.`);
+  console.error(
+    `❌ Unsupported package architecture ${unsupportedArchArg}. Bundled native runtimes support arm64 and x64.`
+  );
   process.exit(1);
 }
 
@@ -437,12 +521,14 @@ const rawArchArgs = args
 // Remove duplicates to avoid treating "x64 --x64" as multiple architectures
 const archArgs = [...new Set(rawArchArgs)];
 
-const requestedPlatformTargets = [...new Map(
-  args
-    .map((arg) => platformAliases.get(optionName(arg)))
-    .filter(Boolean)
-    .map(([flag, platform]) => [flag, platform])
-).entries()];
+const requestedPlatformTargets = [
+  ...new Map(
+    args
+      .map((arg) => platformAliases.get(optionName(arg)))
+      .filter(Boolean)
+      .map(([flag, platform]) => [flag, platform])
+  ).entries(),
+];
 if (args.some((arg) => optionName(arg) === '--all') || requestedPlatformTargets.length > 1) {
   console.error(
     '❌ One exact platform is required per package invocation. Run macOS, Windows, and Linux as isolated jobs so bundled native runtimes cannot cross-contaminate artifacts.'
@@ -545,22 +631,26 @@ try {
     return;
   }
 
-  // 5. Prepare bundled bun/bunx binaries (for packaged runtime usage)
-  // This only affects packaging assets; runtime integration will be added in a future PR.
-  prepareBundledBun();
-
-  // 5b. Prepare hub resources (index.json + extension zips for offline fallback).
-  // Degradable: this downloads from the waylandHub repo and can 404/timeout if
-  // that source is unavailable. A hub-cache outage must NOT block a release -
-  // the app still fetches the hub online at runtime. Warn loudly; the post-pack
-  // gate reports hub as an (optional) warning so its absence is never silent.
-  try {
-    execSync('node scripts/prepareHubResources.js', { stdio: 'inherit', env: process.env });
-  } catch (e) {
-    console.warn(`⚠️  hub resource prep failed (offline hub fallback will be absent): ${e.message}`);
-  }
   const packagePlatforms = [requestedPlatformTargets[0]?.[1] || process.platform];
   const packageArchitectures = [targetArch];
+
+  // 5. Prepare bundled bun/bunx binaries (for packaged runtime usage).
+  // prepareBundledBun consumes npm_config_target_arch, so assert the package
+  // target here instead of inheriting the build host architecture.
+  process.env.npm_config_target_arch = targetArch;
+  // This only affects packaging assets; runtime integration will be added in a future PR.
+  prepareBundledBun({ platform: packagePlatforms[0], arch: packageArchitectures[0] });
+
+  // 5b. The optional offline Hub is unavailable until a real immutable source
+  // authority exists. Remove stale bytes and report the honest degraded state;
+  // never invoke the legacy mutable downloader during production packaging.
+  prepareOptionalHubResources();
+  console.warn('⚠️  trusted Hub authority unavailable; offline Hub bundle omitted');
+
+  // 5c. Establish the exact self-contained WhatsApp bridge input from its
+  // committed Bun lock. Packaging must never bless postinstall's mutable or
+  // non-fatal fallback dependency tree.
+  prepareWhatsAppBridgeResources();
 
   // electron-builder copies the complete native-resource roots into every
   // artifact. Keep both roots target-exact so stale preparation from a prior
@@ -604,14 +694,21 @@ try {
 
   // 5d. Prepare the bundled voice STT model (Whisper-tiny ONNX, ~43 MB) so
   // offline dictation works on a fresh install with zero download.
+  // Remove skill-pack output and undeclared voice debris first so stale
+  // generated content cannot survive into a new artifact. Valid voice files
+  // remain cached; the exact post-package gate rejects any malformed set.
+  cleanGeneratedResourceRoots();
   // spawnSync with arg array - no shell, safe.
-  spawnSync('node', [path.join(__dirname, 'prepareVoiceModel.js')], {
+  const voicePrep = spawnSync('node', [path.join(__dirname, 'prepareVoiceModel.js')], {
     stdio: 'inherit',
     env: process.env,
   });
+  if (voicePrep.status !== 0) {
+    throw new Error(`Bundled voice model preparation failed with exit code ${voicePrep.status}`);
+  }
 
   // 5e. Stage build-time bundled resources that are NOT committed to the repo:
-  //  - resources/modelsdev-snapshot.json : models.dev catalog snapshot.
+  //  - resources/modelsdev-snapshot.json : immutable offline models.dev floor.
   //  - .skill-pack/{skills-library,bundled-workflows} : the AV-safe packed blob
   //    of every built-in skill + workflow (#316).
   // These previously ran ONLY via npm `predist*` lifecycle hooks, which never
@@ -619,14 +716,27 @@ try {
   // That gap shipped 0.11.4/0.11.5 with the entire skills-library +
   // bundled-workflows missing -> every skill and workflow gone for all users.
   // Run them here unconditionally so they ALWAYS run, however the build starts.
-  console.log('📦 Staging models.dev snapshot...');
-  execSync('bunx tsx scripts/bundle-modelsdev.ts', { stdio: 'inherit', env: process.env });
+  console.log('📦 Verifying immutable models.dev offline snapshot...');
+  const modelsSnapshot = path.resolve(__dirname, '..', 'resources', 'modelsdev-snapshot.json');
+  if (!verifyModelsSnapshot(modelsSnapshot)) {
+    throw new Error('Committed models.dev offline snapshot failed pinned size, SHA-256, or schema validation');
+  }
   console.log('📦 Building skill/workflow pack (.skill-pack)...');
   execSync('bunx tsx scripts/build-skill-pack.ts --out .skill-pack', { stdio: 'inherit', env: process.env });
 
   // Optional Signal CLI runtime (degradable channel) - never fail the build on it.
   try {
-    execSync('node scripts/install-signal-cli.mjs', { stdio: 'inherit', env: process.env });
+    execFileSync(
+      'node',
+      [
+        path.join(__dirname, 'install-signal-cli.mjs'),
+        '--platform',
+        packagePlatforms[0],
+        '--arch',
+        packageArchitectures[0],
+      ],
+      { stdio: 'inherit', env: process.env }
+    );
   } catch (e) {
     console.warn(`⚠️  signal-cli install failed (Signal channel will be unavailable): ${e.message}`);
   }
@@ -719,8 +829,10 @@ try {
   }
 
   const builderCommand = `bunx electron-builder ${BUILDER_CONFIG_ARG} ${builderArgs} ${archFlag} ${nsisInclude} ${publishArg}`;
+  const previousPackages = snapshotPackagedTargets(BUILDER_OUTPUT_DIR);
+  const previousDmgs = snapshotDmgArtifacts(BUILDER_OUTPUT_DIR);
   try {
-    buildWithDmgRetry(builderCommand, targetArch);
+    buildWithDmgRetry(builderCommand, packagePlatforms[0], targetArch, previousPackages, previousDmgs);
   } catch (error) {
     const winExePath = path.join(BUILDER_OUTPUT_DIR, 'win-unpacked', BUILDER_EXECUTABLE_NAME);
     const firstError = formatExecError(error);
@@ -748,7 +860,13 @@ try {
     cleanupWindowsPackOutput();
 
     try {
-      buildWithDmgRetry(`${builderCommand} --config.win.signAndEditExecutable=false`, targetArch);
+      buildWithDmgRetry(
+        `${builderCommand} --config.win.signAndEditExecutable=false`,
+        packagePlatforms[0],
+        targetArch,
+        previousPackages,
+        previousDmgs
+      );
     } catch (retryError) {
       const retryFailure = formatExecError(retryError);
       throw new Error(
@@ -769,18 +887,33 @@ try {
   // 0.11.4/0.11.5 with no skills-library/bundled-workflows. This is the last
   // line of defense: a structurally-incomplete app fails the build, never ships.
   console.log('🔎 Verifying packaged resources are present in the built app...');
+  const packagedTarget = resolvePackagedTarget(BUILDER_OUTPUT_DIR, packagePlatforms[0], targetArch, {
+    previousSnapshot: previousPackages,
+  });
   const officeCliRuntimeArgs = officeCliPlatforms
     .flatMap((platform) => officeCliArchitectures.map((arch) => `--officecli-runtime ${platform}-${arch}`))
     .join(' ');
   const wcoreRuntimeArgs = packagePlatforms
     .flatMap((platform) => packageArchitectures.map((arch) => `--wcore-runtime ${platform}-${arch}`))
     .join(' ');
-  execSync(
-    `node scripts/verify-packaged-resources.js --out ${path.basename(BUILDER_OUTPUT_DIR)} ${wcoreRuntimeArgs} ${officeCliRuntimeArgs}`,
-    {
-      stdio: 'inherit',
-      env: process.env,
-    }
+  execFileSync(
+    'node',
+    [
+      path.join(__dirname, 'verify-packaged-resources.js'),
+      '--out',
+      BUILDER_OUTPUT_DIR,
+      '--target-platform',
+      packagePlatforms[0],
+      '--target-arch',
+      targetArch,
+      '--resources-dir',
+      packagedTarget.resourceDir,
+      '--app-executable',
+      packagedTarget.executablePath,
+      ...wcoreRuntimeArgs.split(' '),
+      ...officeCliRuntimeArgs.split(' '),
+    ],
+    { stdio: 'inherit', env: process.env }
   );
 
   console.log('✅ Build completed!');

@@ -9,62 +9,79 @@
  *
  * install-signal-cli.mjs - postinstall / on-demand helper.
  *
- * Downloads the latest signal-cli native binary from GitHub Releases and
- * extracts it into src/process/channels/signal-cli-runtime/bin/.
+ * Downloads the source-pinned signal-cli native binary from GitHub Releases
+ * and atomically publishes it into src/process/channels/signal-cli-runtime/bin/.
  *
  * Usage:
- *   node scripts/install-signal-cli.mjs
+ *   node scripts/install-signal-cli.mjs --platform linux --arch x64
  *
- * On platforms without a native GraalVM release (macOS arm64, Linux arm),
- * the script exits with a clear message pointing at the Homebrew fallback.
- * electron-builder will then bundle whatever ends up in signal-cli-runtime/bin/.
+ * The pinned upstream release currently proves only Linux x64. Unsupported
+ * targets return unavailable after removing stale runtime bytes; packaging treats
+ * Signal as an explicit optional warning.
  */
 
-import { createWriteStream } from 'node:fs';
+import { createReadStream, createWriteStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import { request } from 'node:https';
+import os from 'node:os';
 import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const INSTALL_DIR = path.resolve(__dirname, '../src/process/channels/signal-cli-runtime/bin');
-const API_URL = 'https://api.github.com/repos/AsamK/signal-cli/releases/latest';
+const RUNTIME_ROOT = path.resolve(__dirname, '../src/process/channels/signal-cli-runtime');
+const require = createRequire(import.meta.url);
+const { inspectExecutable } = require('./verify-packaged-resources.js');
+const pinnedRelease = require('./signal-cli-pinned-release.json');
+const API_URL = `https://api.github.com/repos/AsamK/signal-cli/releases/tags/${pinnedRelease.releaseTag}`;
 
 function looksLikeArchive(name) {
   const lower = name.toLowerCase();
   return lower.endsWith('.tar.gz') || lower.endsWith('.tgz') || lower.endsWith('.zip');
 }
 
-function pickAsset(assets, platform, arch) {
-  const archives = assets.filter(
-    (a) => a.name && a.browser_download_url && looksLikeArchive(a.name),
-  );
-  const byName = (pattern) =>
-    archives.find((a) => pattern.test(a.name.toLowerCase()));
+const ALLOWED_DOWNLOAD_HOSTS = new Set([
+  'github.com',
+  'objects.githubusercontent.com',
+  'release-assets.githubusercontent.com',
+]);
 
-  if (platform === 'linux') {
-    if (arch === 'x64') return byName(/linux-native/) ?? byName(/linux/) ?? archives[0];
-    return undefined; // no native build for arm - caller falls back to brew
+export function assertAllowedDownloadUrl(value) {
+  const parsed = new URL(value);
+  if (parsed.protocol !== 'https:' || !ALLOWED_DOWNLOAD_HOSTS.has(parsed.hostname)) {
+    throw new Error(`Untrusted Signal download URL: ${parsed.protocol}//${parsed.hostname}`);
   }
-  if (platform === 'darwin') return byName(/macos|osx|darwin/) ?? archives[0];
-  if (platform === 'win32') return byName(/windows|win/) ?? archives[0];
-  return archives[0];
+  return parsed.href;
+}
+
+export function pickAsset(assets, platform, arch, authority = pinnedRelease) {
+  if (platform !== authority.platform || arch !== authority.arch) return undefined;
+  const matches = assets.filter(
+    (asset) =>
+      asset.name === authority.asset &&
+      asset.id === authority.assetId &&
+      asset.browser_download_url === authority.url &&
+      looksLikeArchive(asset.name)
+  );
+  return matches.length === 1 ? matches[0] : undefined;
 }
 
 async function downloadFile(url, dest, maxRedirects = 5) {
+  const trustedUrl = assertAllowedDownloadUrl(url);
   await new Promise((resolve, reject) => {
-    const req = request(url, (res) => {
+    const req = request(trustedUrl, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400) {
         const location = res.headers.location;
         if (!location || maxRedirects <= 0) {
           reject(new Error('Redirect loop'));
           return;
         }
-        resolve(downloadFile(new URL(location, url).href, dest, maxRedirects - 1));
+        resolve(downloadFile(new URL(location, trustedUrl).href, dest, maxRedirects - 1));
         return;
       }
       if (res.statusCode >= 400) {
@@ -91,88 +108,161 @@ async function extractArchive(archivePath, destDir) {
   }
 }
 
-async function findBinary(root) {
-  const enqueue = async (dir, depth) => {
-    if (depth > 4) return null;
-    const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
-    for (const entry of entries) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        const found = await enqueue(full, depth + 1);
-        if (found) return found;
-      } else if (entry.isFile() && entry.name === 'signal-cli') {
-        return full;
-      }
-    }
-    return null;
-  };
-  return enqueue(root, 0);
+export async function findExactBinary(root) {
+  const entries = await fs.readdir(root, { withFileTypes: true });
+  if (entries.length !== 1 || !entries[0].isFile() || entries[0].name !== 'signal-cli') return null;
+  return path.join(root, 'signal-cli');
 }
 
-async function main() {
-  const platform = process.platform;
-  const arch = process.arch;
+function parseTarget(argv) {
+  const read = (flag) => {
+    const index = argv.indexOf(flag);
+    if (index === -1 || !argv[index + 1]) throw new Error(`${flag} is required`);
+    if (argv.lastIndexOf(flag) !== index) throw new Error(`${flag} must be declared exactly once`);
+    return argv[index + 1];
+  };
+  const platform = read('--platform');
+  const arch = read('--arch');
+  if (!['darwin', 'linux', 'win32'].includes(platform) || !['x64', 'arm64'].includes(arch)) {
+    throw new Error(`Unsupported Signal target: ${platform}-${arch}`);
+  }
+  return { platform, arch };
+}
+
+async function sha256(filePath) {
+  return new Promise((resolve, reject) => {
+    const hash = createHash('sha256');
+    const stream = createReadStream(filePath);
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('error', reject);
+    stream.on('end', () => resolve(hash.digest('hex')));
+  });
+}
+
+export async function cleanRuntimeRoot(runtimeRoot = RUNTIME_ROOT) {
+  await fs.mkdir(runtimeRoot, { recursive: true });
+  for (const entry of await fs.readdir(runtimeRoot, { withFileTypes: true })) {
+    if (entry.name === 'README.md') continue;
+    await fs.rm(path.join(runtimeRoot, entry.name), { recursive: true, force: true });
+  }
+}
+
+export async function publishBundle(stagedBin, runtimeRoot) {
+  const publishDir = path.join(runtimeRoot, `.publish-${process.pid}-${Date.now()}`);
+  const finalBin = path.join(runtimeRoot, 'bin');
+  try {
+    await fs.cp(stagedBin, publishDir, { recursive: true });
+    await fs.rm(finalBin, { recursive: true, force: true });
+    await fs.rename(publishDir, finalBin);
+  } finally {
+    await fs.rm(publishDir, { recursive: true, force: true });
+  }
+}
+
+export async function installSignalCli(options = {}) {
+  const { platform, arch } = options.platform ? options : parseTarget(process.argv.slice(2));
+  const runtimeRoot = options.runtimeRoot || RUNTIME_ROOT;
+  const fetchImpl = options.fetchImpl || fetch;
+  const downloadFileImpl = options.downloadFileImpl || downloadFile;
+  const extractArchiveImpl = options.extractArchiveImpl || extractArchive;
+  const authority = options.authority || pinnedRelease;
+  let published = false;
 
   console.log(`[install-signal-cli] platform=${platform} arch=${arch}`);
-
-  if (platform === 'win32') {
-    console.warn('[install-signal-cli] Windows: auto-install not supported. Install signal-cli manually.');
-    process.exit(0);
+  await cleanRuntimeRoot(runtimeRoot);
+  if (platform !== authority.platform || arch !== authority.arch) {
+    const reason = `No pinned native Signal runtime for ${platform}/${arch}`;
+    console.warn(`[install-signal-cli] unavailable: ${reason}`);
+    return { available: false, platform, arch, reason };
   }
-
-  // Fetch release metadata.
-  const response = await fetch(API_URL, {
-    headers: { 'User-Agent': 'wayland-installer', Accept: 'application/vnd.github+json' },
-  });
-  if (!response.ok) {
-    console.error(`[install-signal-cli] GitHub API error: HTTP ${response.status}`);
-    process.exit(1);
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-signal-cli-'));
+  try {
+    const response = await fetchImpl(API_URL, {
+      headers: { 'User-Agent': 'wayland-installer', Accept: 'application/vnd.github+json' },
+    });
+    if (!response.ok) throw new Error(`GitHub API error: HTTP ${response.status}`);
+    const payload = await response.json();
+    const releaseTag = payload.tag_name;
+    if (releaseTag !== authority.releaseTag || payload.id !== authority.releaseId) {
+      throw new Error('Pinned Signal release identity mismatch');
+    }
+    const asset = pickAsset(payload.assets ?? [], platform, arch, authority);
+    if (!asset) throw new Error(`No unique native release asset for ${platform}/${arch}`);
+    const upstreamArchiveSha = String(asset.digest || '')
+      .replace(/^sha256:/i, '')
+      .toLowerCase();
+    const expectedArchiveSha = authority.archiveSha256;
+    if (upstreamArchiveSha !== expectedArchiveSha) {
+      throw new Error(`Pinned Signal archive digest disagrees with GitHub release metadata`);
+    }
+    const archivePath = path.join(tmpDir, asset.name);
+    console.log(`[install-signal-cli] Downloading signal-cli ${releaseTag} (${asset.name})…`);
+    await downloadFileImpl(asset.browser_download_url, archivePath);
+    const actualArchiveSha = await sha256(archivePath);
+    if (actualArchiveSha !== expectedArchiveSha) throw new Error(`Archive checksum mismatch for ${asset.name}`);
+    const extractDir = path.join(tmpDir, 'extracted');
+    console.log('[install-signal-cli] Extracting…');
+    await extractArchiveImpl(archivePath, extractDir);
+    const binaryPath = await findExactBinary(extractDir);
+    if (!binaryPath) throw new Error('Archive does not contain exactly one root signal-cli executable');
+    const identity = inspectExecutable(binaryPath);
+    if (identity?.platform !== platform || identity?.arch !== arch) {
+      throw new Error(`Signal executable architecture mismatch for ${platform}-${arch}`);
+    }
+    if ((await sha256(binaryPath)) !== authority.binarySha256) {
+      throw new Error('Signal executable checksum does not match the pinned native binary');
+    }
+    await fs.chmod(binaryPath, 0o755);
+    let versionOutput = null;
+    let versionVerified = false;
+    if (platform === process.platform && arch === process.arch) {
+      const result = await execFileAsync(binaryPath, ['--version'], { timeout: 15000 });
+      versionOutput = `${result.stdout || ''}${result.stderr || ''}`.trim();
+      const version = releaseTag.replace(/^v/, '');
+      if (!versionOutput.includes(version)) throw new Error('Signal executable version does not match release tag');
+      versionVerified = true;
+    }
+    const stagedBin = path.join(tmpDir, 'bundle-bin');
+    await fs.mkdir(stagedBin, { recursive: true });
+    const binaryName = platform === 'win32' ? 'signal-cli.exe' : 'signal-cli';
+    const stagedBinary = path.join(stagedBin, binaryName);
+    await fs.copyFile(binaryPath, stagedBinary);
+    await fs.chmod(stagedBinary, 0o755);
+    const binarySha = await sha256(stagedBinary);
+    const manifest = {
+      contract: 'wayland-signal-cli-bundle/1.0',
+      platform,
+      arch,
+      releaseTag,
+      verified: true,
+      versionVerified,
+      versionOutput,
+      source: {
+        owner: 'AsamK',
+        repository: 'signal-cli',
+        releaseId: payload.id,
+        assetId: asset.id,
+        asset: asset.name,
+        url: asset.browser_download_url,
+        assetDigest: `sha256:${expectedArchiveSha}`,
+        archiveSha256: `sha256:${actualArchiveSha}`,
+      },
+      binary: { name: binaryName, sha256: `sha256:${binarySha}` },
+    };
+    await fs.writeFile(path.join(stagedBin, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    await publishBundle(stagedBin, runtimeRoot);
+    published = true;
+    console.log(`[install-signal-cli] Installed signal-cli ${releaseTag} to ${path.join(runtimeRoot, 'bin')}`);
+    return manifest;
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true });
+    if (!published) await cleanRuntimeRoot(runtimeRoot);
   }
-
-  const payload = await response.json();
-  const version = (payload.tag_name ?? 'unknown').replace(/^v/, '');
-  const assets = payload.assets ?? [];
-  const asset = pickAsset(assets, platform, arch);
-
-  if (!asset) {
-    console.warn(
-      `[install-signal-cli] No native release asset for ${platform}/${arch}.\n` +
-        'Install signal-cli manually:\n' +
-        '  brew install signal-cli         # macOS (any arch)\n' +
-        '  sudo apt-get install signal-cli # Debian/Ubuntu\n' +
-        'Then set the cliPath in Wayland Signal settings.',
-    );
-    process.exit(0);
-  }
-
-  const tmpDir = await fs.mkdtemp(path.join(INSTALL_DIR, '..', 'tmp-'));
-  const archivePath = path.join(tmpDir, asset.name);
-
-  console.log(`[install-signal-cli] Downloading signal-cli ${version} (${asset.name})…`);
-  await downloadFile(asset.browser_download_url, archivePath);
-
-  const extractDir = path.join(tmpDir, 'extracted');
-  console.log('[install-signal-cli] Extracting…');
-  await extractArchive(archivePath, extractDir);
-
-  const binaryPath = await findBinary(extractDir);
-  if (!binaryPath) {
-    console.error('[install-signal-cli] Binary not found after extraction.');
-    process.exit(1);
-  }
-
-  await fs.mkdir(INSTALL_DIR, { recursive: true });
-  const dest = path.join(INSTALL_DIR, 'signal-cli');
-  await fs.copyFile(binaryPath, dest);
-  await fs.chmod(dest, 0o755);
-
-  // Cleanup temp dir.
-  await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
-
-  console.log(`[install-signal-cli] Installed signal-cli ${version} to ${dest}`);
 }
 
-main().catch((err) => {
-  console.error('[install-signal-cli] Fatal:', err.message ?? err);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  installSignalCli().catch((err) => {
+    console.error('[install-signal-cli] Fatal:', err.message ?? err);
+    process.exit(1);
+  });
+}

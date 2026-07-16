@@ -133,8 +133,6 @@ extraResources:
     to: classic-recovery-tools/win/arm64/7za.exe
   - from: node_modules/7zip-bin/win/x64/7za.exe
     to: classic-recovery-tools/win/x64/7za.exe
-  - from: resources/hub
-    to: hub
   # Skills library + Wayland built-in workflows: shipped as real on-disk
   # Resources so SkillLibrary (and the plain-node wayland_search_skills
   # subprocess, which cannot read inside app.asar) can read them in packaged
@@ -147,7 +145,7 @@ extraResources:
   - from: .skill-pack/bundled-workflows
     to: bundled-workflows
   # models.dev enrichment snapshot - offline floor for ModelsDevClient.
-  # Generated at build time by scripts/bundle-modelsdev.ts (prebuild hook).
+  # Committed immutable offline floor; live runtime enrichment is separate.
   - from: resources/modelsdev-snapshot.json
     to: modelsdev-snapshot.json
   # Bundled voice STT model (Whisper-tiny ONNX, ~43 MB). Ships in the

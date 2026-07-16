@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
+import os from 'node:os';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 type ProtocolRegistration = {
   name: string;
@@ -23,6 +24,59 @@ type BuilderConfig = {
 
 const require = createRequire(import.meta.url);
 const previewConfig = require('../../electron-builder.preview.cjs') as BuilderConfig;
+const {
+  cleanGeneratedResourceRoots,
+  hasFreshTargetDmg,
+  prepareOptionalHubResources,
+  prepareWhatsAppBridgeResources,
+  resolveDmgRetryTarget,
+  snapshotDmgArtifacts,
+} = require('../../scripts/build-with-builder.js') as {
+  cleanGeneratedResourceRoots: (options: { voiceDir: string; skillPackDir: string }) => void;
+  hasFreshTargetDmg: (out: string, arch: string, snapshot: Map<string, string>) => boolean;
+  prepareOptionalHubResources: (options: { hubDir: string; run?: () => void }) => {
+    available: false;
+    reason: string;
+  };
+  prepareWhatsAppBridgeResources: (options: {
+    bridgeDir: string;
+    run: (command: string, args: string[], options: { cwd: string }) => void;
+    validate: () => boolean;
+  }) => { available: true; bridgeDir: string };
+  resolveDmgRetryTarget: (
+    out: string,
+    platform: string,
+    arch: string,
+    snapshot: Map<string, string>
+  ) => { executablePath: string };
+  snapshotDmgArtifacts: (out: string) => Map<string, string>;
+};
+const { snapshotPackagedTargets } = require('../../scripts/verify-packaged-resources.js') as {
+  snapshotPackagedTargets: (out: string) => Map<string, string>;
+};
+const roots: string[] = [];
+
+function tempRoot(prefix: string): string {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  roots.push(root);
+  return root;
+}
+
+function writeMacApp(out: string, folder: string, arch: 'arm64' | 'x64'): string {
+  const app = path.join(out, folder, 'Wayland.app');
+  const executable = path.join(app, 'Contents', 'MacOS', 'Wayland');
+  fs.mkdirSync(path.join(app, 'Contents', 'Resources'), { recursive: true });
+  fs.mkdirSync(path.dirname(executable), { recursive: true });
+  const binary = Buffer.alloc(16);
+  binary.writeUInt32LE(0xfeedfacf, 0);
+  binary.writeUInt32LE(arch === 'arm64' ? 0x0100000c : 0x01000007, 4);
+  fs.writeFileSync(executable, binary);
+  return executable;
+}
+
+afterEach(() => {
+  for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
+});
 
 describe('preview package isolation', () => {
   it('replaces every stable identity surface instead of merging it', () => {
@@ -65,5 +119,104 @@ describe('release package fail-closed gates', () => {
       'node scripts/build-with-builder.js arm64 --mac --arm64 && node scripts/build-with-builder.js x64 --mac --x64'
     );
     expect(pkg.scripts.build).toBe('bun run build-mac');
+  });
+
+  it('tracks DMGs by requested architecture and freshness', () => {
+    const out = tempRoot('wayland-dmg-');
+    const armDmg = path.join(out, 'Wayland-0.0.0-arm64.dmg');
+    const x64Dmg = path.join(out, 'Wayland-0.0.0-x64.dmg');
+    fs.writeFileSync(armDmg, 'old-arm');
+    fs.writeFileSync(x64Dmg, 'old-x64');
+    const snapshot = snapshotDmgArtifacts(out);
+
+    fs.appendFileSync(armDmg, 'new');
+    expect(hasFreshTargetDmg(out, 'arm64', snapshot)).toBe(true);
+    expect(hasFreshTargetDmg(out, 'x64', snapshot)).toBe(false);
+    fs.appendFileSync(x64Dmg, 'new');
+    expect(hasFreshTargetDmg(out, 'x64', snapshot)).toBe(true);
+  });
+
+  it('recognizes a fresh generic legacy DMG as x64 but never as arm64', () => {
+    const out = tempRoot('wayland-dmg-generic-');
+    const generic = path.join(out, 'Wayland-0.0.0.dmg');
+    fs.writeFileSync(generic, 'old');
+    const snapshot = snapshotDmgArtifacts(out);
+    fs.appendFileSync(generic, 'fresh');
+    expect(hasFreshTargetDmg(out, 'x64', snapshot)).toBe(true);
+    expect(hasFreshTargetDmg(out, 'arm64', snapshot)).toBe(false);
+  });
+
+  it('resolves a DMG retry from the fresh app for the requested architecture only', () => {
+    const out = tempRoot('wayland-dmg-app-');
+    writeMacApp(out, 'mac-arm64', 'arm64');
+    const x64Executable = writeMacApp(out, 'mac', 'x64');
+    const snapshot = snapshotPackagedTargets(out);
+
+    fs.appendFileSync(x64Executable, 'fresh');
+    expect(resolveDmgRetryTarget(out, 'darwin', 'x64', snapshot).executablePath).toBe(x64Executable);
+    expect(() => resolveDmgRetryTarget(out, 'darwin', 'arm64', snapshot)).toThrow(/found 0/);
+  });
+
+  it('removes stale Hub bytes and cannot invoke the mutable legacy source', () => {
+    const root = tempRoot('wayland-hub-');
+    const hub = path.join(root, 'hub');
+    fs.mkdirSync(hub);
+    fs.writeFileSync(path.join(hub, 'stale.zip'), 'stale');
+    let invoked = false;
+    const result = prepareOptionalHubResources({
+      hubDir: hub,
+      run() {
+        invoked = true;
+        fs.mkdirSync(hub, { recursive: true });
+        fs.writeFileSync(path.join(hub, 'untrusted.zip'), 'untrusted');
+      },
+    });
+    expect(result).toEqual({ available: false, reason: 'trusted-hub-authority-unavailable' });
+    expect(invoked).toBe(false);
+    expect(fs.existsSync(hub)).toBe(false);
+  });
+
+  it('rebuilds WhatsApp dependencies only through a fatal frozen-lock install', () => {
+    const bridgeDir = tempRoot('wayland-whatsapp-input-');
+    const stale = path.join(bridgeDir, 'node_modules', 'stale');
+    fs.mkdirSync(stale, { recursive: true });
+    let invocation: { command: string; args: string[]; cwd: string } | undefined;
+    const result = prepareWhatsAppBridgeResources({
+      bridgeDir,
+      run(command, args, options) {
+        invocation = { command, args, cwd: options.cwd };
+        fs.mkdirSync(path.join(bridgeDir, 'node_modules', 'clean'), { recursive: true });
+      },
+      validate: () => true,
+    });
+    expect(invocation).toEqual({ command: 'bun', args: ['install', '--frozen-lockfile'], cwd: bridgeDir });
+    expect(fs.existsSync(stale)).toBe(false);
+    expect(result).toEqual({ available: true, bridgeDir });
+
+    fs.mkdirSync(stale, { recursive: true });
+    expect(() =>
+      prepareWhatsAppBridgeResources({
+        bridgeDir,
+        run() {
+          throw new Error('frozen install failed');
+        },
+        validate: () => true,
+      })
+    ).toThrow(/frozen install failed/);
+    expect(fs.existsSync(path.join(bridgeDir, 'node_modules'))).toBe(false);
+  });
+
+  it('removes stale generated voice and skill-pack roots before regeneration', () => {
+    const root = tempRoot('wayland-generated-resources-');
+    const voiceDir = path.join(root, 'voice-models', 'whisper-tiny');
+    const skillPackDir = path.join(root, '.skill-pack');
+    fs.mkdirSync(voiceDir, { recursive: true });
+    fs.mkdirSync(skillPackDir, { recursive: true });
+    fs.writeFileSync(path.join(voiceDir, 'stale-model'), 'stale');
+    fs.writeFileSync(path.join(skillPackDir, 'stale-skill'), 'stale');
+
+    cleanGeneratedResourceRoots({ voiceDir, skillPackDir });
+    expect(fs.readdirSync(voiceDir)).toEqual([]);
+    expect(fs.existsSync(skillPackDir)).toBe(false);
   });
 });

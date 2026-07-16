@@ -27,14 +27,20 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const prepareWaylandCore = require('./prepareWaylandCore');
+const bundledBunShasums = require('./bundled-bun-shasums.json');
+const bundledBunBinaries = require('./bundled-bun-binaries.json');
+const signalPinnedRelease = require('./signal-cli-pinned-release.json');
+const voiceModelPinnedRelease = require('./voice-model-pinned-release.json');
+const modelsDevSnapshotPin = require('./modelsdev-snapshot-pin.json');
+const whatsappBridgeSource = require('./whatsapp-bridge-source.json');
 
 const TAG = '[verify-packaged-resources]';
 
 // resource path (relative to the app Resources dir) -> {critical, kind}
 // kind 'file' = must exist and be non-empty; 'dir' = must exist and be non-empty.
 const REQUIRED = [
-  { rel: 'skills-library/index.json', critical: true, kind: 'file' },
-  { rel: 'bundled-workflows/index.json', critical: true, kind: 'file' },
+  { rel: 'skills-library', critical: true, kind: 'skill-pack' },
+  { rel: 'bundled-workflows', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-wayland-core', critical: true, kind: 'wcore-bundle' },
   { rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' },
   {
@@ -51,14 +57,199 @@ const REQUIRED = [
     size: 1231360,
     sha256: 'b0cfdeaf429f5cc53f85123dd8f5a5feb92c19d31aa34df257edf9a26be05f95',
   },
-  { rel: 'bundled-bun', critical: true, kind: 'dir' },
-  { rel: 'modelsdev-snapshot.json', critical: true, kind: 'file' },
-  { rel: 'voice-models', critical: true, kind: 'dir' },
+  { rel: 'bundled-bun', critical: true, kind: 'bun-bundle' },
+  { rel: 'modelsdev-snapshot.json', critical: true, kind: 'models-snapshot' },
+  { rel: 'voice-models', critical: true, kind: 'voice-bundle' },
   // Degradable features - warn loudly but do not block the release.
-  { rel: 'hub', critical: false, kind: 'dir' },
-  { rel: 'whatsapp-bridge', critical: false, kind: 'dir' },
-  { rel: 'signal-cli-runtime', critical: false, kind: 'dir' },
+  { rel: 'hub', critical: false, kind: 'hub-bundle' },
+  { rel: 'whatsapp-bridge', critical: false, kind: 'whatsapp-bundle' },
+  { rel: 'signal-cli-runtime', critical: false, kind: 'signal-bundle' },
 ];
+
+const VOICE_MODEL_FILES = Object.keys(voiceModelPinnedRelease.files);
+
+function parseSingleArg(argv, flag, required = true) {
+  const values = [];
+  for (let index = 0; index < argv.length; index += 1) {
+    if (argv[index] === flag) values.push(argv[index + 1]);
+  }
+  if (values.length > 1) throw new Error(`${TAG} ${flag} must be declared exactly once`);
+  if (required && (!values[0] || values[0].startsWith('--'))) {
+    throw new Error(`${TAG} ${flag} is required`);
+  }
+  return values[0] || null;
+}
+
+function parseTarget(argv) {
+  const platform = parseSingleArg(argv, '--target-platform');
+  const arch = parseSingleArg(argv, '--target-arch');
+  if (!['darwin', 'linux', 'win32'].includes(platform)) {
+    throw new Error(`${TAG} unsupported --target-platform: ${platform}`);
+  }
+  if (!['x64', 'arm64'].includes(arch)) throw new Error(`${TAG} unsupported --target-arch: ${arch}`);
+  return { platform, arch };
+}
+
+function inspectExecutable(filePath) {
+  const fd = fs.openSync(filePath, 'r');
+  let bytes;
+  try {
+    bytes = Buffer.alloc(4096);
+    bytes = bytes.subarray(0, fs.readSync(fd, bytes, 0, bytes.length, 0));
+  } finally {
+    fs.closeSync(fd);
+  }
+  if (bytes.length >= 8) {
+    const magicLe = bytes.readUInt32LE(0);
+    const magicBe = bytes.readUInt32BE(0);
+    if (magicLe === 0xfeedfacf || magicLe === 0xfeedface) {
+      const cpu = bytes.readUInt32LE(4);
+      if (cpu === 0x01000007) return { platform: 'darwin', arch: 'x64' };
+      if (cpu === 0x0100000c) return { platform: 'darwin', arch: 'arm64' };
+    }
+    if (magicBe === 0xfeedfacf || magicBe === 0xfeedface) {
+      const cpu = bytes.readUInt32BE(4);
+      if (cpu === 0x01000007) return { platform: 'darwin', arch: 'x64' };
+      if (cpu === 0x0100000c) return { platform: 'darwin', arch: 'arm64' };
+    }
+  }
+  if (bytes.length >= 64 && bytes[0] === 0x4d && bytes[1] === 0x5a) {
+    const peOffset = bytes.readUInt32LE(0x3c);
+    if (peOffset + 6 <= bytes.length && bytes.toString('ascii', peOffset, peOffset + 4) === 'PE\0\0') {
+      const machine = bytes.readUInt16LE(peOffset + 4);
+      if (machine === 0x8664) return { platform: 'win32', arch: 'x64' };
+      if (machine === 0xaa64) return { platform: 'win32', arch: 'arm64' };
+    }
+  }
+  if (bytes.length >= 20 && bytes.subarray(0, 4).equals(Buffer.from([0x7f, 0x45, 0x4c, 0x46]))) {
+    const machine = bytes[5] === 2 ? bytes.readUInt16BE(18) : bytes.readUInt16LE(18);
+    if (machine === 62) return { platform: 'linux', arch: 'x64' };
+    if (machine === 183) return { platform: 'linux', arch: 'arm64' };
+  }
+  return null;
+}
+
+function sha256File(filePath) {
+  const hash = crypto.createHash('sha256');
+  const fd = fs.openSync(filePath, 'r');
+  const chunk = Buffer.alloc(1024 * 1024);
+  try {
+    let bytesRead;
+    do {
+      bytesRead = fs.readSync(fd, chunk, 0, chunk.length, null);
+      if (bytesRead > 0) hash.update(chunk.subarray(0, bytesRead));
+    } while (bytesRead > 0);
+  } finally {
+    fs.closeSync(fd);
+  }
+  return hash.digest('hex');
+}
+
+function candidateFingerprint(candidate) {
+  const stat = fs.statSync(candidate.executablePath);
+  return `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeMs}`;
+}
+
+function findPackagedCandidates(outDir) {
+  const candidates = [];
+  if (!fs.existsSync(outDir)) return candidates;
+  for (const entry of fs.readdirSync(outDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const dir = path.join(outDir, entry.name);
+    for (const sub of fs.readdirSync(dir, { withFileTypes: true }).filter((item) => item.isDirectory())) {
+      if (!sub.name.endsWith('.app')) continue;
+      const appDir = path.join(dir, sub.name);
+      const macosDir = path.join(appDir, 'Contents', 'MacOS');
+      const resourceDir = path.join(appDir, 'Contents', 'Resources');
+      if (!fs.existsSync(macosDir) || !fs.existsSync(resourceDir)) continue;
+      const executables = fs
+        .readdirSync(macosDir, { withFileTypes: true })
+        .filter((item) => item.isFile())
+        .map((item) => path.join(macosDir, item.name))
+        .filter((item) => inspectExecutable(item)?.platform === 'darwin');
+      if (executables.length !== 1) continue;
+      const executablePath = executables[0];
+      candidates.push({ appDir, resourceDir, executablePath, ...inspectExecutable(executablePath) });
+    }
+    if (!entry.name.endsWith('-unpacked')) continue;
+    const resourceDir = path.join(dir, 'resources');
+    if (!fs.existsSync(resourceDir)) continue;
+    const executables = fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((item) => item.isFile())
+      .map((item) => path.join(dir, item.name))
+      .map((executablePath) => ({ executablePath, identity: inspectExecutable(executablePath) }))
+      .filter(({ executablePath, identity }) => {
+        if (!identity) return false;
+        const name = path.basename(executablePath).toLowerCase();
+        return identity.platform === 'win32'
+          ? /^wayland(?: preview)?\.exe$/.test(name)
+          : /^wayland(?:-preview)?$/.test(name);
+      });
+    for (const { executablePath, identity } of executables) {
+      candidates.push({ appDir: dir, resourceDir, executablePath, ...identity });
+    }
+  }
+  return candidates;
+}
+
+function snapshotPackagedTargets(outDir) {
+  return new Map(
+    findPackagedCandidates(outDir).map((candidate) => [candidate.appDir, candidateFingerprint(candidate)])
+  );
+}
+
+function resolvePackagedTarget(outDir, platform, arch, options = {}) {
+  const allCandidates = findPackagedCandidates(outDir);
+  const platformCandidates = allCandidates.filter((candidate) => candidate.platform === platform);
+  const targetCandidates = platformCandidates.filter((candidate) => candidate.arch === arch);
+  const snapshot = options.previousSnapshot;
+  const currentCandidates = snapshot
+    ? targetCandidates.filter((candidate) => snapshot.get(candidate.appDir) !== candidateFingerprint(candidate))
+    : targetCandidates;
+  if (currentCandidates.length !== 1) {
+    const inventory = platformCandidates.map(
+      (candidate) => `${candidate.appDir} (${candidate.platform}-${candidate.arch})`
+    );
+    throw new Error(
+      `${TAG} expected exactly one current ${platform}-${arch} packaged app under ${outDir}; ` +
+        `found ${currentCandidates.length}. Inventory: ${inventory.join(', ') || '<empty>'}`
+    );
+  }
+  return currentCandidates[0];
+}
+
+function assertOwnedResourcePair(executablePath, resourceDir, platform) {
+  const executable = path.resolve(executablePath);
+  const resources = path.resolve(resourceDir);
+  if (!fs.lstatSync(executable).isFile() || !fs.lstatSync(resources).isDirectory()) {
+    throw new Error(`${TAG} packaged executable/resources must be regular, existing paths`);
+  }
+  let expectedResources;
+  if (platform === 'darwin') {
+    const macosDir = path.dirname(executable);
+    const contentsDir = path.dirname(macosDir);
+    const appDir = path.dirname(contentsDir);
+    if (path.basename(macosDir) !== 'MacOS' || path.basename(contentsDir) !== 'Contents' || !appDir.endsWith('.app')) {
+      throw new Error(`${TAG} malformed macOS app executable path: ${executable}`);
+    }
+    expectedResources = path.join(contentsDir, 'Resources');
+  } else {
+    expectedResources = path.join(path.dirname(executable), 'resources');
+  }
+  if (resources !== expectedResources) {
+    throw new Error(`${TAG} --resources-dir does not belong to --app-executable: ${resources}`);
+  }
+  const realExecutable = fs.realpathSync(executable);
+  const realResources = fs.realpathSync(resources);
+  const realExpectedResources =
+    platform === 'darwin'
+      ? path.join(path.dirname(path.dirname(realExecutable)), 'Resources')
+      : path.join(path.dirname(realExecutable), 'resources');
+  if (realResources !== realExpectedResources) {
+    throw new Error(`${TAG} packaged executable/resources may not cross symlink-owned trees`);
+  }
+}
 
 function parseOutDir(argv, cwd) {
   const i = argv.indexOf('--out');
@@ -83,37 +274,6 @@ function parseRequiredRuntimes(argv, flag, label) {
   return [...new Set(runtimes)].sort();
 }
 
-/**
- * Find every app "Resources" directory under the electron-builder output.
- * macOS:  <out>/<mac*>/<Name>.app/Contents/Resources
- * win:    <out>/<*-unpacked>/resources
- * linux:  <out>/<*-unpacked>/resources
- */
-function findResourceDirs(outDir) {
-  const found = [];
-  if (!fs.existsSync(outDir)) return found;
-
-  for (const entry of fs.readdirSync(outDir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const dir = path.join(outDir, entry.name);
-
-    // macOS: look for *.app/Contents/Resources
-    for (const sub of fs.readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory())) {
-      if (sub.name.endsWith('.app')) {
-        const res = path.join(dir, sub.name, 'Contents', 'Resources');
-        if (fs.existsSync(res)) found.push(res);
-      }
-    }
-
-    // win/linux: *-unpacked/resources
-    if (entry.name.endsWith('-unpacked')) {
-      const res = path.join(dir, 'resources');
-      if (fs.existsSync(res)) found.push(res);
-    }
-  }
-  return found;
-}
-
 function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCore) {
   const [platform, arch] = runtimeKey.split('-');
   const binaryName = platform === 'win32' ? 'wayland-core.exe' : 'wayland-core';
@@ -135,7 +295,7 @@ function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCor
   const assetName = authority.getAssetName(platform, arch, releaseTag);
   if (!assetName) return false;
   const expected = authority.loadExpectedProvenance(releaseTag, assetName, { requireBinary: true });
-  const actualBinarySha256 = crypto.createHash('sha256').update(fs.readFileSync(binaryPath)).digest('hex');
+  const actualBinarySha256 = sha256File(binaryPath);
   const manifestArchiveSha256 = String(metadata.source?.archiveSha256 || '')
     .replace(/^sha256:/i, '')
     .toLowerCase();
@@ -188,24 +348,265 @@ function hasNonHiddenRegularFile(dir) {
   return false;
 }
 
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function listRelativeFiles(root, current = root, found = []) {
+  for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+    const target = path.join(current, entry.name);
+    if (entry.isDirectory()) listRelativeFiles(root, target, found);
+    else if (entry.isFile()) found.push(path.relative(root, target).replace(/\\/g, '/'));
+    else found.push(`!non-file:${path.relative(root, target).replace(/\\/g, '/')}`);
+  }
+  return found.sort();
+}
+
+function sourceInventory(root, current = root, inventory = []) {
+  for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+    const target = path.join(current, entry.name);
+    const relative = path.relative(root, target).replace(/\\/g, '/');
+    if (entry.isDirectory()) {
+      inventory.push(`dir:${relative}`);
+      sourceInventory(root, target, inventory);
+    } else if (entry.isFile()) {
+      inventory.push(`file:${relative}:${fs.statSync(target).size}:${sha256File(target)}`);
+    } else if (entry.isSymbolicLink()) {
+      const linkTarget = fs.readlinkSync(target);
+      const resolved = path.resolve(path.dirname(target), linkTarget);
+      const rootPrefix = `${path.resolve(root)}${path.sep}`;
+      if (resolved !== path.resolve(root) && !resolved.startsWith(rootPrefix)) return null;
+      inventory.push(`link:${relative}:${linkTarget}`);
+    } else {
+      return null;
+    }
+  }
+  return inventory.sort();
+}
+
+function verifyBridgeLock(sourceDir) {
+  const packageJson = readJson(path.join(sourceDir, 'package.json'));
+  const lock = fs.readFileSync(path.join(sourceDir, 'bun.lock'), 'utf8');
+  const dependencyBlock = lock.match(/"dependencies":\s*\{([\s\S]*?)\n\s*\},/);
+  if (!dependencyBlock || !packageJson.dependencies || Object.keys(packageJson.dependencies).length === 0) return false;
+  return Object.entries(packageJson.dependencies).every(([name, range]) => {
+    const declared = `${JSON.stringify(name)}: ${JSON.stringify(range)}`;
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const integrityEntry = new RegExp(`"${escaped}": \\["${escaped}@[^\\n]+sha512-[A-Za-z0-9+/=]+"\\]`);
+    return (
+      dependencyBlock[1].includes(declared) &&
+      integrityEntry.test(lock) &&
+      fs.existsSync(path.join(sourceDir, 'node_modules', ...name.split('/')))
+    );
+  });
+}
+
+function verifySourceMirror(bundleDir, sourceDir, authority = whatsappBridgeSource) {
+  if (authority.contract !== 'wayland-whatsapp-bridge-source/1.0' || !verifyBridgeLock(sourceDir)) return false;
+  for (const [relative, expected] of Object.entries(authority.files || {})) {
+    const source = path.join(sourceDir, relative);
+    if (
+      !fs.existsSync(source) ||
+      !fs.lstatSync(source).isFile() ||
+      fs.statSync(source).size !== expected.size ||
+      sha256File(source) !== expected.sha256
+    ) {
+      return false;
+    }
+  }
+  const source = sourceInventory(sourceDir);
+  const bundled = sourceInventory(bundleDir);
+  return source !== null && bundled !== null && JSON.stringify(bundled) === JSON.stringify(source);
+}
+
+function verifySkillPack(packDir) {
+  const allowed = new Set(['index.json', 'routines.json', 'skill-bodies.bin', 'skill-bodies.offsets.json']);
+  const files = listRelativeFiles(packDir);
+  if (files.some((file) => !allowed.has(file))) return false;
+  if (!['index.json', 'skill-bodies.bin', 'skill-bodies.offsets.json'].every((file) => files.includes(file)))
+    return false;
+  const index = readJson(path.join(packDir, 'index.json'));
+  const offsets = readJson(path.join(packDir, 'skill-bodies.offsets.json'));
+  const blobSize = fs.statSync(path.join(packDir, 'skill-bodies.bin')).size;
+  if (!Array.isArray(index) || index.length === 0 || offsets?.version !== 1 || !offsets.entries) return false;
+  const ranges = Object.values(offsets.entries);
+  if (ranges.length === 0) return false;
+  const indexPaths = new Set(index.map((entry) => entry?.path).filter((entry) => typeof entry === 'string'));
+  if (Object.keys(offsets.entries).some((entry) => !indexPaths.has(entry))) return false;
+  const orderedRanges = ranges.toSorted((left, right) => left[0] - right[0]);
+  let expectedOffset = 0;
+  const valid = orderedRanges.every((range) => {
+    const rangeValid =
+      Array.isArray(range) &&
+      range.length === 2 &&
+      Number.isSafeInteger(range[0]) &&
+      Number.isSafeInteger(range[1]) &&
+      range[0] === expectedOffset &&
+      range[1] > 0 &&
+      range[0] + range[1] <= blobSize;
+    if (rangeValid) expectedOffset += range[1];
+    return rangeValid;
+  });
+  return valid && expectedOffset === blobSize;
+}
+
+function verifyBunBundle(bundleDir, targetPlatform, targetArch, authority = bundledBunBinaries) {
+  const version = '1.3.14';
+  const requiredRuntimeKeys = [`${targetPlatform}-${targetArch}`];
+  if (targetArch === 'x64' && ['darwin', 'linux'].includes(targetPlatform)) {
+    requiredRuntimeKeys.push(`${targetPlatform}-${targetArch}-baseline`);
+  }
+  const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
+  if (entries.some((entry) => !entry.isDirectory())) return false;
+  if (JSON.stringify(entries.map((entry) => entry.name).sort()) !== JSON.stringify(requiredRuntimeKeys.sort()))
+    return false;
+  return requiredRuntimeKeys.every((runtimeKey) => {
+    const isBaseline = runtimeKey.endsWith('-baseline');
+    const runtimeDir = path.join(bundleDir, runtimeKey);
+    const binaryName = targetPlatform === 'win32' ? 'bun.exe' : 'bun';
+    const files = listRelativeFiles(runtimeDir);
+    if (JSON.stringify(files) !== JSON.stringify([binaryName, 'manifest.json'].sort())) return false;
+    const binaryPath = path.join(runtimeDir, binaryName);
+    const identity = inspectExecutable(binaryPath);
+    const manifest = readJson(path.join(runtimeDir, 'manifest.json'));
+    const assetArch = targetArch === 'arm64' ? 'aarch64' : 'x64';
+    const assetPlatform = targetPlatform === 'win32' ? 'windows' : targetPlatform;
+    const asset = `bun-${assetPlatform}-${assetArch}${isBaseline ? '-baseline' : ''}.zip`;
+    const sourceUrl = `https://github.com/oven-sh/bun/releases/download/bun-v${version}/${asset}`;
+    const expectedArchiveSha = String(bundledBunShasums[version]?.[asset] || '').replace(/^sha256:/, '');
+    const expectedBinary = authority?.[version]?.[asset];
+    const source = manifest.sourceType === 'cache' ? manifest.cacheMeta?.source : manifest.source;
+    return (
+      authority?.contract === 'wayland-bundled-bun-binaries/1.0' &&
+      identity?.platform === targetPlatform &&
+      identity?.arch === targetArch &&
+      manifest.platform === targetPlatform &&
+      manifest.arch === targetArch &&
+      manifest.variant === (isBaseline ? 'baseline' : 'default') &&
+      manifest.version === version &&
+      manifest.skipped === false &&
+      ['download', 'cache'].includes(manifest.sourceType) &&
+      JSON.stringify(manifest.files) === JSON.stringify([binaryName]) &&
+      source?.asset === asset &&
+      source?.url === sourceUrl &&
+      source?.sha256 === expectedArchiveSha &&
+      /^[0-9a-f]{64}$/.test(expectedArchiveSha) &&
+      Number.isSafeInteger(expectedBinary?.size) &&
+      fs.statSync(binaryPath).size === expectedBinary.size &&
+      sha256File(binaryPath) === expectedBinary.sha256 &&
+      manifest.binary?.name === binaryName &&
+      manifest.binary?.size === expectedBinary.size &&
+      manifest.binary?.sha256 === expectedBinary.sha256
+    );
+  });
+}
+
+function verifyVoiceBundle(bundleDir, authority = voiceModelPinnedRelease) {
+  const root = path.join(bundleDir, 'whisper-tiny');
+  if (!fs.existsSync(root)) return false;
+  const expectedFiles = Object.keys(authority.files || {}).sort();
+  if (authority.contract !== 'wayland-voice-model-pin/1.0') return false;
+  if (!/^[0-9a-f]{40}$/.test(authority.revision || '')) return false;
+  if (JSON.stringify(listRelativeFiles(root)) !== JSON.stringify(expectedFiles)) return false;
+  for (const relative of expectedFiles) {
+    const target = path.join(root, relative);
+    const expected = authority.files[relative];
+    if (!expected || fs.statSync(target).size !== expected.size || sha256File(target) !== expected.sha256) return false;
+    if (relative.endsWith('.json')) readJson(target);
+  }
+  return true;
+}
+
+function verifyModelsSnapshot(filePath, authority = modelsDevSnapshotPin) {
+  const stat = fs.statSync(filePath);
+  if (
+    authority.contract !== 'wayland-modelsdev-snapshot/1.0' ||
+    stat.size !== authority.size ||
+    sha256File(filePath) !== authority.sha256
+  ) {
+    return false;
+  }
+  const snapshot = readJson(filePath);
+  if (!snapshot || Array.isArray(snapshot) || typeof snapshot !== 'object') return false;
+  const providers = Object.values(snapshot);
+  return (
+    providers.length > 0 &&
+    providers.every((provider) => {
+      if (!provider || typeof provider !== 'object' || Array.isArray(provider)) return false;
+      if (typeof provider.id !== 'string' || provider.id.length === 0) return false;
+      if (!provider.models || typeof provider.models !== 'object' || Array.isArray(provider.models)) return false;
+      const models = Object.values(provider.models);
+      return (
+        models.length > 0 &&
+        models.every(
+          (model) =>
+            model &&
+            typeof model === 'object' &&
+            !Array.isArray(model) &&
+            typeof model.id === 'string' &&
+            model.id.length > 0
+        )
+      );
+    })
+  );
+}
+
+function verifySignalBundle(runtimeDir, targetPlatform, targetArch) {
+  const binaryName = targetPlatform === 'win32' ? 'signal-cli.exe' : 'signal-cli';
+  const files = listRelativeFiles(runtimeDir);
+  if (JSON.stringify(files) !== JSON.stringify([`bin/${binaryName}`, 'bin/manifest.json'].sort())) return false;
+  const binaryPath = path.join(runtimeDir, 'bin', binaryName);
+  const manifest = readJson(path.join(runtimeDir, 'bin', 'manifest.json'));
+  const identity = inspectExecutable(binaryPath);
+  const digest = sha256File(binaryPath);
+  const mode = fs.statSync(binaryPath).mode;
+  return (
+    identity?.platform === targetPlatform &&
+    identity?.arch === targetArch &&
+    (targetPlatform === 'win32' || (mode & 0o111) !== 0) &&
+    manifest.contract === 'wayland-signal-cli-bundle/1.0' &&
+    targetPlatform === signalPinnedRelease.platform &&
+    targetArch === signalPinnedRelease.arch &&
+    manifest.platform === signalPinnedRelease.platform &&
+    manifest.arch === signalPinnedRelease.arch &&
+    manifest.releaseTag === signalPinnedRelease.releaseTag &&
+    manifest.source?.owner === 'AsamK' &&
+    manifest.source?.repository === 'signal-cli' &&
+    manifest.source?.releaseId === signalPinnedRelease.releaseId &&
+    manifest.source?.assetId === signalPinnedRelease.assetId &&
+    manifest.source?.asset === signalPinnedRelease.asset &&
+    manifest.source?.url === signalPinnedRelease.url &&
+    manifest.source?.assetDigest === `sha256:${signalPinnedRelease.archiveSha256}` &&
+    manifest.source?.archiveSha256 === `sha256:${signalPinnedRelease.archiveSha256}` &&
+    manifest.binary?.name === binaryName &&
+    manifest.binary?.sha256 === `sha256:${signalPinnedRelease.binarySha256}` &&
+    digest === signalPinnedRelease.binarySha256 &&
+    manifest.verified === true
+  );
+}
+
 function isNonEmpty(
   p,
   kind,
   requiredOfficeCliRuntimes = [],
   expected = {},
   requiredWCoreRuntimes = [],
-  wcoreAuthority = prepareWaylandCore
+  wcoreAuthority = prepareWaylandCore,
+  targetPlatform,
+  targetArch,
+  voiceAuthority = voiceModelPinnedRelease,
+  bunAuthority = bundledBunBinaries,
+  modelsAuthority = modelsDevSnapshotPin,
+  whatsappSourceDir = path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge'),
+  whatsappAuthority = whatsappBridgeSource
 ) {
   try {
     const st = fs.statSync(p);
     if (kind === 'file') return st.isFile() && st.size > 0;
     if (kind === 'hashed-file') {
-      return (
-        st.isFile() &&
-        st.size === expected.size &&
-        crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex') === expected.sha256
-      );
+      return st.isFile() && st.size === expected.size && sha256File(p) === expected.sha256;
     }
+    if (kind === 'models-snapshot') return st.isFile() && verifyModelsSnapshot(p, modelsAuthority);
     if (!st.isDirectory()) return false;
     if (kind === 'wcore-bundle') {
       return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority);
@@ -227,7 +628,7 @@ function isNonEmpty(
         const expectedSha = String(metadata.sha256 || '')
           .replace(/^sha256:/i, '')
           .toLowerCase();
-        const actualSha = crypto.createHash('sha256').update(fs.readFileSync(binary)).digest('hex');
+        const actualSha = sha256File(binary);
         const proof = metadata.contractProof;
         const smoke = metadata.smokeProof;
         const publisherSignature = metadata.publisherSignatureProof;
@@ -279,6 +680,12 @@ function isNonEmpty(
         );
       });
     }
+    if (kind === 'skill-pack') return verifySkillPack(p);
+    if (kind === 'bun-bundle') return verifyBunBundle(p, targetPlatform, targetArch, bunAuthority);
+    if (kind === 'voice-bundle') return verifyVoiceBundle(p, voiceAuthority);
+    if (kind === 'signal-bundle') return verifySignalBundle(p, targetPlatform, targetArch);
+    if (kind === 'hub-bundle') return false;
+    if (kind === 'whatsapp-bundle') return verifySourceMirror(p, whatsappSourceDir, whatsappAuthority);
     return hasNonHiddenRegularFile(p);
   } catch {
     return false;
@@ -290,10 +697,47 @@ function verifyPackagedResources(options = {}) {
   const cwd = options.cwd || process.cwd();
   const logger = options.logger || console;
   const wcoreAuthority = options.wcoreAuthority || prepareWaylandCore;
+  const voiceAuthority = options.voiceAuthority || voiceModelPinnedRelease;
+  const bunAuthority = options.bunAuthority || bundledBunBinaries;
+  const modelsAuthority = options.modelsAuthority || modelsDevSnapshotPin;
+  const whatsappSourceDir =
+    options.whatsappSourceDir || path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
+  const whatsappAuthority = options.whatsappAuthority || whatsappBridgeSource;
   const outDir = parseOutDir(argv, cwd);
+  const { platform: targetPlatform, arch: targetArch } = parseTarget(argv);
   const requiredOfficeCliRuntimes = parseRequiredRuntimes(argv, '--officecli-runtime', 'OfficeCLI');
   const requiredWCoreRuntimes = parseRequiredRuntimes(argv, '--wcore-runtime', 'wayland-core');
-  const resourceDirs = findResourceDirs(outDir);
+  const expectedRuntime = `${targetPlatform}-${targetArch}`;
+  if (
+    JSON.stringify(requiredOfficeCliRuntimes) !== JSON.stringify([expectedRuntime]) ||
+    JSON.stringify(requiredWCoreRuntimes) !== JSON.stringify([expectedRuntime])
+  ) {
+    throw new Error(`${TAG} Core and OfficeCLI runtime declarations must exactly match ${expectedRuntime}`);
+  }
+  const explicitResourceDir = parseSingleArg(argv, '--resources-dir', false);
+  const explicitExecutable = parseSingleArg(argv, '--app-executable', false);
+  let packagedTarget;
+  if (explicitResourceDir || explicitExecutable) {
+    if (!explicitResourceDir || !explicitExecutable) {
+      throw new Error(`${TAG} --resources-dir and --app-executable must be supplied together`);
+    }
+    const resourceDir = path.resolve(cwd, explicitResourceDir);
+    const executablePath = path.resolve(cwd, explicitExecutable);
+    assertOwnedResourcePair(executablePath, resourceDir, targetPlatform);
+    const identity = inspectExecutable(executablePath);
+    if (identity?.platform !== targetPlatform || identity?.arch !== targetArch) {
+      throw new Error(
+        `${TAG} packaged executable does not match ${expectedRuntime}: ${executablePath} ` +
+          `(detected ${identity ? `${identity.platform}-${identity.arch}` : 'unknown'})`
+      );
+    }
+    packagedTarget = { resourceDir, executablePath, ...identity };
+  } else {
+    packagedTarget = resolvePackagedTarget(outDir, targetPlatform, targetArch, {
+      previousSnapshot: options.previousSnapshot,
+    });
+  }
+  const resourceDirs = [packagedTarget.resourceDir];
 
   if (resourceDirs.length === 0) {
     throw new Error(
@@ -309,10 +753,24 @@ function verifyPackagedResources(options = {}) {
     logger.log(`${TAG} checking ${resDir}`);
     for (const req of REQUIRED) {
       const target = path.join(resDir, req.rel);
-      const ok = isNonEmpty(target, req.kind, requiredOfficeCliRuntimes, req, requiredWCoreRuntimes, wcoreAuthority);
+      const ok = isNonEmpty(
+        target,
+        req.kind,
+        requiredOfficeCliRuntimes,
+        req,
+        requiredWCoreRuntimes,
+        wcoreAuthority,
+        targetPlatform,
+        targetArch,
+        voiceAuthority,
+        bunAuthority,
+        modelsAuthority,
+        whatsappSourceDir,
+        whatsappAuthority
+      );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);
-      } else if (req.critical) {
+      } else if (req.critical || fs.existsSync(target)) {
         logger.error(`${TAG}   FAIL ${req.rel}  <-- CRITICAL, missing or invalid`);
         criticalFailures += 1;
       } else {
@@ -336,7 +794,16 @@ function verifyPackagedResources(options = {}) {
 }
 
 module.exports = {
+  VOICE_MODEL_FILES,
+  findPackagedCandidates,
+  inspectExecutable,
+  resolvePackagedTarget,
+  snapshotPackagedTargets,
   verifyPackagedResources,
+  verifySignalBundle,
+  verifySourceMirror,
+  verifyVoiceBundle,
+  verifyModelsSnapshot,
   verifyWCoreBundle,
   verifyWCoreRuntime,
 };
