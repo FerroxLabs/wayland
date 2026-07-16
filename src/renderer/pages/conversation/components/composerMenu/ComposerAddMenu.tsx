@@ -60,9 +60,10 @@ const ComposerAddMenuPanel: React.FC<{
   conversationId?: string;
   draftText?: string;
   uploadItems: ComposerUploadItem[];
+  mcpSessionState?: McpSessionState;
   triggerRef: React.RefObject<HTMLElement>;
   onClose: () => void;
-}> = ({ composer, conversationId, draftText, uploadItems, triggerRef, onClose }) => {
+}> = ({ composer, conversationId, draftText, uploadItems, mcpSessionState, triggerRef, onClose }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [pane, setPane] = useState<Pane>('skills');
@@ -73,7 +74,6 @@ const ComposerAddMenuPanel: React.FC<{
   // useModelEffort's conversation.get usage.
   const [targetModel, setTargetModel] = useState<{ cap?: number; label?: string }>({});
   const [activeServerIds, setActiveServerIds] = useState<string[] | undefined>(undefined);
-  const [mcpSessionState, setMcpSessionState] = useState<McpSessionState | undefined>();
   useEffect(() => {
     if (!conversationId) return;
     let alive = true;
@@ -93,27 +93,6 @@ const ComposerAddMenuPanel: React.FC<{
     return () => {
       alive = false;
     };
-  }, [conversationId]);
-
-  // Only the process-owned, preview-gated complete snapshot may promote chat
-  // readiness. Never rebuild readiness from raw receipts or persisted legacy
-  // state: both can belong to a stale launch generation.
-  useEffect(() => {
-    if (!conversationId) return;
-    return ipcBridge.conversation.responseStream.on((message) => {
-      if (message.conversation_id !== conversationId) return;
-      if (message.type === 'mcp_session_state') {
-        const state = message.data as McpSessionState;
-        if (
-          state &&
-          typeof state.generation === 'string' &&
-          state.receipts &&
-          Array.isArray(state.expectedServerNames)
-        ) {
-          setMcpSessionState(state);
-        }
-      }
-    });
   }, [conversationId]);
 
   // Persist the per-conversation MCP selection (#348). Read-modify-write the full
@@ -287,7 +266,33 @@ const ComposerAddMenu: React.FC<ComposerAddMenuProps> = ({
   onStagedSkillsChange,
 }) => {
   const [open, setOpen] = useState(false);
+  const [mcpSessionState, setMcpSessionState] = useState<McpSessionState | undefined>();
   const triggerRef = useRef<HTMLSpanElement>(null);
+
+  // Listen for launch-bound receipts for the whole lifetime of the composer,
+  // not only while its lazily-mounted menu is open. Otherwise Core can finish
+  // registration before the user opens Connectors and the truthful state is
+  // lost. Never rebuild readiness from a persisted snapshot here: after a
+  // process restart its generation may no longer identify a live session.
+  useEffect(() => {
+    setMcpSessionState(undefined);
+    if (!conversationId) return;
+    return ipcBridge.conversation.responseStream.on((message) => {
+      if (message.conversation_id !== conversationId || message.type !== 'mcp_session_state') return;
+      const state = message.data as McpSessionState;
+      if (
+        state &&
+        typeof state.generation === 'string' &&
+        state.conversationId === conversationId &&
+        typeof state.backend === 'string' &&
+        state.receipts &&
+        Array.isArray(state.expectedServers) &&
+        Array.isArray(state.expectedServerNames)
+      ) {
+        setMcpSessionState(state);
+      }
+    });
+  }, [conversationId]);
 
   // Skills state lives here (not in the panel) so staged picks survive the menu
   // closing before the user sends.
@@ -313,6 +318,7 @@ const ComposerAddMenu: React.FC<ComposerAddMenuProps> = ({
           conversationId={conversationId}
           draftText={draftText}
           uploadItems={uploadItems}
+          mcpSessionState={mcpSessionState}
           triggerRef={triggerRef}
           onClose={() => setOpen(false)}
         />

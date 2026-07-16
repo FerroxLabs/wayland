@@ -13,7 +13,7 @@ import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
-import type { IMcpServer, TProviderWithModel } from '@/common/config/storage';
+import type { TProviderWithModel } from '@/common/config/storage';
 import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import { mcpService } from '@process/services/mcpServices/McpService';
@@ -22,7 +22,9 @@ import { validateMcpServer } from '@process/services/mcpServices/validateMcpServ
 import {
   createMcpSessionState,
   recordDesktopMcpSessionFailure,
+  recordDesktopMcpSessionPublication,
   reduceMcpSessionTerminal,
+  type McpSessionExpectedServer,
   type McpSessionState,
   type McpSessionTerminalEvent,
 } from '@/common/mcp/sessionReceipt';
@@ -62,7 +64,10 @@ import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { getBudgetController } from '@process/services/cost/BudgetController';
 import { RunawayMonitor } from '@process/services/runaway/RunawayMonitor';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
-import { isMcpSessionTruthPreviewEnabled } from '@process/services/mcpServices/mcpSessionTruthGate';
+import {
+  createMcpSessionDigestKey,
+  createMcpSessionExpectedServer,
+} from '@process/services/mcpServices/mcpSessionTruthGate';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -287,13 +292,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   /** Session-scoped MCP truth. Serialized so simultaneous Core receipts cannot clobber each other in DB. */
   private readonly mcpSessionGeneration = uuid();
-  private mcpSessionState: McpSessionState = createMcpSessionState(this.mcpSessionGeneration, []);
+  private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
+  private mcpSessionState: McpSessionState;
   private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
 
   constructor(data: WCoreManagerData, model: TProviderWithModel) {
     super('wcore', { ...data, model }, new IpcAgentEventEmitter(), false);
     this.workspace = data.workspace;
     this.conversation_id = data.conversation_id;
+    this.mcpSessionState = createMcpSessionState(
+      this.mcpSessionGeneration,
+      [],
+      { conversationId: this.conversation_id, backend: 'wcore' }
+    );
     this.model = model;
     this.currentMode = data.sessionMode || 'default';
 
@@ -368,6 +379,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // global config to exactly this conversation's selection (all transports).
     let sessionMcpServerNames: string[] | undefined;
     let expectedSessionMcpNames: string[] = [];
+    let expectedSessionMcpServers: McpSessionExpectedServer[] = [];
     if (!rawEngineMode) {
       try {
         const mcpConfig = await loadRuntimeMcpServers();
@@ -376,19 +388,30 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           mergedData.activeMcpServers
         );
         expectedSessionMcpNames = selectedServers.map((server) => server.name);
-        this.beginMcpSession(expectedSessionMcpNames);
 
         if (selectedServers.length === 0) {
+          this.beginMcpSession([]);
           sessionMcpServerNames = [];
         } else {
           const normalizedServers = selectedServers.map((server) => normalizeMcpServerForSpawn(server, os.homedir()));
+          expectedSessionMcpServers = normalizedServers.map((server) =>
+            createMcpSessionExpectedServer(server, 'wcore', this.mcpSessionDigestKey)
+          );
+          this.beginMcpSession(expectedSessionMcpServers);
           for (const server of normalizedServers) validateMcpServer(server);
           const authedServers = await mcpService.attachOAuthTokens(normalizedServers);
+          // OAuth refresh can change the exact launch definition. Rebind before
+          // publication so a receipt can only correlate to what Core received.
+          expectedSessionMcpServers = authedServers.map((server) =>
+            createMcpSessionExpectedServer(server, 'wcore', this.mcpSessionDigestKey)
+          );
+          this.beginMcpSession(expectedSessionMcpServers);
           const publication = await new WCoreMcpAgent(join(launchWaylandHome!, 'config.toml')).installMcpServers(
             authedServers
           );
           if (publication.success) {
             sessionMcpServerNames = expectedSessionMcpNames;
+            for (const name of expectedSessionMcpNames) this.publishMcpSessionServer(name);
           } else {
             sessionMcpServerNames = [];
             const reason = publication.error || 'Desktop could not publish connector into trusted Core startup config';
@@ -400,7 +423,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // Keep the exact requested connector set visible and terminal. Erasing
         // it here made OAuth/validation/config-write failures look like a chat
         // that requested no connectors at all.
-        this.beginMcpSession(expectedSessionMcpNames);
+        if (this.mcpSessionState.expectedServers.length === 0 && expectedSessionMcpServers.length > 0) {
+          this.beginMcpSession(expectedSessionMcpServers);
+        }
         const reason = err instanceof Error ? err.message : String(err);
         for (const name of expectedSessionMcpNames) this.failMcpSessionServer(name, reason);
         mainWarn('[WCoreManager]', 'failed to publish trusted Core MCP startup config', err);
@@ -1157,29 +1182,35 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     this.agent?.ping();
   }
 
-  private beginMcpSession(expectedServerNames: readonly string[]): void {
-    if (!isMcpSessionTruthPreviewEnabled()) return;
-    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, expectedServerNames);
+  private beginMcpSession(expectedServers: readonly McpSessionExpectedServer[]): void {
+    this.mcpSessionState = createMcpSessionState(
+      this.mcpSessionGeneration,
+      expectedServers,
+      { conversationId: this.conversation_id, backend: 'wcore' }
+    );
+    this.publishMcpSessionState();
+  }
+
+  private publishMcpSessionServer(serverName: string): void {
+    this.mcpSessionState = recordDesktopMcpSessionPublication(this.mcpSessionState, serverName);
     this.publishMcpSessionState();
   }
 
   private failMcpSessionServer(serverName: string, reason: string): void {
-    if (!isMcpSessionTruthPreviewEnabled()) return;
     this.mcpSessionState = recordDesktopMcpSessionFailure(this.mcpSessionState, serverName, reason);
     this.publishMcpSessionState();
   }
 
   private acceptMcpSessionTerminal(event: McpSessionTerminalEvent): void {
-    if (!isMcpSessionTruthPreviewEnabled()) return;
     this.mcpSessionState = reduceMcpSessionTerminal(this.mcpSessionState, event);
     this.publishMcpSessionState();
   }
 
   /** Persist and broadcast the whole immutable snapshot; queued DB writes prevent lost concurrent receipts. */
   private publishMcpSessionState(): void {
-    if (!isMcpSessionTruthPreviewEnabled()) return;
     const snapshot: McpSessionState = {
       ...this.mcpSessionState,
+      expectedServers: this.mcpSessionState.expectedServers.map((server) => ({ ...server })),
       expectedServerNames: [...this.mcpSessionState.expectedServerNames],
       receipts: { ...this.mcpSessionState.receipts },
     };

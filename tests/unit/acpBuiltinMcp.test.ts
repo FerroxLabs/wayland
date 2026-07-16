@@ -9,13 +9,12 @@ import type { IMcpServer } from '../../src/common/config/storage';
 import { buildAcpSessionMcpServers } from '../../src/process/agent/acp/mcpSessionConfig';
 import { parseAgentCapabilities } from '../../src/common/types/acpTypes';
 
-// #827: buildAcpSessionMcpServers resolves a bare `npx` to the bundled Bun
-// runtime on Windows (a `npx.cmd` won't spawn shell:false); macOS/Linux keep raw
-// `npx`. Expectations that assert the injected npx server's spawn shape must be
-// platform-aware to stay green on the windows-2022 shard.
-const isWin = process.platform === 'win32';
-const expectedNpxCommand = isWin ? expect.stringContaining('bun') : 'npx';
-const expectedNpxArgs = isWin ? ['x', '--bun', 'chrome-devtools-mcp@latest'] : ['-y', 'chrome-devtools-mcp@latest'];
+// #827: the standalone probe and every live session resolve a bare `npx` hint
+// through Wayland's bundled Bun on every platform. Keeping raw npx on macOS or
+// Linux reintroduced the GUI process's incomplete PATH and recreated the exact
+// "probe reachable, chat has no tools" split this contract prevents.
+const expectedNpxCommand = expect.stringContaining('bun');
+const expectedNpxArgs = ['x', '--bun', 'chrome-devtools-mcp@latest'];
 
 describe('ACP built-in MCP session config - wayland_search_skills (C1)', () => {
   it('injects the seeded builtin search-skills entry into session/new with the correct stdio transport', () => {

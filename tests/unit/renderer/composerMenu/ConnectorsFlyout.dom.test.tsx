@@ -16,6 +16,12 @@ import React from 'react';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { IMcpServer } from '@/common/config/storage';
+import {
+  createMcpSessionState,
+  recordDesktopMcpSessionPublication,
+  reduceMcpSessionTerminal,
+  type McpSessionExpectedServer,
+} from '@/common/mcp/sessionReceipt';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -169,79 +175,85 @@ describe('ConnectorsFlyout per-conversation scoping (#348)', () => {
 
 describe('ConnectorsFlyout active-session MCP truth', () => {
   const tavily = srv(2, { id: 'tavily', name: 'tavily' });
+  const expected: McpSessionExpectedServer = {
+    serverId: 'tavily',
+    serverName: 'tavily',
+    runtimeName: 'tavily',
+    canonicalName: 'tavily',
+    definitionDigest: 'hmac-sha256:tavily',
+    backend: 'wcore',
+    transport: 'stdio',
+    scope: 'conversation',
+  };
+  const session = () =>
+    createMcpSessionState(
+      'launch-1',
+      [expected],
+      { conversationId: 'chat-1', backend: 'wcore' },
+      1
+    );
 
   it('does not present a successful Library probe as chat readiness', () => {
     renderFlyout({ servers: [tavily], onScopeChange: noop });
     expect(screen.getByText('Probe reported 2 tools · chat not verified')).toBeInTheDocument();
-    expect(screen.queryByTitle('Tools verified in this chat')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Tools registered in this chat')).not.toBeInTheDocument();
   });
 
-  it('shows green only after this launch reports named tools', () => {
+  it('shows green only after this exact published launch reports named tools', () => {
+    const published = recordDesktopMcpSessionPublication(session(), 'tavily', 2);
+    const registered = reduceMcpSessionTerminal(
+      published,
+      { type: 'mcp_ready', data: { name: 'tavily', tools: ['tavily_search', 'tavily_extract'] } },
+      3
+    );
     renderFlyout({
       servers: [tavily],
       onScopeChange: noop,
-      sessionState: {
-        generation: 'launch-1',
-        expectedServerNames: ['tavily'],
-        startedAt: 1,
-        receipts: {
-          tavily: {
-            status: 'ready',
-            serverName: 'tavily',
-            tools: ['tavily_search', 'tavily_extract'],
-            observedAt: 2,
-            source: 'wcore',
-          },
-        },
-      },
+      sessionState: registered,
     });
-    expect(screen.getByText('2 tools verified in this chat')).toBeInTheDocument();
-    expect(screen.getByTitle('Tools verified in this chat')).toBeInTheDocument();
+    expect(screen.getByText('2 tools registered in this chat')).toBeInTheDocument();
+    expect(screen.getByTitle('Tools registered in this chat')).toBeInTheDocument();
+  });
+
+  it('keeps successful config publication visibly unverified until Core registers tools', () => {
+    renderFlyout({
+      servers: [tavily],
+      onScopeChange: noop,
+      sessionState: recordDesktopMcpSessionPublication(session(), 'tavily', 2),
+    });
+    expect(screen.getByText('Published to this chat · waiting for tool registration')).toBeInTheDocument();
+    expect(screen.queryByTitle('Tools registered in this chat')).not.toBeInTheDocument();
   });
 
   it('surfaces the exact runtime failure instead of a connected badge', () => {
+    const published = recordDesktopMcpSessionPublication(session(), 'tavily', 2);
+    const failed = reduceMcpSessionTerminal(
+      published,
+      { type: 'mcp_failed', data: { name: 'tavily', reason: 'credential rejected' } },
+      3
+    );
     renderFlyout({
       servers: [tavily],
       onScopeChange: noop,
-      sessionState: {
-        generation: 'launch-1',
-        expectedServerNames: ['tavily'],
-        startedAt: 1,
-        receipts: {
-          tavily: {
-            status: 'failed',
-            serverName: 'tavily',
-            reason: 'credential rejected',
-            observedAt: 2,
-            source: 'wcore',
-          },
-        },
-      },
+      sessionState: failed,
     });
     expect(screen.getByText('Unavailable in this chat · credential rejected')).toBeInTheDocument();
     expect(screen.getByTitle('Connector unavailable in this chat')).toBeInTheDocument();
   });
 
   it('does not promote a receipt when the connector was not expected in this launch', () => {
+    const otherSession = createMcpSessionState(
+      'launch-1',
+      [{ ...expected, serverId: 'other', runtimeName: 'other', definitionDigest: 'hmac-sha256:other' }],
+      { conversationId: 'chat-1', backend: 'wcore' },
+      1
+    );
     renderFlyout({
       servers: [tavily],
       onScopeChange: noop,
-      sessionState: {
-        generation: 'launch-1',
-        expectedServerNames: [],
-        startedAt: 1,
-        receipts: {
-          tavily: {
-            status: 'ready',
-            serverName: 'tavily',
-            tools: ['tavily_search'],
-            observedAt: 2,
-            source: 'wcore',
-          },
-        },
-      },
+      sessionState: otherSession,
     });
-    expect(screen.queryByText('1 tools verified in this chat')).not.toBeInTheDocument();
-    expect(screen.queryByTitle('Tools verified in this chat')).not.toBeInTheDocument();
+    expect(screen.queryByText('1 tools registered in this chat')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Tools registered in this chat')).not.toBeInTheDocument();
   });
 });

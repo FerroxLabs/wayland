@@ -658,6 +658,44 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
   // ── ipcBridge still receives all events (no regression) ─────────
 
   describe('Regression: ipcBridge still receives all events', () => {
+    it('publishes exact-session MCP registration truth without the preview gate', () => {
+      (manager as any).beginMcpSession([
+        {
+          serverId: 'tavily-id',
+          serverName: 'tavily',
+          runtimeName: 'tavily',
+          canonicalName: 'tavily',
+          definitionDigest: 'hmac-sha256:tavily',
+          backend: 'wcore',
+          transport: 'http',
+          scope: 'conversation',
+        },
+      ]);
+      (manager as any).publishMcpSessionServer('tavily');
+      emitEvent(manager, {
+        type: 'mcp_ready',
+        data: { name: 'tavily', tools: ['tavily_search'] },
+        msg_id: '',
+      });
+
+      const snapshots = findIpcEmissions('mcp_session_state');
+      const latest = snapshots.at(-1)?.data;
+      expect(latest).toMatchObject({
+        conversationId: CONV_ID,
+        backend: 'wcore',
+        expectedServerNames: ['tavily'],
+      });
+      expect(latest.receipts['hmac-sha256:tavily']).toMatchObject({
+        status: 'registered',
+        serverId: 'tavily-id',
+        generation: latest.generation,
+        conversationId: CONV_ID,
+        backend: 'wcore',
+        transport: 'http',
+        tools: ['tavily_search'],
+      });
+    });
+
     it('forwards every accepted Desktop v1 session-level authority event before the empty-msg-id guard', () => {
       for (const type of [
         'execution_policy',

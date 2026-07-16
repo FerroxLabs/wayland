@@ -10,8 +10,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { iconColors } from '@/renderer/styles/colors';
 import type { IMcpServer } from '@/common/config/storage';
-import type { McpSessionReceipt, McpSessionState } from '@/common/mcp/sessionReceipt';
-import { configSafeMcpServerName } from '@/common/mcp';
+import {
+  getMcpSessionReceiptForServer,
+  type McpSessionReceipt,
+  type McpSessionState,
+} from '@/common/mcp/sessionReceipt';
+import { mcpServerCollisionKey } from '@/common/mcp';
 import styles from './ComposerAddMenu.module.css';
 import { countEnabledMcpTools, nextActiveSelection, toolBudgetStatus } from './toolBudget';
 
@@ -59,15 +63,16 @@ const ConnectorRow: React.FC<{
   globalToggleLocked: boolean;
 }> = ({ server, checked, onChange, toolsLabel, receipt, expectedInSession, globalToggleLocked }) => {
   const sessionReceipt = expectedInSession ? receipt : undefined;
-  const verifiedWithTools = sessionReceipt?.status === 'ready' && sessionReceipt.tools.length > 0;
-  const failed =
-    sessionReceipt?.status === 'failed' || (sessionReceipt?.status === 'ready' && sessionReceipt.tools.length === 0);
+  const registeredWithTools = sessionReceipt?.status === 'registered' && sessionReceipt.tools.length > 0;
+  const failed = sessionReceipt?.status === 'failed' || sessionReceipt?.status === 'degraded';
   const runtimeLabel = sessionReceipt
-    ? sessionReceipt.status === 'failed'
+    ? sessionReceipt.status === 'failed' || sessionReceipt.status === 'degraded'
       ? `Unavailable in this chat · ${sessionReceipt.reason}`
-      : sessionReceipt.tools.length > 0
-        ? `${sessionReceipt.tools.length} tools verified in this chat`
-        : 'Loaded, but no tools were registered'
+      : sessionReceipt.status === 'registered'
+        ? `${sessionReceipt.tools.length} tools registered in this chat`
+        : sessionReceipt.status === 'published_unverified'
+          ? 'Published to this chat · waiting for tool registration'
+          : 'Selected for this chat · waiting for publication'
     : expectedInSession
       ? 'Waiting for this chat to report its tools'
       : toolsLabel;
@@ -76,7 +81,7 @@ const ConnectorRow: React.FC<{
       <div className={styles.tile}>{(server.name || '?').charAt(0)}</div>
       <div className={styles.meta}>
         <div className={styles.name}>
-          {verifiedWithTools && <span className={styles.statusDot} title='Tools verified in this chat' />}
+          {registeredWithTools && <span className={styles.statusDot} title='Tools registered in this chat' />}
           {failed && <span className={styles.statusDotError} title='Connector unavailable in this chat' />}
           {server.name}
         </div>
@@ -180,9 +185,13 @@ const ConnectorsFlyout: React.FC<Props> = ({
                 server={server}
                 checked={rowChecked(server)}
                 onChange={rowOnChange(server)}
-                receipt={sessionState?.receipts[configSafeMcpServerName(server.name)]}
+                receipt={getMcpSessionReceiptForServer(sessionState, server)}
                 expectedInSession={
-                  sessionState?.expectedServerNames.includes(configSafeMcpServerName(server.name)) === true
+                  sessionState?.expectedServers.some(
+                    (expected) =>
+                      expected.serverId === server.id &&
+                      expected.canonicalName === mcpServerCollisionKey(server.name)
+                  ) === true
                 }
                 globalToggleLocked={!scoping && (server as { _source?: string })._source === 'extension'}
                 toolsLabel={
