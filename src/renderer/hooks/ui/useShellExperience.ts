@@ -10,9 +10,14 @@ import { resolveShellExperience, type ShellExperience } from '@/common/shellExpe
 
 export const SHELL_EXPERIENCE_CHANGED_EVENT = 'wayland:shell-experience-changed';
 
+/** Update every mounted shell consumer without claiming the preference was persisted. */
+export function activateShellExperienceForSession(shell: ShellExperience): void {
+  window.dispatchEvent(new CustomEvent<ShellExperience>(SHELL_EXPERIENCE_CHANGED_EVENT, { detail: shell }));
+}
+
 export async function writeShellExperience(shell: ShellExperience): Promise<void> {
   await ConfigStorage.set('ui.shell', shell);
-  window.dispatchEvent(new CustomEvent<ShellExperience>(SHELL_EXPERIENCE_CHANGED_EVENT, { detail: shell }));
+  activateShellExperienceForSession(shell);
 }
 
 export function useShellExperience(): {

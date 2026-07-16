@@ -80,11 +80,8 @@ import { registerPwa } from './services/registerPwa';
 
 // Components and utilities
 import { ErrorBoundary } from './components/ErrorBoundary';
-import Layout from './components/layout/Layout';
 import Router from './components/layout/Router';
-import Sider from './components/layout/Sider';
-import ShellRecoveryFallback from './components/layout/ShellRecoveryFallback';
-import CockpitSider from './components/layout/CockpitSider';
+import ShellExperienceLayout from './components/layout/ShellExperience';
 import { useAuth } from './hooks/context/AuthContext';
 import { useShellExperience } from './hooks/ui/useShellExperience';
 import { ConversationHistoryProvider } from './hooks/context/ConversationHistoryContext';
@@ -152,9 +149,7 @@ const Main = () => {
     <Router
       layout={
         <ConversationHistoryProvider>
-          <ErrorBoundary resetKeys={[shell]} fallback={(error) => <ShellRecoveryFallback error={error} />}>
-            <Layout shellExperience={shell} sider={shell === 'cockpit' ? <CockpitSider /> : <Sider />} />
-          </ErrorBoundary>
+          <ShellExperienceLayout shell={shell} />
         </ConversationHistoryProvider>
       }
     />
