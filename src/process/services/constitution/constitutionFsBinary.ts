@@ -21,10 +21,23 @@ import {
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { PACKAGED_CONSTITUTION_FS_AUTHORITY } from './constitutionFsAuthority.generated';
 
 const SHA256_PATTERN = /^sha256:[0-9a-f]{64}$/;
 const SUPPORTED_PLATFORMS = new Set<NodeJS.Platform>(['darwin', 'linux']);
 const TRUSTED_AUTHORITY = Symbol('wayland.constitutionFs.trustedAuthority');
+type PackagedConstitutionFsAuthority =
+  | Readonly<{ supported: false; platform: string; arch: string; protocolVersion: 1 }>
+  | Readonly<{
+      supported: true;
+      schemaVersion: 1;
+      protocolVersion: 1;
+      platform: NodeJS.Platform;
+      arch: NodeJS.Architecture;
+      fileName: string;
+      sha256: `sha256:${string}`;
+      size: number;
+    }>;
 
 export class ConstitutionFsBinaryError extends Error {
   constructor(
@@ -74,6 +87,35 @@ export function createTestOnlyConstitutionFsBinaryAuthority(
   return Object.freeze({ ...input, [TRUSTED_AUTHORITY]: true as const });
 }
 
+/** Resolves the exact helper whose independently generated authority is compiled inside the ASAR. */
+export function verifyPackagedConstitutionFsBinary(
+  resourcesPath = process.resourcesPath
+): VerifiedConstitutionFsBinary {
+  const embedded = PACKAGED_CONSTITUTION_FS_AUTHORITY as PackagedConstitutionFsAuthority;
+  if (!embedded.supported || embedded.platform !== process.platform || embedded.arch !== process.arch) {
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_UNSAFE_PLATFORM',
+      `No packaged Constitution filesystem authority exists for ${process.platform}-${process.arch}.`
+    );
+  }
+  const installRoot = path.resolve(resourcesPath, 'bundled-constitution-fs', `${embedded.platform}-${embedded.arch}`);
+  const authority: TrustedConstitutionFsBinaryAuthority = Object.freeze({
+    sha256: embedded.sha256,
+    size: embedded.size,
+    platform: embedded.platform,
+    arch: embedded.arch,
+    fileName: embedded.fileName,
+    installRoot,
+    packaged: true,
+    [TRUSTED_AUTHORITY]: true as const,
+  });
+  return verifyConstitutionFsBinary({
+    binaryPath: path.join(installRoot, embedded.fileName),
+    manifestPath: path.join(installRoot, 'manifest.json'),
+    authority,
+  });
+}
+
 export type HeldConstitutionFsBinary = VerifiedConstitutionFsBinary & {
   fd: number;
   executablePath: string;
@@ -110,10 +152,17 @@ function parseManifest(raw: string): BinaryManifest {
   try {
     value = JSON.parse(raw) as unknown;
   } catch {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_MANIFEST_INVALID', 'Constitution filesystem manifest is not JSON.');
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_MANIFEST_INVALID',
+      'Constitution filesystem manifest is not JSON.'
+    );
   }
   assertRecord(value, 'Constitution filesystem manifest');
-  assertExactKeys(value, ['schemaVersion', 'protocolVersion', 'platform', 'arch', 'binary'], 'Constitution filesystem manifest');
+  assertExactKeys(
+    value,
+    ['schemaVersion', 'protocolVersion', 'platform', 'arch', 'binary'],
+    'Constitution filesystem manifest'
+  );
   assertRecord(value.binary, 'Constitution filesystem binary descriptor');
   assertExactKeys(value.binary, ['fileName', 'sha256', 'size'], 'Constitution filesystem binary descriptor');
   if (
@@ -129,12 +178,18 @@ function parseManifest(raw: string): BinaryManifest {
     !Number.isSafeInteger(value.binary.size) ||
     value.binary.size <= 0
   ) {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_MANIFEST_INVALID', 'Constitution filesystem manifest values are invalid.');
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_MANIFEST_INVALID',
+      'Constitution filesystem manifest values are invalid.'
+    );
   }
   return value as unknown as BinaryManifest;
 }
 
-function readRegularNoSymlink(filePath: string, missingCode: 'CONSTITUTION_FS_BINARY_MISSING' | 'CONSTITUTION_FS_MANIFEST_INVALID'): Buffer {
+function readRegularNoSymlink(
+  filePath: string,
+  missingCode: 'CONSTITUTION_FS_BINARY_MISSING' | 'CONSTITUTION_FS_MANIFEST_INVALID'
+): Buffer {
   let stat;
   try {
     stat = lstatSync(filePath);
@@ -142,7 +197,10 @@ function readRegularNoSymlink(filePath: string, missingCode: 'CONSTITUTION_FS_BI
     throw new ConstitutionFsBinaryError(missingCode, `Required Constitution filesystem file is missing: ${filePath}`);
   }
   if (!stat.isFile() || stat.isSymbolicLink()) {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', `Constitution filesystem file is not a regular non-symlink: ${filePath}`);
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_BINARY_UNVERIFIED',
+      `Constitution filesystem file is not a regular non-symlink: ${filePath}`
+    );
   }
   return readFileSync(filePath);
 }
@@ -185,22 +243,34 @@ export function verifyConstitutionFsBinary(input: {
   const manifestBytes = readRegularNoSymlink(input.manifestPath, 'CONSTITUTION_FS_MANIFEST_INVALID');
   const manifest = parseManifest(manifestBytes.toString('utf8'));
   if (manifest.platform !== platform || manifest.arch !== arch) {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Constitution filesystem manifest platform does not match this process.');
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_BINARY_UNVERIFIED',
+      'Constitution filesystem manifest platform does not match this process.'
+    );
   }
   if (
     manifest.binary.sha256 !== authority.sha256 ||
     manifest.binary.size !== authority.size ||
     manifest.binary.fileName !== authority.fileName
   ) {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Adjacent manifest disagrees with trusted embedded authority.');
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_BINARY_UNVERIFIED',
+      'Adjacent manifest disagrees with trusted embedded authority.'
+    );
   }
   if (path.resolve(path.dirname(input.manifestPath), manifest.binary.fileName) !== path.resolve(input.binaryPath)) {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Constitution filesystem manifest does not name the selected binary.');
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_BINARY_UNVERIFIED',
+      'Constitution filesystem manifest does not name the selected binary.'
+    );
   }
   const binary = readRegularNoSymlink(input.binaryPath, 'CONSTITUTION_FS_BINARY_MISSING');
   const digest = `sha256:${createHash('sha256').update(binary).digest('hex')}` as const;
   if (binary.byteLength !== manifest.binary.size || digest !== manifest.binary.sha256) {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Constitution filesystem binary bytes do not match the manifest.');
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_BINARY_UNVERIFIED',
+      'Constitution filesystem binary bytes do not match the manifest.'
+    );
   }
   return {
     binaryPath: path.resolve(input.binaryPath),
@@ -243,23 +313,35 @@ export function withHeldVerifiedConstitutionFsBinary<T>(
     reverified.platform !== binary.platform ||
     reverified.arch !== binary.arch
   ) {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Helper identity changed after initial verification.');
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_BINARY_UNVERIFIED',
+      'Helper identity changed after initial verification.'
+    );
   }
   let sourceFd: number;
   try {
     sourceFd = openSync(reverified.binaryPath, constants.O_RDONLY | constants.O_NOFOLLOW);
   } catch {
-    throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Verified helper could not be opened without following links.');
+    throw new ConstitutionFsBinaryError(
+      'CONSTITUTION_FS_BINARY_UNVERIFIED',
+      'Verified helper could not be opened without following links.'
+    );
   }
   try {
     const stat = fstatSync(sourceFd);
     if (!stat.isFile() || stat.nlink !== 1) {
-      throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Held helper is not a single-link regular file.');
+      throw new ConstitutionFsBinaryError(
+        'CONSTITUTION_FS_BINARY_UNVERIFIED',
+        'Held helper is not a single-link regular file.'
+      );
     }
     const bytes = readFileSync(sourceFd);
     const digest = `sha256:${createHash('sha256').update(bytes).digest('hex')}` as const;
     if (stat.size !== reverified.size || bytes.byteLength !== reverified.size || digest !== reverified.sha256) {
-      throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Held helper bytes changed before execution.');
+      throw new ConstitutionFsBinaryError(
+        'CONSTITUTION_FS_BINARY_UNVERIFIED',
+        'Held helper bytes changed before execution.'
+      );
     }
     const privateDirectory = mkdtempSync(path.join(os.tmpdir(), 'wayland-constitution-fs-exec-'));
     const snapshotPath = path.join(privateDirectory, 'helper');
@@ -273,7 +355,10 @@ export function withHeldVerifiedConstitutionFsBinary<T>(
       const snapshot = readFileSync(snapshotFd);
       const snapshotDigest = `sha256:${createHash('sha256').update(snapshot).digest('hex')}` as const;
       if (!snapshotStat.isFile() || snapshotStat.size !== reverified.size || snapshotDigest !== reverified.sha256) {
-        throw new ConstitutionFsBinaryError('CONSTITUTION_FS_BINARY_UNVERIFIED', 'Sealed execution snapshot does not match the verified helper.');
+        throw new ConstitutionFsBinaryError(
+          'CONSTITUTION_FS_BINARY_UNVERIFIED',
+          'Sealed execution snapshot does not match the verified helper.'
+        );
       }
       // Linux can execute the already-unlinked inode through the inherited
       // descriptor. Darwin cannot reliably execute an unlinked image through
@@ -290,8 +375,16 @@ export function withHeldVerifiedConstitutionFsBinary<T>(
       });
     } finally {
       if (snapshotFd !== undefined) closeSync(snapshotFd);
-      try { unlinkSync(snapshotPath); } catch { /* Already unlinked before execution. */ }
-      try { rmdirSync(privateDirectory); } catch { /* Preserve the execution error. */ }
+      try {
+        unlinkSync(snapshotPath);
+      } catch {
+        /* Already unlinked before execution. */
+      }
+      try {
+        rmdirSync(privateDirectory);
+      } catch {
+        /* Preserve the execution error. */
+      }
     }
   } finally {
     closeSync(sourceFd);

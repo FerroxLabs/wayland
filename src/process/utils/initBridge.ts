@@ -47,6 +47,9 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { agentRegistry } from '@process/agent/AgentRegistry';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
+import { app } from 'electron';
+import path from 'node:path';
+import { ConstitutionFsService, setConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 
 logger.config({ print: true });
 
@@ -64,6 +67,10 @@ const teamSessionService = new TeamSessionService(
   conversationServiceImpl,
   ritualScheduler
 );
+const constitutionFsService = ConstitutionFsService.createProduction(
+  app.isPackaged ? process.resourcesPath : path.resolve('resources')
+);
+setConstitutionFsService(constitutionFsService);
 
 // Initialize all IPC bridges
 initAllBridges({
@@ -72,6 +79,7 @@ initAllBridges({
   workerTaskManager,
   channelRepo,
   teamSessionService,
+  constitutionFsService,
 });
 
 // Initialize cron service (load jobs from database and start timers).

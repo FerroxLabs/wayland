@@ -16,51 +16,23 @@
  */
 
 import { ipcMain } from 'electron';
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from 'fs';
-import { homedir } from 'os';
-import { basename, join, resolve, sep } from 'path';
 import { enforceRateLimit } from './webuiDirectAuth';
+import type {
+  ConstitutionFsService,
+  ConstitutionMutationResult as ServiceMutationResult,
+  ConstitutionReadResult as ServiceReadResult,
+} from '@process/services/constitution/constitutionFsService';
+import type { ConstitutionMutationResult, ConstitutionReadResult } from '@common/types/constitution';
 
-const WAYLAND_HOME_DIR = '.wayland';
-const CONSTITUTION_NAME = 'CONSTITUTION.md';
-const LEGACY_SOUL_NAME = 'SOUL.md';
-const SPECIALISTS_DIR = 'specialists';
-const ASSISTANT_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
+function wireRead(result: ServiceReadResult): ConstitutionReadResult {
+  return result.status === 'present'
+    ? { state: 'present', content: result.content, revision: result.revision }
+    : { state: 'absent', revision: result.revision };
+}
 
-/**
- * Upper bound on a single Constitution / specialist write, in bytes.
- *
- * The Constitution and specialist overlays are short prose files (the shipped
- * default is ~1KB). A renderer-XSS attacker should not be able to use these
- * handlers to write a multi-megabyte payload to disk. 256KB is far above any
- * legitimate use and well below a DoS-sized write.
- */
-const MAX_WRITE_BYTES = 256 * 1024;
-
-/**
- * Resolve a specialist overlay path and confirm it stays inside the
- * `specialists/` directory. Returns `null` for any id that fails the
- * `[A-Za-z0-9_-]+` allowlist or whose resolved path escapes the directory
- * (defence-in-depth against absolute paths and `..` traversal - the pattern
- * already rejects `/`, `\\`, and `.`, and `basename` strips any residual path
- * separators before joining).
- */
-const resolveSpecialistPath = (id: string): { specialistsDir: string; overlayPath: string } | null => {
-  if (typeof id !== 'string' || !ASSISTANT_ID_PATTERN.test(id)) return null;
-  const { dir } = resolveConstitutionPaths();
-  const specialistsDir = join(dir, SPECIALISTS_DIR);
-  const overlayPath = resolve(specialistsDir, `${basename(id)}.md`);
-  // Containment: the resolved overlay must live directly under specialistsDir.
-  if (!overlayPath.startsWith(specialistsDir + sep)) return null;
-  return { specialistsDir, overlayPath };
-};
-
-/**
- * Validate write content: it must be a string within the size cap. Returns
- * `false` for non-string input or oversized payloads.
- */
-const isValidWriteContent = (content: unknown): content is string =>
-  typeof content === 'string' && Buffer.byteLength(content, 'utf-8') <= MAX_WRITE_BYTES;
+function wireMutation(result: ServiceMutationResult): ConstitutionMutationResult {
+  return { ok: true, revision: result.revision, receiptId: result.receiptId };
+}
 
 /**
  * The default Constitution shipped with the app - 11 sections, ~1,050 words.
@@ -69,7 +41,7 @@ const isValidWriteContent = (content: unknown): content is string =>
  * Backticks inside inline-code spans must be escaped (`\``) so this template
  * literal closes correctly; the rendered string contains literal backticks.
  */
-const DEFAULT_CONSTITUTION = `# Wayland Constitution
+export const DEFAULT_CONSTITUTION = `# Wayland Constitution
 
 ## 1. Identity
 
@@ -213,218 +185,43 @@ children you supervise.
   file are.
 `;
 
-type ResolvedPaths = { dir: string; path: string; legacy: string };
-
-const resolveConstitutionPaths = (): ResolvedPaths => {
-  const dir = join(homedir(), WAYLAND_HOME_DIR);
-  return {
-    dir,
-    path: join(dir, CONSTITUTION_NAME),
-    legacy: join(dir, LEGACY_SOUL_NAME),
-  };
-};
-
-export const readConstitution = (): string => {
-  const { path, legacy } = resolveConstitutionPaths();
-  const src = existsSync(path) ? path : existsSync(legacy) ? legacy : null;
-  if (!src) return '';
-  try {
-    return readFileSync(src, 'utf-8');
-  } catch {
-    return '';
-  }
-};
-
-export const writeConstitution = (content: string): boolean => {
-  if (!isValidWriteContent(content)) return false;
-  const { dir, path, legacy } = resolveConstitutionPaths();
-  try {
-    mkdirSync(dir, { recursive: true });
-    // Atomic write: write to .tmp then rename. Prevents a torn file if
-    // the process is killed mid-write.
-    const tmp = `${path}.tmp`;
-    writeFileSync(tmp, content, 'utf-8');
-    renameSync(tmp, path);
-    // One-shot migration: if the legacy SOUL.md still exists, remove it
-    // now that CONSTITUTION.md is canonical.
-    if (existsSync(legacy)) {
-      try {
-        unlinkSync(legacy);
-      } catch {
-        // non-fatal - leaving the legacy file around doesn't break anything
-      }
-    }
-    return true;
-  } catch (err) {
-    console.error('[constitutionBridge] write failed:', err);
-    return false;
-  }
-};
-
-export const resetConstitution = (): string => {
-  writeConstitution(DEFAULT_CONSTITUTION);
-  return DEFAULT_CONSTITUTION;
-};
-
-/**
- * Read the active Constitution plus an optional per-specialist overlay.
- *
- * Overlays are opt-in by file existence at
- * `~/.wayland/specialists/<assistantId>.md`. The assistantId is restricted to
- * `[A-Za-z0-9_-]+` to prevent path traversal; anything else returns
- * `overlay: null` without throwing.
- */
-export function readConstitutionWithOverlay(assistantId?: string): {
-  constitution: string;
-  overlay: string | null;
-} {
-  const constitution = readConstitution();
-  if (!assistantId || !ASSISTANT_ID_PATTERN.test(assistantId)) {
-    return { constitution, overlay: null };
-  }
-  const { dir } = resolveConstitutionPaths();
-  const overlayPath = join(dir, SPECIALISTS_DIR, `${assistantId}.md`);
-  if (!existsSync(overlayPath)) {
-    return { constitution, overlay: null };
-  }
-  try {
-    return { constitution, overlay: readFileSync(overlayPath, 'utf-8') };
-  } catch {
-    return { constitution, overlay: null };
-  }
-}
-
-/**
- * List the per-specialist overlay files in `~/.wayland/specialists/`.
- *
- * Returns each `*.md` file as `{ id, bytes }` where `id` is the filename
- * without its extension. If the directory does not exist (no overlay was
- * ever created) an empty array is returned. Sorted by `id` ascending.
- */
-const listConstitutionSpecialists = (): { id: string; bytes: number }[] => {
-  const { dir } = resolveConstitutionPaths();
-  const specialistsDir = join(dir, SPECIALISTS_DIR);
-  if (!existsSync(specialistsDir)) return [];
-  try {
-    return readdirSync(specialistsDir)
-      .filter((name) => name.toLowerCase().endsWith('.md'))
-      .map((name) => {
-        const id = name.slice(0, -3);
-        let bytes = 0;
-        try {
-          bytes = statSync(join(specialistsDir, name)).size;
-        } catch {
-          // unreadable entry - report it with 0 bytes rather than dropping it
-        }
-        return { id, bytes };
-      })
-      .toSorted((a, b) => a.id.localeCompare(b.id));
-  } catch (err) {
-    console.error('[constitutionBridge] listSpecialists failed:', err);
-    return [];
-  }
-};
-
-/**
- * Read a single specialist overlay file. The `id` is restricted to
- * `[A-Za-z0-9_-]+` to prevent path traversal; an invalid id or a missing
- * file returns `''`.
- */
-const readConstitutionSpecialist = (id: string): string => {
-  if (!ASSISTANT_ID_PATTERN.test(id)) return '';
-  const { dir } = resolveConstitutionPaths();
-  const overlayPath = join(dir, SPECIALISTS_DIR, `${id}.md`);
-  if (!existsSync(overlayPath)) return '';
-  try {
-    return readFileSync(overlayPath, 'utf-8');
-  } catch {
-    return '';
-  }
-};
-
-/**
- * Atomically write a specialist overlay file, creating the `specialists/`
- * directory if needed. The `id` is sanitized against path traversal.
- * Returns `false` on an invalid id or any IO failure.
- */
-export const writeConstitutionSpecialist = (id: string, content: string): boolean => {
-  if (!isValidWriteContent(content)) return false;
-  const resolved = resolveSpecialistPath(id);
-  if (!resolved) return false;
-  const { specialistsDir, overlayPath } = resolved;
-  try {
-    mkdirSync(specialistsDir, { recursive: true });
-    // Atomic write: write to .tmp then rename. Same pattern as writeConstitution.
-    const tmp = `${overlayPath}.tmp`;
-    writeFileSync(tmp, content, 'utf-8');
-    renameSync(tmp, overlayPath);
-    return true;
-  } catch (err) {
-    console.error('[constitutionBridge] writeSpecialist failed:', err);
-    return false;
-  }
-};
-
-/**
- * Delete a specialist overlay file. Idempotent: a missing file is treated as
- * success. The `id` is sanitized against path traversal. Returns `false` on
- * an invalid id or any IO failure.
- */
-export const deleteConstitutionSpecialist = (id: string): boolean => {
-  const resolved = resolveSpecialistPath(id);
-  if (!resolved) return false;
-  const { overlayPath } = resolved;
-  try {
-    if (existsSync(overlayPath)) unlinkSync(overlayPath);
-    return true;
-  } catch (err) {
-    console.error('[constitutionBridge] deleteSpecialist failed:', err);
-    return false;
-  }
-};
-
 /**
  * Register the Constitution IPC handlers. Called once from initAllBridges.
  */
-export function initConstitutionBridge(): void {
-  ipcMain.handle('constitution:read', () => readConstitution());
-  ipcMain.handle('constitution:write', (_event, content: string) => {
+export function initConstitutionBridge(service: ConstitutionFsService): void {
+  ipcMain.handle('constitution:read', () => wireRead(service.readConstitution()));
+  ipcMain.handle('constitution:write', (_event, content: string, expectedRevision: string, requestId?: string) => {
     // Rate-limit guard: these write handlers are raw ipcMain (outside the
     // bridge allowlist) and overwrite the agent's behavioral spec, so a
     // renderer-XSS attacker could otherwise rewrite the Constitution at will.
     // Confinement is enforced by the fixed CONSTITUTION.md path; content is
     // validated (string + size cap) inside writeConstitution.
-    if (!enforceRateLimit('constitution:write')) return false;
-    return writeConstitution(content);
+    if (!enforceRateLimit('constitution:write')) throw new Error('CONSTITUTION_RATE_LIMITED');
+    return wireMutation(service.writeConstitution(content, expectedRevision, requestId));
   });
-  ipcMain.handle('constitution:reset', () => resetConstitution());
-  ipcMain.handle('constitution:readWithOverlay', (_event, assistantId?: string) =>
-    readConstitutionWithOverlay(assistantId)
+  ipcMain.handle('constitution:reset', (_event, expectedRevision: string, requestId?: string) =>
+    wireMutation(service.writeConstitution(DEFAULT_CONSTITUTION, expectedRevision, requestId))
   );
-  ipcMain.handle('constitution:listSpecialists', () => listConstitutionSpecialists());
-  ipcMain.handle('constitution:readSpecialist', (_event, id: string) => readConstitutionSpecialist(id));
-  ipcMain.handle('constitution:writeSpecialist', (_event, id: string, content: string) => {
-    // Same guard as constitution:write. Target is confined to the
-    // specialists/ directory via resolveSpecialistPath inside the writer.
-    if (!enforceRateLimit('constitution:writeSpecialist')) return false;
-    return writeConstitutionSpecialist(id, content);
+  ipcMain.handle('constitution:readWithOverlay', (_event, assistantId?: string) => {
+    const result = service.readWithOverlay(assistantId);
+    return { constitution: wireRead(result.constitution), overlay: result.overlay ? wireRead(result.overlay) : null };
   });
-  ipcMain.handle('constitution:deleteSpecialist', (_event, id: string) => {
-    if (!enforceRateLimit('constitution:deleteSpecialist')) return false;
-    return deleteConstitutionSpecialist(id);
-  });
+  ipcMain.handle('constitution:listSpecialists', () => service.listSpecialists());
+  ipcMain.handle('constitution:readSpecialist', (_event, id: string) => wireRead(service.readSpecialist(id)));
+  ipcMain.handle(
+    'constitution:writeSpecialist',
+    (_event, id: string, content: string, expectedRevision: string, requestId?: string) => {
+      // Same guard as constitution:write. Target is confined to the
+      // specialists/ directory via resolveSpecialistPath inside the writer.
+      if (!enforceRateLimit('constitution:writeSpecialist')) throw new Error('CONSTITUTION_RATE_LIMITED');
+      return wireMutation(service.writeSpecialist(id, content, expectedRevision, requestId));
+    }
+  );
+  ipcMain.handle(
+    'constitution:deleteSpecialist',
+    (_event, id: string, expectedRevision: string, requestId?: string) => {
+      if (!enforceRateLimit('constitution:deleteSpecialist')) throw new Error('CONSTITUTION_RATE_LIMITED');
+      return wireMutation(service.deleteSpecialist(id, expectedRevision, requestId));
+    }
+  );
 }
-
-// Exported for tests
-export const __test__ = {
-  DEFAULT_CONSTITUTION,
-  readConstitution,
-  writeConstitution,
-  resetConstitution,
-  resolveConstitutionPaths,
-  readConstitutionWithOverlay,
-  listConstitutionSpecialists,
-  readConstitutionSpecialist,
-  writeConstitutionSpecialist,
-  deleteConstitutionSpecialist,
-};

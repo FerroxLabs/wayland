@@ -12,11 +12,41 @@ const { mockWrite, mockReset, mockWriteSpecialist, mockDeleteSpecialist, mockApp
 }));
 
 vi.mock('@process/bridge/constitutionBridge', () => ({
-  readConstitution: vi.fn(() => '# Current Constitution\n'),
-  writeConstitution: mockWrite,
-  resetConstitution: mockReset,
-  writeConstitutionSpecialist: mockWriteSpecialist,
-  deleteConstitutionSpecialist: mockDeleteSpecialist,
+  DEFAULT_CONSTITUTION: '# Default Constitution\n',
+}));
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  getConstitutionFsService: () => ({
+    readConstitution: () => ({
+      status: 'present',
+      content: '# Current Constitution\n',
+      revision: 'rev:v1:current-main',
+    }),
+    listSpecialists: () => [],
+    readSpecialist: () => ({ status: 'absent', revision: 'rev:v1:internal-absent' }),
+    writeConstitution: (content: string, revision: string | null) => {
+      if (content === '# Default Constitution\n') mockReset();
+      else mockWrite(content, revision);
+      return { status: 'committed', revision: 'rev:v1:next-main', transactionId: 'tx-main', receiptId: 'receipt-main' };
+    },
+    writeSpecialist: (id: string, content: string, revision: string | null) => {
+      mockWriteSpecialist(id, content, revision);
+      return {
+        status: 'committed',
+        revision: 'rev:v1:next-specialist',
+        transactionId: 'tx-specialist',
+        receiptId: 'receipt-specialist',
+      };
+    },
+    deleteSpecialist: (id: string, revision: string) => {
+      mockDeleteSpecialist(id, revision);
+      return {
+        status: 'committed',
+        revision: 'rev:v1:absent-specialist',
+        transactionId: 'tx-delete',
+        receiptId: 'receipt-delete',
+      };
+    },
+  }),
 }));
 
 vi.mock('@process/webserver/auth/repository/UserRepository', () => ({
@@ -187,11 +217,11 @@ describe('Constitution hosted security journey', () => {
     const grant = await issueGrant(['constitution.write']);
     const write = await post(
       '/api/constitution/write',
-      { content: '# changed' },
+      { content: '# changed', expectedRevision: 'rev:v1:current-main' },
       { 'x-wayland-constitution-edit-grant': grant }
     );
     expect(write.status).toBe(200);
-    expect(mockWrite).toHaveBeenCalledWith('# changed');
+    expect(mockWrite).toHaveBeenCalledWith('# changed', 'rev:v1:current-main');
 
     const wrongScope = await post(
       '/api/constitution/write-specialist',
@@ -217,7 +247,10 @@ describe('Constitution hosted security journey', () => {
     expect(deleteWithGrantOnly.status).toBe(401);
     expect(mockDeleteSpecialist).not.toHaveBeenCalled();
 
-    const resetWithFreshStepUp = await post('/api/constitution/reset', { password: 'correct-password' });
+    const resetWithFreshStepUp = await post('/api/constitution/reset', {
+      password: 'correct-password',
+      expectedRevision: 'rev:v1:current-main',
+    });
     expect(resetWithFreshStepUp.status).toBe(200);
     expect(mockReset).toHaveBeenCalledTimes(1);
   });

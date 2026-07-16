@@ -25,12 +25,9 @@
  *  - tiny-csrf (global middleware in setup.ts) covers the POST verb.
  *  - `requireSecureConfigWrite` (W0 shared guard) on every write.
  *
- * Persistence goes through the EXISTING in-process constitution helpers
- * (`writeConstitution` / `resetConstitution` / `writeConstitutionSpecialist` /
- * `deleteConstitutionSpecialist`) - the SAME logic the desktop
- * `constitution:write` / `:reset` / `:writeSpecialist` / `:deleteSpecialist`
- * IPC handlers run (string + size-cap validation, atomic write, path-traversal
- * containment to `specialists/`). It does NOT route through the WS bridge (R2:
+ * Persistence goes through the process-wide ConstitutionFsService - the same
+ * owner used by desktop IPC and prompt composition. It does NOT route through
+ * the WS bridge (R2:
  * the WS denylist stays denial-only; the raw `constitution:*` IPC channels
  * remain unreachable to a remote caller).
  */
@@ -48,16 +45,61 @@ import {
   revokeConstitutionEditGrant,
   type ConstitutionEditScope,
 } from './constitutionEditGrant';
+import { DEFAULT_CONSTITUTION } from '@process/bridge/constitutionBridge';
+import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
 import {
-  deleteConstitutionSpecialist,
-  readConstitution,
-  resetConstitution,
-  writeConstitution,
-  writeConstitutionSpecialist,
-} from '@process/bridge/constitutionBridge';
+  getConstitutionFsService,
+  type ConstitutionMutationResult,
+  type ConstitutionReadResult,
+} from '@process/services/constitution/constitutionFsService';
 
 function bodyString(value: unknown): string {
   return typeof value === 'string' ? value : '';
+}
+
+function expectedRevision(body: unknown): { valid: true; value: string } | { valid: false } {
+  if (!body || typeof body !== 'object' || Array.isArray(body) || !Object.hasOwn(body, 'expectedRevision')) {
+    return { valid: false };
+  }
+  const value = (body as { expectedRevision?: unknown }).expectedRevision;
+  return typeof value === 'string' && value.length > 0 ? { valid: true, value } : { valid: false };
+}
+
+function requestId(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return undefined;
+  const value = (body as { requestId?: unknown }).requestId;
+  return typeof value === 'string' ? value : undefined;
+}
+
+function wireRead(
+  result: ConstitutionReadResult
+): { state: 'absent'; revision: string } | { state: 'present'; content: string; revision: string } {
+  return result.status === 'present'
+    ? { state: 'present', content: result.content, revision: result.revision }
+    : { state: 'absent', revision: result.revision };
+}
+
+function wireMutation(result: ConstitutionMutationResult): { ok: true; revision: string; receiptId: string } {
+  return { ok: true, revision: result.revision, receiptId: result.receiptId };
+}
+
+function sendMutationError(res: Response, error: unknown, fallback: string): void {
+  const code =
+    error instanceof ConstitutionFsTransactionError
+      ? error.code
+      : error && typeof error === 'object' && typeof (error as { code?: unknown }).code === 'string'
+        ? (error as { code: string }).code
+        : '';
+  if (code === 'CONSTITUTION_FS_CONFLICT') {
+    res.status(409).json({ success: false, code: 'CONSTITUTION_REVISION_CONFLICT', msg: 'Reload before retrying.' });
+    return;
+  }
+  if (code === 'CONSTITUTION_FS_INVALID_REQUEST') {
+    res.status(400).json({ success: false, msg: fallback });
+    return;
+  }
+  const msg = error instanceof Error ? redactSecrets(error.message) : fallback;
+  res.status(500).json({ success: false, msg });
 }
 
 function requestHeader(req: Request, name: string): string {
@@ -87,15 +129,39 @@ function asyncRoute(handler: (req: Request, res: Response) => Promise<void>): Re
  * Register the constitution + specialist-overlay routes for the remote WebUI.
  */
 export function registerConstitutionRoutes(app: Express, validateApiAccess: RequestHandler): void {
+  const constitutionFs = getConstitutionFsService();
   // GET /api/constitution
   // Read-only: returns the current Constitution prose so the headless editor can
   // load it. The Constitution is NOT a secret, so a read here is allowed.
   app.get('/api/constitution', apiRateLimiter, validateApiAccess, (_req: Request, res: Response) => {
     try {
-      res.json({ success: true, data: { content: readConstitution() } });
+      res.json({ success: true, data: wireRead(constitutionFs.readConstitution()) });
     } catch (error) {
       console.error('[API] Constitution read error:', error);
       const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to read constitution';
+      res.status(500).json({ success: false, msg });
+    }
+  });
+
+  app.get('/api/constitution/specialists', apiRateLimiter, validateApiAccess, (_req: Request, res: Response) => {
+    try {
+      res.json({ success: true, data: { items: constitutionFs.listSpecialists() } });
+    } catch (error) {
+      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to list specialist overlays';
+      res.status(500).json({ success: false, msg });
+    }
+  });
+
+  app.get('/api/constitution/specialist', apiRateLimiter, validateApiAccess, (req: Request, res: Response) => {
+    const id = typeof req.query?.id === 'string' ? req.query.id : '';
+    if (!id) {
+      res.status(400).json({ success: false, msg: 'id is required' });
+      return;
+    }
+    try {
+      res.json({ success: true, data: wireRead(constitutionFs.readSpecialist(id)) });
+    } catch (error) {
+      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to read specialist overlay';
       res.status(500).json({ success: false, msg });
     }
   });
@@ -163,6 +229,11 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
       return;
     }
     const content = req.body.content as string;
+    const expectation = expectedRevision(req.body);
+    if (!expectation.valid) {
+      res.status(409).json({ success: false, code: 'CONSTITUTION_REVISION_REQUIRED', msg: 'Reload before saving.' });
+      return;
+    }
 
     const ctx = detectNetworkContext(req);
     // DIRECT socket peer - never req.ip (XFF is spoofable). Audit only.
@@ -170,7 +241,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
 
     try {
       // The helper validates the content (string + size cap) and writes atomically.
-      const ok = writeConstitution(content);
+      const committed = constitutionFs.writeConstitution(content, expectation.value, requestId(req.body));
 
       void appendAudit({
         userId: req.user?.id ?? null,
@@ -178,16 +249,9 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
         target: null,
         ip,
         reachedVia: ctx.reachedVia,
-        result: ok ? 'success' : 'failure',
+        result: 'success',
       });
-
-      if (!ok) {
-        res.status(400).json({ success: false, msg: 'Could not save the Constitution (too large or invalid).' });
-        return;
-      }
-
-      // Status only - never echo the body back.
-      res.json({ success: true, data: { ok: true } });
+      res.json({ success: true, data: wireMutation(committed) });
     } catch (error) {
       void appendAudit({
         userId: req.user?.id ?? null,
@@ -198,8 +262,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
         result: 'failure',
       });
       console.error('[API] Constitution write error:', error);
-      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to save constitution';
-      res.status(500).json({ success: false, msg });
+      sendMutationError(res, error, 'Failed to save constitution');
     }
   });
 
@@ -217,7 +280,18 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
       const ip = req.socket?.remoteAddress ?? null;
 
       try {
-        resetConstitution();
+        const expectation = expectedRevision(req.body);
+        if (!expectation.valid) {
+          res
+            .status(409)
+            .json({ success: false, code: 'CONSTITUTION_REVISION_REQUIRED', msg: 'Reload before resetting.' });
+          return;
+        }
+        const committed = constitutionFs.writeConstitution(
+          DEFAULT_CONSTITUTION,
+          expectation.value,
+          requestId(req.body)
+        );
 
         void appendAudit({
           userId: req.user?.id ?? null,
@@ -229,7 +303,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
         });
 
         // Status only - never echo the default body back.
-        res.json({ success: true, data: { ok: true } });
+        res.json({ success: true, data: wireMutation(committed) });
       } catch (error) {
         void appendAudit({
           userId: req.user?.id ?? null,
@@ -240,8 +314,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
           result: 'failure',
         });
         console.error('[API] Constitution reset error:', error);
-        const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to reset constitution';
-        res.status(500).json({ success: false, msg });
+        sendMutationError(res, error, 'Failed to reset constitution');
       }
     })
   );
@@ -258,15 +331,19 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
       res.status(400).json({ success: false, msg: 'content is required' });
       return;
     }
-    const content = req.body.content as string;
     if (!requireEditGrant(req, res, `specialist.write:${id}`)) return;
-
+    const content = req.body.content as string;
+    const expectation = expectedRevision(req.body);
+    if (!expectation.valid) {
+      res.status(409).json({ success: false, code: 'CONSTITUTION_REVISION_REQUIRED', msg: 'Reload before saving.' });
+      return;
+    }
     const ctx = detectNetworkContext(req);
     const ip = req.socket?.remoteAddress ?? null;
 
     try {
       // The helper validates the id (path-traversal containment) + content.
-      const ok = writeConstitutionSpecialist(id, content);
+      const committed = constitutionFs.writeSpecialist(id, content, expectation.value, requestId(req.body));
 
       void appendAudit({
         userId: req.user?.id ?? null,
@@ -274,17 +351,9 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
         target: id,
         ip,
         reachedVia: ctx.reachedVia,
-        result: ok ? 'success' : 'failure',
+        result: 'success',
       });
-
-      if (!ok) {
-        res
-          .status(400)
-          .json({ success: false, msg: 'Could not save the overlay (invalid id, too large, or write failed).' });
-        return;
-      }
-
-      res.json({ success: true, data: { ok: true } });
+      res.json({ success: true, data: wireMutation(committed) });
     } catch (error) {
       void appendAudit({
         userId: req.user?.id ?? null,
@@ -295,8 +364,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
         result: 'failure',
       });
       console.error('[API] Constitution write-specialist error:', error);
-      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to save specialist overlay';
-      res.status(500).json({ success: false, msg });
+      sendMutationError(res, error, 'Failed to save specialist overlay');
     }
   });
 
@@ -316,12 +384,19 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
         res.status(400).json({ success: false, msg: 'id is required' });
         return;
       }
+      const expectation = expectedRevision(req.body);
+      if (!expectation.valid || typeof expectation.value !== 'string') {
+        res
+          .status(409)
+          .json({ success: false, code: 'CONSTITUTION_REVISION_REQUIRED', msg: 'Reload before deleting.' });
+        return;
+      }
 
       const ctx = detectNetworkContext(req);
       const ip = req.socket?.remoteAddress ?? null;
 
       try {
-        const ok = deleteConstitutionSpecialist(id);
+        const committed = constitutionFs.deleteSpecialist(id, expectation.value, requestId(req.body));
 
         void appendAudit({
           userId: req.user?.id ?? null,
@@ -329,15 +404,9 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
           target: id,
           ip,
           reachedVia: ctx.reachedVia,
-          result: ok ? 'success' : 'failure',
+          result: 'success',
         });
-
-        if (!ok) {
-          res.status(400).json({ success: false, msg: 'Could not remove the overlay (invalid id or delete failed).' });
-          return;
-        }
-
-        res.json({ success: true, data: { ok: true } });
+        res.json({ success: true, data: wireMutation(committed) });
       } catch (error) {
         void appendAudit({
           userId: req.user?.id ?? null,
@@ -348,8 +417,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
           result: 'failure',
         });
         console.error('[API] Constitution delete-specialist error:', error);
-        const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to remove specialist overlay';
-        res.status(500).json({ success: false, msg });
+        sendMutationError(res, error, 'Failed to remove specialist overlay');
       }
     })
   );

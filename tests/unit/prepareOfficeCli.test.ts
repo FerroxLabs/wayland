@@ -190,6 +190,7 @@ describe('prepareOfficeCli supply-chain contract', () => {
     expect(signIgnore).toEqual([
       '/Contents/Resources/bundled-officecli/[^/]+/officecli$',
       '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$',
+      '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$',
     ]);
     const officeCliPath = '/tmp/Wayland.app/Contents/Resources/bundled-officecli/darwin-arm64/officecli';
     expect(signIgnore?.some((pattern) => new RegExp(pattern).test(officeCliPath))).toBe(true);

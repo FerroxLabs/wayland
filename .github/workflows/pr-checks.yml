@@ -122,6 +122,12 @@ jobs:
           PR_BASE_REF: ${{ env.PR_BASE_REF }}
         run: prek run --from-ref "origin/$PR_BASE_REF" --to-ref HEAD
 
+      - name: Prove Constitution filesystem authority from a cold checkout
+        run: |
+          cargo test --locked --manifest-path native/constitution-fs/Cargo.toml
+          node scripts/prepareConstitutionFs.js
+          bunx vitest run tests/unit/process/services/constitution/constitutionFsTransaction.test.ts tests/unit/process/services/constitution/constitutionFsService.test.ts tests/unit/verifyPackagedResources.test.ts
+
   # Job 2: Unit tests across all platforms.
   # NOTE: job name "Unit Tests (<os>)" is a required check; pr-checks-docs.yml
   # mirrors these for docs-only PRs. Do not rename or collapse.

@@ -1,4 +1,4 @@
-import { readConstitutionWithOverlay } from '@process/bridge/constitutionBridge';
+import { getConstitutionFsService } from './constitutionFsService';
 
 export interface ComposePromptOptions {
   /** Active assistant/specialist ID. Matches ~/.wayland/specialists/<id>.md. */
@@ -44,9 +44,9 @@ export function composePrompt(opts?: ComposePromptOptions): ComposedPrompt {
   let constitution = '';
   let overlay: string | null = null;
   try {
-    const result = readConstitutionWithOverlay(opts?.assistantId);
-    constitution = result.constitution ?? '';
-    overlay = result.overlay;
+    const result = getConstitutionFsService().readWithOverlay(opts?.assistantId);
+    constitution = result.constitution.status === 'present' ? result.constitution.content : '';
+    overlay = result.overlay?.status === 'present' ? result.overlay.content : null;
   } catch (err) {
     console.error('[composePrompt] readConstitutionWithOverlay failed', err);
   }

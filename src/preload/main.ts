@@ -6,6 +6,12 @@
 
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import { ADAPTER_BRIDGE_EVENT_KEY } from '../common/adapter/constant';
+import type {
+  ConstitutionMutationResult,
+  ConstitutionOverlayReadResult,
+  ConstitutionReadResult,
+  ConstitutionSpecialistSummary,
+} from '../common/types/constitution';
 
 // SECURITY (RT-F4-03): the weixin login channels (qr/scanned/done) carry a
 // single, one-shot login flow. The previous implementation registered a fresh
@@ -128,19 +134,35 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Feedback: collect and compress recent log files
   collectFeedbackLogs: () => ipcRenderer.invoke('feedback:collect-logs'),
   // Wayland Constitution: agent behavioral spec stored at ~/.wayland/CONSTITUTION.md
-  readConstitution: (): Promise<string> => ipcRenderer.invoke('constitution:read'),
-  writeConstitution: (content: string): Promise<boolean> => ipcRenderer.invoke('constitution:write', content),
-  resetConstitution: (): Promise<string> => ipcRenderer.invoke('constitution:reset'),
-  readConstitutionWithOverlay: (assistantId?: string): Promise<{ constitution: string; overlay: string | null }> =>
+  readConstitution: (): Promise<ConstitutionReadResult> => ipcRenderer.invoke('constitution:read'),
+  writeConstitution: (
+    content: string,
+    expectedRevision: string,
+    requestId?: string
+  ): Promise<ConstitutionMutationResult> =>
+    ipcRenderer.invoke('constitution:write', content, expectedRevision, requestId),
+  resetConstitution: (expectedRevision: string, requestId?: string): Promise<ConstitutionMutationResult> =>
+    ipcRenderer.invoke('constitution:reset', expectedRevision, requestId),
+  readConstitutionWithOverlay: (assistantId?: string): Promise<ConstitutionOverlayReadResult> =>
     ipcRenderer.invoke('constitution:readWithOverlay', assistantId),
   // Per-specialist Constitution overlays at ~/.wayland/specialists/<id>.md
-  listConstitutionSpecialists: (): Promise<{ id: string; bytes: number }[]> =>
+  listConstitutionSpecialists: (): Promise<ConstitutionSpecialistSummary[]> =>
     ipcRenderer.invoke('constitution:listSpecialists'),
-  readConstitutionSpecialist: (id: string): Promise<string> => ipcRenderer.invoke('constitution:readSpecialist', id),
-  writeConstitutionSpecialist: (id: string, content: string): Promise<boolean> =>
-    ipcRenderer.invoke('constitution:writeSpecialist', id, content),
-  deleteConstitutionSpecialist: (id: string): Promise<boolean> =>
-    ipcRenderer.invoke('constitution:deleteSpecialist', id),
+  readConstitutionSpecialist: (id: string): Promise<ConstitutionReadResult> =>
+    ipcRenderer.invoke('constitution:readSpecialist', id),
+  writeConstitutionSpecialist: (
+    id: string,
+    content: string,
+    expectedRevision: string,
+    requestId?: string
+  ): Promise<ConstitutionMutationResult> =>
+    ipcRenderer.invoke('constitution:writeSpecialist', id, content, expectedRevision, requestId),
+  deleteConstitutionSpecialist: (
+    id: string,
+    expectedRevision: string,
+    requestId?: string
+  ): Promise<ConstitutionMutationResult> =>
+    ipcRenderer.invoke('constitution:deleteSpecialist', id, expectedRevision, requestId),
   // First-run onboarding: environment detection + Flux Desktop routing metrics
   onboardingDetect: () => ipcRenderer.invoke('onboarding:detect'),
   onboardingFluxMetrics: () => ipcRenderer.invoke('onboarding:fluxMetrics'),

@@ -17,6 +17,7 @@ const crypto = require('crypto');
 const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareOfficeCli = require('./prepareOfficeCli');
+const prepareConstitutionFs = require('./prepareConstitutionFs');
 const {
   VOICE_MODEL_FILES,
   resolvePackagedTarget,
@@ -565,6 +566,8 @@ if (packOnly) console.log('⚡ --pack-only: Will skip electron-builder distribut
 if (forceBuild) console.log('⚡ --force: Force full rebuild');
 
 const packageJsonPath = path.resolve(__dirname, '../package.json');
+const packagePlatforms = [requestedPlatformTargets[0]?.[1] || process.platform];
+const packageArchitectures = [targetArch];
 
 try {
   // 1. Ensure package.json main entry is correct for electron-vite
@@ -574,7 +577,12 @@ try {
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
   }
 
-  // 2. Check if we can skip Vite build (incremental build)
+  // 2. Generate the target-exact Constitution authority before Vite compiles
+  // the main process. Generating this after electron-vite would package a
+  // binary whose digest is not the authority embedded in app.asar.
+  prepareConstitutionFs({ platform: packagePlatforms[0], arch: packageArchitectures[0] });
+
+  // 3. Check if we can skip Vite build (incremental build)
   const skipViteBuild = shouldSkipViteBuild(skipVite, forceBuild);
 
   if (!skipViteBuild) {
@@ -607,13 +615,13 @@ try {
     shell: process.platform === 'win32',
   });
 
-  // 3. Verify electron-vite output
+  // 4. Verify electron-vite output
   const viteOutDir = path.resolve(__dirname, '../out');
   if (!fs.existsSync(viteOutDir)) {
     throw new Error('electron-vite did not generate out/ directory');
   }
 
-  // 4. Validate output structure
+  // 5. Validate output structure
   const mainIndex = path.join(viteOutDir, 'main', 'index.js');
   const rendererIndex = path.join(viteOutDir, 'renderer', 'index.html');
 
@@ -631,10 +639,7 @@ try {
     return;
   }
 
-  const packagePlatforms = [requestedPlatformTargets[0]?.[1] || process.platform];
-  const packageArchitectures = [targetArch];
-
-  // 5. Prepare bundled bun/bunx binaries (for packaged runtime usage).
+  // 6. Prepare bundled bun/bunx binaries (for packaged runtime usage).
   // prepareBundledBun consumes npm_config_target_arch, so assert the package
   // target here instead of inheriting the build host architecture.
   process.env.npm_config_target_arch = targetArch;
@@ -656,7 +661,7 @@ try {
   // artifact. Keep both roots target-exact so stale preparation from a prior
   // job cannot contaminate this package with foreign executables.
   const exactRuntimeKey = `${packagePlatforms[0]}-${packageArchitectures[0]}`;
-  for (const bundleName of ['bundled-wayland-core', 'bundled-officecli']) {
+  for (const bundleName of ['bundled-wayland-core', 'bundled-officecli', 'bundled-constitution-fs']) {
     const bundleRoot = path.resolve(__dirname, '..', 'resources', bundleName);
     if (!fs.existsSync(bundleRoot)) continue;
     for (const entry of fs.readdirSync(bundleRoot, { withFileTypes: true })) {
@@ -692,7 +697,7 @@ try {
     }
   }
 
-  // 5d. Prepare the bundled voice STT model (Whisper-tiny ONNX, ~43 MB) so
+  // 5e. Prepare the bundled voice STT model (Whisper-tiny ONNX, ~43 MB) so
   // offline dictation works on a fresh install with zero download.
   // Remove skill-pack output and undeclared voice debris first so stale
   // generated content cannot survive into a new artifact. Valid voice files

@@ -121,6 +121,11 @@ extraResources:
   # aionrs binary (pre-compiled per platform/arch)
   - from: resources/bundled-wayland-core
     to: bundled-wayland-core
+  # Native anchored Constitution filesystem helper. The exact target helper
+  # and adjacent manifest are staged from source before the ASAR is compiled;
+  # the independently generated authority is compiled into main-process code.
+  - from: resources/bundled-constitution-fs
+    to: bundled-constitution-fs
   # Native OfficeCLI v1 authoring runtime. Prepared from an exact release asset
   # and SHA-256 verified before packaging. No hosted npm fallback is bundled.
   - from: resources/bundled-officecli
@@ -237,6 +242,7 @@ mac:
   signIgnore:
     - '/Contents/Resources/bundled-officecli/[^/]+/officecli$'
     - '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$'
+    - '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$'
   # #466: Computer-Use uses Screen Recording (screenshots) + Apple Events (to
   # control other apps). NSAppleEventsUsageDescription IS an Apple-honored TCC
   # purpose string - macOS shows it on the automation consent prompt.

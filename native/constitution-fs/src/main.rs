@@ -105,7 +105,7 @@ struct ArchiveAuthenticationKey {
     key_base64: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ReconcileFacts {
     operation: ReconciledOperation,
@@ -121,7 +121,7 @@ struct ReconcileFacts {
     recovery_sha256: Option<String>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 enum ReconciledOperation {
     Replace,
@@ -155,10 +155,18 @@ struct Receipt {
     archive_sha256: Option<String>,
     source_archive_sha256: Option<String>,
     pending_transactions: Option<Vec<String>>,
+    pending_transaction_details: Option<Vec<PendingTransactionDetail>>,
     content_base64: Option<String>,
     content_sha256: Option<String>,
     inventory_entries: Option<Vec<String>>,
     guarantees: Guarantees,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+struct PendingTransactionDetail {
+    transaction_id: String,
+    reconcile_facts: ReconcileFacts,
 }
 
 #[derive(Debug, Serialize)]
@@ -1916,6 +1924,161 @@ fn pending_transactions(journals: RawFd, key: &[u8]) -> Result<Vec<String>> {
     Ok(pending)
 }
 
+fn pending_detail_from_header(
+    transaction_id: &str,
+    header: &serde_json::Value,
+) -> Result<PendingTransactionDetail> {
+    let object = header.as_object().ok_or_else(|| {
+        FsError::new(
+            "CONSTITUTION_FS_JOURNAL_INVALID",
+            "transaction journal header is not an object",
+        )
+    })?;
+    let expected_keys = [
+        "archiveId",
+        "archiveSha256",
+        "archivedAt",
+        "expectedSha256",
+        "operation",
+        "replacementSha256",
+        "sourceArchiveId",
+        "sourceArchiveSha256",
+        "state",
+        "target",
+        "transactionId",
+    ];
+    let mut actual_keys: Vec<_> = object.keys().map(String::as_str).collect();
+    actual_keys.sort_unstable();
+    if actual_keys != expected_keys
+        || header["state"] != "anchored"
+        || header["transactionId"] != transaction_id
+    {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_JOURNAL_INVALID",
+            "transaction journal header is not canonical",
+        ));
+    }
+    let optional_digest = |name: &str| -> Result<Option<String>> {
+        match &header[name] {
+            serde_json::Value::Null => Ok(None),
+            serde_json::Value::String(value) if is_digest(value) => Ok(Some(value.clone())),
+            _ => Err(FsError::new(
+                "CONSTITUTION_FS_JOURNAL_INVALID",
+                format!("transaction journal {name} is invalid"),
+            )),
+        }
+    };
+    let optional_id = |name: &str| -> Result<Option<String>> {
+        match &header[name] {
+            serde_json::Value::Null => Ok(None),
+            serde_json::Value::String(value) if is_uuid(value) => Ok(Some(value.clone())),
+            _ => Err(FsError::new(
+                "CONSTITUTION_FS_JOURNAL_INVALID",
+                format!("transaction journal {name} is invalid"),
+            )),
+        }
+    };
+    let operation = match header["operation"].as_str() {
+        Some("replace") => ReconciledOperation::Replace,
+        Some("delete") => ReconciledOperation::Delete,
+        Some("restore") => ReconciledOperation::Restore,
+        _ => {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_JOURNAL_INVALID",
+                "transaction journal operation is invalid",
+            ));
+        }
+    };
+    let target: Target = serde_json::from_value(header["target"].clone()).map_err(|_| {
+        FsError::new(
+            "CONSTITUTION_FS_JOURNAL_INVALID",
+            "transaction journal target is invalid",
+        )
+    })?;
+    validate_target(&target)?;
+    let expected_sha256 = optional_digest("expectedSha256")?;
+    let replacement_sha256 = optional_digest("replacementSha256")?;
+    let archive_id = optional_id("archiveId")?;
+    let archive_sha256 = optional_digest("archiveSha256")?;
+    let source_archive_id = optional_id("sourceArchiveId")?;
+    let source_archive_sha256 = optional_digest("sourceArchiveSha256")?;
+    let archived_at = match &header["archivedAt"] {
+        serde_json::Value::Null => None,
+        value => Some(value.as_u64().ok_or_else(|| {
+            FsError::new(
+                "CONSTITUTION_FS_JOURNAL_INVALID",
+                "transaction journal archivedAt is invalid",
+            )
+        })?),
+    };
+    let expected_present = expected_sha256.is_some();
+    if expected_present != (archive_id.is_some() && archive_sha256.is_some())
+        || archive_id.is_some() != archived_at.is_some()
+        || source_archive_id.is_some() != source_archive_sha256.is_some()
+        || match operation {
+            ReconciledOperation::Replace => {
+                replacement_sha256.is_none() || source_archive_id.is_some()
+            }
+            ReconciledOperation::Delete => {
+                replacement_sha256.is_some() || source_archive_id.is_some()
+            }
+            ReconciledOperation::Restore => {
+                replacement_sha256.is_none() || source_archive_id.is_none()
+            }
+        }
+    {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_JOURNAL_INVALID",
+            "transaction journal recovery facts are inconsistent",
+        ));
+    }
+    Ok(PendingTransactionDetail {
+        transaction_id: transaction_id.to_owned(),
+        reconcile_facts: ReconcileFacts {
+            operation,
+            target,
+            expected_present,
+            recovery_sha256: expected_sha256.clone(),
+            expected_sha256,
+            replacement_sha256,
+            archive_id,
+            archived_at,
+            archive_sha256,
+            source_archive_id,
+            source_archive_sha256,
+        },
+    })
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn pending_transaction_details(
+    journals: RawFd,
+    key: &[u8],
+) -> Result<Vec<PendingTransactionDetail>> {
+    use platform::*;
+    let mut details = Vec::new();
+    for transaction_id in pending_transactions(journals, key)? {
+        let name = format!("{transaction_id}.jsonl");
+        let file = open_file_read_write(journals, &name)?.ok_or_else(|| {
+            FsError::new(
+                "CONSTITUTION_FS_CONFLICT",
+                "pending transaction journal vanished",
+            )
+        })?;
+        let values = verify_journal_with_torn_tail_repair(
+            file.raw(),
+            &read_all(file.raw(), MAX_RECORD_BYTES)?,
+            key,
+        )?;
+        details.push(pending_detail_from_header(
+            &transaction_id,
+            values.first().expect("verified journal header"),
+        )?);
+    }
+    details.sort_by(|left, right| left.transaction_id.cmp(&right.transaction_id));
+    Ok(details)
+}
+
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 fn authoritative_pending_transactions(
     journals: RawFd,
@@ -1934,6 +2097,53 @@ fn authoritative_pending_transactions(
     pending.sort();
     pending.dedup();
     Ok(pending)
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn authoritative_pending_transaction_details(
+    journals: RawFd,
+    key: &[u8],
+    indexed: &[String],
+    bound: &[String],
+    observed: &[String],
+    header_records: &std::collections::HashMap<String, Vec<u8>>,
+) -> Result<Vec<PendingTransactionDetail>> {
+    let pending_ids = authoritative_pending_transactions(journals, key, indexed, bound, observed)?;
+    let mut details: std::collections::HashMap<String, PendingTransactionDetail> =
+        pending_transaction_details(journals, key)?
+            .into_iter()
+            .map(|detail| (detail.transaction_id.clone(), detail))
+            .collect();
+    for transaction_id in &pending_ids {
+        if details.contains_key(transaction_id) {
+            continue;
+        }
+        let header = header_records.get(transaction_id).ok_or_else(|| {
+            FsError::new(
+                "CONSTITUTION_FS_RECOVERY_FACTS_UNAVAILABLE",
+                "pending transaction predates durable authenticated recovery facts",
+            )
+        })?;
+        let verified = verify_journal(header, key)?;
+        let detail = pending_detail_from_header(
+            transaction_id,
+            verified
+                .first()
+                .expect("verified ledger transaction header"),
+        )?;
+        details.insert(transaction_id.clone(), detail);
+    }
+    pending_ids
+        .iter()
+        .map(|id| {
+            details.get(id).cloned().ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_RECOVERY_FACTS_UNAVAILABLE",
+                    "pending transaction has no authenticated recovery facts",
+                )
+            })
+        })
+        .collect()
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -1990,6 +2200,7 @@ struct TransactionLedger {
     bound: Vec<String>,
     observed: Vec<String>,
     header_digests: std::collections::HashMap<String, String>,
+    header_records: std::collections::HashMap<String, Vec<u8>>,
     last_mac: String,
 }
 
@@ -2040,6 +2251,7 @@ fn transaction_ledger(history: RawFd, journals: RawFd, key: &[u8]) -> Result<Tra
     let mut indexed = Vec::new();
     let mut bound = Vec::new();
     let mut header_digests = std::collections::HashMap::new();
+    let mut header_records = std::collections::HashMap::new();
     for value in values.iter().skip(1) {
         let object = value.as_object().ok_or_else(|| {
             FsError::new("CONSTITUTION_FS_LEDGER_INVALID", "ledger entry is invalid")
@@ -2051,11 +2263,16 @@ fn transaction_ledger(history: RawFd, journals: RawFd, key: &[u8]) -> Result<Tra
         let header_digest = object
             .get("headerSha256")
             .and_then(serde_json::Value::as_str);
+        let header_base64 = object
+            .get("headerBase64")
+            .and_then(serde_json::Value::as_str);
         if !matches!(state, Some("indexed" | "journal_bound"))
             || ((state == Some("indexed")
-                && (object.len() != 3 || header_digest.is_none_or(|value| !is_digest(value))))
+                && (!matches!(object.len(), 3 | 4)
+                    || header_digest.is_none_or(|value| !is_digest(value))
+                    || (object.len() == 4 && header_base64.is_none())))
                 || (state == Some("journal_bound")
-                    && (object.len() != 2 || header_digest.is_some())))
+                    && (object.len() != 2 || header_digest.is_some() || header_base64.is_some())))
             || transaction_id.is_none_or(|id| !is_uuid(id))
         {
             return Err(FsError::new(
@@ -2065,6 +2282,34 @@ fn transaction_ledger(history: RawFd, journals: RawFd, key: &[u8]) -> Result<Tra
         }
         let transaction_id = transaction_id.expect("validated transaction id").to_owned();
         if state == Some("indexed") {
+            if let Some(encoded) = header_base64 {
+                let header = BASE64.decode(encoded).map_err(|_| {
+                    FsError::new(
+                        "CONSTITUTION_FS_LEDGER_INVALID",
+                        "ledger transaction header is not canonical base64",
+                    )
+                })?;
+                if header.len() > MAX_RECORD_BYTES
+                    || BASE64.encode(&header) != encoded
+                    || sha256(&header) != header_digest.expect("validated header digest")
+                {
+                    return Err(FsError::new(
+                        "CONSTITUTION_FS_LEDGER_INVALID",
+                        "ledger transaction header does not match its digest",
+                    ));
+                }
+                let verified = verify_journal(&header, key)?;
+                if verified.len() != 1
+                    || verified[0]["state"] != "anchored"
+                    || verified[0]["transactionId"] != transaction_id
+                {
+                    return Err(FsError::new(
+                        "CONSTITUTION_FS_LEDGER_INVALID",
+                        "ledger transaction header binding is invalid",
+                    ));
+                }
+                header_records.insert(transaction_id.clone(), header);
+            }
             header_digests.insert(
                 transaction_id.clone(),
                 header_digest.expect("validated header digest").to_owned(),
@@ -2106,6 +2351,7 @@ fn transaction_ledger(history: RawFd, journals: RawFd, key: &[u8]) -> Result<Tra
         bound: canonical_bound,
         observed,
         header_digests,
+        header_records,
         last_mac,
     })
 }
@@ -2116,13 +2362,15 @@ fn index_transaction(
     key: &[u8],
     previous_mac: &mut String,
     transaction_id: &str,
-    header_sha256: &str,
+    header: &[u8],
 ) -> Result<()> {
+    let header_sha256 = sha256(header);
     let (bytes, next_mac) = authenticated_journal_line(
         serde_json::json!({
             "state": "indexed",
             "transactionId": transaction_id,
             "headerSha256": header_sha256,
+            "headerBase64": BASE64.encode(header),
         }),
         key,
         Some(previous_mac),
@@ -2263,6 +2511,7 @@ fn committed_constitution_receipt(
         archive_sha256,
         source_archive_sha256: None,
         pending_transactions: None,
+        pending_transaction_details: None,
         content_base64: None,
         content_sha256: None,
         inventory_entries: None,
@@ -2314,6 +2563,7 @@ fn committed_restore_receipt(
         archive_sha256: current_archive_sha256,
         source_archive_sha256: Some(source_archive_sha256),
         pending_transactions: None,
+        pending_transaction_details: None,
         content_base64: None,
         content_sha256: None,
         inventory_entries: None,
@@ -2368,6 +2618,7 @@ fn committed_receipt_from_reconcile_facts(
         archive_sha256: facts.archive_sha256.clone(),
         source_archive_sha256: facts.source_archive_sha256.clone(),
         pending_transactions: None,
+        pending_transaction_details: None,
         content_base64: None,
         content_sha256: None,
         inventory_entries: None,
@@ -2433,6 +2684,7 @@ fn constitution_transaction(
         bound,
         observed,
         header_digests,
+        header_records: _,
         last_mac: mut ledger_mac,
     } = transaction_ledger(history.raw(), journals.raw(), &key)?;
     assert_no_orphan_artifacts(root.raw(), history.raw(), recovery.raw(), &indexed)?;
@@ -2499,7 +2751,7 @@ fn constitution_transaction(
             &key,
             &mut ledger_mac,
             &request.transaction_id,
-            &header_sha256,
+            &header,
         )?;
     }
     checkpoint(hook, "after_ledger_before_journal")?;
@@ -2727,6 +2979,7 @@ fn restore_transaction(request: &Request, validated: Validated, hook: Hook<'_>) 
         bound,
         observed,
         header_digests,
+        header_records: _,
         last_mac: mut ledger_mac,
     } = transaction_ledger(history.raw(), journals.raw(), &key)?;
     assert_no_orphan_artifacts(root.raw(), history.raw(), recovery.raw(), &indexed)?;
@@ -2818,7 +3071,7 @@ fn restore_transaction(request: &Request, validated: Validated, hook: Hook<'_>) 
             &key,
             &mut ledger_mac,
             &request.transaction_id,
-            &header_sha256,
+            &header,
         )?;
     }
     checkpoint(hook, "after_ledger_before_journal")?;
@@ -3128,6 +3381,7 @@ fn seal_key_transaction(
         archive_sha256: None,
         source_archive_sha256: None,
         pending_transactions: None,
+        pending_transaction_details: None,
         content_base64: None,
         content_sha256: None,
         inventory_entries: None,
@@ -3155,13 +3409,18 @@ fn pending_inventory_transaction(request: &Request, hook: Hook<'_>) -> Result<Re
     let journals = open_dir(history.raw(), "transactions", true)?;
     let ledger = transaction_ledger(history.raw(), journals.raw(), &key)?;
     assert_no_orphan_artifacts(root.raw(), history.raw(), recovery.raw(), &ledger.indexed)?;
-    let pending = authoritative_pending_transactions(
+    let pending_details = authoritative_pending_transaction_details(
         journals.raw(),
         &key,
         &ledger.indexed,
         &ledger.bound,
         &ledger.observed,
+        &ledger.header_records,
     )?;
+    let pending = pending_details
+        .iter()
+        .map(|detail| detail.transaction_id.clone())
+        .collect();
     Ok(Receipt {
         ok: true,
         version: PROTOCOL_VERSION,
@@ -3186,6 +3445,7 @@ fn pending_inventory_transaction(request: &Request, hook: Hook<'_>) -> Result<Re
         archive_sha256: None,
         source_archive_sha256: None,
         pending_transactions: Some(pending),
+        pending_transaction_details: Some(pending_details),
         content_base64: None,
         content_sha256: None,
         inventory_entries: None,
@@ -3218,16 +3478,53 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
     let recovery = open_dir(history.raw(), "recovery", true)?;
     let journals = open_dir(history.raw(), "transactions", true)?;
     let receipts = open_dir(history.raw(), "receipts", true)?;
-    let ledger = transaction_ledger(history.raw(), journals.raw(), &key)?;
+    let mut ledger = transaction_ledger(history.raw(), journals.raw(), &key)?;
     assert_no_orphan_artifacts(root.raw(), history.raw(), recovery.raw(), &ledger.indexed)?;
     assert_no_orphan_receipts(receipts.raw(), &ledger.indexed)?;
     let journal_name = format!("{reconcile_id}.jsonl");
-    let journal = open_file_read_write(journals.raw(), &journal_name)?.ok_or_else(|| {
-        FsError::new(
-            "CONSTITUTION_FS_TRANSACTION_NOT_FOUND",
-            "reconciliation journal does not exist",
-        )
-    })?;
+    let journal = match open_file_read_write(journals.raw(), &journal_name)? {
+        Some(journal) => journal,
+        None if ledger.indexed.iter().any(|id| id == reconcile_id)
+            && !ledger.bound.iter().any(|id| id == reconcile_id)
+            && !ledger.observed.iter().any(|id| id == reconcile_id) =>
+        {
+            let header = ledger.header_records.get(reconcile_id).ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_RECOVERY_FACTS_UNAVAILABLE",
+                    "ledger-only transaction predates durable authenticated recovery facts",
+                )
+            })?;
+            let verified = verify_journal(header, &key)?;
+            let detail = pending_detail_from_header(
+                reconcile_id,
+                verified
+                    .first()
+                    .expect("verified ledger transaction header"),
+            )?;
+            if detail.reconcile_facts != *facts {
+                return Err(FsError::new(
+                    "CONSTITUTION_FS_JOURNAL_INVALID",
+                    "caller reconciliation facts disagree with the authenticated ledger",
+                ));
+            }
+            let created = create_file(journals.raw(), &journal_name, header)?;
+            fsync_dir(journals.raw())?;
+            drop(created);
+            bind_transaction_journal(ledger.file.raw(), &key, &mut ledger.last_mac, reconcile_id)?;
+            open_file_read_write(journals.raw(), &journal_name)?.ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_CONFLICT",
+                    "reconstructed reconciliation journal vanished",
+                )
+            })?
+        }
+        None => {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_TRANSACTION_NOT_FOUND",
+                "reconciliation journal does not exist",
+            ));
+        }
+    };
     let bytes = read_all(journal.raw(), MAX_RECORD_BYTES)?;
     let values = verify_journal_with_torn_tail_repair(journal.raw(), &bytes, &key)?;
     let header = values.first().expect("verified journal header").clone();
@@ -3732,6 +4029,7 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
             .and(facts.archive_sha256.clone()),
         source_archive_sha256: facts.source_archive_sha256.clone(),
         pending_transactions: None,
+        pending_transaction_details: None,
         content_base64: None,
         content_sha256: None,
         inventory_entries: None,
@@ -3989,6 +4287,7 @@ fn read_transaction(request: &Request, operation: Validated, hook: Hook<'_>) -> 
         archive_sha256: None,
         source_archive_sha256: None,
         pending_transactions: None,
+        pending_transaction_details: None,
         content_base64,
         content_sha256,
         inventory_entries,
@@ -4781,7 +5080,19 @@ mod tests {
             pending.pending_transactions,
             Some(vec![original.transaction_id.clone()])
         );
-        transaction(&original, None).unwrap();
+        let details = pending.pending_transaction_details.unwrap();
+        assert_eq!(details.len(), 1);
+        assert_eq!(details[0].transaction_id, original.transaction_id);
+        assert_eq!(
+            details[0].reconcile_facts,
+            reconcile_request(&original).reconcile_facts.unwrap()
+        );
+        let reconciled = transaction(&reconcile_request(&original), None).unwrap();
+        assert_eq!(reconciled.reconcile_disposition, Some("rolled_back"));
+        assert!(!root.join("CONSTITUTION.md").exists());
+        let mut next = request(&root, None, Some(b"new"));
+        next.transaction_id = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb".into();
+        transaction(&next, None).unwrap();
         assert_eq!(fs::read(root.join("CONSTITUTION.md")).unwrap(), b"new");
     }
 

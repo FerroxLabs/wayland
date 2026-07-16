@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 const roots: string[] = [];
 const require = createRequire(import.meta.url);
-const { resolvePackagedTarget, snapshotPackagedTargets, verifyPackagedResources } =
+const { resolvePackagedTarget, snapshotPackagedTargets, verifyConstitutionFsBundle, verifyPackagedResources } =
   require('../../scripts/verify-packaged-resources.js') as {
     resolvePackagedTarget: (
       out: string,
@@ -16,6 +16,7 @@ const { resolvePackagedTarget, snapshotPackagedTargets, verifyPackagedResources 
       options?: { previousSnapshot?: Map<string, string> }
     ) => { executablePath: string; resourceDir: string };
     snapshotPackagedTargets: (out: string) => Map<string, string>;
+    verifyConstitutionFsBundle: (root: string, platform: string, arch: string) => boolean;
     verifyPackagedResources: (options: Record<string, unknown>) => { resourceDirs: string[]; warnings: number };
   };
 const TEST_WCORE_RELEASE = 'v0.12.25';
@@ -67,6 +68,18 @@ function machExecutableBytes(arch: 'arm64' | 'x64'): Buffer {
   binary.writeUInt32LE(0xfeedfacf, 0);
   binary.writeUInt32LE(arch === 'arm64' ? 0x0100000c : 0x01000007, 4);
   return binary;
+}
+
+function testConstitutionAuthority(arch: 'arm64' | 'x64') {
+  const bytes = machExecutableBytes(arch);
+  return {
+    supported: true,
+    platform: 'darwin',
+    arch,
+    fileName: 'wayland-constitution-fs',
+    size: bytes.length,
+    sha256: `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`,
+  };
 }
 
 const TEST_BUN_AUTHORITY = {
@@ -169,6 +182,21 @@ function addPackagedApp(
   const wcoreBinary = path.join(resources, 'bundled-wayland-core', `darwin-${arch}`, 'wayland-core');
   fs.mkdirSync(path.dirname(wcoreBinary), { recursive: true });
   fs.writeFileSync(wcoreBinary, TEST_WCORE_BYTES);
+  const constitutionRuntime = path.join(resources, 'bundled-constitution-fs', `darwin-${arch}`);
+  const constitutionBinary = path.join(constitutionRuntime, 'wayland-constitution-fs');
+  const constitutionAuthority = testConstitutionAuthority(arch);
+  writeMachExecutable(constitutionBinary, arch);
+  fs.writeFileSync(path.join(constitutionRuntime, 'manifest.json'), JSON.stringify({
+    schemaVersion: 1,
+    protocolVersion: 1,
+    platform: 'darwin',
+    arch,
+    binary: {
+      fileName: constitutionAuthority.fileName,
+      sha256: constitutionAuthority.sha256,
+      size: constitutionAuthority.size,
+    },
+  }));
   if (includeOfficeCli) {
     const officeBinary = path.join(
       resources,
@@ -321,12 +349,35 @@ describe('packaged resource release gate', () => {
       voiceAuthority: TEST_VOICE_AUTHORITY,
       bunAuthority: TEST_BUN_AUTHORITY,
       modelsAuthority: TEST_MODELS_AUTHORITY,
+      constitutionFsAuthority: testConstitutionAuthority(wcoreRuntime.split('-')[1] as 'arm64' | 'x64'),
+      verifyConstitutionFsDarwinSignature: () => undefined,
       ...extra,
     });
 
   it('accepts a non-empty native OfficeCLI binary plus manifest', () => {
     const out = createPackagedResources(true);
     expect(verify(out)).toMatchObject({ warnings: 3 });
+  });
+
+  it('fails closed on Windows unless the unsupported Constitution authority has no packaged helper bytes', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'constitution-fs-windows-'));
+    roots.push(root);
+    expect(verifyConstitutionFsBundle(root, 'win32', 'x64')).toBe(false);
+    fs.rmSync(root, { recursive: true, force: true });
+    expect(verifyConstitutionFsBundle(root, 'win32', 'x64')).toBe(true);
+  });
+
+  it('rejects helper digest drift and foreign runtime contamination', () => {
+    const out = createPackagedResources(true);
+    const resources = packagedResourcesPath(out);
+    const bundle = path.join(resources, 'bundled-constitution-fs');
+    fs.appendFileSync(path.join(bundle, 'darwin-arm64', 'wayland-constitution-fs'), 'tamper');
+    expect(() => verify(out)).toThrow(/CRITICAL resource/);
+
+    const clean = createPackagedResources(true);
+    const cleanBundle = path.join(packagedResourcesPath(clean), 'bundled-constitution-fs');
+    fs.cpSync(path.join(cleanBundle, 'darwin-arm64'), path.join(cleanBundle, 'darwin-x64'), { recursive: true });
+    expect(() => verify(clean)).toThrow(/CRITICAL resource/);
   });
 
   it('blocks a package whose native OfficeCLI bundle is absent', () => {

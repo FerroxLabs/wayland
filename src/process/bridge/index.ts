@@ -71,6 +71,7 @@ import { initStorageBridge } from '@process/storage/storageIpc';
 import { initNicknamesBridge } from '@process/storage/nicknamesIpc';
 import { initSyncIpc } from '@process/sync/syncIpc';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
+import type { ConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 import { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';
 import { initWcoreToolKeyIpc } from '@process/agent/wcore/toolKeyIpc';
 import { initWcoreConfigBridge } from './wcoreConfigBridge';
@@ -89,6 +90,7 @@ export interface BridgeDependencies {
   workerTaskManager: IWorkerTaskManager;
   channelRepo: IChannelRepository;
   teamSessionService: TeamSessionService;
+  constitutionFsService: ConstitutionFsService;
 }
 
 /**
@@ -189,7 +191,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   });
   initNicknamesBridge();
   initSyncIpc();
-  initConstitutionBridge();
+  initConstitutionBridge(deps.constitutionFsService);
   initOnboardingBridge();
   initDoctorBridge();
 }

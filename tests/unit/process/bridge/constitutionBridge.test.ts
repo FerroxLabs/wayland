@@ -1,359 +1,108 @@
-/**
- * Unit tests for readConstitutionWithOverlay - the Constitution +
- * per-specialist overlay reader. fs and electron are fully mocked
- * so no real ~/.wayland/ is touched.
- */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { homedir } from 'os';
-import { join } from 'path';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Hoist fs mock so it can be referenced inside vi.mock factory.
-const { fsMock } = vi.hoisted(() => ({
-  fsMock: {
-    existsSync: vi.fn(),
-    readFileSync: vi.fn(),
-    readdirSync: vi.fn(),
-    statSync: vi.fn(),
-    mkdirSync: vi.fn(),
-    writeFileSync: vi.fn(),
-    renameSync: vi.fn(),
-    unlinkSync: vi.fn(),
-  },
+const { handlers, enforceRateLimit } = vi.hoisted(() => ({
+  handlers: new Map<string, (...args: unknown[]) => unknown>(),
+  enforceRateLimit: vi.fn(() => true),
 }));
 
 vi.mock('electron', () => ({
-  ipcMain: { handle: vi.fn() },
+  ipcMain: {
+    handle: (channel: string, handler: (...args: unknown[]) => unknown) => handlers.set(channel, handler),
+  },
 }));
+vi.mock('@process/bridge/webuiDirectAuth', () => ({ enforceRateLimit }));
 
-vi.mock('fs', () => ({
-  existsSync: fsMock.existsSync,
-  readFileSync: fsMock.readFileSync,
-  readdirSync: fsMock.readdirSync,
-  statSync: fsMock.statSync,
-  mkdirSync: fsMock.mkdirSync,
-  writeFileSync: fsMock.writeFileSync,
-  renameSync: fsMock.renameSync,
-  unlinkSync: fsMock.unlinkSync,
-}));
+import { DEFAULT_CONSTITUTION, initConstitutionBridge } from '@process/bridge/constitutionBridge';
 
-// Path constants - must mirror the bridge's resolution logic.
-const HOME = homedir();
-const WAYLAND_DIR = join(HOME, '.wayland');
-const CONSTITUTION_PATH = join(WAYLAND_DIR, 'CONSTITUTION.md');
-const LEGACY_SOUL_PATH = join(WAYLAND_DIR, 'SOUL.md');
-const SPECIALISTS_DIR = join(WAYLAND_DIR, 'specialists');
+function service() {
+  return {
+    readConstitution: vi.fn(() => ({ status: 'absent', revision: 'rev:v1:internal-absent' })),
+    writeConstitution: vi.fn(() => ({
+      status: 'committed',
+      revision: 'rev:v1:next',
+      transactionId: 'tx',
+      receiptId: 'receipt',
+    })),
+    readWithOverlay: vi.fn(() => ({
+      constitution: { status: 'present', content: '', revision: 'rev:v1:main' },
+      overlay: { status: 'absent', revision: 'rev:v1:internal-overlay' },
+    })),
+    listSpecialists: vi.fn(() => [{ id: 'copy', bytes: 0, revision: 'rev:v1:copy' }]),
+    readSpecialist: vi.fn(() => ({ status: 'present', content: '', revision: 'rev:v1:copy' })),
+    writeSpecialist: vi.fn(() => ({
+      status: 'committed',
+      revision: 'rev:v1:copy-next',
+      transactionId: 'tx-copy',
+      receiptId: 'receipt-copy',
+    })),
+    deleteSpecialist: vi.fn(() => ({
+      status: 'committed',
+      revision: 'rev:v1:copy-absent',
+      transactionId: 'tx-delete',
+      receiptId: 'receipt-delete',
+    })),
+  };
+}
 
-const overlayPathFor = (id: string): string => join(SPECIALISTS_DIR, `${id}.md`);
-
-describe('readConstitutionWithOverlay', () => {
+describe('Constitution IPC service boundary', () => {
   beforeEach(() => {
-    vi.resetModules();
-    fsMock.existsSync.mockReset();
-    fsMock.readFileSync.mockReset();
-    fsMock.mkdirSync.mockReset();
-    fsMock.writeFileSync.mockReset();
-    fsMock.renameSync.mockReset();
-    fsMock.unlinkSync.mockReset();
+    handlers.clear();
+    enforceRateLimit.mockReset();
+    enforceRateLimit.mockReturnValue(true);
   });
 
-  it('returns empty constitution and null overlay when no files exist', async () => {
-    // No CONSTITUTION.md, no SOUL.md, no overlay (assistantId omitted).
-    fsMock.existsSync.mockReturnValue(false);
-
-    const { readConstitutionWithOverlay } = await import('@process/bridge/constitutionBridge');
-    const result = readConstitutionWithOverlay();
-
-    // Bridge's `readConstitution` returns '' (no auto-seed of DEFAULT_CONSTITUTION on read;
-    // that path only fires through writeConstitution/resetConstitution).
-    expect(result).toEqual({ constitution: '', overlay: null });
-    // The bridge must not read any Constitution/overlay/specialist file when
-    // nothing exists on disk. (The rate-limit guard added by the security
-    // hardening pulls in a transitive import that reads the app's own
-    // package.json at module-load time; that read is unrelated to the bridge's
-    // file access and is excluded here.)
-    const waylandReads = fsMock.readFileSync.mock.calls.filter((call) => String(call[0]).includes(WAYLAND_DIR));
-    expect(waylandReads).toEqual([]);
-  });
-
-  it('returns CONSTITUTION.md contents and null overlay when assistantId is omitted', async () => {
-    const body = '# Live Constitution\nUser-edited content.';
-    fsMock.existsSync.mockImplementation((p) => p === CONSTITUTION_PATH);
-    fsMock.readFileSync.mockImplementation((p) => {
-      if (p === CONSTITUTION_PATH) return body;
-      throw new Error(`unexpected readFileSync: ${String(p)}`);
+  it('preserves typed absent/present-empty reads and backend revisions', async () => {
+    const owner = service();
+    initConstitutionBridge(owner as never);
+    expect(handlers.get('constitution:read')?.({})).toEqual({ state: 'absent', revision: 'rev:v1:internal-absent' });
+    expect(handlers.get('constitution:readSpecialist')?.({}, 'copy')).toEqual({
+      state: 'present',
+      content: '',
+      revision: 'rev:v1:copy',
     });
-
-    const { readConstitutionWithOverlay } = await import('@process/bridge/constitutionBridge');
-    const result = readConstitutionWithOverlay();
-
-    expect(result).toEqual({ constitution: body, overlay: null });
-  });
-
-  it('returns null overlay when assistantId is set but no overlay file exists', async () => {
-    const body = 'CONSTITUTION_BODY';
-    fsMock.existsSync.mockImplementation((p) => p === CONSTITUTION_PATH);
-    fsMock.readFileSync.mockImplementation((p) => {
-      if (p === CONSTITUTION_PATH) return body;
-      throw new Error(`unexpected readFileSync: ${String(p)}`);
-    });
-
-    const { readConstitutionWithOverlay } = await import('@process/bridge/constitutionBridge');
-    const result = readConstitutionWithOverlay('foo');
-
-    expect(result).toEqual({ constitution: body, overlay: null });
-    // The bridge MUST have checked for the overlay path.
-    expect(fsMock.existsSync).toHaveBeenCalledWith(overlayPathFor('foo'));
-  });
-
-  it('returns overlay contents when ~/.wayland/specialists/<id>.md exists', async () => {
-    const body = 'CONSTITUTION_BODY';
-    const overlayBody = 'OVERLAY_BODY for foo';
-    const overlayPath = overlayPathFor('foo');
-    fsMock.existsSync.mockImplementation((p) => p === CONSTITUTION_PATH || p === overlayPath);
-    fsMock.readFileSync.mockImplementation((p) => {
-      if (p === CONSTITUTION_PATH) return body;
-      if (p === overlayPath) return overlayBody;
-      throw new Error(`unexpected readFileSync: ${String(p)}`);
-    });
-
-    const { readConstitutionWithOverlay } = await import('@process/bridge/constitutionBridge');
-    const result = readConstitutionWithOverlay('foo');
-
-    expect(result).toEqual({ constitution: body, overlay: overlayBody });
-  });
-
-  it('falls back to legacy ~/.wayland/SOUL.md when CONSTITUTION.md is missing', async () => {
-    const legacyBody = 'legacy SOUL.md body';
-    fsMock.existsSync.mockImplementation((p) => p === LEGACY_SOUL_PATH);
-    fsMock.readFileSync.mockImplementation((p) => {
-      if (p === LEGACY_SOUL_PATH) return legacyBody;
-      throw new Error(`unexpected readFileSync: ${String(p)}`);
-    });
-
-    const { readConstitutionWithOverlay } = await import('@process/bridge/constitutionBridge');
-    const result = readConstitutionWithOverlay();
-
-    expect(result).toEqual({ constitution: legacyBody, overlay: null });
-  });
-
-  it('blocks path-traversal assistantIds without calling existsSync on the dangerous path', async () => {
-    const body = 'CONSTITUTION_BODY';
-    fsMock.existsSync.mockImplementation((p) => p === CONSTITUTION_PATH);
-    fsMock.readFileSync.mockImplementation((p) => {
-      if (p === CONSTITUTION_PATH) return body;
-      throw new Error(`unexpected readFileSync: ${String(p)}`);
-    });
-
-    const { readConstitutionWithOverlay } = await import('@process/bridge/constitutionBridge');
-
-    const dangerousIds = ['../etc/passwd', 'a/b', '', 'foo bar', '..', './foo', 'foo/../bar'];
-
-    for (const id of dangerousIds) {
-      fsMock.existsSync.mockClear();
-      fsMock.readFileSync.mockClear();
-      // Reset implementations after mockClear (mockClear keeps impl, but
-      // be explicit so reads of CONSTITUTION_PATH still return body).
-      fsMock.existsSync.mockImplementation((p) => p === CONSTITUTION_PATH);
-      fsMock.readFileSync.mockImplementation((p) => {
-        if (p === CONSTITUTION_PATH) return body;
-        throw new Error(`unexpected readFileSync: ${String(p)}`);
-      });
-
-      const result = readConstitutionWithOverlay(id);
-      expect(result.overlay).toBeNull();
-      expect(result.constitution).toBe(body);
-
-      // existsSync MUST NOT have been called with a path containing
-      // the dangerous input - the regex gate short-circuits before
-      // we ever construct an overlay path.
-      for (const call of fsMock.existsSync.mock.calls) {
-        const calledPath = String(call[0]);
-        // CONSTITUTION_PATH and LEGACY_SOUL_PATH are the only legitimate
-        // existsSync calls; the dangerous id must not appear anywhere.
-        expect(calledPath.includes(id) && id.length > 0).toBe(false);
-        // Also assert the overlay path was not probed.
-        expect(calledPath).not.toContain('specialists');
-      }
-    }
-  });
-});
-
-describe('specialist overlay CRUD', () => {
-  beforeEach(() => {
-    vi.resetModules();
-    fsMock.existsSync.mockReset();
-    fsMock.readFileSync.mockReset();
-    fsMock.readdirSync.mockReset();
-    fsMock.statSync.mockReset();
-    fsMock.mkdirSync.mockReset();
-    fsMock.writeFileSync.mockReset();
-    fsMock.renameSync.mockReset();
-    fsMock.unlinkSync.mockReset();
-  });
-
-  describe('listConstitutionSpecialists', () => {
-    it('returns [] when the specialists/ directory does not exist', async () => {
-      fsMock.existsSync.mockReturnValue(false);
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-      const result = __test__.listConstitutionSpecialists();
-
-      expect(result).toEqual([]);
-      // Directory missing - no readdir attempt.
-      expect(fsMock.readdirSync).not.toHaveBeenCalled();
-    });
-
-    it('returns only .md files, ids without extension, sorted ascending, with byte sizes', async () => {
-      fsMock.existsSync.mockImplementation((p) => p === SPECIALISTS_DIR);
-      // Deliberately out of order + one non-.md file.
-      fsMock.readdirSync.mockReturnValue(['zeta.md', 'alpha.md', 'README.txt']);
-      const sizes: Record<string, number> = {
-        [join(SPECIALISTS_DIR, 'zeta.md')]: 128,
-        [join(SPECIALISTS_DIR, 'alpha.md')]: 42,
-      };
-      fsMock.statSync.mockImplementation((p) => {
-        const size = sizes[String(p)];
-        if (size === undefined) throw new Error(`unexpected statSync: ${String(p)}`);
-        return { size };
-      });
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-      const result = __test__.listConstitutionSpecialists();
-
-      expect(result).toEqual([
-        { id: 'alpha', bytes: 42 },
-        { id: 'zeta', bytes: 128 },
-      ]);
-      // README.txt must not have been stat'd.
-      expect(fsMock.statSync).not.toHaveBeenCalledWith(join(SPECIALISTS_DIR, 'README.txt'));
+    expect(handlers.get('constitution:readWithOverlay')?.({}, 'copy')).toEqual({
+      constitution: { state: 'present', content: '', revision: 'rev:v1:main' },
+      overlay: { state: 'absent', revision: 'rev:v1:internal-overlay' },
     });
   });
 
-  describe('readConstitutionSpecialist', () => {
-    it('returns file content for a valid id when the overlay file exists', async () => {
-      const body = 'OVERLAY for copy';
-      const overlayPath = overlayPathFor('copy');
-      fsMock.existsSync.mockImplementation((p) => p === overlayPath);
-      fsMock.readFileSync.mockImplementation((p) => {
-        if (p === overlayPath) return body;
-        throw new Error(`unexpected readFileSync: ${String(p)}`);
-      });
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-      const result = __test__.readConstitutionSpecialist('copy');
-
-      expect(result).toBe(body);
+  it('passes CAS expectations to the sole service and exposes only revision plus receipt identity', async () => {
+    const owner = service();
+    initConstitutionBridge(owner as never);
+    expect(handlers.get('constitution:write')?.({}, 'rules', 'rev:v1:absent')).toEqual({
+      ok: true,
+      revision: 'rev:v1:next',
+      receiptId: 'receipt',
     });
+    expect(owner.writeConstitution).toHaveBeenCalledWith('rules', 'rev:v1:absent', undefined);
 
-    it("returns '' for a valid id when the overlay file is absent", async () => {
-      fsMock.existsSync.mockReturnValue(false);
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-      const result = __test__.readConstitutionSpecialist('copy');
-
-      expect(result).toBe('');
-      // No overlay file exists, so the bridge must not read any specialist
-      // file. (A transitive import reads the app's own package.json at
-      // module-load time; that read is unrelated and excluded here.)
-      const waylandReads = fsMock.readFileSync.mock.calls.filter((call) => String(call[0]).includes(WAYLAND_DIR));
-      expect(waylandReads).toEqual([]);
+    expect(handlers.get('constitution:reset')?.({}, 'rev:v1:main')).toEqual({
+      ok: true,
+      revision: 'rev:v1:next',
+      receiptId: 'receipt',
     });
+    expect(owner.writeConstitution).toHaveBeenCalledWith(DEFAULT_CONSTITUTION, 'rev:v1:main', undefined);
 
-    it("returns '' for path-traversal ids without probing the dangerous path", async () => {
-      const dangerousIds = ['../../etc/passwd', 'a/b', '', 'foo bar', '..', './foo'];
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-
-      for (const id of dangerousIds) {
-        fsMock.existsSync.mockClear();
-        fsMock.readFileSync.mockClear();
-
-        const result = __test__.readConstitutionSpecialist(id);
-
-        expect(result).toBe('');
-        // Regex gate short-circuits before any fs access.
-        expect(fsMock.existsSync).not.toHaveBeenCalled();
-        expect(fsMock.readFileSync).not.toHaveBeenCalled();
-      }
+    expect(handlers.get('constitution:writeSpecialist')?.({}, 'copy', 'overlay', 'rev:v1:copy-absent')).toEqual({
+      ok: true,
+      revision: 'rev:v1:copy-next',
+      receiptId: 'receipt-copy',
     });
+    expect(owner.writeSpecialist).toHaveBeenCalledWith('copy', 'overlay', 'rev:v1:copy-absent', undefined);
+
+    expect(handlers.get('constitution:deleteSpecialist')?.({}, 'copy', 'rev:v1:copy')).toEqual({
+      ok: true,
+      revision: 'rev:v1:copy-absent',
+      receiptId: 'receipt-delete',
+    });
+    expect(owner.deleteSpecialist).toHaveBeenCalledWith('copy', 'rev:v1:copy', undefined);
   });
 
-  describe('writeConstitutionSpecialist', () => {
-    it('creates the directory and atomically writes the overlay file for a valid id', async () => {
-      const content = '# Copy overlay\nTighter voice rules.';
-      const overlayPath = overlayPathFor('copy');
-      fsMock.mkdirSync.mockReturnValue(undefined);
-      fsMock.writeFileSync.mockReturnValue(undefined);
-      fsMock.renameSync.mockReturnValue(undefined);
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-      const result = __test__.writeConstitutionSpecialist('copy', content);
-
-      expect(result).toBe(true);
-      expect(fsMock.mkdirSync).toHaveBeenCalledWith(SPECIALISTS_DIR, { recursive: true });
-      // Atomic write: content goes to a .tmp file, then renamed onto the final path.
-      expect(fsMock.writeFileSync).toHaveBeenCalledWith(`${overlayPath}.tmp`, content, 'utf-8');
-      expect(fsMock.renameSync).toHaveBeenCalledWith(`${overlayPath}.tmp`, overlayPath);
-    });
-
-    it('returns false and does not write for an invalid id', async () => {
-      const invalidIds = ['../../evil', 'a/b', ''];
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-
-      for (const id of invalidIds) {
-        fsMock.mkdirSync.mockClear();
-        fsMock.writeFileSync.mockClear();
-        fsMock.renameSync.mockClear();
-
-        const result = __test__.writeConstitutionSpecialist(id, 'payload');
-
-        expect(result).toBe(false);
-        expect(fsMock.mkdirSync).not.toHaveBeenCalled();
-        expect(fsMock.writeFileSync).not.toHaveBeenCalled();
-        expect(fsMock.renameSync).not.toHaveBeenCalled();
-      }
-    });
-  });
-
-  describe('deleteConstitutionSpecialist', () => {
-    it('deletes the file and returns true for a valid id when the file exists', async () => {
-      const overlayPath = overlayPathFor('copy');
-      fsMock.existsSync.mockImplementation((p) => p === overlayPath);
-      fsMock.unlinkSync.mockReturnValue(undefined);
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-      const result = __test__.deleteConstitutionSpecialist('copy');
-
-      expect(result).toBe(true);
-      expect(fsMock.unlinkSync).toHaveBeenCalledWith(overlayPath);
-    });
-
-    it('returns true (idempotent) for a valid id when the file is already absent', async () => {
-      fsMock.existsSync.mockReturnValue(false);
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-      const result = __test__.deleteConstitutionSpecialist('copy');
-
-      expect(result).toBe(true);
-      // Nothing to unlink - idempotent delete.
-      expect(fsMock.unlinkSync).not.toHaveBeenCalled();
-    });
-
-    it('returns false and does not unlink for an invalid id', async () => {
-      const invalidIds = ['../../etc/passwd', 'a/b', ''];
-
-      const { __test__ } = await import('@process/bridge/constitutionBridge');
-
-      for (const id of invalidIds) {
-        fsMock.existsSync.mockClear();
-        fsMock.unlinkSync.mockClear();
-
-        const result = __test__.deleteConstitutionSpecialist(id);
-
-        expect(result).toBe(false);
-        expect(fsMock.unlinkSync).not.toHaveBeenCalled();
-      }
-    });
+  it('fails closed at the existing renderer write rate limit', async () => {
+    const owner = service();
+    initConstitutionBridge(owner as never);
+    enforceRateLimit.mockReturnValue(false);
+    expect(() => handlers.get('constitution:write')?.({}, 'rules', null)).toThrow('CONSTITUTION_RATE_LIMITED');
+    expect(owner.writeConstitution).not.toHaveBeenCalled();
   });
 });

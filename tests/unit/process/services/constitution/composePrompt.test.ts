@@ -3,18 +3,27 @@
  * Constitution + Specialist Overlay + backend basePrompt into the
  * system-slot string injected by every backend.
  *
- * Bridge module is fully mocked; no real fs, no real ~/.wayland/.
+ * Process service owner is fully mocked; no real fs, no real ~/.wayland/.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@process/bridge/constitutionBridge', () => ({
-  readConstitutionWithOverlay: vi.fn(),
+const { mockBridge } = vi.hoisted(() => ({ mockBridge: vi.fn() }));
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  getConstitutionFsService: () => ({
+    readWithOverlay: (assistantId?: string) => {
+      const value = mockBridge(assistantId) as { constitution: string; overlay: string | null };
+      return {
+        constitution: value.constitution
+          ? { status: 'present', content: value.constitution, revision: 'rev:mock:constitution' }
+          : { status: 'absent', revision: 'rev:mock:constitution-absent' },
+        overlay:
+          value.overlay === null ? null : { status: 'present', content: value.overlay, revision: 'rev:mock:overlay' },
+      };
+    },
+  }),
 }));
 
-import { readConstitutionWithOverlay } from '@process/bridge/constitutionBridge';
 import { composePrompt } from '@process/services/constitution/composePrompt';
-
-const mockBridge = vi.mocked(readConstitutionWithOverlay);
 
 const SEP = '\n\n---\n\n';
 
@@ -115,9 +124,7 @@ describe('composePrompt', () => {
       mockBridge.mockReturnValueOnce({ constitution: c.constitution, overlay: c.overlay });
       const result = composePrompt({ assistantId: c.assistantId, basePrompt: c.basePrompt });
 
-      const parts = [c.constitution, c.overlay ?? '', c.basePrompt ?? ''].filter(
-        (p) => p && p.length > 0
-      );
+      const parts = [c.constitution, c.overlay ?? '', c.basePrompt ?? ''].filter((p) => p && p.length > 0);
       const expectedText = parts.join(SEP);
       const expectedTokens = Math.ceil(expectedText.length / 4);
 

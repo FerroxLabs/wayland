@@ -26,6 +26,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFileSync } = require('child_process');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const bundledBunShasums = require('./bundled-bun-shasums.json');
 const bundledBunBinaries = require('./bundled-bun-binaries.json');
@@ -43,6 +44,7 @@ const REQUIRED = [
   { rel: 'bundled-workflows', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-wayland-core', critical: true, kind: 'wcore-bundle' },
   { rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' },
+  { rel: 'bundled-constitution-fs', critical: true, kind: 'constitution-fs-bundle' },
   {
     rel: 'classic-recovery-tools/win/arm64/7za.exe',
     critical: true,
@@ -127,6 +129,50 @@ function inspectExecutable(filePath) {
     if (machine === 183) return { platform: 'linux', arch: 'arm64' };
   }
   return null;
+}
+
+function loadConstitutionFsAuthority() {
+  const authoritySource = fs.readFileSync(
+    path.resolve(__dirname, '..', 'src', 'process', 'services', 'constitution', 'constitutionFsAuthority.generated.ts'),
+    'utf8'
+  );
+  const match = authoritySource.match(/=\s*(\{[\s\S]*\})\s+as const;/);
+  return match ? JSON.parse(match[1]) : null;
+}
+
+function verifyConstitutionFsBundle(
+  bundleRoot,
+  targetPlatform,
+  targetArch,
+  authority = loadConstitutionFsAuthority(),
+  verifyDarwinSignature = (binaryPath) => execFileSync('/usr/bin/codesign', ['--verify', '--strict', binaryPath], { stdio: 'pipe' })
+) {
+  if (targetPlatform === 'win32') return !fs.existsSync(bundleRoot);
+  const runtime = `${targetPlatform}-${targetArch}`;
+  const entries = fs.readdirSync(bundleRoot, { withFileTypes: true });
+  if (entries.length !== 1 || !entries[0].isDirectory() || entries[0].name !== runtime) return false;
+  const runtimeRoot = path.join(bundleRoot, runtime);
+  const manifestPath = path.join(runtimeRoot, 'manifest.json');
+  const binaryPath = path.join(runtimeRoot, 'wayland-constitution-fs');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  if (!authority) return false;
+  const bytes = fs.readFileSync(binaryPath);
+  const digest = `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`;
+  if (
+    JSON.stringify(Object.keys(manifest).sort()) !== JSON.stringify(['arch', 'binary', 'platform', 'protocolVersion', 'schemaVersion']) ||
+    manifest.schemaVersion !== 1 || manifest.protocolVersion !== 1 ||
+    manifest.platform !== targetPlatform || manifest.arch !== targetArch ||
+    manifest.binary.fileName !== 'wayland-constitution-fs' ||
+    manifest.binary.sha256 !== digest || manifest.binary.size !== bytes.length ||
+    authority.supported !== true || authority.platform !== targetPlatform || authority.arch !== targetArch ||
+    authority.sha256 !== digest || authority.size !== bytes.length || authority.fileName !== manifest.binary.fileName
+  ) return false;
+  const identity = inspectExecutable(binaryPath);
+  if (identity?.platform !== targetPlatform || identity?.arch !== targetArch) return false;
+  if (targetPlatform === 'darwin') {
+    verifyDarwinSignature(binaryPath);
+  }
+  return true;
 }
 
 function sha256File(filePath) {
@@ -598,9 +644,14 @@ function isNonEmpty(
   bunAuthority = bundledBunBinaries,
   modelsAuthority = modelsDevSnapshotPin,
   whatsappSourceDir = path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge'),
-  whatsappAuthority = whatsappBridgeSource
+  whatsappAuthority = whatsappBridgeSource,
+  constitutionFsAuthority,
+  verifyConstitutionFsDarwinSignature
 ) {
   try {
+    if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
+      return !fs.existsSync(p);
+    }
     const st = fs.statSync(p);
     if (kind === 'file') return st.isFile() && st.size > 0;
     if (kind === 'hashed-file') {
@@ -681,6 +732,15 @@ function isNonEmpty(
       });
     }
     if (kind === 'skill-pack') return verifySkillPack(p);
+    if (kind === 'constitution-fs-bundle') {
+      return verifyConstitutionFsBundle(
+        p,
+        targetPlatform,
+        targetArch,
+        constitutionFsAuthority,
+        verifyConstitutionFsDarwinSignature
+      );
+    }
     if (kind === 'bun-bundle') return verifyBunBundle(p, targetPlatform, targetArch, bunAuthority);
     if (kind === 'voice-bundle') return verifyVoiceBundle(p, voiceAuthority);
     if (kind === 'signal-bundle') return verifySignalBundle(p, targetPlatform, targetArch);
@@ -700,6 +760,8 @@ function verifyPackagedResources(options = {}) {
   const voiceAuthority = options.voiceAuthority || voiceModelPinnedRelease;
   const bunAuthority = options.bunAuthority || bundledBunBinaries;
   const modelsAuthority = options.modelsAuthority || modelsDevSnapshotPin;
+  const constitutionFsAuthority = options.constitutionFsAuthority || loadConstitutionFsAuthority();
+  const verifyConstitutionFsDarwinSignature = options.verifyConstitutionFsDarwinSignature;
   const whatsappSourceDir =
     options.whatsappSourceDir || path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
   const whatsappAuthority = options.whatsappAuthority || whatsappBridgeSource;
@@ -766,7 +828,9 @@ function verifyPackagedResources(options = {}) {
         bunAuthority,
         modelsAuthority,
         whatsappSourceDir,
-        whatsappAuthority
+        whatsappAuthority,
+        constitutionFsAuthority,
+        verifyConstitutionFsDarwinSignature
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);
@@ -804,6 +868,7 @@ module.exports = {
   verifySourceMirror,
   verifyVoiceBundle,
   verifyModelsSnapshot,
+  verifyConstitutionFsBundle,
   verifyWCoreBundle,
   verifyWCoreRuntime,
 };

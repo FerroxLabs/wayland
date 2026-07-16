@@ -1,3 +1,10 @@
+import type {
+  ConstitutionMutationResult,
+  ConstitutionOverlayReadResult,
+  ConstitutionReadResult,
+  ConstitutionSpecialistSummary,
+} from './constitution';
+
 // WebUI status interface
 export interface WebUIStatus {
   running: boolean;
@@ -69,15 +76,28 @@ export interface ElectronBridgeAPI {
   // Feedback log collection
   collectFeedbackLogs?: () => Promise<{ filename: string; data: number[] } | null>;
   // Wayland Constitution: agent behavioral spec at ~/.wayland/CONSTITUTION.md
-  readConstitution?: () => Promise<string>;
-  writeConstitution?: (content: string) => Promise<boolean>;
-  resetConstitution?: () => Promise<string>;
-  readConstitutionWithOverlay?: (assistantId?: string) => Promise<{ constitution: string; overlay: string | null }>;
+  readConstitution?: () => Promise<ConstitutionReadResult>;
+  writeConstitution?: (
+    content: string,
+    expectedRevision: string,
+    requestId?: string
+  ) => Promise<ConstitutionMutationResult>;
+  resetConstitution?: (expectedRevision: string, requestId?: string) => Promise<ConstitutionMutationResult>;
+  readConstitutionWithOverlay?: (assistantId?: string) => Promise<ConstitutionOverlayReadResult>;
   // Per-specialist Constitution overlays at ~/.wayland/specialists/<id>.md
-  listConstitutionSpecialists?: () => Promise<{ id: string; bytes: number }[]>;
-  readConstitutionSpecialist?: (id: string) => Promise<string>;
-  writeConstitutionSpecialist?: (id: string, content: string) => Promise<boolean>;
-  deleteConstitutionSpecialist?: (id: string) => Promise<boolean>;
+  listConstitutionSpecialists?: () => Promise<ConstitutionSpecialistSummary[]>;
+  readConstitutionSpecialist?: (id: string) => Promise<ConstitutionReadResult>;
+  writeConstitutionSpecialist?: (
+    id: string,
+    content: string,
+    expectedRevision: string,
+    requestId?: string
+  ) => Promise<ConstitutionMutationResult>;
+  deleteConstitutionSpecialist?: (
+    id: string,
+    expectedRevision: string,
+    requestId?: string
+  ) => Promise<ConstitutionMutationResult>;
 }
 
 declare global {

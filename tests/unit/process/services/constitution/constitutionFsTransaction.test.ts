@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdtempSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -14,6 +15,7 @@ import {
   inventoryConstitutionSealKeys,
   inventoryConstitutionFsArchives,
   inventoryConstitutionFsLiveTargets,
+  inventoryPendingConstitutionFsTransactionDetails,
   pinConstitutionFsRootAuthority,
   readConstitutionSealKey,
   readConstitutionFsArchive,
@@ -108,6 +110,7 @@ function success(request: ConstitutionFsTransactionRequest, overrides: Record<st
     archiveSha256: null,
     sourceArchiveSha256: null,
     pendingTransactions: null,
+    pendingTransactionDetails: null,
     contentBase64: null,
     contentSha256: null,
     inventoryEntries: null,
@@ -118,6 +121,23 @@ function success(request: ConstitutionFsTransactionRequest, overrides: Record<st
 
 function options(rootAuthority: ReturnType<typeof pinConstitutionFsRootAuthority>, executor?: ConstitutionFsExecutor) {
   return { rootAuthority, journalAuthenticationKey: journalKey, executor };
+}
+
+function buildRealConstitutionFsHelper(): string {
+  const manifestPath = path.join(process.cwd(), 'native', 'constitution-fs', 'Cargo.toml');
+  execFileSync('cargo', ['build', '--locked', '--manifest-path', manifestPath], {
+    cwd: process.cwd(),
+    env: process.env,
+    stdio: 'pipe',
+  });
+  return path.join(
+    process.cwd(),
+    'native',
+    'constitution-fs',
+    'target',
+    'debug',
+    process.platform === 'win32' ? 'wayland-constitution-fs.exe' : 'wayland-constitution-fs'
+  );
 }
 
 function archiveInventory() {
@@ -230,7 +250,8 @@ describe('Constitution filesystem transaction wrapper', () => {
   });
 
   it('executes a real compiled helper through the verified TypeScript boundary', () => {
-    const helperPath = path.join(process.cwd(), 'native', 'constitution-fs', 'target', 'debug', 'wayland-constitution-fs');
+    if (process.platform !== 'darwin' && process.platform !== 'linux') return;
+    const helperPath = buildRealConstitutionFsHelper();
     const { verified } = binaryFixture(readFileSync(helperPath));
     const { root, request, rootAuthority } = requestFixture();
     const receipt = runConstitutionFsTransaction(request, verified, {
@@ -264,6 +285,60 @@ describe('Constitution filesystem transaction wrapper', () => {
 });
 
 describe('Constitution reconciliation receipt binding', () => {
+  it('accepts only exact authenticated pending facts and rejects caller-mintable detail drift', () => {
+    const { verified } = binaryFixture();
+    const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-pending-detail-'));
+    const rootAuthority = pinConstitutionFsRootAuthority(root);
+    const originalTx = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+    const expectedSha256 = 'sha256:cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4';
+    const replacementSha256 = 'sha256:11507a0e2f5e69d5dfa40a62a1bd7b6ee57e6bcd85c67c9b8431b36fff21c437';
+    const detail = {
+      transactionId: originalTx,
+      reconcileFacts: {
+        operation: 'replace',
+        target: { kind: 'constitution', sourceName: 'CONSTITUTION.md' },
+        expectedPresent: true,
+        expectedSha256,
+        replacementSha256,
+        archiveId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+        archivedAt: 1_784_073_600_000,
+        archiveSha256: 'sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a',
+        sourceArchiveId: null,
+        sourceArchiveSha256: null,
+        recoverySha256: expectedSha256,
+      },
+    };
+    const response = (pendingDetail: unknown) => Buffer.from(JSON.stringify({
+      ok: true, version: 1, transactionId: tx, operation: 'pending_inventory', outcome: 'committed',
+      archivedAt: null, reconcileDisposition: null, finalPresent: null, finalSha256: null,
+      previousSha256: null, replacementSha256: null, archiveName: null, recoveryName: null,
+      journalName: null, sealKeyIds: null, sealKeyName: null, envelopeBase64: null, envelopeSha256: null,
+      target: null, expectedSha256: null, archiveSha256: null, sourceArchiveSha256: null,
+      pendingTransactions: [originalTx], pendingTransactionDetails: [pendingDetail],
+      contentBase64: null, contentSha256: null, inventoryEntries: null, guarantees,
+    }));
+    const run = (pendingDetail: unknown) => inventoryPendingConstitutionFsTransactionDetails(root, tx, verified, {
+      rootAuthority,
+      journalAuthenticationKey: journalKey,
+      executor: () => ({ stdout: response(pendingDetail), status: 0 }),
+    });
+    expect(run(detail)).toEqual([{ ...detail, reconcileFacts: {
+      operation: 'replace',
+      target: { kind: 'constitution', sourceName: 'CONSTITUTION.md' },
+      expectedPresent: true,
+      expectedSha256,
+      replacementSha256,
+      archiveId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      archivedAt: 1_784_073_600_000,
+      archiveSha256: 'sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a',
+      recoverySha256: expectedSha256,
+    } }]);
+    expect(() => run({
+      ...detail,
+      reconcileFacts: { ...detail.reconcileFacts, recoverySha256: replacementSha256 },
+    })).toThrowError(expect.objectContaining({ code: 'CONSTITUTION_FS_GUARANTEE_REJECTED' }));
+  });
+
   it('requires roll-forward artifacts and final live state, while allowing an exact early rollback', () => {
     const { verified } = binaryFixture();
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-reconcile-'));
@@ -297,7 +372,7 @@ describe('Constitution reconciliation receipt binding', () => {
       previousSha256, replacementSha256, archiveName: `${archiveId}.json`, recoveryName: `${originalTx}.displaced`,
       journalName: `${originalTx}.jsonl`, sealKeyIds: null, sealKeyName: null, envelopeBase64: null, envelopeSha256: null,
       target: request.reconcileFacts.target, expectedSha256: previousSha256, archiveSha256, sourceArchiveSha256: null,
-      pendingTransactions: null, contentBase64: null, contentSha256: null, inventoryEntries: null, guarantees, ...overrides,
+      pendingTransactions: null, pendingTransactionDetails: null, contentBase64: null, contentSha256: null, inventoryEntries: null, guarantees, ...overrides,
     }));
     const run = (overrides?: Record<string, unknown>) => reconcileConstitutionFsTransaction(request, verified, {
       rootAuthority,
@@ -327,7 +402,7 @@ function sealReceipt(operation: string, overrides: Record<string, unknown>) {
     previousSha256: null, replacementSha256: null, archiveName: null, recoveryName: null, journalName: null,
     archivedAt: null,
     sealKeyIds: null, sealKeyName: null, envelopeBase64: null, envelopeSha256: null,
-    target: null, expectedSha256: null, archiveSha256: null, sourceArchiveSha256: null, pendingTransactions: null,
+    target: null, expectedSha256: null, archiveSha256: null, sourceArchiveSha256: null, pendingTransactions: null, pendingTransactionDetails: null,
     contentBase64: null, contentSha256: null, inventoryEntries: null,
     guarantees, ...overrides,
   }));
@@ -342,8 +417,8 @@ describe('Constitution seal-key wrapper', () => {
     expect(inventoryConstitutionSealKeys(root, tx, verified, { rootAuthority, executor: () => ({ stdout: sealReceipt('seal_key_inventory', { sealKeyIds: [keyId] }), status: 0 }) })).toEqual([keyId]);
     const envelope = Buffer.from('encrypted');
     const digest = `sha256:${createHash('sha256').update(envelope).digest('hex')}`;
-    expect(readConstitutionSealKey(root, tx, keyId, verified, { rootAuthority, executor: () => ({ stdout: sealReceipt('seal_key_read', { sealKeyName: `${keyId}.json`, envelopeBase64: envelope.toString('base64'), envelopeSha256: digest }), status: 0 }) }).envelope).toEqual(envelope);
-    expect(() => createConstitutionSealKey(root, tx, keyId, envelope, verified, { rootAuthority, executor: () => ({ stdout: sealReceipt('seal_key_create', { sealKeyName: `${keyId}.json`, envelopeSha256: digest }), status: 0 }) })).not.toThrow();
+    expect(readConstitutionSealKey(root, tx, keyId, verified, { rootAuthority, executor: () => ({ stdout: sealReceipt('seal_key_read', { sealKeyIds: [keyId], sealKeyName: `${keyId}.json`, envelopeBase64: envelope.toString('base64'), envelopeSha256: digest }), status: 0 }) }).envelope).toEqual(envelope);
+    expect(() => createConstitutionSealKey(root, tx, keyId, envelope, verified, { rootAuthority, executor: () => ({ stdout: sealReceipt('seal_key_create', { sealKeyIds: [keyId], sealKeyName: `${keyId}.json`, envelopeSha256: digest }), status: 0 }) })).not.toThrow();
   });
 });
 
@@ -361,7 +436,7 @@ describe('Constitution read-only wrapper', () => {
       replacementSha256: null, archiveName: null, recoveryName: null, journalName: null,
       archivedAt: null,
       sealKeyIds: null, sealKeyName: null, envelopeBase64: null, envelopeSha256: null,
-      expectedSha256: null, archiveSha256: null, sourceArchiveSha256: null, pendingTransactions: null,
+      expectedSha256: null, archiveSha256: null, sourceArchiveSha256: null, pendingTransactions: null, pendingTransactionDetails: null,
       guarantees,
     };
     const read = readConstitutionFsTarget(root, tx, target, verified, { rootAuthority, executor: () => ({ stdout: Buffer.from(JSON.stringify({ ...base, operation: 'read_live', target, contentBase64: content.toString('base64'), contentSha256: digest, inventoryEntries: null })), status: 0 }) });
@@ -391,7 +466,7 @@ describe('Constitution read-only wrapper', () => {
       previousSha256: null, replacementSha256: null, archiveName: null, recoveryName: null, journalName: null,
       archivedAt: null,
       sealKeyIds: null, sealKeyName: null, envelopeBase64: null, envelopeSha256: null,
-      target, expectedSha256: null, archiveSha256: null, sourceArchiveSha256: null, pendingTransactions: null,
+      target, expectedSha256: null, archiveSha256: null, sourceArchiveSha256: null, pendingTransactions: null, pendingTransactionDetails: null,
       contentBase64: archive.contentBase64, contentSha256: archive.sha256, inventoryEntries: null, guarantees,
     };
     const result = readConstitutionFsArchive(root, tx, archiveId, verified, {
