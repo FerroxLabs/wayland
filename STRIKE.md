@@ -75,14 +75,14 @@ ownership.
 
 ## Packet queue
 
-| Packet       | Dependency      | Status   | Exact commit                                                                                              | Focused proof                                                                                                                        | Aggregate proof               | Remaining blocker                                                  |
-| ------------ | --------------- | -------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- | ------------------------------------------------------------------ |
-| ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
-| FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
-| CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | REOPENED | durable-request integration `231b2fc9eec1bcc101714618f3224b5070de6d21`; failed concurrent audit head `2fc5183be9b2d5ee5a96742e3774c128118c257d` | historical receipts retained; cross-window remediation building | none for reopened exact head | cached-intent mismatch and unconditional-clear race BLOCKERs |
-| SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
-| CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
+| Packet       | Dependency      | Status   | Exact commit                                                                                              | Focused proof                                                                                                                        | Aggregate proof                                                                      | Remaining blocker                                                  |
+| ------------ | --------------- | -------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                                                                                  | none                                                               |
+| FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                                                                                  | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
+| CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B                                                        | independent exact-HEAD audit after CON-B                           |
+| CON-B        | CON-A           | LANDED   | cross-window integration `fa92b45a41140903c4c180c2d1ae0aff6e2b272c`                                       | `CON-B-CROSS-WINDOW-packet-focused`, `CON-B-CROSS-WINDOW-packet-static`, `CON-B-CROSS-WINDOW-packet-ownership`                       | `CON-B-CROSS-WINDOW-integration-focused`, `CON-B-CROSS-WINDOW-integration-typecheck` | independent exact-HEAD audit pending                               |
+| SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red                                                                 | partition reachable production dependencies and remediate          |
+| CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                                                                                 | signed packages, real journeys, deployment, canary, rollback drill |
 
 Allowed status values: PLANNED, BUILDING, STALLED, QUEUED, LANDED, REOPENED,
 ACCEPTED. No row may advance from prose alone.
@@ -670,6 +670,25 @@ old request's success or `ROLLED_BACK` path unconditionally removes whatever
 operation now occupies the principal key. Both violate destructive intent and
 durable correlation. CON-B is reopened as CON-B-CROSS-WINDOW; prior receipts
 remain historical and no aggregate or acceptance claim survives this audit.
+
+CON-B-CROSS-WINDOW packet and serial integration commit
+`fa92b45a41140903c4c180c2d1ae0aff6e2b272c` bind the displayed recovery
+operation to the exact durable operation submitted, reject and visibly
+resynchronize any changed action or identity before dispatch, clear entered
+secrets on cross-window storage changes, and conditionally remove only the
+byte-equivalent operation whose success or producer-proven rollback was
+received. A concurrently replaced, malformed, or unsupported durable record
+is preserved for review. The exact packet passed 16/16 hostile DOM tests,
+scoped format/lint/typecheck, diff hygiene, and exact two-file ownership. The
+exact integrated head passed 181/181 Constitution Vitest tests, 33/33 native
+Bun tests, and full typecheck. Independent author-excluded exact-HEAD audit
+remains the acceptance gate.
+
+- `strike/receipts/CON-B-CROSS-WINDOW-packet-focused.json`
+- `strike/receipts/CON-B-CROSS-WINDOW-packet-static.json`
+- `strike/receipts/CON-B-CROSS-WINDOW-packet-ownership.json`
+- `strike/receipts/CON-B-CROSS-WINDOW-integration-focused.json`
+- `strike/receipts/CON-B-CROSS-WINDOW-integration-typecheck.json`
 
 ## Authorization gates
 

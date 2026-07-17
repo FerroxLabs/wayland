@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-CROSS-WINDOW-packet-focused",
+  "commit": "fa92b45a41140903c4c180c2d1ae0aff6e2b272c",
+  "command": "rtk proxy bash -o pipefail -c 'bunx vitest run tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx 2>&1 | tee /tmp/wayland-con-b-cross-window-packet-focused.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:5233a50042d8bc83e03a9c9c6f1245b87f01c29ed877d8fe11539e04001e2e57",
+  "timestamp": "2026-07-17T09:06:42Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}
