@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-packet-ownership",
+  "commit": "af41442374b24bcc8645d6fd11d3eec6aff8c2c6",
+  "command": "set -euo pipefail\n{\n  ownership_diff=$(rtk proxy /usr/bin/comm -3 <(rtk proxy git diff --name-only 951593f7a2ea11db7e14b9154afd46cbbf96f870..HEAD | rtk sort -u) <({ rtk jq -r '.entries[] | select(.owner == \\\"stage_b\\\" or .owner == \\\"mixed\\\") | .path' strike/constitution-seal-inventory.json; print -r -- tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx; } | rtk sort -u))\n  if [[ -n \"$ownership_diff\" ]]; then\n    print -r -- \"$ownership_diff\"\n    print -r -- 'OWNERSHIP_DIFF=1'\n    exit 1\n  fi\n  print -r -- 'OWNERSHIP_DIFF=0'\n} > /tmp/wayland-con-b-ownership.log 2>&1",
+  "exit_code": 0,
+  "log_digest": "sha256:0193c447ae2c81d6816ad3744e63886b58a91f1db6594436f45ccc6b08d3da78",
+  "timestamp": "2026-07-17T02:14:17Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}
