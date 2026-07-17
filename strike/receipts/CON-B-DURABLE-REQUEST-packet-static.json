@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-DURABLE-REQUEST-packet-static",
+  "commit": "231b2fc9eec1bcc101714618f3224b5070de6d21",
+  "command": "rtk proxy bash -o pipefail -c 'set -e; { bunx oxfmt --check src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx; bunx oxlint src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx --deny-warnings; bun run typecheck; git diff --check HEAD^ HEAD; } 2>&1 | tee /tmp/wayland-con-b-durable-request-packet-static.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:2d75dc1b4f38e7017f8128daa4582312decd9f8791398493fdaec00d5d36574d",
+  "timestamp": "2026-07-17T08:38:26Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

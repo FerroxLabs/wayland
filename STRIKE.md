@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | REOPENED | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; terminality integration `4d228e856fb0b3068cc94abf02cb27fceb1140b5`; failed audit head `acb812cfa5d15183700603c8a439ee589f2096ed` | historical receipts retained; durable-request remediation building | none for reopened exact head | four exact-head BLOCKERs: terminal metadata, request-fact drift, allowed-action drift, malformed durable state |
+| CON-B        | CON-A           | LANDED   | durable-request integration `231b2fc9eec1bcc101714618f3224b5070de6d21`; failed historical audit head `acb812cfa5d15183700603c8a439ee589f2096ed` | `CON-B-DURABLE-REQUEST-packet-focused`, `CON-B-DURABLE-REQUEST-packet-static`, `CON-B-DURABLE-REQUEST-packet-ownership` | `CON-B-DURABLE-REQUEST-integration-focused`, `CON-B-DURABLE-REQUEST-integration-typecheck` | independent exact-HEAD re-audit |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -599,6 +599,26 @@ a replacement operation identity to be minted. The audit confirmed that the
 overloaded `OPERATION_ID_CONFLICT` clearing defect is fixed and that password
 and typed confirmation state are cleared. CON-B is reopened as
 CON-B-DURABLE-REQUEST; no aggregate or acceptance claim survives this audit.
+
+CON-B-DURABLE-REQUEST packet and serial integration commit
+`231b2fc9eec1bcc101714618f3224b5070de6d21` preserve the complete
+non-secret request binding, including canonical discard object IDs; keep the
+single pending action and its reconciliation form available across terminal,
+absent, item-drift, and allowed-action-drift metadata; and fail closed on
+malformed or unsupported durable evidence without minting, overwriting, or
+dispatching a replacement identity. Pending discard reconciliation requires a
+fresh password and an explicit fixed reconciliation confirmation that cannot
+authorize a fresh discard if producer operation authority is absent. The
+packet passed 12/12 hostile DOM tests, scoped format/lint/typecheck, and exact
+two-file ownership. Exact integrated head passed 177/177 Constitution Vitest
+tests, 33/33 native Bun tests, and full typecheck. Independent author-excluded
+exact-HEAD re-audit remains the acceptance gate.
+
+- `strike/receipts/CON-B-DURABLE-REQUEST-packet-focused.json`
+- `strike/receipts/CON-B-DURABLE-REQUEST-packet-static.json`
+- `strike/receipts/CON-B-DURABLE-REQUEST-packet-ownership.json`
+- `strike/receipts/CON-B-DURABLE-REQUEST-integration-focused.json`
+- `strike/receipts/CON-B-DURABLE-REQUEST-integration-typecheck.json`
 
 ## Authorization gates
 
