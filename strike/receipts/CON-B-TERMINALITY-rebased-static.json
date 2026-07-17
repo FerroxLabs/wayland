@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-TERMINALITY-rebased-static",
+  "commit": "4d228e856fb0b3068cc94abf02cb27fceb1140b5",
+  "command": "rtk proxy bash -o pipefail -c 'set -e; { bunx oxfmt --check src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx; bunx oxlint src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx --deny-warnings; bun run typecheck; git diff --check HEAD^ HEAD; } 2>&1 | tee /tmp/wayland-con-b-terminality-rebased-static.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:a41fbaa35f0d47c6b559f4dff12555c3421615e25db59dcfc5f546f278a066d9",
+  "timestamp": "2026-07-17T07:37:49Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

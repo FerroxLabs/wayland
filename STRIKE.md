@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | QUEUED   | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; terminality packet `67773a35e1029f7aa223ab032f240df0e9d3be9b` | `CON-B-TERMINALITY-packet-focused`, `CON-B-TERMINALITY-packet-static`, `CON-B-TERMINALITY-packet-ownership`                            | prior aggregate green         | serial post-control rebase, re-proof, landing, exact-HEAD audit     |
+| CON-B        | CON-A           | LANDED   | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; terminality integration `4d228e856fb0b3068cc94abf02cb27fceb1140b5` | `CON-B-TERMINALITY-rebased-focused`, `CON-B-TERMINALITY-rebased-static`, `CON-B-TERMINALITY-rebased-ownership`                      | `CON-B-TERMINALITY-integration-focused`, `CON-B-TERMINALITY-integration-typecheck` | independent exact-HEAD audit |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -532,6 +532,20 @@ ownership gates.
 - `strike/receipts/CON-B-TERMINALITY-packet-focused.json`
 - `strike/receipts/CON-B-TERMINALITY-packet-static.json`
 - `strike/receipts/CON-B-TERMINALITY-packet-ownership.json`
+
+CON-B-TERMINALITY serial landing: integration before
+`9167ac73fcc212ea66c2a90549174ba06ebfbdbf`; exact rebased packet and
+integration after `4d228e856fb0b3068cc94abf02cb27fceb1140b5`. Post-rebase proof passed
+9/9 hostile DOM tests, scoped format/lint, full typecheck, diff, and exact
+two-file ownership before the fast-forward. The exact integrated head then
+passed 174/174 Vitest and 33/33 Bun recovery-consumer tests plus full typecheck.
+Independent author-excluded exact-HEAD audit remains the acceptance gate.
+
+- `strike/receipts/CON-B-TERMINALITY-rebased-focused.json`
+- `strike/receipts/CON-B-TERMINALITY-rebased-static.json`
+- `strike/receipts/CON-B-TERMINALITY-rebased-ownership.json`
+- `strike/receipts/CON-B-TERMINALITY-integration-focused.json`
+- `strike/receipts/CON-B-TERMINALITY-integration-typecheck.json`
 
 ## Authorization gates
 

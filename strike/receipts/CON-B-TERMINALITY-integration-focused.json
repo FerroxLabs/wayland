@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-TERMINALITY-integration-focused",
+  "commit": "4d228e856fb0b3068cc94abf02cb27fceb1140b5",
+  "command": "rtk proxy bash -o pipefail -c 'set -e; { bunx vitest run tests/unit/preloadWeixinLogin.test.ts tests/unit/process/bridge/constitutionBridge.test.ts tests/unit/process/services/constitution/constitutionClassicRecoveryAuthority.test.ts tests/unit/process/services/constitution/constitutionClassicRecoveryRuntime.test.ts tests/unit/process/services/constitution/constitutionFsService.test.ts tests/unit/process/services/recovery/classicRecoveryLocator.test.ts tests/unit/process/services/recovery/constitutionRecoveryNegativeSurface.test.ts tests/unit/process/utils/initBridgeStandalone.test.ts tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx tests/unit/renderer/ConstitutionRecovery.dom.test.tsx tests/unit/renderer/ConstitutionService.test.ts tests/unit/renderer/ConstitutionSettings.dom.test.tsx tests/unit/common/constitutionRecovery.test.ts tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx tests/unit/webserver/constitutionRouteClient.native.contract.test.ts tests/unit/webserver/constitutionRoutes.test.ts; bun test tests/unit/process/services/constitution/constitutionClassicRecoveryLocatorService.bun.test.ts tests/unit/process/services/constitution/constitutionClassicRecoveryService.bun.test.ts tests/unit/process/services/recovery/externalRecoveryLauncher.bun.test.ts; } 2>&1 | tee /tmp/wayland-con-b-terminality-integration-focused.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:a85e283f60a07a6100564e9435d5ac9a1ad9fb154a6f20e2b162c368108104ad",
+  "timestamp": "2026-07-17T07:41:58Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}
