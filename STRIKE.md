@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | LANDED   | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; terminality integration `4d228e856fb0b3068cc94abf02cb27fceb1140b5` | `CON-B-TERMINALITY-rebased-focused`, `CON-B-TERMINALITY-rebased-static`, `CON-B-TERMINALITY-rebased-ownership`                      | `CON-B-TERMINALITY-integration-focused`, `CON-B-TERMINALITY-integration-typecheck` | independent exact-HEAD audit |
+| CON-B        | CON-A           | REOPENED | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; terminality integration `4d228e856fb0b3068cc94abf02cb27fceb1140b5`; failed audit head `acb812cfa5d15183700603c8a439ee589f2096ed` | historical receipts retained; durable-request remediation building | none for reopened exact head | four exact-head BLOCKERs: terminal metadata, request-fact drift, allowed-action drift, malformed durable state |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -304,6 +304,47 @@ lint, format, typecheck, ownership receipt; serial integration and exact-HEAD
 re-proof; independent auditor confirmation of zero HIGH/BLOCKER.
 
 Timebox: 30 minutes.
+
+### Subpacket CON-B-DURABLE-REQUEST — terminal reconciliation and exact request facts
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+
+Authority boundary: preserve and replay renderer-owned durable correlation for
+an already-authorized Classic recovery operation. This packet may preserve the
+complete non-secret request binding and keep reconciliation controls available
+when refreshed producer metadata is terminal or drifts. It may not mint a
+producer receipt, change process authority, weaken destructive authentication,
+or alter producer/DTO contracts.
+
+Invariants: a durable pending operation stores the exact non-secret request
+facts needed for replay, including the discard object IDs; refreshed metadata
+cannot replace those facts or hide the pending action; competing actions remain
+disabled while an operation is pending; malformed, unsupported, or
+shape-invalid durable evidence fails closed with an explicit repair state and
+cannot mint or dispatch a replacement identity; passwords and typed
+confirmation values are never persisted and are cleared after each attempt;
+only success or a producer-proven terminal outcome clears pending identity.
+
+Non-claims: local persistence does not prove dispatch, commit, rollback, or
+receipt authority. A pending renderer record cannot make an operation succeed,
+and this packet does not broaden the producer's allowed action set.
+
+Tests: a native failure followed by committed metadata with zero allowed actions
+still exposes reconciliation and replays the same operation ID and request
+facts; discard item/challenge drift replays the originally bound object IDs;
+allowed-action drift cannot deadlock the pending action; malformed or
+unsupported durable JSON renders an explicit fail-closed state, never calls
+`randomUUID`, never overwrites storage, and never dispatches a decision.
+
+Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
+lint, format, typecheck, and exact ownership receipts; serial integration and
+current-head aggregate proof; independent author-excluded audit at zero
+HIGH/BLOCKER.
+
+Timebox: 45 minutes.
 
 ## Packet SEC-001 — aggregate dependency security
 
@@ -546,6 +587,18 @@ Independent author-excluded exact-HEAD audit remains the acceptance gate.
 - `strike/receipts/CON-B-TERMINALITY-rebased-ownership.json`
 - `strike/receipts/CON-B-TERMINALITY-integration-focused.json`
 - `strike/receipts/CON-B-TERMINALITY-integration-typecheck.json`
+
+Independent author-excluded audit of exact integration head
+`acb812cfa5d15183700603c8a439ee589f2096ed` failed the acceptance gate with
+four BLOCKER findings. Producer terminal metadata can hide the only replay
+control after an ambiguous native failure; discard replay reconstructs
+`confirmedObjectIds` from refreshed items instead of the originally bound
+request; refreshed `allowedActions` can hide a still-pending action; and
+malformed or unsupported durable JSON is silently treated as absent, allowing
+a replacement operation identity to be minted. The audit confirmed that the
+overloaded `OPERATION_ID_CONFLICT` clearing defect is fixed and that password
+and typed confirmation state are cleared. CON-B is reopened as
+CON-B-DURABLE-REQUEST; no aggregate or acceptance claim survives this audit.
 
 ## Authorization gates
 
