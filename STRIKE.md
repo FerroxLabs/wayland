@@ -75,14 +75,14 @@ ownership.
 
 ## Packet queue
 
-| Packet       | Dependency      | Status   | Exact commit                                                                                              | Focused proof                                                                                                                        | Aggregate proof                                                                      | Remaining blocker                                                  |
-| ------------ | --------------- | -------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                                                                                  | none                                                               |
-| FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                                                                                  | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
-| CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B                                                        | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | LANDED   | cross-window integration `fa92b45a41140903c4c180c2d1ae0aff6e2b272c`                                       | `CON-B-CROSS-WINDOW-packet-focused`, `CON-B-CROSS-WINDOW-packet-static`, `CON-B-CROSS-WINDOW-packet-ownership`                       | `CON-B-CROSS-WINDOW-integration-focused`, `CON-B-CROSS-WINDOW-integration-typecheck` | independent exact-HEAD audit pending                               |
-| SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red                                                                 | partition reachable production dependencies and remediate          |
-| CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                                                                                 | signed packages, real journeys, deployment, canary, rollback drill |
+| Packet       | Dependency      | Status   | Exact commit                                                                                              | Focused proof                                                                                                                        | Aggregate proof               | Remaining blocker                                                  |
+| ------------ | --------------- | -------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- | ------------------------------------------------------------------ |
+| ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
+| FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
+| CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
+| CON-B        | CON-A           | REOPENED | failed cross-window audit head `f0ef1907283d55b24c9c792433b071f6ff75481e`                                 | historical receipts retained; storage transaction remediation building                                                               | none for reopened exact head  | localStorage read/write and compare/remove TOCTOU BLOCKERs         |
+| SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
+| CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
 Allowed status values: PLANNED, BUILDING, STALLED, QUEUED, LANDED, REOPENED,
 ACCEPTED. No row may advance from prose alone.
@@ -689,6 +689,21 @@ remains the acceptance gate.
 - `strike/receipts/CON-B-CROSS-WINDOW-packet-ownership.json`
 - `strike/receipts/CON-B-CROSS-WINDOW-integration-focused.json`
 - `strike/receipts/CON-B-CROSS-WINDOW-integration-typecheck.json`
+
+Independent author-excluded audit of exact integration head
+`f0ef1907283d55b24c9c792433b071f6ff75481e` confirmed that stale cached
+action/identity rejection, in-flight replacement preservation, storage-event
+secret clearing, exact discard facts, and malformed-state preservation work as
+implemented. It then failed the acceptance gate on two true Web Storage TOCTOU
+windows: a second window can publish after `beginPending` reads absence but
+before it writes, and can replace a matching record after
+`clearPendingIfMatching` compares but before it removes. Individual Web Storage
+operations are atomic, but the sequences are not. The existing component-local
+exclusive callback does not serialize another renderer window, and the tests
+did not force these precise interleavings. CON-B remains reopened; the prior
+receipts are historical and no aggregate or acceptance claim survives this
+audit. Remediation must fail closed without cross-window lock authority and
+prove both interleavings under one principal-scoped lock.
 
 ## Authorization gates
 
