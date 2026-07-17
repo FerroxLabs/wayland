@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T02:17:56Z
+Last heartbeat: 2026-07-17T04:53:21Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | LANDED   | packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; integration `7a8ecff24e57f89762e83da753ddd447d143d782` | `CON-B-packet-focused`, `CON-B-packet-static`, `CON-B-packet-ownership`, `CON-B-integration-focused`, `CON-B-integration-typecheck`  | final aggregate pending audit | independent exact-HEAD audit at zero HIGH/BLOCKER                  |
+| CON-B        | CON-A           | REOPENED | packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; integration `7a8ecff24e57f89762e83da753ddd447d143d782` | prior receipts remain historical evidence only                                                                                      | full combined suite green     | BLOCKER: Classic `CONFLICT` clears ambiguous durable operation ID  |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -239,6 +239,37 @@ Acceptance evidence: an exact CON-B commit whose focused receipt includes this
 test after rebasing onto the accepted CON-A integration HEAD.
 
 Timebox: 60 minutes.
+
+### Subpacket CON-B-CONFLICT-ID — ambiguous Classic conflict identity
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+
+Authority boundary: classify renderer outcomes only. This packet may retain the
+existing durable client operation identity when a Classic `CONFLICT` does not
+prove non-commit. It may not alter process authority, routing, DTO schemas,
+Classic mutation semantics, or mint a receipt.
+
+Invariants: a post-dispatch conflict never destroys correlation identity; only
+an authoritative success clears the identity after an ambiguous outcome;
+secrets are still cleared; operation-ID conflicts remain distinct; no new
+retry, cancellation, transfer, or destructive control is introduced.
+
+Non-claims: retention does not prove that the mutation committed and does not
+convert a conflict into success. The process authority remains the only source
+of a terminal result.
+
+Tests: renderer receives nonretryable `CONFLICT` with the exact operation ID,
+retains that identity, clears the password, and reuses the identity on the next
+authorized reconciliation attempt.
+
+Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
+lint, format, typecheck, ownership receipt; serial integration and exact-HEAD
+re-proof; independent auditor confirmation.
+
+Timebox: 30 minutes.
 
 ## Packet SEC-001 — aggregate dependency security
 
