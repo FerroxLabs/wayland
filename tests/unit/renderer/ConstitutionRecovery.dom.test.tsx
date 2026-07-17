@@ -552,7 +552,9 @@ describe('ConstitutionRecovery', () => {
     await screen.findByText('Connection lost after the restore committed.');
     await screen.findByRole('button', { name: new RegExp(`Pending archive replay: ${archive.archiveId}`) });
     fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'second' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Restore archive' }));
+    const retryButton = screen.getByRole('button', { name: 'Restore archive' });
+    await waitFor(() => expect(retryButton).toBeEnabled());
+    fireEvent.click(retryButton);
 
     await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
     expect(mockRestore).toHaveBeenCalledTimes(2);
