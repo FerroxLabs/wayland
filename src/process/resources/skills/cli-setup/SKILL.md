@@ -61,7 +61,7 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 
 ## Codex (command: `codex`), OpenAI
 
-**Install:** `npm install -g @openai/codex`, or `brew install --cask codex`. Self-update: `codex update`. Wayland launches the maintained `@agentclientprotocol/codex-acp` bridge, which includes a compatible Codex dependency; set `CODEX_PATH` only to override it with another Codex binary.
+**Install:** `npm install -g @openai/codex`, or `brew install --cask codex`. Self-update: `codex update`. Wayland launches the maintained `@agentclientprotocol/codex-acp` bridge (the App Server adapter — the retired `@zed-industries/codex-acp` embedded a frozen codex-core and version-gated out of new models). It includes a compatible Codex dependency, so a PATH install is optional; set `CODEX_PATH` only to override it with another Codex binary.
 
 **Auth (via `codex login`, NOT `codex auth`):**
 

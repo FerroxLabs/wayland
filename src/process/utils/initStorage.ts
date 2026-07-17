@@ -35,6 +35,7 @@ import {
   verifyDirectoryFiles,
 } from './utils';
 import { writeFileAtomic } from './atomicWrite';
+import { planPresetLocaleFileCopies } from './presetLocaleFiles';
 import { getOsUserName } from './osUserName';
 import { resolveFluxImageDefault } from './fluxImageDefault';
 import { readConnectedFluxKey } from '../connectors/fluxKey';
@@ -58,7 +59,9 @@ import {
 import { resolveNpxPath } from './shellEnv';
 import { getPlaywrightBrowsersDir } from '../services/mcpServices/playwrightBrowsers';
 import { getMcpScriptPath, inspectMcpScripts } from './mcpScriptDir';
+import { cleanupLegacyBundledExtensionCopies } from '../extensions/lifecycle/legacyBundledCopyCleanup';
 import { getBuiltinCatalogAssistants } from './builtinCatalog';
+import { seedHermesProfileAssistants } from '../services/skills/hermesProfileSeeder';
 // Platform and architecture types (moved from deleted updateConfig)
 type PlatformType = 'win32' | 'darwin' | 'linux';
 type ArchitectureType = 'x64' | 'arm64' | 'ia32' | 'arm';
@@ -519,18 +522,20 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
     // Copy rule files
     const hasRuleFiles = Object.keys(preset.ruleFiles).length > 0;
     if (hasRuleFiles) {
-      for (const [locale, ruleFile] of Object.entries(preset.ruleFiles)) {
+      // Absent non-default locale variants are skipped silently: the read path
+      // falls back to the default locale, so per-file warnings are noise (#719).
+      const rulePlan = planPresetLocaleFileCopies(preset.ruleFiles, (file) =>
+        existsSync(path.join(presetRulesDir, file))
+      );
+      for (const { file } of rulePlan.missing) {
+        console.warn(`[Wayland] Source rule file not found: ${path.join(presetRulesDir, file)}`);
+      }
+      for (const { locale, file } of rulePlan.copies) {
         try {
-          const sourceRulesPath = path.join(presetRulesDir, ruleFile);
+          const sourceRulesPath = path.join(presetRulesDir, file);
           // Target file name format: {assistantId}.{locale}.md
           const targetFileName = `${assistantId}.${locale}.md`;
           const targetPath = path.join(assistantsDir, targetFileName);
-
-          // Check if source file exists
-          if (!existsSync(sourceRulesPath)) {
-            console.warn(`[Wayland] Source rule file not found: ${sourceRulesPath}`);
-            continue;
-          }
 
           // Always overwrite builtin assistant rule files to ensure users get the latest version
           let content = await fs.readFile(sourceRulesPath, 'utf-8');
@@ -539,7 +544,7 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
           await fs.writeFile(targetPath, content, 'utf-8');
         } catch (error) {
           // Ignore missing locale files
-          console.warn(`[Wayland] Failed to copy rule file ${ruleFile}:`, error);
+          console.warn(`[Wayland] Failed to copy rule file ${file}:`, error);
         }
       }
     } else {
@@ -560,18 +565,20 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
 
     // Copy skill files (if preset has skills)
     if (preset.skillFiles) {
-      for (const [locale, skillFile] of Object.entries(preset.skillFiles)) {
+      // Absent non-default locale variants are skipped silently: the read path
+      // falls back to the default locale, so per-file warnings are noise (#719).
+      const skillPlan = planPresetLocaleFileCopies(preset.skillFiles, (file) =>
+        existsSync(path.join(presetSkillsDir, file))
+      );
+      for (const { file } of skillPlan.missing) {
+        console.warn(`[Wayland] Source skill file not found: ${path.join(presetSkillsDir, file)}`);
+      }
+      for (const { locale, file } of skillPlan.copies) {
         try {
-          const sourceSkillsPath = path.join(presetSkillsDir, skillFile);
+          const sourceSkillsPath = path.join(presetSkillsDir, file);
           // Target file name format: {assistantId}-skills.{locale}.md
           const targetFileName = `${assistantId}-skills.${locale}.md`;
           const targetPath = path.join(assistantsDir, targetFileName);
-
-          // Check if source file exists
-          if (!existsSync(sourceSkillsPath)) {
-            console.warn(`[Wayland] Source skill file not found: ${sourceSkillsPath}`);
-            continue;
-          }
 
           // Always overwrite builtin assistant skill files to ensure users get the latest version
           let content = await fs.readFile(sourceSkillsPath, 'utf-8');
@@ -580,7 +587,7 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
           await fs.writeFile(targetPath, content, 'utf-8');
         } catch (error) {
           // Ignore missing skill files
-          console.warn(`[Wayland] Failed to copy skill file ${skillFile}:`, error);
+          console.warn(`[Wayland] Failed to copy skill file ${file}:`, error);
         }
       }
     } else {
@@ -1226,6 +1233,17 @@ const initStorage = async () => {
   // <userData>/extensions. ExtensionLoader reads them in place from inside the
   // app (asar) via the 'bundled' scan source — loose .md skill bodies tripped
   // AV content heuristics (#275). See getBundledExtensionsDir().
+  //
+  // #718: builds before #275 left their copied-out packs behind. Remove those
+  // stale copies once so they stop shadowing the asar set and re-triggering
+  // the "Skipping duplicate extension" warning per pack on every launch.
+  const BUNDLED_COPY_CLEANUP_KEY = 'migration.legacyBundledExtensionCopiesRemoved';
+  const bundledCleanupDone = await configFile.get(BUNDLED_COPY_CLEANUP_KEY).catch(() => false);
+  if (!bundledCleanupDone) {
+    if (await cleanupLegacyBundledExtensionCopies()) {
+      await configFile.set(BUNDLED_COPY_CLEANUP_KEY, true);
+    }
+  }
   mark('4.3 bundledExtensions');
 
   // 5. Initialize builtin assistants
@@ -1419,6 +1437,21 @@ const initStorage = async () => {
   } catch (error) {
     console.error('[Wayland] Failed to initialize builtin assistants:', error);
   }
+
+  // 5.4 Seed one preset Assistant per Hermes profile (~/.hermes/profiles/<name>/).
+  // Isolated from the builtin block so a profile-scan failure can't blank builtin
+  // init; runs after it so it reads the freshly-persisted assistants list.
+  try {
+    await seedHermesProfileAssistants({
+      getAssistants: async () => (await configFile.get('assistants').catch((): undefined => undefined)) ?? [],
+      setAssistants: async (next) => {
+        await configFile.set('assistants', next);
+      },
+    });
+  } catch (error) {
+    console.error('[Wayland] Failed to seed Hermes profile assistants:', error);
+  }
+  mark('5.4 hermes profile assistants');
 
   // 6. Initialize the database (better-sqlite3)
   try {

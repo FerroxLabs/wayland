@@ -53,6 +53,7 @@ const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   'claude-opus-4-5': 200_000,
   'claude-opus-4-1': 200_000,
   'claude-opus-4': 200_000,
+  'claude-sonnet-5': 1_000_000,
   'claude-sonnet-4-6': 1_000_000,
   'claude-sonnet-4-5': 200_000,
   'claude-sonnet-4': 200_000,
@@ -64,12 +65,50 @@ const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   'claude-3-opus': 200_000,
   'claude-3-sonnet': 200_000,
   'claude-3-haiku': 200_000,
+
+  // Claude Code ACP "slot" aliases. The claude backend has no session/set_model
+  // and only honors the three ANTHROPIC_MODEL aliases, so it reports its current
+  // model as a bare SLOT (`opus`/`sonnet`/`haiku`) rather than a catalog id - see
+  // CLAUDE_SLOT_MODELS in src/process/agent/acp/utils.ts. Without these rows the
+  // meter cannot size a window from what the agent actually reports and falls back
+  // to DEFAULT_CONTEXT_LIMIT for EVERY slot - so Haiku (really 200K) showed a ~1M
+  // denominator. (#733)
+  //
+  // Each alias is resolved LIVE against the claude CLI (`ANTHROPIC_MODEL=<slot>`,
+  // verified 2026-07-11):
+  //   opus   -> claude-opus-4-8            -> 1M
+  //   sonnet -> claude-sonnet-5            -> 1M   (#802)
+  //   haiku  -> claude-haiku-4-5-20251001  -> 200K
+  //
+  // These short keys stay in the FUZZY table ON PURPOSE. Real catalog ids like
+  // `claude-4.5-haiku`, `anthropic/claude-haiku-latest` and `duo-chat-haiku-4-5`
+  // match NONE of the `claude-haiku-*` keys above and reach 200K only through the
+  // bare `haiku` key. Moving the slots to an exact-match-only table sounds safer
+  // but is strictly worse: those ids then fall through to DEFAULT_CONTEXT_LIMIT.
+  // For `opus`/`sonnet` (really 1M) that would UNDER-size the window to the
+  // conservative default; the bare keys give the slot its true 1M. (`haiku` lands
+  // on 200K either way now, but stays explicit for the same reason.)
+  //
+  // The bare keys do NOT rescue ids like `opus-4-5`/`sonnet-4` (really 200K) - but
+  // they no longer NEED to: the default is now conservative (#807 fixed), so an
+  // unmatched id is sized at the safe 200K floor rather than an optimistic 1M+.
+  opus: 1_000_000,
+  sonnet: 1_000_000,
+  haiku: 200_000,
 };
 
 /**
- * Default context limit (used when the model cannot be determined)
+ * Default context limit for a model we cannot identify at all — absent from the
+ * live catalog (resolveModelContextLimit) AND unmatched in the table above.
+ *
+ * Conservative ON PURPOSE (#807). An optimistic default is the UNSAFE direction:
+ * sizing an unknown model at ~1M when it is really 200K reports ~19% usage at the
+ * exact moment the user is at 100%, so they hit "out of headroom" with no warning
+ * at all. 200K is the overwhelmingly common floor, so an unknown model now nags
+ * early (safe) instead of never (unsafe). A genuinely-1M unknown is sized
+ * conservatively only until it appears in the catalog or the table.
  */
-export const DEFAULT_CONTEXT_LIMIT = 1_048_576;
+export const DEFAULT_CONTEXT_LIMIT = 200_000;
 
 /**
  * Get context limit by model name
@@ -97,4 +136,33 @@ export function getModelContextLimit(modelName: string | undefined | null): numb
   }
 
   return bestLimit;
+}
+
+/**
+ * Resolve a model's context limit preferring the live registry catalog over
+ * the static table above (#733).
+ *
+ * `catalogWindows` maps catalog model ids to their models.dev-enriched
+ * `contextWindow` — the SAME source the model picker rows render ("1M
+ * context"). The static `MODEL_CONTEXT_LIMITS` table is only a fallback: it
+ * goes stale as providers ship new models, and its fuzzy substring match can
+ * resolve a new/variant id to an older sibling's window (e.g. a dated Opus id
+ * falling to the bare `claude-opus-4` 200K entry) while the picker shows the
+ * correct 1M — the inconsistent denominator reported in #733.
+ *
+ * An id absent from the catalog (Flux routing aliases, disconnected
+ * providers, unenriched models with no `contextWindow`) keeps the previous
+ * static-table behavior, including its `DEFAULT_CONTEXT_LIMIT` fallback.
+ */
+export function resolveModelContextLimit(
+  catalogWindows: ReadonlyMap<string, number>,
+  modelName: string | undefined | null
+): number {
+  if (modelName) {
+    const window = catalogWindows.get(modelName) ?? catalogWindows.get(modelName.toLowerCase());
+    if (typeof window === 'number' && window > 0) {
+      return window;
+    }
+  }
+  return getModelContextLimit(modelName);
 }

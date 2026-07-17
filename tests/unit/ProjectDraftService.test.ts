@@ -37,7 +37,7 @@ describe('generateKnowledgeDraftHttp (#682)', () => {
 
     const result = await generateKnowledgeDraftHttp({ kind: 'context' });
 
-    expect(result.error).toBe('failed');
+    expect(result.error).toBe('auth');
     expect(result.detail).toContain('HTTPS required');
   });
 
@@ -50,7 +50,7 @@ describe('generateKnowledgeDraftHttp (#682)', () => {
 
     const result = await generateKnowledgeDraftHttp({ kind: 'context' });
 
-    expect(result.error).toBe('failed');
+    expect(result.error).toBe('auth');
     expect(result.detail).toBe('Invalid or missing CSRF token');
   });
 

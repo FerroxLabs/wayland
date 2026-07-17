@@ -38,6 +38,11 @@ interface PersistedStates {
       enabled: boolean;
       disabledAt?: string; // ISO date string
       disabledReason?: string;
+      permissionReview?: {
+        approvedAt: string;
+        approvedRiskLevel: 'safe' | 'moderate' | 'dangerous';
+        approvedPermissions: string[];
+      };
       /** Track whether onInstall has been run for this extension */
       installed?: boolean;
       /** Last known version - used for migration detection */
@@ -70,6 +75,13 @@ export async function loadPersistedStates(): Promise<Map<string, ExtensionState>
         enabled: state.enabled,
         disabledAt: state.disabledAt ? new Date(state.disabledAt) : undefined,
         disabledReason: state.disabledReason,
+        permissionReview: state.permissionReview
+          ? {
+              approvedAt: new Date(state.permissionReview.approvedAt),
+              approvedRiskLevel: state.permissionReview.approvedRiskLevel,
+              approvedPermissions: state.permissionReview.approvedPermissions,
+            }
+          : undefined,
         installed: state.installed,
         lastVersion: state.lastVersion,
         installError: state.installError,
@@ -143,6 +155,13 @@ async function _writePersistedStates(states: Map<string, ExtensionState>, states
       enabled: state.enabled,
       disabledAt: state.disabledAt?.toISOString(),
       disabledReason: state.disabledReason,
+      permissionReview: state.permissionReview
+        ? {
+            approvedAt: state.permissionReview.approvedAt.toISOString(),
+            approvedRiskLevel: state.permissionReview.approvedRiskLevel,
+            approvedPermissions: state.permissionReview.approvedPermissions,
+          }
+        : undefined,
       installed: (state as any).installed,
       lastVersion: (state as any).lastVersion,
       installError: (state as any).installError,

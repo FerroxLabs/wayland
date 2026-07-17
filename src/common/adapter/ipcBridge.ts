@@ -16,6 +16,7 @@ import type { MicPermissionStatus } from '../../process/services/macPermissions/
 import type { DoctorReport } from '../../process/doctor/types';
 import type { AgentBackend, AcpModelInfo, AcpModelSelectionResult } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
+import type { WorkspaceTrustLevel } from '../security/workspaceTrust';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
@@ -298,6 +299,10 @@ export const application = {
   updateSystemInfo: buildProvider<IBridgeResponse, { cacheDir: string; workDir: string }>('system.update-info'), // Update system info
   getZoomFactor: buildProvider<number, void>('app.get-zoom-factor'),
   setZoomFactor: buildProvider<number, { factor: number }>('app.set-zoom-factor'),
+  // The conversation the user is currently looking at, or null when no chat is in
+  // view. Reported by the renderer so the task-completion notifier (#579) can stay
+  // quiet only about the on-screen chat, not every chat while the app is focused.
+  setForegroundConversation: buildProvider<void, { conversationId: string | null }>('app.set-foreground-conversation'),
   // Pop a main destination (e.g. Mission Control) out into its own window, reusing
   // the conversation pop-out window infrastructure. `route` is validated against an
   // allowlist in the main process. Returns alreadyOpen:true when an existing
@@ -650,6 +655,24 @@ export const imports = {
   folder: buildProvider<ImportSummary, { srcPath: string }>('imports.folder'),
   git: buildProvider<ImportSummary, { url: string }>('imports.git'),
   singleSkillMd: buildProvider<ImportSummary, { srcPath: string }>('imports.single-skill-md'),
+};
+
+/** Result of a portable export (#512). `redacted` warns a masked secret was found. */
+export interface PortableExportResult {
+  ok: boolean;
+  canceled?: boolean;
+  path?: string;
+  redacted?: boolean;
+  error?: string;
+}
+
+// #512: credential-redacted export of an assistant / workflow to a portable
+// SKILL.md that round-trips through the importer above. The workflow body is
+// resolved through SkillLibrary by NAME (never a renderer-supplied path), so
+// there is no on-disk path-traversal surface.
+export const dataExport = {
+  assistant: buildProvider<PortableExportResult, { id: string }>('data-export.assistant'),
+  workflow: buildProvider<PortableExportResult, { name: string }>('data-export.workflow'),
 };
 
 export const voiceAsset = {
@@ -1384,7 +1407,9 @@ export const cron = {
   getJob: buildProvider<ICronJob | null, { jobId: string }>('cron.get-job'),
   // CRUD
   addJob: buildProvider<ICronJob, ICreateCronJobParams>('cron.add-job'),
-  updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob> }>('cron.update-job'),
+  updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }>(
+    'cron.update-job'
+  ),
   removeJob: buildProvider<void, { jobId: string }>('cron.remove-job'),
   runNow: buildProvider<{ conversationId: string }, { jobId: string }>('cron.run-now'),
   saveSkill: buildProvider<void, { jobId: string; content: string }>('cron.save-skill'),
@@ -1504,6 +1529,8 @@ export interface ICreateCronJobParams {
   createdBy: 'user' | 'agent';
   executionMode?: 'existing' | 'new_conversation';
   agentConfig?: ICronAgentConfig;
+  /** #163: opt-in past the every-minute + new_conversation footgun guard. */
+  allowHighFrequency?: boolean;
 }
 
 interface ISendMessageParams {
@@ -1640,6 +1667,22 @@ export interface IResponseMessage {
   msg_id: string;
   conversation_id: string;
   hidden?: boolean;
+  /**
+   * #787: per-conversation turn id of the turn that PRODUCED this terminal
+   * (`finish`/`error`) event. TeammateManager keys its finalize-dedup on
+   * `${conversation_id}#${turnId}` so a late duplicate of a prior turn's finish
+   * (arriving after the agent was re-woken) can't collapse the re-wake's fresh
+   * dedup window. Two producers:
+   *  - the real ACP signal finish carries the engine's per-turn `turn_id` (a
+   *    string uuid = the turn's `msg_id`, stamped by wayland-core on the
+   *    `Done`/`Error` terminal frames, wired through here from AcpConnection);
+   *  - the desktop-synthesized fallback finishes carry the local sequential
+   *    `beginTrackedTurn()` id (a number).
+   * Both are stable-per-turn and distinct-across-turns, which is all the dedup
+   * key needs (it stringifies either). Absent for non-ACP finishes, which fall
+   * back to conversation-only keying (unchanged behaviour).
+   */
+  turnId?: string | number;
 }
 
 export interface IConversationTurnCompletedEvent {
@@ -1715,14 +1758,49 @@ export interface IExtensionInfo {
   displayName: string;
   version: string;
   description?: string;
+  author?: string;
+  homepage?: string;
+  icon?: string;
+  apiVersion?: string;
+  engine?: { wayland?: string };
+  dependencies?: Record<string, string>;
   source: string;
   directory: string;
   /** Whether the extension is currently enabled */
   enabled: boolean;
+  /** Last disabled reason, when available */
+  disabledReason?: string;
+  /** Install/load error captured by the extension state store, when available */
+  installError?: string;
   /** Overall permission risk level */
   riskLevel: 'safe' | 'moderate' | 'dangerous';
+  /** User review/approval state for elevated or risky permissions */
+  permissionReview?: {
+    approvedAt: string;
+    approvedRiskLevel: 'safe' | 'moderate' | 'dangerous';
+    approvedPermissions: string[];
+  };
   /** Whether the extension has lifecycle hooks */
   hasLifecycle: boolean;
+  /** Contribution counts grouped by extension surface */
+  contributes: {
+    acpAdapters: number;
+    mcpServers: number;
+    assistants: number;
+    agents: number;
+    skills: number;
+    channelPlugins: number;
+    webuiApiRoutes: number;
+    webuiStaticAssets: number;
+    themes: number;
+    settingsTabs: number;
+    modelProviders: number;
+    acronyms: number;
+    workspacePanels: number;
+    filePreviewActions: number;
+    scheduledTaskTemplates: number;
+    workflowTemplates: number;
+  };
 }
 
 /** Permission summary for extension management UI (Figma-inspired) */
@@ -1731,6 +1809,39 @@ export interface IExtensionPermissionSummary {
   description: string;
   level: 'safe' | 'moderate' | 'dangerous';
   granted: boolean;
+}
+
+export interface IExtensionBuilderPlan {
+  name: string;
+  slug: string;
+  summary: string;
+  riskLevel: 'safe' | 'moderate' | 'dangerous';
+  permissions: string[];
+  contributions: string[];
+  files: string[];
+  reviewItems: string[];
+  creationPath?: string;
+}
+
+export interface IExtensionBuilderMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface IExtensionBuilderDraftResult {
+  plan: IExtensionBuilderPlan;
+  reply: string;
+  source: 'ai' | 'fallback';
+  model?: string;
+  error?: string;
+}
+
+export interface IExtensionBuilderCreateResult {
+  name: string;
+  displayName: string;
+  directory: string;
+  files: string[];
+  restartRequired: boolean;
 }
 
 /** Settings tab contributed by an extension, consumed by settings UI */
@@ -1752,6 +1863,57 @@ export interface IExtensionWebuiContribution {
   extensionName: string;
   apiRoutes: Array<{ path: string; auth: boolean }>;
   staticAssets: Array<{ urlPrefix: string; directory: string }>;
+}
+
+export interface IExtensionAcronym {
+  id: string;
+  acronym: string;
+  expansion: string;
+  description?: string;
+  enabled: boolean;
+  _extensionName: string;
+}
+
+export interface IExtensionWorkspacePanel {
+  id: string;
+  name: string;
+  icon?: string;
+  entryUrl: string;
+  order: number;
+  _extensionName: string;
+}
+
+export interface IExtensionFilePreviewAction {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  matchExtensions?: string[];
+  promptTemplate?: string;
+  entryUrl?: string;
+  order: number;
+  _extensionName: string;
+}
+
+export interface IExtensionScheduledTaskTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  promptTemplate: string;
+  scheduleHint?: string;
+  order: number;
+  _extensionName: string;
+}
+
+export interface IExtensionWorkflowTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  promptTemplate?: string;
+  steps?: string[];
+  order: number;
+  _extensionName: string;
 }
 
 export type AgentActivityState = 'idle' | 'writing' | 'researching' | 'executing' | 'syncing' | 'error';
@@ -1813,10 +1975,23 @@ export const extensions = {
   getExtI18nForLocale: buildProvider<Record<string, unknown>, { locale: string }>('extensions.get-ext-i18n-for-locale'),
 
   // --- Extension Management API (NocoBase-inspired) ---
+  /** Draft a reviewable extension plan from a plain-English builder conversation */
+  draftBuilderPlan: buildProvider<
+    IBridgeResponse<IExtensionBuilderDraftResult>,
+    { messages: IExtensionBuilderMessage[]; fallbackIdea: string }
+  >('extensions.draft-builder-plan'),
+  /** Scaffold an update-safe user-data extension package from an approved builder plan */
+  createFromBuilder: buildProvider<IBridgeResponse<IExtensionBuilderCreateResult>, { plan: IExtensionBuilderPlan }>(
+    'extensions.create-from-builder'
+  ),
   /** Enable a disabled extension */
   enableExtension: buildProvider<IBridgeResponse, { name: string }>('extensions.enable'),
   /** Disable an extension */
   disableExtension: buildProvider<IBridgeResponse, { name: string; reason?: string }>('extensions.disable'),
+  /** Mark elevated/risky extension permissions as reviewed and approved */
+  approvePermissions: buildProvider<IBridgeResponse, { name: string }>('extensions.approve-permissions'),
+  /** Revoke a previous elevated/risky permission approval */
+  revokePermissionApproval: buildProvider<IBridgeResponse, { name: string }>('extensions.revoke-permission-approval'),
   /** Get permission summary for an extension (Figma-inspired) */
   getPermissions: buildProvider<IExtensionPermissionSummary[], { name: string }>('extensions.get-permissions'),
   /** Get overall risk level for an extension */
@@ -3105,4 +3280,24 @@ export const terminal = {
   output: buildEmitter<TerminalOutputPayload>('terminal.output'),
   /** PTY exited → renderer (filter by terminalId). */
   exit: buildEmitter<TerminalExitPayload>('terminal.exit'),
+};
+
+/**
+ * #671 Per-workspace trust axis — the composer Chat<->Cowork toggle.
+ *
+ * A 'cowork' workspace auto-approves read/edit tools across every local backend
+ * while STILL prompting on exec/network; 'chat' prompts on everything. Persisted
+ * per workspace (keyed by cwd) in the main process.
+ *
+ * SECURITY: both keys are namespaced `workspaceTrust.*` so bridgeAllowlist's
+ * `workspaceTrust.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket peer
+ * from ever reading OR arming trust — `set` would let a remote peer switch a
+ * workspace into unattended edit auto-approve, and `get` would disclose the
+ * security posture. This is a LOCAL desktop control only.
+ */
+export const workspaceTrust = {
+  /** Read the persisted trust level for a workspace cwd. */
+  get: buildProvider<WorkspaceTrustLevel, { workspace: string }>('workspaceTrust.get'),
+  /** Set + persist the trust level for a workspace cwd. */
+  set: buildProvider<void, { workspace: string; level: WorkspaceTrustLevel }>('workspaceTrust.set'),
 };

@@ -458,5 +458,16 @@
       "bridge_unavailable": "無法連線提供者以切換到 {{model}}。目前模型未變更。",
       "model_switch_timeout": "等待確認 {{model}} 逾時。目前模型未變更。"
     }
+  },
+  "notification": {
+    "untitled": "未命名對話",
+    "agentFinished": {
+      "title": "任務完成",
+      "body": "{{title}} 已完成，正在等待你。"
+    },
+    "agentError": {
+      "title": "任務失敗",
+      "body": "{{title}} 因錯誤而停止。{{detail}}"
+    }
   }
 }

@@ -458,5 +458,16 @@
       "bridge_unavailable": "{{model}} に切り替えるためのプロバイダーに接続できませんでした。アクティブなモデルは変更されていません。",
       "model_switch_timeout": "{{model}} の確認待ちがタイムアウトしました。アクティブなモデルは変更されていません。"
     }
+  },
+  "notification": {
+    "untitled": "無題のチャット",
+    "agentFinished": {
+      "title": "タスク完了",
+      "body": "{{title}} が完了し、あなたを待っています。"
+    },
+    "agentError": {
+      "title": "タスク失敗",
+      "body": "{{title}} はエラーで停止しました。{{detail}}"
+    }
   }
 }

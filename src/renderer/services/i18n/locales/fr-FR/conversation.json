@@ -458,5 +458,16 @@
       "bridge_unavailable": "Impossible de joindre le fournisseur pour passer à {{model}}. Le modèle actif n’a pas changé.",
       "model_switch_timeout": "Le délai de confirmation de {{model}} a expiré. Le modèle actif n’a pas changé."
     }
+  },
+  "notification": {
+    "untitled": "Discussion sans titre",
+    "agentFinished": {
+      "title": "Tâche terminée",
+      "body": "{{title}} est terminé et vous attend."
+    },
+    "agentError": {
+      "title": "Échec de la tâche",
+      "body": "{{title}} s’est arrêté avec une erreur. {{detail}}"
+    }
   }
 }

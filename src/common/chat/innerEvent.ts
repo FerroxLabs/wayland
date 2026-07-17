@@ -207,6 +207,7 @@ export const parseInnerEvent = (inner: unknown, depth = 0): ParsedInner => {
       case 'pong':
       case 'config_changed':
       case 'mcp_ready':
+      case 'mcp_failed':
       case 'session_cost':
       case 'trace_event':
       case 'provider_circuit_event':

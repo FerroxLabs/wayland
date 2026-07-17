@@ -458,5 +458,16 @@
       "bridge_unavailable": "No se pudo contactar con el proveedor para cambiar a {{model}}. El modelo activo no ha cambiado.",
       "model_switch_timeout": "Se agotó el tiempo de espera para confirmar {{model}}. El modelo activo no ha cambiado."
     }
+  },
+  "notification": {
+    "untitled": "Chat sin título",
+    "agentFinished": {
+      "title": "Tarea completada",
+      "body": "{{title}} ha terminado y te está esperando."
+    },
+    "agentError": {
+      "title": "La tarea falló",
+      "body": "{{title}} se detuvo con un error. {{detail}}"
+    }
   }
 }

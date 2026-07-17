@@ -10,7 +10,7 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import type { IConversationService } from '@process/services/IConversationService';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { initAcpConversationBridge } from './acpConversationBridge';
-import { initApplicationBridge } from './applicationBridge';
+import { initApplicationBridge, isApplicationWindowFocused, getForegroundConversationId } from './applicationBridge';
 import { initAuthBridge } from './authBridge';
 import { initBedrockBridge } from './bedrockBridge';
 import { initChannelBridge } from './channelBridge';
@@ -51,12 +51,15 @@ import { initWikiBridge } from './wikiBridge';
 import { startWikiAutoSync } from '@process/services/wiki/wikiAutoSync';
 import { initImportBridge } from './importBridge';
 import { initMigrationBridge } from './migrationBridge';
+import { initWorkspaceTrustBridge } from './workspaceTrustBridge';
 import { initSystemSettingsBridge } from './systemSettingsBridge';
 import { initTerminalBridge } from '@process/terminal/terminalBridge';
 import { initFluxConnectorBridge } from './fluxConnectorBridge';
 import { initAmbientBridge } from './ambientBridge';
 import { initWindowControlsBridge } from './windowControlsBridge';
 import { initNotificationBridge } from './notificationBridge';
+import { initTaskCompletionNotifier } from '@process/services/notifications/taskCompletionNotifier';
+import { getWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
 import { initPptPreviewBridge } from './pptPreviewBridge';
 import { initOfficeWatchBridge } from './officeWatchBridge';
 import { initExtensionsBridge } from './extensionsBridge';
@@ -131,8 +134,17 @@ export function initAllBridges(deps: BridgeDependencies): void {
   startWikiAutoSync();
   initImportBridge();
   initMigrationBridge();
+  initWorkspaceTrustBridge();
   initAmbientBridge();
   initNotificationBridge();
+  initTaskCompletionNotifier({
+    isAppFocused: isApplicationWindowFocused,
+    getForegroundConversationId,
+    getConversation: (id) => deps.conversationService.getConversation(id),
+    // Resolved lazily, at event time: the workflow singleton is wired later in
+    // initBridge than initAllBridges runs, so capturing it here would capture null.
+    findWorkflowByConversationId: (id) => getWorkflowSessionService()?.findByConversationId(id) ?? null,
+  });
   initTaskBridge(deps.workerTaskManager);
   initAutopilotBridge();
   initStarOfficeBridge();
@@ -228,6 +240,7 @@ export {
   initWikiBridge,
   initImportBridge,
   initMigrationBridge,
+  initWorkspaceTrustBridge,
   initDoctorBridge,
 };
 export { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';

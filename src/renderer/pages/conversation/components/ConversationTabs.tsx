@@ -312,15 +312,13 @@ const ConversationTabs: React.FC = () => {
   const handleCloseTab = useCallback(
     (tabId: string) => {
       cleanupSiderTooltips();
-      const remaining = openTabs.filter((tt) => tt.id !== tabId);
       closeTab(tabId);
-      // The content area follows the /conversation/:id route, not activeTabId.
-      // context.closeTab only updates activeTabId state; it does NOT navigate, so
-      // closing the ACTIVE tab left the route (and view) stuck on the just-closed
-      // chat while other tabs remained (#678). Mirror context.closeTab's choice of
-      // next tab (the last remaining) so the view follows it, or go home if none
-      // are left. Matches the tear-off navigation in handlePopoutTab.
+      // The content panel is route-driven (/conversation/:id), so the context
+      // updating activeTabId alone leaves the closed chat on screen (#678).
+      // When the active tab closes, navigate to the tab the context activates
+      // (the last remaining one), or to the welcome page when none remain.
       if (tabId === activeTabId) {
+        const remaining = openTabs.filter((tab) => tab.id !== tabId);
         void navigate(remaining.length > 0 ? `/conversation/${remaining[remaining.length - 1].id}` : '/guid');
       }
     },
@@ -509,12 +507,27 @@ const ConversationTabs: React.FC = () => {
                 closeAllTabs();
                 void navigate('/guid');
                 break;
-              case 'close-left':
+              case 'close-left': {
                 closeTabsToLeft(tabId);
+                // #762 (sibling of #678): the context switches activeTabId to the
+                // anchor tab when the active tab is inside the closed range, but the
+                // router keeps rendering the closed chat unless we navigate too.
+                // Only navigate when the active tab was actually closed (to the
+                // left of the anchor); leave an unaffected active tab in place.
+                const activeIndexLeft = openTabs.findIndex((tab) => tab.id === activeTabId);
+                if (activeIndexLeft > -1 && activeIndexLeft < tabIndex) {
+                  void navigate(`/conversation/${tabId}`);
+                }
                 break;
-              case 'close-right':
+              }
+              case 'close-right': {
                 closeTabsToRight(tabId);
+                const activeIndexRight = openTabs.findIndex((tab) => tab.id === activeTabId);
+                if (activeIndexRight > -1 && activeIndexRight > tabIndex) {
+                  void navigate(`/conversation/${tabId}`);
+                }
                 break;
+              }
               case 'close-others':
                 closeOtherTabs(tabId);
                 void navigate(`/conversation/${tabId}`);
@@ -543,6 +556,7 @@ const ConversationTabs: React.FC = () => {
     },
     [
       openTabs,
+      activeTabId,
       closeAllTabs,
       closeTabsToLeft,
       closeTabsToRight,

@@ -19,6 +19,7 @@ import type { IProvider, TChatConversation, TProviderWithModel } from '@/common/
 import { ProcessConfig } from '@process/utils/initStorage';
 import { getAssistantsDir } from '@process/utils/initStorage';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/chatgptSubscriptionModels';
+import { resolveBackendCandidateProviders } from '@process/providers/backendProviderResolution';
 import { EventLogger } from './EventLogger';
 import { TaskManager } from './TaskManager';
 import { Watchdog } from './Watchdog';
@@ -64,8 +65,8 @@ export class TeamSessionService {
     this.eventLogger = new EventLogger(repo);
     // P2 - one Watchdog per process (TeamSessionService is constructed once at
     // boot in initBridge). Sweep every 60s, matching TeammateManager's
-    // WAKE_TIMEOUT_MS; the lease TTL is 3x that, so a lapsed lease is reclaimed
-    // within one TTL window after the owner dies. Stopped in stopAllSessions.
+    // LEASE_RENEW_THROTTLE_MS; the lease TTL is 3x that, so a lapsed lease is
+    // reclaimed within one TTL window after the owner dies. Stopped in stopAllSessions.
     // checkUnblocks is roster-agnostic (it derives the team from the task), so a
     // bare TaskManager over the repo is enough to release dependents when the
     // Watchdog completes-through a verify-orphan.
@@ -292,13 +293,89 @@ export class TeamSessionService {
     return subscription ? ({ ...subscription, useModel } as TProviderWithModel) : model;
   }
 
+  /**
+   * Default model for an ACP-backed team agent (codex, claude, qwen, grok, …) so
+   * a new teammate of ANY backend is created already pointing at a real model
+   * instead of an empty "Select Model" the agent can't start from. Mirrors
+   * `resolveDefaultAionrsModel`'s scan of the legacy `model.config` blob, but
+   * scoped to the provider(s) the backend actually runs
+   * (`resolveBackendCandidateProviders`, the same canonical map the home picker's
+   * `curatedForAgent` uses - codex -> chatgpt-subscription|openai, claude ->
+   * anthropic, qwen -> qwen, …).
+   *
+   * Fail-safe by construction: any backend with no known provider, no connected
+   * provider for that platform, or any thrown error resolves to an empty
+   * `TProviderWithModel` - the historical behavior. It NEVER invents a model the
+   * user hasn't connected; it only ever returns a model a connected+enabled
+   * provider already owns.
+   *
+   * Providers are matched by their registry-bridge tag (`v2:<providerId>`, the
+   * precise identity `preferSubscriptionForOwnedModel`/`resolveOwningProviderModelById`
+   * also key on) first, falling back to the legacy `platform` string only for the
+   * three providers whose platform is unambiguous (anthropic/openai/gemini). The
+   * `openai-compatible` long tail (xai, moonshot, qwen, …) is matched by tag only,
+   * so a codex default can't bind to an unrelated OpenAI-compatible provider.
+   */
+  private async resolveDefaultAcpModel(backend: string): Promise<TProviderWithModel> {
+    try {
+      const candidates = resolveBackendCandidateProviders(backend);
+      if (candidates.length === 0) return {} as TProviderWithModel;
+
+      const configuredProviders = await ProcessConfig.get('model.config');
+      const providers = Array.isArray(configuredProviders)
+        ? configuredProviders.filter((p) => p.enabled !== false)
+        : [];
+      if (providers.length === 0) return {} as TProviderWithModel;
+
+      const bridgeTagOf = (p: IProvider): string | undefined => {
+        const tag = (p as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
+        return typeof tag === 'string' ? tag : undefined;
+      };
+      // Only these three registry providers own a legacy platform string unique
+      // enough to match on directly; everything else collapses to
+      // `openai-compatible` and must match by the bridge tag alone.
+      const uniquePlatformFor = (providerId: string): string | undefined => {
+        switch (providerId) {
+          case 'anthropic':
+            return 'anthropic';
+          case 'openai':
+            return 'openai';
+          case 'google-gemini':
+            return 'gemini';
+          default:
+            return undefined;
+        }
+      };
+
+      // Walk candidates in priority order (OAuth/subscription before metered API)
+      // and return the first ENABLED provider that carries a usable enabled model.
+      for (const providerId of candidates) {
+        const wantTag = `v2:${providerId}`;
+        const wantPlatform = uniquePlatformFor(providerId);
+        const match = providers.find((p) => {
+          if (bridgeTagOf(p) === wantTag) return true;
+          return wantPlatform !== undefined && p.platform === wantPlatform;
+        });
+        if (!match || !Array.isArray(match.model) || match.model.length === 0) continue;
+        const enabledModel = match.model.find((m: string) => match.modelEnabled?.[m] !== false) ?? match.model[0];
+        if (!enabledModel) continue;
+        return { ...match, useModel: enabledModel } as TProviderWithModel;
+      }
+
+      return {} as TProviderWithModel;
+    } catch {
+      return {} as TProviderWithModel;
+    }
+  }
+
   private async resolveConversationModel(params: {
     backend: string;
     isPreset: boolean;
     presetAgentType?: string;
   }): Promise<TProviderWithModel> {
     const { backend, isPreset, presetAgentType } = params;
-    const type = getConversationTypeForBackend(isPreset ? presetAgentType || backend : backend);
+    const effectiveBackend = isPreset ? presetAgentType || backend : backend;
+    const type = getConversationTypeForBackend(effectiveBackend);
 
     if (type === 'gemini') {
       try {
@@ -310,6 +387,13 @@ export class TeamSessionService {
 
     if (type === 'wcore') {
       return this.resolveDefaultAionrsModel();
+    }
+
+    if (type === 'acp') {
+      // Give codex and every other ACP backend a sensible default to start from,
+      // matching the gemini/wcore defaulting above. Fail-safe: an empty result
+      // preserves the prior "no default" behavior for an unconnected backend.
+      return this.resolveDefaultAcpModel(effectiveBackend);
     }
 
     return {} as TProviderWithModel;
@@ -506,9 +590,6 @@ export class TeamSessionService {
     const backend = this.resolveBackend(agent.agentType, agents) as AgentBackend;
     // remote agents use customAgentId as remoteAgentId, not as a preset indicator
     const isPreset = Boolean(agent.customAgentId) && backend !== 'remote';
-    const preferredModelId =
-      agent.model ||
-      (getConversationTypeForBackend(backend) === 'acp' ? await this.resolvePreferredAcpModelId(backend) : undefined);
     const presetResources =
       isPreset && agent.customAgentId ? await this.loadPresetResources(agent.customAgentId) : undefined;
     let model = await this.resolveConversationModel({
@@ -518,6 +599,23 @@ export class TeamSessionService {
     });
 
     const conversationType = getConversationTypeForBackend(backend);
+
+    // currentModelId seed precedence for ACP backends: explicit agent.model pin >
+    // the user's preferred / prior-cached selection > the newly-resolved default
+    // model's id > empty. Seeding the resolved default here is what makes
+    // AcpModelSelector's initialModelId show a real model on a brand-new codex (or
+    // any ACP) teammate, instead of the dead "Select Model" it can't start from.
+    // An empty resolveDefaultAcpModel result leaves this undefined, exactly as
+    // before, so an unconnected backend is unchanged.
+    const acpDefaultModelId =
+      conversationType === 'acp' && typeof model?.useModel === 'string' && model.useModel.trim().length > 0
+        ? model.useModel
+        : undefined;
+    const preferredModelId =
+      agent.model ||
+      (conversationType === 'acp'
+        ? ((await this.resolvePreferredAcpModelId(backend)) ?? acpDefaultModelId)
+        : undefined);
 
     // Override the working model when the agent pins one explicitly.
     if (agent.model) {

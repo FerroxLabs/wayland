@@ -7,8 +7,9 @@
 import { Bot, ChevronDown, Workflow as WorkflowIcon } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, Input, Select, Message, TimePicker, Radio, Button } from '@arco-design/web-react';
+import { Form, Input, Select, Message, TimePicker, Radio, Button, Modal } from '@arco-design/web-react';
 import ModalWrapper from '@renderer/components/base/ModalWrapper';
+import { isNewConversationFootgun } from '@/common/cron/cronFrequency';
 import { ipcBridge } from '@/common';
 import type { ICreateCronJobParams, ICronAgentConfig, ICronJob } from '@/common/adapter/ipcBridge';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
@@ -692,10 +693,33 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         return;
       }
       const values = await form.validate();
-      setSubmitting(true);
 
       const scheduleExpr = scheduleInfo.expr;
       const scheduleDesc = scheduleInfo.description;
+
+      // #163: warn before saving a minute-cadence job that spawns a NEW
+      // conversation every run (history flood + overlapping processes). The user
+      // can proceed, but must acknowledge; "Use reuse mode" flips to the safe
+      // 'existing' mode and leaves the dialog open to re-save.
+      const isFootgun = isNewConversationFootgun('cron', scheduleExpr, executionMode ?? undefined);
+      if (isFootgun) {
+        const createAnyway = await new Promise<boolean>((resolve) => {
+          Modal.confirm({
+            title: t('cron.highFreqWarn.title'),
+            content: t('cron.highFreqWarn.body'),
+            okText: t('cron.highFreqWarn.createAnyway'),
+            cancelText: t('cron.highFreqWarn.useReuse'),
+            onOk: () => resolve(true),
+            onCancel: () => resolve(false),
+          });
+        });
+        if (!createAnyway) {
+          setExecutionMode('existing');
+          return;
+        }
+      }
+
+      setSubmitting(true);
 
       const { agentConfig, resolvedAgentType } = resolveAgentConfig(values.agent);
 
@@ -724,6 +748,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               updatedAt: Date.now(),
             },
           },
+          // The user confirmed the high-frequency warning above (#163).
+          allowHighFrequency: isFootgun || undefined,
         });
         Message.success(t('cron.page.updateSuccess'));
       } else {
@@ -743,6 +769,9 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           createdBy: 'user',
           executionMode,
           agentConfig,
+          // The user confirmed the high-frequency + new_conversation warning
+          // above; tell the server guard to allow it (#163).
+          allowHighFrequency: isFootgun || undefined,
         };
         await ipcBridge.cron.addJob.invoke(params);
         Message.success(t('cron.page.createSuccess'));

@@ -19,7 +19,7 @@
  */
 
 import { Button, Message, Modal, Select, Spin } from '@arco-design/web-react';
-import { Calendar, Rocket, Sparkles } from 'lucide-react';
+import { Calendar, Download, Rocket, Sparkles } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -619,6 +619,22 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
               />
             ) : (
               <div className='flex items-center justify-end gap-12px'>
+                <Button
+                  type='text'
+                  icon={<Download size={14} />}
+                  onClick={() => {
+                    void ipcBridge.dataExport.workflow.invoke({ name: entry.name }).then((r) => {
+                      if (!r.ok) {
+                        Message.error(r.error || t('exportFailed', 'Export failed'));
+                      } else if (!r.canceled) {
+                        Message.success(r.redacted ? t('exportRedacted') : t('exportOk', 'Exported'));
+                      }
+                    });
+                  }}
+                  data-testid='workflow-export'
+                >
+                  {t('actions.export', 'Export')}
+                </Button>
                 <Button
                   icon={<Calendar size={14} />}
                   onClick={handleSchedule}

@@ -6,6 +6,7 @@ import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
 import { Card, PreferenceRow } from '@renderer/components/settings/shared';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
+import { DEFAULT_QUIET_HOURS } from '@/common/config/notificationDefaults';
 
 type State = {
   master: boolean;
@@ -25,8 +26,9 @@ const DEFAULTS: State = {
   agentError: true,
   channelMessage: false,
   playSound: true,
-  quietStart: '22:00',
-  quietEnd: '07:00',
+  // Shared with the notifier so the shown default and the effective default match.
+  quietStart: DEFAULT_QUIET_HOURS.start,
+  quietEnd: DEFAULT_QUIET_HOURS.end,
 };
 
 const NotificationsSettings: React.FC = () => {

@@ -11,6 +11,7 @@ import { uuid } from '@/common/utils';
 import { addMessage } from '@process/utils/message';
 import { getPlatformServices } from '@/common/platform';
 import { Cron } from 'croner';
+import { isNewConversationFootgun } from '@/common/cron/cronFrequency';
 import i18n, { i18nReady } from '@process/services/i18n';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -44,6 +45,12 @@ export type CreateCronJobParams = {
    * where this field is not surfaced.
    */
   bypassUniqueGuard?: boolean;
+  /**
+   * #163: explicit opt-in to create a minute-cadence job that spawns a new
+   * conversation every run (normally rejected as a footgun). Set only after the
+   * user is warned and confirms in the renderer.
+   */
+  allowHighFrequency?: boolean;
 };
 
 /**
@@ -237,6 +244,20 @@ export class CronService {
       }
     }
 
+    // #163: reject a minute-cadence job that creates a new conversation each run
+    // (floods history + spawns overlapping processes) unless the user explicitly
+    // overrode the warning. Reuse ('existing') mode is the safe path.
+    if (
+      !params.allowHighFrequency &&
+      isNewConversationFootgun(
+        params.schedule.kind,
+        params.schedule.kind === 'cron' ? params.schedule.expr : undefined,
+        params.executionMode
+      )
+    ) {
+      throw new Error(i18n.t('cron:error.highFreqNewConversation'));
+    }
+
     const now = Date.now();
     const jobId = `cron_${uuid()}`;
 
@@ -300,10 +321,26 @@ export class CronService {
   /**
    * Update an existing cron job
    */
-  async updateJob(jobId: string, updates: Partial<CronJob>): Promise<CronJob> {
+  async updateJob(jobId: string, updates: Partial<CronJob>, allowHighFrequency = false): Promise<CronJob> {
     const existing = await this.repo.getById(jobId);
     if (!existing) {
       throw new Error(`Job not found: ${jobId}`);
+    }
+
+    // #163: block an EDIT that turns a job into the every-minute + new_conversation
+    // footgun (e.g. an agent CRON_UPDATE that raises the frequency), same guard as
+    // addJob. Evaluated against the effective (merged) schedule + execution mode.
+    const effectiveSchedule = updates.schedule ?? existing.schedule;
+    const effectiveMode = updates.target?.executionMode ?? existing.target.executionMode;
+    if (
+      !allowHighFrequency &&
+      isNewConversationFootgun(
+        effectiveSchedule.kind,
+        effectiveSchedule.kind === 'cron' ? effectiveSchedule.expr : undefined,
+        effectiveMode
+      )
+    ) {
+      throw new Error(i18n.t('cron:error.highFreqNewConversation'));
     }
 
     // Stop existing timer

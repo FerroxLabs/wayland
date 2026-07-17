@@ -552,7 +552,8 @@ const ChatConversation: React.FC<{
       );
     }
     if (conversation.type === 'codex') {
-      return <AcpModelSelector conversationId={conversation.id} />;
+      const extra = conversation.extra as { backend?: string; currentModelId?: string };
+      return <AcpModelSelector conversationId={conversation.id} initialModelId={extra.currentModelId} />;
     }
     return <GeminiModelSelector disabled={true} />;
   }, [conversation, isGeminiConversation, isWCoreConversation]);

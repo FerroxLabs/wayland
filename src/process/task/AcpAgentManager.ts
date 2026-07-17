@@ -8,6 +8,8 @@ import type { CronMessageMeta, TMessage } from '@/common/chat/chatLib';
 import { isCodexAutoApproveMode } from '@/common/types/codex/codexModes';
 import { isAutoGuardedMode, shouldAutoApproveAcpEdit } from '@/common/types/agentModes';
 import { classifyDestructiveToolCall } from '@/common/security/destructiveCommand';
+import { trustedWorkspaceAutoApprovesAcpKind } from '@/common/security/workspaceTrust';
+import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import type { SlashCommandItem } from '@/common/chat/slash/types';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IConfigStorageRefer } from '@/common/config/storage';
@@ -126,6 +128,17 @@ interface AcpAgentManagerData {
   effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
   /** Per-conversation active MCP server ids (#348): undefined = all enabled, [] = none. */
   activeMcpServers?: string[];
+  /**
+   * Team MCP stdio bridge config, present only when this agent belongs to a
+   * team (injected by TeamSessionService). `.name` is `wayland-team-<teamId>` -
+   * used to auto-approve the team's own coordination tool calls.
+   */
+  teamMcpStdioConfig?: {
+    name: string;
+    command: string;
+    args: string[];
+    env: Array<{ name: string; value: string }>;
+  };
 }
 
 type AgentRuntime = {
@@ -475,14 +488,14 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
         data: null,
       },
       this.options.backend,
-      { trackActiveTurn: false }
+      { trackActiveTurn: false, turnId }
     );
   }
 
   private async handleFinishSignal(
     message: IResponseMessage,
     backend: AcpBackend,
-    options: { trackActiveTurn?: boolean } = {}
+    options: { trackActiveTurn?: boolean; turnId?: number } = {}
   ): Promise<void> {
     if (options.trackActiveTurn !== false) {
       this.markActiveTurnFinished();
@@ -540,6 +553,13 @@ ${collectedResponses.join('\n')}`;
     const finishMessage: IResponseMessage = {
       ...(message as IResponseMessage),
       conversation_id: this.conversation_id,
+      // #787: carry the producing turn so TeammateManager keys its dedup by
+      // (conversation, turn). The real signal finish already carries the
+      // engine's per-turn `turn_id` on `message` (spread above, wired from
+      // AcpConnection via handleEndTurn — this now covers the signal path that
+      // core PR #219 unblocked); the synthesized-finish fallbacks have no id on
+      // `message` and pass it explicitly via `options.turnId`.
+      ...(options.turnId !== undefined ? { turnId: options.turnId } : {}),
     };
     ipcBridge.acpConversation.responseStream.emit(finishMessage);
     teamEventBus.emit('responseStream', finishMessage);
@@ -603,7 +623,7 @@ ${collectedResponses.join('\n')}`;
               data: null,
             },
             this.options.backend,
-            { trackActiveTurn: false }
+            { trackActiveTurn: false, turnId }
           );
         }
         return result;
@@ -634,7 +654,7 @@ ${collectedResponses.join('\n')}`;
           data: null,
         },
         this.options.backend,
-        { trackActiveTurn: false }
+        { trackActiveTurn: false, turnId }
       );
       return result;
     } catch (error) {
@@ -810,7 +830,14 @@ ${collectedResponses.join('\n')}`;
       // config pins model.provider=custom at the Flux openai surface + flux-auto
       // (reading FLUX_API_KEY at request time), so the user's real ~/.hermes
       // config (and active profile) stays native for non-flux model picks.
-      if (data.backend === 'hermes') {
+      //
+      // Opt profile presets out: a HERMES_PROFILE-bearing spawn resolves its
+      // persona from <HERMES_HOME>/profiles/<name>, which the flux-scoped home
+      // does NOT contain - repointing HERMES_HOME would lose the profile. Keep
+      // the native home so the profile still resolves (its model picks stay
+      // native rather than flux-routed, which is the correct trade for a
+      // profile the user explicitly selected).
+      if (data.backend === 'hermes' && !mergedEnv.HERMES_PROFILE) {
         try {
           // hermes ignores FLUX_API_KEY for a custom provider, so the connector
           // writes the connected flux key inline into the scoped config.
@@ -965,13 +992,47 @@ ${collectedResponses.join('\n')}`;
   private async computeFluxRouting(backend: string, selectedModelId: string | undefined): Promise<FluxRoutingResult> {
     const fluxKey = await this.readFluxKey();
     const routeThroughFlux = (await ProcessConfig.get('system.routeThroughFlux')) ?? false;
+    // Belt-and-suspenders for team + workflow spawns: they frequently arrive with
+    // NO explicit model (team_spawn_agent is usually called with no model), so the
+    // spawn's `currentModelId` is undefined. Without a resolved model, the global
+    // routeThroughFlux toggle would default the spawn to Flux and 400 a backend
+    // that natively runs the customer's model (codex on gpt-5.6-sol via an OpenAI
+    // key OR a ChatGPT subscription). Fall back to the model this backend itself
+    // resolved (its cached CLI model / configured preferred id) so the routing
+    // decision honors the native model instead of blindly routing to Flux.
+    const resolvedModelId = selectedModelId ? undefined : await this.resolveBackendModelId(backend);
     return resolveFluxRouting({
       backend,
       selectedModelId,
+      resolvedModelId,
       fluxConnected: Boolean(fluxKey),
       fluxKey,
       routeThroughFlux: Boolean(routeThroughFlux),
     });
+  }
+
+  /**
+   * The model id this backend resolved from its OWN provider identity when a
+   * spawn carries no explicit pick: the CLI's last-cached model, else the
+   * configured preferred model. Mirrors TeamSessionService.resolvePreferredAcpModelId
+   * (preferred first, then cached) so the routing choke point sees the same native
+   * model the spawn path would thread. Best-effort: any read failure yields
+   * undefined and the caller falls back to the routeThroughFlux default.
+   */
+  private async resolveBackendModelId(backend: string): Promise<string | undefined> {
+    try {
+      const acpConfig = await ProcessConfig.get('acp.config');
+      const preferred = (acpConfig as Record<string, { preferredModelId?: string } | undefined> | undefined)?.[backend]
+        ?.preferredModelId;
+      if (typeof preferred === 'string' && preferred.trim().length > 0) return preferred.trim();
+
+      const cachedModels = await ProcessConfig.get('acp.cachedModels');
+      const cached = cachedModels?.[backend]?.currentModelId;
+      if (typeof cached === 'string' && cached.trim().length > 0) return cached.trim();
+    } catch (err) {
+      mainWarn('[AcpAgentManager]', 'resolveBackendModelId failed', err);
+    }
+    return undefined;
   }
 
   /** The connected flux-router key, or undefined when not connected (R13 safety gate). */
@@ -1025,7 +1086,17 @@ ${collectedResponses.join('\n')}`;
     }
 
     if (!customAgentConfig?.defaultCliPath) {
-      return { cliPath: data.cliPath };
+      // The matched row has no launch override: it's a "thin" specialist that
+      // just delegates to its backend's CLI (e.g. the builtin claude specialists,
+      // which carry a presetAgentType but no defaultCliPath). Resolve it exactly
+      // like a non-custom spawn so it still gets a real cliPath, the backend's
+      // acpArgs, and mode/yolo handling - instead of the bare, cliPath-less early
+      // return that would throw "No CLI path configured". This matters because a
+      // 1:1/Team preset now reaches here via the customAgentId||presetAssistantId
+      // fallback; only rows that DO carry defaultCliPath (a Hermes profile) take
+      // the custom path below that forwards their env. resolveBuiltinBackendConfig
+      // already prefers an explicit data.cliPath, so custom agents keep theirs.
+      return this.resolveBuiltinBackendConfig(data);
     }
 
     return {
@@ -1347,6 +1418,49 @@ ${collectedResponses.join('\n')}`;
   }
 
   /**
+   * True when a permission request targets THIS session's own team coordination
+   * MCP server (wayland-team-<teamId>, injected by TeamSessionService). Those
+   * are internal Wayland tools with their own server-side capability gates
+   * (TeamMcpServer), so blocking them behind a human dialog only deadlocks a
+   * teammate nobody is watching.
+   *
+   * Matching is strict so a prompt-injected agent cannot smuggle the marker into
+   * an unrelated approval (tool titles and rawInput can carry model-controlled
+   * text on some backends - e.g. an exec approval's title is the command):
+   * - The title must BE the fully-qualified tool name ("[mcp__]<server>__<tool>"),
+   *   not merely contain it (the claude-style shape).
+   * - codex-acp uses a generic "Approve MCP tool call" title and puts the target
+   *   in rawInput. That rawInput is codex-CLI-constructed (not echoed model tool
+   *   input) and tagged with an `mcp_tool_call_approval` id, so server_name is
+   *   trustworthy only alongside that id prefix.
+   */
+  private isTeamMcpPermission(toolCall: AcpPermissionRequest['toolCall']): boolean {
+    const teamServerName = this.options.teamMcpStdioConfig?.name;
+    if (!teamServerName) return false;
+
+    const title = toolCall.title || '';
+    const escaped = teamServerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp(`^(mcp__)?${escaped}__[A-Za-z0-9_-]+$`).test(title)) {
+      return true;
+    }
+
+    // codex-only: on other ACP backends rawInput is the model's own tool-call
+    // arguments (see ApprovalStore's {command,path,...} handling), so server_name
+    // and the non-secret mcp_tool_call_approval id prefix would both be
+    // model-forgeable - a prompt-injected member could smuggle them onto an
+    // unrelated tool call and get it silently approved. Only codex-acp builds
+    // this rawInput itself, so the trust is valid solely on that backend.
+    if (this.options.backend !== 'codex') return false;
+    const rawInput = toolCall.rawInput as { server_name?: unknown; id?: unknown } | undefined;
+    const approvalId = rawInput?.id;
+    return (
+      rawInput?.server_name === teamServerName &&
+      typeof approvalId === 'string' &&
+      approvalId.startsWith('mcp_tool_call_approval')
+    );
+  }
+
+  /**
    * Handle signal events (permission requests, finish, errors) from the ACP agent.
    * Auto-approves permissions in yolo mode and for team MCP tools,
    * delegates finish handling to handleFinishSignal.
@@ -1367,9 +1481,14 @@ ${collectedResponses.join('\n')}`;
         return;
       }
 
-      // Auto-approve team MCP tools - internal tools provided by Wayland.
-      const toolTitle = toolCall.title || '';
-      if (toolTitle.includes('wayland-team') && options.length > 0) {
+      // Auto-approve this team's own coordination tools - internal MCP tools
+      // injected by Wayland (TeamSessionService), never a human decision. A
+      // teammate cannot make progress while a dialog nobody watches blocks a
+      // team_* call. #781: codex-acp raises a per-call approval whose title is
+      // the generic "Approve MCP tool call" (the target server lives in
+      // rawInput.server_name, not the title), so the old title-substring check
+      // missed it and the codex leader stalled forever on "add a member".
+      if (this.isTeamMcpPermission(toolCall) && options.length > 0) {
         const autoOption = options[0];
         setTimeout(() => {
           void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, autoOption);
@@ -1382,6 +1501,25 @@ ${collectedResponses.join('\n')}`;
       // so Wayland honors the mode here (mirroring Gemini autoEdit / WCore auto_edit).
       // Commands and other tool kinds still surface a confirmation.
       if (shouldAutoApproveAcpEdit(this.currentMode, toolCall.kind) && options.length > 0) {
+        const allowOption = options.find((option) => !option.kind.startsWith('reject')) ?? options[0];
+        setTimeout(() => {
+          void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, allowOption);
+        }, 50);
+        return;
+      }
+
+      // #671: trusted ("cowork") workspace auto-approves read/edit tools while
+      // STILL prompting on exec/network. Independent of the per-agent mode above
+      // and persisted per-workspace. Only the non-destructive, non-network raw
+      // kinds read/search/edit are auto-approved (see workspaceTrust.ts); execute,
+      // fetch (network), delete, move, and MCP kinds are NOT in that set and fall
+      // through to a confirmation - so exec/network/destructive always prompt
+      // without needing a separate command classifier here.
+      if (
+        isWorkspaceTrusted(this.workspace) &&
+        trustedWorkspaceAutoApprovesAcpKind(toolCall.kind) &&
+        options.length > 0
+      ) {
         const allowOption = options.find((option) => !option.kind.startsWith('reject')) ?? options[0];
         setTimeout(() => {
           void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, allowOption);

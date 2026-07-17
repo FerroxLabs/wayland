@@ -4,15 +4,42 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ChevronRight, Code } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Code, Download, RefreshCw } from 'lucide-react';
 import { Divider, Typography, Button, Switch } from '@arco-design/web-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import { useSettingsViewMode } from '../settingsViewContext';
 import { isElectronDesktop, openExternalUrl } from '@/renderer/utils/platform';
+import { runWaylandUpdaterExtensionCheck } from '@/renderer/pages/settings/utils/waylandUpdaterBridge';
 import packageJson from '../../../../../../package.json';
 import FeedbackReportModal from './FeedbackReportModal';
+
+/** Inline auto-check status shown on the About page (#731). */
+type AboutUpdateState = 'checking' | 'upToDate' | 'available' | 'error';
+
+/**
+ * The About tab remounts every time it's opened, and each check hits the
+ * unauthenticated GitHub REST API (60 req/hr/IP). Cache the last SUCCESSFUL
+ * result briefly so re-opening the tab serves the cached status instead of
+ * re-spending the rate limit; an explicit retry always forces a fresh check,
+ * and errors are never cached so a transient failure re-checks next time (#731).
+ */
+const ABOUT_CHECK_TTL_MS = 5 * 60_000;
+
+type AboutCheckCache = {
+  at: number;
+  includePrerelease: boolean;
+  state: Extract<AboutUpdateState, 'upToDate' | 'available'>;
+  latestVersion: string;
+};
+
+let aboutCheckCache: AboutCheckCache | null = null;
+
+/** Test-only: clear the module-level About update-check cache. */
+export function __resetAboutCheckCacheForTest(): void {
+  aboutCheckCache = null;
+}
 
 type LinkItem =
   | { title: string; url: string; icon: React.ReactNode; onClick?: never }
@@ -24,18 +51,73 @@ const AboutModalContent: React.FC = () => {
   const isPageMode = viewMode === 'page';
   const isElectron = isElectronDesktop();
 
-  const [includePrerelease, setIncludePrerelease] = useState(false);
+  // Read the persisted prerelease preference synchronously so the first
+  // auto-check (below) runs with the correct channel and doesn't double-fire.
+  const [includePrerelease, setIncludePrerelease] = useState<boolean>(
+    () => localStorage.getItem('update.includePrerelease') === 'true'
+  );
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('update.includePrerelease');
-    setIncludePrerelease(saved === 'true');
-  }, []);
+  // #731: auto-check for updates when the About page opens and surface the
+  // status inline, so users see "up to date" / "update available" without
+  // having to press a button first.
+  const [updateState, setUpdateState] = useState<AboutUpdateState>('checking');
+  const [latestVersion, setLatestVersion] = useState('');
+  // Bumping this re-runs the check effect (manual retry) without duplicating
+  // the check logic. The effect's cancelled-guard keeps a superseded in-flight
+  // check from clobbering a newer result.
+  const [checkNonce, setCheckNonce] = useState(0);
 
   const handlePrereleaseChange = (val: boolean) => {
     setIncludePrerelease(val);
     localStorage.setItem('update.includePrerelease', String(val));
   };
+
+  useEffect(() => {
+    if (!isElectron) return;
+
+    // Serve a recent cached result on remount to avoid re-hitting the rate
+    // limit. checkNonce > 0 means an explicit retry, which always re-checks.
+    if (
+      checkNonce === 0 &&
+      aboutCheckCache &&
+      aboutCheckCache.includePrerelease === includePrerelease &&
+      Date.now() - aboutCheckCache.at < ABOUT_CHECK_TTL_MS
+    ) {
+      setLatestVersion(aboutCheckCache.latestVersion);
+      setUpdateState(aboutCheckCache.state);
+      return;
+    }
+
+    let cancelled = false;
+    setUpdateState('checking');
+    void (async () => {
+      try {
+        const result = await runWaylandUpdaterExtensionCheck(includePrerelease, '[AboutModalContent]');
+        if (cancelled) return;
+        if (!result.ok) {
+          setUpdateState('error');
+          return;
+        }
+        const data = result.manual?.data;
+        // Wayland-app update only — an IJFW-only update (data.ijfw) must not flip
+        // this to "available" (mirrors UpdateModal's waylandUpdateAvailable logic).
+        const waylandUpdateAvailable = Boolean(data?.updateAvailable || result.autoUpdateAvailable);
+        const nextState: AboutCheckCache['state'] = waylandUpdateAvailable ? 'available' : 'upToDate';
+        const nextVersion = waylandUpdateAvailable ? data?.latest?.version || result.autoVersion || '' : '';
+        setLatestVersion(nextVersion);
+        setUpdateState(nextState);
+        // Only successful checks are cached; errors fall through so the next
+        // open re-checks rather than pinning a stale failure.
+        aboutCheckCache = { at: Date.now(), includePrerelease, state: nextState, latestVersion: nextVersion };
+      } catch {
+        if (!cancelled) setUpdateState('error');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isElectron, includePrerelease, checkNonce]);
 
   const openLink = async (url: string) => {
     try {
@@ -117,12 +199,55 @@ const AboutModalContent: React.FC = () => {
               </div>
             </div>
 
-            {/* Check Update Section */}
+            {/* Check Update Section (#731: auto-checks on open, shows status inline) */}
             {isElectron && (
               <div className='flex flex-col items-center gap-12px w-full max-w-300px bg-fill-2 p-16px rounded-lg'>
-                <Button type='primary' long onClick={checkUpdate}>
-                  {t('settings.checkForUpdates')}
-                </Button>
+                {updateState === 'checking' && (
+                  <div className='flex items-center gap-8px text-13px text-t-secondary'>
+                    <RefreshCw size={14} className='animate-spin' />
+                    <span>{t('update.checking')}</span>
+                  </div>
+                )}
+
+                {updateState === 'upToDate' && (
+                  <>
+                    <div className='flex items-center gap-8px text-13px text-t-primary font-500'>
+                      <CheckCircle2 size={16} color='rgb(var(--success-6))' />
+                      <span>{t('update.upToDateTitle')}</span>
+                    </div>
+                    <Button type='secondary' long onClick={() => setCheckNonce((n) => n + 1)}>
+                      {t('settings.checkForUpdates')}
+                    </Button>
+                  </>
+                )}
+
+                {updateState === 'available' && (
+                  <>
+                    <Typography.Text className='text-13px text-t-primary text-center font-500'>
+                      {t('update.pill.tooltip', { version: latestVersion || '' })}
+                    </Typography.Text>
+                    <Button type='primary' long icon={<Download size={14} />} onClick={checkUpdate}>
+                      {t('update.availableTitle')}
+                    </Button>
+                  </>
+                )}
+
+                {updateState === 'error' && (
+                  <>
+                    <Typography.Text className='text-12px text-t-tertiary text-center'>
+                      {t('update.checkFailed')}
+                    </Typography.Text>
+                    <Button
+                      type='primary'
+                      long
+                      icon={<RefreshCw size={14} />}
+                      onClick={() => setCheckNonce((n) => n + 1)}
+                    >
+                      {t('settings.checkForUpdates')}
+                    </Button>
+                  </>
+                )}
+
                 <div className='flex items-center justify-between w-full'>
                   <Typography.Text className='text-12px text-t-secondary'>
                     {t('settings.includePrereleaseUpdates')}

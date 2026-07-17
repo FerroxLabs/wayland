@@ -218,7 +218,11 @@ const Inspector: React.FC<InspectorProps> = ({
             Promotion score {entry.promotionScore}/100 - auto-promotes at {promotionThreshold}
           </span>
           <Tooltip content={SCORE_TOOLTIP} position='top'>
-            <Help theme='outline' size='13' style={{ cursor: 'help', opacity: 0.6 }} aria-label='Score formula' />
+            {/* #751: wrap so Arco gets a real DOM node - @icon-park icons don't
+                forwardRef, and an unwrapped trigger crashes on hover positioning. */}
+            <span style={{ display: 'inline-flex' }}>
+              <Help theme='outline' size='13' style={{ cursor: 'help', opacity: 0.6 }} aria-label='Score formula' />
+            </span>
           </Tooltip>
         </div>
         <div className={styles.scoreBar} data-testid='inspector-score-bar'>

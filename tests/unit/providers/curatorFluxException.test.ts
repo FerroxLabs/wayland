@@ -77,10 +77,12 @@ describe('Curator flux hero-exception', () => {
     expect(out.every((m) => m.recommended === false)).toBe(true);
   });
 
-  it('does NOT force-enable a non-tier flux-router model (only the tier aliases are hero)', () => {
-    // The real flux-router catalog returns 40+ branded route models; only the
-    // four tier aliases should get the hero exception, the rest follow normal
-    // curation (an unenriched non-tier route stays disabled).
+  it('force-enables non-tier flux-router route models too (Flux Router → all models on)', () => {
+    // The real flux-router catalog returns 40+ branded route models. Flux Router
+    // users expect every routed model available out of the box, so the whole
+    // provider is force-enabled — not just the four tier aliases. (Previously an
+    // unenriched non-tier route fell through to normal curation and stayed
+    // disabled, hiding it from the picker.)
     const route: CatalogModel = {
       ...fluxAuto,
       id: 'anthropic/claude-opus-4-6',
@@ -89,6 +91,30 @@ describe('Curator flux hero-exception', () => {
       enriched: false,
     };
     const out = curator.curate([route]);
-    expect(out.find((m) => m.id === 'anthropic/claude-opus-4-6')?.enabled).toBe(false);
+    const curated = out.find((m) => m.id === 'anthropic/claude-opus-4-6');
+    expect(curated?.enabled).toBe(true);
+    // Routed models stay out of the Recommended zone (recommended: false).
+    expect(curated?.recommended).toBe(false);
+  });
+
+  it('drops unenriched image/audio flux-router arms from the chat picker (kind:text but not chattable)', () => {
+    // These land kind:'text' because models.dev has not enriched them, and the
+    // Flux all-on rule would otherwise force-enable them straight into the chat
+    // dropdown. Image + audio arms must never reach the chat picker.
+    const arms: CatalogModel[] = [
+      { ...fluxAuto, id: 'gpt-image-high', family: 'gpt-image-high', displayName: 'GPT Image High' },
+      { ...fluxAuto, id: 'nano-banana', family: 'nano-banana', displayName: 'Nano Banana' },
+      { ...fluxAuto, id: 'flux-voice', family: 'flux-voice', displayName: 'Flux Voice' },
+      { ...fluxAuto, id: 'flux-voice-fast', family: 'flux-voice-fast', displayName: 'Flux Voice Fast' },
+      // A real chat arm must survive alongside them.
+      {
+        ...fluxAuto,
+        id: 'perplexity/sonar-reasoning-pro',
+        family: 'sonar',
+        displayName: 'Flux Pinned Sonar Reasoning Pro',
+      },
+    ];
+    const out = curator.curate(arms);
+    expect(out.map((m) => m.id)).toEqual(['perplexity/sonar-reasoning-pro']);
   });
 });

@@ -420,6 +420,43 @@ describe('useWorkspaceCollapse', () => {
       expect(result.current.rightSiderCollapsed).toBe(true);
     });
 
+    it('re-opens on the workspace-toggle event — the mobile one-tap open affordance (#116 gate)', () => {
+      // Overwatch #116 gate = "mobile rail default COLLAPSED + a visible one-tap
+      // affordance to open the overlay on demand." The default-collapse half is
+      // pinned above; this pins the open half. On mobile the titlebar renders a
+      // workspace toggle (showWorkspaceButton, WebUI/mac) that dispatches
+      // WORKSPACE_TOGGLE_EVENT, so firing that event MUST re-open the collapsed
+      // Steps rail — otherwise Steps would be unreachable on mobile.
+      mockDetectMobile.mockReturnValue(true);
+      globalThis.localStorage.removeItem(CONV_PREF_KEY);
+
+      const { result } = renderHook(() =>
+        useWorkspaceCollapse({ workspaceEnabled: true, isMobile: true, conversationId: 'conv-1', stepsRailMode: true })
+      );
+
+      // Starts collapsed on mobile (the composer is immediately usable).
+      expect(result.current.rightSiderCollapsed).toBe(true);
+
+      // The titlebar one-tap affordance fires the toggle event.
+      act(() => {
+        window.dispatchEvent(new Event('wayland-workspace-toggle'));
+      });
+
+      // Rail opens → the Steps overlay is reachable in one tap, and the choice is
+      // persisted as an explicit per-conversation preference.
+      expect(result.current.rightSiderCollapsed).toBe(false);
+      expect(globalThis.localStorage.getItem(CONV_PREF_KEY)).toBe('expanded');
+
+      // Tapping again collapses it back (two-way one-tap control).
+      act(() => {
+        window.dispatchEvent(new Event('wayland-workspace-toggle'));
+      });
+      expect(result.current.rightSiderCollapsed).toBe(true);
+      expect(globalThis.localStorage.getItem(CONV_PREF_KEY)).toBe('collapsed');
+
+      globalThis.localStorage.removeItem(CONV_PREF_KEY);
+    });
+
     it('honors an explicit per-conversation collapse preference', () => {
       globalThis.localStorage.setItem('workspace-preference-conv-1', 'collapsed');
 

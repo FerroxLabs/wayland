@@ -121,7 +121,12 @@ const skipSingleInstanceLock = isE2ETestMode || process.env.WAYLAND_MULTI_INSTAN
 const deepLinkFromArgv = process.argv.find((arg) => arg.startsWith(`${PROTOCOL_SCHEME}://`));
 const gotTheLock = skipSingleInstanceLock ? true : app.requestSingleInstanceLock({ deepLinkUrl: deepLinkFromArgv });
 if (!gotTheLock) {
-  console.warn('[Wayland] Another instance is already running; current process will exit.');
+  // Expected path: with close-to-tray enabled, every launch while Wayland is
+  // tray-resident lands here. This is benign single-instance forwarding, not a
+  // failure — keep it at info so external log audits don't read it as a crash.
+  console.info(
+    '[Wayland] Activation forwarded to the running instance (close-to-tray keeps Wayland running in the background); this launcher process is exiting — expected behavior.'
+  );
   app.quit();
 } else {
   app.on('second-instance', (_event, argv, _workingDirectory, additionalData) => {
@@ -852,6 +857,23 @@ const handleAppReady = async (): Promise<void> => {
     return;
   }
 
+  // #665: the DB is open and no agents have spawned yet, so any chat message
+  // still marked 'work'/'pending' is a turn interrupted by a previous crash /
+  // kill / power loss. Flip those to 'error' so the chat view stops showing a
+  // killed task as still-responding. Best-effort — never block startup.
+  try {
+    const { getDatabase } = await import('./process/services/database');
+    const db = await getDatabase();
+    const reconciled = db.reconcileInterruptedMessages();
+    if (reconciled.success && reconciled.data > 0) {
+      console.log(`[Wayland] Reconciled ${reconciled.data} interrupted chat message(s) on startup (#665)`);
+    } else if (!reconciled.success) {
+      console.error('[Wayland] Failed to reconcile interrupted messages:', reconciled.error);
+    }
+  } catch (error) {
+    console.error('[Wayland] reconcileInterruptedMessages failed:', error);
+  }
+
   // #27 phase 2: register pop-out window providers (conversation.popout /
   // dockBack). Cheap + idempotent; creates no windows until the renderer asks.
   try {
@@ -1088,6 +1110,17 @@ const handleAppReady = async (): Promise<void> => {
     } else {
       console.warn(`[CDP] Warning: Remote debugging port ${cdpPort} not responding`);
     }
+  }
+
+  // #755/#738: async bundle-integrity self-check (macOS packaged builds only -
+  // the module gates itself too). A broken codesign seal makes hardened-runtime
+  // macOS block every child process the app spawns; surface the offending
+  // `file added/modified:` lines + remediation instead of failing silently.
+  // Fire-and-forget so it never delays startup.
+  if (process.platform === 'darwin' && app.isPackaged) {
+    import('./process/services/integrity/bundleIntegrity')
+      .then(({ runBundleIntegrityCheck }) => runBundleIntegrityCheck())
+      .catch((err) => console.warn('[Integrity] bundle self-check failed to start:', err));
   }
 
   // Listen for system resume (wake from sleep/hibernate) to recover missed cron jobs

@@ -56,8 +56,10 @@ export function useWorkspaceCollapse({
         }
       }
       // Mobile: start COLLAPSED so the workflow doesn't open with the Steps rail
-      // overlaying the chat full-screen (there is no header affordance, but a
-      // narrow viewport can't show both). Desktop keeps it expanded.
+      // overlaying the chat full-screen (a narrow viewport can't show both). The
+      // user reopens it in one tap via the titlebar workspace toggle, which fires
+      // WORKSPACE_TOGGLE_EVENT (handled below) - see #116 mobile gate. Desktop
+      // keeps it expanded.
       if (detectMobileViewportOrTouch()) {
         return true;
       }
@@ -87,6 +89,16 @@ export function useWorkspaceCollapse({
   useEffect(() => {
     rightCollapsedRef.current = rightSiderCollapsed;
   }, [rightSiderCollapsed]);
+
+  // Track the active conversation for the toggle handler. Previously this ref was
+  // only populated by the has-files event, so a one-tap toggle (e.g. the mobile
+  // titlebar affordance, #116) before any files event - the normal mobile case,
+  // where files auto-expand is suppressed - recorded no per-conversation
+  // preference, and the open/collapse choice was silently lost on the next
+  // conversation switch. Sync it from the prop so the preference always persists.
+  useEffect(() => {
+    currentConversationIdRef.current = conversationId;
+  }, [conversationId]);
 
   // Listen for workspace toggle events
   useEffect(() => {

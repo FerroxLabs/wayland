@@ -458,5 +458,16 @@
       "bridge_unavailable": "Não foi possível acessar o provedor para alterar para {{model}}. O modelo ativo não foi alterado.",
       "model_switch_timeout": "O tempo de espera pela confirmação de {{model}} expirou. O modelo ativo não foi alterado."
     }
+  },
+  "notification": {
+    "untitled": "Conversa sem título",
+    "agentFinished": {
+      "title": "Tarefa concluída",
+      "body": "{{title}} terminou e está esperando por você."
+    },
+    "agentError": {
+      "title": "A tarefa falhou",
+      "body": "{{title}} parou com um erro. {{detail}}"
+    }
   }
 }

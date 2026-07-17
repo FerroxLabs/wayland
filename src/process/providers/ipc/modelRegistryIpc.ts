@@ -64,6 +64,7 @@ import { validateProviderBaseUrl } from '../sources/validateBaseUrl';
 import { ModelRefreshScheduler } from '../scheduler/ModelRefreshScheduler';
 import { CliAgentSource, isEnumerableCliAgent } from '../sources/CliAgentSource';
 import type { CliAgentKey } from '../sources/CliAgentSource';
+import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { CatalogAssembler, MODELS_DEV_PROVIDER_KEY } from '../catalog/CatalogAssembler';
 import { Curator } from '../catalog/Curator';
 import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/providerCatalogStore';
@@ -75,6 +76,7 @@ import {
   buildChatGptSubscriptionCatalog,
   buildChatGptSubscriptionCatalogLive,
   CHATGPT_SUBSCRIPTION_PROVIDER_ID,
+  fetchLiveChatGptSubscriptionCatalog,
 } from '../catalog/chatgptSubscriptionModels';
 import {
   buildClaudeSubscriptionCatalog,
@@ -443,10 +445,37 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       // snapshot only when the fetch fails. The generic API source below would
       // fetch zero models and wipe the catalog, so this provider stays special.
       if (providerId === CHATGPT_SUBSCRIPTION_PROVIDER_ID) {
-        const accessToken = 'key' in creds ? creds.key : '';
-        const models = await buildChatGptSubscriptionCatalogLive(accessToken);
-        repo.replaceRegistryCatalog(providerId, models);
-        return { ok: true, models: models.length, sourceErrors: 0 };
+        // The OAuth access token captured at CONNECT (`creds.key`) EXPIRES. On a
+        // scheduled/manual refresh a stale one makes the live fetch 401 -> the
+        // builder returns the static 3-model snapshot, which then WIPES the real
+        // catalog and strands it 3 models behind OpenAI's current lineup
+        // (gpt-5.6-sol/luna/terra never appear, even though the account can use
+        // them). The canonical FRESH token lives in `~/.codex/auth.json` — codex
+        // keeps it refreshed and the engine reads it for `--provider openai-chatgpt`
+        // — so prefer it and fall back to the stored key only when the file is
+        // absent (a sub connected without the codex bridge).
+        const storedToken = 'key' in creds ? creds.key : '';
+        const codexTokens = await readCodexAuthFile();
+        const accessToken = codexTokens?.accessToken?.trim() || storedToken;
+
+        // Use the raw fetch (null on any failure) rather than the ...Live() helper
+        // so a transient/expired-token failure does NOT overwrite a good catalog
+        // with the static fallback. Only replace when the live list is real.
+        const live = await fetchLiveChatGptSubscriptionCatalog(accessToken);
+        if (live && live.length > 0) {
+          repo.replaceRegistryCatalog(providerId, live);
+          return { ok: true, models: live.length, sourceErrors: 0 };
+        }
+        // Live fetch failed. Preserve an existing catalog instead of resetting it
+        // to the 3-model snapshot; only seed the static list when there is nothing
+        // yet (so the picker is never empty on a first, offline connect).
+        const existing = repo.getRegistryCatalog(providerId);
+        if (existing.length > 0) {
+          return { ok: true, models: existing.length, sourceErrors: 1 };
+        }
+        const fallback = buildChatGptSubscriptionCatalog();
+        repo.replaceRegistryCatalog(providerId, fallback);
+        return { ok: true, models: fallback.length, sourceErrors: 1 };
       }
 
       // The Claude subscription's OAuth token is rejected by `api.anthropic.com`
@@ -1171,7 +1200,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           for (const provider of repo.listRegistryProviders()) {
             const curated = curatedWithCustom(provider.providerId);
             for (const model of curated) {
-              const dedupKey = `${model.providerId} ${model.id}`;
+              const dedupKey = `${model.providerId}${model.id}`;
               if (seen.has(dedupKey)) continue;
               seen.add(dedupKey);
               all.push(model);
@@ -2002,8 +2031,13 @@ let _migrationScheduled = false;
  *    curated with the old "every unmatched id is a singleton family" rule.
  *  - 1            - polish pass adds usage tags + smarter Curator (legacy
  *    exclusion + recency floor + dedup). One-time refresh re-derives both.
+ *  - 2            - ChatGPT-subscription catalog now live-fetches with the FRESH
+ *    ~/.codex/auth.json token (not the connect-frozen key that expires and
+ *    stranded the catalog on the stale 3-model snapshot, hiding gpt-5.6-*). Bump
+ *    so every existing install auto-refreshes once on boot and picks up its real
+ *    current subscription models — no manual "Refresh models" click required.
  */
-export const CATALOG_DATA_VERSION = 1;
+export const CATALOG_DATA_VERSION = 2;
 
 /**
  * Schedule the one-time legacy-config migration to run once `app.whenReady()`

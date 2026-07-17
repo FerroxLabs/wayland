@@ -7,6 +7,7 @@
 import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import { BUILTIN_CONCIERGE_DIAG_ID } from '@process/resources/builtinMcp/constants';
+import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 import { sanitizeMcpServerName } from '@process/services/mcpServices/validateMcpServer';
 
 export interface AcpSessionMcpNameValue {
@@ -107,15 +108,19 @@ export function buildAcpSessionMcpServers(
       .filter((server) => server.id !== BUILTIN_CONCIERGE_DIAG_ID || allowConciergeDiag)
       .map((server): AcpSessionMcpServer | null => {
         switch (server.transport.type) {
-          case 'stdio':
+          case 'stdio': {
             if (!capabilities.stdio) return null;
+            // #827: resolve `npx`→bundled Bun so the injected session command is
+            // actually spawnable (green-but-no-tools on Windows otherwise).
+            const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
             return {
               type: 'stdio',
               name: server.name,
-              command: server.transport.command,
-              args: server.transport.args || [],
+              command: spawn.command,
+              args: spawn.args,
               env: toNameValueEntries(server.transport.env) ?? [],
             };
+          }
           case 'http':
           case 'streamable_http':
             if (!capabilities.http) return null;
@@ -183,11 +188,13 @@ export function buildWCoreUserStdioMcpServers(
     .filter((server) => server.transport.type === 'stdio')
     .map((server): AcpSessionMcpServerStdio => {
       const transport = server.transport as Extract<IMcpServer['transport'], { type: 'stdio' }>;
+      // #827: resolve `npx`→bundled Bun so the engine spawns a real command.
+      const spawn = resolveMcpStdioSpawn(transport.command, transport.args ?? []);
       return {
         type: 'stdio',
         name: sanitizeMcpServerName(server.name),
-        command: transport.command,
-        args: transport.args || [],
+        command: spawn.command,
+        args: spawn.args,
         env: toNameValueEntries(transport.env) ?? [],
       };
     })

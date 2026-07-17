@@ -458,5 +458,16 @@
       "bridge_unavailable": "Der Anbieter konnte für den Wechsel zu {{model}} nicht erreicht werden. Das aktive Modell wurde nicht geändert.",
       "model_switch_timeout": "Zeitüberschreitung beim Bestätigen von {{model}}. Das aktive Modell wurde nicht geändert."
     }
+  },
+  "notification": {
+    "untitled": "Unbenannter Chat",
+    "agentFinished": {
+      "title": "Aufgabe abgeschlossen",
+      "body": "{{title}} ist fertig und wartet auf dich."
+    },
+    "agentError": {
+      "title": "Aufgabe fehlgeschlagen",
+      "body": "{{title}} wurde mit einem Fehler beendet. {{detail}}"
+    }
   }
 }

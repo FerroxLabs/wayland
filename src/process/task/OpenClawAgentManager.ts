@@ -12,6 +12,8 @@ import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { uuid } from '@/common/utils';
 import type { AgentBackend } from '@/common/types/acpTypes';
+import { trustedWorkspaceAutoApprovesAcpKind } from '@/common/security/workspaceTrust';
+import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { getDatabase } from '@process/services/database';
 import { addMessage, addOrUpdateMessage } from '@process/utils/message';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
@@ -144,6 +146,21 @@ class OpenClawAgentManager extends BaseAgentManager<OpenClawAgentManagerData> {
         };
         options: Array<{ optionId: string; name: string; kind: string }>;
       };
+
+      // #671: trusted ("cowork") workspace auto-approves read/edit tools while
+      // still prompting on exec/network. Only the non-destructive, non-network raw
+      // kinds read/search/edit auto-approve; everything else surfaces a
+      // confirmation. Persisted per-workspace; keeps trust uniform across every
+      // local backend (ACP/Gemini/WCore/OpenClaw).
+      if (
+        isWorkspaceTrusted(this.workspace) &&
+        trustedWorkspaceAutoApprovesAcpKind(permissionData.toolCall.kind) &&
+        permissionData.options.length > 0
+      ) {
+        const allow = permissionData.options.find((opt) => !opt.kind.startsWith('reject')) ?? permissionData.options[0];
+        void this.confirm(permissionData.toolCall.toolCallId, permissionData.toolCall.toolCallId, allow.optionId);
+        return;
+      }
 
       // Create confirmation for UI
       const confirmation: IConfirmation = {

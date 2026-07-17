@@ -98,7 +98,7 @@
     "panel_title": "IJFW Memory (Ferrox Labs)",
     "skip_label": "Pular a configuração automática do IJFW",
     "skip_description": "Quando ativado, o Wayland não vai instalar nem atualizar o IJFW. Você pode instalar manualmente depois pela página Memória.",
-    "manual_install_hint": "Para instalar manualmente: execute `npx -y @ijfw/install@latest` em um terminal",
+    "manual_install_hint": "Para instalar manualmente: execute `npx -y --package @ijfw/install@latest ijfw-install --yes` em um terminal",
     "about_title": "IJFW Memory",
     "about_body": "Um mecanismo de memória persistente open-source da Ferrox Labs.",
     "setup_status_title": "Status da configuração",

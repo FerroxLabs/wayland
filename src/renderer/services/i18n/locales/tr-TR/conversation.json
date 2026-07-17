@@ -460,5 +460,16 @@
       "bridge_unavailable": "{{model}} modeline geçmek için sağlayıcıya ulaşılamadı. Etkin model değiştirilmedi.",
       "model_switch_timeout": "{{model}} modelinin onaylanması beklenirken süre doldu. Etkin model değiştirilmedi."
     }
+  },
+  "notification": {
+    "untitled": "Başlıksız sohbet",
+    "agentFinished": {
+      "title": "Görev tamamlandı",
+      "body": "{{title}} tamamlandı ve sizi bekliyor."
+    },
+    "agentError": {
+      "title": "Görev başarısız",
+      "body": "{{title}} bir hatayla durdu. {{detail}}"
+    }
   }
 }

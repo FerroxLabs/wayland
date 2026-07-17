@@ -290,11 +290,16 @@ describe('AcpAgentManager - H9 session-resume replay does not duplicate SQLite r
       workspace: '/tmp/workspace',
       currentModelId: 'claude-sonnet-4-20250514',
     });
+    // The provider offers only a HAIKU model, so the persisted SONNET pick is a
+    // genuine cross-slot mismatch. (Same-slot registry/generation differences —
+    // e.g. sonnet-4 vs 3.5-sonnet — now confirm at slot granularity under the
+    // #184 slot-equivalence fix, so a cross-slot model is used here to exercise
+    // the block-vs-clear path.)
     const providerInfo: AcpModelInfo = {
       source: 'models',
-      currentModelId: 'claude-3-5-sonnet-20241022',
-      currentModelLabel: 'Claude 3.5 Sonnet',
-      availableModels: [{ id: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' }],
+      currentModelId: 'claude-3-5-haiku-20241022',
+      currentModelLabel: 'Claude 3.5 Haiku',
+      availableModels: [{ id: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' }],
       canSwitch: true,
       confirmationSource: 'spawn-session',
     };

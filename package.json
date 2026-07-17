@@ -1,6 +1,6 @@
 {
   "name": "Wayland",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "The local-first desktop AI agent that drives every AI CLI on your machine - Claude Code, Codex, Gemini and more, on your keys.",
   "keywords": [],
   "homepage": "https://github.com/FerroxLabs/wayland",

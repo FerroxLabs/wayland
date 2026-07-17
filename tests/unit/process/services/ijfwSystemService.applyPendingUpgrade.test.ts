@@ -42,6 +42,16 @@ vi.mock('@process/services/ijfw/preludeManager', () => ({
   discoverTargets: (dirs: unknown) => discoverTargetsSpy(dirs),
 }));
 
+// #716: getActiveProjectDirs lazily reads persisted project workspaces.
+// Mocked so unit tests never open a real SQLite database.
+vi.mock('@process/services/database/SqliteProjectRepository', () => ({
+  SqliteProjectRepository: class {
+    listProjects() {
+      return Promise.resolve([]);
+    }
+  },
+}));
+
 const mcpShutdownSpy = vi.fn().mockResolvedValue(undefined);
 const mcpWaitSpy = vi.fn().mockResolvedValue(true);
 vi.mock('@process/services/ijfw/ijfwMcpClient', () => ({
@@ -125,6 +135,73 @@ function makeSpawnTestSuccessChild() {
   return child;
 }
 
+/**
+ * #721: a child that pollutes stdout with plaintext progress lines around a
+ * valid tools/list response. Tolerant framing must skip the garbage and still
+ * verify successfully.
+ */
+function makeGarbageThenSuccessChild() {
+  const child = new EventEmitter() as EventEmitter & {
+    stdout: EventEmitter;
+    stderr: EventEmitter;
+    stdin: { write: (data: Buffer | string) => void };
+    kill: () => void;
+  };
+  child.stdout = new EventEmitter();
+  child.stderr = new EventEmitter();
+  child.stdin = {
+    write: () => {
+      setImmediate(() => {
+        const response = {
+          jsonrpc: '2.0',
+          id: 1,
+          result: { tools: [{ name: 'ijfw_memory_recall' }, { name: 'ijfw_state' }] },
+        };
+        child.stdout.emit('data', Buffer.from('build.building wayland-desktop 42%\n'));
+        child.stdout.emit('data', Buffer.from('more plaintext noise\n' + JSON.stringify(response) + '\n'));
+      });
+    },
+  };
+  child.kill = () => {};
+  return child;
+}
+
+/**
+ * #721: a child whose stdout is ONLY garbage - never a valid JSON-RPC reply.
+ *
+ * Emits SYNCHRONOUSLY from stdin.write, deliberately. spawnTestVerify arms its
+ * settle-timer and attaches the stdout listener BEFORE it writes, so a sync emit is
+ * always decoded first — whereas a setImmediate emit races the timer, and Node runs
+ * the timers phase before the check phase, so ANY event-loop stall past the timeout
+ * fires the timer first and the garbage is never decoded at all. The test would
+ * still pass (both paths settle false) while silently testing nothing — and it would
+ * do so precisely on a loaded shard, which is the runner we care about (#806).
+ *
+ * `garbageEmitted` lets the test prove the bytes actually went through the decoder.
+ */
+function makeGarbageOnlyChild() {
+  const child = new EventEmitter() as EventEmitter & {
+    stdout: EventEmitter;
+    stderr: EventEmitter;
+    stdin: { write: (data: Buffer | string) => void };
+    kill: () => void;
+    garbageEmitted: number;
+  };
+  child.stdout = new EventEmitter();
+  child.stderr = new EventEmitter();
+  child.garbageEmitted = 0;
+  child.stdin = {
+    write: () => {
+      for (let i = 0; i < 5; i++) {
+        child.stdout.emit('data', Buffer.from(`build.progress ${i * 20}%\n`));
+        child.garbageEmitted += 1;
+      }
+    },
+  };
+  child.kill = () => {};
+  return child;
+}
+
 function makeSpawnTestFailureChild() {
   const child = new EventEmitter() as EventEmitter & {
     stdout: EventEmitter;
@@ -163,7 +240,27 @@ function writePendingDir(): string {
 }
 
 // eslint-disable-next-line import/first
-import { ijfwSystemService } from '@process/services/ijfwSystemService';
+import { ijfwSystemService, _setSpawnTestTimeoutForTests } from '@process/services/ijfwSystemService';
+
+/**
+ * Bound an await that is supposed to settle. #806: the unbounded `await run` in
+ * the #721 case turned a lost race into an infinite hang, so the shard died on
+ * the suite wall-clock with no clue as to which promise was stuck. Fail loudly.
+ */
+async function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  let t: ReturnType<typeof setTimeout>;
+  const bomb = new Promise<never>((_, reject) => {
+    t = setTimeout(() => reject(new Error(`${what} (waited ${ms}ms)`)), ms);
+  });
+  try {
+    // try/finally, NOT `void p.finally(...)`: that returns a NEW derived promise which
+    // adopts p's rejection and, unhandled, poisons the whole run with an unhandled
+    // rejection — on the exact failure path this guard exists to make legible.
+    return await Promise.race([p, bomb]);
+  } finally {
+    clearTimeout(t!);
+  }
+}
 
 // The pending-upgrade activator stages the MCP server via symlink-ownership
 // checks and `.pending` -> live directory moves (moveWithExdevFallback, i.e.
@@ -187,6 +284,7 @@ describe('ijfwSystemService.applyPendingUpgrade', () => {
   });
 
   afterEach(() => {
+    _setSpawnTestTimeoutForTests(); // never let the shortened seam leak into another test
     fs.rmSync(tmpHome, { recursive: true, force: true });
   });
 
@@ -228,6 +326,57 @@ describe('ijfwSystemService.applyPendingUpgrade', () => {
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'installed_current' }));
     expect(fs.existsSync(path.join(tmpHome, '.ijfw', 'mcp-server'))).toBe(true);
     expect(fs.existsSync(path.join(tmpHome, '.ijfw', 'mcp-server.pending'))).toBe(false);
+  });
+
+  it('#721: spawn-test still verifies when garbage lines pollute a valid tools/list response', async () => {
+    writePendingDir();
+    spawnSpy.mockImplementation(() => makeGarbageThenSuccessChild());
+
+    await ijfwSystemService.applyPendingUpgrade();
+    for (let i = 0; i < 8; i++) await flush();
+
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'installed_current' }));
+    expect(fs.existsSync(path.join(tmpHome, '.ijfw', 'mcp-server'))).toBe(true);
+  });
+
+  it('#721: spawn-test settles false via its verify timeout when the child emits only garbage', async () => {
+    // No current install seeded → the failed verify has no `.prev` to roll back
+    // to, so the flow exits via upgrade_failed_no_rollback after a SINGLE
+    // spawn-test.
+    //
+    // #806: this used to fake ONLY setTimeout/clearTimeout while the child kept
+    // emitting over the REAL macrotask queue, then hand-interleaved 200 rounds of
+    // real flushes against the fake clock. That is a race, and when it was lost
+    // the unbounded `await run` hung until the suite's wall budget killed it —
+    // reliably, on windows/ubuntu shard 3/4. (Raising the budget 10s→30s was
+    // tried in #775 and did not work, because slowness was never the problem.)
+    //
+    // No fake clock now: shorten the real timer instead. Everything runs on one
+    // real macrotask queue, in the real order, and the test settles in ~50ms.
+    _setSpawnTestTimeoutForTests(50);
+    try {
+      writePendingDir();
+      const children: ReturnType<typeof makeGarbageOnlyChild>[] = [];
+      spawnSpy.mockImplementation(() => {
+        const c = makeGarbageOnlyChild();
+        children.push(c);
+        return c;
+      });
+
+      // 5s < vitest's 10s testTimeout, so THIS error wins and says what actually hung.
+      await withTimeout(ijfwSystemService.applyPendingUpgrade(), 5_000, 'applyPendingUpgrade never settled');
+
+      expect(spawnSpy).toHaveBeenCalledTimes(1);
+      // The garbage must actually have gone through the decoder. Without this the test
+      // passes for a child that emits NOTHING — the timeout alone satisfies every other
+      // assertion, so the "only garbage" premise in the title would go unverified.
+      expect(children[0].garbageEmitted).toBe(5);
+      expect(emitSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'install_failed', errorReason: 'upgrade_failed_no_rollback' })
+      );
+    } finally {
+      _setSpawnTestTimeoutForTests();
+    }
   });
 
   it('Checkpoint B B2: acquires installLock and short-circuits when one is already held', async () => {

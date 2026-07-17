@@ -32,6 +32,7 @@ import type { IjfwLifecycleStatus, IjfwStatusPayload } from '@/common/adapter/ip
 import type { IjfwErrorReason } from '@/common/types/ijfw';
 import { buildChildEnv } from '@process/services/ijfw/envAllowlist';
 import { resolveTrustedNodeRuntime, safeSpawn } from '@process/services/ijfw/safeSpawn';
+import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
 import { writeAtomic, moveWithExdevFallback, ijfwCacheKey } from '@process/services/ijfw/atomicFile';
 import { acquireLock, releaseLock, type LockMetadata } from '@process/services/ijfw/installLock';
 import {
@@ -261,8 +262,8 @@ function mapToPreludeStatus(status: IjfwLifecycleStatus): PreludeStatus {
 // Hard guard: refuse any path that is the filesystem root, the user's bare
 // HOME directory, or a well-known system path. The empty list is a safe
 // no-op for preludeManager (it just won't manage any files this session).
-// Wave 6.4 will wire the recent-workspaces store so users see managed files
-// for every tracked project, not just whatever cwd happens to be.
+// #716 wired the persisted project workspaces as the primary source, so a GUI
+// launch (cwd `/`) still scans every tracked project instead of nothing.
 const UNSAFE_PROJECT_ROOTS: readonly string[] = [
   '/',
   '/etc',
@@ -302,24 +303,50 @@ function isUnsafeProjectRoot(dir: string): boolean {
   return false;
 }
 
-export function getActiveProjectDirs(): string[] {
-  // Wave 1 baseline: only the current working directory. Wave 6.4 will hook
-  // into the recent-workspaces store. We never inject markers into foreign
-  // files, so this is safe even if the cwd is unrelated (preludeManager
+export async function getActiveProjectDirs(): Promise<string[]> {
+  const dirs: string[] = [];
+  const push = (dir: string) => {
+    if (!dir || dirs.includes(dir) || isUnsafeProjectRoot(dir)) return;
+    dirs.push(dir);
+  };
+
+  // #716: a macOS GUI launch (Dock/Finder/Spotlight) inherits cwd `/` from
+  // LaunchServices, so the cwd alone can NEVER seed the startup scan - the
+  // unsafe-root guard below refused it on every launch and the scan silently
+  // never ran. The persisted project workspaces are the real source of truth
+  // and are available at bootstrap time, so read them first. Imported lazily
+  // so this module stays loadable in unit tests that don't exercise the DB.
+  try {
+    const { SqliteProjectRepository } = await import('@process/services/database/SqliteProjectRepository');
+    const projects = await new SqliteProjectRepository().listProjects();
+    for (const project of projects) {
+      const workspace = typeof project.workspace === 'string' ? project.workspace.trim() : '';
+      if (workspace) push(workspace);
+    }
+  } catch (err) {
+    log.warn('[ijfw] failed to read project workspaces - falling back to cwd', { err });
+  }
+
+  // Terminal launches still contribute their cwd. We never inject markers into
+  // foreign files, so this is safe even if the cwd is unrelated (preludeManager
   // returns early for files without the IJFW-PRELUDE-START sentinel) -
   // BUT discoverTargets() still has to walk the tree before that filter runs,
-  // so we must never hand it `/` or `$HOME`. See Gemini B2.
+  // so we must never hand it `/` or `$HOME`. See Gemini B2. An unsafe cwd is
+  // the EXPECTED state for GUI launches, so it is skipped quietly; we only log
+  // when it leaves nothing at all to scan (#716: no open workspace yet - the
+  // next syncPrelude after one exists picks it up).
   const cwd = process.cwd();
-  if (isUnsafeProjectRoot(cwd)) {
-    log.warn('[ijfw] cwd is unsafe project root - refusing to scan', { cwd });
-    return [];
+  if (!isUnsafeProjectRoot(cwd)) {
+    push(cwd);
+  } else if (dirs.length === 0) {
+    log.info('[ijfw] no project workspace and cwd is unsafe - skipping prelude scan', { cwd });
   }
-  return [cwd];
+  return dirs;
 }
 
 async function syncPrelude(status: IjfwLifecycleStatus): Promise<void> {
   try {
-    const targets = await discoverTargets(getActiveProjectDirs());
+    const targets = await discoverTargets(await getActiveProjectDirs());
     await applyPreludeForStatus(mapToPreludeStatus(status), targets);
   } catch (err) {
     log.warn('[ijfw] prelude sync failed', { status, err });
@@ -558,6 +585,20 @@ async function retryOnEbusy<T>(op: () => Promise<T>, attempts = 5): Promise<T> {
   throw lastErr instanceof Error ? lastErr : new Error('EBUSY retry exhausted');
 }
 
+const DEFAULT_SPAWN_TEST_TIMEOUT_MS = 5000;
+let spawnTestTimeoutMs = DEFAULT_SPAWN_TEST_TIMEOUT_MS;
+
+/**
+ * Shorten the spawn-test's settle timeout so a test can drive the real timer
+ * instead of faking the clock (#806). The previous test faked only setTimeout
+ * while the child still emitted over the real macrotask queue, then hand-
+ * interleaved the two — a race that hung the turn outright on sharded runners.
+ */
+export function _setSpawnTestTimeoutForTests(ms?: number): void {
+  // `=== undefined`, not `??`: 0 is a legitimate value to ask for, not a reset.
+  spawnTestTimeoutMs = ms === undefined ? DEFAULT_SPAWN_TEST_TIMEOUT_MS : ms;
+}
+
 /** SEC-003: full JSON-RPC envelope verify with exit-before-success = fail. */
 async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
   let entry: string;
@@ -573,9 +614,15 @@ async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     let child: ChildProcess;
     try {
+      // #755: explicit bundle-external cwd + IJFW_PROJECT_DIR so the probe
+      // server can never treat an inherited cwd (e.g. app.asar.unpacked in a
+      // worker) as a writable project root and write into the signed bundle.
+      // `runtime` is the trusted standalone Node runtime resolved above.
+      const safeCwd = resolveSafeSpawnCwd();
       child = spawn(runtime, [entry], {
+        cwd: safeCwd,
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: buildChildEnv(),
+        env: buildChildEnv({ IJFW_PROJECT_DIR: safeCwd }),
       });
     } catch (err) {
       log.warn('[ijfw] spawnTestVerify - spawn threw', { err });
@@ -596,7 +643,7 @@ async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
       resolve(value);
     };
 
-    const timeout = setTimeout(() => settle(false), 5000);
+    const timeout = setTimeout(() => settle(false), spawnTestTimeoutMs);
     let buf: Buffer = Buffer.alloc(0);
 
     child.stdout?.on('data', (chunk: Buffer) => {

@@ -39,6 +39,7 @@ describe('ModelCapabilityDetector - openai', () => {
   it('text-embedding-3-small is embeddings only', () => {
     const caps = detector.detect(stub('text-embedding-3-small', 'openai'));
     expect(caps).toContain('embeddings');
+    expect(caps).not.toContain('chat');
   });
 });
 
@@ -77,6 +78,24 @@ describe('ModelCapabilityDetector - google-gemini', () => {
   it('embedding-001 is embeddings', () => {
     const caps = detector.detect(stub('embedding-001', 'google-gemini'));
     expect(caps).toContain('embeddings');
+    expect(caps).not.toContain('chat');
+  });
+});
+
+describe('ModelCapabilityDetector - embedding/retrieval ids', () => {
+  it('bge-m3 is embeddings only for openai-compatible providers', () => {
+    const caps = detector.detect(stub('bge-m3:latest', 'openai-compatible'));
+    expect(caps).toEqual(['embeddings']);
+  });
+
+  it('bge-m3 is embeddings only for local Ollama providers', () => {
+    const caps = detector.detect(stub('bge-m3:latest', 'ollama-local'));
+    expect(caps).toEqual(['embeddings']);
+  });
+
+  it('rerank models are embeddings only even when provider rules have a chat fallback', () => {
+    const caps = detector.detect(stub('rerank-english-v3.0', 'cohere'));
+    expect(caps).toEqual(['embeddings']);
   });
 });
 

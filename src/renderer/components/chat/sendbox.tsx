@@ -993,7 +993,11 @@ const SendBox: React.FC<{
     onFilesAdded,
     conversationId: conversationContext?.conversationId,
     onTextPaste: (text: string) => {
-      // Handle cleaned text paste; insert text at the current caret position instead of replacing entire content
+      // Handle cleaned text paste; insert at the caret through the browser's
+      // editing pipeline (execCommand('insertText')) so the edit is recorded
+      // on the native undo stack and Cmd+Z can undo the paste (#669). The
+      // resulting native input event flows through handleTextAreaChange,
+      // keeping React state in sync.
       const textarea = document.activeElement as HTMLTextAreaElement;
       if (textarea && textarea.tagName === 'TEXTAREA') {
         // Insert via execCommand so the paste is recorded on the browser's native
@@ -1002,12 +1006,20 @@ const SendBox: React.FC<{
         // undo was a no-op after any paste. execCommand inserts at the caret,
         // replaces the current selection, and fires a real `input` event that the
         // controlled textarea's onChange consumes to update React state — so no
-        // setInput/caret bookkeeping is needed on this path.
-        if (typeof document.execCommand === 'function' && document.execCommand('insertText', false, text)) {
+        // setInput/caret bookkeeping is needed on this path. Guard the call in a
+        // try/catch: some browsers throw instead of returning false when the
+        // command is unsupported, and we must fall through to the manual path.
+        let inserted = false;
+        try {
+          inserted = typeof document.execCommand === 'function' && document.execCommand('insertText', false, text);
+        } catch {
+          inserted = false;
+        }
+        if (inserted) {
           return;
         }
-        // Fallback (execCommand unavailable/refused): manual insert at caret. This
-        // path does not populate the native undo stack.
+        // Fallback when execCommand is unavailable: programmatic insertion.
+        // This path cannot populate the undo stack but keeps paste working.
         const cursorPosition = textarea.selectionStart;
         const currentValue = textarea.value;
         const start = textarea.selectionStart ?? textarea.value.length;

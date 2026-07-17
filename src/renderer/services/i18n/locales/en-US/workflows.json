@@ -14,8 +14,12 @@
     "schedule": "Schedule",
     "import": "Import workflow",
     "build": "Build a workflow",
-    "runOn": "Run on"
+    "runOn": "Run on",
+    "export": "Export"
   },
+  "exportOk": "Exported",
+  "exportFailed": "Export failed",
+  "exportRedacted": "Exported. A possible secret was masked — review before sharing.",
   "launchError": "Failed to launch workflow: {{msg}}",
   "picker": {
     "noAgent": "No backend selected"

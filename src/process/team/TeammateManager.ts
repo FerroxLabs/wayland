@@ -143,13 +143,46 @@ export class TeammateManager extends EventEmitter {
    */
   private readonly tokenUsageBaselines = new Map<string, UsageSnapshot>();
 
-  /** Maximum time (ms) to wait for a turnCompleted event before force-releasing a wake */
-  private static readonly WAKE_TIMEOUT_MS = 60 * 1000;
+  /**
+   * Lease-renew throttle (ms): maybeRenewLease writes the persisted lease at
+   * most once per this window. MUST stay well under LEASE_TTL_MS (180s) so a
+   * live owner's lease never lapses between renewals and the out-of-process
+   * Watchdog can't falsely reclaim its task. Deliberately distinct from the
+   * inactivity watchdog below - conflating them is why #747 bit.
+   */
+  private static readonly LEASE_RENEW_THROTTLE_MS = 60 * 1000;
+
+  /**
+   * Default inactivity-watchdog budget (ms): if a teammate streams NO activity
+   * (text, tool call, or thought) for this long, the leader is told it may be
+   * stalled. Raised from 60s (#747): a single silent tool/test run or slow
+   * first-token latency routinely exceeds a minute, which falsely flagged live,
+   * still-working teammates (and the leader itself) as "failed" and derailed
+   * runs. 180s aligns with LEASE_TTL_MS so the in-memory watchdog and the
+   * persisted-lease Watchdog surface a genuine stall at the same horizon.
+   * Override with env WAYLAND_TEAM_WAKE_TIMEOUT_MS (floored at 30s to reject
+   * garbage / a value low enough to re-introduce the false positives).
+   */
+  private static readonly DEFAULT_INACTIVITY_TIMEOUT_MS = 3 * 60 * 1000;
+
+  private static resolveInactivityTimeoutMs(): number {
+    const raw = process.env.WAYLAND_TEAM_WAKE_TIMEOUT_MS;
+    if (!raw) return TeammateManager.DEFAULT_INACTIVITY_TIMEOUT_MS;
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed) || parsed < 30_000) return TeammateManager.DEFAULT_INACTIVITY_TIMEOUT_MS;
+    // Clamp to the 32-bit setTimeout ceiling: a larger delay overflows and fires
+    // after ~1ms, which would flag every teammate failed immediately - the exact
+    // opposite of a long timeout. 2^31-1 ms is ~24.8 days, far past any real use.
+    return Math.min(parsed, 2_147_483_647);
+  }
+
+  /** Resolved once per manager: the inactivity-watchdog budget for this team. */
+  private readonly inactivityTimeoutMs = TeammateManager.resolveInactivityTimeoutMs();
 
   /**
    * P2 - the persisted lease ({@link LEASE_TTL_MS}, shared with TaskManager) is
    * stamped at wake start, RENEWED on streaming activity (throttled to once per
-   * WAKE_TIMEOUT_MS, see {@link maybeRenewLease}) REGARDLESS of in-memory status,
+   * LEASE_RENEW_THROTTLE_MS, see {@link maybeRenewLease}) REGARDLESS of in-memory status,
    * and renewed again at turn completion - so a still-alive turn keeps its lease
    * fresh even after a soft `failed` flip (inactivity/429 that did not kill the
    * process) and is never falsely reclaimed. The lease only lapses when the owner
@@ -460,7 +493,7 @@ export class TeammateManager extends EventEmitter {
 
       // Arm the inactivity watchdog. Any streaming output from this agent
       // resets it via handleResponseStream → resetWakeTimeout. It only fires
-      // when the agent has been silent for WAKE_TIMEOUT_MS with no finish event.
+      // when the agent has been silent for inactivityTimeoutMs with no finish event.
       this.resetWakeTimeout(slotId);
 
       // W1e: log the successful wake (post-sendMessage, before turn completes).
@@ -651,7 +684,7 @@ export class TeammateManager extends EventEmitter {
 
     // Detect terminal stream messages and trigger turn completion.
     if (msg.type === 'finish' || msg.type === 'error') {
-      void this.finalizeTurn(msg.conversation_id);
+      void this.finalizeTurn(msg.conversation_id, msg.turnId);
       return;
     }
 
@@ -672,8 +705,8 @@ export class TeammateManager extends EventEmitter {
 
   /**
    * P2 - renew the persisted lease on streaming activity, at most once per
-   * WAKE_TIMEOUT_MS to avoid spamming the DB. Without this the persisted lease
-   * would only refresh at wake start / turn end, so a turn that streams for
+   * LEASE_RENEW_THROTTLE_MS to avoid spamming the DB. Without this the persisted
+   * lease would only refresh at wake start / turn end, so a turn that streams for
    * longer than LEASE_TTL_MS would let its lease lapse and be falsely reclaimed
    * while still alive.
    */
@@ -681,7 +714,7 @@ export class TeammateManager extends EventEmitter {
     if (!this.taskRepo) return;
     const now = Date.now();
     const last = this.lastLeaseRenewMs.get(slotId) ?? 0;
-    if (now - last < TeammateManager.WAKE_TIMEOUT_MS) return;
+    if (now - last < TeammateManager.LEASE_RENEW_THROTTLE_MS) return;
     this.lastLeaseRenewMs.set(slotId, now);
     void this.stampTaskLease(slotId, now);
   }
@@ -690,8 +723,8 @@ export class TeammateManager extends EventEmitter {
    * (Re)arm the inactivity watchdog for an agent's current wake.
    * Fired from wake() after dispatching the prompt, and from handleResponseStream
    * whenever fresh streaming activity arrives. When it finally fires (agent silent
-   * for WAKE_TIMEOUT_MS), escalates to handleInactivityTimeout so the leader learns
-   * about the stall instead of the agent dropping silently to idle.
+   * for inactivityTimeoutMs), escalates to handleInactivityTimeout so the leader
+   * learns about the stall instead of the agent dropping silently to idle.
    */
   private resetWakeTimeout(slotId: string): void {
     const existing = this.wakeTimeouts.get(slotId);
@@ -703,23 +736,24 @@ export class TeammateManager extends EventEmitter {
       if (currentAgent?.status === 'active') {
         void this.handleInactivityTimeout(currentAgent);
       }
-    }, TeammateManager.WAKE_TIMEOUT_MS);
+    }, this.inactivityTimeoutMs);
     this.wakeTimeouts.set(slotId, timeoutHandle);
   }
 
   /**
-   * A teammate went silent for WAKE_TIMEOUT_MS with no streaming activity and no
-   * finish event. Treat it as a soft failure: mark the agent 'failed' (not 'idle',
-   * which hides the problem), write an explanatory message into the leader's mailbox,
-   * and wake the leader so it can decide the next move (retry, replace, escalate).
+   * A teammate went silent for inactivityTimeoutMs with no streaming activity and
+   * no finish event. Treat it as a soft failure: mark the agent 'failed' (not
+   * 'idle', which hides the problem), write an explanatory message into the
+   * leader's mailbox, and wake the leader so it can decide the next move (retry,
+   * replace, escalate).
    *
    * Previously the timeout just setStatus(slotId, 'idle'), which left the leader
    * unaware - it would eventually re-wake on some other signal and guess that
    * the teammate was "idle-spinning" with no concrete evidence.
    */
   private async handleInactivityTimeout(agent: TeamAgent): Promise<void> {
-    const timeoutSeconds = Math.floor(TeammateManager.WAKE_TIMEOUT_MS / 1000);
-    const reason = `stopped responding after ${timeoutSeconds}s without sending any update`;
+    const timeoutSeconds = Math.floor(this.inactivityTimeoutMs / 1000);
+    const reason = `has not streamed any update in ${timeoutSeconds}s and may be stalled`;
 
     console.warn(`[TeammateManager] ${agent.agentName} (${agent.slotId}) ${reason}`);
     this.setStatus(agent.slotId, 'failed', reason);
@@ -753,12 +787,24 @@ export class TeammateManager extends EventEmitter {
    * All agent coordination (send_message, task_create, etc.) is handled via MCP tool calls
    * in TeamMcpServer - this method only needs to manage lifecycle.
    */
-  private async finalizeTurn(conversationId: string): Promise<void> {
+  private async finalizeTurn(conversationId: string, turnId?: string | number): Promise<void> {
+    // #787: dedup per (conversation, turn). A late duplicate of a prior turn's
+    // finish that arrives AFTER the agent was re-woken must still be suppressed,
+    // yet the re-wake's own fresh turn must be free to finalize. Keying by
+    // conversation alone can't distinguish them: `wake()` clears the entry so
+    // the new turn isn't wrongly deduped, which simultaneously un-dedups the old
+    // turn's straggler → a duplicate idle_notification. A per-turn key fixes
+    // both: the straggler (turnId=A) stays deduped while the re-wake (turnId=B)
+    // uses a distinct key. Non-ACP / signal-channel finishes carry no turnId and
+    // fall back to conversation-only keying (unchanged behaviour) — and note
+    // `wake()`'s bare-`conversationId` delete only removes that fallback key, so
+    // it never disturbs a live `${conv}#${turnId}` entry.
+    const dedupKey = turnId === undefined ? conversationId : `${conversationId}#${turnId}`;
     // Dedup: skip if this turn was already finalized
-    if (this.finalizedTurns.has(conversationId)) return;
-    this.finalizedTurns.add(conversationId);
+    if (this.finalizedTurns.has(dedupKey)) return;
+    this.finalizedTurns.add(dedupKey);
     // Clean up the dedup entry after a short delay so future turns can be processed
-    setTimeout(() => this.finalizedTurns.delete(conversationId), 5000);
+    setTimeout(() => this.finalizedTurns.delete(dedupKey), 5000);
 
     const agent = this.agents.find((a) => a.conversationId === conversationId);
     if (!agent) return;
@@ -810,6 +856,62 @@ export class TeammateManager extends EventEmitter {
         // Only wake leader when ALL non-leader teammates are idle/completed/failed/pending.
         // This prevents death loops where each idle notification triggers a new leader turn.
         this.maybeWakeLeaderWhenAllIdle(leadAgent.slotId);
+      }
+
+      // #781: a mailbox message that arrives while this agent's wake is in
+      // flight is skipped by the activeWakes guard and would otherwise sit
+      // undelivered until some unrelated future wake. Observed live: the
+      // leader's shutdown_request landed during the member's long spawn turn,
+      // the member never saw it, and "fire the member" hung forever. Now that
+      // the turn is over, drain anything still unread. wake() re-checks the
+      // mailbox atomically (readUnreadAndMark), so a concurrent wake cannot
+      // double-deliver. Leader re-delivery stays gated by
+      // maybeWakeLeaderWhenAllIdle to avoid notification-per-turn churn.
+      try {
+        const pending = await this.mailbox.peekUnread(this.teamId, agent.slotId);
+        if (pending.length > 0) {
+          console.log(
+            `[TeammateManager] finalizeTurn(${agent.agentName}): ${pending.length} unread message(s) arrived mid-turn, re-waking`
+          );
+          void this.wake(agent.slotId).catch((err) => {
+            console.error(`[TeammateManager] finalizeTurn re-wake(${agent.slotId}) failed:`, err);
+          });
+        }
+      } catch (err) {
+        console.warn(
+          `[TeammateManager] finalizeTurn(${agent.slotId}) unread-mailbox check failed:`,
+          err instanceof Error ? err.message : String(err)
+        );
+      }
+    } else {
+      // #786: the leader has the SAME mid-wake delivery race as members - a
+      // message written to the leader's mailbox while its wake is in flight is
+      // skipped by the activeWakes guard (e.g. a user follow-up sent during the
+      // leader's long first-spawn turn). The member drain above intentionally
+      // excludes the leader because an unconditional re-wake would re-introduce
+      // the notification-per-turn churn that maybeWakeLeaderWhenAllIdle exists to
+      // prevent. So drain the leader's own unread mailbox here, but re-wake ONLY
+      // when it holds real content (a user follow-up or a member report) - never
+      // for idle_notifications alone. Otherwise a leader message can rot when no
+      // member finishes a turn afterward (or there are no members at all) to
+      // trip maybeWakeLeaderWhenAllIdle. wake() drains ALL unread atomically
+      // (readUnreadAndMark), so any idle_notifications ride along on that wake.
+      try {
+        const pending = await this.mailbox.peekUnread(this.teamId, agent.slotId);
+        const actionable = pending.filter((m) => m.type !== 'idle_notification');
+        if (actionable.length > 0) {
+          console.log(
+            `[TeammateManager] finalizeTurn(leader ${agent.agentName}): ${actionable.length} actionable unread message(s) arrived mid-turn, re-waking`
+          );
+          void this.wake(agent.slotId).catch((err) => {
+            console.error(`[TeammateManager] finalizeTurn leader re-wake(${agent.slotId}) failed:`, err);
+          });
+        }
+      } catch (err) {
+        console.warn(
+          `[TeammateManager] finalizeTurn(leader ${agent.slotId}) unread-mailbox check failed:`,
+          err instanceof Error ? err.message : String(err)
+        );
       }
     }
   }

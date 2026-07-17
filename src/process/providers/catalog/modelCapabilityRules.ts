@@ -2,6 +2,13 @@ import type { ProviderId, Capability } from '../types';
 
 export type CapabilityRule = { match: RegExp; capabilities: Capability[] };
 
+const EMBEDDING_MODEL_ID_RE = /(?:^|[\s/.:_-])(?:text[-_]?embedding|embeddings?|embed|rerank|bge)(?=$|[\s/.:_-])/i;
+
+/** True when a provider model id reads like an embedding/retrieval model. */
+export function looksLikeEmbeddingModelId(modelId: string): boolean {
+  return EMBEDDING_MODEL_ID_RE.test(modelId);
+}
+
 /**
  * Per-provider id-pattern → capability rules.
  * All rules are evaluated (additive); duplicates are deduped by the detector.

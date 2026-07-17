@@ -36,6 +36,7 @@ import { formatModifierShortcut } from '@/renderer/utils/platform';
 import { memory as memoryBridge, ijfw as ijfwBridge } from '@/common/adapter/ipcBridge';
 import type { IjfwStatusPayload, IjfwLifecycleStatus } from '@/common/adapter/ipcBridge';
 import IjfwSetupStatus from '@/renderer/pages/settings/components/IjfwSetupStatus';
+import { ErrorBoundary } from '@/renderer/components/ErrorBoundary';
 import type { LastDream, ListFilter, MemoryEntry, MemoryType } from '@/common/types/memory';
 import { useTranslation } from 'react-i18next';
 import MemoryList from '../components/MemoryList';
@@ -605,17 +606,24 @@ const FullPanelShell: React.FC = () => {
               />
             </div>
 
-            {/* Right drawer - push-content, 480px */}
-            <RightDrawer
-              entry={selected}
-              promotionThreshold={promotionThreshold}
-              onClose={clearSelection}
-              onPromote={handlePromote}
-              onOpenSource={handleOpenSource}
-              onCopy={handleCopy}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            {/* Right drawer - push-content, 480px.
+              #792: contain a detail-panel render error (the #751 class) to the
+              drawer so the list stays usable. resetKeys (not a React key) clears
+              the fallback when the user picks another entry, so switching rows
+              recovers from a crash tied to one entry's data - without remounting
+              the drawer on open/close, which would break its width transition. */}
+            <ErrorBoundary resetKeys={[selectedId]}>
+              <RightDrawer
+                entry={selected}
+                promotionThreshold={promotionThreshold}
+                onClose={clearSelection}
+                onPromote={handlePromote}
+                onOpenSource={handleOpenSource}
+                onCopy={handleCopy}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            </ErrorBoundary>
           </>
         )}
       </div>

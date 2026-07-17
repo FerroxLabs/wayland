@@ -125,7 +125,14 @@ describe('IjfwSettingsPanel', () => {
       )
     ).toBeTruthy();
     expect(screen.getByTestId('ijfw-settings-skip-switch')).toBeTruthy();
-    expect(screen.getByTestId('ijfw-settings-manual-install-code')).toBeTruthy();
+    // #572: the manual-install command must name the bin via --package. A bare
+    // `npx @ijfw/install` fails with "could not determine executable to run"
+    // because the package's bins (ijfw/ijfw-install/ijfw-uninstall) don't match
+    // the package name — see ijfwSystemService spawn args.
+    const codeEl = screen.getByTestId('ijfw-settings-manual-install-code');
+    expect(codeEl.textContent).toContain('--package @ijfw/install');
+    expect(codeEl.textContent).toContain('ijfw-install --yes');
+    expect(codeEl.textContent).not.toBe('npx -y @ijfw/install@latest');
   });
 
   it('reads initial switch state from getStatus (opt_out → ON)', async () => {

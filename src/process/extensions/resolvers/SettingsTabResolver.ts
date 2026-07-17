@@ -11,6 +11,7 @@ import { BUILTIN_SETTINGS_TAB_IDS } from '../types';
 import { isPathWithinDirectory } from '../sandbox/pathSafety';
 import { toAssetUrl } from '../protocol/assetProtocol';
 import { resolveRuntimeEntryPath } from './utils/entryPointResolver';
+import { resolveExternalEntryUrl } from './utils/externalEntryUrlResolver';
 
 /**
  * Resolved settings tab contribution - ready to be consumed by the renderer.
@@ -35,7 +36,14 @@ export type ResolvedSettingsTab = {
 /**
  * Resolve `contributes.settingsTabs` from all enabled extensions.
  * - local entryPoint: validate path + convert to wayland-asset:// URL
- * - external entryPoint (http/https): validate URL + pass through as-is
+ * - external entryPoint (https, or http on loopback): validate URL + pass through as-is
+ *
+ * An external tab is rendered as remote content INSIDE the app's own settings chrome
+ * (ExtensionSettingsTabContent -> WebviewHost), so cleartext http is rejected: anyone on
+ * the network path could otherwise inject arbitrary content into a surface the user reads
+ * as Wayland's own UI (#818). https stays supported - hosted settings pages are a
+ * deliberate capability, and that webview is already hardened (contextIsolation, sandbox,
+ * nodeIntegration=no, no preload, isolated partition, no postMessage bridge).
  */
 export function resolveSettingsTabs(extensions: LoadedExtension[]): ResolvedSettingsTab[] {
   const result: ResolvedSettingsTab[] = [];
@@ -62,19 +70,9 @@ export function resolveSettingsTabs(extensions: LoadedExtension[]): ResolvedSett
       let entryUrl: string;
 
       if (isExternalEntry) {
-        try {
-          const external = new URL(tab.entryPoint);
-          if (external.protocol !== 'http:' && external.protocol !== 'https:') {
-            console.warn(
-              `[Extensions] Unsupported settings tab external protocol: ${tab.entryPoint} (extension: ${extName})`
-            );
-            continue;
-          }
-          entryUrl = external.toString();
-        } catch {
-          console.warn(`[Extensions] Invalid settings tab external URL: ${tab.entryPoint} (extension: ${extName})`);
-          continue;
-        }
+        const resolved = resolveExternalEntryUrl(tab.entryPoint, 'settings tab', extName);
+        if (!resolved) continue;
+        entryUrl = resolved;
       } else {
         const absEntry = resolveRuntimeEntryPath(extDir, tab.entryPoint);
         if (!absEntry) {

@@ -7,13 +7,14 @@ import type {
 import * as path from 'node:path';
 import { resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { AcpError } from '@process/acp/errors/AcpError';
-import { buildAcpSetupGuidance } from '@process/acp/errors/setupFailure';
+import { buildAcpAdapterCorruptionGuidance, buildAcpSetupGuidance } from '@process/acp/errors/setupFailure';
 import type { ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { noopMetrics, type AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import { ConfigTracker } from '@process/acp/session/ConfigTracker';
 import { InputPreprocessor } from '@process/acp/session/InputPreprocessor';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import { PermissionResolver } from '@process/acp/session/PermissionResolver';
+import { loadWorkspaceApprovals, saveWorkspaceApproval } from '@process/acp/session/ApprovalPersistence';
 import { PromptExecutor } from '@process/acp/session/PromptExecutor';
 import { mapSessionConfigOptions, SessionLifecycle } from '@process/acp/session/SessionLifecycle';
 import type {
@@ -108,6 +109,13 @@ export class AcpSession {
     this.permissionResolver = new PermissionResolver({
       autoApproveAll: agentConfig.yoloMode ?? false,
       cacheMaxSize: options?.approvalCacheMaxSize,
+      // #672: persist "allow always" grants per workspace (cwd) so they survive
+      // an app restart instead of re-prompting. hydrate loads them lazily on the
+      // first permission check; persist write-throughs new grants.
+      hydrate: () => loadWorkspaceApprovals(agentConfig.cwd),
+      persist: (cacheKey, optionId) => {
+        void saveWorkspaceApproval(agentConfig.cwd, cacheKey, optionId);
+      },
     });
 
     this.lifecycle = new SessionLifecycle(
@@ -334,6 +342,10 @@ export class AcpSession {
       },
       onWriteTextFile: async (req) => {
         this.assertPathAllowed(req.path);
+        // An irreversible side effect that never passes through handleMessage, so
+        // it would otherwise leave `turnRanTool` false and let a retry replay the
+        // turn and write the file a second time (#774).
+        this.promptExecutor.noteToolActivity();
         try {
           fs.writeFileSync(req.path, req.content, 'utf-8');
           return {};
@@ -390,6 +402,13 @@ export class AcpSession {
     }
 
     this.promptExecutor.resetTimer();
+
+    // A tool has run, so this turn is no longer safe to replay wholesale on a
+    // transient error (#774) - re-sending the prompt could re-execute it.
+    if (update.sessionUpdate === 'tool_call' || update.sessionUpdate === 'tool_call_update') {
+      this.promptExecutor.noteToolActivity();
+    }
+
     const messages = this.messageTranslator.translate(notification);
     for (const msg of messages) {
       this.callbacks.onMessage(msg);
@@ -397,6 +416,9 @@ export class AcpSession {
   }
 
   private async handlePermissionRequest(request: RequestPermissionRequest): Promise<RequestPermissionResponse> {
+    // A permission request means a tool is about to run — enough to make replaying
+    // this turn unsafe, even if its `tool_call` update never reaches us (#774).
+    this.promptExecutor.noteToolActivity();
     this.promptExecutor.pauseTimer();
     try {
       return await this.permissionResolver.evaluate(request, (data) => {
@@ -461,10 +483,13 @@ export class AcpSession {
 
   enterError(message: string): void {
     // If the backend failed because it's installed but missing a runtime extra
-    // (e.g. Hermes without the ACP adapter), rewrite the raw stderr into
-    // actionable install guidance with the correct command. Otherwise pass the
-    // original message through unchanged.
-    const displayMessage = buildAcpSetupGuidance(this.agentConfig.agentBackend, message) ?? message;
+    // (e.g. Hermes without the ACP adapter), or because a bunx-spawned adapter
+    // install is corrupt (#676), rewrite the raw stderr into actionable guidance.
+    // Otherwise pass the original message through unchanged.
+    const displayMessage =
+      buildAcpSetupGuidance(this.agentConfig.agentBackend, message) ??
+      buildAcpAdapterCorruptionGuidance(this.agentConfig.agentBackend, message) ??
+      message;
     this.promptExecutor.clearPending();
     this.permissionResolver.rejectAll(new Error(displayMessage));
     this.promptExecutor.stopTimer();

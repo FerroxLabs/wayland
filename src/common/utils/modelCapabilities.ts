@@ -20,6 +20,25 @@ import { isFluxModelId } from '@/common/config/flux';
 const FLUX_IMAGE_MODEL = /flux(?:[.-]?\d|-(?:dev|schnell|pro|kontext|realism|lora))/i;
 
 /**
+ * Embedding / retrieval model families. Many are NOT named with the literal
+ * `embed` (`bge-m3`, `gte-large`, `e5-mistral`, `voyage-3`, …), so the known
+ * families are matched by name. Exported so other classifiers (e.g. the
+ * models.dev catalog assembler) stay consistent with this one. See #740.
+ *
+ * Each family stem is anchored to a token boundary (start-of-id or a
+ * `/ . : _ -`/whitespace separator on both sides) so a short stem can't match
+ * inside an unrelated chat model id — e.g. `uae` must NOT trip on the vendored
+ * `kuae-*` ("KUAE Cloud Coding Plan") coding models, and `e5`/`bge`/`gte` can't
+ * match mid-word. `embed`/`embeddings` still catch `text-embedding-*`,
+ * `nomic-embed-*`, `gemini-embedding-*`, etc. via the same boundaries.
+ */
+export const EMBEDDING_MODEL =
+  /(?:^|[\s./:_-])(?:embeddings?|embed|bge|gte|e5|uae|voyage|jina-clip|retrieval|llm2vec)(?=$|[\s./:_-])/i;
+
+/** Reranker / retriever models (cross-encoders) - never chat models. */
+const RERANK_MODEL = /(?:rerank|re-rank|re-ranker|re-ranking|retrieval|retriever)/i;
+
+/**
  * Capability matching regex patterns
  */
 export const CAPABILITY_PATTERNS: Record<ModelType, RegExp> = {
@@ -32,10 +51,15 @@ export const CAPABILITY_PATTERNS: Record<ModelType, RegExp> = {
   ),
   web_search: /search|perplexity/i,
   reasoning: /o1-|reasoning|think/i,
-  embedding: /(?:^text-|embed|bge-|e5-|LLM2Vec|retrieval|uae-|gte-|jina-clip|jina-embeddings|voyage-)/i,
-  rerank: /(?:rerank|re-rank|re-ranker|re-ranking|retrieval|retriever)/i,
+  embedding: EMBEDDING_MODEL,
+  rerank: RERANK_MODEL,
+  // Must be a SUPERSET of embedding + rerank so a non-chat model (e.g.
+  // `bge-m3:latest`) is filtered OUT of the primary / workflow model picker
+  // instead of being offered for chat and failing with a provider 400
+  // ("does not support chat"). The bare `embed`/`rerank` literals alone missed
+  // family-named embeddings like bge-/gte-/e5-/voyage-, which is #740's bug.
   excludeFromPrimary: new RegExp(
-    `dall-e|${FLUX_IMAGE_MODEL.source}|stable-diffusion|midjourney|flash-image|image|embed|rerank`,
+    `dall-e|${FLUX_IMAGE_MODEL.source}|stable-diffusion|midjourney|flash-image|image|${EMBEDDING_MODEL.source}|${RERANK_MODEL.source}`,
     'i'
   ),
 };

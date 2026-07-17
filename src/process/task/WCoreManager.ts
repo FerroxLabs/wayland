@@ -17,6 +17,8 @@ import { readWCoreConfigMcpServerNames } from '@process/agent/wcore/configMcpSer
 import { type OutputBudget, resolveFixedBudget } from '@/common/config/outputBudget';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
+import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
+import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
 import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
@@ -35,6 +37,7 @@ import { uuid } from '@/common/utils';
 import BaseAgentManager from './BaseAgentManager';
 import { IpcAgentEventEmitter } from './IpcAgentEventEmitter';
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { hasCronCommands } from './CronCommandDetector';
 import { hasConciergeProposals } from './ConciergeProposeDetector';
 import { processCronInMessage } from './MessageMiddleware';
@@ -166,6 +169,46 @@ export function dedupeThinkingDelta(prev: string, incoming: string): string {
   const isRestate = common >= 10 || (prev.length > 0 && common >= prev.length * 0.5);
   if (isRestate) return incoming.length > prev.length ? incoming.slice(prev.length) : '';
   return incoming;
+}
+
+/**
+ * Cap for wcore `info` event text in the persistent log (#714). These events
+ * include full tool results ("[Grep success] <matched content>") — observed
+ * single entries up to ~600 KB — so the daily electron-log file was a plaintext
+ * copy of everything the agent read, API keys included. A short head is all a
+ * debugging session needs; the full output still reaches the renderer via the
+ * normal message stream.
+ */
+export const INFO_LOG_PREVIEW_MAX_CHARS = 400;
+
+/**
+ * Reduce a wcore `info` payload to something safe to persist to the on-disk
+ * log (#714): truncate to a short preview, then mask recognizable secret
+ * shapes with the same redactor the activity timeline uses (#610). Truncation
+ * runs FIRST so the redaction regexes never scan a multi-hundred-KB string; a
+ * secret cut by the boundary either still matches (the prefixed-key regex
+ * needs only 6 chars past the prefix) or has too little of it left to matter.
+ * Non-string payloads (e.g. the `approval_required` diagnostic's structured
+ * data, whose engine-supplied `context` is free-form) are JSON-stringified so
+ * they stay readable AND pass through the same redaction. This is the desktop
+ * log-file surface; engine-side transports are #584.
+ */
+export function toSafeInfoLogPreview(info: unknown): string {
+  let text: string;
+  if (typeof info === 'string') {
+    text = info;
+  } else {
+    try {
+      text = JSON.stringify(info) ?? String(info);
+    } catch {
+      text = String(info); // circular/unserializable - type tag beats nothing
+    }
+  }
+  const truncated =
+    text.length > INFO_LOG_PREVIEW_MAX_CHARS
+      ? `${text.slice(0, INFO_LOG_PREVIEW_MAX_CHARS)}… [+${text.length - INFO_LOG_PREVIEW_MAX_CHARS} chars truncated]`
+      : text;
+  return redactCommandSecrets(truncated);
 }
 
 export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
@@ -571,6 +614,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.agent?.approveTool(content.callId, 'once');
         return true;
       }
+    }
+    // #671: trusted ("cowork") workspace auto-approves edits, still prompts on
+    // exec/network. Only 'edit' - NOT the 'info' catch-all (which the engine also
+    // uses for unclassified/network confirmations) - so a persisted always-on
+    // posture stays stricter than the user-chosen auto_edit mode. Persisted
+    // per-workspace; question/exec/mcp fall through to the confirmation dialog.
+    if (isWorkspaceTrusted(this.workspace) && trustedWorkspaceAutoApprovesConfirmationType(type)) {
+      this.agent?.approveTool(content.callId, 'once');
+      return true;
     }
     return false;
   }
@@ -1076,10 +1128,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         return;
       }
 
-      // Log info events from wcore (includes set_config/set_mode acknowledgments)
+      // Log info events from wcore (includes set_config/set_mode acknowledgments).
+      // These also carry full tool results, so persist only a truncated,
+      // secret-redacted preview — never the verbatim output (#714).
       if (data.type === 'info') {
         const elapsed = this._configSentAt ? ` (${Date.now() - this._configSentAt}ms since command)` : '';
-        mainLog('[WCoreManager]', `info: ${data.data}${elapsed}`);
+        mainLog('[WCoreManager]', `info: ${toSafeInfoLogPreview(data.data)}${elapsed}`);
       }
 
       // v0.9.4 - sub-agent activity events are system-level (empty msg_id) but
@@ -1174,10 +1228,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // token: we can neither resume nor escalate, so surface a diagnostic.
         if (appr.reason && !isInfo) {
           if (autoMode && !appr.resumeToken) {
+            // Preview, not the raw payload: `context` is engine-supplied
+            // free-form text and this persists to the on-disk log (#714).
             mainError(
               '[WCoreManager]',
               `approval_required reason='${appr.reason}' in auto mode has no resume token and no HITL UI; turn may wedge`,
-              data.data
+              toSafeInfoLogPreview(data.data)
             );
           } else {
             mainLog(

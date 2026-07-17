@@ -122,33 +122,20 @@
     "filter": {
       "all": "All",
       "chat": "Chats",
-      "email": "Emails",
-      "reference": "Refs",
-      "remote": "Remote"
+      "reference": "Refs"
     },
     "eyebrow": {
       "project": "Project",
       "chat": "Chat",
-      "email": "Email ingest",
-      "reference": "Reference",
-      "remote": "Remote attachment"
+      "reference": "Reference"
     },
     "field": {
       "project": "Project",
       "workspace": "Workspace",
       "backend": "Backend",
       "type": "Type",
-      "from": "From",
-      "status": "Status",
-      "attachments": "Attachments",
-      "referencesSaved": "References saved",
-      "remoteLinks": "Remote links",
-      "reason": "Reason",
       "file": "File",
-      "sourceEmail": "Source email",
-      "size": "Size",
-      "attachment": "Attachment",
-      "lastError": "Last error"
+      "size": "Size"
     },
     "event": {
       "projectCreated": {
@@ -164,34 +151,9 @@
         "summary": "A project chat titled \"{{title}}\" ran on the {{backend}} backend. Open the chat for the full transcript.",
         "open": "Open chat"
       },
-      "email": {
-        "noSubject": "No subject",
-        "summary": "Wayland received a project email with status \"{{status}}\".",
-        "summaryFrom": "Wayland received a project email from {{from}} with status \"{{status}}\"."
-      },
-      "reference": {
-        "title": "Reference saved from email",
-        "summary": "\"{{file}}\" was saved from the email \"{{subject}}\" and added to the project reference set."
-      },
       "inventory": {
         "title": "Reference available",
         "summary": "\"{{file}}\" is available in the project reference folder. Wayland has no reliable timestamp for when it was added, so it is listed after timed events."
-      },
-      "remoteImport": {
-        "title": "Remote attachment imported",
-        "summary": "A remote attachment from \"{{subject}}\" was imported into project references."
-      },
-      "remoteIgnore": {
-        "title": "Remote attachment excluded",
-        "summary": "A captured remote attachment from \"{{subject}}\" was excluded. It stays in history but is not queued for import."
-      },
-      "remotePending": {
-        "title": "Remote attachment captured",
-        "summary": "A remote attachment link from \"{{subject}}\" is waiting to be imported into references or excluded."
-      },
-      "remoteFailed": {
-        "title": "Remote attachment import failed",
-        "summary": "Wayland tried to import a remote attachment from \"{{subject}}\" but the download failed. Retry it from the References queue."
       }
     }
   },
@@ -326,7 +288,10 @@
       "modelNote": "Best available model",
       "generating": "Drafting…",
       "noModel": "Connect a model with an API key to draft with AI.",
-      "failed": "Could not generate a draft.",
+      "failed": "The AI provider could not generate a draft.",
+      "authFailed": "Your session was rejected (sign-in or security token). Refresh the page, sign in again, and retry.",
+      "bridgeUnreachable": "Could not reach the Wayland app. Check that it is running and reachable, then retry.",
+      "timedOut": "Drafting took too long and was stopped. The model or connection may be slow — try again.",
       "failedReason": "Reason: {{detail}}",
       "retry": "Try again"
     },

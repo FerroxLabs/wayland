@@ -111,6 +111,19 @@ export type RoutingDecision = 'flux' | 'native' | 'unknown';
 export type FluxRoutingContext = {
   backend: string;
   selectedModelId: string | undefined;
+  /**
+   * A concrete model id resolved from the backend's OWN provider identity
+   * (its last-used / cached / configured-preferred model) for spawns that carry
+   * no explicit per-spawn pick. Belt-and-suspenders for team + workflow spawns:
+   * team_spawn_agent is usually called with no explicit model, so `selectedModelId`
+   * arrives `undefined`. A known native model here PINS the spawn native so the
+   * global `routeThroughFlux` toggle can NEVER force a backend that natively runs
+   * the customer's model (e.g. codex on `gpt-5.6-sol` via an OpenAI API key OR a
+   * ChatGPT subscription) onto the Flux surface - Flux 400s "the '<model>' model
+   * does not exist" for a non-Flux id. Absent for a truly modelless spawn, where
+   * the toggle's default role (route unmodeled chats through Flux) still applies.
+   */
+  resolvedModelId?: string;
   fluxConnected: boolean;
   fluxKey: string | undefined;
   routeThroughFlux: boolean;
@@ -139,15 +152,23 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
   if (!isOpenAi && !isAnthropic && !isResponses && !isScopedHome) return UNKNOWN();
   if (!ctx.fluxConnected || !ctx.fluxKey) return NATIVE();
 
-  // L3 (R5 rule 1: an explicit per-chat pick wins). The picker now feeds explicit
-  // model ids per chat - a flux-* alias OR a native model id. Decision:
-  //  - flux model id selected            -> flux (always).
-  //  - non-flux (native) model id chosen -> native; the global toggle does NOT
-  //    override an explicit native pick (e.g. picking Opus 4.8 stays native even
-  //    when "Route all agents through Flux" is on).
-  //  - no model selected + toggle on      -> flux (the toggle's default role: it
-  //    only routes chats that have no explicit per-chat model).
-  const wantsFlux = isFluxModelId(ctx.selectedModelId) || (ctx.routeThroughFlux && !ctx.selectedModelId);
+  // L3 (R5 rule 1: an explicit per-chat pick wins). The picker feeds explicit
+  // model ids per chat - a flux-* alias OR a native model id. When there is no
+  // explicit per-spawn pick (team/workflow spawns frequently arrive with none),
+  // fall back to the model the backend resolved from its OWN provider identity
+  // (`resolvedModelId`) so a native model the customer actually runs is honored.
+  // Decision, on the effective (explicit-or-resolved) model id:
+  //  - flux model id                     -> flux (always).
+  //  - non-flux (native) model id        -> native; the global toggle does NOT
+  //    override a native model, explicit OR resolved (e.g. picking Opus 4.8, or a
+  //    codex teammate on gpt-5.6-sol, stays native even when "Route all agents
+  //    through Flux" is on). This is the guard that keeps a concrete non-flux
+  //    model off the Flux surface (which 400s it) even when selectedModelId is
+  //    absent but the backend's resolved identity is a native model.
+  //  - no model at all + toggle on        -> flux (the toggle's default role: it
+  //    only routes spawns that have no model, explicit or resolved).
+  const effectiveModelId = ctx.selectedModelId ?? ctx.resolvedModelId;
+  const wantsFlux = isFluxModelId(effectiveModelId) || (ctx.routeThroughFlux && !effectiveModelId);
   if (!wantsFlux) return NATIVE();
 
   if (isScopedHome) {

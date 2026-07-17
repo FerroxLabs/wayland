@@ -168,6 +168,28 @@ export function nativeConfigDir(): string {
 }
 
 /**
+ * Thrown when a NAMED profile is active but its config dir cannot be resolved.
+ *
+ * Callers must treat this as fatal for whatever they were about to do (#278).
+ * See the invariant on {@link resolveActiveConfigDir}: this condition is
+ * unreachable for the `default` profile, so "fall back to the native/default
+ * dir" is never a safe recovery - it is precisely the cross-account bleed.
+ */
+export class ProfileIsolationError extends Error {
+  readonly code = 'PROFILE_ISOLATION' as const;
+  constructor(
+    readonly profile: string,
+    detail: string
+  ) {
+    super(
+      `Cannot resolve the config directory for the active profile "${profile}" (${detail}). ` +
+        `Refusing to continue against the default profile's data.`
+    );
+    this.name = 'ProfileIsolationError';
+  }
+}
+
+/**
  * Resolve the config DIRECTORY for the currently-active profile:
  *  - `default` (or unset)  -> {@link nativeConfigDir} (backward-compatible).
  *  - a named profile       -> `~/.wayland/profiles/<name>/` (isolated tree).
@@ -175,11 +197,41 @@ export function nativeConfigDir(): string {
  * This is the single source of truth that BOTH the config bridge (what file the
  * panes edit) and the engine spawn (`WAYLAND_HOME`) resolve through, so they can
  * never disagree about which profile is live.
+ *
+ * FAILURE CONTRACT (#278) - load-bearing, do not "soften" this. Failures come in
+ * TWO kinds and callers must NOT treat them alike:
+ *
+ *   1. {@link ProfileIsolationError} - a NAMED profile is active and its dir could
+ *      not be resolved. Thrown only from the named-profile branch. A caller that
+ *      catches this and falls back to the native (default-profile) dir has written
+ *      code that can ONLY ever execute while a named profile is live, silently
+ *      binding that profile to the DEFAULT profile's config.toml / memory.db /
+ *      credentials. Such a fallback is not "best-effort", it is a guaranteed
+ *      cross-account bleed. FAIL CLOSED on this one.
+ *
+ *   2. Anything else - a fault on the `default` branch. {@link nativeConfigDir}
+ *      reaches `os.homedir()` unguarded, and that throws ERR_SYSTEM_ERROR when
+ *      uv_os_homedir fails, so the default path is NOT throw-free. (An earlier
+ *      draft of this contract claimed it was; that was wrong, and fail-closing on
+ *      it would have bricked ordinary default-profile users - i.e. everyone today,
+ *      since no profile UI ships yet - over an unrelated fault.)
+ *
+ * So: narrow on `instanceof ProfileIsolationError` before refusing to proceed.
  */
 export async function resolveActiveConfigDir(): Promise<string> {
   const active = await getActiveProfile();
   if (active && active !== DEFAULT_PROFILE) {
-    return resolveProfileDir(active);
+    try {
+      return await resolveProfileDir(active);
+    } catch (err) {
+      // Fail CLOSED, and do it with a CLASSIFIABLE error. The raw failure here is
+      // an fs error, and at least one caller (WCoreMcpAgent.readConfig) treats a
+      // bare ENOENT as "no config yet" and returns {} - which would silently
+      // downgrade "this profile is broken" into "this profile is empty", then
+      // write the result to the wrong file. ProfileIsolationError can never be
+      // mistaken for a missing-file condition.
+      throw new ProfileIsolationError(active, err instanceof Error ? err.message : String(err));
+    }
   }
   return nativeConfigDir();
 }
