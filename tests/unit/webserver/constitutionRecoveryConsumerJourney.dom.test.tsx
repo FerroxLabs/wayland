@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { IDBFactory } from 'fake-indexeddb';
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import express from 'express';
@@ -258,6 +259,7 @@ describe('Constitution recovery actual consumer journeys', () => {
   });
 
   beforeEach(() => {
+    vi.stubGlobal('indexedDB', new IDBFactory());
     window.localStorage.clear();
     lockQueues.clear();
     journeyLockRequest.mockClear();
@@ -284,6 +286,10 @@ describe('Constitution recovery actual consumer journeys', () => {
     'carries archive operation identity through the actual %s client and mounted renderer',
     async (_lane, desktop) => {
       harness.desktop = desktop;
+      Object.defineProperty(navigator, 'locks', {
+        configurable: true,
+        value: desktop ? { request: journeyLockRequest } : undefined,
+      });
       const onRestored = vi.fn();
       render(
         <ConstitutionRecovery
@@ -321,6 +327,10 @@ describe('Constitution recovery actual consumer journeys', () => {
     'carries Classic operation identity through the actual %s client and mounted renderer',
     async (_lane, desktop) => {
       harness.desktop = desktop;
+      Object.defineProperty(navigator, 'locks', {
+        configurable: true,
+        value: desktop ? { request: journeyLockRequest } : undefined,
+      });
       const onRestored = vi.fn();
       const principalScope = desktop ? 'desktop:installation' : 'hosted:hosted-user';
       render(
@@ -347,11 +357,13 @@ describe('Constitution recovery actual consumer journeys', () => {
       expect(harness.classicDecide.mock.calls[0]![0]).toMatchObject(
         desktop ? desktopPrincipal : { kind: 'hosted-subject', subject: 'hosted-user' }
       );
-      expect(journeyLockRequest).toHaveBeenCalledTimes(2);
-      expect(journeyLockRequest.mock.calls.map(([name]) => name)).toEqual([
-        `wayland:constitution:classic-recovery-lock:${encodeURIComponent(principalScope)}`,
-        `wayland:constitution:classic-recovery-lock:${encodeURIComponent(principalScope)}`,
-      ]);
+      expect(journeyLockRequest).toHaveBeenCalledTimes(desktop ? 2 : 0);
+      if (desktop) {
+        expect(journeyLockRequest.mock.calls.map(([name]) => name)).toEqual([
+          `wayland:constitution:classic-recovery-lock:${encodeURIComponent(principalScope)}`,
+          `wayland:constitution:classic-recovery-lock:${encodeURIComponent(principalScope)}`,
+        ]);
+      }
       expect(window.localStorage.length).toBe(0);
     }
   );

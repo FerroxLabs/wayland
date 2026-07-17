@@ -22,6 +22,7 @@ import {
   runDesktopConstitutionArchiveRestore,
   runDesktopConstitutionRead,
 } from '@renderer/services/ConstitutionService';
+import { withConstitutionRecoveryTransaction } from '@renderer/services/ConstitutionRecoveryOperationLock';
 
 const PENDING_CONTRACT = 'wayland-constitution-archive-restore-client-operation/1.0' as const;
 const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -36,14 +37,38 @@ type PendingRestore = Readonly<{
   createdAt: string;
 }>;
 
+type PendingRestoreRead =
+  | Readonly<{ state: 'absent' }>
+  | Readonly<{ state: 'valid'; value: PendingRestore }>
+  | Readonly<{ state: 'invalid'; reason: string }>;
+
+type PendingRestoreInventory =
+  | Readonly<{ state: 'valid'; values: readonly PendingRestore[] }>
+  | Readonly<{ state: 'invalid'; reason: string }>;
+
+class PendingRestoreChangedError extends Error {
+  constructor(readonly current: PendingRestoreRead) {
+    super('Pending archive restore changed. Review and authorize the current operation again.');
+    this.name = 'PendingRestoreChangedError';
+  }
+}
+
 function storageKey(principalScope: string, archiveId: string): string {
   return `wayland:constitution:archive-restore:${encodeURIComponent(principalScope)}:${archiveId}`;
 }
 
-function readPending(principalScope: string, archiveId: string): PendingRestore | null {
+function storagePrefix(principalScope: string): string {
+  return `wayland:constitution:archive-restore:${encodeURIComponent(principalScope)}:`;
+}
+
+function readPending(principalScope: string, archiveId: string): PendingRestoreRead {
   try {
-    const value = JSON.parse(localStorage.getItem(storageKey(principalScope, archiveId)) ?? 'null') as unknown;
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const raw = localStorage.getItem(storageKey(principalScope, archiveId));
+    if (raw === null) return { state: 'absent' };
+    const value = JSON.parse(raw) as unknown;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return { state: 'invalid', reason: 'Pending archive restore evidence is not an object.' };
+    }
     const record = value as Record<string, unknown>;
     const expected = [
       'archiveId',
@@ -53,7 +78,9 @@ function readPending(principalScope: string, archiveId: string): PendingRestore 
       'expectedRevision',
       'operationId',
     ];
-    if (Object.keys(record).toSorted().join('\n') !== expected.toSorted().join('\n')) return null;
+    if (Object.keys(record).toSorted().join('\n') !== expected.toSorted().join('\n')) {
+      return { state: 'invalid', reason: 'Pending archive restore evidence has an unsupported shape.' };
+    }
     if (
       record.contract !== PENDING_CONTRACT ||
       record.archiveId !== archiveId ||
@@ -66,38 +93,108 @@ function readPending(principalScope: string, archiveId: string): PendingRestore 
       typeof record.createdAt !== 'string' ||
       Number.isNaN(Date.parse(record.createdAt))
     ) {
-      return null;
+      return { state: 'invalid', reason: 'Pending archive restore evidence failed validation.' };
     }
-    return record as PendingRestore;
+    return { state: 'valid', value: record as PendingRestore };
   } catch {
-    return null;
+    return { state: 'invalid', reason: 'Pending archive restore evidence could not be read.' };
   }
 }
 
-function beginPending(
+function readPendingInventory(principalScope: string): PendingRestoreInventory {
+  const prefix = storagePrefix(principalScope);
+  const values: PendingRestore[] = [];
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (!key?.startsWith(prefix)) continue;
+    const archiveId = key.slice(prefix.length);
+    const pending = readPending(principalScope, archiveId);
+    if (pending.state !== 'valid') {
+      return {
+        state: 'invalid',
+        reason:
+          pending.state === 'invalid'
+            ? pending.reason
+            : 'Pending archive restore evidence disappeared during inventory.',
+      };
+    }
+    values.push(pending.value);
+    if (values.length > 1) {
+      return {
+        state: 'invalid',
+        reason: 'Multiple pending archive restores are ambiguous and require supervised recovery.',
+      };
+    }
+  }
+  return { state: 'valid', values: values.toSorted((left, right) => left.archiveId.localeCompare(right.archiveId)) };
+}
+
+function samePendingRestore(left: PendingRestore, right: PendingRestore): boolean {
+  return (
+    left.contract === right.contract &&
+    left.operationId === right.operationId &&
+    left.archiveId === right.archiveId &&
+    left.expectedArchiveRevision === right.expectedArchiveRevision &&
+    left.expectedRevision === right.expectedRevision &&
+    left.createdAt === right.createdAt
+  );
+}
+
+async function beginPending(
   principalScope: string,
   archive: ConstitutionArchiveRecoverySummary,
-  expectedRevision: string
-): PendingRestore {
-  const existing = readPending(principalScope, archive.archiveId);
-  if (existing) return existing;
-  const pending: PendingRestore = {
-    contract: PENDING_CONTRACT,
-    operationId: crypto.randomUUID(),
-    archiveId: archive.archiveId,
-    expectedArchiveRevision: archive.targetRevision,
-    expectedRevision,
-    createdAt: new Date().toISOString(),
+  expectedRevision: string,
+  expectedPending: PendingRestore | null
+): Promise<PendingRestore> {
+  return withConstitutionRecoveryTransaction(principalScope, () => {
+    const inventory = readPendingInventory(principalScope);
+    if (inventory.state === 'invalid') throw new Error(inventory.reason);
+    const existing = readPending(principalScope, archive.archiveId);
+    if (expectedPending) {
+      if (existing.state === 'valid' && samePendingRestore(existing.value, expectedPending)) return existing.value;
+      throw new PendingRestoreChangedError(existing);
+    }
+    if (existing.state === 'valid') return existing.value;
+    if (existing.state === 'invalid') throw new PendingRestoreChangedError(existing);
+    if (inventory.values.length > 0) {
+      throw new Error('Another pending archive restore must be reconciled before starting a new one.');
+    }
+    const pending: PendingRestore = {
+      contract: PENDING_CONTRACT,
+      operationId: crypto.randomUUID(),
+      archiveId: archive.archiveId,
+      expectedArchiveRevision: archive.targetRevision,
+      expectedRevision,
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem(storageKey(principalScope, archive.archiveId), JSON.stringify(pending));
+    return pending;
+  });
+}
+
+async function clearPendingIfMatching(principalScope: string, completed: PendingRestore): Promise<PendingRestoreRead> {
+  return withConstitutionRecoveryTransaction(principalScope, () => {
+    const existing = readPending(principalScope, completed.archiveId);
+    if (existing.state !== 'valid' || !samePendingRestore(existing.value, completed)) return existing;
+    localStorage.removeItem(storageKey(principalScope, completed.archiveId));
+    return readPending(principalScope, completed.archiveId);
+  });
+}
+
+function pendingArchiveSummary(pending: PendingRestore): ConstitutionArchiveRecoverySummary {
+  return {
+    archiveId: pending.archiveId,
+    archivedAt: pending.createdAt,
+    targetKind: 'constitution',
+    specialistId: null,
+    sourceName: 'Pending response-loss replay',
+    bytes: 0,
+    targetRevision: pending.expectedArchiveRevision,
   };
-  localStorage.setItem(storageKey(principalScope, archive.archiveId), JSON.stringify(pending));
-  return pending;
 }
 
-function clearPending(principalScope: string, archiveId: string): void {
-  localStorage.removeItem(storageKey(principalScope, archiveId));
-}
-
-function archiveLabel(archive: ConstitutionArchiveRecoverySummary): string {
+function archiveLabel(archive: ConstitutionArchiveRecoverySummary, pendingOnly = false): string {
+  if (pendingOnly) return `Pending archive replay: ${archive.archiveId}`;
   return archive.targetKind === 'constitution' ? 'Main Constitution' : `Specialist: ${archive.specialistId}`;
 }
 
@@ -131,6 +228,7 @@ const ConstitutionRecovery: React.FC<Props> = ({ expectedRevision, principalScop
   const { t } = useTranslation();
   const isDesktop = isElectronDesktop();
   const [archives, setArchives] = useState<readonly ConstitutionArchiveRecoverySummary[]>([]);
+  const [pendingInventory, setPendingInventory] = useState<PendingRestoreInventory>({ state: 'valid', values: [] });
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [selected, setSelected] = useState<ConstitutionArchiveRecoverySummary | null>(null);
   const [password, setPassword] = useState('');
@@ -152,35 +250,70 @@ const ConstitutionRecovery: React.FC<Props> = ({ expectedRevision, principalScop
           : await listConstitutionArchivesHttp();
         if (result.success === false) throw new Error(result.error.message);
         setArchives(result.data.archives);
+        const pending = await withConstitutionRecoveryTransaction(principalScope, () =>
+          readPendingInventory(principalScope)
+        );
+        setPendingInventory(pending);
         setLoadState('ready');
       } catch (error) {
         setLoadState('error');
         setMessage(error instanceof Error ? error.message : 'Archive metadata could not be loaded.');
       }
     },
-    [isDesktop]
+    [isDesktop, principalScope]
   );
 
   useEffect(() => {
     void loadArchives();
   }, [loadArchives]);
 
-  const selectedPending = useMemo(
-    () => (selected ? readPending(principalScope, selected.archiveId) : null),
-    [principalScope, selected]
+  useEffect(() => {
+    const prefix = storagePrefix(principalScope);
+    const synchronizeFromStorage = (event: StorageEvent): void => {
+      if ((event.storageArea && event.storageArea !== localStorage) || !event.key?.startsWith(prefix)) return;
+      setSelected(null);
+      setPassword('');
+      setMessage('Pending archive restore changed in another window. Review and authorize it again.');
+      void loadArchives(false);
+    };
+    window.addEventListener('storage', synchronizeFromStorage);
+    return () => window.removeEventListener('storage', synchronizeFromStorage);
+  }, [loadArchives, principalScope]);
+
+  const activeArchiveIds = useMemo(() => new Set(archives.map(({ archiveId }) => archiveId)), [archives]);
+  const orphanedPending = useMemo(
+    () =>
+      pendingInventory.state === 'valid'
+        ? pendingInventory.values.filter(({ archiveId }) => !activeArchiveIds.has(archiveId))
+        : [],
+    [activeArchiveIds, pendingInventory]
   );
+  const displayArchives = useMemo(
+    () => [...archives, ...orphanedPending.map(pendingArchiveSummary)],
+    [archives, orphanedPending]
+  );
+  const selectedPending = useMemo(
+    () =>
+      selected && pendingInventory.state === 'valid'
+        ? (pendingInventory.values.find(({ archiveId }) => archiveId === selected.archiveId) ?? null)
+        : null,
+    [pendingInventory, selected]
+  );
+  const pendingInvalid = pendingInventory.state === 'invalid';
 
   const restore = useCallback(async (): Promise<void> => {
-    if (!selected || !password || busy) return;
+    if (!selected || !password || busy || pendingInvalid) return;
     setBusy(true);
     setMessage(null);
     setErrorCode(null);
     try {
-      const existing = readPending(principalScope, selected.archiveId);
-      const targetRevision = existing
-        ? existing.expectedRevision
+      const targetRevision = selectedPending
+        ? selectedPending.expectedRevision
         : await readLiveTargetRevision(selected, expectedRevision, isDesktop);
-      const pending = existing ?? beginPending(principalScope, selected, targetRevision);
+      const pending = await beginPending(principalScope, selected, targetRevision, selectedPending);
+      setPendingInventory(
+        await withConstitutionRecoveryTransaction(principalScope, () => readPendingInventory(principalScope))
+      );
       const request: ConstitutionArchiveRestoreRequest = {
         operationId: pending.operationId,
         archiveId: pending.archiveId,
@@ -204,19 +337,28 @@ const ConstitutionRecovery: React.FC<Props> = ({ expectedRevision, principalScop
         setErrorCode(result.error.code);
         setMessage(result.error.message);
         if (!result.error.retryable && !AMBIGUOUS_FAILURE_CODES.has(result.error.code)) {
-          clearPending(principalScope, selected.archiveId);
+          const nextPending = await clearPendingIfMatching(principalScope, pending);
+          if (nextPending.state !== 'absent') {
+            setMessage(`${result.error.message} Another pending operation was preserved for review.`);
+          }
         }
         await loadArchives(false);
         return;
       }
-      clearPending(principalScope, selected.archiveId);
+      const nextPending = await clearPendingIfMatching(principalScope, pending);
       setSelected(null);
-      setMessage(t('settings.constitutionRecovery.committed', 'Archive restored. The current editor will reload.'));
+      setMessage(
+        nextPending.state === 'absent'
+          ? t('settings.constitutionRecovery.committed', 'Archive restored. The current editor will reload.')
+          : 'Archive restored with a durable receipt. Another pending operation was preserved for review.'
+      );
       onRestored();
       await loadArchives(false);
     } catch (error) {
       setPassword('');
+      if (error instanceof PendingRestoreChangedError) setSelected(null);
       setMessage(error instanceof Error ? error.message : 'Archive restore did not complete.');
+      await loadArchives(false);
     } finally {
       setBusy(false);
     }
@@ -228,8 +370,10 @@ const ConstitutionRecovery: React.FC<Props> = ({ expectedRevision, principalScop
     loadArchives,
     onRestored,
     password,
+    pendingInvalid,
     principalScope,
     selected,
+    selectedPending,
     t,
   ]);
 
@@ -264,23 +408,32 @@ const ConstitutionRecovery: React.FC<Props> = ({ expectedRevision, principalScop
         />
       </div>
 
+      {pendingInventory.state === 'invalid' && (
+        <div role='alert' className='rd-8px border border-solid border-danger p-10px text-12px text-danger'>
+          {pendingInventory.reason} No archive restore will run or replace this operation. Preserve the local evidence
+          and contact support for supervised recovery.
+        </div>
+      )}
+
       {loadState === 'error' ? (
         <div role='alert' className='text-12px text-danger'>
           {message}
         </div>
-      ) : loadState === 'ready' && archives.length === 0 ? (
+      ) : loadState === 'ready' && displayArchives.length === 0 ? (
         <div className='text-12px text-t-tertiary'>
           {t('settings.constitutionRecovery.empty', 'No recovery archives are available.')}
         </div>
       ) : (
         <div className='flex flex-col gap-6px'>
-          {archives.map((archive) => {
+          {displayArchives.map((archive) => {
             const active = selected?.archiveId === archive.archiveId;
+            const pendingOnly = !activeArchiveIds.has(archive.archiveId);
             return (
               <button
                 key={archive.archiveId}
                 type='button'
                 aria-pressed={active}
+                disabled={pendingInvalid}
                 className={`w-full text-left rd-8px border border-solid px-10px py-9px cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-6)] ${
                   active
                     ? 'border-[var(--color-primary-6)] bg-[var(--color-primary-light-1)]'
@@ -294,7 +447,7 @@ const ConstitutionRecovery: React.FC<Props> = ({ expectedRevision, principalScop
                 }}
               >
                 <span className='flex items-center justify-between gap-12px'>
-                  <span className='text-12px font-medium text-t-primary'>{archiveLabel(archive)}</span>
+                  <span className='text-12px font-medium text-t-primary'>{archiveLabel(archive, pendingOnly)}</span>
                   <span className='text-11px text-t-tertiary'>{new Date(archive.archivedAt).toLocaleString()}</span>
                 </span>
                 <span className='mt-3px block text-11px text-t-secondary'>
@@ -306,7 +459,7 @@ const ConstitutionRecovery: React.FC<Props> = ({ expectedRevision, principalScop
         </div>
       )}
 
-      {selected && (
+      {selected && !pendingInvalid && (
         <div className='rd-8px bg-fill-1 p-10px flex flex-col gap-8px'>
           <div className='text-12px text-t-secondary'>
             {selectedPending

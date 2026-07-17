@@ -615,7 +615,7 @@ describe('ConstitutionClassicRecovery', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
     fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
-    await screen.findByText('Cross-window recovery lock is unavailable. No recovery operation was changed.');
+    await screen.findByText('Cross-window recovery transaction authority is unavailable.');
 
     expect(globalThis.crypto.randomUUID).not.toHaveBeenCalled();
     expect(mockDecide).not.toHaveBeenCalled();
