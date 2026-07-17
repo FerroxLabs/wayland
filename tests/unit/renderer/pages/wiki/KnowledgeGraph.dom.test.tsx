@@ -43,13 +43,7 @@ describe('KnowledgeGraph', () => {
 
   it('renders with backlink graph without errors', () => {
     expect(() =>
-      render(
-        <KnowledgeGraph
-          concepts={MOCK_CONCEPTS}
-          backlinkGraph={MOCK_BACKLINK_GRAPH}
-          onNavigate={vi.fn()}
-        />,
-      ),
+      render(<KnowledgeGraph concepts={MOCK_CONCEPTS} backlinkGraph={MOCK_BACKLINK_GRAPH} onNavigate={vi.fn()} />)
     ).not.toThrow();
   });
 

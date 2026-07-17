@@ -14,7 +14,7 @@ import type { McpSource } from '../../process/services/mcpServices/McpProtocol';
 import type { CuaPermissionStatus, PrivacyPane } from '../../process/services/macPermissions/cuaPermissions';
 import type { MicPermissionStatus } from '../../process/services/macPermissions/micPermission';
 import type { DoctorReport } from '../../process/doctor/types';
-import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
+import type { AgentBackend, AcpModelInfo, AcpModelSelectionResult } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
 import type { WorkspaceTrustLevel } from '../security/workspaceTrust';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
@@ -51,7 +51,7 @@ import type {
 } from '../types/onboarding';
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
 import type { SpeechToTextRequest, SpeechToTextResult } from '../types/speech';
-import type { DownloadProgress, DownloadResult, VoiceAsset } from '../types/voiceAsset';
+import type { DownloadProgress, DownloadResult, VoiceAssetDownloadRequest } from '../types/voiceAsset';
 import type {
   TerminalOpenParams,
   TerminalOpenResult,
@@ -676,7 +676,7 @@ export const dataExport = {
 };
 
 export const voiceAsset = {
-  download: buildProvider<DownloadResult, VoiceAsset>('voice-asset.download'),
+  download: buildProvider<DownloadResult, VoiceAssetDownloadRequest>('voice-asset.download'),
   cancel: buildProvider<{ cancelled: boolean }, { assetId: string }>('voice-asset.cancel'),
   // Streamed per-chunk download progress. voiceAssetBridge feeds this from the
   // onProgress callback it hands to VoiceAssetManager.download; the renderer's
@@ -686,7 +686,7 @@ export const voiceAsset = {
   // Resolve the install state for a known asset. The renderer uses this to
   // suppress the Download button when the model is already on disk (no more
   // "Download Model" alongside an already-installed model).
-  exists: buildProvider<{ installed: boolean; destPath: string | null }, { id: string }>('voice-asset.exists'),
+  exists: buildProvider<{ installed: boolean }, { id: string }>('voice-asset.exists'),
   // wayland-asset:// URL base for the bundled voice-models directory. The
   // renderer's transformers.js STT worker uses this as env.localModelPath
   // so it can fetch the bundled Whisper-tiny ONNX files offline.
@@ -985,8 +985,8 @@ export const acpConversation = {
   >('acp.get-model-info'),
   // Set model for ACP agents
   setModel: buildProvider<
-    IBridgeResponse<{ modelInfo: AcpModelInfo | null }>,
-    { conversationId: string; modelId: string }
+    IBridgeResponse<{ selection: AcpModelSelectionResult }>,
+    { conversationId: string; modelId: string | null }
   >('acp.set-model'),
   // Get non-model config options for ACP agents (e.g., reasoning effort)
   getConfigOptions: buildProvider<
@@ -1618,8 +1618,10 @@ export interface ICreateConversationParams {
      * Per-conversation reasoning effort for effort-capable backends
      * (Codex / WCore / Claude-ACP). Persisted on the conversation and read by
      * each backend's config builder on the next turn. Absent => backend default.
+     * Level range is provider-specific (Claude accepts up to `max`; Codex/WCore
+     * cap at `high` and clamp anything higher) - see EFFORT_LEVELS_BY_BACKEND.
      */
-    effort?: 'low' | 'medium' | 'high';
+    effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
     /** Team ownership - conversations with teamId are hidden from the sidebar */
     teamId?: string;
     /** Project ownership - stamps extra.projectId so the conversation lives under a project umbrella. */
@@ -3183,9 +3185,10 @@ export const project = {
 /**
  * Dev Actions - one-click git/GitHub developer chores for a fork maintainer.
  * All handlers exec local `git` / `gh` (remote-denied): `commitAndPr` runs on a
- * local checkout; `buildRelease` / `syncForks` only dispatch GitHub Actions
- * workflows on named repos via the authenticated `gh` CLI. Each action streams
- * progress through the shared `log` emitter (keyed by `action`).
+ * local checkout; `buildRelease` dispatches GitHub Actions; and `syncForks`
+ * prepares a disposable branch plus PR through the authenticated `gh` CLI.
+ * Each action streams progress through the shared `log` emitter (keyed by
+ * `action`).
  */
 export const devActions = {
   /**
@@ -3207,10 +3210,22 @@ export const devActions = {
   buildLocal: buildProvider<{ ok: boolean; error?: string }, { cwd: string; script: string }>(
     'dev-actions.build-local'
   ),
-  /** Dispatch the upstream-sync workflow for one or more fork repos. */
-  syncForks: buildProvider<{ results: Array<{ repo: string; ok: boolean; error?: string }> }, { repos: string[] }>(
-    'dev-actions.sync-forks'
-  ),
+  /** Prepare non-destructive upstream-sync PRs for one or more fork repos. */
+  syncForks: buildProvider<
+    {
+      results: Array<{
+        repo: string;
+        ok: boolean;
+        status?: 'up-to-date' | 'created' | 'updated';
+        prUrl?: string;
+        upstream?: string;
+        upstreamCommits?: number;
+        preservedForkCommits?: number;
+        error?: string;
+      }>;
+    },
+    { repos: string[] }
+  >('dev-actions.sync-forks'),
   /**
    * Read-only working-copy status for local checkouts: branch + change counts.
    * `changed` is tracked changes (what Commit + Push stages); `untracked` is info.

@@ -16,7 +16,7 @@ export type TextToSpeechConfig = {
 
 export const DEFAULT_TTS_CONFIG: TextToSpeechConfig = {
   enabled: false,
-  provider: 'kokoro-local',
+  provider: 'system-native',
   voice: 'default',
   speed: 1.0,
   autoReadResponses: false,

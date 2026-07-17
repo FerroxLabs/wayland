@@ -248,8 +248,8 @@ Compile all collected information into the full journal entry format. Do not sum
 
 ## Review Block (complete at each review date)
 
-**Review Date:** ******\_\_\_******
-**Days since decision:** ******\_\_\_******
+**Review Date:** **\*\***\_\_\_**\*\***
+**Days since decision:** **\*\***\_\_\_**\*\***
 **Reviewing:** [Short-term / Long-term]
 
 ### Outcome vs. Prediction
@@ -258,16 +258,16 @@ Compile all collected information into the full journal entry format. Do not sum
 | ------------------- | ------------ | ------------------------ | ------------------ |
 | [prediction text]   | [X%]         | [what actually happened] | [Y/N/Partial]      |
 
-**Prediction accuracy score:** **_/10
-**Overall decision quality rating:** _**/10
+**Prediction accuracy score:** **\_/10
+**Overall decision quality rating:** \_**/10
 _(Note: Separate these two. A bad outcome does not mean a bad decision. A good outcome does not mean a good decision. Rate the quality of the process, not just the result.)_
 
-**What I got right:** ******\_\_\_******
-**What I got wrong:** ******\_\_\_******
-**What I failed to anticipate:** ******\_\_\_******
+**What I got right:** **\*\***\_\_\_**\*\***
+**What I got wrong:** **\*\***\_\_\_**\*\***
+**What I failed to anticipate:** **\*\***\_\_\_**\*\***
 **Calibration note:** [Were my confidence percentages too high, too low, or accurate?]
 **Would I make the same decision again with the same information available at decision time?** **\_
-**What would I do differently next time?** ******\_********
+**What would I do differently next time?** \*\*\*\***\_**\*\*\*\***
 ```
 
 ---
@@ -526,8 +526,8 @@ Handle this by:
 
 ## Review Block (complete at each review date)
 
-**Review Date:** ******\_\_\_******
-**Days since decision:** ******\_\_\_******
+**Review Date:** **\*\***\_\_\_**\*\***
+**Days since decision:** **\*\***\_\_\_**\*\***
 **Reviewing:** [Short-term / Long-term]
 
 ### Outcome vs. Prediction
@@ -536,13 +536,13 @@ Handle this by:
 | ------------------- | ------------ | ------------------------ | ------------------ |
 | [prediction text]   | [X%]         | [what actually happened] | [Y/N/Partial]      |
 
-**Prediction accuracy score:** **_/10
-**Decision quality rating (separate from outcome quality):** _**/10
+**Prediction accuracy score:** **\_/10
+**Decision quality rating (separate from outcome quality):** \_**/10
 _(Was the process good, given what I knew at the time? Rate independently of outcome.)_
 
-**What I got right:** ******\_\_\_******
-**What I got wrong:** ******\_\_\_******
-**What I failed to anticipate entirely:** ******\_\_\_******
+**What I got right:** **\*\***\_\_\_**\*\***
+**What I got wrong:** **\*\***\_\_\_**\*\***
+**What I failed to anticipate entirely:** **\*\***\_\_\_**\*\***
 **Calibration note:** [Were my confidence percentages too high, too low, or well-calibrated?]
 **Would I make the same decision again with the same information available on November 14, 2024?** **\_
-**What would I do differently in my decision process?** ******\_********
+**What would I do differently in my decision process?** \*\*\*\***\_**\*\*\*\***

@@ -391,13 +391,19 @@
           "label": "Business Account ID",
           "placeholder": "987654321098765",
           "help": "選填。可在對內訊息事件中啟用更豐富的中繼資料。",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "驗證 Token",
           "placeholder": "一段很長的隨機字串",
           "help": "由操作者自訂的字串，Meta 會在 GET /webhook 交握過程中回傳。必須與你貼到 Meta 後台的內容相符。",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2595,6 +2601,18 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity"
     }
+  },
+  "devActions": {
+    "syncTitle": "從上游同步分支版本庫",
+    "syncDescription": "使用已驗證的 GitHub CLI 僅更新一次性同步分支，並建立或重複使用提取要求。預設分支和分支版本庫獨有的提交絕不會被強制覆寫。",
+    "syncButton": "準備同步 PR",
+    "syncSelectWarning": "請至少選取一個分支版本庫。",
+    "syncSuccess": "同步完成：{{ready}} 個 PR 已就緒；{{upToDate}} 個已是最新版本。",
+    "syncFailure": "{{count}} 個失敗：{{repos}}",
+    "syncUpToDate": "已是最新版本。",
+    "syncCounts": "{{upstream}} 個上游提交已就緒；已保留 {{preserved}} 個分支版本庫獨有提交。",
+    "syncUnknownError": "同步失敗。",
+    "syncReviewPr": "檢視 PR"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

@@ -26,11 +26,13 @@ import team from './team.json';
 import assistants from './assistants.json';
 import teams from './teams.json';
 import skills from './skills.json';
+import workflows from './workflows.json';
 import workflow from './workflow.json';
 import memory from './memory.json';
 import missionControl from './missionControl.json';
 import mcpLibrary from './mcpLibrary.json';
 import onboarding from './onboarding.json';
+import models from './models.json';
 import projects from './projects.json';
 import concierge from './concierge.json';
 
@@ -58,11 +60,13 @@ export default {
   assistants,
   teams,
   skills,
+  workflows,
   workflow,
   memory,
   missionControl,
   mcpLibrary,
   onboarding,
+  models,
   projects,
   concierge,
 };

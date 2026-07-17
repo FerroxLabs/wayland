@@ -9,7 +9,8 @@
  *
  * Security posture:
  *  - Folder import copies (never symlinks) to defeat TOCTOU.
- *  - Git import allowlists hosts to block file:// and arbitrary proto schemes.
+ *  - Git import allowlists remote transport/scheme forms to block file://,
+ *    http://, and arbitrary protocol schemes.
  *  - Zip import validates every entry path is inside the extraction dir (zip-slip),
  *    rejects symlink entries, strips non-.md files, and warns on executable refs.
  *  - Every imported skill is run through SkillGuard.scan({ llm: true }).
@@ -26,6 +27,7 @@ import { SkillLibrary } from './SkillLibrary';
 import { SkillQuarantine, type SkillQuarantineIo } from './SkillQuarantine';
 import type { LlmScanCall } from './skillGuardLlmScan';
 import { makeOneShotLlmScanCall } from './skillGuardLlmCall';
+import { cloneRepo } from '@process/services/gitClone';
 
 export const IMPORTED_DIR = path.join(homedir(), '.wayland', 'skills', 'imported');
 
@@ -63,14 +65,10 @@ export type ZipEntry = {
   data: Buffer;
 };
 
-// Default real-fs implementation - not used in tests.
+// Default real-fs implementation.
 import { lstat, readdir, readFile, copyFile, mkdir, writeFile, rm, mkdtemp } from 'node:fs/promises';
 import os from 'node:os';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import JSZip from 'jszip';
-
-const execAsync = promisify(exec);
 
 export const defaultSkillImportIo: SkillImportIo = {
   lstat,
@@ -84,7 +82,7 @@ export const defaultSkillImportIo: SkillImportIo = {
   },
   writeFile,
   gitClone: async (url, destDir) => {
-    await execAsync(`git clone --depth 1 -- ${JSON.stringify(url)} ${JSON.stringify(destDir)}`);
+    await cloneRepo({ url, destDir, depth: 1 });
   },
   unzip: async (zipPath, _destDir) => {
     const buf = await readFile(zipPath);
@@ -136,15 +134,12 @@ export type ImportResult = {
 };
 
 // ---------------------------------------------------------------------------
-// Allowlisted git host patterns
+// Allowlisted Git transport/scheme patterns
 // ---------------------------------------------------------------------------
 
-// Accepts https:// and the short-form `git@<host>:` SSH URL. Rejects
-// file://, http://, and - critically - bare `ssh://` because that pattern
-// has no host restriction and would let a malicious caller submit
-// `ssh://internal.host/internal-repo` and clone against an arbitrary
-// internal SSH host (SSRF). The `git@<host>:` short form already covers
-// GitHub/GitLab SSH use cases. (H5 fix.)
+// Accepts https:// and the short-form `git@<host>:` SSH URL. This allowlist
+// restricts transport/scheme forms, not hostnames. Rejects file://, http://,
+// bare ssh://, and every other URL form. (H5 fix.)
 const GIT_ALLOWLIST = [/^https:\/\//, /^git@[a-zA-Z0-9.-]+:/];
 
 function isAllowedGitUrl(url: string): boolean {
@@ -248,11 +243,11 @@ export class SkillImport {
 
   /**
    * Clone a git URL into a temp dir, then treat as folder import.
-   * Only https://, git@host:, and ssh:// schemes are allowed.
+   * Only https:// and git@host: forms are allowed.
    */
   async importGit(url: string): Promise<ImportResult> {
     if (!isAllowedGitUrl(url)) {
-      throw new Error(`Rejected: git URL uses a disallowed scheme - ${url}`);
+      throw new Error('Rejected: git URL uses a disallowed scheme');
     }
     const tmpDir = await this.io.mkdtemp('wayland-git-import-');
     try {

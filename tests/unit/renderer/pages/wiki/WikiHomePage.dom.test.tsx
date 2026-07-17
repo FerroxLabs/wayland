@@ -57,7 +57,7 @@ vi.mock('react-i18next', () => ({
       if (interp && typeof interp === 'object') {
         return Object.entries(interp).reduce(
           (acc, [k, v]) => acc.replace(new RegExp(`{{\\s*${k}\\s*}}`, 'g'), String(v)),
-          result,
+          result
         );
       }
       return result;
@@ -101,9 +101,7 @@ beforeEach(() => {
     concepts: MOCK_CONCEPTS,
     total: MOCK_CONCEPTS.length,
   });
-  (wikiBridge.getBacklinkGraph.invoke as ReturnType<typeof vi.fn>).mockResolvedValue(
-    MOCK_BACKLINK_GRAPH,
-  );
+  (wikiBridge.getBacklinkGraph.invoke as ReturnType<typeof vi.fn>).mockResolvedValue(MOCK_BACKLINK_GRAPH);
   (wikiBridge.stateChanged.on as ReturnType<typeof vi.fn>).mockReturnValue(() => undefined);
 });
 
@@ -111,7 +109,7 @@ const renderPage = () =>
   render(
     <MemoryRouter>
       <WikiHomePage />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 
 describe('WikiHomePage (smoke)', () => {
@@ -123,12 +121,8 @@ describe('WikiHomePage (smoke)', () => {
 
   it('shows the 3 column headers', async () => {
     renderPage();
-    await waitFor(() =>
-      expect(screen.getByTestId('col-by-topic').textContent?.toLowerCase()).toContain('by topic'),
-    );
-    expect(screen.getByTestId('col-updated').textContent?.toLowerCase()).toContain(
-      'updated this week',
-    );
+    await waitFor(() => expect(screen.getByTestId('col-by-topic').textContent?.toLowerCase()).toContain('by topic'));
+    expect(screen.getByTestId('col-updated').textContent?.toLowerCase()).toContain('updated this week');
     expect(screen.getByTestId('col-emerging').textContent?.toLowerCase()).toContain('emerging');
   });
 
@@ -161,16 +155,12 @@ describe('WikiHomePage (smoke)', () => {
 
   it('shows the wiki status bar', async () => {
     renderPage();
-    await waitFor(() =>
-      expect(screen.getByTestId('wiki-status-bar')).toBeTruthy(),
-    );
+    await waitFor(() => expect(screen.getByTestId('wiki-status-bar')).toBeTruthy());
   });
 
   it('shows the "Most Referenced" section', async () => {
     renderPage();
-    await waitFor(() =>
-      expect(screen.getByTestId('most-referenced')).toBeTruthy(),
-    );
+    await waitFor(() => expect(screen.getByTestId('most-referenced')).toBeTruthy());
   });
 
   it('shows at least 1 ref tile', async () => {
@@ -183,16 +173,12 @@ describe('WikiHomePage (smoke)', () => {
 
   it('shows the list view by default', async () => {
     renderPage();
-    await waitFor(() =>
-      expect(screen.getByTestId('list-view')).toBeTruthy(),
-    );
+    await waitFor(() => expect(screen.getByTestId('list-view')).toBeTruthy());
   });
 
   it('shows the search input', async () => {
     renderPage();
-    await waitFor(() =>
-      expect(screen.getByRole('textbox')).toBeTruthy(),
-    );
+    await waitFor(() => expect(screen.getByRole('textbox')).toBeTruthy());
   });
 
   it('shows concept items in the By Topic column', async () => {

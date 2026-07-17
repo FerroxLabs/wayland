@@ -57,7 +57,7 @@ Before preparing for your appointment, clarify:
 
 Complete this before your appointment for any health concern:
 
-**Primary Symptom:** **********************\_\_\_\_**********************
+**Primary Symptom:** \***\*\*\*\*\***\*\*\***\*\*\*\*\***\_\_\_\_\***\*\*\*\*\***\*\*\***\*\*\*\*\***
 
 | Question                                          | Your Answer |
 | ------------------------------------------------- | ----------- |
@@ -86,12 +86,12 @@ Bring a current copy of this information to every new provider:
 
 **Personal Information**
 
-- Full name: **************************\_**************************
-- Date of birth: ************************\_************************
-- Primary care provider: ********************\_\_********************
-- Pharmacy name and address: ******************\_\_******************
-- Emergency contact: **********************\_\_**********************
-- Insurance information: ********************\_\_********************
+- Full name: \***\*\*\*\*\*\*\***\*\*\***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***\*\*\***\*\*\*\*\*\*\***
+- Date of birth: \***\*\*\*\*\***\*\*\*\*\***\*\*\*\*\***\_\***\*\*\*\*\***\*\*\*\*\***\*\*\*\*\***
+- Primary care provider: **\*\*\*\***\*\*\*\***\*\*\*\***\_\_**\*\*\*\***\*\*\*\***\*\*\*\***
+- Pharmacy name and address: **\*\*\*\***\*\***\*\*\*\***\_\_**\*\*\*\***\*\***\*\*\*\***
+- Emergency contact: \***\*\*\*\*\***\*\*\***\*\*\*\*\***\_\_\***\*\*\*\*\***\*\*\***\*\*\*\*\***
+- Insurance information: **\*\*\*\***\*\*\*\***\*\*\*\***\_\_**\*\*\*\***\*\*\*\***\*\*\*\***
 
 **Current Medications** (include dose and frequency)
 

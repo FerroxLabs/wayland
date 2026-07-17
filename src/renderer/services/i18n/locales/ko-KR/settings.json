@@ -391,13 +391,19 @@
           "label": "Business Account ID",
           "placeholder": "987654321098765",
           "help": "선택 사항. 인바운드 메시지 이벤트에서 더 풍부한 메타데이터를 활성화합니다.",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "Verify Token",
           "placeholder": "긴 무작위 문자열",
           "help": "GET /webhook 핸드셰이크 중 Meta가 다시 보내는, 운영자가 선택한 문자열입니다. Meta 대시보드에 붙여넣는 값과 일치해야 합니다.",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2595,6 +2601,18 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity"
     }
+  },
+  "devActions": {
+    "syncTitle": "업스트림에서 포크 동기화",
+    "syncDescription": "인증된 GitHub CLI를 사용해 일회용 동기화 브랜치만 업데이트하고 풀 리퀘스트를 만들거나 재사용합니다. 기본 브랜치와 포크 전용 커밋은 강제로 덮어쓰지 않습니다.",
+    "syncButton": "동기화 PR 준비",
+    "syncSelectWarning": "포크를 하나 이상 선택하세요.",
+    "syncSuccess": "동기화 완료: PR {{ready}}개 준비됨, {{upToDate}}개는 이미 최신입니다.",
+    "syncFailure": "{{count}}개 실패: {{repos}}",
+    "syncUpToDate": "이미 최신입니다.",
+    "syncCounts": "업스트림 커밋 {{upstream}}개 준비됨, 포크 전용 커밋 {{preserved}}개 보존됨.",
+    "syncUnknownError": "동기화에 실패했습니다.",
+    "syncReviewPr": "PR 검토"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

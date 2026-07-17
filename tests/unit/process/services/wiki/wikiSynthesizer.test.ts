@@ -141,9 +141,7 @@ describe('synthesizeMany (heuristic clustering)', () => {
       expect(c.body.length).toBeGreaterThan(0);
       expect(c.freshness).toBe('never_reviewed');
       expect(c.lastReviewedAt).toBeUndefined();
-      expect(['Architecture', 'Design', 'Decisions', 'Process', 'Patterns', 'Brand']).toContain(
-        c.topicTag,
-      );
+      expect(['Architecture', 'Design', 'Decisions', 'Process', 'Patterns', 'Brand']).toContain(c.topicTag);
     }
   });
 

@@ -1,17 +1,11 @@
 name: '🔨 Manual Build'
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch to build from'
-        required: true
-        default: 'main'
-        type: string
       platform:
         description: 'Platform to build'
         required: true
@@ -38,6 +32,7 @@ jobs:
   prepare-matrix:
     name: Prepare Build Matrix
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
 
@@ -77,11 +72,11 @@ jobs:
 
   build-pipeline:
     needs: prepare-matrix
+    if: ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/_build-reusable.yml
     with:
       matrix: ${{ needs.prepare-matrix.outputs.matrix }}
-      ref: ${{ inputs.branch }}
+      ref: ${{ github.sha }}
       skip_code_quality: ${{ inputs.skip_code_quality }}
       append_commit_hash: true
       upload_installers_only: true
-    secrets: inherit

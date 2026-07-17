@@ -1,5 +1,7 @@
 // src/process/acp/session/ConfigTracker.ts
 
+import type { AcpModelConfirmationSource } from '@/common/types/acpTypes';
+import { parseCodexModelId } from '@process/acp/codexModelId';
 import type {
   AvailableCommand,
   ConfigOption,
@@ -18,6 +20,8 @@ type SyncResult = {
   cwd: string;
   additionalDirectories?: string[];
   availableCommands?: AvailableCommand[];
+  modelConfirmationSource?: AcpModelConfirmationSource;
+  configConfirmationSource?: AcpModelConfirmationSource;
 };
 
 type PendingChanges = {
@@ -25,6 +29,27 @@ type PendingChanges = {
   mode: string | null;
   configOptions: Array<{ id: string; value: string | boolean }>;
 };
+
+function providerModelIdsAgree(left: string, right: string, reconcileCodexIds: boolean): boolean {
+  if (left === right) return true;
+  if (!reconcileCodexIds) return false;
+  const leftParts = parseCodexModelId(left);
+  const rightParts = parseCodexModelId(right);
+  if (leftParts.effort && rightParts.effort) return false;
+  return leftParts.baseModelId === rightParts.baseModelId;
+}
+
+function confirmedModelSatisfiesDesired(confirmed: string, desired: string, reconcileCodexIds: boolean): boolean {
+  if (confirmed === desired) return true;
+  if (!reconcileCodexIds) return false;
+  const confirmedParts = parseCodexModelId(confirmed);
+  const desiredParts = parseCodexModelId(desired);
+  return (
+    confirmedParts.effort !== undefined &&
+    desiredParts.effort === undefined &&
+    confirmedParts.baseModelId === desiredParts.baseModelId
+  );
+}
 
 export class ConfigTracker {
   // Current (confirmed by agent)
@@ -35,14 +60,17 @@ export class ConfigTracker {
   private availableCommands: AvailableCommand[] = [];
 
   private currentModelId: string | null = null;
+  private currentModelConfirmationSource: AcpModelConfirmationSource | undefined;
   private currentModeId: string | null = null;
   private currentConfigOptions: ConfigOption[] = [];
   // Desired (user intent, not yet synced)
   private desiredModelId: string | null = null;
   private desiredModeId: string | null = null;
   private desiredConfigOptions = new Map<string, string | boolean>();
+  private readonly reconcileCodexModelIds: boolean;
 
-  constructor(initialDesired?: InitialDesiredConfig) {
+  constructor(initialDesired?: InitialDesiredConfig, agentBackend?: string) {
+    this.reconcileCodexModelIds = agentBackend === 'codex';
     if (!initialDesired) return;
     if (initialDesired.model) this.desiredModelId = initialDesired.model;
     if (initialDesired.mode) this.desiredModeId = initialDesired.mode;
@@ -58,8 +86,24 @@ export class ConfigTracker {
   }
 
   setCurrentModel(modelId: string): void {
+    this.syncAuthoritativeModel(modelId);
+  }
+
+  syncAuthoritativeModel(
+    modelId: string,
+    availableModels?: ModelSnapshot['availableModels'],
+    confirmationSource?: AcpModelConfirmationSource
+  ): ModelSnapshot {
     this.currentModelId = modelId;
-    if (this.desiredModelId === modelId) this.desiredModelId = null;
+    if (availableModels) this.availableModels = availableModels;
+    this.currentModelConfirmationSource = confirmationSource;
+    if (
+      this.desiredModelId &&
+      confirmedModelSatisfiesDesired(modelId, this.desiredModelId, this.reconcileCodexModelIds)
+    ) {
+      this.desiredModelId = null;
+    }
+    return this.modelSnapshot();
   }
 
   setDesiredMode(modeId: string): void {
@@ -81,15 +125,54 @@ export class ConfigTracker {
     this.desiredConfigOptions.delete(id);
   }
 
-  syncFromSessionResult(result: SyncResult): void {
+  syncFromSessionResult(result: SyncResult): ModelSnapshot | null {
     this.cwd = result.cwd;
     this.additionalDirectories = result.additionalDirectories;
-    if (result.currentModelId !== undefined) this.currentModelId = result.currentModelId;
-    if (result.availableModels) this.availableModels = result.availableModels;
+    let modelUpdate: ModelSnapshot | null = null;
+    const configModel = result.configOptions?.find(
+      (option) => option.category === 'model' && typeof option.currentValue === 'string'
+    );
+    const hasModelConflict =
+      result.currentModelId !== undefined &&
+      typeof configModel?.currentValue === 'string' &&
+      !providerModelIdsAgree(result.currentModelId, configModel.currentValue, this.reconcileCodexModelIds);
+    if (hasModelConflict && result.currentModelId !== undefined && typeof configModel.currentValue === 'string') {
+      const configModels = (configModel.options ?? []).map((option) => ({
+        modelId: option.id,
+        name: option.name,
+        description: option.description,
+      }));
+      if (result.availableModels) this.availableModels = result.availableModels;
+      else if (configModels.length > 0) this.availableModels = configModels;
+      modelUpdate = {
+        currentModelId: this.currentModelId,
+        availableModels: [...this.availableModels],
+        modelConflict: {
+          modelId: result.currentModelId,
+          modelSource: result.modelConfirmationSource,
+          configModelId: configModel.currentValue,
+          configSource: result.configConfirmationSource,
+        },
+      };
+    } else if (result.currentModelId !== undefined) {
+      modelUpdate = this.syncAuthoritativeModel(
+        result.currentModelId,
+        result.availableModels,
+        result.modelConfirmationSource
+      );
+    } else if (result.availableModels) {
+      this.availableModels = result.availableModels;
+    }
     if (result.currentModeId !== undefined) this.currentModeId = result.currentModeId;
     if (result.availableModes) this.availableModes = result.availableModes;
-    if (result.configOptions) this.currentConfigOptions = result.configOptions;
+    if (result.configOptions) {
+      this.currentConfigOptions = result.configOptions;
+      if (!modelUpdate) {
+        modelUpdate = this.syncModelFromConfigOptions(result.configOptions, result.configConfirmationSource);
+      }
+    }
     if (result.availableCommands) this.availableCommands = result.availableCommands;
+    return modelUpdate;
   }
 
   /**
@@ -136,6 +219,7 @@ export class ConfigTracker {
     return {
       currentModelId: this.currentModelId,
       availableModels: [...this.availableModels],
+      ...(this.currentModelConfirmationSource ? { confirmationSource: this.currentModelConfirmationSource } : {}),
     };
   }
 
@@ -155,8 +239,29 @@ export class ConfigTracker {
     };
   }
 
-  updateConfigOptions(options: ConfigOption[]): void {
+  updateConfigOptions(options: ConfigOption[], confirmationSource?: AcpModelConfirmationSource): ModelSnapshot | null {
     this.currentConfigOptions = options;
+    for (const option of options) {
+      if (this.desiredConfigOptions.get(option.id) === option.currentValue) {
+        this.desiredConfigOptions.delete(option.id);
+      }
+    }
+    return this.syncModelFromConfigOptions(options, confirmationSource);
+  }
+
+  private syncModelFromConfigOptions(
+    options: ConfigOption[],
+    confirmationSource?: AcpModelConfirmationSource
+  ): ModelSnapshot | null {
+    const model = options.find((option) => option.category === 'model' && typeof option.currentValue === 'string');
+    if (!model || typeof model.currentValue !== 'string') return null;
+
+    const availableModels = (model.options ?? []).map((option) => ({
+      modelId: option.id,
+      name: option.name,
+      description: option.description,
+    }));
+    return this.syncAuthoritativeModel(model.currentValue, availableModels, confirmationSource);
   }
 
   updateAvailableCommands(commands: AvailableCommand[]): void {

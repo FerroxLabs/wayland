@@ -171,8 +171,10 @@ consequential, warn the reader before the action line, not after. Keep to
 exact output, state, or confirmation the reader should see.]
 
 > **If this happens:** [Specific symptom of the most likely failure for
+>
 > > this step] -- [1-2 sentence fix. Longer troubleshooting in the
-> > Troubleshooting section.]
+> >
+> > > > Troubleshooting section.]
 
 ---
 

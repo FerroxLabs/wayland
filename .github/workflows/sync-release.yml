@@ -5,11 +5,10 @@ name: Release after upstream sync
 # `upstream-sync.yml` opens a daily PR (automated/upstream-sync -> main). You
 # review it and click Merge (a human gate, so an unwanted upstream change never
 # rebuilds your daily driver unattended). The MOMENT that sync PR merges into
-# main, this workflow bumps the patch version and pushes a `vX.Y.Z` tag. The
-# existing `build-and-release.yml` (which triggers on tag push) then builds all
-# platforms, publishes to THIS fork's Releases with electron-updater metadata,
-# and the desktop app auto-updates. Your own commits on main are carried along
-# by the merge, so every release = upstream + your work.
+# main, this workflow bumps the patch version, pushes a `vX.Y.Z` tag, and sends
+# a repository_dispatch request. GitHub loads build-and-release.yml from the
+# protected default branch, validates that tag, then builds and publishes it.
+# Your own commits on main are carried along by the merge.
 #
 # Scope: fires ONLY for the automated/upstream-sync branch. Merging your own
 # feature PRs into main does NOT auto-release (tag or push to `dev` for those).
@@ -19,9 +18,6 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
-  # Manual escape hatch: cut a release from the current main on demand.
-  workflow_dispatch:
-
 permissions:
   contents: write
 
@@ -29,30 +25,27 @@ permissions:
 concurrency:
   group: sync-release
   cancel-in-progress: false
+  queue: max
 
 jobs:
   tag-release:
-    # Only when the SYNC pr actually merged (closed != merged), or a manual run.
+    # Only when the SYNC PR actually merged (closed != merged).
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true &&
-       github.event.pull_request.head.ref == 'automated/upstream-sync')
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.ref == 'automated/upstream-sync'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: main
           fetch-depth: 0
-          # A version-bump commit + tag must be pushable; the default GITHUB_TOKEN
-          # can push but tags it pushes do NOT trigger other workflows. Use GH_TOKEN
-          # (a PAT) so the tag push actually fires build-and-release.yml.
-          token: ${{ secrets.GH_TOKEN || secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          bun-version: latest
+          bun-version: '1.3.11'
 
       - name: Bump patch, commit, tag, push
         env:
@@ -90,4 +83,17 @@ jobs:
           git push origin HEAD:main
           git tag "v${NEW}"
           git push origin "v${NEW}"
-          echo "Pushed tag v${NEW} -> build-and-release.yml will build + publish the update."
+          RELEASE_TAG="v${NEW}"
+          RELEASE_SHA="$(git rev-parse HEAD)"
+          jq -n \
+            --arg tag "$RELEASE_TAG" \
+            --arg sha "$RELEASE_SHA" \
+            '{
+              event_type: "stable-release",
+              client_payload: {
+                tag: $tag,
+                expected_sha: $sha
+              }
+            }' |
+            gh api --method POST "repos/${{ github.repository }}/dispatches" --input -
+          echo "Pushed $RELEASE_TAG and dispatched the default-branch release workflow for $RELEASE_SHA."

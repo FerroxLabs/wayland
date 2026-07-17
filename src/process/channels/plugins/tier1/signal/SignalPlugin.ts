@@ -32,7 +32,13 @@ import type {
 } from '../../../types';
 import { BasePlugin } from '../../BasePlugin';
 import { signalInboundToUnified, unifiedToSignalSend, chunkSignalText } from './SignalAdapter';
-import { SignalDaemon, probeSignalCli, resolveSignalCliPath } from './SignalDaemon';
+import {
+  normalizeSignalConfigDir,
+  probeSignalCli,
+  resolveSignalCliPath,
+  SignalDaemon,
+  validateSignalCliExecutable,
+} from './SignalDaemon';
 import type { SignalInboundMessage } from './SignalDaemon';
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
@@ -222,22 +228,34 @@ export class SignalPlugin extends BasePlugin {
       };
     }
 
-    const resolved = resolveSignalCliPath(creds.cliPath);
-    const version = await probeSignalCli(resolved);
-    if (!version) {
+    let resolved: string;
+    let configDir: string | undefined;
+    try {
+      resolved = validateSignalCliExecutable(resolveSignalCliPath(creds.cliPath));
+      configDir = normalizeSignalConfigDir(creds.configDir);
+    } catch (error) {
       return {
         success: false,
-        error:
-          'signal-cli binary not found in PATH or bundled runtime.\n' +
-          'Install via: brew install signal-cli  |  apt-get install signal-cli\n' +
-          'Or configure the binary path in the advanced settings.',
+        error: error instanceof Error ? error.message : 'Invalid Signal executable or config directory',
+      };
+    }
+
+    const version = await probeSignalCli(resolved);
+    if (!version) {
+      const installHelp =
+        process.platform === 'win32'
+          ? 'Windows requires a native signal-cli.exe. .bat/.cmd launchers are rejected because they execute through cmd.exe, and the current auto-installer does not provision a Windows binary.'
+          : 'Install via: brew install signal-cli  |  apt-get install signal-cli\nOr configure the binary path in the advanced settings.';
+      return {
+        success: false,
+        error: `signal-cli binary not found in PATH or bundled runtime.\n${installHelp}`,
       };
     }
 
     // Try to list contacts - works only for registered accounts.
     const args = ['--output', 'json', '-a', phone];
-    if (creds.configDir?.trim()) {
-      args.unshift('--config', creds.configDir.trim());
+    if (configDir) {
+      args.unshift('--config', configDir);
     }
     args.push('listContacts');
 

@@ -166,6 +166,86 @@ describe('acpConversationBridge', () => {
     expect(result).toEqual({ success: true, data: { modelInfo: null } });
   });
 
+  // --- setModel ---
+
+  it.each([
+    'unsupported_model',
+    'model_rejected',
+    'model_mismatch',
+    'confirmation_unavailable',
+    'bridge_unavailable',
+    'model_switch_timeout',
+  ] as const)('preserves the stable %s selection failure result', async (code) => {
+    const { default: AcpAgentManager } = await import('../../src/process/task/AcpAgentManager');
+    const selection = {
+      ok: false as const,
+      requestedModelId: 'gpt-5.6-sol',
+      previousConfirmedModelId: 'gpt-5.5',
+      code,
+      message: 'Provider did not confirm the requested model',
+      modelInfo: null,
+    };
+    const task = new (AcpAgentManager as unknown as new () => {
+      setModel: ReturnType<typeof vi.fn>;
+    })();
+    task.setModel = vi.fn().mockResolvedValue(selection);
+    vi.mocked(taskManager.getOrBuildTask).mockResolvedValue(task as never);
+
+    const result = await handlers['setModel']({
+      conversationId: 'conv-model',
+      modelId: 'gpt-5.6-sol',
+    });
+
+    expect(result).toEqual({ success: true, data: { selection } });
+  });
+
+  it('passes null through as an explicit provider-default selection', async () => {
+    const { default: AcpAgentManager } = await import('../../src/process/task/AcpAgentManager');
+    const selection = {
+      ok: true as const,
+      requestedModelId: null,
+      confirmedModelId: null,
+      modelInfo: null,
+      confirmationSource: 'provider-default' as const,
+      restarted: true,
+    };
+    const task = new (AcpAgentManager as unknown as new () => {
+      setModel: ReturnType<typeof vi.fn>;
+    })();
+    task.setModel = vi.fn().mockResolvedValue(selection);
+    vi.mocked(taskManager.getOrBuildTask).mockResolvedValue(task as never);
+
+    const result = await handlers['setModel']({
+      conversationId: 'conv-default',
+      modelId: null,
+    });
+
+    expect(task.setModel).toHaveBeenCalledWith(null);
+    expect(result).toEqual({ success: true, data: { selection } });
+  });
+
+  it('maps a missing ACP task to a bridge_unavailable selection result', async () => {
+    vi.mocked(taskManager.getOrBuildTask).mockResolvedValue(undefined);
+
+    const result = await handlers['setModel']({
+      conversationId: 'missing',
+      modelId: 'gpt-5.6-sol',
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      data: {
+        selection: {
+          ok: false,
+          requestedModelId: 'gpt-5.6-sol',
+          previousConfirmedModelId: null,
+          code: 'bridge_unavailable',
+          modelInfo: null,
+        },
+      },
+    });
+  });
+
   // --- refreshCustomAgents ---
 
   it('refreshCustomAgents delegates to agentRegistry and returns success', async () => {

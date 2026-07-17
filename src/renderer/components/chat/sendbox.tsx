@@ -1000,6 +1000,15 @@ const SendBox: React.FC<{
       // keeping React state in sync.
       const textarea = document.activeElement as HTMLTextAreaElement;
       if (textarea && textarea.tagName === 'TEXTAREA') {
+        // Insert via execCommand so the paste is recorded on the browser's native
+        // undo stack — Cmd+Z / Ctrl+Z then undoes it (#669). A manual setInput()
+        // replaces the value programmatically and never populates that stack, so
+        // undo was a no-op after any paste. execCommand inserts at the caret,
+        // replaces the current selection, and fires a real `input` event that the
+        // controlled textarea's onChange consumes to update React state — so no
+        // setInput/caret bookkeeping is needed on this path. Guard the call in a
+        // try/catch: some browsers throw instead of returning false when the
+        // command is unsupported, and we must fall through to the manual path.
         let inserted = false;
         try {
           inserted = typeof document.execCommand === 'function' && document.execCommand('insertText', false, text);

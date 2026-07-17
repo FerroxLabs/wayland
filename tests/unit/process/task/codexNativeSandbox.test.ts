@@ -18,7 +18,7 @@
  * Uses real temp dirs (no fs mocking) and reads the materialized files back.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { lstat, mkdtemp, readFile, readlink, rm, stat, writeFile } from 'fs/promises';
+import { lstat, mkdir, mkdtemp, readFile, readlink, rm, stat, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { parse as parseToml } from 'smol-toml';
@@ -86,6 +86,19 @@ describe('materializeNativeCodexHome (#536 scoped CODEX_HOME)', () => {
 
   const readScopedConfig = async (home: string): Promise<string> => readFile(join(home, 'config.toml'), 'utf8');
 
+  it('starts the official bridge in a fresh state lineage without modifying the legacy database', async () => {
+    const legacyHome = join(userDataDir, 'codex-home');
+    const legacyState = join(legacyHome, 'state_5.sqlite');
+    await mkdir(legacyHome, { recursive: true });
+    await writeFile(legacyState, 'legacy-zed-sqlx-state', 'utf8');
+
+    const home = await materializeNativeCodexHome(userDataDir, 'read-only', userConfig, userAuth);
+
+    expect(home).toBe(join(userDataDir, 'codex-home-v2'));
+    expect(await readFile(legacyState, 'utf8')).toBe('legacy-zed-sqlx-state');
+    await expect(lstat(join(home, 'state_5.sqlite'))).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
   it("NEVER writes the user's real config.toml, only the scoped clone", async () => {
     const original = [
       '# my codex config',
@@ -102,7 +115,7 @@ describe('materializeNativeCodexHome (#536 scoped CODEX_HOME)', () => {
     const home = await materializeNativeCodexHome(userDataDir, 'workspace-write', userConfig, userAuth);
 
     // The scoped home is inside userData, NOT the user's home.
-    expect(home).toBe(join(userDataDir, 'codex-home'));
+    expect(home).toBe(join(userDataDir, 'codex-home-v2'));
     expect(home).not.toBe(userHome);
 
     // The user's real file is byte-identical + mtime unchanged (never touched).
@@ -168,7 +181,7 @@ describe('materializeNativeCodexHome (#536 scoped CODEX_HOME)', () => {
 
   it('re-materialization replaces a stale scoped auth.json (relinks to the current user path)', async () => {
     await writeFile(userConfig, 'model = "gpt-5"\n', 'utf8');
-    const home = join(userDataDir, 'codex-home');
+    const home = join(userDataDir, 'codex-home-v2');
     // First spawn: user not logged in yet, then a stale plain file gets left behind.
     await materializeNativeCodexHome(userDataDir, 'read-only', userConfig, join(userHome, 'absent.json'));
     await writeFile(join(home, 'auth.json'), 'stale', 'utf8');

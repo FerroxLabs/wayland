@@ -67,7 +67,7 @@ describe('buildWikiState', () => {
         freshness: 'fresh',
         created: 1000,
       },
-      'This page links to [[Concept B]] for reference.',
+      'This page links to [[Concept B]] for reference.'
     );
 
     writeWikiFile(
@@ -80,7 +80,7 @@ describe('buildWikiState', () => {
         freshness: 'fresh',
         created: 2000,
       },
-      'Concept B body text with no wikilinks.',
+      'Concept B body text with no wikilinks.'
     );
 
     const state = await buildWikiState(projectPath);
@@ -98,28 +98,14 @@ describe('buildWikiState', () => {
     // 3 distinct memory files, each mentioning "Ferrox Engine"
     const memContent = (id: string, body: string) => `---\nid: ${id}\ntype: decision\nsummary: test\n---\n${body}`;
 
-    writeMemoryFile(
-      projectPath,
-      'mem-1.md',
-      memContent('m1', 'We use Ferrox Engine for the build pipeline.'),
-    );
-    writeMemoryFile(
-      projectPath,
-      'mem-2.md',
-      memContent('m2', 'Ferrox Engine handles all the tool dispatch.'),
-    );
-    writeMemoryFile(
-      projectPath,
-      'mem-3.md',
-      memContent('m3', 'Ferrox Engine performance was measured last week.'),
-    );
+    writeMemoryFile(projectPath, 'mem-1.md', memContent('m1', 'We use Ferrox Engine for the build pipeline.'));
+    writeMemoryFile(projectPath, 'mem-2.md', memContent('m2', 'Ferrox Engine handles all the tool dispatch.'));
+    writeMemoryFile(projectPath, 'mem-3.md', memContent('m3', 'Ferrox Engine performance was measured last week.'));
 
     const state = await buildWikiState(projectPath);
 
     // Should have at least one orphan candidate mentioning "Ferrox Engine"
-    const ferroxOrphan = state.orphanCandidates.find(
-      (o) => o.suggestedName.toLowerCase().includes('ferrox'),
-    );
+    const ferroxOrphan = state.orphanCandidates.find((o) => o.suggestedName.toLowerCase().includes('ferrox'));
     expect(ferroxOrphan).toBeDefined();
     expect(ferroxOrphan!.citationCount).toBeGreaterThanOrEqual(3);
     expect(ferroxOrphan!.memoryIds).toHaveLength(3);
@@ -131,7 +117,7 @@ describe('buildWikiState', () => {
       projectPath,
       'Test Concept',
       { name: 'Test Concept', slug: 'test-concept', topic_tag: 'Process', freshness: 'fresh', created: 1000 },
-      'Some body text.',
+      'Some body text.'
     );
 
     await buildWikiState(projectPath);

@@ -566,8 +566,10 @@ describe('SendBox queue and interaction behaviors', () => {
     renderControlledSendBox({ initialValue: 'Old draft' });
 
     const textarea = getTextarea();
-    textarea.blur();
-    document.body.focus();
+    act(() => {
+      textarea.blur();
+      document.body.focus();
+    });
 
     await act(async () => {
       pasteServiceArgs?.onTextPaste?.('Fresh draft');

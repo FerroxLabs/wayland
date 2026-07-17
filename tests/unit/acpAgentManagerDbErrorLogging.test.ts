@@ -11,24 +11,29 @@
  *    `catch {}` ALL DB errors with zero logging, silently eating real failures
  *    (corruption, disk-full). It must now log via mainWarn while still
  *    degrading gracefully (the turn proceeds).
- * 2. `saveModelId` in the non-flux setModel branch was fire-and-forget
- *    (unawaited) -> a persist failure surfaced as an unhandled rejection and
- *    the model could appear selected without being persisted. It is now
- *    awaited, so a persist failure propagates through setModel.
+ * 2. A transactional model switch must not mark a model confirmed when its DB
+ *    commit fails. The prior confirmed model stays active and setModel returns
+ *    a structured failure rather than leaking an unhandled rejection.
  *
  * Mirrors acpAgentManagerCronGuard.test.ts's mock setup.
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-const { mockSetProcessing, mockIsProcessing, mockNotifyCompletion, mockMainWarn, mockUpdateConversation } = vi.hoisted(
-  () => ({
-    mockSetProcessing: vi.fn(),
-    mockIsProcessing: vi.fn(() => false),
-    mockNotifyCompletion: vi.fn(() => Promise.resolve()),
-    mockMainWarn: vi.fn(),
-    mockUpdateConversation: vi.fn(),
-  })
-);
+const {
+  mockSetProcessing,
+  mockIsProcessing,
+  mockNotifyCompletion,
+  mockMainWarn,
+  mockGetConversation,
+  mockUpdateConversation,
+} = vi.hoisted(() => ({
+  mockSetProcessing: vi.fn(),
+  mockIsProcessing: vi.fn(() => false),
+  mockNotifyCompletion: vi.fn(() => Promise.resolve()),
+  mockMainWarn: vi.fn(),
+  mockGetConversation: vi.fn(),
+  mockUpdateConversation: vi.fn(),
+}));
 
 vi.mock('@process/services/cron/CronBusyGuard', () => ({
   cronBusyGuard: { setProcessing: mockSetProcessing, isProcessing: mockIsProcessing },
@@ -45,7 +50,9 @@ vi.mock('@/common', () => ({
   ipcBridge: { acpConversation: { responseStream: { emit: vi.fn() } } },
 }));
 vi.mock('@process/services/database', () => ({
-  getDatabase: vi.fn(() => Promise.resolve({ updateConversation: mockUpdateConversation })),
+  getDatabase: vi.fn(() =>
+    Promise.resolve({ getConversation: mockGetConversation, updateConversation: mockUpdateConversation })
+  ),
 }));
 vi.mock('@process/utils/message', () => ({
   addMessage: vi.fn(),
@@ -121,12 +128,13 @@ import type { AcpBackend } from '../../src/common/types/acpTypes';
 type MockAgent = {
   sendMessage: ReturnType<typeof vi.fn>;
   setModelByConfigOption?: ReturnType<typeof vi.fn>;
+  getModelInfo?: ReturnType<typeof vi.fn>;
 };
 
-function makeManager(conversationId = 'conv-s6') {
+function makeManager(conversationId = 'conv-s6', backend: AcpBackend = 'claude') {
   const manager = new AcpAgentManager({
     conversation_id: conversationId,
-    backend: 'claude' as AcpBackend,
+    backend,
     workspace: '/tmp/workspace',
   });
   const mockAgent: MockAgent = { sendMessage: vi.fn().mockResolvedValue({ success: true }) };
@@ -139,6 +147,7 @@ function makeManager(conversationId = 'conv-s6') {
 describe('AcpAgentManager DB-error honesty (S6)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetConversation.mockReset();
     mockUpdateConversation.mockReset();
   });
 
@@ -168,23 +177,52 @@ describe('AcpAgentManager DB-error honesty (S6)', () => {
     expect(touchWarnings).toHaveLength(0);
   });
 
-  it('awaits saveModelId in the non-flux branch so a persist failure propagates (no unhandled rejection)', async () => {
-    const { manager, mockAgent } = makeManager('conv-s6-3');
-    mockAgent.setModelByConfigOption = vi.fn().mockResolvedValue({ currentModelId: 'm1', availableModels: [] });
+  it('keeps the prior confirmed model when the transactional DB commit fails', async () => {
+    const { manager, mockAgent } = makeManager('conv-s6-3', 'qwen' as AcpBackend);
+    const modelInfo = {
+      currentModelId: 'm1',
+      currentModelLabel: 'Model 1',
+      availableModels: [{ id: 'm1', label: 'Model 1' }],
+      canSwitch: true,
+      source: 'models' as const,
+      sourceDetail: 'acp-models' as const,
+      confirmationSource: 'session-models' as const,
+    };
+    mockAgent.setModelByConfigOption = vi.fn().mockResolvedValue(modelInfo);
+    mockAgent.getModelInfo = vi.fn().mockReturnValue(modelInfo);
 
-    // Same-routing, non-flux switch so the `await this.saveModelId(...)` line runs.
+    Object.assign(manager as unknown as Record<string, unknown>, {
+      persistedModelId: 'm0',
+      requestedModelId: 'm0',
+      confirmedModelId: 'm0',
+      modelSelectionState: 'confirmed',
+    });
     vi.spyOn(
       manager as unknown as { computeFluxRouting: () => Promise<{ routing: string }> },
       'computeFluxRouting'
     ).mockResolvedValue({ routing: 'unknown' });
     (manager as unknown as { lastRouting: string }).lastRouting = 'unknown';
-    const saveSpy = vi
-      .spyOn(manager as unknown as { saveModelId: (id: string) => Promise<void> }, 'saveModelId')
-      .mockRejectedValue(new Error('persist failed'));
+    mockGetConversation.mockReturnValue({
+      success: true,
+      data: { type: 'acp', extra: { currentModelId: 'm0' } },
+    });
+    mockUpdateConversation.mockReturnValue({ success: false, error: 'persist failed' });
 
-    await expect((manager as unknown as { setModel: (id: string) => Promise<unknown> }).setModel('m1')).rejects.toThrow(
-      'persist failed'
+    await expect(manager.setModel('m1')).resolves.toMatchObject({
+      ok: false,
+      requestedModelId: 'm1',
+      previousConfirmedModelId: 'm0',
+      code: 'bridge_unavailable',
+      message: 'persist failed',
+    });
+    expect(mockUpdateConversation).toHaveBeenCalledWith(
+      'conv-s6-3',
+      expect.objectContaining({ extra: expect.objectContaining({ currentModelId: 'm1' }) })
     );
-    expect(saveSpy).toHaveBeenCalledWith('m1');
+    expect(manager.getModelInfo()).toMatchObject({
+      currentModelId: 'm0',
+      selectionState: 'blocked',
+      requestedModelId: 'm1',
+    });
   });
 });

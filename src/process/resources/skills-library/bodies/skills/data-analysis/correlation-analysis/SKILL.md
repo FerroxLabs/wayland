@@ -159,7 +159,7 @@ Never report a Pearson r without checking these assumptions.
 
 **Outliers:** A single outlier can change r by 0.3 or more in small samples. For every correlation, compute and report what r would be if the top 1-2 outliers (identified by z-score > |3| or by visual inspection of the scatter plot) were removed. If the conclusion changes, the result is outlier-sensitive and must be flagged
 
-**Range restriction:** If the sample is drawn from a subset of the population with a restricted range on one or both variables (e.g., testing the correlation between SAT scores and GPA among students at a highly selective university -- all SAT scores are in the 1400-1600 range), the observed r will be artificially attenuated. The correction formula is: r_corrected = r_observed _ (sd_unrestricted / sd_restricted) / sqrt(1 - r²_observed + r²_observed _ (sd_unrestricted / sd_restricted)²)
+**Range restriction:** If the sample is drawn from a subset of the population with a restricted range on one or both variables (e.g., testing the correlation between SAT scores and GPA among students at a highly selective university -- all SAT scores are in the 1400-1600 range), the observed r will be artificially attenuated. The correction formula is: r*corrected = r_observed * (sd*unrestricted / sd_restricted) / sqrt(1 - r²_observed + r²_observed * (sd_unrestricted / sd_restricted)²)
 
 ### Step 6: Apply the Causation Framework
 

@@ -3,9 +3,15 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { IMessageAcpToolCall, TMessage } from '@/common/chat/chatLib';
 import { NavigationInterceptor } from '@/common/chat/navigation';
 import { isFluxModelId } from '@/common/config/flux';
-import type { AcpModelInfo, AcpResult, AcpSessionConfigOption } from '@/common/types/acpTypes';
+import type {
+  AcpModelInfo,
+  AcpModelSelectionFailureCode,
+  AcpResult,
+  AcpSessionConfigOption,
+} from '@/common/types/acpTypes';
 import { AcpErrorType, getCurrentWrapperVersion, parseInitializeResult } from '@/common/types/acpTypes';
 import { buildHistoryReplayContext } from '@process/acp/historyReplay';
+import { parseCodexModelId } from '@process/acp/codexModelId';
 import { getFullAutoMode } from '@/common/types/agentModes';
 import { LegacyConnectorFactory } from '@process/acp/compat/LegacyConnectorFactory';
 import {
@@ -96,6 +102,22 @@ type PendingOp<T> = {
   timer: ReturnType<typeof setTimeout>;
 };
 
+type PendingModelOp = PendingOp<AcpModelInfo> & {
+  requestedModelId: string;
+  generation: number;
+  baselineModelId: string | null;
+  responseIsCorrelated: boolean;
+  exactConfirmation: AcpModelInfo | null;
+  dispatchComplete: boolean;
+};
+
+function modelSelectionError(
+  code: AcpModelSelectionFailureCode,
+  message: string
+): Error & { code: AcpModelSelectionFailureCode } {
+  return Object.assign(new Error(message), { code });
+}
+
 /**
  * AcpAgentV2 - Compatibility adapter that presents the OLD AcpAgent interface
  * while internally delegating to the NEW AcpSession.
@@ -143,7 +165,9 @@ export class AcpAgentV2 {
 
   // Promise bridges for async methods (Tasks 4-6)
   private startOp: PendingOp<void> | null = null;
-  private modelOp: PendingOp<AcpModelInfo | null> | null = null;
+  private modelOp: PendingModelOp | null = null;
+  private modelGeneration = 0;
+  private readonly supersededModelIds = new Map<string, number>();
   private modeOp: PendingOp<{ success: boolean; error?: string }> | null = null;
   private configOp: PendingOp<AcpSessionConfigOption[]> | null = null;
 
@@ -397,39 +421,137 @@ export class AcpAgentV2 {
         }
       },
 
-      onModelUpdate: (model: ModelSnapshot) => {
-        const next = toAcpModelInfo(model);
-
-        // The claude-agent-acp bridge periodically emits a model snapshot with an
-        // EMPTY model list (notably under subscription/OAuth auth). Adopting it
-        // would wipe cachedModelInfo and push an empty acp_model_info to the
-        // renderer, reverting the in-chat picker to "Select Model" a moment after
-        // a selection (#184). Keep the last good info when the update is empty.
-        if (next.availableModels.length === 0 && this.cachedModelInfo?.availableModels.length) {
-          if (this.modelOp) {
-            this.resolveOp(this.modelOp, this.cachedModelInfo);
+      onModelUpdate: (model: ModelSnapshot, operationGeneration?: number) => {
+        if (operationGeneration !== undefined && operationGeneration !== this.modelOp?.generation) {
+          return;
+        }
+        let next = toAcpModelInfo(model);
+        if (model.modelConflict) {
+          const op = this.modelOp;
+          const confirmedModelId = this.cachedModelInfo?.currentModelId ?? null;
+          const availableModels =
+            next.availableModels.length > 0 ? next.availableModels : (this.cachedModelInfo?.availableModels ?? []);
+          const selected = confirmedModelId
+            ? availableModels.find((candidate) => candidate.id === confirmedModelId)
+            : undefined;
+          const blockedInfo: AcpModelInfo = {
+            ...next,
+            currentModelId: confirmedModelId,
+            currentModelLabel: selected?.label ?? this.cachedModelInfo?.currentModelLabel ?? confirmedModelId,
+            availableModels,
+            canSwitch: availableModels.length > 0,
+            confirmationSource: this.cachedModelInfo?.confirmationSource,
+            selectionState: 'blocked',
+            requestedModelId: op?.requestedModelId,
+            selectionFailureCode: 'model_mismatch',
+          };
+          if (op) {
+            this.tombstoneModelOp(op);
             this.modelOp = null;
+          }
+          this.publishModelInfo(blockedInfo);
+          if (op) {
+            this.rejectOp(
+              op,
+              modelSelectionError(
+                'model_mismatch',
+                `Provider model sources disagree: ${model.modelConflict.modelId} vs ${model.modelConflict.configModelId}`
+              )
+            );
           }
           return;
         }
-
-        this.cachedModelInfo = next;
-
-        // Resolve modelOp if pending
-        if (this.modelOp) {
-          this.resolveOp(this.modelOp, this.cachedModelInfo);
-          this.modelOp = null;
+        const reportedModelId = next.currentModelId;
+        if (!reportedModelId) {
+          if (next.availableModels.length === 0) return;
+          const confirmedModelId = this.cachedModelInfo?.currentModelId ?? null;
+          const selected = confirmedModelId
+            ? next.availableModels.find((candidate) => candidate.id === confirmedModelId)
+            : undefined;
+          this.cachedModelInfo = {
+            ...next,
+            currentModelId: confirmedModelId,
+            currentModelLabel: selected?.label ?? this.cachedModelInfo?.currentModelLabel ?? confirmedModelId,
+            confirmationSource: this.cachedModelInfo?.confirmationSource,
+          };
+          this.onStreamEvent({
+            type: 'acp_model_info',
+            conversation_id: this.conversationId,
+            msg_id: `model_${Date.now()}`,
+            data: this.cachedModelInfo,
+          });
+          this.persistSessionCapabilities();
+          return;
         }
 
-        // Emit to old stream event
-        this.onStreamEvent({
-          type: 'acp_model_info',
-          conversation_id: this.conversationId,
-          msg_id: `model_${Date.now()}`,
-          data: this.cachedModelInfo,
-        });
+        const supersededGeneration = this.supersededModelIds.get(reportedModelId);
+        if (supersededGeneration !== undefined && reportedModelId !== this.modelOp?.requestedModelId) {
+          return;
+        }
 
-        this.persistSessionCapabilities();
+        if (next.availableModels.length === 0 && this.cachedModelInfo?.availableModels.length) {
+          const selected = this.cachedModelInfo.availableModels.find((candidate) => candidate.id === reportedModelId);
+          next = {
+            ...next,
+            currentModelLabel: selected?.label ?? reportedModelId,
+            availableModels: this.cachedModelInfo.availableModels,
+            canSwitch: this.cachedModelInfo.canSwitch,
+          };
+        }
+        const op = this.modelOp;
+        // An unchanged baseline before any exact confirmation is only the
+        // provider's pre-switch snapshot, so keep waiting. Once an exact
+        // confirmation has arrived, however, every later non-exact update is
+        // authoritative evidence that the provider moved away again — even
+        // when it moved back to that same baseline.
+        const correlatedExactResponse =
+          op?.responseIsCorrelated === true &&
+          operationGeneration === op.generation &&
+          reportedModelId === op.requestedModelId;
+        if (
+          op &&
+          (reportedModelId !== op.baselineModelId || op.exactConfirmation !== null || correlatedExactResponse)
+        ) {
+          const catalog = next.availableModels;
+          if (catalog.length > 0 && !catalog.some((candidate) => candidate.id === op.requestedModelId)) {
+            this.tombstoneModelOp(op);
+            this.modelOp = null;
+            // The provider's replacement catalog/current model are
+            // authoritative even though the requested ID is no longer
+            // supported. Publish the actual snapshot, then reject the request.
+            this.publishModelInfo(next);
+            this.rejectOp(
+              op,
+              modelSelectionError('unsupported_model', `Provider does not advertise model: ${op.requestedModelId}`)
+            );
+          } else if (reportedModelId === op.requestedModelId) {
+            op.exactConfirmation = next;
+            if (op.dispatchComplete) {
+              this.modelOp = null;
+              this.publishModelInfo(next);
+              this.resolveOp(op, next);
+            }
+          } else {
+            this.tombstoneModelOp(op);
+            this.modelOp = null;
+            // A mismatch is still an authoritative provider snapshot. Publish
+            // the actual non-requested model while rejecting the transaction;
+            // only the staged requested model is withheld until joint success.
+            this.publishModelInfo(next);
+            this.rejectOp(
+              op,
+              modelSelectionError(
+                'model_mismatch',
+                `Provider reported ${reportedModelId} after requesting ${op.requestedModelId}`
+              )
+            );
+          }
+        }
+        // Provider state remains staged while a selection transaction is
+        // waiting for dispatch. Only joint dispatch + exact confirmation can
+        // become visible or persistent.
+        if (op) return;
+        this.publishModelInfo(next);
       },
 
       onModeUpdate: (mode: ModeSnapshot) => {
@@ -444,7 +566,10 @@ export class AcpAgentV2 {
         this.persistSessionCapabilities();
       },
 
-      onConfigUpdate: (config: ConfigSnapshot) => {
+      onConfigUpdate: (config: ConfigSnapshot, operationGeneration?: number) => {
+        if (operationGeneration !== undefined && operationGeneration !== this.modelOp?.generation) {
+          return;
+        }
         this.cachedConfigOptions = toAcpConfigOptions(config.configOptions);
 
         // Resolve configOp if pending
@@ -809,23 +934,6 @@ export class AcpAgentV2 {
         this.pendingModelSwitchNotice = null;
       }
 
-      // Re-assert model override before every prompt (mirrors V1 behavior).
-      // V1's userModelOverride is never cleared - it re-checks on every prompt
-      // to recover from CLI-internal state loss (e.g. Claude compaction).
-      // EXCEPT a Flux id: it is carried by the spawn env (ANTHROPIC_MODEL=
-      // flux-auto) and pushing it through set_model makes the claude binary
-      // reject it (JSON-RPC -32601). Skip the re-assert for Flux ids (mirrors V1).
-      if (this.userModelOverride && !isFluxModelId(this.userModelOverride) && this.session) {
-        const currentModel = this.cachedModelInfo?.currentModelId;
-        if (currentModel !== this.userModelOverride) {
-          try {
-            this.session.setModel(this.userModelOverride);
-          } catch {
-            // best effort - continue even if re-assert fails
-          }
-        }
-      }
-
       if (!this.session) {
         throw new AcpSessionError('INVALID_STATE', 'Session not available after reconnect');
       }
@@ -893,24 +1001,31 @@ export class AcpAgentV2 {
     if (this.agentConfig.agentBackend === 'claude') {
       const ccSwitchInfo = readClaudeModelInfoFromCcSwitch();
       if (ccSwitchInfo) {
-        // If user has overridden the model via setModel, apply it to cc-switch data
-        const currentId = this.cachedModelInfo?.currentModelId;
-        if (currentId && ccSwitchInfo.availableModels?.some((m) => m.id === currentId)) {
-          const selected = ccSwitchInfo.availableModels.find((m) => m.id === currentId);
-          return {
-            ...ccSwitchInfo,
-            currentModelId: currentId,
-            currentModelLabel: selected?.label ?? currentId,
-          };
-        }
-        return ccSwitchInfo;
+        const currentId = this.cachedModelInfo?.currentModelId ?? null;
+        const selected = currentId ? ccSwitchInfo.availableModels.find((model) => model.id === currentId) : undefined;
+        return {
+          ...this.cachedModelInfo,
+          ...ccSwitchInfo,
+          currentModelId: currentId,
+          currentModelLabel: selected?.label ?? this.cachedModelInfo?.currentModelLabel ?? currentId,
+          confirmationSource: this.cachedModelInfo?.confirmationSource,
+        };
       }
       // Claude Code's ACP wrapper never advertises a switchable model list, so
       // cachedModelInfo stays null and the picker is stuck on "Select Model"
       // (#184). Fall back to the static Sonnet/Opus/Haiku slots (applied via
       // --model / ANTHROPIC_MODEL on (re)spawn) so the user can pick a model.
       if (!this.cachedModelInfo || this.cachedModelInfo.availableModels.length === 0) {
-        return buildClaudeSlotModelInfo(this.userModelOverride ?? this.cachedModelInfo?.currentModelId);
+        const slots = buildClaudeSlotModelInfo();
+        const currentId = this.cachedModelInfo?.currentModelId ?? null;
+        const selected = currentId ? slots.availableModels.find((model) => model.id === currentId) : undefined;
+        return {
+          ...this.cachedModelInfo,
+          ...slots,
+          currentModelId: currentId,
+          currentModelLabel: selected?.label ?? this.cachedModelInfo?.currentModelLabel ?? currentId,
+          confirmationSource: this.cachedModelInfo?.confirmationSource,
+        };
       }
       return this.cachedModelInfo;
     }
@@ -943,28 +1058,126 @@ export class AcpAgentV2 {
     return this.cachedConfigOptions.filter((opt) => opt.category !== 'model' && opt.category !== 'mode');
   }
 
-  async setModelByConfigOption(modelId: string): Promise<AcpModelInfo | null> {
-    this.userModelOverride = modelId;
-    // A Flux id is carried by the spawn env (ANTHROPIC_MODEL/OPENAI_MODEL=
-    // flux-auto), not by an in-place set_model. Pushing it through the bridge
-    // makes the claude binary validate it against its catalog and reject it
-    // (JSON-RPC -32601). Record the override and skip the call (mirrors V1).
-    if (isFluxModelId(modelId)) {
-      return this.cachedModelInfo;
+  async setModelByConfigOption(modelId: string): Promise<AcpModelInfo> {
+    const generation = ++this.modelGeneration;
+    const responseIsCorrelated = this.cachedConfigOptions.some(
+      (option) => option.category === 'model' && option.type === 'select'
+    );
+    const previousOp = this.modelOp;
+    if (previousOp) {
+      this.tombstoneModelOp(previousOp);
+      this.modelOp = null;
+      this.rejectOp(
+        previousOp,
+        modelSelectionError('model_rejected', `Model selection was superseded: ${previousOp.requestedModelId}`)
+      );
     }
-    // Queue model switch notice for Claude (ACP set_model is silent, AI doesn't know)
+    const modelConfig = this.cachedConfigOptions.find(
+      (option) => option.category === 'model' && option.type === 'select'
+    );
+    const configCatalog = modelConfig?.options?.map((option) => option.value) ?? [];
+    let providerModelId = modelId;
+    if (
+      modelConfig &&
+      this.agentConfig.agentBackend === 'codex' &&
+      configCatalog.length > 0 &&
+      !configCatalog.includes(modelId)
+    ) {
+      const parsed = parseCodexModelId(modelId);
+      if (parsed.effort && configCatalog.includes(parsed.baseModelId)) {
+        providerModelId = parsed.baseModelId;
+      }
+    }
+    const advertisedModelIds =
+      configCatalog.length > 0
+        ? configCatalog
+        : (this.cachedModelInfo?.availableModels.map((candidate) => candidate.id) ?? []);
+    if (advertisedModelIds.length > 0 && !advertisedModelIds.includes(providerModelId)) {
+      throw modelSelectionError('unsupported_model', `Provider does not advertise model: ${modelId}`);
+    }
+
+    if (isFluxModelId(modelId)) {
+      if (this.cachedModelInfo?.currentModelId === modelId && this.cachedModelInfo.confirmationSource) {
+        this.supersededModelIds.delete(modelId);
+        return this.cachedModelInfo;
+      }
+      throw modelSelectionError(
+        'confirmation_unavailable',
+        `Flux model requires provider session confirmation: ${modelId}`
+      );
+    }
+
+    this.supersededModelIds.delete(providerModelId);
+
+    const confirmation = new Promise<AcpModelInfo>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        if (this.modelOp?.generation !== generation) return;
+        this.tombstoneModelOp(this.modelOp);
+        this.modelOp = null;
+        reject(modelSelectionError('model_switch_timeout', `Model confirmation timed out: ${modelId}`));
+      }, 60_000);
+      this.modelOp = {
+        requestedModelId: providerModelId,
+        generation,
+        baselineModelId: this.cachedModelInfo?.currentModelId ?? null,
+        responseIsCorrelated,
+        exactConfirmation: null,
+        dispatchComplete: false,
+        resolve,
+        reject,
+        timer,
+      };
+    });
+
+    const dispatch = this.dispatchModelSelection(providerModelId, generation)
+      .then(() => {
+        const op = this.modelOp;
+        if (op?.generation !== generation) return;
+        op.dispatchComplete = true;
+        if (op.exactConfirmation) {
+          const confirmed = op.exactConfirmation;
+          this.modelOp = null;
+          this.publishModelInfo(confirmed);
+          this.resolveOp(op, confirmed);
+        }
+      })
+      .catch((error) => {
+        const failure = modelSelectionError('model_rejected', error instanceof Error ? error.message : String(error));
+        if (this.modelOp?.generation === generation) {
+          const op = this.modelOp;
+          this.tombstoneModelOp(op);
+          this.modelOp = null;
+          this.rejectOp(op, failure);
+        }
+        throw failure;
+      });
+
+    const [, confirmed] = await Promise.all([dispatch, confirmation]);
+    if (generation !== this.modelGeneration) {
+      throw modelSelectionError('model_rejected', `Model selection was superseded: ${modelId}`);
+    }
+    if (this.modelOp?.generation === generation) this.modelOp = null;
+    this.userModelOverride = modelId;
     if (this.agentConfig.agentBackend === 'claude') {
       this.pendingModelSwitchNotice = modelId;
     }
-    return new Promise<AcpModelInfo | null>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.modelOp = null;
-        // Timeout fallback: return current cached info
-        resolve(this.cachedModelInfo);
-      }, 10_000);
-      this.modelOp = { resolve, reject, timer };
-      this.session!.setModel(modelId);
-    });
+    return confirmed;
+  }
+
+  private async dispatchModelSelection(modelId: string, generation: number): Promise<void> {
+    const modelConfig = this.cachedConfigOptions.find(
+      (option) => option.category === 'model' && option.type === 'select'
+    );
+    if (modelConfig) {
+      await this.session!.setConfigOption(
+        modelConfig.id,
+        modelId,
+        generation,
+        () => this.modelOp?.generation === generation
+      );
+      return;
+    }
+    await this.session!.setModel(modelId);
   }
 
   async setMode(mode: string): Promise<{ success: boolean; error?: string }> {
@@ -1057,6 +1270,23 @@ export class AcpAgentV2 {
   private resolveOp<T>(op: PendingOp<T>, value: T): void {
     clearTimeout(op.timer);
     op.resolve(value);
+  }
+
+  private tombstoneModelOp(op: PendingModelOp): void {
+    if (!op.responseIsCorrelated) {
+      this.supersededModelIds.set(op.requestedModelId, op.generation);
+    }
+  }
+
+  private publishModelInfo(modelInfo: AcpModelInfo): void {
+    this.cachedModelInfo = modelInfo;
+    this.onStreamEvent({
+      type: 'acp_model_info',
+      conversation_id: this.conversationId,
+      msg_id: 'model_' + Date.now(),
+      data: modelInfo,
+    });
+    this.persistSessionCapabilities();
   }
 
   private rejectOp<T>(op: PendingOp<T>, err: Error): void {

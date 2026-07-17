@@ -33,6 +33,10 @@ const fakeKokoroRuntime = (overrides: Partial<KokoroLocalRuntime> = {}): KokoroL
 // ---------------------------------------------------------------------------
 
 describe('normalizeTextToSpeechConfig', () => {
+  it('uses system-native for a fresh installation', () => {
+    expect(DEFAULT_TTS_CONFIG.provider).toBe('system-native');
+  });
+
   it('returns full defaults when called with no arguments', () => {
     const config = normalizeTextToSpeechConfig();
     expect(config).toEqual(DEFAULT_TTS_CONFIG);

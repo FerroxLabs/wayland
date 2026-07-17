@@ -25,11 +25,7 @@ export type WikilinkRendererProps = {
   onNavigate?: (slug: string) => void;
 };
 
-export function WikilinkRenderer({
-  text,
-  resolveBacklink,
-  onNavigate,
-}: WikilinkRendererProps): React.ReactElement {
+export function WikilinkRenderer({ text, resolveBacklink, onNavigate }: WikilinkRendererProps): React.ReactElement {
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   const re = new RegExp(WIKILINK_PATTERN.source, 'g');
@@ -46,14 +42,7 @@ export function WikilinkRenderer({
     const displayName = alias ?? target;
     const { slug } = resolveBacklink(target);
 
-    parts.push(
-      <BacklinkChip
-        key={`${start}-${target}`}
-        name={displayName}
-        slug={slug}
-        onClick={onNavigate}
-      />,
-    );
+    parts.push(<BacklinkChip key={`${start}-${target}`} name={displayName} slug={slug} onClick={onNavigate} />);
 
     lastIndex = start + fullMatch.length;
   }

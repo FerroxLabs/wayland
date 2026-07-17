@@ -435,12 +435,31 @@
     "effortLowDesc": "Fast responses with lighter reasoning",
     "effortMediumDesc": "Balances speed and reasoning depth",
     "effortHighDesc": "Greater reasoning depth for complex problems",
+    "effortXhigh": "Extra high",
+    "effortXhighDesc": "Extended reasoning for hard coding and agentic tasks",
+    "effortMax": "Max",
+    "effortMaxDesc": "Maximum reasoning depth - correctness over cost",
     "emptyTitle": "No models yet",
     "emptySub": "Connect a provider to choose a model.",
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "providerDefault": "Sağlayıcının varsayılan modelini kullan",
+    "switching": "{{model}} modeline geçiliyor…",
+    "blocked": "Model geçişi engellendi",
+    "retry": "Yeniden dene",
+    "revert": "Onaylanan modele dön",
+    "sendPending": "Model onayı bekleniyor…",
+    "sendBlocked": "Model geçişi engellendi — başka bir model veya sağlayıcının varsayılanını seçin.",
+    "failure": {
+      "unsupported_model": "{{model}} bu sağlayıcıda kullanılamıyor. Etkin model değiştirilmedi.",
+      "model_rejected": "Sağlayıcı {{model}} modelini reddetti. Etkin model değiştirilmedi.",
+      "model_mismatch": "Sağlayıcı {{model}} modelini onaylamadı. Etkin model değiştirilmedi.",
+      "confirmation_unavailable": "Sağlayıcı şu anda {{model}} modelini onaylayamıyor. Etkin model değiştirilmedi.",
+      "bridge_unavailable": "{{model}} modeline geçmek için sağlayıcıya ulaşılamadı. Etkin model değiştirilmedi.",
+      "model_switch_timeout": "{{model}} modelinin onaylanması beklenirken süre doldu. Etkin model değiştirilmedi."
+    }
   },
   "notification": {
     "untitled": "Başlıksız sohbet",

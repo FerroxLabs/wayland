@@ -24,7 +24,7 @@ vi.mock('react-i18next', () => ({
       if (interp && typeof interp === 'object') {
         return Object.entries(interp).reduce(
           (acc, [k, v]) => acc.replace(new RegExp(`{{\\s*${k}\\s*}}`, 'g'), String(v)),
-          result,
+          result
         );
       }
       return result;
@@ -66,20 +66,13 @@ describe('OrphanCard', () => {
         citationCount={8}
         memoryIds={memIds}
         onSynthesize={vi.fn()}
-      />,
+      />
     );
     expect(screen.getByTestId('orphan-card').textContent).toContain('Cron skill PROPOSE-default');
   });
 
   it('shows citation count', () => {
-    render(
-      <OrphanCard
-        suggestedName='Test concept'
-        citationCount={12}
-        memoryIds={memIds}
-        onSynthesize={vi.fn()}
-      />,
-    );
+    render(<OrphanCard suggestedName='Test concept' citationCount={12} memoryIds={memIds} onSynthesize={vi.fn()} />);
     expect(screen.getByTestId('orphan-card').textContent).toContain('12 references');
   });
 
@@ -91,34 +84,20 @@ describe('OrphanCard', () => {
         projectCount={3}
         memoryIds={memIds}
         onSynthesize={vi.fn()}
-      />,
+      />
     );
     expect(screen.getByTestId('orphan-card').textContent).toContain('3 projects');
   });
 
   it('fires onSynthesize with memoryIds when button clicked', () => {
     const onSynthesize = vi.fn();
-    render(
-      <OrphanCard
-        suggestedName='Test'
-        citationCount={4}
-        memoryIds={memIds}
-        onSynthesize={onSynthesize}
-      />,
-    );
+    render(<OrphanCard suggestedName='Test' citationCount={4} memoryIds={memIds} onSynthesize={onSynthesize} />);
     fireEvent.click(screen.getByTestId('synthesize-btn'));
     expect(onSynthesize).toHaveBeenCalledWith(memIds);
   });
 
   it('renders synthesize button text', () => {
-    render(
-      <OrphanCard
-        suggestedName='Test'
-        citationCount={4}
-        memoryIds={memIds}
-        onSynthesize={vi.fn()}
-      />,
-    );
+    render(<OrphanCard suggestedName='Test' citationCount={4} memoryIds={memIds} onSynthesize={vi.fn()} />);
     expect(screen.getByTestId('synthesize-btn').textContent).toContain('Synthesize page');
   });
 });

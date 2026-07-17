@@ -50,7 +50,7 @@ vi.mock('react-i18next', () => ({
       if (interp && typeof interp === 'object') {
         return Object.entries(interp).reduce(
           (acc, [k, v]) => acc.replace(new RegExp(`{{\\s*${k}\\s*}}`, 'g'), String(v)),
-          result,
+          result
         );
       }
       return result;
@@ -98,15 +98,13 @@ const firstConcept = MOCK_CONCEPTS[0];
 
 beforeEach(() => {
   (wikiBridge.getConcept.invoke as ReturnType<typeof vi.fn>).mockImplementation(
-    async ({ slug }: { slug: string }) => MOCK_CONCEPTS.find((c) => c.slug === slug) ?? null,
+    async ({ slug }: { slug: string }) => MOCK_CONCEPTS.find((c) => c.slug === slug) ?? null
   );
   (wikiBridge.resolveBacklink.invoke as ReturnType<typeof vi.fn>).mockImplementation(
     async ({ wikilinkText }: { wikilinkText: string }) => {
-      const concept = MOCK_CONCEPTS.find(
-        (c) => c.name.toLowerCase() === wikilinkText.toLowerCase(),
-      );
+      const concept = MOCK_CONCEPTS.find((c) => c.name.toLowerCase() === wikilinkText.toLowerCase());
       return concept ? { slug: concept.slug, name: concept.name } : { slug: null, name: null };
-    },
+    }
   );
 });
 
@@ -123,16 +121,12 @@ describe('WikiDetailPage (smoke)', () => {
 
   it('renders the concept title', async () => {
     render(<WikiDetailPage slug={firstConcept.slug} />);
-    await waitFor(() =>
-      expect(screen.getByTestId('concept-title').textContent).toBe(firstConcept.name),
-    );
+    await waitFor(() => expect(screen.getByTestId('concept-title').textContent).toBe(firstConcept.name));
   });
 
   it('renders the sources section heading', async () => {
     render(<WikiDetailPage slug={firstConcept.slug} />);
-    await waitFor(() =>
-      expect(screen.getByTestId('sources-heading').textContent).toContain('Sources'),
-    );
+    await waitFor(() => expect(screen.getByTestId('sources-heading').textContent).toContain('Sources'));
   });
 
   it('renders the sources block', async () => {
@@ -142,9 +136,7 @@ describe('WikiDetailPage (smoke)', () => {
 
   it('renders the linked from section', async () => {
     render(<WikiDetailPage slug={firstConcept.slug} />);
-    await waitFor(() =>
-      expect(screen.getByTestId('linked-from-heading').textContent).toContain('Linked from'),
-    );
+    await waitFor(() => expect(screen.getByTestId('linked-from-heading').textContent).toContain('Linked from'));
   });
 
   it('renders linked from items when concept has linkedFromConcepts', async () => {
@@ -157,9 +149,7 @@ describe('WikiDetailPage (smoke)', () => {
 
   it('renders related concepts section', async () => {
     render(<WikiDetailPage slug={firstConcept.slug} />);
-    await waitFor(() =>
-      expect(screen.getByTestId('related-heading').textContent).toContain('Related concepts'),
-    );
+    await waitFor(() => expect(screen.getByTestId('related-heading').textContent).toContain('Related concepts'));
     expect(screen.getByTestId('related-concepts')).toBeTruthy();
   });
 
@@ -170,9 +160,7 @@ describe('WikiDetailPage (smoke)', () => {
 
   it('renders the topic badge', async () => {
     render(<WikiDetailPage slug={firstConcept.slug} />);
-    await waitFor(() =>
-      expect(screen.getByTestId('topic-badge').textContent).toContain('Architecture'),
-    );
+    await waitFor(() => expect(screen.getByTestId('topic-badge').textContent).toContain('Architecture'));
   });
 
   it('renders the freshness badge', async () => {

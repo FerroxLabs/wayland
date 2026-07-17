@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 type UseAcpInitialMessageParams = {
   conversationId: string;
   backend: string;
+  enabled: boolean;
   workspacePath?: string;
   setAiProcessing: (value: boolean) => void;
   checkAndUpdateTitle: (conversationId: string, input: string) => void;
@@ -27,12 +28,15 @@ type UseAcpInitialMessageParams = {
 export const useAcpInitialMessage = ({
   conversationId,
   backend,
+  enabled,
   workspacePath,
   setAiProcessing,
   checkAndUpdateTitle,
   addOrUpdateMessage,
 }: UseAcpInitialMessageParams): void => {
   useEffect(() => {
+    if (!enabled) return;
+
     const storageKey = `acp_initial_message_${conversationId}`;
     const storedMessage = sessionStorage.getItem(storageKey);
 
@@ -92,5 +96,5 @@ export const useAcpInitialMessage = ({
     sendInitialMessage().catch((error) => {
       console.error('Failed to send initial message:', error);
     });
-  }, [addOrUpdateMessage, backend, checkAndUpdateTitle, conversationId, setAiProcessing, workspacePath]);
+  }, [addOrUpdateMessage, backend, checkAndUpdateTitle, conversationId, enabled, setAiProcessing, workspacePath]);
 };

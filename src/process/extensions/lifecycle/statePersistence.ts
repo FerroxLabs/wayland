@@ -5,6 +5,7 @@
  */
 
 import { promises as fsAsync } from 'fs';
+import { randomUUID } from 'crypto';
 import * as path from 'path';
 import type { ExtensionState } from '../types';
 import { extensionEventBus, ExtensionSystemEvents } from './ExtensionEventBus';
@@ -100,99 +101,99 @@ export async function loadPersistedStates(): Promise<Map<string, ExtensionState>
  * Creates the target directory if it doesn't exist.
  * Writes are debounced - rapid successive calls coalesce into a single disk write.
  */
-let _pendingSaveStates = new Map<string, ExtensionState>();
+let _pendingSaveStates: Map<string, ExtensionState> | undefined;
 let _saveTimer: ReturnType<typeof setTimeout> | undefined;
-let _flushInFlight: Promise<void> | undefined;
+let _saveSequence: Promise<void> = Promise.resolve();
+
+const RENAME_RETRY_DELAYS_MS = [25, 50, 100, 200, 400] as const;
+const RETRYABLE_RENAME_ERRORS = new Set(['EACCES', 'EBUSY', 'EPERM']);
+
+async function renameWithRetry(source: string, destination: string, attempt = 0): Promise<void> {
+  try {
+    await fsAsync.rename(source, destination);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (!code || !RETRYABLE_RENAME_ERRORS.has(code) || attempt >= RENAME_RETRY_DELAYS_MS.length) {
+      throw error;
+    }
+
+    await new Promise<void>((resolve) => setTimeout(resolve, RENAME_RETRY_DELAYS_MS[attempt]));
+    await renameWithRetry(source, destination, attempt + 1);
+  }
+}
 
 export function savePersistedStates(states: Map<string, ExtensionState>): void {
-  for (const [name, state] of states) {
-    _pendingSaveStates.set(name, { ...state });
-  }
+  _pendingSaveStates = states;
   clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(() => {
-    void flushPersistedStates();
-  }, 500);
+  _saveTimer = setTimeout(() => _flushPersistedStates(), 500);
 }
 
-export async function flushPersistedStates(): Promise<void> {
-  clearTimeout(_saveTimer);
-  _saveTimer = undefined;
-
-  if (_flushInFlight) {
-    await _flushInFlight;
-  }
-  if (_pendingSaveStates.size === 0) return;
-
+function _flushPersistedStates(): void {
+  if (!_pendingSaveStates) return;
   const states = _pendingSaveStates;
-  _pendingSaveStates = new Map<string, ExtensionState>();
-  _flushInFlight = _writePersistedStates(states).finally(() => {
-    _flushInFlight = undefined;
-  });
-  await _flushInFlight;
+  _pendingSaveStates = undefined;
 
-  if (_pendingSaveStates.size > 0) {
-    await flushPersistedStates();
-  }
+  const statesFile = resolveStatesFile();
+  const write = _saveSequence.then(() => _writePersistedStates(states, statesFile));
+  _saveSequence = write.catch((error: unknown) => {
+    console.error('[Extensions] Failed to save persisted states:', error instanceof Error ? error.message : error);
+  });
 }
 
-async function _writePersistedStates(states: Map<string, ExtensionState>): Promise<void> {
-  const statesFile = resolveStatesFile();
+async function _writePersistedStates(states: Map<string, ExtensionState>, statesFile: string): Promise<void> {
   const statesDir = path.dirname(statesFile);
 
-  try {
-    await fsAsync.mkdir(statesDir, { recursive: true });
+  await fsAsync.mkdir(statesDir, { recursive: true });
 
-    const data: PersistedStates = {
-      version: 1,
-      extensions: {},
+  const data: PersistedStates = {
+    version: 1,
+    extensions: {},
+  };
+
+  for (const [name, state] of states) {
+    data.extensions[name] = {
+      enabled: state.enabled,
+      disabledAt: state.disabledAt?.toISOString(),
+      disabledReason: state.disabledReason,
+      permissionReview: state.permissionReview
+        ? {
+            approvedAt: state.permissionReview.approvedAt.toISOString(),
+            approvedRiskLevel: state.permissionReview.approvedRiskLevel,
+            approvedPermissions: state.permissionReview.approvedPermissions,
+          }
+        : undefined,
+      installed: (state as any).installed,
+      lastVersion: (state as any).lastVersion,
+      installError: (state as any).installError,
     };
-
-    try {
-      const raw = await fsAsync.readFile(statesFile, 'utf-8');
-      const existing = JSON.parse(raw) as PersistedStates;
-      if (existing.version === 1 && existing.extensions && typeof existing.extensions === 'object') {
-        data.extensions = { ...existing.extensions };
-      }
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        console.warn(
-          '[Extensions] Failed to merge existing persisted states:',
-          error instanceof Error ? error.message : error
-        );
-      }
-    }
-
-    for (const [name, state] of states) {
-      data.extensions[name] = {
-        enabled: state.enabled,
-        disabledAt: state.disabledAt?.toISOString(),
-        disabledReason: state.disabledReason,
-        permissionReview: state.permissionReview
-          ? {
-              approvedAt: state.permissionReview.approvedAt.toISOString(),
-              approvedRiskLevel: state.permissionReview.approvedRiskLevel,
-              approvedPermissions: state.permissionReview.approvedPermissions,
-            }
-          : undefined,
-        installed: (state as any).installed,
-        lastVersion: (state as any).lastVersion,
-        installError: (state as any).installError,
-      };
-    }
-
-    // Atomic write: write to temp file then rename
-    const tmpFile = statesFile + '.tmp';
-    await fsAsync.writeFile(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
-    await fsAsync.rename(tmpFile, statesFile);
-
-    extensionEventBus.emitLifecycle(ExtensionSystemEvents.STATES_PERSISTED, {
-      extensionName: '*',
-      version: '0.0.0',
-      timestamp: Date.now(),
-    });
-  } catch (error) {
-    console.error('[Extensions] Failed to save persisted states:', error instanceof Error ? error.message : error);
   }
+
+  // Keep the temp file beside the destination so the final rename stays on
+  // one filesystem. A unique name prevents overlapping saves or processes
+  // from clobbering each other's in-progress write.
+  const tmpFile = path.join(statesDir, `.${path.basename(statesFile)}.${process.pid}.${randomUUID()}.tmp`);
+  try {
+    await fsAsync.writeFile(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
+    // Windows can transiently reject replacement while another process has
+    // the destination open. Retrying the atomic rename preserves the old
+    // file until the complete replacement is ready.
+    await renameWithRetry(tmpFile, statesFile);
+  } finally {
+    try {
+      await fsAsync.rm(tmpFile, { force: true });
+    } catch (error) {
+      console.warn(
+        '[Extensions] Failed to remove temporary state file:',
+        error instanceof Error ? error.message : error
+      );
+    }
+  }
+
+  extensionEventBus.emitLifecycle(ExtensionSystemEvents.STATES_PERSISTED, {
+    extensionName: '*',
+    version: '0.0.0',
+    timestamp: Date.now(),
+  });
 }
 
 /**
@@ -229,6 +230,5 @@ export async function markExtensionForReinstall(extensionName: string): Promise<
   if (state) {
     states.set(extensionName, { ...state, installed: false });
     savePersistedStates(states);
-    await flushPersistedStates();
   }
 }

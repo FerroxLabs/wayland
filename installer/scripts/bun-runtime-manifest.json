@@ -1,0 +1,30 @@
+{
+  "_comment": "Pinned Bun archives used by the getwayland headless installer. SHA-256 values come from the root manifest where available and official release digests for musl assets, then are verified by tests.",
+  "version": "1.3.14",
+  "assets": {
+    "darwin-arm64": {
+      "filename": "bun-darwin-aarch64.zip",
+      "sha256": "d8b96221828ad6f97ac7ac0ab7e95872341af763001e8803e8267652c2652620"
+    },
+    "darwin-x64": {
+      "filename": "bun-darwin-x64-baseline.zip",
+      "sha256": "3e35ad6f53971a9834bf9e6786e2adf72b5f1921cc9a9c5fde073d2972944076"
+    },
+    "linux-arm64": {
+      "filename": "bun-linux-aarch64.zip",
+      "sha256": "a27ffb63a8310375836e0d6f668ae17fa8d8d18b88c37c821c65331973a19a3b"
+    },
+    "linux-arm64-musl": {
+      "filename": "bun-linux-aarch64-musl.zip",
+      "sha256": "b98e0ad3625c5c00d1d5b5ff55605c7adddbfae151861e68ade57b2d3b8703bb"
+    },
+    "linux-x64": {
+      "filename": "bun-linux-x64-baseline.zip",
+      "sha256": "a063908ae08b7852ca10939bbdc6ceed3ddabce8fb9402dce83d65d73b36e6c7"
+    },
+    "linux-x64-musl": {
+      "filename": "bun-linux-x64-musl-baseline.zip",
+      "sha256": "56a7d6806cf155536c0178f0ea5fbd098e684fa509ebdb4fc0a7e19fb65382dc"
+    }
+  }
+}

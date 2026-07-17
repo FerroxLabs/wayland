@@ -51,7 +51,7 @@ vi.mock('electron-log', () => ({
 }));
 
 describe('AutoUpdaterService', () => {
-  let autoUpdaterService: any;
+  let autoUpdaterService: (typeof import('@/process/services/autoUpdaterService'))['autoUpdaterService'];
   let mockStatusBroadcast: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
@@ -240,7 +240,7 @@ describe('AutoUpdaterService', () => {
       const { app } = vi.mocked(await import('electron'));
 
       autoUpdaterService.quitAndInstall();
-      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(process.platform !== 'win32', true);
 
       // app.exit is called after a 1s delay
       vi.advanceTimersByTime(1000);

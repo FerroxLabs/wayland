@@ -25,7 +25,7 @@
 
 import type { Request } from 'express';
 import { detectHttps } from '../config/constants';
-import { hasTailscaleInterface, isPrivateNetworkIp } from './networkTrust';
+import { isPrivateNetworkIp } from './networkTrust';
 
 /** Exposed for tests to reset the memoised Tailscale interface probe. */
 export { __resetTailscaleIfaceCacheForTests } from './networkTrust';
@@ -82,11 +82,11 @@ function classifyReachedVia(rawPeer: string | undefined, hostname: string | null
   // Loopback first - most specific.
   if (ip === '::1' || ip.startsWith('127.')) return 'loopback';
 
-  // Tailscale (informational): a CGNAT peer, a *.ts.net host, or a private-range
-  // peer on a host that has a tailscale interface up.
+  // Tailscale (informational): a CGNAT peer or a *.ts.net host. Merely having a
+  // Tailscale interface on the server does not prove an RFC1918 peer arrived
+  // through it; ordinary LAN clients must remain `private_network`.
   const hostIsTsNet = hostname?.toLowerCase().endsWith('.ts.net') ?? false;
   if (isTailscaleCgnat(ip) || hostIsTsNet) return 'tailscale';
-  if (ip !== '' && isPrivateNetworkIp(ip) && hasTailscaleInterface()) return 'tailscale';
 
   if (isPrivateNetworkIp(ip)) return 'private_network';
   return 'public_internet';

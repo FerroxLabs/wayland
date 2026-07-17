@@ -312,6 +312,74 @@ export function claudeSlotForModelId(modelId?: string | null): string | undefine
 }
 
 /**
+ * Canonical Claude slot (`sonnet` / `opus` / `haiku`) for any Claude id: a slot
+ * alias (`opus`), the cc-switch `default` alias for the Sonnet slot, or a
+ * full/registry model id (`claude-opus-4-8`, `claude-opus-4-6-1m`, a date-pinned
+ * id, ...). Returns `undefined` when the id is not a Claude model. Unifies the
+ * two slot vocabularies used across the codebase (`CLAUDE_SLOT_MODELS` uses
+ * `sonnet`; cc-switch / settings use `default`) so the Sonnet slot compares
+ * equal regardless of spelling.
+ */
+export function canonicalClaudeSlot(modelId?: string | null): string | undefined {
+  if (!modelId) return undefined;
+  const lower = modelId.trim().toLowerCase();
+  if (lower === 'default') return 'sonnet';
+  return claudeSlotForModelId(lower);
+}
+
+/**
+ * Whether the provider's advertised catalog supports `requestedModelId` at
+ * Claude's slot granularity — i.e. some advertised id maps to the same slot
+ * (`opus` / `sonnet` / `haiku`). Claude Code selects models only at slot
+ * granularity via `ANTHROPIC_MODEL`, and advertised catalogs vary: bare slots
+ * under subscription/OAuth (#184), or full/registry ids from the ACP bridge
+ * (e.g. `claude-agent-acp` advertises `claude-opus-4-6` while Wayland's live
+ * subscription catalog offers the newer `claude-opus-4-8`). Both must count as
+ * "opus supported".
+ */
+export function claudeCatalogSupportsSlot(requestedModelId: string, advertisedModelIds: readonly string[]): boolean {
+  const slot = canonicalClaudeSlot(requestedModelId);
+  if (!slot) return false;
+  return advertisedModelIds.some((id) => canonicalClaudeSlot(id) === slot);
+}
+
+/**
+ * Whether `candidateModelId` (e.g. the live provider-confirmed model) selects the
+ * SAME model as `requestedModelId` under Claude Code, which distinguishes models
+ * only at slot granularity (`opus` / `sonnet` / `haiku`, applied via
+ * `ANTHROPIC_MODEL`). The model picker offers Wayland registry catalog ids
+ * (`claude-opus-4-8`) that the ACP bridge's own catalog may not advertise
+ * verbatim — it may advertise bare slots (#184) or an older generation
+ * (`claude-opus-4-6`). In that case the pick can only be honored at slot
+ * granularity (and IS — the exact id is passed byte-for-byte via
+ * `ANTHROPIC_MODEL`), so a same-slot confirmation must count as exact, else a
+ * valid pick fails as `unsupported_model`.
+ *
+ * Guard against conflation: when the provider DOES advertise the requested id
+ * verbatim, confirmation must be exact — a different same-slot generation the
+ * provider returned instead (e.g. `claude-opus-4-1` when `claude-opus-4-8` was
+ * offered and picked) is a genuine mismatch, not a match.
+ */
+export function claudeModelIdsSelectSameModel(
+  requestedModelId: string,
+  candidateModelId: string | null | undefined,
+  advertisedModelIds: readonly string[]
+): boolean {
+  if (!candidateModelId) return false;
+  if (requestedModelId === candidateModelId) return true;
+  const slot = canonicalClaudeSlot(requestedModelId);
+  if (!slot) return false;
+  // Provider offers the exact requested id → require exact confirmation; do not
+  // accept a different same-slot generation the user did not pick.
+  if (advertisedModelIds.includes(requestedModelId)) return false;
+  // Requested id is not advertised verbatim (registry catalog newer than the ACP
+  // bridge's list, or bridge advertises bare slots): honor at slot granularity
+  // when the confirmed model is the same slot and that slot is in the catalog.
+  if (!advertisedModelIds.some((id) => canonicalClaudeSlot(id) === slot)) return false;
+  return canonicalClaudeSlot(candidateModelId) === slot;
+}
+
+/**
  * Build the static Claude slot model catalog (Sonnet / Opus / Haiku) used as a
  * fallback when the bridge advertises no models. `currentModelId` reflects the
  * user's pick; unknown/absent values default to Sonnet. A registry catalog id

@@ -433,12 +433,31 @@
     "effortLowDesc": "Fast responses with lighter reasoning",
     "effortMediumDesc": "Balances speed and reasoning depth",
     "effortHighDesc": "Greater reasoning depth for complex problems",
+    "effortXhigh": "Extra high",
+    "effortXhighDesc": "Extended reasoning for hard coding and agentic tasks",
+    "effortMax": "Max",
+    "effortMaxDesc": "Maximum reasoning depth - correctness over cost",
     "emptyTitle": "No models yet",
     "emptySub": "Connect a provider to choose a model.",
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "providerDefault": "Usar o padrão do provedor",
+    "switching": "Alterando para {{model}}…",
+    "blocked": "Troca de modelo bloqueada",
+    "retry": "Tentar novamente",
+    "revert": "Voltar ao modelo confirmado",
+    "sendPending": "Aguardando a confirmação do modelo…",
+    "sendBlocked": "Troca de modelo bloqueada — escolha outro modelo ou o padrão do provedor.",
+    "failure": {
+      "unsupported_model": "{{model}} não está disponível neste provedor. O modelo ativo não foi alterado.",
+      "model_rejected": "O provedor rejeitou {{model}}. O modelo ativo não foi alterado.",
+      "model_mismatch": "O provedor não confirmou {{model}}. O modelo ativo não foi alterado.",
+      "confirmation_unavailable": "O provedor não pode confirmar {{model}} agora. O modelo ativo não foi alterado.",
+      "bridge_unavailable": "Não foi possível acessar o provedor para alterar para {{model}}. O modelo ativo não foi alterado.",
+      "model_switch_timeout": "O tempo de espera pela confirmação de {{model}} expirou. O modelo ativo não foi alterado."
+    }
   },
   "notification": {
     "untitled": "Conversa sem título",

@@ -48,7 +48,7 @@ const isCustom = (v: TimeWindow): v is { from: Date; to: Date } => typeof v === 
 // ---------------------------------------------------------------------------
 
 const TimeDropdown: React.FC<TimeDropdownProps> = ({ selected, onSelect }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const [showCustom, setShowCustom] = useState(false);
   const [customFrom, setCustomFrom] = useState<Date | null>(null);
   const [customTo, setCustomTo] = useState<Date | null>(null);

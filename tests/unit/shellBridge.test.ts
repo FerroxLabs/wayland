@@ -38,6 +38,7 @@ const {
   }),
   fsMock: {
     existsSync: vi.fn(),
+    statSync: vi.fn(() => ({ isDirectory: () => true })),
   },
 }));
 
@@ -89,6 +90,7 @@ vi.mock('child_process', () => ({
 
 vi.mock('fs', () => ({
   existsSync: fsMock.existsSync,
+  statSync: fsMock.statSync,
 }));
 
 // --- Tests ---
@@ -98,6 +100,8 @@ let initShellBridge: typeof import('../../src/process/bridge/shellBridge').initS
 beforeEach(async () => {
   vi.resetModules();
   vi.clearAllMocks();
+  fsMock.statSync.mockReset();
+  fsMock.statSync.mockReturnValue({ isDirectory: () => true });
   openFileProvider.fn = undefined;
   showItemInFolderProvider.fn = undefined;
   openExternalProvider.fn = undefined;
@@ -254,6 +258,29 @@ describe('shellBridge', () => {
       });
     });
 
+    it.each([
+      'C:\\Projects\\semi;colon',
+      'C:\\Projects\\back`tick',
+      'C:\\Projects\\dollar$(literal)',
+      'C:\\Projects\\parentheses(folder)',
+      'C:\\Projects\\research & development',
+      "C:\\Projects\\owner's folder",
+    ])('launches a Windows terminal with the validated directory only as cwd: %s', async (folderPath) => {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+
+      await openFolderWithProvider.fn!({ folderPath, tool: 'terminal' });
+
+      expect(spawnMock).toHaveBeenCalledOnce();
+      const [command, args, options] = spawnMock.mock.calls[0];
+      expect(command).toBe('powershell.exe');
+      expect(args).not.toContain(folderPath);
+      expect(args).not.toContain('-Command');
+      expect(args).not.toContain('Start-Process');
+      expect(options).toEqual(
+        expect.objectContaining({ cwd: folderPath, detached: true, shell: false, windowsHide: false })
+      );
+    });
+
     it('handles folder path with special characters', async () => {
       const folderWithSpecialChars = "/path/with'quotes";
       shellMock.openPath.mockResolvedValue('');
@@ -263,14 +290,44 @@ describe('shellBridge', () => {
       expect(shellMock.openPath).toHaveBeenCalledWith(folderWithSpecialChars);
     });
 
-    it('uses shell:true for .cmd fallback on Windows and handles EINVAL', async () => {
+    it.each([
+      ['missing path before VS Code launch', 'C:\\Missing', 'vscode', 'missing'],
+      ['regular file before terminal launch', 'C:\\Projects\\readme.txt', 'terminal', 'file'],
+      ['undefined path before explorer launch', undefined, 'explorer', 'invalid'],
+      ['null path before VS Code launch', null, 'vscode', 'invalid'],
+      ['numeric path before terminal launch', 42, 'terminal', 'invalid'],
+      ['failed directory check before explorer launch', 'C:\\Projects', 'explorer', 'directory-error'],
+    ])('rejects %s without spawning or opening the path', async (_name, folderPath, tool, kind) => {
+      if (kind === 'missing') {
+        fsMock.statSync.mockImplementationOnce(() => {
+          throw new Error('ENOENT');
+        });
+      } else if (kind === 'file') {
+        fsMock.statSync.mockReturnValueOnce({ isDirectory: () => false });
+      } else if (kind === 'directory-error') {
+        fsMock.statSync.mockReturnValueOnce({
+          isDirectory: () => {
+            throw new Error('stat result unavailable');
+          },
+        });
+      }
+
+      await openFolderWithProvider.fn!({ folderPath, tool });
+
+      expect(spawnMock).not.toHaveBeenCalled();
+      expect(shellMock.openPath).not.toHaveBeenCalled();
+    });
+
+    it('launches VS Code through PATH and a native Windows fallback without a shell', async () => {
       Object.defineProperty(process, 'platform', { value: 'win32' });
 
-      // Set Windows env vars so findVSCodeExecutable builds the right paths
+      const origLocalAppData = process.env['LOCALAPPDATA'];
       const origProgramFiles = process.env['ProgramFiles'];
+      const origProgramFilesX86 = process.env['ProgramFiles(x86)'];
+      process.env['LOCALAPPDATA'] = 'C:\\Users\\me\\AppData\\Local';
       process.env['ProgramFiles'] = 'C:\\Program Files';
+      process.env['ProgramFiles(x86)'] = 'C:\\Program Files (x86)';
 
-      // First spawn of 'code' fails with ENOENT
       let errorCallback: ((...args: unknown[]) => void) | undefined;
       const firstChild = {
         on: vi.fn((event: string, cb: (...args: unknown[]) => void) => {
@@ -279,7 +336,6 @@ describe('shellBridge', () => {
         unref: vi.fn(),
       };
 
-      // Fallback spawn of 'code.cmd' also emits error (EINVAL)
       let fallbackErrorCallback: ((...args: unknown[]) => void) | undefined;
       const fallbackChild = {
         on: vi.fn((event: string, cb: (...args: unknown[]) => void) => {
@@ -290,32 +346,100 @@ describe('shellBridge', () => {
 
       spawnMock.mockReturnValueOnce(firstChild).mockReturnValueOnce(fallbackChild);
 
-      // findVSCodeExecutable finds code.cmd via ProgramFiles
-      fsMock.existsSync.mockImplementation((p: string) => p.endsWith('code.cmd') && p.includes('Program Files'));
+      const nativeCodePath = 'C:\\Users\\me\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe';
+      fsMock.existsSync.mockImplementation((candidate: string) => candidate === nativeCodePath);
 
-      await openFolderWithProvider.fn!({ folderPath: 'C:\\Projects\\Q&M', tool: 'vscode' });
+      try {
+        await openFolderWithProvider.fn!({ folderPath: 'C:\\Projects\\Q&M', tool: 'vscode' });
 
-      // Trigger ENOENT on first spawn
+        expect(spawnMock.mock.calls[0]).toEqual([
+          'code',
+          ['C:\\Projects\\Q&M'],
+          expect.objectContaining({ detached: true, stdio: 'ignore', shell: false }),
+        ]);
+        expect(errorCallback).toBeDefined();
+        await errorCallback!(new Error('spawn code ENOENT'));
+
+        expect(spawnMock.mock.calls[1]).toEqual([
+          nativeCodePath,
+          ['C:\\Projects\\Q&M'],
+          expect.objectContaining({ detached: true, stdio: 'ignore', shell: false }),
+        ]);
+
+        expect(fallbackErrorCallback).toBeDefined();
+        fallbackErrorCallback!(new Error('spawn Code.exe EINVAL'));
+        expect(shellMock.openPath).toHaveBeenCalledWith('C:\\Projects\\Q&M');
+      } finally {
+        if (origLocalAppData === undefined) delete process.env['LOCALAPPDATA'];
+        else process.env['LOCALAPPDATA'] = origLocalAppData;
+        if (origProgramFiles === undefined) delete process.env['ProgramFiles'];
+        else process.env['ProgramFiles'] = origProgramFiles;
+        if (origProgramFilesX86 === undefined) delete process.env['ProgramFiles(x86)'];
+        else process.env['ProgramFiles(x86)'] = origProgramFilesX86;
+      }
+    });
+
+    it('contains a rejected OS fallback after VS Code discovery finds no executable', async () => {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      let errorCallback: ((error: Error) => unknown) | undefined;
+      const firstChild = {
+        on: vi.fn((event: string, cb: (error: Error) => unknown) => {
+          if (event === 'error') errorCallback = cb;
+        }),
+        unref: vi.fn(),
+      };
+      spawnMock.mockReset();
+      spawnMock.mockReturnValueOnce(firstChild);
+      fsMock.existsSync.mockReturnValue(false);
+      const openPathFailure = Promise.reject(new Error('OS folder handler failed'));
+      const openPathCatch = vi.spyOn(openPathFailure, 'catch');
+      shellMock.openPath.mockReturnValueOnce(openPathFailure);
+
+      await openFolderWithProvider.fn!({ folderPath: 'C:\\Projects', tool: 'vscode' });
       expect(errorCallback).toBeDefined();
-      await errorCallback!(new Error('spawn code ENOENT'));
+      const listenerResult = errorCallback!(new Error('spawn code ENOENT'));
+      if (listenerResult instanceof Promise) {
+        await listenerResult.catch(() => {});
+      }
+      await new Promise((resolve) => setTimeout(resolve));
 
-      // Fallback spawn should use shell: true for .cmd
-      const fallbackCall = spawnMock.mock.calls[1];
-      expect(fallbackCall).toBeDefined();
-      expect(fallbackCall[0]).toContain('code.cmd');
-      expect(fallbackCall[2]).toMatchObject({ shell: true });
+      expect(listenerResult).toBeUndefined();
+      expect(shellMock.openPath).toHaveBeenCalledWith('C:\\Projects');
+      expect(openPathCatch).toHaveBeenCalled();
+    });
 
-      // Trigger EINVAL on fallback - should not throw, falls back to shell.openPath
-      expect(fallbackErrorCallback).toBeDefined();
-      shellMock.openPath.mockResolvedValue('');
-      fallbackErrorCallback!(new Error('spawn EINVAL'));
-      expect(shellMock.openPath).toHaveBeenCalledWith('C:\\Projects\\Q&M');
+    it('contains a synchronous native fallback spawn failure and uses the OS folder handler', async () => {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      const origLocalAppData = process.env['LOCALAPPDATA'];
+      process.env['LOCALAPPDATA'] = 'C:\\Users\\me\\AppData\\Local';
+      let errorCallback: ((error: Error) => unknown) | undefined;
+      const firstChild = {
+        on: vi.fn((event: string, cb: (error: Error) => unknown) => {
+          if (event === 'error') errorCallback = cb;
+        }),
+        unref: vi.fn(),
+      };
+      spawnMock.mockReset();
+      spawnMock.mockReturnValueOnce(firstChild).mockImplementationOnce(() => {
+        throw new Error('native fallback spawn failed');
+      });
+      fsMock.existsSync.mockReturnValue(true);
+      shellMock.openPath.mockResolvedValueOnce('');
 
-      // Restore env
-      if (origProgramFiles === undefined) {
-        delete process.env['ProgramFiles'];
-      } else {
-        process.env['ProgramFiles'] = origProgramFiles;
+      try {
+        await openFolderWithProvider.fn!({ folderPath: 'C:\\Projects', tool: 'vscode' });
+        expect(errorCallback).toBeDefined();
+        const listenerResult = errorCallback!(new Error('spawn code ENOENT'));
+        if (listenerResult instanceof Promise) {
+          await listenerResult.catch(() => {});
+        }
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(listenerResult).toBeUndefined();
+        expect(shellMock.openPath).toHaveBeenCalledWith('C:\\Projects');
+      } finally {
+        if (origLocalAppData === undefined) delete process.env['LOCALAPPDATA'];
+        else process.env['LOCALAPPDATA'] = origLocalAppData;
       }
     });
   });

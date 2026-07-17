@@ -1,7 +1,13 @@
 import { getFullAutoMode, isAutoGuardedMode, resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { isFluxModelId } from '@/common/config/flux';
 import { parseInitializeResult } from '@/common/types/acpTypes';
-import type { AuthMethod, LoadSessionResponse, McpServer, NewSessionResponse } from '@agentclientprotocol/sdk';
+import type {
+  AuthMethod,
+  LoadSessionResponse,
+  McpServer,
+  NewSessionResponse,
+  SessionConfigOption,
+} from '@agentclientprotocol/sdk';
 import { normalizeError } from '@process/acp/errors/errorNormalize';
 import type { AcpClient, ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { ProcessAcpClient } from '@process/acp/infra/ProcessAcpClient';
@@ -10,7 +16,29 @@ import { AuthNegotiator } from '@process/acp/session/AuthNegotiator';
 import type { ConfigTracker } from '@process/acp/session/ConfigTracker';
 import { McpConfig } from '@process/acp/session/McpConfig';
 import type { MessageTranslator } from '@process/acp/session/MessageTranslator';
-import type { AgentConfig, ProtocolHandlers, SessionCallbacks, SessionStatus } from '@process/acp/types';
+import type { AgentConfig, ConfigOption, ProtocolHandlers, SessionCallbacks, SessionStatus } from '@process/acp/types';
+
+export function mapSessionConfigOptions(options: readonly SessionConfigOption[] | null | undefined): ConfigOption[] {
+  return (options ?? []).map((option) => {
+    const selectOptions =
+      option.type === 'select'
+        ? option.options.flatMap((entry) => ('value' in entry ? [entry] : entry.options))
+        : undefined;
+    return {
+      id: option.id,
+      name: option.name,
+      type: option.type,
+      category: option.category ?? undefined,
+      description: option.description ?? undefined,
+      currentValue: option.currentValue,
+      options: selectOptions?.map((entry) => ({
+        id: entry.value,
+        name: entry.name,
+        description: entry.description ?? undefined,
+      })),
+    };
+  });
+}
 
 // ─── YOLO mode resolution ──────────────────────────────────────
 
@@ -193,9 +221,9 @@ export class SessionLifecycle {
     this.host.setStatus('resuming');
     try {
       await this.spawnAndInit();
-      await this.tryLoadOrCreate(this.buildMcpServers());
+      const sessionResult = await this.tryLoadOrCreate(this.buildMcpServers());
+      this.applySessionResult(sessionResult);
       await this.reassertConfig();
-      this.host.setStatus('active');
       this.host.flushPendingPrompt();
     } catch (err) {
       this.handleResumeError(err);
@@ -247,7 +275,7 @@ export class SessionLifecycle {
     }
     this.host.callbacks.onSessionId(this._sessionId!);
 
-    this.host.configTracker.syncFromSessionResult({
+    const modelUpdate = this.host.configTracker.syncFromSessionResult({
       currentModelId: sessionResult.models?.currentModelId ?? undefined,
       availableModels: sessionResult.models?.availableModels?.map((m) => ({
         modelId: m.modelId,
@@ -260,18 +288,15 @@ export class SessionLifecycle {
         name: m.name,
         description: m.description ?? undefined,
       })),
-      configOptions: sessionResult.configOptions?.map((opt) => ({
-        id: opt.id,
-        name: opt.name,
-        type: opt.type,
-        currentValue: opt.currentValue,
-      })),
+      configOptions: mapSessionConfigOptions(sessionResult.configOptions),
       cwd: this.host.agentConfig.cwd,
       additionalDirectories: this.host.agentConfig.additionalDirectories,
+      modelConfirmationSource: 'session-models',
+      configConfirmationSource: 'config-option-response',
     });
 
     this.host.callbacks.onConfigUpdate(this.host.configTracker.configSnapshot());
-    this.host.callbacks.onModelUpdate(this.host.configTracker.modelSnapshot());
+    if (modelUpdate) this.host.callbacks.onModelUpdate(modelUpdate);
     this.host.callbacks.onModeUpdate(this.host.configTracker.modeSnapshot());
 
     this.host.messageTranslator.reset();
@@ -333,17 +358,10 @@ export class SessionLifecycle {
       // A Flux id (flux-auto, ...) is carried by the spawn env
       // (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto), not by an in-place set_model.
       // Pushing it through session/set_model makes the claude binary validate it
-      // against its native catalog and reject it (JSON-RPC -32601). Mark it as
-      // applied so it isn't re-queued, but skip the bridge call.
-      if (isFluxModelId(pending.model)) {
-        this.host.configTracker.setCurrentModel(pending.model);
-      } else {
-        try {
-          await this._client.setModel(this._sessionId, pending.model);
-          this.host.configTracker.setCurrentModel(pending.model);
-        } catch {
-          /* best effort */
-        }
+      // against its native catalog and reject it (JSON-RPC -32601). The spawn
+      // request is not confirmation, so keep it pending and wait for session state.
+      if (!isFluxModelId(pending.model)) {
+        await this._client.setModel(this._sessionId, pending.model);
       }
     }
     if (pending.mode) {
@@ -363,8 +381,13 @@ export class SessionLifecycle {
     }
     for (const opt of pending.configOptions) {
       try {
-        await this._client.setConfigOption(this._sessionId, opt.id, opt.value);
-        this.host.configTracker.setCurrentConfigOption(opt.id, opt.value);
+        const response = await this._client.setConfigOption(this._sessionId, opt.id, opt.value);
+        const modelUpdate = this.host.configTracker.updateConfigOptions(
+          mapSessionConfigOptions(response.configOptions),
+          'config-option-response'
+        );
+        this.host.callbacks.onConfigUpdate(this.host.configTracker.configSnapshot());
+        if (modelUpdate) this.host.callbacks.onModelUpdate(modelUpdate);
       } catch {
         /* best effort */
       }

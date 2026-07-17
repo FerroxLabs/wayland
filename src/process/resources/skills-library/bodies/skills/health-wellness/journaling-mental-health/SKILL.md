@@ -429,13 +429,13 @@ The core formats and methodologies apply equally to younger users, but several a
 
 **Blank Template:**
 
-**Date:** ******\_\_\_******
+**Date:** **\*\***\_\_\_**\*\***
 **Today's mood score (1-10):** **\_**
-**One word that describes today:** ******\_\_\_******
-**The moment that took the most mental energy today:** ******\_\_\_******
-**One thing I handled reasonably well (even if imperfectly):** ******\_\_\_******
-**One thing I'm carrying into tomorrow that I want to set down for tonight:** ******\_\_\_******
-**Tomorrow's one small intention:** ******\_\_\_******
+**One word that describes today:** **\*\***\_\_\_**\*\***
+**The moment that took the most mental energy today:** **\*\***\_\_\_**\*\***
+**One thing I handled reasonably well (even if imperfectly):** **\*\***\_\_\_**\*\***
+**One thing I'm carrying into tomorrow that I want to set down for tonight:** **\*\***\_\_\_**\*\***
+**Tomorrow's one small intention:** **\*\***\_\_\_**\*\***
 
 **Instructions for this format:**
 
@@ -464,7 +464,7 @@ The core formats and methodologies apply equally to younger users, but several a
 
 **Blank Template:**
 
-**Date:** ******\_\_\_******
+**Date:** **\*\***\_\_\_**\*\***
 **Today's prompt:** [choose from the library below or use any prompt from the 14-day list]
 **My response:**
 [Write for 5-8 minutes in response to the prompt. No structure required. Just follow the question wherever it takes you.]

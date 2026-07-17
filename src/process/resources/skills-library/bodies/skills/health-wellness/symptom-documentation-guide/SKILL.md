@@ -485,10 +485,10 @@ Check anything that was present in the few hours before the headache began. You 
 
 - [ ] Skipped a meal or ate significantly later than usual
 - [ ] Dehydration / lower fluid intake than normal
-- [ ] Alcohol (type and amount: ****\_****)
+- [ ] Alcohol (type and amount: \***\*\_\*\***)
 - [ ] High caffeine intake
 - [ ] Caffeine withdrawal (lower than usual / missed morning coffee)
-- [ ] Specific food consumed (note it -- let your provider identify patterns): ****\_****
+- [ ] Specific food consumed (note it -- let your provider identify patterns): \***\*\_\*\***
 - [ ] Large meal within 30 minutes before onset
 
 **Environmental:**
@@ -519,8 +519,8 @@ Check anything that was present in the few hours before the headache began. You 
 
 **Medications:**
 
-- [ ] Pain medication taken in prior 48 hours (type and frequency: ****\_****)
-- [ ] Any new medication or supplement started recently: ****\_****
+- [ ] Pain medication taken in prior 48 hours (type and frequency: \***\*\_\*\***)
+- [ ] Any new medication or supplement started recently: \***\*\_\*\***
 
 ---
 
@@ -558,23 +558,23 @@ Complete this every Sunday before the next week begins.
 
 **Symptom (descriptive):** Recurring headache -- [location and quality description, e.g., "pressure sensation, both sides of forehead"]
 **Tracking period:** [Start date] to [End date] -- 3 weeks
-**Total episodes recorded:** **_
-**Average frequency:** _** headaches per week
+**Total episodes recorded:** **\_
+**Average frequency:** \_** headaches per week
 **Typical intensity:** **_/10 | Peak intensity recorded: _**/10
-**Typical duration:** **_ (range: _** to **_)
-**Functional impact:** _** episodes required stopping activity or resting
+**Typical duration:** **_ (range: _** to **\_)
+**Functional impact:** \_** episodes required stopping activity or resting
 
 **Timing Pattern:**
 
-- Most common time of onset: ****\_\_\_****
-- Day-of-week clustering: ****\_\_\_****
-- Relationship to sleep: ****\_\_\_****
+- Most common time of onset: \***\*\_\_\_\*\***
+- Day-of-week clustering: \***\*\_\_\_\*\***
+- Relationship to sleep: \***\*\_\_\_\*\***
 
 **Most Consistent Triggers (present in 2 or more episodes):**
 
-1. ****\_\_**** (present in **_ of _** episodes)
-2. ****\_\_**** (present in **_ of _** episodes)
-3. ****\_\_**** (present in **_ of _** episodes)
+1. \***\*\_\_\*\*** (present in **_ of _** episodes)
+2. \***\*\_\_\*\*** (present in **_ of _** episodes)
+3. \***\*\_\_\*\*** (present in **_ of _** episodes)
 
 **Triggers Present on Headache-Free Days (ruled out or inconsistent):**
 

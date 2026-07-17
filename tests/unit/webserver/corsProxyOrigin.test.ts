@@ -7,6 +7,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Request } from 'express';
 import { deriveTrustedProxyOrigin, getConfiguredOrigins, makeCorsMiddleware } from '@process/webserver/setup';
+import * as webserverSetup from '@process/webserver/setup';
 
 /**
  * #524 - a self-hosted server behind a reverse TLS proxy (e.g. Caddy on the same
@@ -41,6 +42,35 @@ function fakeReq(opts: {
   } as unknown as Request;
 }
 
+function fakeRawUpgradeReq(opts: {
+  origin?: string | string[];
+  remoteAddress?: string;
+  encrypted?: boolean;
+  headers?: HeaderBag;
+  rawHeaders?: string[];
+}): Request {
+  const headers: HeaderBag = { ...opts.headers };
+  if (opts.origin !== undefined) headers.origin = opts.origin;
+  return {
+    method: 'GET',
+    headers,
+    rawHeaders: opts.rawHeaders,
+    socket: {
+      encrypted: opts.encrypted ?? false,
+      remoteAddress: opts.remoteAddress,
+    },
+  } as unknown as Request;
+}
+
+type StrictOriginPredicate = (req: Request, allowedOrigins: Set<string>) => boolean;
+
+function requestOriginIsTrusted(req: Request, allowedOrigins: Set<string>): boolean {
+  const predicate = (webserverSetup as typeof webserverSetup & { isRequestOriginTrusted?: StrictOriginPredicate })
+    .isRequestOriginTrusted;
+  expect(predicate).toBeTypeOf('function');
+  return predicate?.(req, allowedOrigins) ?? false;
+}
+
 /** Minimal res double capturing headers the cors middleware sets. */
 function fakeRes() {
   const store = new Map<string, string>();
@@ -67,6 +97,13 @@ function runCors(allowed: Set<string>, req: Request): string | undefined {
   // cors resolves the delegate synchronously here (our origin fn is sync).
   mw(req as never, res as never, next as never);
   return res.getHeader('access-control-allow-origin');
+}
+
+function runCorsWithoutOrigin(allowed: Set<string>, req: Request): ReturnType<typeof vi.fn> {
+  const mw = makeCorsMiddleware(allowed);
+  const next = vi.fn();
+  mw(req as never, fakeRes() as never, next as never);
+  return next;
 }
 
 describe('#524 CORS trusted-proxy forwarded-origin', () => {
@@ -127,6 +164,21 @@ describe('#524 CORS trusted-proxy forwarded-origin', () => {
     expect(runCors(allowed, req)).toBe('https://explicit.customer.com');
   });
 
+  it('trusts configured localhost and SERVER_BASE_URL origins through the shared strict predicate', () => {
+    process.env.SERVER_BASE_URL = 'https://explicit.customer.com/path?configured=true';
+    const allowed = getConfiguredOrigins(PORT, false);
+
+    expect(
+      requestOriginIsTrusted(fakeReq({ origin: `http://localhost:${PORT}`, remoteAddress: '203.0.113.9' }), allowed)
+    ).toBe(true);
+    expect(
+      requestOriginIsTrusted(
+        fakeReq({ origin: 'https://explicit.customer.com', remoteAddress: '203.0.113.9' }),
+        allowed
+      )
+    ).toBe(true);
+  });
+
   it('does not believe X-Forwarded-Host when the loopback proxy did not set one', () => {
     const allowed = getConfiguredOrigins(PORT, false);
     const req = fakeReq({
@@ -175,11 +227,102 @@ describe('#524 CORS trusted-proxy forwarded-origin', () => {
     expect(deriveTrustedProxyOrigin(req)).toBe('http://wayland.customer.com');
   });
 
+  it('derives the scheme from a raw upgrade socket when Express protocol is unavailable', () => {
+    const allowed = getConfiguredOrigins(PORT, false);
+    const req = fakeRawUpgradeReq({
+      origin: 'http://wayland.customer.com',
+      remoteAddress: '127.0.0.1',
+      headers: { 'x-forwarded-host': 'wayland.customer.com' },
+    });
+
+    expect(deriveTrustedProxyOrigin(req)).toBe('http://wayland.customer.com');
+    expect(requestOriginIsTrusted(req, allowed)).toBe(true);
+  });
+
+  it('derives https from an encrypted raw upgrade socket when forwarded proto is absent', () => {
+    const req = fakeRawUpgradeReq({
+      origin: 'https://wayland.customer.com',
+      remoteAddress: '::1',
+      encrypted: true,
+      headers: { 'x-forwarded-host': 'wayland.customer.com' },
+    });
+
+    expect(deriveTrustedProxyOrigin(req)).toBe('https://wayland.customer.com');
+  });
+
+  it.each([
+    ['comma-joined proto', 'https, http'],
+    ['unsupported proto', 'file'],
+  ])('rejects a trusted forwarded host with %s', (_label, forwardedProto) => {
+    const req = fakeRawUpgradeReq({
+      origin: 'https://wayland.customer.com',
+      remoteAddress: '127.0.0.1',
+      headers: {
+        'x-forwarded-host': 'wayland.customer.com',
+        'x-forwarded-proto': forwardedProto,
+      },
+    });
+
+    expect(deriveTrustedProxyOrigin(req)).toBeNull();
+  });
+
   it('localhost origin still works and Origin: null is rejected', () => {
     const allowed = getConfiguredOrigins(PORT, false);
     expect(runCors(allowed, fakeReq({ origin: `http://localhost:${PORT}`, remoteAddress: '127.0.0.1' }))).toBe(
       `http://localhost:${PORT}`
     );
     expect(runCors(allowed, fakeReq({ origin: 'null', remoteAddress: '127.0.0.1' }))).toBeUndefined();
+  });
+
+  it('keeps no-Origin HTTP requests flowing while the strict predicate rejects a missing Origin', () => {
+    const allowed = getConfiguredOrigins(PORT, false);
+    const req = fakeReq({ remoteAddress: '127.0.0.1' });
+
+    expect(requestOriginIsTrusted(req, allowed)).toBe(false);
+    expect(runCorsWithoutOrigin(allowed, req)).toHaveBeenCalledOnce();
+    expect(runCors(allowed, req)).toBeUndefined();
+  });
+
+  it.each([
+    ['empty', ''],
+    ['opaque', 'null'],
+    ['malformed', 'not-an-origin'],
+    ['comma-joined', `http://localhost:${PORT}, https://foreign.example`],
+    ['path-bearing', `http://localhost:${PORT}/socket`],
+    ['query-bearing', `http://localhost:${PORT}?token=not-allowed`],
+    ['trailing-slash', `http://localhost:${PORT}/`],
+    ['foreign', 'https://foreign.example'],
+  ])('rejects a %s request Origin', (_label, origin) => {
+    const allowed = getConfiguredOrigins(PORT, false);
+    const req = fakeRawUpgradeReq({ origin, remoteAddress: '127.0.0.1' });
+
+    expect(requestOriginIsTrusted(req, allowed)).toBe(false);
+    expect(runCors(allowed, req)).toBeUndefined();
+  });
+
+  it('rejects array and repeated raw Origin headers', () => {
+    const allowed = getConfiguredOrigins(PORT, false);
+    const arrayOrigin = fakeRawUpgradeReq({
+      origin: [`http://localhost:${PORT}`, `http://localhost:${PORT}`],
+      remoteAddress: '127.0.0.1',
+    });
+    const repeatedRawOrigin = fakeRawUpgradeReq({
+      origin: `http://localhost:${PORT}`,
+      remoteAddress: '127.0.0.1',
+      rawHeaders: ['Origin', `http://localhost:${PORT}`, 'Origin', `http://localhost:${PORT}`],
+    });
+
+    expect(requestOriginIsTrusted(arrayOrigin, allowed)).toBe(false);
+    expect(requestOriginIsTrusted(repeatedRawOrigin, allowed)).toBe(false);
+  });
+
+  it('accepts one exact canonical Origin', () => {
+    const allowed = getConfiguredOrigins(PORT, false);
+    const req = fakeRawUpgradeReq({
+      origin: `http://127.0.0.1:${PORT}`,
+      remoteAddress: '203.0.113.7',
+    });
+
+    expect(requestOriginIsTrusted(req, allowed)).toBe(true);
   });
 });

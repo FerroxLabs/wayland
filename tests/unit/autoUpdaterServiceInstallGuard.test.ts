@@ -72,7 +72,7 @@ async function freshService() {
 }
 
 describe('autoUpdaterService install guard (#286)', () => {
-  let service: any;
+  let service: Awaited<ReturnType<typeof freshService>>;
   let broadcast: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
@@ -104,7 +104,7 @@ describe('autoUpdaterService install guard (#286)', () => {
 
     expect(fs.existsSync(markerPath())).toBe(true);
     expect(JSON.parse(fs.readFileSync(markerPath(), 'utf8')).version).toBe('2.0.0');
-    expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
+    expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(process.platform !== 'win32', true);
   });
 
   it('does not write a marker if nothing was downloaded', () => {
@@ -250,8 +250,8 @@ describe('autoUpdaterService install guard (#286)', () => {
       expect(service.installOnQuitIfReady()).toBe(true);
       // win32 per-machine install cannot apply silently (EACCES), so the on-quit
       // path also requests elevation (isSilent=false) rather than failing invisibly (#492).
-      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(false, false);
-      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledTimes(1);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(false, true);
     });
 
     it('silent apply failure on reconcile → refuses on-quit install', () => {
@@ -266,12 +266,14 @@ describe('autoUpdaterService install guard (#286)', () => {
     });
 
     it('successful reconcile (version advanced) → still installs a safe staged update on quit', () => {
+      setPlatform('darwin');
       fs.writeFileSync(markerPath(), JSON.stringify({ version: '1.0.0', attemptedAt: 1 }));
       (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
       service.reconcilePendingInstall();
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
       expect(service.installOnQuitIfReady()).toBe(true);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledTimes(1);
       expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
     });
 

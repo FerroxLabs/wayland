@@ -1,27 +1,119 @@
 name: Build and Release
+run-name: Release ${{ github.event.client_payload.tag }}
 
-permissions:
-  contents: write
-  issues: read
-  pull-requests: read
-  actions: write
+# Production secrets are reachable only from this default-branch dispatch
+# workflow. A pushed tag never supplies the workflow definition.
+permissions: {}
 
 on:
-  push:
-    branches: [dev]
-    tags:
-      - '*'
+  repository_dispatch:
+    types: [stable-release]
+
+concurrency:
+  # One stable-release chain at a time keeps npm promotion and GitHub's latest
+  # marker ordered across different tags.
+  group: stable-release
+  cancel-in-progress: false
+  queue: max
 
 env:
   BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'
 
 jobs:
+  validate-release-ref:
+    name: Validate Release Tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.validate.outputs.version }}
+      prerelease: ${{ steps.validate.outputs.prerelease }}
+      release_tag: ${{ steps.validate.outputs.release_tag }}
+      release_sha: ${{ steps.validate.outputs.release_sha }}
+    steps:
+      - name: Validate requested tag syntax
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.client_payload.tag }}
+          EXPECTED_SHA: ${{ github.event.client_payload.expected_sha }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "::error title=Invalid release tag::Expected strict vMAJOR.MINOR.PATCH SemVer with an optional prerelease suffix."
+            exit 1
+          fi
+          VERSION="${RELEASE_TAG#v}"
+          if [[ "$VERSION" == *-* ]]; then
+            IFS='.' read -r -a PRERELEASE_PARTS <<< "${VERSION#*-}"
+            for identifier in "${PRERELEASE_PARTS[@]}"; do
+              if [[ "$identifier" =~ ^[0-9]+$ && "$identifier" != "0" && "$identifier" == 0* ]]; then
+                echo "::error title=Invalid release tag::Numeric prerelease identifiers must not contain leading zeroes."
+                exit 1
+              fi
+            done
+          fi
+          if [[ ! "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error title=Invalid expected commit::Expected a full lowercase Git commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout immutable release tag without credentials
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: refs/tags/${{ github.event.client_payload.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify tag ancestry and package version
+        id: validate
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.client_payload.tag }}
+          EXPECTED_SHA: ${{ github.event.client_payload.expected_sha }}
+          DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+        run: |
+          git check-ref-format --branch "$DEFAULT_BRANCH_NAME" >/dev/null
+          git fetch --no-tags origin "+refs/heads/$DEFAULT_BRANCH_NAME:refs/remotes/origin/$DEFAULT_BRANCH_NAME"
+          TAG_COMMIT="$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")"
+          HEAD_COMMIT="$(git rev-parse HEAD)"
+          if [ "$TAG_COMMIT" != "$HEAD_COMMIT" ]; then
+            echo "::error title=Tag checkout mismatch::The requested tag did not resolve to the checked-out commit."
+            exit 1
+          fi
+          if [ "$TAG_COMMIT" != "$EXPECTED_SHA" ]; then
+            echo "::error title=Release commit mismatch::The dispatch request does not match the tag commit."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$TAG_COMMIT" "refs/remotes/origin/$DEFAULT_BRANCH_NAME"; then
+            echo "::error title=Untrusted release tag::The tag commit is not reachable from the protected default branch."
+            exit 1
+          fi
+
+          VERSION="${RELEASE_TAG#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$PACKAGE_VERSION" != "$VERSION" ]; then
+            echo "::error title=Release version mismatch::Tag $RELEASE_TAG does not match package.json version $PACKAGE_VERSION."
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "release_sha=$TAG_COMMIT" >> "$GITHUB_OUTPUT"
+          if [[ "$VERSION" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build-pipeline:
     name: Build Pipeline
+    needs: validate-release-ref
+    if: ${{ needs.validate-release-ref.result == 'success' }}
+    permissions:
+      contents: read
     uses: ./.github/workflows/_build-reusable.yml
-    # dev 分支或正式 tag 触发构建（排除 -dev- tag，避免重复构建）
-    if: github.ref == 'refs/heads/dev' || (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-'))
     with:
+      ref: ${{ needs.validate-release-ref.outputs.release_sha }}
+      release_tag: ${{ needs.validate-release-ref.outputs.release_tag }}
       matrix: >-
         {"include":[
           {"platform":"macos-arm64","os":"macos-14","command":"node scripts/build-with-builder.js arm64 --mac --arm64","artifact-name":"macos-build-arm64","arch":"arm64"},
@@ -31,217 +123,42 @@ jobs:
           {"platform":"linux-x64","os":"ubuntu-latest","command":"node scripts/build-with-builder.js x64 --linux --x64","artifact-name":"linux-build-x64","arch":"x64"},
           {"platform":"linux-arm64","os":"ubuntu-latest","command":"node scripts/build-with-builder.js arm64 --linux --arm64","artifact-name":"linux-build-arm64","arch":"arm64"}
         ]}
-    secrets: inherit
-
-  # 自动重试 workflow（当构建失败时）
-  auto-retry-workflow:
-    name: Auto Retry on Build Failure
-    runs-on: ubuntu-latest
-    needs: build-pipeline
-    # 关键：只在首次失败时触发，避免无限循环
-    if: |
-      failure() &&
-      github.run_attempt == 1 &&
-      (github.event_name == 'push' || github.event_name == 'schedule')
-
-    steps:
-      - name: Log retry information
-        run: |
-          echo "=========================================="
-          echo "🔄 Auto retry triggered (first failure)"
-          echo "=========================================="
-          echo "Build failed on first attempt, preparing auto retry..."
-          echo "Current attempt: ${{ github.run_attempt }}"
-          echo "Wait strategy: 5 minutes cooldown before retry"
-          echo "=========================================="
-
-      - name: Wait before retry (5 min cooldown)
-        run: |
-          echo "⏳ Waiting 5 minutes before retry..."
-          echo "Start: $(date)"
-          sleep 300
-          echo "End: $(date)"
-          echo "Triggering retry..."
-
-      - name: Trigger workflow rerun
-        run: |
-          echo "🔄 Triggering full workflow rerun (attempt 2)..."
-
-          # Use re-run API (not rerun-failed-jobs, to avoid loops)
-          response=$(curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -w "\n%{http_code}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/rerun)
-
-          http_code=$(echo "$response" | tail -n1)
-
-          if [ "$http_code" = "201" ]; then
-            echo ""
-            echo "✅ Retry triggered successfully"
-            echo "This will be attempt 2"
-            echo "Details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          else
-            echo ""
-            echo "❌ Retry trigger failed, HTTP status: $http_code"
-            echo "Response:"
-            echo "$response" | head -n-1
-            exit 1
-          fi
-
-  # 自动创建tag（仅 dev 分支推送时）
-  create-tag:
-    name: Create Tag from Branch
-    runs-on: ubuntu-latest
-    needs: [build-pipeline]
-    if: success() && github.ref == 'refs/heads/dev'
-    outputs:
-      tag_name: ${{ steps.create_tag.outputs.tag_name }}
-      is_dev: ${{ steps.create_tag.outputs.is_dev }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Setup bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Create and push tag
-        id: create_tag
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          COMMIT_SHORT=$(git rev-parse --short HEAD)
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-
-          # 根据分支确定 tag 格式
-          if [ "$BRANCH_NAME" = "dev" ]; then
-            TAG_NAME="v${VERSION}-dev-${COMMIT_SHORT}"
-            IS_DEV="true"
-            echo "🔧 Development release: $TAG_NAME"
-          else
-            TAG_NAME="v$VERSION"
-            IS_DEV="false"
-            echo "🚀 Production release: $TAG_NAME"
-          fi
-
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          echo "is_dev=$IS_DEV" >> $GITHUB_OUTPUT
-
-          # 检查远程tag是否已存在
-          if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME$"; then
-            if [ "$IS_DEV" = "false" ]; then
-              # Main 分支：需要递增版本并修改 package.json
-              echo "⚠️ Tag $TAG_NAME already exists, auto-incrementing version..."
-
-              if [[ $VERSION =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-                MAJOR=${BASH_REMATCH[1]}
-                MINOR=${BASH_REMATCH[2]}
-                PATCH=${BASH_REMATCH[3]}
-                NEW_PATCH=$((PATCH + 1))
-                NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
-
-                echo "📝 Updating package.json version to $NEW_VERSION"
-
-                # 更新 package.json 版本号
-                bun pm version $NEW_VERSION
-
-                # 配置git用户信息
-                git config user.name "github-actions[bot]"
-                git config user.email "github-actions[bot]@users.noreply.github.com"
-
-                # 提交版本更新
-                git add package.json bun.lock
-                git commit -m "chore: bump version to $NEW_VERSION"
-                git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
-                git push origin $BRANCH_NAME
-
-                # 获取新的 commit ID
-                COMMIT_SHORT=$(git rev-parse --short HEAD)
-                TAG_NAME="v${NEW_VERSION}-${COMMIT_SHORT}"
-
-                echo "🚀 New tag with updated version: $TAG_NAME"
-                echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-              else
-                TAG_NAME="v${VERSION}-${COMMIT_SHORT}"
-                echo "⚠️ Fallback: creating tag with commit ID: $TAG_NAME"
-                echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-              fi
-            else
-              # Dev 分支 tag 已存在则失败（不应该发生）
-              echo "⚠️ Dev tag $TAG_NAME already exists, this shouldn't happen"
-              exit 1
-            fi
-          fi
-
-          # 配置git用户信息（如果前面没配置）
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # 创建并推送tag
-          echo "Creating tag: $TAG_NAME"
-          git tag $TAG_NAME
-          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
-          git push origin $TAG_NAME
-          echo "✅ Successfully created and pushed tag: $TAG_NAME"
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
-
-  # 发布到 GitHub Releases
   release:
-    name: Create Release
+    name: Create Draft Release
     runs-on: ubuntu-latest
-    needs: [build-pipeline, create-tag]
-    # Tag 推送时 create-tag 会被跳过，所以需要检查两种情况（排除 -dev- tag 避免重复）
-    if: always() && needs.build-pipeline.result == 'success' && (needs.create-tag.result == 'success' || (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')))
-    # dev 分支使用 dev-release 环境，正式 tag 使用 release 环境
-    environment: ${{ needs.create-tag.outputs.is_dev == 'true' && 'dev-release' || 'release' }}
-
+    needs: [validate-release-ref, build-pipeline]
+    if: ${{ needs.build-pipeline.result == 'success' }}
+    environment: release
+    permissions:
+      contents: write
+    outputs:
+      release_sha: ${{ steps.release-metadata.outputs.release_sha }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Checkout trusted release tooling
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ needs.validate-release-ref.outputs.release_sha }}
+          persist-credentials: false
 
-      - name: Get version for release
-        id: version
-        run: |
-          # 判断触发来源：正式 tag 推送 or dev 分支
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            # 正式 Tag 推送触发（-dev- tag 已被排除，不会到达这里）
-            TAG_NAME="${GITHUB_REF#refs/tags/}"
-            IS_DEV="false"
-            echo "🚀 Creating stable release from tag: $TAG_NAME"
-          else
-            # dev 分支触发，使用 create-tag job 的输出
-            TAG_NAME="${{ needs.create-tag.outputs.tag_name }}"
-            IS_DEV="${{ needs.create-tag.outputs.is_dev }}"
-            echo "🔧 Creating development release: $TAG_NAME"
-          fi
-
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          echo "is_dev=$IS_DEV" >> $GITHUB_OUTPUT
+      - name: Record immutable release metadata
+        id: release-metadata
+        shell: bash
+        run: echo "release_sha=${{ needs.validate-release-ref.outputs.release_sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Download all build artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           path: build-artifacts
 
-      - name: Prepare release assets (normalize updater metadata)
+      - name: Prepare release assets
         shell: bash
         run: bash scripts/prepare-release-assets.sh build-artifacts release-assets
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - name: Create draft release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
-          tag_name: ${{ steps.version.outputs.tag_name }}
-          name: ${{ steps.version.outputs.is_dev == 'true' && format('Development Build {0}', steps.version.outputs.tag_name) || steps.version.outputs.tag_name }}
+          tag_name: ${{ needs.validate-release-ref.outputs.release_tag }}
+          name: ${{ needs.validate-release-ref.outputs.release_tag }}
           files: |
             release-assets/**/*.exe
             release-assets/**/*.msi
@@ -254,176 +171,168 @@ jobs:
             release-assets/**/*.blockmap
           generate_release_notes: true
           draft: true
-          prerelease: ${{ steps.version.outputs.is_dev == 'true' || contains(steps.version.outputs.tag_name, 'beta') || contains(steps.version.outputs.tag_name, 'alpha') || contains(steps.version.outputs.tag_name, 'rc') }}
+          prerelease: ${{ needs.validate-release-ref.outputs.prerelease == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token }}
 
-  # 发布前体检：在草稿发布上对真实下载件跑用户路径校验，绿了才公开。
-  # The release above is created as a DRAFT. This gate downloads the draft's real
-  # assets and runs the exact user path (Gatekeeper on the dmg the way a browser
-  # download triggers it, plus the live provider-connect probe). It only flips
-  # the draft to PUBLISHED on green — so a broken download can never reach users.
-  # This is what stops the "ship, then find out" cycle.
   release-smoke-gate:
     name: Release Smoke Gate (macOS install)
     runs-on: macos-14
-    needs: [release]
-    # Real tag releases only (dev builds skip the gate).
-    if: |
-      always() && needs.release.result == 'success' &&
-      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+    needs: release
+    if: ${{ needs.release.result == 'success' }}
+    permissions:
+      contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Checkout trusted smoke tests
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ needs.release.outputs.release_sha }}
+          persist-credentials: false
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          bun-version: latest
+          bun-version: '1.3.11'
 
-      - name: Install deps (for the connect probe)
+      - name: Install deps for the connect probe
         run: bun install --frozen-lockfile
 
-      - name: Resolve tag
-        id: tag
-        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-
-      - name: macOS install gate (Gatekeeper on the real dmg)
-        run: bash scripts/release-smoke-macos.sh --tag "${{ steps.tag.outputs.tag_name }}"
+      - name: macOS install gate
+        run: bash scripts/release-smoke-macos.sh --tag "${{ github.event.client_payload.tag }}"
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token }}
 
       - name: Provider-connect gate
         run: bun run scripts/release-smoke-connect.ts
         env:
-          # Optional: set these repo secrets to gate REAL auth (catches a valid
-          # key rejected by a wrong regional host). Absent = Tier-1 only.
           SMOKE_KEY_OPENAI: ${{ secrets.SMOKE_KEY_OPENAI }}
           SMOKE_KEY_ANTHROPIC: ${{ secrets.SMOKE_KEY_ANTHROPIC }}
           SMOKE_KEY_MINIMAX: ${{ secrets.SMOKE_KEY_MINIMAX }}
           SMOKE_KEY_MOONSHOT: ${{ secrets.SMOKE_KEY_MOONSHOT }}
           SMOKE_KEY_OLLAMA_CLOUD: ${{ secrets.SMOKE_KEY_OLLAMA_CLOUD }}
 
-  # Windows mirror of the macOS install gate: download the draft's .exe assets
-  # and verify each is validly Authenticode-signed by Ferrox Labs (Azure Trusted
-  # Signing). An unsigned or wrong-publisher installer fails the release here,
-  # before publish, instead of reaching users.
   release-smoke-gate-windows:
     name: Release Smoke Gate (Windows signature)
     runs-on: windows-2022
-    needs: [release]
-    # Real tag releases only (dev builds skip the gate).
-    if: |
-      always() && needs.release.result == 'success' &&
-      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+    needs: release
+    if: ${{ needs.release.result == 'success' }}
+    permissions:
+      contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Checkout trusted smoke tests
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ needs.release.outputs.release_sha }}
+          persist-credentials: false
 
-      - name: Resolve tag
-        id: tag
-        shell: bash
-        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-
-      - name: Windows install gate (Authenticode on the real exe)
+      - name: Windows install gate
         shell: pwsh
-        run: pwsh scripts/release-smoke-windows.ps1 -Tag "${{ steps.tag.outputs.tag_name }}"
+        run: pwsh scripts/release-smoke-windows.ps1 -Tag "${{ github.event.client_payload.tag }}"
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token }}
 
-  # Publish only after BOTH the macOS and Windows install gates pass. Keeping
-  # publish in its own job (instead of inside the macOS gate) makes the draft ->
-  # published flip depend on a green Windows signature too.
   publish-release:
     name: Publish Release (both gates passed)
     runs-on: ubuntu-latest
-    # Unsigned build: publish depends on the build succeeding only; the mac/win
-    # signature smoke-gates are bypassed (no signing creds on this fork).
-    needs: [release]
+    timeout-minutes: 120
+    needs: [release, release-smoke-gate, release-smoke-gate-windows]
     if: |
-      always() && needs.release.result == 'success' &&
-      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+      always() &&
+      needs.release.result == 'success' &&
+      needs.release-smoke-gate.result == 'success' &&
+      needs.release-smoke-gate-windows.result == 'success'
+    permissions:
+      actions: read
+      contents: write
     steps:
-      - name: Resolve tag
-        id: tag
-        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-
-      - name: Publish the release (gates passed)
-        # Mark NOT-prerelease + latest so repo visitors see the newest build on
-        # /releases/latest (GitHub refuses to mark a prerelease as "latest").
-        # This mirrors the manual rc.2.1 publish; change the policy here if you
-        # want rc tags to stay flagged as prereleases instead.
-        run: |
-          TAG="${{ steps.tag.outputs.tag_name }}"
-          echo "Both smoke gates green - publishing $TAG (latest, not-prerelease)"
-          # This job does not checkout the repo, so gh has no .git to infer the
-          # repo from; pass --repo explicitly or gh dies "not a git repository"
-          # (which left v0.9.7 stuck as a draft after both gates passed).
-          gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest --prerelease=false
+      - name: Publish npm package and wait for success
+        shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
-
-  # Publish the `getwayland` self-host CLI to npm on every published release.
-  # This is the headless web-server flavor (npm i -g getwayland), built from
-  # installer/ and SEPARATE from the desktop GitHub Release assets above. It was
-  # published manually once at 0.9.6 and then drifted ~5 releases stale; this
-  # job keeps npm in lockstep with the desktop release. build-payload.mjs builds
-  # the server bundle and syncs installer/package.json to the app version, so the
-  # only inputs here are the checkout + an npm automation token.
-  publish-getwayland-npm:
-    name: Publish getwayland to npm
-    runs-on: ubuntu-latest
-    needs: [publish-release]
-    # always() is REQUIRED: on a tag push the create-tag ancestor is skipped, and
-    # without always() GitHub propagates that skip down this chain (the release /
-    # publish-release jobs guard the same way). We still only publish when
-    # publish-release actually succeeded.
-    if: ${{ always() && needs.publish-release.result == 'success' }}
-    steps:
-      - name: Require an npm token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "::error title=NPM_TOKEN missing::Add an npm automation token as the NPM_TOKEN repo secret so the getwayland self-host CLI publishes on every release."
+          set -euo pipefail
+          TAG="${{ github.event.client_payload.tag }}"
+          RELEASE_SHA="${{ needs.release.outputs.release_sha }}"
+          CORRELATION="${{ github.run_id }}-${{ github.run_attempt }}"
+          RUN_TITLE="Publish getwayland $TAG [$CORRELATION]"
+          BEFORE_RUN_IDS="$(
+            gh run list \
+              --repo "${{ github.repository }}" \
+              --workflow publish-npm.yml \
+              --event repository_dispatch \
+              --limit 100 \
+              --json databaseId \
+              --jq 'map(.databaseId) | join(" ")'
+          )"
+
+          jq -n \
+            --arg tag "$TAG" \
+            --arg sha "$RELEASE_SHA" \
+            --arg correlation "$CORRELATION" \
+            '{
+              event_type: "npm-publish",
+              client_payload: {
+                tag: $tag,
+                expected_sha: $sha,
+                promote: true,
+                correlation: $correlation
+              }
+            }' |
+            gh api --method POST "repos/${{ github.repository }}/dispatches" --input -
+
+          NPM_RUN_ID=''
+          for _ in $(seq 1 60); do
+            while read -r candidate; do
+              if [ -n "$candidate" ] && [[ " $BEFORE_RUN_IDS " != *" $candidate "* ]]; then
+                NPM_RUN_ID="$candidate"
+                break
+              fi
+            done < <(
+              gh run list \
+                --repo "${{ github.repository }}" \
+                --workflow publish-npm.yml \
+                --event repository_dispatch \
+                --limit 100 \
+                --json databaseId,displayTitle,headBranch \
+                --jq ".[] | select(.displayTitle == \"$RUN_TITLE\" and .headBranch == \"main\") | .databaseId"
+            )
+            if [ -n "$NPM_RUN_ID" ]; then
+              break
+            fi
+            sleep 5
+          done
+          if [ -z "$NPM_RUN_ID" ]; then
+            echo "::error title=npm publication not found::No correlated publish-npm workflow run appeared."
             exit 1
           fi
 
-      - name: Checkout
-        uses: actions/checkout@v6
+          gh run watch "$NPM_RUN_ID" --repo "${{ github.repository }}" --exit-status
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Setup bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Build the getwayland payload (syncs version to the release)
-        working-directory: installer
-        run: node scripts/build-payload.mjs
-
-      - name: Publish to npm
-        working-directory: installer
+      - name: Expose the verified release
+        shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION="$(node -p "require('./package.json').version")"
-          case "$VERSION" in
-            *-*) DIST_TAG=next ;;   # prerelease (rc / beta) -> npm `next`
-            *)   DIST_TAG=latest ;; # stable -> npm `latest`
-          esac
-          echo "Publishing getwayland@$VERSION (dist-tag: $DIST_TAG)"
-          # Idempotent: a workflow re-run must not fail on an already-published version.
-          if npm view "getwayland@$VERSION" version >/dev/null 2>&1; then
-            echo "getwayland@$VERSION is already on npm - skipping."
-            exit 0
+          set -euo pipefail
+          TAG="${{ github.event.client_payload.tag }}"
+          if [[ "$TAG" == *-* ]]; then
+            gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest=false --prerelease
+          else
+            EXPECTED_VERSION="${TAG#v}"
+            PROMOTED_VERSION="$(
+              curl \
+                --fail \
+                --silent \
+                --show-error \
+                --retry 3 \
+                --proto '=https' \
+                --tlsv1.2 \
+                'https://registry.npmjs.org/getwayland/latest' |
+                jq -er '.version'
+            )"
+            if [ "$PROMOTED_VERSION" != "$EXPECTED_VERSION" ]; then
+              echo "::error title=Promoted npm version mismatch::Expected getwayland@$EXPECTED_VERSION at latest, found $PROMOTED_VERSION."
+              exit 1
+            fi
+            gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest --prerelease=false
           fi
-          npm publish --access public --tag "$DIST_TAG"

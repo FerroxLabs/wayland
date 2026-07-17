@@ -36,7 +36,7 @@ export type ConceptCardProps = {
 };
 
 export function ConceptCard({ concept, onClick }: ConceptCardProps): React.ReactElement {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const glyph = TOPIC_GLYPHS[concept.topicTag] ?? '◆';
 
   const handleClick = () => onClick?.(concept.slug);
@@ -63,7 +63,9 @@ export function ConceptCard({ concept, onClick }: ConceptCardProps): React.React
       <div className={styles.body}>
         <div className={styles.title}>{concept.name}</div>
         <div className={styles.meta}>
-          {t('wiki.concept.synthesizedFrom', 'Synthesized from {{count}} memories', { count: concept.sourceMemoryIds.length })}
+          {t('wiki.concept.synthesizedFrom', 'Synthesized from {{count}} memories', {
+            count: concept.sourceMemoryIds.length,
+          })}
           <span className={styles.topicBadge}>{concept.topicTag}</span>
         </div>
       </div>

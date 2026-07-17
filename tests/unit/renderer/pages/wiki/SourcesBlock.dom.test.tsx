@@ -23,7 +23,7 @@ vi.mock('react-i18next', () => ({
       if (interp && typeof interp === 'object') {
         return Object.entries(interp).reduce(
           (acc, [k, v]) => acc.replace(new RegExp(`{{\\s*${k}\\s*}}`, 'g'), String(v)),
-          result,
+          result
         );
       }
       return result;
@@ -42,7 +42,7 @@ afterEach(() => {
 const makeSources = (n: number): SourceEntry[] =>
   Array.from({ length: n }, (_, i) => ({
     memoryId: `m-${i + 1}`,
-    type: ((['Decision', 'Memory', 'Plan', 'Feedback'] as const)[i % 4]),
+    type: (['Decision', 'Memory', 'Plan', 'Feedback'] as const)[i % 4],
     project: 'wayland',
     date: `2026-05-${String(i + 1).padStart(2, '0')}`,
     title: `Source ${i + 1}`,

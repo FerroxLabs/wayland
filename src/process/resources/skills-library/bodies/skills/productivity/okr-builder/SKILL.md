@@ -295,7 +295,7 @@ metadata:
 ### Grading Template (Complete June 30)
 
 **Period:** Q2 2026 (April 1 - June 30)
-**Grading date:** ******\_\_\_******
+**Grading date:** **\*\***\_\_\_**\*\***
 
 | Key Result                       | Final Value     | Score (0.0-1.0) | Notes |
 | -------------------------------- | --------------- | --------------- | ----- |

@@ -35,7 +35,7 @@ const TYPE_BADGE_CLASSES: Record<SourceEntry['type'], string> = {
 const INITIAL_SHOW = 3;
 
 export function SourcesBlock({ sources, onOpenMemory }: SourcesBlockProps): React.ReactElement {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const [expanded, setExpanded] = useState(false);
 
   const visible = expanded ? sources : sources.slice(0, INITIAL_SHOW);
@@ -46,9 +46,7 @@ export function SourcesBlock({ sources, onOpenMemory }: SourcesBlockProps): Reac
       {visible.map((src) => (
         <div key={src.memoryId} className={styles.card}>
           <div className={styles.cardHeader}>
-            <span className={`${styles.typeBadge} ${TYPE_BADGE_CLASSES[src.type]}`}>
-              ◆ {src.type}
-            </span>
+            <span className={`${styles.typeBadge} ${TYPE_BADGE_CLASSES[src.type]}`}>◆ {src.type}</span>
             <span className={styles.date}>{src.date}</span>
             <span className={styles.project}>{src.project}</span>
           </div>
@@ -74,11 +72,7 @@ export function SourcesBlock({ sources, onOpenMemory }: SourcesBlockProps): Reac
               ? t('wiki.detail.hiddenSourcesOne', '{{count}} more source memory', { count: hiddenCount })
               : t('wiki.detail.hiddenSourcesOther', '{{count}} more source memories', { count: hiddenCount })}
           </span>
-          <button
-            className={styles.showMoreBtn}
-            onClick={() => setExpanded(true)}
-            data-testid='show-all-sources-btn'
-          >
+          <button className={styles.showMoreBtn} onClick={() => setExpanded(true)} data-testid='show-all-sources-btn'>
             {t('wiki.detail.showAll', 'Show all {{count}} ↓', { count: sources.length })}
           </button>
         </div>

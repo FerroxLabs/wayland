@@ -24,6 +24,7 @@ type PlatformArch = `${NodeJS.Platform}-${string}`;
 type ManifestEntry = {
   url: string;
   sha256: string;
+  maxBytes: number;
   /** Filename as it lands on disk after download. */
   filename: string;
 };
@@ -35,50 +36,8 @@ type KindManifest = Partial<Record<PlatformArch, ManifestEntry>>;
 // ---------------------------------------------------------------------------
 
 const MANIFEST: Record<BinaryKind, KindManifest> = {
-  'whisper-cpp': {
-    'darwin-arm64': {
-      url: 'https://github.com/ggerganov/whisper.cpp/releases/download/v1.7.1/whisper-cli-darwin-arm64',
-      sha256: '',
-      filename: 'whisper-cli',
-    },
-    'darwin-x64': {
-      url: 'https://github.com/ggerganov/whisper.cpp/releases/download/v1.7.1/whisper-cli-darwin-x64',
-      sha256: '',
-      filename: 'whisper-cli',
-    },
-    'win32-x64': {
-      url: 'https://github.com/ggerganov/whisper.cpp/releases/download/v1.7.1/whisper-cli-win32-x64.exe',
-      sha256: '',
-      filename: 'whisper-cli.exe',
-    },
-    'linux-x64': {
-      url: 'https://github.com/ggerganov/whisper.cpp/releases/download/v1.7.1/whisper-cli-linux-x64',
-      sha256: '',
-      filename: 'whisper-cli',
-    },
-  },
-  'onnx-runtime': {
-    'darwin-arm64': {
-      url: 'https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-darwin-arm64',
-      sha256: '',
-      filename: 'onnxruntime',
-    },
-    'darwin-x64': {
-      url: 'https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-darwin-x64',
-      sha256: '',
-      filename: 'onnxruntime',
-    },
-    'win32-x64': {
-      url: 'https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-win32-x64.exe',
-      sha256: '',
-      filename: 'onnxruntime.exe',
-    },
-    'linux-x64': {
-      url: 'https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-linux-x64',
-      sha256: '',
-      filename: 'onnxruntime',
-    },
-  },
+  'whisper-cpp': {},
+  'onnx-runtime': {},
 };
 
 // ---------------------------------------------------------------------------
@@ -185,6 +144,7 @@ export const acquireBinary = async (
       url: entry.url,
       destPath,
       sha256: entry.sha256,
+      maxBytes: entry.maxBytes,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

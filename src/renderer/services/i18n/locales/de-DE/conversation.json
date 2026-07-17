@@ -433,12 +433,31 @@
     "effortLowDesc": "Fast responses with lighter reasoning",
     "effortMediumDesc": "Balances speed and reasoning depth",
     "effortHighDesc": "Greater reasoning depth for complex problems",
+    "effortXhigh": "Extra high",
+    "effortXhighDesc": "Extended reasoning for hard coding and agentic tasks",
+    "effortMax": "Max",
+    "effortMaxDesc": "Maximum reasoning depth - correctness over cost",
     "emptyTitle": "No models yet",
     "emptySub": "Connect a provider to choose a model.",
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "providerDefault": "Anbieterstandard verwenden",
+    "switching": "Wechsel zu {{model}}…",
+    "blocked": "Modellwechsel blockiert",
+    "retry": "Erneut versuchen",
+    "revert": "Zum bestätigten Modell zurückkehren",
+    "sendPending": "Warten auf Modellbestätigung…",
+    "sendBlocked": "Modellwechsel blockiert – wählen Sie ein anderes Modell oder den Anbieterstandard.",
+    "failure": {
+      "unsupported_model": "{{model}} ist bei diesem Anbieter nicht verfügbar. Das aktive Modell wurde nicht geändert.",
+      "model_rejected": "Der Anbieter hat {{model}} abgelehnt. Das aktive Modell wurde nicht geändert.",
+      "model_mismatch": "Der Anbieter hat {{model}} nicht bestätigt. Das aktive Modell wurde nicht geändert.",
+      "confirmation_unavailable": "Der Anbieter kann {{model}} derzeit nicht bestätigen. Das aktive Modell wurde nicht geändert.",
+      "bridge_unavailable": "Der Anbieter konnte für den Wechsel zu {{model}} nicht erreicht werden. Das aktive Modell wurde nicht geändert.",
+      "model_switch_timeout": "Zeitüberschreitung beim Bestätigen von {{model}}. Das aktive Modell wurde nicht geändert."
+    }
   },
   "notification": {
     "untitled": "Unbenannter Chat",

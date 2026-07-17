@@ -23,7 +23,7 @@ vi.mock('react-i18next', () => ({
       if (interp && typeof interp === 'object') {
         return Object.entries(interp).reduce(
           (acc, [k, v]) => acc.replace(new RegExp(`{{\\s*${k}\\s*}}`, 'g'), String(v)),
-          result,
+          result
         );
       }
       return result;
@@ -58,9 +58,7 @@ const mockConcept: WikiConcept = {
 describe('ConceptCard', () => {
   it('renders the concept name', () => {
     render(<ConceptCard concept={mockConcept} />);
-    expect(screen.getByTestId('concept-card').textContent).toContain(
-      'Wayland v0.9.0 TUI Architecture',
-    );
+    expect(screen.getByTestId('concept-card').textContent).toContain('Wayland v0.9.0 TUI Architecture');
   });
 
   it('shows memory count in meta', () => {
@@ -88,8 +86,6 @@ describe('ConceptCard', () => {
 
   it('uses data-slug attribute', () => {
     render(<ConceptCard concept={mockConcept} />);
-    expect(screen.getByTestId('concept-card').getAttribute('data-slug')).toBe(
-      'wayland-v090-tui-architecture',
-    );
+    expect(screen.getByTestId('concept-card').getAttribute('data-slug')).toBe('wayland-v090-tui-architecture');
   });
 });

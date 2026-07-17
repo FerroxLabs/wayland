@@ -1,0 +1,16 @@
+# Patch: @discordjs/rest@2.6.1
+# Purpose: Keep the package manifest aligned with the security-updated Undici
+# 6.27.0 resolution so electron-builder's Bun dependency collector can verify
+# and package the production dependency tree.
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -77,7 +77,7 @@
+     "discord-api-types": "^0.38.40",
+     "magic-bytes.js": "^1.13.0",
+     "tslib": "^2.6.3",
+-    "undici": "6.24.1",
++    "undici": "6.27.0",
+     "@discordjs/collection": "^2.1.1",
+     "@discordjs/util": "^1.2.0"
+   },

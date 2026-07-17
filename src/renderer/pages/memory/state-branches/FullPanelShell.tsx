@@ -115,7 +115,7 @@ function statusTone(status: IjfwLifecycleStatus | null): 'ok' | 'warn' | 'checki
 // ---------------------------------------------------------------------------
 
 const FullPanelShell: React.FC = () => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   // Root-namespace t for the one string reused from #591 (memory.settings.*),
   // so the strip adds no new i18n keys.
   const { t: tRoot } = useTranslation();

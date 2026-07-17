@@ -216,17 +216,38 @@ export function initAcpConversationBridge(workerTaskManager: IWorkerTaskManager)
       const task = await workerTaskManager.getOrBuildTask(conversationId);
       if (!task || !(task instanceof AcpAgentManager)) {
         return {
-          success: false,
-          msg: 'Conversation not found or not an ACP agent',
+          success: true,
+          data: {
+            selection: {
+              ok: false as const,
+              requestedModelId: modelId,
+              previousConfirmedModelId: null,
+              code: 'bridge_unavailable' as const,
+              message: 'Conversation not found or not an ACP agent',
+              modelInfo: null,
+            },
+          },
         };
       }
       return {
         success: true,
-        data: { modelInfo: await task.setModel(modelId) },
+        data: { selection: await task.setModel(modelId) },
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      return { success: false, msg: errorMsg };
+      return {
+        success: true,
+        data: {
+          selection: {
+            ok: false as const,
+            requestedModelId: modelId,
+            previousConfirmedModelId: null,
+            code: 'bridge_unavailable' as const,
+            message: errorMsg,
+            modelInfo: null,
+          },
+        },
+      };
     }
   });
 

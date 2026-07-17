@@ -1,0 +1,16 @@
+# Patch: discord.js@14.26.4
+# Purpose: Keep the package manifest aligned with the security-updated Undici
+# 6.27.0 resolution so electron-builder's Bun dependency collector can verify
+# and package the production dependency tree.
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -61,7 +61,7 @@
+     "lodash.snakecase": "4.1.1",
+     "magic-bytes.js": "^1.13.0",
+     "tslib": "^2.6.3",
+-    "undici": "6.24.1",
++    "undici": "6.27.0",
+     "@discordjs/formatters": "^0.6.2",
+     "@discordjs/rest": "^2.6.1",
+     "@discordjs/builders": "^1.14.1",

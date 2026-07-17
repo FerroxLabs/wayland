@@ -503,15 +503,15 @@ The company will provide the following support during this PIP period:
 
 This Performance Improvement Plan was reviewed and discussed with [Sarah Chen] on [date].
 
-Employee name (print): **************\_\_\_**************
-Employee signature: ************\_\_\_************ Date: ****\_\_\_****
+Employee name (print): **\*\***\*\***\*\***\_\_\_**\*\***\*\***\*\***
+Employee signature: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\_\*\***
 _Signature acknowledges receipt and discussion of this plan. It does not constitute agreement with the performance assessment._
 
-Manager name (print): **************\_\_\_\_**************
-Manager signature: ************\_\_\_************ Date: ****\_\_\_****
+Manager name (print): **\*\***\*\***\*\***\_\_\_\_**\*\***\*\***\*\***
+Manager signature: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\_\*\***
 
-HR representative name (print): **********\_\_\_**********
-HR signature: ************\_\_\_\_************ Date: ****\_\_\_****
+HR representative name (print): \***\*\*\*\*\***\_\_\_\***\*\*\*\*\***
+HR signature: \***\*\*\*\*\*\*\***\_\_\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\_\*\***
 
 ---
 

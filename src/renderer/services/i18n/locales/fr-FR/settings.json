@@ -401,13 +401,19 @@
           "label": "ID du compte professionnel",
           "placeholder": "987654321098765",
           "help": "Facultatif. Active des métadonnées plus riches dans les événements de messages entrants.",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "Jeton de vérification",
           "placeholder": "une longue chaîne aléatoire",
           "help": "Chaîne choisie par l'opérateur que Meta renvoie lors du handshake GET /webhook. Doit correspondre à ce que vous collez dans le tableau de bord Meta.",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2594,6 +2600,18 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity"
     }
+  },
+  "devActions": {
+    "syncTitle": "Synchroniser les forks depuis l’amont",
+    "syncDescription": "Utilise votre GitHub CLI authentifiée pour mettre à jour uniquement une branche de synchronisation jetable et ouvrir ou réutiliser une pull request. Votre branche par défaut et les commits propres au fork ne sont jamais écrasés de force.",
+    "syncButton": "Préparer les PR de synchronisation",
+    "syncSelectWarning": "Sélectionnez au moins un fork.",
+    "syncSuccess": "Synchronisation terminée : {{ready}} PR prêtes ; {{upToDate}} déjà à jour.",
+    "syncFailure": "{{count}} échecs : {{repos}}",
+    "syncUpToDate": "Déjà à jour.",
+    "syncCounts": "{{upstream}} commits amont prêts ; {{preserved}} commits propres au fork conservés.",
+    "syncUnknownError": "Échec de la synchronisation.",
+    "syncReviewPr": "Examiner la PR"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

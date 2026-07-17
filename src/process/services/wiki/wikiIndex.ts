@@ -69,14 +69,7 @@ function toSlug(name: string): string {
 
 // ===== Topic tag coercion =====
 
-const VALID_TOPIC_TAGS: WikiTopicTag[] = [
-  'Architecture',
-  'Design',
-  'Decisions',
-  'Process',
-  'Patterns',
-  'Brand',
-];
+const VALID_TOPIC_TAGS: WikiTopicTag[] = ['Architecture', 'Design', 'Decisions', 'Process', 'Patterns', 'Brand'];
 
 function coerceTopicTag(raw: FmValue): WikiTopicTag {
   if (typeof raw === 'string') {
@@ -132,10 +125,7 @@ function loadMemoryBlocks(projectPath: string): MemoryBlock[] {
 
 // Identify proper-noun-like phrases mentioned >= 3x across distinct memories
 // that do not yet have a corresponding WikiConcept.
-function detectOrphans(
-  memoryBlocks: MemoryBlock[],
-  concepts: WikiConcept[],
-): WikiState['orphanCandidates'] {
+function detectOrphans(memoryBlocks: MemoryBlock[], concepts: WikiConcept[]): WikiState['orphanCandidates'] {
   // Simple heuristic: extract Title Case sequences of 2-4 words
   const PROPER_NOUN_RE = /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})\b/g;
   const existingNames = new Set(concepts.map((c) => c.name.toLowerCase()));
@@ -226,9 +216,7 @@ export async function buildWikiState(projectPath: string): Promise<WikiState> {
 
     // wayland_meta nested block is hand-ignored at this level
     const rawSourceIds = fm['source_memory_ids'];
-    const sourceMemoryIds: string[] = Array.isArray(rawSourceIds)
-      ? rawSourceIds.map(String)
-      : [];
+    const sourceMemoryIds: string[] = Array.isArray(rawSourceIds) ? rawSourceIds.map(String) : [];
 
     const rawLinked = fm['linked_from_concepts'];
     const linkedFromConcepts: string[] = Array.isArray(rawLinked) ? rawLinked.map(String) : [];

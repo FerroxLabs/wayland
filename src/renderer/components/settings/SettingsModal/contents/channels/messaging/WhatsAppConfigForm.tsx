@@ -8,8 +8,9 @@
  * - Baileys / whatsapp-web.js: no form-time credentials. The plugin spawns
  *   the bridge, the bridge emits a `qr.update` event, and we render the
  *   pairing QR for the operator to scan in their phone's WhatsApp app.
- * - Meta Business Cloud API: requires accessToken + phoneNumberId at form
- *   time (the bridge's connect handler verifies them via Graph API). We
+ * - Meta Business Cloud API: requires accessToken + phoneNumberId plus the
+ *   verify token and app secret used to authenticate inbound webhooks. The
+ *   bridge's connect handler verifies the Graph API credentials. We
  *   also display the inbound webhook URL with copy/rotate, mirroring the
  *   SmsTwilioConfigForm pattern, so the operator can paste it into Meta's
  *   webhook configuration page.
@@ -25,6 +26,7 @@ import { channel } from '@/common/adapter/ipcBridge';
 import type { IChannelPluginStatus } from '@process/channels/types';
 import ChannelAgentModelSelector from '@/renderer/components/settings/shared/forms/ChannelAgentModelSelector';
 import type { GeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
+import { findMissingMetaCredential } from './whatsAppCredentials';
 
 type WhatsAppBackend = 'baileys' | 'whatsapp-web' | 'meta-business';
 type WhatsAppMode = 'personal' | 'dedicated';
@@ -146,13 +148,23 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
 
   const handleTestAndEnable = useCallback(async () => {
     if (backend === 'meta-business') {
-      if (!accessToken.trim() || !phoneNumberId.trim()) {
-        Message.warning(
-          t(
+      const missingCredential = findMissingMetaCredential({ accessToken, phoneNumberId, verifyToken, appSecret });
+      if (missingCredential) {
+        const warning = {
+          accessTokenAndPhoneNumberId: t(
             'settings.channels.whatsapp.credentials.accessToken.required',
             'Access Token and Phone Number ID are required for Meta backend'
-          )
-        );
+          ),
+          verifyToken: t(
+            'settings.channels.whatsapp.credentials.verifyToken.required',
+            'Verify Token is required for Meta backend'
+          ),
+          appSecret: t(
+            'settings.channels.whatsapp.credentials.appSecret.required',
+            'App Secret is required for Meta backend'
+          ),
+        } satisfies Record<typeof missingCredential, string>;
+        Message.warning(warning[missingCredential]);
         return;
       }
     }
@@ -185,8 +197,8 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
         credentials.accessToken = accessToken.trim();
         credentials.phoneNumberId = phoneNumberId.trim();
         if (businessAccountId.trim()) credentials.businessAccountId = businessAccountId.trim();
-        if (verifyToken.trim()) credentials.verifyToken = verifyToken.trim();
-        if (appSecret.trim()) credentials.appSecret = appSecret.trim();
+        credentials.verifyToken = verifyToken.trim();
+        credentials.appSecret = appSecret.trim();
       }
       const enableResult = await channel.enablePlugin.invoke({
         pluginId: 'whatsapp_default',

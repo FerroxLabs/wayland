@@ -30,9 +30,8 @@ vi.mock('child_process', () => ({
 // Mock fs
 vi.mock('fs', () => ({
   existsSync: vi.fn(),
-  // L5 hardening: shellBridge.openFolderWith now stats folderPath before spawning
-  // a Windows terminal. Default the stat to a valid directory so tests that don't
-  // care about the validation path don't hit the early-return guard.
+  // shellBridge.openFolderWith validates every tool target before launching.
+  // Default to a valid directory so unrelated platform tests exercise their branch.
   statSync: vi.fn(() => ({ isDirectory: () => true })),
 }));
 
@@ -93,6 +92,8 @@ function setPlatform(value: NodeJS.Platform): void {
 describe('shellBridge with actual providers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fs.statSync).mockReset();
+    vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as never);
     // Deterministic baseline: default every test to a non-Linux platform, and a
     // spawn mock whose child never emits 'error' (so a Linux xdg-open fallback is
     // treated as launched). Tests that exercise other platforms override these.
@@ -326,9 +327,60 @@ describe('shellBridge with actual providers', () => {
       expect(fs.existsSync).toHaveBeenCalled();
       expect(result).toBe(false);
     });
+
+    it('checks native Windows VS Code executables in user, machine, then x86 order', async () => {
+      setPlatform('win32');
+      const origLocalAppData = process.env['LOCALAPPDATA'];
+      const origProgramFiles = process.env['ProgramFiles'];
+      const origProgramFilesX86 = process.env['ProgramFiles(x86)'];
+      process.env['LOCALAPPDATA'] = 'C:\\Users\\me\\AppData\\Local';
+      process.env['ProgramFiles'] = 'C:\\Program Files';
+      process.env['ProgramFiles(x86)'] = 'C:\\Program Files (x86)';
+      vi.mocked(exec).mockImplementation((_cmd: string, callback: Function) => {
+        callback(new Error('not found'), { stdout: '', stderr: '' });
+        return undefined as never;
+      });
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+
+      try {
+        await expect(registeredProviders['checkToolInstalled']({ tool: 'vscode' })).resolves.toBe(false);
+
+        expect(vi.mocked(fs.existsSync).mock.calls.map(([candidate]) => candidate)).toEqual([
+          'C:\\Users\\me\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe',
+          'C:\\Program Files\\Microsoft VS Code\\Code.exe',
+          'C:\\Program Files (x86)\\Microsoft VS Code\\Code.exe',
+        ]);
+      } finally {
+        if (origLocalAppData === undefined) delete process.env['LOCALAPPDATA'];
+        else process.env['LOCALAPPDATA'] = origLocalAppData;
+        if (origProgramFiles === undefined) delete process.env['ProgramFiles'];
+        else process.env['ProgramFiles'] = origProgramFiles;
+        if (origProgramFilesX86 === undefined) delete process.env['ProgramFiles(x86)'];
+        else process.env['ProgramFiles(x86)'] = origProgramFilesX86;
+      }
+    });
   });
 
   describe('openFolderWith provider', () => {
+    it.each([
+      ['missing path', '/missing', 'vscode', 'missing'],
+      ['regular file', '/project/readme.md', 'explorer', 'file'],
+      ['undefined runtime value', undefined, 'terminal', 'invalid'],
+    ])('rejects %s before selecting the requested tool', async (_name, folderPath, tool, kind) => {
+      if (kind === 'missing') {
+        vi.mocked(fs.statSync).mockImplementationOnce(() => {
+          throw new Error('ENOENT');
+        });
+      } else if (kind === 'file') {
+        vi.mocked(fs.statSync).mockReturnValueOnce({ isDirectory: () => false } as never);
+      }
+
+      await registeredProviders['openFolderWith']({ folderPath, tool });
+
+      expect(spawn).not.toHaveBeenCalled();
+      expect(shell.openPath).not.toHaveBeenCalled();
+    });
+
     it('opens folder with explorer on Windows', async () => {
       Object.defineProperty(process, 'platform', { value: 'win32' });
       vi.mocked(shell.openPath).mockResolvedValue('');
@@ -354,15 +406,13 @@ describe('shellBridge with actual providers', () => {
 
       await registeredProviders['openFolderWith']({ folderPath: 'C:\\Projects', tool: 'terminal' });
 
-      // L5: direct powershell.exe spawn with arg-array (no cmd.exe shell interpolation).
-      expect(spawn).toHaveBeenCalledWith(
-        'powershell.exe',
-        ['-NoProfile', '-Command', 'Start-Process', '-FilePath', 'powershell.exe', '-WorkingDirectory', 'C:\\Projects'],
-        {
-          detached: true,
-          windowsHide: false,
-        }
-      );
+      // The validated directory is process metadata, never PowerShell command text.
+      expect(spawn).toHaveBeenCalledWith('powershell.exe', ['-NoProfile'], {
+        cwd: 'C:\\Projects',
+        detached: true,
+        shell: false,
+        windowsHide: false,
+      });
     });
 
     it('opens folder with explorer on macOS using open command', async () => {
@@ -465,6 +515,22 @@ describe('shellBridge with actual providers', () => {
 
       expect(fs.existsSync).toHaveBeenCalledWith('/usr/bin/code');
       expect(spawn).toHaveBeenCalled();
+    });
+
+    it('falls back to the OS folder handler when no native VS Code executable exists', async () => {
+      setPlatform('win32');
+      vi.mocked(spawn).mockReturnValueOnce({
+        on: vi.fn((event: string, cb: (error: Error) => void) => {
+          if (event === 'error') cb(new Error('spawn code ENOENT'));
+        }),
+        unref: vi.fn(),
+      } as never);
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+
+      await registeredProviders['openFolderWith']({ folderPath: 'C:\\Projects', tool: 'vscode' });
+      await new Promise((resolve) => setTimeout(resolve));
+
+      expect(shell.openPath).toHaveBeenCalledWith('C:\\Projects');
     });
   });
 });

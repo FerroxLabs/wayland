@@ -257,7 +257,7 @@ metadata:
 
 **Check-in questions:**
 
-1. How many workouts did I complete this week? **\_/4. Which days? ******\_********
+1. How many workouts did I complete this week? **\_/4. Which days? \*\*\*\***\_**\*\*\*\***
 2. How many pages/chapters did I read this week? Am I on pace to finish the current book this month?
 3. What blocked me from completing any missed workouts or reading sessions?
 4. Am I on track, behind, or at risk for each goal? (Check the milestone table above)
@@ -319,4 +319,4 @@ metadata:
 - [ ] Are consequences motivating? Too easy? Too harsh?
 - [ ] Have escalation triggers been hit? What action was taken?
 - [ ] Any goals to add, modify, or remove?
-- [ ] Adjustments for next month: ********\_********
+- [ ] Adjustments for next month: **\*\*\*\***\_**\*\*\*\***

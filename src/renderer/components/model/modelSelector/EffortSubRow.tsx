@@ -14,21 +14,22 @@ import styles from './ModelSelectorFlyout.module.css';
 type Props = {
   level: EffortLevel;
   onChange: (level: EffortLevel) => void;
+  /** The reasoning levels this backend accepts (provider-specific). */
+  levels: readonly EffortLevel[];
 };
-
-const LEVELS: EffortLevel[] = ['low', 'medium', 'high'];
 
 /**
  * Conditional "Effort: <level> >" sub-row shown only for effort-capable backends
- * (Codex / WCore / Claude-ACP). Opens an Arco popover with low/medium/high and
- * the reasoning descriptors mirrored from `src/process/task/codexConfig.ts`.
- * Mounted by the flyout only when `vm.effortSupported`.
+ * (Codex / WCore / Claude-ACP). Opens an Arco popover listing the reasoning
+ * levels the active backend accepts (`levels` prop - Claude supports
+ * low..max, Codex/WCore low..high). Descriptors mirror the per-provider
+ * reasoning catalogs. Mounted by the flyout only when `vm.effortSupported`.
  */
-const EffortSubRow: React.FC<Props> = ({ level, onChange }) => {
+const EffortSubRow: React.FC<Props> = ({ level, onChange, levels }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
-  // Descriptors mirror codexConfig.ts:140-142 (the codex reasoning-level catalog).
+  // Descriptors for every possible level; `levels` gates which ones render.
   const meta: Record<EffortLevel, { name: string; desc: string }> = {
     low: {
       name: t('conversation.modelSelector.effortLow', { defaultValue: 'Low' }),
@@ -48,16 +49,32 @@ const EffortSubRow: React.FC<Props> = ({ level, onChange }) => {
         defaultValue: 'Greater reasoning depth for complex problems',
       }),
     },
+    xhigh: {
+      name: t('conversation.modelSelector.effortXhigh', { defaultValue: 'Extra high' }),
+      desc: t('conversation.modelSelector.effortXhighDesc', {
+        defaultValue: 'Extended reasoning for hard coding and agentic tasks',
+      }),
+    },
+    max: {
+      name: t('conversation.modelSelector.effortMax', { defaultValue: 'Max' }),
+      desc: t('conversation.modelSelector.effortMaxDesc', {
+        defaultValue: 'Maximum reasoning depth - correctness over cost',
+      }),
+    },
   };
+  // Guard against a persisted level the current backend no longer offers (e.g.
+  // a Claude chat set to `xhigh`, then the row rendered for a Codex agent):
+  // fall back to the highest offered level for the display label.
+  const displayLevel: EffortLevel = levels.includes(level) ? level : (levels[levels.length - 1] ?? 'medium');
 
   const popup = (
     <div className={styles.effortPop} role='menu'>
-      {LEVELS.map((lvl) => (
+      {levels.map((lvl) => (
         <div
           key={lvl}
-          className={`${styles.effortOpt} ${lvl === level ? styles.effortOptOn : ''}`}
+          className={`${styles.effortOpt} ${lvl === displayLevel ? styles.effortOptOn : ''}`}
           role='menuitemradio'
-          aria-checked={lvl === level}
+          aria-checked={lvl === displayLevel}
           tabIndex={0}
           onClick={() => {
             onChange(lvl);
@@ -74,7 +91,7 @@ const EffortSubRow: React.FC<Props> = ({ level, onChange }) => {
             <div className={styles.effortOptName}>{meta[lvl].name}</div>
             <div className={styles.effortOptDesc}>{meta[lvl].desc}</div>
           </div>
-          {lvl === level && (
+          {lvl === displayLevel && (
             <span className={styles.effortOptCheck}>
               <Check size={16} strokeWidth={2.6} />
             </span>
@@ -98,7 +115,7 @@ const EffortSubRow: React.FC<Props> = ({ level, onChange }) => {
       >
         <Zap size={14} color='var(--color-text-2)' strokeWidth={1.9} />
         <span className={styles.effortLbl}>{t('conversation.modelSelector.effort', { defaultValue: 'Effort' })}</span>
-        <span className={styles.effortVal}>{meta[level].name}</span>
+        <span className={styles.effortVal}>{meta[displayLevel].name}</span>
         <span className={styles.effortChev}>
           <ChevronRight size={13} strokeWidth={2} />
         </span>

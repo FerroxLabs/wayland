@@ -546,16 +546,11 @@ class AutoUpdaterService extends EventEmitter {
     // Persist the pending-install marker so the next launch can verify the apply
     // actually advanced the version (#286), same as the manual path.
     this.writePendingInstallMarker();
-    // isForceRunAfter=false: install on quit without relaunching (apply-on-quit
-    // semantics, like VS Code/Slack) and without the force-exit timer — the
-    // caller is already quitting. isSilent follows the platform: win32 needs
-    // the UAC prompt (#492), macOS/Linux keep the existing silent apply.
-    autoUpdater.quitAndInstall(AutoUpdaterService.isSilentApplySupported(), false);
-    // isSilent=true, isForceRunAfter=true: install on quit AND relaunch, matching
-    // the "Install and restart" button's promise and the pre-#651 behavior. We
-    // omit the force-exit timer (unlike the manual quitAndInstall) because the
-    // caller is already inside the quit sequence.
-    autoUpdater.quitAndInstall(true, true);
+    // Install and relaunch once, matching the "Install and restart" promise.
+    // Windows per-machine installs need the UAC prompt (isSilent=false);
+    // macOS/Linux retain their silent apply. We omit the manual force-exit
+    // timer because the caller is already inside the quit sequence.
+    autoUpdater.quitAndInstall(AutoUpdaterService.isSilentApplySupported(), true);
     return true;
   }
 

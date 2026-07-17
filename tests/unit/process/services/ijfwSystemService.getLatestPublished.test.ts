@@ -28,6 +28,7 @@ vi.mock('electron', () => ({
 const safeSpawnSpy = vi.fn();
 vi.mock('@process/services/ijfw/safeSpawn', () => ({
   safeSpawn: (opts: unknown) => safeSpawnSpy(opts),
+  resolveTrustedNodeRuntime: vi.fn(async () => '/tmp/trusted-node'),
 }));
 
 /**

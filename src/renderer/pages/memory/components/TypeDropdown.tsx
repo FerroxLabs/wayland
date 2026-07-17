@@ -49,7 +49,7 @@ const TYPE_DEFS: TypeDef[] = [
 // ---------------------------------------------------------------------------
 
 const TypeDropdown: React.FC<TypeDropdownProps> = ({ typeCounts, selected, onFilterChange }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
 
   const toggleType = useCallback(
     (type: MemoryType) => {

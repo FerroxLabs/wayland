@@ -290,7 +290,6 @@ Martin's hand goes still on the folder.
           You can't run the business yet, Marty.
           You're eleven.
 
-
 Martin looks at his father's face. At the absolute certainty there.
 
 He closes the folder.

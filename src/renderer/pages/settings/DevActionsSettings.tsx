@@ -15,6 +15,7 @@ import { ipcBridge } from '@/common';
 import { Button, Checkbox, Input, Message, Select } from '@arco-design/web-react';
 import { FolderOpen, FolderPlus, GitBranch, GitPullRequestArrow, Hammer, RefreshCw, RotateCw, X } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@renderer/components/settings/shared';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 
@@ -34,6 +35,8 @@ type RepoStatus = {
   error?: string;
 };
 
+type SyncForkResult = Awaited<ReturnType<typeof ipcBridge.devActions.syncForks.invoke>>['results'][number];
+
 /** Load the tracked working-copy list, seeding once from the legacy single path. */
 function loadRepoPaths(): string[] {
   try {
@@ -51,6 +54,7 @@ const openExternal = (url: string): void => {
 };
 
 const DevActionsSettings: React.FC = () => {
+  const { t } = useTranslation();
   const [log, setLog] = useState<string[]>([]);
   const logRef = useRef<HTMLPreElement>(null);
 
@@ -73,6 +77,7 @@ const DevActionsSettings: React.FC = () => {
 
   // Sync forks
   const [selectedForks, setSelectedForks] = useState<string[]>([...FORKS]);
+  const [syncResults, setSyncResults] = useState<SyncForkResult[]>([]);
   const [syncing, setSyncing] = useState(false);
 
   // Working copies (local checkouts with live change counts + one-click commit)
@@ -268,16 +273,28 @@ const DevActionsSettings: React.FC = () => {
 
   const runSync = async () => {
     if (selectedForks.length === 0) {
-      Message.warning('Select at least one fork.');
+      Message.warning(t('settings.devActions.syncSelectWarning'));
       return;
     }
     setLog([]);
+    setSyncResults([]);
     setSyncing(true);
     try {
       const { results } = await ipcBridge.devActions.syncForks.invoke({ repos: selectedForks });
+      setSyncResults(results);
       const failed = results.filter((r) => !r.ok);
-      if (failed.length === 0) Message.success(`Sync dispatched for ${results.length} fork(s).`);
-      else Message.error(`${failed.length} failed: ${failed.map((f) => f.repo).join(', ')}`);
+      const ready = results.filter((r) => r.ok && r.status !== 'up-to-date').length;
+      const upToDate = results.filter((r) => r.ok && r.status === 'up-to-date').length;
+      if (failed.length === 0) {
+        Message.success(t('settings.devActions.syncSuccess', { ready, upToDate }));
+      } else {
+        Message.error(
+          t('settings.devActions.syncFailure', {
+            count: failed.length,
+            repos: failed.map((failure) => failure.repo).join(', '),
+          })
+        );
+      }
     } catch (e) {
       Message.error(e instanceof Error ? e.message : String(e));
     } finally {
@@ -342,7 +359,13 @@ const DevActionsSettings: React.FC = () => {
           <div className='flex flex-col gap-6px'>
             {repoPaths.map((path) => {
               const st = statuses.find((s) => s.path === path);
-              const name = st?.name || path.replace(/[\\/]+$/, '').split(/[\\/]/).pop() || path;
+              const name =
+                st?.name ||
+                path
+                  .replace(/[\\/]+$/, '')
+                  .split(/[\\/]/)
+                  .pop() ||
+                path;
               const committing = committingPath === path;
               const building = buildingPath === path;
               const rowBusy = committing || building;
@@ -472,12 +495,9 @@ const DevActionsSettings: React.FC = () => {
 
       <Card>
         <div className='flex items-center gap-8px mb-8px text-14px font-600'>
-          <RefreshCw size={16} /> Sync Forks from Upstream
+          <RefreshCw size={16} /> {t('settings.devActions.syncTitle')}
         </div>
-        <div className='text-12px text-t-tertiary mb-12px leading-5'>
-          Runs each fork&apos;s <code>upstream-sync.yml</code> workflow, which opens a PR bringing it up to date with
-          upstream.
-        </div>
+        <div className='text-12px text-t-tertiary mb-12px leading-5'>{t('settings.devActions.syncDescription')}</div>
         <Checkbox.Group value={selectedForks} onChange={setSelectedForks} className='flex flex-col gap-6px mb-12px'>
           {FORKS.map((r) => (
             <Checkbox key={r} value={r}>
@@ -486,8 +506,34 @@ const DevActionsSettings: React.FC = () => {
           ))}
         </Checkbox.Group>
         <Button type='primary' loading={syncing} icon={<RefreshCw size={14} />} onClick={runSync}>
-          Sync selected
+          {t('settings.devActions.syncButton')}
         </Button>
+        {syncResults.length > 0 && (
+          <div className='flex flex-col gap-6px mt-12px'>
+            {syncResults.map((result) => (
+              <div key={result.repo} className='flex items-center gap-8px bg-fill-1 rd-8px px-12px py-8px'>
+                <div className='flex-1 min-w-0'>
+                  <div className='text-13px font-600'>{result.repo}</div>
+                  <div className={result.ok ? 'text-11px text-t-tertiary' : 'text-11px text-danger-6'}>
+                    {result.ok
+                      ? result.status === 'up-to-date'
+                        ? t('settings.devActions.syncUpToDate')
+                        : t('settings.devActions.syncCounts', {
+                            upstream: result.upstreamCommits ?? 0,
+                            preserved: result.preservedForkCommits ?? 0,
+                          })
+                      : t('settings.devActions.syncUnknownError')}
+                  </div>
+                </div>
+                {result.ok && result.prUrl && (
+                  <Button size='mini' type='text' onClick={() => openExternal(result.prUrl!)}>
+                    {t('settings.devActions.syncReviewPr')}
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       {log.length > 0 && (

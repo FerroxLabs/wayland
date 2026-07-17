@@ -225,7 +225,7 @@ After 5+ interviews, look for:
 - Calculate average % per category across all participants
 - Identify categories exceeding targets
 - Calculate total "waste" time (waiting + avoidable admin)
-- Estimate annualized cost: waste_hours _ avg_hourly_rate _ developers
+- Estimate annualized cost: waste*hours * avg*hourly_rate * developers
 ```
 
 ## Developer Surveys
@@ -356,9 +356,10 @@ Types of Developer Friction:
 
 ### Formula
 
-Annual Value = time_saved_per_occurrence
-_ occurrences_per_developer_per_year
-_ number_of_developers \* hourly_cost
+Annual Value = time\*saved_per_occurrence
+
+- occurrences\*per_developer_per_year
+- number_of_developers \* hourly_cost
 
 ### Example: CI Pipeline Speed Improvement
 

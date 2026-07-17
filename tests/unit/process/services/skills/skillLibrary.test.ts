@@ -9,6 +9,29 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SkillLibrary, buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 
+// Vitest hoists module mocks before imports, so keep them at module scope to
+// make their actual execution order explicit.
+vi.mock('@process/utils/initStorage', () => ({
+  ProcessConfig: {
+    get: vi.fn().mockResolvedValue(undefined),
+    set: vi.fn().mockResolvedValue(undefined),
+  },
+  getAssistantsDir: vi.fn(),
+  getSkillsDir: vi.fn(),
+  getBuiltinSkillsCopyDir: vi.fn(),
+  getAutoSkillsDir: vi.fn(),
+  getCronSkillsDir: vi.fn(),
+  loadSkillsContent: vi.fn().mockResolvedValue(''),
+  clearSkillsCache: vi.fn(),
+  default: vi.fn(),
+}));
+
+vi.mock('@process/utils/mainLogger', () => ({
+  mainLog: vi.fn(),
+  mainWarn: vi.fn(),
+  mainError: vi.fn(),
+}));
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -77,26 +100,6 @@ const makeLib = (readFile = makeReadFile()) =>
 
 beforeEach(() => {
   SkillLibrary.resetInstance();
-  // Prevent ProcessConfig from being called in unit tests by mocking initStorage
-  vi.mock('@process/utils/initStorage', () => ({
-    ProcessConfig: {
-      get: vi.fn().mockResolvedValue(undefined),
-      set: vi.fn().mockResolvedValue(undefined),
-    },
-    getAssistantsDir: vi.fn(),
-    getSkillsDir: vi.fn(),
-    getBuiltinSkillsCopyDir: vi.fn(),
-    getAutoSkillsDir: vi.fn(),
-    getCronSkillsDir: vi.fn(),
-    loadSkillsContent: vi.fn().mockResolvedValue(''),
-    clearSkillsCache: vi.fn(),
-    default: vi.fn(),
-  }));
-  vi.mock('@process/utils/mainLogger', () => ({
-    mainLog: vi.fn(),
-    mainWarn: vi.fn(),
-    mainError: vi.fn(),
-  }));
 });
 
 // ---------------------------------------------------------------------------

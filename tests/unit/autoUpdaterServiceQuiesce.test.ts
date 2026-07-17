@@ -68,7 +68,7 @@ async function freshService() {
 }
 
 describe('autoUpdaterService update-on-quiesce (#651)', () => {
-  let service: any;
+  let service: Awaited<ReturnType<typeof freshService>>;
   let broadcast: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
@@ -108,11 +108,13 @@ describe('autoUpdaterService update-on-quiesce (#651)', () => {
     });
 
     it('installs and relaunches when a download is staged and safe', () => {
+      setPlatform('darwin');
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
       const result = service.installOnQuitIfReady();
       expect(result).toBe(true);
       // isSilent=true, isForceRunAfter=true — install on quit AND relaunch,
       // matching the "Install and restart" promise (#651, 0.11.15).
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledTimes(1);
       expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
       // No force-exit timer: we are already quitting.
       expect(app.exit).not.toHaveBeenCalled();

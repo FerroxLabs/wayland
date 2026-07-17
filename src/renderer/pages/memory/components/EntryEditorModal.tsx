@@ -33,7 +33,7 @@ export type EntryEditorModalProps = {
 };
 
 const EntryEditorModal: React.FC<EntryEditorModalProps> = ({ open, entry, onClose, onSaved }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
 
   const [summary, setSummary] = useState('');
   const [type, setType] = useState<MemoryType>('observation');

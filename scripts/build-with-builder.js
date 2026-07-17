@@ -222,10 +222,6 @@ function killWindowsProcesses(imageNames) {
   }
 }
 
-function formatExecError(error) {
-  return [error?.message, error?.stdout?.toString?.(), error?.stderr?.toString?.()].filter(Boolean).join('\n').trim();
-}
-
 // Create DMG using electron-builder --prepackaged with .app path
 // This preserves DMG styling from electron-builder.yml (window size, icon positions, background)
 function createDmgWithPrepackaged(appDir, targetArch) {
@@ -303,6 +299,30 @@ function cleanupWindowsPackOutput() {
   if (removed.length > 0) {
     console.log(`🧹 Cleaned stale Windows outputs: ${removed.join(', ')}`);
   }
+}
+
+function getUnsignedWindowsConfigOverrides(builderArguments, env = process.env) {
+  const argumentsList = builderArguments.split(/\s+/).filter(Boolean);
+  const targetsWindows = argumentsList.includes('--win') || argumentsList.includes('--all');
+  if (!targetsWindows) return [];
+
+  const credentialNames = ['AZURE_TENANT_ID', 'AZURE_CLIENT_ID', 'AZURE_CLIENT_SECRET'];
+  const hasAllAzureCredentials = credentialNames.every((name) => Boolean(env[name]?.trim()));
+  if (hasAllAzureCredentials) return [];
+
+  const githubRef = env.GITHUB_REF ?? '';
+  const releaseTag = env.WAYLAND_RELEASE_TAG?.trim() ?? '';
+  const isProtectedRelease =
+    releaseTag.length > 0 || (githubRef.startsWith('refs/tags/') && !githubRef.includes('-dev-'));
+  if (isProtectedRelease) {
+    throw new Error('Stable Windows release requires complete Azure signing credentials.');
+  }
+
+  return [
+    '--config.win.azureSignOptions=',
+    '--config.win.forceCodeSigning=false',
+    '--config.win.verifyUpdateCodeSignature=false',
+  ];
 }
 
 // Parse command line arguments
@@ -592,50 +612,14 @@ try {
     cleanupWindowsPackOutput();
   }
 
-  const builderCommand = `bunx electron-builder ${builderArgs} ${archFlag} ${nsisInclude} ${publishArg}`;
-  try {
-    buildWithDmgRetry(builderCommand, targetArch);
-  } catch (error) {
-    const winExePath = path.join(outDir, 'win-unpacked', 'Wayland.exe');
-    const firstError = formatExecError(error);
-    const canRetryWithoutExecutableEdit =
-      process.platform === 'win32' && isWindowsBuild && process.env.CI !== 'true' && fs.existsSync(winExePath);
-
-    if (!canRetryWithoutExecutableEdit) {
-      throw error;
-    }
-
-    console.log('⚠️  Windows local build failed after Wayland.exe was produced.');
-    if (firstError) {
-      console.log('   First failure summary:');
-      console.log(
-        firstError
-          .split(/\r?\n/)
-          .slice(0, 6)
-          .map((line) => `   ${line}`)
-          .join('\n')
-      );
-    }
-    console.log('   Retrying local build with win.signAndEditExecutable=false...');
-    console.log('   This fallback is intended for transient rcedit / file-lock failures on developer machines.');
-    killWindowsProcesses(['Wayland.exe', 'electron.exe']);
-    cleanupWindowsPackOutput();
-
-    try {
-      buildWithDmgRetry(`${builderCommand} --config.win.signAndEditExecutable=false`, targetArch);
-    } catch (retryError) {
-      const retryFailure = formatExecError(retryError);
-      throw new Error(
-        [
-          'Windows local retry with win.signAndEditExecutable=false also failed.',
-          'First failure:',
-          firstError || String(error),
-          'Retry failure:',
-          retryFailure || String(retryError),
-        ].join('\n')
-      );
-    }
+  const unsignedWindowsConfigOverrides = getUnsignedWindowsConfigOverrides(builderArgs, process.env);
+  if (unsignedWindowsConfigOverrides.length > 0) {
+    console.log('⚠️  Azure credentials are incomplete; applying local unsigned Windows build overrides.');
   }
+  const configOverrides = unsignedWindowsConfigOverrides.join(' ');
+  const builderCommand =
+    `bunx electron-builder ${builderArgs} ${archFlag} ${nsisInclude} ${configOverrides} ${publishArg}`.trim();
+  buildWithDmgRetry(builderCommand, targetArch);
 
   // 7. Fail-hard gate: assert the packaged app actually contains every critical
   // bundled resource. electron-builder silently DROPS any extraResources whose

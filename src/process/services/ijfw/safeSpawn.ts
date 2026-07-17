@@ -14,7 +14,6 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { buildChildEnv } from './envAllowlist';
 import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
-import { resolveJsRuntime } from '@process/utils/jsRuntime';
 
 export type Cmd = 'npm' | 'npx' | 'node';
 
@@ -27,6 +26,33 @@ export interface SafeSpawnOptions {
 
 let trustedNpmCache: string | null = null;
 let resolverOverride: (() => Promise<string>) | null = null;
+let trustedNodeCache: string | null = null;
+let nodeResolverOverride: (() => Promise<string>) | null = null;
+
+/** Build trusted Node.js executable candidates without treating the packaged app executable as Node. */
+export function __buildNodeCandidates(platform: NodeJS.Platform, env: NodeJS.ProcessEnv, execPath: string): string[] {
+  const platformPath = platform === 'win32' ? path.win32 : path.posix;
+  const executableName = platform === 'win32' ? 'node.exe' : 'node';
+  const candidates: string[] = [];
+  const execBasename = platformPath.basename(execPath).toLowerCase();
+
+  if (execBasename === executableName) {
+    candidates.push(execPath);
+  }
+
+  if (platform === 'win32') {
+    candidates.push('C:\\Program Files\\nodejs\\node.exe', 'C:\\Program Files (x86)\\nodejs\\node.exe');
+  } else {
+    candidates.push('/usr/local/bin/node', '/opt/homebrew/bin/node', '/usr/bin/node');
+  }
+
+  const pathDirs = (env['PATH'] ?? env['Path'] ?? '').split(platformPath.delimiter).filter(Boolean);
+  for (const dir of pathDirs) {
+    candidates.push(platformPath.join(dir, executableName));
+  }
+
+  return [...new Set(candidates)];
+}
 
 /**
  * Build the ordered list of candidate npm-cli.js paths to probe, given a
@@ -88,6 +114,12 @@ export function __setTrustedNpmCliResolver(fn: (() => Promise<string>) | null): 
   trustedNpmCache = null;
 }
 
+/** Test-only: inject a Node.js runtime resolver. Pass null to restore default resolution. */
+export function __setTrustedNodeResolver(fn: (() => Promise<string>) | null): void {
+  nodeResolverOverride = fn;
+  trustedNodeCache = null;
+}
+
 /**
  * Decide whether a resolved npm-cli.js is trustworthy by its stat.
  *
@@ -136,6 +168,27 @@ export async function defaultResolveTrustedNpm(): Promise<string> {
   throw new Error(`Could not resolve trusted npm (platform=${process.platform}). Tried:\n${detail}`);
 }
 
+/** Resolve a trusted standalone Node.js executable suitable for running npm and IJFW scripts. */
+export async function defaultResolveTrustedNode(): Promise<string> {
+  const candidates = __buildNodeCandidates(process.platform, process.env, process.execPath);
+  const rejected: Array<{ candidate: string; reason: string }> = [];
+  for (const candidate of candidates) {
+    try {
+      const real = await fs.promises.realpath(candidate);
+      const stat = await fs.promises.lstat(real);
+      if (!__isAcceptableNpmStat(stat, process.platform, process.getuid?.())) {
+        rejected.push({ candidate: real, reason: 'failed trust check (world-writable / foreign owner)' });
+        continue;
+      }
+      return real;
+    } catch (err) {
+      rejected.push({ candidate, reason: err instanceof Error ? err.message : String(err) });
+    }
+  }
+  const detail = rejected.map((r) => `  - ${r.candidate}: ${r.reason}`).join('\n');
+  throw new Error(`Could not resolve trusted Node.js runtime (platform=${process.platform}). Tried:\n${detail}`);
+}
+
 async function resolveTrustedNpmCli(): Promise<string> {
   if (trustedNpmCache) return trustedNpmCache;
   const resolver = resolverOverride ?? defaultResolveTrustedNpm;
@@ -144,32 +197,34 @@ async function resolveTrustedNpmCli(): Promise<string> {
   return resolved;
 }
 
+/** Resolve and cache the standalone Node.js runtime used by all IJFW subprocesses. */
+export async function resolveTrustedNodeRuntime(): Promise<string> {
+  if (trustedNodeCache) return trustedNodeCache;
+  const resolver = nodeResolverOverride ?? defaultResolveTrustedNode;
+  const resolved = await resolver();
+  trustedNodeCache = resolved;
+  return resolved;
+}
+
 export async function safeSpawn(opts: SafeSpawnOptions): Promise<ChildProcess> {
   let argv0: string;
   let argv: string[];
 
-  // #706: packaged (fused) builds ignore ELECTRON_RUN_AS_NODE, so the app binary
-  // can no longer stand in for Node. Resolve a real runtime (bundled Bun when
-  // packaged; the app binary as Node in dev). The trusted npm-cli.js resolution
-  // (SEC-007) is unchanged — only the interpreter running it changes, and Bun
-  // ships inside the signed bundle.
-  const runtime = resolveJsRuntime();
-
   if (opts.cmd === 'node') {
-    argv0 = runtime.command;
+    argv0 = await resolveTrustedNodeRuntime();
     argv = [...opts.args];
   } else if (opts.cmd === 'npm') {
     const npmCli = await resolveTrustedNpmCli();
-    argv0 = runtime.command;
+    argv0 = await resolveTrustedNodeRuntime();
     argv = [npmCli, ...opts.args];
   } else {
     const npmCli = await resolveTrustedNpmCli();
     const npxCli = path.join(path.dirname(npmCli), 'npx-cli.js');
-    argv0 = runtime.command;
+    argv0 = await resolveTrustedNodeRuntime();
     argv = [npxCli, ...opts.args];
   }
 
-  const env = buildChildEnv({ ...opts.extraEnv, ...runtime.env });
+  const env = buildChildEnv({ ...opts.extraEnv, ELECTRON_RUN_AS_NODE: '1' });
 
   return spawn(argv0, argv, {
     stdio: ['pipe', 'pipe', 'pipe'],

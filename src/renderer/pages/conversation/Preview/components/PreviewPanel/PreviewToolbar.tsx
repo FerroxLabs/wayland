@@ -6,8 +6,7 @@
 
 import { X } from 'lucide-react';
 import type { PreviewHistoryTarget } from '@/common/types/preview';
-import { iconColors } from '@/renderer/styles/colors';
-import { Dropdown } from '@arco-design/web-react';
+import { Button, Dropdown } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -196,9 +195,12 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
         <div className='flex items-center h-full gap-8px'>
           {(isMarkdown || isHTML || isDiff) && (
             <>
-              <div className='flex items-center h-full gap-0'>
+              <div className='flex items-center h-full gap-0' role='tablist'>
                 {isMdFile && (
-                  <div
+                  <Button
+                    type='text'
+                    role='tab'
+                    aria-selected={viewMode === 'editor'}
                     className={`flex items-center h-full px-10px cursor-pointer transition-all duration-150 text-12px font-medium ${viewMode === 'editor' ? 'text-brand bg-aou-2 border-b-4 border-brand' : 'text-t-secondary hover:text-t-primary hover:bg-bg-3'}`}
                     onClick={() => {
                       try {
@@ -209,9 +211,12 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                     }}
                   >
                     {t('preview.editor')}
-                  </div>
+                  </Button>
                 )}
-                <div
+                <Button
+                  type='text'
+                  role='tab'
+                  aria-selected={viewMode === 'source'}
                   className={`flex items-center h-full px-10px cursor-pointer transition-all duration-150 text-12px font-medium ${viewMode === 'source' ? 'text-brand bg-aou-2 border-b-4 border-brand' : 'text-t-secondary hover:text-t-primary hover:bg-bg-3'}`}
                   onClick={() => {
                     try {
@@ -222,8 +227,11 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                   }}
                 >
                   {isHTML ? t('preview.code') : t('preview.source')}
-                </div>
-                <div
+                </Button>
+                <Button
+                  type='text'
+                  role='tab'
+                  aria-selected={viewMode === 'preview'}
                   className={`flex items-center h-full px-10px cursor-pointer transition-all duration-150 text-12px font-medium ${viewMode === 'preview' ? 'text-brand bg-aou-2 border-b-4 border-brand' : 'text-t-secondary hover:text-t-primary hover:bg-bg-3'}`}
                   onClick={() => {
                     try {
@@ -234,10 +242,11 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                   }}
                 >
                   {t('preview.preview')}
-                </div>
+                </Button>
               </div>
               {!isDiff && (
-                <div
+                <Button
+                  type='text'
                   className={`flex items-center px-8px py-3px rd-4px cursor-pointer transition-colors duration-150 ${isSplitScreenEnabled ? toolbarBtnActive : 'text-t-secondary hover:bg-bg-3'}`}
                   onClick={() => {
                     try {
@@ -247,6 +256,7 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                     }
                   }}
                   title={isSplitScreenEnabled ? t('preview.closeSplitScreen') : t('preview.openSplitScreen')}
+                  aria-label={isSplitScreenEnabled ? t('preview.closeSplitScreen') : t('preview.openSplitScreen')}
                 >
                   <svg
                     width={toolbarIconSize}
@@ -259,16 +269,18 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                     <rect x='3' y='3' width='18' height='18' rx='2' />
                     <line x1='12' y1='3' x2='12' y2='21' />
                   </svg>
-                </div>
+                </Button>
               )}
             </>
           )}
 
           {contentType === 'code' && isEditable && (
-            <div
+            <Button
+              type='text'
               className={`${toolbarBtn} ${isEditMode ? toolbarBtnActive : ''}`}
               onClick={() => (isEditMode ? onExitEdit() : onEditClick())}
               title={isEditMode ? t('preview.exitEdit') : t('preview.edit')}
+              aria-label={isEditMode ? t('preview.exitEdit') : t('preview.edit')}
             >
               <svg
                 width={toolbarIconSize}
@@ -283,11 +295,12 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' />
               </svg>
               <span>{isEditMode ? t('preview.exitEdit') : t('preview.edit')}</span>
-            </div>
+            </Button>
           )}
 
           {isEditable && isEditMode && (
-            <div
+            <Button
+              type='text'
               className={`flex items-center px-8px py-3px rd-4px cursor-pointer transition-colors duration-150 ${isSplitScreenEnabled ? toolbarBtnActive : 'text-t-secondary hover:bg-bg-3'}`}
               onClick={() => {
                 try {
@@ -297,6 +310,7 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 }
               }}
               title={isSplitScreenEnabled ? t('preview.closeSplitScreen') : t('preview.openSplitScreen')}
+              aria-label={isSplitScreenEnabled ? t('preview.closeSplitScreen') : t('preview.openSplitScreen')}
             >
               <svg
                 width={toolbarIconSize}
@@ -309,11 +323,17 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <rect x='3' y='3' width='18' height='18' rx='2' />
                 <line x1='12' y1='3' x2='12' y2='21' />
               </svg>
-            </div>
+            </Button>
           )}
 
           {preferActionButtonsInFront && showOpenInSystemButton && (
-            <div className={toolbarBtn} onClick={onOpenInSystem} title={t('preview.openInSystemApp')}>
+            <Button
+              type='text'
+              className={toolbarBtn}
+              onClick={onOpenInSystem}
+              title={t('preview.openInSystemApp')}
+              aria-label={t('preview.openInSystemApp')}
+            >
               <svg
                 width={toolbarIconSize}
                 height={toolbarIconSize}
@@ -328,10 +348,16 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <line x1='10' y1='14' x2='21' y2='3' />
               </svg>
               <span>{t('preview.openInSystemApp')}</span>
-            </div>
+            </Button>
           )}
           {preferActionButtonsInFront && (
-            <div className={toolbarBtn} onClick={() => void onDownload()} title={t('preview.downloadFile')}>
+            <Button
+              type='text'
+              className={toolbarBtn}
+              onClick={() => void onDownload()}
+              title={t('preview.downloadFile')}
+              aria-label={t('preview.downloadFile')}
+            >
               <svg
                 width={toolbarIconSize}
                 height={toolbarIconSize}
@@ -346,9 +372,14 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <line x1='12' y1='15' x2='12' y2='3' />
               </svg>
               <span>{t('common.download')}</span>
-            </div>
+            </Button>
           )}
           {leftExtra}
+          {fileName && (
+            <span className='max-w-180px truncate text-12px text-t-secondary' title={fileName}>
+              {fileName}
+            </span>
+          )}
         </div>
 
         <div className='flex items-center gap-4px flex-shrink-0'>
@@ -358,10 +389,13 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
             (contentType === 'html' && (viewMode === 'source' || isSplitScreenEnabled)) ||
             (contentType === 'code' && isEditable && isEditMode)) && (
             <>
-              <div
+              <Button
+                type='text'
                 className={`${toolbarBtn} ${historyTarget ? '' : '!cursor-not-allowed opacity-50'} ${snapshotSaving ? 'opacity-60' : ''}`}
                 onClick={historyTarget && !snapshotSaving ? onSaveSnapshot : undefined}
                 title={historyTarget ? t('preview.saveSnapshot') : t('preview.snapshotNotSupported')}
+                aria-label={historyTarget ? t('preview.saveSnapshot') : t('preview.snapshotNotSupported')}
+                disabled={!historyTarget || snapshotSaving}
               >
                 <svg
                   width={toolbarIconSize}
@@ -376,15 +410,20 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                   <circle cx='12' cy='13' r='3' />
                 </svg>
                 <span>{t('preview.snapshot')}</span>
-              </div>
+              </Button>
               {historyTarget ? (
                 <Dropdown
                   droplist={renderHistoryDropdown()}
-                  trigger={['hover']}
+                  trigger={['click', 'hover']}
                   position='br'
                   onVisibleChange={(visible) => visible && onRefreshHistory()}
                 >
-                  <div className={toolbarBtn} title={t('preview.historyVersions')}>
+                  <Button
+                    type='text'
+                    className={toolbarBtn}
+                    title={t('preview.historyVersions')}
+                    aria-label={t('preview.historyVersions')}
+                  >
                     <svg
                       width={toolbarIconSize}
                       height={toolbarIconSize}
@@ -399,12 +438,15 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                       <polyline points='21 3 21 9 15 9' />
                     </svg>
                     <span>{t('preview.history')}</span>
-                  </div>
+                  </Button>
                 </Dropdown>
               ) : (
-                <div
+                <Button
+                  type='text'
                   className={`${toolbarBtn} !cursor-not-allowed opacity-50`}
                   title={t('preview.historyNotSupported')}
+                  aria-label={t('preview.historyNotSupported')}
+                  disabled
                 >
                   <svg
                     width={toolbarIconSize}
@@ -420,13 +462,19 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                     <polyline points='21 3 21 9 15 9' />
                   </svg>
                   <span>{t('preview.history')}</span>
-                </div>
+                </Button>
               )}
             </>
           )}
 
           {!preferActionButtonsInFront && showOpenInSystemButton && (
-            <div className={toolbarBtn} onClick={onOpenInSystem} title={t('preview.openInSystemApp')}>
+            <Button
+              type='text'
+              className={toolbarBtn}
+              onClick={onOpenInSystem}
+              title={t('preview.openInSystemApp')}
+              aria-label={t('preview.openInSystemApp')}
+            >
               <svg
                 width={toolbarIconSize}
                 height={toolbarIconSize}
@@ -441,11 +489,17 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <line x1='10' y1='14' x2='21' y2='3' />
               </svg>
               <span>{t('preview.openInSystemApp')}</span>
-            </div>
+            </Button>
           )}
 
           {!preferActionButtonsInFront && (
-            <div className={toolbarBtn} onClick={() => void onDownload()} title={t('preview.downloadFile')}>
+            <Button
+              type='text'
+              className={toolbarBtn}
+              onClick={() => void onDownload()}
+              title={t('preview.downloadFile')}
+              aria-label={t('preview.downloadFile')}
+            >
               <svg
                 width={toolbarIconSize}
                 height={toolbarIconSize}
@@ -460,14 +514,18 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <line x1='12' y1='15' x2='12' y2='3' />
               </svg>
               <span>{t('common.download')}</span>
-            </div>
+            </Button>
           )}
 
           {isHTML && onInspectModeToggle && (
-            <div
+            <Button
+              type='text'
               className={`${toolbarBtn} ${inspectMode ? toolbarBtnActive : ''}`}
               onClick={onInspectModeToggle}
               title={inspectMode ? t('preview.html.inspectElementDisable') : t('preview.html.inspectElementEnable')}
+              aria-label={
+                inspectMode ? t('preview.html.inspectElementDisable') : t('preview.html.inspectElementEnable')
+              }
             >
               <svg
                 width={toolbarIconSize}
@@ -484,8 +542,16 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <path d='M13 13l6 6' />
               </svg>
               <span>{inspectMode ? t('preview.html.inspecting') : t('preview.html.inspectElement')}</span>
-            </div>
+            </Button>
           )}
+          <Button
+            type='text'
+            className='h-24px w-24px flex items-center justify-center rd-4px text-t-secondary hover:text-t-primary hover:bg-bg-3'
+            icon={<X size={14} />}
+            onClick={onClose}
+            title={t('preview.closePreview')}
+            aria-label={t('preview.closePreview')}
+          />
         </div>
       </div>
     </div>

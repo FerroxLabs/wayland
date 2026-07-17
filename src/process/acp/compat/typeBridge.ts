@@ -134,6 +134,7 @@ export function toAcpModelInfo(snapshot: ModelSnapshot): AcpModelInfo {
     availableModels,
     canSwitch: availableModels.length > 0,
     source: 'models',
+    confirmationSource: snapshot.confirmationSource,
   };
 }
 
@@ -142,7 +143,7 @@ export function toAcpModelInfo(snapshot: ModelSnapshot): AcpModelInfo {
  */
 export function toAcpConfigOptions(options: ConfigOption[]): AcpSessionConfigOption[] {
   return options.map((opt) => {
-    const currentValue = typeof opt.currentValue === 'boolean' ? String(opt.currentValue) : String(opt.currentValue);
+    const currentValue = opt.currentValue === undefined ? undefined : String(opt.currentValue);
 
     const result: AcpSessionConfigOption = {
       id: opt.id,

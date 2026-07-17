@@ -85,13 +85,13 @@ export default defineConfig({
         // i18n config (JSON-only)
         'src/common/config/i18n-config.json',
       ],
-      // Thresholds apply to the included file set.
-      // Keeping them informational until coverage ramps up across all files.
+      // Conservative ratchet below the 2026-07-17 measured baseline:
+      // 51.23% statements, 44.08% branches, 46.53% functions, 52.19% lines.
       thresholds: {
-        statements: 0,
-        branches: 0,
-        functions: 0,
-        lines: 0,
+        statements: 50,
+        branches: 40,
+        functions: 45,
+        lines: 50,
       },
     },
   },

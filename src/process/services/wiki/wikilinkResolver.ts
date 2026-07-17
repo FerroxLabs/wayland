@@ -40,10 +40,7 @@ export function parseWikilinks(body: string): ParsedWikilink[] {
  * Case-insensitive. Checks concept name and aliases array.
  * Returns {slug, name} on match; {slug: null, name: null} for orphan.
  */
-export function resolveWikilink(
-  name: string,
-  state: WikiState,
-): { slug: string | null; name: string | null } {
+export function resolveWikilink(name: string, state: WikiState): { slug: string | null; name: string | null } {
   const lower = name.toLowerCase();
   for (const concept of state.concepts) {
     if (concept.name.toLowerCase() === lower) {

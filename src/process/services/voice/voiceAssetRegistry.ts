@@ -4,71 +4,49 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/**
- * Server-side registry of known voice-runtime assets.
- *
- * The renderer descriptor only carries `id` + `url`; the main process is the
- * authority on filesystem paths (no renderer-controlled writes outside the
- * sandbox) and on the pinned SHA-256 hashes that VoiceAssetManager checks
- * against. When the renderer's downstream IPC hits voiceAssetBridge, the
- * bridge enriches the descriptor by id against this map.
- *
- * Adding a new asset:
- *   - put its id + URL here
- *   - fill `sha256` from upstream when known; leave undefined to download
- *     unverified (logged warning at download time)
- *   - `destSubpath` is appended under `<userData>/voice/`
- */
-
-import path from 'node:path';
 import { getPlatformServices } from '@/common/platform';
 import type { VoiceAsset } from '@/common/types/voiceAsset';
+import path from 'node:path';
 
 type RegistryEntry = {
   url: string;
   destSubpath: string;
-  sha256?: string;
+  sha256: string;
+  totalBytes: number;
+  maxBytes: number;
 };
 
-const REGISTRY: Record<string, RegistryEntry> = {
-  // Whisper.cpp GGML models - public huggingface mirror under ggerganov.
-  // SHA-256 left undefined; the manager will accept the file without an
-  // integrity gate and log a warning. Pin these once the team confirms the
-  // canonical hashes (e.g. `shasum -a 256 ggml-base.bin` after a clean fetch).
+const REGISTRY: Readonly<Record<string, RegistryEntry>> = {
   'whisper-ggml-base': {
     url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin',
     destSubpath: 'whisper/ggml-base.bin',
+    sha256: '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe',
+    totalBytes: 147_951_465,
+    maxBytes: 150_000_000,
   },
   'whisper-ggml-small': {
     url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
     destSubpath: 'whisper/ggml-small.bin',
-  },
-  // Kokoro ONNX TTS model - github release artifact pinned to v1.0.
-  'kokoro-onnx-model': {
-    url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
-    destSubpath: 'kokoro/kokoro-v1.0.onnx',
+    sha256: '1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b',
+    totalBytes: 487_601_967,
+    maxBytes: 490_000_000,
   },
 };
 
-/**
- * Enrich a renderer-supplied `VoiceAsset` descriptor by id. Fills in
- * `destPath` from the registry + userData voice subtree, and applies the
- * pinned `sha256` when the renderer left it blank. Renderer-supplied non-
- * empty fields win - letting callers override for tests / dev.
- */
-export function resolveVoiceAsset(asset: VoiceAsset): VoiceAsset {
-  const entry = REGISTRY[asset.id];
-  if (!entry) return asset;
+/** Returns a main-owned voice asset descriptor for a registered identifier. */
+export function getVoiceAsset(id: string): VoiceAsset | null {
+  if (typeof id !== 'string' || id.length === 0 || !Object.prototype.hasOwnProperty.call(REGISTRY, id)) {
+    return null;
+  }
 
+  const entry = REGISTRY[id];
   const baseDir = path.join(getPlatformServices().paths.getDataDir(), 'voice');
-  const resolvedDest = asset.destPath?.trim() ? asset.destPath : path.join(baseDir, entry.destSubpath);
-  const resolvedSha = asset.sha256?.trim() ? asset.sha256 : (entry.sha256 ?? '');
-  const resolvedUrl = asset.url?.trim() ? asset.url : entry.url;
-
   return {
-    ...asset,
-    url: resolvedUrl,
-    destPath: resolvedDest,
-    sha256: resolvedSha,
+    id,
+    url: entry.url,
+    destPath: path.join(baseDir, entry.destSubpath),
+    sha256: entry.sha256,
+    totalBytes: entry.totalBytes,
+    maxBytes: entry.maxBytes,
   };
 }

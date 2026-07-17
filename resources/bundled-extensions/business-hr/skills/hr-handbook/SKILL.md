@@ -155,8 +155,8 @@ I acknowledge that I have received and read the [Company] Employee Handbook date
    and other rights under federal and state law are NOT restricted by this
    Handbook.
 
-Employee signature: ************\_\_************ Date: ****\_\_****
-Printed name: **************\_\_\_\_**************
+Employee signature: \***\*\*\*\*\*\*\***\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\*\***
+Printed name: **\*\***\*\***\*\***\_\_\_\_**\*\***\*\***\*\***
 ```
 
 ## Writing Principles

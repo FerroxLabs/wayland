@@ -656,17 +656,15 @@ describe('executeFluxImageGen', () => {
 
   it('appends the SynthID notice for Gemini arms', async () => {
     const notice = 'This image contains an invisible SynthID watermark (Google).';
-    const fetchFn = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            data: [{ b64_json: Buffer.from('banana').toString('base64') }],
-            _flux: { synthid_notice: notice },
-          }),
-          { status: 200 }
-        )
-      ) as unknown as typeof globalThis.fetch;
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: [{ b64_json: Buffer.from('banana').toString('base64') }],
+          _flux: { synthid_notice: notice },
+        }),
+        { status: 200 }
+      )
+    ) as unknown as typeof globalThis.fetch;
 
     const result = await executeFluxImageGen(
       { prompt: 'a banana' },
@@ -732,13 +730,11 @@ describe('executeFluxImageGen', () => {
   });
 
   it('surfaces a 402 price_exceeds_max_price', async () => {
-    const fetchFn = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(JSON.stringify({ error: { message: 'too pricey', code: 'price_exceeds_max_price' } }), {
-          status: 402,
-        })
-      ) as unknown as typeof globalThis.fetch;
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'too pricey', code: 'price_exceeds_max_price' } }), {
+        status: 402,
+      })
+    ) as unknown as typeof globalThis.fetch;
 
     const result = await executeFluxImageGen(
       { prompt: 'a red apple' },

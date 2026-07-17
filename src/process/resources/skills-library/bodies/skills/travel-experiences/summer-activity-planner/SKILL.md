@@ -270,15 +270,15 @@ A well-planned summer includes five types of time:
 
 ### Expense Categories
 
-| Category                  | Budgeted        | Spent Week 1 | Spent Week 2 | Running Total |
-| ------------------------- | --------------- | ------------ | ------------ | ------------- |
-| Camps and classes         | $**\_\_\_**     |              |              |               |
-| Travel and trips          | $**\_\_\_**     |              |              |               |
-| Activities and admissions | $**\_\_\_**     |              |              |               |
-| Supplies and equipment    | $**\_\_\_**     |              |              |               |
-| Food (activity-related)   | $**\_\_\_**     |              |              |               |
-| Entertainment             | $**\_\_\_**     |              |              |               |
-| **Total**                 | **$**\_\_\_**** |              |              |               |
+| Category                  | Budgeted            | Spent Week 1 | Spent Week 2 | Running Total |
+| ------------------------- | ------------------- | ------------ | ------------ | ------------- |
+| Camps and classes         | $**\_\_\_**         |              |              |               |
+| Travel and trips          | $**\_\_\_**         |              |              |               |
+| Activities and admissions | $**\_\_\_**         |              |              |               |
+| Supplies and equipment    | $**\_\_\_**         |              |              |               |
+| Food (activity-related)   | $**\_\_\_**         |              |              |               |
+| Entertainment             | $**\_\_\_**         |              |              |               |
+| **Total**                 | **$**\_\_\_\*\*\*\* |              |              |               |
 
 ### Free and Low-Cost Activity List
 

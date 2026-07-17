@@ -130,7 +130,7 @@ function setSandboxModeInConfig(content: string, sandboxMode: CodexSandboxMode):
  * The user's real `~/.codex` config.toml is never written (that is the whole
  * point of #536); only auth.json is a symlink through to the user's file.
  *
- * Concurrency (known LOW limitation): `codex-home` is a FIXED path
+ * Concurrency (known LOW limitation): `codex-home-v2` is a FIXED path
  * re-materialized per spawn with no lock, so two near-simultaneous native codex
  * spawns with different sandbox modes can race on config.toml. It fails safe -
  * the default is read-only, and codex reads config only at startup so a running
@@ -146,7 +146,11 @@ export async function materializeNativeCodexHome(
   userConfigPath: string = getCodexConfigPath(),
   userAuthPath: string = getUserCodexAuthPath()
 ): Promise<string> {
-  const codexHomeDir = join(userDataDir, 'codex-home');
+  // The deprecated Zed bridge wrote a different SQLx migration lineage into
+  // codex-home/state_5.sqlite. The official bridge rejects that valid but
+  // incompatible database before ACP initialization. Start the official bridge
+  // in a fresh versioned lineage and preserve the legacy home byte-for-byte.
+  const codexHomeDir = join(userDataDir, 'codex-home-v2');
   const configPath = join(codexHomeDir, 'config.toml');
   const authPath = join(codexHomeDir, 'auth.json');
 
@@ -291,10 +295,18 @@ export async function materializeFluxCodexHome(
   sandboxMode: CodexSandboxMode = 'read-only',
   baseURL: string = FLUX_SURFACE.responses,
   userConfigPath: string = getCodexConfigPath(),
-  /** Per-conversation reasoning effort. When set, written as `model_reasoning_effort`. */
-  effort?: 'low' | 'medium' | 'high'
+  /**
+   * Per-conversation reasoning effort. When set, written as `model_reasoning_effort`.
+   * Codex's config knob only accepts low/medium/high, so higher UI levels
+   * (xhigh/max, valid for Claude) are clamped to `high` - writing an
+   * unsupported value makes codex reject the config at startup.
+   */
+  effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 ): Promise<string> {
-  const codexHomeDir = join(userDataDir, 'flux-codex-home');
+  const codexEffort = effort === 'xhigh' || effort === 'max' ? 'high' : effort;
+  // Keep Flux on the same fresh official-bridge state lineage as native Codex.
+  // The legacy directory may contain the deprecated bridge's incompatible DB.
+  const codexHomeDir = join(userDataDir, 'flux-codex-home-v2');
   const configPath = join(codexHomeDir, 'config.toml');
   const catalogPath = join(codexHomeDir, 'flux-model-catalog.json');
   let content = [
@@ -310,7 +322,7 @@ export async function materializeFluxCodexHome(
     `model_catalog_json = ${JSON.stringify(catalogPath)}`,
     // Per-conversation reasoning effort (omitted => codex applies the model's
     // default_reasoning_level from the catalog above).
-    ...(effort ? [`model_reasoning_effort = "${effort}"`] : []),
+    ...(codexEffort ? [`model_reasoning_effort = "${codexEffort}"`] : []),
     `sandbox_mode = "${sandboxMode}"`,
     'suppress_unstable_features_warning = true',
     '',

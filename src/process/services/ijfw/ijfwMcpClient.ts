@@ -25,8 +25,8 @@ import { encode, decode, DecodeError, MAX_LINE_BYTES } from './mcpWireProtocol';
 import { buildChildEnv } from './envAllowlist';
 import { resolveEntry } from './entryResolver';
 import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
-import { resolveJsRuntime } from '@process/utils/jsRuntime';
 import { jsonRpcResponseSchema } from './ipcSchemas';
+import { resolveTrustedNodeRuntime } from './safeSpawn';
 import { killChild } from '@process/agent/acp/utils';
 import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import type { IjfwErrorReason, IjfwInvokeResult } from '@/common/types/ijfw';
@@ -333,12 +333,9 @@ class IjfwMcpClient {
     // every child process the app spawns (#738). Pin both the process cwd and
     // IJFW_PROJECT_DIR to an explicit safe, writable, bundle-external dir.
     const safeCwd = resolveSafeSpawnCwd();
-    // #706: in a packaged (fused) build, process.execPath + ELECTRON_RUN_AS_NODE
-    // launches the app, not Node. Resolve a real JS runtime (bundled Bun) instead.
-    const runtime = resolveJsRuntime();
-    const env = buildChildEnv({ ...runtime.env, IJFW_PROJECT_DIR: safeCwd });
-    log.debug('[ijfw-mcp] spawning server', { runtime: runtime.kind });
-    const child = spawn(runtime.command, [entry], {
+    const runtime = await resolveTrustedNodeRuntime();
+    const env = buildChildEnv({ IJFW_PROJECT_DIR: safeCwd });
+    const child = spawn(runtime, [entry], {
       cwd: safeCwd,
       env,
       stdio: ['pipe', 'pipe', 'pipe'],

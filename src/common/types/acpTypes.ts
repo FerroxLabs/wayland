@@ -1087,6 +1087,22 @@ export type AcpModelInfoSourceDetail =
   | 'codex-stream'
   | 'claude-slots';
 
+export type AcpModelConfirmationSource =
+  | 'session-models'
+  | 'config-option-response'
+  | 'config-option-update'
+  | 'spawn-session';
+
+export type AcpModelSelectionFailureCode =
+  | 'unsupported_model'
+  | 'model_rejected'
+  | 'model_mismatch'
+  | 'confirmation_unavailable'
+  | 'bridge_unavailable'
+  | 'model_switch_timeout';
+
+export type AcpModelSelectionState = 'provider-default' | 'pending' | 'confirmed' | 'blocked';
+
 export interface AcpModelInfo {
   /** Currently active model ID */
   currentModelId: string | null;
@@ -1102,7 +1118,33 @@ export interface AcpModelInfo {
   sourceDetail?: AcpModelInfoSourceDetail;
   /** Config option ID (only when source is 'configOption') */
   configOptionId?: string;
+  /** Provider-originated source that established currentModelId. */
+  confirmationSource?: AcpModelConfirmationSource;
+  /** Transactional selection state; currentModelId remains confirmed-only. */
+  selectionState?: AcpModelSelectionState;
+  /** Exact model currently requested by the user, if any. */
+  requestedModelId?: string | null;
+  /** Stable failure code when selectionState is blocked. */
+  selectionFailureCode?: AcpModelSelectionFailureCode;
 }
+
+export type AcpModelSelectionResult =
+  | {
+      ok: true;
+      requestedModelId: string | null;
+      confirmedModelId: string | null;
+      modelInfo: AcpModelInfo | null;
+      confirmationSource: AcpModelConfirmationSource | 'provider-default';
+      restarted: boolean;
+    }
+  | {
+      ok: false;
+      requestedModelId: string | null;
+      previousConfirmedModelId: string | null;
+      code: AcpModelSelectionFailureCode;
+      message: string;
+      modelInfo: AcpModelInfo | null;
+    };
 
 // Union type for all session updates
 export type AcpSessionUpdate =

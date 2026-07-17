@@ -79,7 +79,7 @@ function abbreviatePath(p: string): string {
 // ---------------------------------------------------------------------------
 
 const MemoryStatusBar: React.FC<MemoryStatusBarProps> = ({ brainLive, cliCount, lastDream }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const [dropStatus, setDropStatus] = useState<DropFolderStatus | null>(null);
   const [openPathError, setOpenPathError] = useState<string | null>(null);
 

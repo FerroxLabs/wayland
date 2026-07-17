@@ -80,19 +80,13 @@ function injectWikilinks(text: string): string {
 
 // ===== Local heuristic fallback =====
 
-function buildConceptFromHeuristic(
-  entries: MemoryEntry[],
-  topicHint?: WikiTopicTag,
-): WikiConcept {
+function buildConceptFromHeuristic(entries: MemoryEntry[], topicHint?: WikiTopicTag): WikiConcept {
   if (entries.length === 0) {
     throw new Error('synthesize requires at least one MemoryEntry');
   }
 
   const topEntry = entries[0];
-  const name =
-    topEntry.project
-      ? `${topEntry.project} - synthesized concept`
-      : 'Synthesized Concept';
+  const name = topEntry.project ? `${topEntry.project} - synthesized concept` : 'Synthesized Concept';
 
   const slug = toSlug(name);
   const id = `wiki-${slug}-${Date.now()}`;
@@ -142,13 +136,72 @@ function buildConceptFromHeuristic(
 // ===== Stopwords for content-word overlap =====
 
 const STOPWORDS = new Set([
-  'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
-  'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
-  'should', 'may', 'might', 'shall', 'can', 'to', 'of', 'in', 'on',
-  'at', 'by', 'for', 'with', 'about', 'as', 'from', 'that', 'this',
-  'it', 'its', 'we', 'our', 'their', 'they', 'he', 'she', 'and', 'or',
-  'but', 'if', 'not', 'so', 'all', 'any', 'each', 'via', 'into', 'use',
-  'used', 'uses', 'when', 'then', 'than', 'also', 'now', 'up', 'how',
+  'the',
+  'a',
+  'an',
+  'is',
+  'are',
+  'was',
+  'were',
+  'be',
+  'been',
+  'being',
+  'have',
+  'has',
+  'had',
+  'do',
+  'does',
+  'did',
+  'will',
+  'would',
+  'could',
+  'should',
+  'may',
+  'might',
+  'shall',
+  'can',
+  'to',
+  'of',
+  'in',
+  'on',
+  'at',
+  'by',
+  'for',
+  'with',
+  'about',
+  'as',
+  'from',
+  'that',
+  'this',
+  'it',
+  'its',
+  'we',
+  'our',
+  'their',
+  'they',
+  'he',
+  'she',
+  'and',
+  'or',
+  'but',
+  'if',
+  'not',
+  'so',
+  'all',
+  'any',
+  'each',
+  'via',
+  'into',
+  'use',
+  'used',
+  'uses',
+  'when',
+  'then',
+  'than',
+  'also',
+  'now',
+  'up',
+  'how',
 ]);
 
 function significantWords(text: string): Set<string> {
@@ -156,7 +209,7 @@ function significantWords(text: string): Set<string> {
     text
       .toLowerCase()
       .split(/\W+/)
-      .filter((w) => w.length > 3 && !STOPWORDS.has(w)),
+      .filter((w) => w.length > 3 && !STOPWORDS.has(w))
   );
 }
 
@@ -265,10 +318,7 @@ export type SynthesizeOptions = {
  * Tries the IJFW MCP `llm_synthesize` verb first; falls back to a local
  * heuristic if the MCP service is unavailable or the call fails.
  */
-export async function synthesize(
-  memoryEntries: MemoryEntry[],
-  opts?: SynthesizeOptions,
-): Promise<WikiConcept> {
+export async function synthesize(memoryEntries: MemoryEntry[], opts?: SynthesizeOptions): Promise<WikiConcept> {
   // TODO(W1a/W2): Wire the IJFW MCP llm_synthesize verb here.
   // The call site pattern is:
   //
@@ -301,7 +351,7 @@ export async function synthesize(
  */
 export async function synthesizeMany(
   allEntries: MemoryEntry[],
-  existingSourceIds: Set<string>,
+  existingSourceIds: Set<string>
 ): Promise<WikiConcept[]> {
   const newEntries = allEntries.filter((e) => !existingSourceIds.has(e.id));
   if (newEntries.length === 0) return [];

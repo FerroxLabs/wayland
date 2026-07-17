@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AcpSession } from '@process/acp/session/AcpSession';
 import type { AcpClient, ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
-import type { AgentConfig, SessionCallbacks, SessionStatus } from '@process/acp/types';
+import type { AgentConfig, ProtocolHandlers, SessionCallbacks, SessionStatus } from '@process/acp/types';
 import type { SessionOptions } from '@process/acp/session/AcpSession';
 
 function createMockCallbacks(): SessionCallbacks {
@@ -26,15 +26,17 @@ function createMockClient() {
     }),
     createSession: vi.fn().mockResolvedValue({
       sessionId: 'sess-123',
-      currentModelId: 'claude-3',
-      availableModels: [],
-      currentModeId: 'code',
-      availableModes: [],
+      models: {
+        currentModelId: 'claude-3',
+        availableModels: [],
+      },
+      modes: {
+        currentModeId: 'code',
+        availableModes: [],
+      },
       configOptions: [],
     }),
-    loadSession: vi.fn().mockResolvedValue({
-      sessionId: 'sess-123',
-    }),
+    loadSession: vi.fn().mockResolvedValue({}),
     prompt: vi.fn().mockResolvedValue({ stopReason: 'end_turn' }),
     cancel: vi.fn().mockResolvedValue(undefined),
     setModel: vi.fn().mockResolvedValue(undefined),
@@ -50,10 +52,39 @@ function createMockClient() {
   return client;
 }
 
-function createMockClientFactory(client: AcpClient): ClientFactory {
+function createMockClientFactory(
+  client: AcpClient,
+  captureHandlers?: (handlers: ProtocolHandlers) => void
+): ClientFactory {
   return {
-    create: vi.fn(() => client),
+    create: vi.fn((_config: AgentConfig, handlers: ProtocolHandlers) => {
+      captureHandlers?.(handlers);
+      return client;
+    }),
   };
+}
+
+function providerModelOption(currentValue: string) {
+  return {
+    id: 'model',
+    name: 'Model',
+    type: 'select' as const,
+    category: 'model',
+    description: 'Provider model selector',
+    currentValue,
+    options: [
+      { value: 'gpt-5.6-sol', name: 'GPT-5.6 SOL', description: 'Exact provider model' },
+      { value: 'gpt-5.5', name: 'GPT-5.5' },
+    ],
+  };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
 }
 
 const baseConfig: AgentConfig = {
@@ -69,11 +100,14 @@ describe('AcpSession lifecycle', () => {
   let callbacks: SessionCallbacks;
   let client: AcpClient;
   let clientFactory: ClientFactory;
+  let protocolHandlers: ProtocolHandlers;
 
   beforeEach(() => {
     callbacks = createMockCallbacks();
     client = createMockClient();
-    clientFactory = createMockClientFactory(client);
+    clientFactory = createMockClientFactory(client, (handlers) => {
+      protocolHandlers = handlers;
+    });
   });
 
   it('starts in idle state', () => {
@@ -109,6 +143,303 @@ describe('AcpSession lifecycle', () => {
 
     expect(callbacks.onSessionId).toHaveBeenCalledWith('sess-123');
     expect(session.sessionId).toBe('sess-123');
+  });
+
+  it('confirms models.currentModelId returned by session/new', async () => {
+    vi.mocked(client.createSession).mockResolvedValueOnce({
+      sessionId: 'sess-123',
+      models: {
+        currentModelId: 'gpt-5.6-sol',
+        availableModels: [
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL', description: 'Exact provider model' },
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+        ],
+      },
+    } as never);
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+
+    expect(callbacks.onModelUpdate).toHaveBeenCalledWith({
+      currentModelId: 'gpt-5.6-sol',
+      availableModels: [
+        { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL', description: 'Exact provider model' },
+        { modelId: 'gpt-5.5', name: 'GPT-5.5', description: undefined },
+      ],
+      confirmationSource: 'session-models',
+    });
+  });
+
+  it('preserves and confirms a model config currentValue returned by session/new', async () => {
+    vi.mocked(client.createSession).mockResolvedValueOnce({
+      sessionId: 'sess-123',
+      configOptions: [providerModelOption('gpt-5.6-sol')],
+    } as never);
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+
+    expect(callbacks.onConfigUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            description: 'Provider model selector',
+            currentValue: 'gpt-5.6-sol',
+            options: [
+              { id: 'gpt-5.6-sol', name: 'GPT-5.6 SOL', description: 'Exact provider model' },
+              { id: 'gpt-5.5', name: 'GPT-5.5', description: undefined },
+            ],
+          },
+        ],
+      })
+    );
+    expect(callbacks.onModelUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentModelId: 'gpt-5.6-sol',
+        confirmationSource: 'config-option-response',
+      })
+    );
+  });
+
+  it('reports conflicting model sources returned by session/new without confirming either', async () => {
+    vi.mocked(client.createSession).mockResolvedValueOnce({
+      sessionId: 'sess-123',
+      models: {
+        currentModelId: 'gpt-5.6-sol',
+        availableModels: [
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+        ],
+      },
+      configOptions: [providerModelOption('gpt-5.5')],
+    } as never);
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+
+    expect(callbacks.onModelUpdate).toHaveBeenCalledWith({
+      currentModelId: null,
+      availableModels: [
+        { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL', description: undefined },
+        { modelId: 'gpt-5.5', name: 'GPT-5.5', description: undefined },
+      ],
+      modelConflict: {
+        modelId: 'gpt-5.6-sol',
+        modelSource: 'session-models',
+        configModelId: 'gpt-5.5',
+        configSource: 'config-option-response',
+      },
+    });
+  });
+
+  it('applies models.currentModelId returned by session/load during resume', async () => {
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    await session.suspend();
+    vi.mocked(callbacks.onModelUpdate).mockClear();
+    vi.mocked(client.loadSession).mockResolvedValueOnce({
+      models: {
+        currentModelId: 'gpt-5.6-sol',
+        availableModels: [{ modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' }],
+      },
+    } as never);
+
+    await session.sendMessage('resume');
+
+    await vi.waitFor(() =>
+      expect(callbacks.onModelUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentModelId: 'gpt-5.6-sol',
+          confirmationSource: 'session-models',
+        })
+      )
+    );
+  });
+
+  it('applies a model config currentValue returned by session/load during resume', async () => {
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    await session.suspend();
+    vi.mocked(callbacks.onModelUpdate).mockClear();
+    vi.mocked(client.loadSession).mockResolvedValueOnce({
+      configOptions: [providerModelOption('gpt-5.6-sol')],
+    } as never);
+
+    await session.sendMessage('resume');
+
+    await vi.waitFor(() =>
+      expect(callbacks.onModelUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentModelId: 'gpt-5.6-sol',
+          confirmationSource: 'config-option-response',
+        })
+      )
+    );
+  });
+
+  it('reports conflicting model sources returned by session/load without confirming either', async () => {
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    await session.suspend();
+    vi.mocked(callbacks.onModelUpdate).mockClear();
+    vi.mocked(client.loadSession).mockResolvedValueOnce({
+      models: {
+        currentModelId: 'gpt-5.6-sol',
+        availableModels: [
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+        ],
+      },
+      configOptions: [providerModelOption('gpt-5.5')],
+    } as never);
+
+    await session.sendMessage('resume');
+
+    await vi.waitFor(() =>
+      expect(callbacks.onModelUpdate).toHaveBeenCalledWith({
+        currentModelId: 'claude-3',
+        availableModels: [
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL', description: undefined },
+          { modelId: 'gpt-5.5', name: 'GPT-5.5', description: undefined },
+        ],
+        modelConflict: {
+          modelId: 'gpt-5.6-sol',
+          modelSource: 'session-models',
+          configModelId: 'gpt-5.5',
+          configSource: 'config-option-response',
+        },
+      })
+    );
+  });
+
+  it('confirms a model config currentValue from config_option_update', async () => {
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    vi.mocked(callbacks.onModelUpdate).mockClear();
+
+    protocolHandlers.onSessionUpdate({
+      sessionId: 'sess-123',
+      update: {
+        sessionUpdate: 'config_option_update',
+        configOptions: [providerModelOption('gpt-5.6-sol')],
+      },
+    } as never);
+
+    expect(callbacks.onModelUpdate).toHaveBeenCalledWith({
+      currentModelId: 'gpt-5.6-sol',
+      availableModels: [
+        { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL', description: 'Exact provider model' },
+        { modelId: 'gpt-5.5', name: 'GPT-5.5', description: undefined },
+      ],
+      confirmationSource: 'config-option-update',
+    });
+  });
+
+  it('does not confirm selectedValue alone from config_option_update', async () => {
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    vi.mocked(callbacks.onModelUpdate).mockClear();
+
+    protocolHandlers.onSessionUpdate({
+      sessionId: 'sess-123',
+      update: {
+        sessionUpdate: 'config_option_update',
+        configOptions: [
+          {
+            ...providerModelOption('gpt-5.5'),
+            currentValue: undefined,
+            selectedValue: 'gpt-5.6-sol',
+          },
+        ],
+      },
+    } as never);
+
+    expect(callbacks.onModelUpdate).not.toHaveBeenCalled();
+    expect(session.configTracker.modelSnapshot().currentModelId).not.toBe('gpt-5.6-sol');
+  });
+
+  it('confirms a model currentValue returned by session/set_config_option', async () => {
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    vi.mocked(callbacks.onModelUpdate).mockClear();
+    vi.mocked(client.setConfigOption).mockResolvedValueOnce({
+      configOptions: [providerModelOption('gpt-5.6-sol')],
+    } as never);
+
+    await session.setConfigOption('model', 'gpt-5.6-sol');
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(callbacks.onModelUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentModelId: 'gpt-5.6-sol',
+        confirmationSource: 'config-option-response',
+      })
+    );
+  });
+
+  it('drops a stale correlated config response before mutating tracked model state', async () => {
+    const staleResponse = deferred<unknown>();
+    vi.mocked(client.setConfigOption).mockImplementation(async (_sessionId, _id, value) => {
+      if (value === 'gpt-5.5') return staleResponse.promise as never;
+      return { configOptions: [providerModelOption('gpt-5.6-sol')] } as never;
+    });
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    let currentGeneration = 1;
+
+    const first = session.setConfigOption('model', 'gpt-5.5', 1, () => currentGeneration === 1);
+    currentGeneration = 2;
+    const second = session.setConfigOption('model', 'gpt-5.6-sol', 2, () => currentGeneration === 2);
+    await second;
+    staleResponse.resolve({ configOptions: [providerModelOption('gpt-5.5')] });
+    await first;
+
+    expect(session.getConfigOptions()).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'model', currentValue: 'gpt-5.6-sol' })])
+    );
+    expect(callbacks.onModelUpdate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ currentModelId: 'gpt-5.6-sol' }),
+      2
+    );
+  });
+
+  it('does not echo an empty set_model success as provider-confirmed current state', async () => {
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    vi.mocked(callbacks.onModelUpdate).mockClear();
+
+    await session.setModel('gpt-5.6-sol');
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(client.setModel).toHaveBeenCalledWith('sess-123', 'gpt-5.6-sol');
+    expect(callbacks.onModelUpdate).not.toHaveBeenCalled();
+    expect(session.configTracker.modelSnapshot().currentModelId).not.toBe('gpt-5.6-sol');
+  });
+
+  it('propagates a rejected set_model dispatch to the caller', async () => {
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+    vi.mocked(client.setModel).mockRejectedValueOnce(new Error('provider rejected model'));
+
+    await expect(session.setModel('gpt-5.6-sol')).rejects.toThrow('provider rejected model');
   });
 
   it('stop() transitions any state → idle (T7, T15, T17, T22)', async () => {
@@ -214,7 +545,7 @@ describe('AcpSession lifecycle', () => {
     // Make prompt() hang forever so we stay in 'prompting' state
     (client.prompt as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
     // Make loadSession resolve so resume works
-    (client.loadSession as ReturnType<typeof vi.fn>).mockResolvedValue({ sessionId: 'sess-123' });
+    (client.loadSession as ReturnType<typeof vi.fn>).mockResolvedValue({});
 
     const session = new AcpSession(baseConfig, clientFactory, callbacks);
     session.start();

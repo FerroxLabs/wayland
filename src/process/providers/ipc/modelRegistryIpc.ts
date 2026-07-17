@@ -64,11 +64,7 @@ import { validateProviderBaseUrl } from '../sources/validateBaseUrl';
 import { ModelRefreshScheduler } from '../scheduler/ModelRefreshScheduler';
 import { CliAgentSource, isEnumerableCliAgent } from '../sources/CliAgentSource';
 import type { CliAgentKey } from '../sources/CliAgentSource';
-import {
-  CLI_UNDERLYING_PROVIDER,
-  CLI_OAUTH_PROVIDERS,
-  ACP_BACKEND_UNDERLYING_PROVIDER,
-} from '../backendProviderResolution';
+import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { CatalogAssembler, MODELS_DEV_PROVIDER_KEY } from '../catalog/CatalogAssembler';
 import { Curator } from '../catalog/Curator';
 import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/providerCatalogStore';
@@ -1204,7 +1200,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           for (const provider of repo.listRegistryProviders()) {
             const curated = curatedWithCustom(provider.providerId);
             for (const model of curated) {
-              const dedupKey = `${model.providerId} ${model.id}`;
+              const dedupKey = `${model.providerId}${model.id}`;
               if (seen.has(dedupKey)) continue;
               seen.add(dedupKey);
               all.push(model);

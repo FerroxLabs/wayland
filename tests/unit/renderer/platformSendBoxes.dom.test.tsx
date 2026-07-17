@@ -286,6 +286,11 @@ vi.mock('@/renderer/pages/conversation/platforms/acp/useAcpMessage', () => ({
     tokenUsage: 0,
     contextLimit: 0,
     hasThinkingMessage: false,
+    routing: 'unknown',
+    fluxTurnError: false,
+    modelSelectionState: 'provider-default',
+    modelSelectionFailureCode: null,
+    modelSelectionReady: true,
   })),
 }));
 

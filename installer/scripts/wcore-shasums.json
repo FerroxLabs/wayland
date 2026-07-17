@@ -1,0 +1,21 @@
+{
+  "version": "v0.12.24",
+  "assets": {
+    "linux-x64": {
+      "filename": "wayland-core-v0.12.24-x86_64-unknown-linux-gnu.tar.gz",
+      "sha256": "678f3c5a32efabc760bafec46c8ce320c20986bd55ea7cdb88b4ce999efc970b"
+    },
+    "linux-arm64": {
+      "filename": "wayland-core-v0.12.24-aarch64-unknown-linux-gnu.tar.gz",
+      "sha256": "046c33c07784525b09e1f9a9fd658354fd7ee7c2e0a8071a0cc3a84d2d57b436"
+    },
+    "darwin-x64": {
+      "filename": "wayland-core-v0.12.24-x86_64-apple-darwin.tar.gz",
+      "sha256": "b880010da0375bd55e86e867e61d09398735fa3a694c114d7044fb042aad4176"
+    },
+    "darwin-arm64": {
+      "filename": "wayland-core-v0.12.24-aarch64-apple-darwin.tar.gz",
+      "sha256": "7b13153f16b403fea2743462a0fa7f3071715eb23be9ffd6972d545cb281f98b"
+    }
+  }
+}

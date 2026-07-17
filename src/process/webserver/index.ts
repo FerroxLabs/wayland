@@ -7,13 +7,26 @@
 import express from 'express';
 import net from 'net';
 import { createServer } from 'http';
+import type { IncomingMessage } from 'http';
+import type { Duplex } from 'stream';
 import https from 'node:https';
 import { WebSocketServer } from 'ws';
 import { AuthService } from '@process/webserver/auth/service/AuthService';
 import { UserRepository } from '@process/webserver/auth/repository/UserRepository';
+import { TokenMiddleware } from '@process/webserver/auth/middleware/TokenMiddleware';
 import { AUTH_CONFIG, SERVER_CONFIG } from './config/constants';
 import { initWebAdapter } from './adapter';
-import { setupBasicMiddleware, setupCors, setupErrorHandler, setupTrustProxy } from './setup';
+import {
+  getCanonicalRequestOrigin,
+  getConfiguredOrigins,
+  getSingleRequestHeaderValue,
+  hasRequestHeader,
+  isRequestOriginTrusted,
+  setupBasicMiddleware,
+  setupCors,
+  setupErrorHandler,
+  setupTrustProxy,
+} from './setup';
 import { registerAuthRoutes } from './routes/authRoutes';
 import { registerApiRoutes } from './routes/apiRoutes';
 import { registerStaticRoutes, resolveRendererPath, VITE_DEV_PORT } from './routes/staticRoutes';
@@ -212,31 +225,6 @@ function displayInitialCredentials(
 }
 
 /**
- * Tell the user, out loud, that the WebUI is now reachable from the local network.
- *
- * Best-effort by construction: a notice must never be able to take the server down, so
- * every failure is swallowed after logging. The console line is unconditional (it is the
- * only channel in headless/standalone, where the desktop notification is a no-op), and
- * the OS notification is the one that reaches a user who never opens Settings — which is
- * exactly the user #722 is about.
- */
-async function announceLanExposure(where: string): Promise<void> {
-  console.warn(
-    `[WebUI] SECURITY: bound to ${SERVER_CONFIG.REMOTE_HOST} — reachable at ${where} by any device on this network, over unencrypted HTTP.`
-  );
-  try {
-    const { showNotification } = await import('@process/bridge/notificationBridge');
-    const i18n = (await import('@process/services/i18n')).default;
-    await showNotification({
-      title: i18n.t('settings.webui.lanExposureNoticeTitle'),
-      body: i18n.t('settings.webui.lanExposureNoticeBody', { url: where }),
-    });
-  } catch (error) {
-    console.warn('[WebUI] Could not surface the LAN-exposure notice:', error);
-  }
-}
-
-/**
  * WebUI server instance type
  */
 export interface WebServerInstance {
@@ -244,6 +232,56 @@ export interface WebServerInstance {
   wss: import('ws').WebSocketServer;
   port: number;
   allowRemote: boolean;
+}
+
+const LOCAL_VITE_ORIGINS = new Set([
+  `http://localhost:${VITE_DEV_PORT}`,
+  `http://127.0.0.1:${VITE_DEV_PORT}`,
+  `http://[::1]:${VITE_DEV_PORT}`,
+]);
+
+function isLoopbackPeer(remoteAddress: string | undefined): boolean {
+  return (
+    remoteAddress === '::1' || remoteAddress === '::ffff:127.0.0.1' || (remoteAddress?.startsWith('127.') ?? false)
+  );
+}
+
+function hasPermittedViteRequestShape(req: IncomingMessage, protocol: 'vite-hmr' | 'vite-ping'): boolean {
+  if (req.method !== 'GET' || !req.url) return false;
+
+  let url: URL;
+  try {
+    url = new URL(req.url, 'http://localhost');
+  } catch {
+    return false;
+  }
+
+  if (url.pathname !== '/') return false;
+  if (protocol === 'vite-ping') return url.search === '';
+
+  const queryEntries = [...url.searchParams.entries()];
+  return queryEntries.length === 1 && queryEntries[0]?.[0] === 'token' && queryEntries[0][1] !== '';
+}
+
+function isPermittedViteHmrUpgrade(req: IncomingMessage, isDevMode: boolean): boolean {
+  if (!isDevMode || !isLoopbackPeer(req.socket.remoteAddress)) return false;
+  const protocol = getSingleRequestHeaderValue(req, 'sec-websocket-protocol');
+  if (protocol !== 'vite-hmr' && protocol !== 'vite-ping') return false;
+  if (!hasPermittedViteRequestShape(req, protocol)) return false;
+  const origin = getCanonicalRequestOrigin(req);
+  return origin !== null && LOCAL_VITE_ORIGINS.has(origin);
+}
+
+function rejectUpgrade(socket: Duplex, status: 401 | 403, reason: 'Unauthorized' | 'Forbidden'): void {
+  try {
+    if (!socket.destroyed && socket.writable) {
+      socket.write(`HTTP/1.1 ${status} ${reason}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`);
+    }
+  } catch {
+    // The socket is destroyed below even when the response cannot be written.
+  } finally {
+    socket.destroy();
+  }
 }
 
 /**
@@ -267,16 +305,10 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
   // swallow every upgrade (including Vite HMR), causing the renderer to
   // enter an infinite reconnect loop and never finish loading.
   const wss = new WebSocketServer({ noServer: true });
-  const isDevMode = resolveRendererPath() === null;
-  server.on('upgrade', (req, socket, head) => {
-    const protocolHeader = req.headers['sec-websocket-protocol'];
-    const protocols = (Array.isArray(protocolHeader) ? protocolHeader.join(',') : protocolHeader || '')
-      .split(',')
-      .map((p) => p.trim())
-      .filter(Boolean);
-    const isViteHmr = protocols.some((p) => p === 'vite-hmr' || p === 'vite-ping');
-
-    if (isViteHmr && isDevMode) {
+  const isDevMode = process.env.NODE_ENV === 'development' && resolveRendererPath() === null;
+  const allowedOrigins = getConfiguredOrigins(port, allowRemote);
+  server.on('upgrade', async (req, socket, head) => {
+    if (isPermittedViteHmrUpgrade(req, isDevMode)) {
       // Tunnel the HMR upgrade to the Vite dev server so the renderer's
       // @vite/client can maintain its live-reload socket.
       const vite = net.connect(VITE_DEV_PORT, 'localhost', () => {
@@ -301,6 +333,41 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
       };
       vite.on('error', destroyBoth);
       socket.on('error', destroyBoth);
+      return;
+    }
+
+    const hasOrigin = hasRequestHeader(req, 'origin');
+    if (hasOrigin) {
+      if (!isRequestOriginTrusted(req, allowedOrigins)) {
+        rejectUpgrade(socket, 403, 'Forbidden');
+        return;
+      }
+    } else if (hasRequestHeader(req, 'cookie')) {
+      rejectUpgrade(socket, 403, 'Forbidden');
+      return;
+    }
+
+    const token = hasOrigin
+      ? TokenMiddleware.extractWebSocketToken(req)
+      : TokenMiddleware.extractExplicitWebSocketToken(req);
+    if (!token) {
+      rejectUpgrade(socket, 401, 'Unauthorized');
+      return;
+    }
+
+    let tokenIsValid = false;
+    try {
+      tokenIsValid = await TokenMiddleware.validateWebSocketToken(token);
+    } catch {
+      tokenIsValid = false;
+    }
+    if (!tokenIsValid) {
+      rejectUpgrade(socket, 401, 'Unauthorized');
+      return;
+    }
+
+    if (socket.destroyed || !socket.writable) {
+      if (!socket.destroyed) socket.destroy();
       return;
     }
 
@@ -352,19 +419,6 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
       const localUrl = `http://localhost:${port}`;
       const serverIP = await getServerIP();
       const displayUrl = serverIP ? `http://${serverIP}:${port}` : localUrl;
-
-      // #722: announce EVERY LAN bind, here at the bind itself.
-      //
-      // Deliberately not in the settings toggle or the preference-restore path: those
-      // are only two of the doors. `resolveRemoteAccess()` also arms 0.0.0.0 from
-      // WAYLAND_ALLOW_REMOTE / WAYLAND_HOST, from --remote, and from `allowRemote` in
-      // webui.config.json on disk - and the desktop preference itself is writable over
-      // the config-storage bridge. Any of those could expose the WebUI with the user
-      // never seeing a dialog. This is the one line every exposed listener must pass
-      // through, so it is the only place the guarantee actually holds.
-      if (allowRemote) {
-        void announceLanExposure(displayUrl !== localUrl ? displayUrl : `port ${port}`);
-      }
 
       // Display initial credentials (if first startup)
       if (initialCredentials) {

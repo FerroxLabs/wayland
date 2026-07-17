@@ -461,7 +461,7 @@ The Smith machine is a viable tool for beginners with caveats. For squats, the f
 
 ### Training Log Template (Copy for Each Session)
 
-**Date:** ****\_\_\_**** **Workout:** A / B **Week #:** \_\_\_ of 12 **Deload week?** Y / N
+**Date:** \***\*\_\_\_\*\*** **Workout:** A / B **Week #:** \_\_\_ of 12 **Deload week?** Y / N
 
 | Exercise | Set 1 (wt x reps) | Set 2 (wt x reps) | Set 3 (wt x reps) | Target Next Session     |
 | -------- | ----------------- | ----------------- | ----------------- | ----------------------- |
@@ -472,7 +472,7 @@ The Smith machine is a viable tool for beginners with caveats. For squats, the f
 |          | **_ x _**         | **_ x _**         | **_ x _**         | +weight / same / reduce |
 |          | **_ x _**         | **_ x _**         | **_ x _**         | +weight / same / reduce |
 
-**Session notes (energy level, anything that felt off, form issues):** ****\_\_\_****
+**Session notes (energy level, anything that felt off, form issues):** \***\*\_\_\_\*\***
 
 ---
 

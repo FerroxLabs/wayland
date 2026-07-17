@@ -17,14 +17,18 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/FerroxLabs/wayland.git",
-    "directory": "app/installer"
+    "directory": "installer"
   },
   "bin": {
     "wayland": "bin/wayland.mjs"
   },
   "files": [
     "bin/",
+    "scripts/bun-runtime-manifest.json",
+    "scripts/bun-runtime.mjs",
     "scripts/postinstall.mjs",
+    "scripts/wcore-security.mjs",
+    "scripts/wcore-shasums.json",
     "payload/",
     "README.md"
   ],

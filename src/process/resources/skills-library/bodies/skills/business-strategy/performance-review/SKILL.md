@@ -566,5 +566,5 @@ _Jordan Chen is invited to add comments after reviewing this document. Comments 
 
 _Employee signature acknowledges that the performance review discussion occurred and that this document has been reviewed. It does not indicate agreement with all assessments. Disagreements may be noted in the Employee Comments section above._
 
-Manager: ************\_\_\_************ Date: ****\_\_\_****
-Employee: ************\_\_************ Date: ****\_\_\_****
+Manager: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\_\*\***
+Employee: \***\*\*\*\*\*\*\***\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\_\*\***

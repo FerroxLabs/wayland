@@ -384,7 +384,7 @@ When an assessment spans two or more subject areas (a science-literacy assessmen
 
 ### [STUDENT-FACING SECTION]
 
-**Name:** ************\_************ **Date:** ******\_****** **Period:** **\_\_\_**
+**Name:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\*** **Date:** **\*\***\_**\*\*** **Period:** **\_\_\_**
 
 # Mendelian Genetics -- Unit Exam
 
@@ -524,7 +524,7 @@ D) The IA allele suppresses the IB allele in half of the red blood cells
 
 **17.** (3 points) A cross between two pea plants with round seeds produces 78 round-seeded offspring and 26 wrinkled-seeded offspring.
 
-a) What is the approximate phenotypic ratio observed? ******\_\_\_******
+a) What is the approximate phenotypic ratio observed? **\*\***\_\_\_**\*\***
 
 b) Based on this ratio, what were the likely genotypes of the parent plants?
 
@@ -540,7 +540,7 @@ A roan bull is crossed with a roan cow.
 
 a) Write the genotypes of both parents.
 
-Parent 1: ****\_\_**** Parent 2: ****\_\_****
+Parent 1: \***\*\_\_\*\*** Parent 2: \***\*\_\_\*\***
 
 b) Complete the Punnett square for this cross.
 
@@ -584,9 +584,9 @@ c) A student claims that because Cross 2 does not produce a perfect 3:1 ratio, M
 
 a) List all possible gamete types produced by each parent.
 
-RrYy gametes: **********\_\_**********
+RrYy gametes: \***\*\*\*\*\***\_\_\***\*\*\*\*\***
 
-rrYy gametes: **********\_\_**********
+rrYy gametes: \***\*\*\*\*\***\_\_\***\*\*\*\*\***
 
 b) Without drawing the full 8 × 4 Punnett square, predict the probability that an offspring will be wrinkled and green (rryy). Show your reasoning using the probability multiplication rule.
 

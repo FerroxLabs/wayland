@@ -48,7 +48,7 @@ vi.mock('../../../../src/common', () => ({
     },
     // Engine config.toml read/write (Tools / Security / Memory / Runtime panes).
     wcoreConfig: {
-      getSection: { invoke: () => Promise.resolve(undefined) },
+      getSection: { invoke: () => new Promise<never>(() => {}) },
       setSection: { invoke: () => Promise.resolve({ ok: true }) },
     },
     // Tool-backend key presence (Services & Keys pane).
@@ -94,11 +94,12 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     vi.clearAllMocks();
     mockProviders.value = [];
     mockMcpServers.value = [];
-    mockGetAvailableAgents.mockResolvedValue({
-      success: true,
-      data: [{ backend: 'wcore', name: 'Wayland Core', cliPath: '/usr/local/bin/wcore' }],
-    });
-    mockWcoreCheck.mockResolvedValue(null);
+    // Most tests exercise static WCore navigation/copy, not background engine
+    // discovery. Keep those unrelated requests pending so they cannot update a
+    // component after a synchronous assertion and leak React act warnings.
+    // Status/update tests override these with explicit resolved responses.
+    mockGetAvailableAgents.mockReturnValue(new Promise<never>(() => {}));
+    mockWcoreCheck.mockReturnValue(new Promise<never>(() => {}));
     mockWcoreInstall.mockResolvedValue({ ok: true, version: '0.12.21' });
   });
 
@@ -127,8 +128,20 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(screen.getAllByText('Manage in Desktop Settings').length).toBeGreaterThan(0);
   });
 
-  it('renders the three engine status stat cards', () => {
+  it('renders the three engine status stat cards', async () => {
+    mockGetAvailableAgents.mockResolvedValue({
+      success: true,
+      data: [
+        {
+          backend: 'wcore',
+          name: 'Wayland Core',
+          cliPath: '/usr/local/bin/wcore',
+          version: 'v0.12.21-status-test',
+        },
+      ],
+    });
     render(<WCoreConfig />);
+    await waitFor(() => expect(screen.getByText('engine running · v0.12.21-status-test')).toBeTruthy());
     // "Engine" also appears as the rail group label, so assert the unique
     // stat-card meta strings instead of the ambiguous labels.
     expect(screen.getByText('Running')).toBeTruthy();
@@ -192,8 +205,19 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
   });
 
   it('shows the engine chip with the pinned version when running', async () => {
+    mockGetAvailableAgents.mockResolvedValue({
+      success: true,
+      data: [
+        {
+          backend: 'wcore',
+          name: 'Wayland Core',
+          cliPath: '/usr/local/bin/wcore',
+          version: 'v0.12.21-runtime-test',
+        },
+      ],
+    });
     render(<WCoreConfig />);
-    await waitFor(() => expect(screen.getByText(/^engine running · v\d/)).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('engine running · v0.12.21-runtime-test')).toBeTruthy());
   });
 
   it('shows engine stopped when the wcore backend is absent', async () => {
@@ -221,9 +245,9 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
 
     fireEvent.click(screen.getByText('Update now'));
 
-    await waitFor(() => expect(screen.getByText('Wayland Core update failed')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Engine update failed')).toBeTruthy());
     expect(screen.getByText('checksum mismatch')).toBeTruthy();
     // A retry stays available - the failure must not strand the user.
-    expect(screen.getByText('Retry update')).toBeTruthy();
+    expect(screen.getByText('Retry')).toBeTruthy();
   });
 });

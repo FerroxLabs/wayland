@@ -433,12 +433,31 @@
     "effortLowDesc": "Fast responses with lighter reasoning",
     "effortMediumDesc": "Balances speed and reasoning depth",
     "effortHighDesc": "Greater reasoning depth for complex problems",
+    "effortXhigh": "Extra high",
+    "effortXhighDesc": "Extended reasoning for hard coding and agentic tasks",
+    "effortMax": "Max",
+    "effortMaxDesc": "Maximum reasoning depth - correctness over cost",
     "emptyTitle": "No models yet",
     "emptySub": "Connect a provider to choose a model.",
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "providerDefault": "Використовувати модель провайдера за замовчуванням",
+    "switching": "Перемикання на {{model}}…",
+    "blocked": "Перемикання моделі заблоковано",
+    "retry": "Повторити",
+    "revert": "Повернутися до підтвердженої моделі",
+    "sendPending": "Очікування підтвердження моделі…",
+    "sendBlocked": "Перемикання моделі заблоковано — виберіть іншу модель або модель провайдера за замовчуванням.",
+    "failure": {
+      "unsupported_model": "Модель {{model}} недоступна в цього провайдера. Активну модель не змінено.",
+      "model_rejected": "Провайдер відхилив модель {{model}}. Активну модель не змінено.",
+      "model_mismatch": "Провайдер не підтвердив модель {{model}}. Активну модель не змінено.",
+      "confirmation_unavailable": "Зараз провайдер не може підтвердити модель {{model}}. Активну модель не змінено.",
+      "bridge_unavailable": "Не вдалося зв’язатися з провайдером для перемикання на {{model}}. Активну модель не змінено.",
+      "model_switch_timeout": "Час очікування підтвердження моделі {{model}} минув. Активну модель не змінено."
+    }
   },
   "notification": {
     "untitled": "Чат без назви",

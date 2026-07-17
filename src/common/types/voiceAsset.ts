@@ -19,7 +19,11 @@ export type VoiceAsset = {
   sha256: string;
   /** Optional hint when the server omits Content-Length. */
   totalBytes?: number;
+  /** Hard upper bound enforced before and during download. */
+  maxBytes: number;
 };
+
+export type VoiceAssetDownloadRequest = { id: string };
 
 export type DownloadProgress = {
   assetId: string;
@@ -37,7 +41,12 @@ export type DownloadResult = {
 };
 
 export type VoiceAssetErrorCode =
+  | 'VOICE_ASSET_UNKNOWN'
+  | 'VOICE_ASSET_INVALID_DESCRIPTOR'
+  | 'VOICE_ASSET_IN_PROGRESS'
+  | 'VOICE_ASSET_TOO_LARGE'
   | 'VOICE_ASSET_OFFLINE'
   | 'VOICE_ASSET_FETCH_FAILED'
   | 'VOICE_ASSET_HASH_MISMATCH'
+  | 'VOICE_ASSET_CLEANUP_FAILED'
   | 'VOICE_ASSET_CANCELLED';

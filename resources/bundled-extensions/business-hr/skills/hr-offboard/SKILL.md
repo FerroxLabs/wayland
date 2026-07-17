@@ -239,8 +239,8 @@ This Separation Agreement and Release ("Agreement") is between [Employee] and
 
 Signed:
 
-Employee: ************\_************ Date: ****\_****
-Company: ************\_\_************ Date: ****\_****
+Employee: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\*** Date: \***\*\_\*\***
+Company: \***\*\*\*\*\*\*\***\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\*\***
 
 [40+ ATTACHMENT - OWBPA disclosure for group RIF: decisional unit, criteria, ages.]
 

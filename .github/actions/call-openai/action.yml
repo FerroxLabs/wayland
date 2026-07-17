@@ -22,7 +22,7 @@ runs:
   using: 'composite'
   steps:
     - id: 'call'
-      uses: 'actions/github-script@v7'
+      uses: 'actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b' # v7.1.0
       env:
         OPENAI_API_KEY: '${{ inputs.openai_api_key }}'
         OUTPUT_FILE: '${{ inputs.output_file }}'
@@ -31,7 +31,68 @@ runs:
       with:
         script: |
           const fs = require('fs');
+          const path = require('path');
           const tmpDir = process.env.RUNNER_TEMP || '/tmp';
+          const tempRoot = fs.realpathSync(tmpDir);
+          const outputFile = process.env.OUTPUT_FILE || 'gpt_response.txt';
+          const MAX_PROMPT_BYTES = 512 * 1024;
+          const REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
+
+          function resolveDirectTempFile(filename) {
+            if (filename !== path.basename(filename)) {
+              throw new Error('Refusing a nested temporary file path');
+            }
+            const candidate = path.resolve(tempRoot, filename);
+            if (path.dirname(candidate) !== tempRoot) {
+              throw new Error('Temporary file resolves outside RUNNER_TEMP');
+            }
+            return candidate;
+          }
+
+          function readBoundedTempFile(filename) {
+            const filePath = resolveDirectTempFile(filename);
+            const linkStat = fs.lstatSync(filePath);
+            if (linkStat.isSymbolicLink() || !linkStat.isFile() || linkStat.size > MAX_PROMPT_BYTES) {
+              throw new Error(`Unsafe or oversized prompt input: ${filename}`);
+            }
+
+            const noFollow = fs.constants.O_NOFOLLOW ?? 0;
+            const fd = fs.openSync(filePath, fs.constants.O_RDONLY | noFollow);
+            try {
+              const opened = fs.fstatSync(fd);
+              if (!opened.isFile() || opened.nlink !== 1 || opened.size > MAX_PROMPT_BYTES) {
+                throw new Error(`Unsafe or oversized opened prompt input: ${filename}`);
+              }
+              const buffer = Buffer.alloc(opened.size + 1);
+              let bytesRead = 0;
+              while (bytesRead < buffer.length) {
+                const count = fs.readSync(fd, buffer, bytesRead, buffer.length - bytesRead, null);
+                if (count === 0) break;
+                bytesRead += count;
+              }
+              const after = fs.fstatSync(fd);
+              if (bytesRead !== opened.size || after.size !== opened.size) {
+                throw new Error(`Prompt input changed while being read: ${filename}`);
+              }
+              return buffer.subarray(0, bytesRead).toString('utf-8');
+            } finally {
+              fs.closeSync(fd);
+            }
+          }
+
+          if (
+            outputFile !== path.basename(outputFile) ||
+            !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(outputFile)
+          ) {
+            core.setFailed('output_file must be a simple filename inside RUNNER_TEMP');
+            return;
+          }
+          const outputPath = path.resolve(tempRoot, outputFile);
+          const outputRelative = path.relative(tempRoot, outputPath);
+          if (outputRelative !== outputFile || path.isAbsolute(outputRelative)) {
+            core.setFailed('output_file resolves outside RUNNER_TEMP');
+            return;
+          }
 
           const apiKey = process.env.OPENAI_API_KEY;
           if (!apiKey) {
@@ -42,8 +103,8 @@ runs:
           // Read prompts from temp files
           let systemPrompt, userPrompt;
           try {
-            systemPrompt = fs.readFileSync(`${tmpDir}/system_prompt.txt`, 'utf-8');
-            userPrompt = fs.readFileSync(`${tmpDir}/user_prompt.txt`, 'utf-8');
+            systemPrompt = readBoundedTempFile('system_prompt.txt');
+            userPrompt = readBoundedTempFile('user_prompt.txt');
           } catch (err) {
             core.setFailed(`Failed to read prompt files: ${err.message}`);
             return;
@@ -68,10 +129,17 @@ runs:
                     temperature: 0.1,
                     max_completion_tokens: 16384,
                   }),
+                  signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
                 });
 
                 if (response.status === 429 || response.status >= 500) {
                   if (attempt < retries) {
+                    try {
+                      await response.body?.cancel();
+                    } catch (cancelError) {
+                      const detail = cancelError instanceof Error ? cancelError.message : String(cancelError);
+                      core.warning(`Failed to cancel retryable OpenAI response body: ${detail}`);
+                    }
                     const delay = Math.pow(2, attempt + 1) * 1000;
                     core.warning(`OpenAI API returned ${response.status}, retrying in ${delay}ms (attempt ${attempt + 1}/${retries})`);
                     await new Promise(r => setTimeout(r, delay));
@@ -93,17 +161,21 @@ runs:
                 }
                 return content;
               } catch (error) {
+                const errorName = error instanceof Error ? error.name : '';
+                const errorMessage = error instanceof Error ? error.message : String(error);
                 const isRetryable = attempt < retries && (
-                  error.cause?.code === 'ECONNRESET' ||
-                  error.cause?.code === 'ETIMEDOUT' ||
-                  error.cause?.code === 'ENOTFOUND' ||
-                  error.message.includes('fetch') ||
-                  error.message.includes('network') ||
-                  error.message.includes('socket')
+                  error?.cause?.code === 'ECONNRESET' ||
+                  error?.cause?.code === 'ETIMEDOUT' ||
+                  error?.cause?.code === 'ENOTFOUND' ||
+                  errorName === 'TimeoutError' ||
+                  errorName === 'AbortError' ||
+                  errorMessage.includes('fetch') ||
+                  errorMessage.includes('network') ||
+                  errorMessage.includes('socket')
                 );
                 if (isRetryable) {
                   const delay = Math.pow(2, attempt + 1) * 1000;
-                  core.warning(`Network error, retrying in ${delay}ms: ${error.message}`);
+                  core.warning(`Network error, retrying in ${delay}ms: ${errorMessage}`);
                   await new Promise(r => setTimeout(r, delay));
                   continue;
                 }
@@ -141,6 +213,16 @@ runs:
             ? withNote.substring(0, MAX_LENGTH) + '\n\n---\n*[Output truncated due to length]*'
             : withNote;
 
-          const outputFile = process.env.OUTPUT_FILE || 'gpt_response.txt';
-          fs.writeFileSync(`${tmpDir}/${outputFile}`, finalContent);
+          const noFollow = fs.constants.O_NOFOLLOW ?? 0;
+          const flags = fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | noFollow;
+          const fd = fs.openSync(outputPath, flags, 0o600);
+          try {
+            const openedStat = fs.fstatSync(fd);
+            if (!openedStat.isFile()) {
+              throw new Error('Refusing to write OpenAI output to a non-regular file');
+            }
+            fs.writeFileSync(fd, finalContent, { encoding: 'utf-8' });
+          } finally {
+            fs.closeSync(fd);
+          }
           core.info(`GPT response written to ${outputFile} (${finalContent.length} chars)`);

@@ -401,13 +401,19 @@
           "label": "Business Account ID",
           "placeholder": "987654321098765",
           "help": "Opcional. Habilita metadados mais ricos nos eventos de mensagens de entrada.",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "Verify Token",
           "placeholder": "uma longa cadeia aleatória",
           "help": "Cadeia escolhida pelo operador que a Meta retorna durante o handshake GET /webhook. Deve corresponder ao que você cola no painel da Meta.",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2594,6 +2600,18 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity"
     }
+  },
+  "devActions": {
+    "syncTitle": "Sincronizar forks com o upstream",
+    "syncDescription": "Usa a GitHub CLI autenticada para atualizar apenas uma branch de sincronização descartável e abrir ou reutilizar um pull request. Sua branch padrão e os commits exclusivos do fork nunca são sobrescritos à força.",
+    "syncButton": "Preparar PRs de sincronização",
+    "syncSelectWarning": "Selecione pelo menos um fork.",
+    "syncSuccess": "Sincronização concluída: {{ready}} PRs prontos; {{upToDate}} já atualizados.",
+    "syncFailure": "{{count}} falharam: {{repos}}",
+    "syncUpToDate": "Já está atualizado.",
+    "syncCounts": "{{upstream}} commits do upstream prontos; {{preserved}} commits exclusivos do fork preservados.",
+    "syncUnknownError": "Falha na sincronização.",
+    "syncReviewPr": "Revisar PR"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

@@ -31,9 +31,8 @@ import { ipcBridge } from '@/common';
 import type { IjfwLifecycleStatus, IjfwStatusPayload } from '@/common/adapter/ipcBridge';
 import type { IjfwErrorReason } from '@/common/types/ijfw';
 import { buildChildEnv } from '@process/services/ijfw/envAllowlist';
-import { safeSpawn } from '@process/services/ijfw/safeSpawn';
+import { resolveTrustedNodeRuntime, safeSpawn } from '@process/services/ijfw/safeSpawn';
 import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
-import { resolveJsRuntime } from '@process/utils/jsRuntime';
 import { writeAtomic, moveWithExdevFallback, ijfwCacheKey } from '@process/services/ijfw/atomicFile';
 import { acquireLock, releaseLock, type LockMetadata } from '@process/services/ijfw/installLock';
 import {
@@ -493,6 +492,16 @@ async function bootstrapImpl(): Promise<void> {
             await syncPrelude('install_failed');
             return;
           }
+          const installed = await detectLocalInstallImpl();
+          if (!installed.installed) {
+            emitStatus({
+              status: 'install_failed',
+              errorReason: 'unavailable',
+              stderr: stderr || 'Installer exited successfully without creating ~/.ijfw/mcp-server',
+            });
+            await syncPrelude('install_failed');
+            return;
+          }
           if (local.installed) {
             // Decision 1a: stage upgrade into .pending - activate next boot.
             try {
@@ -593,10 +602,12 @@ export function _setSpawnTestTimeoutForTests(ms?: number): void {
 /** SEC-003: full JSON-RPC envelope verify with exit-before-success = fail. */
 async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
   let entry: string;
+  let runtime: string;
   try {
     entry = await resolveEntry(mcpServerDir);
+    runtime = await resolveTrustedNodeRuntime();
   } catch (err) {
-    log.warn('[ijfw] spawnTestVerify - resolveEntry failed', { err });
+    log.warn('[ijfw] spawnTestVerify - runtime resolution failed', { err });
     return false;
   }
 
@@ -606,14 +617,12 @@ async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
       // #755: explicit bundle-external cwd + IJFW_PROJECT_DIR so the probe
       // server can never treat an inherited cwd (e.g. app.asar.unpacked in a
       // worker) as a writable project root and write into the signed bundle.
+      // `runtime` is the trusted standalone Node runtime resolved above.
       const safeCwd = resolveSafeSpawnCwd();
-      // #706: packaged (fused) builds ignore ELECTRON_RUN_AS_NODE — resolve a
-      // real JS runtime (bundled Bun) so the probe runs as Node, not the app.
-      const runtime = resolveJsRuntime();
-      child = spawn(runtime.command, [entry], {
+      child = spawn(runtime, [entry], {
         cwd: safeCwd,
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: buildChildEnv({ ...runtime.env, IJFW_PROJECT_DIR: safeCwd }),
+        env: buildChildEnv({ IJFW_PROJECT_DIR: safeCwd }),
       });
     } catch (err) {
       log.warn('[ijfw] spawnTestVerify - spawn threw', { err });

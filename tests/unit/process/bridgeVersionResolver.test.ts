@@ -10,6 +10,7 @@ import {
   resolveLatestBridgeVersion,
   splitPackage,
 } from '@process/agent/acp/bridgeVersionResolver';
+import { CODEX_ACP_NPX_PACKAGE } from '@/common/types/acpTypes';
 
 describe('splitPackage', () => {
   it('splits a scoped name@version without treating the scope @ as a separator', () => {
@@ -75,7 +76,10 @@ describe('resolveLatestBridgeVersion', () => {
 });
 
 describe('resolveBridgePackage', () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
 
   it('rebuilds <name>@<resolved> from a pinned fallback string', async () => {
     vi.stubGlobal(
@@ -84,5 +88,19 @@ describe('resolveBridgePackage', () => {
     );
     const pkg = await resolveBridgePackage('@scope/uncached-pkg-d@1.0.0');
     expect(pkg).toBe('@scope/uncached-pkg-d@5.5.5');
+  });
+
+  it('returns the exact official Codex fallback when the registry is unavailable', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('network down');
+      })
+    );
+
+    const pkg = await resolveBridgePackage(CODEX_ACP_NPX_PACKAGE);
+
+    expect(pkg).toBe('@agentclientprotocol/codex-acp@1.1.2');
   });
 });

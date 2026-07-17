@@ -27,7 +27,7 @@ export function OrphanCard({
   memoryIds,
   onSynthesize,
 }: OrphanCardProps): React.ReactElement {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   return (
     <div className={styles.card} data-testid='orphan-card'>
       <div className={styles.title}>&ldquo;{suggestedName}&rdquo;</div>

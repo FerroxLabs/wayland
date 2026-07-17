@@ -1,5 +1,6 @@
 import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
+import { parseCodexModelId } from '@process/acp/codexModelId';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import { ipcBridge } from '@/common';
@@ -15,17 +16,26 @@ import type { IConfigStorageRefer } from '@/common/config/storage';
 import { WAYLAND_FILES_MARKER } from '@/common/config/constants';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { parseError, uuid } from '@/common/utils';
-import { claudeSlotForModelId } from '@process/agent/acp/utils';
 import type {
   AcpBackend,
+  AcpModelConfirmationSource,
   AcpModelInfo,
+  AcpModelSelectionFailureCode,
+  AcpModelSelectionResult,
+  AcpModelSelectionState,
   AcpPermissionOption,
   AcpPermissionRequest,
   AcpResult,
   AcpBackendConfig,
   AcpSessionConfigOption,
 } from '@/common/types/acpTypes';
-import { ACP_BACKENDS_ALL, getCurrentWrapperVersion, getFluxCompat } from '@/common/types/acpTypes';
+import {
+  ACP_BACKENDS_ALL,
+  CLAUDE_ACP_NPX_PACKAGE,
+  CODEBUDDY_ACP_NPX_PACKAGE,
+  CODEX_ACP_NPX_PACKAGE,
+  getCurrentWrapperVersion,
+} from '@/common/types/acpTypes';
 import { isFluxModelId } from '@/common/config/flux';
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
@@ -34,6 +44,8 @@ import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
 import { BACKEND_AUTH_KEYS } from '@process/acp/compat/typeBridge';
 import { selectAuthFailureCulprits } from '@process/providers/detection/authFailure';
+import { WAYLAND_ACP_UNSET_ENV_KEYS } from '@process/agent/acp/acpConnectors';
+import { claudeCatalogSupportsSlot, claudeModelIdsSelectSameModel } from '@process/agent/acp/utils';
 import { ProcessConfig } from '@process/utils/initStorage';
 import {
   readClaudeModelInfoFromCcSwitch,
@@ -112,8 +124,8 @@ interface AcpAgentManagerData {
   sandboxMode?: CodexSandboxMode;
   /** Pending config option selections from Guid page (applied after session creation) */
   pendingConfigOptions?: Record<string, string>;
-  /** Per-conversation reasoning effort (codex/claude). Absent => backend default. */
-  effort?: 'low' | 'medium' | 'high';
+  /** Per-conversation reasoning effort (codex/claude, low..max). Absent => backend default. */
+  effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
   /** Per-conversation active MCP server ids (#348): undefined = all enabled, [] = none. */
   activeMcpServers?: string[];
   /**
@@ -126,6 +138,102 @@ interface AcpAgentManagerData {
     command: string;
     args: string[];
     env: Array<{ name: string; value: string }>;
+  };
+}
+
+type AgentRuntime = {
+  agent: AcpAgentV2;
+  routing: RoutingDecision;
+  sessionId: string | null;
+  expectedCodexEffort?: string;
+  activate: () => void;
+};
+
+type ExactModelConfirmation =
+  | {
+      ok: true;
+      modelInfo: AcpModelInfo;
+      source: AcpModelConfirmationSource;
+    }
+  | {
+      ok: false;
+      code: AcpModelSelectionFailureCode;
+      message: string;
+    };
+
+type ModelDispatchResult =
+  | { ok: true }
+  | {
+      ok: false;
+      code: AcpModelSelectionFailureCode;
+      message: string;
+    };
+
+const MODEL_CONFIRMATION_TIMEOUT_MS = 60_000;
+const MODEL_CONFIRMATION_POLL_MS = 50;
+
+function updateSpawnEnvUnsetKey(env: Record<string, string>, key: string, shouldUnset: boolean): void {
+  let keys: string[] = [];
+  try {
+    const parsed: unknown = JSON.parse(env[WAYLAND_ACP_UNSET_ENV_KEYS] ?? '[]');
+    if (Array.isArray(parsed)) keys = parsed.filter((value): value is string => typeof value === 'string');
+  } catch {
+    // Replace malformed internal control data below.
+  }
+
+  const next = new Set(keys);
+  if (shouldUnset) next.add(key);
+  else next.delete(key);
+  if (next.size > 0) env[WAYLAND_ACP_UNSET_ENV_KEYS] = JSON.stringify([...next]);
+  else delete env[WAYLAND_ACP_UNSET_ENV_KEYS];
+}
+
+function parseCodexConfig(rawConfig: string | undefined): Record<string, unknown> {
+  if (!rawConfig) return {};
+  try {
+    const parsed: unknown = JSON.parse(rawConfig);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('must be a JSON object');
+    }
+    return { ...parsed };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Invalid CODEX_CONFIG: ${message}`, { cause: error });
+  }
+}
+
+function mergeCodexSpawnConfig(
+  rawConfig: string | undefined,
+  modelId: string | undefined,
+  fallbackEffort: string | undefined
+): string {
+  const config = parseCodexConfig(rawConfig);
+  if (!modelId) {
+    delete config.model;
+    return JSON.stringify(config);
+  }
+
+  const selection = parseCodexModelId(modelId);
+  config.model = selection.baseModelId;
+  const effort = selection.effort ?? fallbackEffort;
+  if (effort) config.model_reasoning_effort = effort;
+  return JSON.stringify(config);
+}
+
+function bridgeProvenance(backend: string): { packageName: string | null; version: string | null } {
+  const packageSpec =
+    backend === 'claude'
+      ? CLAUDE_ACP_NPX_PACKAGE
+      : backend === 'codex'
+        ? CODEX_ACP_NPX_PACKAGE
+        : backend === 'codebuddy'
+          ? CODEBUDDY_ACP_NPX_PACKAGE
+          : null;
+  if (!packageSpec) return { packageName: null, version: null };
+  const versionSeparator = packageSpec.lastIndexOf('@');
+  return {
+    packageName: packageSpec.slice(0, versionSeparator),
+    version: packageSpec.slice(versionSeparator + 1),
   };
 }
 
@@ -147,6 +255,20 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   options: AcpAgentManagerData;
   private currentMode: string = 'default';
   private persistedModelId: string | null = null;
+  private requestedModelId: string | null;
+  private confirmedModelId: string | null = null;
+  private previousConfirmedModelId: string | null = null;
+  private pendingModelId: string | null = null;
+  private modelSelectionState: AcpModelSelectionState;
+  private modelBlockedFailure: AcpModelSelectionFailureCode | null = null;
+  private modelSwitchGeneration = 0;
+  private modelSwitchAbortController = new AbortController();
+  private modelTransition: Promise<AcpModelSelectionResult> | null = null;
+  private modelPromptLease: Promise<void> = Promise.resolve();
+  private lastConfirmationSource: AcpModelConfirmationSource | 'provider-default' | null = null;
+  private lastModelSwitchRestarted = false;
+  private resolvedBridgePackage: string | null = null;
+  private resolvedBridgeVersion: string | null = null;
   /**
    * Latest cumulative usage gauge from `acp_context_usage` this turn. ACP emits
    * `used`/`cost` as a per-conversation CUMULATIVE high-water mark on every
@@ -190,6 +312,11 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
     this.options = data;
     this.currentMode = data.sessionMode || 'default';
     this.persistedModelId = data.currentModelId || null;
+    this.requestedModelId = this.persistedModelId;
+    this.modelSelectionState = this.persistedModelId ? 'pending' : 'provider-default';
+    const provenance = bridgeProvenance(data.backend);
+    this.resolvedBridgePackage = provenance.packageName;
+    this.resolvedBridgeVersion = provenance.version;
     this.status = 'pending';
     // Sync yoloMode from sessionMode so addConfirmation auto-approves when Full Auto is selected
     this.yoloMode = this.yoloMode || this.isYoloMode(this.currentMode);
@@ -416,7 +543,7 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
       if (collectedResponses.length > 0 && this.agent) {
         const feedbackMessage = `[System Response]
 ${collectedResponses.join('\n')}`;
-        await this.agent.sendMessage({ content: feedbackMessage });
+        this.queueSystemFeedback(feedbackMessage);
       }
     }
 
@@ -628,6 +755,7 @@ ${collectedResponses.join('\n')}`;
     customArgs?: string[];
     customEnv?: Record<string, string>;
     yoloMode?: boolean;
+    routing: RoutingDecision;
   }> {
     const resolved = data.customAgentId
       ? await this.resolveCustomAgentCliConfig(data)
@@ -654,7 +782,6 @@ ${collectedResponses.join('\n')}`;
     // Flux routing (openai-surface generic backends + claude via the anthropic
     // surface; codex/codebuddy route separately).
     const decision = await this.computeFluxRouting(data.backend, data.currentModelId ?? undefined);
-    this.lastRouting = decision.routing;
     if (decision.routing === 'flux') {
       for (const k of decision.stripKeys) delete mergedEnv[k];
       Object.assign(mergedEnv, decision.env);
@@ -738,21 +865,30 @@ ${collectedResponses.join('\n')}`;
       }
     }
 
-    // Native (non-Flux) claude slot picks (sonnet/opus/haiku) get no model list
-    // from the bridge under subscription/OAuth auth, so an in-place set_model is
-    // unreliable. Back the pick with ANTHROPIC_MODEL at spawn so the chosen slot
-    // actually runs (#184). Flux routing already injected its own model above.
+    // Provider-native selection is process configuration. Preserve the exact
+    // identifier byte-for-byte: aliases, date-pinned ids, Bedrock ids, and
+    // Vertex paths are all provider-owned identifiers and must never be folded
+    // into Wayland's opus/sonnet/haiku display slots.
     if (data.backend === 'claude' && decision.routing !== 'flux') {
-      const slot = claudeSlotForModelId(data.currentModelId);
-      if (slot) {
-        mergedEnv.ANTHROPIC_MODEL = slot;
+      if (data.currentModelId) {
+        mergedEnv.ANTHROPIC_MODEL = data.currentModelId;
+        updateSpawnEnvUnsetKey(mergedEnv, 'ANTHROPIC_MODEL', false);
+      } else {
+        delete mergedEnv.ANTHROPIC_MODEL;
+        updateSpawnEnvUnsetKey(mergedEnv, 'ANTHROPIC_MODEL', true);
       }
     }
 
-    if (Object.keys(mergedEnv).length > 0) {
-      return { ...resolved, customEnv: mergedEnv };
+    // CODEX_CONFIG is a process-scoped JSON overlay. Merge it immutably so
+    // unrelated user keys survive. Codex itself receives the bare model id;
+    // Wayland's composite model[effort] identity is reconstructed and checked
+    // against provider-originated session/config state after startup.
+    if (data.backend === 'codex' && decision.routing !== 'flux') {
+      mergedEnv.CODEX_CONFIG = mergeCodexSpawnConfig(mergedEnv.CODEX_CONFIG, data.currentModelId, data.effort);
+      updateSpawnEnvUnsetKey(mergedEnv, 'CODEX_CONFIG.model', !data.currentModelId);
     }
-    return resolved;
+
+    return { ...resolved, customEnv: mergedEnv, routing: decision.routing };
   }
 
   /**
@@ -1079,6 +1215,35 @@ ${collectedResponses.join('\n')}`;
     });
   }
 
+  /** Emit model/runtime provenance only; never include prompts, env, or credentials. */
+  private emitRequestTrace(backend: AcpBackend): void {
+    ipcBridge.acpConversation.responseStream.emit({
+      type: 'request_trace',
+      conversation_id: this.conversation_id,
+      msg_id: uuid(),
+      data: {
+        agentType: 'acp' as const,
+        backend,
+        modelId:
+          this.confirmedModelId ?? (this.modelSelectionState === 'provider-default' ? 'provider-default' : 'unknown'),
+        requestedModelId: this.requestedModelId,
+        confirmedModelId: this.confirmedModelId,
+        previousConfirmedModelId: this.previousConfirmedModelId,
+        bridgePackage: this.resolvedBridgePackage,
+        bridgeVersion: this.resolvedBridgeVersion,
+        explicitExecutableOverride: Boolean(this.options.cliPath),
+        confirmationSource: this.lastConfirmationSource,
+        modelSelectionState: this.modelSelectionState,
+        modelSelectionFailureCode: this.modelBlockedFailure,
+        restarted: this.lastModelSwitchRestarted,
+        resumed: Boolean(this.options.acpSessionId),
+        sessionMode: this.currentMode,
+        routing: this.lastRouting,
+        timestamp: Date.now(),
+      },
+    });
+  }
+
   /**
    * Handle stream events from the ACP agent.
    * Processes thinking, content, status, and tool call messages through the
@@ -1123,25 +1288,12 @@ ${collectedResponses.join('\n')}`;
 
     // Emit request trace on each model generation start
     if (message.type === 'start') {
-      const modelInfo = this.agent?.getModelInfo();
-      ipcBridge.acpConversation.responseStream.emit({
-        type: 'request_trace',
-        conversation_id: this.conversation_id,
-        msg_id: uuid(),
-        data: {
-          agentType: 'acp' as const,
-          backend,
-          modelId: modelInfo?.currentModelId || this.persistedModelId || 'unknown',
-          cliPath: this.options?.cliPath,
-          sessionMode: this.currentMode,
-          routing: this.lastRouting,
-          timestamp: Date.now(),
-        },
-      });
+      this.emitRequestTrace(backend);
     }
 
     // Persist config options to DB so AcpConfigSelector can render from cache
     if (message.type === 'acp_model_info') {
+      this.reconcileLiveProviderModelInfo(message.data as AcpModelInfo);
       const configOptions = this.getConfigOptions();
       if (configOptions.length > 0) {
         void this.saveConfigOptions(configOptions);
@@ -1179,7 +1331,10 @@ ${collectedResponses.join('\n')}`;
     // so thinking appears before main content and DB stores clean text
     // (e.g. MiniMax models embed think tags in content)
     let processedMessage = message;
-    if (message.type === 'content' && typeof message.data === 'string') {
+    if (message.type === 'acp_model_info') {
+      const confirmedOnlyInfo = this.getModelInfo();
+      if (confirmedOnlyInfo) processedMessage = { ...message, data: confirmedOnlyInfo };
+    } else if (message.type === 'content' && typeof message.data === 'string') {
       const { thinking, content: stripped } = extractAndStripThinkTags(message.data);
       if (thinking) {
         this.emitThinkingMessage(thinking, 'thinking');
@@ -1434,11 +1589,352 @@ ${collectedResponses.join('\n')}`;
     });
   }
 
+  /** Serialize prompts and model transitions against the same live runtime. */
+  private withModelPromptLease<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.modelPromptLease.then(operation, operation);
+    this.modelPromptLease = result.then(
+      (): void => {},
+      (): void => {}
+    );
+    return result;
+  }
+
+  /**
+   * Run generated cron/concierge feedback after the current turn and any model
+   * transition already ahead of it. This must remain non-blocking because finish
+   * handling may be awaited by the prompt that currently owns the lease.
+   */
+  private queueSystemFeedback(content: string): void {
+    void this.withModelPromptLease(async () => {
+      try {
+        this.assertModelReady();
+        if (!this.agent) return;
+        await this.agent.sendMessage({ content });
+      } catch (error) {
+        mainWarn('[AcpAgentManager]', 'Skipped queued system feedback because the model is not ready', error);
+      }
+    });
+  }
+
+  private emitModelInfo(): void {
+    const modelInfo = this.getModelInfo();
+    if (!modelInfo) return;
+    const message: IResponseMessage = {
+      type: 'acp_model_info',
+      conversation_id: this.conversation_id,
+      msg_id: uuid(),
+      data: modelInfo,
+    };
+    ipcBridge.acpConversation.responseStream.emit(message);
+    channelEventBus.emitAgentMessage(this.conversation_id, message);
+  }
+
+  /** Block future prompts if an active provider authoritatively moves off the pinned model. */
+  private reconcileLiveProviderModelInfo(modelInfo: AcpModelInfo): void {
+    if (
+      this.modelSelectionState !== 'confirmed' ||
+      !this.requestedModelId ||
+      !this.agent ||
+      (!modelInfo.confirmationSource && modelInfo.selectionState !== 'blocked')
+    ) {
+      return;
+    }
+
+    const confirmation = this.confirmExactModel(this.agent, this.requestedModelId, this.options.effort);
+    if (confirmation.ok === true) return;
+
+    this.pendingModelId = null;
+    this.modelSelectionState = 'blocked';
+    this.modelBlockedFailure = confirmation.code;
+  }
+
+  private modelSelectionFailure(
+    requestedModelId: string | null,
+    code: AcpModelSelectionFailureCode,
+    message: string
+  ): AcpModelSelectionResult {
+    return {
+      ok: false,
+      requestedModelId,
+      previousConfirmedModelId: this.confirmedModelId,
+      code,
+      message,
+      modelInfo: this.getModelInfo(),
+    };
+  }
+
+  private failCurrentModelSelection(
+    requestedModelId: string | null,
+    code: AcpModelSelectionFailureCode,
+    message: string
+  ): AcpModelSelectionResult {
+    this.pendingModelId = null;
+    this.modelSelectionState = 'blocked';
+    this.modelBlockedFailure = code;
+    this.lastModelSwitchRestarted = false;
+    this.emitModelInfo();
+    return this.modelSelectionFailure(requestedModelId, code, message);
+  }
+
+  private providerCatalogSupports(modelInfo: AcpModelInfo, requestedModelId: string): boolean {
+    if (modelInfo.availableModels.length === 0) return true;
+    if (this.options.backend !== 'codex') {
+      if (modelInfo.availableModels.some((candidate) => candidate.id === requestedModelId)) return true;
+      // Claude Code advertises slot aliases (opus/sonnet/haiku) under
+      // subscription/OAuth auth while the picker offers registry catalog ids
+      // (claude-opus-4-8); a registry id is supported when its slot is advertised
+      // (#184). Non-Claude non-Codex backends have no slots, so this is false.
+      if (this.options.backend === 'claude') {
+        return claudeCatalogSupportsSlot(
+          requestedModelId,
+          modelInfo.availableModels.map((candidate) => candidate.id)
+        );
+      }
+      return false;
+    }
+
+    const requested = parseCodexModelId(requestedModelId);
+    return modelInfo.availableModels.some((candidate) => {
+      const available = parseCodexModelId(candidate.id);
+      if (available.baseModelId !== requested.baseModelId) return false;
+      return !requested.effort || !available.effort || available.effort === requested.effort;
+    });
+  }
+
+  private confirmExactModel(
+    agent: AcpAgentV2,
+    requestedModelId: string,
+    expectedCodexEffort?: string
+  ): ExactModelConfirmation {
+    const modelInfo = agent.getModelInfo();
+    if (modelInfo?.selectionState === 'blocked' && modelInfo.selectionFailureCode) {
+      return {
+        ok: false,
+        code: modelInfo.selectionFailureCode,
+        message: `Provider could not authoritatively confirm model "${requestedModelId}"`,
+      };
+    }
+    if (!modelInfo?.currentModelId || !modelInfo.confirmationSource) {
+      return {
+        ok: false,
+        code: 'confirmation_unavailable',
+        message: `Provider did not confirm model "${requestedModelId}"`,
+      };
+    }
+
+    let exact = modelInfo.currentModelId === requestedModelId;
+    if (this.options.backend === 'codex') {
+      const requested = parseCodexModelId(requestedModelId);
+      const actual = parseCodexModelId(modelInfo.currentModelId);
+      const expectedEffort = requested.effort ?? expectedCodexEffort;
+      const effortOption = agent
+        .getConfigOptions()
+        .find((option) => option.id === 'reasoning_effort' || option.id === 'model_reasoning_effort');
+      const actualEffort = actual.effort ?? effortOption?.currentValue ?? effortOption?.selectedValue;
+
+      if (requested.baseModelId === actual.baseModelId && expectedEffort && !actualEffort) {
+        return {
+          ok: false,
+          code: 'confirmation_unavailable',
+          message: `Provider confirmed ${actual.baseModelId} but did not confirm reasoning effort ${expectedEffort}`,
+        };
+      }
+      exact = requested.baseModelId === actual.baseModelId && (!expectedEffort || expectedEffort === actualEffort);
+    } else if (!exact && this.options.backend === 'claude') {
+      // Claude Code distinguishes models only at slot granularity. Under
+      // subscription/OAuth auth the provider advertises slots (opus/sonnet/haiku)
+      // but the picker offers registry catalog ids (claude-opus-4-8), so the
+      // confirmed slot and the requested registry id are the same model and must
+      // confirm exact — otherwise a valid pick fails as unsupported_model (#184).
+      exact = claudeModelIdsSelectSameModel(
+        requestedModelId,
+        modelInfo.currentModelId,
+        modelInfo.availableModels.map((candidate) => candidate.id)
+      );
+    }
+
+    if (!exact) {
+      const supported = this.providerCatalogSupports(modelInfo, requestedModelId);
+      return {
+        ok: false,
+        code: supported ? 'model_mismatch' : 'unsupported_model',
+        message: supported
+          ? `Provider reported "${modelInfo.currentModelId}" after requesting "${requestedModelId}"`
+          : `Provider does not advertise model "${requestedModelId}"`,
+      };
+    }
+
+    return { ok: true, modelInfo, source: modelInfo.confirmationSource };
+  }
+
+  /**
+   * Confirm a new or resumed provider runtime without treating its spawn
+   * configuration as evidence. Codex dispatches through the advertised ACP
+   * model option and then validates correlated model and effort state. Claude's
+   * model is process-scoped, so an unconfirmed startup snapshot is polled until
+   * provider-originated session state arrives.
+   */
+  private async dispatchCodexModelSelection(
+    agent: AcpAgentV2,
+    requestedModelId: string,
+    signal: AbortSignal,
+    deadline: number
+  ): Promise<ModelDispatchResult> {
+    return new Promise<ModelDispatchResult>((resolve) => {
+      let settled = false;
+      let timer: ReturnType<typeof setTimeout> | null = null;
+      const finish = (result: ModelDispatchResult): void => {
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        signal.removeEventListener('abort', onAbort);
+        resolve(result);
+      };
+      const onAbort = (): void => {
+        finish({ ok: false, code: 'model_rejected', message: 'Model selection was superseded' });
+      };
+
+      if (signal.aborted) {
+        onAbort();
+        return;
+      }
+      signal.addEventListener('abort', onAbort, { once: true });
+      timer = setTimeout(
+        () => {
+          finish({
+            ok: false,
+            code: 'model_switch_timeout',
+            message: `Provider did not confirm model "${requestedModelId}" within 60 seconds`,
+          });
+        },
+        Math.max(0, deadline - Date.now())
+      );
+
+      try {
+        void agent.setModelByConfigOption(requestedModelId).then(
+          () => {
+            finish({ ok: true });
+          },
+          (error: unknown) => {
+            finish({
+              ok: false,
+              code: this.modelErrorCode(error),
+              message: error instanceof Error ? error.message : String(error),
+            });
+          }
+        );
+      } catch (error) {
+        finish({
+          ok: false,
+          code: this.modelErrorCode(error),
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+  }
+
+  private async waitForModelConfirmationTick(deadline: number, signal: AbortSignal): Promise<boolean> {
+    if (signal.aborted) return false;
+    return new Promise<boolean>((resolve) => {
+      let settled = false;
+      const finish = (ready: boolean): void => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        signal.removeEventListener('abort', onAbort);
+        resolve(ready);
+      };
+      const onAbort = (): void => {
+        finish(false);
+      };
+      const timer = setTimeout(
+        () => {
+          finish(true);
+        },
+        Math.min(MODEL_CONFIRMATION_POLL_MS, Math.max(0, deadline - Date.now()))
+      );
+      signal.addEventListener('abort', onAbort, { once: true });
+    });
+  }
+
+  private async confirmProviderModelSelection(
+    agent: AcpAgentV2,
+    requestedModelId: string,
+    generation: number,
+    expectedCodexEffort: string | undefined,
+    signal: AbortSignal
+  ): Promise<ExactModelConfirmation> {
+    const deadline = Date.now() + MODEL_CONFIRMATION_TIMEOUT_MS;
+    if (signal.aborted || generation !== this.modelSwitchGeneration) {
+      return {
+        ok: false,
+        code: 'model_rejected',
+        message: 'Model selection was superseded',
+      };
+    }
+    if (this.options.backend === 'codex') {
+      const dispatch = await this.dispatchCodexModelSelection(agent, requestedModelId, signal, deadline);
+      if (dispatch.ok === false) return dispatch;
+      if (signal.aborted || generation !== this.modelSwitchGeneration) {
+        return {
+          ok: false,
+          code: 'model_rejected',
+          message: 'Model selection was superseded',
+        };
+      }
+    }
+
+    let confirmation = this.confirmExactModel(agent, requestedModelId, expectedCodexEffort);
+    if (
+      (this.options.backend !== 'claude' && this.options.backend !== 'codex') ||
+      confirmation.ok === true ||
+      confirmation.code !== 'confirmation_unavailable'
+    ) {
+      return confirmation;
+    }
+
+    while (Date.now() < deadline) {
+      // oxlint-disable-next-line eslint/no-await-in-loop
+      const ticked = await this.waitForModelConfirmationTick(deadline, signal);
+      if (!ticked || generation !== this.modelSwitchGeneration) {
+        return {
+          ok: false,
+          code: 'model_rejected',
+          message: 'Model selection was superseded',
+        };
+      }
+      confirmation = this.confirmExactModel(agent, requestedModelId, expectedCodexEffort);
+      if (confirmation.ok === true || confirmation.code !== 'confirmation_unavailable') {
+        return confirmation;
+      }
+    }
+
+    return {
+      ok: false,
+      code: 'model_switch_timeout',
+      message: `Provider did not confirm model "${requestedModelId}" within 60 seconds`,
+    };
+  }
+
+  private assertModelReady(): void {
+    if (this.modelSelectionState === 'pending') {
+      throw new Error('MODEL_SELECTION_PENDING');
+    }
+    if (this.modelSelectionState === 'blocked') {
+      throw new Error(`MODEL_SELECTION_BLOCKED:${this.modelBlockedFailure ?? 'confirmation_unavailable'}`);
+    }
+    if (this.requestedModelId && this.confirmedModelId !== this.requestedModelId) {
+      throw new Error('MODEL_SELECTION_BLOCKED:confirmation_unavailable');
+    }
+  }
+
   /**
    * Re-apply persisted mode and model after agent session starts/resumes.
    * Also caches the model list for Guid page pre-selection.
    */
-  private async restorePersistedState(): Promise<void> {
+  private async restorePersistedState(runtime?: AgentRuntime): Promise<void> {
+    const generation = this.modelSwitchGeneration;
+    const signal = this.modelSwitchAbortController.signal;
     if (this.currentMode && this.currentMode !== 'default') {
       try {
         await this.agent.setMode(this.currentMode);
@@ -1446,49 +1942,51 @@ ${collectedResponses.join('\n')}`;
         mainWarn('[AcpAgentManager]', `Failed to re-apply mode ${this.currentMode}`, error);
       }
     }
+    if (signal.aborted || generation !== this.modelSwitchGeneration) return;
 
-    if (this.persistedModelId) {
-      const currentInfo = this.agent.getModelInfo();
-      const isModelAvailable = currentInfo?.availableModels?.some((m) => m.id === this.persistedModelId);
-      // A Flux model id (flux-auto, ...) on a Flux-capable backend is carried by
-      // the spawn env (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto), not by an in-place
-      // set_model. The backend's native catalog (opus/sonnet/...) never lists it,
-      // so DO NOT clear it as "unavailable" and DO NOT re-send it via set_model
-      // (the claude bridge rejects an unlisted id). The env already selected it.
-      const isFluxOnFluxBackend = isFluxModelId(this.persistedModelId) && Boolean(getFluxCompat(this.options.backend));
-      // Codex's session capabilities enumerate a narrower model list than the
-      // account can actually use: gpt-5.6-sol/luna/terra come from the live
-      // codex/models catalog the picker reads, but the codex-acp session/new
-      // response drops them. Silently clearing the user's pick then stranded the
-      // header on "Select Model" and ran the default model. Treat the backend as
-      // the source of truth for codex — attempt the switch and let set_model
-      // succeed or surface an honest "falling back" error (handled below).
-      const trustBackendModel = this.options.backend === 'codex';
-      if (isFluxOnFluxBackend) {
-        // Keep persistedModelId as-is; the env carries the route.
-      } else if (!isModelAvailable && !trustBackendModel) {
-        mainWarn('[AcpAgentManager]', `Persisted model ${this.persistedModelId} is not in available models, clearing`);
-        this.persistedModelId = null;
-      } else if (!isModelAvailable || currentInfo?.currentModelId !== this.persistedModelId) {
-        try {
-          await this.agent.setModelByConfigOption(this.persistedModelId);
-        } catch (error) {
-          const errMsg = error instanceof Error ? error.message : String(error);
-          mainWarn('[AcpAgentManager]', `Failed to re-apply model ${this.persistedModelId}`, error);
-          if (errMsg.includes('model_not_found') || errMsg.includes('无可用渠道')) {
-            ipcBridge.acpConversation.responseStream.emit({
-              type: 'error',
-              conversation_id: this.conversation_id,
-              msg_id: `model_error_${Date.now()}`,
-              data:
-                `Model "${this.persistedModelId}" is not available on your API relay service. ` +
-                `Please add this model to your relay's channel configuration. Falling back to the default model.`,
-            });
-          }
-          this.persistedModelId = null;
-        }
-      }
+    if (!this.persistedModelId) {
+      this.requestedModelId = null;
+      this.confirmedModelId = null;
+      this.pendingModelId = null;
+      this.modelSelectionState = 'provider-default';
+      this.modelBlockedFailure = null;
+      this.lastConfirmationSource = 'provider-default';
+      return;
     }
+
+    this.requestedModelId = this.persistedModelId;
+    const confirmation = await this.confirmProviderModelSelection(
+      this.agent,
+      this.persistedModelId,
+      generation,
+      runtime?.expectedCodexEffort ?? this.options.effort,
+      signal
+    );
+    if (signal.aborted || generation !== this.modelSwitchGeneration) return;
+    if (confirmation.ok === false) {
+      const providerInfo = this.agent?.getModelInfo();
+      const providerSnapshot = `provider currentModelId=${providerInfo?.currentModelId ?? 'null'} available=[${(providerInfo?.availableModels ?? []).map((m) => m.id).join(',')}]`;
+      mainWarn(
+        '[AcpAgentManager]',
+        `Persisted model ${this.persistedModelId} was not confirmed (${providerSnapshot})`,
+        confirmation
+      );
+      this.pendingModelId = null;
+      this.confirmedModelId = null;
+      this.modelSelectionState = 'blocked';
+      this.modelBlockedFailure = confirmation.code;
+      this.lastConfirmationSource = null;
+      this.emitModelInfo();
+      return;
+    }
+
+    this.previousConfirmedModelId = this.confirmedModelId;
+    this.confirmedModelId = this.persistedModelId;
+    this.pendingModelId = null;
+    this.modelSelectionState = 'confirmed';
+    this.modelBlockedFailure = null;
+    this.lastConfirmationSource = confirmation.source;
+    this.emitModelInfo();
 
     // Note: model list caching is now handled by AcpAgent.cacheSessionCapabilities()
     // during start(), so we don't need to call cacheModelList() here.
@@ -1537,79 +2035,98 @@ ${collectedResponses.join('\n')}`;
     }
   }
 
+  /** Build an ACP runtime without starting it or mutating the live manager. */
+  private async createAgentRuntime(data: AcpAgentManagerData, staged: boolean): Promise<AgentRuntime> {
+    if (data.backend === 'codex') {
+      await this.ensureCodexNativeMcpServers(data);
+    }
+
+    const { cliPath, customArgs, customEnv, yoloMode, routing } = await this.resolveAgentCliConfig(data);
+    let active = !staged;
+    let sessionId = data.acpSessionId ?? null;
+    let pendingCommands: Array<{ name: string; description?: string; hint?: string }> | null = null;
+
+    const agent = new AcpAgentV2({
+      id: data.conversation_id,
+      backend: data.backend,
+      cliPath,
+      workingDir: data.workspace,
+      customArgs,
+      customEnv,
+      extra: {
+        workspace: data.workspace,
+        backend: data.backend,
+        cliPath,
+        customWorkspace: data.customWorkspace,
+        customArgs,
+        customEnv,
+        yoloMode,
+        agentName: data.agentName,
+        acpSessionId: data.acpSessionId,
+        acpSessionUpdatedAt: data.acpSessionUpdatedAt,
+        acpWrapperVersion: data.acpWrapperVersion,
+        // Claude and Codex receive their exact requested identity at process
+        // startup. Re-sending the same id through the legacy initial-config
+        // path can collapse/reject provider-native ids and is intentionally off.
+        currentModelId: data.backend === 'claude' || data.backend === 'codex' ? undefined : data.currentModelId,
+        sessionMode: this.currentMode,
+        pendingConfigOptions: data.pendingConfigOptions,
+        activeMcpServers: data.activeMcpServers,
+        allowConciergeDiag: isConciergeAssistant(data.presetAssistantId) || isConciergeAssistant(data.customAgentId),
+        teamMcpStdioConfig: (data as unknown as Record<string, unknown>).teamMcpStdioConfig as
+          | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }
+          | undefined,
+      } as NonNullable<ConstructorParameters<typeof AcpAgentV2>[0]['extra']> & {
+        activeMcpServers?: string[];
+        allowConciergeDiag?: boolean;
+      },
+      onSessionIdUpdate: (nextSessionId: string) => {
+        sessionId = nextSessionId;
+        if (active) void this.saveAcpSessionId(nextSessionId);
+      },
+      onAvailableCommandsUpdate: (commands: Array<{ name: string; description?: string; hint?: string }>) => {
+        if (active) this.handleAvailableCommandsUpdate(commands);
+        else pendingCommands = commands;
+      },
+      onStreamEvent: (message: IResponseMessage) => {
+        if (active) this.handleStreamEvent(message, data.backend);
+      },
+      onSignalEvent: async (message: IResponseMessage) => {
+        if (active) await this.handleSignalEvent(message, data.backend);
+      },
+    });
+
+    const codexConfig = data.backend === 'codex' ? parseCodexConfig(customEnv?.CODEX_CONFIG) : {};
+    const runtime: AgentRuntime = {
+      agent,
+      routing,
+      get sessionId() {
+        return sessionId;
+      },
+      expectedCodexEffort:
+        typeof codexConfig.model_reasoning_effort === 'string' ? codexConfig.model_reasoning_effort : undefined,
+      activate: () => {
+        if (active) return;
+        active = true;
+        if (pendingCommands) {
+          this.handleAvailableCommandsUpdate(pendingCommands);
+          pendingCommands = null;
+        }
+      },
+    };
+    return runtime;
+  }
+
   initAgent(data: AcpAgentManagerData = this.options) {
     if (this.bootstrap) return this.bootstrap;
 
     this.bootstrapping = true;
     const bootstrapPromise = (async () => {
-      // Codex reads MCP servers only from its native ~/.codex/config.toml at
-      // startup; unlike the wcore engine (add_mcp_server) it does not pick up
-      // session-injected stdio servers, and the settings-time sync
-      // (syncMcpToAgents) fires ONLY on a UI toggle - so a connector enabled
-      // while no codex chat was open never landed in codex's config and stayed
-      // invisible there while Claude (which keeps it in ~/.claude.json) worked.
-      // Re-sync the enabled connectors to codex's native config at bootstrap so
-      // an app-enabled connector is reliably available. Runs BEFORE
-      // resolveAgentCliConfig so a flux-routed spawn's materializeFluxCodexHome
-      // (which copies ~/.codex/config.toml's [mcp_servers]) sees them too.
-      if (data.backend === 'codex') {
-        await this.ensureCodexNativeMcpServers(data);
-      }
-
-      const { cliPath, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
-
-      const agentConfig = {
-        id: data.conversation_id,
-        backend: data.backend,
-        cliPath: cliPath,
-        workingDir: data.workspace,
-        customArgs: customArgs,
-        customEnv: customEnv,
-        extra: {
-          workspace: data.workspace,
-          backend: data.backend,
-          cliPath: cliPath,
-          customWorkspace: data.customWorkspace,
-          customArgs: customArgs,
-          customEnv: customEnv,
-          yoloMode: yoloMode,
-          agentName: data.agentName,
-          acpSessionId: data.acpSessionId,
-          acpSessionUpdatedAt: data.acpSessionUpdatedAt,
-          acpWrapperVersion: data.acpWrapperVersion,
-          currentModelId: this.persistedModelId ?? undefined,
-          sessionMode: this.currentMode,
-          pendingConfigOptions: data.pendingConfigOptions,
-          // Per-conversation MCP scoping (#348): forward to loadBuiltinSessionMcpServers.
-          activeMcpServers: data.activeMcpServers,
-          // The read-only concierge diagnostics MCP server is Concierge-only.
-          // Forward whether THIS assistant is Concierge so loadBuiltinSessionMcpServers
-          // can gate the diag server (it's a builtin and would otherwise inject for
-          // every assistant). Mirrors the Gemini path in GeminiAgentManager.
-          allowConciergeDiag: isConciergeAssistant(data.presetAssistantId) || isConciergeAssistant(data.customAgentId),
-          // Forward team MCP stdio config so AcpAgent.loadBuiltinSessionMcpServers() can inject it
-          teamMcpStdioConfig: (data as unknown as Record<string, unknown>).teamMcpStdioConfig as
-            | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }
-            | undefined,
-        },
-        onSessionIdUpdate: (sessionId: string) => {
-          // Save ACP session ID to database for resume support
-          this.saveAcpSessionId(sessionId);
-        },
-        onAvailableCommandsUpdate: (commands: Array<{ name: string; description?: string; hint?: string }>) => {
-          this.handleAvailableCommandsUpdate(commands);
-        },
-        onStreamEvent: (message: IResponseMessage) => {
-          this.handleStreamEvent(message as IResponseMessage, data.backend);
-        },
-        onSignalEvent: async (v: IResponseMessage) => {
-          await this.handleSignalEvent(v as IResponseMessage, data.backend);
-        },
-      };
-
-      this.agent = new AcpAgentV2(agentConfig);
+      const runtime = await this.createAgentRuntime(data, false);
+      this.agent = runtime.agent;
+      this.lastRouting = runtime.routing;
       return this.agent.start().then(async () => {
-        await this.restorePersistedState();
+        await this.restorePersistedState(runtime);
         this.bootstrapping = false;
         return this.agent;
       });
@@ -1642,6 +2159,21 @@ ${collectedResponses.join('\n')}`;
     msg?: string;
     message?: string;
   }> {
+    return this.withModelPromptLease(() => this.sendMessageAfterModelGate(data));
+  }
+
+  private async sendMessageAfterModelGate(data: {
+    content: string;
+    files?: string[];
+    msg_id?: string;
+    cronMeta?: CronMessageMeta;
+    hidden?: boolean;
+    silent?: boolean;
+  }): Promise<{
+    success: boolean;
+    msg?: string;
+    message?: string;
+  }> {
     // NOTE: Do NOT flip `bootstrapping = false` here. On ACP session resume
     // (Claude Code / Codex / Qwen / Goose), `initAgent → agent.start()` triggers
     // a `session/load` replay that emits historical events. If `bootstrapping`
@@ -1659,6 +2191,16 @@ ${collectedResponses.join('\n')}`;
     // Set status to running when message is being processed
     this.status = 'running';
     try {
+      await this.initAgent(this.options);
+      try {
+        this.assertModelReady();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const requested = this.requestedModelId ? ` Requested model: ${this.requestedModelId}.` : '';
+        this.clearBusyState();
+        return { success: false, msg: `${message}.${requested}` };
+      }
+
       // Emit/persist user message immediately so UI can refresh without waiting
       // for ACP connection/auth/session initialization.
       if (data.msg_id && data.content && !data.silent) {
@@ -1697,8 +2239,6 @@ ${collectedResponses.join('\n')}`;
         };
         ipcBridge.acpConversation.responseStream.emit(userResponseMessage);
       }
-
-      await this.initAgent(this.options);
 
       if (data.msg_id && data.content) {
         let contentToSend = data.content;
@@ -2059,21 +2599,32 @@ ${collectedResponses.join('\n')}`;
    * If agent is not initialized but a model ID was persisted, return read-only info.
    */
   getModelInfo(): AcpModelInfo | null {
-    if (!this.agent) {
-      // Return persisted model info when agent is not yet initialized
-      if (this.persistedModelId) {
-        return {
-          source: 'models',
-          sourceDetail: 'persisted-model',
-          currentModelId: this.persistedModelId,
-          currentModelLabel: this.persistedModelId,
-          canSwitch: false,
-          availableModels: [],
-        };
-      }
-      return null;
-    }
-    return this.agent.getModelInfo();
+    const liveInfo = this.agent?.getModelInfo() ?? null;
+    return this.composeManagerModelInfo(liveInfo);
+  }
+
+  private composeManagerModelInfo(liveInfo: AcpModelInfo | null): AcpModelInfo | null {
+    if (!liveInfo && !this.requestedModelId && this.modelSelectionState === 'provider-default') return null;
+
+    const confirmedLabel = this.confirmedModelId
+      ? (liveInfo?.availableModels.find((model) => model.id === this.confirmedModelId)?.label ?? this.confirmedModelId)
+      : null;
+    return {
+      source: liveInfo?.source ?? 'models',
+      sourceDetail: liveInfo?.sourceDetail ?? 'persisted-model',
+      configOptionId: liveInfo?.configOptionId,
+      currentModelId: this.confirmedModelId,
+      currentModelLabel: confirmedLabel,
+      canSwitch: liveInfo?.canSwitch ?? false,
+      availableModels: liveInfo?.availableModels ?? [],
+      confirmationSource:
+        this.lastConfirmationSource && this.lastConfirmationSource !== 'provider-default'
+          ? this.lastConfirmationSource
+          : undefined,
+      selectionState: this.modelSelectionState,
+      requestedModelId: this.requestedModelId,
+      selectionFailureCode: this.modelBlockedFailure ?? undefined,
+    };
   }
 
   /**
@@ -2118,148 +2669,312 @@ ${collectedResponses.join('\n')}`;
     return modelInfo;
   }
 
-  /**
-   * Switch model for the underlying ACP agent.
-   * Persists the model ID to database for resume support.
-   *
-   * Flux routing is injected as process env AT SPAWN (ANTHROPIC_BASE_URL for
-   * claude, the OpenAI/Responses surface for the others). An in-place
-   * `set_model` only tells the already-running CLI to use a different model id;
-   * it cannot change that env. So when a model switch crosses the routing
-   * boundary (native<->flux), the CLI is still pointed at the wrong endpoint and
-   * the request fails (e.g. asking api.anthropic.com for `flux-auto`). In that
-   * case we re-spawn the agent so `resolveAgentCliConfig` re-injects the correct
-   * env. Same-routing switches (flux-auto->flux-reasoning, sonnet->opus) keep the
-   * cheap in-place path.
-   */
-  async setModel(modelId: string): Promise<AcpModelInfo | null> {
-    // Durable-first for codex and the generic ACP CLIs: persist the user's
-    // REQUESTED model id to the conversation record BEFORE the live init /
-    // set_model round-trip, so the pick survives a disconnected or unspawnable
-    // agent instead of silently snapping back (the codex "Select Model" revert).
-    // Claude is excluded — its pick is a cc-switch / native slot that is
-    // normalized and persisted by respawnForRoutingChange below, and writing the
-    // raw registry id here would fight that. Flux ids are carried by the spawn
-    // env and persisted by their own branch below, so they skip the early write.
-    const earlyPersistEligible = this.options.backend !== 'claude' && !isFluxModelId(modelId);
-    if (earlyPersistEligible) {
-      this.persistedModelId = modelId;
-      this.options.currentModelId = modelId;
-      await this.saveModelId(modelId);
-    }
-
-    if (!this.agent) {
-      try {
-        await this.initAgent(this.options);
-      } catch {
-        // Spawn failed, but for an early-persisted backend the pick is already
-        // durable on the record — report it back (persisted-model info) instead
-        // of null so the picker reflects the selection rather than reverting.
-        return earlyPersistEligible ? this.getModelInfo() : null;
-      }
-    }
-    if (!this.agent) return earlyPersistEligible ? this.getModelInfo() : null;
-
-    // Detect a routing-boundary crossing: does the NEW model route differently
-    // than what is currently live? `this.lastRouting` was set by the spawn that
-    // produced the running agent. `unknown` means the backend is not Flux-routable
-    // at all (env can't be changed by a re-spawn), so never re-spawn for it.
-    const nextRouting = (await this.computeFluxRouting(this.options.backend, modelId)).routing;
-    const crossesRoutingBoundary =
-      nextRouting !== 'unknown' && this.lastRouting !== 'unknown' && nextRouting !== this.lastRouting;
-
-    // A native claude slot pick is carried by ANTHROPIC_MODEL at spawn (see
-    // resolveAgentCliConfig), so it only takes effect on a respawn — the bridge's
-    // in-place set_model is unreliable when it advertises no model list (#184).
-    // The picker offers registry catalog ids (`claude-opus-4-8`), so normalize to
-    // the slot the CLI actually accepts; respawn (and persist) with that slot, or
-    // the pick falls through to set_model and the CLI rejects it with -32601.
-    const claudeSlot =
-      this.options.backend === 'claude' && nextRouting !== 'flux' ? claudeSlotForModelId(modelId) : undefined;
-    const nativeClaudeSlotChange = claudeSlot !== undefined;
-
-    if (crossesRoutingBoundary || nativeClaudeSlotChange) {
-      return this.respawnForRoutingChange(claudeSlot ?? modelId);
-    }
-
-    // Same-routing switch TO a Flux id (e.g. the chat is already flux-routed and
-    // the user re-picks Flux Auto): the model is carried by the spawn env
-    // (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto). The claude bridge rejects an
-    // unlisted id via set_model, so persist + skip the in-place call.
-    if (isFluxModelId(modelId)) {
-      this.persistedModelId = modelId;
-      await this.saveModelId(modelId);
-      return this.getModelInfo();
-    }
-
-    const result = await this.agent.setModelByConfigOption(modelId);
-    if (result) {
-      // The bridge echoes the live model. On success `result.currentModelId`
-      // equals the requested id; on a 10s timeout setModelByConfigOption falls
-      // back to the agent's CACHED (default) info, whose currentModelId is NOT
-      // the user's pick. For an early-persisted backend, that stale echo must not
-      // clobber the requested id we already persisted — keep the requested id.
-      const confirmedId = earlyPersistEligible && result.currentModelId !== modelId ? modelId : result.currentModelId;
-      this.persistedModelId = confirmedId;
-      // S6: await (was fire-and-forget) so a persist failure can't surface as an
-      // unhandled rejection and the selected model is actually persisted before
-      // returning (matters for resume).
-      await this.saveModelId(confirmedId);
-      // Update cached models so Guid page defaults to the newly selected model
-      if (result.availableModels?.length > 0) {
-        void this.cacheModelList(result);
-      }
-    }
-    return result ?? (earlyPersistEligible ? this.getModelInfo() : null);
-  }
-
-  /**
-   * Tear down the running agent and re-create it with the new model so
-   * `resolveAgentCliConfig` injects the correct Flux/native env. Conversation
-   * continuity is preserved by the existing session-resume path: the persisted
-   * `acpSessionId` (+ pinned wrapper version) is reloaded from the DB into
-   * `this.options`, so the fresh spawn resumes the same ACP session (or, on a
-   * wrapper-version mismatch, takes AcpAgentV2's self-healing history-replay
-   * path). The new model is persisted BEFORE re-spawn so initAgent's
-   * `this.persistedModelId` carries it into `agentConfig.extra.currentModelId`.
-   */
-  private async respawnForRoutingChange(modelId: string): Promise<AcpModelInfo | null> {
-    // Persist the new model first so the re-spawn picks it up.
-    this.persistedModelId = modelId;
-    this.options.currentModelId = modelId;
-    await this.saveModelId(modelId);
-
-    // Reload the latest resume markers so the fresh spawn resumes this session
-    // (these are written async by saveAcpSessionId during the prior session).
+  private async loadLatestSpawnData(modelId: string | null): Promise<AcpAgentManagerData> {
+    let latest: Partial<AcpAgentManagerData> = {};
     try {
       const db = await getDatabase();
       const result = db.getConversation(this.conversation_id);
-      if (result.success && result.data && result.data.type === 'acp') {
-        const extra = (result.data.extra ?? {}) as {
-          acpSessionId?: string;
-          acpSessionUpdatedAt?: number;
-          acpWrapperVersion?: string;
+      if (result.success && result.data?.type === 'acp') {
+        const extra = (result.data.extra ?? {}) as Partial<AcpAgentManagerData>;
+        latest = {
+          acpSessionId: extra.acpSessionId,
+          acpSessionUpdatedAt: extra.acpSessionUpdatedAt,
+          acpWrapperVersion: extra.acpWrapperVersion,
+          effort: extra.effort,
+          pendingConfigOptions: extra.pendingConfigOptions,
         };
-        this.options.acpSessionId = extra.acpSessionId ?? this.options.acpSessionId;
-        this.options.acpSessionUpdatedAt = extra.acpSessionUpdatedAt ?? this.options.acpSessionUpdatedAt;
-        this.options.acpWrapperVersion = extra.acpWrapperVersion ?? this.options.acpWrapperVersion;
       }
-    } catch (err) {
-      mainWarn('[AcpAgentManager]', 'respawnForRoutingChange: failed to reload resume markers', err);
+    } catch (error) {
+      mainWarn('[AcpAgentManager]', 'Failed to load latest ACP resume state', error);
     }
 
-    // Tear down the current CLI process + worker (same path kill() uses), then
-    // clear the cached bootstrap so initAgent spawns a fresh agent.
+    return {
+      ...this.options,
+      ...latest,
+      currentModelId: modelId ?? undefined,
+    };
+  }
+
+  /** Persist model intent and candidate resume marker in one conversation write. */
+  private async commitModelSelection(
+    modelId: string | null,
+    sessionId: string | null,
+    generation: number
+  ): Promise<void> {
+    const db = await getDatabase();
+    if (generation !== this.modelSwitchGeneration) {
+      throw Object.assign(new Error('Model selection was superseded'), { code: 'model_rejected' });
+    }
+
+    const result = db.getConversation(this.conversation_id);
+    if (!result.success || !result.data || result.data.type !== 'acp') {
+      throw new Error('Unable to persist confirmed ACP model');
+    }
+
+    const extra = { ...result.data.extra } as Record<string, unknown>;
+    if (modelId) extra.currentModelId = modelId;
+    else delete extra.currentModelId;
+    if (sessionId) {
+      extra.acpSessionId = sessionId;
+      extra.acpSessionConversationId = this.conversation_id;
+      extra.acpSessionUpdatedAt = Date.now();
+      const wrapperVersion = getCurrentWrapperVersion(this.options.backend);
+      if (wrapperVersion) extra.acpWrapperVersion = wrapperVersion;
+    }
+
+    const updated = db.updateConversation(this.conversation_id, { extra });
+    if (!updated.success) {
+      throw new Error(updated.error || 'Unable to persist confirmed ACP model');
+    }
+  }
+
+  private async killCandidate(runtime: AgentRuntime | null): Promise<void> {
+    if (!runtime) return;
     try {
-      await (this.agent?.kill?.() ?? Promise.resolve());
-    } catch (err) {
-      mainWarn('[AcpAgentManager]', 'respawnForRoutingChange: agent.kill failed', err);
+      await runtime.agent.kill();
+    } catch (error) {
+      mainWarn('[AcpAgentManager]', 'Failed to terminate staged ACP model runtime', error);
     }
-    this.bootstrap = undefined;
-    this.bootstrapping = false;
+  }
 
-    await this.initAgent(this.options);
-    return this.getModelInfo();
+  private modelErrorCode(error: unknown): AcpModelSelectionFailureCode {
+    const code = (error as { code?: unknown } | null)?.code;
+    if (
+      code === 'unsupported_model' ||
+      code === 'model_rejected' ||
+      code === 'model_mismatch' ||
+      code === 'confirmation_unavailable' ||
+      code === 'bridge_unavailable' ||
+      code === 'model_switch_timeout'
+    ) {
+      return code;
+    }
+    const message = error instanceof Error ? error.message : String(error);
+    return /timeout|timed out/i.test(message) ? 'model_switch_timeout' : 'bridge_unavailable';
+  }
+
+  private async transitionWithCandidate(
+    modelId: string | null,
+    generation: number,
+    signal: AbortSignal
+  ): Promise<AcpModelSelectionResult> {
+    let runtime: AgentRuntime | null = null;
+    let previousAgent: AcpAgentV2 | null = null;
+    let committedResult: AcpModelSelectionResult | null = null;
+    try {
+      const spawnData = await this.loadLatestSpawnData(modelId);
+      // Keep an explicit undefined key for provider-default so staged runtime
+      // construction cannot accidentally inherit a previous selection through
+      // object-spread or caller defaults.
+      spawnData.currentModelId = modelId ?? undefined;
+      if (generation !== this.modelSwitchGeneration) {
+        return this.modelSelectionFailure(modelId, 'model_rejected', 'Model selection was superseded');
+      }
+
+      runtime = await this.createAgentRuntime(spawnData, true);
+      await runtime.agent.start();
+      if (generation !== this.modelSwitchGeneration) {
+        await this.killCandidate(runtime);
+        return this.modelSelectionFailure(modelId, 'model_rejected', 'Model selection was superseded');
+      }
+
+      let confirmationSource: AcpModelConfirmationSource | 'provider-default' = 'provider-default';
+      let modelInfo = runtime.agent.getModelInfo();
+      if (modelId) {
+        const confirmation = await this.confirmProviderModelSelection(
+          runtime.agent,
+          modelId,
+          generation,
+          runtime.expectedCodexEffort,
+          signal
+        );
+        if (confirmation.ok === false) {
+          await this.killCandidate(runtime);
+          if (generation !== this.modelSwitchGeneration) {
+            return this.modelSelectionFailure(modelId, 'model_rejected', 'Model selection was superseded');
+          }
+          return this.failCurrentModelSelection(modelId, confirmation.code, confirmation.message);
+        }
+        confirmationSource = confirmation.source;
+        modelInfo = confirmation.modelInfo;
+      }
+
+      if (generation !== this.modelSwitchGeneration) {
+        await this.killCandidate(runtime);
+        return this.modelSelectionFailure(modelId, 'model_rejected', 'Model selection was superseded');
+      }
+      await this.commitModelSelection(modelId, runtime.sessionId, generation);
+
+      previousAgent = this.agent;
+      this.previousConfirmedModelId = this.confirmedModelId;
+      this.persistedModelId = modelId;
+      this.requestedModelId = modelId;
+      this.confirmedModelId = modelId;
+      this.pendingModelId = null;
+      this.modelSelectionState = modelId ? 'confirmed' : 'provider-default';
+      this.modelBlockedFailure = null;
+      this.lastConfirmationSource = confirmationSource;
+      this.lastModelSwitchRestarted = true;
+      this.options = spawnData;
+      if (modelId) this.options.currentModelId = modelId;
+      else delete this.options.currentModelId;
+      this.agent = runtime.agent;
+      this.lastRouting = runtime.routing;
+      this.bootstrap = Promise.resolve(runtime.agent);
+      this.bootstrapping = false;
+      committedResult = {
+        ok: true,
+        requestedModelId: modelId,
+        confirmedModelId: modelId,
+        modelInfo: this.composeManagerModelInfo(modelInfo),
+        confirmationSource,
+        restarted: true,
+      };
+      // Persistence is the transaction commit point. UI/listener failures after
+      // it must not fall into candidate rollback and kill the committed runtime.
+      try {
+        runtime.activate();
+      } catch (error) {
+        mainWarn('[AcpAgentManager]', 'Committed ACP runtime activation notification failed', error);
+      }
+      try {
+        this.emitModelInfo();
+      } catch (error) {
+        mainWarn('[AcpAgentManager]', 'Committed ACP model notification failed', error);
+      }
+      if (modelInfo?.availableModels.length) void this.cacheModelList(modelInfo);
+
+      if (previousAgent && previousAgent !== runtime.agent) {
+        try {
+          await previousAgent.kill();
+        } catch (error) {
+          mainWarn('[AcpAgentManager]', 'Previous ACP runtime did not terminate cleanly', error);
+        }
+      }
+
+      return committedResult;
+    } catch (error) {
+      if (committedResult) {
+        mainWarn('[AcpAgentManager]', 'Ignoring post-commit ACP candidate notification failure', error);
+        if (previousAgent && previousAgent !== runtime?.agent) {
+          try {
+            await previousAgent.kill();
+          } catch (killError) {
+            mainWarn('[AcpAgentManager]', 'Previous ACP runtime did not terminate cleanly', killError);
+          }
+        }
+        return committedResult;
+      }
+      await this.killCandidate(runtime);
+      if (generation !== this.modelSwitchGeneration) {
+        return this.modelSelectionFailure(modelId, 'model_rejected', 'Model selection was superseded');
+      }
+      const code = this.modelErrorCode(error);
+      const message = error instanceof Error ? error.message : String(error);
+      return this.failCurrentModelSelection(modelId, code, message);
+    }
+  }
+
+  private async transitionInPlace(
+    modelId: string,
+    generation: number,
+    signal: AbortSignal
+  ): Promise<AcpModelSelectionResult> {
+    if (!this.agent) return this.transitionWithCandidate(modelId, generation, signal);
+    let committedResult: AcpModelSelectionResult | null = null;
+    try {
+      await this.agent.setModelByConfigOption(modelId);
+      if (generation !== this.modelSwitchGeneration) {
+        return this.modelSelectionFailure(modelId, 'model_rejected', 'Model selection was superseded');
+      }
+      const confirmation = this.confirmExactModel(this.agent, modelId);
+      if (confirmation.ok === false) {
+        return this.failCurrentModelSelection(modelId, confirmation.code, confirmation.message);
+      }
+      await this.commitModelSelection(modelId, this.options.acpSessionId ?? null, generation);
+
+      this.previousConfirmedModelId = this.confirmedModelId;
+      this.persistedModelId = modelId;
+      this.options.currentModelId = modelId;
+      this.requestedModelId = modelId;
+      this.confirmedModelId = modelId;
+      this.pendingModelId = null;
+      this.modelSelectionState = 'confirmed';
+      this.modelBlockedFailure = null;
+      this.lastConfirmationSource = confirmation.source;
+      this.lastModelSwitchRestarted = false;
+      committedResult = {
+        ok: true,
+        requestedModelId: modelId,
+        confirmedModelId: modelId,
+        modelInfo: this.composeManagerModelInfo(confirmation.modelInfo),
+        confirmationSource: confirmation.source,
+        restarted: false,
+      };
+      try {
+        this.emitModelInfo();
+      } catch (error) {
+        mainWarn('[AcpAgentManager]', 'Committed in-place ACP model notification failed', error);
+      }
+      if (confirmation.modelInfo.availableModels.length) void this.cacheModelList(confirmation.modelInfo);
+      return committedResult;
+    } catch (error) {
+      if (committedResult) {
+        mainWarn('[AcpAgentManager]', 'Ignoring post-commit in-place ACP notification failure', error);
+        return committedResult;
+      }
+      if (generation !== this.modelSwitchGeneration) {
+        return this.modelSelectionFailure(modelId, 'model_rejected', 'Model selection was superseded');
+      }
+      const code = this.modelErrorCode(error);
+      const message = error instanceof Error ? error.message : String(error);
+      return this.failCurrentModelSelection(modelId, code, message);
+    }
+  }
+
+  /**
+   * Select an exact provider model transactionally. Provider-native Claude,
+   * Codex, provider-default, Flux, and routing-boundary selections always use a
+   * staged process so the current runtime and persistence remain rollback-safe.
+   */
+  async setModel(modelId: string | null): Promise<AcpModelSelectionResult> {
+    this.modelSwitchAbortController?.abort();
+    const modelSwitchAbortController = new AbortController();
+    this.modelSwitchAbortController = modelSwitchAbortController;
+    const generation = ++this.modelSwitchGeneration;
+    this.requestedModelId = modelId;
+    this.pendingModelId = modelId;
+    this.modelSelectionState = 'pending';
+    this.modelBlockedFailure = null;
+    this.emitModelInfo();
+
+    const transition = this.withModelPromptLease(async () => {
+      if (generation !== this.modelSwitchGeneration) {
+        return this.modelSelectionFailure(modelId, 'model_rejected', 'Model selection was superseded');
+      }
+
+      const nextRouting = (await this.computeFluxRouting(this.options.backend, modelId ?? undefined)).routing;
+      const crossesRoutingBoundary =
+        nextRouting !== 'unknown' && this.lastRouting !== 'unknown' && nextRouting !== this.lastRouting;
+      const requiresCandidate =
+        modelId === null ||
+        !this.agent ||
+        this.options.backend === 'claude' ||
+        this.options.backend === 'codex' ||
+        nextRouting === 'flux' ||
+        (modelId ? isFluxModelId(modelId) : false) ||
+        crossesRoutingBoundary;
+
+      return requiresCandidate
+        ? this.transitionWithCandidate(modelId, generation, modelSwitchAbortController.signal)
+        : this.transitionInPlace(modelId, generation, modelSwitchAbortController.signal);
+    });
+    this.modelTransition = transition;
+    try {
+      return await transition;
+    } finally {
+      if (this.modelTransition === transition) this.modelTransition = null;
+    }
   }
 
   /**
@@ -2399,71 +3114,6 @@ ${collectedResponses.join('\n')}`;
   }
 
   /**
-   * Save model ID to database for resume support.
-   */
-  private async saveModelId(modelId: string): Promise<void> {
-    try {
-      const db = await getDatabase();
-      const result = db.getConversation(this.conversation_id);
-      if (result.success && result.data && result.data.type === 'acp') {
-        const conversation = result.data;
-        const updatedExtra = {
-          ...conversation.extra,
-          currentModelId: modelId,
-        };
-        db.updateConversation(this.conversation_id, {
-          extra: updatedExtra,
-        } as Partial<typeof conversation>);
-      }
-    } catch (error) {
-      mainWarn('[AcpAgentManager]', 'Failed to save model ID', error);
-    }
-
-    // The DB row is the AUTHORITATIVE model id and the renderer seeds the context
-    // meter from it on load (#733) - but only on load. A mid-chat switch wrote the
-    // row and told nobody, so the meter kept sizing itself from the PREVIOUS model:
-    // switching opus (1M) -> haiku (200K) left a 1M denominator on a 200K window,
-    // i.e. the meter reported ~5x the headroom that actually existed and the user
-    // hit the ceiling with no warning. Push the new id to the live renderer. (#801)
-    this.emitModelInfoUpdate(modelId);
-  }
-
-  /**
-   * Tell the renderer the active model changed, so anything sized from the model's
-   * context window (the ACP context meter) re-sizes immediately instead of at the
-   * next conversation load.
-   *
-   * MERGES onto the agent's current info rather than emitting a fresh payload: an
-   * `acp_model_info` whose `availableModels` is EMPTY reverts the in-chat picker to
-   * "Select Model" (#184 - AcpAgentV2.onModelUpdate guards the same hazard for the
-   * bridge's own empty snapshots). Spreading `info` means this emit can only ever
-   * change `currentModelId`/`currentModelLabel`; it can never shrink the model list.
-   */
-  private emitModelInfoUpdate(modelId: string): void {
-    const info = this.getModelInfo();
-    // Nothing authoritative to merge onto -> stay silent. An EMPTY availableModels
-    // is not merely useless, it is destructive: the renderer's selector adopts an
-    // incoming acp_model_info unconditionally, so an empty list reverts the in-chat
-    // picker to "Select Model" (#184). Two reachable states produce a non-null but
-    // EMPTY info - the no-agent/persisted-id branch of getModelInfo(), and a
-    // non-claude bridge whose first snapshot (or 10s timeout fallback) was empty -
-    // so guarding on `!info` alone is not enough. The renderer still seeds the
-    // model id from the conversation row on its next load (#733).
-    if (!info || info.availableModels.length === 0) return;
-
-    ipcBridge.acpConversation.responseStream.emit({
-      type: 'acp_model_info',
-      conversation_id: this.conversation_id,
-      msg_id: uuid(),
-      data: {
-        ...info,
-        currentModelId: modelId,
-        currentModelLabel: info.availableModels.find((m) => m.id === modelId)?.label ?? modelId,
-      },
-    });
-  }
-
-  /**
    * Save context usage to database for restore on page switch.
    */
   private clearBusyState(): void {
@@ -2549,6 +3199,7 @@ ${collectedResponses.join('\n')}`;
    * timeout and graceful path race against each other.
    */
   kill(_reason?: AgentKillReason): Promise<void> {
+    this.modelSwitchAbortController.abort();
     this.flushBufferedStreamTextMessages();
     this.flushThinkingToDb(undefined, 'done');
 

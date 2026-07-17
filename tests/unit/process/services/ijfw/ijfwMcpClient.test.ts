@@ -42,6 +42,10 @@ vi.mock('@process/services/ijfw/entryResolver', () => ({
   resolveEntry: vi.fn(async () => '/tmp/fake-ijfw-entry.js'),
 }));
 
+vi.mock('@process/services/ijfw/safeSpawn', () => ({
+  resolveTrustedNodeRuntime: vi.fn(async () => '/tmp/trusted-node'),
+}));
+
 // #721 review: dropped-sample / stderr log lines persist raw child output into
 // the shareable electron-log file, so they must be redacted. Spy on the logger
 // to assert what actually gets written.
@@ -166,6 +170,11 @@ describe('ijfwMcpClient', () => {
 
     await new Promise((r) => setImmediate(r));
     expect(spawnSpy).toHaveBeenCalledTimes(1);
+    expect(spawnSpy).toHaveBeenCalledWith(
+      '/tmp/trusted-node',
+      ['/tmp/fake-ijfw-entry.js'],
+      expect.objectContaining({ stdio: ['pipe', 'pipe', 'pipe'] })
+    );
 
     // Find the id of the request we just made.
     const written = currentChild!.writes[0]!.toString('utf-8');

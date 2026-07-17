@@ -5,17 +5,14 @@
  */
 
 import type { Express, Request } from 'express';
+import type { IncomingHttpHeaders } from 'http';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import csrf from 'tiny-csrf';
 import crypto from 'crypto';
 import { AuthMiddleware } from '@process/webserver/auth/middleware/AuthMiddleware';
-import {
-  classifyClientTrust,
-  isLoopbackAddress,
-  trustedProxyDeclared,
-} from '@process/webserver/middleware/networkTrust';
+import { classifyClientTrust } from '@process/webserver/middleware/networkTrust';
 import { errorHandler } from './middleware/errorHandler';
 import { attachCsrfToken } from './middleware/security';
 
@@ -101,6 +98,81 @@ function parseAllowedOriginsEnv(): string[] {
     .filter((origin): origin is string => Boolean(origin));
 }
 
+export type RequestOriginContext = {
+  headers: IncomingHttpHeaders;
+  protocol?: string;
+  rawHeaders?: readonly string[];
+  socket: {
+    encrypted?: boolean;
+    remoteAddress?: string;
+  };
+};
+
+type RequestHeaderResult = {
+  present: boolean;
+  value: string | null;
+};
+
+function normalizeSingleHeaderValue(value: string): string | null {
+  if (value === '' || value !== value.trim() || value.includes(',')) return null;
+  return value;
+}
+
+function readRequestHeader(req: RequestOriginContext, headerName: string): RequestHeaderResult {
+  const normalizedName = headerName.toLowerCase();
+  const normalizedEntries = Object.entries(req.headers).filter(
+    ([name, value]) => name.toLowerCase() === normalizedName && value !== undefined
+  );
+  const normalizedPresent = normalizedEntries.length > 0;
+  const rawHeaders = req.rawHeaders;
+
+  if (Array.isArray(rawHeaders) && rawHeaders.length > 0) {
+    const rawValues: string[] = [];
+    for (let index = 0; index + 1 < rawHeaders.length; index += 2) {
+      if (rawHeaders[index]?.toLowerCase() === normalizedName) {
+        rawValues.push(rawHeaders[index + 1] ?? '');
+      }
+    }
+
+    const present = normalizedPresent || rawValues.length > 0;
+    if (!present) return { present: false, value: null };
+    if (rawHeaders.length % 2 !== 0 || rawValues.length !== 1) {
+      return { present: true, value: null };
+    }
+    return { present: true, value: normalizeSingleHeaderValue(rawValues[0]!) };
+  }
+
+  if (!normalizedPresent) return { present: false, value: null };
+  if (normalizedEntries.length !== 1) return { present: true, value: null };
+  const value = normalizedEntries[0]?.[1];
+  if (typeof value !== 'string') return { present: true, value: null };
+  return { present: true, value: normalizeSingleHeaderValue(value) };
+}
+
+export function hasRequestHeader(req: RequestOriginContext, headerName: string): boolean {
+  return readRequestHeader(req, headerName).present;
+}
+
+export function getSingleRequestHeaderValue(req: RequestOriginContext, headerName: string): string | null {
+  return readRequestHeader(req, headerName).value;
+}
+
+function parseCanonicalHttpOrigin(origin: string): string | null {
+  try {
+    const url = new URL(origin);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    if (url.username || url.password || url.pathname !== '/' || url.search || url.hash) return null;
+    return url.origin === origin ? origin : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getCanonicalRequestOrigin(req: RequestOriginContext): string | null {
+  const origin = getSingleRequestHeaderValue(req, 'origin');
+  return origin ? parseCanonicalHttpOrigin(origin) : null;
+}
+
 export function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
   // Localhost is always permitted. Network interface auto-detection was removed
   // because, on coffee-shop wifi / VPN / Docker bridges, it silently exposed the
@@ -163,29 +235,6 @@ export function setupTrustProxy(app: Express): void {
 }
 
 /**
- * Read a SINGLE-valued forwarded header. The only topology whose forwarded headers
- * we believe is a single trusted hop (see deriveTrustedProxyOrigin), which sets
- * exactly one value. A comma-joined or repeated header means a multi-hop chain or a
- * client-supplied value the proxy appended/preserved - and the leftmost token is the
- * LEAST-trusted (client) end, so we must NOT pick it. We fail closed to undefined and
- * let the operator use SERVER_BASE_URL for genuine multi-hop deployments.
- */
-function singleForwardedValue(header: string | string[] | undefined): string | undefined {
-  // A repeated header (Express joins duplicates with ', ') arrives as a string
-  // for most headers, but some can be arrays - reject anything that isn't one entry.
-  let raw: string | undefined;
-  if (Array.isArray(header)) {
-    if (header.length !== 1) return undefined;
-    raw = header[0];
-  } else {
-    raw = header;
-  }
-  if (!raw || raw.includes(',')) return undefined;
-  const value = raw.trim();
-  return value || undefined;
-}
-
-/**
  * Derive the public origin a TRUSTED reverse proxy is fronting, from its forwarded
  * headers, so a TLS-terminated self-hosted deploy (e.g. Caddy on the same host)
  * gets its public origin CORS-allowed OUT OF THE BOX - without the operator having
@@ -207,49 +256,35 @@ function singleForwardedValue(header: string | string[] | undefined): string | u
  * plus the single-value requirement below - a browser cannot forge `X-Forwarded-Host`
  * on a cross-origin credentialed request (the preflight OPTIONS never carries it).
  */
-export function deriveTrustedProxyOrigin(req: Request): string | null {
-  // localAddress rides along so a CGNAT peer is only trusted when the connection
-  // actually ARRIVED over the tailnet, not merely because this host is on one (#529).
-  if (classifyClientTrust(req.socket?.remoteAddress, req.socket?.localAddress) !== 'operator') {
+export function deriveTrustedProxyOrigin(req: RequestOriginContext): string | null {
+  if (classifyClientTrust(req.socket?.remoteAddress) !== 'operator') {
     return null;
   }
 
-  const host = singleForwardedValue(req.headers['x-forwarded-host']);
-  if (!host) return null;
+  const forwardedHost = readRequestHeader(req, 'x-forwarded-host');
+  if (!forwardedHost.present || !forwardedHost.value) return null;
 
-  const proto = singleForwardedValue(req.headers['x-forwarded-proto'])?.toLowerCase();
-  const scheme = proto === 'http' || proto === 'https' ? proto : req.protocol || 'https';
-  const origin = normalizeOrigin(`${scheme}://${host}`);
+  const forwardedProto = readRequestHeader(req, 'x-forwarded-proto');
+  let scheme: 'http' | 'https';
+  if (forwardedProto.present) {
+    const proto = forwardedProto.value?.toLowerCase();
+    if (proto !== 'http' && proto !== 'https') return null;
+    scheme = proto;
+  } else if (req.protocol === 'http' || req.protocol === 'https') {
+    scheme = req.protocol;
+  } else if (req.protocol !== undefined) {
+    return null;
+  } else {
+    scheme = req.socket.encrypted === true ? 'https' : 'http';
+  }
 
-  if (origin) warnUndeclaredProxyOnce(req.socket?.remoteAddress, origin);
-  return origin;
+  return parseCanonicalHttpOrigin(`${scheme}://${forwardedHost.value}`);
 }
 
-/**
- * #830 - a same-host reverse proxy forwards public traffic as a loopback peer. When it
- * does AND the operator has NOT declared `WAYLAND_TRUSTED_PROXY`, loopback still
- * auto-grants `operator` (the #808 exposure), and this very function has just believed
- * an attacker-influencable `X-Forwarded-Host`. That is the strongest available signal a
- * fronting proxy exists, so warn ONCE per process (guarded so it can't spam the log).
- * A tailnet/CIDR operator peer deriving an origin is a genuine trusted proxy, not this
- * hole, so the warning is scoped to a LOOPBACK peer only.
- */
-let warnedUndeclaredProxy = false;
-function warnUndeclaredProxyOnce(peer: string | undefined, origin: string): void {
-  if (warnedUndeclaredProxy) return;
-  if (trustedProxyDeclared()) return; // operator declared the proxy - loopback already demoted
-  if (!isLoopbackAddress(peer)) return; // genuine tailnet/CIDR proxy, not the loopback hole
-  warnedUndeclaredProxy = true;
-  console.warn(
-    `[security] Trusted X-Forwarded-Host "${origin}" from a loopback peer, but ` +
-      'WAYLAND_TRUSTED_PROXY is not set. If a same-host reverse proxy fronts this app, set ' +
-      'WAYLAND_TRUSTED_PROXY=1 so forwarded requests are not treated as local operator (#808).'
-  );
-}
-
-/** Test seam: reset the once-per-process proxy-exposure warning. */
-export function _resetProxyExposureWarningForTests(): void {
-  warnedUndeclaredProxy = false;
+export function isRequestOriginTrusted(req: RequestOriginContext, allowedOrigins: Set<string>): boolean {
+  const origin = getCanonicalRequestOrigin(req);
+  if (!origin) return false;
+  return allowedOrigins.has(origin) || deriveTrustedProxyOrigin(req) === origin;
 }
 
 /**
@@ -259,34 +294,18 @@ export function _resetProxyExposureWarningForTests(): void {
  */
 export function makeCorsMiddleware(allowedOrigins: Set<string>) {
   return cors<Request>((req, callback) => {
-    // Per-request: only widens for a request that arrived via a trusted proxy.
-    const forwardedOrigin = deriveTrustedProxyOrigin(req);
+    const hasOrigin = hasRequestHeader(req, 'origin');
 
     callback(null, {
       credentials: true,
-      origin(origin, cb) {
-        if (!origin) {
+      origin(_origin, cb) {
+        if (!hasOrigin) {
           // Requests like curl or same-origin don't send an Origin header
           cb(null, true);
           return;
         }
 
-        // Reject opaque origins (Origin: null). Sandboxed iframes, srcDoc
-        // documents, data: URLs, and file: URLs all send `Origin: null`, and
-        // allowing them effectively whitelists any attacker-controlled page
-        // that can spawn such a context.
-        if (origin === 'null') {
-          cb(null, false);
-          return;
-        }
-
-        const normalizedOrigin = normalizeOrigin(origin);
-        if (normalizedOrigin && (allowedOrigins.has(normalizedOrigin) || normalizedOrigin === forwardedOrigin)) {
-          cb(null, true);
-          return;
-        }
-
-        cb(null, false);
+        cb(null, isRequestOriginTrusted(req, allowedOrigins));
       },
     });
   });

@@ -16,18 +16,7 @@
  */
 
 import React from 'react';
-import {
-  Brain,
-  Clock,
-  FolderKanban,
-  Gauge,
-  LayoutGrid,
-  MessagesSquare,
-  Rocket,
-  Search,
-  Users,
-  Workflow,
-} from 'lucide-react';
+import { Brain, Clock, FolderKanban, Gauge, LayoutGrid, MessagesSquare, Search, Users, Workflow } from 'lucide-react';
 
 import type { SiderTooltipProps } from '@renderer/utils/ui/siderTooltip';
 import {
@@ -38,7 +27,6 @@ import {
   SiderScheduledEntry,
   SiderSearchEntry,
   SiderSessionsEntry,
-  SiderTankEntry,
   SiderTeamsEntry,
   SiderWorkflowsEntry,
 } from './SiderNav';
@@ -79,38 +67,6 @@ export type SiderNavItem = {
  * hidden-set).
  */
 export const SIDER_NAV_ITEMS: SiderNavItem[] = [
-  {
-    id: 'mission-control',
-    labelKey: 'missionControl.sidebarLabel',
-    defaultLabel: 'Mission Control',
-    icon: <Gauge size={16} />,
-    render: (ctx) => (
-      <SiderMissionControlEntry
-        key='mission-control'
-        isMobile={ctx.isMobile}
-        isActive={ctx.pathname.startsWith('/mission-control')}
-        collapsed={ctx.collapsed}
-        siderTooltipProps={ctx.siderTooltipProps}
-        onClick={() => ctx.onTopZoneNav('/mission-control')}
-      />
-    ),
-  },
-  {
-    id: 'tank',
-    labelKey: 'tank.sidebarLabel',
-    defaultLabel: 'Tank',
-    icon: <Rocket size={16} />,
-    render: (ctx) => (
-      <SiderTankEntry
-        key='tank'
-        isMobile={ctx.isMobile}
-        isActive={ctx.pathname.startsWith('/tank')}
-        collapsed={ctx.collapsed}
-        siderTooltipProps={ctx.siderTooltipProps}
-        onClick={() => ctx.onTopZoneNav('/tank')}
-      />
-    ),
-  },
   {
     id: 'sessions',
     labelKey: 'conversations.siderEntry',

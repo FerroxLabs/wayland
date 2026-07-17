@@ -137,7 +137,7 @@ Community Garden Association
 ```markdown
 ## Community Garden Plot Agreement
 
-**Gardener Name**: ******\_\_\_******
+**Gardener Name**: **\*\***\_\_\_**\*\***
 **Plot Number**: **\_** **Size**: **\_**
 **Season**: **\_** **Fee**: $**\_**
 
@@ -158,7 +158,7 @@ I understand that failure to comply may result in:
 - Probation period (2nd offense)
 - Plot reassignment (3rd offense)
 
-Signature: ******\_\_\_****** Date: ****\_\_\_****
+Signature: **\*\***\_\_\_**\*\*** Date: \***\*\_\_\_\*\***
 ```
 
 ## Phase 3: Garden Design and Infrastructure
