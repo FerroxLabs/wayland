@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T06:17:21Z
+Last heartbeat: 2026-07-17T06:59:11Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | LANDED   | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; remediation/integration `de10630790e21a621c976e93b9fe2e78f8a5c77d` | `CON-B-CONFLICT-ID-rebased-focused`, `CON-B-CONFLICT-ID-rebased-static`, `CON-B-CONFLICT-ID-rebased-ownership`                      | `CON-B-CONFLICT-ID-integration-focused`, `CON-B-CONFLICT-ID-integration-typecheck` | independent exact-HEAD re-audit |
+| CON-B        | CON-A           | REOPENED | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; first remediation/integration `de10630790e21a621c976e93b9fe2e78f8a5c77d` | first-remediation receipts are historical evidence only                                                                             | prior aggregate green         | BLOCKER: post-dispatch `OPERATION_ID_CONFLICT` still clears identity |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -268,6 +268,40 @@ authorized reconciliation attempt.
 Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
 lint, format, typecheck, ownership receipt; serial integration and exact-HEAD
 re-proof; independent auditor confirmation.
+
+Timebox: 30 minutes.
+
+### Subpacket CON-B-TERMINALITY — producer-proven identity invalidation
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+
+Authority boundary: classify renderer outcomes only. This packet may clear a
+durable client operation identity only when the producer contract proves a
+terminal outcome. It may not infer dispatch phase from an overloaded error
+code, change process authority, add a second receipt authority, or alter DTO
+schemas.
+
+Invariants: `CONFLICT`, `OPERATION_ID_CONFLICT`, and every other response that
+can follow dispatch retain the exact client operation identity; passwords and
+confirmation secrets are always cleared; exact replay remains user-authorized;
+only success or producer-proven terminal `ROLLED_BACK` invalidates the identity.
+
+Non-claims: retaining identity does not prove commit, turn a conflict into
+success, or make the renderer authoritative over reconciliation. The current
+contract has no general dispatch-phase field, so the renderer must fail closed
+instead of guessing from error-code prose.
+
+Tests: renderer receives nonretryable post-dispatch
+`OPERATION_ID_CONFLICT`, retains the exact identity, clears the password, and
+reuses the identity on the next authorized reconciliation; terminal
+`ROLLED_BACK` clears the identity distinctly.
+
+Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
+lint, format, typecheck, ownership receipt; serial integration and exact-HEAD
+re-proof; independent auditor confirmation of zero HIGH/BLOCKER.
 
 Timebox: 30 minutes.
 
@@ -474,7 +508,11 @@ After the queue-control commit, the packet rebased onto integration
 `de10630790e21a621c976e93b9fe2e78f8a5c77d`. Post-rebase proof passed before
 the serial fast-forward landing. The exact integrated implementation then
 passed 173/173 Vitest and 33/33 Bun recovery-consumer tests plus full
-typecheck. Independent author-excluded re-audit remains the acceptance gate.
+typecheck. The independent author-excluded re-audit rejected this first
+remediation: `OPERATION_ID_CONFLICT` is also emitted from `completeDecision`
+after the operation authority is marked dispatched, so treating the code as
+identity-invalidating can still destroy receipt correlation. CON-B is reopened
+and the receipts below remain historical.
 
 - `strike/receipts/CON-B-CONFLICT-ID-rebased-focused.json`
 - `strike/receipts/CON-B-CONFLICT-ID-rebased-static.json`
