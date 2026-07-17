@@ -281,12 +281,71 @@ describe('ConstitutionClassicRecovery', () => {
     expect(window.localStorage.length).toBe(0);
   });
 
-  it('discards an operation identity rejected as bound to different facts', async () => {
+  it('retains an operation identity when a post-dispatch reconciliation reports an ID conflict', async () => {
+    const onRestored = vi.fn();
+    const driftedProjectionReceiptSha256 = `sha256:${'c'.repeat(64)}` as const;
+    mockGet.mockResolvedValueOnce(metadata).mockResolvedValue({
+      success: true,
+      data: {
+        ...metadata.data,
+        recoveryRevision: 'recovery:v2',
+        projectionReceiptSha256: driftedProjectionReceiptSha256,
+      },
+    });
+    mockDecide
+      .mockImplementationOnce(async (request) => ({
+        success: false,
+        error: {
+          code: 'OPERATION_ID_CONFLICT',
+          message: 'The dispatched operation conflicts with the recovered journal.',
+          retryable: false,
+          operationId: request.operationId,
+        },
+      }))
+      .mockResolvedValueOnce(committed);
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={onRestored}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+    const password = screen.getByPlaceholderText('Current Wayland password') as HTMLInputElement;
+    fireEvent.change(password, { target: { value: 'correct' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText('The dispatched operation conflicts with the recovered journal.');
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(2));
+
+    expect(password.value).toBe('');
+    expect(window.localStorage.length).toBe(1);
+    expect(window.localStorage.getItem(window.localStorage.key(0)!)).toContain('11111111-1111-4111-8111-111111111111');
+    expect(screen.getByRole('button', { name: 'Discard Classic changes' })).toBeDisabled();
+
+    fireEvent.change(password, { target: { value: 'correct-again' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
+
+    expect(mockDecide).toHaveBeenCalledTimes(2);
+    expect(mockDecide.mock.calls[1][0].operationId).toBe(mockDecide.mock.calls[0][0].operationId);
+    expect(mockDecide.mock.calls[1][0].expectedRecoveryRevision).toBe(
+      mockDecide.mock.calls[0][0].expectedRecoveryRevision
+    );
+    expect(mockDecide.mock.calls[1][0].expectedRecoveryRevision).toBe('recovery:v1');
+    expect(mockDecide.mock.calls[1][0].projectionReceiptSha256).toBe(
+      mockDecide.mock.calls[0][0].projectionReceiptSha256
+    );
+    expect(mockDecide.mock.calls[1][0].projectionReceiptSha256).toBe(projectionReceiptSha256);
+    expect(window.localStorage.length).toBe(0);
+  });
+
+  it('clears the operation identity after a producer-proven terminal rollback', async () => {
     mockDecide.mockImplementationOnce(async (request) => ({
       success: false,
       error: {
-        code: 'OPERATION_ID_CONFLICT',
-        message: 'The operation identity is bound to different facts.',
+        code: 'ROLLED_BACK',
+        message: 'The operation was authoritatively rolled back.',
         retryable: false,
         operationId: request.operationId,
       },
@@ -300,10 +359,12 @@ describe('ConstitutionClassicRecovery', () => {
     );
     await screen.findByText('Classic session recovery');
     fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
-    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+    const password = screen.getByPlaceholderText('Current Wayland password') as HTMLInputElement;
+    fireEvent.change(password, { target: { value: 'correct' } });
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
-    await screen.findByText('The operation identity is bound to different facts.');
+    await screen.findByText('The operation was authoritatively rolled back.');
 
+    expect(password.value).toBe('');
     expect(window.localStorage.length).toBe(0);
   });
 

@@ -24,7 +24,7 @@ import {
 
 const PENDING_CONTRACT = 'wayland-constitution-classic-recovery-client-operation/1.0' as const;
 const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-const IDENTITY_INVALIDATING_FAILURE_CODES = new Set(['OPERATION_ID_CONFLICT', 'ROLLED_BACK']);
+const IDENTITY_INVALIDATING_FAILURE_CODES = new Set(['ROLLED_BACK']);
 
 type PendingClassicOperation = Readonly<{
   contract: typeof PENDING_CONTRACT;
@@ -96,15 +96,9 @@ function beginPending(
   action: ConstitutionClassicRecoveryAction
 ): PendingClassicOperation {
   const existing = readPending(principalScope);
-  if (
-    existing?.action === action &&
-    existing.projectionReceiptSha256 === metadata.projectionReceiptSha256 &&
-    existing.expectedRecoveryRevision === metadata.recoveryRevision &&
-    existing.promotionId === metadata.promotionId &&
-    existing.expectedJournalHeadSha256 === metadata.journalHeadSha256
-  ) {
-    return existing;
-  }
+  // Mutable metadata cannot prove that an earlier dispatch did not commit.
+  // Preserve its exact request binding until the producer proves a terminal outcome.
+  if (existing) return existing;
   const pending: PendingClassicOperation = {
     contract: PENDING_CONTRACT,
     operationId: crypto.randomUUID(),
@@ -189,7 +183,7 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
   }, [load]);
 
   const pending = useMemo(() => readPending(principalScope), [principalScope, metadata]);
-  const action = selectedAction ?? pending?.action ?? null;
+  const action = pending?.action ?? selectedAction ?? null;
 
   const submit = useCallback(async (): Promise<void> => {
     if (!metadata || !action || !password || busy) return;
@@ -352,7 +346,7 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
                   size='small'
                   type={action === candidate ? 'primary' : 'secondary'}
                   status={candidate === 'discard' ? 'danger' : undefined}
-                  disabled={busy}
+                  disabled={busy || (pending !== null && candidate !== pending.action)}
                   onClick={() => {
                     setSelectedAction(candidate);
                     setPassword('');
