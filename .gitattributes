@@ -13,6 +13,7 @@
 *.yaml text eol=lf
 *.html text eol=lf
 *.patch text eol=lf
+tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch whitespace=-blank-at-eol
 
 # Binary files
 *.png binary
