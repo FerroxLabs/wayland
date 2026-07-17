@@ -26,6 +26,7 @@ const PENDING_CONTRACT = 'wayland-constitution-classic-recovery-client-operation
 const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const IDENTITY_INVALIDATING_FAILURE_CODES = new Set(['ROLLED_BACK']);
 const PENDING_DISCARD_CONFIRMATION = 'RECONCILE PENDING DISCARD';
+const PENDING_LOCK_PREFIX = 'wayland:constitution:classic-recovery-lock:';
 const MAX_PENDING_OBJECTS = 4096;
 const MAX_PENDING_OBJECT_ID_SCALARS = 1024;
 
@@ -63,6 +64,17 @@ type Props = Readonly<{
 
 function pendingStorageKey(principalScope: string): string {
   return `wayland:constitution:classic-recovery:${encodeURIComponent(principalScope)}`;
+}
+
+function pendingLockName(principalScope: string): string {
+  return `${PENDING_LOCK_PREFIX}${encodeURIComponent(principalScope)}`;
+}
+
+async function withPendingLock<T>(principalScope: string, action: () => T | PromiseLike<T>): Promise<T> {
+  if (!navigator.locks) {
+    throw new Error('Cross-window recovery lock is unavailable. No recovery operation was changed.');
+  }
+  return navigator.locks.request(pendingLockName(principalScope), { mode: 'exclusive' }, async () => action());
 }
 
 function canonicalObjectIds(value: unknown): value is readonly string[] {
@@ -147,41 +159,48 @@ function samePendingOperation(left: PendingClassicOperation, right: PendingClass
   );
 }
 
-function beginPending(
+async function beginPending(
   principalScope: string,
   metadata: ConstitutionClassicRecoveryMetadataSuccess['data'] | null,
   action: ConstitutionClassicRecoveryAction,
   expectedPending: PendingClassicOperation | null
-): PendingClassicOperation {
-  const existing = readPending(principalScope);
-  // Mutable metadata cannot prove that an earlier dispatch did not commit.
-  // Preserve its exact request binding until the producer proves a terminal outcome.
-  if (expectedPending) {
-    if (existing.state === 'valid' && samePendingOperation(existing.value, expectedPending)) return existing.value;
-    throw new PendingOperationChangedError(existing);
-  }
-  if (existing.state !== 'absent') throw new PendingOperationChangedError(existing);
-  if (!metadata) throw new Error('Classic recovery metadata is unavailable for a new operation.');
-  const pending: PendingClassicOperation = {
-    contract: PENDING_CONTRACT,
-    operationId: crypto.randomUUID(),
-    action,
-    projectionReceiptSha256: metadata.projectionReceiptSha256,
-    expectedRecoveryRevision: metadata.recoveryRevision,
-    confirmedObjectIds: action === 'discard' ? metadata.items.map(({ objectId }) => objectId).toSorted() : [],
-    promotionId: metadata.promotionId,
-    expectedJournalHeadSha256: metadata.journalHeadSha256,
-    createdAt: new Date().toISOString(),
-  };
-  localStorage.setItem(pendingStorageKey(principalScope), JSON.stringify(pending));
-  return pending;
+): Promise<PendingClassicOperation> {
+  return withPendingLock(principalScope, () => {
+    const existing = readPending(principalScope);
+    // Mutable metadata cannot prove that an earlier dispatch did not commit.
+    // Preserve its exact request binding until the producer proves a terminal outcome.
+    if (expectedPending) {
+      if (existing.state === 'valid' && samePendingOperation(existing.value, expectedPending)) return existing.value;
+      throw new PendingOperationChangedError(existing);
+    }
+    if (existing.state !== 'absent') throw new PendingOperationChangedError(existing);
+    if (!metadata) throw new Error('Classic recovery metadata is unavailable for a new operation.');
+    const pending: PendingClassicOperation = {
+      contract: PENDING_CONTRACT,
+      operationId: crypto.randomUUID(),
+      action,
+      projectionReceiptSha256: metadata.projectionReceiptSha256,
+      expectedRecoveryRevision: metadata.recoveryRevision,
+      confirmedObjectIds: action === 'discard' ? metadata.items.map(({ objectId }) => objectId).toSorted() : [],
+      promotionId: metadata.promotionId,
+      expectedJournalHeadSha256: metadata.journalHeadSha256,
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem(pendingStorageKey(principalScope), JSON.stringify(pending));
+    return pending;
+  });
 }
 
-function clearPendingIfMatching(principalScope: string, completed: PendingClassicOperation): PendingReadResult {
-  const existing = readPending(principalScope);
-  if (existing.state !== 'valid' || !samePendingOperation(existing.value, completed)) return existing;
-  localStorage.removeItem(pendingStorageKey(principalScope));
-  return readPending(principalScope);
+async function clearPendingIfMatching(
+  principalScope: string,
+  completed: PendingClassicOperation
+): Promise<PendingReadResult> {
+  return withPendingLock(principalScope, () => {
+    const existing = readPending(principalScope);
+    if (existing.state !== 'valid' || !samePendingOperation(existing.value, completed)) return existing;
+    localStorage.removeItem(pendingStorageKey(principalScope));
+    return readPending(principalScope);
+  });
 }
 
 function stateLabel(state: ConstitutionClassicRecoveryMetadataSuccess['data']['state']): string {
@@ -278,7 +297,7 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
     setBusy(true);
     setMessage(null);
     try {
-      const current = beginPending(principalScope, metadata, action, pending);
+      const current = await beginPending(principalScope, metadata, action, pending);
       setPendingRead({ state: 'valid', value: current });
       const exclusive = await executeExclusive(async () => {
         let result: ConstitutionClassicRecoveryMutationResult;
@@ -333,7 +352,7 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
       if (result.success === false) {
         setMessage(result.error.message);
         if (!result.error.retryable && IDENTITY_INVALIDATING_FAILURE_CODES.has(result.error.code)) {
-          const nextPending = clearPendingIfMatching(principalScope, current);
+          const nextPending = await clearPendingIfMatching(principalScope, current);
           setPendingRead(nextPending);
           if (nextPending.state !== 'absent') {
             setMessage(`${result.error.message} Another pending operation was preserved for review.`);
@@ -342,7 +361,7 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
         await load(false);
         return;
       }
-      const nextPending = clearPendingIfMatching(principalScope, current);
+      const nextPending = await clearPendingIfMatching(principalScope, current);
       setPendingRead(nextPending);
       setSelectedAction(null);
       setMessage(

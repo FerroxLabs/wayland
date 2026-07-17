@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { mockGet, mockDecide, mockResume } = vi.hoisted(() => ({
@@ -114,6 +114,32 @@ const committed = {
 };
 
 const pendingKey = 'wayland:constitution:classic-recovery:hosted%3Auser-1';
+const pendingLock = 'wayland:constitution:classic-recovery-lock:hosted%3Auser-1';
+const lockQueues = new Map<string, Promise<void>>();
+const activeLocks = new Set<string>();
+
+const mockLockRequest = vi.fn(
+  async <T,>(name: string, _options: LockOptions, callback: (lock: Lock | null) => Promise<T>): Promise<T> => {
+    const previous = lockQueues.get(name) ?? Promise.resolve();
+    let release!: () => void;
+    const current = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    lockQueues.set(
+      name,
+      previous.then(() => current)
+    );
+    await previous;
+    expect(activeLocks.has(name)).toBe(false);
+    activeLocks.add(name);
+    try {
+      return await callback({ name, mode: 'exclusive' } as Lock);
+    } finally {
+      activeLocks.delete(name);
+      release();
+    }
+  }
+);
 
 function pendingOperation(
   overrides: Partial<{
@@ -148,6 +174,12 @@ const executeExclusive = async <T,>(
 describe('ConstitutionClassicRecovery', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    lockQueues.clear();
+    activeLocks.clear();
+    Object.defineProperty(navigator, 'locks', {
+      configurable: true,
+      value: { request: mockLockRequest },
+    });
     window.localStorage.clear();
     mockGet.mockReset();
     mockGet.mockResolvedValue(metadata);
@@ -570,6 +602,83 @@ describe('ConstitutionClassicRecovery', () => {
     });
   });
 
+  it('fails closed before minting or dispatch when cross-window lock authority is unavailable', async () => {
+    Object.defineProperty(navigator, 'locks', { configurable: true, value: undefined });
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={vi.fn()}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText('Cross-window recovery lock is unavailable. No recovery operation was changed.');
+
+    expect(globalThis.crypto.randomUUID).not.toHaveBeenCalled();
+    expect(mockDecide).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(pendingKey)).toBeNull();
+    expect(screen.getByPlaceholderText('Current Wayland password')).toHaveValue('');
+  });
+
+  it('serializes two windows before absence can become a replacement write', async () => {
+    let resolveFirst!: (value: typeof committed) => void;
+    mockDecide.mockImplementationOnce(
+      () =>
+        new Promise<typeof committed>((resolve) => {
+          resolveFirst = resolve;
+        })
+    );
+    const first = render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={vi.fn()}
+      />
+    );
+    const second = render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={vi.fn()}
+      />
+    );
+    await Promise.all([
+      within(first.container).findByText('Classic session recovery'),
+      within(second.container).findByText('Classic session recovery'),
+    ]);
+
+    fireEvent.click(within(first.container).getByRole('button', { name: 'Apply Classic work' }));
+    fireEvent.change(within(first.container).getByPlaceholderText('Current Wayland password'), {
+      target: { value: 'first-secret' },
+    });
+    fireEvent.click(within(second.container).getByRole('button', { name: 'Discard Classic changes' }));
+    fireEvent.change(within(second.container).getByPlaceholderText('Current Wayland password'), {
+      target: { value: 'second-secret' },
+    });
+    fireEvent.change(within(second.container).getByPlaceholderText('Exact discard confirmation'), {
+      target: { value: 'DISCARD constitution' },
+    });
+
+    fireEvent.click(within(first.container).getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(mockDecide).toHaveBeenCalledTimes(1));
+    fireEvent.click(within(second.container).getByRole('button', { name: 'Confirm' }));
+    await within(second.container).findByText(
+      'Pending Classic recovery changed. Review and authorize the current operation again.'
+    );
+
+    expect(mockDecide).toHaveBeenCalledTimes(1);
+    expect(globalThis.crypto.randomUUID).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(window.localStorage.getItem(pendingKey)!)).toMatchObject({ action: 'promote' });
+    expect(within(second.container).getByPlaceholderText('Current Wayland password')).toHaveValue('');
+
+    resolveFirst(committed);
+    await waitFor(() => expect(window.localStorage.getItem(pendingKey)).toBeNull());
+    expect(mockLockRequest.mock.calls.every(([name]) => name === pendingLock)).toBe(true);
+  });
+
   it.each([
     ['success', committed],
     [
@@ -645,6 +754,78 @@ describe('ConstitutionClassicRecovery', () => {
     expect(screen.getByPlaceholderText('Current Wayland password')).toHaveValue('');
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
     expect(mockDecide).not.toHaveBeenCalled();
+  });
+
+  it('queues a replacement requested during terminal comparison until after the matching remove', async () => {
+    const replacement = pendingOperation({
+      operationId: '44444444-4444-4444-8444-444444444444',
+      expectedRecoveryRevision: 'recovery:v2',
+      projectionReceiptSha256: `sha256:${'d'.repeat(64)}`,
+    });
+    const originalGetItem = window.localStorage.getItem.bind(window.localStorage);
+    const originalSetItem = window.localStorage.setItem.bind(window.localStorage);
+    const originalRemoveItem = window.localStorage.removeItem.bind(window.localStorage);
+    let terminalReturned = false;
+    let replacementQueued = false;
+    let replacementWrite: Promise<unknown> | null = null;
+    let lockedReads = 0;
+    const events: string[] = [];
+    mockDecide.mockImplementationOnce(async () => {
+      terminalReturned = true;
+      return committed;
+    });
+    const getItem = vi.spyOn(window.localStorage, 'getItem').mockImplementation((key) => {
+      const value = originalGetItem(key);
+      if (key === pendingKey && activeLocks.has(pendingLock)) {
+        lockedReads += 1;
+        if (terminalReturned && value !== null && !replacementQueued) {
+          replacementQueued = true;
+          replacementWrite = navigator.locks.request(pendingLock, { mode: 'exclusive' }, async () => {
+            events.push('replacement');
+            localStorage.setItem(pendingKey, JSON.stringify(replacement));
+          });
+        }
+      }
+      return value;
+    });
+    const setItem = vi.spyOn(window.localStorage, 'setItem').mockImplementation((key, value) => {
+      if (key === pendingKey) expect(activeLocks.has(pendingLock)).toBe(true);
+      return originalSetItem(key, value);
+    });
+    const removeItem = vi.spyOn(window.localStorage, 'removeItem').mockImplementation((key) => {
+      if (key === pendingKey) {
+        expect(activeLocks.has(pendingLock)).toBe(true);
+        events.push('remove');
+      }
+      return originalRemoveItem(key);
+    });
+
+    try {
+      render(
+        <ConstitutionClassicRecovery
+          principalScope='hosted:user-1'
+          executeExclusive={executeExclusive}
+          onRestored={vi.fn()}
+        />
+      );
+      await screen.findByText('Classic session recovery');
+      fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+      fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await screen.findByText('Classic recovery completed with a durable receipt.');
+      expect(replacementQueued).toBe(true);
+      if (!replacementWrite) throw new Error('The hostile replacement was not queued.');
+      await replacementWrite;
+      expect(JSON.parse(window.localStorage.getItem(pendingKey)!)).toEqual(replacement);
+      expect(events).toEqual(['remove', 'replacement']);
+      expect(lockedReads).toBeGreaterThanOrEqual(3);
+      expect(mockLockRequest.mock.calls.every(([name]) => name === pendingLock)).toBe(true);
+    } finally {
+      getItem.mockRestore();
+      setItem.mockRestore();
+      removeItem.mockRestore();
+    }
   });
 
   it('clears the operation identity after a producer-proven terminal rollback', async () => {
