@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T01:46:03Z
+Last heartbeat: 2026-07-17T02:04:26Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -75,14 +75,14 @@ ownership.
 
 ## Packet queue
 
-| Packet | Dependency | Status | Exact commit | Focused proof | Aggregate proof | Remaining blocker |
-|---|---|---|---|---|---|---|
-| ARM-001 | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a` | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean` | n/a | none |
-| FIXTURE-ATTR | ARM-001 | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911` | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership` | n/a | none; ledger commit `045671992e68b631790985310af587cebcc0decc` |
-| CON-A | FIXTURE-ATTR | QUEUED | `8974aa9b2cf57cc305cef6a58665fad46cdc0616` | hostile abandonment proof 11/11; exact-commit aggregate proof running | none yet | post-integration re-proof against current integration HEAD |
-| CON-B | CON-A | BUILDING | uncommitted remediation tree | synchronized focused aggregate 55/55 plus typecheck green | none yet | real HTTP/IPC consumer journey, exact packet reconstruction and receipt |
-| SEC-001 | CON-B | PLANNED | none | none | dependency audit red | partition reachable production dependencies and remediate |
-| CON-C | CON-B, SEC-001 | PLANNED | none | none | none | signed packages, real journeys, deployment, canary, rollback drill |
+| Packet       | Dependency      | Status   | Exact commit                                                                                              | Focused proof                                                                                                                        | Aggregate proof               | Remaining blocker                                                       |
+| ------------ | --------------- | -------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- | ----------------------------------------------------------------------- |
+| ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                                    |
+| FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`          |
+| CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                                |
+| CON-B        | CON-A           | BUILDING | uncommitted remediation tree                                                                              | synchronized focused aggregate 55/55 plus typecheck green                                                                            | none yet                      | real HTTP/IPC consumer journey, exact packet reconstruction and receipt |
+| SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate               |
+| CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill      |
 
 Allowed status values: PLANNED, BUILDING, STALLED, QUEUED, LANDED, REOPENED,
 ACCEPTED. No row may advance from prose alone.
@@ -389,6 +389,21 @@ the rebase and before the fast-forward landing.
 - `strike/receipts/FIXTURE-ATTR-control.json`
 - `strike/receipts/FIXTURE-ATTR-diff.json`
 - `strike/receipts/FIXTURE-ATTR-ownership.json`
+
+CON-A serial landing: packet commit
+`8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration before
+`83102fd7158c8808fce5dc1aa43ee86af9204326`; integration after
+`395508dec2656e09ca63f86ca657592547c24988`. The first post-merge Vitest
+invocation was invalid because the isolated integration worktree lacked its
+dependency link; it is not counted as passing evidence. After restoring the
+frozen dependency environment, the fail-fast rerun passed 66/66 Vitest and
+19/19 Bun authority tests, followed by an exact-HEAD typecheck.
+
+- `strike/receipts/CON-A-packet-test.json`
+- `strike/receipts/CON-A-packet-static.json`
+- `strike/receipts/CON-A-packet-source-format.json`
+- `strike/receipts/CON-A-integration-focused.json`
+- `strike/receipts/CON-A-integration-typecheck.json`
 
 ## Authorization gates
 

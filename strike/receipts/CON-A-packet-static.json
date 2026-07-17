@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-A-packet-static",
+  "commit": "8974aa9b2cf57cc305cef6a58665fad46cdc0616",
+  "command": "set -o pipefail\n{\n  rtk bun run lint\n  rtk bun run typecheck\n} > /tmp/wayland-con-a-static-receipt.log 2>&1\ncode=$?\nrtk tail -n 20 /tmp/wayland-con-a-static-receipt.log\nprint -r -- \"RECEIPT_EXIT=$code\"\nexit $code",
+  "exit_code": 0,
+  "log_digest": "sha256:c4fdb89e9313a12d52d803e42ee2854be151e2e50d444b7db3fac639fd67423f",
+  "timestamp": "2026-07-17T02:04:01Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}
