@@ -7,11 +7,13 @@
 import { Button, Input } from '@arco-design/web-react';
 import { GitMerge, RefreshCw, ShieldCheck } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
-import type {
-  ConstitutionClassicRecoveryAction,
-  ConstitutionClassicRecoveryDecision,
-  ConstitutionClassicRecoveryMetadataSuccess,
-  ConstitutionClassicRecoveryMutationResult,
+import {
+  parseConstitutionClassicRecoveryDecisionRequest,
+  parseConstitutionClassicRecoveryResumeRequest,
+  type ConstitutionClassicRecoveryAction,
+  type ConstitutionClassicRecoveryDecision,
+  type ConstitutionClassicRecoveryMetadataSuccess,
+  type ConstitutionClassicRecoveryMutationResult,
 } from '@/common/types/constitutionRecovery';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import {
@@ -22,9 +24,11 @@ import {
   runDesktopConstitutionClassicRecoveryMutation,
 } from '@renderer/services/ConstitutionService';
 import { withConstitutionRecoveryTransaction } from '@renderer/services/ConstitutionRecoveryOperationLock';
+import { createConstitutionRecoveryOperationId } from '@renderer/services/ConstitutionRecoveryOperationId';
 
 const PENDING_CONTRACT = 'wayland-constitution-classic-recovery-client-operation/2.0' as const;
 const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const RFC3339_MILLIS_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const IDENTITY_INVALIDATING_FAILURE_CODES = new Set(['ROLLED_BACK']);
 const PENDING_DISCARD_CONFIRMATION = 'RECONCILE PENDING DISCARD';
 const MAX_PENDING_OBJECTS = 4096;
@@ -106,11 +110,35 @@ function readPending(principalScope: string): PendingReadResult {
     if (Object.keys(record).toSorted().join('\n') !== expected.toSorted().join('\n')) {
       return { state: 'invalid', reason: 'Pending Classic recovery evidence has an unsupported shape.' };
     }
+    const requestFactsValid =
+      record.action === 'resume'
+        ? parseConstitutionClassicRecoveryResumeRequest({
+            operationId: record.operationId,
+            promotionId: record.promotionId,
+            projectionReceiptSha256: record.projectionReceiptSha256,
+            expectedRecoveryRevision: record.expectedRecoveryRevision,
+            expectedJournalHeadSha256: record.expectedJournalHeadSha256,
+            password: 'pending-evidence-validation',
+          }) !== null
+        : record.action === 'promote' || record.action === 'keep-v2' || record.action === 'discard'
+          ? parseConstitutionClassicRecoveryDecisionRequest({
+              operationId: record.operationId,
+              projectionReceiptSha256: record.projectionReceiptSha256,
+              expectedRecoveryRevision: record.expectedRecoveryRevision,
+              password: 'pending-evidence-validation',
+              decision:
+                record.action === 'discard'
+                  ? {
+                      kind: 'discard',
+                      confirmedObjectIds: record.confirmedObjectIds,
+                      confirmationText: PENDING_DISCARD_CONFIRMATION,
+                    }
+                  : { kind: record.action },
+            }) !== null
+          : false;
     if (
       record.contract !== PENDING_CONTRACT ||
-      typeof record.operationId !== 'string' ||
-      !UUID_V4_PATTERN.test(record.operationId) ||
-      !['promote', 'keep-v2', 'discard', 'resume'].includes(String(record.action)) ||
+      !requestFactsValid ||
       typeof record.projectionReceiptSha256 !== 'string' ||
       !/^sha256:[a-f0-9]{64}$/.test(record.projectionReceiptSha256) ||
       typeof record.expectedRecoveryRevision !== 'string' ||
@@ -123,6 +151,7 @@ function readPending(principalScope: string): PendingReadResult {
         (typeof record.expectedJournalHeadSha256 !== 'string' ||
           !/^sha256:[a-f0-9]{64}$/.test(record.expectedJournalHeadSha256))) ||
       typeof record.createdAt !== 'string' ||
+      !RFC3339_MILLIS_PATTERN.test(record.createdAt) ||
       Number.isNaN(Date.parse(record.createdAt))
     ) {
       return { state: 'invalid', reason: 'Pending Classic recovery evidence failed validation.' };
@@ -166,7 +195,7 @@ async function beginPending(
     if (!metadata) throw new Error('Classic recovery metadata is unavailable for a new operation.');
     const pending: PendingClassicOperation = {
       contract: PENDING_CONTRACT,
-      operationId: crypto.randomUUID(),
+      operationId: createConstitutionRecoveryOperationId(),
       action,
       projectionReceiptSha256: metadata.projectionReceiptSha256,
       expectedRecoveryRevision: metadata.recoveryRevision,

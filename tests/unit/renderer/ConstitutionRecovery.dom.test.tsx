@@ -180,6 +180,45 @@ describe('ConstitutionRecovery', () => {
     expect(onRestored).toHaveBeenCalledTimes(1);
   });
 
+  it('mints and dispatches a cryptographic UUID when remote HTTP lacks randomUUID', async () => {
+    const originalRandomUuid = globalThis.crypto.randomUUID;
+    Object.defineProperty(globalThis.crypto, 'randomUUID', { configurable: true, value: undefined });
+    mockRestore.mockImplementationOnce(async (request) => ({
+      success: true,
+      data: {
+        status: 'committed',
+        operationId: request.operationId,
+        revision: 'rev:v1:restored',
+        receiptId: 'receipt:v1:restored',
+      },
+    }));
+
+    try {
+      render(
+        <ConstitutionRecovery
+          expectedRevision='rev:v1:target'
+          principalScope='hosted:user-1'
+          executeExclusive={executeExclusive}
+          onRestored={vi.fn()}
+        />
+      );
+      await act(async () => Promise.resolve());
+      fireEvent.click(screen.getByRole('button', { name: /Main Constitution/i }));
+      fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Restore archive' }));
+      await waitFor(() => expect(mockRestore).toHaveBeenCalledTimes(1));
+
+      expect(mockRestore.mock.calls[0][0].operationId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+      );
+    } finally {
+      Object.defineProperty(globalThis.crypto, 'randomUUID', {
+        configurable: true,
+        value: originalRandomUuid,
+      });
+    }
+  });
+
   it('clears password and stale operation identity on a non-retryable conflict', async () => {
     mockRestore.mockImplementationOnce(async (request) => ({
       success: false,
@@ -304,6 +343,34 @@ describe('ConstitutionRecovery', () => {
     expect(screen.getByRole('button', { name: /Main Constitution/i })).toBeDisabled();
     expect(mockRestore).not.toHaveBeenCalled();
     expect(window.localStorage.getItem(pendingKey)).toBe(unsupported);
+  });
+
+  it.each([
+    [
+      'a non-v4 archive ID',
+      'wayland:constitution:archive-restore:hosted%3Auser-1:not-an-archive-uuid',
+      pendingRestore({ archiveId: 'not-an-archive-uuid' }),
+    ],
+    ['a decomposed archive revision', pendingKey, pendingRestore({ expectedArchiveRevision: 'rev:e\u0301' })],
+    ['a control character in the target revision', pendingKey, pendingRestore({ expectedRevision: 'rev:\nnext' })],
+    ['an over-limit target revision', pendingKey, pendingRestore({ expectedRevision: 'r'.repeat(4097) })],
+    ['an inexact creation timestamp', pendingKey, pendingRestore({ createdAt: '2026-07-17T01:03:04Z' })],
+  ])('preserves shaped durable evidence with %s without dispatch', async (_case, key, record) => {
+    const raw = JSON.stringify(record);
+    window.localStorage.setItem(key, raw);
+
+    render(
+      <ConstitutionRecovery
+        expectedRevision='rev:v1:target'
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={vi.fn()}
+      />
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Pending archive restore evidence failed validation.');
+    expect(mockRestore).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(key)).toBe(raw);
   });
 
   it('fails closed over multiple pending archive identities', async () => {

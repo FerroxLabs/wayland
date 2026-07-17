@@ -342,6 +342,36 @@ describe('ConstitutionClassicRecovery', () => {
     expect(window.localStorage.length).toBe(0);
   });
 
+  it('mints and dispatches a cryptographic UUID when remote HTTP lacks randomUUID', async () => {
+    const originalRandomUuid = globalThis.crypto.randomUUID;
+    Object.defineProperty(globalThis.crypto, 'randomUUID', { configurable: true, value: undefined });
+    mockDecide.mockResolvedValue(committed);
+
+    try {
+      render(
+        <ConstitutionClassicRecovery
+          principalScope='hosted:user-1'
+          executeExclusive={executeExclusive}
+          onRestored={vi.fn()}
+        />
+      );
+      await screen.findByText('Classic session recovery');
+      fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+      fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+      await waitFor(() => expect(mockDecide).toHaveBeenCalledTimes(1));
+
+      expect(mockDecide.mock.calls[0][0].operationId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+      );
+    } finally {
+      Object.defineProperty(globalThis.crypto, 'randomUUID', {
+        configurable: true,
+        value: originalRandomUuid,
+      });
+    }
+  });
+
   it('retains an operation identity when a post-dispatch reconciliation reports an ID conflict', async () => {
     const onRestored = vi.fn();
     const driftedProjectionReceiptSha256 = `sha256:${'c'.repeat(64)}` as const;
@@ -554,6 +584,34 @@ describe('ConstitutionClassicRecovery', () => {
     expect(globalThis.crypto.randomUUID).not.toHaveBeenCalled();
     expect(mockDecide).not.toHaveBeenCalled();
     expect(window.localStorage.getItem(pendingKey)).toBe(unsupported);
+  });
+
+  it.each([
+    ['a decomposed recovery revision', pendingOperation({ expectedRecoveryRevision: 'recovery:e\u0301' })],
+    ['a control character in the recovery revision', pendingOperation({ expectedRecoveryRevision: 'recovery:\nnext' })],
+    ['an over-limit recovery revision', pendingOperation({ expectedRecoveryRevision: 'r'.repeat(4097) })],
+    ['an inexact creation timestamp', pendingOperation({ createdAt: '2026-07-17T00:00:00Z' })],
+    [
+      'a control character in a confirmed object ID',
+      pendingOperation({ action: 'discard', confirmedObjectIds: ['constitution\nforged'] }),
+    ],
+  ])('preserves shaped durable evidence with %s without dispatch', async (_case, record) => {
+    const raw = JSON.stringify(record);
+    window.localStorage.setItem(pendingKey, raw);
+
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={vi.fn()}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Pending Classic recovery evidence failed validation.');
+    expect(mockDecide).not.toHaveBeenCalled();
+    expect(mockResume).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(pendingKey)).toBe(raw);
   });
 
   it('rejects a durable action change until the newly displayed destructive intent is authorized', async () => {

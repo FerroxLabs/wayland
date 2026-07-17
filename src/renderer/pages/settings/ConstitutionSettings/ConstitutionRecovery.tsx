@@ -8,10 +8,11 @@ import { Button, Input } from '@arco-design/web-react';
 import { ArchiveRestore, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type {
-  ConstitutionArchiveRecoverySummary,
-  ConstitutionArchiveRestoreRequest,
-  ConstitutionArchiveRestoreResult,
+import {
+  parseConstitutionArchiveRestoreRequest,
+  type ConstitutionArchiveRecoverySummary,
+  type ConstitutionArchiveRestoreRequest,
+  type ConstitutionArchiveRestoreResult,
 } from '@/common/types/constitutionRecovery';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import {
@@ -23,9 +24,10 @@ import {
   runDesktopConstitutionRead,
 } from '@renderer/services/ConstitutionService';
 import { withConstitutionRecoveryTransaction } from '@renderer/services/ConstitutionRecoveryOperationLock';
+import { createConstitutionRecoveryOperationId } from '@renderer/services/ConstitutionRecoveryOperationId';
 
 const PENDING_CONTRACT = 'wayland-constitution-archive-restore-client-operation/1.0' as const;
-const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const RFC3339_MILLIS_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const AMBIGUOUS_FAILURE_CODES = new Set(['INTEGRITY_FAILURE', 'NATIVE_FAILURE']);
 
 type PendingRestore = Readonly<{
@@ -81,16 +83,19 @@ function readPending(principalScope: string, archiveId: string): PendingRestoreR
     if (Object.keys(record).toSorted().join('\n') !== expected.toSorted().join('\n')) {
       return { state: 'invalid', reason: 'Pending archive restore evidence has an unsupported shape.' };
     }
+    const requestFacts = parseConstitutionArchiveRestoreRequest({
+      operationId: record.operationId,
+      archiveId: record.archiveId,
+      expectedArchiveRevision: record.expectedArchiveRevision,
+      password: 'pending-evidence-validation',
+      expectedRevision: record.expectedRevision,
+    });
     if (
       record.contract !== PENDING_CONTRACT ||
-      record.archiveId !== archiveId ||
-      typeof record.operationId !== 'string' ||
-      !UUID_V4_PATTERN.test(record.operationId) ||
-      typeof record.expectedArchiveRevision !== 'string' ||
-      record.expectedArchiveRevision.length === 0 ||
-      typeof record.expectedRevision !== 'string' ||
-      record.expectedRevision.length === 0 ||
+      requestFacts === null ||
+      requestFacts.archiveId !== archiveId ||
       typeof record.createdAt !== 'string' ||
+      !RFC3339_MILLIS_PATTERN.test(record.createdAt) ||
       Number.isNaN(Date.parse(record.createdAt))
     ) {
       return { state: 'invalid', reason: 'Pending archive restore evidence failed validation.' };
@@ -161,7 +166,7 @@ async function beginPending(
     }
     const pending: PendingRestore = {
       contract: PENDING_CONTRACT,
-      operationId: crypto.randomUUID(),
+      operationId: createConstitutionRecoveryOperationId(),
       archiveId: archive.archiveId,
       expectedArchiveRevision: archive.targetRevision,
       expectedRevision,
